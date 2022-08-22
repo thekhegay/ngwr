@@ -1,0 +1,128 @@
+@import '../vars';
+@import '../mixins';
+
+$dropdown-prefix: #{$prefix}-dropdown;
+
+.#{$dropdown-prefix} {
+  @include reset-component();
+
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: $zindex-dropdown;
+  display: block;
+
+  &::before {
+    position: absolute;
+    top: -$popover-distance + $popover-arrow-width;
+    right: 0;
+    bottom: -$popover-distance + $popover-arrow-width;
+    left: -7px;
+    z-index: -9999;
+    opacity: 0.0001;
+    content: ' ';
+  }
+
+  &-trigger {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  &-wrap {
+    position: relative;
+  }
+
+  &-hidden,
+  &-menu-hidden,
+  &-menu-submenu-hidden {
+    display: none;
+  }
+
+  &-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    position: relative;
+    margin: 0;
+    padding: 1rem;
+    text-align: left;
+    list-style-type: none;
+    background-color: $dropdown-menu-bg;
+    background-clip: padding-box;
+    border-radius: $border-radius-base;
+    outline: none;
+    box-shadow: $box-shadow-base;
+
+    &-submenu-popup {
+      position: absolute;
+      z-index: $zindex-dropdown;
+      background: transparent;
+      box-shadow: none;
+      transform-origin: 0 0;
+
+      ul,
+      li {
+        list-style: none;
+      }
+
+      ul {
+        margin-right: 0.3em;
+        margin-left: 0.3em;
+      }
+    }
+
+    // ======================= Item Content =======================
+    &-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      color: $color-dark;
+      transition: all 0.15s linear;
+
+      &:hover {
+        color: $color-secondary;
+      }
+    }
+
+    &-item,
+    &-submenu-title {
+      clear: both;
+      font-weight: normal;
+      white-space: nowrap;
+      cursor: pointer;
+      margin: 0 0 1rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+    }
+  }
+
+  &.#{$dropdown-prefix}-slide-down-enter,
+  &.#{$dropdown-prefix}-slide-down-appear,
+  &.#{$dropdown-prefix}-slide-down-enter,
+  &.#{$dropdown-prefix}-slide-down-appear,
+  &.#{$dropdown-prefix}-slide-down-enter,
+  &.#{$dropdown-prefix}-slide-down-appear {
+    animation-name: antSlideUpIn;
+  }
+}
+
+.wr-dropdown-menu {
+  & > ul {
+    list-style: inherit;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.wr-dropdown {
+  top: 0;
+  left: 0;
+  position: relative;
+  width: 100%;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}

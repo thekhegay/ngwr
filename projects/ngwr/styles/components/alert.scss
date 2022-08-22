@@ -1,0 +1,28 @@
+@import '../vars';
+@import '../mixins';
+
+$alert-prefix: #{$prefix}-alert;
+
+.#{$alert-prefix} {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  margin-bottom: 0.5rem;
+
+  word-wrap: break-word;
+  font-size: $font-size-base;
+  font-weight: $font-weight-base;
+  line-height: $line-height-base;
+
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+
+  user-select: none;
+
+  @each $color, $value in $theme-colors {
+    &.#{$alert-prefix}-#{$color} {
+      @include alert-colors-generate($value);
+    }
+  }
+}

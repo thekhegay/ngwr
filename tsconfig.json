@@ -21,7 +21,15 @@
     "lib": [
       "es2020",
       "dom"
-    ]
+    ],
+    "paths": {
+      "ngwr/*": [
+        "projects/ngwr/*"
+      ],
+      "ngwr": [
+        "projects/ngwr"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

@@ -1,0 +1,64 @@
+@import '../vars';
+@import '../mixins';
+
+$extended-input-prefix: #{$prefix}-extended-input;
+
+.#{$extended-input-prefix} {
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  transition: $transition-primary;
+  width: 100%;
+
+  &--has-suffix {
+    & > .wr-input {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  &--has-prefix {
+    & > .wr-input {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  &-suffix,
+  &-prefix {
+    display: inline-flex;
+    align-items: center;
+    background: rgba($color-light, 0.5);
+    border: 1px solid $color-light;
+
+    padding-left: $input-padding-y;
+    padding-right: $input-padding-y;
+
+    height: 100%;
+    max-width: 50%;
+
+    user-select: none;
+    pointer-events: none;
+
+    &__text {
+      color: $color-medium;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &-suffix {
+    border-top-right-radius: $input-border-radius;
+    border-bottom-right-radius: $input-border-radius;
+    border-left: 0;
+  }
+
+  &-prefix {
+    border-top-left-radius: $input-border-radius;
+    border-bottom-left-radius: $input-border-radius;
+    border-right: 0;
+  }
+}

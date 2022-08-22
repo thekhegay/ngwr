@@ -1,0 +1,41 @@
+@import '../vars';
+@import '../mixins';
+
+$card-prefix: #{$prefix}-card;
+
+.#{$card-prefix} {
+  display: flex;
+  flex-direction: column;
+  align-content: baseline;
+  justify-content: center;
+
+  background: $color-white;
+  border-radius: 0.75rem;
+
+  padding: 1.5rem 1.25rem;
+  box-shadow: $shadow-1-down;
+
+  &--hoverable {
+    transition: $transition-base;
+
+    &:hover {
+      cursor: pointer;
+      box-shadow: $box-shadow-base;
+
+      .#{$card-prefix}__title {
+        color: $color-secondary;
+      }
+    }
+  }
+
+  &__title {
+    color: $color-dark;
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1;
+
+    margin-bottom: 0.5rem;
+
+    transition: $transition-base;
+  }
+}
