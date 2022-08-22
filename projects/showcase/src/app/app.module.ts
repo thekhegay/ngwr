@@ -6,9 +6,9 @@ import {
   WalrusButtonModule,
   WalrusDividerModule,
   WalrusExtendedInputModule,
-  WalrusFormModule, WalrusIconsModule, WalrusInputModule, WalrusPasswordInputModule, WalrusSkeletonModule,
+  WalrusFormModule, WalrusInputModule, WalrusPasswordInputModule, WalrusSkeletonModule,
   WalrusSpinnerModule, WalrusTagModule,
-  WalrusIconsRegistry
+  WrIconModule
 } from '../../../ngwr/';
 
 
@@ -27,13 +27,9 @@ import {
     WalrusPasswordInputModule,
     WalrusSkeletonModule,
     WalrusTagModule,
-    WalrusIconsModule.forRoot(),
+    WrIconModule.withIcons()
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-  constructor(private readonly i: WalrusIconsRegistry) {
-    this.i.registerIcons();
-  }
-}
+export class AppModule {}

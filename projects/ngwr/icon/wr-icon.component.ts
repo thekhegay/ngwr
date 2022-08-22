@@ -7,35 +7,42 @@ import {
   Optional,
   ViewEncapsulation
 } from '@angular/core';
-import { WalrusIconsRegistry } from './walrus-icons-registry.service';
+import { WrIconService } from './wr-icon.service';
 import { DOCUMENT } from '@angular/common';
-import { walrusIcon } from './icons';
+import { wrIconName } from './wr-icons';
 
 @Component({
   selector: 'wr-icon[name]',
-  template: '<ng-content></ng-content>',
+  template: '',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WalrusIconComponent {
+export class WrIconComponent {
   @HostBinding('class') class = 'wr-icon';
+
   private svgIcon: SVGElement | undefined;
 
-  @Input()
-  set name(iconName: walrusIcon) {
+  @Input() set name(name: wrIconName | string) {
+    if (!this.iconService.registry.has(name)) {
+      console.warn(`Icon ${name} was not found`);
+      return;
+    }
+
     if (this.svgIcon) {
       this.elRef.nativeElement.removeChild(this.svgIcon);
     }
-    const svgData = this.r.getIcon(iconName) || '';
+
+    const svgData = this.iconService.registry.get(name) || '';
     this.svgIcon = this.svgElementFromString(svgData);
     this.elRef.nativeElement.appendChild(this.svgIcon);
   }
 
   constructor(
     private readonly elRef: ElementRef,
-    private readonly r: WalrusIconsRegistry,
+    private readonly iconService: WrIconService,
     @Optional() @Inject(DOCUMENT) private readonly doc: any
-  ) {}
+  ) {
+  }
 
   private svgElementFromString(svgContent: string): SVGElement {
     const div = this.doc.createElement('div');

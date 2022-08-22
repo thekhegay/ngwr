@@ -4,15 +4,14 @@ import { NgModule } from '@angular/core';
 
 import { WalrusPasswordInputComponent } from './password-input.component';
 import { WalrusInputModule } from '../input';
-import { WalrusIconsRegistry } from '../icon/walrus-icons-registry.service';
-import { WalrusIconsModule } from '../icon/walrus-icons.module';
+import { WrIconModule } from '../icon';
 
 @NgModule({
   imports: [
     CommonModule,
     PlatformModule,
     WalrusInputModule,
-    WalrusIconsModule
+    WrIconModule.withIcons()
   ],
   declarations: [
     WalrusPasswordInputComponent,
@@ -21,8 +20,4 @@ import { WalrusIconsModule } from '../icon/walrus-icons.module';
     WalrusPasswordInputComponent,
   ]
 })
-export class WalrusPasswordInputModule {
-  constructor(wrIconReg: WalrusIconsRegistry) {
-    wrIconReg.registerIcons()
-  }
-}
+export class WalrusPasswordInputModule {}

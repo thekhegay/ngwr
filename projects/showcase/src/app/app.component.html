@@ -1,2 +1,12 @@
-<wr-btn>Button example</wr-btn>
-<wr-icon name="logo-stingray"></wr-icon>
+<main>
+  <section class="container icons">
+    <div class="row">
+      <div class="col-md-2" *ngFor="let i of icons">
+        <div class="icons-item">
+          <wr-icon class="icons-item__icon" [name]="i.name"></wr-icon>
+          <span class="icons-item__name">{{ i.name }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

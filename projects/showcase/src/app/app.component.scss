@@ -1,0 +1,28 @@
+@import '../../../ngwr/styles/index';
+
+.icons {
+  &-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba($color-light, 0.5);
+    margin-bottom: $gutter;
+    border-radius: 1rem;
+    padding: 2rem;
+
+    &__icon {
+      color: $color-dark;
+      height: 2rem;
+      width: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    &__name {
+      color: $color-medium;
+      font-size: 0.825rem;
+      font-weight: 500;
+    }
+  }
+}
