@@ -7,21 +7,9 @@ import {
   WalrusDividerModule,
   WalrusExtendedInputModule,
   WalrusFormModule, WalrusIconsModule, WalrusInputModule, WalrusPasswordInputModule, WalrusSkeletonModule,
-  WalrusSpinnerModule, WalrusTagModule
-} from 'ngwr';
-
-const walrus = [
-  WalrusButtonModule,
-  WalrusSpinnerModule,
-  WalrusDividerModule,
-  WalrusExtendedInputModule,
-  WalrusFormModule,
-  WalrusInputModule,
-  WalrusPasswordInputModule,
-  WalrusSkeletonModule,
-  WalrusTagModule,
-  WalrusIconsModule,
-];
+  WalrusSpinnerModule, WalrusTagModule,
+  WalrusIconsRegistry
+} from '../../../ngwr/';
 
 
 @NgModule({
@@ -29,9 +17,23 @@ const walrus = [
     AppComponent
   ],
   imports: [
-    BrowserModule, ...walrus
+    BrowserModule,
+    WalrusButtonModule,
+    WalrusSpinnerModule,
+    WalrusDividerModule,
+    WalrusExtendedInputModule,
+    WalrusFormModule,
+    WalrusInputModule,
+    WalrusPasswordInputModule,
+    WalrusSkeletonModule,
+    WalrusTagModule,
+    WalrusIconsModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor(private readonly i: WalrusIconsRegistry) {
+    this.i.registerIcons();
+  }
+}

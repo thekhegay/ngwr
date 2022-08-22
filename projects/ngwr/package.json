@@ -1,6 +1,6 @@
 {
   "name": "ngwr",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "NGWR – Angular UI library",
   "author": "Roman Khegay",
   "keywords": [
@@ -13,6 +13,11 @@
   },
   "bugs": {
     "url": "https://github.com/thekhegay/ngwr/issues"
+  },
+  "exports": {
+    ".": {
+      "sass": "./styles/index.scss"
+    }
   },
   "peerDependencies": {
     "@angular/cdk": "^14.1.3",
