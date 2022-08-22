@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://ng.ant.design">
+  <a href="http://garuna.dev">
     <img width="230" src="logo.svg">
   </a>
 </p>
@@ -22,6 +22,9 @@ or
 $ yarn add ngwr
 ```
 
+---
+
 
 Copyright 2022 Swordfish Security LLC
+
 Copyright 2022 Garuna LLP
