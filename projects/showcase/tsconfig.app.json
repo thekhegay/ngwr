@@ -3,15 +3,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/app",
-    "types": [],
-    "paths": {
-      "ngwr/*": [
-        "dist/*"
-      ],
-      "ngwr": [
-        "dist"
-      ]
-    }
+    "types": []
   },
   "files": [
     "src/main.ts",

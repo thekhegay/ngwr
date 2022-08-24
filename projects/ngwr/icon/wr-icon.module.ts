@@ -7,7 +7,7 @@ import { WrIconService } from './wr-icon.service';
   exports: [WrIconComponent]
 })
 export class WrIconModule {
-  static withIcons(): ModuleWithProviders<WrIconModule> {
+  static forRoot(): ModuleWithProviders<WrIconModule> {
     WrIconService.registerIcons();
     return { ngModule: WrIconModule };
   }

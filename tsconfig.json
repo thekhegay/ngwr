@@ -23,12 +23,7 @@
       "dom"
     ],
     "paths": {
-      "ngwr/*": [
-        "projects/ngwr/*"
-      ],
-      "ngwr": [
-        "projects/ngwr"
-      ]
+      "@ngwr/*": ["dist/*"]
     }
   },
   "angularCompilerOptions": {

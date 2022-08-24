@@ -9,7 +9,6 @@
     "ngwr": {
       "projectType": "library",
       "root": "projects/ngwr",
-      "sourceRoot": "projects/ngwr/src",
       "prefix": "wr",
       "architect": {
         "build": {

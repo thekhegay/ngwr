@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { wrIconSet } from 'ngwr';
+import { wrIconSet } from '@ngwr';
 
 @Component({
   selector: 'app-root',

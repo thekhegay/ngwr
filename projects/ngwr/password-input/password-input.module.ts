@@ -11,7 +11,7 @@ import { WrIconModule } from '../icon';
     CommonModule,
     PlatformModule,
     WalrusInputModule,
-    WrIconModule.withIcons()
+    WrIconModule
   ],
   declarations: [
     WalrusPasswordInputComponent,

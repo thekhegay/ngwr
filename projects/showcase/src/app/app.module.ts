@@ -2,15 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
-import {
-  WalrusButtonModule,
-  WalrusDividerModule,
-  WalrusExtendedInputModule,
-  WalrusFormModule, WalrusInputModule, WalrusPasswordInputModule, WalrusSkeletonModule,
-  WalrusSpinnerModule, WalrusTagModule,
-  WrIconModule
-} from '../../../ngwr/';
-
+import { WrModule } from './wr.module';
 
 @NgModule({
   declarations: [
@@ -18,16 +10,7 @@ import {
   ],
   imports: [
     BrowserModule,
-    WalrusButtonModule,
-    WalrusSpinnerModule,
-    WalrusDividerModule,
-    WalrusExtendedInputModule,
-    WalrusFormModule,
-    WalrusInputModule,
-    WalrusPasswordInputModule,
-    WalrusSkeletonModule,
-    WalrusTagModule,
-    WrIconModule.withIcons()
+    WrModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
