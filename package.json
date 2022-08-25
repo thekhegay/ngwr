@@ -3,7 +3,7 @@
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
-    "build:prod": "ng build ngwr && cp LICENSE && cp README.md dist && cp logo.svg dist",
+    "build:prod": "ng build ngwr && cp LICENSE dist && cp README.md dist && cp logo.svg dist",
     "build:site": "ng build site",
     "serve:site": "ng serve showcase --o",
     "generate:icons": "svg-to-ts-constants"
