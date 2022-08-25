@@ -13,31 +13,29 @@ import {
 } from '@angular/core';
 import { fromEvent, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { InputBoolean } from '../core/util';
+import { baseClass, BooleanInput, InputBoolean } from '../_core';
 
-export type WalrusButtonColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
-export type WalrusButtonSize = 'default' | 'small';
+export type WrButtonColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+export type WrButtonSize = 'default' | 'small';
 
 @Component({
   selector: 'wr-btn, [wr-btn]',
-  exportAs: 'wrButton',
-  preserveWhitespaces: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   template: `<ng-content></ng-content><wr-spin *ngIf="loading"></wr-spin>`
 })
-export class WalrusButtonComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
-  @Input() color: WalrusButtonColor = 'primary';
-  @Input() size: WalrusButtonSize = 'default';
+export class WrButtonComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
+  @Input() color: WrButtonColor = 'primary';
+  @Input() size: WrButtonSize = 'default';
 
-  @Input() @InputBoolean() disabled: boolean | string = false;
-  @Input() @InputBoolean() outlined: boolean | string = false;
-  @Input() @InputBoolean() rounded: boolean | string = false;
-  @Input() @InputBoolean() loading: boolean | string = false;
-  @Input() @InputBoolean() block: boolean | string = false;
+  @Input() @InputBoolean() disabled: BooleanInput = false;
+  @Input() @InputBoolean() outlined: BooleanInput = false;
+  @Input() @InputBoolean() rounded: BooleanInput = false;
+  @Input() @InputBoolean() loading: BooleanInput = false;
+  @Input() @InputBoolean() block: BooleanInput = false;
 
-  private readonly baseClass: string = 'wr-btn';
-  private destroy$: Subject<void> = new Subject<void>();
+  private readonly baseClass: string = `${baseClass}-btn`;
+  private readonly destroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -77,7 +75,7 @@ export class WalrusButtonComponent implements OnInit, OnDestroy, AfterViewInit, 
     this.destroy$.complete();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (!changes['disabled']?.currentValue) {
       this.r2.removeClass(this.elRef.nativeElement, `${this.baseClass}--disabled`);
     }
@@ -100,7 +98,7 @@ export class WalrusButtonComponent implements OnInit, OnDestroy, AfterViewInit, 
     });
   }
 
-  private setClasses() {
+  private setClasses(): void {
     const el = this.elRef.nativeElement;
     const add = (klass: string) => this.r2.addClass(el, `${this.baseClass}-${klass}`);
 
