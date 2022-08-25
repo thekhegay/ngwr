@@ -6,6 +6,6 @@ import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } fr
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WalrusSpinnerComponent {
+export class WrSpinnerComponent {
   @HostBinding('class') class = 'wr-spin';
 }
