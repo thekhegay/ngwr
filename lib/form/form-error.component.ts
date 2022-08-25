@@ -1,20 +1,19 @@
 import { ChangeDetectionStrategy, Component, HostBinding, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { Subject } from 'rxjs';
+import { baseClass } from '../_core';
 
 @Component({
   selector: 'wr-form-error',
-  exportAs: 'wrFormError',
-  preserveWhitespaces: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   template: `<ng-content></ng-content>`
 })
-export class WalrusFormErrorComponent implements OnDestroy {
-  @HostBinding() class = 'wr-form-error';
-  private destroy$ = new Subject();
+export class WrFormErrorComponent implements OnDestroy {
+  @HostBinding('class') class = `${baseClass}-form-error`;
+  private destroy$: Subject<void> = new Subject<void>();
 
   ngOnDestroy(): void {
-    this.destroy$.next(null);
+    this.destroy$.next(undefined);
     this.destroy$.complete();
   }
 }

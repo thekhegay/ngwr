@@ -7,7 +7,7 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { Subject } from 'rxjs';
-import { InputBoolean } from '../core/util';
+import { InputBoolean } from '../_core';
 
 @Component({
   selector: 'wr-form-item',
@@ -17,7 +17,7 @@ import { InputBoolean } from '../core/util';
   encapsulation: ViewEncapsulation.None,
   template: `<ng-content></ng-content>`
 })
-export class WalrusFormItemComponent implements OnInit, OnDestroy, OnChanges {
+export class WrFormItemComponent implements OnInit, OnDestroy, OnChanges {
   @Input() @InputBoolean() hasError: boolean = false;
 
   private readonly destroy$ = new Subject();
