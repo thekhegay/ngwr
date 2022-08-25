@@ -6,7 +6,7 @@ import { ControlValueAccessor, NgControl } from '@angular/forms';
   templateUrl: './password-input.component.html',
   encapsulation: ViewEncapsulation.None
 })
-export class WalrusPasswordInputComponent implements ControlValueAccessor {
+export class WrPasswordInputComponent implements ControlValueAccessor {
   @HostBinding() class = 'wr-password-input';
 
   public type: 'input' | 'password' = 'password';
