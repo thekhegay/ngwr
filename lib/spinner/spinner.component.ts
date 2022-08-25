@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } from '@angular/core';
+import { stylePrefix } from '../_core';
 
 @Component({
   selector: 'wr-spin',
@@ -7,5 +8,5 @@ import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } fr
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WrSpinnerComponent {
-  @HostBinding('class') class = 'wr-spin';
+  @HostBinding('class') class = `${stylePrefix}-spin`;
 }

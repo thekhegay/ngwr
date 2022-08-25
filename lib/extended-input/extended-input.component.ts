@@ -10,7 +10,7 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { baseClass } from '../_core';
+import { stylePrefix } from '../_core';
 
 @Component({
   selector: 'wr-extended-input',
@@ -18,13 +18,13 @@ import { baseClass } from '../_core';
   encapsulation: ViewEncapsulation.None
 })
 export class WrExtendedInputComponent implements ControlValueAccessor, OnInit {
-  @HostBinding('class') class = `${baseClass}-extended-input`;
+  @HostBinding('class') class = `${stylePrefix}-extended-input`;
   @Input() suffix?: string;
   @Input() prefix?: string;
 
   public disabled: boolean = false;
   public value: string | undefined = undefined;
-  public touched = false;
+  public touched: boolean = false;
 
   constructor(
     @Optional() @Self() public ngControl: NgControl,

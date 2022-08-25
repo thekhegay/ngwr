@@ -6,14 +6,13 @@ import {
   ElementRef,
   Input,
   NgZone, OnChanges,
-  OnDestroy,
   OnInit,
   Renderer2, SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
-import { fromEvent, Subject } from 'rxjs';
+import { fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { baseClass, BooleanInput, InputBoolean } from '../_core';
+import { stylePrefix, BaseComponent, BooleanInput, InputBoolean } from '../_core';
 
 export type WrButtonColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
 export type WrButtonSize = 'default' | 'small';
@@ -24,7 +23,7 @@ export type WrButtonSize = 'default' | 'small';
   encapsulation: ViewEncapsulation.None,
   template: `<ng-content></ng-content><wr-spin *ngIf="loading"></wr-spin>`
 })
-export class WrButtonComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
+export class WrButtonComponent extends BaseComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() color: WrButtonColor = 'primary';
   @Input() size: WrButtonSize = 'default';
 
@@ -34,15 +33,16 @@ export class WrButtonComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
   @Input() @InputBoolean() loading: BooleanInput = false;
   @Input() @InputBoolean() block: BooleanInput = false;
 
-  private readonly baseClass: string = `${baseClass}-btn`;
-  private readonly destroy$: Subject<void> = new Subject<void>();
+  private readonly baseClass: string = `${stylePrefix}-btn`;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly elRef: ElementRef,
     private readonly ngZone: NgZone,
     private readonly r2: Renderer2,
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.setClasses();
@@ -56,7 +56,7 @@ export class WrButtonComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
        * this doesn't require Angular to run the change detection.
        */
       fromEvent<MouseEvent>(this.elRef.nativeElement, 'click')
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe(event => {
           if (this.disabled && (event.target as HTMLElement)?.tagName === 'A') {
             event.preventDefault();
@@ -68,11 +68,6 @@ export class WrButtonComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
 
   ngAfterViewInit(): void {
     this.insertSpan(this.elRef.nativeElement.childNodes, this.r2);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -90,7 +85,7 @@ export class WrButtonComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
     nodes.forEach(node => {
       if (node.nodeName === '#text') {
         const span = renderer.createElement('span');
-        renderer.addClass(span, 'wr-btn__text');
+        renderer.addClass(span, `${this.baseClass}__text`);
         const parent = renderer.parentNode(node);
         renderer.insertBefore(parent, span, node);
         renderer.appendChild(span, node);

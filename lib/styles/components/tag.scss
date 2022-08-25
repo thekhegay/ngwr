@@ -34,7 +34,7 @@ $tag-prefix: #{$prefix}-tag;
     pointer-events: all;
   }
 
-  &--round {
+  &--rounded {
     border-radius: $btn-round-border-radius;
   }
 
@@ -44,7 +44,7 @@ $tag-prefix: #{$prefix}-tag;
     }
 
     &.#{$tag-prefix}-#{$color} {
-      &.#{$tag-prefix}--outline {
+      &.#{$tag-prefix}--outlined {
         @include tag-outline-colors-generate($value);
       }
     }

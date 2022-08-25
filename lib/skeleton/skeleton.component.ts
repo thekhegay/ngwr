@@ -5,34 +5,26 @@ import {
   ElementRef,
   HostBinding,
   Input,
-  OnDestroy,
   ViewEncapsulation
 } from '@angular/core';
-import { Subject } from 'rxjs';
+import { stylePrefix } from '../_core';
 
 @Component({
   selector: 'wr-skeleton',
-  exportAs: 'wrSkeleton',
-  preserveWhitespaces: false,
   template: '<span>&nbsp;</span>',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class WrSkeletonComponent implements AfterViewInit, OnDestroy {
+export class WrSkeletonComponent implements AfterViewInit {
   @Input() color: 'light' | 'dark' = 'dark';
-  @HostBinding('class') classes = `wr-skeleton`;
+  @HostBinding('class') class = `${stylePrefix}-skeleton`;
 
-  private destroy$ = new Subject<void>();
-
-  constructor(private readonly el: ElementRef) {}
+  constructor(
+    private readonly elRef: ElementRef
+  ) {}
 
   ngAfterViewInit() {
     const style = this.color === 'light' ? 'var(--color-white-rgb)' : 'var(--color-dark-rgb)';
-    this.el.nativeElement.style.setProperty('--skeleton-style', style);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.elRef.nativeElement.style.setProperty('--skeleton-style', style);
   }
 }

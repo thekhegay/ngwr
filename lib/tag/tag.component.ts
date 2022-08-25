@@ -3,13 +3,11 @@ import {
   Component,
   ElementRef,
   Input, OnChanges,
-  OnDestroy,
   OnInit,
   Renderer2, SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
-import { Subject } from 'rxjs';
-import { BooleanInput, InputBoolean } from '../_core';
+import { BooleanInput, InputBoolean, stylePrefix } from '../_core';
 
 export type WrTagColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'dark';
 
@@ -19,7 +17,7 @@ export type WrTagColor = 'default' | 'primary' | 'secondary' | 'success' | 'warn
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class WrTagComponent implements OnInit, OnDestroy, OnChanges {
+export class WrTagComponent implements OnInit, OnChanges {
   @Input() color: WrTagColor = 'default';
 
   @Input() @InputBoolean() transparent: BooleanInput = false;
@@ -28,8 +26,7 @@ export class WrTagComponent implements OnInit, OnDestroy, OnChanges {
   @Input() @InputBoolean() rounded: BooleanInput = false;
   @Input() @InputBoolean() hoverable: BooleanInput = false;
 
-  private readonly baseClass: string = 'wr-tag';
-  private readonly destroy$: Subject<void> = new Subject<void>();
+  private readonly baseClass: string = `${stylePrefix}-tag`;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -39,11 +36,6 @@ export class WrTagComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     this.setClasses();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

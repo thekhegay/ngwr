@@ -1,5 +1,6 @@
 import { Component, HostBinding, Optional, Self, ViewEncapsulation } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
+import { stylePrefix } from '../_core';
 
 @Component({
   selector: 'wr-password-input',
@@ -7,7 +8,7 @@ import { ControlValueAccessor, NgControl } from '@angular/forms';
   encapsulation: ViewEncapsulation.None
 })
 export class WrPasswordInputComponent implements ControlValueAccessor {
-  @HostBinding() class = 'wr-password-input';
+  @HostBinding('class') class = `${stylePrefix}-password-input`;
 
   public type: 'input' | 'password' = 'password';
   public disabled: boolean = false;

@@ -6,52 +6,42 @@ import {
   OnDestroy, OnInit, Renderer2, SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
-import { Subject } from 'rxjs';
-import { InputBoolean } from '../_core';
+import { stylePrefix, BooleanInput, InputBoolean } from '../_core';
 
 @Component({
   selector: 'wr-form-item',
-  exportAs: 'wrFormItem',
-  preserveWhitespaces: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   template: `<ng-content></ng-content>`
 })
-export class WrFormItemComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() @InputBoolean() hasError: boolean = false;
+export class WrFormItemComponent implements OnInit, OnChanges {
+  @Input() @InputBoolean() hasError: BooleanInput = false;
 
-  private readonly destroy$ = new Subject();
+  private readonly baseClass: string = `${stylePrefix}-form-item`;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
-    private readonly el: ElementRef,
+    private readonly elRef: ElementRef,
     private readonly r2: Renderer2,
   ) {}
 
-  public ngOnInit(): void {
+  ngOnInit(): void {
     this.setClasses();
   }
 
-  public ngOnDestroy(): void {
-    this.destroy$.next(null);
-    this.destroy$.complete();
-  }
-
-  public ngOnChanges(changes: SimpleChanges): void {
-    const baseClass = 'wr-form-item';
+  ngOnChanges(changes: SimpleChanges): void {
     if (!changes['hasError']?.currentValue) {
-      this.r2.removeClass(this.el.nativeElement, `${baseClass}--has-error`);
+      this.r2.removeClass(this.elRef.nativeElement, `${this.baseClass}--has-error`);
     }
     this.setClasses();
     this.cdr.detectChanges();
   }
 
   private setClasses(): void {
-    const baseClass = 'wr-form-item';
-    const el = this.el.nativeElement;
-    const add = (klass: string) => this.r2.addClass(el, `${baseClass}-${klass}`);
+    const el = this.elRef.nativeElement;
+    const add = (klass: string) => this.r2.addClass(el, `${this.baseClass}-${klass}`);
 
-    this.r2.addClass(el, baseClass);
+    this.r2.addClass(el, this.baseClass);
 
     if (this.hasError) {
       add('-has-error');

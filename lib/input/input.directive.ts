@@ -3,7 +3,6 @@ import {
   HostBinding,
   Input,
   OnChanges,
-  OnDestroy,
   OnInit,
   Optional,
   Self,
@@ -12,15 +11,15 @@ import {
 import { NgControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { baseClass } from '../_core';
+import { BaseComponent, stylePrefix } from '../_core';
 
 @Directive({
   selector: 'wr-input, input[wr-input], textarea[wr-input]',
 })
-export class WrInputDirective implements OnChanges, OnInit, OnDestroy {
-  @HostBinding('class') class = `${baseClass}-input`;
+export class WrInputDirective extends BaseComponent implements OnInit, OnChanges {
+  @HostBinding('class') class = `${stylePrefix}-input`;
 
-  @HostBinding(`class.${baseClass}-input--disabled`)
+  @HostBinding(`class.${stylePrefix}-input--disabled`)
   @HostBinding('disabled')
   @Input()
   get disabled(): boolean {
@@ -34,20 +33,21 @@ export class WrInputDirective implements OnChanges, OnInit, OnDestroy {
   }
   _disabled: boolean = false;
   disabled$: Subject<boolean> = new Subject<boolean>();
-  private readonly destroy$: Subject<void> = new Subject<void>();
 
-  constructor(@Optional() @Self() public ngControl: NgControl) {}
+  constructor(
+    @Optional() @Self() public ngControl: NgControl
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     if (this.ngControl) {
       this.ngControl.statusChanges
         ?.pipe(
           filter(() => this.ngControl.disabled !== null),
-          takeUntil(this.destroy$)
+          takeUntil(this.ngUnsubscribe)
         )
-        .subscribe(() => {
-          this.disabled$.next(this.ngControl.disabled!);
-        });
+        .subscribe(() => this.disabled$.next(this.ngControl.disabled!));
     }
   }
 
@@ -56,10 +56,5 @@ export class WrInputDirective implements OnChanges, OnInit, OnDestroy {
     if (disabled) {
       this.disabled$.next(this.disabled);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
