@@ -1,16 +1,15 @@
 /*!
- * Walrus v0.0.1
- * Copyright 2021 Swordfish Security, Inc.
- * Licensed under GPL-3
+ * Copyright 2022 Garuna LLP
+ * Licensed under MIT
  */
 
-@import './functions';
-@import './vars';
+@import 'functions';
+@import 'vars';
 
-@import './root';
-@import './reset';
-@import './components';
-@import './grid';
+@import 'root';
+@import 'reset';
+@import 'components';
+@import 'grid';
 
 // cdk overlay
 .cdk-overlay-container {

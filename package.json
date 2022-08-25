@@ -1,22 +1,13 @@
 {
   "name": "ngwr",
-  "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "run-p lib:watch showcase:start-waiton",
-    "build": "run-s lib:build showcase:build",
-    "test": "run-p lib:test showcase:test",
-    "lib:build": "ng build ngwr",
-    "lib:watch": "ng build ngwr --watch --configuration development",
-    "lib:test": "ng test ngwr",
-    "showcase:start-waiton": "wait-on dist/ngwr/package.json && npm run showcase:start",
-    "showcase:start": "ng serve showcase",
-    "showcase:build": "ng build showcase",
-    "showcase:watch": "ng build showcase --watch --configuration development",
-    "showcase:test": "ng test showcase",
-    "g:icons": "svg-to-ts-constants"
-  },
+  "version": "0.0.0-NOT-USED",
   "private": true,
+  "scripts": {
+    "build:prod": "ng build ngwr && cp LICENSE && cp README.md dist && cp logo.svg dist",
+    "build:site": "ng build site",
+    "serve:site": "ng serve showcase --o",
+    "generate:icons": "svg-to-ts-constants"
+  },
   "dependencies": {
     "@angular/animations": "^14.1.0",
     "@angular/cdk": "^14.1.3",
