@@ -10,14 +10,15 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
+import { baseClass } from '../_core';
 
 @Component({
   selector: 'wr-extended-input',
   templateUrl: './extended-input.component.html',
   encapsulation: ViewEncapsulation.None
 })
-export class WalrusExtendedInputComponent implements ControlValueAccessor, OnInit {
-  @HostBinding('class') class = 'wr-extended-input';
+export class WrExtendedInputComponent implements ControlValueAccessor, OnInit {
+  @HostBinding('class') class = `${baseClass}-extended-input`;
   @Input() suffix?: string;
   @Input() prefix?: string;
 
@@ -35,7 +36,7 @@ export class WalrusExtendedInputComponent implements ControlValueAccessor, OnIni
     }
   }
 
-  public ngOnInit(): void {
+  ngOnInit(): void {
     const el = this.elRef.nativeElement;
     const add = (klass: string) => this.r2.addClass(el, `${this.class}-${klass}`);
 
@@ -63,11 +64,11 @@ export class WalrusExtendedInputComponent implements ControlValueAccessor, OnIni
     this.onTouched();
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: any): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: any): void {
     this.onTouched = fn;
   }
 
