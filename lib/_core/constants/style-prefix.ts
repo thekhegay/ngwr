@@ -1,1 +1,1 @@
-export const stylePrefix: string = 'wr';
+export const stylePrefix = 'wr';

@@ -1,12 +1,16 @@
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
-  Input, OnChanges,
+  Input,
+  OnChanges,
   OnInit,
-  Renderer2, SimpleChanges,
+  Renderer2,
+  SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
+
 import { BooleanInput, InputBoolean, stylePrefix } from '../_core';
 
 export type WrTagColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'dark';
@@ -45,7 +49,7 @@ export class WrTagComponent implements OnInit, OnChanges {
 
   private setClasses(): void {
     const el = this.elRef.nativeElement;
-    const add = (klass: string) => this.r2.addClass(el, `${this.baseClass}-${klass}`);
+    const add = (klass: string): void => this.r2.addClass(el, `${this.baseClass}-${klass}`);
 
     this.r2.addClass(el, this.baseClass);
     add(this.color);

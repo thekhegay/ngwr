@@ -1,4 +1,5 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
+
 import { WrIconComponent } from './wr-icon.component';
 import { WrIconService } from './wr-icon.service';
 

@@ -1,14 +1,17 @@
+import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef, HostBinding,
+  ElementRef,
+  HostBinding,
   Inject,
   Input,
   Optional,
   ViewEncapsulation
 } from '@angular/core';
+
+import { SafeAny } from '../_core';
 import { WrIconService } from './wr-icon.service';
-import { DOCUMENT } from '@angular/common';
 import { wrIconName } from './wr-icons';
 
 @Component({
@@ -40,9 +43,8 @@ export class WrIconComponent {
   constructor(
     private readonly elRef: ElementRef,
     private readonly iconService: WrIconService,
-    @Optional() @Inject(DOCUMENT) private readonly doc: any
-  ) {
-  }
+    @Optional() @Inject(DOCUMENT) private readonly doc: SafeAny
+  ) {}
 
   private svgElementFromString(svgContent: string): SVGElement {
     const div = this.doc.createElement('div');

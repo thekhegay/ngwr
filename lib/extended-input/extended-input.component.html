@@ -1,13 +1,7 @@
 <div class="wr-extended-input-prefix" *ngIf="prefix">
-  <span class="wr-extended-input-prefix__text" >{{ prefix }}</span>
+  <span class="wr-extended-input-prefix__text">{{ prefix }}</span>
 </div>
-<input
-  wr-input
-  [disabled]="disabled"
-  [value]="value"
-  (focusout)="onFocusOut()"
-  (input)="onInput($event)"
->
+<input wr-input [disabled]="disabled" [value]="value" (focusout)="onFocusOut()" (input)="onInput($event)" />
 <div class="wr-extended-input-suffix" *ngIf="suffix">
-  <span class="wr-extended-input-suffix__text" >{{ suffix }}</span>
+  <span class="wr-extended-input-suffix__text">{{ suffix }}</span>
 </div>

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { WrSkeletonComponent } from './skeleton.component';
+
 import { WrSpinnerModule } from '../spinner';
+import { WrSkeletonComponent } from './skeleton.component';
 
 @NgModule({
   imports: [CommonModule, WrSpinnerModule],

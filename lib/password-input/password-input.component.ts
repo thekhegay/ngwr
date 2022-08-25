@@ -1,6 +1,7 @@
 import { Component, HostBinding, Optional, Self, ViewEncapsulation } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { stylePrefix } from '../_core';
+
+import { SafeAny, stylePrefix } from '../_core';
 
 @Component({
   selector: 'wr-password-input',
@@ -15,43 +16,41 @@ export class WrPasswordInputComponent implements ControlValueAccessor {
   public value: string | null = null;
   public touched = false;
 
-  constructor(
-    @Optional() @Self() public ngControl: NgControl
-  ) {
+  constructor(@Optional() @Self() public ngControl: NgControl) {
     if (ngControl !== null) {
       ngControl.valueAccessor = this;
     }
   }
 
-  onVisibilityClick($event: any): void {
+  onVisibilityClick($event: SafeAny): void {
     $event.stopPropagation();
-    this.type === 'password' ? this.type = 'input' : this.type = 'password';
+    this.type === 'password' ? (this.type = 'input') : (this.type = 'password');
   }
 
-  onInput($event: any): void {
+  onInput($event: SafeAny): void {
     this.value = $event.currentTarget.value;
     this.touched = true;
     this.onChange(this.value);
   }
 
-  onChange = (value: any) => { };
+  onChange = (value: SafeAny): void => {};
 
-  onTouched = () => {};
+  onTouched = (): void => {};
 
   onFocusOut(): void {
     this.touched = true;
     this.onTouched();
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: SafeAny): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: SafeAny): void {
     this.onTouched = fn;
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: SafeAny): void {
     this.value = obj;
   }
 }

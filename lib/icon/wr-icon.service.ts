@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+
 import { WrIcon, wrIconSet } from './wr-icons';
 
 @Injectable({

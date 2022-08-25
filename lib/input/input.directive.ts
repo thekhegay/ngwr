@@ -1,20 +1,12 @@
-import {
-  Directive,
-  HostBinding,
-  Input,
-  OnChanges,
-  OnInit,
-  Optional,
-  Self,
-  SimpleChanges
-} from '@angular/core';
+import { Directive, HostBinding, Input, OnChanges, OnInit, Optional, Self, SimpleChanges } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+
 import { BaseComponent, stylePrefix } from '../_core';
 
 @Directive({
-  selector: 'wr-input, input[wr-input], textarea[wr-input]',
+  selector: 'wr-input, input[wr-input], textarea[wr-input]'
 })
 export class WrInputDirective extends BaseComponent implements OnInit, OnChanges {
   @HostBinding('class') class = `${stylePrefix}-input`;
@@ -34,9 +26,7 @@ export class WrInputDirective extends BaseComponent implements OnInit, OnChanges
   _disabled: boolean = false;
   disabled$: Subject<boolean> = new Subject<boolean>();
 
-  constructor(
-    @Optional() @Self() public ngControl: NgControl
-  ) {
+  constructor(@Optional() @Self() public ngControl: NgControl) {
     super();
   }
 

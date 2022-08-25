@@ -7,6 +7,7 @@ import {
   Input,
   ViewEncapsulation
 } from '@angular/core';
+
 import { stylePrefix } from '../_core';
 
 @Component({
@@ -19,11 +20,9 @@ export class WrSkeletonComponent implements AfterViewInit {
   @Input() color: 'light' | 'dark' = 'dark';
   @HostBinding('class') class = `${stylePrefix}-skeleton`;
 
-  constructor(
-    private readonly elRef: ElementRef
-  ) {}
+  constructor(private readonly elRef: ElementRef) {}
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     const style = this.color === 'light' ? 'var(--color-white-rgb)' : 'var(--color-dark-rgb)';
     this.elRef.nativeElement.style.setProperty('--skeleton-style', style);
   }

@@ -1,19 +1,19 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
+import { SafeAny } from '../types/safe-any';
+
 export function toBoolean(value: boolean | string): boolean {
   return coerceBooleanProperty(value);
 }
 
-function propDecoratorFactory<T, D>(
-  name: string,
-  fallback: (v: T) => D
-): (target: any, propName: string) => void {
+// eslint-disable
+function propDecoratorFactory<T, D>(name: string, fallback: (v: T) => D): (target: SafeAny, propName: string) => void {
   function propDecorator(
-    target: any,
+    target: SafeAny,
     propName: string,
-    originalDescriptor?: TypedPropertyDescriptor<any>
-  ): any {
-    const privatePropName = `$$__walrusPropDecorator__${propName}`;
+    originalDescriptor?: TypedPropertyDescriptor<SafeAny>
+  ): SafeAny {
+    const privatePropName = `$$__wrPropDecorator__${propName}`;
 
     if (Object.prototype.hasOwnProperty.call(target, privatePropName)) {
       console.warn(`The prop "${privatePropName}" is already exist, it will be overrided by ${name} decorator.`);
@@ -58,6 +58,6 @@ function propDecoratorFactory<T, D>(
  * // __visible = false;
  * ```
  */
-export function InputBoolean(): any {
+export function InputBoolean(): SafeAny {
   return propDecoratorFactory('InputBoolean', toBoolean);
 }

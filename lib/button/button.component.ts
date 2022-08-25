@@ -5,13 +5,16 @@ import {
   Component,
   ElementRef,
   Input,
-  NgZone, OnChanges,
+  NgZone,
+  OnChanges,
   OnInit,
-  Renderer2, SimpleChanges,
+  Renderer2,
+  SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
 import { stylePrefix, BaseComponent, BooleanInput, InputBoolean } from '../_core';
 
 export type WrButtonColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
@@ -39,7 +42,7 @@ export class WrButtonComponent extends BaseComponent implements OnInit, AfterVie
     private readonly cdr: ChangeDetectorRef,
     private readonly elRef: ElementRef,
     private readonly ngZone: NgZone,
-    private readonly r2: Renderer2,
+    private readonly r2: Renderer2
   ) {
     super();
   }
@@ -95,7 +98,7 @@ export class WrButtonComponent extends BaseComponent implements OnInit, AfterVie
 
   private setClasses(): void {
     const el = this.elRef.nativeElement;
-    const add = (klass: string) => this.r2.addClass(el, `${this.baseClass}-${klass}`);
+    const add = (klass: string): void => this.r2.addClass(el, `${this.baseClass}-${klass}`);
 
     this.r2.addClass(el, this.baseClass);
     add(this.color);

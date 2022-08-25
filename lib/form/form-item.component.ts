@@ -2,10 +2,15 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef, Input, OnChanges,
-  OnDestroy, OnInit, Renderer2, SimpleChanges,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  Renderer2,
+  SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
+
 import { stylePrefix, BooleanInput, InputBoolean } from '../_core';
 
 @Component({
@@ -22,7 +27,7 @@ export class WrFormItemComponent implements OnInit, OnChanges {
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly elRef: ElementRef,
-    private readonly r2: Renderer2,
+    private readonly r2: Renderer2
   ) {}
 
   ngOnInit(): void {
@@ -39,7 +44,7 @@ export class WrFormItemComponent implements OnInit, OnChanges {
 
   private setClasses(): void {
     const el = this.elRef.nativeElement;
-    const add = (klass: string) => this.r2.addClass(el, `${this.baseClass}-${klass}`);
+    const add = (klass: string): void => this.r2.addClass(el, `${this.baseClass}-${klass}`);
 
     this.r2.addClass(el, this.baseClass);
 

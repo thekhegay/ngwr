@@ -27,6 +27,16 @@
             }
           },
           "defaultConfiguration": "production"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "fix": false,
+            "lintFilePatterns": [
+              "lib/**/*.ts",
+              "lib/**/*.html"
+            ]
+          }
         }
       }
     },

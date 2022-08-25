@@ -10,7 +10,8 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { stylePrefix } from '../_core';
+
+import { SafeAny, stylePrefix } from '../_core';
 
 @Component({
   selector: 'wr-extended-input',
@@ -38,41 +39,41 @@ export class WrExtendedInputComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit(): void {
     const el = this.elRef.nativeElement;
-    const add = (klass: string) => this.r2.addClass(el, `${this.class}-${klass}`);
+    const add = (klass: string): void => this.r2.addClass(el, `${this.class}-${klass}`);
 
     if (this.suffix) {
-      add('-has-suffix')
+      add('-has-suffix');
     }
 
     if (this.prefix) {
-      add('-has-prefix')
+      add('-has-prefix');
     }
   }
 
-  onInput($event: any): void {
+  onInput($event: SafeAny): void {
     this.value = $event.currentTarget.value;
     this.touched = true;
     this.onChange(this.value);
   }
 
-  onChange = (value: any) => {};
+  onChange = (value: SafeAny): void => {};
 
-  onTouched = () => {};
+  onTouched = (): void => {};
 
   onFocusOut(): void {
     this.touched = true;
     this.onTouched();
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: SafeAny): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: SafeAny): void {
     this.onTouched = fn;
   }
 
-  writeValue(obj: any): void {
+  writeValue(obj: SafeAny): void {
     this.value = obj;
   }
 }
