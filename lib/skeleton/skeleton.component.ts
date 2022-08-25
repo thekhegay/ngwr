@@ -18,7 +18,7 @@ import { Subject } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class WalrusSkeletonComponent implements AfterViewInit, OnDestroy {
+export class WrSkeletonComponent implements AfterViewInit, OnDestroy {
   @Input() color: 'light' | 'dark' = 'dark';
   @HostBinding('class') classes = `wr-skeleton`;
 
