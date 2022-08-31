@@ -1,6 +1,6 @@
 const svgToTsConfig = {
-  srcFiles: ['./projects/ngwr/icon/svg/*.svg'],
-  outputDirectory: './projects/ngwr/icon',
+  srcFiles: ['./lib/icon/svg/*.svg'],
+  outputDirectory: './lib/icon',
   interfaceName: "WrIcon",
   generateType: true,
   typeName: "wrIconName",
@@ -11,7 +11,7 @@ const svgToTsConfig = {
     plugins: ["cleanupAttrs"]
   },
   completeIconSetName: "wrIconSet",
-  additionalModelFile: "./projects/ngwr/icon/models",
+  additionalModelFile: "./lib/icon/models",
   compileSources: true
 };
 
