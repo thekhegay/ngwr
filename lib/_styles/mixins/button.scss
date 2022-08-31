@@ -1,0 +1,58 @@
+@mixin button-variant($color) {
+  color: contrast-color($color);
+  background-color: $color;
+  box-shadow: rgba($color, 0.2) 0 3px 5px -1px, rgba($color, 0.14) 0 6px 10px 0,rgba($color, 0.12) 0 1px 18px 0;
+
+  &:hover {
+    color: contrast-color($color);
+    background-color: saturate(lighten($color, 15%), 20%);
+    box-shadow: rgba($color, 0.2) 0 3px 5px -1px, rgba($color, 0.14) 0 6px 10px 0,rgba($color, 0.12) 0 1px 18px 0;
+  }
+
+  .btn-check:checked + &,
+  .btn-check:active + &,
+  &:active,
+  &.active,{
+    color: mix(contrast-color($color), darken($color, 20%), 70%);
+    background-color: darken($color, 20%);
+    box-shadow: none;
+  }
+
+  & > wr-spin {
+    color: contrast-color($color);
+  }
+}
+
+
+
+@mixin button-outline-variant($color) {
+  color: $color;
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1.25px rgba($color, 0.3);
+
+  & > wr-spin {
+    color: $color;
+  }
+
+  &:hover {
+    color: contrast-color($color);
+    background-color: $color;
+    box-shadow: none;
+
+    & > wr-spin {
+      color: contrast-color($color);
+    }
+  }
+
+  .btn-check:checked + &,
+  .btn-check:active + &,
+  &:active,
+  &.active,
+  &.dropdown-toggle.show {
+    color: mix(contrast-color($color), darken($color, 20%), 70%);
+    background-color: darken($color, 20%);
+    box-shadow: none;
+  }
+}
+
+

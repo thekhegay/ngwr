@@ -13,7 +13,7 @@ import {
 
 import { BooleanInput, InputBoolean, stylePrefix } from '../_core';
 
-export type WrTagColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'dark';
+export type WrTagColor = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark';
 
 @Component({
   selector: 'wr-tag',
@@ -22,7 +22,7 @@ export type WrTagColor = 'default' | 'primary' | 'secondary' | 'success' | 'warn
   encapsulation: ViewEncapsulation.None
 })
 export class WrTagComponent implements OnInit, OnChanges {
-  @Input() color: WrTagColor = 'default';
+  @Input() color: WrTagColor | string = 'primary';
 
   @Input() @InputBoolean() transparent: BooleanInput = false;
   @Input() @InputBoolean() loading: BooleanInput = false;

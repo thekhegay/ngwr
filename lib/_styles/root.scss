@@ -1,0 +1,56 @@
+:root {
+  --#{$prefix}-body-bg: #{$body-background};
+
+  @each $color, $value in $colors {
+    --#{$prefix}-color-#{$color}: #{$value};
+    --#{$prefix}-color-#{$color}-rgb: #{hex-to-rgb($value)};
+  }
+  @each $color, $value in $theme-colors {
+    --#{$prefix}-color-#{$color}: #{$value};
+    --#{$prefix}-color-#{$color}-rgb: #{hex-to-rgb($value)};
+  }
+
+  // Typography
+  // Note: Use `inspect` for lists so that quoted items keep the quotes.
+  // See https://github.com/sass/sass/issues/2383#issuecomment-336349172
+  --#{$prefix}-font-family-base: #{inspect($font-family-base)};
+  --#{$prefix}-font-family-mono: #{inspect($font-family-mono)};
+
+  --#{$prefix}-font-size-base: #{$font-size-base};
+  --#{$prefix}-font-weight-base: #{$font-weight-base};
+  --#{$prefix}-line-height-base: #{$line-height-base};
+  --#{$prefix}-letter-spacing-base: #{$letter-spacing-base};
+
+  // Transition
+  --#{$prefix}-transition-base: #{$transition-base};
+  --#{$prefix}-transition-short: #{$transition-short};
+  --#{$prefix}-transition-long: #{$transition-long};
+
+  // Border
+  --#{$prefix}-border-radius-base: #{$border-radius-base};
+
+  // Grid
+  --#{$prefix}-grid-gutter: #{$grid-gutter};
+
+  // Buttons
+  --#{$prefix}-btn-padding-y: #{$btn-padding-y};
+  --#{$prefix}-btn-padding-x: #{$btn-padding-x};
+  --#{$prefix}-btn-border-radius: #{$btn-border-radius};
+  --#{$prefix}-btn-font-size: #{$btn-font-size};
+  --#{$prefix}-btn-font-weight: #{$btn-font-weight};
+  --#{$prefix}-btn-round-padding-y: #{$btn-round-padding-y};
+  --#{$prefix}-btn-round-padding-x: #{$btn-round-padding-x};
+  --#{$prefix}-btn-round-border-radius: #{$btn-round-border-radius};
+
+  // Inputs
+  --#{$prefix}-input-padding-y: #{$input-padding-y};
+  --#{$prefix}-input-padding-x: #{$input-padding-x};
+  --#{$prefix}-input-border-radius: #{$input-border-radius};
+  --#{$prefix}-input-font-size: #{$input-font-size};
+  --#{$prefix}-input-font-weight: #{$input-font-weight};
+
+//  --shadow-base: inset 0 0 0 1px rgba(var(--color-dark-rgb), 0.125);
+////, 0px 2px 4px -2px rgba(var(--color-dark-rgb), 0.125
+//  --shadow-base-hover: inset 0 0 0 1px rgba(var(--color-dark-rgb), 0.125), 0px 25px 50px -12px rgba(var(--color-dark-rgb), 0.125);
+
+}

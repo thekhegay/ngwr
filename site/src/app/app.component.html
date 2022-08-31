@@ -1,12 +1,295 @@
+<header class="header">
+  <div class="header__content container">
+    <svg class="header__logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 846.5 1000">
+      <path
+        d="M423.2 0C189.5 0 0 109.6 0 377.3S154.4 1000 423.2 1000s423.2-355.1 423.2-622.7S657 0 423.2 0zm-95.4 517.6c-8.8 91-13.6 201.5-8 289.5.9 13.8-17.8 19-24.1 6.6-32.8-64.9-62.7-151.7-78.8-242.8-2.7-15.1 4.9-30.1 18.6-36.8 22.3-11 43.7-23.8 60.3-33.2 1.1-.6 2.1-1.2 3.2-1.8 13.7-7.8 30.3 2.9 28.8 18.5zm301.7 54.2c-16.1 91.1-46 177.9-78.8 242.8-6.2 12.4-24.9 7.2-24.1-6.6 5.5-88.1.7-198.6-8-289.5-1.5-15.6 15.2-26.3 28.8-18.5 1.1.6 2.1 1.2 3.2 1.8 16.6 9.4 38 22.2 60.3 33.2 13.7 6.7 21.3 21.7 18.6 36.8zm-78.9-136c-41.2-23.4-78.1-51.3-127.4-51.3s-86.1 28-127.4 51.3C225.6 475.6 69 576.7 124.1 338.1c26.5-114.7 96.7-162.9 162.4-182 18.2-5.3 37.9.4 50.4 14.6 18.6 21.3 53.3 38.7 86.3 38.7s67.6-17.5 86.3-38.7c12.5-14.2 32.3-19.9 50.4-14.6 65.7 19.1 135.9 67.3 162.4 182 55.2 238.6-101.4 137.5-171.7 97.7z"
+      />
+    </svg>
+
+    <a class="header__btn" href="https://github.com/thekhegay/ngwr" target="_blank" wr-btn color="medium" outlined>
+      <wr-icon name="logo-github"></wr-icon> Github
+    </a>
+  </div>
+</header>
+
+<wr-divider></wr-divider>
+
 <main>
-  <section class="container icons">
-    <div class="row">
-      <div class="col-md-2" *ngFor="let i of icons">
-        <div class="icons-item">
-          <wr-icon class="icons-item__icon" [name]="i.name"></wr-icon>
-          <span class="icons-item__name">{{ i.name }}</span>
+  <section class="block container start">
+    <h2 class="block__title">Getting started</h2>
+
+    <p class="lead">Install package from npm:</p>
+    <pre class="pre"><code highlight="$ yarn add ngwr" [languages]="['shell']"></code></pre>
+    <pre class="pre"><code highlight="$ npm install ngwr" [languages]="['shell']"></code></pre>
+
+    <p class="lead">Add styles:</p>
+    <pre class="pre"><code highlight="@import '~ngwr/ngwr.min.css'" [languages]="['scss']"></code></pre>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container colors">
+    <h2 class="block__title">Colors</h2>
+
+    <wr-snippet codeLang="CSS">
+      <div slot="display">
+        <div class="colors__list">
+          <div class="colors__item colors__item--{{ c }}" *ngFor="let c of colors">
+            {{ c.charAt(0).toUpperCase() + c.slice(1) }}
+          </div>
         </div>
       </div>
-    </div>
+
+      <code [highlight]="colorsCode" slot="code" [languages]="['css']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container btns">
+    <h2 class="block__title">Buttons</h2>
+
+    <pre class="pre"><code highlight="import { WrButtonModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <div class="btns__list">
+          <wr-btn *ngFor="let b of colors" [color]="b">
+            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
+          </wr-btn>
+        </div>
+
+        <div class="btns__list">
+          <wr-btn *ngFor="let b of colors" [color]="b" outlined>
+            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
+          </wr-btn>
+        </div>
+
+        <div class="btns__list">
+          <wr-btn *ngFor="let b of colors" [color]="b" rounded>
+            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
+          </wr-btn>
+        </div>
+
+        <div class="btns__list">
+          <wr-btn class="btns__item" *ngFor="let b of colors" [color]="b" outlined rounded>
+            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
+          </wr-btn>
+        </div>
+
+        <div class="btns__list">
+          <wr-btn class="btns__item" color="primary" loading>Loading</wr-btn>
+          <wr-btn class="btns__item" color="primary" loading outlined>Loading</wr-btn>
+          <wr-btn class="btns__item" color="primary" loading rounded>Loading</wr-btn>
+          <wr-btn class="btns__item" color="primary" loading outlined rounded>Loading</wr-btn>
+        </div>
+
+        <div class="btns__list">
+          <wr-btn class="btns__item" color="primary" disabled>Disabled</wr-btn>
+          <wr-btn class="btns__item" color="primary" disabled loading outlined>Disabled loading</wr-btn>
+          <wr-btn class="btns__item" color="primary" disabled loading rounded>Disabled loading</wr-btn>
+          <wr-btn class="btns__item" color="primary" disabled loading outlined rounded>Disabled</wr-btn>
+        </div>
+      </div>
+
+      <code [highlight]="btnCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container divider">
+    <h2 class="block__title">Divider</h2>
+
+    <pre class="pre"><code highlight="import { WrDividerModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <p>Text</p>
+        <wr-divider></wr-divider>
+        <p>Text</p>
+      </div>
+
+      <code [highlight]="dividerCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container ext">
+    <h2 class="block__title">Extended input</h2>
+
+    <pre class="pre"><code highlight="import { WrExtendedInputModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-extended-input prefix="prefix" suffix="suffix" value="exInputModel"></wr-extended-input>
+      </div>
+
+      <code [highlight]="exInputCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container pwd">
+    <h2 class="block__title">Password input</h2>
+
+    <pre class="pre"><code highlight="import { WrExtendedInputModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-password-input></wr-password-input>
+      </div>
+
+      <code [highlight]="passInput" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container form">
+    <h2 class="block__title">Form items</h2>
+
+    <pre class="pre"><code highlight="import { WrFormModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-form-item>
+          <label>Form label</label>
+          <input wr-input value="Form item" />
+          <wr-form-error>Form error</wr-form-error>
+        </wr-form-item>
+      </div>
+
+      <code [highlight]="formCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container icons">
+    <h2 class="block__title">Icons</h2>
+
+    <pre class="pre"><code highlight="import { WrIconModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <p class="lead">Add module in root module:</p>
+    <pre class="pre"><code [highlight]="iconRootCode" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <div class="row">
+          <div class="col-md-2" *ngFor="let i of icons">
+            <div class="icons-item">
+              <wr-icon class="icons-item__icon" [name]="i.name"></wr-icon>
+              <span class="icons-item__name">{{ i.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <code [highlight]="iconCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container skeleton">
+    <h2 class="block__title">Skeleton</h2>
+
+    <pre class="pre"><code highlight="import { WrSkeletonModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <div class="row">
+          <div class="col" *ngFor="let i of [].constructor(6)">
+            <wr-skeleton style="height: 2rem; width: 2rem; border-radius: 50rem"></wr-skeleton>
+            <wr-skeleton style="height: 1rem; width: 25%"></wr-skeleton>
+            <wr-skeleton style="height: 1rem; width: 50%"></wr-skeleton>
+            <wr-skeleton style="height: 1rem; width: 75%"></wr-skeleton>
+            <wr-skeleton style="height: 4rem; width: 100%"></wr-skeleton>
+          </div>
+        </div>
+      </div>
+
+      <code [highlight]="skeletonCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container spin">
+    <h2 class="block__title">Spinner</h2>
+
+    <pre class="pre"><code highlight="import { WrSpinnerModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-spin></wr-spin>
+      </div>
+
+      <code [highlight]="spinCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container tags">
+    <h2 class="block__title">Tags</h2>
+
+    <pre class="pre"><code highlight="import { WrTagModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <div class="tags__list">
+          <wr-tag class="tags__item" *ngFor="let t of colors" [color]="t">
+            {{ t.charAt(0).toUpperCase() + t.slice(1) }}
+          </wr-tag>
+        </div>
+
+        <div class="tags__list">
+          <wr-tag class="tags__item" *ngFor="let t of colors" [color]="t" transparent>
+            {{ t.charAt(0).toUpperCase() + t.slice(1) }} transparent
+          </wr-tag>
+        </div>
+
+        <div class="tags__list">
+          <wr-tag class="tags__item" *ngFor="let t of colors" [color]="t" outlined>
+            {{ t.charAt(0).toUpperCase() + t.slice(1) }} outlined
+          </wr-tag>
+        </div>
+
+        <div class="tags__list">
+          <wr-tag class="tags__item" *ngFor="let t of colors" [color]="t" rounded>
+            {{ t.charAt(0).toUpperCase() + t.slice(1) }} rounded
+          </wr-tag>
+        </div>
+
+        <div class="tags__list">
+          <wr-tag class="tags__item" *ngFor="let t of colors" [color]="t" hoverable>
+            {{ t.charAt(0).toUpperCase() + t.slice(1) }} hoverable
+          </wr-tag>
+        </div>
+
+        <div class="tags__list">
+          <wr-tag class="tags__item" color="primary" loading>Loading</wr-tag>
+          <wr-tag class="tags__item" color="primary" loading transparent>Loading</wr-tag>
+          <wr-tag class="tags__item" color="primary" loading outlined>Loading</wr-tag>
+          <wr-tag class="tags__item" color="primary" loading rounded>Loading</wr-tag>
+          <wr-tag class="tags__item" color="primary" loading hoverable>Loading</wr-tag>
+        </div>
+      </div>
+
+      <code [highlight]="tagCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
   </section>
 </main>
+
+<footer class="footer">
+  <wr-divider></wr-divider>
+
+  <div class="footer__content container">
+    <span class="footer__text">{{ currentYear }} &copy; Garuna, LLP</span>
+    <span class="footer__text">{{ currentYear }} &copy; Stingray Technologies, LLP</span>
+  </div>
+</footer>

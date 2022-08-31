@@ -23,7 +23,7 @@ export class WrSkeletonComponent implements AfterViewInit {
   constructor(private readonly elRef: ElementRef) {}
 
   ngAfterViewInit(): void {
-    const style = this.color === 'light' ? 'var(--color-white-rgb)' : 'var(--color-dark-rgb)';
+    const style = this.color === 'light' ? `var(--${stylePrefix}-color-white-rgb)` : `var(--${stylePrefix}-color-dark-rgb)`;
     this.elRef.nativeElement.style.setProperty('--skeleton-style', style);
   }
 }

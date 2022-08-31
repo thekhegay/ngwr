@@ -1,0 +1,61 @@
+$extended-input-prefix: #{$prefix}-extended-input;
+
+.#{$extended-input-prefix} {
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  transition: var(--#{$prefix}--transition-base);
+  width: 100%;
+
+  &--has-suffix {
+    & > .#{$prefix}-input {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  &--has-prefix {
+    & > .#{$prefix}-input {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  &-suffix,
+  &-prefix {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(var(--#{$prefix}-color-light), 0.5);
+    border: 1px solid var(--#{$prefix}-color-light);
+
+    padding-left: var(--#{$prefix}-input-padding-y);
+    padding-right: var(--#{$prefix}-input-padding-y);
+
+    height: 100%;
+    max-width: 50%;
+
+    user-select: none;
+    pointer-events: none;
+
+    &__text {
+      color: var(--#{$prefix}-color-medium);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &-suffix {
+    border-top-right-radius: var(--#{$prefix}-input-border-radius);
+    border-bottom-right-radius: var(--#{$prefix}-input-border-radius);
+    border-left: 0;
+  }
+
+  &-prefix {
+    border-top-left-radius: var(--#{$prefix}-input-border-radius);
+    border-bottom-left-radius: var(--#{$prefix}-input-border-radius);
+    border-right: 0;
+  }
+}

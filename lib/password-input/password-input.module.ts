@@ -11,4 +11,4 @@ import { WrPasswordInputComponent } from './password-input.component';
   declarations: [WrPasswordInputComponent],
   exports: [WrPasswordInputComponent]
 })
-export class WalrusPasswordInputModule {}
+export class WrPasswordInputModule {}

@@ -9,4 +9,4 @@ import { WrSkeletonComponent } from './skeleton.component';
   declarations: [WrSkeletonComponent],
   exports: [WrSkeletonComponent]
 })
-export class WalrusSkeletonModule {}
+export class WrSkeletonModule {}

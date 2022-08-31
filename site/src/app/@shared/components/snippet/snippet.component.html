@@ -1,0 +1,11 @@
+<div class="snippet">
+  <section class="snippet__display">
+    <ng-content select="[slot=display]"></ng-content>
+  </section>
+  <span class="snippet__lang" *ngIf="codeLang">{{ codeLang }}</span>
+  <section class="snippet__body">
+    <pre class="snippet__code">
+      <ng-content select="[slot=code]"></ng-content>
+    </pre>
+  </section>
+</div>

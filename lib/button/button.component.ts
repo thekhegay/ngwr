@@ -17,7 +17,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { stylePrefix, BaseComponent, BooleanInput, InputBoolean } from '../_core';
 
-export type WrButtonColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+export type WrButtonColor = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark';
 export type WrButtonSize = 'default' | 'small';
 
 @Component({

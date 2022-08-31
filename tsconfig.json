@@ -23,7 +23,8 @@
       "dom"
     ],
     "paths": {
-      "@ngwr/*": ["dist/*"]
+      "ngwr": ["dist"],
+      "ngwr/*": ["dist/*"]
     }
   },
   "ts-node": {

@@ -1,0 +1,67 @@
+$tag-prefix: #{$prefix}-tag;
+
+.#{$tag-prefix} {
+  display: inline-block;
+  height: auto;
+
+  white-space: nowrap;
+
+  font-family: var(--#{$prefix}-font-family-base);
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  line-height: 1rem;
+  vertical-align: middle;
+
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+
+  margin-right: 0.25rem;
+
+  user-select: none;
+  transition: var(--#{$prefix}-transition-base);
+
+  pointer-events: none;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &--hoverable {
+    pointer-events: all;
+  }
+
+  &--rounded {
+    border-radius: var(--#{$prefix}-btn-round-border-radius);
+  }
+
+  @each $color, $value in $theme-colors {
+    &.#{$tag-prefix}-#{$color} {
+      @include generate-tags($value);
+    }
+
+    &.#{$tag-prefix}-#{$color} {
+      &.#{$tag-prefix}--outlined {
+        @include generate-outlined-tags($value);
+      }
+    }
+
+    &.#{$tag-prefix}-#{$color} {
+      &.#{$tag-prefix}--transparent {
+        @include generate-transparent-tags($value);
+      }
+    }
+  }
+
+  & > #{$prefix}-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.125rem;
+  }
+
+  & > #{$prefix}-spin {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.125rem;
+  }
+}
