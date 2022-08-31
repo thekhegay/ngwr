@@ -62,6 +62,9 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "site/src/favicon.ico",
+              "site/src/icon.svg",
+              "site/src/manifest.webmanifest",
+              "site/src/apple-touch-icon.png",
               "site/src/assets"
             ],
             "styles": [

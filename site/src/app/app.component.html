@@ -168,32 +168,6 @@
 
   <wr-divider></wr-divider>
 
-  <section class="block container icons">
-    <h2 class="block__title">Icons</h2>
-
-    <pre class="pre"><code highlight="import { WrIconModule } from 'ngwr';" [languages]="['ts']"></code></pre>
-
-    <p class="lead">Add module in root module:</p>
-    <pre class="pre"><code [highlight]="iconRootCode" [languages]="['ts']"></code></pre>
-
-    <wr-snippet codeLang="html">
-      <div slot="display">
-        <div class="row">
-          <div class="col-md-2" *ngFor="let i of icons">
-            <div class="icons-item">
-              <wr-icon class="icons-item__icon" [name]="i.name"></wr-icon>
-              <span class="icons-item__name">{{ i.name }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <code [highlight]="iconCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
-  </section>
-
-  <wr-divider></wr-divider>
-
   <section class="block container skeleton">
     <h2 class="block__title">Skeleton</h2>
 
@@ -281,6 +255,32 @@
       </div>
 
       <code [highlight]="tagCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
+  <section class="block container icons">
+    <h2 class="block__title">Icons</h2>
+
+    <pre class="pre"><code highlight="import { WrIconModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <p class="lead">Add module in root module:</p>
+    <pre class="pre"><code [highlight]="iconRootCode" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <div class="row">
+          <div class="col-md-2" *ngFor="let i of icons">
+            <div class="icons-item">
+              <wr-icon class="icons-item__icon" [name]="i.name"></wr-icon>
+              <span class="icons-item__name">{{ i.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <code [highlight]="iconCode" slot="code" [languages]="['html']"></code>
     </wr-snippet>
   </section>
 </main>

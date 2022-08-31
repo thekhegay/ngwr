@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 
 import { WrButtonColor, wrIconSet, WrTagColor } from 'ngwr';
 
@@ -9,13 +8,7 @@ import { WrButtonColor, wrIconSet, WrTagColor } from 'ngwr';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  exInputModel = 'Extended Input Value';
-  pwrInputModel = 'Password Input Value';
   readonly currentYear: number = new Date().getFullYear();
-
-  constructor(private readonly title: Title) {
-    this.title.setTitle('NGWR');
-  }
 
   readonly icons = wrIconSet;
   readonly colors: Array<WrButtonColor | WrTagColor> = [
