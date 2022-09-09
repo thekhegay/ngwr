@@ -50,7 +50,7 @@ $btn-prefix: #{$prefix}-btn;
 
     .#{$btn-prefix} {
       &__text {
-        font-size: calc(var(#{$prefix}-btn-font-size) / 1.25);
+        font-size: calc(var(--#{$btn-prefix}-font-size) / 1.25);
       }
     }
 
@@ -79,14 +79,6 @@ $btn-prefix: #{$prefix}-btn;
 @each $color, $value in $theme-colors {
   .#{$btn-prefix}-#{$color} {
     @include button-variant($value);
-
-    &:disabled,
-    &.#{$btn-prefix}--disabled {
-      color: var(--wr-color-medium) !important;
-      background-color: var(--wr-color-light);
-      box-shadow: none;
-      pointer-events: none;
-    }
   }
 }
 
@@ -94,14 +86,6 @@ $btn-prefix: #{$prefix}-btn;
   .#{$btn-prefix}-#{$color} {
     &.#{$btn-prefix}--outlined {
       @include button-outline-variant($value);
-
-      &:disabled,
-      &.#{$btn-prefix}--disabled {
-        color: var(--wr-color-medium) !important;
-        background-color: rgba(var(--wr-color-light-rgb), 0.5);
-        box-shadow: inset 0 0 0 1px var(--wr-color-light);
-        pointer-events: none;
-      }
     }
   }
 }
