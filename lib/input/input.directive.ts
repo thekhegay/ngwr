@@ -3,7 +3,7 @@ import { NgControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
-import { BaseComponent, InputBoolean, stylePrefix } from '../_core';
+import { BaseComponent, BooleanInput, InputBoolean, stylePrefix } from '../_core';
 
 @Directive({
   selector: 'wr-input, input[wr-input], textarea[wr-input]'
@@ -21,7 +21,7 @@ export class WrInputDirective extends BaseComponent implements OnInit, OnChanges
     }
     return this._disabled;
   }
-  set disabled(value: boolean) {
+  set disabled(value: BooleanInput) {
     this._disabled = value != null && `${value}` !== 'false';
   }
   _disabled: boolean = false;
