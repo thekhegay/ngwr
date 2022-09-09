@@ -3,7 +3,7 @@ import { NgControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
-import { BaseComponent, stylePrefix } from '../_core';
+import { BaseComponent, InputBoolean, stylePrefix } from '../_core';
 
 @Directive({
   selector: 'wr-input, input[wr-input], textarea[wr-input]'
@@ -14,6 +14,7 @@ export class WrInputDirective extends BaseComponent implements OnInit, OnChanges
   @HostBinding(`class.${stylePrefix}-input--disabled`)
   @HostBinding('disabled')
   @Input()
+  @InputBoolean()
   get disabled(): boolean {
     if (this.ngControl && this.ngControl.disabled !== null) {
       return this.ngControl.disabled;
