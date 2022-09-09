@@ -4,13 +4,7 @@
 
   &:hover {
     color: contrast-color($color);
-    background-color: saturate(lighten($color, 15%), 20%);
-  }
-
-  &:active,
-  &.active,{
-    color: mix(contrast-color($color), darken($color, 20%), 70%);
-    background-color: darken($color, 20%);
+    background-color: rgba($color, 0.7);
   }
 
   & > #{$prefix}-icon {
@@ -46,21 +40,27 @@
 @mixin generate-outlined-tags($color) {
   color: $color;
   background-color: transparent;
-  box-shadow: inset 0 0 0 1px lighten($color, 30%);
+  box-shadow: inset 0 0 0 1.25px rgba($color, 0.3);
 
   &:hover {
-    color: lighten($color, 20%);
-    box-shadow: inset 0 0 0 1px lighten($color, 35%);
-  }
-
-  &:active,
-  &.active {
-    color: mix(contrast-color($color), darken($color, 20%), 70%);
-    background-color: darken($color, 20%);
+    color: contrast-color($color);
+    background-color: $color;
     box-shadow: none;
+
+    & > #{$prefix}-spin {
+      color: contrast-color($color);
+    }
+
+    & > #{$prefix}-icon {
+      color: contrast-color($color);
+    }
   }
 
-  & > wr-icon {
-    color: lighten($color, 10%);
+  & > #{$prefix}-spin {
+    color: $color;
+  }
+
+  & > #{$prefix}-icon {
+    color: $color;
   }
 }

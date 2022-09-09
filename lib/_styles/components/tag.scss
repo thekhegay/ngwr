@@ -1,7 +1,8 @@
 $tag-prefix: #{$prefix}-tag;
 
 .#{$tag-prefix} {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   height: auto;
 
   white-space: nowrap;
@@ -33,6 +34,20 @@ $tag-prefix: #{$prefix}-tag;
 
   &--rounded {
     border-radius: var(--#{$prefix}-btn-round-border-radius);
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  & > #{$prefix}-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.125rem;
+  }
+
+  & > #{$prefix}-spin {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.375rem;
   }
 
   @each $color, $value in $theme-colors {
@@ -51,17 +66,5 @@ $tag-prefix: #{$prefix}-tag;
         @include generate-transparent-tags($value);
       }
     }
-  }
-
-  & > #{$prefix}-icon {
-    width: 0.75rem;
-    height: 0.75rem;
-    margin-right: 0.125rem;
-  }
-
-  & > #{$prefix}-spin {
-    width: 0.75rem;
-    height: 0.75rem;
-    margin-right: 0.125rem;
   }
 }

@@ -74,18 +74,38 @@ $btn-prefix: #{$prefix}-btn;
       opacity: 0;
     }
   }
-}
 
-@each $color, $value in $theme-colors {
-  .#{$btn-prefix}-#{$color} {
-    @include button-variant($value);
+  &:disabled,
+  &.#{$btn-prefix}--disabled {
+    color: var(--wr-color-medium);
+    background-color: var(--wr-color-light);
+    box-shadow: none;
+    pointer-events: none;
+
+    & > #{$prefix}-spin {
+      color: var(--#{$prefix}-color-medium);
+    }
   }
 }
 
 @each $color, $value in $theme-colors {
   .#{$btn-prefix}-#{$color} {
+    @include button-variant($value);
+
     &.#{$btn-prefix}--outlined {
       @include button-outline-variant($value);
+
+      &:disabled,
+      &.#{$btn-prefix}--disabled {
+        color: var(--wr-color-medium);
+        background-color: var(--wr-color-light);
+        box-shadow: none;
+        pointer-events: none;
+
+        & > #{$prefix}-spin {
+          color: var(--#{$prefix}-color-medium);
+        }
+      }
     }
   }
 }
