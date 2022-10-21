@@ -132,12 +132,26 @@ export const wrIconCaretForward: {
   name: 'caret-forward',
   data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M190.06 414l163.12-139.78a24 24 0 000-36.44L190.06 98c-15.57-13.34-39.62-2.28-39.62 18.22v279.6c0 20.5 24.05 31.56 39.62 18.18z"/></svg>`
 };
+export const wrIconCheckmarkCircleOutline: {
+  name: 'checkmark-circle-outline';
+  data: string;
+} = {
+  name: 'checkmark-circle-outline',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M96.3,46.4c2.8,2.8,2.8,7.3,0,10L69,83.7l-10,10l-10-10L32.5,67.3c-2.8-2.8-2.8-7.3,0-10s7.3-2.8,10,0L59,73.6l27.3-27.3 C89.1,43.6,93.6,43.6,96.3,46.4z M128,64c0,35.3-28.7,64-64,64S0,99.3,0,64S28.7,0,64,0S128,28.7,128,64z M117.7,64 c0-29.6-24.1-53.7-53.7-53.7S10.3,34.4,10.3,64c0,29.6,24.1,53.7,53.7,53.7S117.7,93.6,117.7,64z"/></svg>`
+};
 export const wrIconCheckmarkCircle: {
   name: 'checkmark-circle';
   data: string;
 } = {
   name: 'checkmark-circle',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm108.25 138.29l-134.4 160a16 16 0 01-12 5.71h-.27a16 16 0 01-11.89-5.3l-57.6-64a16 16 0 1123.78-21.4l45.29 50.32 122.59-145.91a16 16 0 0124.5 20.58z"/></svg>`
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M96.3,56.4L69,83.7l-10,10l-10-10L32.5,67.3 c-2.8-2.8-2.8-7.3,0-10s7.3-2.8,10,0L59,73.6l27.3-27.3c2.8-2.8,7.3-2.8,10,0S99.1,53.6,96.3,56.4z"/></svg>`
+};
+export const wrIconCheckmark: {
+  name: 'checkmark';
+  data: string;
+} = {
+  name: 'checkmark',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M124.1,21.3c5.2,5.2,5.2,13.7,0,18.9L72.7,91.7l-18.9,18.9L34.8,91.7L3.9,60.7c-5.2-5.2-5.2-13.7,0-18.9s13.7-5.2,18.9,0 l30.9,30.9l51.4-51.4C110.4,16.1,118.9,16.1,124.1,21.3z"/></svg>`
 };
 export const wrIconChevronDown: {
   name: 'chevron-down';
@@ -264,6 +278,20 @@ export const wrIconFileZip: {
 } = {
   name: 'file-zip',
   data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M86.5,57.4c-1.8,0-3.3,0.6-4.5,1.9c-1.2,1.2-1.8,2.9-1.8,4.9c0,2.1,0.6,3.7,1.8,4.9c1.2,1.2,2.7,1.9,4.5,1.9 c1.8,0,3.3-0.6,4.5-1.9s1.8-2.9,1.8-4.9c0-2.1-0.6-3.7-1.8-4.9S88.3,57.4,86.5,57.4z M117.8,10.2C107.6,0,92,0,64,0 S20.4,0,10.2,10.2C0,20.4,0,36,0,64s0,43.6,10.2,53.8C20.4,128,36,128,64,128s43.6,0,53.8-10.2C128,107.6,128,92,128,64 S128,20.4,117.8,10.2z M34.9,75.9c-0.7,0.7-1.5,1.1-2.5,1.1s-1.8-0.4-2.5-1.1c-0.7-0.7-1.1-1.5-1.1-2.5s0.4-1.8,1.1-2.5 c0.7-0.7,1.5-1.1,2.5-1.1s1.8,0.4,2.5,1.1s1.1,1.5,1.1,2.5S35.7,75.2,34.9,75.9z M59.1,76.7H39.7v-5.2l10.9-13.9H39.7v-6h18.8v5.2 L47.6,70.7h11.4V76.7z M69.3,76.7H63V51.7h6.3V76.7z M68.8,47.3c-0.7,0.7-1.5,1.1-2.5,1.1c-0.9,0-1.8-0.4-2.5-1.1 c-0.7-0.7-1.1-1.5-1.1-2.5s0.4-1.8,1.1-2.5c0.7-0.7,1.5-1.1,2.5-1.1c0.9,0,1.8,0.4,2.5,1.1c0.7,0.7,1.1,1.5,1.1,2.5 C69.9,45.8,69.5,46.6,68.8,47.3z M98.1,69.3c-0.6,1.6-1.5,2.9-2.6,4.1c-1.1,1.1-2.3,2-3.7,2.7S88.9,77,87.4,77c-1.1,0-2-0.1-2.8-0.4 c-0.8-0.3-1.5-0.5-2-0.8c-0.7-0.4-1.2-0.8-1.7-1.3v10.9h-6.3V51.7h4.6l1.1,2.4c0.5-0.5,1.2-1,1.9-1.4c0.6-0.3,1.4-0.6,2.2-0.9 s1.9-0.4,2.9-0.4c1.6,0,3.1,0.3,4.5,0.9c1.4,0.6,2.7,1.5,3.7,2.7c1.1,1.1,1.9,2.5,2.6,4.1c0.6,1.6,0.9,3.3,0.9,5.1 C99.1,66.1,98.8,67.8,98.1,69.3L98.1,69.3z"/></svg>`
+};
+export const wrIconFilterOutline: {
+  name: 'filter-outline';
+  data: string;
+} = {
+  name: 'filter-outline',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M113.5,10.3c2.3,0,4.2,1.9,4.2,4.2c0,1.1-0.5,2.2-1.3,3l-39,38c-2,1.9-3.1,4.6-3.1,7.4v53.3l-20.6-10V62.9 c0-2.8-1.1-5.4-3.1-7.4l-39-38c-0.8-0.8-1.3-1.9-1.3-3c0-2.3,1.9-4.2,4.2-4.2H113.5 M113.5,0h-99C6.5,0,0,6.5,0,14.5 c0,3.9,1.6,7.7,4.4,10.4l39,38v44.9c0,2.9,1.7,5.6,4.3,6.9l25.8,12.5c1.1,0.5,2.2,0.8,3.4,0.8c4,0,7.7-3.2,7.7-7.7V62.9l39-38 c2.8-2.7,4.4-6.5,4.4-10.4C128,6.5,121.5,0,113.5,0L113.5,0z"/></svg>`
+};
+export const wrIconFilter: {
+  name: 'filter';
+  data: string;
+} = {
+  name: 'filter',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M128,14.5c0-8-6.5-14.5-14.5-14.5h-99C6.5,0,0,6.5,0,14.5c0,3.9,1.6,7.7,4.4,10.4l39,38v44.9c0,2.9,1.7,5.6,4.3,6.9 l25.8,12.5c5.1,2.5,11-1.2,11-6.9V62.9l39-38C126.4,22.1,128,18.4,128,14.5z"/></svg>`
 };
 export const wrIconFlash: {
   name: 'flash';
@@ -419,6 +447,34 @@ export const wrIconSearch: {
   name: 'search',
   data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M123.5,100.9l-21.1-21.1c3.8-7.7,6.4-16.6,6.4-25.5c0-30-24.3-54.3-54.3-54.3S0.2,24.3,0.2,54.3s24.3,54.3,54.3,54.3 c8.9,0,17.9-2.6,25.5-6.4l21.1,21.1c6.4,6.4,16,6.4,22.3,0C129.2,116.8,129.2,107.3,123.5,100.9L123.5,100.9z M54.5,95.8 c-23,0-41.5-18.5-41.5-41.5s18.5-41.5,41.5-41.5S96,31.3,96,54.3S77.5,95.8,54.5,95.8z"/></svg>`
 };
+export const wrIconShieldCheckmarkOutline: {
+  name: 'shield-checkmark-outline';
+  data: string;
+} = {
+  name: 'shield-checkmark-outline',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M91.5,44.5c2.4,2.4,2.4,6.3,0,8.6L68,76.6l-8.6,8.6l-8.6-8.6L36.5,62.5c-2.4-2.4-2.4-6.3,0-8.6c2.4-2.4,6.3-2.4,8.6,0 L59.3,68l23.5-23.5C85.2,42.1,89.1,42.1,91.5,44.5z"/><path d="M63.8,10.7c0.2,0,0.5,0.1,0.6,0.1L112,30.7c0.9,0.4,1.1,1,1.1,1.2c0,30.8-11.9,51.9-21.9,64.2c-12.2,15-24.4,20.7-27.5,21.1 c-3.1-0.5-15.2-6.3-27.2-21C26.7,84,14.8,62.9,14.8,31.9c0-0.5,0.3-1,0.8-1.2l0,0l0,0l47.5-19.9C63.3,10.8,63.6,10.8,63.8,10.7 M63.8,0c-1.3,0-3.4,0.4-4.6,0.9l-47.7,20c-4.5,1.8-7.4,6.2-7.4,11c0,64.4,47.1,96.1,59.7,96.1c13.5,0,60.1-32.6,60.1-96.1 c0-4.6-2.9-9-7.6-11.1l-47.9-20C67.2,0.4,65.1,0,63.8,0L63.8,0z"/></svg>`
+};
+export const wrIconShieldCheckmark: {
+  name: 'shield-checkmark';
+  data: string;
+} = {
+  name: 'shield-checkmark',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M116.3,20.8l-47.9-20C67.2,0.4,65.1,0,63.8,0s-3.4,0.4-4.6,0.9l-47.7,20c-4.5,1.8-7.4,6.2-7.4,11 c0,64.4,47.1,96.1,59.7,96.1c13.5,0,60.1-32.6,60.1-96.1C123.9,27.3,121,22.9,116.3,20.8z M91.5,53.1L68,76.6l-8.6,8.6l-8.6-8.6 L36.5,62.5c-2.4-2.4-2.4-6.3,0-8.6c2.4-2.4,6.3-2.4,8.6,0L59.3,68l23.5-23.5c2.4-2.4,6.3-2.4,8.6,0C93.8,46.9,93.8,50.8,91.5,53.1z"/></svg>`
+};
+export const wrIconShieldOutline: {
+  name: 'shield-outline';
+  data: string;
+} = {
+  name: 'shield-outline',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M63.8,10.7c0.2,0,0.5,0.1,0.6,0.1L112,30.7c0.9,0.4,1.1,1,1.1,1.2c0,30.8-11.9,51.9-21.9,64.2c-12.2,15-24.4,20.7-27.5,21.1 c-3.1-0.5-15.2-6.3-27.2-21C26.7,84,14.8,62.9,14.8,31.9c0-0.5,0.3-1,0.8-1.2l0,0l0,0l47.5-19.9C63.3,10.8,63.6,10.8,63.8,10.7 M63.8,0c-1.3,0-3.4,0.4-4.6,0.9l-47.7,20C7,22.7,4.1,27.1,4.1,31.9c0,64.4,47.1,96.1,59.7,96.1c13.5,0,60.1-32.6,60.1-96.1 c0-4.6-2.9-9-7.6-11.1l-47.9-20C67.2,0.4,65.1,0,63.8,0L63.8,0z"/></svg>`
+};
+export const wrIconShield: {
+  name: 'shield';
+  data: string;
+} = {
+  name: 'shield',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M123.9,31.9c0,63.4-46.6,96.1-60.1,96.1C51.2,128,4.1,96.4,4.1,31.9c0-4.8,2.9-9.2,7.4-11.1l47.7-20C60.4,0.4,62.5,0,63.8,0 c1.3,0,3.4,0.4,4.6,0.9l47.9,20C121,23,123.9,27.3,123.9,31.9z"/></svg>`
+};
 export const wrIconStopCircle: {
   name: 'stop-circle';
   data: string;
@@ -495,7 +551,9 @@ export type wrIconName =
   | 'bug'
   | 'caret-back'
   | 'caret-forward'
+  | 'checkmark-circle-outline'
   | 'checkmark-circle'
+  | 'checkmark'
   | 'chevron-down'
   | 'chevron-up'
   | 'clock'
@@ -514,6 +572,8 @@ export type wrIconName =
   | 'file-apk'
   | 'file-ipa'
   | 'file-zip'
+  | 'filter-outline'
+  | 'filter'
   | 'flash'
   | 'folder'
   | 'help'
@@ -536,6 +596,10 @@ export type wrIconName =
   | 'reader'
   | 'repeat'
   | 'search'
+  | 'shield-checkmark-outline'
+  | 'shield-checkmark'
+  | 'shield-outline'
+  | 'shield'
   | 'stop-circle'
   | 'stop'
   | 'trash'
@@ -569,7 +633,9 @@ export const wrIconSet = [
   wrIconBug,
   wrIconCaretBack,
   wrIconCaretForward,
+  wrIconCheckmarkCircleOutline,
   wrIconCheckmarkCircle,
+  wrIconCheckmark,
   wrIconChevronDown,
   wrIconChevronUp,
   wrIconClock,
@@ -588,6 +654,8 @@ export const wrIconSet = [
   wrIconFileApk,
   wrIconFileIpa,
   wrIconFileZip,
+  wrIconFilterOutline,
+  wrIconFilter,
   wrIconFlash,
   wrIconFolder,
   wrIconHelp,
@@ -610,6 +678,10 @@ export const wrIconSet = [
   wrIconReader,
   wrIconRepeat,
   wrIconSearch,
+  wrIconShieldCheckmarkOutline,
+  wrIconShieldCheckmark,
+  wrIconShieldOutline,
+  wrIconShield,
   wrIconStopCircle,
   wrIconStop,
   wrIconTrash,
