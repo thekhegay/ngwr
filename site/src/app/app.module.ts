@@ -2,11 +2,10 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { WrIconModule } from 'ngwr';
+import { HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highlightjs';
 
 import { SharedModule } from './@shared';
 import { AppComponent } from './app.component';
-
-import { HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highlightjs';
 
 @NgModule({
   declarations: [AppComponent],

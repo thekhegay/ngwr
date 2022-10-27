@@ -98,6 +98,23 @@
 
   <wr-divider></wr-divider>
 
+  <section class="block container checkbox">
+    <h2 class="block__title">Checkboxes</h2>
+
+    <pre class="pre"><code highlight="import { WrCheckboxModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-checkbox [ngModel]="true" style="margin-right: 1rem">Checkbox</wr-checkbox>
+        <wr-checkbox [ngModel]="false">Checkbox</wr-checkbox>
+      </div>
+
+      <code [highlight]="checkboxCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <wr-divider></wr-divider>
+
   <section class="block container divider">
     <h2 class="block__title">Divider</h2>
 

@@ -5,8 +5,7 @@ export * from './components/base.component';
 export * from './constants/style-prefix';
 
 // Types
-export * from './types/boolean-input';
-export * from './types/safe-any';
+export * from './types';
 
 // Utils
 export * from './util/convert';

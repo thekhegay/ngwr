@@ -33,6 +33,7 @@ export class AppComponent {
 --wr-color-warning: #F99B00;
 --wr-color-danger: #e01d34;`;
   readonly btnCode = `<wr-btn color="primary" disabled outlined rounded loading></wr-btn>`;
+  readonly checkboxCode = `<wr-checkbox [ngModel]="true" (checkedChange)="$event" checked disabled></wr-checkbox>`;
   readonly tagCode = `<wr-tag color="primary" transparent outlined rounded loading></wr-tag>`;
   readonly exInputCode = `<wr-extended-input prefix="prefix" suffix="suffix"></wr-extended-input>`;
   readonly passInput = `<wr-password-input></wr-password-input>`;

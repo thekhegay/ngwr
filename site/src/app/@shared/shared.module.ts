@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
 import {
+  WrCheckboxModule,
   WrButtonModule,
   WrDividerModule,
   WrExtendedInputModule,
@@ -16,8 +17,10 @@ import {
 import { HighlightModule } from 'ngx-highlightjs';
 
 import { SnippetComponent } from './components/snippet/snippet.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const ngwr = [
+  WrCheckboxModule,
   WrButtonModule,
   WrDividerModule,
   WrExtendedInputModule,
@@ -31,6 +34,8 @@ const ngwr = [
 ];
 
 const modules = [
+  FormsModule,
+  ReactiveFormsModule,
   HighlightModule
 ];
 
