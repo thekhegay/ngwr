@@ -1,55 +1,34 @@
-@mixin button-variant($color) {
+@mixin button-variant($name, $color) {
   color: contrast-color($color);
-  background-color: $color;
-  box-shadow: rgba($color, 0.2) 0 3px 5px -1px, rgba($color, 0.14) 0 6px 10px 0,rgba($color, 0.12) 0 1px 18px 0;
+  background-color: var(--#{$prefix}-color-#{$name});
 
   &:hover {
     color: contrast-color($color);
-    background-color: lighten($color, 15%);
-    box-shadow: rgba($color, 0.2) 0 3px 5px -1px, rgba($color, 0.14) 0 6px 10px 0,rgba($color, 0.12) 0 1px 18px 0;
+    background-color: mix(black, $color, 15%);
   }
 
-  .btn-check:checked + &,
-  .btn-check:active + &,
-  &:active,
-  &.active,{
-    color: mix(contrast-color($color), darken($color, 20%), 70%);
-    background-color: darken($color, 20%);
-    box-shadow: none;
-  }
-
-  & > wr-spin {
+  .#{$btn-prefix}__icon {
     color: contrast-color($color);
   }
-}
 
-@mixin button-outline-variant($color) {
-  color: $color;
-  background-color: transparent;
-  box-shadow: inset 0 0 0 1.25px rgba($color, 0.3);
+  &.#{$btn-prefix}--outlined {
+    color: var(--#{$prefix}-color-#{$name});
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1.25px rgba(var(--#{$prefix}-color-#{$name}-rgb), 0.375);
 
-  & > wr-spin {
-    color: $color;
-  }
-
-  &:hover {
-    color: contrast-color($color);
-    background-color: $color;
-    box-shadow: none;
-
-    & > wr-spin {
+    &:hover {
       color: contrast-color($color);
-    }
-  }
+      background-color: var(--#{$prefix}-color-#{$name});
+      box-shadow: none;
 
-  .btn-check:checked + &,
-  .btn-check:active + &,
-  &:active,
-  &.active,
-  &.dropdown-toggle.show {
-    color: mix(contrast-color($color), darken($color, 20%), 70%);
-    background-color: darken($color, 20%);
-    box-shadow: none;
+      .#{$btn-prefix}__icon {
+        color: contrast-color($color);
+      }
+    }
+
+    .#{$btn-prefix}__icon {
+      color: var(--#{$prefix}-color-#{$name});
+    }
   }
 }
 
