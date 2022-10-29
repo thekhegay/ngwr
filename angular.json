@@ -37,6 +37,16 @@
               "lib/**/*.html"
             ]
           }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "lib/test.ts",
+            "polyfills": "lib/polyfills.ts",
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "scripts": []
+          }
         }
       }
     },

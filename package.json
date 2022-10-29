@@ -8,7 +8,8 @@
     "build:site": "ng build site",
     "serve:site": "ng serve site",
     "generate:icons": "svg-to-ts-constants",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "test:lib": "ng test ngwr"
   },
   "dependencies": {
     "@angular/animations": "^14.2.8",
@@ -34,7 +35,7 @@
     "@angular/cli": "~14.2.7",
     "@angular/compiler-cli": "^14.2.8",
     "@types/jasmine": "~4.0.0",
-    "@types/node": "^18.7.13",
+    "@types/node": "^18.11.7",
     "@typescript-eslint/eslint-plugin": "5.29.0",
     "@typescript-eslint/parser": "5.29.0",
     "autoprefixer": "^10.4.8",
