@@ -62,12 +62,13 @@ export class WrCheckboxComponent
 
   ngOnInit(): void {
     this.ngZone.runOutsideAngular(() => {
-      fromEvent(this.elRef.nativeElement, 'click')
+      fromEvent<MouseEvent>(this.elRef.nativeElement, 'click')
         .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe(event => {
           event.preventDefault();
           this.focus();
           if (this.disabled) {
+            event.stopImmediatePropagation();
             return;
           }
           this.ngZone.run(() => {
