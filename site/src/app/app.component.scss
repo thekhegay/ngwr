@@ -1,18 +1,4 @@
-.header {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
 
-  &__content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  &__logo {
-    height: 2rem;
-    fill: var(--wr-color-primary);
-  }
-}
 
 .lead {
   color: var(--wr-color-dark);
@@ -21,49 +7,9 @@
   margin-bottom: 1rem;
 }
 
-.footer {
-  &__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
 
-  &__text {
-    color: var(--wr-color-medium);
-    font-size: 0.825rem;
-    line-height: 1rem;
-    margin-bottom: 1rem;
-  }
-}
 
-.pre {
-  display: flex;
-  background-color: rgba(var(--wr-color-light-rgb), 0.5) !important;
-  border-radius: var(--wr-border-radius-base);
-  margin: 0 0 1rem 0 !important;
-  padding: 0.75rem 1rem !important;
-
-  &::ng-deep {
-    .hljs {
-      background: transparent !important;
-      margin: 0;
-      padding: 0;
-    }
-
-    .hljs-ln {
-      width: 100%;
-      border-collapse: separate;
-    }
-
-    .hljs {
-      white-space: pre;
-    }
-  }
-}
 
 
 .block {

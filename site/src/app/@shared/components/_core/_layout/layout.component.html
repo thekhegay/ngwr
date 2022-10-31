@@ -1,0 +1,40 @@
+<site-header></site-header>
+<div class="layout container">
+  <aside class="layout-sidebar">
+    <div class="layout-sidebar-list">
+      <span class="layout-sidebar-list__title">Getting started</span>
+      <a
+        class="layout-sidebar__link"
+        *ngFor="let l of gettingStartedSidebarLinks"
+        [routerLink]="l.url"
+        routerLinkActive="layout-sidebar__link--active"
+      >
+        {{ l.title }}
+      </a>
+    </div>
+    <div class="layout-sidebar-list">
+      <span class="layout-sidebar-list__title">Components</span>
+      <a
+        class="layout-sidebar__link"
+        *ngFor="let l of componentsSidebarLinks"
+        [routerLink]="l.url"
+        routerLinkActive="layout-sidebar__link--active"
+      >
+        {{ l.title }}
+      </a>
+    </div>
+    <div class="layout-sidebar-list">
+      <span class="layout-sidebar-list__title">Core</span>
+      <a
+        class="layout-sidebar__link"
+        *ngFor="let l of coreSidebarLinks"
+        [routerLink]="l.url"
+        routerLinkActive="layout-sidebar__link--active"
+      >
+        {{ l.title }}
+      </a>
+    </div>
+  </aside>
+  <div class="layout__content"><router-outlet></router-outlet></div>
+</div>
+<site-footer></site-footer>

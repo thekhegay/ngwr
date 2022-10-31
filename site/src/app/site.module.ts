@@ -4,13 +4,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { WrIconModule } from 'ngwr';
 import { HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highlightjs';
 
-import { SharedModule } from './@shared';
-import { AppComponent } from './app.component';
+import { FooterComponent, HeaderComponent, LayoutComponent, RootComponent, SharedModule } from './@shared';
+import { SiteRouting } from './site.routing';
 
 @NgModule({
-  declarations: [AppComponent],
-  imports: [BrowserModule, SharedModule, WrIconModule.forRoot()],
-  bootstrap: [AppComponent],
+  imports: [BrowserModule, SiteRouting, SharedModule, WrIconModule.forRoot()],
+  declarations: [RootComponent, LayoutComponent, HeaderComponent, FooterComponent],
   providers: [
     {
       provide: HIGHLIGHT_OPTIONS,
@@ -18,6 +17,7 @@ import { AppComponent } from './app.component';
         fullLibraryLoader: () => import('highlight.js')
       }
     }
-  ]
+  ],
+  bootstrap: [RootComponent]
 })
-export class AppModule {}
+export class SiteModule {}

@@ -18,6 +18,7 @@ import { HighlightModule } from 'ngx-highlightjs';
 
 import { SnippetComponent } from './components/snippet/snippet.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 const ngwr = [
   WrCheckboxModule,
@@ -34,6 +35,7 @@ const ngwr = [
 ];
 
 const modules = [
+  RouterModule,
   FormsModule,
   ReactiveFormsModule,
   HighlightModule

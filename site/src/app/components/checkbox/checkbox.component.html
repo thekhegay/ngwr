@@ -1,0 +1,24 @@
+<main class="checkbox">
+  <section class="container">
+    <h1>Checkbox</h1>
+    <h2>The classic button, in different colors, sizes, and states</h2>
+
+    <pre class="pre"><code highlight="import { WrCheckboxModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+
+    <section>
+      <h3>
+        Examples
+      </h3>
+      <p>The button is available in different <a routerLink="/core/color">colors</a>. Set by <code>color</code> attribute</p>
+
+      <wr-snippet codeLang="html">
+        <div slot="display">
+          <wr-checkbox [ngModel]="true" style="margin-right: 1rem">Checkbox</wr-checkbox>
+          <wr-checkbox [ngModel]="false">Checkbox</wr-checkbox>
+        </div>
+        <code [highlight]="checkboxCode" slot="code" [languages]="['html']"></code>
+      </wr-snippet>
+
+    </section>
+  </section>
+</main>
