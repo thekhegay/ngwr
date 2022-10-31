@@ -5,13 +5,15 @@ import { ComponentsRouting } from './components.routing';
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { DividerComponent } from './divider/divider.component';
+import { InputComponent } from './input/input.component';
 
 @NgModule({
   imports: [CommonModule, SharedModule, ComponentsRouting],
   declarations: [
     ButtonComponent,
     CheckboxComponent,
-    DividerComponent
+    DividerComponent,
+    InputComponent,
   ]
 })
 export class ComponentsModule {}

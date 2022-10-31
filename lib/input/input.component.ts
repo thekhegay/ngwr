@@ -1,64 +1,63 @@
-import { FocusMonitor } from '@angular/cdk/a11y';
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  EventEmitter,
-  forwardRef,
-  HostBinding,
-  Input,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
+  ChangeDetectionStrategy, ChangeDetectorRef,
+  Component, ElementRef,
+  forwardRef, HostBinding, Input, NgZone, OnDestroy,
+  OnInit, ViewChild,
   ViewEncapsulation
 } from '@angular/core';
+import { BaseComponent, BooleanInput, InputBoolean, OnChangeType, OnTouchedType, SafeAny } from '../_core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { BaseComponent, BooleanInput, InputBoolean, OnChangeType, OnTouchedType, SafeAny, stylePrefix } from '../_core';
-
 @Component({
-  selector: 'wr-checkbox',
-  templateUrl: './checkbox.component.html',
+  selector: 'wr-input',
+  exportAs: 'wrInput',
+  templateUrl: './input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => WrCheckboxComponent),
+      useExisting: forwardRef(() => WrInputComponent),
       multi: true
     }
   ]
 })
-export class WrCheckboxComponent
-  extends BaseComponent
-  implements ControlValueAccessor, AfterViewInit, OnInit, OnDestroy
-{
-  onChange: OnChangeType = () => {};
-  onTouch: OnTouchedType = () => {};
+export class WrInputComponent extends BaseComponent implements ControlValueAccessor, AfterViewInit, OnInit, OnDestroy {
+  @Input() value: string | null = null;
+  @Input() type: 'text' | 'number' | 'password' | 'email' = 'text';
+  @Input() @InputBoolean() disabled: BooleanInput = false;
+  @Input() @InputBoolean() readonly: BooleanInput = false;
+  @Input() @InputBoolean() autofocus: BooleanInput = false;
+  @Input() @InputBoolean() passwordIcons: BooleanInput = false;
+  @Input() placeholder: string | undefined = undefined;
+  @Input() prefix: string | null = null;
+  @Input() suffix: string | null = null;
 
   @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
-  @Input() @InputBoolean() checked: BooleanInput = false;
-  @Input() @InputBoolean() disabled: BooleanInput = false;
-  @Input() @InputBoolean() autoFocus: BooleanInput = false;
-
-  @Output() readonly valueChange = new EventEmitter<boolean>();
 
   @HostBinding('class')
   get elClasses(): SafeAny {
     return {
-      'wr-checkbox': true
+      'wr-input': true,
+      'wr-input--has-prefix': this.prefix,
+      'wr-input--has-suffix': this.suffix,
+      'wr-input--password': this.passwordIcons,
+      'wr-input--disabled': this.disabled
     };
   }
 
+  eyeOn = true;
+
+  onChange: OnChangeType = () => {};
+  onTouch: OnTouchedType = () => {};
+
   constructor(
     private readonly cdr: ChangeDetectorRef,
-    private readonly elRef: ElementRef<HTMLElement>,
+    private readonly elRef: ElementRef<HTMLInputElement>,
     private readonly focusMonitor: FocusMonitor,
     private readonly ngZone: NgZone
   ) {
@@ -76,10 +75,6 @@ export class WrCheckboxComponent
             event.stopImmediatePropagation();
             return;
           }
-          this.ngZone.run(() => {
-            this.onModelChange(!this.checked);
-            this.cdr.markForCheck();
-          });
         });
       fromEvent(this.inputElement.nativeElement, 'click')
         .pipe(takeUntil(this.ngUnsubscribe))
@@ -88,7 +83,7 @@ export class WrCheckboxComponent
   }
 
   ngAfterViewInit(): void {
-    if (this.autoFocus) {
+    if (this.autofocus) {
       this.focus();
     }
   }
@@ -98,8 +93,8 @@ export class WrCheckboxComponent
     this.focusMonitor.stopMonitoring(this.elRef);
   }
 
-  writeValue(value: boolean): void {
-    this.checked = value;
+  writeValue(value: string | null): void {
+    this.value = value;
     this.cdr.markForCheck();
   }
 
@@ -124,11 +119,16 @@ export class WrCheckboxComponent
     this.inputElement.nativeElement.blur();
   }
 
-  onModelChange(checked: boolean): void {
+  onPasswordVisibilityChange(event: Event): void {
+    event.stopPropagation();
+    this.type === 'password' ? (this.type = 'text') : (this.type = 'password');
+    this.eyeOn = !this.eyeOn;
+  }
+
+  onModelChange(value: string | null): void {
     if (!this.disabled) {
-      this.checked = checked;
-      this.onChange(this.checked);
-      this.valueChange.emit(this.checked);
+      this.value = value;
+      this.onChange(this.value);
     }
   }
 }

@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { DividerComponent } from './divider/divider.component';
+import { InputComponent } from './input/input.component';
 
 const routes: Routes = [
   {
@@ -25,6 +26,10 @@ const routes: Routes = [
       {
         path: 'divider',
         component: DividerComponent
+      },
+      {
+        path: 'input',
+        component: InputComponent,
       }
     ]
   }

@@ -1,14 +1,6 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  HostBinding,
-  Input,
-  ViewEncapsulation
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
 
-import { stylePrefix } from '../_core';
+import { SafeAny } from '../_core';
 
 @Component({
   selector: 'wr-skeleton',
@@ -16,14 +8,15 @@ import { stylePrefix } from '../_core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class WrSkeletonComponent implements AfterViewInit {
+export class WrSkeletonComponent {
   @Input() color: 'light' | 'dark' = 'dark';
-  @HostBinding('class') class = `${stylePrefix}-skeleton`;
 
-  constructor(private readonly elRef: ElementRef) {}
-
-  ngAfterViewInit(): void {
-    const style = this.color === 'light' ? `var(--${stylePrefix}-color-white-rgb)` : `var(--${stylePrefix}-color-dark-rgb)`;
-    this.elRef.nativeElement.style.setProperty('--skeleton-style', style);
+  @HostBinding('class')
+  get elClasses(): SafeAny {
+    return {
+      'wr-skeleton': true,
+      'wr-skeleton--light': this.color === 'light',
+      'wr-skeleton--dark': this.color === 'dark'
+    };
   }
 }

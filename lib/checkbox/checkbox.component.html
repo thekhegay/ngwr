@@ -10,7 +10,7 @@
     [attr.autofocus]="autoFocus ? 'autofocus' : null"
     [checked]="checked"
     [ngModel]="checked"
-    [disabled]="disabled"
+    [disabled]="!!disabled"
     (ngModelChange)="onModelChange($event)"
   />
   <div class="wr-checkbox-container-inner">

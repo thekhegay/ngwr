@@ -1,2 +1,2 @@
-export * from './spinner.module';
-export * from './spinner.component';
+export { WrSpinnerComponent } from './spinner.component';
+export { WrSpinnerModule } from './spinner.module';

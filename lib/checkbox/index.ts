@@ -1,2 +1,2 @@
-export * from './checkbox.module';
-export * from './checkbox.component';
+export { WrCheckboxComponent } from './checkbox.component';
+export { WrCheckboxModule } from './checkbox.module';

@@ -1,36 +1,159 @@
 $input-prefix: #{$prefix}-input;
 
 .#{$input-prefix} {
-  display: inline-flex;
-  appearance: none;
+  --input-icon-size: 1rem;
 
-  background: var(--#{$prefix}-color-white);
-  box-shadow: inset 0 0 0 1px var(--#{$prefix}-color-light);
-  border: none;
-  border-radius: var(--#{$input-prefix}-border-radius);
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
 
-  margin: 0;
-  padding: var(--#{$input-prefix}-padding-y) var(--#{$input-prefix}-padding-x);
+  position: relative;
 
-  color: var(--#{$prefix}-color-dark);
-  font-size: var(--#{$input-prefix}-font-size);
-  font-weight: var(--#{$input-prefix}-font-weight);
-  resize: none;
-  font-family: inherit;
-
-  transition: var(--#{$prefix}-transition-base);
   width: 100%;
 
-  &:active,
-  &:focus {
-    outline: none;
-    box-shadow: inset 0 0 0 1px rgba(var(--#{$prefix}-color-primary-rgb), 0.375), 0 0 0 2px rgba(var(--#{$prefix}-color-primary-rgb), 0.05);
+  background: var(--#{$prefix}-color-white);
+  border-radius: var(--#{$input-prefix}-border-radius);
+
+  padding: 0;
+  margin: 0;
+
+  &--disabled {
+    pointer-events: none;
   }
 
-  &disabled,
-  &--disabled {
-    color: var(--#{$prefix}-color-medium);
-    background-color: rgba(var(--#{$prefix}-color-light-rgb), 0.5);
-    cursor: not-allowed;
+  &--password {
+    .#{$input-prefix}-el__native {
+      padding-right: calc(var(--input-icon-size) + calc(var(--#{$input-prefix}-padding-x) * 2));
+    }
+  }
+
+  &--has-prefix {
+    .#{$input-prefix}-el__native {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  &--has-suffix {
+    .#{$input-prefix}-el__native {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  &-prefix,
+  &-suffix {
+    display: flex;
+    border: 1px solid var(--#{$prefix}-color-light);
+    background: rgba(var(--#{$prefix}-color-light-rgb), 0.5);
+
+    padding: var(--#{$input-prefix}-padding-y) var(--#{$input-prefix}-padding-x);
+    margin: 0;
+    max-width: 15%;
+
+    &__text {
+      color: var(--#{$prefix}-color-medium);
+      font-size: var(--#{$input-prefix}-font-size);
+      font-weight: var(--#{$input-prefix}-font-weight);
+      line-height: var(--#{$input-prefix}-font-size);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &-prefix {
+    border-top-left-radius: var(--#{$input-prefix}-border-radius);
+    border-bottom-left-radius: var(--#{$input-prefix}-border-radius);
+    border-right: 0;
+  }
+
+  &-suffix {
+    border-top-right-radius: var(--#{$input-prefix}-border-radius);
+    border-bottom-right-radius: var(--#{$input-prefix}-border-radius);
+    border-left: 0;
+  }
+
+  &-el {
+    display: flex;
+    align-items: center;
+
+    height: 100%;
+    flex: 1;
+
+    position: relative;
+
+    margin: 0;
+    padding: 0;
+
+    &-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      width: calc(calc(var(--#{$input-prefix}-padding-x) * 2) + var(--input-icon-size));
+      height: 100%;
+
+      position: absolute;
+      z-index: 3;
+      right: 0;
+      top: 0;
+
+      color: var(--#{$prefix}-color-medium);
+      cursor: pointer;
+
+      &__icon {
+        width: var(--input-icon-size);
+        height: var(--input-icon-size);
+        transition: var(--#{$prefix}-transition-base);
+      }
+
+      &:hover {
+        color: var(--#{$prefix}-color-secondary);
+      }
+    }
+
+    &__native {
+      display: inline-block;
+
+      appearance: none;
+      border: 1px solid var(--#{$prefix}-color-light);
+      border-radius: var(--#{$input-prefix}-border-radius);
+      box-shadow: none;
+
+      color: var(--#{$prefix}-color-dark);
+      font-family: var(--#{$prefix}-font-family-base);
+      font-size: var(--#{$input-prefix}-font-size);
+      font-weight: var(--#{$input-prefix}-font-weight);
+      line-height: var(--#{$input-prefix}-font-size);
+      resize: none;
+
+      width: 100%;
+
+      padding: var(--#{$input-prefix}-padding-y) var(--#{$input-prefix}-padding-x);
+
+      position: relative;
+      z-index: 2;
+
+      transition: var(--#{$prefix}-transition-base);
+
+      &::placeholder {
+        color: var(--wr-color-light);
+      }
+
+      &[disabled],
+      &:disabled,
+      &.disabled {
+        color: var(--#{$prefix}-color-medium);
+        background: rgba(var(--#{$prefix}-color-light-rgb), 0.5);
+      }
+
+      &:active,
+      &:focus {
+        border-color: var(--#{$prefix}-color-primary);
+        box-shadow: 0 0 0 2px rgba(var(--#{$prefix}-color-primary-rgb), 0.125);
+      }
+    }
   }
 }

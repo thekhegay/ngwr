@@ -5,11 +5,9 @@ import {
   WrCheckboxModule,
   WrButtonModule,
   WrDividerModule,
-  WrExtendedInputModule,
   WrFormModule,
   WrIconModule,
   WrInputModule,
-  WrPasswordInputModule,
   WrSkeletonModule,
   WrSpinnerModule,
   WrTagModule
@@ -24,11 +22,9 @@ const ngwr = [
   WrCheckboxModule,
   WrButtonModule,
   WrDividerModule,
-  WrExtendedInputModule,
   WrFormModule,
   WrIconModule,
   WrInputModule,
-  WrPasswordInputModule,
   WrSkeletonModule,
   WrSpinnerModule,
   WrTagModule

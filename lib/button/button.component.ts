@@ -14,12 +14,8 @@ import {
 import { fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { BaseComponent, BooleanInput, InputBoolean, SafeAny } from '../_core';
+import { BaseComponent, BooleanInput, InputBoolean, SafeAny, WrThemeColor } from '../_core';
 import { wrIconName } from '../icon';
-
-export type WrButtonColor = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark';
-export type WrButtonSize = 'default' | 'small';
-export type WrButtonIconPosition = 'start' | 'end';
 
 @Component({
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
@@ -29,10 +25,10 @@ export type WrButtonIconPosition = 'start' | 'end';
   encapsulation: ViewEncapsulation.None
 })
 export class WrButtonComponent extends BaseComponent implements OnInit, AfterViewInit {
-  @Input() color: WrButtonColor = 'primary';
-  @Input() size: WrButtonSize = 'default';
+  @Input() color: WrThemeColor = 'primary';
+  @Input() size: 'default' | 'small' = 'default';
   @Input() icon: wrIconName | null = null;
-  @Input() iconPosition: WrButtonIconPosition = 'start';
+  @Input() iconPosition: 'start' | 'end' = 'start';
   @Input() @InputBoolean() disabled: BooleanInput = false;
   @Input() @InputBoolean() outlined: BooleanInput = false;
   @Input() @InputBoolean() rounded: BooleanInput = false;

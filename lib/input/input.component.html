@@ -1,0 +1,27 @@
+<div class="wr-input-prefix" *ngIf="prefix">
+  <span class="wr-input-prefix__text">{{ prefix }}</span>
+</div>
+<div class="wr-input-el">
+  <div
+    *ngIf="passwordIcons"
+    class="wr-input-el-icon"
+    (click)="onPasswordVisibilityChange($event)"
+  >
+    <wr-icon class="wr-input-el-icon__icon" [name]="eyeOn ? 'eye' : 'eye-off'"></wr-icon>
+  </div>
+  <input
+    #inputElement
+    class="wr-input-el__native"
+    [type]="type"
+    [value]="value"
+    [placeholder]="placeholder ? placeholder : ''"
+    [attr.readonly]="readonly ? 'readonly' : null"
+    [attr.autofocus]="autofocus ? 'autofocus' : null"
+    [attr.disabled]="disabled ? 'disabled' : null"
+    [ngModel]="value"
+    (ngModelChange)="onModelChange(value)"
+  />
+</div>
+<div class="wr-input-suffix" *ngIf="suffix">
+  <span class="wr-input-suffix__text">{{ suffix }}</span>
+</div>

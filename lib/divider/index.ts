@@ -1,2 +1,2 @@
-export * from './divider.module';
-export * from './divider.component';
+export { WrDividerModule } from './divider.module';
+export { WrDividerComponent } from './divider.component';

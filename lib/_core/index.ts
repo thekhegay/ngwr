@@ -1,5 +1,5 @@
 // Components
-export * from './components/base.component';
+export { BaseComponent } from './components/base.component';
 
 // Constants
 export * from './constants/style-prefix';

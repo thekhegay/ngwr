@@ -1,2 +1,2 @@
-export * from './button.module';
-export * from './button.component';
+export { WrButtonComponent } from './button.component';
+export { WrButtonModule } from './button.module';

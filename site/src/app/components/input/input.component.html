@@ -1,0 +1,120 @@
+<main class="checkbox">
+  <section class="container">
+    <div class="page__hero">
+      <div class="page-header">
+        <h1 class="page-header__title">Input</h1>
+        <p class="page-header__description">
+          Basic text component used to provide or change data.
+        </p>
+      </div>
+
+      <pre class="pre"><code highlight="import { WrInputModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    </div>
+
+    <section>
+      <h3>
+        Examples
+      </h3>
+      <p>The button is available in different <a routerLink="/core/color">colors</a>. Set by <code>color</code> attribute</p>
+
+      <wr-snippet codeLang="html">
+        <div slot="display">
+          <input wr-input type="text" />
+          <wr-input readonly></wr-input>
+          <wr-input suffix="123" prefix="123" disabled></wr-input>
+          <wr-input type="password" passwordIcons></wr-input>
+          <wr-input type="password" passwordIcons disabled></wr-input>
+        </div>
+<!--        <code [highlight]="dividerCode" slot="code" [languages]="['html']"></code>-->
+      </wr-snippet>
+
+    </section>
+
+    <section class="page-section">
+      <h2 class="page-section__title">API</h2>
+
+      <table class="page__table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><code>[value]</code></th>
+            <th>set value of input</th>
+            <th>
+              <code>'string' | null</code>
+            </th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[placeholder]</code></th>
+            <th>set placeholder for input</th>
+            <th><code>'string' | null</code></th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[type]</code></th>
+            <th>set type of input</th>
+            <th><code>'text' | 'password' | 'number'</code></th>
+            <th><code>'text'</code></th>
+          </tr>
+          <tr>
+            <th><code>[autofocus]</code></th>
+            <th>set autofocus</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[readonly]</code></th>
+            <th>set readonly state for input</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[disabled]</code></th>
+            <th>set disabled state for input</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[passwordIcons]</code></th>
+            <th>display password icons</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[prefix]</code></th>
+            <th>set prefix for input</th>
+            <th><code>'string' | null</code></th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[suffix]</code></th>
+            <th>set suffix for input</th>
+            <th><code>'string' | null</code></th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[ngModel]</code></th>
+            <th>Two way binding, specifies whether the checkbox is checked</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>(ngModelChange)</code></th>
+            <th>The callback function that is triggered when the state changes.</th>
+            <th>
+              <code>{{ ngModelChangeReturn }}</code>
+            </th>
+            <th><code>-</code></th>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </section>
+</main>

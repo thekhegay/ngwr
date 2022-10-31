@@ -1,16 +1,34 @@
 $divider-prefix: #{$prefix}-divider;
 
 .#{$divider-prefix} {
+  --#{$divider-prefix}-width: 1px;
+
   display: block;
 
   width: 100%;
-  height: 1px;
+  border-bottom-width: var(--#{$divider-prefix}-width);
 
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 
-  background: var(--#{$prefix}-color-light);
-
   user-select: none;
   pointer-events: none;
+
+  &--solid {
+    border-bottom-style: solid;
+  }
+
+  &--dashed {
+    border-bottom-style: dashed;
+  }
+
+  &--dotted {
+    border-bottom-style: dotted;
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .#{$divider-prefix}--#{$color} {
+    border-bottom-color: var(--#{$prefix}-color-#{$color});
+  }
 }

@@ -1,6 +1,6 @@
-import { WrButtonColor, WrTagColor } from 'ngwr';
+import { WrThemeColor } from 'ngwr';
 
-export const colors: Array<WrButtonColor | WrTagColor> = [
+export const colors: WrThemeColor[] = [
   'primary',
   'secondary',
   'success',

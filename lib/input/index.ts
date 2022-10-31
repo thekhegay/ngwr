@@ -1,2 +1,2 @@
-export * from './input.module';
-export * from './input.directive';
+export { WrInputComponent } from './input.component';
+export { WrInputModule } from './input.module';

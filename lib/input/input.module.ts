@@ -1,12 +1,13 @@
-import { PlatformModule } from '@angular/cdk/platform';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
-import { WrInputDirective } from './input.directive';
+import { WrIconModule } from '../icon';
+import { WrInputComponent } from './input.component';
 
 @NgModule({
-  imports: [CommonModule, PlatformModule],
-  declarations: [WrInputDirective],
-  exports: [WrInputDirective]
+  imports: [CommonModule, FormsModule, WrIconModule],
+  declarations: [WrInputComponent],
+  exports: [WrInputComponent]
 })
 export class WrInputModule {}

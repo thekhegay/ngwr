@@ -1,73 +1,39 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  OnInit,
-  Renderer2,
-  SimpleChanges,
-  ViewEncapsulation
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
 
-import { BooleanInput, InputBoolean, stylePrefix } from '../_core';
-
-export type WrTagColor = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark';
+import { BooleanInput, InputBoolean, SafeAny, WrThemeColor } from '../_core';
 
 @Component({
   selector: 'wr-tag',
+  exportAs: 'wrTag',
   template: '<wr-spin *ngIf="loading"></wr-spin><ng-content></ng-content>',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class WrTagComponent implements OnInit, OnChanges {
-  @Input() color: WrTagColor | string = 'primary';
-
-  @Input() @InputBoolean() transparent: BooleanInput = false;
+export class WrTagComponent {
+  @Input() color: WrThemeColor | string = 'primary';
   @Input() @InputBoolean() loading: BooleanInput = false;
-  @Input() @InputBoolean() outlined: BooleanInput = false;
   @Input() @InputBoolean() rounded: BooleanInput = false;
+  @Input() @InputBoolean() outlined: BooleanInput = false;
+  @Input() @InputBoolean() transparent: BooleanInput = false;
   @Input() @InputBoolean() hoverable: BooleanInput = false;
 
-  private readonly baseClass: string = `${stylePrefix}-tag`;
-
-  constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly elRef: ElementRef,
-    private readonly r2: Renderer2
-  ) {}
-
-  ngOnInit(): void {
-    this.setClasses();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    this.setClasses();
-    this.cdr.detectChanges();
-  }
-
-  private setClasses(): void {
-    const el = this.elRef.nativeElement;
-    const add = (klass: string): void => this.r2.addClass(el, `${this.baseClass}-${klass}`);
-
-    this.r2.addClass(el, this.baseClass);
-    add(this.color);
-
-    if (this.rounded) {
-      add(`-rounded`);
-    }
-
-    if (this.transparent) {
-      add(`-transparent`);
-    }
-
-    if (this.hoverable) {
-      add(`-hoverable`);
-    }
-
-    if (this.outlined) {
-      add(`-outlined`);
-    }
+  @HostBinding('class')
+  get elClasses(): SafeAny {
+    return {
+      'wr-tag': true,
+      'wr-tag--primary': this.color === 'primary',
+      'wr-tag--secondary': this.color === 'secondary',
+      'wr-tag--success': this.color === 'success',
+      'wr-tag--warning': this.color === 'warning',
+      'wr-tag--danger': this.color === 'danger',
+      'wr-tag--light': this.color === 'light',
+      'wr-tag--medium': this.color === 'medium',
+      'wr-tag--dark': this.color === 'dark',
+      'wr-tag--loading': this.loading,
+      'wr-tag--rounded': this.rounded,
+      'wr-tag--outlined': this.outlined,
+      'wr-tag--transparent': this.transparent,
+      'wr-tag--hoverable': this.hoverable
+    };
   }
 }
