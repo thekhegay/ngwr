@@ -1,6 +1,8 @@
 $checkbox-prefix: #{$prefix}-checkbox;
 
 .#{$checkbox-prefix} {
+  display: inline-block;
+
   &-container {
     display: inline-flex;
     align-items: center;
@@ -10,7 +12,7 @@ $checkbox-prefix: #{$prefix}-checkbox;
 
     color: var(--wr-color-dark);
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1rem;
 
     &__input {
