@@ -68,6 +68,7 @@ $btn-prefix: #{$prefix}-btn;
     height: 1rem !important;
     min-width: 1rem !important;
     min-height: 1rem !important;
+    transition: var(--#{$prefix}-transition-base);
   }
 
   &--icon-start {
@@ -106,7 +107,7 @@ $btn-prefix: #{$prefix}-btn;
 
     .#{$btn-prefix} {
       &__text {
-        font-size: calc(var(--#{$btn-prefix}-font-size) / 1.25);
+        font-size: calc(var(--#{$btn-prefix}-font-size-base) / 1.25);
       }
 
       &__icon {
