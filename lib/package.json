@@ -1,12 +1,15 @@
 {
   "name": "ngwr",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "license": "MIT",
   "description": "NGWR – Angular UI components library",
   "author": "Roman Khegay <rk@garuna.dev> (https://garuna.dev/)",
   "keywords": [
+    "ngwr",
     "angular",
     "ui",
+    "ux",
+    "framework",
     "frontend"
   ],
   "homepage": "https://ngwr.dev",

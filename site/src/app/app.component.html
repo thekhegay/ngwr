@@ -60,6 +60,18 @@
         </div>
 
         <div class="btns__list">
+          <wr-btn *ngFor="let b of colors" [color]="b" icon="logo-apple">
+            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
+          </wr-btn>
+        </div>
+
+        <div class="btns__list">
+          <wr-btn *ngFor="let b of colors" [color]="b" icon="logo-apple" iconPosition="end">
+            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
+          </wr-btn>
+        </div>
+
+        <div class="btns__list">
           <wr-btn *ngFor="let b of colors" [color]="b" outlined>
             {{ b.charAt(0).toUpperCase() + b.slice(1) }}
           </wr-btn>
