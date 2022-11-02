@@ -1,17 +1,17 @@
 const svgToTsConfig = {
   srcFiles: ['./lib/icon/svg/*.svg'],
   outputDirectory: './lib/icon',
-  interfaceName: "WrIcon",
+  interfaceName: 'WrIcon',
   generateType: true,
-  typeName: "wrIconName",
-  delimiter: "KEBAB",
-  prefix: "wrIcon",
-  fileName: "wr-icons",
+  typeName: 'wrIconName',
+  delimiter: 'KEBAB',
+  prefix: 'wrIcon',
+  fileName: 'wr-icons',
   svgoConfig: {
-    plugins: ["cleanupAttrs"]
+    plugins: ['cleanupAttrs']
   },
-  completeIconSetName: "wrIconSet",
-  additionalModelFile: "./lib/icon/models",
+  completeIconSetName: 'wrIconSet',
+  additionalModelFile: './lib/icon/models',
   compileSources: true
 };
 
