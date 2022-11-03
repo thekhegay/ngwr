@@ -18,6 +18,8 @@
     [attr.readonly]="readonly ? 'readonly' : null"
     [attr.autofocus]="autofocus ? 'autofocus' : null"
     [attr.disabled]="disabled ? 'disabled' : null"
+    [attr.autocomplete]="autocomplete"
+    [attr.inputmode]="inputmode"
     [ngModel]="value"
     (ngModelChange)="onModelChange(value)"
   />

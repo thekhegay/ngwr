@@ -29,6 +29,8 @@ import { takeUntil } from 'rxjs/operators';
 export class WrInputComponent extends BaseComponent implements ControlValueAccessor, AfterViewInit, OnInit, OnDestroy {
   @Input() value: string | null = null;
   @Input() type: 'text' | 'number' | 'password' | 'email' = 'text';
+  @Input() autocomplete: 'on' | 'off' = 'on';
+  @Input() inputmode: 'text' | 'numeric' | 'tel' | 'email' | 'url' = 'text';
   @Input() @InputBoolean() disabled: BooleanInput = false;
   @Input() @InputBoolean() readonly: BooleanInput = false;
   @Input() @InputBoolean() autofocus: BooleanInput = false;
