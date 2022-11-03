@@ -7,10 +7,6 @@
     background-color: mix(black, $color, 15%);
   }
 
-  .#{$btn-prefix}__icon {
-    color: contrast-color($color);
-  }
-
   &.#{$btn-prefix}--outlined {
     color: var(--#{$prefix}-color-#{$name});
     background-color: transparent;
@@ -20,14 +16,6 @@
       color: contrast-color($color);
       background-color: var(--#{$prefix}-color-#{$name});
       box-shadow: none;
-
-      .#{$btn-prefix}__icon {
-        color: contrast-color($color);
-      }
-    }
-
-    .#{$btn-prefix}__icon {
-      color: var(--#{$prefix}-color-#{$name});
     }
   }
 }
