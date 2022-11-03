@@ -86,6 +86,7 @@ export class WrInputComponent
   }
   set disabled(disabled: BooleanInput) {
     this._disabled = coerceBooleanProperty(disabled);
+    this.cdr.markForCheck();
   }
   @Input()
   get readonly(): boolean {
