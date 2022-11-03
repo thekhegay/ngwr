@@ -1,31 +1,59 @@
 $tag-prefix: #{$prefix}-tag;
 
 .#{$tag-prefix} {
-  display: inline-flex;
-  align-items: center;
-  height: auto;
+  display: inline-block;
 
-  white-space: nowrap;
+  padding: var(--#{$tag-prefix}-padding-y) var(--#{$tag-prefix}-padding-x);
 
-  font-family: var(--#{$prefix}-font-family-base);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-family: var(--#{$tag-prefix}-font-family-base);
+  font-size: var(--#{$tag-prefix}-font-size-base);
+  font-weight: var(--#{$tag-prefix}-font-weight-base);
+  line-height: var(--#{$tag-prefix}-line-height-base);
 
-  line-height: 1rem;
+  text-align: center;
+  text-decoration: none;
   vertical-align: middle;
 
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-
-  margin-right: 0.25rem;
-
   user-select: none;
-  transition: var(--#{$prefix}-transition-base);
-
   pointer-events: none;
+  white-space: nowrap;
+
+  border: none;
+  border-radius: var(--#{$tag-prefix}-border-radius-base);
+
+  cursor: pointer;
+  transition: var(--#{$prefix}-transition-base);
+  position: relative;
 
   &:hover {
-    cursor: pointer;
+    text-decoration: none;
+  }
+
+  &__icon,
+  &__spin {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+    min-width: 0.75rem !important;
+    min-height: 0.75rem !important;
+    transition: var(--#{$prefix}-transition-base);
+  }
+
+  &--icon-start {
+    .#{$tag-prefix} {
+      &__icon,
+      &__spin {
+        margin-right: 0.25rem;
+      }
+    }
+  }
+
+  &--icon-end {
+    .#{$tag-prefix} {
+      &__icon,
+      &__spin {
+        margin-left: 0.25rem;
+      }
+    }
   }
 
   &--hoverable {
@@ -33,38 +61,13 @@ $tag-prefix: #{$prefix}-tag;
   }
 
   &--rounded {
-    border-radius: var(--#{$prefix}-btn-round-border-radius);
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    border-radius: var(--#{$tag-prefix}-rounded-border-radius);
+    padding: var(--#{$tag-prefix}-rounded-padding-y) var(--#{$tag-prefix}-rounded-padding-x);
   }
+}
 
-  & > #{$prefix}-icon {
-    width: 0.75rem;
-    height: 0.75rem;
-    margin-right: 0.125rem;
-  }
-
-  & > #{$prefix}-spin {
-    width: 0.75rem;
-    height: 0.75rem;
-    margin-right: 0.375rem;
-  }
-
-  @each $color, $value in $theme-colors {
-    &.#{$tag-prefix}-#{$color} {
-      @include generate-tags($value);
-    }
-
-    &.#{$tag-prefix}-#{$color} {
-      &.#{$tag-prefix}--outlined {
-        @include generate-outlined-tags($value);
-      }
-    }
-
-    &.#{$tag-prefix}-#{$color} {
-      &.#{$tag-prefix}--transparent {
-        @include generate-transparent-tags($value);
-      }
-    }
+@each $color, $value in $theme-colors {
+  .#{$tag-prefix}--#{$color} {
+    @include tag-variant($color, $value);
   }
 }
