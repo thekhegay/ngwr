@@ -1,120 +1,187 @@
-<main class="checkbox">
-  <section class="container">
-    <div class="page__hero">
-      <div class="page-header">
-        <h1 class="page-header__title">Input</h1>
-        <p class="page-header__description">
-          Basic text component used to provide or change data.
-        </p>
-      </div>
-
-      <pre class="pre"><code highlight="import { WrInputModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+<main class="input">
+  <div class="page__hero">
+    <div class="page-header">
+      <h1 class="page-header__title">Input</h1>
+      <p class="page-header__description"> Basic text component used to provide or change data. </p>
     </div>
 
-    <section>
-      <h3>
-        Examples
-      </h3>
-      <p>The button is available in different <a routerLink="/core/color">colors</a>. Set by <code>color</code> attribute</p>
+    <pre class="pre"><code highlight="import { WrInputModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+  </div>
 
-      <wr-snippet codeLang="html">
-        <div slot="display">
-          <input wr-input type="text" />
-          <wr-input readonly></wr-input>
-          <wr-input suffix="123" prefix="123" disabled></wr-input>
-          <wr-input type="password" passwordIcons></wr-input>
-          <wr-input type="password" passwordIcons disabled></wr-input>
-        </div>
-<!--        <code [highlight]="dividerCode" slot="code" [languages]="['html']"></code>-->
-      </wr-snippet>
+  <section class="page-section">
+    <h2 class="page-section__title">Example</h2>
+    <p class="page-section__description">Basic usage of input component</p>
 
-    </section>
+    <wr-snippet codeLang="html">
+      <div class="input__list" slot="display">
+        <wr-input value="Basic input value"></wr-input>
+        <wr-input [ngModel]="'Basic input value'"></wr-input>
+      </div>
+      <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
 
-    <section class="page-section">
-      <h2 class="page-section__title">API</h2>
+  <section class="page-section">
+    <h2 class="page-section__title">Prefix and suffix</h2>
+    <p class="page-section__description">
+      You can add <code class="page-section__code">prefix</code> or
+      <code class="page-section__code">suffix</code> attribute to add suffix and prefix to input.
+    </p>
 
-      <table class="page__table">
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th><code>[value]</code></th>
-            <th>set value of input</th>
-            <th>
-              <code>'string' | null</code>
-            </th>
-            <th><code>null</code></th>
-          </tr>
-          <tr>
-            <th><code>[placeholder]</code></th>
-            <th>set placeholder for input</th>
-            <th><code>'string' | null</code></th>
-            <th><code>null</code></th>
-          </tr>
-          <tr>
-            <th><code>[type]</code></th>
-            <th>set type of input</th>
-            <th><code>'text' | 'password' | 'number'</code></th>
-            <th><code>'text'</code></th>
-          </tr>
-          <tr>
-            <th><code>[autofocus]</code></th>
-            <th>set autofocus</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[readonly]</code></th>
-            <th>set readonly state for input</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[disabled]</code></th>
-            <th>set disabled state for input</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[passwordIcons]</code></th>
-            <th>display password icons</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[prefix]</code></th>
-            <th>set prefix for input</th>
-            <th><code>'string' | null</code></th>
-            <th><code>null</code></th>
-          </tr>
-          <tr>
-            <th><code>[suffix]</code></th>
-            <th>set suffix for input</th>
-            <th><code>'string' | null</code></th>
-            <th><code>null</code></th>
-          </tr>
-          <tr>
-            <th><code>[ngModel]</code></th>
-            <th>Two way binding, specifies whether the checkbox is checked</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>(ngModelChange)</code></th>
-            <th>The callback function that is triggered when the state changes.</th>
-            <th>
-              <code>{{ ngModelChangeReturn }}</code>
-            </th>
-            <th><code>-</code></th>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <wr-snippet codeLang="html">
+      <div class="input__list" slot="display">
+        <wr-input value="Input value" prefix="Prefix"></wr-input>
+        <wr-input value="Input value" suffix="Suffix"></wr-input>
+        <wr-input value="Input value" prefix="Prefix" suffix="Suffix"></wr-input>
+      </div>
+      <code [highlight]="prefixSuffixCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Password input</h2>
+    <p class="page-section__description">
+      If you need to display eye icons for password input, you can add <code class="page-section__code">passwordIcons</code> attribute.
+    </p>
+
+    <wr-snippet codeLang="html">
+      <div class="input__list" slot="display">
+        <wr-input value="Password input" type="password" passwordIcons></wr-input>
+      </div>
+      <code [highlight]="passwordCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Disabled state</h2>
+    <p class="page-section__description">
+      You can add <code class="page-section__code">disabled</code> attribute to prevent interacting with the input.
+    </p>
+
+    <wr-snippet codeLang="html">
+      <div class="input__list" slot="display">
+        <wr-input value="Disabled" disabled></wr-input>
+      </div>
+      <code [highlight]="disabledCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Readonly state</h2>
+    <p class="page-section__description">
+      You can add <code class="page-section__code">readonly</code> attribute to prevent change of with the input.
+    </p>
+
+    <wr-snippet codeLang="html">
+      <div class="input__list" slot="display">
+        <wr-input value="Readonly" readonly></wr-input>
+      </div>
+      <code [highlight]="readonlyCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">API</h2>
+
+    <table class="page__table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th><code>[value]</code></th>
+          <th>set value of input</th>
+          <th>
+            <code>'string' | null</code>
+          </th>
+          <th><code>null</code></th>
+        </tr>
+        <tr>
+          <th><code>[placeholder]</code></th>
+          <th>set placeholder for input</th>
+          <th><code>'string' | null</code></th>
+          <th><code>null</code></th>
+        </tr>
+        <tr>
+          <th><code>[type]</code></th>
+          <th>set type of input</th>
+          <th><code>'text' | 'number' | 'password' | 'email'</code></th>
+          <th><code>'text'</code></th>
+        </tr>
+        <tr>
+          <th><code>[autocomplete]</code></th>
+          <th>set type of input</th>
+          <th><code>'on' | 'off'</code></th>
+          <th><code>'on'</code></th>
+        </tr>
+        <tr>
+          <th><code>[inputmode]</code></th>
+          <th>set type of input</th>
+          <th><code>text' | 'numeric' | 'tel' | 'email' | 'url'</code></th>
+          <th><code>'text'</code></th>
+        </tr>
+        <tr>
+          <th><code>[autofocus]</code></th>
+          <th>set autofocus</th>
+          <th><code>boolean</code></th>
+          <th><code>false</code></th>
+        </tr>
+        <tr>
+          <th><code>[readonly]</code></th>
+          <th>set readonly state for input</th>
+          <th><code>boolean</code></th>
+          <th><code>false</code></th>
+        </tr>
+        <tr>
+          <th><code>[disabled]</code></th>
+          <th>set disabled state for input</th>
+          <th><code>boolean</code></th>
+          <th><code>false</code></th>
+        </tr>
+        <tr>
+          <th><code>[passwordIcons]</code></th>
+          <th>display password icons</th>
+          <th><code>boolean</code></th>
+          <th><code>false</code></th>
+        </tr>
+        <tr>
+          <th><code>[placeholder]</code></th>
+          <th>set placeholder for input</th>
+          <th><code>'string' | null</code></th>
+          <th><code>null</code></th>
+        </tr>
+        <tr>
+          <th><code>[prefix]</code></th>
+          <th>set prefix for input</th>
+          <th><code>'string' | null</code></th>
+          <th><code>null</code></th>
+        </tr>
+        <tr>
+          <th><code>[suffix]</code></th>
+          <th>set suffix for input</th>
+          <th><code>'string' | null</code></th>
+          <th><code>null</code></th>
+        </tr>
+        <tr>
+          <th><code>[ngModel]</code></th>
+          <th>Two way binding, specifies whether the checkbox is checked</th>
+          <th><code>boolean</code></th>
+          <th><code>false</code></th>
+        </tr>
+        <tr>
+          <th><code>(ngModelChange)</code></th>
+          <th>The callback function that is triggered when the state changes.</th>
+          <th>
+            <code>{{ ngModelChangeReturn }}</code>
+          </th>
+          <th><code>-</code></th>
+        </tr>
+      </tbody>
+    </table>
   </section>
 </main>

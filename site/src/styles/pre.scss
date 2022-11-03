@@ -1,0 +1,22 @@
+.pre {
+  display: flex;
+  background-color: rgba(var(--wr-color-light-rgb), 0.5) !important;
+  border-radius: var(--wr-border-radius-base);
+  margin: 0 0 1rem 0 !important;
+  padding: 0.75rem 1rem !important;
+
+  .hljs {
+    background: transparent !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hljs-ln {
+    width: 100%;
+    border-collapse: separate;
+  }
+
+  .hljs {
+    white-space: pre;
+  }
+}

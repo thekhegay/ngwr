@@ -1,0 +1,37 @@
+<main class="colors">
+  <div class="page__hero">
+    <div class="page-header">
+      <h1 class="page-header__title">Colors</h1>
+    </div>
+  </div>
+
+  <section class="page-section">
+    <h2 class="page-section__title">HEX variables</h2>
+    <p class="page-section__description"> All colors are available with CSS variables. </p>
+
+    <wr-snippet codeLang="css">
+      <div class="colors__list" slot="display">
+        <div class="colors__item colors__item--{{ c }}" *ngFor="let c of colors">
+          {{ c.charAt(0).toUpperCase() + c.slice(1) }}
+        </div>
+      </div>
+      <code [highlight]="colorsCode" slot="code" [languages]="['css']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">RGBA variables</h2>
+    <p class="page-section__description">
+      Color can be used with alpha channel <code class="page-section__code">rgba(var(--wr-color-dark-rgb), 0.25)</code>
+    </p>
+
+    <wr-snippet codeLang="css">
+      <div class="colors__list" slot="display">
+        <div class="colors__item colors__item--{{ c }}--rgb" *ngFor="let c of colors">
+          {{ c.charAt(0).toUpperCase() + c.slice(1) }}
+        </div>
+      </div>
+      <code [highlight]="colorsRgbCode" slot="code" [languages]="['css']"></code>
+    </wr-snippet>
+  </section>
+</main>

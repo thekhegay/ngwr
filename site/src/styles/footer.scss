@@ -1,0 +1,19 @@
+.footer {
+  height: 3rem;
+  border-top: 1px solid var(--wr-color-light);
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  &__text {
+    color: var(--wr-color-medium);
+    font-size: 0.825rem;
+    line-height: 1rem;
+    margin-right: 1rem;
+    margin-left: 1rem;
+  }
+}

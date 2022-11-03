@@ -1,0 +1,16 @@
+.header {
+  height: 5rem;
+  border-bottom: 1px solid var(--wr-color-light);
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  &__logo {
+    height: 2rem;
+    fill: var(--wr-color-primary);
+  }
+}

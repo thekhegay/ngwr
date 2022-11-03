@@ -1,0 +1,73 @@
+<main class="skeleton">
+  <div class="page__hero">
+    <div class="page-header">
+      <h1 class="page-header__title">Skeleton</h1>
+      <p class="page-header__description">A visual placeholder component.</p>
+    </div>
+
+    <pre class="pre"><code highlight="import { WrSkeletonModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+  </div>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Example</h2>
+    <p class="page-section__description">Basic usage of form item component</p>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-skeleton style="width: 25%; height: 1rem"></wr-skeleton>
+        <wr-skeleton style="width: 50%; height: 1rem"></wr-skeleton>
+        <wr-skeleton style="width: 75%; height: 1rem"></wr-skeleton>
+        <wr-skeleton style="width: 100%; height: 1rem"></wr-skeleton>
+      </div>
+      <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Colors</h2>
+    <p class="page-section__description">
+      Skeleton component is available in different <a class="page-section__link" routerLink="/common/colors">colors</a>.
+      Color can be set by <code class="page-section__code">color</code> attribute.
+    </p>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-skeleton *ngFor="let b of colors" [color]="b"></wr-skeleton>
+      </div>
+      <code [highlight]="colorsCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">API</h2>
+
+    <table class="page__table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th><code>[color]</code></th>
+          <th>set color of skeleton</th>
+          <th>
+            <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
+          </th>
+          <th><code>'primary'</code></th>
+        </tr>
+        <tr>
+          <th><code>[animated]</code></th>
+          <th>set animated state of skeleton</th>
+          <th>
+            <code>boolean</code>
+          </th>
+          <th><code>true'</code></th>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>

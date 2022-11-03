@@ -1,29 +1,69 @@
-<main class="checkbox">
-  <section class="container">
-    <h1>Checkbox</h1>
-    <h2>The classic button, in different colors, sizes, and states</h2>
+<main class="divider">
+  <div class="page__hero">
+    <div class="page-header">
+      <h1 class="page-header__title">Divider</h1>
+      <p class="page-header__description">A divider line separates different content.</p>
+    </div>
 
     <pre class="pre"><code highlight="import { WrDividerModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+  </div>
 
-    <section>
-      <h3>
-        Examples
-      </h3>
-      <p>The button is available in different <a routerLink="/core/color">colors</a>. Set by <code>color</code> attribute</p>
+  <section class="page-section">
+    <h2 class="page-section__title">Example</h2>
+    <p class="page-section__description">Basic usage of divider component</p>
 
-      <wr-snippet codeLang="html">
-        <div slot="display">
-          <p>Text</p>
-          <wr-divider></wr-divider>
-          <wr-divider width="2rem"></wr-divider>
-          <wr-divider type="solid" color="dark"></wr-divider>
-          <wr-divider type="dashed" color="dark"></wr-divider>
-          <wr-divider type="dotted" color="dark"></wr-divider>
-          <p>Text</p>
-        </div>
-        <code [highlight]="dividerCode" slot="code" [languages]="['html']"></code>
-      </wr-snippet>
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider width="3px" color="primary"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider type="solid" color="secondary"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider type="dashed" color="warning"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider type="dotted" color="success"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+      </div>
+      <code [highlight]="dividerCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
 
-    </section>
+  <section class="page-section">
+    <h2 class="page-section__title">API</h2>
+
+    <table class="page__table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th><code>[color]</code></th>
+          <th>set color of divider</th>
+          <th>
+            <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
+          </th>
+          <th><code>'light'</code></th>
+        </tr>
+        <tr>
+          <th><code>[type]</code></th>
+          <th>set type for divider</th>
+          <th><code>'solid' | 'dashed' | 'dotted'</code></th>
+          <th><code>'solid'</code></th>
+        </tr>
+        <tr>
+          <th><code>[width]</code></th>
+          <th>set width of divider</th>
+          <th><code>string</code></th>
+          <th><code>'1px'</code></th>
+        </tr>
+      </tbody>
+    </table>
   </section>
 </main>

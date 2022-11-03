@@ -1,0 +1,64 @@
+<main class="form">
+  <div class="page__hero">
+    <div class="page-header">
+      <h1 class="page-header__title">Form</h1>
+      <p class="page-header__description">Form is used to collect, validate, and submit the user input. </p>
+    </div>
+
+    <pre class="pre"><code highlight="import { WrFormModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+  </div>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Example</h2>
+    <p class="page-section__description">Basic usage of form item component</p>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-form-item>
+          <label>Username</label>
+          <wr-input placeholder="Username"></wr-input>
+        </wr-form-item>
+      </div>
+      <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Error item</h2>
+    <p class="page-section__description">Basic usage of form item component</p>
+
+    <wr-snippet codeLang="html">
+      <div slot="display">
+        <wr-form-item [hasError]="true">
+          <label>Username</label>
+          <wr-input></wr-input>
+          <wr-form-error>Username is required</wr-form-error>
+        </wr-form-item>
+      </div>
+      <code [highlight]="errorCode" slot="code" [languages]="['html']"></code>
+    </wr-snippet>
+  </section>
+
+  <section class="page-section">
+    <h2 class="page-section__title">API</h2>
+
+    <table class="page__table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th><code>[hasError]</code></th>
+          <th>set error state to form item</th>
+          <th><code>boolean</code></th>
+          <th><code>false</code></th>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>

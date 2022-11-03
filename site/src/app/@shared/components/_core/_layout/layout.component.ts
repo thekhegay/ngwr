@@ -10,16 +10,15 @@ interface SidebarItem {
   templateUrl: './layout.component.html'
 })
 export class LayoutComponent {
-  @HostBinding('class') class = 'wrapper';
+  @HostBinding('class') class = 'layout';
 
   readonly gettingStartedSidebarLinks: SidebarItem[] = [
-    { title: 'Installation', url: '/getting-started/installation' },
-    { title: 'Browser support', url: '/getting-started/browser-support' }
+    { title: 'Installation', url: '/getting-started/installation' }
   ];
 
-  readonly coreSidebarLinks: SidebarItem[] = [
-    { title: 'Colors', url: '/core/color' },
-    { title: 'Grid', url: '/core/grid' }
+  readonly commonSidebarLinks: SidebarItem[] = [
+    { title: 'Colors', url: '/common/colors' },
+    { title: 'Grid', url: '/common/grid' }
   ];
 
   readonly componentsSidebarLinks: SidebarItem[] = [
@@ -29,8 +28,6 @@ export class LayoutComponent {
     { title: 'Form', url: '/components/form' },
     { title: 'Icon', url: '/components/icon' },
     { title: 'Input', url: '/components/input' },
-    { title: 'Extended Input', url: '/components/extended-input' },
-    { title: 'Password Input', url: '/components/password-input' },
     { title: 'Skeleton', url: '/components/skeleton' },
     { title: 'Spinner', url: '/components/spinner' },
     { title: 'Tag', url: '/components/tag' }

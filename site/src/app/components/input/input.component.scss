@@ -1,69 +1,7 @@
-$prefix: wrr;
-$input-prefix: #{$prefix}-input;
-$input-icon-size: 1rem;
-
-.#{$input-prefix} {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: stretch;
-
-  position: relative;
-
-  overflow: hidden;
-
-  width: 100%;
-
-  background: var(--wr-color-white);
-  border-radius: var(--wr-input-border-radius);
-
-  padding: 0;
-  margin: 0;
-
-  &--password {
-    .#{$input-prefix}-el__native {
-      padding-right: calc(#{$input-icon-size} + calc(var(--wr-input-padding-x) * 2));
+.input {
+  &__list {
+    wr-input {
+      margin-bottom: 1rem;
     }
-  }
-
-  &-prefix,
-  &-suffix {
-    display: flex;
-    border: 1px solid var(--wr-color-light);
-    background: rgba(var(--wr-color-light-rgb), 0.5);
-
-    color: var(--wr-color-medium);
-    font-size: var(--wr-input-font-size);
-    font-weight: var(--wr-input-font-weight);
-    line-height: var(--wr-input-font-size);
-
-    padding: var(--wr-input-padding-y) var(--wr-input-padding-x);
-    margin: 0;
-    max-width: 15%;
-
-    &__text {
-      color: inherit;
-      font-size: inherit;
-      font-weight: inherit;
-      line-height: inherit;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  &-prefix {
-    border-top-left-radius: var(--wr-input-border-radius);
-    border-bottom-left-radius: var(--wr-input-border-radius);
-    border-right: 0;
-  }
-
-  &-suffix {
-    border-top-right-radius: var(--wr-input-border-radius);
-    border-bottom-right-radius: var(--wr-input-border-radius);
-    border-left: 0;
-  }
-
-  &-el {
-
   }
 }
