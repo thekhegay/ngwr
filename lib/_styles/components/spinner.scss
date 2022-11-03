@@ -1,14 +1,28 @@
 $spinner-prefix: #{$prefix}-spin;
 
 .#{$spinner-prefix} {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
+  color: inherit;
+  font-style: normal;
+  line-height: 0;
+  text-align: center;
+  text-transform: none;
+  vertical-align: -0.1rem;
+  box-sizing: content-box !important;
+
+  contain: strict;
+
+  width: 1em;
+  height: 1em;
+
+  * {
+    line-height: 1;
+  }
 
   svg {
-    width: 1em;
-    height: 1em;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
 
     animation: rotate 2s linear infinite;
 
