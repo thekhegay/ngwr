@@ -61,6 +61,17 @@ $border-radius-base: 0.625rem;
 // Grid
 $grid-gutter: 1.5rem;
 $grid-columns: 12;
+$grid-rows: 1;
+
+$spacer: 1rem !default;
+$gutters: (
+  0: 0,
+  1: $spacer * .25,
+  2: $spacer * .5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3,
+);
 
 $grid-breakpoints: (
   'xs': 0,
@@ -97,6 +108,17 @@ $btn-font-weight-base: 500;
 $btn-rounded-padding-y: $btn-padding-y;
 $btn-rounded-padding-x: $btn-padding-x * 1.5;
 $btn-rounded-border-radius: 50rem;
+
+// Tag
+$tag-padding-y: 0.25rem;
+$tag-padding-x: 0.5rem;
+$tag-border-radius-base: 0.25rem;
+$tag-font-size-base: 0.75rem;
+$tag-line-height-base: 1rem;
+$tag-font-weight-base: 600;
+$tag-rounded-padding-y: $tag-padding-y;
+$tag-rounded-padding-x: $tag-padding-x * 1.25;
+$tag-rounded-border-radius: 50rem;
 
 // Checkbox
 $checkbox-border-radius: calc($border-radius-base / 2);

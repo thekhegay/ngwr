@@ -1,30 +1,34 @@
-.container,
-.container-fluid {
+.container {
+  position: relative;
+  margin: 0 auto;
+  flex-grow: 1;
   width: 100%;
-  padding-right: var(--#{$prefix}-container-padding);
-  padding-left: var(--#{$prefix}-container-padding);
-  margin-right: auto;
-  margin-left: auto;
+  padding-right: var(--#{$prefix}-grid-gutter);
+  padding-left: var(--#{$prefix}-grid-gutter);
+
+  &-fluid {
+    max-width: none !important;
+  }
 }
 
 @each $breakpoint, $value in $grid-displays-widths {
-  .container-#{$breakpoint} {
-    @extend .container-fluid;
-  }
-
   @include media-breakpoint-up($breakpoint) {
     %responsive-container-#{$breakpoint} {
       max-width: $value;
     }
 
-    @each $name, $width in $grid-breakpoints {
-      .container#{breakpoint-infix($name)} {
-        @extend %responsive-container-#{$breakpoint};
-      }
+    $extend-breakpoint: true;
 
-      // Once the current breakpoint is reached, stop extending
-      @if ($breakpoint == $name) {
-        $extend-breakpoint: false;
+    @each $name, $width in $grid-breakpoints {
+      @if ($extend-breakpoint) {
+        .container#{breakpoint-infix($name)} {
+          @extend %responsive-container-#{$breakpoint};
+        }
+
+        // Once the current breakpoint is reached, stop extending
+        @if ($breakpoint == $name) {
+          $extend-breakpoint: false;
+        }
       }
     }
   }

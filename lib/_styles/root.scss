@@ -31,11 +31,13 @@
 
   // Grid
   --#{$prefix}-grid-gutter: #{$grid-gutter};
+  --#{$prefix}-grid-columns: #{$grid-columns};
+  --#{$prefix}-grid-rows: #{$grid-rows};
 
   // Buttons
   --#{$prefix}-btn-padding-y: #{$btn-padding-y};
   --#{$prefix}-btn-padding-x: #{$btn-padding-x};
-  --#{$prefix}-btn-font-family: #{$font-family-base};
+  --#{$prefix}-btn-font-family-base: #{$font-family-base};
   --#{$prefix}-btn-font-size-base: #{$btn-font-size-base};
   --#{$prefix}-btn-font-size-small: #{$btn-font-size-small};
   --#{$prefix}-btn-font-weight-base: #{$btn-font-weight-base};
@@ -45,6 +47,18 @@
   --#{$prefix}-btn-rounded-padding-y: #{$btn-rounded-padding-y};
   --#{$prefix}-btn-rounded-padding-x: #{$btn-rounded-padding-x};
   --#{$prefix}-btn-rounded-border-radius: #{$btn-rounded-border-radius};
+
+  // Tags
+  --#{$prefix}-tag-padding-y: #{$tag-padding-y};
+  --#{$prefix}-tag-padding-x: #{$tag-padding-x};
+  --#{$prefix}-tag-font-family-base: #{$font-family-base};
+  --#{$prefix}-tag-font-size-base: #{$tag-font-size-base};
+  --#{$prefix}-tag-font-weight-base: #{$tag-font-weight-base};
+  --#{$prefix}-tag-line-height-base: #{$tag-line-height-base};
+  --#{$prefix}-tag-border-radius-base: #{$tag-border-radius-base};
+  --#{$prefix}-tag-rounded-padding-y: #{$tag-rounded-padding-y};
+  --#{$prefix}-tag-rounded-padding-x: #{$tag-rounded-padding-x};
+  --#{$prefix}-tag-rounded-border-radius: #{$tag-rounded-border-radius};
 
   // Checkboxes
   --#{$prefix}-checkbox-border-radius: #{$checkbox-border-radius};
