@@ -1,7 +1,5 @@
 $form-prefix: #{$prefix}-form;
 $input-prefix: #{$prefix}-input;
-$password-input-prefix: #{$prefix}-password-input;
-$extended-input-prefix: #{$prefix}-extended-input;
 
 .#{$form-prefix} {
   &-item {
@@ -24,39 +22,15 @@ $extended-input-prefix: #{$prefix}-extended-input;
       line-height: 1;
       margin-bottom: 0.5rem;
       transition: var(--#{$prefix}-transition-base);
-
-      & > nz-switch {
-        margin-left: 0.5rem;
-      }
-
-      & > nz-radio-group {
-        margin-left: 0.5rem;
-
-        .ant-radio-button-wrapper {
-          font-size: 0.625rem;
-          height: 0.825rem !important;
-          line-height: calc(1rem - 4px) !important;
-
-          &:first-child {
-            border-top-left-radius: 50rem;
-            border-bottom-left-radius: 50rem;
-          }
-          &:last-child {
-            border-top-right-radius: 50rem;
-            border-bottom-right-radius: 50rem;
-          }
-        }
-      }
     }
 
     &--has-error {
       & > label {
         color: var(--#{$prefix}-color-danger);
       }
-      & .#{$input-prefix} {
+      & > #{$input-prefix} {
         box-shadow: inset 0 0 0 1px var(--#{$prefix}-color-danger);
-      }
-      & .#{$extended-input-prefix} {
+
         &-suffix,
         &-prefix {
           border-color: var(--#{$prefix}-color-danger);
@@ -65,12 +39,6 @@ $extended-input-prefix: #{$prefix}-extended-input;
           &__text {
             color: var(--#{$prefix}-color-danger);
           }
-        }
-      }
-
-      & > nz-select {
-        .ant-select-selector {
-          box-shadow: inset 0 0 0 1px var(--#{$prefix}-color-danger);
         }
       }
     }
