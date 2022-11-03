@@ -2,26 +2,22 @@
   <span class="wr-input-prefix__text">{{ prefix }}</span>
 </div>
 <div class="wr-input-el">
-  <div
-    *ngIf="passwordIcons"
-    class="wr-input-el-icon"
-    (click)="onPasswordVisibilityChange($event)"
-  >
+  <div *ngIf="passwordIcons" class="wr-input-el-icon" (click)="onPasswordVisibilityChange()">
     <wr-icon class="wr-input-el-icon__icon" [name]="eyeOn ? 'eye' : 'eye-off'"></wr-icon>
   </div>
   <input
     #inputElement
     class="wr-input-el__native"
+    [ngModel]="valueAsString"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    [readonly]="readonly"
     [type]="type"
-    [value]="value"
-    [placeholder]="placeholder ? placeholder : ''"
-    [attr.readonly]="readonly ? 'readonly' : null"
-    [attr.autofocus]="autofocus ? 'autofocus' : null"
-    [attr.disabled]="disabled ? 'disabled' : null"
     [attr.autocomplete]="autocomplete"
     [attr.inputmode]="inputmode"
-    [ngModel]="value"
-    (ngModelChange)="onModelChange(value)"
+    (focus)="onFocus($event)"
+    (blur)="onBlur($event)"
+    (ngModelChange)="value = $event"
   />
 </div>
 <div class="wr-input-suffix" *ngIf="suffix">

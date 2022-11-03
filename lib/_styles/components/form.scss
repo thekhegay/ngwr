@@ -28,13 +28,15 @@ $input-prefix: #{$prefix}-input;
       & > label {
         color: var(--#{$prefix}-color-danger);
       }
-      & > #{$input-prefix} {
-        box-shadow: inset 0 0 0 1px var(--#{$prefix}-color-danger);
+
+      .#{$input-prefix} {
+        &-el__native {
+          border-color: var(--wr-color-danger);
+        }
 
         &-suffix,
         &-prefix {
           border-color: var(--#{$prefix}-color-danger);
-          background: rgba(var(--#{$prefix}-color-danger-rgb), 0.25);
 
           &__text {
             color: var(--#{$prefix}-color-danger);
