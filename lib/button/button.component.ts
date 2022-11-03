@@ -16,6 +16,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { BaseComponent, BooleanInput, InputBoolean, SafeAny, WrThemeColor } from '../_core';
 import { wrIconName } from '../icon';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 @Component({
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
@@ -29,7 +30,14 @@ export class WrButtonComponent extends BaseComponent implements OnInit, AfterVie
   @Input() size: 'default' | 'small' = 'default';
   @Input() icon: wrIconName | null = null;
   @Input() iconPosition: 'start' | 'end' = 'start';
-  @Input() @InputBoolean() disabled: BooleanInput = false;
+  @Input()
+  get disabled(): boolean {
+    return this._disabled;
+  }
+  set disabled(disabled: BooleanInput) {
+    this._disabled = coerceBooleanProperty(disabled);
+    this.cdr.markForCheck();
+  }
   @Input() @InputBoolean() outlined: BooleanInput = false;
   @Input() @InputBoolean() rounded: BooleanInput = false;
   @Input() @InputBoolean() loading: BooleanInput = false;
@@ -58,7 +66,7 @@ export class WrButtonComponent extends BaseComponent implements OnInit, AfterVie
     };
   }
 
-  @HostBinding('disabled') _disabled = this.disabled || null;
+  @HostBinding('disabled') _disabled = false;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
