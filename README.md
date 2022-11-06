@@ -16,12 +16,13 @@ NGWR is currently in development stage. All components are updating every week. 
 
 ```shell
 $ npm install ngwr
-# or yarn uses
+# or yarn users
 $ yarn add ngwr
 ```
 
 ## Styles
 
+Don't forget to add styles:
 ```scss
 @import '~ngwr/ngwr.min.css';
 ```
@@ -38,8 +39,8 @@ $ yarn add ngwr
 - [Spinner](https://ngwr.dev/components/spinner)
 - [Tag](https://ngwr.dev/components/tag)
 
-- [Colors](https://ngwr.dev/components/colors)
-- [Grid](https://ngwr.dev/components/grid)
+- [Colors](https://ngwr.dev/common/colors)
+- [Grid](https://ngwr.dev/common/grid)
 
 ## Authors
 - [Roman Khegay](https://github.com/thekhegay) – code code, design
