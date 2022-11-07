@@ -60,6 +60,6 @@
     "sass": "^1.54.5",
     "svg-to-ts": "^8.8.1",
     "ts-node": "^10.9.1",
-    "typescript": "~4.7.2"
+    "typescript": "~4.8.4"
   }
 }
