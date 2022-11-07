@@ -48,7 +48,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "highlightjs-line-numbers.js": "^2.8.0",
     "jasmine-core": "~4.2.0",
-    "karma": "~6.4.0",
+    "karma": "~6.4.1",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
