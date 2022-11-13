@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
   "angularCompilerOptions": {
     "compilationMode": "partial",
     "enableIvy": true,
@@ -41,8 +40,8 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noStrictGenericChecks": false,
-    "noUnusedLocals": false, // TODO: enable on release
-    "noUnusedParameters": false, // TODO: enable on release
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "outDir": "./dist/out-tsc",
     "paths": {
       "ngwr/*": ["projects/lib/*"]
@@ -55,7 +54,7 @@
     "strict": true,
     "target": "es2020",
     "typeRoots": ["node_modules/@types"],
-    "useDefineForClassFields": false,
+    "useDefineForClassFields": false
   },
   "exclude": ["projects/**/*.spec.ts"],
   "include": ["projects/**/*"],
@@ -66,6 +65,5 @@
     },
     "files": true,
     "transpileOnly": true
-  },
-
+  }
 }

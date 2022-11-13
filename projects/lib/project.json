@@ -1,0 +1,15 @@
+{
+  "root": "projects/lib",
+  "sourceRoot": "projects/lib",
+  "projectType": "library",
+  "prefix": "wr",
+  "architect": {
+    "build": {
+      "builder": "@angular-devkit/build-angular:ng-packagr",
+      "options": {
+        "tsConfig": "tsconfig.build.json",
+        "project": "projects/lib/ng-package.json"
+      }
+    }
+  }
+}
