@@ -44,18 +44,19 @@
   &-prefix,
   &-suffix {
     display: flex;
-    border: 1px solid var(--wr-color-light);
-    background: rgba(var(--wr-color-light-rgb), 0.5);
+    border: 1px solid var(--wr-input-border-color);
+    background: var(--wr-input-suffix-prefix-bg);
+
+    color: var(--wr-input-suffix-prefix-color);
+    font-size: var(--wr-input-font-size-base);
+    font-weight: var(--wr-input-font-weight-base);
+    line-height: var(--wr-input-line-height-base);
 
     padding: var(--wr-input-padding-y-base) var(--wr-input-padding-x-base);
     margin: 0;
     max-width: 30%;
 
     &__text {
-      color: var(--wr-color-medium);
-      font-size: var(--wr-input-font-size-base);
-      font-weight: var(--wr-input-font-weight-base);
-      line-height: var(--wr-input-font-size-base);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -127,7 +128,7 @@
       font-family: var(--wr-font-family-base);
       font-size: var(--wr-input-font-size-base);
       font-weight: var(--wr-input-font-weight-base);
-      line-height: var(--wr-input-font-size-base);
+      line-height: var(--wr-input-line-height-base);
       resize: none;
 
       width: 100%;
@@ -140,14 +141,16 @@
       transition: var(--wr-transition-base);
 
       &::placeholder {
-        color: var(--wr-color-light);
+        color: rgba(var(--wr-color-medium-rgb), 0.5);
+        font-style: italic;
       }
 
       &[disabled],
       &:disabled,
       &.disabled {
-        color: var(--wr-color-medium);
-        background: rgba(var(--wr-color-light-rgb), 0.5);
+        color: var(--wr-input-disabled-color);
+        border-color: var(--wr-input-disabled-border-color);
+        background: var(--wr-input-disabled-bg);
       }
 
       &:active,

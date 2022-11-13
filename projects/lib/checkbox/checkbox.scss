@@ -32,7 +32,7 @@
 
     margin-right: calc(var(--wr-checkbox-width) / 4);
 
-    border: 1px solid var(--wr-color-medium);
+    border: 1px solid rgba(var(--wr-color-medium-rgb), 0.25);
     border-radius: var(--wr-checkbox-border-radius);
 
     transition: var(--wr-transition-base);
@@ -57,7 +57,7 @@
 
   &--checked {
     .wr-checkbox-inner {
-      border: none;
+      border-color: var(--wr-color-primary);
       background: var(--wr-color-primary);
 
       &__mark {
@@ -82,21 +82,20 @@
   &[disabled],
   &:disabled,
   &.disabled {
-    color: var(--wr-color-medium);
     pointer-events: none;
 
     .wr-checkbox-inner {
+      border-color: rgba(var(--wr-color-medium-rgb), 0.25);
       background: rgba(var(--wr-color-medium-rgb), 0.25);
     }
 
     &.wr-checkbox--checked {
       .wr-checkbox-inner {
-        border: 1px solid var(--wr-color-medium);
         background: rgba(var(--wr-color-medium-rgb), 0.25);
 
         &__mark {
-          border-bottom: 0.2rem solid var(--wr-color-medium);
-          border-right: 0.2rem solid var(--wr-color-medium);
+          border-bottom: 0.2rem solid rgba(var(--wr-color-medium-rgb), 0.75);
+          border-right: 0.2rem solid rgba(var(--wr-color-medium-rgb), 0.75);
         }
       }
     }

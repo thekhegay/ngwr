@@ -1,12 +1,26 @@
 <main class="button">
   <div class="page__hero">
     <div class="page-header">
-      <h1 class="page-header__title">Button</h1>
+      <h1 class="page-header-title">Button<wr-tag class="page-header-title__tag" transparent>Component</wr-tag></h1>
       <p class="page-header__description">A component to trigger an operations</p>
     </div>
 
     <pre class="pre"><code highlight="import { WrButtonModule } from 'ngwr';" [languages]="['ts']"></code></pre>
   </div>
+
+  <section class="page-section">
+    <h2 class="page-section__title">Usage example</h2>
+    <p class="page-section__description"> Button component can be used as standalone component or directive</p>
+
+    <app-snippet codeLang="html">
+      <div class="button__list" slot="display">
+        <wr-btn>Button</wr-btn>
+        <button wr-btn>Button Native</button>
+        <a wr-btn>Button Anchor</a>
+      </div>
+      <code [highlight]="usageCode" slot="code" [languages]="['html']"></code>
+    </app-snippet>
+  </section>
 
   <section class="page-section">
     <h2 class="page-section__title">Color</h2>
@@ -15,14 +29,14 @@
       Color can be set by <code class="page-section__code">color</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list" slot="display">
         <wr-btn *ngFor="let b of colors" [color]="b">
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-btn>
       </div>
       <code [highlight]="colorsCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -32,14 +46,14 @@
       background, but with stroke.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list" slot="display">
         <wr-btn *ngFor="let b of colors" [color]="b" outlined>
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-btn>
       </div>
       <code [highlight]="outlinedCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -49,12 +63,12 @@
       Button component will be displayed with rounded edges.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list" slot="display">
         <wr-btn *ngFor="let b of colors" [color]="b" rounded>Rounded</wr-btn>
       </div>
       <code [highlight]="roundedCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -63,7 +77,7 @@
       If you need a small button, you can set <code class="page-section__code">size="small"</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list" slot="display">
         <wr-btn>Default size</wr-btn>
         <wr-btn size="small">Small size</wr-btn>
@@ -73,7 +87,7 @@
         <wr-btn size="small" color="secondary" rounded>Small size</wr-btn>
       </div>
       <code [highlight]="sizeCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -83,13 +97,13 @@
       <code class="page-section__code">fullwidth</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list button__list--column" slot="display">
         <wr-btn fullwidth>Full width button</wr-btn>
         <wr-btn fullwidth color="secondary" rounded outlined icon="user">Full width button with icon</wr-btn>
       </div>
       <code [highlight]="fullWidthCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -102,7 +116,7 @@
       <code class="page-section__code">iconPosition</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list" slot="display">
         <wr-btn icon="add">Add</wr-btn>
         <wr-btn icon="copy-outline" outlined>Copy</wr-btn>
@@ -111,7 +125,7 @@
         <wr-btn icon="alert-circle" size="small" rounded color="danger">Alert</wr-btn>
       </div>
       <code [highlight]="iconsCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -122,14 +136,14 @@
       button component will maintain its original size.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list" slot="display">
         <wr-btn loading>Loading</wr-btn>
         <wr-btn [loading]="true" color="dark" rounded>You can use boolean or string</wr-btn>
         <wr-btn loading icon="add" color="secondary" outlined>Loading with icon</wr-btn>
       </div>
       <code [highlight]="loadingCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -138,14 +152,14 @@
       You can add <code class="page-section__code">disabled</code> attribute to prevent interacting with the button.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="button__list" slot="display">
         <wr-btn disabled>Disabled</wr-btn>
         <wr-btn disabled rounded>Disabled</wr-btn>
         <wr-btn disabled icon="alert-circle">Disabled</wr-btn>
       </div>
       <code [highlight]="disabledCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">

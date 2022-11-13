@@ -9,14 +9,14 @@
     <h2 class="page-section__title">HEX variables</h2>
     <p class="page-section__description"> All colors are available with CSS variables. </p>
 
-    <wr-snippet codeLang="css">
+    <app-snippet codeLang="css">
       <div class="colors__list" slot="display">
         <div class="colors__item colors__item--{{ c }}" *ngFor="let c of colors">
           {{ c.charAt(0).toUpperCase() + c.slice(1) }}
         </div>
       </div>
       <code [highlight]="colorsCode" slot="code" [languages]="['css']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -25,13 +25,13 @@
       Color can be used with alpha channel <code class="page-section__code">rgba(var(--wr-color-dark-rgb), 0.25)</code>
     </p>
 
-    <wr-snippet codeLang="css">
+    <app-snippet codeLang="css">
       <div class="colors__list" slot="display">
         <div class="colors__item colors__item--{{ c }}--rgb" *ngFor="let c of colors">
           {{ c.charAt(0).toUpperCase() + c.slice(1) }}
         </div>
       </div>
       <code [highlight]="colorsRgbCode" slot="code" [languages]="['css']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 </main>

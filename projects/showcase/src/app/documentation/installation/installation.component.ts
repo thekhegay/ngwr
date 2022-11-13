@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'site-getting-started-installation',
-  templateUrl: './installation.component.html'
+  selector: 'app-documentation-installation',
+  templateUrl: './installation.component.html',
 })
 export class InstallationComponent {}

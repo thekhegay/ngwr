@@ -9,16 +9,18 @@
   </div>
 
   <section class="page-section">
-    <h2 class="page-section__title">Example</h2>
-    <p class="page-section__description">Basic usage of checkbox component</p>
+    <h2 class="page-section__title">Usage example</h2>
+    <p class="page-section__description">
+      Checkbox component cannot be used outside of
+      <a class="page-section__link" href="https://angular.io/guide/forms-overview" target="_blank">Angular Form</a>
+    </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="checkbox__list" slot="display">
-        <wr-checkbox checked>Checkbox</wr-checkbox>
-        <wr-checkbox [ngModel]="false">Checkbox</wr-checkbox>
+        <wr-checkbox [ngModel]="true">Checkbox</wr-checkbox>
       </div>
-      <code [highlight]="checkboxCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+      <code [highlight]="usageCode" slot="code" [languages]="['html']"></code>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -27,13 +29,13 @@
       You can add <code class="page-section__code">disabled</code> attribute to prevent interacting with the checkbox.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="checkbox__list" slot="display">
         <wr-checkbox disabled>Checkbox</wr-checkbox>
         <wr-checkbox [ngModel]="true" disabled>Checkbox</wr-checkbox>
       </div>
       <code [highlight]="disabledCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -43,12 +45,12 @@
       <code class="page-section__code">checkedChange</code> callback function.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="checkbox__list" slot="display">
         <wr-checkbox [ngModel]="false" (ngModelChange)="onValueChange($event)">Click me!</wr-checkbox>
       </div>
       <code [highlight]="valueChangeCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -64,12 +66,6 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th><code>[checked]</code></th>
-          <th>set value of checkbox</th>
-          <th><code>boolean</code></th>
-          <th><code>false</code></th>
-        </tr>
         <tr>
           <th><code>[disabled]</code></th>
           <th>set disabled state for checkbox</th>
@@ -87,14 +83,6 @@
           <th>The callback function that is triggered when the state changes.</th>
           <th>
             <code>{{ ngModelChangeReturn }}</code>
-          </th>
-          <th><code>-</code></th>
-        </tr>
-        <tr>
-          <th><code>(valueChange)</code></th>
-          <th>The callback function that is triggered when the state changes</th>
-          <th>
-            <code>{{ valueChangeReturn }}</code>
           </th>
           <th><code>-</code></th>
         </tr>

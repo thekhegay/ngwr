@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
-import { SharedModule } from '../@shared';
+import { SharedModule } from 'showcase/@shared/shared.module';
+
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { ComponentsRouting } from './components.routing';
@@ -24,7 +25,7 @@ import { TagComponent } from './tag/tag.component';
     InputComponent,
     SkeletonComponent,
     SpinnerComponent,
-    TagComponent
-  ]
+    TagComponent,
+  ],
 })
 export class ComponentsModule {}

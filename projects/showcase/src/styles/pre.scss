@@ -1,7 +1,9 @@
 .pre {
   display: flex;
-  background-color: rgba(var(--wr-color-light-rgb), 0.5) !important;
+  color: var(--pre-color);
+  background-color: var(--pre-bg) !important;
   border-radius: var(--wr-border-radius-base);
+  border: var(--pre-border);
   margin: 0 0 1rem 0 !important;
   padding: 0.75rem 1rem !important;
 

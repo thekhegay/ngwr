@@ -15,14 +15,14 @@
       Color can be set by <code class="page-section__code">color</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b">
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-tag>
       </div>
       <code [highlight]="colorsCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -32,14 +32,14 @@
       background, but with stroke.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b" outlined>
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-tag>
       </div>
       <code [highlight]="outlinedCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -49,12 +49,12 @@
       component will be displayed with rounded edges.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b" rounded>Rounded</wr-tag>
       </div>
       <code [highlight]="roundedCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -63,7 +63,7 @@
       You can set <code class="page-section__code">transparent</code> attribute to make tag transparent.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b" transparent>Transparent</wr-tag>
       </div>
@@ -71,7 +71,7 @@
         <wr-tag *ngFor="let b of colors" [color]="b" transparent outlined>Transparent</wr-tag>
       </div>
       <code [highlight]="transparentCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -80,7 +80,7 @@
       If you need to hover effect for tag, you can set <code class="page-section__code">hoverable</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b" hoverable>Hoverable</wr-tag>
       </div>
@@ -94,7 +94,7 @@
         <wr-tag *ngFor="let b of colors" [color]="b" hoverable transparent outlined>Hoverable</wr-tag>
       </div>
       <code [highlight]="hoverableCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -107,7 +107,7 @@
       <code class="page-section__code">iconPosition</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="tag__list" slot="display">
         <wr-tag icon="add">Add</wr-tag>
         <wr-tag icon="user" outlined>Username</wr-tag>
@@ -116,7 +116,7 @@
         <wr-tag transparent color="medium" loading iconPosition="end">Loading</wr-tag>
       </div>
       <code [highlight]="iconsCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -127,14 +127,14 @@
       <code class="page-section__code">iconPosition</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="tag__list" slot="display">
         <wr-tag loading>Loading</wr-tag>
         <wr-tag [loading]="true" color="dark" rounded iconPosition="end">Loading</wr-tag>
         <wr-tag [loading]="true" color="success" transparent>Loading</wr-tag>
       </div>
       <code [highlight]="loadingCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">

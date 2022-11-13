@@ -6,12 +6,14 @@
   &-header {
     margin-bottom: 1rem;
 
-    &__title {
-
+    &-title {
+      &__tag {
+        margin-left: 0.5rem;
+      }
     }
 
     &__description {
-      color: var(--wr-color-medium);
+      color: var(--text-color);
       font-size: 1.75rem;
       font-weight: 400;
       line-height: 1.4;
@@ -30,7 +32,7 @@
     }
 
     &__description {
-      color: rgba(var(--wr-color-dark-rgb), 0.75);
+      color: var(--text-color);
       font-size: 1rem;
       font-weight: 400;
       line-height: 1.6;
@@ -48,9 +50,9 @@
     }
 
     &__code {
-      color: var(--wr-color-secondary);
-      background: rgba(var(--wr-color-light-rgb), 0.5);
-      border: 1px solid var(--wr-color-light);
+      color: var(--pre-color);
+      background: var(--pre-bg);
+      border: 1px solid var(--pre-bg);
       border-radius: 3px;
       font-size: 0.9em;
       padding: 0.125em 0.375em;
@@ -59,7 +61,7 @@
 
   &__table {
     background: transparent;
-    border: 1px solid rgba(var(--wr-color-light-rgb), 1);
+    border: 1px solid var(--wr-border-color-base);
 
     width: 100%;
 
@@ -72,8 +74,8 @@
 
     code {
       color: var(--wr-color-secondary);
-      background: rgba(var(--wr-color-light-rgb), 0.5);
-      border: 1px solid var(--wr-color-light);
+      background: var(--pre-bg);
+      border: var(--pre-border);
       border-radius: 3px;
       font-size: 0.9em;
       padding: 0.125em 0.375em;
@@ -85,8 +87,8 @@
       font-size: 0.825rem;
       font-weight: 600;
 
-      background: rgba(var(--wr-color-light-rgb), 0.375);
-      border-bottom: 1px solid var(--wr-color-light);
+      background: var(--snippet-bg);
+      border-bottom: 1px solid var(--wr-border-color-base);
 
       tr, th {
         color: inherit;
@@ -98,7 +100,7 @@
     }
 
     tbody {
-      color: var(--wr-color-dark);
+      color: var(--heading-color);
       font-size: 0.825rem;
       font-weight: 500;
 
@@ -109,7 +111,7 @@
       }
 
       tr {
-        border-bottom: 1px solid var(--wr-color-light);
+        border-bottom: 1px solid var(--wr-border-color-base);
       }
     }
   }

@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 
-import { colors } from '../../@shared';
+import { wrThemeColors } from 'ngwr/core/color';
 
 @Component({
-  selector: 'site-components-skeleton',
-  templateUrl: './skeleton.component.html'
+  selector: 'app-components-skeleton',
+  templateUrl: './skeleton.component.html',
 })
 export class SkeletonComponent {
-  readonly colors = colors;
+  readonly colors = wrThemeColors;
 
   readonly exampleCode =
     '<wr-skeleton style="width:25%; height:1rem"></wr-skeleton>\n<wr-skeleton style="width:50%; height:1rem"></wr-skeleton>\n<wr-skeleton style="width:75%; height:1rem"></wr-skeleton>\n<wr-skeleton style="width:100%; height:1rem"></wr-skeleton>';

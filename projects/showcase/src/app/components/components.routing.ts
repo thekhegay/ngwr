@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+import { routes as r } from 'showcase/@shared/routes';
+
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { DividerComponent } from './divider/divider.component';
@@ -15,48 +17,48 @@ const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'button'
+    redirectTo: r.COMPONENTS.BUTTON,
   },
   {
-    path: 'button',
-    component: ButtonComponent
+    path: r.COMPONENTS.BUTTON,
+    component: ButtonComponent,
   },
   {
-    path: 'checkbox',
-    component: CheckboxComponent
+    path: r.COMPONENTS.CHECKBOX,
+    component: CheckboxComponent,
   },
   {
-    path: 'divider',
-    component: DividerComponent
+    path: r.COMPONENTS.DIVIDER,
+    component: DividerComponent,
   },
   {
-    path: 'form',
-    component: FormComponent
+    path: r.COMPONENTS.FORM,
+    component: FormComponent,
   },
   {
-    path: 'icon',
-    component: IconComponent
+    path: r.COMPONENTS.ICON,
+    component: IconComponent,
   },
   {
-    path: 'input',
-    component: InputComponent
+    path: r.COMPONENTS.INPUT,
+    component: InputComponent,
   },
   {
-    path: 'skeleton',
-    component: SkeletonComponent
+    path: r.COMPONENTS.SKELETON,
+    component: SkeletonComponent,
   },
   {
-    path: 'spinner',
-    component: SpinnerComponent
+    path: r.COMPONENTS.SPINNER,
+    component: SpinnerComponent,
   },
   {
-    path: 'tag',
-    component: TagComponent
-  }
+    path: r.COMPONENTS.TAG,
+    component: TagComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class ComponentsRouting {}

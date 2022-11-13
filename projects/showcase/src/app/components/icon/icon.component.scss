@@ -7,19 +7,19 @@
     text-align: center;
     padding: 2rem 1rem;
 
-    background: rgba(var(--wr-color-light-rgb), 0.375);
+    background: var(--snippet-bg);
 
     border-radius: var(--wr-border-radius-base);
 
     &__icon {
-      color: var(--wr-color-dark);
+      color: var(--icon-color);
       height: 2rem;
       width: 2rem;
       margin-bottom: 1rem;
     }
 
     &__name {
-      color: var(--wr-color-medium);
+      color: var(--text-color);
       font-size: 0.825rem;
       line-height: 1rem;
       font-weight: 500;

@@ -5,12 +5,28 @@
   min-height: 100vh;
 
   &__wrapper {
-    min-height: calc(100vh - 8rem);
+    min-height: 100vh;
+    padding-top: var(--header-height);
+    position: relative;
+    z-index: 1;
+
+    &:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100%;
+      background: linear-gradient(-45deg, transparent 75%, rgba(var(--wr-color-primary-rgb), 0.125) 100%);
+      z-index: 0;
+    }
   }
 
   &__content {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: var(--layout-padding-y);
+    padding-bottom: var(--layout-padding-y);
+    z-index: 1;
   }
 
   &-sidebar {
@@ -19,17 +35,18 @@
     align-items: baseline;
     align-self: start;
     position: sticky;
-    top: 0;
-    padding-top: 2rem;
+    top: var(--header-height);
     overflow-y: auto;
     height: 100%;
-    max-height: calc(100vh - 3rem);
+    max-height: calc(100vh - var(--header-height));
+    padding-top: var(--layout-padding-y);
+    padding-bottom: var(--layout-padding-y);
+    z-index: 1;
 
     &-list {
       display: flex;
+      align-items: flex-start;
       flex-direction: column;
-      align-items: baseline;
-      padding-left: 0.5rem;
       margin-bottom: 1rem;
 
       &:last-child {
@@ -37,17 +54,17 @@
       }
 
       &__title {
-        color: var(--wr-color-medium);
+        display: inline-block;
+        color: var(--text-color);
         font-size: 0.825rem;
         font-weight: 600;
         line-height: 1rem;
-        margin-left: -0.5rem;
         margin-bottom: 0.75rem;
       }
     }
 
     &__link {
-      color: var(--wr-color-dark);
+      color: var(--heading-color);
 
       font-size: var(--wr-font-size-base);
       font-weight: 500;
@@ -55,6 +72,7 @@
 
       padding: 0.5rem;
       margin-bottom: 0.5rem;
+      margin-left: 1rem;
 
       border-radius: calc(var(--wr-border-radius-base) / 2);
       background: rgba(var(--wr-color-primary-rgb), 0);
@@ -69,7 +87,7 @@
       }
 
       &--active {
-        background: rgba(var(--wr-color-primary-rgb), 0.125);
+        background: rgba(var(--wr-color-primary-rgb), 0.1);
         pointer-events: none;
       }
     }
