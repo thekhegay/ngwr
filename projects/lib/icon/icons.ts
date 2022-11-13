@@ -118,19 +118,33 @@ export const wrIconBug: {
   name: 'bug',
   data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M108.9,75.5h7.3c3.7,0,6.7-3,6.7-6.7c0-3.7-3-6.7-6.7-6.7h-7.3v-7.6c0-2-0.1-4-0.4-5.9h7.7c3.7,0,6.7-3,6.7-6.7 c0-3.7-3-6.7-6.7-6.7h-11.7c-3.5-7.4-9-13.7-15.8-18.2l5.7-5.7C97,8.8,97,4.6,94.4,2c-2.6-2.6-6.8-2.6-9.4,0l-9.2,9.2 c-3.8-1-7.7-1.6-11.8-1.6h0c-4.1,0-8,0.6-11.8,1.6L43,2c-2.6-2.6-6.8-2.6-9.4,0c-2.6,2.6-2.6,6.8,0,9.4l5.7,5.7 c-6.8,4.5-12.3,10.8-15.8,18.2H11.8c-3.7,0-6.7,3-6.7,6.7c0,3.7,3,6.7,6.7,6.7h7.7c-0.3,1.9-0.4,3.9-0.4,5.9v7.6h-7.3 c-3.7,0-6.7,3-6.7,6.7c0,3.7,3,6.7,6.7,6.7h7.3v7.6c0,2,0.1,4,0.4,5.9h-7.7c-3.7,0-6.7,3-6.7,6.7c0,3.7,3,6.7,6.7,6.7h11.7 C30.6,117.5,46.1,128,64,128h0c17.9,0,33.4-10.5,40.6-25.7h11.7c3.7,0,6.7-3,6.7-6.7c0-3.7-3-6.7-6.7-6.7h-7.7 c0.3-1.9,0.4-3.9,0.4-5.9V75.5z M76,91.5H52c-3.7,0-6.7-3-6.7-6.7s3-6.7,6.7-6.7H76c3.7,0,6.7,3,6.7,6.7S79.6,91.5,76,91.5z M76,59.4H52c-3.7,0-6.7-3-6.7-6.7c0-3.7,3-6.7,6.7-6.7H76c3.7,0,6.7,3,6.7,6.7C82.6,56.5,79.6,59.4,76,59.4z"/></svg>`
 };
+export const wrIconCaretBackCircle: {
+  name: 'caret-back-circle';
+  data: string;
+} = {
+  name: 'caret-back-circle',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><style type="text/css">.st0{fill:#FFFFFF;}</style><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z"/><path class="st0" d="M38.4,68.5l26.2,26.2c4,4,10.8,1.2,10.8-4.5V37.8c0-5.6-6.8-8.4-10.8-4.5L38.4,59.5C35.9,62,35.9,66,38.4,68.5z"/></svg>`
+};
 export const wrIconCaretBack: {
   name: 'caret-back';
   data: string;
 } = {
   name: 'caret-back',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M321.94 98L158.82 237.78a24 24 0 000 36.44L321.94 414c15.57 13.34 39.62 2.28 39.62-18.22v-279.6c0-20.5-24.05-31.56-39.62-18.18z"/></svg>`
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M41.3,68.5l26.2,26.2c4,4,10.8,1.2,10.8-4.5V37.8c0-5.6-6.8-8.4-10.8-4.5L41.3,59.5C38.8,62,38.8,66,41.3,68.5z"/></svg>`
+};
+export const wrIconCaretForwardCircle: {
+  name: 'caret-forward-circle';
+  data: string;
+} = {
+  name: 'caret-forward-circle',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M86.5,68.5L60.4,94.6c-4,4-10.8,1.2-10.8-4.5V37.8 c0-5.6,6.8-8.4,10.8-4.5l26.2,26.2C89,62,89,66,86.5,68.5z"/></svg>`
 };
 export const wrIconCaretForward: {
   name: 'caret-forward';
   data: string;
 } = {
   name: 'caret-forward',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M190.06 414l163.12-139.78a24 24 0 000-36.44L190.06 98c-15.57-13.34-39.62-2.28-39.62 18.22v279.6c0 20.5 24.05 31.56 39.62 18.18z"/></svg>`
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M82.3,68.5L56.1,94.6c-4,4-10.8,1.2-10.8-4.5V37.8c0-5.6,6.8-8.4,10.8-4.5l26.2,26.2C84.8,62,84.8,66,82.3,68.5z"/></svg>`
 };
 export const wrIconCheckmarkCircleOutline: {
   name: 'checkmark-circle-outline';
@@ -391,6 +405,13 @@ export const wrIconModules: {
   name: 'modules',
   data: `<svg viewBox="0 0 12 15" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.78123 0.973999H1.53153C0.86697 0.973999 0.323242 1.51158 0.323242 2.16863V10.531H1.53153V2.16863H8.78123V0.973999ZM10.5911 3.36377H3.94559C3.28103 3.36377 2.7373 3.90135 2.7373 4.5584V12.9208C2.7373 13.5779 3.28103 14.1154 3.94559 14.1154H10.5911C11.2557 14.1154 11.7994 13.5779 11.7994 12.9208V4.5584C11.7994 3.90135 11.2557 3.36377 10.5911 3.36377ZM3.94434 12.9224H10.5899V4.55994H3.94434V12.9224Z"/></svg>`
 };
+export const wrIconMoon: {
+  name: 'moon';
+  data: string;
+} = {
+  name: 'moon',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M116.5,107.3C104.2,120.1,86.9,128,67.8,128C31.1,128,0.7,98.3,0,61.6C-0.5,35.4,13.9,12.4,35.4,0.7 c4.6-2.5,9.8,1.9,8.1,6.8c-2.7,7.6-4,15.7-3.8,24.2c0.8,35,28.7,63.9,63.6,66c3,0.2,5.9,0.2,8.8,0 C117.2,97.4,120.2,103.6,116.5,107.3z M125.4,27l-13.7-6.1l-6.1-13.7c-1.5-3.4-6.4-3.4-7.9,0l-6.1,13.7L78,27 c-3.4,1.5-3.4,6.4,0,7.9L91.7,41l6.1,13.7c1.5,3.4,6.4,3.4,7.9,0l6.1-13.7l13.7-6.1C128.9,33.4,128.9,28.5,125.4,27z"/></svg>`
+};
 export const wrIconPlayBack: {
   name: 'play-back';
   data: string;
@@ -489,6 +510,13 @@ export const wrIconStop: {
   name: 'stop',
   data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M392 432H120a40 40 0 01-40-40V120a40 40 0 0140-40h272a40 40 0 0140 40v272a40 40 0 01-40 40z"/></svg>`
 };
+export const wrIconSun: {
+  name: 'sun';
+  data: string;
+} = {
+  name: 'sun',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M37.3,90.7c2.5,2.5,2.5,6.6,0,9.1l-12.9,12.9c-2.5,2.5-6.6,2.5-9.1,0c-2.5-2.5-2.5-6.6,0-9.1l12.9-12.9 C30.8,88.2,34.8,88.2,37.3,90.7L37.3,90.7z M28.3,37.3c2.5,2.5,6.6,2.5,9.1,0c2.5-2.5,2.5-6.6,0-9.1L24.5,15.4 c-2.5-2.5-6.6-2.5-9.1,0c-2.5,2.5-2.5,6.6,0,9.1L28.3,37.3z M99.7,90.7c-2.5-2.5-6.6-2.5-9.1,0c-2.5,2.5-2.5,6.6,0,9.1l12.9,12.9 c2.5,2.5,6.6,2.5,9.1,0c2.5-2.5,2.5-6.6,0-9.1L99.7,90.7z M64,38.9c-13.9,0-25.1,11.3-25.1,25.1c0,13.9,11.3,25.1,25.1,25.1 S89.1,77.9,89.1,64C89.1,50.1,77.9,38.9,64,38.9z M64,26.3c3.5,0,6.4-2.9,6.4-6.4V6.4C70.4,2.9,67.5,0,64,0s-6.4,2.9-6.4,6.4v13.5 C57.6,23.4,60.5,26.3,64,26.3z M64,101.7c-3.5,0-6.4,2.9-6.4,6.4v13.5c0,3.5,2.9,6.4,6.4,6.4s6.4-2.9,6.4-6.4v-13.5 C70.4,104.6,67.5,101.7,64,101.7z M26.3,64c0-3.5-2.9-6.4-6.4-6.4H6.4C2.9,57.6,0,60.5,0,64c0,3.5,2.9,6.4,6.4,6.4h13.5 C23.4,70.4,26.3,67.5,26.3,64z M121.6,57.6h-13.5c-3.5,0-6.4,2.9-6.4,6.4c0,3.5,2.9,6.4,6.4,6.4h13.5c3.5,0,6.4-2.9,6.4-6.4 C128,60.5,125.1,57.6,121.6,57.6z M99.7,37.3l12.9-12.9c2.5-2.5,2.5-6.6,0-9.1v0c-2.5-2.5-6.6-2.5-9.1,0L90.7,28.3 c-2.5,2.5-2.5,6.6,0,9.1C93.2,39.8,97.2,39.8,99.7,37.3z"/></svg>`
+};
 export const wrIconTrash: {
   name: 'trash';
   data: string;
@@ -549,7 +577,9 @@ export type wrIconName =
   | 'arrow-top'
   | 'bug-outline'
   | 'bug'
+  | 'caret-back-circle'
   | 'caret-back'
+  | 'caret-forward-circle'
   | 'caret-forward'
   | 'checkmark-circle-outline'
   | 'checkmark-circle'
@@ -588,6 +618,7 @@ export type wrIconName =
   | 'logo-oversecured'
   | 'logo-stingray'
   | 'modules'
+  | 'moon'
   | 'play-back'
   | 'play-circle'
   | 'play-forward'
@@ -602,6 +633,7 @@ export type wrIconName =
   | 'shield'
   | 'stop-circle'
   | 'stop'
+  | 'sun'
   | 'trash'
   | 'user-add'
   | 'user-circle'
@@ -633,7 +665,9 @@ export const wrIconSet = [
   wrIconArrowTop,
   wrIconBugOutline,
   wrIconBug,
+  wrIconCaretBackCircle,
   wrIconCaretBack,
+  wrIconCaretForwardCircle,
   wrIconCaretForward,
   wrIconCheckmarkCircleOutline,
   wrIconCheckmarkCircle,
@@ -672,6 +706,7 @@ export const wrIconSet = [
   wrIconLogoOversecured,
   wrIconLogoStingray,
   wrIconModules,
+  wrIconMoon,
   wrIconPlayBack,
   wrIconPlayCircle,
   wrIconPlayForward,
@@ -686,6 +721,7 @@ export const wrIconSet = [
   wrIconShield,
   wrIconStopCircle,
   wrIconStop,
+  wrIconSun,
   wrIconTrash,
   wrIconUserAdd,
   wrIconUserCircle,

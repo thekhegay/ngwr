@@ -3,9 +3,12 @@
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
-    "build:lib": "ts-node ./scripts/build.ts",
-    "build:site": "ng build site",
-    "serve:site": "ng serve site"
+    "postinstall": "ts-node ./scripts/shared/decorate-angular-cli.ts",
+    "build:lib": "ts-node ./scripts/shared/build-lib.ts",
+    "release:patch": "ts-node ./scripts/release.ts --release-as patch",
+    "release:minor": "ts-node ./scripts/release.ts --release-as minor",
+    "release:major": "ts-node ./scripts/release.ts --release-as major",
+    "release:lib": "ts-node ./scripts/publish.ts"
   },
   "dependencies": {
     "@angular/animations": "~14.2.0",

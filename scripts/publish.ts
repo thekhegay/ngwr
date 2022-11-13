@@ -1,30 +1,29 @@
 import { execSync } from 'child_process';
 import { resolve } from 'path';
 
-import { getValueByFlag } from './shared/argv.utils';
+import { buildLib } from './shared/build-lib';
 import { errorLog, infoLog, processLog, successLog } from './shared/colored-log';
+import { copyAssets } from './shared/copy-assets';
 import { getAllVersions } from './shared/get-all-versions';
 import { getLastMajorVersion } from './shared/get-last-major-version';
 
-const isDryRun = getValueByFlag<'true' | 'false' | 'undefined'>(`--dry-run`, `false`) === `true`;
-const path = getValueByFlag<string>(`--path`, ``);
-
 (async function main(): Promise<void> {
-  const packageJson = await import(resolve(path, `package.json`));
+  buildLib();
+  copyAssets();
+
+  const packageJson = await import(resolve(`dist/lib/package.json`));
   const versions: string[] = getAllVersions(packageJson.name);
 
-  if (versions.includes(packageJson.version) && !isDryRun) {
+  if (versions.includes(packageJson.version)) {
     errorLog(`${packageJson.name}@${packageJson.version} is already published`);
-
     return;
   }
 
   infoLog(`name: ${packageJson.name}`);
   infoLog(`version: ${packageJson.version}`);
 
-  const dry = isDryRun ? `--dry-run` : ``;
   const tag = makeTag(packageJson.version, versions);
-  const command = `npm publish ${path} ${tag} ${dry} --access public`;
+  const command = `npm publish dist/lib ${tag} --access public`;
 
   processLog(command);
   execSync(command, { stdio: `inherit`, encoding: `utf8` });
