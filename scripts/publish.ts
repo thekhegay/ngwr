@@ -23,7 +23,7 @@ import { getLastMajorVersion } from './shared/get-last-major-version';
   infoLog(`version: ${packageJson.version}`);
 
   const tag = makeTag(packageJson.version, versions);
-  const command = `npm publish dist/lib ${tag} --access public`;
+  const command = `npm publish dist/lib/ ${tag} --registry=https://registry.npmjs.org/ --access public`;
 
   processLog(command);
   execSync(command, { stdio: `inherit`, encoding: `utf8` });
