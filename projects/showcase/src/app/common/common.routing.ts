@@ -1,27 +1,29 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+import { routes as r } from 'showcase/@shared/routes';
+
 import { ColorsComponent } from './colors/colors.component';
 import { GridComponent } from './grid/grid.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'colors',
-    pathMatch: 'full'
+    pathMatch: 'full',
+    redirectTo: r.CORE.COLORS,
   },
   {
-    path: 'colors',
-    component: ColorsComponent
+    path: r.CORE.COLORS,
+    component: ColorsComponent,
   },
   {
-    path: 'grid',
-    component: GridComponent
-  }
+    path: r.CORE.GRID,
+    component: GridComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class CommonRouting {}

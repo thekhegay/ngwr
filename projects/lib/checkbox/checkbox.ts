@@ -38,9 +38,6 @@ import { OnChangeType, OnTouchedType, SafeAny } from 'ngwr/core/types';
 export class WrCheckbox extends WrAbstractBase implements ControlValueAccessor, OnInit, AfterViewInit, OnDestroy {
   @ViewChild('inputElement', { static: true }) inputElement!: HTMLInputElement;
 
-  /** Set value of checkbox; */
-  @Input()
-  @InputBoolean()
   get checked(): boolean {
     return this._checked;
   }

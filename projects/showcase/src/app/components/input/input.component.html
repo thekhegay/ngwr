@@ -12,13 +12,13 @@
     <h2 class="page-section__title">Example</h2>
     <p class="page-section__description">Basic usage of input component</p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="input__list" slot="display">
         <wr-input value="Basic input value"></wr-input>
         <wr-input [ngModel]="'Basic input value'"></wr-input>
       </div>
       <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -28,14 +28,14 @@
       <code class="page-section__code">suffix</code> attribute to add suffix and prefix to input.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="input__list" slot="display">
         <wr-input value="Input value" prefix="Prefix"></wr-input>
         <wr-input value="Input value" suffix="Suffix"></wr-input>
         <wr-input value="Input value" prefix="Prefix" suffix="Suffix"></wr-input>
       </div>
       <code [highlight]="prefixSuffixCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -44,12 +44,12 @@
       If you need to display eye icons for password input, you can add <code class="page-section__code">passwordIcons</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="input__list" slot="display">
         <wr-input value="Password input" type="password" passwordIcons></wr-input>
       </div>
       <code [highlight]="passwordCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -58,12 +58,12 @@
       You can add <code class="page-section__code">disabled</code> attribute to prevent interacting with the input.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="input__list" slot="display">
         <wr-input value="Disabled" disabled></wr-input>
       </div>
       <code [highlight]="disabledCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -72,12 +72,12 @@
       You can add <code class="page-section__code">readonly</code> attribute to prevent change of with the input.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div class="input__list" slot="display">
         <wr-input value="Readonly" readonly></wr-input>
       </div>
       <code [highlight]="readonlyCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">

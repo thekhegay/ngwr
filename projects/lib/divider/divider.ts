@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  HostBinding,
+  Input,
+  ViewEncapsulation,
+} from '@angular/core';
 
 import { isThemeColor, WrThemeColor } from 'ngwr/core/color';
 import { SafeAny } from 'ngwr/core/types';
@@ -22,6 +29,7 @@ export class WrDivider {
   }
   set color(value: WrThemeColor) {
     this._color = isThemeColor(value) ? value : 'primary';
+    this.cdr.markForCheck();
   }
   private _color: WrThemeColor = 'light';
   /**
@@ -35,6 +43,7 @@ export class WrDivider {
   }
   set type(value: 'solid' | 'dashed' | 'dotted') {
     this._type = value;
+    this.cdr.markForCheck();
   }
   private _type: 'solid' | 'dashed' | 'dotted' = 'solid';
   /**
@@ -48,6 +57,7 @@ export class WrDivider {
   }
   set width(value: string) {
     this._width = value;
+    this.cdr.markForCheck();
   }
   private _width: string = '1px';
 
@@ -80,4 +90,6 @@ export class WrDivider {
 
   /** Set element role **/
   @HostBinding('role') role = 'separator';
+
+  constructor(private readonly cdr: ChangeDetectorRef) {}
 }

@@ -1,6 +1,6 @@
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   ElementRef,
   HostBinding,
@@ -33,6 +33,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set color(value: WrThemeColor) {
     this._color = isThemeColor(value) ? value : 'primary';
+    this.cdr.markForCheck();
   }
   private _color: WrThemeColor = 'primary';
 
@@ -43,6 +44,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set size(value: 'default' | 'small') {
     this._size = value;
+    this.cdr.markForCheck();
   }
   private _size: 'default' | 'small' = 'default';
 
@@ -54,6 +56,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set outlined(value: BooleanInput) {
     this._outlined = coerceBooleanProperty(value);
+    this.cdr.markForCheck();
   }
   private _outlined: boolean = false;
 
@@ -65,6 +68,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set rounded(value: BooleanInput) {
     this._rounded = coerceBooleanProperty(value);
+    this.cdr.markForCheck();
   }
   private _rounded: boolean = false;
 
@@ -76,6 +80,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set fullwidth(value: BooleanInput) {
     this._fullwidth = coerceBooleanProperty(value);
+    this.cdr.markForCheck();
   }
   private _fullwidth: boolean = false;
 
@@ -87,6 +92,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set loading(value: BooleanInput) {
     this._loading = coerceBooleanProperty(value);
+    this.cdr.markForCheck();
   }
   private _loading: boolean = false;
 
@@ -98,6 +104,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set disabled(value: BooleanInput) {
     this._disabled = coerceBooleanProperty(value);
+    this.cdr.markForCheck();
   }
   private _disabled: boolean = false;
 
@@ -108,6 +115,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set icon(value: wrIconName | null) {
     this._icon = value;
+    this.cdr.markForCheck();
   }
   private _icon: wrIconName | null = null;
 
@@ -118,6 +126,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
   set iconPosition(value: 'start' | 'end') {
     this._iconPosition = value;
+    this.cdr.markForCheck();
   }
   private _iconPosition: 'start' | 'end' = 'start';
 
@@ -152,6 +161,7 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   }
 
   constructor(
+    private readonly cdr: ChangeDetectorRef,
     private readonly elRef: ElementRef<HTMLButtonElement | HTMLLinkElement | HTMLAnchorElement | HTMLElement>,
     private readonly ngZone: NgZone
   ) {

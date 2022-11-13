@@ -12,7 +12,7 @@
     <h2 class="page-section__title">Example</h2>
     <p class="page-section__description">Basic usage of form item component</p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div slot="display">
         <wr-skeleton style="width: 25%; height: 1rem"></wr-skeleton>
         <wr-skeleton style="width: 50%; height: 1rem"></wr-skeleton>
@@ -20,7 +20,7 @@
         <wr-skeleton style="width: 100%; height: 1rem"></wr-skeleton>
       </div>
       <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">
@@ -30,12 +30,12 @@
       Color can be set by <code class="page-section__code">color</code> attribute.
     </p>
 
-    <wr-snippet codeLang="html">
+    <app-snippet codeLang="html">
       <div slot="display">
         <wr-skeleton *ngFor="let b of colors" [color]="b"></wr-skeleton>
       </div>
       <code [highlight]="colorsCode" slot="code" [languages]="['html']"></code>
-    </wr-snippet>
+    </app-snippet>
   </section>
 
   <section class="page-section">

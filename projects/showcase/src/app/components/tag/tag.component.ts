@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 
-import { colors } from '../../@shared';
+import { wrThemeColors } from 'ngwr/core/color';
 
 @Component({
-  selector: 'site-components-tag',
+  selector: 'app-components-tag',
   templateUrl: './tag.component.html',
-  styleUrls: ['./tag.component.scss']
+  styleUrls: ['./tag.component.scss'],
 })
 export class TagComponent {
-  readonly colors = colors;
+  readonly colors = wrThemeColors;
 
   readonly colorsCode =
     '<wr-tag color="primary"></wr-tag>\n<wr-tag color="secondary"></wr-tag>\n<wr-tag color="success"></wr-tag>\n<wr-tag color="warning"></wr-tag>\n<wr-tag color="danger"></wr-tag>\n<wr-tag color="light"></wr-tag>\n<wr-tag color="medium"></wr-tag>\n<wr-tag color="dark"></wr-tag>';

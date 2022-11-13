@@ -56,10 +56,10 @@ html {
   --wr-color-light-contrast: #000;
   --wr-color-light-shade: #b8c0d2;
 
-  --wr-color-medium: #bcc5d7;
-  --wr-color-medium-rgb: 188,197,215;
-  --wr-color-medium-contrast: #000;
-  --wr-color-medium-shade: #94a0b6;
+  --wr-color-medium: #8b93a2;
+  --wr-color-medium-rgb: 139,147,162;
+  --wr-color-medium-contrast: #fff;
+  --wr-color-medium-shade: #7a818f;
 
   --wr-color-dark: #322e4f;
   --wr-color-dark-rgb: 50,46,79;
@@ -69,6 +69,7 @@ html {
   /* Body */
   --wr-body-bg: #fff;
   --wr-body-bg-rgb: 255,255,255;
+  --wr-body-color: var(--wr-color-dark);
 
   /* Grid */
   --wr-grid-gutter: 1.5rem;
@@ -111,6 +112,12 @@ html {
   --wr-input-bg: var(--wr-color-white);
   --wr-input-border-color: var(--wr-border-color-base);
   --wr-input-color: var(--wr-color-dark);
+  --wr-input-suffix-prefix-color: var(--wr-color-medium);
+  --wr-input-suffix-prefix-bg: rgba(var(--wr-color-light-rgb), 0.375);
+
+  --wr-input-disabled-color: rgba(var(--wr-color-medium-rgb), 0.5);
+  --wr-input-disabled-border-color: var(--wr-border-color-base);
+  --wr-input-disabled-bg: var(--wr-border-color-base);
 
   /* Tag */
   --wr-tag-padding-y: 0.25rem;
@@ -128,6 +135,7 @@ html {
 
     --wr-body-bg: #18152a;
     --wr-body-bg-rgb: 24,21,42;
+    --wr-body-color: #fff;
 
     --wr-border-color-base: #292349;
 
@@ -136,6 +144,8 @@ html {
     --wr-checkbox-color-base: var(--wr-color-white);
 
     --wr-input-bg: #18152a;
+    --wr-input-suffix-prefix-color: rgba(var(--wr-color-white-rgb), 0.5);
+    --wr-input-suffix-prefix-bg: rgba(var(--wr-color-primary-rgb), 0.125);
     --wr-input-border-color: #493d7e;
     --wr-input-color: #fff;
   }

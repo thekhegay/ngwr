@@ -1,14 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import { colors } from '../../@shared';
+import { wrThemeColors } from 'ngwr/core/color';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'site-components-button',
+  selector: 'app-components-button',
   templateUrl: './button.component.html',
-  styleUrls: ['./button.component.scss']
+  styleUrls: ['./button.component.scss'],
 })
-export class ButtonComponent {
-  readonly colors = colors;
+export class ButtonComponent implements OnInit {
+  readonly form = new FormGroup({
+    value: new FormControl<string | null>(null, Validators.required),
+  });
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.form.controls.value.setValue('123');
+      this.form.markAsDirty();
+      this.form.updateValueAndValidity();
+    }, 1000);
+  }
+
+
+  readonly colors = wrThemeColors;
+
+  readonly usageCode = '<wr-btn>Button</wr-btn>\n<button wr-btn>Native button</button>\n<a wr-btn>Anchor button</a>';
 
   readonly colorsCode =
     '<wr-btn color="primary"></wr-btn>\n<wr-btn color="secondary"></wr-btn>\n<wr-btn color="success"></wr-btn>\n<wr-btn color="warning"></wr-btn>\n<wr-btn color="danger"></wr-btn>\n<wr-btn color="light"></wr-btn>\n<wr-btn color="medium"></wr-btn>\n<wr-btn color="dark"></wr-btn>';

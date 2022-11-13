@@ -1,3 +1,5 @@
+@import '../styles/vars';
+
 .wr-divider {
   --wr-divider-width: 1px;
 
@@ -25,8 +27,8 @@
   }
 }
 
-//@each $color, $value in $theme-colors {
-//  .wr-divider--#{$color} {
-//    border-bottom-color: var(--#{$prefix}-color-#{$color});
-//  }
-//}
+@each $color, $value in $theme-colors {
+  .wr-divider--#{$color} {
+    border-bottom-color: var(--wr-color-#{$color});
+  }
+}

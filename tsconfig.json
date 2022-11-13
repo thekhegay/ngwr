@@ -44,7 +44,8 @@
     "noUnusedParameters": false,
     "outDir": "./dist/out-tsc",
     "paths": {
-      "ngwr/*": ["projects/lib/*"]
+      "ngwr/*": ["projects/lib/*"],
+      "showcase/*": ["projects/showcase/src/app/*"]
     },
     "preserveConstEnums": true,
     "resolveJsonModule": true,

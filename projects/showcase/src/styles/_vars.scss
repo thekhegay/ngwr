@@ -1,0 +1,25 @@
+html {
+  --header-height: 3.5rem;
+  --header-color: var(--wr-color-medium);
+  --logo-text-color: #19243A;
+  --layout-padding-y: 2rem;
+  --pre-color: var(--wr-color-dark);
+  --pre-bg: rgba(var(--wr-color-light-rgb), 0.25);
+  --pre-border: 1px solid rgba(var(--wr-color-light-rgb), 1);
+  --snippet-bg: rgba(var(--wr-color-light-rgb), 0.25);
+  --heading-color: var(--wr-color-dark);
+  --text-color: var(--wr-color-medium);
+  --icon-color: var(--wr-icon-dark);
+
+  &.dark {
+    --header-color: #565373;
+    --logo-text-color: var(--wr-color-white);
+    --pre-color: var(--wr-color-white);
+    --pre-bg: rgba(var(--wr-color-primary-rgb), 0.075);
+    --pre-border: 1px solid rgba(var(--wr-color-primary-rgb), 0.125);
+    --snippet-bg: rgba(var(--wr-color-primary-rgb), 0.05);
+    --heading-color: var(--wr-color-white);
+    --text-color: #565373;
+    --icon-color: #fff;
+  }
+}

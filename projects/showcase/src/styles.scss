@@ -1,9 +1,8 @@
-@import 'projects/lib';
-@import '~highlight.js/styles/github.css';
+@use 'projects/lib';
 
-@import 'styles/header';
-@import 'styles/footer';
-@import 'styles/layout';
-@import 'styles/headings';
-@import 'styles/pages';
-@import 'styles/pre';
+@use 'styles/vars';
+@use 'styles/header';
+@use 'styles/layout';
+@use 'styles/headings';
+@use 'styles/pages';
+@use 'styles/pre';

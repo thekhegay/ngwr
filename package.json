@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "postinstall": "ts-node ./scripts/shared/decorate-angular-cli.ts",
-    "build:lib": "ts-node ./scripts/shared/build-lib.ts",
+    "build:lib": "nx build lib",
+    "compile:icons": "svg-to-ts-constants",
     "release:patch": "ts-node ./scripts/release.ts --release-as patch",
     "release:minor": "ts-node ./scripts/release.ts --release-as minor",
     "release:major": "ts-node ./scripts/release.ts --release-as major",
