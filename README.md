@@ -1,4 +1,4 @@
-# <img src="logo.svg" alt="ngwr logo" width="24px"> [NGWR](https://ngwr.dev) – Angular UI components library
+# <img src="projects/showcase/src/assets/images/logo.svg" alt="ngwr logo" width="24px"> [NGWR](https://ngwr.dev)
 
 [![npm version](https://img.shields.io/npm/v/ngwr)](https://www.npmjs.com/package/ngwr)
 [![ngwr downloads](https://img.shields.io/npm/dm/ngwr)](https://www.npmjs.com/package/ngwr)
@@ -24,7 +24,7 @@ $ yarn add ngwr
 
 Don't forget to add styles:
 ```scss
-@import '~ngwr/ngwr.min.css';
+@import '~ngwr';
 ```
 
 ## [Components](https://ngwr.dev/components)
