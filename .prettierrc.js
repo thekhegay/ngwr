@@ -1,13 +1,15 @@
 module.exports = {
-  singleQuote: true,
-  useTabs: false,
-  printWidth: 120,
-  tabWidth: 2,
-  semi: true,
-  htmlWhitespaceSensitivity: 'strict',
+  $schema: 'https://json.schemastore.org/prettierrc',
   arrowParens: 'avoid',
   bracketSpacing: true,
+  endOfLine: 'lf',
+  htmlWhitespaceSensitivity: 'strict',
+  attributeSort: 'ASC',
+  printWidth: 120,
   proseWrap: 'preserve',
-  trailingComma: 'none',
-  endOfLine: 'lf'
+  singleQuote: true,
+  semi: true,
+  tabWidth: 2,
+  trailingComma: 'es5',
+  useTabs: false
 };
