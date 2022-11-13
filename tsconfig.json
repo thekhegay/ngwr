@@ -1,41 +1,71 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./out-tsc",
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "sourceMap": true,
-    "declaration": false,
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "es2020",
-    "module": "es2020",
-    "lib": [
-      "es2020",
-      "dom"
-    ],
-    "paths": {
-      "ngwr": ["dist"],
-      "ngwr/*": ["dist/*"]
-    }
-  },
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  },
+  "$schema": "https://json.schemastore.org/tsconfig",
   "angularCompilerOptions": {
+    "compilationMode": "partial",
+    "enableIvy": true,
     "enableI18nLegacyMessageIdFormat": false,
+    "fullTemplateTypeCheck": true,
+    "strictAttributeTypes": true,
+    "strictContextGenerics": true,
+    "strictDomEventTypes": true,
+    "strictDomLocalRefTypes": true,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
+    "strictInputTypes": true,
+    "strictLiteralTypes": true,
+    "strictMetadataEmit": true,
+    "strictNullInputTypes": true,
+    "strictOutputEventTypes": true,
+    "strictSafeNavigationTypes": true,
     "strictTemplates": true
-  }
+  },
+  "compileOnSave": false,
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "alwaysStrict": true,
+    "baseUrl": "./",
+    "declaration": false,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "incremental": true,
+    "isolatedModules": false,
+    "lib": ["dom", "es2020"],
+    "module": "es2020",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noStrictGenericChecks": false,
+    "noUnusedLocals": false, // TODO: enable on release
+    "noUnusedParameters": false, // TODO: enable on release
+    "outDir": "./dist/out-tsc",
+    "paths": {
+      "ngwr/*": ["projects/lib/*"]
+    },
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2020",
+    "typeRoots": ["node_modules/@types"],
+    "useDefineForClassFields": false,
+  },
+  "exclude": ["projects/**/*.spec.ts"],
+  "include": ["projects/**/*"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "types": ["node"]
+    },
+    "files": true,
+    "transpileOnly": true
+  },
+
 }

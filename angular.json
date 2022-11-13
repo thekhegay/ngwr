@@ -8,25 +8,17 @@
   },
   "projects": {
     "ngwr": {
-      "root": "lib",
-      "sourceRoot": "lib",
+      "root": "",
+      "sourceRoot": "projects/lib",
       "projectType": "library",
       "prefix": "wr",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "lib/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "lib/tsconfig.lib.prod.json"
-            },
-            "development": {
-              "tsConfig": "lib/tsconfig.lib.json"
-            }
-          },
-          "defaultConfiguration": "production"
+            "project": "projects/lib/ng-package.json",
+            "tsConfig": "tsconfig.build.json"
+          }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
@@ -51,8 +43,8 @@
       }
     },
     "site": {
-      "root": "site",
-      "sourceRoot": "site/src",
+      "root": "",
+      "sourceRoot": "projects/showcase/src",
       "projectType": "application",
       "prefix": "wr",
       "schematics": {
@@ -64,21 +56,21 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "site/dist",
-            "index": "site/src/index.html",
-            "main": "site/src/main.ts",
-            "polyfills": "site/src/polyfills.ts",
-            "tsConfig": "site/tsconfig.app.json",
+            "outputPath": "dist/showcase",
+            "index": "projects/showcase/src/index.html",
+            "main": "projects/showcase/src/main.ts",
+            "polyfills": "projects/showcase/src/polyfills.ts",
+            "tsConfig": "projects/showcase/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "site/src/favicon.ico",
-              "site/src/icon.svg",
-              "site/src/manifest.webmanifest",
-              "site/src/apple-touch-icon.png",
-              "site/src/assets"
+              "projects/showcase/src/favicon.ico",
+              "projects/showcase/src/icon.svg",
+              "projects/showcase/src/manifest.webmanifest",
+              "projects/showcase/src/apple-touch-icon.png",
+              "projects/showcase/src/assets"
             ],
             "styles": [
-              "site/src/styles.scss"
+              "projects/showcase/src/styles.scss"
             ],
             "scripts": []
           },
@@ -98,8 +90,8 @@
               ],
               "fileReplacements": [
                 {
-                  "replace": "site/src/environments/environment.ts",
-                  "with": "site/src/environments/environment.prod.ts"
+                  "replace": "projects/showcase/src/environments/environment.ts",
+                  "with": "projects/showcase/src/environments/environment.prod.ts"
                 }
               ],
               "outputHashing": "all"

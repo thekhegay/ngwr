@@ -1,0 +1,38 @@
+{
+  "name": "ngwr",
+  "version": "0.1.3",
+  "license": "MIT",
+  "description": "NGWR – Angular UI components library",
+  "author": "Roman Khegay <rk@garuna.dev> (https://garuna.dev/)",
+  "keywords": [
+    "ngwr",
+    "angular",
+    "ui",
+    "ux",
+    "framework",
+    "frontend"
+  ],
+  "homepage": "https://ngwr.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thekhegay/ngwr"
+  },
+  "bugs": {
+    "url": "https://github.com/thekhegay/ngwr/issues"
+  },
+  "exports": {
+    ".": {
+      "sass": "./_index.scss"
+    }
+  },
+  "dependencies": {
+    "@angular/cdk": "^14.0.0",
+    "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=14.0.0 <15.0.0",
+    "@angular/core": ">=14.0.0 <15.0.0",
+    "@angular/forms": ">=14.0.0 <15.0.0",
+    "rxjs": ">=6.5.5 < 7.6.0"
+  }
+}

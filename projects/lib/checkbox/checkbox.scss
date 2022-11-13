@@ -1,0 +1,104 @@
+.wr-checkbox {
+  display: inline-block;
+
+  &__container {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+
+    color: var(--wr-checkbox-color-base);
+    font-size: var(--wr-checkbox-font-size);
+    font-weight: var(--wr-checkbox-font-weight);
+    line-height: var(--wr-checkbox-line-height);
+  }
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  &-inner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: var(--wr-checkbox-height);
+    width: var(--wr-checkbox-width);
+
+    margin-right: calc(var(--wr-checkbox-width) / 4);
+
+    border: 1px solid var(--wr-color-medium);
+    border-radius: var(--wr-checkbox-border-radius);
+
+    transition: var(--wr-transition-base);
+
+    &__mark {
+      display: inline-block;
+      transform: rotate(45deg) translateX(-0.05rem) translateY(-0.05rem) scale(0.1);
+      opacity: 0;
+      height: calc(var(--wr-checkbox-height) / 2);
+      width: calc(var(--wr-checkbox-height) / 3);
+      border-bottom: 0.2rem solid var(--wr-color-white);
+      border-right: 0.2rem solid var(--wr-color-white);
+      transition: var(--wr-transition-short);
+    }
+  }
+
+  &:hover {
+    .wr-checkbox-inner {
+      border-color: var(--wr-color-primary);
+    }
+  }
+
+  &--checked {
+    .wr-checkbox-inner {
+      border: none;
+      background: var(--wr-color-primary);
+
+      &__mark {
+        transform: rotate(45deg) translateX(-0.05rem) translateY(-0.05rem) scale(1);
+        opacity: 1;
+      }
+    }
+
+    &:hover {
+      .wr-checkbox-inner {
+        background: rgba(var(--wr-color-primary-rgb), 0.75);
+      }
+    }
+  }
+
+  &--focused {
+    .wr-checkbox-inner {
+      box-shadow: 0 0 0 1.5px rgba(var(--wr-color-primary-rgb), 0.25);
+    }
+  }
+
+  &[disabled],
+  &:disabled,
+  &.disabled {
+    color: var(--wr-color-medium);
+    pointer-events: none;
+
+    .wr-checkbox-inner {
+      background: rgba(var(--wr-color-medium-rgb), 0.25);
+    }
+
+    &.wr-checkbox--checked {
+      .wr-checkbox-inner {
+        border: 1px solid var(--wr-color-medium);
+        background: rgba(var(--wr-color-medium-rgb), 0.25);
+
+        &__mark {
+          border-bottom: 0.2rem solid var(--wr-color-medium);
+          border-right: 0.2rem solid var(--wr-color-medium);
+        }
+      }
+    }
+  }
+}

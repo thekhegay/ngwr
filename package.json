@@ -3,13 +3,9 @@
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
-    "build:sass": "ts-node scripts/compile-glob-styles.ts",
-    "build:lib": "ng build ngwr && yarn build:sass && cp LICENSE dist && cp README.md dist && cp logo.svg dist",
+    "build:lib": "ts-node ./scripts/build.ts",
     "build:site": "ng build site",
-    "serve:site": "ng serve site",
-    "generate:icons": "svg-to-ts-constants",
-    "lint": "ng lint",
-    "test:lib": "ng test ngwr"
+    "serve:site": "ng serve site"
   },
   "dependencies": {
     "@angular/animations": "~14.2.0",
