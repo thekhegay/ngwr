@@ -2,7 +2,10 @@ const prettierConfig = require('./.prettierrc.js');
 
 module.exports = {
   root: true,
-  parserOptions: { ecmaVersion: 2021 },
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module'
+  },
   overrides: [
     {
       files: ['*.ts'],
@@ -12,7 +15,7 @@ module.exports = {
         project: ['tsconfig.json'],
         createDefaultProgram: true
       },
-      plugins: ['@typescript-eslint', 'jsdoc', 'import'],
+      plugins: ['@typescript-eslint', 'jsdoc', 'import', 'unicorn'],
       extends: [
         'plugin:@angular-eslint/recommended',
         'plugin:@angular-eslint/template/process-inline-templates',
@@ -25,16 +28,12 @@ module.exports = {
           'error',
           {
             type: ['element', 'attribute'],
-            prefix: ['wr', 'site', 'test'],
+            prefix: ['wr', 'app', 'test'],
             style: 'kebab-case'
           }
         ],
-        '@angular-eslint/directive-class-suffix': [
-          'error',
-          {
-            suffixes: ['Directive', 'Component', 'Base']
-          }
-        ],
+        '@angular-eslint/directive-class-suffix': 'off',
+        '@angular-eslint/component-class-suffix': 'off',
         '@angular-eslint/directive-selector': [
           'error',
           {
@@ -129,6 +128,13 @@ module.exports = {
               }
             ],
             pathGroupsExcludedImportTypes: []
+          }
+        ],
+        'unicorn/no-empty-file': 'error',
+        'unicorn/filename-case': [
+          'error',
+          {
+            case: 'kebabCase'
           }
         ],
         'no-bitwise': 'off',
