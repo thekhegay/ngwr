@@ -4,7 +4,6 @@ module.exports = {
   bracketSpacing: true,
   endOfLine: 'lf',
   htmlWhitespaceSensitivity: 'strict',
-  attributeSort: 'ASC',
   printWidth: 120,
   proseWrap: 'preserve',
   singleQuote: true,
