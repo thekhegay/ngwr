@@ -5,10 +5,10 @@
       <p class="page-header__description">Component to display awesome icons</p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrIconModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
 
     <p class="lead">Add module in root module:</p>
-    <pre class="pre"><code [highlight]="iconRootCode" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="iconRootCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -24,7 +24,7 @@
           </div>
         </div>
       </div>
-      <code [highlight]="iconCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="iconCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 

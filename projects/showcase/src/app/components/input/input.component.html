@@ -5,7 +5,7 @@
       <p class="page-header__description"> Basic text component used to provide or change data. </p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrInputModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -17,7 +17,7 @@
         <wr-input value="Basic input value"></wr-input>
         <wr-input [ngModel]="'Basic input value'"></wr-input>
       </div>
-      <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="exampleCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -34,7 +34,7 @@
         <wr-input value="Input value" suffix="Suffix"></wr-input>
         <wr-input value="Input value" prefix="Prefix" suffix="Suffix"></wr-input>
       </div>
-      <code [highlight]="prefixSuffixCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="prefixSuffixCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -48,7 +48,7 @@
       <div class="input__list" slot="display">
         <wr-input value="Password input" type="password" passwordIcons></wr-input>
       </div>
-      <code [highlight]="passwordCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="passwordCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -62,7 +62,7 @@
       <div class="input__list" slot="display">
         <wr-input value="Disabled" disabled></wr-input>
       </div>
-      <code [highlight]="disabledCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="disabledCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -76,7 +76,7 @@
       <div class="input__list" slot="display">
         <wr-input value="Readonly" readonly></wr-input>
       </div>
-      <code [highlight]="readonlyCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="readonlyCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 

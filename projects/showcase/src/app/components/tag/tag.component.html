@@ -5,7 +5,7 @@
       <p class="page-header__description">Tag for display state or status.</p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrTagModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -21,7 +21,7 @@
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-tag>
       </div>
-      <code [highlight]="colorsCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="colorsCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -38,7 +38,7 @@
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-tag>
       </div>
-      <code [highlight]="outlinedCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="outlinedCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -53,7 +53,7 @@
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b" rounded>Rounded</wr-tag>
       </div>
-      <code [highlight]="roundedCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="roundedCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -70,7 +70,7 @@
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b" transparent outlined>Transparent</wr-tag>
       </div>
-      <code [highlight]="transparentCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="transparentCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -93,7 +93,7 @@
       <div class="tag__list" slot="display">
         <wr-tag *ngFor="let b of colors" [color]="b" hoverable transparent outlined>Hoverable</wr-tag>
       </div>
-      <code [highlight]="hoverableCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="hoverableCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -115,7 +115,7 @@
         <wr-tag icon="alert-circle" transparent color="danger">Warning</wr-tag>
         <wr-tag transparent color="medium" loading iconPosition="end">Loading</wr-tag>
       </div>
-      <code [highlight]="iconsCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="iconsCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -133,7 +133,7 @@
         <wr-tag [loading]="true" color="dark" rounded iconPosition="end">Loading</wr-tag>
         <wr-tag [loading]="true" color="success" transparent>Loading</wr-tag>
       </div>
-      <code [highlight]="loadingCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="loadingCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 

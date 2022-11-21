@@ -8,6 +8,7 @@ import { wrThemeColors } from 'ngwr/core/color';
   styleUrls: ['./tag.component.scss'],
 })
 export class TagComponent {
+  readonly importCode: string = `import { WrTagModule } from 'ngwr'`;
   readonly colors = wrThemeColors;
 
   readonly colorsCode =

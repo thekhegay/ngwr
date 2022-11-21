@@ -1,4 +1,6 @@
 html {
+  --wr-font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
   --header-height: 3.5rem;
   --header-color: var(--wr-color-medium);
   --logo-text-color: #19243A;
@@ -11,6 +13,13 @@ html {
   --text-color: var(--wr-color-medium);
   --icon-color: var(--wr-icon-dark);
 
+  --prism-comment: var(--wr-color-medium);
+  --prism-punctuation: #8da7ea;
+  --prism-keyword: #3969E2;
+  --prism-string: #42b983;
+  --prism-function: var(--wr-color-secondary);
+  --prism-attr: #8454ff;
+
   &.dark {
     --header-color: #565373;
     --logo-text-color: var(--wr-color-white);
@@ -21,5 +30,12 @@ html {
     --heading-color: var(--wr-color-white);
     --text-color: #565373;
     --icon-color: #fff;
+
+    --prism-comment: #7C7C7C;
+    --prism-punctuation: #c5c8c6;
+    --prism-keyword: #96CBFE;
+    --prism-string: #A8FF60;
+    --prism-function: #ff7b72;
+    --prism-attr: #b89cff;
   }
 }

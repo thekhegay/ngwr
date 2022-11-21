@@ -1,8 +1,6 @@
 import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { HighlightLoader } from 'ngx-highlightjs';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -11,7 +9,7 @@ export class DarkModeService {
   private readonly storageKey = 'ngwr.keys.isDarkModeEnabled';
   public readonly isDarkModeEnabled$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor(private readonly hljsLoader: HighlightLoader, private readonly rf2: RendererFactory2) {
+  constructor(private readonly rf2: RendererFactory2) {
     this.r2 = this.rf2.createRenderer(null, null);
   }
 
@@ -43,13 +41,11 @@ export class DarkModeService {
     localStorage.setItem(this.storageKey, 'true');
     this.isDarkModeEnabled$.next(true);
     this.r2.addClass(document.documentElement, 'dark');
-    this.hljsLoader.setTheme('assets/hljs/github-dark.css');
   }
 
   private disableDarkTheme(): void {
     localStorage.setItem(this.storageKey, 'false');
     this.isDarkModeEnabled$.next(false);
     this.r2.removeClass(document.documentElement, 'dark');
-    this.hljsLoader.setTheme('assets/hljs/github.css');
   }
 }

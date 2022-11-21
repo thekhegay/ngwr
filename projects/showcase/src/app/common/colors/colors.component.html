@@ -15,7 +15,7 @@
           {{ c.charAt(0).toUpperCase() + c.slice(1) }}
         </div>
       </div>
-      <code [highlight]="colorsCode" slot="code" [languages]="['css']"></code>
+      <code [innerHTML]="colorsCode | language: 'css' | markdown" slot="code"></code>
     </app-snippet>
   </section>
 
@@ -31,7 +31,7 @@
           {{ c.charAt(0).toUpperCase() + c.slice(1) }}
         </div>
       </div>
-      <code [highlight]="colorsRgbCode" slot="code" [languages]="['css']"></code>
+      <code [innerHTML]="colorsRgbCode | language: 'css' | markdown" slot="code"></code>
     </app-snippet>
   </section>
 </main>

@@ -5,7 +5,7 @@
       <p class="page-header__description">A two state checkbox</p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrCheckboxModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -19,7 +19,7 @@
       <div class="checkbox__list" slot="display">
         <wr-checkbox [ngModel]="true">Checkbox</wr-checkbox>
       </div>
-      <code [highlight]="usageCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="usageCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -34,7 +34,7 @@
         <wr-checkbox disabled>Checkbox</wr-checkbox>
         <wr-checkbox [ngModel]="true" disabled>Checkbox</wr-checkbox>
       </div>
-      <code [highlight]="disabledCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="disabledCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -49,7 +49,7 @@
       <div class="checkbox__list" slot="display">
         <wr-checkbox [ngModel]="false" (ngModelChange)="onValueChange($event)">Click me!</wr-checkbox>
       </div>
-      <code [highlight]="valueChangeCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="valueChangeCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 

@@ -6,6 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./checkbox.component.scss']
 })
 export class CheckboxComponent {
+  readonly importCode: string = `import { WrCheckboxModule } from 'ngwr'`;
   readonly usageCode = `<wr-checkbox [ngModel]="true"></wr-checkbox>`;
   readonly disabledCode = '<wr-checkbox [disabled]="true"></wr-checkbox>';
   readonly valueChangeCode = '<wr-checkbox [ngModel]="false" (ngModelChange)="onValueChange($event)"></wr-checkbox>';

@@ -25,28 +25,24 @@
 
   &__body {
     background-color: var(--snippet-bg);
-  }
-
-  &__code {
-    display: flex;
-    background-color: transparent !important;
-    margin: 0 !important;
-    padding: 0 !important;
 
     &::ng-deep {
-      .hljs {
-        background: transparent !important;
-        margin: 0;
+      pre[class*="language-"] {
         padding: 0;
+        margin: 0;
+        overflow: auto;
+        border-radius: 0;
       }
 
-      .hljs-ln {
-        width: 100%;
-        border-collapse: separate;
+      :not(pre) > code[class*="language-"],
+      pre[class*="language-"] {
+        background: transparent;
+        border: none;
       }
 
-      .hljs {
-        white-space: pre;
+      :not(pre) > code[class*="language-"] {
+        padding: 0;
+        border-radius: 0;
       }
     }
   }

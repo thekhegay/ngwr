@@ -5,7 +5,7 @@
       <p class="page-header__description">A visual placeholder component.</p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrSkeletonModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -19,7 +19,7 @@
         <wr-skeleton style="width: 75%; height: 1rem"></wr-skeleton>
         <wr-skeleton style="width: 100%; height: 1rem"></wr-skeleton>
       </div>
-      <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="exampleCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -34,7 +34,7 @@
       <div slot="display">
         <wr-skeleton *ngFor="let b of colors" [color]="b"></wr-skeleton>
       </div>
-      <code [highlight]="colorsCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="colorsCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 

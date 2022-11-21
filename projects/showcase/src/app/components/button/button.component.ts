@@ -21,6 +21,7 @@ export class ButtonComponent implements OnInit {
     }, 1000);
   }
 
+  readonly importCode: string = `import { WrButtonModule } from 'ngwr'`;
 
   readonly colors = wrThemeColors;
 

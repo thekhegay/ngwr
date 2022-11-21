@@ -5,7 +5,7 @@
       <p class="page-header__description">A component to trigger an operations</p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrButtonModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -18,7 +18,7 @@
         <button wr-btn>Button Native</button>
         <a wr-btn>Button Anchor</a>
       </div>
-      <code [highlight]="usageCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="usageCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -35,7 +35,7 @@
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-btn>
       </div>
-      <code [highlight]="colorsCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="colorsCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -52,7 +52,7 @@
           {{ b.charAt(0).toUpperCase() + b.slice(1) }}
         </wr-btn>
       </div>
-      <code [highlight]="outlinedCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="outlinedCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -67,7 +67,7 @@
       <div class="button__list" slot="display">
         <wr-btn *ngFor="let b of colors" [color]="b" rounded>Rounded</wr-btn>
       </div>
-      <code [highlight]="roundedCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="roundedCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -86,7 +86,7 @@
         <wr-btn color="secondary" rounded>Default size</wr-btn>
         <wr-btn size="small" color="secondary" rounded>Small size</wr-btn>
       </div>
-      <code [highlight]="sizeCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="sizeCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -102,7 +102,7 @@
         <wr-btn fullwidth>Full width button</wr-btn>
         <wr-btn fullwidth color="secondary" rounded outlined icon="user">Full width button with icon</wr-btn>
       </div>
-      <code [highlight]="fullWidthCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="fullWidthCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -124,7 +124,7 @@
         <wr-btn icon="warning" outlined rounded color="warning">Warning</wr-btn>
         <wr-btn icon="alert-circle" size="small" rounded color="danger">Alert</wr-btn>
       </div>
-      <code [highlight]="iconsCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="iconsCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -142,7 +142,7 @@
         <wr-btn [loading]="true" color="dark" rounded>You can use boolean or string</wr-btn>
         <wr-btn loading icon="add" color="secondary" outlined>Loading with icon</wr-btn>
       </div>
-      <code [highlight]="loadingCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="loadingCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -158,7 +158,7 @@
         <wr-btn disabled rounded>Disabled</wr-btn>
         <wr-btn disabled icon="alert-circle">Disabled</wr-btn>
       </div>
-      <code [highlight]="disabledCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="disabledCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
