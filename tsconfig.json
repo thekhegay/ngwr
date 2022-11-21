@@ -39,7 +39,6 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noStrictGenericChecks": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "outDir": "./dist/out-tsc",
