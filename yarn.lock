@@ -4121,18 +4121,7 @@ cosmiconfig@^6.0.0:
     path-type "^4.0.0"
     yaml "^1.7.2"
 
-cosmiconfig@^7.0.0:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-7.0.1.tgz#714d756522cace867867ccb4474c5d01bbae5d6d"
-  integrity sha512-a1YWNUV2HwGimB7dU2s1wUMurNKjpx60HxBB6xUM8Re+2s1g1IIfJvFR0/iCF+XHdE0GMTKTuLR32UQff4TEyQ==
-  dependencies:
-    "@types/parse-json" "^4.0.0"
-    import-fresh "^3.2.1"
-    parse-json "^5.0.0"
-    path-type "^4.0.0"
-    yaml "^1.10.0"
-
-cosmiconfig@^7.0.1:
+cosmiconfig@^7.0.0, cosmiconfig@^7.0.1:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-7.1.0.tgz#1443b9afa596b670082ea46cbd8f6a62b84635f6"
   integrity sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA==
@@ -9827,10 +9816,10 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-svg-to-ts@^8.8.1:
-  version "8.8.1"
-  resolved "https://registry.yarnpkg.com/svg-to-ts/-/svg-to-ts-8.8.1.tgz#3628632928ae41a1e46c3d04d29cd00525c8f020"
-  integrity sha512-qsOneKzKVjShU0Dkh9+g9APXJH0HWoPSJh2bJDJTStWp30EB34daR5Upr8BT8p1phMt6/yDvt1QelbprLj6BNg==
+svg-to-ts@^8.9.0:
+  version "8.9.0"
+  resolved "https://registry.yarnpkg.com/svg-to-ts/-/svg-to-ts-8.9.0.tgz#341816803be82f597178616012e578a365ba798c"
+  integrity sha512-3i2R31p7Iqdo0pRYGSDXz8JqxKgNSZnss1coiKEsnLqzP0IrDP0RnArtQYt3EdDrZe0YeJamIvVCd3nFoRcftg==
   dependencies:
     chalk "^3.0.0"
     commander "^4.0.1"
