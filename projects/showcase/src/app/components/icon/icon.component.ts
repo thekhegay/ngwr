@@ -9,6 +9,7 @@ import { wrIconSet } from 'ngwr/icon';
 })
 export class IconComponent {
   readonly icons = wrIconSet;
+  readonly importCode: string = `import { WrIconModule } from 'ngwr'`;
   readonly iconRootCode = '@NgModule({\n  imports: [WrIconModule.forRoot()],\n})';
   readonly iconCode = `<wr-icon name="add"></wr-icon>`;
 }

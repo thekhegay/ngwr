@@ -5,7 +5,7 @@
       <p class="page-header__description">Form is used to collect, validate, and submit the user input. </p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrFormModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -19,7 +19,7 @@
           <wr-input placeholder="Username"></wr-input>
         </wr-form-item>
       </div>
-      <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="exampleCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 
@@ -35,7 +35,7 @@
           <wr-form-error>Username is required</wr-form-error>
         </wr-form-item>
       </div>
-      <code [highlight]="errorCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="errorCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 

@@ -8,6 +8,7 @@ import { wrThemeColors } from 'ngwr/core/color';
 })
 export class SkeletonComponent {
   readonly colors = wrThemeColors;
+  readonly importCode: string = `import { WrSkeletonModule } from 'ngwr'`;
 
   readonly exampleCode =
     '<wr-skeleton style="width:25%; height:1rem"></wr-skeleton>\n<wr-skeleton style="width:50%; height:1rem"></wr-skeleton>\n<wr-skeleton style="width:75%; height:1rem"></wr-skeleton>\n<wr-skeleton style="width:100%; height:1rem"></wr-skeleton>';

@@ -12,7 +12,7 @@ import { WrInputModule } from 'ngwr/input';
 import { WrSkeletonModule } from 'ngwr/skeleton';
 import { WrSpinnerModule } from 'ngwr/spinner';
 import { WrTagModule } from 'ngwr/tag';
-import { HighlightModule } from 'ngx-highlightjs';
+import { MarkdownModule } from 'ngx-markdown';
 import { SnippetComponent } from 'showcase/@shared/components';
 
 const ngwr = [
@@ -27,7 +27,7 @@ const ngwr = [
   WrTagModule,
 ];
 
-const modules = [RouterModule, FormsModule, ReactiveFormsModule, HighlightModule];
+const modules = [RouterModule, FormsModule, ReactiveFormsModule, MarkdownModule];
 
 const components = [SnippetComponent];
 

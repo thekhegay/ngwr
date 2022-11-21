@@ -8,12 +8,28 @@
 
   <section class="page-section">
     <p class="page-section__description">If you are using npm:</p>
-    <pre class="pre"><code [highlight]="'$ npm i ngwr'" [languages]="['console']"></code></pre>
+    <markdown ngPreserveWhitespaces>
+      ```sh
+      npm install ngwr
+      ```
+    </markdown>
 
     <p class="page-section__description">If you are using yarn:</p>
-    <pre class="pre"><code [highlight]="'$ yarn add ngwr'" [languages]="['console']"></code></pre>
+    <markdown ngPreserveWhitespaces>
+      ```sh
+      yarn add ngwr
+      ```
+    </markdown>
 
-    <p class="page-section__description">After install, add styles to your project styles:</p>
-    <pre class="pre"><code highlight="@import '~ngwr/ngwr.min.css'" [languages]="['scss']"></code></pre>
+    <p class="page-section__description">After install, add styles to angular.json:</p>
+    <markdown ngPreserveWhitespaces>
+      ```json
+      "styles": [
+        ...
+        "node_modules/ngwr/_index.scss",
+        ...
+      ],
+      ```
+    </markdown>
   </section>
 </main>

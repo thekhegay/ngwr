@@ -6,6 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./input.component.scss'],
 })
 export class InputComponent {
+  readonly importCode: string = `import { WrInputModule } from 'ngwr'`;
   readonly exampleCode =
     '<wr-input value="Basic input usage"></wr-input>\n<wr-input [ngModel]="\'Basic input usage\'"></wr-input>';
   readonly prefixSuffixCode =

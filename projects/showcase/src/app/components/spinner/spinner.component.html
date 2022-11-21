@@ -5,7 +5,7 @@
       <p class="page-header__description">A spinner for displaying loading state.</p>
     </div>
 
-    <pre class="pre"><code highlight="import { WrSpinnerModule } from 'ngwr';" [languages]="['ts']"></code></pre>
+    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
   </div>
 
   <section class="page-section">
@@ -16,7 +16,7 @@
       <div slot="display">
         <wr-spin></wr-spin>
       </div>
-      <code [highlight]="exampleCode" slot="code" [languages]="['html']"></code>
+      <div [innerHTML]="exampleCode | language: 'html' | markdown" slot="code"></div>
     </app-snippet>
   </section>
 </main>
