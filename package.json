@@ -60,7 +60,7 @@
     "ng-packagr": "^14.2.2",
     "ngx-highlightjs": "^7.0.1",
     "nx": "15.0.12",
-    "postcss": "^8.4.18",
+    "postcss": "^8.4.19",
     "prettier": "^2.7.1",
     "sass": "^1.54.5",
     "svg-to-ts": "^8.9.0",
