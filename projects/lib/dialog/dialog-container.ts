@@ -12,9 +12,10 @@ import {
 } from '@angular/core';
 
 import { SafeAny } from 'ngwr/core/types';
-import { wrDialogAnimations } from 'ngwr/dialog/dialog-animations';
-import { WrDialogBase } from 'ngwr/dialog/dialog-base';
-import { WrDialogConfig } from 'ngwr/dialog/dialog-config';
+
+import { wrDialogAnimations } from './dialog-animations';
+import { WrDialogBase } from './dialog-base';
+import { WrDialogConfig } from './dialog-config';
 
 @Component({
   selector: 'wr-dialog-container',

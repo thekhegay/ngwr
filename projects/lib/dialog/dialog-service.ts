@@ -11,7 +11,12 @@ import { Injectable, Injector, OnDestroy, Optional, SkipSelf } from '@angular/co
 import { Subject } from 'rxjs';
 
 import { SafeAny } from 'ngwr/core/types';
-import { WrDialogBase, WrDialogConfig, WrDialogContainer, WrDialogRef, WR_DIALOG_DATA } from 'ngwr/dialog';
+
+import { WrDialogBase } from './dialog-base';
+import { WrDialogConfig } from './dialog-config';
+import { WrDialogContainer } from './dialog-container';
+import { WrDialogRef } from './dialog-ref';
+import { WR_DIALOG_DATA } from './dialog-tokens';
 
 @Injectable()
 export class WrDialogService implements OnDestroy {

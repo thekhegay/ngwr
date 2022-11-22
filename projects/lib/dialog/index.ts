@@ -1,4 +1,8 @@
-export { wrDialogAnimations, WR_ANIMATION_ZOOM_CLASS_NAME_MAP } from './dialog-animations';
+export {
+  wrDialogAnimations,
+  WR_ANIMATION_ZOOM_CLASS_NAME_MAP,
+  WR_ANIMATION_FADE_CLASS_NAME_MAP,
+} from './dialog-animations';
 export { WrDialogBase } from './dialog-base';
 export { WrDialogConfig } from './dialog-config';
 export { WrDialogContainer } from './dialog-container';

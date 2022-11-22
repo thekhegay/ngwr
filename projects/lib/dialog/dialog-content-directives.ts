@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Directive, HostBinding, HostListener, Input, Optional } from '@angular/core';
 
 import { SafeAny } from 'ngwr/core/types';
-import { WrDialogRef } from 'ngwr/dialog/dialog-ref';
+import { WrDialogRef } from './dialog-ref';
 
 @Directive({
   selector: '[wr-dialog-close], [wrDialogClose]',

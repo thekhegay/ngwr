@@ -4,8 +4,9 @@ import { filter, Subject, take, takeUntil } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/core/abstract';
 import { SafeAny } from 'ngwr/core/types';
-import { WrDialogBase } from 'ngwr/dialog/dialog-base';
-import { WrDialogConfig } from 'ngwr/dialog/dialog-config';
+
+import { WrDialogBase } from './dialog-base';
+import { WrDialogConfig } from './dialog-config';
 
 export class WrDialogRef<T = SafeAny, R = SafeAny> extends WrAbstractBase {
   readonly id?: string;

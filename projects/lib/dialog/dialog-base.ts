@@ -12,9 +12,9 @@ import {
 } from '@angular/core';
 import { Subject } from 'rxjs';
 
-import { WR_ANIMATION_FADE_CLASS_NAME_MAP, WR_ANIMATION_ZOOM_CLASS_NAME_MAP } from 'ngwr/dialog/dialog-animations';
-import { WrDialogConfig } from 'ngwr/dialog/dialog-config';
-import { WrDialogRef } from 'ngwr/dialog/dialog-ref';
+import { WR_ANIMATION_FADE_CLASS_NAME_MAP, WR_ANIMATION_ZOOM_CLASS_NAME_MAP } from './dialog-animations';
+import { WrDialogConfig } from './dialog-config';
+import { WrDialogRef } from './dialog-ref';
 
 @Directive()
 export class WrDialogBase extends BasePortalOutlet implements OnDestroy {

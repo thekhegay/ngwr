@@ -3,10 +3,11 @@ import { PortalModule } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
-import { WrDialogContainer } from 'ngwr/dialog/dialog-container';
-import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from 'ngwr/dialog/dialog-content-directives';
-import { WrDialogService } from 'ngwr/dialog/dialog-service';
 import { WrIconModule } from 'ngwr/icon';
+
+import { WrDialogContainer } from './dialog-container';
+import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from './dialog-content-directives';
+import { WrDialogService } from './dialog-service';
 
 @NgModule({
   imports: [CommonModule, OverlayModule, PortalModule, WrIconModule],
