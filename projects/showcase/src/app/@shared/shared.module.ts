@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 
 import { WrButtonModule } from 'ngwr/button';
 import { WrCheckboxModule } from 'ngwr/checkbox';
+import { WrDialogModule } from 'ngwr/dialog';
 import { WrDividerModule } from 'ngwr/divider';
 import { WrFormModule } from 'ngwr/form';
 import { WrIconModule } from 'ngwr/icon';
@@ -18,6 +19,7 @@ import { SnippetComponent } from 'showcase/@shared/components';
 const ngwr = [
   WrButtonModule,
   WrCheckboxModule,
+  WrDialogModule,
   WrDividerModule,
   WrFormModule,
   WrIconModule,

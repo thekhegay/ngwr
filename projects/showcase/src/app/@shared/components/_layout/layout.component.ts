@@ -26,6 +26,7 @@ export class LayoutComponent {
   readonly componentsSidebarLinks: SidebarItem[] = [
     { title: 'Button', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.BUTTON}` },
     { title: 'Checkbox', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.CHECKBOX}` },
+    { title: 'Dialog', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.DIALOG}` },
     { title: 'Divider', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.DIVIDER}` },
     { title: 'Form', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.FORM}` },
     { title: 'Icon', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.ICON}` },

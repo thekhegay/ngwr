@@ -50,12 +50,6 @@ module.exports = {
         '@angular-eslint/prefer-output-readonly': 'error',
         '@angular-eslint/use-component-selector': 'off',
         '@angular-eslint/use-component-view-encapsulation': 'off',
-        '@typescript-eslint/array-type': [
-          'error',
-          {
-            default: 'array-simple'
-          }
-        ],
         '@typescript-eslint/ban-types': [
           'error',
           {
