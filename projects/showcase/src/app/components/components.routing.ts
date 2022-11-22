@@ -6,6 +6,7 @@ import { routes as r } from 'showcase/@shared/routes';
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { DividerComponent } from './divider/divider.component';
+import { DialogComponent } from './dialog/dialog.component';
 import { FormComponent } from './form/form.component';
 import { IconComponent } from './icon/icon.component';
 import { InputComponent } from './input/input.component';
@@ -26,6 +27,10 @@ const routes: Routes = [
   {
     path: r.COMPONENTS.CHECKBOX,
     component: CheckboxComponent,
+  },
+  {
+    path: r.COMPONENTS.DIALOG,
+    component: DialogComponent,
   },
   {
     path: r.COMPONENTS.DIVIDER,
