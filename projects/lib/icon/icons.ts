@@ -188,12 +188,26 @@ export const wrIconClock: {
   name: 'clock',
   data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
 };
+export const wrIconCloseCircleOutline: {
+  name: 'close-circle-outline';
+  data: string;
+} = {
+  name: 'close-circle-outline',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><g><path d="M109.3,18.7c-25-25-65.5-25-90.5,0s-25,65.5,0,90.5s65.5,25,90.5,0S134.2,43.7,109.3,18.7z M102,102 C81,122.9,47,122.9,26,102S5.1,47,26,26S81,5.1,102,26S122.9,81,102,102z"/><path d="M87.5,40.5c-2.1-2.1-5.3-2.1-7.3-0.1L63.9,56.7L47.7,40.5c-2-2-5.2-2-7.2,0c-2,2-2.1,5.3-0.1,7.3L56.6,64L40.5,80.2 c-2,2-2,5.2,0.1,7.3s5.3,2.1,7.3,0.1L64,71.4l16.1,16.1c2,2,5.3,2.1,7.4,0c2-2,2-5.2-0.1-7.3L71.3,64.1l16.3-16.3 C89.5,45.8,89.5,42.6,87.5,40.5z"/></g></svg>`
+};
 export const wrIconCloseCircle: {
   name: 'close-circle';
   data: string;
 } = {
   name: 'close-circle',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm75.31 260.69a16 16 0 11-22.62 22.62L256 278.63l-52.69 52.68a16 16 0 01-22.62-22.62L233.37 256l-52.68-52.69a16 16 0 0122.62-22.62L256 233.37l52.69-52.68a16 16 0 0122.62 22.62L278.63 256z"/></svg>`
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M109.3,18.7c-25-25-65.5-25-90.5,0s-25,65.5,0,90.5s65.5,25,90.5,0S134.2,43.7,109.3,18.7z M87.4,80.2c2,2,2.1,5.3,0.1,7.3 c-2.1,2.1-5.3,2.1-7.4,0L64,71.4L47.8,87.5c-2,2-5.2,2-7.3-0.1s-2.1-5.3-0.1-7.3L56.6,64L40.4,47.7c-2-2-2-5.2,0.1-7.3 c2-2,5.2-2,7.2,0l16.3,16.3l16.3-16.3c2-2,5.2-2,7.3,0.1s2.1,5.3,0.1,7.3L71.3,64.1L87.4,80.2z"/></svg>`
+};
+export const wrIconClose: {
+  name: 'close';
+  data: string;
+} = {
+  name: 'close',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M73,64.1L93.2,44c2.5-2.5,2.5-6.6,0-9.1c-2.5-2.5-6.6-2.5-9.1,0L64,55.1L43.8,34.9c-2.5-2.5-6.6-2.5-9.1,0 c-2.5,2.5-2.5,6.6,0,9.1l20.2,20.2L34.8,84.2c-2.5,2.5-2.5,6.6,0,9.1c2.5,2.5,6.6,2.5,9.1,0L64,73.2L84,93.3c2.5,2.5,6.6,2.5,9.1,0 c2.5-2.5,2.5-6.6,0-9.1L73,64.1z"/></svg>`
 };
 export const wrIconCog: {
   name: 'cog';
@@ -250,6 +264,13 @@ export const wrIconDownload: {
 } = {
   name: 'download',
   data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M376 160H272v153.37l52.69-52.68a16 16 0 0122.62 22.62l-80 80a16 16 0 01-22.62 0l-80-80a16 16 0 0122.62-22.62L240 313.37V160H136a56.06 56.06 0 00-56 56v208a56.06 56.06 0 0056 56h240a56.06 56.06 0 0056-56V216a56.06 56.06 0 00-56-56zM272 48a16 16 0 00-32 0v112h32z"/></svg>`
+};
+export const wrIconExternalOutline: {
+  name: 'external-outline';
+  data: string;
+} = {
+  name: 'external-outline',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><g><path d="M121.1,0H85.8c-3.5,0-6.6,2.8-6.6,6.2c-0.1,3.6,2.8,6.6,6.4,6.6h20.6L67.8,51.3c-2.5,2.5-2.5,6.7,0.1,9.2 c2.5,2.4,6.6,2.1,9.1-0.4l38.2-38.2v20.4c0,3.5,2.8,6.6,6.2,6.6c3.6,0.1,6.6-2.8,6.6-6.4V6.9C128,3,125,0,121.1,0z"/><path d="M121.4,64.9L121.4,64.9c-3.6,0-6.6,2.9-6.6,6.5c-0.2,17.7-1,28.2-8.2,35.2c-8.1,8.1-20.5,8.1-42.7,8.1s-34.6,0-42.7-8.1 s-8-20.4-8-42.6s0-34.6,8.1-42.7c7.2-7.2,17.5-8,35.2-8.1c3.7,0,6.6-3,6.6-6.6c0-3.7-3-6.7-6.7-6.6c-23.3,0.1-37,1-46.2,10.2 C0,20.4,0,36,0,64s0,43.6,10.2,53.8S36,128,64,128s43.6,0,53.8-10.2c9.2-9.2,10.1-22.9,10.2-46.3C128,67.9,125,64.9,121.4,64.9z"/></g></svg>`
 };
 export const wrIconEyeOff: {
   name: 'eye-off';
@@ -480,7 +501,7 @@ export const wrIconRepeat: {
   data: string;
 } = {
   name: 'repeat',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><g><path d="M112,55.9c-3.6,0-6.5,2.9-6.5,6.5v7.9c0,5.3-4.3,9.6-9.6,9.6H51.7l3.9-3.9c2.5-2.5,2.5-6.7,0-9.2c-2.5-2.5-6.7-2.5-9.2,0 l-13,13c-3.6,3.6-3.6,9.6,0,13.2l13,13c1.3,1.3,2.9,1.9,4.6,1.9c1.7,0,3.3-0.6,4.6-1.9c2.5-2.5,2.5-6.7,0-9.2L51.7,93h44.1 c12.5,0,22.6-10.2,22.6-22.6v-7.9C118.5,58.9,115.6,55.9,112,55.9z"/><path d="M76.3,48l-3.9,3.9c-2.5,2.5-2.5,6.7,0,9.2c1.3,1.3,2.9,1.9,4.6,1.9s3.3-0.6,4.6-1.9l13-13c1.8-1.8,2.7-4.1,2.7-6.6 c0-2.5-1-4.9-2.7-6.6l-13-13c-2.5-2.5-6.7-2.5-9.2,0c-2.5,2.5-2.5,6.7,0,9.2l3.9,3.9H32.1C19.7,35,9.5,45.2,9.5,57.6v7.9 c0,3.6,2.9,6.5,6.5,6.5s6.5-2.9,6.5-6.5v-7.9c0-5.3,4.3-9.6,9.6-9.6H76.3z"/></g></svg>`
 };
 export const wrIconSearch: {
   name: 'search';
@@ -516,6 +537,13 @@ export const wrIconShield: {
 } = {
   name: 'shield',
   data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M123.9,31.9c0,63.4-46.6,96.1-60.1,96.1C51.2,128,4.1,96.4,4.1,31.9c0-4.8,2.9-9.2,7.4-11.1l47.7-20C60.4,0.4,62.5,0,63.8,0 c1.3,0,3.4,0.4,4.6,0.9l47.9,20C121,23,123.9,27.3,123.9,31.9z"/></svg>`
+};
+export const wrIconShuffle: {
+  name: 'shuffle';
+  data: string;
+} = {
+  name: 'shuffle',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><g><path d="M107.5,27.5L94.3,14.3c-1.6-1.6-3.8-2.6-6.2-2.6s-4.5,0.9-6.2,2.6L68.8,27.5c-2.5,2.5-2.5,6.6,0,9.1c2.5,2.5,6.6,2.5,9.1,0 l3.9-3.9v4.9c0,5.2-2.5,10-6.7,13L45.6,71.1C38,76.5,33.4,85.3,33.4,94.6v15.3c0,3.5,2.9,6.4,6.4,6.4s6.4-2.9,6.4-6.4V94.6 c0-5.2,2.5-10,6.7-13l11-7.8l11,7.8c4.2,3,6.7,7.8,6.7,13v15.3c0,3.5,2.9,6.4,6.4,6.4s6.4-2.9,6.4-6.4V94.6 c0-9.3-4.6-18.1-12.2-23.5L75.1,66l7.3-5.1c7.6-5.4,12.2-14.1,12.2-23.5v-4.9l3.9,3.9c1.2,1.2,2.9,1.9,4.5,1.9s3.3-0.6,4.5-1.9 C110,34,110,30,107.5,27.5z"/><path d="M33.4,37.5c0,7.7,3.2,15.2,8.7,20.6c1.2,1.2,2.9,1.8,4.5,1.8c1.7,0,3.3-0.6,4.6-1.9c2.5-2.5,2.4-6.6-0.1-9.1 c-3.1-3-4.8-7.1-4.8-11.4v-4.9l3.9,3.9c1.2,1.2,2.9,1.9,4.5,1.9s3.3-0.6,4.5-1.9c2.5-2.5,2.5-6.6,0-9.1L46,14.3 c-1.6-1.6-3.8-2.6-6.2-2.6c-2.3,0-4.5,0.9-6.2,2.6L20.5,27.5C18,30,18,34,20.5,36.5c2.5,2.5,6.6,2.5,9.1,0l3.9-3.9V37.5z"/></g></svg>`
 };
 export const wrIconStopCircle: {
   name: 'stop-circle';
@@ -585,7 +613,7 @@ export const wrIconWarning: {
   data: string;
 } = {
   name: 'warning',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M449.07 399.08L278.64 82.58c-12.08-22.44-44.26-22.44-56.35 0L51.87 399.08A32 32 0 0080 446.25h340.89a32 32 0 0028.18-47.17zm-198.6-1.83a20 20 0 1120-20 20 20 0 01-20 20zm21.72-201.15l-5.74 122a16 16 0 01-32 0l-5.74-121.95a21.73 21.73 0 0121.5-22.69h.21a21.74 21.74 0 0121.73 22.7z"/></svg>`
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M125.2,90.9l-43-74.7c-8.1-14-28.3-14-36.3,0l-43,74.7c-8,14,2,31.4,18.2,31.4c25.8,0,60.2,0,86,0 C123.1,122.3,133.2,104.9,125.2,90.9z M64,35.9c3.8,0,6.8,3.1,6.7,6.9l-0.8,32c-0.1,3.1-2.7,5.7-5.9,5.7s-5.8-2.5-5.9-5.7l-0.9-32 C57.2,39.1,60.2,35.9,64,35.9z M64,101.2c-4.1,0-7.5-3.4-7.5-7.5c0-4.1,3.4-7.5,7.5-7.5s7.5,3.4,7.5,7.5 C71.5,97.9,68.1,101.2,64,101.2z"/></svg>`
 };
 export type wrIconName =
   | 'add-circle-outline'
@@ -615,7 +643,9 @@ export type wrIconName =
   | 'chevron-down'
   | 'chevron-up'
   | 'clock'
+  | 'close-circle-outline'
   | 'close-circle'
+  | 'close'
   | 'cog'
   | 'copy-outline'
   | 'copy'
@@ -624,6 +654,7 @@ export type wrIconName =
   | 'dots-horizontal'
   | 'dots-vertical'
   | 'download'
+  | 'external-outline'
   | 'eye-off'
   | 'eye'
   | 'file-aab'
@@ -662,6 +693,7 @@ export type wrIconName =
   | 'shield-checkmark'
   | 'shield-outline'
   | 'shield'
+  | 'shuffle'
   | 'stop-circle'
   | 'stop'
   | 'sun'
@@ -707,7 +739,9 @@ export const wrIconSet = [
   wrIconChevronDown,
   wrIconChevronUp,
   wrIconClock,
+  wrIconCloseCircleOutline,
   wrIconCloseCircle,
+  wrIconClose,
   wrIconCog,
   wrIconCopyOutline,
   wrIconCopy,
@@ -716,6 +750,7 @@ export const wrIconSet = [
   wrIconDotsHorizontal,
   wrIconDotsVertical,
   wrIconDownload,
+  wrIconExternalOutline,
   wrIconEyeOff,
   wrIconEye,
   wrIconFileAab,
@@ -754,6 +789,7 @@ export const wrIconSet = [
   wrIconShieldCheckmark,
   wrIconShieldOutline,
   wrIconShield,
+  wrIconShuffle,
   wrIconStopCircle,
   wrIconStop,
   wrIconSun,
