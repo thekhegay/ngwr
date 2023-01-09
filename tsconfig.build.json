@@ -9,7 +9,9 @@
     "inlineSources": true,
     "paths": {
       "ngwr/*": ["./dist/lib/*"],
-      "showcase/*": ["./dist/showcase/*"],
-    }
+      "showcase/*": ["./dist/showcase/*"]
+    },
+    "target": "ES2022",
+    "useDefineForClassFields": false
   }
 }
