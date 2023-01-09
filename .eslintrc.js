@@ -15,7 +15,7 @@ module.exports = {
         project: ['tsconfig.json'],
         createDefaultProgram: true
       },
-      plugins: ['@typescript-eslint', 'jsdoc', 'import', 'unicorn'],
+      plugins: ['@typescript-eslint', 'jsdoc', 'import'],
       extends: [
         'plugin:@angular-eslint/recommended',
         'plugin:@angular-eslint/template/process-inline-templates',
@@ -122,13 +122,6 @@ module.exports = {
               }
             ],
             pathGroupsExcludedImportTypes: []
-          }
-        ],
-        'unicorn/no-empty-file': 'error',
-        'unicorn/filename-case': [
-          'error',
-          {
-            case: 'kebabCase'
           }
         ],
         'no-bitwise': 'off',
