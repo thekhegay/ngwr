@@ -9,6 +9,7 @@
     "release:patch": "ts-node ./scripts/release.ts --release-as patch",
     "release:minor": "ts-node ./scripts/release.ts --release-as minor",
     "release:major": "ts-node ./scripts/release.ts --release-as major",
+    "release:rc": "ts-node ./scripts/release.ts --release-as prerelease",
     "release:lib": "ts-node ./scripts/publish.ts"
   },
   "dependencies": {
