@@ -15,7 +15,7 @@ export function bumpVersion(version: string, mode: ReleaseMode): string {
     case `patch`:
       return `${major}.${minor}.${++patch}`;
     case `prerelease`:
-      return `${major}.0.0-rc.${++rc}`;
+      return `${major}.${minor}.${patch}-rc.${++rc}`;
     default:
       return version;
   }
