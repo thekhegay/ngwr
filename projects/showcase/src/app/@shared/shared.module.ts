@@ -13,8 +13,12 @@ import { WrInputModule } from 'ngwr/input';
 import { WrSkeletonModule } from 'ngwr/skeleton';
 import { WrSpinnerModule } from 'ngwr/spinner';
 import { WrTagModule } from 'ngwr/tag';
-import { MarkdownModule } from 'ngx-markdown';
-import { SnippetComponent } from 'showcase/@shared/components';
+import { HighlightModule } from 'ngx-highlightjs';
+import { SnippetComponent } from 'showcase/@shared/components/snippet/snippet.component';
+import { CodeComponent } from 'showcase/@shared/components/code/code.component';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+
+const cdk = [ClipboardModule];
 
 const ngwr = [
   WrButtonModule,
@@ -29,9 +33,9 @@ const ngwr = [
   WrTagModule,
 ];
 
-const modules = [RouterModule, FormsModule, ReactiveFormsModule, MarkdownModule];
+const modules = [RouterModule, FormsModule, ReactiveFormsModule, HighlightModule, ...cdk];
 
-const components = [SnippetComponent];
+const components = [CodeComponent, SnippetComponent];
 
 @NgModule({
   imports: [CommonModule, ...ngwr, ...modules],

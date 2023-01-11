@@ -1,69 +1,77 @@
-<main class="divider">
-  <div class="page__hero">
-    <div class="page-header">
-      <h1 class="page-header__title">Divider</h1>
-      <p class="page-header__description">A divider line separates different content.</p>
-    </div>
-
-    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
+<main class="ngwr-page">
+  <div class="ngwr-page-hero">
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <h1 class="ngwr-page-hero__title">Divider</h1>
+    <p class="ngwr-page-hero__description">{{ description }}</p>
   </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Usage example</h2>
-    <p class="page-section__description">Basic usage of divider component</p>
+  <div class="ngwr-page__content">
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">How to use</h2>
+      <p class="ngwr-page-section__description">
+        Import <code class="ngwr-pre">WrDividerModule</code> into a module where you want to use.
+      </p>
 
-    <app-snippet codeLang="html">
-      <div slot="display">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-        <wr-divider></wr-divider>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-        <wr-divider width="3px" color="primary"></wr-divider>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-        <wr-divider type="solid" color="secondary"></wr-divider>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-        <wr-divider type="dashed" color="warning"></wr-divider>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-        <wr-divider type="dotted" color="success"></wr-divider>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
-      </div>
-      <div [innerHTML]="dividerCode | language: 'html' | markdown" slot="code"></div>
-    </app-snippet>
-  </section>
+      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
+    </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">API</h2>
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Usage example</h2>
+      <p class="ngwr-page-section__description">Basic usage of divider component</p>
 
-    <table class="page__table">
-      <thead>
-        <tr>
-          <th>Property</th>
-          <th>Description</th>
-          <th>Type</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th><code>[color]</code></th>
-          <th>set color of divider</th>
-          <th>
-            <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
-          </th>
-          <th><code>'light'</code></th>
-        </tr>
-        <tr>
-          <th><code>[type]</code></th>
-          <th>set type for divider</th>
-          <th><code>'solid' | 'dashed' | 'dotted'</code></th>
-          <th><code>'solid'</code></th>
-        </tr>
-        <tr>
-          <th><code>[width]</code></th>
-          <th>set width of divider</th>
-          <th><code>string</code></th>
-          <th><code>'1px'</code></th>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div slot="display">
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+          <wr-divider></wr-divider>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+          <wr-divider width="3px" color="primary"></wr-divider>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+          <wr-divider type="solid" color="secondary"></wr-divider>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+          <wr-divider type="dashed" color="warning"></wr-divider>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+          <wr-divider type="dotted" color="success"></wr-divider>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        </div>
+        <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">API</h2>
+
+      <table class="ngwr-page__table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><code>[color]</code></th>
+            <th>set color of divider</th>
+            <th>
+              <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
+            </th>
+            <th><code>'light'</code></th>
+          </tr>
+          <tr>
+            <th><code>[type]</code></th>
+            <th>set type for divider</th>
+            <th><code>'solid' | 'dashed' | 'dotted'</code></th>
+            <th><code>'solid'</code></th>
+          </tr>
+          <tr>
+            <th><code>[width]</code></th>
+            <th>set width of divider</th>
+            <th><code>string</code></th>
+            <th><code>'1px'</code></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </main>

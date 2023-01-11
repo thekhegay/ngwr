@@ -1,9 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  selector: 'app-snippet',
+  selector: 'ngwr-snippet',
   templateUrl: './snippet.component.html',
-  styleUrls: ['./snippet.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SnippetComponent {
   @Input() codeLang: string | undefined = undefined;

@@ -2,7 +2,7 @@
   "root": "projects/showcase",
   "sourceRoot": "projects/showcase/src",
   "projectType": "application",
-  "prefix": "app",
+  "prefix": "ngwr",
   "schematics": {},
   "architect": {
     "build": {
@@ -14,24 +14,24 @@
         "polyfills": "projects/showcase/src/polyfills.ts",
         "tsConfig": "projects/showcase/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
+        "allowedCommonJsDependencies": [
+          "highlight.js",
+          "lodash"
+        ],
         "assets": [
+          "projects/showcase/src/assets",
           "projects/showcase/src/favicon.ico",
-          "projects/showcase/src/icon.svg",
-          "projects/showcase/src/manifest.webmanifest",
           "projects/showcase/src/apple-touch-icon.png",
-          "projects/showcase/src/assets"
+          "projects/showcase/src/icon.svg",
+          "projects/showcase/src/icon-192.png",
+          "projects/showcase/src/icon-512.png",
+          "projects/showcase/src/manifest.webmanifest",
+          "projects/showcase/src/robots.txt"
         ],
         "styles": [
           "projects/showcase/src/styles.scss"
         ],
-        "scripts": [
-          "node_modules/marked/marked.min.js",
-          "node_modules/prismjs/prism.js",
-          "node_modules/prismjs/components/prism-sass.min.js",
-          "node_modules/prismjs/components/prism-json.min.js",
-          "node_modules/prismjs/components/prism-bash.min.js",
-          "node_modules/prismjs/components/prism-typescript.min.js"
-        ]
+        "scripts": []
       },
       "configurations": {
         "production": {

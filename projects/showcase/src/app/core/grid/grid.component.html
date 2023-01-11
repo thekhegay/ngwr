@@ -1,0 +1,25 @@
+<main class="ngwr-page gridPage">
+  <div class="ngwr-page-hero">
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Core</wr-tag>
+    <h1 class="ngwr-page-hero__title">Grid</h1>
+  </div>
+
+  <div class="ngwr-page__content">
+    <section class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Example</h2>
+      <p class="ngwr-page-section__description">Common use of grid.</p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div slot="display">
+          <div class="grid gridPage__list">
+            <div class="col-6">.col-6</div>
+            <div class="col-6">.col-6</div>
+            <div class="col-6">.col-6</div>
+            <div class="col-6">.col-6</div>
+          </div>
+        </div>
+        <ngwr-code [code]="exampleCode" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </section>
+  </div>
+</main>

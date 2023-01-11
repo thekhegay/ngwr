@@ -28,7 +28,7 @@ module.exports = {
           'error',
           {
             type: ['element', 'attribute'],
-            prefix: ['wr', 'app', 'test'],
+            prefix: ['wr', 'ngwr', 'test'],
             style: 'kebab-case'
           }
         ],

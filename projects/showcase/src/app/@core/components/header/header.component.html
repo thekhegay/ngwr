@@ -1,0 +1,12 @@
+<header class="ngwr-header__wrapper container">
+  <img class="ngwr-header-logo" src="assets/images/logo.svg" alt="NGWR logo" />
+
+  <div class="ngwr-header__actions">
+    <div class="ngwr-header-btn" (click)="onDarkModeToggle()">
+      <wr-icon class="ngwr-header-btn__icon" [name]="(isDarkModeEnabled$ | async) ? 'sun' : 'moon'"></wr-icon>
+    </div>
+    <a class="ngwr-header-btn" href="https://github.com/thekhegay/ngwr" target="_blank">
+      <wr-icon class="ngwr-header-btn__icon" name="logo-github"></wr-icon>
+    </a>
+  </div>
+</header>

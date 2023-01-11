@@ -3,18 +3,15 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: -0.5rem;
 
-    margin-bottom: 0.5rem;
+    &--column {
+      flex-direction: column;
+      width: 100%;
+      margin-bottom: 0;
 
-    &:last-child {
-      margin-bottom: -0.5rem;
-    }
-
-    wr-tag {
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-
-      &:last-child {
+      .wr-btn {
         margin-right: 0;
       }
     }

@@ -1,0 +1,59 @@
+.ngwr-header {
+  display: block;
+
+  background-color: rgba(var(--wr-body-bg-rgb), 0.75);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--wr-border-color-base);
+
+  width: 100%;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  height: var(--ngwr-header-height);
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    padding-top: calc(var(--wr-grid-gutter) / 2);
+    padding-bottom: calc(var(--wr-grid-gutter) / 2);
+    width: 100%;
+  }
+
+  &-logo {
+    display: block;
+    height: calc(var(--ngwr-header-height) / 2);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+    gap: calc(var(--wr-grid-gutter) / 2);
+  }
+
+  &-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--ngwr-header-height) / 2.5);
+    width: calc(var(--ngwr-header-height) / 2.5);
+
+    color: var(--header-color);
+    transition: var(--wr-transition-base);
+
+    &:hover {
+      cursor: pointer;
+      color: var(--wr-color-primary);
+    }
+
+    &__icon {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
