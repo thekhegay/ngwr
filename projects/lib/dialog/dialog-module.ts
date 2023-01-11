@@ -1,4 +1,4 @@
-import { FullscreenOverlayContainer, OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -13,6 +13,6 @@ import { WrDialogService } from './dialog-service';
   imports: [CommonModule, OverlayModule, PortalModule, WrIconModule],
   exports: [WrDialogContainer, WrDialogClose, WrDialogTitle, WrDialogContent, WrDialogFooter],
   declarations: [WrDialogContainer, WrDialogClose, WrDialogTitle, WrDialogContent, WrDialogFooter],
-  providers: [WrDialogService, { provide: OverlayContainer, useClass: FullscreenOverlayContainer }],
+  providers: [WrDialogService],
 })
 export class WrDialogModule {}

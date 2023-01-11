@@ -1,0 +1,67 @@
+.wr-tooltip {
+  $wrTooltipRoot: &;
+
+  margin: 0.5rem;
+
+  position: relative;
+
+  &__wrapper {
+    display: inline-block;
+
+    background: var(--wr-color-dark);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  &__title {
+    display: block;
+    color: var(--wr-color-white);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1rem;
+    word-break: break-word;
+  }
+
+  &__arrow {
+    display: block;
+
+    position: absolute;
+    z-index: 2;
+
+    width: 0.5rem;
+    height: 0.5rem;
+
+    background: var(--wr-color-dark);
+    pointer-events: none;
+
+    transform: rotate(45deg);
+
+    #{$wrTooltipRoot}--top & {
+      bottom: -0.25rem;
+      left: 0;
+      right: 0;
+      margin: auto;
+    }
+
+    #{$wrTooltipRoot}--bottom & {
+      top: -0.25rem;
+      left: 0;
+      right: 0;
+      margin: auto;
+    }
+
+    #{$wrTooltipRoot}--left & {
+      top: 0;
+      bottom: 0;
+      right: -0.25rem;
+      margin: auto;
+    }
+
+    #{$wrTooltipRoot}--right & {
+      top: 0;
+      bottom: 0;
+      left: -0.25rem;
+      margin: auto;
+    }
+  }
+}
