@@ -7,12 +7,10 @@ import {
   ElementRef,
   Input,
   ViewChild,
-  ViewEncapsulation
+  ViewEncapsulation,
 } from '@angular/core';
-import { Subject } from 'rxjs';
 
 import { getPlacementName } from 'ngwr/core/overlay';
-import { NgStyleInterface, SafeAny } from 'ngwr/core/types';
 
 import { WR_TOOLTIP_DEFAULT_POSITIONS } from './tooltip-default-positions';
 import { WrTooltipTrigger } from './tooltip-trigger';
