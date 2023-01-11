@@ -15,6 +15,7 @@ import { InputComponent } from './input/input.component';
 import { SkeletonComponent } from './skeleton/skeleton.component';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TagComponent } from './tag/tag.component';
+import { TooltipComponent } from './tooltip/tooltip.component';
 
 @NgModule({
   imports: [CommonModule, SharedModule, ComponentsRouting],
@@ -30,6 +31,7 @@ import { TagComponent } from './tag/tag.component';
     SkeletonComponent,
     SpinnerComponent,
     TagComponent,
+    TooltipComponent,
   ],
 })
 export class ComponentsModule {}

@@ -5,14 +5,15 @@ import { routes as r } from 'showcase/@shared/routes';
 
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
-import { DividerComponent } from './divider/divider.component';
 import { DialogComponent } from './dialog/dialog.component';
+import { DividerComponent } from './divider/divider.component';
 import { FormComponent } from './form/form.component';
 import { IconComponent } from './icon/icon.component';
 import { InputComponent } from './input/input.component';
 import { SkeletonComponent } from './skeleton/skeleton.component';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TagComponent } from './tag/tag.component';
+import { TooltipComponent } from './tooltip/tooltip.component';
 
 const routes: Routes = [
   {
@@ -59,6 +60,10 @@ const routes: Routes = [
   {
     path: r.COMPONENTS.TAG,
     component: TagComponent,
+  },
+  {
+    path: r.COMPONENTS.TOOLTIP,
+    component: TooltipComponent,
   },
 ];
 

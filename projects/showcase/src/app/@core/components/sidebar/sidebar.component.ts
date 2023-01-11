@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, HostBinding } from '@angular/core';
+
 import { routes } from 'showcase/@shared/routes';
 
 interface SidebarItem {
@@ -34,5 +35,6 @@ export class SidebarComponent {
     { title: 'Skeleton', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.SKELETON}` },
     { title: 'Spinner', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.SPINNER}` },
     { title: 'Tag', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.TAG}` },
+    { title: 'Tooltip', url: `${routes.COMPONENTS.INDEX}/${routes.COMPONENTS.TOOLTIP}` },
   ];
 }

@@ -15,6 +15,7 @@ export const routes = {
     SKELETON: 'skeleton',
     SPINNER: 'spinner',
     TAG: 'tag',
+    TOOLTIP: 'tooltip',
   },
   CORE: {
     INDEX: 'core',

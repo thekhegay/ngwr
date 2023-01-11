@@ -1,0 +1,9 @@
+.wr-overlay {
+  &__backdrop {
+    background: rgba(var(--wr-color-black-rgb), 0.875);
+
+    &--transparent {
+      background: transparent;
+    }
+  }
+}
