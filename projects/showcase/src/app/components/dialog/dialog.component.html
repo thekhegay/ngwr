@@ -1,17 +1,30 @@
-<main class="divider">
-  <div class="page__hero">
-    <div class="page-header">
-      <h1 class="page-header__title">Divider</h1>
-      <p class="page-header__description">A modal dialog.</p>
-    </div>
-
-    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
+<main class="ngwr-page">
+  <div class="ngwr-page-hero">
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <h1 class="ngwr-page-hero__title">Divider</h1>
+    <p class="ngwr-page-hero__description">{{ description }}</p>
   </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Usage example</h2>
-    <p class="page-section__description">Basic usage of dialog component</p>
+  <div class="ngwr-page__content">
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">How to use</h2>
+      <p class="ngwr-page-section__description">
+        Import <code class="ngwr-pre">WrDialogModule</code> into a module where you want to use.
+      </p>
 
-    <wr-btn (click)="onDialogOpen()">Open dialog</wr-btn>
-  </section>
+      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Usage example</h2>
+      <p class="ngwr-page-section__description">Basic usage of dialog component</p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="checkbox__list" slot="display">
+          <wr-btn (click)="onDialogOpen()">Open dialog</wr-btn>
+        </div>
+        <ngwr-code [code]="usageCode" codeLang="ts" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+  </div>
 </main>

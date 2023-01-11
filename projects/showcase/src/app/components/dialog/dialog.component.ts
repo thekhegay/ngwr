@@ -1,28 +1,40 @@
-import { Component, ViewContainerRef } from '@angular/core';
-import { WrDialogRef, WrDialogService } from 'ngwr/dialog';
+import { ChangeDetectionStrategy, Component, OnInit, ViewContainerRef } from '@angular/core';
+
+import { WrDialogService } from 'ngwr/dialog';
+import { SeoService } from 'showcase/@core/services';
+
 import { DialogExampleComponent } from './dialog-example/dialog-example.component';
 
 @Component({
-  selector: 'app-components-dialog',
+  selector: 'ngwr-dialog',
   templateUrl: './dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DialogComponent {
-  readonly importCode: string = `import { WrDialogModule } from 'ngwr'`;
+export class DialogComponent implements OnInit {
+  readonly description: string = 'A modal dialog.';
+
+  readonly importCode: string =
+    "import { WrDialogModule } from 'ngwr/dialog';\n\n@NgModule({\n  imports: [\n    // ...\n    WrDialogModule,\n  ],\n  // ...\n})\nexport class MyModule {}";
+  readonly usageCode: string =
+    "import { WrDialogService } from 'ngwr/dialog';\n\nconstructor(\n  private readonly dialogService: WrDialogService,\n  private readonly vcr: ViewContainerRef,\n) {}\n  \nonDialogOpen(): void {\n  this.dialogService.open({\n    component: DialogExampleComponent,\n    viewContainerRef: this.vcr,\n  });\n}";
 
   constructor(
-    private readonly _vcr: ViewContainerRef,
     private readonly dialogService: WrDialogService,
+    private readonly seoService: SeoService,
+    private readonly vcr: ViewContainerRef
   ) {}
 
-  onDialogOpen(): void {
-    const dialogRef: WrDialogRef<DialogExampleComponent> = this.dialogService.open<DialogExampleComponent>({
-      component: DialogExampleComponent,
-      viewContainerRef: this._vcr,
-      data: {
-        value: true,
-      },
-    });
+  ngOnInit(): void {
+    this.seoService.setCanonicalURL();
+    this.seoService.setTitle('Dialog');
+    this.seoService.setDescription(this.description);
+    this.seoService.setKeywords(['dialog', 'wr-dialog']);
+  }
 
-    dialogRef.afterClosed.subscribe(value => console.log(value));
+  onDialogOpen(): void {
+    this.dialogService.open<DialogExampleComponent>({
+      component: DialogExampleComponent,
+      viewContainerRef: this.vcr,
+    });
   }
 }

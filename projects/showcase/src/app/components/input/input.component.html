@@ -1,187 +1,195 @@
-<main class="input">
-  <div class="page__hero">
-    <div class="page-header">
-      <h1 class="page-header__title">Input</h1>
-      <p class="page-header__description"> Basic text component used to provide or change data. </p>
-    </div>
-
-    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
+<main class="ngwr-page">
+  <div class="ngwr-page-hero">
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <h1 class="ngwr-page-hero__title">Input</h1>
+    <p class="ngwr-page-hero__description">{{ description }}</p>
   </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Example</h2>
-    <p class="page-section__description">Basic usage of input component</p>
+  <div class="ngwr-page__content">
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">How to use</h2>
+      <p class="ngwr-page-section__description">
+        Import <code class="ngwr-pre">WrInputModule</code> into a module where you want to use.
+      </p>
 
-    <app-snippet codeLang="html">
-      <div class="input__list" slot="display">
-        <wr-input value="Basic input value"></wr-input>
-        <wr-input [ngModel]="'Basic input value'"></wr-input>
-      </div>
-      <div [innerHTML]="exampleCode | language: 'html' | markdown" slot="code"></div>
-    </app-snippet>
-  </section>
+      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
+    </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Prefix and suffix</h2>
-    <p class="page-section__description">
-      You can add <code class="page-section__code">prefix</code> or
-      <code class="page-section__code">suffix</code> attribute to add suffix and prefix to input.
-    </p>
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Usage example</h2>
+      <p class="ngwr-page-section__description">Basic usage of input component</p>
 
-    <app-snippet codeLang="html">
-      <div class="input__list" slot="display">
-        <wr-input value="Input value" prefix="Prefix"></wr-input>
-        <wr-input value="Input value" suffix="Suffix"></wr-input>
-        <wr-input value="Input value" prefix="Prefix" suffix="Suffix"></wr-input>
-      </div>
-      <div [innerHTML]="prefixSuffixCode | language: 'html' | markdown" slot="code"></div>
-    </app-snippet>
-  </section>
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="input__list" slot="display">
+          <wr-input value="Basic input value"></wr-input>
+        </div>
+        <ngwr-code [code]="exampleCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Password input</h2>
-    <p class="page-section__description">
-      If you need to display eye icons for password input, you can add <code class="page-section__code">passwordIcons</code> attribute.
-    </p>
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Prefix and suffix</h2>
+      <p class="ngwr-page-section__description">
+        You can add <code class="ngwr-pre">prefix</code> or <code class="ngwr-pre">suffix</code>
+        attribute to add suffix and prefix to input.
+      </p>
 
-    <app-snippet codeLang="html">
-      <div class="input__list" slot="display">
-        <wr-input value="Password input" type="password" passwordIcons></wr-input>
-      </div>
-      <div [innerHTML]="passwordCode | language: 'html' | markdown" slot="code"></div>
-    </app-snippet>
-  </section>
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="input__list" slot="display">
+          <wr-input value="Input value" prefix="Prefix"></wr-input>
+          <wr-input value="Input value" suffix="Suffix"></wr-input>
+          <wr-input value="Input value" prefix="Prefix" suffix="Suffix"></wr-input>
+        </div>
+        <ngwr-code [code]="prefixSuffixCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Disabled state</h2>
-    <p class="page-section__description">
-      You can add <code class="page-section__code">disabled</code> attribute to prevent interacting with the input.
-    </p>
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Password input</h2>
+      <p class="ngwr-page-section__description">
+        If you need to display eye icons for password input, you can add
+        <code class="ngwr-pre">passwordIcons</code> attribute.
+      </p>
 
-    <app-snippet codeLang="html">
-      <div class="input__list" slot="display">
-        <wr-input value="Disabled" disabled></wr-input>
-      </div>
-      <div [innerHTML]="disabledCode | language: 'html' | markdown" slot="code"></div>
-    </app-snippet>
-  </section>
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="input__list" slot="display">
+          <wr-input value="Password input" type="password" passwordIcons></wr-input>
+        </div>
+        <ngwr-code [code]="passwordCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Readonly state</h2>
-    <p class="page-section__description">
-      You can add <code class="page-section__code">readonly</code> attribute to prevent change of with the input.
-    </p>
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Disabled state</h2>
+      <p class="ngwr-page-section__description">
+        You can add <code class="ngwr-pre">disabled</code> attribute to prevent interacting with the input.
+      </p>
 
-    <app-snippet codeLang="html">
-      <div class="input__list" slot="display">
-        <wr-input value="Readonly" readonly></wr-input>
-      </div>
-      <div [innerHTML]="readonlyCode | language: 'html' | markdown" slot="code"></div>
-    </app-snippet>
-  </section>
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="input__list" slot="display">
+          <wr-input value="Disabled" disabled></wr-input>
+        </div>
+        <ngwr-code [code]="disabledCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">API</h2>
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Readonly state</h2>
+      <p class="ngwr-page-section__description">
+        You can add <code class="ngwr-pre">readonly</code> attribute to prevent change of with the input.
+      </p>
 
-    <table class="page__table">
-      <thead>
-        <tr>
-          <th>Property</th>
-          <th>Description</th>
-          <th>Type</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th><code>[value]</code></th>
-          <th>set value of input</th>
-          <th>
-            <code>'string' | null</code>
-          </th>
-          <th><code>null</code></th>
-        </tr>
-        <tr>
-          <th><code>[placeholder]</code></th>
-          <th>set placeholder for input</th>
-          <th><code>'string' | null</code></th>
-          <th><code>null</code></th>
-        </tr>
-        <tr>
-          <th><code>[type]</code></th>
-          <th>set type of input</th>
-          <th><code>'text' | 'number' | 'password' | 'email'</code></th>
-          <th><code>'text'</code></th>
-        </tr>
-        <tr>
-          <th><code>[autocomplete]</code></th>
-          <th>set type of input</th>
-          <th><code>'on' | 'off'</code></th>
-          <th><code>'on'</code></th>
-        </tr>
-        <tr>
-          <th><code>[inputmode]</code></th>
-          <th>set type of input</th>
-          <th><code>text' | 'numeric' | 'tel' | 'email' | 'url'</code></th>
-          <th><code>'text'</code></th>
-        </tr>
-        <tr>
-          <th><code>[autofocus]</code></th>
-          <th>set autofocus</th>
-          <th><code>boolean</code></th>
-          <th><code>false</code></th>
-        </tr>
-        <tr>
-          <th><code>[readonly]</code></th>
-          <th>set readonly state for input</th>
-          <th><code>boolean</code></th>
-          <th><code>false</code></th>
-        </tr>
-        <tr>
-          <th><code>[disabled]</code></th>
-          <th>set disabled state for input</th>
-          <th><code>boolean</code></th>
-          <th><code>false</code></th>
-        </tr>
-        <tr>
-          <th><code>[passwordIcons]</code></th>
-          <th>display password icons</th>
-          <th><code>boolean</code></th>
-          <th><code>false</code></th>
-        </tr>
-        <tr>
-          <th><code>[placeholder]</code></th>
-          <th>set placeholder for input</th>
-          <th><code>'string' | null</code></th>
-          <th><code>null</code></th>
-        </tr>
-        <tr>
-          <th><code>[prefix]</code></th>
-          <th>set prefix for input</th>
-          <th><code>'string' | null</code></th>
-          <th><code>null</code></th>
-        </tr>
-        <tr>
-          <th><code>[suffix]</code></th>
-          <th>set suffix for input</th>
-          <th><code>'string' | null</code></th>
-          <th><code>null</code></th>
-        </tr>
-        <tr>
-          <th><code>[ngModel]</code></th>
-          <th>Two way binding, specifies whether the checkbox is checked</th>
-          <th><code>boolean</code></th>
-          <th><code>false</code></th>
-        </tr>
-        <tr>
-          <th><code>(ngModelChange)</code></th>
-          <th>The callback function that is triggered when the state changes.</th>
-          <th>
-            <code>{{ ngModelChangeReturn }}</code>
-          </th>
-          <th><code>-</code></th>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="input__list" slot="display">
+          <wr-input value="Readonly" readonly></wr-input>
+        </div>
+        <ngwr-code [code]="readonlyCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">API</h2>
+
+      <table class="ngwr-page__table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><code>[value]</code></th>
+            <th>set value of input</th>
+            <th>
+              <code>'string' | null</code>
+            </th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[placeholder]</code></th>
+            <th>set placeholder for input</th>
+            <th><code>'string' | null</code></th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[type]</code></th>
+            <th>set type of input</th>
+            <th><code>'text' | 'number' | 'password' | 'email'</code></th>
+            <th><code>'text'</code></th>
+          </tr>
+          <tr>
+            <th><code>[autocomplete]</code></th>
+            <th>set type of input</th>
+            <th><code>'on' | 'off'</code></th>
+            <th><code>'on'</code></th>
+          </tr>
+          <tr>
+            <th><code>[inputmode]</code></th>
+            <th>set type of input</th>
+            <th><code>text' | 'numeric' | 'tel' | 'email' | 'url'</code></th>
+            <th><code>'text'</code></th>
+          </tr>
+          <tr>
+            <th><code>[autofocus]</code></th>
+            <th>set autofocus</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[readonly]</code></th>
+            <th>set readonly state for input</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[disabled]</code></th>
+            <th>set disabled state for input</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[passwordIcons]</code></th>
+            <th>display password icons</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>[placeholder]</code></th>
+            <th>set placeholder for input</th>
+            <th><code>'string' | null</code></th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[prefix]</code></th>
+            <th>set prefix for input</th>
+            <th><code>'string' | null</code></th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[suffix]</code></th>
+            <th>set suffix for input</th>
+            <th><code>'string' | null</code></th>
+            <th><code>null</code></th>
+          </tr>
+          <tr>
+            <th><code>[ngModel]</code></th>
+            <th>Two way binding, specifies whether the checkbox is checked</th>
+            <th><code>boolean</code></th>
+            <th><code>false</code></th>
+          </tr>
+          <tr>
+            <th><code>(ngModelChange)</code></th>
+            <th>The callback function that is triggered when the state changes.</th>
+            <th>
+              <code>{{ ngModelChangeReturn }}</code>
+            </th>
+            <th><code>-</code></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </main>

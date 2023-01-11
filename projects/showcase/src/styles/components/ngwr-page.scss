@@ -1,0 +1,132 @@
+.ngwr-page {
+  &-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    &__tag {
+      margin-bottom: calc(var(--wr-grid-gutter) / 1.5);
+    }
+
+    &__title,
+    &__description {
+      display: block;
+      color: var(--wr-color-dark);
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 2.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    &__description {
+      color: var(--wr-color-medium);
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5rem;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: calc(var(--wr-grid-gutter) * 2);
+    margin-top: calc(var(--wr-grid-gutter) * 2);
+  }
+
+  &-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+
+    &__title {
+      font-size: 1.625rem;
+    }
+
+    &__description {
+      color: var(--text-color);
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+      margin-top: 0.125rem;
+    }
+
+    &__link {
+      color: var(--wr-color-primary);
+      transition: var(--wr-transition-base);
+
+      &:hover {
+        color: var(--wr-color-secondary);
+      }
+    }
+
+    &__code {
+      margin-top: calc(var(--wr-grid-gutter) / 3);
+      width: 100%;
+    }
+  }
+
+  &__table {
+    background: transparent;
+    border: 1px solid var(--wr-border-color-base);
+
+    width: 100%;
+
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+
+    tr, th {
+      padding: 0.5rem;
+    }
+
+    code {
+      color: var(--wr-color-secondary);
+      font-family: var(--wr-font-family-mono);
+      background: var(--ngwr-div-bg-shade);
+      border: 1px solid var(--wr-border-color-base);
+      border-radius: 3px;
+      font-size: 1em;
+      font-weight: 500;
+      padding: 0.125em 0.375em;
+      vertical-align: baseline;
+    }
+
+    thead {
+      color: var(--wr-color-medium);
+
+      font-size: 0.825rem;
+      font-weight: 600;
+
+      background: var(--snippet-bg);
+      border-bottom: 1px solid var(--wr-border-color-base);
+
+      tr, th {
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+      }
+    }
+
+    tbody {
+      color: var(--heading-color);
+      font-size: 0.825rem;
+      font-weight: 500;
+
+      tr, th {
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+      }
+
+      tr {
+        border-bottom: 1px solid var(--wr-border-color-base);
+      }
+    }
+  }
+}

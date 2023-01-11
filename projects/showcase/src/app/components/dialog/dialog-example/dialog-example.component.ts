@@ -1,14 +1,8 @@
-import { Component, Inject } from '@angular/core';
-import { WR_DIALOG_DATA, WrDialogRef } from 'ngwr/dialog';
-import { SafeAny } from 'ngwr/core/types';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-components-dialog-example',
-  templateUrl: './dialog-component.template.html',
+  selector: 'ngwr-dialog-example',
+  templateUrl: './dialog-example.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DialogExampleComponent {
-  constructor(
-    private readonly dialogRef: WrDialogRef<DialogExampleComponent>,
-    @Inject(WR_DIALOG_DATA) public data: SafeAny,
-  ) {}
-}
+export class DialogExampleComponent {}

@@ -4,7 +4,10 @@
     "outDir": "../../out-tsc/showcase",
     "types": [],
     "target": "ES2022",
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false
   },
   "files": ["./src/main.ts", "./src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],

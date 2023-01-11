@@ -3,13 +3,6 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-
-    wr-checkbox {
-      margin-right: 0.5rem;
-
-      &:last-child {
-        margin-right: 0;
-      }
-    }
+    gap: 0.5rem;
   }
 }

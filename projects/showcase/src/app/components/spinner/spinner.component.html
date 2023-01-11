@@ -1,22 +1,30 @@
-<main class="spinner">
-  <div class="page__hero">
-    <div class="page-header">
-      <h1 class="page-header__title">Spinner</h1>
-      <p class="page-header__description">A spinner for displaying loading state.</p>
-    </div>
-
-    <code [innerHTML]="importCode | language: 'ts' | markdown"></code>
+<main class="ngwr-page">
+  <div class="ngwr-page-hero">
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <h1 class="ngwr-page-hero__title">Spinner</h1>
+    <p class="ngwr-page-hero__description">{{ description }}</p>
   </div>
 
-  <section class="page-section">
-    <h2 class="page-section__title">Example</h2>
-    <p class="page-section__description">Basic usage of spinner component</p>
+  <div class="ngwr-page__content">
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">How to use</h2>
+      <p class="ngwr-page-section__description">
+        Import <code class="ngwr-pre">WrSpinModule</code> into a module where you want to use.
+      </p>
 
-    <app-snippet codeLang="html">
-      <div slot="display">
-        <wr-spin></wr-spin>
-      </div>
-      <div [innerHTML]="exampleCode | language: 'html' | markdown" slot="code"></div>
-    </app-snippet>
-  </section>
+      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Example</h2>
+      <p class="ngwr-page-section__description">Basic usage of spinner component</p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div slot="display">
+          <wr-spin></wr-spin>
+        </div>
+        <ngwr-code [code]="exampleCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+  </div>
 </main>

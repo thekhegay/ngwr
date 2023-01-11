@@ -1,10 +1,7 @@
 @use 'projects/lib';
 
+@use 'styles/reset';
 @use 'styles/fonts';
-@use 'styles/prism-theme';
 @use 'styles/vars';
-@use 'styles/header';
-@use 'styles/layout';
-@use 'styles/headings';
 @use 'styles/pages';
-@use 'styles/pre';
+@use 'styles/components';
