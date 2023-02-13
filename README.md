@@ -23,12 +23,8 @@ $ yarn add ngwr
 ## Styles
 
 Don't forget to add styles:
-```json
-"styles": [
-  ...
-  "node_modules/ngwr/_index.scss",
-  ...
-],
+```scss
+@import 'ngwr';
 ```
 
 ## [Components](https://ngwr.dev/components)
@@ -42,6 +38,7 @@ Don't forget to add styles:
 - [Skeleton](https://ngwr.dev/components/skeleton)
 - [Spinner](https://ngwr.dev/components/spinner)
 - [Tag](https://ngwr.dev/components/tag)
+- [Tooltip](https://ngwr.dev/components/tooltip)
 
 - [Colors](https://ngwr.dev/common/colors)
 - [Grid](https://ngwr.dev/common/grid)
