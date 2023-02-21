@@ -37,7 +37,7 @@
     "@angular-eslint/template-parser": "15.0.0",
     "@angular/cli": "~15.0.0",
     "@angular/compiler-cli": "15.0.4",
-    "@nrwl/cli": "15.4.5",
+    "@nrwl/cli": "15.7.2",
     "@nrwl/workspace": "15.4.5",
     "@types/jasmine": "~4.0.0",
     "@types/lodash": "^4.14.191",
