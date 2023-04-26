@@ -384,6 +384,20 @@ export const wrIconLogoAndroid: {
   name: 'logo-android',
   data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M380.91 199l42.47-73.57a8.63 8.63 0 00-3.12-11.76 8.52 8.52 0 00-11.71 3.12l-43 74.52c-32.83-15-69.78-23.35-109.52-23.35s-76.69 8.36-109.52 23.35l-43-74.52a8.6 8.6 0 10-14.88 8.64L131 199C57.8 238.64 8.19 312.77 0 399.55h512c-8.19-86.78-57.8-160.91-131.09-200.55zM138.45 327.65a21.46 21.46 0 1121.46-21.46 21.47 21.47 0 01-21.46 21.46zm235 0A21.46 21.46 0 11395 306.19a21.47 21.47 0 01-21.51 21.46z"/></svg>`
 };
+export const wrIconLogoAppCenter: {
+  name: 'logo-app-center';
+  data: string;
+} = {
+  name: 'logo-app-center',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><g><polygon points="96,0 96,109.9 0,96 96,128 128,114.7 128,13.3"/><path d="M43.7,88V68.8L64,82.7l16-5.3V34.7l-16-5.3L44.3,43.2V24L32,21.3L10.7,40v8l12.3,8l-12.3,8v8L32,90.7L43.7,88z M64,45.3 v21.3L43.7,56L64,45.3z M17.1,43.2L32,32v18.7L17.1,43.2z M32,61.3V80L17.1,68.8L32,61.3z"/></g></svg>`
+};
+export const wrIconLogoAppGallery: {
+  name: 'logo-app-gallery';
+  data: string;
+} = {
+  name: 'logo-app-gallery',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><g><polygon class="st0" points="55.8,74.2 61,74.2 58.4,68.2"/><path class="st0" d="M92.1,0H35.9C9.6,0,0,9.6,0,35.9v56.2C0,118.4,9.6,128,35.9,128h56.2c26.3,0,35.9-9.6,35.9-35.9V35.9 C128,9.6,118.4,0,92.1,0z M28.7,80.8h-3.4V74h-7.7v6.8h-3.4V64h3.4v6.8h7.7V64h3.4V80.8z M47.8,73.5c0,4.8-2.6,7.6-7.3,7.6 c-4.6,0-7.2-2.7-7.2-7.4V64h3.4v9.5c0,2.8,1.4,4.3,3.8,4.3c2.5,0,3.8-1.5,3.8-4.2V64h3.4V73.5z M42.7,21.3h3 c0,10.1,8.2,18.3,18.3,18.3c10.1,0,18.3-8.2,18.3-18.3h3c0,11.8-9.6,21.3-21.3,21.3C52.2,42.7,42.7,33.1,42.7,21.3z M63.7,80.7 l-1.5-3.5h-7.7L53,80.7h-3.5L57,64h3l7.4,16.7H63.7z M85.2,80.8h-2.8l-3.8-11l-3.8,11h-2.8L66,64h3.6l3.7,11.5L77.2,64h2.8 l3.8,11.5L87.5,64H91L85.2,80.8z M106.4,80.7H93.7V64H106v3.1h-9v3.4h6.2v3.1h-6.2v4.1h9.3V80.7z M113.8,80.7h-3.4V64h3.4V80.7z"/></g></svg>`
+};
 export const wrIconLogoApple: {
   name: 'logo-apple';
   data: string;
@@ -404,6 +418,13 @@ export const wrIconLogoAppstore: {
 } = {
   name: 'logo-appstore',
   data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M64,0C28.6,0,0,28.6,0,64s28.6,64,64,64s64-28.6,64-64S99.4,0,64,0z M39.7,92c-0.8,1.4-2.3,2.2-3.8,2.2 c-0.8,0-1.6-0.2-2.2-0.6c-2.1-1.2-2.8-3.9-1.6-6c0,0,0,0,0,0l4.4-7.3c0.4-0.8,1.3-1.2,2.2-1.2h0.6c3.2,0,5.4,1.9,6,3.8L39.7,92z M76.7,77.7l-28.6,0h-19c-2.4,0-4.4-2-4.4-4.4c0-0.1,0-0.1,0-0.2c0.1-2.4,2.2-4.2,4.6-4.2H43l16.3-27.8l0,0l-5.3-9 c-1.2-2.1-0.7-4.8,1.4-6.1c2.1-1.3,4.8-0.7,6.2,1.3c0,0.1,0.1,0.1,0.1,0.2l2.8,4.8h0l2.8-4.8c1.3-2.1,4-2.8,6.1-1.6 c0,0,0.1,0.1,0.1,0.1c2,1.3,2.6,4,1.4,6.1l-5.3,9l-5.1,8.8l-11.2,19v0h16.5c2.1,0,4.6,1.1,5.7,2.9l0.1,0.2c0.9,1.6,1.4,2.6,1.4,4.2 C77,76.7,76.9,77.2,76.7,77.7L76.7,77.7z M98.9,77.7h-7.7v0l5.7,9.6c1.3,2.1,0.6,4.8-1.5,6.2c-0.7,0.4-1.5,0.6-2.3,0.6 c-1.6,0-3-0.8-3.8-2.2l-8.4-14.2l-5.2-8.9l-6.7-11.5c-2-3.3-2-7.5-0.2-10.9c1.3-2.3,2.3-3,2.3-3L86,68.9h12.8c2.4,0,4.5,1.8,4.6,4.2 c0.1,2.5-1.8,4.5-4.3,4.6C99,77.7,99,77.7,98.9,77.7L98.9,77.7z"/></svg>`
+};
+export const wrIconLogoFirebase: {
+  name: 'logo-firebase';
+  data: string;
+} = {
+  name: 'logo-firebase',
+  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128" xml:space="preserve"><path d="M20.6,83.6L33.2,2.5c0.4-2.8,4.1-3.4,5.5-0.9L52.3,27L20.6,83.6z M110.9,102.4L98.5,28.6c-0.3-1.6-1.8-2.7-3.4-2.4 c-0.6,0.1-1.1,0.4-1.6,0.8l-76.5,75.4l42.5,24.5c2.7,1.5,5.9,1.5,8.5,0L110.9,102.4z M76.4,38.1l-9.7-18.5c-0.7-1.4-2.5-2-3.9-1.3 c-0.5,0.3-1,0.7-1.3,1.3L18.6,95.9L76.4,38.1z"/></svg>`
 };
 export const wrIconLogoGithub: {
   name: 'logo-github';
@@ -671,9 +692,12 @@ export type wrIconName =
   | 'lock-opened'
   | 'lock'
   | 'logo-android'
+  | 'logo-app-center'
+  | 'logo-app-gallery'
   | 'logo-apple'
   | 'logo-appscreener'
   | 'logo-appstore'
+  | 'logo-firebase'
   | 'logo-github'
   | 'logo-google-play'
   | 'logo-oversecured'
@@ -767,9 +791,12 @@ export const wrIconSet = [
   wrIconLockOpened,
   wrIconLock,
   wrIconLogoAndroid,
+  wrIconLogoAppCenter,
+  wrIconLogoAppGallery,
   wrIconLogoApple,
   wrIconLogoAppscreener,
   wrIconLogoAppstore,
+  wrIconLogoFirebase,
   wrIconLogoGithub,
   wrIconLogoGooglePlay,
   wrIconLogoOversecured,
