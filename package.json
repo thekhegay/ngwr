@@ -39,7 +39,7 @@
     "@angular/compiler-cli": "15.0.4",
     "@nrwl/cli": "15.4.5",
     "@nrwl/workspace": "15.4.5",
-    "@types/jasmine": "~4.0.0",
+    "@types/jasmine": "~4.3.5",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.7",
     "@types/prettier": "^2.7.2",
