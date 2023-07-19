@@ -1,4 +1,4 @@
-@import '../styles/vars';
+@use '../styles/maps' as maps;
 
 .wr-btn {
   display: inline-block;
@@ -135,7 +135,7 @@
   }
 }
 
-@each $color in $theme-colors {
+@each $color in maps.$theme-colors-map {
   .wr-btn--#{$color} {
     color: var(--wr-color-#{$color}-contrast);
     background-color: var(--wr-color-#{$color});

@@ -50,28 +50,6 @@ module.exports = {
         '@angular-eslint/prefer-output-readonly': 'error',
         '@angular-eslint/use-component-selector': 'off',
         '@angular-eslint/use-component-view-encapsulation': 'off',
-        '@typescript-eslint/ban-types': [
-          'error',
-          {
-            types: {
-              Object: {
-                message: 'Use {} instead.'
-              },
-              String: {
-                message: 'Use string instead.'
-              },
-              Number: {
-                message: 'Use number instead.'
-              },
-              Boolean: {
-                message: 'Use boolean instead.'
-              },
-              Function: {
-                message: 'Use specific callable interface instead.'
-              }
-            }
-          }
-        ],
         '@typescript-eslint/consistent-type-definitions': 'error',
         '@typescript-eslint/explicit-member-accessibility': [
           'off',
