@@ -11,7 +11,7 @@
 
 @use 'styles/root';
 @use 'styles/reset';
-@forward 'styles/grid';
+@use 'grid';
 @use 'styles/animations';
 @use 'styles/cdk';
 
