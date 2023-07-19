@@ -8,12 +8,10 @@
  */
 
 @forward 'styles/maps';
-@forward 'styles/functions';
-@forward 'styles/mixins';
 
 @use 'styles/root';
 @use 'styles/reset';
-@use 'styles/grid';
+@forward 'styles/grid';
 @use 'styles/animations';
 @use 'styles/cdk';
 
