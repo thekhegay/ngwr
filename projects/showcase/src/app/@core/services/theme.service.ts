@@ -1,17 +1,16 @@
 import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { HighlightLoader } from 'ngx-highlightjs';
 import { NGWR_STORAGE_THEME_KEY } from 'showcase/@shared/constants';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DarkModeService {
+export class ThemeService {
   private r2: Renderer2;
   readonly isDarkModeEnabled$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor(private readonly hljsLoader: HighlightLoader, private readonly rf2: RendererFactory2) {
+  constructor(private readonly rf2: RendererFactory2) {
     this.r2 = this.rf2.createRenderer(null, null);
   }
 

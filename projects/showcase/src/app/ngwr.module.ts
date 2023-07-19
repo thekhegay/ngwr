@@ -18,9 +18,8 @@ import { NgwrRouting } from './ngwr.routing';
       provide: HIGHLIGHT_OPTIONS,
       useValue: <HighlightOptions>{
         fullLibraryLoader: () => import('highlight.js'),
-        themePath: 'assets/hljs/hljs-light-theme.css',
-        // @ts-ignore:next-line
-        lineNumbersLoader: () => import('highlightjs-line-numbers.js'),
+        themePath: 'assets/hljs/hljs-theme.css',
+        lineNumbersLoader: () => import('ngx-highlightjs/line-numbers'),
       },
     },
   ],
