@@ -25,6 +25,19 @@
     height: calc(var(--ngwr-header-height) / 2);
     user-select: none;
     pointer-events: none;
+
+    &__text {
+      fill: var(--ngwr-headings-color);
+    }
+
+    &-icon {
+      &__mark {
+        fill: var(--wr-color-white);
+      }
+      &__bg {
+        fill: var(--wr-color-primary);
+      }
+    }
   }
 
   &__actions {
@@ -40,10 +53,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: calc(var(--ngwr-header-height) / 2.5);
-    width: calc(var(--ngwr-header-height) / 2.5);
+    height: calc(var(--ngwr-header-height) / 2.75);
+    width: calc(var(--ngwr-header-height) / 2.75);
 
-    color: var(--header-color);
+    color: var(--ngwr-text-color);
     transition: var(--wr-transition-base);
 
     &:hover {

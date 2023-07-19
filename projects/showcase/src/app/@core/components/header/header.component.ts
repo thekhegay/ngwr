@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, HostBinding, OnInit } from '@angula
 import { BehaviorSubject, takeUntil } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/core/abstract';
-import { DarkModeService } from 'showcase/@core/services';
+import { ThemeService } from 'showcase/@core/services';
 
 @Component({
   selector: 'ngwr-header',
@@ -15,17 +15,17 @@ export class HeaderComponent extends WrAbstractBase implements OnInit {
 
   readonly isDarkModeEnabled$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor(private readonly darkModeService: DarkModeService) {
+  constructor(private readonly themeService: ThemeService) {
     super();
   }
 
   ngOnInit(): void {
-    this.darkModeService.isDarkModeEnabled$
+    this.themeService.isDarkModeEnabled$
       .pipe(takeUntil(this.destroyed$))
       .subscribe(is => this.isDarkModeEnabled$.next(is));
   }
 
   onDarkModeToggle(): void {
-    this.darkModeService.toggleDarkTheme();
+    this.themeService.toggleDarkTheme();
   }
 }

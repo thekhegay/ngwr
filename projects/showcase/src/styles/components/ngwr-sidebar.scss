@@ -21,7 +21,7 @@
     align-items: flex-start;
 
     &__title {
-      color: var(--wr-color-dark);
+      color: var(--ngwr-headings-color);
       font-size: var(--ngwr-sidebar-font-size);
       font-weight: 600;
       line-height: 1rem;
@@ -50,18 +50,12 @@
     }
 
     &__link {
-      color: rgba(var(--wr-color-dark-rgb), 0.75);
-
-      //background: blue;
-
+      color: var(--ngwr-text-color);
       font-size: var(--ngwr-sidebar-font-size);
       font-weight: 500;
       line-height: 1rem;
       margin: 0;
-      padding: 0;
-      padding-top: calc(var(--wr-grid-gutter) / 8);
-      padding-bottom: calc(var(--wr-grid-gutter) / 8);
-      padding-left: calc(var(--wr-grid-gutter) / 2);
+      padding: calc(var(--wr-grid-gutter) / 8) 0 calc(var(--wr-grid-gutter) / 8) calc(var(--wr-grid-gutter) / 2);
 
       border-left: 1px solid transparent;
 
@@ -71,8 +65,8 @@
       transition: var(--wr-transition-base);
 
       &:hover {
-        color: var(--wr-color-dark);
-        border-left-color: var(--wr-color-medium);
+        color: var(--ngwr-headings-color);
+        border-left-color: var(--ngwr-headings-color);
       }
 
       &--active {

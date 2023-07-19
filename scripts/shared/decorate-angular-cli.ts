@@ -29,10 +29,10 @@ const isWindows = platform() === `win32`;
 let output: typeof CliOutput;
 
 try {
-  output = require(`@nrwl/workspace`).output;
+  output = require(`@nx/workspace`).output;
 } catch (e) {
   console.warn(
-    `Angular CLI could not be decorated to enable computation caching. Please ensure @nrwl/workspace is installed.`
+    `Angular CLI could not be decorated to enable computation caching. Please ensure @nx/workspace is installed.`
   );
   process.exit(0);
 }
