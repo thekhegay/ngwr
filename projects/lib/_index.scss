@@ -1,31 +1,31 @@
 /*!
- * Copyright 2022 Garuna LLP
- * Copyright 2022 Stingray Technologies LLP
+ * Copyright 2022-2023 Garuna LLP
+ * Copyright 2022-2023 Stingray Technologies LLP
  *
  * Licensed under MIT
  *
  * https://github.com/thekhegay/ngwr
  */
 
-@import 'styles/vars';
+@forward 'styles/maps';
+@forward 'styles/functions';
+@forward 'styles/mixins';
 
-@import 'styles/root';
-@import 'styles/reset';
+@use 'styles/root';
+@use 'styles/reset';
+@use 'styles/grid';
+@use 'styles/animations';
+@use 'styles/cdk';
 
-@import 'styles/grid';
-@import 'styles/animations';
-@import 'styles/cdk';
-
-@import 'backdrop/backdrop';
-
-@import 'button/button';
-@import 'checkbox/checkbox';
-@import 'dialog/dialog';
-@import 'divider/divider';
-@import 'form/form';
-@import 'icon/icon';
-@import 'input/input';
-@import 'skeleton/skeleton';
-@import 'spinner/spinner';
-@import 'tag/tag';
+@use 'backdrop/backdrop';
+@use 'button/button';
+@use 'checkbox/checkbox';
+@use 'dialog/dialog';
+@use 'divider/divider';
+@use 'form/form';
+@use 'icon/icon';
+@use 'input/input';
+@use 'skeleton/skeleton';
+@use 'spinner/spinner';
+@use 'tag/tag';
 

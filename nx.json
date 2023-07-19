@@ -1,22 +1,14 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultProject": "showcase",
-  "npmScope": "nx",
   "affected": {
-    "defaultBase": "main"
-  },
-  "implicitDependencies": {
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
-    ".eslintrc.json": "*"
+    "defaultBase": "origin/main"
   },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx-cloud",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "cacheableOperations": ["build", "test"],
         "accessToken": "MDJhMTBkNmMtY2ExYi00Zjg1LWI1MDktOGQwZGE0NDRhYmM1fHJlYWQtd3JpdGU="
       }
     }
@@ -36,20 +28,5 @@
   "cli": {
     "analytics": false,
     "packageManager": "yarn"
-  },
-  "generators": {
-    "@nx/angular:application": {
-      "style": "scss",
-      "linter": "eslint",
-      "unitTestRunner": "jest",
-      "e2eTestRunner": "cypress"
-    },
-    "@nx/angular:library": {
-      "linter": "eslint",
-      "unitTestRunner": "jest"
-    },
-    "@nx/angular:component": {
-      "style": "scss"
-    }
   }
 }

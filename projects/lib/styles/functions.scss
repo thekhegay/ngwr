@@ -1,0 +1,11 @@
+@function bp-min($name, $breakpoints: $breakpoints-map) {
+  $min: map-get($breakpoints, $name);
+  @return if($min != 0, $min, null);
+}
+@function bp-max($name, $breakpoints: $breakpoints-map) {
+  $max: map-get($breakpoints, $name);
+  @return if($max and $max > 0, $max - .02, null);
+}
+@function bp-infix($name, $breakpoints: $breakpoints-map) {
+  @return if(bp-min($name, $breakpoints) == null, '', '-#{$name}');
+}

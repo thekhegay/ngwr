@@ -1,4 +1,4 @@
-@import '../styles/vars';
+@use '../styles/maps' as maps;
 
 .wr-divider {
   --wr-divider-width: 1px;
@@ -27,7 +27,7 @@
   }
 }
 
-@each $color, $value in $theme-colors {
+@each $color, $value in maps.$theme-colors-map {
   .wr-divider--#{$color} {
     border-bottom-color: var(--wr-color-#{$color});
   }

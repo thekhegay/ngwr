@@ -1,60 +1,12 @@
+@use 'maps';
+@use 'functions';
+@use 'mixins';
+
 // Variables
 $columns-count: 12;
 $gap: #{var(--wr-grid-gutter)};
-$breakpoints-map: (
-  xs: 0,
-  sm: 576px,
-  md: 768px,
-  lg: 992px,
-  xl: 1200px,
-  xxl: 1400px,
-  xga: 1600px,
-  fhd: 1920px,
-  rt: 2560px
-);
-$container-max-widths: (
-  sm: 540px,
-  md: 720px,
-  lg: 960px,
-  xl: 1140px,
-  xxl: 1320px,
-  xga: 1530px,
-  fhd: 1830px,
-  rt: 2470px
-);
 
 // Helpers
-@function bp-min($name, $breakpoints: $breakpoints-map) {
-  $min: map-get($breakpoints, $name);
-  @return if($min != 0, $min, null);
-}
-@function bp-max($name, $breakpoints: $breakpoints-map) {
-  $max: map-get($breakpoints, $name);
-  @return if($max and $max > 0, $max - .02, null);
-}
-@function bp-infix($name, $breakpoints: $breakpoints-map) {
-  @return if(bp-min($name, $breakpoints) == null, '', '-#{$name}');
-}
-@mixin media-breakpoint-up($name, $breakpoints: $breakpoints-map) {
-  $min: bp-min($name, $breakpoints);
-  @if $min {
-    @media (min-width: $min) {
-      @content;
-    }
-  } @else {
-    @content;
-  }
-}
-@mixin media-breakpoint-down($name, $breakpoints: $breakpoints-map) {
-  $max: bp-max($name, $breakpoints);
-  @if $max {
-    @media (max-width: $max) {
-      @content;
-    }
-  } @else {
-    @content;
-  }
-}
 @mixin make-container($gutter: $gap) {
   width: 100%;
   padding-right: calc($gap * 0.5);
@@ -62,11 +14,11 @@ $container-max-widths: (
   margin-left: auto;
   margin-right: auto;
 }
-@mixin make-grid($columns: $columns-count, $breakpoints: $breakpoints-map) {
+@mixin make-grid($columns: $columns-count, $breakpoints: maps.$breakpoints-map) {
   @each $bp in map-keys($breakpoints) {
-    $infix: bp-infix($bp, $breakpoints);
+    $infix: functions.bp-infix($bp, $breakpoints);
 
-    @include media-breakpoint-up($bp, $breakpoints) {
+    @include mixins.media-breakpoint-up($bp, $breakpoints) {
       @for $i from 1 through $columns {
         .col#{$infix}-#{$i} {
           grid-column: auto / span $i;
@@ -82,21 +34,21 @@ $container-max-widths: (
   @include make-container();
 }
 
-@each $bp, $max-width in $container-max-widths {
+@each $bp, $max-width in maps.$container-widths-map {
   .container-#{$bp} {
     @extend .container-fluid;
   }
 
-  @include media-breakpoint-up($bp, $breakpoints-map) {
+  @include mixins.media-breakpoint-up($bp, maps.$breakpoints-map) {
     %responsive-container-#{$bp} {
       max-width: $max-width;
     }
 
     $extend-breakpoint: true;
 
-    @each $name, $width in $breakpoints-map {
+    @each $name, $width in maps.$breakpoints-map {
       @if ($extend-breakpoint) {
-        .container#{bp-infix($name, $breakpoints-map)} {
+        .container#{functions.bp-infix($name, maps.$breakpoints-map)} {
           @extend %responsive-container-#{$bp};
         }
 

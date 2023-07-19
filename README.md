@@ -24,7 +24,7 @@ $ yarn add ngwr
 
 Don't forget to add styles:
 ```scss
-@import 'ngwr';
+@use 'ngwr';
 ```
 
 ## [Components](https://ngwr.dev/components)

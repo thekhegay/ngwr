@@ -1,4 +1,4 @@
-@import '../styles/vars';
+@use '../styles/maps' as maps;
 
 $skeleton-prefix: wr-skeleton;
 
@@ -37,7 +37,7 @@ $skeleton-prefix: wr-skeleton;
   }
 }
 
-@each $color, $value in $theme-colors {
+@each $color, $value in maps.$theme-colors-map {
   .wr-skeleton--#{$color} {
     background: rgba(var(--wr-color-#{$color}-rgb), 0.125);
 
