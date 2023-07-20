@@ -9,4 +9,4 @@ export const wrThemeColors = [
   'dark',
 ] as const;
 
-export type WrThemeColor = typeof wrThemeColors[number];
+export type WrThemeColor = (typeof wrThemeColors)[number];
