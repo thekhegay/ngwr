@@ -18,7 +18,6 @@ import { WrTooltipTrigger } from './tooltip-trigger';
 @Component({
   selector: 'wr-tooltip',
   templateUrl: './tooltip.html',
-  styleUrls: ['./tooltip.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   preserveWhitespaces: false,
