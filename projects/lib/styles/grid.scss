@@ -16,7 +16,7 @@ $gap: #{var(--wr-grid-gutter)};
 @function bp-infix($name, $breakpoints: maps.$breakpoints-map) {
   @return if(bp-min($name, $breakpoints) == null, '', '-#{$name}');
 }
-@mixin media-breakpoint-up($name, $breakpoints: maps.$breakpoints-map) {
+@mixin media-up($name, $breakpoints: maps.$breakpoints-map) {
   $min: bp-min($name, $breakpoints);
   @if $min {
     @media (min-width: $min) {
@@ -26,7 +26,7 @@ $gap: #{var(--wr-grid-gutter)};
     @content;
   }
 }
-@mixin media-breakpoint-down($name, $breakpoints: maps.$breakpoints-map) {
+@mixin media-down($name, $breakpoints: maps.$breakpoints-map) {
   $max: bp-max($name, $breakpoints);
   @if $max {
     @media (max-width: $max) {
@@ -47,7 +47,7 @@ $gap: #{var(--wr-grid-gutter)};
   @each $bp in map-keys($breakpoints) {
     $infix: bp-infix($bp, $breakpoints);
 
-    @include media-breakpoint-up($bp, $breakpoints) {
+    @include media-up($bp, $breakpoints) {
       @for $i from 1 through $columns {
         .col#{$infix}-#{$i} {
           grid-column: auto / span $i;
@@ -68,7 +68,7 @@ $gap: #{var(--wr-grid-gutter)};
     @extend .container-fluid;
   }
 
-  @include media-breakpoint-up($bp, maps.$breakpoints-map) {
+  @include media-up($bp, maps.$breakpoints-map) {
     %responsive-container-#{$bp} {
       max-width: $max-width;
     }

@@ -11,7 +11,7 @@
 
 @forward './styles/root';
 @forward './styles/reset';
-@forward './grid/index';
+@forward './styles/grid' show media-up, media-down;
 @forward './styles/animations';
 @forward './styles/cdk';
 
@@ -26,4 +26,5 @@
 @forward './skeleton/skeleton';
 @forward './spinner/spinner';
 @forward './tag/tag';
+@forward './tooltip/tooltip';
 
