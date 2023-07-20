@@ -12,6 +12,7 @@ export const routes = {
     FORM: 'form',
     ICON: 'icon',
     INPUT: 'input',
+    QRCODE: 'qrcode',
     SKELETON: 'skeleton',
     SPINNER: 'spinner',
     TAG: 'tag',
