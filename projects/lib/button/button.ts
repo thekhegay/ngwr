@@ -1,6 +1,7 @@
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostBinding,
@@ -21,7 +22,6 @@ import { wrIconName } from 'ngwr/icon';
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
   exportAs: 'wrBtn',
   templateUrl: './button.html',
-  styleUrls: ['./button.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 })
