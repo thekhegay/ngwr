@@ -10,6 +10,7 @@ import { DividerComponent } from './divider/divider.component';
 import { FormComponent } from './form/form.component';
 import { IconComponent } from './icon/icon.component';
 import { InputComponent } from './input/input.component';
+import { QRCodeComponent } from './qrcode/qrcode.component';
 import { SkeletonComponent } from './skeleton/skeleton.component';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TagComponent } from './tag/tag.component';
@@ -48,6 +49,10 @@ const routes: Routes = [
   {
     path: r.COMPONENTS.INPUT,
     component: InputComponent,
+  },
+  {
+    path: r.COMPONENTS.QRCODE,
+    component: QRCodeComponent,
   },
   {
     path: r.COMPONENTS.SKELETON,
