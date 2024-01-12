@@ -102,6 +102,12 @@ html {
   --wr-dialog-padding-x: 1rem;
   --wr-dialog-padding-y: 1rem;
 
+  /* Divider */
+  --wr-divider-width-base: 1px;
+  --wr-divider-color-base: var(--wr-color-light);
+  --wr-divider-margin-top-base: 0.5rem;
+  --wr-divider-margin-bottom-base: 0.5rem;
+
   /* Checkbox */
   --wr-checkbox-color-base: var(--wr-color-dark);
   --wr-checkbox-border-radius: 0.25rem;

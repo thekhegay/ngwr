@@ -16,6 +16,7 @@ import { SafeAny } from 'ngwr/core/types';
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  standalone: true,
 })
 export class WrDivider {
   /**
@@ -32,6 +33,7 @@ export class WrDivider {
     this.cdr.markForCheck();
   }
   private _color: WrThemeColor = 'light';
+
   /**
    * Set style of `wr-divider`
    *
@@ -46,10 +48,11 @@ export class WrDivider {
     this.cdr.markForCheck();
   }
   private _type: 'solid' | 'dashed' | 'dotted' = 'solid';
+
   /**
    * Set width of `wr-divider`
    *
-   * @default 1px;
+   * @default var(--wr-divider-width-base): 1px;
    */
   @Input()
   get width(): string {
@@ -89,7 +92,7 @@ export class WrDivider {
   }
 
   /** Set element role **/
-  @HostBinding('role') role = 'separator';
+  @HostBinding('role') role: string = 'separator';
 
   constructor(private readonly cdr: ChangeDetectorRef) {}
 }

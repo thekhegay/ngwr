@@ -1,6 +1,6 @@
 <main class="ngwr-page">
   <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Component</wr-tag>
     <h1 class="ngwr-page-hero__title">Divider</h1>
     <p class="ngwr-page-hero__description">{{ description }}</p>
   </div>
@@ -38,6 +38,15 @@
     </div>
 
     <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Styling</h2>
+      <p class="ngwr-page-section__description"> You can change button styles with css variables. </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="scss">
+        <ngwr-code [code]="stylingCode" codeLang="scss" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
       <h2 class="ngwr-page-section__title">API</h2>
 
       <table class="ngwr-page__table">
@@ -54,7 +63,14 @@
             <th><code>[color]</code></th>
             <th>set color of divider</th>
             <th>
-              <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
+              <code>
+                @for (color of colors; track $index) {
+                  '{{ color.charAt(0) + color.slice(1) }}'
+                  @if (!$last) {
+                    |
+                  }
+                }
+              </code>
             </th>
             <th><code>'light'</code></th>
           </tr>

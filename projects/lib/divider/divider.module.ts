@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 
-import { WrDivider } from './divider';
+import { WrDivider } from './divider.component';
 
 @NgModule({
-  declarations: [WrDivider],
+  imports: [WrDivider],
   exports: [WrDivider],
 })
 export class WrDividerModule {}
