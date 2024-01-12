@@ -1,32 +1,35 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "cli": {
+    "analytics": false,
+    "packageManager": "yarn"
+  },
   "defaultProject": "showcase",
   "affected": {
     "defaultBase": "origin/main"
   },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx-cloud",
-      "options": {
-        "cacheableOperations": ["build", "test"],
-        "accessToken": "MDJhMTBkNmMtY2ExYi00Zjg1LWI1MDktOGQwZGE0NDRhYmM1fHJlYWQtd3JpdGU="
-      }
-    }
+  "namedInputs": {
+    "sharedGlobals": [
+      "{workspaceRoot}/nx.json",
+      "{workspaceRoot}/package-lock.json",
+      "{workspaceRoot}/tsconfig.*.json",
+      "{workspaceRoot}/tsconfig.json",
+      "{workspaceRoot}/scripts/**/*",
+      "{workspaceRoot}/*.yml",
+      "{workspaceRoot}/*.md"
+    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": ["default"]
   },
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"]
-    },
-    "test": {
-      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "workspaceLayout": {
     "appsDir": "projects",
     "libsDir": "projects"
-  },
-  "cli": {
-    "analytics": false,
-    "packageManager": "yarn"
   }
 }
