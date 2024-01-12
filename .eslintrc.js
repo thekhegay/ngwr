@@ -15,7 +15,7 @@ module.exports = {
         project: ['tsconfig.json'],
         createDefaultProgram: true
       },
-      plugins: ['@typescript-eslint', 'jsdoc', 'import'],
+      plugins: ['@typescript-eslint', 'import'],
       extends: [
         'plugin:@angular-eslint/recommended',
         'plugin:@angular-eslint/template/process-inline-templates',
@@ -23,7 +23,6 @@ module.exports = {
       ],
       rules: {
         'prettier/prettier': ['error', prettierConfig],
-        'jsdoc/newline-after-description': 1,
         '@angular-eslint/component-selector': [
           'error',
           {
