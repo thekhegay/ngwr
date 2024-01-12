@@ -21,6 +21,10 @@
 
   &__display {
     box-shadow: 0 1px 0 var(--wr-border-color-base);
+
+    &:empty {
+      display: none;
+    }
   }
 
   &__body {
