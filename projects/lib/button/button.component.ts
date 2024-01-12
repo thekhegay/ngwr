@@ -16,14 +16,17 @@ import { WrAbstractBase } from 'ngwr/core/abstract';
 import { isThemeColor, WrThemeColor } from 'ngwr/core/color';
 import { InputBoolean } from 'ngwr/core/decorators';
 import { SafeAny } from 'ngwr/core/types';
-import { wrIconName } from 'ngwr/icon';
+import { WrIconModule, wrIconName } from 'ngwr/icon';
+import { WrSpinnerModule } from 'ngwr/spinner';
 
 @Component({
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
   exportAs: 'wrBtn',
-  templateUrl: './button.html',
+  templateUrl: 'button.template.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  standalone: true,
+  imports: [WrIconModule, WrSpinnerModule],
 })
 export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   /** Set color of `wr-btn`; */
@@ -75,14 +78,28 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   /** Set fullwidth state of `wr-btn`; */
   @Input()
   @InputBoolean()
-  get fullwidth(): boolean {
-    return this._fullwidth;
+  get fullWidth(): boolean {
+    return this._fullWidth;
   }
-  set fullwidth(value: BooleanInput) {
-    this._fullwidth = coerceBooleanProperty(value);
+  set fullWidth(value: BooleanInput) {
+    this._fullWidth = coerceBooleanProperty(value);
     this.cdr.markForCheck();
   }
-  private _fullwidth: boolean = false;
+
+  /**
+   * @deprecated use fullWidth instead
+   */
+  @Input()
+  @InputBoolean()
+  get fullwidth(): boolean {
+    return this._fullWidth;
+  }
+  set fullwidth(value: BooleanInput) {
+    this._fullWidth = coerceBooleanProperty(value);
+    this.cdr.markForCheck();
+  }
+
+  private _fullWidth: boolean = false;
 
   /** Set loading state of `wr-btn`; */
   @Input()
@@ -141,22 +158,21 @@ export class WrButton extends WrAbstractBase implements OnInit, OnDestroy {
   get elClasses(): SafeAny {
     return {
       'wr-btn': true,
-      'wr-btn--primary': this.color === 'primary',
-      'wr-btn--secondary': this.color === 'secondary',
-      'wr-btn--success': this.color === 'success',
-      'wr-btn--warning': this.color === 'warning',
-      'wr-btn--danger': this.color === 'danger',
-      'wr-btn--light': this.color === 'light',
-      'wr-btn--medium': this.color === 'medium',
-      'wr-btn--dark': this.color === 'dark',
-      'wr-btn--default': this.size === 'default',
-      'wr-btn--small': this.size === 'small',
+      'wr-btn--color-primary': this.color === 'primary',
+      'wr-btn--color-secondary': this.color === 'secondary',
+      'wr-btn--color-success': this.color === 'success',
+      'wr-btn--color-warning': this.color === 'warning',
+      'wr-btn--color-danger': this.color === 'danger',
+      'wr-btn--color-light': this.color === 'light',
+      'wr-btn--color-medium': this.color === 'medium',
+      'wr-btn--color-dark': this.color === 'dark',
+      'wr-btn--size-small': this.size === 'small',
+      'wr-btn--rounded': this.rounded,
       'wr-btn--icon-start': this.icon && this.iconPosition === 'start',
       'wr-btn--icon-end': this.icon && this.iconPosition === 'end',
       'wr-btn--outlined': this.outlined,
-      'wr-btn--rounded': this.rounded,
       'wr-btn--loading': this.loading,
-      'wr-btn--full': this.fullwidth,
+      'wr-btn--full-width': this.fullWidth,
     };
   }
 

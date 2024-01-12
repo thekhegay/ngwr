@@ -1,6 +1,6 @@
 <main class="ngwr-page">
   <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Component</wr-tag>
     <h1 class="ngwr-page-hero__title">Button</h1>
     <p class="ngwr-page-hero__description">{{ description }}</p>
   </div>
@@ -18,7 +18,7 @@
     <div class="ngwr-page-section">
       <h2 class="ngwr-page-section__title">Usage example</h2>
       <p class="ngwr-page-section__description">
-        Button component can be used as standalone <code class="ngwr-pre">wr-btn</code> component or
+        Button component can be used as <code class="ngwr-pre">{{ componentCode }}</code> component or
         <code class="ngwr-pre">wr-btn</code> directive
       </p>
 
@@ -42,52 +42,58 @@
 
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div class="button__list" slot="display">
-          <wr-btn *ngFor="let b of colors" [color]="b">
-            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
-          </wr-btn>
+          @for (color of colors; track $index) {
+            <wr-btn [color]="color">
+              {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+            </wr-btn>
+          }
         </div>
         <ngwr-code [code]="colorsCode" codeLang="html" slot="code"></ngwr-code>
       </ngwr-snippet>
     </div>
 
     <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Outlined buttons</h2>
+      <h2 class="ngwr-page-section__title">Outlined</h2>
       <p class="ngwr-page-section__description">
-        If <code class="ngwr-pre">outlined</code> attribute is set, Button component will be displayed without
-        background but with stroke.
+        If <code class="ngwr-pre">outlined</code> attribute is set, button will be displayed with stroke and without
+        background.
       </p>
 
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div class="button__list" slot="display">
-          <wr-btn *ngFor="let b of colors" [color]="b" outlined>
-            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
-          </wr-btn>
+          @for (color of colors; track $index) {
+            <wr-btn [color]="color" outlined>
+              {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+            </wr-btn>
+          }
         </div>
         <ngwr-code [code]="outlinedCode" codeLang="html" slot="code"></ngwr-code>
       </ngwr-snippet>
     </div>
 
     <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Rounded buttons</h2>
+      <h2 class="ngwr-page-section__title">Rounded</h2>
       <p class="ngwr-page-section__description">
-        In need of round shaped button, you can set <code class="ngwr-pre">rounded</code> attribute, and Button
-        component will be displayed with rounded edges.
+        In need of round shaped button, you can set <code class="ngwr-pre">rounded</code> attribute, and button will be
+        displayed with rounded edges.
       </p>
 
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div class="button__list" slot="display">
-          <wr-btn *ngFor="let b of colors" [color]="b" rounded>
-            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
-          </wr-btn>
+          @for (color of colors; track $index) {
+            <wr-btn [color]="color" rounded>
+              {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+            </wr-btn>
+          }
         </div>
         <ngwr-code [code]="roundedCode" codeLang="html" slot="code"></ngwr-code>
       </ngwr-snippet>
     </div>
 
     <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Sizes</h2>
+      <h2 class="ngwr-page-section__title">Small size</h2>
       <p class="ngwr-page-section__description">
-        If you need a small button, you can set <code class="ngwr-pre">size="small"</code> attribute.
+        If you need a small sized button, you can set <code class="ngwr-pre">size="small"</code> attribute.
       </p>
 
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
@@ -107,13 +113,13 @@
       <h2 class="ngwr-page-section__title">Display full width</h2>
       <p class="ngwr-page-section__description">
         In case you need a button that completely fills the width of parent block you can use
-        <code class="ngwr-pre">fullwidth</code> attribute.
+        <code class="ngwr-pre">fullWidth</code> attribute.
       </p>
 
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div class="button__list button__list--column" slot="display">
-          <wr-btn fullwidth>Full width button</wr-btn>
-          <wr-btn fullwidth color="secondary" rounded outlined icon="user">Full width button with icon</wr-btn>
+          <wr-btn fullWidth>Full width button</wr-btn>
+          <wr-btn fullWidth color="secondary" rounded outlined icon="user">Full width button with icon</wr-btn>
         </div>
         <ngwr-code [code]="fullWidthCode" codeLang="html" slot="code"></ngwr-code>
       </ngwr-snippet>
@@ -152,7 +158,7 @@
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div class="button__list" slot="display">
           <wr-btn loading>Loading</wr-btn>
-          <wr-btn [loading]="true" color="dark" rounded>You can use boolean or string</wr-btn>
+          <wr-btn [loading]="true" color="dark" rounded size="small">You can use boolean or string</wr-btn>
           <wr-btn loading icon="add" color="secondary" outlined>Loading with icon</wr-btn>
         </div>
         <ngwr-code [code]="loadingCode" codeLang="html" slot="code"></ngwr-code>
@@ -176,6 +182,15 @@
     </div>
 
     <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Styling</h2>
+      <p class="ngwr-page-section__description"> You can change button styles with css variables. </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="scss">
+        <ngwr-code [code]="stylingCode" codeLang="scss" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
       <h2 class="ngwr-page-section__title">API</h2>
 
       <table class="ngwr-page__table">
@@ -192,7 +207,14 @@
             <th><code>[color]</code></th>
             <th>set color of button</th>
             <th>
-              <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
+              <code>
+                @for (color of colors; track $index) {
+                  '{{ color.charAt(0) + color.slice(1) }}'
+                  @if (!$last) {
+                    |
+                  }
+                }
+              </code>
             </th>
             <th><code>'primary'</code></th>
           </tr>
@@ -215,7 +237,7 @@
             <th><code>'default'</code></th>
           </tr>
           <tr>
-            <th><code>[fullwidth]</code></th>
+            <th><code>[fullWidth]</code></th>
             <th>option to fit button width to its parent width</th>
             <th><code>boolean</code></th>
             <th><code>false</code></th>
