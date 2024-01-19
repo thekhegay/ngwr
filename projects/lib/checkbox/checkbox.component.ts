@@ -1,5 +1,6 @@
-import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { A11yModule, FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -15,7 +16,7 @@ import {
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrAbstractBase } from 'ngwr/core/abstract';
 import { InputBoolean } from 'ngwr/core/decorators';
@@ -24,9 +25,11 @@ import { OnChangeType, OnTouchedType, SafeAny } from 'ngwr/core/types';
 @Component({
   selector: 'wr-checkbox',
   exportAs: 'wrCheckbox',
-  templateUrl: './checkbox.html',
+  templateUrl: 'checkbox.template.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  standalone: true,
+  imports: [CommonModule, FormsModule, A11yModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -86,10 +89,8 @@ export class WrCheckbox extends WrAbstractBase implements ControlValueAccessor, 
   }
   private _focused: boolean = false;
 
-  // @ts-ignore
-  private onChange: OnChangeType = () => {};
-  // @ts-ignore
-  private onTouched: OnTouchedType = () => {};
+  private onChange: OnChangeType = (): void => {};
+  private onTouched: OnTouchedType = (): void => {};
 
   /** Set element classes */
   @HostBinding('class')
@@ -103,7 +104,7 @@ export class WrCheckbox extends WrAbstractBase implements ControlValueAccessor, 
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
-    private readonly elRef: ElementRef<HTMLElement>,
+    private readonly elRef: ElementRef<HTMLElement | HTMLInputElement>,
     private readonly focusMonitor: FocusMonitor,
     private readonly ngZone: NgZone
   ) {

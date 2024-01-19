@@ -1,3 +1,4 @@
+/dist
+/.nx/cache
 .angular
-dist
-yarn.lock
+

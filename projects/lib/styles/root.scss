@@ -36,20 +36,20 @@ html {
   --wr-color-secondary-contrast: #fff;
   --wr-color-secondary-shade: #c41655;
 
-  --wr-color-success: #84cc16;
-  --wr-color-success-rgb: 132,204,22;
+  --wr-color-success: #82DF53;
+  --wr-color-success-rgb: 130, 223, 83;
   --wr-color-success-contrast: #000;
-  --wr-color-success-shade: #6aa312;
+  --wr-color-success-shade: #529f2a;
 
   --wr-color-warning: #fbbf24;
   --wr-color-warning-rgb: 251,191,36;
   --wr-color-warning-contrast: #000;
   --wr-color-warning-shade: #f59e0b;
 
-  --wr-color-danger: #dc2626;
-  --wr-color-danger-rgb: 220,38,38;
+  --wr-color-danger: #E23636;
+  --wr-color-danger-rgb:226, 54, 54;
   --wr-color-danger-contrast: #fff;
-  --wr-color-danger-shade: #b91c1c;
+  --wr-color-danger-shade: #b71e1e;
 
   --wr-color-light: #e2e8f0;
   --wr-color-light-rgb: 226,232,240;
@@ -75,22 +75,25 @@ html {
   --wr-grid-gutter: 1.5rem;
 
   /* Button */
-  --wr-btn-padding-y-base: 0.5rem;
+  --wr-btn-border-width: 1.125px;
+  --wr-btn-padding-y-base: 0.375rem;
   --wr-btn-padding-x-base: 1rem;
-  --wr-btn-border-radius-base: 0.5rem;
+  --wr-btn-border-radius-base: 0.375rem;
   --wr-btn-font-size-base: 1rem;
   --wr-btn-line-height-base: 1.4;
   --wr-btn-font-weight-base: 500;
   // Small
-  --wr-btn-padding-y-small: 0.375rem;
+  --wr-btn-padding-y-small: 0.25rem;
   --wr-btn-padding-x-small: 0.625rem;
   --wr-btn-border-radius-small: 0.375rem;
   --wr-btn-font-size-small: 0.825rem;
-  --wr-btn-line-height-small: 1;
   // Rounded
   --wr-btn-rounded-border-radius: 50rem;
   --wr-btn-rounded-padding-y: 0.5rem;
   --wr-btn-rounded-padding-x: 1rem;
+  // Icon
+  --wr-btn-icon-size-base: 1rem;
+  --wr-btn-icon-margin-base: 0.375rem;
 
   /* Dialog */
   --wr-dialog-bg: #fff;
@@ -98,6 +101,12 @@ html {
   --wr-dialog-title-color: var(--wr-color-dark);
   --wr-dialog-padding-x: 1rem;
   --wr-dialog-padding-y: 1rem;
+
+  /* Divider */
+  --wr-divider-width-base: 1px;
+  --wr-divider-color-base: var(--wr-color-light);
+  --wr-divider-margin-top-base: 0.5rem;
+  --wr-divider-margin-bottom-base: 0.5rem;
 
   /* Checkbox */
   --wr-checkbox-color-base: var(--wr-color-dark);

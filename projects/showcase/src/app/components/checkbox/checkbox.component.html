@@ -1,6 +1,6 @@
 <main class="ngwr-page">
   <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Component</wr-tag>
     <h1 class="ngwr-page-hero__title">Checkbox</h1>
     <p class="ngwr-page-hero__description">{{ description }}</p>
   </div>
@@ -41,7 +41,7 @@
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div class="checkbox__list" slot="display">
           <wr-checkbox disabled>Checkbox</wr-checkbox>
-          <wr-checkbox [ngModel]="true" disabled>Checkbox</wr-checkbox>
+          <wr-checkbox [ngModel]="true" [disabled]="true">Checkbox</wr-checkbox>
         </div>
         <ngwr-code [code]="disabledCode" codeLang="html" slot="code"></ngwr-code>
       </ngwr-snippet>
