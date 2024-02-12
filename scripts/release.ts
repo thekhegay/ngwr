@@ -1,6 +1,6 @@
 import { getValueByFlag } from './shared/argv.utils';
 import { bumpVersion } from './shared/bump-version';
-import { gitCommitAndPush } from './shared/git-commit-and-push';
+import { gitPush } from './shared/git-push';
 import { makeReleaseBranch } from './shared/make-release-branch';
 import { ReleaseMode } from './shared/release-mode';
 import { removeLocalReleaseBranch } from './shared/remove-local-release-branch';
@@ -14,6 +14,6 @@ const newVersion = bumpVersion(version, mode);
 (async function main(): Promise<void> {
   makeReleaseBranch(newVersion);
   runCommitAndTagVersion(newVersion, dryRun);
-  gitCommitAndPush(newVersion);
+  gitPush(newVersion);
   removeLocalReleaseBranch(newVersion);
 })();
