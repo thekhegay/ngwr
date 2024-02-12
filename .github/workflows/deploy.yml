@@ -1,9 +1,8 @@
 name: Deploy showcase
 
 on:
-  push:
-    tags:
-      - 'release/**'
+  release:
+    types: [created]
 
 jobs:
   build:
