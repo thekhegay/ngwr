@@ -2,7 +2,8 @@ name: Deploy showcase
 
 on:
   push:
-    branches: ["main"]
+    tags:
+      - 'release/**'
 
 jobs:
   build:
