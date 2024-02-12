@@ -19,10 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: ${{ github.token }}
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
       - name: Install dependencies
         run: yarn install
       - name: Run release
-        run: yarn release:${{ github.event.inputs.mode }}
+        run: yarn release:${{ github.event.inputs.mode }} --ci-mode
