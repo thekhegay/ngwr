@@ -1,1 +1,1 @@
-export type ReleaseMode = 'major' | 'minor' | 'patch' | 'prerelease';
+export type ReleaseMode = 'major' | 'minor' | 'patch';

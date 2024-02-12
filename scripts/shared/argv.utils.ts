@@ -1,4 +1,4 @@
-import process from 'process';
+import { argv } from 'process';
 
 import { processLog } from './colored-log';
 
@@ -9,10 +9,9 @@ export function getValueByFlag<T extends string>(flag: string, fallback: T): T {
     return fallback;
   }
 
-  const [parsedFlag, parsedValue] = process.argv[index].split(`=`) ?? [];
+  const [parsedFlag, parsedValue] = argv[index].split(`=`) ?? [];
   const value =
-    stringifier(parsedValue) ??
-    (process.argv[index + 1].startsWith(`-`) ? fallback : stringifier(process.argv[index + 1]) ?? fallback);
+    stringifier(parsedValue) ?? (argv[index + 1].startsWith(`-`) ? fallback : stringifier(argv[index + 1]) ?? fallback);
 
   processLog(`parsed flags: \n${[parsedFlag, value].join(`=`)}`);
 
@@ -24,7 +23,7 @@ export function hasFlag(flag: string): boolean {
 }
 
 export function findIndexFlag(flag: string): number {
-  return process.argv.findIndex(arg => arg === flag || arg.split(`=`)[0] === flag);
+  return argv.findIndex(arg => arg === flag || arg.split(`=`)[0] === flag);
 }
 
 export function stringifier(value?: string): string | undefined {
