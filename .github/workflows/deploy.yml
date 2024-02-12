@@ -20,8 +20,11 @@ jobs:
               ${{ runner.os }}-node-
       - run: yarn install
       - run: yarn nx build showcase
+      - run: ssh-keyscan -H ${{ secrets.SSH_REMOTE_HOST }} >> ~/.ssh/known_hosts
       - uses: easingthemes/ssh-deploy@main
         with:
+          SCRIPT_BEFORE: ls
+          ARGS: "-rlgoDzvc -i"
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SOURCE: "dist/showcase/"
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
