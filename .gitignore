@@ -2,15 +2,17 @@
 dist
 tmp
 /out-tsc
+RELEASE_BODY.md
 
 # Node
 node_modules
 
 # Angular cache
-.angular/
+.angular
 
-# NX cache
-.nx/cache
+# NX
+.nx
+migrations.json
 
 # IDEs and editors
 .idea/
@@ -22,8 +24,8 @@ node_modules
 *.sublime-workspace
 
 # Visual Studio Code
-.vscode/*
-.history/*
+.vscode
+.history
 
 # Miscellaneous
 .sass-cache/
