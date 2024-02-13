@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event.pull_request.merged && contains(github.head_ref || github.ref_name, 'release/' }}
+    if: contains(github.head_ref, 'release/') && contains(github.base_ref, 'main') && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
