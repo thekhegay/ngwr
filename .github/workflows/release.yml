@@ -33,9 +33,7 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git config remote.origin.url git@github.com/$GITHUB_REPOSITORY
-          git remote update
-          git tag
+          git config remote.origin.url
 
       - name: Run release
         id: run-release
