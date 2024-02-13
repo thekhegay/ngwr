@@ -2,7 +2,7 @@ name: Deploy showcase
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
