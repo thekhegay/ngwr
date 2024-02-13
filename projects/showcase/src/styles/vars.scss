@@ -10,6 +10,12 @@ html {
   // Header
   --ngwr-header-height: 3rem;
 
+  // Footer
+  --ngwr-footer-item-text-color: var(--ngwr-text-color);
+  --ngwr-footer-item-font-size: 0.75rem;
+  --ngwr-footer-item-font-weight: 400;
+  --ngwr-footer-item-line-height: 1rem;
+
   // Sidebar
   --ngwr-sidebar-font-size: 0.875rem;
 

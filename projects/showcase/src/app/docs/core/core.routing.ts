@@ -3,17 +3,22 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { routes as r } from 'showcase/@shared/routes';
 
-import { InstallationComponent } from './installation/installation.component';
+import { ColorsComponent } from './colors/colors.component';
+import { GridComponent } from './grid/grid.component';
 
 const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: r.DOCUMENTATION.INSTALLATION,
+    redirectTo: r.DOCS.CORE.COLORS,
   },
   {
-    path: r.DOCUMENTATION.INSTALLATION,
-    component: InstallationComponent,
+    path: r.DOCS.CORE.COLORS,
+    component: ColorsComponent,
+  },
+  {
+    path: r.DOCS.CORE.GRID,
+    component: GridComponent,
   },
 ];
 
@@ -21,4 +26,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class DocumentationRouting {}
+export class CoreRouting {}

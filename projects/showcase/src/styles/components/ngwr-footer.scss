@@ -1,3 +1,30 @@
 .ngwr-footer {
-  //grid-column: 1 / 4;
+  grid-column: 1 / 4;
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-top: 1px solid var(--wr-border-color-base);
+
+    padding-top: calc(var(--wr-grid-gutter) / 2);
+    padding-bottom: calc(var(--wr-grid-gutter) / 2);
+  }
+
+  &__item {
+    display: block;
+    color: var(--ngwr-footer-item-text-color);
+    font-size: var(--ngwr-footer-item-font-size);
+    font-weight: var(--ngwr-footer-item-font-weight);
+    line-height: var(--ngwr-footer-item-line-height);
+
+    &--link {
+      transition: var(--wr-transition-base);
+
+      &:hover {
+        color: var(--wr-color-primary);
+      }
+    }
+  }
 }
