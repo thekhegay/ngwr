@@ -8,23 +8,27 @@ on:
       - closed
 
 jobs:
-  build:
+  build-and-deploy:
     if: contains(github.head_ref, 'release/') && contains(github.base_ref, 'main') && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-              ${{ runner.os }}-node-
-      - run: yarn install
-      - run: yarn nx build showcase
-      - uses: easingthemes/ssh-deploy@main
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build showcase
+        run: yarn nx build showcase
+
+      - name: Deploy
+        uses: easingthemes/ssh-deploy@main
         with:
           SCRIPT_BEFORE: ls
           ARGS: "-rlgoDzvc -i"

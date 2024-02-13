@@ -14,7 +14,7 @@ on:
           - major
 
 jobs:
-  release:
+  create-release:
     name: Release
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +28,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Setup git
         run: |

@@ -1,4 +1,4 @@
-name: Publish to NPM
+name: Publish
 
 on:
   pull_request:
@@ -8,18 +8,24 @@ on:
       - closed
 
 jobs:
-  build:
+  build-and-publish:
     if: contains(github.head_ref, 'release/') && contains(github.base_ref, 'main') && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
+          cache: 'yarn'
+
       - name: Install dependencies
-        run: yarn install
-      - name: Publish
+        run: yarn install --frozen-lockfile
+
+      - name: Build and Publish to NPM
         run: |
           npx ts-node ./scripts/publish.ts
         env:
