@@ -10,8 +10,9 @@ node_modules
 # Angular cache
 .angular
 
-# NX cache
+# NX
 .nx
+migrations.json
 
 # IDEs and editors
 .idea/
