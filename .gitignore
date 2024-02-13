@@ -2,15 +2,16 @@
 dist
 tmp
 /out-tsc
+RELEASE_BODY.md
 
 # Node
 node_modules
 
 # Angular cache
-.angular/
+.angular
 
 # NX cache
-.nx/cache
+.nx
 
 # IDEs and editors
 .idea/

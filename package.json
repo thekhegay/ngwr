@@ -46,7 +46,6 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsdoc": "^48.0.2",
     "eslint-plugin-prettier": "^5.1.3",
-    "extract-changelog-release": "^1.0.2",
     "ng-packagr": "17.0.3",
     "nx": "17.2.8",
     "prettier": "^3.1.1",
@@ -55,9 +54,16 @@
     "typescript": "~5.2.2"
   },
   "commit-and-tag-version": {
+    "scripts": {
+      "postbump": "ts-node ./scripts/postbump.ts"
+    },
     "bumpFiles": [
-      "projects/lib/package.json"
+      {
+        "filename": "projects/lib/package.json",
+        "type": "json"
+      }
     ],
+    "header": "# Changelog",
     "types": [
       {
         "type": "feat",
