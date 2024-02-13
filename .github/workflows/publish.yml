@@ -16,6 +16,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Publish
-        run: yarn publish:lib
+        run: |
+          npx ts-node ./scripts/publish.ts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

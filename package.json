@@ -4,12 +4,7 @@
   "private": true,
   "scripts": {
     "build:lib": "nx build lib",
-    "compile:icons": "svg-to-ts-constants",
-    "release": "commit-and-tag-version -a --no-verify -t v",
-    "release:patch": "ts-node ./scripts/release.ts --release-as patch",
-    "release:minor": "ts-node ./scripts/release.ts --release-as minor",
-    "release:major": "ts-node ./scripts/release.ts --release-as major",
-    "publish:lib": "ts-node ./scripts/publish.ts"
+    "compile:icons": "svg-to-ts-constants"
   },
   "dependencies": {
     "@angular/animations": "~17.0.9",

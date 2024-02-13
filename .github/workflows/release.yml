@@ -1,12 +1,12 @@
-name: Release
+name: Create release
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        type: choice
-        description: release type
+        description: 'Release version type'
         required: true
+        type: choice
         default: 'minor'
         options:
           - patch
@@ -18,18 +18,66 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup git config
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-            git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
-            git config --global user.name "$(gh api /users/${GITHUB_ACTOR} | jq .name -r)"
-            git config -l
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+
       - name: Install dependencies
         run: yarn install
+
+      - name: Setup git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
       - name: Run release
-        run: yarn release:${{ github.event.inputs.mode }} --ci-mode
+        id: run-release
+        run: |
+          npx ts-node ./scripts/release.ts \
+            --release-as ${{ github.event.inputs.mode }}
+
+          echo "new_version=$(node -p "require('./projects/lib/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          name: Release ${{ steps.generate_body.outputs.tag_name }}
+          tag: ${{ steps.generate_body.outputs.tag_name }}
+          bodyFile: 'RELEASE_BODY.md'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Release body
+        run: |
+          npx extract-changelog-release > RELEASE_BODY.md
+          echo "tag_name=$(git describe --abbrev=0 --tags)" >> $GITHUB_OUTPUT
+
+      - name: Get PR body
+        id: get-pr-body
+        run: |
+          body=$(cat RELEASE_BODY.md)
+          delimiter="$(openssl rand -hex 8)"
+          echo "body<<$delimiter" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
+          echo "$delimiter" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          delete-branch: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: release/${{ steps.run-release.outputs.new_version }}
+          title: '🚀 Release/v${{ steps.run-release.outputs.new_version }}'
+          body: |
+            ${{ steps.get-pr-body.outputs.body }}
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          name: Release ${{ steps.generate_body.outputs.tag_name }}
+          tag: ${{ steps.generate_body.outputs.tag_name }}
+          bodyFile: 'RELEASE_BODY.md'
+          token: ${{ secrets.GITHUB_TOKEN }}
