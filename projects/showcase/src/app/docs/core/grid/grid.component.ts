@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+
 import { SeoService } from 'showcase/@core/services';
 
 @Component({

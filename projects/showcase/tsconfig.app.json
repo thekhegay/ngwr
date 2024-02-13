@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "strictNullChecks": false
   },
-  "files": ["./src/main.ts", "./src/polyfills.ts"],
+  "files": ["./src/main.ts"],
   "include": ["src/**/*.d.ts"],
   "angularCompilerOptions": {
     "strictMetadataEmit": false,

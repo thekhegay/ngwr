@@ -20,54 +20,54 @@ const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: r.COMPONENTS.BUTTON,
+    redirectTo: r.DOCS.COMPONENTS.BUTTON,
   },
   {
-    path: r.COMPONENTS.BUTTON,
+    path: r.DOCS.COMPONENTS.BUTTON,
     component: ButtonComponent,
   },
   {
-    path: r.COMPONENTS.CHECKBOX,
+    path: r.DOCS.COMPONENTS.CHECKBOX,
     component: CheckboxComponent,
   },
   {
-    path: r.COMPONENTS.DIALOG,
+    path: r.DOCS.COMPONENTS.DIALOG,
     component: DialogComponent,
   },
   {
-    path: r.COMPONENTS.DIVIDER,
+    path: r.DOCS.COMPONENTS.DIVIDER,
     component: DividerComponent,
   },
   {
-    path: r.COMPONENTS.FORM,
+    path: r.DOCS.COMPONENTS.FORM,
     component: FormComponent,
   },
   {
-    path: r.COMPONENTS.ICON,
+    path: r.DOCS.COMPONENTS.ICON,
     component: IconComponent,
   },
   {
-    path: r.COMPONENTS.INPUT,
+    path: r.DOCS.COMPONENTS.INPUT,
     component: InputComponent,
   },
   {
-    path: r.COMPONENTS.QRCODE,
+    path: r.DOCS.COMPONENTS.QRCODE,
     component: QRCodeComponent,
   },
   {
-    path: r.COMPONENTS.SKELETON,
+    path: r.DOCS.COMPONENTS.SKELETON,
     component: SkeletonComponent,
   },
   {
-    path: r.COMPONENTS.SPINNER,
+    path: r.DOCS.COMPONENTS.SPINNER,
     component: SpinnerComponent,
   },
   {
-    path: r.COMPONENTS.TAG,
+    path: r.DOCS.COMPONENTS.TAG,
     component: TagComponent,
   },
   {
-    path: r.COMPONENTS.TOOLTIP,
+    path: r.DOCS.COMPONENTS.TOOLTIP,
     component: TooltipComponent,
   },
 ];

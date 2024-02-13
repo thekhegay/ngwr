@@ -7,14 +7,15 @@
   "schematics": {},
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:browser",
+      "executor": "@nx/angular:browser-esbuild",
       "options": {
         "outputPath": "dist/showcase",
         "index": "projects/showcase/src/index.html",
         "main": "projects/showcase/src/main.ts",
-        "polyfills": "projects/showcase/src/polyfills.ts",
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "projects/showcase/tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
         "allowedCommonJsDependencies": ["highlight.js", "lodash"],
         "assets": [
           "projects/showcase/src/assets",
@@ -26,6 +27,7 @@
           "projects/showcase/src/manifest.webmanifest",
           "projects/showcase/src/robots.txt"
         ],
+        "inlineStyleLanguage": "scss",
         "styles": ["projects/showcase/src/styles.scss"],
         "scripts": []
       },
@@ -49,21 +51,22 @@
               "with": "projects/showcase/src/environments/environment.prod.ts"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "namedChunks": false,
+          "extractLicenses": false,
+          "sourceMap": false
         },
         "development": {
           "buildOptimizer": false,
           "optimization": false,
-          "vendorChunk": true,
           "extractLicenses": false,
-          "sourceMap": true,
-          "namedChunks": true
+          "sourceMap": true
         }
       },
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
           "buildTarget": "showcase:build:production"
