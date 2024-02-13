@@ -4,15 +4,21 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { WrIconModule } from 'ngwr/icon';
 import { HIGHLIGHT_OPTIONS, HighlightOptions } from 'ngx-highlightjs';
-import { HeaderComponent, LayoutComponent, SidebarComponent } from 'showcase/@core/components';
+import {
+  FooterComponent,
+  HeaderComponent,
+  LayoutComponent,
+  RootComponent,
+  SidebarComponent,
+} from 'showcase/@core/components';
 import { SharedModule } from 'showcase/@shared/shared.module';
 
 import { NgwrRouting } from './ngwr.routing';
 
 @NgModule({
   imports: [BrowserModule, BrowserAnimationsModule, NgwrRouting, SharedModule, WrIconModule.forRoot()],
-  declarations: [LayoutComponent, HeaderComponent, SidebarComponent],
-  bootstrap: [LayoutComponent],
+  declarations: [RootComponent, LayoutComponent, HeaderComponent, FooterComponent, SidebarComponent],
+  bootstrap: [RootComponent],
   providers: [
     {
       provide: HIGHLIGHT_OPTIONS,

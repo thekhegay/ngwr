@@ -3,11 +3,11 @@ import { NgModule } from '@angular/core';
 
 import { SharedModule } from 'showcase/@shared/shared.module';
 
-import { DocumentationRouting } from './documentation.routing';
+import { GettingStartedRouting } from './getting-started.routing';
 import { InstallationComponent } from './installation/installation.component';
 
 @NgModule({
-  imports: [CommonModule, SharedModule, DocumentationRouting],
+  imports: [CommonModule, SharedModule, GettingStartedRouting],
   declarations: [InstallationComponent],
 })
-export class DocumentationModule {}
+export class GettingStartedModule {}

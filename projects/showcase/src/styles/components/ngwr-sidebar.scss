@@ -1,9 +1,11 @@
 .ngwr-sidebar {
+  grid-column: 1 / 2;
+
+
   display: block;
   position: sticky;
   top: var(--ngwr-header-height);
   left: 0;
-  height: calc(100vh - var(--ngwr-header-height));
   width: 15rem;
   overflow: auto;
 
