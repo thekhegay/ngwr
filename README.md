@@ -23,29 +23,29 @@ Don't forget to add styles:
 @use 'ngwr';
 ```
 
-## [Components](https://ngwr.dev/components)
+## [Components](https://ngwr.dev/docs/components)
 
-- [Button](https://ngwr.dev/components/button)
-- [Checkbox](https://ngwr.dev/components/checkbox)
-- [Dialog](https://ngwr.dev/components/dialog)
-- [Divider](https://ngwr.dev/components/divider)
-- [Form](https://ngwr.dev/components/form)
-- [Icon](https://ngwr.dev/components/icon)
-- [Input](https://ngwr.dev/components/input)
-- [QRCode](https://ngwr.dev/components/qrcode)
-- [Skeleton](https://ngwr.dev/components/skeleton)
-- [Spinner](https://ngwr.dev/components/spinner)
-- [Tag](https://ngwr.dev/components/tag)
-- [Tooltip](https://ngwr.dev/components/tooltip)
+- [Button](https://ngwr.dev/docs/components/button)
+- [Checkbox](https://ngwr.dev/docs/components/checkbox)
+- [Dialog](https://ngwr.dev/docs/components/dialog)
+- [Divider](https://ngwr.dev/docs/components/divider)
+- [Form](https://ngwr.dev/docs/components/form)
+- [Icon](https://ngwr.dev/docs/components/icon)
+- [Input](https://ngwr.dev/docs/components/input)
+- [QRCode](https://ngwr.dev/docs/components/qrcode)
+- [Skeleton](https://ngwr.dev/docs/components/skeleton)
+- [Spinner](https://ngwr.dev/docs/components/spinner)
+- [Tag](https://ngwr.dev/docs/components/tag)
+- [Tooltip](https://ngwr.dev/docs/components/tooltip)
 
-- [Colors](https://ngwr.dev/common/colors)
-- [Grid](https://ngwr.dev/common/grid)
+- [Colors](https://ngwr.dev/docs/core/colors)
+- [Grid](https://ngwr.dev/docs/core/grid)
 
 ## Authors
 - [Roman Khegay](https://github.com/thekhegay) – code, design
 
 ## Sponsors
-- [Garuna](https://garuna.dev)
+- [Garuna](https://garuna.dev/)
 - [Stingray Technologies](https://stingray-mobile.ru/)
 
 ## License
