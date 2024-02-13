@@ -58,6 +58,9 @@
     "scripts": {
       "postbump": "ts-node ./scripts/postbump.ts"
     },
+    "packageFiles": [
+      "projects/lib/package.json"
+    ],
     "bumpFiles": [
       {
         "filename": "projects/lib/package.json",
