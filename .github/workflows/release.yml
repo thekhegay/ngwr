@@ -72,5 +72,5 @@ jobs:
         with:
           name: Release ${{ steps.generate_body.outputs.tag_name }}
           tag: ${{ steps.generate_body.outputs.tag_name }}
-          bodyFile: 'RELEASE_BODY.md'
+          body: ${{ steps.get-pr-body.outputs.body }}
           token: ${{ secrets.GITHUB_TOKEN }}
