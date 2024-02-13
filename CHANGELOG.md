@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## 2.1.1 (2024-02-13)
+
+
+### Features
+
+* **scripts:** try to make release action work ([fbf9669](https://github.com/thekhegay/ngwr/commit/fbf966985fa33d702eb92bf1e4565d917314fb4c))
+
 ## 2.1.0 (2024-02-12)
 
 
