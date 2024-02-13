@@ -24,8 +24,8 @@ migrations.json
 *.sublime-workspace
 
 # Visual Studio Code
-.vscode/*
-.history/*
+.vscode
+.history
 
 # Miscellaneous
 .sass-cache/
