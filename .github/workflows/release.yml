@@ -33,6 +33,9 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git config remote.origin.url git@github.com/$GITHUB_REPOSITORY
+          git remote update
+          git tag
 
       - name: Run release
         id: run-release
@@ -41,14 +44,6 @@ jobs:
             --release-as ${{ github.event.inputs.mode }}
 
           echo "new_version=$(node -p "require('./projects/lib/package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1.14.0
-        with:
-          name: Release ${{ steps.generate_body.outputs.tag_name }}
-          tag: ${{ steps.generate_body.outputs.tag_name }}
-          bodyFile: 'RELEASE_BODY.md'
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Release body
         run: |
