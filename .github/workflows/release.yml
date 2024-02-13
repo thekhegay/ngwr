@@ -33,7 +33,6 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git config remote.origin.url
 
       - name: Run release
         id: run-release
@@ -44,6 +43,7 @@ jobs:
           echo "new_version=$(node -p "require('./projects/lib/package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Generate Release body
+        id: generate_body
         run: |
           npx extract-changelog-release > RELEASE_BODY.md
           echo "tag_name=$(git describe --abbrev=0 --tags)" >> $GITHUB_OUTPUT
@@ -63,7 +63,7 @@ jobs:
           delete-branch: true
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: release/${{ steps.run-release.outputs.new_version }}
-          title: '🚀 Release/v${{ steps.run-release.outputs.new_version }}'
+          title: 'Release/v${{ steps.run-release.outputs.new_version }}'
           body: |
             ${{ steps.get-pr-body.outputs.body }}
 
