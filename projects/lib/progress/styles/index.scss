@@ -1,0 +1,45 @@
+@use '../../styles/maps' as maps;
+
+.wr-progress {
+  --wr-progress-bg: var(--wr-color-light);
+
+  --wr-progress-height: 0.75rem;
+  --wr-progress-width: 100%;
+
+  --wr-progress-border-radius: 50rem;
+
+  display: inline-block;
+
+  position: relative;
+  overflow: hidden;
+
+  user-select: none;
+
+  height: var(--wr-progress-height);
+  width: var(--wr-progress-width);
+
+  background: var(--wr-progress-bg);
+  border-radius: var(--wr-progress-border-radius);
+
+  &__bg {
+    display: inline-block;
+
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    height: var(--wr-progress-height);
+
+    background: var(--wr-progress-color);
+
+    border-radius: var(--wr-progress-border-radius);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+@each $color in maps.$theme-colors-map {
+  .wr-progress--color-#{$color} {
+    --wr-progress-color: var(--wr-color-#{$color});
+  }
+}

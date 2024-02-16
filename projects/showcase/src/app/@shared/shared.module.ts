@@ -11,6 +11,7 @@ import { WrDividerModule } from 'ngwr/divider';
 import { WrFormModule } from 'ngwr/form';
 import { WrIconModule } from 'ngwr/icon';
 import { WrInputModule } from 'ngwr/input';
+import { WrProgressModule } from 'ngwr/progress';
 import { WrQRCodeModule } from 'ngwr/qrcode';
 import { WrSkeletonModule } from 'ngwr/skeleton';
 import { WrSpinnerModule } from 'ngwr/spinner';
@@ -30,6 +31,7 @@ const ngwr = [
   WrFormModule,
   WrIconModule,
   WrInputModule,
+  WrProgressModule,
   WrQRCodeModule,
   WrSkeletonModule,
   WrSpinnerModule,
