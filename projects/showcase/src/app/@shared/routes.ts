@@ -10,6 +10,7 @@ export const routes = {
     },
     COMPONENTS: {
       INDEX: 'components',
+      ALERT: 'alert',
       BUTTON: 'button',
       CHECKBOX: 'checkbox',
       DIALOG: 'dialog',

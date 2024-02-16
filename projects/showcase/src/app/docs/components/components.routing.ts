@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { routes as r } from 'showcase/@shared/routes';
 
+import { AlertComponent } from './alert/alert.component';
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { DialogComponent } from './dialog/dialog.component';
@@ -21,7 +22,11 @@ const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: r.DOCS.COMPONENTS.BUTTON,
+    redirectTo: r.DOCS.COMPONENTS.ALERT,
+  },
+  {
+    path: r.DOCS.COMPONENTS.ALERT,
+    component: AlertComponent,
   },
   {
     path: r.DOCS.COMPONENTS.BUTTON,

@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+import { WrAlertModule } from 'ngwr/alert';
 import { WrButtonModule } from 'ngwr/button';
 import { WrCheckboxModule } from 'ngwr/checkbox';
 import { WrDialogModule } from 'ngwr/dialog';
@@ -24,6 +25,7 @@ import { SnippetComponent } from 'showcase/@shared/components/snippet/snippet.co
 const cdk = [ClipboardModule];
 
 const ngwr = [
+  WrAlertModule,
   WrButtonModule,
   WrCheckboxModule,
   WrDialogModule,

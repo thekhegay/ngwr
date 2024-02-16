@@ -25,6 +25,7 @@ export class SidebarComponent {
   ];
 
   readonly componentsSidebarLinks: SidebarItem[] = [
+    { title: 'Alert', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.ALERT}` },
     { title: 'Button', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.BUTTON}` },
     { title: 'Checkbox', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.CHECKBOX}` },
     { title: 'Dialog', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.DIALOG}` },
