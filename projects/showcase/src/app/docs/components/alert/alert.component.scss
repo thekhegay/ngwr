@@ -1,0 +1,7 @@
+.alert {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-grid-gutter);
+  }
+}

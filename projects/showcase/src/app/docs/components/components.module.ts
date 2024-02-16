@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { SharedModule } from 'showcase/@shared/shared.module';
 
+import { AlertComponent } from './alert/alert.component';
 import { ButtonComponent } from './button/button.component';
 import { CheckboxComponent } from './checkbox/checkbox.component';
 import { ComponentsRouting } from './components.routing';
@@ -22,6 +23,7 @@ import { TooltipComponent } from './tooltip/tooltip.component';
 @NgModule({
   imports: [CommonModule, SharedModule, ComponentsRouting],
   declarations: [
+    AlertComponent,
     ButtonComponent,
     CheckboxComponent,
     DialogComponent,
