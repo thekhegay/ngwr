@@ -32,6 +32,7 @@ export class SidebarComponent {
     { title: 'Form', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.FORM}` },
     { title: 'Icon', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.ICON}` },
     { title: 'Input', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.INPUT}` },
+    { title: 'Progress', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.PROGRESS}` },
     { title: 'QRCode', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.QRCODE}` },
     { title: 'Skeleton', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.SKELETON}` },
     { title: 'Spinner', url: `${routes.DOCS.COMPONENTS.INDEX}/${routes.DOCS.COMPONENTS.SPINNER}` },
