@@ -9137,15 +9137,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^1.19.1:
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
-  integrity sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
-
-prettier@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.1.1.tgz#6ba9f23165d690b6cbdaa88cb0807278f7019848"
-  integrity sha512-22UbSzg8luF4UuZtzgiUOfcGM8s4tjBv6dJRT7j275NXsy2jb4aJa4NNveul5x4eqlF1wuhuR2RElK71RvmVaw==
+prettier@^3.1.1, prettier@^3.2.5:
+  version "3.2.5"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.5.tgz#e52bc3090586e824964a8813b09aba6233b28368"
+  integrity sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==
 
 pretty-bytes@^5.3.0:
   version "5.6.0"
@@ -10223,10 +10218,10 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-svg-to-ts@^10.0.0:
-  version "10.1.0"
-  resolved "https://registry.yarnpkg.com/svg-to-ts/-/svg-to-ts-10.1.0.tgz#0b4b114109e974b11575bcfae5307ef5b22e03e3"
-  integrity sha512-x8sSQeREUs2wS00a3Pd2aAZWoUdJ/xXnHztXldXwpcjvE78HzFncvIvyWFS/mdV2czSU7hyEjdDGjq+F4s2u4g==
+svg-to-ts@^12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/svg-to-ts/-/svg-to-ts-12.0.0.tgz#78c6a2c28e63fbb2c8dc86987ed42cd7359b825f"
+  integrity sha512-jTHHaSQdXbzzXZ0uwbOPXkrGhHakJbnoe0dNob98AzRgTVSX+sKCOm/AUSdn4xcIOTCrZ2zS86ZpcmycW8QJbA==
   dependencies:
     chalk "^3.0.0"
     commander "^4.0.1"
@@ -10237,7 +10232,7 @@ svg-to-ts@^10.0.0:
     lodash.kebabcase "^4.1.1"
     lodash.snakecase "^4.1.1"
     ora "^5.1.0"
-    prettier "^1.19.1"
+    prettier "^3.2.5"
     svgo "^3.0.2"
     typescript "^4.9.4"
 
