@@ -22,10 +22,10 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Build showcase
-        run: yarn nx build showcase
+        run: yarn ng build showcase
 
       - name: Deploy
         uses: easingthemes/ssh-deploy@main

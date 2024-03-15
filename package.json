@@ -3,8 +3,8 @@
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
-    "serve": "nx serve",
-    "build:lib": "nx build lib",
+    "serve": "ng serve",
+    "build:lib": "ng build lib",
     "compile:icons": "svg-to-ts-constants"
   },
   "dependencies": {
