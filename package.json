@@ -6,11 +6,11 @@
     "preinstall": "npx -y only-allow pnpm",
     "serve": "ng serve",
     "build": "ng build",
+    "generate:icons": "ng run lib:generate-icons",
     "release:patch": "tsx ./scripts/release.ts --release-as patch",
     "release:minor": "tsx ./scripts/release.ts --release-as minor",
     "release:major": "tsx ./scripts/release.ts --release-as major",
-    "publish:lib": "tsx ./scripts/publish.ts",
-    "compile:icons": "svg-to-ts-constants"
+    "publish:lib": "tsx ./scripts/publish.ts"
   },
   "engines": {
     "node": "20",
