@@ -4,245 +4,245 @@ export const wrIconAddCircleOutline: {
   data: string;
 } = {
   name: 'add-circle-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M64,117.7c-29.6,0-53.7-24.1-53.7-53.7 S34.4,10.3,64,10.3s53.7,24.1,53.7,53.7S93.6,117.7,64,117.7z"/><path d="M92,58.9H69.2v-23c0-2.8-2.3-5.1-5.2-5.1s-5.2,2.3-5.2,5.1v23h-23c-2.8,0-5.1,2.3-5.1,5.1c0,2.8,2.3,5.2,5.1,5.2h23v22.9 c0,2.8,2.3,5.1,5.2,5.1s5.2-2.3,5.2-5.1V69.2H92c2.8,0,5.2-2.3,5.2-5.2C97.2,61.2,94.9,58.9,92,58.9z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m0 117.7c-29.6 0-53.7-24.1-53.7-53.7S34.4 10.3 64 10.3s53.7 24.1 53.7 53.7-24.1 53.7-53.7 53.7"/><path d="M92 58.9H69.2v-23c0-2.8-2.3-5.1-5.2-5.1s-5.2 2.3-5.2 5.1v23h-23c-2.8 0-5.1 2.3-5.1 5.1s2.3 5.2 5.1 5.2h23v22.9c0 2.8 2.3 5.1 5.2 5.1s5.2-2.3 5.2-5.1V69.2H92c2.8 0 5.2-2.3 5.2-5.2 0-2.8-2.3-5.1-5.2-5.1"/></svg>`
 };
 export const wrIconAddCircle: {
   name: 'add-circle';
   data: string;
 } = {
   name: 'add-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M92,69.2H69.2v22.9c0,2.8-2.3,5.1-5.2,5.1 s-5.2-2.3-5.2-5.1V69.2h-23c-2.8,0-5.1-2.3-5.1-5.2c0-2.8,2.3-5.1,5.1-5.1h23v-23c0-2.8,2.3-5.1,5.2-5.1s5.2,2.3,5.2,5.1v23H92 c2.8,0,5.2,2.3,5.2,5.1C97.2,66.9,94.9,69.2,92,69.2z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m28 69.2H69.2v22.9c0 2.8-2.3 5.1-5.2 5.1s-5.2-2.3-5.2-5.1V69.2h-23c-2.8 0-5.1-2.3-5.1-5.2 0-2.8 2.3-5.1 5.1-5.1h23v-23c0-2.8 2.3-5.1 5.2-5.1s5.2 2.3 5.2 5.1v23H92c2.8 0 5.2 2.3 5.2 5.1 0 2.9-2.3 5.2-5.2 5.2"/></svg>`
 };
 export const wrIconAdd: {
   name: 'add';
   data: string;
 } = {
   name: 'add',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M98.8,57.7H70.4V29.2c0-3.5-2.9-6.4-6.4-6.4s-6.4,2.9-6.4,6.4v28.5H29.1c-3.5,0-6.4,2.9-6.4,6.4s2.9,6.4,6.4,6.4h28.5v28.4 c0,3.5,2.9,6.4,6.4,6.4s6.4-2.9,6.4-6.4V70.5h28.4c3.5,0,6.4-2.9,6.4-6.4S102.3,57.7,98.8,57.7z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M98.8 57.7H70.4V29.2c0-3.5-2.9-6.4-6.4-6.4s-6.4 2.9-6.4 6.4v28.5H29.1c-3.5 0-6.4 2.9-6.4 6.4s2.9 6.4 6.4 6.4h28.5v28.4c0 3.5 2.9 6.4 6.4 6.4s6.4-2.9 6.4-6.4V70.5h28.4c3.5 0 6.4-2.9 6.4-6.4s-2.9-6.4-6.4-6.4"/></svg>`
 };
 export const wrIconAlertCircleOutline: {
   name: 'alert-circle-outline';
   data: string;
 } = {
   name: 'alert-circle-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M64,117.7c-29.6,0-53.7-24.1-53.7-53.7 S34.4,10.3,64,10.3s53.7,24.1,53.7,53.7S93.6,117.7,64,117.7z"/><circle cx="64" cy="88" r="7.1"/><path d="M64,75.4c3,0,5.5-2.4,5.6-5.4l0.8-30.5c0.1-3.6-2.8-6.6-6.4-6.6s-6.5,3-6.5,6.6L58.4,70C58.5,73,61,75.4,64,75.4z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m0 117.7c-29.6 0-53.7-24.1-53.7-53.7S34.4 10.3 64 10.3s53.7 24.1 53.7 53.7-24.1 53.7-53.7 53.7"/><circle cx="64" cy="88" r="7.1"/><path d="M64 75.4c3 0 5.5-2.4 5.6-5.4l.8-30.5c.1-3.6-2.8-6.6-6.4-6.6s-6.5 3-6.5 6.6l.9 30.5c.1 3 2.6 5.4 5.6 5.4"/></svg>`
 };
 export const wrIconAlertCircle: {
   name: 'alert-circle';
   data: string;
 } = {
   name: 'alert-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64c0,35.3,28.7,64,64,64c35.3,0,64-28.7,64-64C128,28.7,99.3,0,64,0z M64,32.9c3.6,0,6.5,3,6.4,6.6 L69.6,70c-0.1,3-2.6,5.4-5.6,5.4c-3,0-5.5-2.4-5.6-5.4l-0.9-30.5C57.5,35.9,60.4,32.9,64,32.9z M64,95.1c-3.9,0-7.1-3.2-7.1-7.1 c0-3.9,3.2-7.1,7.1-7.1c3.9,0,7.1,3.2,7.1,7.1C71.1,91.9,67.9,95.1,64,95.1z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m0 32.9c3.6 0 6.5 3 6.4 6.6L69.6 70c-.1 3-2.6 5.4-5.6 5.4S58.5 73 58.4 70l-.9-30.5c0-3.6 2.9-6.6 6.5-6.6m0 62.2c-3.9 0-7.1-3.2-7.1-7.1s3.2-7.1 7.1-7.1 7.1 3.2 7.1 7.1-3.2 7.1-7.1 7.1"/></svg>`
 };
 export const wrIconAlertSquircle: {
   name: 'alert-squircle';
   data: string;
 } = {
   name: 'alert-squircle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M117.8,10.2C107.6,0,92,0,64,0S20.4,0,10.2,10.2S0,36,0,64s0,43.6,10.2,53.8S36,128,64,128s43.6,0,53.8-10.2S128,92,128,64 S128,20.4,117.8,10.2z M64,32.9c3.6,0,6.5,3,6.4,6.6L69.6,70c-0.1,3-2.6,5.4-5.6,5.4c-3,0-5.5-2.4-5.6-5.4l-0.9-30.5 C57.5,35.9,60.4,32.9,64,32.9z M64,95.1c-3.9,0-7.1-3.2-7.1-7.1c0-3.9,3.2-7.1,7.1-7.1s7.1,3.2,7.1,7.1C71.1,91.9,67.9,95.1,64,95.1 z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M117.8 10.2C107.6 0 92 0 64 0S20.4 0 10.2 10.2 0 36 0 64s0 43.6 10.2 53.8S36 128 64 128s43.6 0 53.8-10.2S128 92 128 64s0-43.6-10.2-53.8M64 32.9c3.6 0 6.5 3 6.4 6.6L69.6 70c-.1 3-2.6 5.4-5.6 5.4S58.5 73 58.4 70l-.9-30.5c0-3.6 2.9-6.6 6.5-6.6m0 62.2c-3.9 0-7.1-3.2-7.1-7.1s3.2-7.1 7.1-7.1 7.1 3.2 7.1 7.1-3.2 7.1-7.1 7.1"/></svg>`
 };
 export const wrIconAlert: {
   name: 'alert';
   data: string;
 } = {
   name: 'alert',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M77.2,13.6l-1.7,62.8c-0.2,6.2-5.3,11.2-11.5,11.2h0c-6.2,0-11.3-4.9-11.5-11.2l-1.8-62.8C50.6,6.1,56.5,0,64,0h0 C71.4,0,77.4,6.1,77.2,13.6z"/><circle cx="64" cy="113.4" r="14.6"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="m77.2 13.6-1.7 62.8c-.2 6.2-5.3 11.2-11.5 11.2s-11.3-4.9-11.5-11.2l-1.8-62.8C50.6 6.1 56.5 0 64 0c7.4 0 13.4 6.1 13.2 13.6"/><circle cx="64" cy="113.4" r="14.6"/></svg>`
 };
 export const wrIconArrowBackCircle: {
   name: 'arrow-back-circle';
   data: string;
 } = {
   name: 'arrow-back-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M92.1,69.2H48.3L60,80.9c2.1,2.1,2,5.4-0.1,7.4 c-2,1.9-5.3,1.8-7.3-0.2L32.4,67.9c-2.2-2.2-2.2-5.6,0-7.8l20.3-20.2c2.1-2.1,5.4-2,7.4,0.1c1.9,2,1.8,5.3-0.2,7.3L48.3,58.9h43.5 c2.8,0,5.3,2.2,5.4,5C97.3,66.8,95,69.2,92.1,69.2z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m28.1 69.2H48.3L60 80.9c2.1 2.1 2 5.4-.1 7.4-2 1.9-5.3 1.8-7.3-.2L32.4 67.9c-2.2-2.2-2.2-5.6 0-7.8l20.3-20.2c2.1-2.1 5.4-2 7.4.1 1.9 2 1.8 5.3-.2 7.3L48.3 58.9h43.5c2.8 0 5.3 2.2 5.4 5 .1 2.9-2.2 5.3-5.1 5.3"/></svg>`
 };
 export const wrIconArrowBack: {
   name: 'arrow-back';
   data: string;
 } = {
   name: 'arrow-back',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M99.2,57.6l-54,0l14.4-14.4c2.5-2.5,2.7-6.6,0.3-9.1c-2.5-2.6-6.6-2.7-9.2-0.1L25.5,59.1c-2.7,2.7-2.7,7,0,9.7l25,25 c2.5,2.5,6.6,2.7,9.1,0.3c2.6-2.5,2.7-6.6,0.1-9.2L45.2,70.4h54.3c3.6,0,6.5-3,6.4-6.6C105.8,60.3,102.7,57.6,99.2,57.6z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M99.2 57.6h-54l14.4-14.4c2.5-2.5 2.7-6.6.3-9.1-2.5-2.6-6.6-2.7-9.2-.1L25.5 59.1c-2.7 2.7-2.7 7 0 9.7l25 25c2.5 2.5 6.6 2.7 9.1.3 2.6-2.5 2.7-6.6.1-9.2L45.2 70.4h54.3c3.6 0 6.5-3 6.4-6.6-.1-3.5-3.2-6.2-6.7-6.2"/></svg>`
 };
 export const wrIconArrowBottomCircle: {
   name: 'arrow-bottom-circle';
   data: string;
 } = {
   name: 'arrow-bottom-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M0,64c0,35.3,28.7,64,64,64s64-28.7,64-64S99.3,0,64,0S0,28.7,0,64z M69.2,35.9v43.8L80.9,68c2.1-2.1,5.4-2,7.4,0.1 c1.9,2,1.8,5.3-0.2,7.3L67.9,95.6c-2.2,2.2-5.6,2.2-7.8,0L39.9,75.3c-2.1-2.1-2-5.4,0.1-7.4c2-1.9,5.3-1.8,7.3,0.2l11.6,11.6V36.2 c0-2.8,2.2-5.3,5-5.4C66.8,30.7,69.2,33,69.2,35.9z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M0 64c0 35.3 28.7 64 64 64s64-28.7 64-64S99.3 0 64 0 0 28.7 0 64m69.2-28.1v43.8L80.9 68c2.1-2.1 5.4-2 7.4.1 1.9 2 1.8 5.3-.2 7.3L67.9 95.6c-2.2 2.2-5.6 2.2-7.8 0L39.9 75.3c-2.1-2.1-2-5.4.1-7.4 2-1.9 5.3-1.8 7.3.2l11.6 11.6V36.2c0-2.8 2.2-5.3 5-5.4 2.9-.1 5.3 2.2 5.3 5.1"/></svg>`
 };
 export const wrIconArrowBottom: {
   name: 'arrow-bottom';
   data: string;
 } = {
   name: 'arrow-bottom',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M58.3,29.5l0,54L44,69.1c-2.5-2.5-6.6-2.7-9.1-0.3c-2.6,2.5-2.7,6.6-0.1,9.2l25.2,25.2c2.7,2.7,7,2.7,9.7,0l25-25 c2.5-2.5,2.7-6.6,0.3-9.1c-2.5-2.6-6.6-2.7-9.2-0.1L71.2,83.5V29.2c0-3.6-3-6.5-6.6-6.4C61,22.9,58.3,26,58.3,29.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M58.3 29.5v54L44 69.1c-2.5-2.5-6.6-2.7-9.1-.3-2.6 2.5-2.7 6.6-.1 9.2L60 103.2c2.7 2.7 7 2.7 9.7 0l25-25c2.5-2.5 2.7-6.6.3-9.1-2.5-2.6-6.6-2.7-9.2-.1L71.2 83.5V29.2c0-3.6-3-6.5-6.6-6.4s-6.3 3.2-6.3 6.7"/></svg>`
 };
 export const wrIconArrowForwardCircle: {
   name: 'arrow-forward-circle';
   data: string;
 } = {
   name: 'arrow-forward-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,128c35.3,0,64-28.7,64-64S99.3,0,64,0S0,28.7,0,64S28.7,128,64,128z M35.9,58.8h43.8L68,47.1c-2.1-2.1-2-5.4,0.1-7.4 c2-1.9,5.3-1.8,7.3,0.2l20.1,20.1c2.2,2.2,2.2,5.6,0,7.8L75.3,88.1c-2.1,2.1-5.4,2-7.4-0.1c-1.9-2-1.8-5.3,0.2-7.3l11.6-11.6H36.2 c-2.8,0-5.3-2.2-5.4-5C30.7,61.2,33,58.8,35.9,58.8z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 128c35.3 0 64-28.7 64-64S99.3 0 64 0 0 28.7 0 64s28.7 64 64 64M35.9 58.8h43.8L68 47.1c-2.1-2.1-2-5.4.1-7.4 2-1.9 5.3-1.8 7.3.2L95.5 60c2.2 2.2 2.2 5.6 0 7.8L75.3 88.1c-2.1 2.1-5.4 2-7.4-.1-1.9-2-1.8-5.3.2-7.3l11.6-11.6H36.2c-2.8 0-5.3-2.2-5.4-5-.1-2.9 2.2-5.3 5.1-5.3"/></svg>`
 };
 export const wrIconArrowForward: {
   name: 'arrow-forward';
   data: string;
 } = {
   name: 'arrow-forward',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M30.2,70.3h54L69.8,84.7c-2.5,2.5-2.7,6.6-0.3,9.1c2.5,2.6,6.6,2.7,9.2,0.1l25.2-25.2c2.7-2.7,2.7-7,0-9.7l-25-25 c-2.5-2.5-6.6-2.7-9.1-0.3c-2.6,2.5-2.7,6.6-0.1,9.2l14.6,14.6H29.9c-3.6,0-6.5,3-6.4,6.6C23.6,67.6,26.7,70.3,30.2,70.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M30.2 70.3h54L69.8 84.7c-2.5 2.5-2.7 6.6-.3 9.1 2.5 2.6 6.6 2.7 9.2.1l25.2-25.2c2.7-2.7 2.7-7 0-9.7l-25-25c-2.5-2.5-6.6-2.7-9.1-.3-2.6 2.5-2.7 6.6-.1 9.2l14.6 14.6H29.9c-3.6 0-6.5 3-6.4 6.6.1 3.5 3.2 6.2 6.7 6.2"/></svg>`
 };
 export const wrIconArrowTopCircle: {
   name: 'arrow-top-circle';
   data: string;
 } = {
   name: 'arrow-top-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M128,64c0-35.3-28.7-64-64-64S0,28.7,0,64s28.7,64,64,64S128,99.3,128,64z M58.8,92.1V48.3L47.1,60c-2.1,2.1-5.4,2-7.4-0.1 c-1.9-2-1.8-5.3,0.2-7.3l20.1-20.1c2.2-2.2,5.6-2.2,7.8,0l20.2,20.3c2.1,2.1,2,5.4-0.1,7.4c-2,1.9-5.3,1.8-7.3-0.2L69.1,48.3v43.5 c0,2.8-2.2,5.3-5,5.4C61.2,97.3,58.8,95,58.8,92.1z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M128 64c0-35.3-28.7-64-64-64S0 28.7 0 64s28.7 64 64 64 64-28.7 64-64M58.8 92.1V48.3L47.1 60c-2.1 2.1-5.4 2-7.4-.1-1.9-2-1.8-5.3.2-7.3L60 32.5c2.2-2.2 5.6-2.2 7.8 0L88 52.8c2.1 2.1 2 5.4-.1 7.4-2 1.9-5.3 1.8-7.3-.2L69.1 48.3v43.5c0 2.8-2.2 5.3-5 5.4-2.9.1-5.3-2.2-5.3-5.1"/></svg>`
 };
 export const wrIconArrowTop: {
   name: 'arrow-top';
   data: string;
 } = {
   name: 'arrow-top',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M71.1,98.5l0-54l14.4,14.4c2.5,2.5,6.6,2.7,9.1,0.3c2.6-2.5,2.7-6.6,0.1-9.2L69.5,24.8c-2.7-2.7-7-2.7-9.7,0l-25,25 c-2.5,2.5-2.7,6.6-0.3,9.1c2.5,2.6,6.6,2.7,9.2,0.1l14.6-14.6v54.3c0,3.6,3,6.5,6.6,6.4C68.4,105,71.1,102,71.1,98.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M71.1 98.5v-54l14.4 14.4c2.5 2.5 6.6 2.7 9.1.3 2.6-2.5 2.7-6.6.1-9.2L69.5 24.8c-2.7-2.7-7-2.7-9.7 0l-25 25c-2.5 2.5-2.7 6.6-.3 9.1 2.5 2.6 6.6 2.7 9.2.1l14.6-14.6v54.3c0 3.6 3 6.5 6.6 6.4 3.5-.1 6.2-3.1 6.2-6.6"/></svg>`
 };
 export const wrIconBugOutline: {
   name: 'bug-outline';
   data: string;
 } = {
   name: 'bug-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M108.9,75.5h7.3c3.7,0,6.7-3,6.7-6.7s-3-6.7-6.7-6.7h-7.3v-7.6c0-2-0.1-4-0.4-5.9h7.7c3.7,0,6.7-3,6.7-6.7s-3-6.7-6.7-6.7 h-11.7c-3.5-7.4-9-13.7-15.8-18.2l5.7-5.7C97,8.8,97,4.6,94.4,2c-2.6-2.6-6.8-2.6-9.4,0l-9.2,9.2c-3.8-1-7.7-1.6-11.8-1.6h0 c-4.1,0-8,0.6-11.8,1.6L43,2c-2.6-2.6-6.8-2.6-9.4,0c-2.6,2.6-2.6,6.8,0,9.4l5.7,5.7c-6.8,4.5-12.3,10.8-15.8,18.2H11.8 c-3.7,0-6.7,3-6.7,6.7s3,6.7,6.7,6.7h7.7c-0.3,1.9-0.4,3.9-0.4,5.9v7.6h-7.3c-3.7,0-6.7,3-6.7,6.7s3,6.7,6.7,6.7h7.3v7.6 c0,2,0.1,4,0.4,5.9h-7.7c-3.7,0-6.7,3-6.7,6.7s3,6.7,6.7,6.7h11.7C30.6,117.5,46.1,128,64,128h0c17.9,0,33.4-10.5,40.6-25.7h11.7 c3.7,0,6.7-3,6.7-6.7s-3-6.7-6.7-6.7h-7.7c0.3-1.9,0.4-3.9,0.4-5.9V75.5z M64,114.6c-17.4,0-31.5-14.1-31.5-31.5V54.5 C32.5,37.1,46.6,23,64,23s31.5,14.1,31.5,31.5v28.6C95.5,100.5,81.4,114.6,64,114.6z M82.6,52.8c0,3.7-3,6.7-6.7,6.7H52 c-3.7,0-6.7-3-6.7-6.7c0-3.7,3-6.7,6.7-6.7H76C79.6,46.1,82.6,49.1,82.6,52.8z M82.6,84.8c0,3.7-3,6.7-6.7,6.7H52 c-3.7,0-6.7-3-6.7-6.7s3-6.7,6.7-6.7l23.9,0C79.6,78.2,82.6,81.1,82.6,84.8z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M108.9 75.5h7.3a6.7 6.7 0 0 0 0-13.4h-7.3v-7.6c0-2-.1-4-.4-5.9h7.7a6.7 6.7 0 0 0 0-13.4h-11.7c-3.5-7.4-9-13.7-15.8-18.2l5.7-5.7C97 8.8 97 4.6 94.4 2A6.64 6.64 0 0 0 85 2l-9.2 9.2c-3.8-1-7.7-1.6-11.8-1.6s-8 .6-11.8 1.6L43 2a6.64 6.64 0 0 0-9.4 0 6.64 6.64 0 0 0 0 9.4l5.7 5.7C32.5 21.6 27 27.9 23.5 35.3H11.8a6.7 6.7 0 0 0 0 13.4h7.7c-.3 1.9-.4 3.9-.4 5.9v7.6h-7.3a6.7 6.7 0 0 0 0 13.4h7.3v7.6c0 2 .1 4 .4 5.9h-7.7a6.7 6.7 0 0 0 0 13.4h11.7c7.1 15 22.6 25.5 40.5 25.5s33.4-10.5 40.6-25.7h11.7a6.7 6.7 0 0 0 0-13.4h-7.7c.3-1.9.4-3.9.4-5.9v-7.5zM64 114.6c-17.4 0-31.5-14.1-31.5-31.5V54.5C32.5 37.1 46.6 23 64 23s31.5 14.1 31.5 31.5v28.6c0 17.4-14.1 31.5-31.5 31.5m18.6-61.8c0 3.7-3 6.7-6.7 6.7H52a6.7 6.7 0 0 1 0-13.4h24c3.6 0 6.6 3 6.6 6.7m0 32c0 3.7-3 6.7-6.7 6.7H52a6.7 6.7 0 0 1 0-13.4h23.9c3.7.1 6.7 3 6.7 6.7"/></svg>`
 };
 export const wrIconBug: {
   name: 'bug';
   data: string;
 } = {
   name: 'bug',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M108.9,75.5h7.3c3.7,0,6.7-3,6.7-6.7c0-3.7-3-6.7-6.7-6.7h-7.3v-7.6c0-2-0.1-4-0.4-5.9h7.7c3.7,0,6.7-3,6.7-6.7 c0-3.7-3-6.7-6.7-6.7h-11.7c-3.5-7.4-9-13.7-15.8-18.2l5.7-5.7C97,8.8,97,4.6,94.4,2c-2.6-2.6-6.8-2.6-9.4,0l-9.2,9.2 c-3.8-1-7.7-1.6-11.8-1.6h0c-4.1,0-8,0.6-11.8,1.6L43,2c-2.6-2.6-6.8-2.6-9.4,0c-2.6,2.6-2.6,6.8,0,9.4l5.7,5.7 c-6.8,4.5-12.3,10.8-15.8,18.2H11.8c-3.7,0-6.7,3-6.7,6.7c0,3.7,3,6.7,6.7,6.7h7.7c-0.3,1.9-0.4,3.9-0.4,5.9v7.6h-7.3 c-3.7,0-6.7,3-6.7,6.7c0,3.7,3,6.7,6.7,6.7h7.3v7.6c0,2,0.1,4,0.4,5.9h-7.7c-3.7,0-6.7,3-6.7,6.7c0,3.7,3,6.7,6.7,6.7h11.7 C30.6,117.5,46.1,128,64,128h0c17.9,0,33.4-10.5,40.6-25.7h11.7c3.7,0,6.7-3,6.7-6.7c0-3.7-3-6.7-6.7-6.7h-7.7 c0.3-1.9,0.4-3.9,0.4-5.9V75.5z M76,91.5H52c-3.7,0-6.7-3-6.7-6.7s3-6.7,6.7-6.7H76c3.7,0,6.7,3,6.7,6.7S79.6,91.5,76,91.5z M76,59.4H52c-3.7,0-6.7-3-6.7-6.7c0-3.7,3-6.7,6.7-6.7H76c3.7,0,6.7,3,6.7,6.7C82.6,56.5,79.6,59.4,76,59.4z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M108.9 75.5h7.3a6.7 6.7 0 0 0 0-13.4h-7.3v-7.6c0-2-.1-4-.4-5.9h7.7a6.7 6.7 0 0 0 0-13.4h-11.7c-3.5-7.4-9-13.7-15.8-18.2l5.7-5.7C97 8.8 97 4.6 94.4 2A6.64 6.64 0 0 0 85 2l-9.2 9.2c-3.8-1-7.7-1.6-11.8-1.6s-8 .6-11.8 1.6L43 2a6.64 6.64 0 0 0-9.4 0 6.64 6.64 0 0 0 0 9.4l5.7 5.7C32.5 21.6 27 27.9 23.5 35.3H11.8a6.7 6.7 0 0 0 0 13.4h7.7c-.3 1.9-.4 3.9-.4 5.9v7.6h-7.3a6.7 6.7 0 0 0 0 13.4h7.3v7.6c0 2 .1 4 .4 5.9h-7.7a6.7 6.7 0 0 0 0 13.4h11.7c7.1 15 22.6 25.5 40.5 25.5s33.4-10.5 40.6-25.7h11.7a6.7 6.7 0 0 0 0-13.4h-7.7c.3-1.9.4-3.9.4-5.9v-7.5zM76 91.5H52a6.7 6.7 0 0 1 0-13.4h24c3.7 0 6.7 3 6.7 6.7s-3.1 6.7-6.7 6.7m0-32.1H52A6.7 6.7 0 0 1 52 46h24c3.7 0 6.7 3 6.7 6.7-.1 3.8-3.1 6.7-6.7 6.7"/></svg>`
 };
 export const wrIconCaretBackCircle: {
   name: 'caret-back-circle';
   data: string;
 } = {
   name: 'caret-back-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><style type="text/css">.st0{fill:#FFFFFF;}</style><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z"/><path class="st0" d="M38.4,68.5l26.2,26.2c4,4,10.8,1.2,10.8-4.5V37.8c0-5.6-6.8-8.4-10.8-4.5L38.4,59.5C35.9,62,35.9,66,38.4,68.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0"/><path d="m38.4 68.5 26.2 26.2c4 4 10.8 1.2 10.8-4.5V37.8c0-5.6-6.8-8.4-10.8-4.5L38.4 59.5c-2.5 2.5-2.5 6.5 0 9"/></svg>`
 };
 export const wrIconCaretBack: {
   name: 'caret-back';
   data: string;
 } = {
   name: 'caret-back',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M41.3,68.5l26.2,26.2c4,4,10.8,1.2,10.8-4.5V37.8c0-5.6-6.8-8.4-10.8-4.5L41.3,59.5C38.8,62,38.8,66,41.3,68.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="m41.3 68.5 26.2 26.2c4 4 10.8 1.2 10.8-4.5V37.8c0-5.6-6.8-8.4-10.8-4.5L41.3 59.5c-2.5 2.5-2.5 6.5 0 9"/></svg>`
 };
 export const wrIconCaretForwardCircle: {
   name: 'caret-forward-circle';
   data: string;
 } = {
   name: 'caret-forward-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M86.5,68.5L60.4,94.6c-4,4-10.8,1.2-10.8-4.5V37.8 c0-5.6,6.8-8.4,10.8-4.5l26.2,26.2C89,62,89,66,86.5,68.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m22.5 68.5L60.4 94.6c-4 4-10.8 1.2-10.8-4.5V37.8c0-5.6 6.8-8.4 10.8-4.5l26.2 26.2c2.4 2.5 2.4 6.5-.1 9"/></svg>`
 };
 export const wrIconCaretForward: {
   name: 'caret-forward';
   data: string;
 } = {
   name: 'caret-forward',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M82.3,68.5L56.1,94.6c-4,4-10.8,1.2-10.8-4.5V37.8c0-5.6,6.8-8.4,10.8-4.5l26.2,26.2C84.8,62,84.8,66,82.3,68.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M82.3 68.5 56.1 94.6c-4 4-10.8 1.2-10.8-4.5V37.8c0-5.6 6.8-8.4 10.8-4.5l26.2 26.2c2.5 2.5 2.5 6.5 0 9"/></svg>`
 };
 export const wrIconCheckmarkCircleOutline: {
   name: 'checkmark-circle-outline';
   data: string;
 } = {
   name: 'checkmark-circle-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M96.3,46.4c2.8,2.8,2.8,7.3,0,10L69,83.7l-10,10l-10-10L32.5,67.3c-2.8-2.8-2.8-7.3,0-10s7.3-2.8,10,0L59,73.6l27.3-27.3 C89.1,43.6,93.6,43.6,96.3,46.4z M128,64c0,35.3-28.7,64-64,64S0,99.3,0,64S28.7,0,64,0S128,28.7,128,64z M117.7,64 c0-29.6-24.1-53.7-53.7-53.7S10.3,34.4,10.3,64c0,29.6,24.1,53.7,53.7,53.7S117.7,93.6,117.7,64z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M96.3 46.4c2.8 2.8 2.8 7.3 0 10L69 83.7l-10 10-10-10-16.5-16.4c-2.8-2.8-2.8-7.3 0-10s7.3-2.8 10 0L59 73.6l27.3-27.3c2.8-2.7 7.3-2.7 10 .1M128 64c0 35.3-28.7 64-64 64S0 99.3 0 64 28.7 0 64 0s64 28.7 64 64m-10.3 0c0-29.6-24.1-53.7-53.7-53.7S10.3 34.4 10.3 64s24.1 53.7 53.7 53.7 53.7-24.1 53.7-53.7"/></svg>`
 };
 export const wrIconCheckmarkCircle: {
   name: 'checkmark-circle';
   data: string;
 } = {
   name: 'checkmark-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64s28.7,64,64,64s64-28.7,64-64S99.3,0,64,0z M96.3,56.4L69,83.7l-10,10l-10-10L32.5,67.3 c-2.8-2.8-2.8-7.3,0-10s7.3-2.8,10,0L59,73.6l27.3-27.3c2.8-2.8,7.3-2.8,10,0S99.1,53.6,96.3,56.4z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m32.3 56.4L69 83.7l-10 10-10-10-16.5-16.4c-2.8-2.8-2.8-7.3 0-10s7.3-2.8 10 0L59 73.6l27.3-27.3c2.8-2.8 7.3-2.8 10 0s2.8 7.3 0 10.1"/></svg>`
 };
 export const wrIconCheckmark: {
   name: 'checkmark';
   data: string;
 } = {
   name: 'checkmark',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M124.1,21.3c5.2,5.2,5.2,13.7,0,18.9L72.7,91.7l-18.9,18.9L34.8,91.7L3.9,60.7c-5.2-5.2-5.2-13.7,0-18.9s13.7-5.2,18.9,0 l30.9,30.9l51.4-51.4C110.4,16.1,118.9,16.1,124.1,21.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M124.1 21.3c5.2 5.2 5.2 13.7 0 18.9L72.7 91.7l-18.9 18.9-19-18.9-30.9-31c-5.2-5.2-5.2-13.7 0-18.9s13.7-5.2 18.9 0l30.9 30.9 51.4-51.4c5.3-5.2 13.8-5.2 19 0"/></svg>`
 };
 export const wrIconChevronDown: {
   name: 'chevron-down';
   data: string;
 } = {
   name: 'chevron-down',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48" d="M112 184l144 144 144-144"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m112 184 144 144 144-144"/></svg>`
 };
 export const wrIconChevronUp: {
   name: 'chevron-up';
   data: string;
 } = {
   name: 'chevron-up',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48" d="M112 328l144-144 144 144"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m112 328 144-144 144 144"/></svg>`
 };
 export const wrIconClock: {
   name: 'clock';
   data: string;
 } = {
   name: 'clock',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`
 };
 export const wrIconCloseCircleOutline: {
   name: 'close-circle-outline';
   data: string;
 } = {
   name: 'close-circle-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M109.3,18.7c-25-25-65.5-25-90.5,0s-25,65.5,0,90.5s65.5,25,90.5,0S134.2,43.7,109.3,18.7z M102,102 C81,122.9,47,122.9,26,102S5.1,47,26,26S81,5.1,102,26S122.9,81,102,102z"/><path d="M87.5,40.5c-2.1-2.1-5.3-2.1-7.3-0.1L63.9,56.7L47.7,40.5c-2-2-5.2-2-7.2,0c-2,2-2.1,5.3-0.1,7.3L56.6,64L40.5,80.2 c-2,2-2,5.2,0.1,7.3s5.3,2.1,7.3,0.1L64,71.4l16.1,16.1c2,2,5.3,2.1,7.4,0c2-2,2-5.2-0.1-7.3L71.3,64.1l16.3-16.3 C89.5,45.8,89.5,42.6,87.5,40.5z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M109.3 18.7c-25-25-65.5-25-90.5 0s-25 65.5 0 90.5 65.5 25 90.5 0 24.9-65.5 0-90.5M102 102c-21 20.9-55 20.9-76 0S5.1 47 26 26s55-20.9 76 0 20.9 55 0 76"/><path d="M87.5 40.5c-2.1-2.1-5.3-2.1-7.3-.1L63.9 56.7 47.7 40.5c-2-2-5.2-2-7.2 0s-2.1 5.3-.1 7.3L56.6 64 40.5 80.2c-2 2-2 5.2.1 7.3s5.3 2.1 7.3.1L64 71.4l16.1 16.1c2 2 5.3 2.1 7.4 0 2-2 2-5.2-.1-7.3L71.3 64.1l16.3-16.3c1.9-2 1.9-5.2-.1-7.3"/></svg>`
 };
 export const wrIconCloseCircle: {
   name: 'close-circle';
   data: string;
 } = {
   name: 'close-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M109.3,18.7c-25-25-65.5-25-90.5,0s-25,65.5,0,90.5s65.5,25,90.5,0S134.2,43.7,109.3,18.7z M87.4,80.2c2,2,2.1,5.3,0.1,7.3 c-2.1,2.1-5.3,2.1-7.4,0L64,71.4L47.8,87.5c-2,2-5.2,2-7.3-0.1s-2.1-5.3-0.1-7.3L56.6,64L40.4,47.7c-2-2-2-5.2,0.1-7.3 c2-2,5.2-2,7.2,0l16.3,16.3l16.3-16.3c2-2,5.2-2,7.3,0.1s2.1,5.3,0.1,7.3L71.3,64.1L87.4,80.2z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M109.3 18.7c-25-25-65.5-25-90.5 0s-25 65.5 0 90.5 65.5 25 90.5 0 24.9-65.5 0-90.5M87.4 80.2c2 2 2.1 5.3.1 7.3-2.1 2.1-5.3 2.1-7.4 0L64 71.4 47.8 87.5c-2 2-5.2 2-7.3-.1s-2.1-5.3-.1-7.3L56.6 64 40.4 47.7c-2-2-2-5.2.1-7.3 2-2 5.2-2 7.2 0L64 56.7l16.3-16.3c2-2 5.2-2 7.3.1s2.1 5.3.1 7.3L71.3 64.1z"/></svg>`
 };
 export const wrIconClose: {
   name: 'close';
   data: string;
 } = {
   name: 'close',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M73,64.1L93.2,44c2.5-2.5,2.5-6.6,0-9.1c-2.5-2.5-6.6-2.5-9.1,0L64,55.1L43.8,34.9c-2.5-2.5-6.6-2.5-9.1,0 c-2.5,2.5-2.5,6.6,0,9.1l20.2,20.2L34.8,84.2c-2.5,2.5-2.5,6.6,0,9.1c2.5,2.5,6.6,2.5,9.1,0L64,73.2L84,93.3c2.5,2.5,6.6,2.5,9.1,0 c2.5-2.5,2.5-6.6,0-9.1L73,64.1z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M73 64.1 93.2 44c2.5-2.5 2.5-6.6 0-9.1s-6.6-2.5-9.1 0L64 55.1 43.8 34.9c-2.5-2.5-6.6-2.5-9.1 0s-2.5 6.6 0 9.1l20.2 20.2-20.1 20c-2.5 2.5-2.5 6.6 0 9.1s6.6 2.5 9.1 0L64 73.2l20 20.1c2.5 2.5 6.6 2.5 9.1 0s2.5-6.6 0-9.1z"/></svg>`
 };
 export const wrIconCog: {
   name: 'cog';
   data: string;
 } = {
   name: 'cog',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M123.5,64.7L123.5,64.7c-13.2-4.2-17.6-20.7-8.3-31l0,0c2.4-2.7,2.3-6.7-0.2-9.3l-11.4-11.4c-2.5-2.5-6.6-2.6-9.3-0.2l0,0 c-10.3,9.3-26.8,4.9-31-8.3v0c-1.1-3.4-4.7-5.4-8.1-4.4L39.7,4.3c-3.5,0.9-5.6,4.4-4.8,7.9v0c3,13.6-9.1,25.6-22.7,22.7h0 c-3.5-0.8-7,1.4-7.9,4.8L0.1,55.2c-0.9,3.5,1,7,4.4,8.1c13.2,4.2,17.6,20.7,8.3,31l0,0c-2.4,2.7-2.3,6.7,0.2,9.3l11.4,11.4 c2.5,2.5,6.6,2.6,9.3,0.2l0,0c10.3-9.3,26.8-4.9,31,8.3c1.1,3.4,4.7,5.4,8.1,4.4l15.5-4.2c3.5-0.9,5.6-4.4,4.8-7.9v0 c-3-13.6,9.1-25.6,22.7-22.7h0c3.5,0.8,7-1.4,7.9-4.8l4.2-15.5C128.8,69.3,126.9,65.8,123.5,64.7z M64,93.8 c-16.4,0-29.8-13.3-29.8-29.8S47.6,34.2,64,34.2S93.8,47.6,93.8,64S80.4,93.8,64,93.8z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M123.5 64.7c-13.2-4.2-17.6-20.7-8.3-31 2.4-2.7 2.3-6.7-.2-9.3L103.6 13c-2.5-2.5-6.6-2.6-9.3-.2-10.3 9.3-26.8 4.9-31-8.3-1.1-3.4-4.7-5.4-8.1-4.4L39.7 4.3c-3.5.9-5.6 4.4-4.8 7.9 3 13.6-9.1 25.6-22.7 22.7-3.5-.8-7 1.4-7.9 4.8L.1 55.2c-.9 3.5 1 7 4.4 8.1 13.2 4.2 17.6 20.7 8.3 31-2.4 2.7-2.3 6.7.2 9.3L24.4 115c2.5 2.5 6.6 2.6 9.3.2 10.3-9.3 26.8-4.9 31 8.3 1.1 3.4 4.7 5.4 8.1 4.4l15.5-4.2c3.5-.9 5.6-4.4 4.8-7.9-3-13.6 9.1-25.6 22.7-22.7 3.5.8 7-1.4 7.9-4.8l4.2-15.5c.9-3.5-1-7-4.4-8.1M64 93.8c-16.4 0-29.8-13.3-29.8-29.8S47.6 34.2 64 34.2 93.8 47.6 93.8 64 80.4 93.8 64 93.8"/></svg>`
 };
 export const wrIconCopyOutline: {
   name: 'copy-outline';
   data: string;
 } = {
   name: 'copy-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M120.1,36.6c-7.9-7.9-20-7.9-41.7-7.9s-33.8,0-41.7,7.9s-7.9,20-7.9,41.7s0,33.8,7.9,41.7c7.9,7.9,20,7.9,41.7,7.9 s33.8,0,41.7-7.9c7.9-7.9,7.9-20,7.9-41.7S128,44.5,120.1,36.6z M111.4,111.4c-6.3,6.3-15.9,6.3-33.1,6.3c-17.2,0-26.8,0-33.1-6.3 S39,95.6,39,78.4c0-17.2,0-26.8,6.3-33.1S61.1,39,78.4,39c17.2,0,26.8,0,33.1,6.3s6.3,15.9,6.3,33.1 C117.7,95.6,117.7,105.2,111.4,111.4z"/><path d="M20.6,88.9c0-1.9-1-3.6-2.5-4.8c-0.6-0.4-1.1-0.9-1.6-1.4c-6.3-6.3-6.3-15.9-6.3-33.1c0-17.2,0-26.8,6.3-33.1 s15.9-6.3,33.1-6.3c17.2,0,26.8,0,33.1,6.3c0.5,0.5,1,1,1.4,1.6c1.2,1.5,2.9,2.4,4.8,2.5l0.1,0c4.8,0,7.7-5.3,5.1-9.4 c-0.8-1.2-1.7-2.3-2.7-3.3C83.5,0,71.4,0,49.6,0S15.8,0,7.9,7.9S0,27.9,0,49.6s0,33.8,7.9,41.7c1,1,2.1,1.9,3.3,2.7 c4,2.6,9.4-0.2,9.4-5.1C20.6,89,20.6,89,20.6,88.9z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M120.1 36.6c-7.9-7.9-20-7.9-41.7-7.9s-33.8 0-41.7 7.9-7.9 20-7.9 41.7 0 33.8 7.9 41.7 20 7.9 41.7 7.9 33.8 0 41.7-7.9 7.9-20 7.9-41.7 0-33.8-7.9-41.7m-8.7 74.8c-6.3 6.3-15.9 6.3-33.1 6.3s-26.8 0-33.1-6.3-6.2-15.8-6.2-33 0-26.8 6.3-33.1S61.1 39 78.4 39c17.2 0 26.8 0 33.1 6.3s6.3 15.9 6.3 33.1c-.1 17.2-.1 26.8-6.4 33"/><path d="M20.6 88.9c0-1.9-1-3.6-2.5-4.8-.6-.4-1.1-.9-1.6-1.4-6.3-6.3-6.3-15.9-6.3-33.1s0-26.8 6.3-33.1 15.9-6.3 33.1-6.3 26.8 0 33.1 6.3c.5.5 1 1 1.4 1.6 1.2 1.5 2.9 2.4 4.8 2.5h.1c4.8 0 7.7-5.3 5.1-9.4q-1.2-1.8-2.7-3.3C83.5 0 71.4 0 49.6 0S15.8 0 7.9 7.9 0 27.9 0 49.6s0 33.8 7.9 41.7q1.5 1.5 3.3 2.7c4 2.6 9.4-.2 9.4-5.1q0 .15 0 0"/></svg>`
 };
 export const wrIconCopy: {
   name: 'copy';
   data: string;
 } = {
   name: 'copy',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M120.1,36.6c-7.9-7.9-20-7.9-41.7-7.9s-33.8,0-41.7,7.9s-7.9,20-7.9,41.7s0,33.8,7.9,41.7s20,7.9,41.7,7.9s33.8,0,41.7-7.9 s7.9-20,7.9-41.7S128,44.5,120.1,36.6z"/><path d="M20.6,78.4c0-25.3,0-39.4,9.2-48.6c9.2-9.2,23.3-9.2,48.6-9.2c7.4,0,13.8,0,19.5,0.2c-1.1-5.4-3-9.5-6.4-12.9 C83.5,0,71.4,0,49.6,0S15.8,0,7.9,7.9C0,15.8,0,27.9,0,49.6s0,33.8,7.9,41.7c3.4,3.4,7.6,5.3,12.9,6.4 C20.6,92.2,20.6,85.7,20.6,78.4z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M120.1 36.6c-7.9-7.9-20-7.9-41.7-7.9s-33.8 0-41.7 7.9-7.9 20-7.9 41.7 0 33.8 7.9 41.7 20 7.9 41.7 7.9 33.8 0 41.7-7.9 7.9-20 7.9-41.7 0-33.8-7.9-41.7"/><path d="M20.6 78.4c0-25.3 0-39.4 9.2-48.6s23.3-9.2 48.6-9.2c7.4 0 13.8 0 19.5.2-1.1-5.4-3-9.5-6.4-12.9C83.5 0 71.4 0 49.6 0S15.8 0 7.9 7.9 0 27.9 0 49.6s0 33.8 7.9 41.7c3.4 3.4 7.6 5.3 12.9 6.4-.2-5.5-.2-12-.2-19.3"/></svg>`
 };
 export const wrIconDiscover: {
   name: 'discover';
   data: string;
 } = {
   name: 'discover',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M119.4,57.3l-33-33.2c-2.2-2.4-5.4-3.6-8.6-3.6s-6.2,1.2-8.6,3.6l-4,4c-0.4,0.4-1,0.4-1.2,0.4s-0.8,0-1.2-0.6l-4-4 c-2.4-2.2-5.4-3.4-8.6-3.4s-6.2,1.2-8.6,3.6l-33,33.2C3.2,62.7,0,70.1,0,78.1c0,16.2,13.2,29.4,29.4,29.4c11.4,0,21.4-6.6,26.2-16.2 c2.4,1.6,5.2,2.4,8.4,2.4c3,0,6-0.8,8.4-2.4c4.8,9.6,14.8,16.2,26.2,16.2c16.2,0,29.4-13.2,29.4-29.4 C128,70.1,124.8,62.7,119.4,57.3z M29.4,92.3c-7.8,0-14.2-6.4-14.2-14.2s6.4-14.2,14.2-14.2s14.2,6.4,14.2,14.2S37.2,92.3,29.4,92.3 z M64,85.1c-3.8,0-7-3-7-7c0-3.8,3-7,7-7s7,3,7,7C71,81.9,67.8,85.1,64,85.1z M98.6,92.3c-7.8,0-14.2-6.4-14.2-14.2 s6.4-14.2,14.2-14.2s14.2,6.4,14.2,14.2S106.4,92.3,98.6,92.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="m119.4 57.3-33-33.2c-2.2-2.4-5.4-3.6-8.6-3.6s-6.2 1.2-8.6 3.6l-4 4c-.4.4-1 .4-1.2.4s-.8 0-1.2-.6l-4-4c-2.4-2.2-5.4-3.4-8.6-3.4s-6.2 1.2-8.6 3.6l-33 33.2C3.2 62.7 0 70.1 0 78.1c0 16.2 13.2 29.4 29.4 29.4 11.4 0 21.4-6.6 26.2-16.2q3.6 2.4 8.4 2.4c3 0 6-.8 8.4-2.4 4.8 9.6 14.8 16.2 26.2 16.2 16.2 0 29.4-13.2 29.4-29.4 0-8-3.2-15.4-8.6-20.8m-90 35c-7.8 0-14.2-6.4-14.2-14.2s6.4-14.2 14.2-14.2 14.2 6.4 14.2 14.2-6.4 14.2-14.2 14.2M64 85.1c-3.8 0-7-3-7-7 0-3.8 3-7 7-7s7 3 7 7c0 3.8-3.2 7-7 7m34.6 7.2c-7.8 0-14.2-6.4-14.2-14.2s6.4-14.2 14.2-14.2 14.2 6.4 14.2 14.2-6.4 14.2-14.2 14.2"/></svg>`
 };
 export const wrIconDocument: {
   name: 'document';
   data: string;
 } = {
   name: 'document',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M416 221.25V416a48 48 0 01-48 48H144a48 48 0 01-48-48V96a48 48 0 0148-48h98.75a32 32 0 0122.62 9.37l141.26 141.26a32 32 0 019.37 22.62z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/><path d="M256 56v120a32 32 0 0032 32h120M176 288h160M176 368h160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M416 221.25V416a48 48 0 0 1-48 48H144a48 48 0 0 1-48-48V96a48 48 0 0 1 48-48h98.75a32 32 0 0 1 22.62 9.37l141.26 141.26a32 32 0 0 1 9.37 22.62z"/><path d="M256 56v120a32 32 0 0 0 32 32h120m-232 80h160m-160 80h160"/></svg>`
 };
 export const wrIconDotsHorizontal: {
   name: 'dots-horizontal';
@@ -263,385 +263,385 @@ export const wrIconDownload: {
   data: string;
 } = {
   name: 'download',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M376 160H272v153.37l52.69-52.68a16 16 0 0122.62 22.62l-80 80a16 16 0 01-22.62 0l-80-80a16 16 0 0122.62-22.62L240 313.37V160H136a56.06 56.06 0 00-56 56v208a56.06 56.06 0 0056 56h240a56.06 56.06 0 0056-56V216a56.06 56.06 0 00-56-56zM272 48a16 16 0 00-32 0v112h32z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M376 160H272v153.37l52.69-52.68a16 16 0 0 1 22.62 22.62l-80 80a16 16 0 0 1-22.62 0l-80-80a16 16 0 0 1 22.62-22.62L240 313.37V160H136a56.06 56.06 0 0 0-56 56v208a56.06 56.06 0 0 0 56 56h240a56.06 56.06 0 0 0 56-56V216a56.06 56.06 0 0 0-56-56M272 48a16 16 0 0 0-32 0v112h32z"/></svg>`
 };
 export const wrIconExternalOutline: {
   name: 'external-outline';
   data: string;
 } = {
   name: 'external-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M121.1,0H85.8c-3.5,0-6.6,2.8-6.6,6.2c-0.1,3.6,2.8,6.6,6.4,6.6h20.6L67.8,51.3c-2.5,2.5-2.5,6.7,0.1,9.2 c2.5,2.4,6.6,2.1,9.1-0.4l38.2-38.2v20.4c0,3.5,2.8,6.6,6.2,6.6c3.6,0.1,6.6-2.8,6.6-6.4V6.9C128,3,125,0,121.1,0z"/><path d="M121.4,64.9L121.4,64.9c-3.6,0-6.6,2.9-6.6,6.5c-0.2,17.7-1,28.2-8.2,35.2c-8.1,8.1-20.5,8.1-42.7,8.1s-34.6,0-42.7-8.1 s-8-20.4-8-42.6s0-34.6,8.1-42.7c7.2-7.2,17.5-8,35.2-8.1c3.7,0,6.6-3,6.6-6.6c0-3.7-3-6.7-6.7-6.6c-23.3,0.1-37,1-46.2,10.2 C0,20.4,0,36,0,64s0,43.6,10.2,53.8S36,128,64,128s43.6,0,53.8-10.2c9.2-9.2,10.1-22.9,10.2-46.3C128,67.9,125,64.9,121.4,64.9z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M121.1 0H85.8c-3.5 0-6.6 2.8-6.6 6.2-.1 3.6 2.8 6.6 6.4 6.6h20.6L67.8 51.3c-2.5 2.5-2.5 6.7.1 9.2 2.5 2.4 6.6 2.1 9.1-.4l38.2-38.2v20.4c0 3.5 2.8 6.6 6.2 6.6 3.6.1 6.6-2.8 6.6-6.4V6.9c0-3.9-3-6.9-6.9-6.9"/><path d="M121.4 64.9c-3.6 0-6.6 2.9-6.6 6.5-.2 17.7-1 28.2-8.2 35.2-8.1 8.1-20.5 8.1-42.7 8.1s-34.6 0-42.7-8.1-8-20.4-8-42.6 0-34.6 8.1-42.7c7.2-7.2 17.5-8 35.2-8.1 3.7 0 6.6-3 6.6-6.6 0-3.7-3-6.7-6.7-6.6-23.3.1-37 1-46.2 10.2C0 20.4 0 36 0 64s0 43.6 10.2 53.8S36 128 64 128s43.6 0 53.8-10.2c9.2-9.2 10.1-22.9 10.2-46.3 0-3.6-3-6.6-6.6-6.6"/></svg>`
 };
 export const wrIconEyeOff: {
   name: 'eye-off';
   data: string;
 } = {
   name: 'eye-off',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9 9 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>`
 };
 export const wrIconEye: {
   name: 'eye';
   data: string;
 } = {
   name: 'eye',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8"/><circle cx="12" cy="12" r="3"/></svg>`
 };
 export const wrIconFileAab: {
   name: 'file-aab';
   data: string;
 } = {
   name: 'file-aab',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M94.6,57.4c-1.8,0-3.3,0.6-4.5,1.9s-1.8,2.9-1.8,4.9c0,2.1,0.6,3.7,1.8,4.9c1.2,1.2,2.7,1.9,4.5,1.9c1.8,0,3.3-0.6,4.5-1.9 c1.2-1.2,1.8-2.9,1.8-4.9c0-2.1-0.6-3.7-1.8-4.9C97.9,58,96.4,57.4,94.6,57.4z M39.2,66.8c-0.6,0.3-1.1,0.7-1.3,1.1 c-0.2,0.4-0.3,0.9-0.3,1.5c0,0.7,0.3,1.3,0.9,1.9c0.6,0.6,1.4,0.8,2.3,0.8c1.6,0,2.9-0.5,4-1.5c1-1,1.5-2.2,1.5-3.7v-1.1 c-1.9,0-3.3,0.1-4.5,0.3C40.7,66.3,39.8,66.5,39.2,66.8L39.2,66.8z M64.2,66.8c-0.6,0.3-1.1,0.7-1.3,1.1c-0.2,0.4-0.3,0.9-0.3,1.5 c0,0.7,0.3,1.3,0.9,1.9c0.6,0.6,1.4,0.8,2.3,0.8c1.6,0,2.9-0.5,4-1.5c1-1,1.5-2.2,1.5-3.7v-1.1c-1.9,0-3.3,0.1-4.5,0.3 C65.7,66.3,64.9,66.5,64.2,66.8L64.2,66.8z M117.8,10.2C107.6,0,92,0,64,0S20.4,0,10.2,10.2C0,20.4,0,36,0,64s0,43.6,10.2,53.8 C20.4,128,36,128,64,128s43.6,0,53.8-10.2C128,107.6,128,92,128,64S128,20.4,117.8,10.2z M26.8,75.9c-0.7,0.7-1.5,1.1-2.5,1.1 c-0.9,0-1.8-0.4-2.5-1.1c-0.7-0.7-1.1-1.5-1.1-2.5s0.4-1.8,1.1-2.5c0.7-0.7,1.5-1.1,2.5-1.1c0.9,0,1.8,0.4,2.5,1.1 c0.7,0.7,1.1,1.5,1.1,2.5C27.9,74.4,27.6,75.2,26.8,75.9z M52.6,76.7h-4.6l-1.1-2.4c-0.6,0.5-1.2,1-1.9,1.4 c-0.6,0.4-1.4,0.7-2.2,0.9S40.8,77,39.7,77c-2.7,0-4.8-0.7-6.3-2c-1.5-1.3-2.2-3-2.2-5.1c0-1.2,0.3-2.4,0.7-3.4 c0.5-1,1.3-1.9,2.5-2.7c1.2-0.7,2.7-1.3,4.6-1.7c1.9-0.4,4.3-0.6,7.2-0.6c0-1.4-0.4-2.4-1.1-3.2c-0.7-0.8-1.7-1.1-3-1.1 c-0.8,0-1.5,0.1-2,0.4c-0.5,0.3-0.9,0.6-1.2,0.9c-0.3,0.4-0.5,0.9-0.7,1.4h-6.3c0.1-1.2,0.5-2.3,1-3.3c0.5-1,1.2-1.9,2.1-2.7 c0.9-0.8,2-1.4,3.2-1.8c1.3-0.5,2.7-0.7,4.2-0.7c1.4,0,2.7,0.3,3.9,0.7s2.2,1.2,3.1,2c0.9,0.9,1.6,1.9,2,3.1 c0.5,1.2,0.7,2.5,0.7,3.9L52.6,76.7L52.6,76.7z M77.6,76.7H73l-1.1-2.4c-0.6,0.5-1.2,1-1.9,1.4c-0.6,0.4-1.4,0.7-2.2,0.9 S65.9,77,64.8,77c-2.7,0-4.8-0.7-6.3-2c-1.5-1.3-2.2-3-2.2-5.1c0-1.2,0.3-2.4,0.7-3.4c0.5-1,1.3-1.9,2.5-2.7 c1.2-0.7,2.7-1.3,4.6-1.7c1.9-0.4,4.3-0.6,7.2-0.6c0-1.4-0.4-2.4-1.1-3.2c-0.7-0.8-1.7-1.1-3-1.1c-0.8,0-1.5,0.1-2,0.4 c-0.5,0.3-0.9,0.6-1.2,0.9c-0.3,0.4-0.5,0.9-0.7,1.4h-6.3c0.1-1.2,0.5-2.3,1-3.3c0.5-1,1.2-1.9,2.1-2.7c0.9-0.8,2-1.4,3.2-1.8 s2.7-0.7,4.2-0.7c1.4,0,2.7,0.3,3.9,0.7s2.2,1.2,3.1,2s1.6,1.9,2,3.1c0.5,1.2,0.7,2.5,0.7,3.9L77.6,76.7L77.6,76.7z M106.2,69.3 c-0.6,1.6-1.5,2.9-2.6,4.1c-1.1,1.1-2.3,2-3.7,2.7S97,77,95.5,77c-1.1,0-2.1-0.1-2.9-0.4c-0.9-0.3-1.6-0.6-2.2-0.9 c-0.7-0.4-1.4-0.9-1.9-1.4l-1.1,2.4h-4.6V42.4h6.3v11.4c0.5-0.4,1.1-0.8,1.7-1.2c0.6-0.3,1.3-0.6,2-0.8c0.8-0.3,1.7-0.4,2.8-0.4 c1.6,0,3.1,0.3,4.5,0.9c1.4,0.6,2.7,1.5,3.7,2.7c1.1,1.1,1.9,2.5,2.6,4.1c0.6,1.6,0.9,3.3,0.9,5.1C107.2,66.1,106.8,67.8,106.2,69.3 L106.2,69.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M94.6 57.4c-1.8 0-3.3.6-4.5 1.9s-1.8 2.9-1.8 4.9c0 2.1.6 3.7 1.8 4.9s2.7 1.9 4.5 1.9 3.3-.6 4.5-1.9c1.2-1.2 1.8-2.9 1.8-4.9 0-2.1-.6-3.7-1.8-4.9-1.2-1.3-2.7-1.9-4.5-1.9m-55.4 9.4c-.6.3-1.1.7-1.3 1.1q-.3.6-.3 1.5c0 .7.3 1.3.9 1.9s1.4.8 2.3.8c1.6 0 2.9-.5 4-1.5 1-1 1.5-2.2 1.5-3.7v-1.1c-1.9 0-3.3.1-4.5.3-1.1.2-2 .4-2.6.7m25 0c-.6.3-1.1.7-1.3 1.1q-.3.6-.3 1.5c0 .7.3 1.3.9 1.9s1.4.8 2.3.8c1.6 0 2.9-.5 4-1.5 1-1 1.5-2.2 1.5-3.7v-1.1c-1.9 0-3.3.1-4.5.3-1.1.2-1.9.4-2.6.7m53.6-56.6C107.6 0 92 0 64 0S20.4 0 10.2 10.2 0 36 0 64s0 43.6 10.2 53.8S36 128 64 128s43.6 0 53.8-10.2S128 92 128 64s0-43.6-10.2-53.8m-91 65.7c-.7.7-1.5 1.1-2.5 1.1-.9 0-1.8-.4-2.5-1.1s-1.1-1.5-1.1-2.5.4-1.8 1.1-2.5 1.5-1.1 2.5-1.1c.9 0 1.8.4 2.5 1.1s1.1 1.5 1.1 2.5-.3 1.8-1.1 2.5m25.8.8H48l-1.1-2.4c-.6.5-1.2 1-1.9 1.4-.6.4-1.4.7-2.2.9s-2 .4-3.1.4c-2.7 0-4.8-.7-6.3-2s-2.2-3-2.2-5.1c0-1.2.3-2.4.7-3.4.5-1 1.3-1.9 2.5-2.7 1.2-.7 2.7-1.3 4.6-1.7q2.85-.6 7.2-.6c0-1.4-.4-2.4-1.1-3.2s-1.7-1.1-3-1.1c-.8 0-1.5.1-2 .4q-.75.45-1.2.9c-.3.4-.5.9-.7 1.4h-6.3c.1-1.2.5-2.3 1-3.3q.75-1.5 2.1-2.7c.9-.8 2-1.4 3.2-1.8 1.3-.5 2.7-.7 4.2-.7 1.4 0 2.7.3 3.9.7s2.2 1.2 3.1 2c.9.9 1.6 1.9 2 3.1.5 1.2.7 2.5.7 3.9zm25 0H73l-1.1-2.4c-.6.5-1.2 1-1.9 1.4-.6.4-1.4.7-2.2.9s-1.9.4-3 .4c-2.7 0-4.8-.7-6.3-2s-2.2-3-2.2-5.1c0-1.2.3-2.4.7-3.4.5-1 1.3-1.9 2.5-2.7 1.2-.7 2.7-1.3 4.6-1.7q2.85-.6 7.2-.6c0-1.4-.4-2.4-1.1-3.2s-1.7-1.1-3-1.1c-.8 0-1.5.1-2 .4q-.75.45-1.2.9c-.3.4-.5.9-.7 1.4H57c.1-1.2.5-2.3 1-3.3q.75-1.5 2.1-2.7c.9-.8 2-1.4 3.2-1.8s2.7-.7 4.2-.7c1.4 0 2.7.3 3.9.7s2.2 1.2 3.1 2 1.6 1.9 2 3.1c.5 1.2.7 2.5.7 3.9zm28.6-7.4c-.6 1.6-1.5 2.9-2.6 4.1-1.1 1.1-2.3 2-3.7 2.7s-2.9.9-4.4.9c-1.1 0-2.1-.1-2.9-.4-.9-.3-1.6-.6-2.2-.9-.7-.4-1.4-.9-1.9-1.4l-1.1 2.4h-4.6V42.4h6.3v11.4c.5-.4 1.1-.8 1.7-1.2.6-.3 1.3-.6 2-.8.8-.3 1.7-.4 2.8-.4q2.4 0 4.5.9c1.4.6 2.7 1.5 3.7 2.7 1.1 1.1 1.9 2.5 2.6 4.1q.9 2.4.9 5.1c-.1 1.9-.5 3.6-1.1 5.1"/></svg>`
 };
 export const wrIconFileApk: {
   name: 'file-apk';
   data: string;
 } = {
   name: 'file-apk',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M38.7,66.8c-0.6,0.3-1.1,0.7-1.3,1.1c-0.2,0.4-0.3,0.9-0.3,1.5c0,0.7,0.3,1.3,0.9,1.9c0.6,0.5,1.4,0.8,2.3,0.8 c1.6,0,2.9-0.5,3.9-1.4c1-0.9,1.5-2.2,1.5-3.7v-1.1c-1.8,0-3.3,0.1-4.4,0.2C40.1,66.3,39.3,66.5,38.7,66.8z M69.2,57.6 c-1.7,0-3.2,0.6-4.4,1.8c-1.2,1.2-1.8,2.8-1.8,4.9c0,2,0.6,3.7,1.8,4.9c1.2,1.2,2.7,1.8,4.4,1.8c1.7,0,3.2-0.6,4.4-1.8 c1.2-1.2,1.8-2.8,1.8-4.9c0-2-0.6-3.7-1.8-4.9C72.4,58.2,71,57.6,69.2,57.6z M117.8,10.2C107.6,0,92,0,64,0S20.4,0,10.2,10.2 C0,20.4,0,36,0,64s0,43.6,10.2,53.8C20.4,128,36,128,64,128s43.6,0,53.8-10.2C128,107.6,128,92,128,64S128,20.4,117.8,10.2z M26.1,75.8c-0.7,0.7-1.5,1.1-2.4,1.1c-0.9,0-1.7-0.4-2.4-1.1c-0.7-0.7-1.1-1.5-1.1-2.4s0.4-1.7,1.1-2.4c0.7-0.7,1.5-1.1,2.4-1.1 c0.9,0,1.7,0.4,2.4,1.1s1.1,1.5,1.1,2.4S26.8,75.1,26.1,75.8z M51.8,76.6h-4.5l-1.1-2.4c-0.6,0.5-1.2,0.9-1.9,1.3 c-0.6,0.4-1.3,0.7-2.2,0.9c-0.9,0.3-1.8,0.4-2.9,0.4c-2.7,0-4.7-0.7-6.2-2c-1.4-1.3-2.1-3-2.1-5c0-1.2,0.2-2.3,0.7-3.3 c0.5-1,1.3-1.9,2.4-2.6c1.1-0.7,2.7-1.3,4.5-1.7c1.9-0.4,4.2-0.6,7.1-0.6c0-1.3-0.4-2.4-1.1-3.2c-0.7-0.8-1.7-1.1-2.9-1.1 c-0.8,0-1.5,0.1-2,0.4c-0.5,0.3-0.9,0.6-1.2,0.9c-0.3,0.4-0.5,0.8-0.7,1.3h-6.2c0.1-1.1,0.5-2.2,1-3.2c0.5-1,1.2-1.9,2.1-2.6 c0.9-0.8,2-1.3,3.2-1.8c1.2-0.4,2.6-0.7,4.1-0.7c1.4,0,2.7,0.2,3.9,0.7c1.2,0.5,2.2,1.2,3.1,2c0.9,0.9,1.5,1.9,2,3.1 c0.5,1.2,0.7,2.5,0.7,3.9L51.8,76.6L51.8,76.6z M80.6,69.3c-0.6,1.5-1.5,2.9-2.5,4c-1.1,1.1-2.3,2-3.7,2.6s-2.9,0.9-4.4,0.9 c-1,0-1.9-0.1-2.7-0.4c-0.8-0.3-1.4-0.5-2-0.8c-0.7-0.4-1.2-0.8-1.7-1.2v10.7h-6.2V52H62l1.1,2.4c0.5-0.5,1.2-0.9,1.9-1.3 c0.6-0.3,1.3-0.6,2.2-0.9c0.9-0.3,1.8-0.4,2.9-0.4c1.5,0,3,0.3,4.4,0.9c1.4,0.6,2.6,1.5,3.7,2.6c1.1,1.1,1.9,2.5,2.5,4 c0.6,1.5,0.9,3.2,0.9,5C81.5,66.1,81.2,67.8,80.6,69.3L80.6,69.3z M100.8,76.6l-8.6-11.2v11.2h-6.1V42.8h6.2v19.3L99.8,52h7 l-8.8,11.8l9.9,12.9L100.8,76.6L100.8,76.6z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M38.7 66.8c-.6.3-1.1.7-1.3 1.1q-.3.6-.3 1.5c0 .7.3 1.3.9 1.9.6.5 1.4.8 2.3.8 1.6 0 2.9-.5 3.9-1.4s1.5-2.2 1.5-3.7v-1.1c-1.8 0-3.3.1-4.4.2-1.2.2-2 .4-2.6.7m30.5-9.2c-1.7 0-3.2.6-4.4 1.8S63 62.2 63 64.3c0 2 .6 3.7 1.8 4.9s2.7 1.8 4.4 1.8 3.2-.6 4.4-1.8 1.8-2.8 1.8-4.9c0-2-.6-3.7-1.8-4.9s-2.6-1.8-4.4-1.8m48.6-47.4C107.6 0 92 0 64 0S20.4 0 10.2 10.2 0 36 0 64s0 43.6 10.2 53.8S36 128 64 128s43.6 0 53.8-10.2S128 92 128 64s0-43.6-10.2-53.8M26.1 75.8c-.7.7-1.5 1.1-2.4 1.1s-1.7-.4-2.4-1.1-1.1-1.5-1.1-2.4.4-1.7 1.1-2.4 1.5-1.1 2.4-1.1 1.7.4 2.4 1.1 1.1 1.5 1.1 2.4-.4 1.7-1.1 2.4m25.7.8h-4.5l-1.1-2.4c-.6.5-1.2.9-1.9 1.3-.6.4-1.3.7-2.2.9-.9.3-1.8.4-2.9.4-2.7 0-4.7-.7-6.2-2-1.4-1.3-2.1-3-2.1-5 0-1.2.2-2.3.7-3.3s1.3-1.9 2.4-2.6 2.7-1.3 4.5-1.7c1.9-.4 4.2-.6 7.1-.6 0-1.3-.4-2.4-1.1-3.2s-1.7-1.1-2.9-1.1c-.8 0-1.5.1-2 .4q-.75.45-1.2.9c-.3.4-.5.8-.7 1.3h-6.2c.1-1.1.5-2.2 1-3.2s1.2-1.9 2.1-2.6c.9-.8 2-1.3 3.2-1.8 1.2-.4 2.6-.7 4.1-.7 1.4 0 2.7.2 3.9.7s2.2 1.2 3.1 2c.9.9 1.5 1.9 2 3.1s.7 2.5.7 3.9zm28.8-7.3c-.6 1.5-1.5 2.9-2.5 4-1.1 1.1-2.3 2-3.7 2.6s-2.9.9-4.4.9c-1 0-1.9-.1-2.7-.4s-1.4-.5-2-.8c-.7-.4-1.2-.8-1.7-1.2v10.7h-6.2V52H62l1.1 2.4c.5-.5 1.2-.9 1.9-1.3.6-.3 1.3-.6 2.2-.9s1.8-.4 2.9-.4c1.5 0 3 .3 4.4.9s2.6 1.5 3.7 2.6 1.9 2.5 2.5 4 .9 3.2.9 5c-.1 1.8-.4 3.5-1 5m20.2 7.3-8.6-11.2v11.2h-6.1V42.8h6.2v19.3L99.8 52h7L98 63.8l9.9 12.9z"/></svg>`
 };
 export const wrIconFileApks: {
   name: 'file-apks';
   data: string;
 } = {
   name: 'file-apks',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.5.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M28.2,69.3c0,1.3,1.3,2.7,3.2,2.7c3.2,0,5.4-2.1,5.4-5.1v-1.1C29.5,65.8,28.2,67.2,28.2,69.3z"/><path d="M117.8,10.2C107.6,0,92,0,64,0S20.4,0,10.2,10.2S0,36,0,64s0,43.6,10.2,53.8S36,128,64,128s43.6,0,53.8-10.2S128,92,128,64 S128,20.4,117.8,10.2z M14.9,76.8c-1.9,0-3.5-1.6-3.5-3.5s1.6-3.5,3.5-3.5c1.9,0,3.5,1.6,3.5,3.5S16.8,76.8,14.9,76.8z M42.9,76.5 h-4.6l-1.1-2.4c-0.6,0.5-1.2,1-1.9,1.3c-1.2,0.7-2.9,1.3-5.1,1.3c-5.4,0-8.3-2.9-8.3-7c0-4.9,3.5-8.3,14.7-8.3c0-2.7-1.6-4.3-4-4.3 c-1.7,0-2.5,0.7-3.1,1.3c-0.3,0.4-0.5,0.9-0.6,1.3h-6.2c0.6-4.5,4.3-8.3,10.4-8.3c5.6,0,9.6,4.1,9.6,9.6V76.5z M60.8,76.8 c-2.1,0-3.6-0.6-4.7-1.2c-0.6-0.4-1.2-0.7-1.7-1.2v10.7h-6.2V51.9h4.6l1.1,2.4c0.5-0.5,1.2-1,1.9-1.3c1.2-0.6,2.9-1.3,5.1-1.3 c6.2,0,11.5,5.3,11.5,12.6C72.3,71.5,66.9,76.8,60.8,76.8z M91.2,76.5l-8.6-11.2v11.2h-6.2V42.8h6.2v19.3l7.5-10.2h7l-8.8,11.8 l9.9,12.9H91.2z M108.3,76.8c-6.4,0-9.7-3.2-10.2-8h5.9c0.3,1.7,1.6,2.9,3.7,2.9s3.5-1.3,3.5-2.7c0-3.5-12.6-1.4-12.6-9.9 c0-4,3.5-7.5,8.8-7.5c5.9,0,9,3.2,9.6,7.5h-5.9c-0.3-1.1-1.6-2.4-3.5-2.4c-1.9,0-2.9,1.1-2.9,2.4c0,3.4,12.6,1.4,12.6,10.2 C117.4,73.3,113.8,76.8,108.3,76.8z"/><path d="M60,57.5c-3.5,0-6.2,2.6-6.2,6.7c0,4.1,2.7,6.7,6.2,6.7c3.5,0,6.2-2.6,6.2-6.7C66.1,60.1,63.5,57.5,60,57.5z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M28.2 69.3c0 1.3 1.3 2.7 3.2 2.7 3.2 0 5.4-2.1 5.4-5.1v-1.1c-7.3 0-8.6 1.4-8.6 3.5"/><path d="M117.8 10.2C107.6 0 92 0 64 0S20.4 0 10.2 10.2 0 36 0 64s0 43.6 10.2 53.8S36 128 64 128s43.6 0 53.8-10.2S128 92 128 64s0-43.6-10.2-53.8M14.9 76.8c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5m28-.3h-4.6l-1.1-2.4c-.6.5-1.2 1-1.9 1.3-1.2.7-2.9 1.3-5.1 1.3-5.4 0-8.3-2.9-8.3-7 0-4.9 3.5-8.3 14.7-8.3 0-2.7-1.6-4.3-4-4.3-1.7 0-2.5.7-3.1 1.3-.3.4-.5.9-.6 1.3h-6.2c.6-4.5 4.3-8.3 10.4-8.3 5.6 0 9.6 4.1 9.6 9.6v15.5zm17.9.3c-2.1 0-3.6-.6-4.7-1.2-.6-.4-1.2-.7-1.7-1.2v10.7h-6.2V51.9h4.6l1.1 2.4c.5-.5 1.2-1 1.9-1.3 1.2-.6 2.9-1.3 5.1-1.3 6.2 0 11.5 5.3 11.5 12.6-.1 7.2-5.5 12.5-11.6 12.5m30.4-.3-8.6-11.2v11.2h-6.2V42.8h6.2v19.3l7.5-10.2h7l-8.8 11.8 9.9 12.9h-7zm17.1.3c-6.4 0-9.7-3.2-10.2-8h5.9c.3 1.7 1.6 2.9 3.7 2.9s3.5-1.3 3.5-2.7c0-3.5-12.6-1.4-12.6-9.9 0-4 3.5-7.5 8.8-7.5 5.9 0 9 3.2 9.6 7.5h-5.9c-.3-1.1-1.6-2.4-3.5-2.4s-2.9 1.1-2.9 2.4c0 3.4 12.6 1.4 12.6 10.2.1 4-3.5 7.5-9 7.5"/><path d="M60 57.5c-3.5 0-6.2 2.6-6.2 6.7s2.7 6.7 6.2 6.7 6.2-2.6 6.2-6.7c-.1-4.1-2.7-6.7-6.2-6.7"/></svg>`
 };
 export const wrIconFileIpa: {
   name: 'file-ipa';
   data: string;
 } = {
   name: 'file-ipa',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M63.5,57.5c-1.7,0-3.2,0.6-4.4,1.8c-1.2,1.2-1.8,2.8-1.8,4.9c0,2,0.6,3.7,1.8,4.9c1.2,1.2,2.6,1.8,4.4,1.8 c1.7,0,3.2-0.6,4.4-1.8c1.2-1.2,1.8-2.8,1.8-4.9c0-2-0.6-3.7-1.8-4.9C66.7,58.1,65.2,57.5,63.5,57.5z M87,66.8 c-0.6,0.3-1.1,0.7-1.3,1.1s-0.3,0.9-0.3,1.5c0,0.7,0.3,1.3,0.9,1.9c0.6,0.5,1.4,0.8,2.3,0.8c1.6,0,2.9-0.5,3.9-1.4 c1-0.9,1.5-2.2,1.5-3.7v-1.1c-1.8,0-3.3,0.1-4.4,0.2C88.5,66.2,87.6,66.5,87,66.8L87,66.8z M117.8,10.2C107.6,0,92,0,64,0 S20.4,0,10.2,10.2C0,20.4,0,36,0,64s0,43.6,10.2,53.8C20.4,128,36,128,64,128s43.6,0,53.8-10.2C128,107.6,128,92,128,64 S128,20.4,117.8,10.2z M33.8,75.8c-0.7,0.7-1.5,1.1-2.4,1.1c-0.9,0-1.7-0.4-2.4-1.1c-0.7-0.7-1.1-1.5-1.1-2.4c0-0.9,0.4-1.7,1.1-2.4 c0.7-0.7,1.5-1.1,2.4-1.1c0.9,0,1.7,0.4,2.4,1.1c0.7,0.7,1.1,1.5,1.1,2.4C34.8,74.3,34.5,75.1,33.8,75.8z M45.8,76.5h-6.2V51.9h6.2 V76.5z M45.3,47.7c-0.7,0.7-1.5,1.1-2.4,1.1s-1.7-0.4-2.4-1.1c-0.7-0.7-1.1-1.5-1.1-2.4s0.4-1.7,1.1-2.4c0.7-0.7,1.5-1.1,2.4-1.1 c0.9,0,1.7,0.4,2.4,1.1c0.7,0.7,1.1,1.5,1.1,2.4C46.3,46.1,46,47,45.3,47.7z M74.8,69.3c-0.6,1.5-1.5,2.9-2.5,4 c-1.1,1.1-2.3,2-3.7,2.6s-2.9,0.9-4.4,0.9c-1,0-1.9-0.1-2.7-0.4c-0.8-0.3-1.4-0.5-2-0.8c-0.7-0.4-1.2-0.8-1.7-1.2v10.7h-6.2V51.9 h4.5l1.1,2.4c0.5-0.5,1.2-0.9,1.9-1.3c0.6-0.3,1.3-0.6,2.2-0.9c0.9-0.3,1.8-0.4,2.9-0.4c1.5,0,3,0.3,4.4,0.9 c1.4,0.6,2.6,1.5,3.7,2.6c1.1,1.1,1.9,2.5,2.5,4c0.6,1.5,0.9,3.2,0.9,5C75.8,66.1,75.5,67.7,74.8,69.3L74.8,69.3z M100.1,76.5h-4.5 l-1.1-2.4c-0.6,0.5-1.2,0.9-1.9,1.3c-0.6,0.4-1.3,0.7-2.2,0.9c-0.9,0.3-1.8,0.4-2.9,0.4c-2.7,0-4.7-0.7-6.1-2c-1.4-1.3-2.1-3-2.1-5 c0-1.2,0.2-2.3,0.7-3.3s1.3-1.9,2.4-2.6c1.1-0.7,2.7-1.3,4.5-1.7c1.9-0.4,4.2-0.6,7-0.6c0-1.3-0.4-2.4-1.1-3.2 c-0.7-0.8-1.7-1.1-2.9-1.1c-0.8,0-1.5,0.1-2,0.4c-0.5,0.3-0.9,0.6-1.2,0.9c-0.3,0.4-0.5,0.8-0.7,1.3H80c0.1-1.1,0.5-2.2,1-3.2 c0.5-1,1.2-1.9,2.1-2.6s2-1.3,3.2-1.8c1.2-0.4,2.6-0.7,4.1-0.7c1.4,0,2.7,0.2,3.9,0.7c1.2,0.5,2.2,1.2,3.1,2s1.5,1.9,2,3.1 c0.5,1.2,0.7,2.5,0.7,3.9L100.1,76.5L100.1,76.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M63.5 57.5c-1.7 0-3.2.6-4.4 1.8s-1.8 2.8-1.8 4.9c0 2 .6 3.7 1.8 4.9s2.6 1.8 4.4 1.8c1.7 0 3.2-.6 4.4-1.8s1.8-2.8 1.8-4.9c0-2-.6-3.7-1.8-4.9s-2.7-1.8-4.4-1.8M87 66.8c-.6.3-1.1.7-1.3 1.1s-.3.9-.3 1.5c0 .7.3 1.3.9 1.9.6.5 1.4.8 2.3.8 1.6 0 2.9-.5 3.9-1.4S94 68.5 94 67v-1.1c-1.8 0-3.3.1-4.4.2s-2 .4-2.6.7m30.8-56.6C107.6 0 92 0 64 0S20.4 0 10.2 10.2 0 36 0 64s0 43.6 10.2 53.8S36 128 64 128s43.6 0 53.8-10.2S128 92 128 64s0-43.6-10.2-53.8m-84 65.6c-.7.7-1.5 1.1-2.4 1.1s-1.7-.4-2.4-1.1-1.1-1.5-1.1-2.4.4-1.7 1.1-2.4 1.5-1.1 2.4-1.1 1.7.4 2.4 1.1 1.1 1.5 1.1 2.4c-.1.9-.4 1.7-1.1 2.4m12 .7h-6.2V51.9h6.2zm-.5-28.8c-.7.7-1.5 1.1-2.4 1.1s-1.7-.4-2.4-1.1-1.1-1.5-1.1-2.4.4-1.7 1.1-2.4 1.5-1.1 2.4-1.1 1.7.4 2.4 1.1 1.1 1.5 1.1 2.4c-.1.8-.4 1.7-1.1 2.4m29.5 21.6c-.6 1.5-1.5 2.9-2.5 4-1.1 1.1-2.3 2-3.7 2.6s-2.9.9-4.4.9c-1 0-1.9-.1-2.7-.4s-1.4-.5-2-.8c-.7-.4-1.2-.8-1.7-1.2v10.7h-6.2V51.9h4.5l1.1 2.4c.5-.5 1.2-.9 1.9-1.3.6-.3 1.3-.6 2.2-.9s1.8-.4 2.9-.4c1.5 0 3 .3 4.4.9s2.6 1.5 3.7 2.6 1.9 2.5 2.5 4 .9 3.2.9 5c.1 1.9-.2 3.5-.9 5.1m25.3 7.2h-4.5l-1.1-2.4c-.6.5-1.2.9-1.9 1.3-.6.4-1.3.7-2.2.9-.9.3-1.8.4-2.9.4-2.7 0-4.7-.7-6.1-2s-2.1-3-2.1-5c0-1.2.2-2.3.7-3.3s1.3-1.9 2.4-2.6 2.7-1.3 4.5-1.7c1.9-.4 4.2-.6 7-.6 0-1.3-.4-2.4-1.1-3.2s-1.7-1.1-2.9-1.1c-.8 0-1.5.1-2 .4q-.75.45-1.2.9c-.3.4-.5.8-.7 1.3h-6c.1-1.1.5-2.2 1-3.2s1.2-1.9 2.1-2.6 2-1.3 3.2-1.8c1.2-.4 2.6-.7 4.1-.7 1.4 0 2.7.2 3.9.7s2.2 1.2 3.1 2 1.5 1.9 2 3.1.7 2.5.7 3.9z"/></svg>`
 };
 export const wrIconFileZip: {
   name: 'file-zip';
   data: string;
 } = {
   name: 'file-zip',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M86.5,57.4c-1.8,0-3.3,0.6-4.5,1.9c-1.2,1.2-1.8,2.9-1.8,4.9c0,2.1,0.6,3.7,1.8,4.9c1.2,1.2,2.7,1.9,4.5,1.9 c1.8,0,3.3-0.6,4.5-1.9s1.8-2.9,1.8-4.9c0-2.1-0.6-3.7-1.8-4.9S88.3,57.4,86.5,57.4z M117.8,10.2C107.6,0,92,0,64,0 S20.4,0,10.2,10.2C0,20.4,0,36,0,64s0,43.6,10.2,53.8C20.4,128,36,128,64,128s43.6,0,53.8-10.2C128,107.6,128,92,128,64 S128,20.4,117.8,10.2z M34.9,75.9c-0.7,0.7-1.5,1.1-2.5,1.1s-1.8-0.4-2.5-1.1c-0.7-0.7-1.1-1.5-1.1-2.5s0.4-1.8,1.1-2.5 c0.7-0.7,1.5-1.1,2.5-1.1s1.8,0.4,2.5,1.1s1.1,1.5,1.1,2.5S35.7,75.2,34.9,75.9z M59.1,76.7H39.7v-5.2l10.9-13.9H39.7v-6h18.8v5.2 L47.6,70.7h11.4V76.7z M69.3,76.7H63V51.7h6.3V76.7z M68.8,47.3c-0.7,0.7-1.5,1.1-2.5,1.1c-0.9,0-1.8-0.4-2.5-1.1 c-0.7-0.7-1.1-1.5-1.1-2.5s0.4-1.8,1.1-2.5c0.7-0.7,1.5-1.1,2.5-1.1c0.9,0,1.8,0.4,2.5,1.1c0.7,0.7,1.1,1.5,1.1,2.5 C69.9,45.8,69.5,46.6,68.8,47.3z M98.1,69.3c-0.6,1.6-1.5,2.9-2.6,4.1c-1.1,1.1-2.3,2-3.7,2.7S88.9,77,87.4,77c-1.1,0-2-0.1-2.8-0.4 c-0.8-0.3-1.5-0.5-2-0.8c-0.7-0.4-1.2-0.8-1.7-1.3v10.9h-6.3V51.7h4.6l1.1,2.4c0.5-0.5,1.2-1,1.9-1.4c0.6-0.3,1.4-0.6,2.2-0.9 s1.9-0.4,2.9-0.4c1.6,0,3.1,0.3,4.5,0.9c1.4,0.6,2.7,1.5,3.7,2.7c1.1,1.1,1.9,2.5,2.6,4.1c0.6,1.6,0.9,3.3,0.9,5.1 C99.1,66.1,98.8,67.8,98.1,69.3L98.1,69.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M86.5 57.4c-1.8 0-3.3.6-4.5 1.9-1.2 1.2-1.8 2.9-1.8 4.9 0 2.1.6 3.7 1.8 4.9s2.7 1.9 4.5 1.9 3.3-.6 4.5-1.9 1.8-2.9 1.8-4.9c0-2.1-.6-3.7-1.8-4.9s-2.7-1.9-4.5-1.9m31.3-47.2C107.6 0 92 0 64 0S20.4 0 10.2 10.2 0 36 0 64s0 43.6 10.2 53.8S36 128 64 128s43.6 0 53.8-10.2S128 92 128 64s0-43.6-10.2-53.8M34.9 75.9c-.7.7-1.5 1.1-2.5 1.1s-1.8-.4-2.5-1.1-1.1-1.5-1.1-2.5.4-1.8 1.1-2.5 1.5-1.1 2.5-1.1 1.8.4 2.5 1.1 1.1 1.5 1.1 2.5-.3 1.8-1.1 2.5m24.2.8H39.7v-5.2l10.9-13.9H39.7v-6h18.8v5.2L47.6 70.7H59v6zm10.2 0H63v-25h6.3zm-.5-29.4c-.7.7-1.5 1.1-2.5 1.1-.9 0-1.8-.4-2.5-1.1s-1.1-1.5-1.1-2.5.4-1.8 1.1-2.5 1.5-1.1 2.5-1.1c.9 0 1.8.4 2.5 1.1s1.1 1.5 1.1 2.5-.4 1.8-1.1 2.5m29.3 22c-.6 1.6-1.5 2.9-2.6 4.1-1.1 1.1-2.3 2-3.7 2.7s-2.9.9-4.4.9c-1.1 0-2-.1-2.8-.4s-1.5-.5-2-.8c-.7-.4-1.2-.8-1.7-1.3v10.9h-6.3V51.7h4.6l1.1 2.4c.5-.5 1.2-1 1.9-1.4.6-.3 1.4-.6 2.2-.9s1.9-.4 2.9-.4q2.4 0 4.5.9c1.4.6 2.7 1.5 3.7 2.7 1.1 1.1 1.9 2.5 2.6 4.1q.9 2.4.9 5.1.15 2.85-.9 5.1"/></svg>`
 };
 export const wrIconFilterOutline: {
   name: 'filter-outline';
   data: string;
 } = {
   name: 'filter-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M113.5,10.3c2.3,0,4.2,1.9,4.2,4.2c0,1.1-0.5,2.2-1.3,3l-39,38c-2,1.9-3.1,4.6-3.1,7.4v53.3l-20.6-10V62.9 c0-2.8-1.1-5.4-3.1-7.4l-39-38c-0.8-0.8-1.3-1.9-1.3-3c0-2.3,1.9-4.2,4.2-4.2H113.5 M113.5,0h-99C6.5,0,0,6.5,0,14.5 c0,3.9,1.6,7.7,4.4,10.4l39,38v44.9c0,2.9,1.7,5.6,4.3,6.9l25.8,12.5c1.1,0.5,2.2,0.8,3.4,0.8c4,0,7.7-3.2,7.7-7.7V62.9l39-38 c2.8-2.7,4.4-6.5,4.4-10.4C128,6.5,121.5,0,113.5,0L113.5,0z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M113.5 10.3c2.3 0 4.2 1.9 4.2 4.2 0 1.1-.5 2.2-1.3 3l-39 38c-2 1.9-3.1 4.6-3.1 7.4v53.3l-20.6-10V62.9c0-2.8-1.1-5.4-3.1-7.4l-39-38c-.8-.8-1.3-1.9-1.3-3 0-2.3 1.9-4.2 4.2-4.2zm0-10.3h-99C6.5 0 0 6.5 0 14.5c0 3.9 1.6 7.7 4.4 10.4l39 38v44.9c0 2.9 1.7 5.6 4.3 6.9l25.8 12.5c1.1.5 2.2.8 3.4.8 4 0 7.7-3.2 7.7-7.7V62.9l39-38c2.8-2.7 4.4-6.5 4.4-10.4 0-8-6.5-14.5-14.5-14.5"/></svg>`
 };
 export const wrIconFilter: {
   name: 'filter';
   data: string;
 } = {
   name: 'filter',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M128,14.5c0-8-6.5-14.5-14.5-14.5h-99C6.5,0,0,6.5,0,14.5c0,3.9,1.6,7.7,4.4,10.4l39,38v44.9c0,2.9,1.7,5.6,4.3,6.9 l25.8,12.5c5.1,2.5,11-1.2,11-6.9V62.9l39-38C126.4,22.1,128,18.4,128,14.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M128 14.5c0-8-6.5-14.5-14.5-14.5h-99C6.5 0 0 6.5 0 14.5c0 3.9 1.6 7.7 4.4 10.4l39 38v44.9c0 2.9 1.7 5.6 4.3 6.9l25.8 12.5c5.1 2.5 11-1.2 11-6.9V62.9l39-38c2.9-2.8 4.5-6.5 4.5-10.4"/></svg>`
 };
 export const wrIconFlash: {
   name: 'flash';
   data: string;
 } = {
   name: 'flash',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M194.82 496a18.36 18.36 0 01-18.1-21.53v-.11L204.83 320H96a16 16 0 01-12.44-26.06L302.73 23a18.45 18.45 0 0132.8 13.71c0 .3-.08.59-.13.89L307.19 192H416a16 16 0 0112.44 26.06L209.24 489a18.45 18.45 0 01-14.42 7z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M194.82 496a18.36 18.36 0 0 1-18.1-21.53v-.11L204.83 320H96a16 16 0 0 1-12.44-26.06L302.73 23a18.45 18.45 0 0 1 32.8 13.71c0 .3-.08.59-.13.89L307.19 192H416a16 16 0 0 1 12.44 26.06L209.24 489a18.45 18.45 0 0 1-14.42 7"/></svg>`
 };
 export const wrIconFolder: {
   name: 'folder';
   data: string;
 } = {
   name: 'folder',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M440 432H72a40 40 0 01-40-40V120a40 40 0 0140-40h75.89a40 40 0 0122.19 6.72l27.84 18.56a40 40 0 0022.19 6.72H440a40 40 0 0140 40v240a40 40 0 01-40 40zM32 192h448" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M440 432H72a40 40 0 0 1-40-40V120a40 40 0 0 1 40-40h75.89a40 40 0 0 1 22.19 6.72l27.84 18.56a40 40 0 0 0 22.19 6.72H440a40 40 0 0 1 40 40v240a40 40 0 0 1-40 40M32 192h448"/></svg>`
 };
 export const wrIconHelp: {
   name: 'help';
   data: string;
 } = {
   name: 'help',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 64C150 64 64 150 64 256s86 192 192 192 192-86 192-192S362 64 256 64zm-6 304a20 20 0 1120-20 20 20 0 01-20 20zm33.44-102C267.23 276.88 265 286.85 265 296a14 14 0 01-28 0c0-21.91 10.08-39.33 30.82-53.26C287.1 229.8 298 221.6 298 203.57c0-12.26-7-21.57-21.49-28.46-3.41-1.62-11-3.2-20.34-3.09-11.72.15-20.82 2.95-27.83 8.59C215.12 191.25 214 202.83 214 203a14 14 0 11-28-1.35c.11-2.43 1.8-24.32 24.77-42.8 11.91-9.58 27.06-14.56 45-14.78 12.7-.15 24.63 2 32.72 5.82C312.7 161.34 326 180.43 326 203.57c0 33.83-22.61 49.02-42.56 62.43z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 64C150 64 64 150 64 256s86 192 192 192 192-86 192-192S362 64 256 64m-6 304a20 20 0 1 1 20-20 20 20 0 0 1-20 20m33.44-102C267.23 276.88 265 286.85 265 296a14 14 0 0 1-28 0c0-21.91 10.08-39.33 30.82-53.26C287.1 229.8 298 221.6 298 203.57c0-12.26-7-21.57-21.49-28.46-3.41-1.62-11-3.2-20.34-3.09-11.72.15-20.82 2.95-27.83 8.59C215.12 191.25 214 202.83 214 203a14 14 0 1 1-28-1.35c.11-2.43 1.8-24.32 24.77-42.8 11.91-9.58 27.06-14.56 45-14.78 12.7-.15 24.63 2 32.72 5.82C312.7 161.34 326 180.43 326 203.57c0 33.83-22.61 49.02-42.56 62.43"/></svg>`
 };
 export const wrIconHome: {
   name: 'home';
   data: string;
 } = {
   name: 'home',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M72.1,3.5c-4.6-4.6-12-4.6-16.6,0l-50,48.4c-3.6,3.6-5.4,8.6-4.8,13.6l5.6,49.2c0.8,7.6,7.2,13.2,14.8,13.2h16.4 c4.6,0,8.2-3.6,8.2-8.2v-24c0-5.2,4.2-9.6,9.6-9.6h16.8c5.2,0,9.6,4.2,9.6,9.6v24.2c0,4.6,3.6,8.2,8.2,8.2h16.4 c7.6,0,14-5.8,14.8-13.2l5.6-49.2c0.6-5-1.2-10.2-4.8-13.6L72.1,3.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M72.1 3.5c-4.6-4.6-12-4.6-16.6 0l-50 48.4C1.9 55.5.1 60.5.7 65.5l5.6 49.2c.8 7.6 7.2 13.2 14.8 13.2h16.4c4.6 0 8.2-3.6 8.2-8.2v-24c0-5.2 4.2-9.6 9.6-9.6h16.8c5.2 0 9.6 4.2 9.6 9.6v24.2c0 4.6 3.6 8.2 8.2 8.2h16.4c7.6 0 14-5.8 14.8-13.2l5.6-49.2c.6-5-1.2-10.2-4.8-13.6z"/></svg>`
 };
 export const wrIconInfoCircleOutline: {
   name: 'info-circle-outline';
   data: string;
 } = {
   name: 'info-circle-outline',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M248 64C146.39 64 64 146.39 64 248s82.39 184 184 184 184-82.39 184-184S349.61 64 248 64z" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M220 220h32v116"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M208 340h88"/><path d="M248 130a26 26 0 1026 26 26 26 0 00-26-26z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M248 64C146.39 64 64 146.39 64 248s82.39 184 184 184 184-82.39 184-184S349.61 64 248 64z"/><path d="M220 220h32v116"/><path d="M208 340h88"/><path d="M248 130a26 26 0 1 0 26 26 26 26 0 0 0-26-26"/></svg>`
 };
 export const wrIconLockOpened: {
   name: 'lock-opened';
   data: string;
 } = {
   name: 'lock-opened',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M102.5,50.1c-6.7-6.7-17.1-6.7-35.6-6.7c-1.3,0-6.2,0-7.5,0c-3.9,0-7.5,0-10.7,0.1V25.6c0-8.7,7.3-15.7,16-15.3 C73,10.7,79.3,17.8,79.3,26v2.2c0,2.8,2.3,5.1,5.1,5.1h0c2.8,0,5.1-2.3,5.1-5.1v-2C89.6,11.8,77.9-0.3,63.5,0 C49.6,0.3,38.4,11.6,38.4,25.6V44c-6.3,0.8-11,2.5-14.6,6.1c-6.7,6.7-6.7,17.1-6.7,35.6c0,18.5,0,28.8,6.7,35.6 c6.7,6.7,17.1,6.7,35.6,6.7c1.3,0,6.2,0,7.5,0c18.5,0,28.8,0,35.6-6.7c6.7-6.7,6.7-17.1,6.7-35.6C109.3,67.1,109.3,56.8,102.5,50.1z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M102.5 50.1c-6.7-6.7-17.1-6.7-35.6-6.7h-7.5c-3.9 0-7.5 0-10.7.1V25.6c0-8.7 7.3-15.7 16-15.3 8.3.4 14.6 7.5 14.6 15.7v2.2c0 2.8 2.3 5.1 5.1 5.1s5.1-2.3 5.1-5.1v-2C89.6 11.8 77.9-.3 63.5 0 49.6.3 38.4 11.6 38.4 25.6V44c-6.3.8-11 2.5-14.6 6.1-6.7 6.7-6.7 17.1-6.7 35.6s0 28.8 6.7 35.6c6.7 6.7 17.1 6.7 35.6 6.7h7.5c18.5 0 28.8 0 35.6-6.7 6.7-6.7 6.7-17.1 6.7-35.6.1-18.6.1-28.9-6.7-35.6"/></svg>`
 };
 export const wrIconLock: {
   name: 'lock';
   data: string;
 } = {
   name: 'lock',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M102.5,50.1c-3.3-3.3-7.4-5-12.9-5.8V25.6C89.6,11.5,78.1,0,64,0S38.4,11.5,38.4,25.6V44c-6.3,0.8-11,2.5-14.6,6.1 c-6.7,6.7-6.7,17.1-6.7,35.6c0,18.5,0,28.8,6.7,35.6c6.7,6.7,17.1,6.7,35.6,6.7c1.3,0,6.2,0,7.5,0c18.5,0,28.8,0,35.6-6.7 c6.7-6.7,6.7-17.1,6.7-35.6C109.3,67.1,109.3,56.8,102.5,50.1z M59.4,43.3c-3.9,0-7.5,0-10.7,0.1V25.6c0-8.4,6.9-15.3,15.3-15.3 s15.3,6.9,15.3,15.3v17.8c-3.7-0.1-7.8-0.1-12.4-0.1C65.6,43.3,60.7,43.3,59.4,43.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M102.5 50.1c-3.3-3.3-7.4-5-12.9-5.8V25.6C89.6 11.5 78.1 0 64 0S38.4 11.5 38.4 25.6V44c-6.3.8-11 2.5-14.6 6.1-6.7 6.7-6.7 17.1-6.7 35.6s0 28.8 6.7 35.6c6.7 6.7 17.1 6.7 35.6 6.7h7.5c18.5 0 28.8 0 35.6-6.7 6.7-6.7 6.7-17.1 6.7-35.6.1-18.6.1-28.9-6.7-35.6m-43.1-6.8c-3.9 0-7.5 0-10.7.1V25.6c0-8.4 6.9-15.3 15.3-15.3s15.3 6.9 15.3 15.3v17.8c-3.7-.1-7.8-.1-12.4-.1z"/></svg>`
 };
 export const wrIconLogoAndroid: {
   name: 'logo-android';
   data: string;
 } = {
   name: 'logo-android',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M380.91 199l42.47-73.57a8.63 8.63 0 00-3.12-11.76 8.52 8.52 0 00-11.71 3.12l-43 74.52c-32.83-15-69.78-23.35-109.52-23.35s-76.69 8.36-109.52 23.35l-43-74.52a8.6 8.6 0 10-14.88 8.64L131 199C57.8 238.64 8.19 312.77 0 399.55h512c-8.19-86.78-57.8-160.91-131.09-200.55zM138.45 327.65a21.46 21.46 0 1121.46-21.46 21.47 21.47 0 01-21.46 21.46zm235 0A21.46 21.46 0 11395 306.19a21.47 21.47 0 01-21.51 21.46z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m380.91 199 42.47-73.57a8.63 8.63 0 0 0-3.12-11.76 8.52 8.52 0 0 0-11.71 3.12l-43 74.52c-32.83-15-69.78-23.35-109.52-23.35s-76.69 8.36-109.52 23.35l-43-74.52a8.6 8.6 0 1 0-14.88 8.64L131 199C57.8 238.64 8.19 312.77 0 399.55h512c-8.19-86.78-57.8-160.91-131.09-200.55M138.45 327.65a21.46 21.46 0 1 1 21.46-21.46 21.47 21.47 0 0 1-21.46 21.46m235 0A21.46 21.46 0 1 1 395 306.19a21.47 21.47 0 0 1-21.51 21.46z"/></svg>`
 };
 export const wrIconLogoAppCenter: {
   name: 'logo-app-center';
   data: string;
 } = {
   name: 'logo-app-center',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><polygon points="96,0 96,109.9 0,96 96,128 128,114.7 128,13.3"/><path d="M43.7,88V68.8L64,82.7l16-5.3V34.7l-16-5.3L44.3,43.2V24L32,21.3L10.7,40v8l12.3,8l-12.3,8v8L32,90.7L43.7,88z M64,45.3 v21.3L43.7,56L64,45.3z M17.1,43.2L32,32v18.7L17.1,43.2z M32,61.3V80L17.1,68.8L32,61.3z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M96 0v109.9L0 96l96 32 32-13.3V13.3z"/><path d="M43.7 88V68.8L64 82.7l16-5.3V34.7l-16-5.3-19.7 13.8V24L32 21.3 10.7 40v8L23 56l-12.3 8v8L32 90.7zM64 45.3v21.3L43.7 56zm-46.9-2.1L32 32v18.7zM32 61.3V80L17.1 68.8z"/></svg>`
 };
 export const wrIconLogoAppGallery: {
   name: 'logo-app-gallery';
   data: string;
 } = {
   name: 'logo-app-gallery',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><g><polygon class="st0" points="55.8,74.2 61,74.2 58.4,68.2"/><path class="st0" d="M92.1,0H35.9C9.6,0,0,9.6,0,35.9v56.2C0,118.4,9.6,128,35.9,128h56.2c26.3,0,35.9-9.6,35.9-35.9V35.9 C128,9.6,118.4,0,92.1,0z M28.7,80.8h-3.4V74h-7.7v6.8h-3.4V64h3.4v6.8h7.7V64h3.4V80.8z M47.8,73.5c0,4.8-2.6,7.6-7.3,7.6 c-4.6,0-7.2-2.7-7.2-7.4V64h3.4v9.5c0,2.8,1.4,4.3,3.8,4.3c2.5,0,3.8-1.5,3.8-4.2V64h3.4V73.5z M42.7,21.3h3 c0,10.1,8.2,18.3,18.3,18.3c10.1,0,18.3-8.2,18.3-18.3h3c0,11.8-9.6,21.3-21.3,21.3C52.2,42.7,42.7,33.1,42.7,21.3z M63.7,80.7 l-1.5-3.5h-7.7L53,80.7h-3.5L57,64h3l7.4,16.7H63.7z M85.2,80.8h-2.8l-3.8-11l-3.8,11h-2.8L66,64h3.6l3.7,11.5L77.2,64h2.8 l3.8,11.5L87.5,64H91L85.2,80.8z M106.4,80.7H93.7V64H106v3.1h-9v3.4h6.2v3.1h-6.2v4.1h9.3V80.7z M113.8,80.7h-3.4V64h3.4V80.7z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" id="Layer_1" x="0" y="0" version="1.1" viewBox="0 0 128 128"><style>.st0{fill-rule:evenodd;clip-rule:evenodd}</style><path d="M55.8 74.2H61l-2.6-6z" class="st0"/><path d="M92.1 0H35.9C9.6 0 0 9.6 0 35.9v56.2C0 118.4 9.6 128 35.9 128h56.2c26.3 0 35.9-9.6 35.9-35.9V35.9C128 9.6 118.4 0 92.1 0M28.7 80.8h-3.4V74h-7.7v6.8h-3.4V64h3.4v6.8h7.7V64h3.4zm19.1-7.3c0 4.8-2.6 7.6-7.3 7.6-4.6 0-7.2-2.7-7.2-7.4V64h3.4v9.5c0 2.8 1.4 4.3 3.8 4.3 2.5 0 3.8-1.5 3.8-4.2V64h3.4v9.5zm-5.1-52.2h3c0 10.1 8.2 18.3 18.3 18.3s18.3-8.2 18.3-18.3h3c0 11.8-9.6 21.3-21.3 21.3-11.8.1-21.3-9.5-21.3-21.3m21 59.4-1.5-3.5h-7.7L53 80.7h-3.5L57 64h3l7.4 16.7zm21.5.1h-2.8l-3.8-11-3.8 11H72L66 64h3.6l3.7 11.5L77.2 64H80l3.8 11.5L87.5 64H91zm21.2-.1H93.7V64H106v3.1h-9v3.4h6.2v3.1H97v4.1h9.3v3zm7.4 0h-3.4V64h3.4z" class="st0"/></svg>`
 };
 export const wrIconLogoApple: {
   name: 'logo-apple';
   data: string;
 } = {
   name: 'logo-apple',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><title>Logo Apple</title><path d="M349.13 136.86c-40.32 0-57.36 19.24-85.44 19.24-28.79 0-50.75-19.1-85.69-19.1-34.2 0-70.67 20.88-93.83 56.45-32.52 50.16-27 144.63 25.67 225.11 18.84 28.81 44 61.12 77 61.47h.6c28.68 0 37.2-18.78 76.67-19h.6c38.88 0 46.68 18.89 75.24 18.89h.6c33-.35 59.51-36.15 78.35-64.85 13.56-20.64 18.6-31 29-54.35-76.19-28.92-88.43-136.93-13.08-178.34-23-28.8-55.32-45.48-85.79-45.48z"/><path d="M340.25 32c-24 1.63-52 16.91-68.4 36.86-14.88 18.08-27.12 44.9-22.32 70.91h1.92c25.56 0 51.72-15.39 67-35.11 14.72-18.77 25.88-45.37 21.8-72.66z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M349.13 136.86c-40.32 0-57.36 19.24-85.44 19.24-28.79 0-50.75-19.1-85.69-19.1-34.2 0-70.67 20.88-93.83 56.45-32.52 50.16-27 144.63 25.67 225.11 18.84 28.81 44 61.12 77 61.47h.6c28.68 0 37.2-18.78 76.67-19h.6c38.88 0 46.68 18.89 75.24 18.89h.6c33-.35 59.51-36.15 78.35-64.85 13.56-20.64 18.6-31 29-54.35-76.19-28.92-88.43-136.93-13.08-178.34-23-28.8-55.32-45.48-85.79-45.48z"/><path d="M340.25 32c-24 1.63-52 16.91-68.4 36.86-14.88 18.08-27.12 44.9-22.32 70.91h1.92c25.56 0 51.72-15.39 67-35.11 14.72-18.77 25.88-45.37 21.8-72.66"/></svg>`
 };
 export const wrIconLogoAppscreener: {
   name: 'logo-appscreener';
   data: string;
 } = {
   name: 'logo-appscreener',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path d="M24.88 215.29c.09-.06.18-.12.24-.18-.06.06-.15.12-.24.18zM95.44 160c0-.8.09-1.59.12-2.36l-23.91-1.83c-1.06 16.47 3.39 32.53 12.1 45.87l20.52-13.11c-5.56-8.14-8.83-17.97-8.83-28.57zm11.1-31.65-32.3-31.94c-9.48 10.72-16.74 23.73-20.78 38.46-.89 3.28-1.59 6.58-2.15 9.89l44.37 10.18c1-10 4.92-19.15 10.86-26.59zm115.66-21.16 22.35-16.62c-5.28-7.59-16.92-20.96-24.44-26.57l-18.13 21.82c12.1 9.15 16.73 16.44 20.22 21.37z"/><path d="M51.19 76.63c-18.13 19.45-25.06 33.8-30.32 61.14l25.92 5.76c3.22-19.34 11.9-36.69 24.35-50.51L51.19 76.63zm-39.47 71.89c-1.86 30.52 6.26 63.11 21.99 86.73l45.84-30.44c-9.45-14.38-14.26-31.65-13.11-49.42l-54.72-6.87c0-.12 0 .09 0 0zm23.5-106.04 44.4 49.8c14.41-14.52 33.36-23.85 53.7-26.98L125.19 0C90.74 4.37 59.51 19.69 35.22 42.48zm153.09 89.42 29.85-21.17c-5.25-7.59-11.78-14.32-19.28-19.93l-24.15 27.34c5.34 3.66 9.98 8.32 13.58 13.76zm33.89-24.71 22.35-16.62c-5.28-7.59-16.92-20.96-24.44-26.57l-18.13 21.82c12.1 9.15 16.73 16.44 20.22 21.37zm-116.28 83.6L72.8 217.12c4.52 5.23 11.51 12.28 17.06 16.38l23.53-34.83a53.541 53.541 0 0 1-7.47-7.88z"/><path d="m140.93 109.58-6.61-38.44c-19.31 2.98-38.2 12.55-51.78 26.45l25.74 28.78c8.18-9.23 19.66-15.46 32.65-16.79zM69.31 219.84l-17.74 14.91c6.05 7 15.14 15.79 22.64 21.25l13.34-18.18a97.97 97.97 0 0 1-18.24-17.98zm76.96-134.76h-.32c-1.3 0-2.57.09-3.84.15l1.3 24.09c.89-.06 1.8-.03 2.72-.03 9.56 0 18.48 2.69 26.1 7.29l13.79-19.96c-11.53-7.26-25.14-11.51-39.75-11.54zm-.15-5.73c15.56 0 30.05 4.4 42.36 12.04.24.15.5.3.77.44L218 49.97c-18.95-12.31-41.3-19.96-65.51-21.11-4.22-.21-8.41-.18-12.55.03l1.77 50.6c1.49-.08 2.94-.14 4.41-.14z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path d="M24.88 215.29c.09-.06.18-.12.24-.18-.06.06-.15.12-.24.18M95.44 160c0-.8.09-1.59.12-2.36l-23.91-1.83c-1.06 16.47 3.39 32.53 12.1 45.87l20.52-13.11c-5.56-8.14-8.83-17.97-8.83-28.57m11.1-31.65-32.3-31.94c-9.48 10.72-16.74 23.73-20.78 38.46-.89 3.28-1.59 6.58-2.15 9.89l44.37 10.18c1-10 4.92-19.15 10.86-26.59m115.66-21.16 22.35-16.62c-5.28-7.59-16.92-20.96-24.44-26.57l-18.13 21.82c12.1 9.15 16.73 16.44 20.22 21.37"/><path d="M51.19 76.63c-18.13 19.45-25.06 33.8-30.32 61.14l25.92 5.76c3.22-19.34 11.9-36.69 24.35-50.51zm-39.47 71.89c-1.86 30.52 6.26 63.11 21.99 86.73l45.84-30.44c-9.45-14.38-14.26-31.65-13.11-49.42zc0-.12 0 .09 0 0m23.5-106.04 44.4 49.8c14.41-14.52 33.36-23.85 53.7-26.98L125.19 0C90.74 4.37 59.51 19.69 35.22 42.48m153.09 89.42 29.85-21.17c-5.25-7.59-11.78-14.32-19.28-19.93l-24.15 27.34c5.34 3.66 9.98 8.32 13.58 13.76m33.89-24.71 22.35-16.62c-5.28-7.59-16.92-20.96-24.44-26.57l-18.13 21.82c12.1 9.15 16.73 16.44 20.22 21.37m-116.28 83.6L72.8 217.12c4.52 5.23 11.51 12.28 17.06 16.38l23.53-34.83a53.5 53.5 0 0 1-7.47-7.88"/><path d="m140.93 109.58-6.61-38.44c-19.31 2.98-38.2 12.55-51.78 26.45l25.74 28.78c8.18-9.23 19.66-15.46 32.65-16.79M69.31 219.84l-17.74 14.91c6.05 7 15.14 15.79 22.64 21.25l13.34-18.18a98 98 0 0 1-18.24-17.98m76.96-134.76h-.32c-1.3 0-2.57.09-3.84.15l1.3 24.09c.89-.06 1.8-.03 2.72-.03 9.56 0 18.48 2.69 26.1 7.29l13.79-19.96c-11.53-7.26-25.14-11.51-39.75-11.54m-.15-5.73c15.56 0 30.05 4.4 42.36 12.04.24.15.5.3.77.44L218 49.97c-18.95-12.31-41.3-19.96-65.51-21.11-4.22-.21-8.41-.18-12.55.03l1.77 50.6c1.49-.08 2.94-.14 4.41-.14"/></svg>`
 };
 export const wrIconLogoAppstore: {
   name: 'logo-appstore';
   data: string;
 } = {
   name: 'logo-appstore',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.6,0,0,28.6,0,64s28.6,64,64,64s64-28.6,64-64S99.4,0,64,0z M39.7,92c-0.8,1.4-2.3,2.2-3.8,2.2 c-0.8,0-1.6-0.2-2.2-0.6c-2.1-1.2-2.8-3.9-1.6-6c0,0,0,0,0,0l4.4-7.3c0.4-0.8,1.3-1.2,2.2-1.2h0.6c3.2,0,5.4,1.9,6,3.8L39.7,92z M76.7,77.7l-28.6,0h-19c-2.4,0-4.4-2-4.4-4.4c0-0.1,0-0.1,0-0.2c0.1-2.4,2.2-4.2,4.6-4.2H43l16.3-27.8l0,0l-5.3-9 c-1.2-2.1-0.7-4.8,1.4-6.1c2.1-1.3,4.8-0.7,6.2,1.3c0,0.1,0.1,0.1,0.1,0.2l2.8,4.8h0l2.8-4.8c1.3-2.1,4-2.8,6.1-1.6 c0,0,0.1,0.1,0.1,0.1c2,1.3,2.6,4,1.4,6.1l-5.3,9l-5.1,8.8l-11.2,19v0h16.5c2.1,0,4.6,1.1,5.7,2.9l0.1,0.2c0.9,1.6,1.4,2.6,1.4,4.2 C77,76.7,76.9,77.2,76.7,77.7L76.7,77.7z M98.9,77.7h-7.7v0l5.7,9.6c1.3,2.1,0.6,4.8-1.5,6.2c-0.7,0.4-1.5,0.6-2.3,0.6 c-1.6,0-3-0.8-3.8-2.2l-8.4-14.2l-5.2-8.9l-6.7-11.5c-2-3.3-2-7.5-0.2-10.9c1.3-2.3,2.3-3,2.3-3L86,68.9h12.8c2.4,0,4.5,1.8,4.6,4.2 c0.1,2.5-1.8,4.5-4.3,4.6C99,77.7,99,77.7,98.9,77.7L98.9,77.7z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.6 0 0 28.6 0 64s28.6 64 64 64 64-28.6 64-64S99.4 0 64 0M39.7 92c-.8 1.4-2.3 2.2-3.8 2.2-.8 0-1.6-.2-2.2-.6-2.1-1.2-2.8-3.9-1.6-6l4.4-7.3c.4-.8 1.3-1.2 2.2-1.2h.6c3.2 0 5.4 1.9 6 3.8zm37-14.3H29.1c-2.4 0-4.4-2-4.4-4.4v-.2c.1-2.4 2.2-4.2 4.6-4.2H43l16.3-27.8-5.3-9c-1.2-2.1-.7-4.8 1.4-6.1s4.8-.7 6.2 1.3c0 .1.1.1.1.2l2.8 4.8 2.8-4.8c1.3-2.1 4-2.8 6.1-1.6l.1.1c2 1.3 2.6 4 1.4 6.1l-5.3 9-5.1 8.8-11.2 19h16.5c2.1 0 4.6 1.1 5.7 2.9l.1.2c.9 1.6 1.4 2.6 1.4 4.2q0 .75-.3 1.5m22.2 0h-7.7l5.7 9.6c1.3 2.1.6 4.8-1.5 6.2-.7.4-1.5.6-2.3.6-1.6 0-3-.8-3.8-2.2l-8.4-14.2-5.2-8.9L69 57.3c-2-3.3-2-7.5-.2-10.9 1.3-2.3 2.3-3 2.3-3L86 68.9h12.8c2.4 0 4.5 1.8 4.6 4.2.1 2.5-1.8 4.5-4.3 4.6z"/></svg>`
 };
 export const wrIconLogoFirebase: {
   name: 'logo-firebase';
   data: string;
 } = {
   name: 'logo-firebase',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M20.6,83.6L33.2,2.5c0.4-2.8,4.1-3.4,5.5-0.9L52.3,27L20.6,83.6z M110.9,102.4L98.5,28.6c-0.3-1.6-1.8-2.7-3.4-2.4 c-0.6,0.1-1.1,0.4-1.6,0.8l-76.5,75.4l42.5,24.5c2.7,1.5,5.9,1.5,8.5,0L110.9,102.4z M76.4,38.1l-9.7-18.5c-0.7-1.4-2.5-2-3.9-1.3 c-0.5,0.3-1,0.7-1.3,1.3L18.6,95.9L76.4,38.1z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M20.6 83.6 33.2 2.5c.4-2.8 4.1-3.4 5.5-.9L52.3 27zm90.3 18.8L98.5 28.6c-.3-1.6-1.8-2.7-3.4-2.4-.6.1-1.1.4-1.6.8L17 102.4l42.5 24.5c2.7 1.5 5.9 1.5 8.5 0zM76.4 38.1l-9.7-18.5c-.7-1.4-2.5-2-3.9-1.3-.5.3-1 .7-1.3 1.3L18.6 95.9z"/></svg>`
 };
 export const wrIconLogoGithub: {
   name: 'logo-github';
   data: string;
 } = {
   name: 'logo-github',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,1.6c-35.3,0-64,28.7-64,64c0,28.3,18.3,52.3,43.8,60.7c3.2,0.6,4.4-1.4,4.4-3.1c0-1.5-0.1-5.5-0.1-10.9 c-17.8,3.9-21.6-8.6-21.6-8.6c-2.9-7.4-7.1-9.4-7.1-9.4c-5.8-4,0.4-3.9,0.4-3.9c6.4,0.5,9.8,6.6,9.8,6.6c5.7,9.8,15,7,18.6,5.3 c0.6-4.1,2.2-7,4.1-8.6c-14.2-1.6-29.2-7.1-29.2-31.6c0-7,2.5-12.7,6.6-17.2c-0.7-1.6-2.9-8.1,0.6-16.9c0,0,5.4-1.7,17.6,6.6 c5.1-1.4,10.6-2.1,16-2.2c5.4,0,10.9,0.7,16,2.2c12.2-8.3,17.6-6.6,17.6-6.6c3.5,8.8,1.3,15.3,0.6,16.9c4.1,4.5,6.6,10.2,6.6,17.2 c0,24.6-15,30-29.2,31.6c2.3,2,4.3,5.9,4.3,11.9c0,8.6-0.1,15.5-0.1,17.6c0,1.7,1.2,3.7,4.4,3.1c25.4-8.5,43.7-32.5,43.7-60.7 C128,30.2,99.3,1.6,64,1.6z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 1.6c-35.3 0-64 28.7-64 64 0 28.3 18.3 52.3 43.8 60.7 3.2.6 4.4-1.4 4.4-3.1 0-1.5-.1-5.5-.1-10.9-17.8 3.9-21.6-8.6-21.6-8.6-2.9-7.4-7.1-9.4-7.1-9.4-5.8-4 .4-3.9.4-3.9 6.4.5 9.8 6.6 9.8 6.6 5.7 9.8 15 7 18.6 5.3.6-4.1 2.2-7 4.1-8.6-14.2-1.6-29.2-7.1-29.2-31.6 0-7 2.5-12.7 6.6-17.2-.7-1.6-2.9-8.1.6-16.9 0 0 5.4-1.7 17.6 6.6 5.1-1.4 10.6-2.1 16-2.2 5.4 0 10.9.7 16 2.2C92.1 26.3 97.5 28 97.5 28c3.5 8.8 1.3 15.3.6 16.9 4.1 4.5 6.6 10.2 6.6 17.2 0 24.6-15 30-29.2 31.6 2.3 2 4.3 5.9 4.3 11.9 0 8.6-.1 15.5-.1 17.6 0 1.7 1.2 3.7 4.4 3.1 25.4-8.5 43.7-32.5 43.7-60.7.2-35.4-28.5-64-63.8-64"/></svg>`
 };
 export const wrIconLogoGooglePlay: {
   name: 'logo-google-play';
   data: string;
 } = {
   name: 'logo-google-play',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M65.2,64L6.3,121.4c-0.2,0.2-0.5,0.4-0.9,0.4c-0.7,0-1.2-0.6-1.2-1.2V7.5c0-0.3,0.1-0.6,0.4-0.9c0.5-0.5,1.3-0.5,1.8,0 L65.2,64z M72.4,57.1l17.4-16.7L16-0.3l0,0c-1.3-0.7-2.5,1-1.4,2L72.4,57.1z M14.5,126.3c-1,1,0.2,2.7,1.4,2l0,0l73.8-40.7 L72.4,70.9L14.5,126.3z M119.6,56.8L99,45.5L79.6,64L99,82.5l20.6-11.3C125.3,68.1,125.3,59.9,119.6,56.8z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M65.2 64 6.3 121.4c-.2.2-.5.4-.9.4-.7 0-1.2-.6-1.2-1.2V7.5c0-.3.1-.6.4-.9.5-.5 1.3-.5 1.8 0zm7.2-6.9 17.4-16.7L16-.3c-1.3-.7-2.5 1-1.4 2zm-57.9 69.2c-1 1 .2 2.7 1.4 2l73.8-40.7-17.3-16.7zm105.1-69.5L99 45.5 79.6 64 99 82.5l20.6-11.3c5.7-3.1 5.7-11.3 0-14.4"/></svg>`
 };
 export const wrIconLogoOversecured: {
   name: 'logo-oversecured';
   data: string;
 } = {
   name: 'logo-oversecured',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path d="M114.67.34C50.24 7.01 0 61.47 0 127.66c0 70.69 57.31 128 128 128s128-57.31 128-128C256 61.47 205.76 7.01 141.33.34v27.42c49.35 6.52 87.43 48.76 87.43 99.89 0 55.65-45.11 100.77-100.77 100.77-55.65 0-100.77-45.11-100.77-100.77 0-51.13 38.08-93.37 87.43-99.89V.34z"/><path d="M61.21 182.13c25.94 32.13 72.12 41.5 109 20.2 40.81-23.56 54.8-75.75 31.23-116.57S125.7 30.97 84.88 54.53c-36.89 21.3-51.86 65.97-37 104.5l24.28-14.02c-7.54-25.09 2.81-52.98 26.49-66.64 27.65-15.96 63-6.49 78.96 21.16 15.96 27.65 6.49 63-21.16 78.97-23.67 13.67-53 8.69-70.96-10.38l-24.28 14.01z"/><path d="M113.76 87.43c-16.56 5.86-28.43 21.66-28.43 40.23 0 23.56 19.1 42.67 42.67 42.67 23.56 0 42.67-19.1 42.67-42.67 0-18.57-11.86-34.37-28.43-40.23v40.23h-.02c0 7.85-6.37 14.22-14.22 14.22-7.85 0-14.22-6.37-14.22-14.22h-.02V87.43z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path d="M114.67.34C50.24 7.01 0 61.47 0 127.66c0 70.69 57.31 128 128 128s128-57.31 128-128C256 61.47 205.76 7.01 141.33.34v27.42c49.35 6.52 87.43 48.76 87.43 99.89 0 55.65-45.11 100.77-100.77 100.77-55.65 0-100.77-45.11-100.77-100.77 0-51.13 38.08-93.37 87.43-99.89V.34z"/><path d="M61.21 182.13c25.94 32.13 72.12 41.5 109 20.2 40.81-23.56 54.8-75.75 31.23-116.57S125.7 30.97 84.88 54.53c-36.89 21.3-51.86 65.97-37 104.5l24.28-14.02c-7.54-25.09 2.81-52.98 26.49-66.64 27.65-15.96 63-6.49 78.96 21.16s6.49 63-21.16 78.97c-23.67 13.67-53 8.69-70.96-10.38z"/><path d="M113.76 87.43c-16.56 5.86-28.43 21.66-28.43 40.23 0 23.56 19.1 42.67 42.67 42.67 23.56 0 42.67-19.1 42.67-42.67 0-18.57-11.86-34.37-28.43-40.23v40.23h-.02c0 7.85-6.37 14.22-14.22 14.22s-14.22-6.37-14.22-14.22h-.02z"/></svg>`
 };
 export const wrIconLogoRustore: {
   name: 'logo-rustore';
   data: string;
 } = {
   name: 'logo-rustore',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M119,9c-9-9-23.5-9-52.4-9h-5.1h0C32.5,0,18,0,9,9c-9,9-9,23.5-9,52.4v5.1c0,29,0,43.4,9,52.4 c9,9,23.5,9,52.4,9h5.1c29,0,43.4,0,52.4-9c9-9,9-23.5,9-52.4v-5.1C128,32.5,128,18,119,9z M106.5,79.1c0,4-3.8,7-7.7,6l-8.6-2.1 c-1.1-0.3-1.9-1.2-1.9-2.3l-1.1-31.8c-0.3-4.2-3.4-7.6-6.7-8.6c-0.2-0.1-0.4,0-0.5,0.2c-0.1,0.2-0.1,0.4,0.1,0.5 c0.8,0.6,3,2.7,3,6.2l0,41.6c0,4-3.8,7-7.7,6l-8.6-2.2c-1.1-0.3-1.8-1.2-1.8-2.3l-1.1-31.8c-0.3-4.2-3.4-7.6-6.7-8.6 c-0.2-0.1-0.4,0-0.5,0.2c-0.1,0.2-0.1,0.4,0.1,0.5c0.8,0.6,3,2.7,3,6.2l0,41.6c0,4-3.8,7-7.7,6l-24.8-6.2c-3.4-0.9-5.9-3.9-5.9-7.5 V48.9c0-4,3.8-7,7.7-6l15.6,3.9v-7.5c0-4,3.8-7,7.7-6l15.6,3.9v-7.5c0-4,3.8-7,7.7-6l24.8,6.2c3.4,0.9,5.9,3.9,5.9,7.5V79.1z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M119 9c-9-9-23.5-9-52.4-9h-5.1C32.5 0 18 0 9 9S0 32.5 0 61.4v5.1c0 29 0 43.4 9 52.4s23.5 9 52.4 9h5.1c29 0 43.4 0 52.4-9s9-23.5 9-52.4v-5.1C128 32.5 128 18 119 9m-12.5 70.1c0 4-3.8 7-7.7 6L90.2 83c-1.1-.3-1.9-1.2-1.9-2.3l-1.1-31.8c-.3-4.2-3.4-7.6-6.7-8.6-.2-.1-.4 0-.5.2s-.1.4.1.5c.8.6 3 2.7 3 6.2v41.6c0 4-3.8 7-7.7 6l-8.6-2.2c-1.1-.3-1.8-1.2-1.8-2.3l-1.1-31.8c-.3-4.2-3.4-7.6-6.7-8.6-.2-.1-.4 0-.5.2s-.1.4.1.5c.8.6 3 2.7 3 6.2v41.6c0 4-3.8 7-7.7 6l-24.8-6.2c-3.4-.9-5.9-3.9-5.9-7.5V48.9c0-4 3.8-7 7.7-6l15.6 3.9v-7.5c0-4 3.8-7 7.7-6L68 37.2v-7.5c0-4 3.8-7 7.7-6l24.8 6.2c3.4.9 5.9 3.9 5.9 7.5v41.7z"/></svg>`
 };
 export const wrIconLogoStingray: {
   name: 'logo-stingray';
   data: string;
 } = {
   name: 'logo-stingray',
-  data: `<svg class="header-logo-mark" xmlns="http://www.w3.org/2000/svg" width="933.333" height="933.333" viewBox="0 0 700 700"><path d="M335.5 10c-39.2 33-81.9 74.8-113.6 111-4.5 5.2-8.5 9.7-8.8 10-.4.3-4.1 4.7-8.4 9.8l-7.8 9.4 4.3 4.6c6 6.5 16.4 20 23.5 30.7 34.8 51.9 62 119.5 82.9 205.5 1 4.3 7.5 32.8 7.8 34.5.2 1.1.7 3.1 1 4.5.3 1.4.8 3.7 1.1 5.2.3 1.6.7 4 1 5.5.8 3.7 4.6 24.3 5 26.8 1.3 7.2 3.5 20.6 4 24 .4 2.2.8 4.7 1 5.5.2.8.7 3.7 1 6.5.4 2.7.8 5.7 1 6.5.2.8.7 4 1 7 .3 3 .8 6.6 1 8 .2 1.4.7 4.5 1 7 .3 2.5 1 7.6 1.5 11.5 1 7.3 1.7 13.9 2.5 21.5.2 2.5.7 6.7 1 9.5.5 5.1 1.2 11.6 2 19.5.3 2.5.7 6.5.9 9 .3 2.5.8 8.5 1.1 13.5.3 4.9.8 11.2 1 14 1.2 14.8 2.2 32.6 3 53 .6 13.4 1.3 16.5 4 16.5s3.3-3.1 4-19.5c1-25.5 2.3-46.6 4-65 .3-2.8.7-8.2 1-12 .5-7.6 1.3-16 2-21.5.2-1.9.7-6.2 1-9.5.8-8.1 1.5-14.3 2-18.5.3-1.9.7-5.8 1-8.5.3-2.8.8-6.1 1-7.5.2-1.4.6-4.5 1-7 .5-4.5 1.3-10.3 2-15 .2-1.4 1.1-7.5 2-13.5.9-6.1 2.2-14.6 3-19 .8-4.4 1.7-10 2-12.5.4-2.4.8-4.7 1-5 .2-.3.6-2.3.9-4.5.4-2.2 1.6-9 2.7-15 1.2-6.1 2.3-11.9 2.5-13 .4-2.3 1.2-6.1 1.9-9 1.2-5.3 3.5-15.5 3.9-17.6 1.1-6.1 9.2-37.7 13.7-53.7 7.8-27.4 22.3-70.2 25.9-76.4.5-1 1-2.2 1-2.8 0-.5 1.1-3.3 2.4-6.2 1.3-2.9 3.6-8.2 5.1-11.8 14.7-34.3 38.3-73.4 58.8-97.3l7.6-8.8-2.3-2.7c-1.3-1.5-5.6-6.5-9.6-11.2-8.4-9.8-17.6-20.1-27.5-30.9C454.3 94 414 54 402.5 43.5c-5.4-5-10.3-9.5-10.9-10-2.4-2.2-26.4-23.3-31.8-27.8-9.2-7.8-10.1-7.6-24.3 4.3z"/><path d="M165.7 189.6c-24.7 33.2-43.2 60.6-61.2 90.4-8.6 14.1-18.9 32-24 41.5-2.7 4.9-5.7 10.6-6.8 12.5-10.5 18.9-31.6 63.8-43.7 93-12.1 29.2-26.5 69-25 69 .8 0 18.7-5.1 33.5-9.5 4.4-1.3 14.8-4.4 23-6.8 8.3-2.4 18.4-5.4 22.5-6.6 4.1-1.3 14.9-4.4 24-7.1 9.1-2.7 23.5-6.9 32-9.4 8.5-2.6 20.9-6.2 27.5-8.1 6.6-1.9 13.4-3.9 15-4.5 1.7-.5 11.6-3.4 22-6.5 20.6-6 24.1-7.1 47.5-14.1 8.5-2.5 17.1-5.1 19.1-5.6 3.6-1 3.6-1.1 2.8-4.6-.4-2.1-1.1-5.3-1.4-7.2-.3-1.9-1.1-5.5-1.6-8-.6-2.5-1.3-5.6-1.5-7-1.7-8.8-9.5-37.1-14.1-51-3.4-10.4-9.2-27.1-10.3-29.5-.4-1.1-3.9-9.2-7.6-18-8.8-21-22.5-48.5-30.1-60.7-1.3-2.1-2.3-3.9-2.3-4.1 0-1.5-30.5-48.9-31.3-48.7-.1.1-3.7 4.8-8 10.6zM517.8 191.7c-32.4 48.8-54.7 94.5-72.4 147.9-8.7 26.4-20.1 71.6-19.2 76.1.2 1.1 3.9 2.6 12.3 5 6.6 1.9 14 4.1 16.5 4.8 2.5.8 8.3 2.5 13 3.8 4.7 1.4 16.8 5 27 8s19.4 5.7 20.5 6c1.1.3 8.8 2.5 17 5 8.3 2.5 20.4 6.1 27 8.1 6.6 1.9 30.5 8.9 53 15.6 22.6 6.7 42.4 12.5 44 13 5.8 1.5 34.5 10 37 11 1.4.5 2.5.8 2.5.7 0-2.5-22.1-61.2-27.5-73.2-.8-1.7-2.6-5.9-4-9.5-10.5-25.5-43.8-92.8-52.5-106-.6-.8-1.3-2.2-1.7-3-.4-.8-2.2-3.8-4-6.7-1.8-2.9-3.3-5.4-3.3-5.7 0-.8-15-25.1-25.1-40.6-12.7-19.6-25.1-37.3-39.2-56.3l-12.4-16.8-8.5 12.8z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" width="933.333" height="933.333" class="header-logo-mark" viewBox="0 0 700 700"><path d="M335.5 10c-39.2 33-81.9 74.8-113.6 111-4.5 5.2-8.5 9.7-8.8 10-.4.3-4.1 4.7-8.4 9.8l-7.8 9.4 4.3 4.6c6 6.5 16.4 20 23.5 30.7 34.8 51.9 62 119.5 82.9 205.5 1 4.3 7.5 32.8 7.8 34.5.2 1.1.7 3.1 1 4.5s.8 3.7 1.1 5.2c.3 1.6.7 4 1 5.5.8 3.7 4.6 24.3 5 26.8 1.3 7.2 3.5 20.6 4 24 .4 2.2.8 4.7 1 5.5s.7 3.7 1 6.5c.4 2.7.8 5.7 1 6.5s.7 4 1 7 .8 6.6 1 8 .7 4.5 1 7 1 7.6 1.5 11.5c1 7.3 1.7 13.9 2.5 21.5.2 2.5.7 6.7 1 9.5.5 5.1 1.2 11.6 2 19.5.3 2.5.7 6.5.9 9 .3 2.5.8 8.5 1.1 13.5.3 4.9.8 11.2 1 14 1.2 14.8 2.2 32.6 3 53 .6 13.4 1.3 16.5 4 16.5s3.3-3.1 4-19.5c1-25.5 2.3-46.6 4-65 .3-2.8.7-8.2 1-12 .5-7.6 1.3-16 2-21.5.2-1.9.7-6.2 1-9.5.8-8.1 1.5-14.3 2-18.5.3-1.9.7-5.8 1-8.5.3-2.8.8-6.1 1-7.5s.6-4.5 1-7c.5-4.5 1.3-10.3 2-15 .2-1.4 1.1-7.5 2-13.5.9-6.1 2.2-14.6 3-19s1.7-10 2-12.5c.4-2.4.8-4.7 1-5s.6-2.3.9-4.5c.4-2.2 1.6-9 2.7-15 1.2-6.1 2.3-11.9 2.5-13 .4-2.3 1.2-6.1 1.9-9 1.2-5.3 3.5-15.5 3.9-17.6 1.1-6.1 9.2-37.7 13.7-53.7 7.8-27.4 22.3-70.2 25.9-76.4.5-1 1-2.2 1-2.8 0-.5 1.1-3.3 2.4-6.2s3.6-8.2 5.1-11.8c14.7-34.3 38.3-73.4 58.8-97.3l7.6-8.8-2.3-2.7c-1.3-1.5-5.6-6.5-9.6-11.2-8.4-9.8-17.6-20.1-27.5-30.9C454.3 94 414 54 402.5 43.5c-5.4-5-10.3-9.5-10.9-10-2.4-2.2-26.4-23.3-31.8-27.8-9.2-7.8-10.1-7.6-24.3 4.3"/><path d="M165.7 189.6c-24.7 33.2-43.2 60.6-61.2 90.4-8.6 14.1-18.9 32-24 41.5-2.7 4.9-5.7 10.6-6.8 12.5-10.5 18.9-31.6 63.8-43.7 93S3.5 496 5 496c.8 0 18.7-5.1 33.5-9.5 4.4-1.3 14.8-4.4 23-6.8 8.3-2.4 18.4-5.4 22.5-6.6 4.1-1.3 14.9-4.4 24-7.1s23.5-6.9 32-9.4c8.5-2.6 20.9-6.2 27.5-8.1s13.4-3.9 15-4.5c1.7-.5 11.6-3.4 22-6.5 20.6-6 24.1-7.1 47.5-14.1 8.5-2.5 17.1-5.1 19.1-5.6 3.6-1 3.6-1.1 2.8-4.6-.4-2.1-1.1-5.3-1.4-7.2s-1.1-5.5-1.6-8c-.6-2.5-1.3-5.6-1.5-7-1.7-8.8-9.5-37.1-14.1-51-3.4-10.4-9.2-27.1-10.3-29.5-.4-1.1-3.9-9.2-7.6-18-8.8-21-22.5-48.5-30.1-60.7-1.3-2.1-2.3-3.9-2.3-4.1 0-1.5-30.5-48.9-31.3-48.7-.1.1-3.7 4.8-8 10.6m352.1 2.1c-32.4 48.8-54.7 94.5-72.4 147.9-8.7 26.4-20.1 71.6-19.2 76.1.2 1.1 3.9 2.6 12.3 5 6.6 1.9 14 4.1 16.5 4.8 2.5.8 8.3 2.5 13 3.8 4.7 1.4 16.8 5 27 8s19.4 5.7 20.5 6 8.8 2.5 17 5c8.3 2.5 20.4 6.1 27 8.1 6.6 1.9 30.5 8.9 53 15.6 22.6 6.7 42.4 12.5 44 13 5.8 1.5 34.5 10 37 11 1.4.5 2.5.8 2.5.7 0-2.5-22.1-61.2-27.5-73.2-.8-1.7-2.6-5.9-4-9.5-10.5-25.5-43.8-92.8-52.5-106-.6-.8-1.3-2.2-1.7-3s-2.2-3.8-4-6.7-3.3-5.4-3.3-5.7c0-.8-15-25.1-25.1-40.6-12.7-19.6-25.1-37.3-39.2-56.3l-12.4-16.8z"/></svg>`
 };
 export const wrIconModules: {
   name: 'modules';
   data: string;
 } = {
   name: 'modules',
-  data: `<svg viewBox="0 0 12 15" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.78123 0.973999H1.53153C0.86697 0.973999 0.323242 1.51158 0.323242 2.16863V10.531H1.53153V2.16863H8.78123V0.973999ZM10.5911 3.36377H3.94559C3.28103 3.36377 2.7373 3.90135 2.7373 4.5584V12.9208C2.7373 13.5779 3.28103 14.1154 3.94559 14.1154H10.5911C11.2557 14.1154 11.7994 13.5779 11.7994 12.9208V4.5584C11.7994 3.90135 11.2557 3.36377 10.5911 3.36377ZM3.94434 12.9224H10.5899V4.55994H3.94434V12.9224Z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 15"><path fill-rule="evenodd" d="M8.781.974h-7.25C.868.974.324 1.512.324 2.169v8.362h1.209V2.169h7.25zm1.81 2.39H3.946c-.665 0-1.209.537-1.209 1.194v8.363c0 .657.544 1.194 1.209 1.194h6.645c.665 0 1.208-.537 1.208-1.194V4.558c0-.657-.543-1.194-1.208-1.194m-6.647 9.558h6.646V4.56H3.944z" clip-rule="evenodd"/></svg>`
 };
 export const wrIconMoon: {
   name: 'moon';
   data: string;
 } = {
   name: 'moon',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M116.5,107.3C104.2,120.1,86.9,128,67.8,128C31.1,128,0.7,98.3,0,61.6C-0.5,35.4,13.9,12.4,35.4,0.7 c4.6-2.5,9.8,1.9,8.1,6.8c-2.7,7.6-4,15.7-3.8,24.2c0.8,35,28.7,63.9,63.6,66c3,0.2,5.9,0.2,8.8,0 C117.2,97.4,120.2,103.6,116.5,107.3z M125.4,27l-13.7-6.1l-6.1-13.7c-1.5-3.4-6.4-3.4-7.9,0l-6.1,13.7L78,27 c-3.4,1.5-3.4,6.4,0,7.9L91.7,41l6.1,13.7c1.5,3.4,6.4,3.4,7.9,0l6.1-13.7l13.7-6.1C128.9,33.4,128.9,28.5,125.4,27z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M116.5 107.3C104.2 120.1 86.9 128 67.8 128 31.1 128 .7 98.3 0 61.6-.5 35.4 13.9 12.4 35.4.7c4.6-2.5 9.8 1.9 8.1 6.8-2.7 7.6-4 15.7-3.8 24.2.8 35 28.7 63.9 63.6 66 3 .2 5.9.2 8.8 0 5.1-.3 8.1 5.9 4.4 9.6m8.9-80.3-13.7-6.1-6.1-13.7c-1.5-3.4-6.4-3.4-7.9 0l-6.1 13.7L78 27c-3.4 1.5-3.4 6.4 0 7.9L91.7 41l6.1 13.7c1.5 3.4 6.4 3.4 7.9 0l6.1-13.7 13.7-6.1c3.4-1.5 3.4-6.4-.1-7.9"/></svg>`
 };
 export const wrIconPlayBack: {
   name: 'play-back';
   data: string;
 } = {
   name: 'play-back',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M30.71 229.47l188.87-113a30.54 30.54 0 0131.09-.39 33.74 33.74 0 0116.76 29.47v79.05l180.72-108.16a30.54 30.54 0 0131.09-.39A33.74 33.74 0 01496 145.52v221A33.73 33.73 0 01479.24 396a30.54 30.54 0 01-31.09-.39L267.43 287.4v79.08A33.73 33.73 0 01250.67 396a30.54 30.54 0 01-31.09-.39l-188.87-113a31.27 31.27 0 010-53z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m30.71 229.47 188.87-113a30.54 30.54 0 0 1 31.09-.39 33.74 33.74 0 0 1 16.76 29.47v79.05l180.72-108.16a30.54 30.54 0 0 1 31.09-.39A33.74 33.74 0 0 1 496 145.52v221A33.73 33.73 0 0 1 479.24 396a30.54 30.54 0 0 1-31.09-.39L267.43 287.4v79.08A33.73 33.73 0 0 1 250.67 396a30.54 30.54 0 0 1-31.09-.39l-188.87-113a31.27 31.27 0 0 1 0-53z"/></svg>`
 };
 export const wrIconPlayCircle: {
   name: 'play-circle';
   data: string;
 } = {
   name: 'play-circle',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm74.77 217.3l-114.45 69.14a10.78 10.78 0 01-16.32-9.31V186.87a10.78 10.78 0 0116.32-9.31l114.45 69.14a10.89 10.89 0 010 18.6z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48m74.77 217.3-114.45 69.14a10.78 10.78 0 0 1-16.32-9.31V186.87a10.78 10.78 0 0 1 16.32-9.31l114.45 69.14a10.89 10.89 0 0 1 0 18.6"/></svg>`
 };
 export const wrIconPlayForward: {
   name: 'play-forward';
   data: string;
 } = {
   name: 'play-forward',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M481.29 229.47l-188.87-113a30.54 30.54 0 00-31.09-.39 33.74 33.74 0 00-16.76 29.47v79.05L63.85 116.44a30.54 30.54 0 00-31.09-.39A33.74 33.74 0 0016 145.52v221A33.74 33.74 0 0032.76 396a30.54 30.54 0 0031.09-.39L244.57 287.4v79.08A33.74 33.74 0 00261.33 396a30.54 30.54 0 0031.09-.39l188.87-113a31.27 31.27 0 000-53z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m481.29 229.47-188.87-113a30.54 30.54 0 0 0-31.09-.39 33.74 33.74 0 0 0-16.76 29.47v79.05L63.85 116.44a30.54 30.54 0 0 0-31.09-.39A33.74 33.74 0 0 0 16 145.52v221A33.74 33.74 0 0 0 32.76 396a30.54 30.54 0 0 0 31.09-.39L244.57 287.4v79.08A33.74 33.74 0 0 0 261.33 396a30.54 30.54 0 0 0 31.09-.39l188.87-113a31.27 31.27 0 0 0 0-53z"/></svg>`
 };
 export const wrIconPlay: {
   name: 'play';
   data: string;
 } = {
   name: 'play',
-  data: `<svg viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.2924 0.571289C2.95753 0.571289 0.250977 3.24726 0.250977 6.54444C0.250977 9.84162 2.95753 12.5176 6.2924 12.5176C9.62726 12.5176 12.3338 9.84162 12.3338 6.54444C12.3338 3.24726 9.62726 0.571289 6.2924 0.571289ZM6.29114 11.3231C3.62688 11.3231 1.45801 9.17874 1.45801 6.54458C1.45801 3.91041 3.62688 1.76605 6.29114 1.76605C8.95541 1.76605 11.1243 3.91041 11.1243 6.54458C11.1243 9.17874 8.95541 11.3231 6.29114 11.3231ZM8.70786 6.54461L5.08301 9.23253V3.85669L8.70786 6.54461Z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 13"><path fill-rule="evenodd" d="M6.292.571C2.958.571.251 3.247.251 6.544c0 3.298 2.707 5.974 6.041 5.974s6.042-2.676 6.042-5.974S9.627.571 6.292.571m0 10.752c-2.665 0-4.834-2.144-4.834-4.778 0-2.635 2.169-4.779 4.833-4.779s4.833 2.144 4.833 4.779-2.169 4.778-4.833 4.778m2.416-4.778L5.083 9.233V3.857z" clip-rule="evenodd"/></svg>`
 };
 export const wrIconPlusCircle: {
   name: 'plus-circle';
   data: string;
 } = {
   name: 'plus-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.7,0,0,28.7,0,64c0,35.3,28.7,64,64,64s64-28.7,64-64C128,28.7,99.3,0,64,0z M100.5,68.3c0,1.3-1,2.3-2.3,2.3H70.5 v27.7c0,1.3-1,2.3-2.3,2.3h-8.5c-1.3,0-2.3-1-2.3-2.3V70.5H29.7c-1.3,0-2.3-1-2.3-2.3v-8.5c0-1.3,1-2.3,2.3-2.3h27.7V29.7 c0-1.3,1-2.3,2.3-2.3h8.5c1.3,0,2.3,1,2.3,2.3v27.7h27.7c1.3,0,2.3,1,2.3,2.3V68.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.7 0 0 28.7 0 64s28.7 64 64 64 64-28.7 64-64S99.3 0 64 0m36.5 68.3c0 1.3-1 2.3-2.3 2.3H70.5v27.7c0 1.3-1 2.3-2.3 2.3h-8.5c-1.3 0-2.3-1-2.3-2.3V70.5H29.7c-1.3 0-2.3-1-2.3-2.3v-8.5c0-1.3 1-2.3 2.3-2.3h27.7V29.7c0-1.3 1-2.3 2.3-2.3h8.5c1.3 0 2.3 1 2.3 2.3v27.7h27.7c1.3 0 2.3 1 2.3 2.3z"/></svg>`
 };
 export const wrIconReader: {
   name: 'reader';
   data: string;
 } = {
   name: 'reader',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect x="96" y="48" width="320" height="416" rx="48" ry="48" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M176 128h160M176 208h160M176 288h80"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="320" height="416" x="96" y="48" rx="48" ry="48"/><path d="M176 128h160m-160 80h160m-160 80h80"/></svg>`
 };
 export const wrIconRepeat: {
   name: 'repeat';
   data: string;
 } = {
   name: 'repeat',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M112,55.9c-3.6,0-6.5,2.9-6.5,6.5v7.9c0,5.3-4.3,9.6-9.6,9.6H51.7l3.9-3.9c2.5-2.5,2.5-6.7,0-9.2c-2.5-2.5-6.7-2.5-9.2,0 l-13,13c-3.6,3.6-3.6,9.6,0,13.2l13,13c1.3,1.3,2.9,1.9,4.6,1.9c1.7,0,3.3-0.6,4.6-1.9c2.5-2.5,2.5-6.7,0-9.2L51.7,93h44.1 c12.5,0,22.6-10.2,22.6-22.6v-7.9C118.5,58.9,115.6,55.9,112,55.9z"/><path d="M76.3,48l-3.9,3.9c-2.5,2.5-2.5,6.7,0,9.2c1.3,1.3,2.9,1.9,4.6,1.9s3.3-0.6,4.6-1.9l13-13c1.8-1.8,2.7-4.1,2.7-6.6 c0-2.5-1-4.9-2.7-6.6l-13-13c-2.5-2.5-6.7-2.5-9.2,0c-2.5,2.5-2.5,6.7,0,9.2l3.9,3.9H32.1C19.7,35,9.5,45.2,9.5,57.6v7.9 c0,3.6,2.9,6.5,6.5,6.5s6.5-2.9,6.5-6.5v-7.9c0-5.3,4.3-9.6,9.6-9.6H76.3z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M112 55.9c-3.6 0-6.5 2.9-6.5 6.5v7.9c0 5.3-4.3 9.6-9.6 9.6H51.7l3.9-3.9c2.5-2.5 2.5-6.7 0-9.2s-6.7-2.5-9.2 0l-13 13c-3.6 3.6-3.6 9.6 0 13.2l13 13c1.3 1.3 2.9 1.9 4.6 1.9s3.3-.6 4.6-1.9c2.5-2.5 2.5-6.7 0-9.2L51.7 93h44.1c12.5 0 22.6-10.2 22.6-22.6v-7.9c.1-3.6-2.8-6.6-6.4-6.6"/><path d="m76.3 48-3.9 3.9c-2.5 2.5-2.5 6.7 0 9.2 1.3 1.3 2.9 1.9 4.6 1.9s3.3-.6 4.6-1.9l13-13c1.8-1.8 2.7-4.1 2.7-6.6s-1-4.9-2.7-6.6l-13-13c-2.5-2.5-6.7-2.5-9.2 0s-2.5 6.7 0 9.2l3.9 3.9H32.1C19.7 35 9.5 45.2 9.5 57.6v7.9c0 3.6 2.9 6.5 6.5 6.5s6.5-2.9 6.5-6.5v-7.9c0-5.3 4.3-9.6 9.6-9.6z"/></svg>`
 };
 export const wrIconSearch: {
   name: 'search';
   data: string;
 } = {
   name: 'search',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M123.5,100.9l-21.1-21.1c3.8-7.7,6.4-16.6,6.4-25.5c0-30-24.3-54.3-54.3-54.3S0.2,24.3,0.2,54.3s24.3,54.3,54.3,54.3 c8.9,0,17.9-2.6,25.5-6.4l21.1,21.1c6.4,6.4,16,6.4,22.3,0C129.2,116.8,129.2,107.3,123.5,100.9L123.5,100.9z M54.5,95.8 c-23,0-41.5-18.5-41.5-41.5s18.5-41.5,41.5-41.5S96,31.3,96,54.3S77.5,95.8,54.5,95.8z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="m123.5 100.9-21.1-21.1c3.8-7.7 6.4-16.6 6.4-25.5 0-30-24.3-54.3-54.3-54.3S.2 24.3.2 54.3s24.3 54.3 54.3 54.3c8.9 0 17.9-2.6 25.5-6.4l21.1 21.1c6.4 6.4 16 6.4 22.3 0 5.8-6.5 5.8-16 .1-22.4m-69-5.1c-23 0-41.5-18.5-41.5-41.5s18.5-41.5 41.5-41.5S96 31.3 96 54.3 77.5 95.8 54.5 95.8"/></svg>`
 };
 export const wrIconShieldCheckmarkOutline: {
   name: 'shield-checkmark-outline';
   data: string;
 } = {
   name: 'shield-checkmark-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M91.5,44.5c2.4,2.4,2.4,6.3,0,8.6L68,76.6l-8.6,8.6l-8.6-8.6L36.5,62.5c-2.4-2.4-2.4-6.3,0-8.6c2.4-2.4,6.3-2.4,8.6,0 L59.3,68l23.5-23.5C85.2,42.1,89.1,42.1,91.5,44.5z"/><path d="M63.8,10.7c0.2,0,0.5,0.1,0.6,0.1L112,30.7c0.9,0.4,1.1,1,1.1,1.2c0,30.8-11.9,51.9-21.9,64.2c-12.2,15-24.4,20.7-27.5,21.1 c-3.1-0.5-15.2-6.3-27.2-21C26.7,84,14.8,62.9,14.8,31.9c0-0.5,0.3-1,0.8-1.2l0,0l0,0l47.5-19.9C63.3,10.8,63.6,10.8,63.8,10.7 M63.8,0c-1.3,0-3.4,0.4-4.6,0.9l-47.7,20c-4.5,1.8-7.4,6.2-7.4,11c0,64.4,47.1,96.1,59.7,96.1c13.5,0,60.1-32.6,60.1-96.1 c0-4.6-2.9-9-7.6-11.1l-47.9-20C67.2,0.4,65.1,0,63.8,0L63.8,0z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M91.5 44.5c2.4 2.4 2.4 6.3 0 8.6L68 76.6l-8.6 8.6-8.6-8.6-14.3-14.1c-2.4-2.4-2.4-6.3 0-8.6 2.4-2.4 6.3-2.4 8.6 0L59.3 68l23.5-23.5c2.4-2.4 6.3-2.4 8.7 0"/><path d="M63.8 10.7c.2 0 .5.1.6.1L112 30.7c.9.4 1.1 1 1.1 1.2 0 30.8-11.9 51.9-21.9 64.2-12.2 15-24.4 20.7-27.5 21.1-3.1-.5-15.2-6.3-27.2-21C26.7 84 14.8 62.9 14.8 31.9c0-.5.3-1 .8-1.2l47.5-19.9c.2 0 .5 0 .7-.1m0-10.7c-1.3 0-3.4.4-4.6.9l-47.7 20c-4.5 1.8-7.4 6.2-7.4 11 0 64.4 47.1 96.1 59.7 96.1 13.5 0 60.1-32.6 60.1-96.1 0-4.6-2.9-9-7.6-11.1L68.4.8C67.2.4 65.1 0 63.8 0"/></svg>`
 };
 export const wrIconShieldCheckmark: {
   name: 'shield-checkmark';
   data: string;
 } = {
   name: 'shield-checkmark',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M116.3,20.8l-47.9-20C67.2,0.4,65.1,0,63.8,0s-3.4,0.4-4.6,0.9l-47.7,20c-4.5,1.8-7.4,6.2-7.4,11 c0,64.4,47.1,96.1,59.7,96.1c13.5,0,60.1-32.6,60.1-96.1C123.9,27.3,121,22.9,116.3,20.8z M91.5,53.1L68,76.6l-8.6,8.6l-8.6-8.6 L36.5,62.5c-2.4-2.4-2.4-6.3,0-8.6c2.4-2.4,6.3-2.4,8.6,0L59.3,68l23.5-23.5c2.4-2.4,6.3-2.4,8.6,0C93.8,46.9,93.8,50.8,91.5,53.1z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M116.3 20.8 68.4.8C67.2.4 65.1 0 63.8 0s-3.4.4-4.6.9l-47.7 20c-4.5 1.8-7.4 6.2-7.4 11 0 64.4 47.1 96.1 59.7 96.1 13.5 0 60.1-32.6 60.1-96.1 0-4.6-2.9-9-7.6-11.1M91.5 53.1 68 76.6l-8.6 8.6-8.6-8.6-14.3-14.1c-2.4-2.4-2.4-6.3 0-8.6 2.4-2.4 6.3-2.4 8.6 0L59.3 68l23.5-23.5c2.4-2.4 6.3-2.4 8.6 0 2.4 2.4 2.4 6.3.1 8.6"/></svg>`
 };
 export const wrIconShieldOutline: {
   name: 'shield-outline';
   data: string;
 } = {
   name: 'shield-outline',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M63.8,10.7c0.2,0,0.5,0.1,0.6,0.1L112,30.7c0.9,0.4,1.1,1,1.1,1.2c0,30.8-11.9,51.9-21.9,64.2c-12.2,15-24.4,20.7-27.5,21.1 c-3.1-0.5-15.2-6.3-27.2-21C26.7,84,14.8,62.9,14.8,31.9c0-0.5,0.3-1,0.8-1.2l0,0l0,0l47.5-19.9C63.3,10.8,63.6,10.8,63.8,10.7 M63.8,0c-1.3,0-3.4,0.4-4.6,0.9l-47.7,20C7,22.7,4.1,27.1,4.1,31.9c0,64.4,47.1,96.1,59.7,96.1c13.5,0,60.1-32.6,60.1-96.1 c0-4.6-2.9-9-7.6-11.1l-47.9-20C67.2,0.4,65.1,0,63.8,0L63.8,0z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M63.8 10.7c.2 0 .5.1.6.1L112 30.7c.9.4 1.1 1 1.1 1.2 0 30.8-11.9 51.9-21.9 64.2-12.2 15-24.4 20.7-27.5 21.1-3.1-.5-15.2-6.3-27.2-21C26.7 84 14.8 62.9 14.8 31.9c0-.5.3-1 .8-1.2l47.5-19.9c.2 0 .5 0 .7-.1m0-10.7c-1.3 0-3.4.4-4.6.9l-47.7 20c-4.5 1.8-7.4 6.2-7.4 11 0 64.4 47.1 96.1 59.7 96.1 13.5 0 60.1-32.6 60.1-96.1 0-4.6-2.9-9-7.6-11.1L68.4.8C67.2.4 65.1 0 63.8 0"/></svg>`
 };
 export const wrIconShield: {
   name: 'shield';
   data: string;
 } = {
   name: 'shield',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M123.9,31.9c0,63.4-46.6,96.1-60.1,96.1C51.2,128,4.1,96.4,4.1,31.9c0-4.8,2.9-9.2,7.4-11.1l47.7-20C60.4,0.4,62.5,0,63.8,0 c1.3,0,3.4,0.4,4.6,0.9l47.9,20C121,23,123.9,27.3,123.9,31.9z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M123.9 31.9c0 63.4-46.6 96.1-60.1 96.1-12.6 0-59.7-31.6-59.7-96.1 0-4.8 2.9-9.2 7.4-11.1L59.2.8c1.2-.4 3.3-.8 4.6-.8s3.4.4 4.6.9l47.9 20c4.7 2.1 7.6 6.4 7.6 11"/></svg>`
 };
 export const wrIconShuffle: {
   name: 'shuffle';
   data: string;
 } = {
   name: 'shuffle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><path d="M107.5,27.5L94.3,14.3c-1.6-1.6-3.8-2.6-6.2-2.6s-4.5,0.9-6.2,2.6L68.8,27.5c-2.5,2.5-2.5,6.6,0,9.1c2.5,2.5,6.6,2.5,9.1,0 l3.9-3.9v4.9c0,5.2-2.5,10-6.7,13L45.6,71.1C38,76.5,33.4,85.3,33.4,94.6v15.3c0,3.5,2.9,6.4,6.4,6.4s6.4-2.9,6.4-6.4V94.6 c0-5.2,2.5-10,6.7-13l11-7.8l11,7.8c4.2,3,6.7,7.8,6.7,13v15.3c0,3.5,2.9,6.4,6.4,6.4s6.4-2.9,6.4-6.4V94.6 c0-9.3-4.6-18.1-12.2-23.5L75.1,66l7.3-5.1c7.6-5.4,12.2-14.1,12.2-23.5v-4.9l3.9,3.9c1.2,1.2,2.9,1.9,4.5,1.9s3.3-0.6,4.5-1.9 C110,34,110,30,107.5,27.5z"/><path d="M33.4,37.5c0,7.7,3.2,15.2,8.7,20.6c1.2,1.2,2.9,1.8,4.5,1.8c1.7,0,3.3-0.6,4.6-1.9c2.5-2.5,2.4-6.6-0.1-9.1 c-3.1-3-4.8-7.1-4.8-11.4v-4.9l3.9,3.9c1.2,1.2,2.9,1.9,4.5,1.9s3.3-0.6,4.5-1.9c2.5-2.5,2.5-6.6,0-9.1L46,14.3 c-1.6-1.6-3.8-2.6-6.2-2.6c-2.3,0-4.5,0.9-6.2,2.6L20.5,27.5C18,30,18,34,20.5,36.5c2.5,2.5,6.6,2.5,9.1,0l3.9-3.9V37.5z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M107.5 27.5 94.3 14.3c-1.6-1.6-3.8-2.6-6.2-2.6s-4.5.9-6.2 2.6L68.8 27.5c-2.5 2.5-2.5 6.6 0 9.1s6.6 2.5 9.1 0l3.9-3.9v4.9c0 5.2-2.5 10-6.7 13L45.6 71.1C38 76.5 33.4 85.3 33.4 94.6v15.3c0 3.5 2.9 6.4 6.4 6.4s6.4-2.9 6.4-6.4V94.6c0-5.2 2.5-10 6.7-13l11-7.8 11 7.8c4.2 3 6.7 7.8 6.7 13v15.3c0 3.5 2.9 6.4 6.4 6.4s6.4-2.9 6.4-6.4V94.6c0-9.3-4.6-18.1-12.2-23.5L75.1 66l7.3-5.1c7.6-5.4 12.2-14.1 12.2-23.5v-4.9l3.9 3.9c1.2 1.2 2.9 1.9 4.5 1.9s3.3-.6 4.5-1.9c2.5-2.4 2.5-6.4 0-8.9"/><path d="M33.4 37.5c0 7.7 3.2 15.2 8.7 20.6 1.2 1.2 2.9 1.8 4.5 1.8 1.7 0 3.3-.6 4.6-1.9 2.5-2.5 2.4-6.6-.1-9.1-3.1-3-4.8-7.1-4.8-11.4v-4.9l3.9 3.9c1.2 1.2 2.9 1.9 4.5 1.9s3.3-.6 4.5-1.9c2.5-2.5 2.5-6.6 0-9.1L46 14.3c-1.6-1.6-3.8-2.6-6.2-2.6-2.3 0-4.5.9-6.2 2.6L20.5 27.5c-2.5 2.5-2.5 6.5 0 9s6.6 2.5 9.1 0l3.9-3.9v4.9z"/></svg>`
 };
 export const wrIconStopCircle: {
   name: 'stop-circle';
   data: string;
 } = {
   name: 'stop-circle',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm80 262.4a25.62 25.62 0 01-25.6 25.6H201.6a25.62 25.62 0 01-25.6-25.6V201.6a25.62 25.62 0 0125.6-25.6h108.8a25.62 25.62 0 0125.6 25.6z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48m80 262.4a25.62 25.62 0 0 1-25.6 25.6H201.6a25.62 25.62 0 0 1-25.6-25.6V201.6a25.62 25.62 0 0 1 25.6-25.6h108.8a25.62 25.62 0 0 1 25.6 25.6z"/></svg>`
 };
 export const wrIconStop: {
   name: 'stop';
   data: string;
 } = {
   name: 'stop',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M392 432H120a40 40 0 01-40-40V120a40 40 0 0140-40h272a40 40 0 0140 40v272a40 40 0 01-40 40z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M392 432H120a40 40 0 0 1-40-40V120a40 40 0 0 1 40-40h272a40 40 0 0 1 40 40v272a40 40 0 0 1-40 40"/></svg>`
 };
 export const wrIconSun: {
   name: 'sun';
   data: string;
 } = {
   name: 'sun',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M37.3,90.7c2.5,2.5,2.5,6.6,0,9.1l-12.9,12.9c-2.5,2.5-6.6,2.5-9.1,0c-2.5-2.5-2.5-6.6,0-9.1l12.9-12.9 C30.8,88.2,34.8,88.2,37.3,90.7L37.3,90.7z M28.3,37.3c2.5,2.5,6.6,2.5,9.1,0c2.5-2.5,2.5-6.6,0-9.1L24.5,15.4 c-2.5-2.5-6.6-2.5-9.1,0c-2.5,2.5-2.5,6.6,0,9.1L28.3,37.3z M99.7,90.7c-2.5-2.5-6.6-2.5-9.1,0c-2.5,2.5-2.5,6.6,0,9.1l12.9,12.9 c2.5,2.5,6.6,2.5,9.1,0c2.5-2.5,2.5-6.6,0-9.1L99.7,90.7z M64,38.9c-13.9,0-25.1,11.3-25.1,25.1c0,13.9,11.3,25.1,25.1,25.1 S89.1,77.9,89.1,64C89.1,50.1,77.9,38.9,64,38.9z M64,26.3c3.5,0,6.4-2.9,6.4-6.4V6.4C70.4,2.9,67.5,0,64,0s-6.4,2.9-6.4,6.4v13.5 C57.6,23.4,60.5,26.3,64,26.3z M64,101.7c-3.5,0-6.4,2.9-6.4,6.4v13.5c0,3.5,2.9,6.4,6.4,6.4s6.4-2.9,6.4-6.4v-13.5 C70.4,104.6,67.5,101.7,64,101.7z M26.3,64c0-3.5-2.9-6.4-6.4-6.4H6.4C2.9,57.6,0,60.5,0,64c0,3.5,2.9,6.4,6.4,6.4h13.5 C23.4,70.4,26.3,67.5,26.3,64z M121.6,57.6h-13.5c-3.5,0-6.4,2.9-6.4,6.4c0,3.5,2.9,6.4,6.4,6.4h13.5c3.5,0,6.4-2.9,6.4-6.4 C128,60.5,125.1,57.6,121.6,57.6z M99.7,37.3l12.9-12.9c2.5-2.5,2.5-6.6,0-9.1v0c-2.5-2.5-6.6-2.5-9.1,0L90.7,28.3 c-2.5,2.5-2.5,6.6,0,9.1C93.2,39.8,97.2,39.8,99.7,37.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M37.3 90.7c2.5 2.5 2.5 6.6 0 9.1l-12.9 12.9c-2.5 2.5-6.6 2.5-9.1 0s-2.5-6.6 0-9.1l12.9-12.9c2.6-2.5 6.6-2.5 9.1 0m-9-53.4c2.5 2.5 6.6 2.5 9.1 0s2.5-6.6 0-9.1L24.5 15.4c-2.5-2.5-6.6-2.5-9.1 0s-2.5 6.6 0 9.1zm71.4 53.4c-2.5-2.5-6.6-2.5-9.1 0s-2.5 6.6 0 9.1l12.9 12.9c2.5 2.5 6.6 2.5 9.1 0s2.5-6.6 0-9.1zM64 38.9c-13.9 0-25.1 11.3-25.1 25.1 0 13.9 11.3 25.1 25.1 25.1S89.1 77.9 89.1 64 77.9 38.9 64 38.9m0-12.6c3.5 0 6.4-2.9 6.4-6.4V6.4C70.4 2.9 67.5 0 64 0s-6.4 2.9-6.4 6.4v13.5c0 3.5 2.9 6.4 6.4 6.4m0 75.4c-3.5 0-6.4 2.9-6.4 6.4v13.5c0 3.5 2.9 6.4 6.4 6.4s6.4-2.9 6.4-6.4v-13.5c0-3.5-2.9-6.4-6.4-6.4M26.3 64c0-3.5-2.9-6.4-6.4-6.4H6.4C2.9 57.6 0 60.5 0 64s2.9 6.4 6.4 6.4h13.5c3.5 0 6.4-2.9 6.4-6.4m95.3-6.4h-13.5c-3.5 0-6.4 2.9-6.4 6.4s2.9 6.4 6.4 6.4h13.5c3.5 0 6.4-2.9 6.4-6.4s-2.9-6.4-6.4-6.4M99.7 37.3l12.9-12.9c2.5-2.5 2.5-6.6 0-9.1s-6.6-2.5-9.1 0l-12.8 13c-2.5 2.5-2.5 6.6 0 9.1 2.5 2.4 6.5 2.4 9-.1"/></svg>`
 };
 export const wrIconTerminal: {
   name: 'terminal';
   data: string;
 } = {
   name: 'terminal',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M110.9,4.3H17.1C7.6,4.3,0,11.9,0,21.3v85.3c0,9.4,7.6,17.1,17.1,17.1h93.9c9.4,0,17.1-7.6,17.1-17.1V21.3 C128,11.9,120.4,4.3,110.9,4.3z M20.5,65.2c-1.7-1.6-1.8-4.3-0.1-6l13.7-13.7L20.5,31.7c-1.6-1.6-1.8-4.3-0.2-6 c1.6-1.7,4.3-1.8,6-0.1l16.6,16.5c1.8,1.8,1.8,4.6,0,6.4L26.4,65C24.8,66.7,22.1,66.8,20.5,65.2z M63.9,66.3H45.9 c-2.3,0-4.2-1.9-4.2-4.2s1.9-4.2,4.2-4.2h17.9c2.1,0,4.1,1.5,4.3,3.7C68.4,64.1,66.5,66.3,63.9,66.3z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M110.9 4.3H17.1C7.6 4.3 0 11.9 0 21.3v85.3c0 9.4 7.6 17.1 17.1 17.1H111c9.4 0 17.1-7.6 17.1-17.1V21.3c-.1-9.4-7.7-17-17.2-17M20.5 65.2c-1.7-1.6-1.8-4.3-.1-6l13.7-13.7-13.6-13.8c-1.6-1.6-1.8-4.3-.2-6s4.3-1.8 6-.1l16.6 16.5c1.8 1.8 1.8 4.6 0 6.4L26.4 65c-1.6 1.7-4.3 1.8-5.9.2m43.4 1.1h-18c-2.3 0-4.2-1.9-4.2-4.2s1.9-4.2 4.2-4.2h17.9c2.1 0 4.1 1.5 4.3 3.7.3 2.5-1.6 4.7-4.2 4.7"/></svg>`
 };
 export const wrIconTrash: {
   name: 'trash';
   data: string;
 } = {
   name: 'trash',
-  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M112 112l20 320c.95 18.49 14.4 32 32 32h184c17.67 0 30.87-13.51 32-32l20-320" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M80 112h352"/><path d="M192 112V72h0a23.93 23.93 0 0124-24h80a23.93 23.93 0 0124 24h0v40M256 176v224M184 176l8 224M328 176l-8 224" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m112 112 20 320c.95 18.49 14.4 32 32 32h184c17.67 0 30.87-13.51 32-32l20-320"/><path d="M80 112h352"/><path d="M192 112V72h0a23.93 23.93 0 0 1 24-24h80a23.93 23.93 0 0 1 24 24h0v40m-64 64v224m-72-224 8 224m136-224-8 224"/></svg>`
 };
 export const wrIconUserAdd: {
   name: 'user-add';
   data: string;
 } = {
   name: 'user-add',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><g><ellipse transform="matrix(0.3827 -0.9239 0.9239 0.3827 17.9306 83.4351)" cx="71.4" cy="28.3" rx="28.3" ry="28.3"/><path d="M71.4,68.5c-46.7,0-56.6,14.8-56.6,29.7c0,14.9,17.9,29.8,56.6,29.8c38.7,0,56.6-14.8,56.6-29.7 C128,83.4,118.1,68.5,71.4,68.5z"/><path d="M17.2,66.9c0,2.7,2.2,4.9,4.9,4.9s4.9-2.2,4.9-4.9V56.5h10.5c2.7,0,4.9-2.2,4.9-4.9c0-2.7-2.2-4.9-4.9-4.9H26.9V36.3 c0-2.7-2.2-4.9-4.9-4.9s-4.9,2.2-4.9,4.9v10.5H6.7c-2.7,0-4.9,2.2-4.9,4.9c0,2.7,2.2,4.9,4.9,4.9h10.5V66.9z"/></g></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><circle cx="71.4" cy="28.3" r="28.3" transform="rotate(-67.5 71.399 28.3)"/><path d="M71.4 68.5c-46.7 0-56.6 14.8-56.6 29.7S32.7 128 71.4 128 128 113.2 128 98.3s-9.9-29.8-56.6-29.8M17.2 66.9c0 2.7 2.2 4.9 4.9 4.9s4.9-2.2 4.9-4.9V56.5h10.5c2.7 0 4.9-2.2 4.9-4.9s-2.2-4.9-4.9-4.9H26.9V36.3c0-2.7-2.2-4.9-4.9-4.9s-4.9 2.2-4.9 4.9v10.5H6.7c-2.7 0-4.9 2.2-4.9 4.9s2.2 4.9 4.9 4.9h10.5z"/></svg>`
 };
 export const wrIconUserCircle: {
   name: 'user-circle';
   data: string;
 } = {
   name: 'user-circle',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0C28.6,0,0,28.6,0,64s28.6,64,64,64s64-28.6,64-64S99.4,0,64,0z M64,20c10.4,0,19,8.6,19,19s-8.6,19-19,19 s-19-8.6-19-19S53.6,20,64,20z M64,106c-26,0-38-10-38-20s6.6-20,38-20s38,10,38,20S90,106,64,106z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0C28.6 0 0 28.6 0 64s28.6 64 64 64 64-28.6 64-64S99.4 0 64 0m0 20c10.4 0 19 8.6 19 19s-8.6 19-19 19-19-8.6-19-19 8.6-19 19-19m0 86c-26 0-38-10-38-20s6.6-20 38-20 38 10 38 20-12 20-38 20"/></svg>`
 };
 export const wrIconUserRemove: {
   name: 'user-remove';
   data: string;
 } = {
   name: 'user-remove',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M71.4,0c15.5,0,28.3,12.8,28.3,28.3S86.9,56.6,71.4,56.6S43.1,43.8,43.1,28.3S55.9,0,71.4,0z M71.4,128 c-38.7,0-56.6-14.9-56.6-29.8s9.9-29.7,56.6-29.7S128,83.4,128,98.3S110.1,128,71.4,128z"/><path d="M1.9,56.5L1.9,56.5c0-2.7,2.2-4.9,4.9-4.9h30.6c2.7,0,4.9,2.2,4.9,4.9v0c0,2.7-2.2,4.9-4.9,4.9H6.7 C4,61.3,1.9,59.2,1.9,56.5z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M71.4 0c15.5 0 28.3 12.8 28.3 28.3S86.9 56.6 71.4 56.6 43.1 43.8 43.1 28.3 55.9 0 71.4 0m0 128c-38.7 0-56.6-14.9-56.6-29.8s9.9-29.7 56.6-29.7S128 83.4 128 98.3 110.1 128 71.4 128M1.9 56.5c0-2.7 2.2-4.9 4.9-4.9h30.6c2.7 0 4.9 2.2 4.9 4.9s-2.2 4.9-4.9 4.9H6.7c-2.7-.1-4.8-2.2-4.8-4.9"/></svg>`
 };
 export const wrIconUser: {
   name: 'user';
   data: string;
 } = {
   name: 'user',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M64,0c15.5,0,28.3,12.8,28.3,28.3S79.5,56.6,64,56.6S35.7,43.8,35.7,28.3S48.5,0,64,0z M64,128c-38.7,0-56.6-14.9-56.6-29.8 S17.3,68.5,64,68.5s56.6,14.9,56.6,29.8S102.7,128,64,128z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="M64 0c15.5 0 28.3 12.8 28.3 28.3S79.5 56.6 64 56.6 35.7 43.8 35.7 28.3 48.5 0 64 0m0 128c-38.7 0-56.6-14.9-56.6-29.8S17.3 68.5 64 68.5s56.6 14.9 56.6 29.8S102.7 128 64 128"/></svg>`
 };
 export const wrIconWarning: {
   name: 'warning';
   data: string;
 } = {
   name: 'warning',
-  data: `<?xml version="1.0" encoding="utf-8"?><!--Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 128 128" style="enable-background:new 0 0 128 128;" xml:space="preserve"><path d="M125.2,90.9l-43-74.7c-8.1-14-28.3-14-36.3,0l-43,74.7c-8,14,2,31.4,18.2,31.4c25.8,0,60.2,0,86,0 C123.1,122.3,133.2,104.9,125.2,90.9z M64,35.9c3.8,0,6.8,3.1,6.7,6.9l-0.8,32c-0.1,3.1-2.7,5.7-5.9,5.7s-5.8-2.5-5.9-5.7l-0.9-32 C57.2,39.1,60.2,35.9,64,35.9z M64,101.2c-4.1,0-7.5-3.4-7.5-7.5c0-4.1,3.4-7.5,7.5-7.5s7.5,3.4,7.5,7.5 C71.5,97.9,68.1,101.2,64,101.2z"/></svg>`
+  data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128"><path d="m125.2 90.9-43-74.7c-8.1-14-28.3-14-36.3 0l-43 74.7c-8 14 2 31.4 18.2 31.4h86c16 0 26.1-17.4 18.1-31.4M64 35.9c3.8 0 6.8 3.1 6.7 6.9l-.8 32c-.1 3.1-2.7 5.7-5.9 5.7s-5.8-2.5-5.9-5.7l-.9-32c0-3.7 3-6.9 6.8-6.9m0 65.3c-4.1 0-7.5-3.4-7.5-7.5s3.4-7.5 7.5-7.5 7.5 3.4 7.5 7.5c0 4.2-3.4 7.5-7.5 7.5"/></svg>`
 };
 export type wrIconName =
   | 'add-circle-outline'

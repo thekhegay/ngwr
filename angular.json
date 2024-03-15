@@ -27,6 +27,38 @@
             }
           },
           "defaultConfiguration": "production"
+        },
+        "generate-icons": {
+          "builder": "@angular-extensions/svg-icons-builder:svg-icons-constants-builder",
+          "options": {
+            "conversionType": "constants",
+            "delimiter": "KEBAB",
+            "fileName": "icons",
+            "generateType": true,
+            "typeName": "wrIconName",
+            "generateTypeObject": false,
+            "exportCompleteIconSet": true,
+            "generateCompleteIconSet": true,
+            "completeIconSetName": "wrIconSet",
+            "prefix": "wrIcon",
+            "interfaceName": "IWrIcon",
+            "srcFiles": ["./projects/lib/_assets/icons/**/*.svg"],
+            "outputDirectory": "./projects/lib/icon/",
+            "compileSources": true,
+            "svgoConfig": {
+              "plugins": [
+                "preset-default",
+                "convertShapeToPath",
+                "convertStyleToAttrs",
+                {
+                  "name": "removeAttrs",
+                  "params": {
+                    "attrs": "(fill|stroke|stroke-linecap|stroke-miterlimit|stroke-width|stroke-linejoin)"
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     },
