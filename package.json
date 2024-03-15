@@ -3,7 +3,7 @@
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
+    "preinstall": "npx -y only-allow pnpm",
     "serve": "ng serve",
     "build:lib": "ng build lib",
     "compile:icons": "svg-to-ts-constants"
