@@ -1,4 +1,4 @@
+.angular/
 /dist
-/.nx/cache
-.angular
+node_modules
 
