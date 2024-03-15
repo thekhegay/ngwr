@@ -1,18 +1,10 @@
 # Compiled output
-dist
-tmp
+/dist
+/tmp
 /out-tsc
-RELEASE_BODY.md
 
 # Node
-node_modules
-
-# Angular cache
-.angular
-
-# NX
-.nx
-migrations.json
+/node_modules
 
 # IDEs and editors
 .idea/
@@ -20,24 +12,20 @@ migrations.json
 .classpath
 .c9/
 *.launch
+.vscode/
+.history/
 .settings/
 *.sublime-workspace
 
-# Visual Studio Code
-.vscode
-.history
-
 # Miscellaneous
+.angular/
 .sass-cache/
 /connect.lock
 /coverage
 /libpeerconnection.log
-testem.log
-npm-debug.log
-yarn-debug.log
-yarn-error.log
 *.log
 /typings
+RELEASE_BODY.md
 
 # System files
 .DS_Store
