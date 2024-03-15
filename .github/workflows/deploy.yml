@@ -33,7 +33,7 @@ jobs:
         run: pnpm install
 
       - name: Build showcase
-        run: pnpm ng build showcase
+        run: pnpm build showcase
 
       - name: Deploy
         uses: easingthemes/ssh-deploy@main

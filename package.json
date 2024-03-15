@@ -5,7 +5,11 @@
   "scripts": {
     "preinstall": "npx -y only-allow pnpm",
     "serve": "ng serve",
-    "build:lib": "ng build lib",
+    "build": "ng build",
+    "release:patch": "tsx ./scripts/release.ts --release-as patch",
+    "release:minor": "tsx ./scripts/release.ts --release-as minor",
+    "release:major": "tsx ./scripts/release.ts --release-as major",
+    "publish:lib": "tsx ./scripts/publish.ts",
     "compile:icons": "svg-to-ts-constants"
   },
   "engines": {
@@ -46,7 +50,7 @@
     "ng-packagr": "17.3.0",
     "prettier": "^3.1.1",
     "svg-to-ts": "^10.0.0",
-    "ts-node": "^10.9.1",
+    "tsx": "^4.7.1",
     "typescript": "5.3.3"
   },
   "commit-and-tag-version": {
