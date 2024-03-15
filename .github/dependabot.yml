@@ -1,10 +1,17 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    versioning-strategy: "increase-if-necessary"
     directory: "/"
     schedule:
       interval: "weekly"
+      time: "13:00"
+      timezone: "Asia/Almaty"
     assignees:
       - "thekhegay"
-    reviewers:
-      - "thekhegay"
+    labels:
+      - "npm"
+      - "deps"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
