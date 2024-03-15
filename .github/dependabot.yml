@@ -1,7 +1,6 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    versioning-strategy: "increase-if-necessary"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -14,4 +13,4 @@ updates:
       - "deps"
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-patch", "version-update:semver-minor"]
