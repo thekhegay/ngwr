@@ -2,17 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/showcase",
-    "types": [],
-    "target": "ES2022",
-    "useDefineForClassFields": false,
-    "skipDefaultLibCheck": true,
-    "skipLibCheck": true,
-    "strictNullChecks": false
+    "types": []
   },
-  "files": ["./src/main.ts"],
-  "include": ["src/**/*.d.ts"],
-  "angularCompilerOptions": {
-    "strictMetadataEmit": false,
-    "compilationMode": "full"
-  }
+  "files": [
+    "main.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ]
 }

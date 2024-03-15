@@ -1,0 +1,107 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "analytics": false,
+    "packageManager": "yarn"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "lib": {
+      "projectType": "library",
+      "root": "projects/lib",
+      "sourceRoot": "projects/lib",
+      "prefix": "wr",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
+    "showcase": {
+      "projectType": "application",
+      "root": "projects/showcase",
+      "sourceRoot": "projects/showcase",
+      "prefix": "ngwr",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/showcase",
+            "index": "projects/showcase/index.html",
+            "browser": "projects/showcase/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/showcase/tsconfig.app.json",
+            "assets": [
+              "projects/showcase/assets",
+              "projects/showcase/favicon.ico",
+              "projects/showcase/apple-touch-icon.png",
+              "projects/showcase/icon.svg",
+              "projects/showcase/icon-192.png",
+              "projects/showcase/icon-512.png",
+              "projects/showcase/manifest.webmanifest",
+              "projects/showcase/robots.txt"
+            ],
+            "inlineStyleLanguage": "scss",
+            "styles": [
+              "projects/showcase/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all",
+              "namedChunks": false,
+              "extractLicenses": false,
+              "sourceMap": false
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "showcase:build:production"
+            },
+            "development": {
+              "buildTarget": "showcase:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}
