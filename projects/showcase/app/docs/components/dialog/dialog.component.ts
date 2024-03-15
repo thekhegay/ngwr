@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewContainerRef } from '@angular/core';
 
 import { WrDialogService } from 'ngwr/dialog';
-import { SeoService } from 'showcase/@core/services';
+import { SeoService } from '#core/services';
 
 import { DialogExampleComponent } from './dialog-example/dialog-example.component';
 

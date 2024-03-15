@@ -1,7 +1,7 @@
 import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { NGWR_STORAGE_THEME_KEY } from 'showcase/@shared/constants';
+import { NGWR_STORAGE_THEME_KEY } from '#core/constants';
 
 @Injectable({
   providedIn: 'root',

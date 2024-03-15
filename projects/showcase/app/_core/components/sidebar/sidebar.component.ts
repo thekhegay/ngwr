@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostBinding } from '@angular/core';
 
-import { routes } from 'showcase/@shared/routes';
+import { routes } from '#core/routes';
 
 interface SidebarItem {
   title: string;

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
 
 import { SafeAny } from 'ngwr/core/types';
-import { isDefined } from 'showcase/@shared/utils/rxjs';
+import { isDefined } from '#core/utils/rxjs';
 
 @Component({
   selector: 'ngwr-code[code]',

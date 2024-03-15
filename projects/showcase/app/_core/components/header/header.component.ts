@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, HostBinding, OnInit } from '@angula
 import { BehaviorSubject, takeUntil } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/core/abstract';
-import { ThemeService } from 'showcase/@core/services';
+import { ThemeService } from '#core/services';
 
 interface MenuLink {
   url: string;

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostBinding } from '@angular/core';
 
-import { NGWR_VERSION } from 'showcase/@shared/version';
+import { NGWR_VERSION } from '#core/version';
 
 @Component({
   selector: 'ngwr-footer',

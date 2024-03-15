@@ -10,8 +10,8 @@ import {
   LayoutComponent,
   RootComponent,
   SidebarComponent,
-} from 'showcase/@core/components';
-import { SharedModule } from 'showcase/@shared/shared.module';
+} from '#core/components';
+import { SharedModule } from '#core/shared.module';
 
 import { NgwrRouting } from './ngwr.routing';
 

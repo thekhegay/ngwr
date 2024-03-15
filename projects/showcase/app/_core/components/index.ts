@@ -1,3 +1,5 @@
+export * from './code/code.component';
+export * from './snippet/snippet.component';
 export { FooterComponent } from './footer/footer.component';
 export { HeaderComponent } from './header/header.component';
 export { LayoutComponent } from './layout/layout.component';

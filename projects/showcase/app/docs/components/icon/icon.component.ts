@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { wrIconSet } from 'ngwr/icon';
-import { SeoService } from 'showcase/@core/services';
+import { SeoService } from '#core/services';
 
 @Component({
   selector: 'ngwr-icon',

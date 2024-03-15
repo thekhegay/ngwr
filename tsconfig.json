@@ -31,7 +31,8 @@
     "outDir": "./dist/out-tsc",
     "paths": {
       "ngwr/*": ["./projects/lib/*"],
-      "showcase/*": ["./projects/showcase/app/*"],
+      "#core/*": ["projects/showcase/app/_core/*"],
+      "#env": ["projects/showcase/environments/environment.ts"]
     },
     "preserveConstEnums": true,
     "resolveJsonModule": true,

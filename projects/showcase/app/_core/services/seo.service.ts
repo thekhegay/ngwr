@@ -2,7 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
-import { isArray } from 'showcase/@shared/utils/rxjs/is-array';
+import { isArray } from '#core/utils/rxjs';
 
 @Injectable({
   providedIn: 'root',
