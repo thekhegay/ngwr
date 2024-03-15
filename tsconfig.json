@@ -1,23 +1,9 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig.json",
   "angularCompilerOptions": {
-    "compilationMode": "partial",
-    "enableIvy": true,
     "enableI18nLegacyMessageIdFormat": false,
-    "fullTemplateTypeCheck": true,
-    "strictAttributeTypes": true,
-    "strictContextGenerics": true,
-    "strictDomEventTypes": true,
-    "strictDomLocalRefTypes": true,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictInputTypes": true,
-    "strictLiteralTypes": true,
-    "strictMetadataEmit": true,
-    "strictNullInputTypes": true,
-    "strictOutputEventTypes": true,
-    "strictSafeNavigationTypes": true,
-    "strictTemplates": true
+    "strictTemplates": true,
   },
   "compileOnSave": false,
   "compilerOptions": {
@@ -34,18 +20,18 @@
     "importHelpers": true,
     "incremental": true,
     "isolatedModules": false,
-    "lib": ["dom", "es2020"],
-    "module": "esnext",
+    "lib": ["dom", "ES2022"],
+    "module": "ES2022",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "outDir": "./dist",
+    "outDir": "./dist/out-tsc",
     "paths": {
-      "ngwr/*": ["projects/lib/*"],
-      "showcase/*": ["projects/showcase/src/app/*"]
+      "ngwr/*": ["./projects/lib/*"],
+      "showcase/*": ["./projects/showcase/app/*"],
     },
     "preserveConstEnums": true,
     "resolveJsonModule": true,
@@ -53,13 +39,11 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2017",
+    "target": "ES2022",
     "types": ["node"],
     "typeRoots": ["node_modules/@types"],
     "useDefineForClassFields": false
   },
-  "exclude": ["projects/**/*.spec.ts"],
-  "include": ["projects/**/*"],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs",
