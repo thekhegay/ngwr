@@ -21,11 +21,14 @@
     "url": "https://github.com/thekhegay/ngwr/issues"
   },
   "exports": {
-    ".": {
-      "sass": "./_index.scss"
+    "./styles": {
+      "sass": "./styles/ngwr.scss"
     },
     "./grid": {
-      "sass": "./_grid.scss"
+      "sass": "./grid/styles/_index.scss"
+    },
+    "./button/styles": {
+      "sass": "./button/styles/_index.scss"
     }
   },
   "dependencies": {

@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 
-import { WrButton } from './button.component';
+import { WrButtonComponent } from './button.component';
 
 @NgModule({
-  imports: [WrButton],
-  exports: [WrButton],
+  imports: [WrButtonComponent],
+  exports: [WrButtonComponent],
 })
 export class WrButtonModule {}

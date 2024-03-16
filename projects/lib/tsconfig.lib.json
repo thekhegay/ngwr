@@ -7,5 +7,6 @@
     "declarationMap": true,
     "inlineSources": true,
     "inlineSourceMap": true
-  }
+  },
+  "include": ["**/*.ts"]
 }
