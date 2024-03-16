@@ -1,6 +1,5 @@
-// Need to user deep imports for nx libs
-// https://github.com/nrwl/nx/issues/1542#issuecomment-508806609
-@use '../../projects/lib';
+/* ngwr library deep import */
+@use '../lib/styles/ngwr';
 
 @use 'styles/reset';
 @use 'styles/fonts';
