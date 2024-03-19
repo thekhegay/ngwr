@@ -11,7 +11,7 @@ export class SpinnerComponent implements OnInit {
   readonly description = 'A spinner for displaying loading state.';
 
   readonly importCode =
-    "import { WrSpinModule } from 'ngwr/input';\n\n@NgModule({\n  imports: [\n    // ...\n    WrSpinModule,\n  ],\n  // ...\n})\nexport class MyModule {}";
+    "import { WrSpinModule } from 'ngwr/spin';\n\n@NgModule({\n  imports: [\n    // ...\n    WrSpinModule,\n  ],\n  // ...\n})\nexport class MyModule {}";
   readonly exampleCode = '<wr-spin></wr-spin>';
 
   constructor(private readonly seoService: SeoService) {}

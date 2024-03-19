@@ -1,8 +1,6 @@
 @use '../../styles/maps' as maps;
 @use '../../styles/colors';
-//
-// TODO: Uncomment after spinner component is ready
-// @use '../../spinner/styles';
+@use '../../spin/styles';
 
 @forward './vars';
 

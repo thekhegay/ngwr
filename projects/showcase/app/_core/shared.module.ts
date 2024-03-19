@@ -15,7 +15,7 @@ import { WrInputModule } from 'ngwr/input';
 import { WrProgressModule } from 'ngwr/progress';
 import { WrQRCodeModule } from 'ngwr/qrcode';
 import { WrSkeletonModule } from 'ngwr/skeleton';
-import { WrSpinnerModule } from 'ngwr/spinner';
+import { WrSpinModule } from 'ngwr/spin';
 import { WrTagModule } from 'ngwr/tag';
 import { WrTooltipModule } from 'ngwr/tooltip';
 import { HighlightModule } from 'ngx-highlightjs';
@@ -36,7 +36,7 @@ const ngwr = [
   WrProgressModule,
   WrQRCodeModule,
   WrSkeletonModule,
-  WrSpinnerModule,
+  WrSpinModule,
   WrTagModule,
   WrTooltipModule,
 ];

@@ -8,7 +8,7 @@ import { NgwrRouting } from './ngwr.routing';
 
 import { FooterComponent, HeaderComponent, LayoutComponent, RootComponent, SidebarComponent } from '#core/components';
 import { SharedModule } from '#core/shared.module';
-import { provideWrIcons, wrIconSet, wrIconUser, wrIconWarning } from 'ngwr/icon';
+import { provideWrIcons, wrIconSet } from 'ngwr/icon';
 
 @NgModule({
   imports: [BrowserModule, BrowserAnimationsModule, NgwrRouting, SharedModule],
