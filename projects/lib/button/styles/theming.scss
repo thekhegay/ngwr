@@ -1,0 +1,45 @@
+@use '../../styles/maps' as maps;
+@use '../../styles/colors';
+
+@each $color in maps.$theme-colors-map {
+  .wr-btn--color-#{$color} {
+    --wr-btn-color: var(--wr-color-#{$color}-contrast);
+    --wr-btn-border-color: var(--wr-color-#{$color});
+    --wr-btn-bg-color: var(--wr-color-#{$color});
+
+    &:hover {
+      --wr-btn-border-color: var(--wr-color-#{$color}-dark);
+      --wr-btn-bg-color: var(--wr-color-#{$color}-dark);
+    }
+
+    &:active {
+      --wr-btn-border-color: var(--wr-color-#{$color}-darker);
+      --wr-btn-bg-color: var(--wr-color-#{$color}-darker);
+    }
+
+    &[disabled],
+    &:disabled {
+      --wr-btn-color: var(--wr-color-#{$color}-contrast);
+      --wr-btn-border-color: var(--wr-color-#{$color}-lighter);
+      --wr-btn-bg-color: var(--wr-color-#{$color}-lighter);
+    }
+
+    &.wr-btn--outlined {
+      --wr-btn-color: var(--wr-color-#{$color});
+      --wr-btn-border-color: rgba(var(--wr-color-#{$color}-rgb), 0.375);
+      --wr-btn-bg-color: transparent;
+
+      &:hover {
+        --wr-btn-color: var(--wr-color-#{$color}-contrast);
+        --wr-btn-border-color: var(--wr-color-#{$color}-dark);
+        --wr-btn-bg-color: var(--wr-color-#{$color}-dark);
+      }
+
+      &:active {
+        --wr-btn-color: var(--wr-color-#{$color}-contrast);
+        --wr-btn-border-color: var(--wr-color-#{$color}-darker);
+        --wr-btn-bg-color: var(--wr-color-#{$color}-darker);
+      }
+    }
+  }
+}

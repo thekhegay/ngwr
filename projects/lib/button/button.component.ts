@@ -7,7 +7,7 @@
 
 import { booleanAttribute, ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
 
-import { WrIconModule, wrIconName } from 'ngwr/icon';
+import { WrIconComponent, wrIconName } from 'ngwr/icon';
 import { WrSpinComponent } from 'ngwr/spin';
 import { SafeAny, WrThemeColor } from 'ngwr/types';
 
@@ -23,7 +23,7 @@ import { SafeAny, WrThemeColor } from 'ngwr/types';
   templateUrl: 'button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [WrIconModule, WrSpinComponent],
+  imports: [WrIconComponent, WrSpinComponent],
 })
 export class WrButtonComponent {
   @Input() color?: WrThemeColor | null;
