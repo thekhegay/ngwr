@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { LayoutComponent } from 'showcase/@core/components';
-import { routes as r } from 'showcase/@shared/routes';
+import { LayoutComponent } from '#core/components';
+import { routes as r } from '#core/routes';
 
 const routes: Routes = [
   {

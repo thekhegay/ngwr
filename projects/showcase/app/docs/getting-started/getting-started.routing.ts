@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { routes as r } from 'showcase/@shared/routes';
+import { routes as r } from '#core/routes';
 
 import { InstallationComponent } from './installation/installation.component';
 

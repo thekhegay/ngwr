@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { wrThemeColors } from 'ngwr/core/color';
-import { SeoService } from 'showcase/@core/services';
+import { SeoService } from '#core/services';
 
 @Component({
   selector: 'ngwr-divider',

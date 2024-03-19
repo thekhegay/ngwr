@@ -28,7 +28,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { WrAbstractBase } from 'ngwr/core/abstract';
 import { InputBoolean } from 'ngwr/core/decorators';
-import { OnChangeType, OnTouchedType, SafeAny } from 'ngwr/core/types';
+import { SafeAny } from 'ngwr/core/types';
 
 import { WrInputAutocomplete, WrInputModeType, WrInputType } from './input-types';
 
@@ -155,8 +155,8 @@ export class WrInput
   private _autocomplete: WrInputAutocomplete = 'off';
   private _type: WrInputType = 'text';
   private _mode: WrInputModeType = 'text';
-  private onChangeCallback: OnChangeType = () => {};
-  private onTouchedCallback: OnTouchedType = () => {};
+  private onChangeCallback: SafeAny = () => {};
+  private onTouchedCallback: SafeAny = () => {};
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -227,11 +227,11 @@ export class WrInput
     this.cdr.markForCheck();
   }
 
-  registerOnChange(fn: OnChangeType): void {
+  registerOnChange(fn: SafeAny): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: OnTouchedType): void {
+  registerOnTouched(fn: SafeAny): void {
     this.onTouchedCallback = fn;
   }
 

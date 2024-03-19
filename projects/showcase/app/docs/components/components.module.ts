@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
-import { SharedModule } from 'showcase/@shared/shared.module';
+import { SharedModule } from '#core/shared.module';
 
 import { AlertComponent } from './alert/alert.component';
 import { ButtonComponent } from './button/button.component';

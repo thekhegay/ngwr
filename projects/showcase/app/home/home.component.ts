@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostBinding, OnInit } from '@angular/core';
 
-import { SeoService } from 'showcase/@core/services';
+import { SeoService } from '#core/services';
 
 @Component({
   selector: 'ngwr-home',

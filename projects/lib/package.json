@@ -21,19 +21,22 @@
     "url": "https://github.com/thekhegay/ngwr/issues"
   },
   "exports": {
-    ".": {
-      "sass": "./_index.scss"
+    "./styles": {
+      "sass": "./styles/ngwr.scss"
     },
     "./grid": {
-      "sass": "./_grid.scss"
+      "sass": "./grid/styles/_index.scss"
+    },
+    "./button/styles": {
+      "sass": "./button/styles/_index.scss"
     }
   },
   "dependencies": {
-    "@angular/cdk": "^17.0.5",
     "tslib": "^2.3.0"
   },
   "peerDependencies": {
     "@angular/animations": ">=14.0.0 <18.0.0",
+    "@angular/cdk": ">=15.0.0 <18.0.0",
     "@angular/common": ">=14.0.0 <18.0.0",
     "@angular/core": ">=14.0.0 <18.0.0",
     "@angular/forms": ">=14.0.0 <18.0.0",

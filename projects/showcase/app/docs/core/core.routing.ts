@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { routes as r } from 'showcase/@shared/routes';
+import { routes as r } from '#core/routes';
 
 import { ColorsComponent } from './colors/colors.component';
 import { GridComponent } from './grid/grid.component';

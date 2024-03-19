@@ -20,7 +20,7 @@ import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/f
 
 import { WrAbstractBase } from 'ngwr/core/abstract';
 import { InputBoolean } from 'ngwr/core/decorators';
-import { OnChangeType, OnTouchedType, SafeAny } from 'ngwr/core/types';
+import { SafeAny } from 'ngwr/core/types';
 
 @Component({
   selector: 'wr-checkbox',
@@ -89,8 +89,8 @@ export class WrCheckbox extends WrAbstractBase implements ControlValueAccessor, 
   }
   private _focused: boolean = false;
 
-  private onChange: OnChangeType = (): void => {};
-  private onTouched: OnTouchedType = (): void => {};
+  private onChange: SafeAny = (): void => {};
+  private onTouched: SafeAny = (): void => {};
 
   /** Set element classes */
   @HostBinding('class')
@@ -146,11 +146,11 @@ export class WrCheckbox extends WrAbstractBase implements ControlValueAccessor, 
     this.checked = value;
   }
 
-  registerOnChange(fn: OnChangeType): void {
+  registerOnChange(fn: SafeAny): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: OnTouchedType): void {
+  registerOnTouched(fn: SafeAny): void {
     this.onTouched = fn;
   }
 

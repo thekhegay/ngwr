@@ -34,7 +34,6 @@ jobs:
         run: pnpm install
 
       - name: Build and Publish to NPM
-        run: |
-          npx ts-node ./scripts/publish.ts
+        run: pnpm publish:lib
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

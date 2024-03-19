@@ -1,0 +1,33 @@
+/*!
+ * Copyright 2022-2023 Garuna LLP
+ * Copyright 2022-2023 Stingray Technologies LLP
+ *
+ * Licensed under MIT
+ *
+ * https://github.com/thekhegay/ngwr
+ */
+
+@forward 'maps';
+
+@forward 'root';
+@forward 'reset';
+@forward 'grid' show media-up, media-down;
+@forward 'animations';
+@forward 'cdk';
+
+@forward '../alert/styles';
+@forward '../backdrop/backdrop';
+@forward '../button/styles';
+@forward '../checkbox/checkbox';
+@forward '../dialog/dialog';
+@forward '../divider/divider';
+@forward '../form/form';
+@forward '../icon/icon';
+@forward '../input/input';
+@forward '../progress/styles';
+@forward '../qrcode/qrcode';
+@forward '../skeleton/skeleton';
+@forward '../spinner/spinner';
+@forward '../tag/tag';
+@forward '../tooltip/tooltip';
+

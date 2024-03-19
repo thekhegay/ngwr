@@ -45,8 +45,7 @@ jobs:
       - name: Run release
         id: run-release
         run: |
-          npx ts-node ./scripts/release.ts \
-            --release-as ${{ github.event.inputs.mode }}
+          pnpm release:${{ github.event.inputs.mode }}
 
           echo "new_version=$(node -p "require('./projects/lib/package.json').version")" >> $GITHUB_OUTPUT
 
