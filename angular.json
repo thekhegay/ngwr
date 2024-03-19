@@ -42,18 +42,33 @@
             "completeIconSetName": "wrIconSet",
             "prefix": "wrIcon",
             "interfaceName": "IWrIcon",
-            "srcFiles": ["./projects/lib/_assets/icons/**/*.svg"],
+            "srcFiles": ["./projects/lib/icon/_svg/**/*.svg"],
             "outputDirectory": "./projects/lib/icon/",
             "compileSources": true,
             "svgoConfig": {
               "plugins": [
                 "preset-default",
-                "convertShapeToPath",
                 "convertStyleToAttrs",
+                {
+                  "name": "addClassesToSVGElement",
+                  "params": {
+                    "className": "wr-icon__svg"
+                  }
+                },
                 {
                   "name": "removeAttrs",
                   "params": {
-                    "attrs": "(fill|stroke|stroke-linecap|stroke-miterlimit|stroke-width|stroke-linejoin)"
+                    "attrs": "fill"
+                  }
+                },
+                {
+                  "name": "convertColors",
+                  "params": {
+                    "currentColor": true,
+                    "names2hex": false,
+                    "rgb2hex": false,
+                    "shorthex": false,
+                    "shortname": false
                   }
                 }
               ]

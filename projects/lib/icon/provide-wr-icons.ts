@@ -1,19 +1,14 @@
-import { Optional, Provider, SkipSelf } from '@angular/core';
+import { Provider } from '@angular/core';
 
-import { WR_ICONS } from './icon.token';
+import { WR_ICONS_PATCH, WrIconPatchService } from './icon.service';
 import { IWrIcon } from './icons';
 
-export function provideWrIcons(icons: IWrIcon[]): Provider {
-  return {
-    provide: WR_ICONS,
-    useFactory: (parentIcons?: Record<string, string>) => {
-      const filler: Record<string, string> = {};
-      icons.forEach(icon => (filler[icon.name] = icon.data));
-      return {
-        ...parentIcons,
-        ...filler,
-      };
+export function provideWrIcons(icons: IWrIcon[]): Provider[] {
+  return [
+    WrIconPatchService,
+    {
+      provide: WR_ICONS_PATCH,
+      useValue: icons,
     },
-    deps: [[WR_ICONS, new Optional(), new SkipSelf()]],
-  };
+  ];
 }
