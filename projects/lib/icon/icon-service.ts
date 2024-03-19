@@ -1,18 +1,25 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
-import { IWrIcon, wrIconSet } from './icons';
+import { WR_ICONS } from './icon.token';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WrIconService {
+  private readonly wrIcons = inject(WR_ICONS);
   public static registry: Readonly<Map<string, string>> = new Map<string, string>();
+
+  constructor() {
+    this.recordToMap(this.wrIcons);
+  }
 
   get registry(): Readonly<Map<string, string>> {
     return WrIconService.registry;
   }
 
-  static registerIcons(): void {
-    wrIconSet.forEach((icon: IWrIcon) => WrIconService.registry.set(icon.name, icon.data));
+  private recordToMap(data: Record<string, string>): void {
+    Object.entries(data).forEach(([key, value]) => {
+      WrIconService.registry.set(key, value);
+    });
   }
 }
