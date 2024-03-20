@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 
-import { WrCheckbox } from './checkbox.component';
+import { WrCheckboxComponent } from './checkbox.component';
 
 @NgModule({
-  imports: [WrCheckbox],
-  exports: [WrCheckbox],
+  imports: [WrCheckboxComponent],
+  exports: [WrCheckboxComponent],
 })
 export class WrCheckboxModule {}

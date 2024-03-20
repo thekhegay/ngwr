@@ -18,9 +18,10 @@ import { WrSkeletonModule } from 'ngwr/skeleton';
 import { WrSpinModule } from 'ngwr/spin';
 import { WrTagModule } from 'ngwr/tag';
 import { WrTooltipModule } from 'ngwr/tooltip';
+
 import { HighlightModule } from 'ngx-highlightjs';
-import { CodeComponent } from '#core/components';
-import { SnippetComponent } from '#core/components';
+
+import { CodeComponent, SnippetComponent } from '#core/components';
 
 const cdk = [ClipboardModule];
 

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { SeoService } from '#core/services';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'ngwr-checkbox',
@@ -9,6 +10,10 @@ import { SeoService } from '#core/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CheckboxComponent implements OnInit {
+  readonly form = new FormGroup({
+    value: new FormControl<boolean>(false),
+  });
+
   readonly description: string = 'A two state checkbox.';
 
   readonly importCode: string =
