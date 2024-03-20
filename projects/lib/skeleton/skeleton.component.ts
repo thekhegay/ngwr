@@ -1,17 +1,17 @@
-import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, HostBinding, Input } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
 
-import { WrThemeColor } from 'ngwr/core/color';
-import { InputBoolean } from 'ngwr/core/decorators';
-import { SafeAny } from 'ngwr/core/types';
+import { SafeAny, WrThemeColor } from 'ngwr/types';
 
-@Directive({
+@Component({
+  standalone: true,
   selector: 'wr-skeleton',
-  exportAs: 'wrSkeleton',
+  template: '',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
-export class WrSkeleton {
+export class WrSkeletonComponent {
   @Input() color: WrThemeColor = 'dark';
-  @Input() @InputBoolean() animated: BooleanInput = true;
+  @Input({ transform: booleanAttribute }) animated: boolean = true;
 
   @HostBinding('class')
   get elClasses(): SafeAny {
