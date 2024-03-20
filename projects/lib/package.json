@@ -32,6 +32,9 @@
     },
     "./button/styles": {
       "sass": "./button/styles/_index.scss"
+    },
+    "./form/styles": {
+      "sass": "./form/styles/_index.scss"
     }
   },
   "dependencies": {

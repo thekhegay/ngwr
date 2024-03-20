@@ -5,4 +5,6 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export * from './public-api';
+export * from './form-error.component';
+export * from './form-item.component';
+export * from './form.module';
