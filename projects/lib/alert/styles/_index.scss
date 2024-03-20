@@ -1,7 +1,7 @@
 @forward './vars';
 @forward './theming';
 
-@forward './icon/styles';
+@forward '../../icon/styles';
 
 .wr-alert {
   &__wrapper {
