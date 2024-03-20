@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 
-import { WrAlert } from './alert.component';
+import { WrAlertComponent } from './alert.component';
 
 @NgModule({
-  imports: [WrAlert],
-  exports: [WrAlert],
+  imports: [WrAlertComponent],
+  exports: [WrAlertComponent],
 })
 export class WrAlertModule {}

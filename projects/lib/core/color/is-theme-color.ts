@@ -2,6 +2,7 @@ import { SafeAny } from 'ngwr/core/types';
 
 import { wrThemeColors, WrThemeColor } from './color';
 
+/** @deprecated */
 export function isThemeColor(color: string): color is WrThemeColor {
   const is: boolean = wrThemeColors.indexOf(color as SafeAny) !== -1;
 

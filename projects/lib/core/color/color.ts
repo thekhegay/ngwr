@@ -9,4 +9,5 @@ export const wrThemeColors = [
   'dark',
 ] as const;
 
+/** @deprecated use import from 'ngwr/types' */
 export type WrThemeColor = (typeof wrThemeColors)[number];

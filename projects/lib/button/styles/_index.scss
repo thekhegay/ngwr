@@ -1,7 +1,8 @@
 @forward './vars';
 @forward './theming';
 
-@use '../../spin/styles';
+@forward '../../spin/styles';
+@forward '../../icon/styles';
 
 .wr-btn {
   display: inline-block;

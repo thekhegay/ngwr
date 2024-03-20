@@ -1,21 +1,11 @@
-@if (!isClosed) {
+@if (!isClosed()) {
   <div class="wr-alert__wrapper">
-    @if (icon) {
-      <div class="wr-alert-icon">
-        <wr-icon class="wr-alert-icon__inner" [name]="icon"></wr-icon>
-      </div>
-    }
-
-    @if (title || message) {
-      <div class="wr-alert__body">
-        @if (title) {
-          <span class="wr-alert__title">{{ title }}</span>
-        }
-        @if (message) {
-          <span class="wr-alert__message">{{ message }}</span>
-        }
-      </div>
-    }
+    <div class="wr-alert__body">
+      <p class="wr-alert__title">{{ title }}</p>
+      @if (message) {
+        <p class="wr-alert__message">{{ message }}</p>
+      }
+    </div>
 
     @if (closeable) {
       <div class="wr-alert-close">

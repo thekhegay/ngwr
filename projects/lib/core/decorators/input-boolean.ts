@@ -2,6 +2,9 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 import { SafeAny } from 'ngwr/core/types';
 
+/**
+ * @deprecated use @Input({ transform: booleanAttribute }) instead
+ */
 export function InputBoolean(): PropertyDecorator {
   return (target: SafeAny, propertyKey: string | symbol): void => {
     const coercedBooleanKey = `$$__wr__${String(propertyKey)}`;

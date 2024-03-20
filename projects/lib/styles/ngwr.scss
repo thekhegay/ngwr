@@ -15,7 +15,7 @@
 @forward 'animations';
 @forward 'cdk';
 
-@forward '../alert/styles';
+@forward '../alert/styles/index';
 @forward '../backdrop/backdrop';
 @forward '../button/styles';
 @forward '../checkbox/checkbox';
@@ -28,6 +28,7 @@
 @forward '../qrcode/qrcode';
 @forward '../skeleton/skeleton';
 @forward '../spin/styles';
+
 @forward '../tag/tag';
 @forward '../tooltip/tooltip';
 

@@ -21,31 +21,31 @@
 
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div slot="display">
-          <wr-alert title="Title" message="Message" icon="warning" closeable></wr-alert>
+          <wr-alert title="Title" message="Message" closeable />
         </div>
         <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
       </ngwr-snippet>
     </div>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Color</h2>
-      <p class="ngwr-page-section__description">
-        Alert component is available in different
-        <a class="ngwr-page-section__link" routerLink="/docs/core/color">predefined colors</a>. Color can be set by
-        <code class="ngwr-pre">color</code> attribute.
-      </p>
+<!--    <div class="ngwr-page-section">-->
+<!--      <h2 class="ngwr-page-section__title">Color</h2>-->
+<!--      <p class="ngwr-page-section__description">-->
+<!--        Alert component is available in different-->
+<!--        <a class="ngwr-page-section__link" routerLink="/docs/core/color">predefined colors</a>. Color can be set by-->
+<!--        <code class="ngwr-pre">color</code> attribute.-->
+<!--      </p>-->
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="alert__list" slot="display">
-          @for (color of colors; track $index) {
-            <wr-alert [color]="color" title="Title" message="Message" closeable icon="warning">
-              {{ color.charAt(0).toUpperCase() + color.slice(1) }}
-            </wr-alert>
-          }
-        </div>
-        <ngwr-code [code]="colorsCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<!--      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">-->
+<!--        <div class="alert__list" slot="display">-->
+<!--          @for (color of colors; track $index) {-->
+<!--            <wr-alert [color]="color" title="Title" message="Message" closeable icon="warning">-->
+<!--              {{ color.charAt(0).toUpperCase() + color.slice(1) }}-->
+<!--            </wr-alert>-->
+<!--          }-->
+<!--        </div>-->
+<!--        <ngwr-code [code]="colorsCode" codeLang="html" slot="code"></ngwr-code>-->
+<!--      </ngwr-snippet>-->
+<!--    </div>-->
 
     <div class="ngwr-page-section">
       <h2 class="ngwr-page-section__title">API</h2>
