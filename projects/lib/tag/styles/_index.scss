@@ -1,0 +1,32 @@
+@forward './vars';
+@forward './theming';
+
+.wr-tag {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+
+  appearance: none;
+  text-decoration: none;
+  list-style: none;
+
+  white-space: nowrap;
+  word-wrap: break-word;
+
+  color: var(--wr-tag-color);
+  background-color: var(--wr-tag-bg-color);
+
+  border-radius: var(--wr-tag-border-radius);
+  border: 1px solid var(--wr-tag-border-color);
+
+  font-family: var(--wr-tag-font-family);
+  font-size: var(--wr-tag-font-size);
+  font-weight: var(--wr-tag-font-weight);
+  line-height: var(--wr-tag-line-height);
+
+  padding: var(--wr-tag-padding-y) var(--wr-tag-padding-x);
+
+  &--rounded {
+    --wr-tag-border-radius: 50rem;
+  }
+}

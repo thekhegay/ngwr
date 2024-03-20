@@ -1,2 +1,2 @@
-export { WrTag } from './tag';
-export { WrTagModule } from './tag-module';
+export * from './tag.component';
+export * from './tag.module';

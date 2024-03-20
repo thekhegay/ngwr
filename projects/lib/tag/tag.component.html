@@ -1,0 +1,13 @@
+@if (loading && iconPosition === 'start') {
+  <wr-spin class="wr-tag__spin" />
+}
+@if (icon && !loading && iconPosition === 'start') {
+  <wr-icon class="wr-tag__icon" [name]="icon" />
+}
+<ng-content />
+@if (loading && iconPosition === 'end') {
+  <wr-spin class="wr-tag__spin" />
+}
+@if (icon && !loading && iconPosition === 'end') {
+  <wr-icon class="wr-tag__icon" [name]="icon" />
+}
