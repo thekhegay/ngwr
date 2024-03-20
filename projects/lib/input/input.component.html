@@ -1,0 +1,18 @@
+@if (prefix) {
+  <div class="wr-input-prefix">
+    <span class="wr-input-prefix__text">{{ prefix }}</span>
+  </div>
+}
+<div class="wr-input-el">
+  @if (passwordIcons) {
+    <div class="wr-input-el-icon" (click)="onPasswordVisibilityChange()">
+      <wr-icon class="wr-input-el-icon__icon" [name]="eyeOn ? 'eye' : 'eye-off'" />
+    </div>
+  }
+  <input class="wr-input-el__native" [type]="type" [placeholder]="placeholder" [readonly]="readonly" [formControl]="formControl" />
+</div>
+@if (suffix) {
+  <div class="wr-input-suffix">
+    <span class="wr-input-suffix__text">{{ suffix }}</span>
+  </div>
+}

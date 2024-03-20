@@ -35,6 +35,9 @@
     },
     "./form/styles": {
       "sass": "./form/styles/_index.scss"
+    },
+    "./input/styles": {
+      "sass": "./input/styles/_index.scss"
     }
   },
   "dependencies": {
