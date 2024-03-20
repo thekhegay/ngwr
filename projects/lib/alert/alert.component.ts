@@ -1,17 +1,23 @@
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  HostBinding,
-  Input,
-  signal,
-  ViewEncapsulation,
-} from '@angular/core';
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { booleanAttribute, ChangeDetectionStrategy, Component, HostBinding, Input, signal, ViewEncapsulation } from '@angular/core';
 
 import { provideWrIcons, wrIconClose, WrIconComponent } from 'ngwr/icon';
 import { SafeAny } from 'ngwr/types';
+
 import { WrAlertType } from './alert-type';
 
+/**
+ * NGWR alert component.
+ * Closeable component for feedback.
+ *
+ * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/alert}
+ */
 @Component({
   standalone: true,
   selector: 'wr-alert',

@@ -1,6 +1,8 @@
 @forward './vars';
 @forward './theming';
 
+@forward './icon/styles';
+
 .wr-alert {
   &__wrapper {
     display: flex;

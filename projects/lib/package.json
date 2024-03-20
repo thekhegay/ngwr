@@ -27,6 +27,9 @@
     "./grid": {
       "sass": "./grid/styles/_index.scss"
     },
+    "./alert/styles": {
+      "sass": "./alert/styles/_index.scss"
+    },
     "./button/styles": {
       "sass": "./button/styles/_index.scss"
     }

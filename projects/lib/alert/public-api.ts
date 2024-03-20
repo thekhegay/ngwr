@@ -5,4 +5,6 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export * from './public-api';
+export * from './alert-type';
+export * from './alert.component';
+export * from './alert.module';
