@@ -1,10 +1,6 @@
-/*!
- * Copyright 2022-2023 Garuna LLP
- * Copyright 2022-2023 Stingray Technologies LLP
- *
- * Licensed under MIT
- *
- * https://github.com/thekhegay/ngwr
+/**
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
 @forward 'maps';
@@ -25,7 +21,7 @@
 @forward '../icon/styles';
 @forward '../input/styles';
 @forward '../progress/styles';
-@forward '../qrcode/qrcode';
+@forward '../qr/styles';
 @forward '../skeleton/styles';
 @forward '../spin/styles';
 @forward '../tag/styles';

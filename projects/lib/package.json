@@ -38,6 +38,9 @@
     },
     "./input/styles": {
       "sass": "./input/styles/_index.scss"
+    },
+    "./qr/styles": {
+      "sass": "./qr/styles/_index.scss"
     }
   },
   "dependencies": {
