@@ -36,8 +36,8 @@ dependencies:
     specifier: ^11.9.0
     version: 11.9.0
   ngx-highlightjs:
-    specifier: ^10.0.0
-    version: 10.0.0(@angular/common@17.3.0)(@angular/core@17.3.0)(rxjs@7.8.1)
+    specifier: ^12.0.0
+    version: 12.0.0(@angular/common@17.3.0)(@angular/core@17.3.0)
   rxjs:
     specifier: ~7.8.1
     version: 7.8.1
@@ -7000,17 +7000,15 @@ packages:
       rollup: 4.13.0
     dev: true
 
-  /ngx-highlightjs@10.0.0(@angular/common@17.3.0)(@angular/core@17.3.0)(rxjs@7.8.1):
-    resolution: {integrity: sha512-F5VXB6vnpiTPMADUoCEkyc2wnqpKUNvfeAP4tO//NrwdQP2sQK6MfPg+jHL2adoJE5LIchsJlpq6C0r+KmlOSA==}
+  /ngx-highlightjs@12.0.0(@angular/common@17.3.0)(@angular/core@17.3.0):
+    resolution: {integrity: sha512-1lSUv3hNpriHewwe8zz8eMX6q/Tcq1ZCsJ1GitBsr86y39e+q4U/s8LKE7rvK6SVAbQlUuopdbbKWR0zjihjLg==}
     peerDependencies:
-      '@angular/common': '>=16.0.0'
-      '@angular/core': '>=16.0.0'
-      rxjs: '>=7.0.0'
+      '@angular/common': '>=17.0.0'
+      '@angular/core': '>=17.0.0'
     dependencies:
       '@angular/common': 17.3.0(@angular/core@17.3.0)(rxjs@7.8.1)
       '@angular/core': 17.3.0(rxjs@7.8.1)(zone.js@0.14.3)
       highlight.js: 11.9.0
-      rxjs: 7.8.1
       tslib: 2.6.2
     dev: false
 
