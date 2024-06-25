@@ -3,7 +3,7 @@
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
-    "serve": "ng serve",
+    "serve": "ng serve --o",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint"
