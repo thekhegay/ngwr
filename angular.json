@@ -1,0 +1,141 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "pnpm",
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "lib": {
+      "projectType": "library",
+      "root": "projects/lib",
+      "sourceRoot": "projects/lib",
+      "prefix": "wr",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
+    "showcase": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/showcase",
+      "sourceRoot": "projects/showcase",
+      "prefix": "ngwr",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": {
+              "base": "dist/showcase",
+              "browser": "",
+              "media": "assets"
+            },
+            "index": "projects/showcase/index.html",
+            "browser": "projects/showcase/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/showcase/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/showcase/public"
+              }
+            ],
+            "styles": [
+              "projects/showcase/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kB",
+                  "maximumError": "4kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "showcase:build:production"
+            },
+            "development": {
+              "buildTarget": "showcase:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "projects/showcase/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/showcase/public"
+              }
+            ],
+            "styles": [
+              "projects/showcase/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/showcase/**/*.ts",
+              "projects/showcase/**/*.html"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
