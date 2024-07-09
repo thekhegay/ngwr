@@ -29,7 +29,13 @@
       "#core/*": ["projects/showcase/app/_core/*"],
       "#routing": ["projects/showcase/app/routing.ts"],
       "#env": ["projects/showcase/environments/environment.ts"]
-    }
+    },
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

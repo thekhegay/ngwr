@@ -4,9 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "ng serve --o",
-    "build": "ng build",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "release:patch": "tsx ./scripts/release.ts --release-as=patch",
+    "release:minor": "tsx ./scripts/release.ts --release-as=minor",
+    "release:major": "tsx ./scripts/release.ts --release-as=major",
+    "build:lib": "tsx ./scripts/build-lib.ts",
+    "build:showcase": "tsx ./scripts/build-showcase.ts",
+    "publish:lib": "tsx ./scripts/publish.ts"
   },
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
   "engines": {
@@ -23,6 +28,7 @@
     "@angular/platform-browser": "^18.0.0",
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
+    "chalk": "^5.3.0",
     "highlight.js": "^11.9.0",
     "js-beautify": "^1.15.1",
     "ngx-highlightjs": "^12.0.0",
@@ -32,12 +38,16 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.0.2",
+    "@angular-extensions/svg-icons-builder": "^11.0.0",
     "@angular/cli": "^18.0.2",
     "@angular/compiler-cli": "^18.0.0",
     "@eslint/js": "^9.5.0",
+    "@semantic-release/release-notes-generator": "^14.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/js-beautify": "^1.14.3",
+    "@types/node": "^20.14.8",
     "angular-eslint": "18.0.1",
+    "commit-and-tag-version": "^12.4.1",
     "eslint": "^9.3.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import-x": "^0.5.2",
@@ -50,7 +60,37 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "ng-packagr": "^18.0.0",
     "prettier": "3.3.2",
+    "tsx": "^4.16.2",
     "typescript": "~5.4.2",
     "typescript-eslint": "8.0.0-alpha.20"
+  },
+  "commit-and-tag-version": {
+    "scripts": {
+      "postbump": "tsx ./scripts/postbump.ts"
+    },
+    "packageFiles": [
+      "projects/lib/package.json"
+    ],
+    "bumpFiles": [
+      {
+        "filename": "projects/lib/package.json",
+        "type": "json"
+      }
+    ],
+    "header": "# Changelog",
+    "types": [
+      {
+        "type": "feat",
+        "section": "Features"
+      },
+      {
+        "type": "fix",
+        "section": "Bug Fixes"
+      },
+      {
+        "type": "deprecate",
+        "section": "Deprecated"
+      }
+    ]
   }
 }

@@ -1,13 +1,13 @@
-name: Create release
+name: Make release
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Release version type'
+        description: 'Release type'
         required: true
         type: choice
-        default: 'minor'
+        default: 'patch'
         options:
           - patch
           - minor
@@ -26,7 +26,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9.11
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -70,14 +70,14 @@ jobs:
           delete-branch: true
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: release/${{ steps.run-release.outputs.new_version }}
-          title: 'Release/v${{ steps.run-release.outputs.new_version }}'
+          title: '🚀 Release v${{ steps.run-release.outputs.new_version }}'
           body: |
             ${{ steps.get-pr-body.outputs.body }}
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1.14.0
         with:
-          name: Release ${{ steps.generate_body.outputs.tag_name }}
+          name: ${{ steps.generate_body.outputs.tag_name }}
           tag: ${{ steps.generate_body.outputs.tag_name }}
           body: ${{ steps.get-pr-body.outputs.body }}
           token: ${{ secrets.GITHUB_TOKEN }}
