@@ -1,7 +1,8 @@
 <pre class="ngwr-code__pre">
-  <code class="ngwr-code__content" [highlight]="code" [lineNumbers]="true" [languages]="codeLang ? [codeLang] : []"></code>
+  <code
+    class="ngwr-code__content"
+    [highlightAuto]="code | beatify"
+    [languages]="codeLang ? [codeLang] : []"
+    lineNumbers
+  ></code>
 </pre>
-
-<div class="ngwr-code-copy" [cdkCopyToClipboard]="code">
-  <wr-icon class="ngwr-code-copy__icon" name="copy-outline"></wr-icon>
-</div>

@@ -1,0 +1,8 @@
+@use '../../styles/maps' as maps;
+
+@each $color in maps.$theme-colors-map {
+  .wr-progress--color-#{$color} {
+    --wr-progress-bg-color: rgba(var(--wr-color-#{$color}-rgb), 0.25);
+    --wr-progress-color: var(--wr-color-#{$color});
+  }
+}

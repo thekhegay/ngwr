@@ -1,172 +1,88 @@
-import { A11yModule, FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
-import { CommonModule } from '@angular/common';
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  ElementRef,
   forwardRef,
   HostBinding,
   Input,
-  NgZone,
-  OnDestroy,
   OnInit,
-  ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 
-import { WrAbstractBase } from 'ngwr/core/abstract';
-import { InputBoolean } from 'ngwr/core/decorators';
-import { SafeAny } from 'ngwr/core/types';
+import { noop, takeUntil } from 'rxjs';
+
+import { WrAbstractBase } from 'ngwr/cdk';
+import { SafeAny } from 'ngwr/cdk/types';
+import { generateRandomId } from 'ngwr/cdk/utils';
+import { WrIconComponent, wrIconName } from 'ngwr/icon';
 
 @Component({
+  standalone: true,
   selector: 'wr-checkbox',
-  exportAs: 'wrCheckbox',
-  templateUrl: 'checkbox.template.html',
+  templateUrl: './checkbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
-  imports: [CommonModule, FormsModule, A11yModule],
+  imports: [ReactiveFormsModule, WrIconComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => WrCheckbox),
+      // eslint-disable-next-line @angular-eslint/no-forward-ref
+      useExisting: forwardRef(() => WrCheckboxComponent),
       multi: true,
     },
   ],
 })
-export class WrCheckbox extends WrAbstractBase implements ControlValueAccessor, OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('inputElement', { static: true }) inputElement!: HTMLInputElement;
+export class WrCheckboxComponent extends WrAbstractBase implements ControlValueAccessor, OnInit {
+  @Input({ required: true }) formControl!: FormControl;
+  @Input() id: string = generateRandomId();
+  @Input() icon: wrIconName | null = null;
 
-  get checked(): boolean {
-    return this._checked;
-  }
-  set checked(value: BooleanInput) {
-    const checked = coerceBooleanProperty(value);
+  onChange: (value: boolean) => void = noop;
+  onTouched: () => void = noop;
 
-    if (checked != this.checked) {
-      this._checked = checked;
-      this.onChange(checked);
-      this.onTouched();
-      this.cdr.markForCheck();
-    }
-  }
-  private _checked: boolean = false;
-
-  /** Set autofocus for checkbox; */
-  @Input()
-  @InputBoolean()
-  get autofocus(): boolean {
-    return this._autofocus;
-  }
-  set autofocus(value: BooleanInput) {
-    this._autofocus = coerceBooleanProperty(value);
-    this.cdr.markForCheck();
-  }
-  private _autofocus: boolean = false;
-
-  /** Set disabled state of `wr-btn`; */
-  @Input()
-  @InputBoolean()
-  get disabled(): boolean {
-    return this._disabled;
-  }
-  set disabled(value: BooleanInput) {
-    this._disabled = coerceBooleanProperty(value);
-    this.cdr.markForCheck();
-  }
-  private _disabled: boolean = false;
-
-  get focused(): boolean {
-    return this._focused;
-  }
-  set focused(value: BooleanInput) {
-    this._focused = coerceBooleanProperty(value);
-    this.cdr.markForCheck();
-  }
-  private _focused: boolean = false;
-
-  private onChange: SafeAny = (): void => {};
-  private onTouched: SafeAny = (): void => {};
-
-  /** Set element classes */
   @HostBinding('class')
   get elClasses(): SafeAny {
     return {
       'wr-checkbox': true,
-      'wr-checkbox--checked': this.checked,
-      'wr-checkbox--focused': this.focused,
+      'wr-checkbox--checked': this.formControl.value,
     };
   }
 
-  constructor(
-    private readonly cdr: ChangeDetectorRef,
-    private readonly elRef: ElementRef<HTMLElement | HTMLInputElement>,
-    private readonly focusMonitor: FocusMonitor,
-    private readonly ngZone: NgZone
-  ) {
-    super();
+  @HostBinding('attr.disabled')
+  get nativeDisabled(): '' | null {
+    return this.formControl.disabled ? '' : null;
   }
 
   ngOnInit(): void {
-    this.ngZone.runOutsideAngular(() => {
-      this.elRef.nativeElement.addEventListener('click', this.preventEventsWhenDisabled);
-    });
+    this.formControl.valueChanges
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe((isChecked: boolean) => this.onChange(isChecked));
   }
 
-  ngAfterViewInit(): void {
-    this.focusMonitor.monitor(this.inputElement, true).subscribe(origin => {
-      this.ngZone.run(() => (this.focused = origin !== null));
-    });
-
-    if (this.autofocus) {
-      this.focus();
-      this.cdr.markForCheck();
-    }
-  }
-
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    this.elRef.nativeElement.removeEventListener('click', this.preventEventsWhenDisabled);
-    this.focusMonitor.stopMonitoring(this.inputElement);
-  }
-
-  focus(origin: FocusOrigin = 'program', options?: FocusOptions): void {
-    if (origin) {
-      this.focusMonitor.focusVia(this.inputElement, origin, options);
-    } else {
-      this.inputElement.focus(options);
-    }
-  }
-
-  writeValue(value: BooleanInput): void {
-    this.checked = value;
-  }
-
-  registerOnChange(fn: SafeAny): void {
+  registerOnChange(fn: () => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: SafeAny): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+  writeValue(checked: boolean): void {
+    this.formControl.patchValue(checked, { emitEvent: false });
   }
 
-  /**
-   * A disabled checkbox shouldn't apply any actions
-   *
-   * @param event
-   */
-  private preventEventsWhenDisabled = (event: Event): void => {
-    if (this.disabled) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
+  setDisabledState?(isDisabled: boolean): void {
+    if (isDisabled) {
+      this.formControl.disable();
+    } else {
+      this.formControl.enable();
     }
-  };
+  }
 }

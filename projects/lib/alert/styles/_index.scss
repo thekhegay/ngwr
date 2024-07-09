@@ -1,0 +1,58 @@
+@forward './vars';
+@forward './theming';
+
+@forward '../../icon/styles';
+
+.wr-alert {
+  width: 100%;
+
+  &__wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+
+    background-color: var(--wr-alert-bg-color);
+    border-radius: var(--wr-alert-border-radius);
+    border-left: 0.25rem solid var(--wr-alert-border-color);
+    padding: var(--wr-alert-padding-y) var(--wr-alert-padding-x);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    flex: 1;
+  }
+
+  &__title {
+    color: var(--wr-alert-title-color);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+  }
+
+  &__message {
+    color: var(--wr-alert-message-color);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1rem;
+  }
+
+  &-close {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 2rem;
+
+    color: var(--wr-alert-close-color);
+    transition: var(--wr-transition-base);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--wr-alert-close-color-hover);
+    }
+  }
+}

@@ -1,32 +1,30 @@
 # Compiled output
-/dist
-/tmp
-/out-tsc
+dist
+tmp
+out-tsc
+RELEASE_BODY.md
+.angular
+.sass-cache
 
-# Node
-/node_modules
+# Node.js
+node_modules
 
 # IDEs and editors
-.idea/
+.idea/*
 .project
 .classpath
 .c9/
 *.launch
-.vscode/
-.history/
 .settings/
 *.sublime-workspace
+.vscode
 
-# Miscellaneous
-.angular/
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
+# misc
 *.log
-/typings
-RELEASE_BODY.md
+connect.lock
+coverage
+typings
 
-# System files
+# System Files
 .DS_Store
 Thumbs.db

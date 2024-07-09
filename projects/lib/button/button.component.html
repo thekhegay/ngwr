@@ -1,10 +1,9 @@
 @if (loading) {
-  <wr-spin class="wr-btn__spin"></wr-spin>
+  <wr-spinner class="wr-btn__spin" />
 }
-@if (icon && iconPosition === 'start') {
-  <wr-icon class="wr-btn__icon" [name]="icon"></wr-icon>
+@if (icon) {
+  <wr-icon class="wr-btn__icon" [name]="icon" />
 }
-<span class="wr-btn__text"><ng-content></ng-content></span>
-@if (icon && iconPosition === 'end') {
-  <wr-icon class="wr-btn__icon" [name]="icon"></wr-icon>
-}
+<span class="wr-btn__text">
+  <ng-content />
+</span>

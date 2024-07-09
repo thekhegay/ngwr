@@ -1,17 +1,28 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewContainerRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, OnInit, ViewContainerRef } from '@angular/core';
 
-import { WrDialogService } from 'ngwr/dialog';
+import { WrButtonModule } from 'ngwr/button';
+import { WrDialogModule, WrDialogService } from 'ngwr/dialog';
+import { provideWrIcons, warning } from 'ngwr/icon';
+import { WrTagModule } from 'ngwr/tag';
+
+import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 import { DialogExampleComponent } from './dialog-example/dialog-example.component';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-dialog',
   templateUrl: './dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CodeComponent, SnippetComponent, WrButtonModule, WrDialogModule, WrTagModule],
+  providers: [provideWrIcons([warning])],
 })
 export class DialogComponent implements OnInit {
-  readonly description: string = 'A modal dialog.';
+  @HostBinding() class = 'ngwr-page';
+
+  protected readonly pageTitle = 'Dialog';
+  protected readonly pageDescription: string = 'A modal dialog.';
 
   readonly importCode: string =
     "import { WrDialogModule } from 'ngwr/dialog';\n\n@NgModule({\n  imports: [\n    // ...\n    WrDialogModule,\n  ],\n  // ...\n})\nexport class MyModule {}";
@@ -26,13 +37,13 @@ export class DialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.seoService.setCanonicalURL();
-    this.seoService.setTitle('Dialog');
-    this.seoService.setDescription(this.description);
+    this.seoService.setTitle([this.pageTitle, 'Components']);
+    this.seoService.setDescription(this.pageDescription);
     this.seoService.setKeywords(['dialog', 'wr-dialog']);
   }
 
   onDialogOpen(): void {
-    this.dialogService.open<DialogExampleComponent>({
+    this.dialogService.open({
       component: DialogExampleComponent,
       viewContainerRef: this.vcr,
     });

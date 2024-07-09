@@ -1,0 +1,26 @@
+.wr-alert {
+  &--success {
+    --wr-alert-title-color: var(--wr-color-success-darker);
+    --wr-alert-message-color: var(--wr-color-success-darker);
+    --wr-alert-bg-color: rgba(var(--wr-color-success-rgb), 0.125);
+    --wr-alert-border-color: rgba(var(--wr-color-success-rgb), 0.5);
+    --wr-alert-close-color: rgba(var(--wr-color-success-rgb), 0.5);
+    --wr-alert-close-color-hover: var(--wr-color-success);
+  }
+
+  &--warning {
+    --wr-alert-title-color: var(--wr-color-warning-darker);
+    --wr-alert-bg-color: rgba(var(--wr-color-warning-rgb), 0.125);
+    --wr-alert-border-color: rgba(var(--wr-color-warning-rgb), 0.5);
+    --wr-alert-close-color: rgba(var(--wr-color-warning-rgb), 0.5);
+    --wr-alert-close-color-hover: var(--wr-color-warning);
+  }
+
+  &--danger {
+    --wr-alert-title-color: var(--wr-color-danger-darker);
+    --wr-alert-bg-color: rgba(var(--wr-color-danger-rgb), 0.125);
+    --wr-alert-border-color: rgba(var(--wr-color-danger-rgb), 0.5);
+    --wr-alert-close-color: rgba(var(--wr-color-danger-rgb), 0.5);
+    --wr-alert-close-color-hover: var(--wr-color-danger);
+  }
+}

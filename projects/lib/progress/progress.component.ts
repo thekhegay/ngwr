@@ -1,55 +1,25 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  HostBinding,
-  Input,
-  ViewEncapsulation,
-} from '@angular/core';
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
 
-import { SafeAny } from 'ngwr/core/types';
-import { isThemeColor, WrThemeColor } from 'ngwr/core/color';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, numberAttribute, ViewEncapsulation } from '@angular/core';
+
+import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 
 @Component({
+  standalone: true,
   selector: 'wr-progress',
-  exportAs: 'wrProgress',
-  templateUrl: 'progress.component.html',
+  templateUrl: './progress.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
 })
-export class WrProgress {
-  /**
-   * Set color of `wr-divider`
-   *
-   * @default 'primary';
-   */
-  @Input()
-  get color(): WrThemeColor {
-    return this._color;
-  }
-  set color(value: WrThemeColor) {
-    this._color = isThemeColor(value) ? value : 'primary';
-    this.cdr.markForCheck();
-  }
-  private _color: WrThemeColor = 'primary';
+export class WrProgressComponent {
+  @Input() color: WrThemeColor | null = null;
+  @Input({ transform: numberAttribute }) percent: number = 0;
 
-  /**
-   * Set percent of progress
-   *
-   * @default 0';
-   */
-  @Input()
-  get percent(): number {
-    return this._percent;
-  }
-  set percent(value: number) {
-    this._percent = value;
-    this.cdr.markForCheck();
-  }
-  private _percent: number = 0;
-
-  /** Set element classes */
   @HostBinding('class')
   get elClasses(): SafeAny {
     return {
@@ -64,6 +34,4 @@ export class WrProgress {
       'wr-progress--color-dark': this.color === 'dark',
     };
   }
-
-  constructor(private readonly cdr: ChangeDetectorRef) {}
 }

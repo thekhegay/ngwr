@@ -1,0 +1,25 @@
+.ngwr-pre {
+  --ngwr-pre-color: var(--wr-color-dark);
+  --ngwr-pre-bg-color: rgba(var(--wr-color-light-rgb), 0.2);
+
+  color: var(--ngwr-pre-color);
+
+  font-family: var(--ngwr-font-family-mono);
+  font-size: 95%;
+
+  background-color: var(--ngwr-pre-bg-color);
+  border-radius: 3px;
+
+  padding: 0.2em 0.4em;
+
+  vertical-align: baseline;
+
+  &--primary {
+    --ngwr-pre-color: var(--wr-color-primary) !important;
+  }
+
+  &--danger {
+    --ngwr-pre-color: var(--wr-color-danger) !important;
+    --ngwr-pre-bg-color: rgba(var(--wr-color-danger-rgb), 0.125) !important;
+  }
+}

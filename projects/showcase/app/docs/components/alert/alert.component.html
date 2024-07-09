@@ -1,106 +1,118 @@
-<main class="ngwr-page">
-  <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Component</wr-tag>
-    <h1 class="ngwr-page-hero__title">Alert</h1>
-    <p class="ngwr-page-hero__description">{{ description }}</p>
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
   </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
 
-  <div class="ngwr-page__content">
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">How to use</h2>
-      <p class="ngwr-page-section__description">
-        Import <code class="ngwr-pre">WrAlertModule</code> into a module where you want to use.
-      </p>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrAlertModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
 
-      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Component can be used as <code class="ngwr-pre">wr-alert</code> component
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Usage example</h2>
-      <p class="ngwr-page-section__description">Basic usage of alert component</p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-alert title="Alert title" message="Alert message" />
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div slot="display">
-          <wr-alert title="Title" message="Message" icon="warning" closeable></wr-alert>
-        </div>
-        <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Types</h2>
+  <p class="ngwr-page-section__description">
+    Alert is available in 4 types. Type can be set with <code class="ngwr-pre">type</code> attribute
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Color</h2>
-      <p class="ngwr-page-section__description">
-        Alert component is available in different
-        <a class="ngwr-page-section__link" routerLink="/docs/core/color">predefined colors</a>. Color can be set by
-        <code class="ngwr-pre">color</code> attribute.
-      </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-alert type="info" title="Info" />
+        <wr-alert type="success" title="Success" />
+        <wr-alert type="warning" title="Warning" />
+        <wr-alert type="danger" title="Danger" />
+      </ng-container>
+      <ngwr-code [code]="code.types" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="alert__list" slot="display">
-          @for (color of colors; track $index) {
-            <wr-alert [color]="color" title="Title" message="Message" closeable icon="warning">
-              {{ color.charAt(0).toUpperCase() + color.slice(1) }}
-            </wr-alert>
-          }
-        </div>
-        <ngwr-code [code]="colorsCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Closeable</h2>
+  <p class="ngwr-page-section__description">
+    Alert can be closed when <code class="ngwr-pre">closeable</code> attribute is set
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">API</h2>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-alert title="Closeable alert" closeable />
+      </ng-container>
+      <ngwr-code [code]="code.closeable" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <table class="ngwr-page__table">
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th><code>[title]</code></th>
-            <th>set title of alert</th>
-            <th><code>string</code></th>
-            <th><code>''</code></th>
-          </tr>
-          <tr>
-            <th><code>[message]</code></th>
-            <th>set message of alert</th>
-            <th><code>string</code></th>
-            <th><code>''</code></th>
-          </tr>
-          <tr>
-            <th><code>[closeable]</code></th>
-            <th>-</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[icon]</code></th>
-            <th>add icon to alert</th>
-            <th><code>wrIconName</code></th>
-            <th><code>null</code></th>
-          </tr>
-          <tr>
-            <th><code>[color]</code></th>
-            <th>set color of progress</th>
-            <th>
-              <code>
-                @for (color of colors; track $index) {
-                  '{{ color.charAt(0) + color.slice(1) }}'
-                  @if (!$last) {
-                    |
-                  }
-                }
-              </code>
-            </th>
-            <th><code>'primary'</code></th>
-          </tr>
-        </tbody>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[title]</code></td>
+          <td>set title of alert</td>
+          <td><code>string</code></td>
+          <td><code class="ngwr-pre--danger">yes</code></td>
+          <td><code></code></td>
+        </tr>
+        <tr>
+          <td><code>[message]</code></td>
+          <td>set message of alert</td>
+          <td><code>string | null</code></td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><code>[closeable]</code></td>
+          <td>make alert closeable</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[type]</code></td>
+          <td>set type of alert</td>
+          <td>
+            <code> 'info' | 'success' | 'warning' | 'danger' </code>
+          </td>
+          <td></td>
+          <td><code>'info'</code></td>
+        </tr>
       </table>
     </div>
   </div>
-</main>
+</div>

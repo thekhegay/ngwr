@@ -2,8 +2,10 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "analytics": false,
-    "packageManager": "pnpm"
+    "packageManager": "pnpm",
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -40,8 +42,8 @@
             "exportCompleteIconSet": true,
             "generateCompleteIconSet": true,
             "completeIconSetName": "wrIconSet",
-            "prefix": "wrIcon",
-            "interfaceName": "IWrIcon",
+            "prefix": "",
+            "interfaceName": "WrIcon",
             "srcFiles": ["./projects/lib/icon/_svg/**/*.svg"],
             "outputDirectory": "./projects/lib/icon/",
             "compileSources": true,
@@ -53,12 +55,6 @@
                   "name": "addClassesToSVGElement",
                   "params": {
                     "className": "wr-icon__svg"
-                  }
-                },
-                {
-                  "name": "removeAttrs",
-                  "params": {
-                    "attrs": "fill"
                   }
                 },
                 {
@@ -79,6 +75,11 @@
     },
     "showcase": {
       "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "projects/showcase",
       "sourceRoot": "projects/showcase",
       "prefix": "ngwr",
@@ -86,45 +87,35 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/showcase",
+            "outputPath": {
+              "base": "dist/showcase",
+              "browser": "",
+              "media": "assets"
+            },
             "index": "projects/showcase/index.html",
             "browser": "projects/showcase/main.ts",
             "polyfills": [
               "zone.js"
             ],
             "tsConfig": "projects/showcase/tsconfig.app.json",
-            "assets": [
-              "projects/showcase/assets",
-              "projects/showcase/favicon.ico",
-              "projects/showcase/apple-touch-icon.png",
-              "projects/showcase/icon.svg",
-              "projects/showcase/icon-192.png",
-              "projects/showcase/icon-512.png",
-              "projects/showcase/manifest.webmanifest",
-              "projects/showcase/robots.txt"
-            ],
             "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/showcase/public"
+              }
+            ],
             "styles": [
               "projects/showcase/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "js-beautify"
             ],
             "scripts": []
           },
           "configurations": {
             "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
-                }
-              ],
               "outputHashing": "all",
-              "namedChunks": false,
               "extractLicenses": false,
               "sourceMap": false
             },
@@ -147,6 +138,36 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "projects/showcase/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/showcase/public"
+              }
+            ],
+            "styles": [
+              "projects/showcase/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/showcase/**/*.ts",
+              "projects/showcase/**/*.html"
+            ]
+          }
         }
       }
     }

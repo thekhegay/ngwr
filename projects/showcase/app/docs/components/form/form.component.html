@@ -1,72 +1,78 @@
-<main class="ngwr-page">
-  <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
-    <h1 class="ngwr-page-hero__title">Form</h1>
-    <p class="ngwr-page-hero__description">{{ description }}</p>
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Components</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
   </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
 
-  <div class="ngwr-page__content">
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">How to use</h2>
-      <p class="ngwr-page-section__description">
-        Import <code class="ngwr-pre">WrFormModule</code> into a module where you want to use.
-      </p>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to use</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrFormModule</code> into a module where you want to use.
+  </p>
 
-      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
-    </div>
-
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Usage example</h2>
-      <p class="ngwr-page-section__description">Basic usage of form item component</p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div slot="display">
-          <wr-form-item>
-            <label>Username</label>
-            <wr-input placeholder="Username"></wr-input>
-          </wr-form-item>
-        </div>
-        <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
-
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Error item</h2>
-      <p class="ngwr-page-section__description">Basic usage of form item component</p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div slot="display">
-          <wr-form-item [hasError]="true">
-            <label>Username</label>
-            <wr-input></wr-input>
-            <wr-form-error>Username is required</wr-form-error>
-          </wr-form-item>
-        </div>
-        <ngwr-code [code]="errorCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
-
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">API</h2>
-
-      <table class="ngwr-page__table">
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th><code>[hasError]</code></th>
-            <th>set error state to form item</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
   </div>
-</main>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Usage example</h2>
+  <p class="ngwr-page-section__description">Basic usage of form item component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-form-item>
+          <label>Username</label>
+          <wr-input placeholder="Username"></wr-input>
+        </wr-form-item>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Error item</h2>
+  <p class="ngwr-page-section__description">Basic usage of form item component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-form-item [hasError]="true">
+          <label>Username</label>
+          <wr-input></wr-input>
+          <wr-form-error>Username is required</wr-form-error>
+        </wr-form-item>
+      </ng-container>
+      <ngwr-code [code]="code.errorCode" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-table">
+    <table>
+      <tr class="ngwr-page-table__head">
+        <th>Property</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default</th>
+      </tr>
+      <tr>
+        <td><code>[hasError]</code></td>
+        <td>set error state to form item</td>
+        <th></th>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+      </tr>
+    </table>
+  </div>
+</div>

@@ -1,41 +1,20 @@
 <aside class="ngwr-sidebar__wrapper">
-  <div class="ngwr-sidebar-item">
-    <h5 class="ngwr-sidebar-item__title">Documentation</h5>
-    <div class="ngwr-sidebar-item__list">
-      <a
-        class="ngwr-sidebar-item__link"
-        *ngFor="let l of documentationSidebarLinks"
-        [routerLink]="l.url"
-        routerLinkActive="ngwr-sidebar-item__link--active"
-      >
-        {{ l.title }}
-      </a>
-    </div>
-  </div>
-  <div class="ngwr-sidebar-item">
-    <h5 class="ngwr-sidebar-item__title">Core</h5>
-    <div class="ngwr-sidebar-item__list">
-      <a
-        class="ngwr-sidebar-item__link"
-        *ngFor="let l of commonSidebarLinks"
-        [routerLink]="l.url"
-        routerLinkActive="ngwr-sidebar-item__link--active"
-      >
-        {{ l.title }}
-      </a>
-    </div>
-  </div>
-  <div class="ngwr-sidebar-item">
-    <h5 class="ngwr-sidebar-item__title">Components</h5>
-    <div class="ngwr-sidebar-item__list">
-      <a
-        class="ngwr-sidebar-item__link"
-        *ngFor="let l of componentsSidebarLinks"
-        [routerLink]="l.url"
-        routerLinkActive="ngwr-sidebar-item__link--active"
-      >
-        {{ l.title }}
-      </a>
-    </div>
-  </div>
+  @for (item of items; track $index) {
+    @if (item.isCategory) {
+      <div class="ngwr-sidebar-item">
+        <span class="ngwr-sidebar-item__title">{{ item.title }}</span>
+        <div class="ngwr-sidebar-item__list">
+          @for (link of item.children; track $index) {
+            <a
+              class="ngwr-sidebar-item__link"
+              [routerLink]="link.url!"
+              routerLinkActive="ngwr-sidebar-item__link--active"
+            >
+              {{ link.title }}
+            </a>
+          }
+        </div>
+      </div>
+    }
+  }
 </aside>

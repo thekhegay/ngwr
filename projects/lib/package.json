@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "license": "MIT",
   "description": "NGWR – Angular UI components library",
-  "author": "Roman Khegay <rk@garuna.dev> (https://garuna.dev/)",
+  "author": "Roman Khegay <rk@garuna.dev> (https://garuna.dev)",
   "keywords": [
     "ngwr",
     "angular",
@@ -20,26 +20,61 @@
   "bugs": {
     "url": "https://github.com/thekhegay/ngwr/issues"
   },
+  "peerDependencies": {
+    "@angular/animations": ">=17.0.0 <19.0.0",
+    "@angular/cdk": ">=17.0.0 <19.0.0",
+    "@angular/common": ">=17.0.0 <19.0.0",
+    "@angular/core": ">=17.0.0 <19.0.0",
+    "@angular/forms": ">=17.0.0 <19.0.0",
+    "@angular/platform-browser": ">=17.0.0 <19.0.0",
+    "@angular/router": ">=17.0.0 <19.0.0",
+    "rxjs": ">=6.5.5 < 7.9.0"
+  },
   "exports": {
-    "./styles": {
-      "sass": "./styles/ngwr.scss"
+    ".": {
+      "sass": "./styles.scss"
     },
-    "./grid": {
-      "sass": "./grid/styles/_index.scss"
+    "./alert/styles": {
+      "sass": "./alert/styles/_index.scss"
+    },
+    "./avatar/styles": {
+      "sass": "./avatar/styles/_index.scss"
     },
     "./button/styles": {
-      "sass": "./button/styles/_index.scss"
+      "sass": "./avatar/button/_index.scss"
+    },
+    "./checkbox/styles": {
+      "sass": "./checkbox/styles/_index.scss"
+    },
+    "./dialog/styles": {
+      "sass": "./dialog/styles/_index.scss"
+    },
+    "./divider/styles": {
+      "sass": "./divider/styles/_index.scss"
+    },
+    "./form/styles": {
+      "sass": "./form/styles/_index.scss"
+    },
+    "./icon/styles": {
+      "sass": "./icon/styles/_index.scss"
+    },
+    "./input/styles": {
+      "sass": "./input/styles/_index.scss"
+    },
+    "./progress/styles": {
+      "sass": "./progress/styles/_index.scss"
+    },
+    "./qr/styles": {
+      "sass": "./qr/styles/_index.scss"
+    },
+    "./skeleton/styles": {
+      "sass": "./skeleton/styles/_index.scss"
+    },
+    "./spinner/styles": {
+      "sass": "./spinner/styles/_index.scss"
+    },
+    "./tag/styles": {
+      "sass": "./tag/styles/_index.scss"
     }
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
-  },
-  "peerDependencies": {
-    "@angular/animations": ">=14.0.0 <18.0.0",
-    "@angular/cdk": ">=15.0.0 <18.0.0",
-    "@angular/common": ">=14.0.0 <18.0.0",
-    "@angular/core": ">=14.0.0 <18.0.0",
-    "@angular/forms": ">=14.0.0 <18.0.0",
-    "rxjs": ">=6.5.5 < 7.9.0"
   }
 }

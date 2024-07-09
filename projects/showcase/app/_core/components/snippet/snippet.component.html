@@ -1,11 +1,6 @@
-<div class="ngwr-snippet">
-  <section class="ngwr-snippet__display">
-    <ng-content select="[slot=display]"></ng-content>
-  </section>
-  @if (codeLang) {
-    <span class="ngwr-snippet__lang">{{ codeLang }}</span>
-  }
-  <section class="ngwr-snippet__body">
-    <ng-content select="[slot=code]"></ng-content>
-  </section>
+<div class="ngwr-snippet__body">
+  <ng-content select="[body]" />
+</div>
+<div class="ngwr-snippet__code">
+  <ng-content select="[code]" />
 </div>

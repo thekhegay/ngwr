@@ -1,15 +1,13 @@
 import { writeFileSync } from 'fs';
+import { execSync } from 'node:child_process';
 import { resolve } from 'path';
 
-import { execute } from './shared/execute';
-import { version } from '../projects/lib/package.json';
+(async function main(): Promise<void> {
+  const packageJson = await import(resolve(`dist/lib/package.json`));
+  const version = packageJson.version;
 
-(function main(): void {
-  writeFileSync(
-    resolve('./projects/showcase/app/@shared/version.ts'),
-    `export const NGWR_VERSION = '${version}';\n`,
-    {
+  writeFileSync(resolve('./projects/showcase/app/_core/version.ts'), `export const NGWR_VERSION = '${version}';\n`, {
     encoding: 'utf-8',
   });
-  execute('git add .');
+  execSync('git add .');
 })();

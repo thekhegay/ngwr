@@ -1,70 +1,26 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   HostBinding,
   Input,
+  numberAttribute,
   ViewEncapsulation,
 } from '@angular/core';
 
-import { isThemeColor, WrThemeColor } from 'ngwr/core/color';
-import { SafeAny } from 'ngwr/core/types';
+import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 
 @Component({
+  standalone: true,
   selector: 'wr-divider',
-  exportAs: 'wrDivider',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
 })
-export class WrDivider {
-  /**
-   * Set color of `wr-divider`
-   *
-   * @default 'light';
-   */
-  @Input()
-  get color(): WrThemeColor {
-    return this._color;
-  }
-  set color(value: WrThemeColor) {
-    this._color = isThemeColor(value) ? value : 'primary';
-    this.cdr.markForCheck();
-  }
-  private _color: WrThemeColor = 'light';
+export class WrDividerComponent {
+  @Input() color: WrThemeColor | null = null;
+  @Input() type: 'solid' | 'dashed' | 'dotted' = 'solid';
+  @Input({ transform: numberAttribute }) width = 1;
 
-  /**
-   * Set style of `wr-divider`
-   *
-   * @default `solid`;
-   */
-  @Input()
-  get type(): 'solid' | 'dashed' | 'dotted' {
-    return this._type;
-  }
-  set type(value: 'solid' | 'dashed' | 'dotted') {
-    this._type = value;
-    this.cdr.markForCheck();
-  }
-  private _type: 'solid' | 'dashed' | 'dotted' = 'solid';
-
-  /**
-   * Set width of `wr-divider`
-   *
-   * @default var(--wr-divider-width-base): 1px;
-   */
-  @Input()
-  get width(): string {
-    return this._width;
-  }
-  set width(value: string) {
-    this._width = value;
-    this.cdr.markForCheck();
-  }
-  private _width: string = '1px';
-
-  /** Set element classes */
   @HostBinding('class')
   get elClasses(): SafeAny {
     return {
@@ -83,16 +39,12 @@ export class WrDivider {
     };
   }
 
-  /** Set element style **/
   @HostBinding('style')
   get elStyles(): SafeAny {
     return {
-      '--wr-divider-width': this.width,
+      '--wr-divider-width': `${this.width}px`,
     };
   }
 
-  /** Set element role **/
-  @HostBinding('role') role: string = 'separator';
-
-  constructor(private readonly cdr: ChangeDetectorRef) {}
+  @HostBinding('role') role = 'separator';
 }

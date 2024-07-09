@@ -1,6 +1,12 @@
-<div class="container ngwr-layout__wrapper">
-  <ngwr-sidebar></ngwr-sidebar>
-  <div class="ngwr-layout__content">
-    <router-outlet></router-outlet>
+<div aria-hidden="true" class="ngwr-layout__wrapper" [class.container]="!isMd()" (click)="onSidebarClose()">
+  <div
+    class="ngwr-layout__backdrop"
+    [class.ngwr-layout__backdrop--visible]="isSidebarOpened()"
+    [class.container]="isMd()"
+    [style.height]="height()"
+  ></div>
+  <ngwr-sidebar />
+  <div class="ngwr-layout__content" [class.container]="isMd()">
+    <router-outlet />
   </div>
 </div>

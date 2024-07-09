@@ -1,39 +1,21 @@
 import { execSync } from 'child_process';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
-import { buildLib } from './shared/build-lib';
-import { errorLog, infoLog, processLog, successLog } from './shared/colored-log';
-import { compileIcons } from './shared/compile-icons';
-import { copyAssets } from './shared/copy-assets';
-import { getAllVersions } from './shared/get-all-versions';
-import { getLastMajorVersion } from './shared/get-last-major-version';
+import { buildLib } from './build';
+import { getVersions } from './shared/get-versions';
+import { logError, logSuccess } from './shared/log';
 
 (async function main(): Promise<void> {
-  compileIcons();
   buildLib();
-  copyAssets();
 
   const packageJson = await import(resolve(`dist/lib/package.json`));
-  const versions: string[] = getAllVersions(packageJson.name);
+  const versions = getVersions(packageJson.name);
 
   if (versions.includes(packageJson.version)) {
-    errorLog(`${packageJson.name}@${packageJson.version} is already published`);
+    logError({ message: `${packageJson.name}@${packageJson.version} is already published`, bg: true });
     return;
   }
 
-  infoLog(`name: ${packageJson.name}`);
-  infoLog(`version: ${packageJson.version}`);
-
-  const tag = makeTag(packageJson.version, versions);
-  const command = `pnpm publish dist/lib/ ${tag} --access public`;
-
-  processLog(command);
-  execSync(command, { stdio: `inherit`, encoding: `utf8` });
-  successLog(`+${packageJson.name}@${packageJson.version} is published successfully`);
+  execSync(`pnpm publish dist/lib/ --access public`, { stdio: `inherit`, encoding: `utf8` });
+  logSuccess({ message: `+${packageJson.name}@${packageJson.version} is published successfully`, bg: true });
 })();
-
-function makeTag(version: string, versions: string[]): string {
-  const currentMajor = parseInt(version);
-  const maxMajorVersion = getLastMajorVersion(versions, currentMajor);
-  return maxMajorVersion > currentMajor ? `--tag v${currentMajor}-lts` : ``;
-}

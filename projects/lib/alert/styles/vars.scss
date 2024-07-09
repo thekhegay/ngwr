@@ -1,0 +1,11 @@
+:root {
+  --wr-alert-title-color: var(--wr-color-primary-darker);
+  --wr-alert-message-color: rgba(var(--wr-color-dark-rgb), 0.5);
+  --wr-alert-bg-color: rgba(var(--wr-color-primary-rgb), 0.125);
+  --wr-alert-border-color: rgba(var(--wr-color-primary-rgb), 0.5);
+  --wr-alert-close-color: rgba(var(--wr-color-primary-rgb), 0.5);
+  --wr-alert-close-color-hover: var(--wr-color-primary);
+  --wr-alert-border-radius: 0.5rem;
+  --wr-alert-padding-x: 0.75rem;
+  --wr-alert-padding-y: 0.875rem;
+}

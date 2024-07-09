@@ -1,19 +1,16 @@
 import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
-import { isArray } from '#core/utils/rxjs';
+import { isArray } from 'ngwr/cdk/rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SeoService {
-  constructor(
-    @Inject(DOCUMENT)
-    private readonly doc: Document,
-    private readonly title: Title,
-    private readonly meta: Meta
-  ) {}
+  private readonly doc = inject(DOCUMENT);
+  private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
 
   setTitle(titleOrTitleKeys: string[] | string): void {
     let title = '';
@@ -45,6 +42,7 @@ export class SeoService {
       'web',
       'ui',
       'components',
+      'standalone',
       'ng',
       'wr',
       'responsive',
@@ -60,7 +58,7 @@ export class SeoService {
     });
   }
 
-  setRobots(robots: string = 'index, follow'): void {
+  setRobots(robots = 'index, follow'): void {
     this.meta.updateTag({
       name: 'robots',
       content: robots,

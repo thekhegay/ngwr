@@ -1,208 +1,265 @@
-<main class="ngwr-page">
-  <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
-    <h1 class="ngwr-page-hero__title">Tag</h1>
-    <p class="ngwr-page-hero__description">{{ description }}</p>
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Components</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrTagModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Tag can be used as <code class="ngwr-pre">wr-tag</code> component
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-tag>Tag Component</wr-tag>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Color</h2>
+  <p class="ngwr-page-section__description">
+    Tag is available in different colors. Color can be set with <code class="ngwr-pre">color</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-tag [color]="color">
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-tag>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.colors" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Outlined</h2>
+  <p class="ngwr-page-section__description">
+    If <code class="ngwr-pre">outlined</code> attribute is set, tag will be displayed with stroke and without background.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-tag [color]="color" outlined>
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-tag>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.outlined" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Rounded</h2>
+  <p class="ngwr-page-section__description">
+    In need of round shaped tag, you can set <code class="ngwr-pre">rounded</code> attribute
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-tag [color]="color" rounded>
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-tag>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.rounded" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Transparent</h2>
+  <p class="ngwr-page-section__description">
+    You can set <code class="ngwr-pre">transparent</code> attribute to make tag transparent.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-tag [color]="color" transparent>
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-tag>
+        }
+        @for (color of colors; track $index) {
+          <wr-tag [color]="color" transparent outlined>
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-tag>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.transparent" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Hoverable</h2>
+  <p class="ngwr-page-section__description">
+    If you need to hover effect for tag, you can set <code class="ngwr-pre">hoverable</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-tag [color]="color" hoverable>Hoverable</wr-tag>
+          <wr-tag [color]="color" hoverable outlined>Hoverable</wr-tag>
+          <wr-tag [color]="color" hoverable transparent>Hoverable</wr-tag>
+          <wr-tag [color]="color" hoverable transparent outlined>Hoverable</wr-tag>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.transparent" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<section class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Using with <a class="ngwr-page-section__link" routerLink="fd">icons</a></h2>
+  <p class="ngwr-page-section__description">
+    Tag component can easily be enhanced by adding a icon. All you need is set icon name within
+    <code class="ngwr-pre">icon</code> attribute. Also you can set icon position with <code class="ngwr-pre">iconPosition</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__additional">
+    <ngwr-code [code]="code.iconProvider" codeLang="ts" code></ngwr-code>
   </div>
 
-  <div class="ngwr-page__content">
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">How to use</h2>
-      <p class="ngwr-page-section__description">
-        Import <code class="ngwr-pre">WrTagModule</code> into a module where you want to use.
-      </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-tag icon="add">Add</wr-tag>
+        <wr-tag color="primary" icon="copy-outline" outlined rounded>Copy</wr-tag>
+        <wr-tag color="success" icon="download" iconPosition="end">Download</wr-tag>
+        <wr-tag color="danger" icon="warning" rounded outlined>Warning</wr-tag>
+      </ng-container>
+      <ngwr-code [code]="code.icon" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</section>
 
-      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Loading state</h2>
+  <p class="ngwr-page-section__description">
+    If you need a loading version of tag, you can easily set
+    <code class="ngwr-pre">loading</code> attribute. You don't need to remove the inner text or icon, button component will maintain its original size.
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Color</h2>
-      <p class="ngwr-page-section__description">
-        Tag component is available in different
-        <a class="ngwr-page-section__link" routerLink="/common/colors">predefined colors</a>. Color can be set by
-        <code class="ngwr-pre">color</code> attribute.
-      </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-tag loading>Loading</wr-tag>
+        <wr-tag [loading]="true" color="dark" rounded>You can use boolean or string</wr-tag>
+        <wr-tag loading icon="add" color="secondary" outlined>Loading with icon</wr-tag>
+      </ng-container>
+      <ngwr-code [code]="code.loading" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="tag__list" slot="display">
-          <wr-tag *ngFor="let b of colors" [color]="b">
-            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
-          </wr-tag>
-        </div>
-        <ngwr-code [code]="colorsCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
 
-    <section class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Outlined tags</h2>
-      <p class="ngwr-page-section__description">
-        If <code class="ngwr-pre">outlined</code> attribute is set, tag component will be displayed without background,
-        but with stroke.
-      </p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="tag__list" slot="display">
-          <wr-tag *ngFor="let b of colors" [color]="b" outlined>
-            {{ b.charAt(0).toUpperCase() + b.slice(1) }}
-          </wr-tag>
-        </div>
-        <ngwr-code [code]="outlinedCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </section>
-
-    <section class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Rounded tags</h2>
-      <p class="ngwr-page-section__description">
-        In need of round shaped tag, you can set <code class="ngwr-pre">rounded</code> attribute, and tag component will
-        be displayed with rounded edges.
-      </p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="tag__list" slot="display">
-          <wr-tag *ngFor="let b of colors" [color]="b" rounded>Rounded</wr-tag>
-        </div>
-        <ngwr-code [code]="roundedCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </section>
-
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Transparent tags</h2>
-      <p class="ngwr-page-section__description">
-        You can set <code class="ngwr-pre">transparent</code> attribute to make tag transparent.
-      </p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="tag__list" slot="display">
-          <wr-tag *ngFor="let b of colors" [color]="b" transparent>Transparent</wr-tag>
-          <wr-tag *ngFor="let b of colors" [color]="b" transparent outlined>Transparent</wr-tag>
-        </div>
-        <ngwr-code [code]="transparentCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
-
-    <section class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Hoverable tags</h2>
-      <p class="ngwr-page-section__description">
-        If you need to hover effect for tag, you can set <code class="ngwr-pre">hoverable</code> attribute.
-      </p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="tag__list" slot="display">
-          <wr-tag *ngFor="let b of colors" [color]="b" hoverable>Hoverable</wr-tag>
-          <wr-tag *ngFor="let b of colors" [color]="b" hoverable outlined>Hoverable</wr-tag>
-          <wr-tag *ngFor="let b of colors" [color]="b" hoverable transparent>Hoverable</wr-tag>
-          <wr-tag *ngFor="let b of colors" [color]="b" hoverable transparent outlined>Hoverable</wr-tag>
-        </div>
-
-        <ngwr-code [code]="hoverableCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </section>
-
-    <section class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">
-        Using with <a class="ngwr-page-section__link" routerLink="/components/icon">icons</a>
-      </h2>
-      <p class="ngwr-page-section__description">
-        Tag component can easily be enhanced by adding a icon. All you need is set icon name within
-        <code class="ngwr-pre">icon</code> attribute. Also you can set icon position with
-        <code class="ngwr-pre">iconPosition</code> attribute.
-      </p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="tag__list" slot="display">
-          <wr-tag icon="add">Add</wr-tag>
-          <wr-tag icon="user" outlined>Username</wr-tag>
-          <wr-tag icon="chevron-down" iconPosition="end" color="secondary">Expand</wr-tag>
-          <wr-tag icon="alert-circle" transparent color="danger">Warning</wr-tag>
-          <wr-tag transparent color="medium" loading iconPosition="end">Loading</wr-tag>
-        </div>
-        <ngwr-code [code]="iconsCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </section>
-
-    <section class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Loading state</h2>
-      <p class="ngwr-page-section__description">
-        If you need a loading version of tag, you can easily set
-        <code class="ngwr-page-section__code">loading</code> attribute. You can set position of spinner by setting
-        <code class="ngwr-page-section__code">iconPosition</code> attribute.
-      </p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="tag__list" slot="display">
-          <wr-tag loading>Loading</wr-tag>
-          <wr-tag [loading]="true" color="dark" rounded iconPosition="end">Loading</wr-tag>
-          <wr-tag [loading]="true" color="success" transparent>Loading</wr-tag>
-        </div>
-        <ngwr-code [code]="loadingCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </section>
-
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">API</h2>
-
-      <table class="ngwr-page__table">
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th><code>[color]</code></th>
-            <th>set color of tag</th>
-            <th>
-              <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
-            </th>
-            <th><code>'primary'</code></th>
-          </tr>
-          <tr>
-            <th><code>[outlined]</code></th>
-            <th>set outlined style for tag</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[rounded]</code></th>
-            <th>set rounded style for tag</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[transparent]</code></th>
-            <th>set transparent style for tag</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[hoverable]</code></th>
-            <th>set hoverable style for tag</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[icon]</code></th>
-            <th>add icon to tag</th>
-            <th><code>wrIconName</code></th>
-            <th><code>null</code></th>
-          </tr>
-          <tr>
-            <th><code>[iconPosition]</code></th>
-            <th>set position of icon</th>
-            <th><code>'start' | 'end'</code></th>
-            <th><code>'start'</code></th>
-          </tr>
-          <tr>
-            <th><code>[loading]</code></th>
-            <th>set loading state for tag</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-        </tbody>
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[color]</code></td>
+          <td>set color of tag</td>
+          <td>
+            <code>
+              @for (color of colors; track $index) {
+                '{{ color.charAt(0) + color.slice(1) }}' |
+              }
+              null
+            </code>
+          </td>
+          <td></td>
+          <td><code>'primary'</code></td>
+        </tr>
+        <tr>
+          <td><code>[outlined]</code></td>
+          <td>set outlined style for tag</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[rounded]</code></td>
+          <td>set rounded style for tag</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[transparent]</code></td>
+          <td>set transparent style for tag</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[hoverable]</code></td>
+          <td>set hoverable style for tag</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[icon]</code></td>
+          <td>add icon to tag</td>
+          <td><code>wrIconName</code></td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><code>[iconPosition]</code></td>
+          <td>set position of icon</td>
+          <td><code>'start' | 'end'</code></td>
+          <td></td>
+          <td><code>'start'</code></td>
+        </tr>
+        <tr>
+          <td><code>[loading]</code></td>
+          <td>set loading state for tag</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
       </table>
     </div>
   </div>
-</main>
+</div>

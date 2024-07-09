@@ -1,7 +1,7 @@
-/* ngwr library deep import */
-@use '../lib/styles/ngwr';
+/* You can add global styles to this file, and also import other style files */
 
-@use 'styles/reset';
-@use 'styles/fonts';
-@use 'styles/vars';
-@use 'styles/components';
+@use '../lib/styles';
+
+@forward './styles/components';
+@forward './styles/fonts';
+@forward './styles/variables';

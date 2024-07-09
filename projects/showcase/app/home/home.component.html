@@ -1,24 +1,106 @@
 <main class="ngwr-home">
   <div class="container">
-    <div class="ngwr-home-hero">
-      <img class="ngwr-home-hero__logo" src="assets/images/logo.svg" alt="NGWR logo" />
-      <h2 class="ngwr-home-hero__headline">The best way to make stylish Angular applications</h2>
-      <a class="ngwr-home-hero__btn" wr-btn routerLink="docs" icon="arrow-forward" iconPosition="end">Get Started</a>
-    </div>
+    <div class="grid">
+      <div class="col-12 col-md-5">
+        <div class="ngwr-home-hero">
+          <h1 class="ngwr-home-hero__title">
+            The best way to make stylish <wr-icon name="logo-angular" />Angular applications
+          </h1>
+          <p class="ngwr-home-hero__description">
+            ngwr offers a powerful suite of open source components for building modern and quality Angular applications.
+            You can bring your own design system to our production-ready components.
+          </p>
+          <a
+            class="ngwr-home-hero__btn"
+            wr-btn
+            color="primary"
+            [routerLink]="routes.docs.index"
+            icon="arrow-forward"
+            iconPosition="end"
+          >
+            Get Started
+          </a>
+        </div>
+      </div>
+      <div class="col-12 col-md-7">
+        <div class="ngwr-home-showcase">
+          <div class="grid">
+            <div class="col-12 col-md-8" style="display: flex; flex-direction: column; gap: 1rem">
+              <div class="ngwr-home-showcase-card">
+                <div class="ngwr-home-showcase-card-date">
+                  <wr-icon class="ngwr-home-showcase-card-date__icon" name="time" />
+                  <span class="ngwr-home-showcase-card-date__date">{{ currentDate | date: 'longDate' }}</span>
+                </div>
 
-    <div class="ngwr-home-warning">
-      <wr-icon class="ngwr-home-warning__icon" name="warning"></wr-icon>
-      <p class="ngwr-home-warning__text">
-        NGWR is currently in development stage. All components are updating every week. Use it on your own risk. <br />
-        All bugreports and ideas are
-        <a
-          class="ngwr-home-warning__link"
-          href="https://github.com/thekhegay/ngwr/issues/new"
-          target="_blank"
-          rel="nofollow"
-          >welcomed</a
-        >.
-      </p>
+                <wr-qr color="#fff" bgColor="transparent" padding="0" size="75" value="https://ngwr.dev" />
+
+                <wr-progress color="primary" [percent]="60" />
+
+                <h4 class="ngwr-home-showcase-card__title">
+                  Easy customized components for your business applications
+                </h4>
+
+                <div class="ngwr-home-showcase-card-quote">
+                  <wr-avatar
+                    class="ngwr-home-showcase-card-quote__avatar"
+                    rounded
+                    url="images/image_1.webp"
+                    size="2.5"
+                    alt="NGWR Avatar Example"
+                  />
+                  <div class="ngwr-home-showcase-card-quote-author">
+                    <span class="ngwr-home-showcase-card-quote-author__title">Emelia Ferguson</span>
+                    <span class="ngwr-home-showcase-card-quote-author__subtitle">NGWR Team</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <wr-alert type="info" title="Bring your own design system" closeable />
+              </div>
+              <div class="col-12">
+                <div class="ngwr-home-showcase__div ngwr-home-showcase__icons">
+                  @for (icon of icons; track $index) {
+                    <div class="ngwr-home-showcase-icon">
+                      <wr-icon class="ngwr-home-showcase-icon__icon" [name]="icon.name"></wr-icon>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4" style="display: flex; flex-direction: column; gap: 1rem">
+              <div class="ngwr-home-showcase__div" style="padding: 1rem">
+                <div class="ngwr-home-showcase__tags">
+                  <wr-tag color="danger" outlined>Angular</wr-tag>
+                  <wr-tag color="primary" outlined>TypeScript</wr-tag>
+                  <wr-tag color="secondary" outlined>SCSS</wr-tag>
+                </div>
+              </div>
+              <div class="ngwr-home-showcase__div">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem">
+                  <wr-skeleton style="height: 2rem; width: 2rem; border-radius: 50rem" />
+                  <div style="flex: 1">
+                    <wr-skeleton style="height: 0.5rem; width: 30%" />
+                    <wr-skeleton style="height: 0.5rem; width: 70%" />
+                  </div>
+                </div>
+                <wr-skeleton style="height: 0.5rem; width: 100%" />
+                <wr-skeleton style="height: 0.5rem; width: 100%" />
+                <wr-skeleton style="height: 0.5rem; width: 80%" />
+              </div>
+              <div class="ngwr-home-showcase__div ngwr-home-showcase__div--column">
+                <wr-btn color="primary" block>Easy to start</wr-btn>
+                <wr-btn color="secondary" outlined block icon="discover">Easy to customize</wr-btn>
+                <wr-btn color="success" outlined loading block>Button with long title</wr-btn>
+              </div>
+              <wr-input placeholder="Awesome inputs" prefix="Also" />
+              <wr-input placeholder="Fully customized" />
+              <wr-input placeholder="Super strong password" type="password" passwordIcons />
+              <wr-btn color="primary" icon="arrow-forward" iconPosition="end">Start</wr-btn>
+              <wr-btn color="danger" icon="alert-circle-outline" iconPosition="end" outlined>Forms included</wr-btn>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </main>

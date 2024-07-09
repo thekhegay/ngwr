@@ -1,102 +1,86 @@
-<main class="ngwr-page">
-  <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Component</wr-tag>
-    <h1 class="ngwr-page-hero__title">Checkbox</h1>
-    <p class="ngwr-page-hero__description">{{ description }}</p>
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
   </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
 
-  <div class="ngwr-page__content">
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">How to use</h2>
-      <p class="ngwr-page-section__description">
-        Import <code class="ngwr-pre">WrCheckboxModule</code> into a module where you want to use.
-      </p>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrCheckboxModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
 
-      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Checkbox can be used as <code class="ngwr-pre">wr-checkbox</code> component
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Usage example</h2>
-      <p class="ngwr-page-section__description">
-        Checkbox component cannot be used outside of
-        <a class="ngwr-page-section__link" href="https://angular.io/guide/forms-overview" target="_blank">
-          Angular Forms
-        </a>
-      </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-checkbox [formControl]="value">Checkbox</wr-checkbox>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="checkbox__list" slot="display">
-          <wr-checkbox [ngModel]="true">Checkbox</wr-checkbox>
-        </div>
-        <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Using with <a class="ngwr-page-section__link" routerLink="fd">icons</a></h2>
+  <p class="ngwr-page-section__description">
+    Checkbox component can easily be replaced with icon. All you need is set icon name within
+    <code class="ngwr-pre">icon</code> attribute.
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Disabled state</h2>
-      <p class="ngwr-page-section__description">
-        You can add <code class="ngwr-pre">disabled</code> attribute to prevent interacting with the checkbox.
-      </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-checkbox [formControl]="iconValue" icon="shield-checkmark" />
+        <wr-checkbox [formControl]="iconValue2" icon="logo-angular" />
+        <wr-checkbox [formControl]="iconValue3" icon="logo-github" />
+      </ng-container>
+      <ngwr-code [code]="code.iconUsage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="checkbox__list" slot="display">
-          <wr-checkbox disabled>Checkbox</wr-checkbox>
-          <wr-checkbox [ngModel]="true" [disabled]="true">Checkbox</wr-checkbox>
-        </div>
-        <ngwr-code [code]="disabledCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Value change event handling</h2>
-      <p class="ngwr-page-section__description">
-        You can handle checkbox component value change via
-        <code class="ngwr-pre">checkedChange</code> callback function.
-      </p>
-
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div class="checkbox__list" slot="display">
-          <wr-checkbox [ngModel]="false" (ngModelChange)="onValueChange($event)">Click me!</wr-checkbox>
-        </div>
-        <ngwr-code [code]="valueChangeCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
-
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">API</h2>
-
-      <table class="ngwr-page__table">
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th><code>[disabled]</code></th>
-            <th>set disabled state for checkbox</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>[ngModel]</code></th>
-            <th>Two way binding, specifies whether the checkbox is checked</th>
-            <th><code>boolean</code></th>
-            <th><code>false</code></th>
-          </tr>
-          <tr>
-            <th><code>(ngModelChange)</code></th>
-            <th>The callback function that is triggered when the state changes.</th>
-            <th>
-              <code>{{ ngModelChangeReturn }}</code>
-            </th>
-            <th><code>-</code></th>
-          </tr>
-        </tbody>
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[color]</code></td>
+          <td>set color of button</td>
+          <td>
+            <code>
+              @for (color of colors; track $index) {
+                '{{ color.charAt(0) + color.slice(1) }}' |
+              }
+              null
+            </code>
+          </td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
       </table>
     </div>
   </div>
-</main>
+</div>

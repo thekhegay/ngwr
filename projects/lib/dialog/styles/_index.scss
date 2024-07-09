@@ -1,0 +1,50 @@
+@forward './vars';
+
+.wr-dialog {
+  &__wrapper {
+    background: var(--wr-dialog-bg);
+    border-radius: var(--wr-border-radius-base);
+    min-width: var(--wr-dialog-min-width);
+    max-height: calc(100vh - calc(var(--wr-grid-gutter) * 2));
+    max-width: calc(100vw - calc(var(--wr-grid-gutter) * 2));
+  }
+
+  &__title,
+  &__content,
+  &__footer {
+    padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
+  }
+
+  &__title {
+    display: block;
+    color: var(--wr-dialog-title-color);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1rem;
+    border-bottom: 1px solid var(--wr-border-color-base);
+    width: 100%;
+  }
+
+  &__content {
+    overflow: auto;
+    max-height: 80vh;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid var(--wr-border-color-base);
+
+    &-start {
+      justify-content: flex-start;
+    }
+
+    &--center {
+      justify-content: center;
+    }
+
+    &--end {
+      justify-content: end;
+    }
+  }
+}

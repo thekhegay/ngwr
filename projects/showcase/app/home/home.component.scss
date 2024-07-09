@@ -1,64 +1,165 @@
+@use '../../../lib/styles/grid' as grid;
+
 .ngwr-home {
   &-hero {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
+    height: 100%;
 
-    padding-top: calc(var(--wr-grid-gutter) * 4);
-    padding-bottom: calc(var(--wr-grid-gutter) * 4);
-
-    &__logo {
-      display: block;
-      height: 8rem;
-      width: auto;
-      user-select: none;
-      pointer-events: none;
+    @include grid.media-down(md) {
+      padding-top: 5rem;
+      padding-bottom: 5rem;
     }
 
-    &__headline {
-      color: var(--ngwr-headings-color);
-      font-size: 1.5rem;
-      font-weight: 500;
-      text-align: center;
-      margin-top: var(--wr-grid-gutter);
-      margin-bottom: var(--wr-grid-gutter);
+    &__title {
+      color: var(--wr-color-dark);
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 3.25rem;
+      letter-spacing: -1px;
+      vertical-align: middle;
+      margin-bottom: 1rem;
+
+      wr-icon {
+        --wr-icon-size: 2.75rem;
+
+        color: var(--wr-color-secondary);
+        vertical-align: -0.375rem;
+      }
+    }
+
+    &__description {
+      color: var(--wr-color-medium);
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5rem;
+      margin-bottom: 1rem;
     }
   }
 
-  &-warning {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 
-    border: 1px solid var(--wr-border-color-base);
-    border-radius: calc(var(--wr-border-radius-base) * 2);
+  &-showcase {
+    background-color: rgba(var(--wr-color-primary-rgb), 0.125);
+    border-radius: 0 0 0.5rem 0.5rem;
 
-    padding: calc(var(--wr-grid-gutter) * 2);
+    padding: 2rem;
+    gap: 2rem;
 
-    &__icon {
-      color: var(--wr-color-warning);
+    max-height: 45rem;
+    overflow: hidden;
 
-      width: 2rem;
-      height: 2rem;
-      margin-bottom: var(--wr-grid-gutter);
+    @include grid.media-down(md) {
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      max-height: none;
+      margin-bottom: 2rem;
     }
 
-    &__text {
-      color: var(--ngwr-headings-color);
-      font-size: 1.25rem;
-      font-weight: 500;
-      text-align: center;
-    }
+    &-card {
+      display: flex;
+      flex-direction: column;
+      align-items: baseline;
+      gap: calc(var(--wr-grid-gutter) * 1.125);
 
-    &__link {
-      color: var(--wr-color-primary);
-      transition: var(--wr-transition-base);
+      background-color: var(--wr-color-dark);
+      border-radius: 0.5rem;
+      padding: 1.875rem;
+      box-shadow: 0 3px 5px 0 rgba(var(--wr-color-primary-rgb), 0.125);
 
-      &:hover {
-        color: var(--wr-color-secondary);
+      &-date {
+        display: flex;
+        align-items: center;
+        color: var(--wr-color-medium);
+        gap: 0.25rem;
+
+        &__icon {
+          --wr-icon-size: 1.25rem;
+        }
+
+        &__date {
+          font-size: 0.75rem;
+          font-weight: 500;
+          line-height: 1rem;
+        }
       }
+
+      &__title {
+        color: var(--wr-color-white);
+        font-size: 1.375rem;
+        font-weight: 600;
+        line-height: 1.5rem;
+      }
+
+      &-quote {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &-author {
+          display: flex;
+          flex-direction: column;
+          gap: 0.125rem;
+
+          &__title {
+            color: var(--wr-color-light);
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.25rem;
+          }
+
+          &__subtitle {
+            color: rgba(var(--wr-color-light-rgb), 0.5);
+            font-size: 0.75rem;
+            font-weight: 400;
+            line-height: 1rem;
+          }
+        }
+      }
+    }
+
+    &__div {
+      background-color: var(--wr-color-white);
+      border-radius: 0.5rem;
+      padding: 1.875rem;
+      box-shadow: 0 3px 5px 0 rgba(var(--wr-color-primary-rgb), 0.125);
+
+      &--column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    &__tags {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    &__icons {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      padding: 1rem;
+      gap: 0.5rem;
+    }
+
+    &-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      width: 4rem;
+      height: 4rem;
+
+      background-color: rgba(var(--wr-color-light-rgb), 0.125);
+      border-radius: 0.25rem;
+
+      color: var(--wr-color-dark);
     }
   }
 }

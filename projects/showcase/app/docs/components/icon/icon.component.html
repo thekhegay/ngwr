@@ -1,55 +1,68 @@
-<main class="ngwr-page">
-  <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
-    <h1 class="ngwr-page-hero__title">Icon</h1>
-    <p class="ngwr-page-hero__description">{{ description }}</p>
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
   </div>
+  <h1 class="ngwr-page-info__title">{{ title }}</h1>
+  <p class="ngwr-page-info__description">{{ description }}</p>
+</div>
 
-  <div class="ngwr-page__content">
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">How to use</h2>
-      <p class="ngwr-page-section__description">
-        Import <code class="ngwr-pre">WrIconModule</code> into a root module.
-      </p>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrIconComponent</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
 
-      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Button can be used as <code class="ngwr-pre">wr-btn</code> component or <code class="ngwr-pre">wr-btn</code> directive
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Usage example</h2>
-      <p class="ngwr-page-section__description">Basic usage of icon component</p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-icon name="add"></wr-icon>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div slot="display">
-          <wr-icon name="discover"></wr-icon>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Icon list</h2>
+  <p class="ngwr-page-section__description">Beautiful hand-crafted icons</p>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-icon__list">
+      @for (i of icons; track $index) {
+        <div class="ngwr-icon-item">
+          <wr-icon class="ngwr-icon-item__icon" [name]="i.name" />
+          <span class="ngwr-icon-item__name">{{ i.name }}</span>
+          <span class="ngwr-icon-item__camel">{{ camelize(i.name) }}</span>
         </div>
-        <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
+      }
     </div>
+  </div>
+</div>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Icon list</h2>
-      <p class="ngwr-page-section__description">Beautiful hand-crafted icons</p>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
 
-      <div class="grid">
-        <div class="col-2" *ngFor="let i of icons">
-          <div class="icons-item">
-            <wr-icon class="icons-item__icon" [name]="i.name"></wr-icon>
-            <span class="icons-item__name">{{ i.name }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <section class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">API</h2>
-
-      <table class="ngwr-page__table">
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page__table">
+      <table>
         <thead>
           <tr>
             <th>Property</th>
             <th>Description</th>
             <th>Type</th>
+            <th>Required</th>
             <th>Default</th>
           </tr>
         </thead>
@@ -58,12 +71,13 @@
             <th><code>[name]</code></th>
             <th>set name of icon</th>
             <th>
-              <code>wrIconName | string</code>
+              <code>wrIconName</code>
             </th>
-            <th><code>-</code></th>
+            <th>yes</th>
+            <th><code></code></th>
           </tr>
         </tbody>
       </table>
-    </section>
+    </div>
   </div>
-</main>
+</div>

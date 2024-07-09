@@ -1,82 +1,89 @@
-<main class="ngwr-page">
-  <div class="ngwr-page-hero">
-    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
-    <h1 class="ngwr-page-hero__title">Skeleton</h1>
-    <p class="ngwr-page-hero__description">{{ description }}</p>
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
   </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
 
-  <div class="ngwr-page__content">
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">How to use</h2>
-      <p class="ngwr-page-section__description">
-        Import <code class="ngwr-pre">WrSkeletonModule</code> into a module where you want to use.
-      </p>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrButtonModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
 
-      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Skeleton can be used as <code class="ngwr-pre">wr-skeleton</code> component
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Example</h2>
-      <p class="ngwr-page-section__description">Basic usage of form item component</p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-skeleton />
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div slot="display">
-          <wr-skeleton style="width: 25%; height: 1rem"></wr-skeleton>
-          <wr-skeleton style="width: 50%; height: 1rem"></wr-skeleton>
-          <wr-skeleton style="width: 75%; height: 1rem"></wr-skeleton>
-          <wr-skeleton style="width: 100%; height: 1rem"></wr-skeleton>
-        </div>
-        <ngwr-code [code]="exampleCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Color</h2>
+  <p class="ngwr-page-section__description">
+    Skeleton is available in different colors. Color can be set with <code class="ngwr-pre">color</code> attribute.
+  </p>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">Colors</h2>
-      <p class="ngwr-page-section__description">
-        Skeleton component is available in different
-        <a class="ngwr-page-section__link" routerLink="/common/colors">colors</a>. Color can be set by
-        <code class="page-section__code">color</code> attribute.
-      </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-skeleton [color]="color" />
+        }
+      </ng-container>
+      <ngwr-code [code]="code.colors" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
 
-      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
-        <div slot="display">
-          <wr-skeleton *ngFor="let b of colors" [color]="b"></wr-skeleton>
-        </div>
-        <ngwr-code [code]="colorsCode" codeLang="html" slot="code"></ngwr-code>
-      </ngwr-snippet>
-    </div>
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
 
-    <div class="ngwr-page-section">
-      <h2 class="ngwr-page-section__title">API</h2>
-
-      <table class="ngwr-page__table">
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th><code>[color]</code></th>
-            <th>set color of skeleton</th>
-            <th>
-              <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
-            </th>
-            <th><code>'primary'</code></th>
-          </tr>
-          <tr>
-            <th><code>[animated]</code></th>
-            <th>set animated state of skeleton</th>
-            <th>
-              <code>boolean</code>
-            </th>
-            <th><code>true</code></th>
-          </tr>
-        </tbody>
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[color]</code></td>
+          <td>set color of skeleton</td>
+          <td>
+            <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
+          </td>
+          <td></td>
+          <td><code>'primary'</code></td>
+        </tr>
+        <tr>
+          <td><code>[animated]</code></td>
+          <td>set animated state of skeleton</td>
+          <td>
+            <code>boolean</code>
+          </td>
+          <td></td>
+          <td><code>true</code></td>
+        </tr>
       </table>
     </div>
   </div>
-</main>
+</div>

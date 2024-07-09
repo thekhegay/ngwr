@@ -3,59 +3,70 @@
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
-    "preinstall": "npx -y only-allow pnpm",
-    "serve": "ng serve",
-    "build": "ng build",
-    "generate:icons": "ng run lib:generate-icons",
-    "release:patch": "tsx ./scripts/release.ts --release-as patch",
-    "release:minor": "tsx ./scripts/release.ts --release-as minor",
-    "release:major": "tsx ./scripts/release.ts --release-as major",
+    "dev": "ng serve --o",
+    "test": "ng test",
+    "lint": "ng lint",
+    "release:patch": "tsx ./scripts/release.ts --release-as=patch",
+    "release:minor": "tsx ./scripts/release.ts --release-as=minor",
+    "release:major": "tsx ./scripts/release.ts --release-as=major",
+    "build:lib": "tsx ./scripts/build-lib.ts",
+    "build:showcase": "tsx ./scripts/build-showcase.ts",
     "publish:lib": "tsx ./scripts/publish.ts"
   },
+  "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
   "engines": {
-    "node": "20",
-    "pnpm": "8"
+    "node": ">=20",
+    "pnpm": ">=9"
   },
   "dependencies": {
-    "@angular/animations": "17.3.0",
-    "@angular/cdk": "17.3.0",
-    "@angular/common": "17.3.0",
-    "@angular/compiler": "17.3.0",
-    "@angular/core": "17.3.0",
-    "@angular/forms": "17.3.0",
-    "@angular/platform-browser": "17.3.0",
-    "@angular/platform-browser-dynamic": "17.3.0",
-    "@angular/router": "17.3.0",
+    "@angular/animations": "^18.0.0",
+    "@angular/cdk": "^18.0.4",
+    "@angular/common": "^18.0.0",
+    "@angular/compiler": "^18.0.0",
+    "@angular/core": "^18.0.0",
+    "@angular/forms": "^18.0.0",
+    "@angular/platform-browser": "^18.0.0",
+    "@angular/platform-browser-dynamic": "^18.0.0",
+    "@angular/router": "^18.0.0",
+    "chalk": "^5.3.0",
     "highlight.js": "^11.9.0",
-    "ngx-highlightjs": "^10.0.0",
-    "rxjs": "~7.8.1",
+    "js-beautify": "^1.15.1",
+    "ngx-highlightjs": "^12.0.0",
+    "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "0.14.3"
+    "zone.js": "~0.14.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "17.3.0",
-    "@angular-eslint/eslint-plugin": "17.3.0",
-    "@angular-eslint/eslint-plugin-template": "17.3.0",
-    "@angular-eslint/template-parser": "17.3.0",
-    "@angular-extensions/svg-icons-builder": "11.0.0",
-    "@angular/cli": "~17.3.0",
-    "@angular/compiler-cli": "17.3.0",
-    "@types/node": "20.11.28",
-    "@typescript-eslint/eslint-plugin": "7.2.0",
-    "@typescript-eslint/parser": "7.2.0",
-    "commit-and-tag-version": "^12.2.0",
-    "eslint": "~8.57.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.29.1",
+    "@angular-devkit/build-angular": "^18.0.2",
+    "@angular-extensions/svg-icons-builder": "^11.0.0",
+    "@angular/cli": "^18.0.2",
+    "@angular/compiler-cli": "^18.0.0",
+    "@eslint/js": "^9.5.0",
+    "@semantic-release/release-notes-generator": "^14.0.1",
+    "@types/jasmine": "~5.1.0",
+    "@types/js-beautify": "^1.14.3",
+    "@types/node": "^20.14.8",
+    "angular-eslint": "18.0.1",
+    "commit-and-tag-version": "^12.4.1",
+    "eslint": "^9.3.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import-x": "^0.5.2",
     "eslint-plugin-prettier": "^5.1.3",
-    "ng-packagr": "17.3.0",
-    "prettier": "^3.1.1",
-    "tsx": "^4.7.1",
-    "typescript": "5.3.3"
+    "jasmine-core": "~5.1.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "ng-packagr": "^18.0.0",
+    "prettier": "3.3.2",
+    "tsx": "^4.16.2",
+    "typescript": "~5.4.2",
+    "typescript-eslint": "8.0.0-alpha.20"
   },
   "commit-and-tag-version": {
     "scripts": {
-      "postbump": "ts-node ./scripts/postbump.ts"
+      "postbump": "tsx ./scripts/postbump.ts"
     },
     "packageFiles": [
       "projects/lib/package.json"
@@ -78,7 +89,7 @@
       },
       {
         "type": "deprecate",
-        "section": "Deprecations"
+        "section": "Deprecated"
       }
     ]
   }

@@ -1,7 +1,7 @@
 <div class="container">
   <div class="ngwr-footer__wrapper">
-    <span class="ngwr-footer__item">2022 – {{ currentYear }} &copy; Roman Khegay</span>
-    <a class="ngwr-footer__item ngwr-footer__item--link" href="https://www.npmjs.com/package/ngwr" target="_blank" rel="nofollow">
+    <span class="ngwr-footer__item">{{ copyright }}</span>
+    <a class="ngwr-footer__item ngwr-footer__item--link" [href]="npmLink" target="_blank" rel="nofollow">
       v{{ version }}
     </a>
   </div>

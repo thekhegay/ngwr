@@ -1,32 +1,45 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
 import { hasModifierKey } from '@angular/cdk/keycodes';
 import { OverlayRef } from '@angular/cdk/overlay';
+
 import { filter, Subject, take, takeUntil } from 'rxjs';
 
-import { WrAbstractBase } from 'ngwr/core/abstract';
-import { SafeAny } from 'ngwr/core/types';
+import { WrAbstractBase } from 'ngwr/cdk';
+import { SafeAny } from 'ngwr/cdk/types';
+import { generateRandomId } from 'ngwr/cdk/utils';
 
-import { WrDialogBase } from './dialog-base';
-import { WrDialogConfig } from './dialog-config';
+import { WrDialogBaseDirective } from './dialog-base.directive';
+import { WrDialogOptions } from './dialog-options';
 
-export class WrDialogRef<T = SafeAny, R = SafeAny> extends WrAbstractBase {
+export class WrDialogRef<C = SafeAny, R = SafeAny> extends WrAbstractBase {
   readonly id?: string;
+
+  componentInstance: C | null = null;
   result?: R;
-  componentInstance: T | null = null;
-  private closeTimeout?: number;
+
+  readonly afterOpened: Subject<void> = new Subject<void>();
   readonly afterClosed: Subject<R | undefined> = new Subject<R | undefined>();
-  readonly afterOpened: Subject<void> = new Subject();
+
+  private closeTimeout?: ReturnType<typeof setTimeout>;
 
   constructor(
-    private readonly config: WrDialogConfig<T>,
-    private readonly overlayRef: OverlayRef,
-    public containerInstance: WrDialogBase
+    private overlayRef: OverlayRef,
+    private options: WrDialogOptions,
+    public baseInstance: WrDialogBaseDirective
   ) {
     super();
-    this.id = config.id || `wr__modal__${Date.now()}`;
 
-    containerInstance.animationStateChanged
+    this.id = options.id || `wr__modal__${generateRandomId()}`;
+
+    baseInstance.animationStateChanged
       .pipe(
-        filter(event => event.phaseName === 'done' && event.toState === 'enter'),
+        filter(evt => evt.phaseName === 'done' && evt.toState === 'enter'),
         take(1)
       )
       .subscribe(() => {
@@ -34,9 +47,9 @@ export class WrDialogRef<T = SafeAny, R = SafeAny> extends WrAbstractBase {
         this.afterOpened.complete();
       });
 
-    containerInstance.animationStateChanged
+    baseInstance.animationStateChanged
       .pipe(
-        filter(event => event.phaseName === 'done' && event.toState === 'exit'),
+        filter(evt => evt.phaseName === 'done' && evt.toState === 'exit'),
         take(1)
       )
       .subscribe(() => {
@@ -44,8 +57,8 @@ export class WrDialogRef<T = SafeAny, R = SafeAny> extends WrAbstractBase {
         this._finishDialogClose();
       });
 
-    containerInstance.containerClick.pipe(take(1), takeUntil(this.destroyed$)).subscribe(() => {
-      this.close(undefined);
+    baseInstance.containerClick.pipe(takeUntil(this.destroyed$)).subscribe(() => {
+      this.close();
     });
 
     overlayRef.backdropClick().subscribe(() => this.close(undefined));
@@ -67,23 +80,22 @@ export class WrDialogRef<T = SafeAny, R = SafeAny> extends WrAbstractBase {
 
   close(result?: R): void {
     this.result = result;
-    this.containerInstance.animationStateChanged
+    this.baseInstance.animationStateChanged
       .pipe(
         filter(event => event.phaseName === 'start'),
         take(1)
       )
       .subscribe(event => {
         this.overlayRef.detachBackdrop();
-        // @ts-ignore
         this.closeTimeout = setTimeout(() => {
           this._finishDialogClose();
         }, event.totalTime + 100);
       });
 
-    this.containerInstance.startExitAnimation();
+    this.baseInstance.startExitAnimation();
   }
 
-  _finishDialogClose(): void {
+  private _finishDialogClose(): void {
     this.overlayRef.dispose();
     this.destroyed$.next();
   }

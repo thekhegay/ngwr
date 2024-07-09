@@ -1,8 +1,15 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
 import { inject, Injectable, InjectionToken } from '@angular/core';
 
-import { IWrIcon } from './icons';
+import { WrIcon } from './icons';
 
-export const WR_ICONS_PATCH = new InjectionToken<IWrIcon[]>('wr_icons_patch');
+export const WR_ICONS_PATCH = new InjectionToken<WrIcon[]>('wr_icons_patch');
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +17,7 @@ export const WR_ICONS_PATCH = new InjectionToken<IWrIcon[]>('wr_icons_patch');
 export class WrIconService {
   readonly registry = new Map<string, string>();
 
-  addIcon(...icons: IWrIcon[]): void {
+  addIcon(...icons: WrIcon[]): void {
     icons.forEach(i => this.registry.set(i.name, i.data));
   }
 }

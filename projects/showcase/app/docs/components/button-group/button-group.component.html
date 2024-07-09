@@ -1,0 +1,118 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+    <wr-tag transparent color="medium">Experimental</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrButtonModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Buttons can be grouped with <code class="ngwr-pre">wr-btn-group</code> component
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn-group>
+          <wr-btn>Button</wr-btn>
+          <wr-btn>Button</wr-btn>
+          <wr-btn>Button</wr-btn>
+        </wr-btn-group>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Color</h2>
+  <p class="ngwr-page-section__description">
+    Button is available in different colors. Color can be set with <code class="ngwr-pre">color</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn-group>
+          <wr-btn color="primary">Button</wr-btn>
+          <wr-btn color="secondary">Button</wr-btn>
+          <wr-btn color="success">Button</wr-btn>
+        </wr-btn-group>
+      </ng-container>
+      <ngwr-code [code]="code.colors" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Outlined</h2>
+  <p class="ngwr-page-section__description">
+    If <code class="ngwr-pre">outlined</code> attribute is set, button will be displayed with stroke and without background.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn-group>
+          <wr-btn color="primary" outlined>Button</wr-btn>
+          <wr-btn color="secondary" outlined>Button</wr-btn>
+          <wr-btn color="success" outlined>Button</wr-btn>
+        </wr-btn-group>
+      </ng-container>
+      <ngwr-code [code]="code.outlined" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Rounded</h2>
+  <p class="ngwr-page-section__description">In need of round shaped button, you can set <code class="ngwr-pre">rounded</code> attribute</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn-group>
+          <wr-btn rounded>Button</wr-btn>
+          <wr-btn rounded>Button</wr-btn>
+          <wr-btn rounded>Button</wr-btn>
+        </wr-btn-group>
+      </ng-container>
+      <ngwr-code [code]="code.rounded" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Small size</h2>
+  <p class="ngwr-page-section__description">
+    If you need a small sized button, you can set <code class="ngwr-pre">size="small"</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn-group>
+          <wr-btn size="small">Button</wr-btn>
+          <wr-btn size="small">Button</wr-btn>
+          <wr-btn size="small">Button</wr-btn>
+        </wr-btn-group>
+      </ng-container>
+      <ngwr-code [code]="code.size" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>

@@ -1,7 +1,23 @@
-import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, HostBinding, inject, Input, Renderer2, ViewEncapsulation } from '@angular/core';
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
 
-import { SafeAny } from 'ngwr/core/types';
+import { DOCUMENT } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  HostBinding,
+  inject,
+  Input,
+  Renderer2,
+  ViewEncapsulation,
+} from '@angular/core';
+
+import { SafeAny } from 'ngwr/cdk/types';
 
 import { WrIconPatchService, WrIconService } from './icon.service';
 import { wrIconName } from './icons';

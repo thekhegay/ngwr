@@ -1,36 +1,24 @@
 import { ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
 
-import { SafeAny } from 'ngwr/core/types';
-import { isDefined } from '#core/utils/rxjs';
+import { SafeAny } from 'ngwr/cdk/types';
+
+import { Highlight, HighlightAuto } from 'ngx-highlightjs';
+
+import { BeatifyPipe } from '#core/pipes';
+import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 
 @Component({
-  selector: 'ngwr-code[code]',
+  standalone: true,
+  selector: 'ngwr-code',
   templateUrl: './code.component.html',
+  styleUrl: './code.component.scss',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HighlightAuto, HighlightLineNumbers, BeatifyPipe],
 })
 export class CodeComponent {
-  @Input()
-  get code(): string {
-    return this._code;
-  }
-  set code(value: string) {
-    if (isDefined(value)) {
-      this._code = value;
-    }
-  }
-  private _code: string = '';
-
-  @Input()
-  get codeLang(): string | undefined {
-    return this._codeLang;
-  }
-  set codeLang(value: string | undefined) {
-    if (isDefined(value)) {
-      this._codeLang = value;
-    }
-  }
-  private _codeLang: string | undefined = undefined;
+  @Input({ required: true }) code!: string;
+  @Input() codeLang = 'html';
 
   @HostBinding('class')
   get elClasses(): SafeAny {

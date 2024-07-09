@@ -1,89 +1,73 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
-import { routes as r } from '#core/routes';
+import { routes } from '#routing';
 
-import { AlertComponent } from './alert/alert.component';
-import { ButtonComponent } from './button/button.component';
-import { CheckboxComponent } from './checkbox/checkbox.component';
-import { DialogComponent } from './dialog/dialog.component';
-import { DividerComponent } from './divider/divider.component';
-import { FormComponent } from './form/form.component';
-import { IconComponent } from './icon/icon.component';
-import { InputComponent } from './input/input.component';
-import { ProgressComponent } from './progress/progress.component';
-import { QRCodeComponent } from './qrcode/qrcode.component';
-import { SkeletonComponent } from './skeleton/skeleton.component';
-import { SpinnerComponent } from './spinner/spinner.component';
-import { TagComponent } from './tag/tag.component';
-import { TooltipComponent } from './tooltip/tooltip.component';
+const components = routes.docs.components;
 
-const routes: Routes = [
+export default [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: r.DOCS.COMPONENTS.ALERT,
+    redirectTo: components.alert,
   },
   {
-    path: r.DOCS.COMPONENTS.ALERT,
-    component: AlertComponent,
+    path: components.alert,
+    loadComponent: () => import('./alert/alert.component').then(c => c.AlertComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.BUTTON,
-    component: ButtonComponent,
+    path: components.avatar,
+    loadComponent: () => import('./avatar/avatar.component').then(c => c.AvatarComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.CHECKBOX,
-    component: CheckboxComponent,
+    path: components.button,
+    loadComponent: () => import('./button/button.component').then(c => c.ButtonComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.DIALOG,
-    component: DialogComponent,
+    path: components.buttonGroup,
+    loadComponent: () => import('./button-group/button-group.component').then(c => c.ButtonGroupComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.DIVIDER,
-    component: DividerComponent,
+    path: components.checkbox,
+    loadComponent: () => import('./checkbox/checkbox.component').then(c => c.CheckboxComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.FORM,
-    component: FormComponent,
+    path: components.dialog,
+    loadComponent: () => import('./dialog/dialog.component').then(c => c.DialogComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.ICON,
-    component: IconComponent,
+    path: components.divider,
+    loadComponent: () => import('./divider/divider.component').then(c => c.DividerComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.INPUT,
-    component: InputComponent,
+    path: components.form,
+    loadComponent: () => import('./form/form.component').then(c => c.FormComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.PROGRESS,
-    component: ProgressComponent,
+    path: components.icon,
+    loadComponent: () => import('./icon/icon.component').then(c => c.IconComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.QRCODE,
-    component: QRCodeComponent,
+    path: components.input,
+    loadComponent: () => import('./input/input.component').then(c => c.InputComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.SKELETON,
-    component: SkeletonComponent,
+    path: components.progress,
+    loadComponent: () => import('./progress/progress.component').then(c => c.ProgressComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.SPINNER,
-    component: SpinnerComponent,
+    path: components.qrCode,
+    loadComponent: () => import('./qrcode/qrcode.component').then(c => c.QRCodeComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.TAG,
-    component: TagComponent,
+    path: components.skeleton,
+    loadComponent: () => import('./skeleton/skeleton.component').then(c => c.SkeletonComponent),
   },
   {
-    path: r.DOCS.COMPONENTS.TOOLTIP,
-    component: TooltipComponent,
+    path: components.spinner,
+    loadComponent: () => import('./spinner/spinner.component').then(c => c.SpinnerComponent),
   },
-];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class ComponentsRouting {}
+  {
+    path: components.tag,
+    loadComponent: () => import('./tag/tag.component').then(c => c.TagComponent),
+  },
+] satisfies Routes;

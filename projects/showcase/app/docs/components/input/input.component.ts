@@ -1,28 +1,50 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { SeoService } from '#core/services';
+import { WrTagComponent } from 'ngwr/tag';
+import { CodeComponent, SnippetComponent } from '#core/components';
+import { WrInputComponent } from 'ngwr/input';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-input',
-  templateUrl: './input.component.html',
-  styleUrls: ['./input.component.scss'],
+  templateUrl: 'input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [ReactiveFormsModule, WrButtonComponent, WrInputComponent, WrTagComponent, CodeComponent, SnippetComponent],
 })
 export class InputComponent implements OnInit {
-  readonly description = 'Basic text component used to provide or change data.';
+  @HostBinding() class = 'ngwr-page';
 
-  readonly importCode =
-    "import { WrInputModule } from 'ngwr/input';\n\n@NgModule({\n  imports: [\n    // ...\n    WrInputModule,\n  ],\n  // ...\n})\nexport class MyModule {}";
+  private readonly seoService = inject(SeoService);
 
-  readonly exampleCode =
-    '<wr-input value="Basic input usage"></wr-input>\n<wr-input [ngModel]="\'Basic input usage\'"></wr-input>\n<wr-input formControlName="formControlName"></wr-input>';
-  readonly prefixSuffixCode = '<wr-input value="Input value" prefix="Prefix" suffix="Suffix"></wr-input>';
-  readonly passwordCode = '<wr-input value="Password input" type="password" passwordIcons></wr-input>';
-  readonly disabledCode = '<wr-input value="Disabled" disabled></wr-input>';
-  readonly readonlyCode = '<wr-input value="Readonly" readonly></wr-input>';
-  readonly ngModelChangeReturn = 'EventEmitter<any>';
+  protected readonly title = 'Input';
+  protected readonly description = 'Basic text component used to provide or change data';
 
-  constructor(private readonly seoService: SeoService) {}
+  protected readonly disabledFormControl = new FormControl({ value: null, disabled: true });
+
+  protected readonly code = {
+    import: `import{WrInputComponent}from'ngwr/input';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrInputComponent,],})\nexport class MyComponent {}`,
+    usage: '<wr-btn>Button Component</wr-btn>\n<button wr-btn>Native Button</button>\n<a wr-btn>Anchor Button</a>',
+    colors:
+      '<wr-btn color="primary"></wr-btn>\n<wr-btn color="secondary"></wr-btn>\n<wr-btn color="success"></wr-btn>\n<wr-btn color="warning"></wr-btn>\n<wr-btn color="danger"></wr-btn>\n<wr-btn color="light"></wr-btn>\n<wr-btn color="medium"></wr-btn>\n<wr-btn color="dark"></wr-btn>',
+    outlined: '<wr-btn outlined></wr-btn>',
+    rounded: '<wr-btn rounded></wr-btn>',
+    size: '<wr-btn>Default size</wr-btn>\n<wr-btn size="small">Small size</wr-btn>',
+    iconProvider:
+      "import{provideWrIcons,wrIconAdd}from'ngwr/icon';\n//...\n@Component({\n//...\nimports: [\n//...\nWrButtonComponent],\nproviders: [\n//...\nprovideWrIcons([wrIconAdd])],})\nexport class MyComponent {}",
+    icon: '<wr-btn icon="add" iconPosition="start">Add</wr-btn>',
+    disabled: '<wr-btn disabled></wr-btn>',
+    loading:
+      '<wr-btn loading>Loading</wr-btn>\n<wr-btn [loading]="true" color="dark" rounded>You can use long text</wr-btn>\n<wr-btn loading icon="add" color="secondary" outlined>Loading with icon</wr-btn>',
+    loadingDisabled: `<wr-btn [isDisabledWhenLoading]="false">Enabled</wr-btn>`,
+    block: '<wr-btn block></wr-btn>',
+    styling:
+      ':root {\n--wr-btn-color: var(--wr-color-dark);\n--wr-btn-bg-color: var(--wr-color-white);\n--wr-btn-border-color: var(--wr-color-light-lighter);\n--wr-btn-icon-size: 1rem;\n--wr-btn-font-size: 0.875rem;\n--wr-btn-font-weight: 500;\n--wr-btn-font-family: var(--wr-font-family-base);\n--wr-btn-line-height: 1.25rem;\n--wr-btn-border-radius: 0.375rem;\n--wr-btn-padding-y: 0.375rem;\n--wr-btn-padding-x: 1rem;\n}',
+  };
 
   ngOnInit(): void {
     this.seoService.setCanonicalURL();

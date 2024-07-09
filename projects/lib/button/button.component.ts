@@ -5,11 +5,18 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { booleanAttribute, ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  HostBinding,
+  Input,
+  ViewEncapsulation,
+} from '@angular/core';
 
-import { WrIconModule, wrIconName } from 'ngwr/icon';
+import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
+import { WrIconComponent, wrIconName } from 'ngwr/icon';
 import { WrSpinnerModule } from 'ngwr/spinner';
-import { SafeAny, WrThemeColor } from 'ngwr/types';
 
 /**
  * NGWR button component.
@@ -20,27 +27,22 @@ import { SafeAny, WrThemeColor } from 'ngwr/types';
 @Component({
   standalone: true,
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
-  templateUrl: 'button.component.html',
+  templateUrl: './button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [WrIconModule, WrSpinnerModule],
+  imports: [WrIconComponent, WrSpinnerModule],
 })
 export class WrButtonComponent {
   @Input() color?: WrThemeColor | null;
   @Input() size: 'default' | 'small' = 'default';
   @Input() icon: wrIconName | null = null;
   @Input() iconPosition: 'start' | 'end' = 'start';
-  @Input({ transform: booleanAttribute }) disabled: boolean = false;
-  @Input({ transform: booleanAttribute }) outlined: boolean = false;
-  @Input({ transform: booleanAttribute }) rounded: boolean = false;
-  @Input({ transform: booleanAttribute }) block: boolean = false;
-  @Input({ transform: booleanAttribute }) loading: boolean = false;
-  @Input({ transform: booleanAttribute }) isDisabledWhenLoading: boolean = true;
-
-  /** @deprecated use block instead  */
-  @Input({ transform: booleanAttribute }) fullWidth: boolean = false;
-  /** @deprecated use block instead  */
-  @Input({ transform: booleanAttribute }) fullwidth: boolean = false;
+  @Input({ transform: booleanAttribute }) disabled = false;
+  @Input({ transform: booleanAttribute }) outlined = false;
+  @Input({ transform: booleanAttribute }) rounded = false;
+  @Input({ transform: booleanAttribute }) block = false;
+  @Input({ transform: booleanAttribute }) loading = false;
+  @Input({ transform: booleanAttribute }) isDisabledWhenLoading = true;
 
   @HostBinding('attr.disabled')
   get nativeDisabled(): '' | null {

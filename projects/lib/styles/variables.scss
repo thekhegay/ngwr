@@ -1,0 +1,78 @@
+html {
+  color-scheme: light;
+
+  /* Fonts */
+  --wr-font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+  'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+  'Noto Color Emoji';
+  --wr-font-family-mono: SFMono-Regular, Consolas, 'Liberation Mono', Courier, Menlo, Monaco, monospace;
+  --wr-font-size-base: 1rem;
+  --wr-font-weight-base: 400;
+  --wr-line-height-base: 1.5;
+  --wr-letter-spacing-base: 0;
+
+  /* Transitions */
+  --wr-transition-base: all 0.15s linear;
+  --wr-transition-short: all 0.1s linear;
+  --wr-transition-long: all 0.2s linear;
+
+  /* Borders */
+  --wr-border-radius-base: 0.625rem;
+  --wr-border-color-base: var(--wr-color-light);
+
+  /* Body */
+  --wr-body-bg: #fff;
+  --wr-body-bg-rgb: 255,255,255;
+  --wr-body-color: var(--wr-color-dark);
+
+  /* Grid */
+  --wr-grid-gutter: 1.5rem;
+
+  /* Dialog */
+  --wr-dialog-bg: #fff;
+  --wr-dialog-min-width: 20rem;
+  --wr-dialog-title-color: var(--wr-color-dark);
+  --wr-dialog-padding-x: 1rem;
+  --wr-dialog-padding-y: 1rem;
+
+  /* Divider */
+  --wr-divider-width-base: 1px;
+  --wr-divider-color-base: var(--wr-color-light);
+  --wr-divider-margin-top-base: 0.5rem;
+  --wr-divider-margin-bottom-base: 0.5rem;
+
+  /* Tag */
+  --wr-tag-padding-y: 0.25rem;
+  --wr-tag-padding-x: 0.5rem;
+  --wr-tag-border-radius-base: 0.25rem;
+  --wr-tag-font-size-base: 0.75rem;
+  --wr-tag-line-height-base: 1rem;
+  --wr-tag-font-weight-base: 600;
+  --wr-tag-rounded-padding-y: 0.25rem;
+  --wr-tag-rounded-padding-x: 0.75rem;
+  --wr-tag-rounded-border-radius: 50rem;
+
+  &.dark {
+    color-scheme: dark;
+
+    --wr-body-bg: #0c0815;
+    --wr-body-bg-rgb: 12,8,21;
+    --wr-body-color: #fff;
+
+    --wr-border-color-base: #211638;
+
+    /* Dialog */
+    --wr-dialog-bg: #18152a;
+    --wr-dialog-min-width: 20rem;
+    --wr-dialog-title-color: #fff;
+
+    /* Checkbox */
+    --wr-checkbox-color-base: var(--wr-color-white);
+
+    --wr-input-bg: #18152a;
+    --wr-input-suffix-prefix-color: rgba(var(--wr-color-white-rgb), 0.5);
+    --wr-input-suffix-prefix-bg: rgba(var(--wr-color-primary-rgb), 0.125);
+    --wr-input-border-color: #493d7e;
+    --wr-input-color: #fff;
+  }
+}

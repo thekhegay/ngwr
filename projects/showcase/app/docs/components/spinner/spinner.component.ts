@@ -1,25 +1,37 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
 
+import { WrSpinnerModule } from 'ngwr/spinner';
+import { WrTagModule } from 'ngwr/tag';
+
+import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
+import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-spinner',
   templateUrl: './spinner.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [WrSpinnerModule, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent],
 })
 export class SpinnerComponent implements OnInit {
-  readonly description = 'A spinner for displaying loading state.';
+  @HostBinding() class = 'ngwr-page';
 
-  readonly importCode =
-    "import { WrSpinModule } from 'ngwr/input';\n\n@NgModule({\n  imports: [\n    // ...\n    WrSpinModule,\n  ],\n  // ...\n})\nexport class MyModule {}";
-  readonly exampleCode = '<wr-spin></wr-spin>';
+  private readonly seoService = inject(SeoService);
 
-  constructor(private readonly seoService: SeoService) {}
+  protected readonly pageTitle = 'Spinner';
+  protected readonly pageDescription = 'A spinner component for displaying loading state.';
+
+  protected readonly code = {
+    import: `import{WrSpinnerModule}from'ngwr/spinner';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrSpinnerModule,],})\nexport class MyComponent {}`,
+    usage: `<wr-spinner />`,
+  };
 
   ngOnInit(): void {
     this.seoService.setCanonicalURL();
-    this.seoService.setTitle('Spinner');
-    this.seoService.setDescription(this.description);
+    this.seoService.setTitle([this.pageTitle, 'Components']);
+    this.seoService.setDescription(this.pageDescription);
     this.seoService.setKeywords(['spinner', 'wr-spinner']);
   }
 }

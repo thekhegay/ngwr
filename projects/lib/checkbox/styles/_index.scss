@@ -1,0 +1,86 @@
+@forward '../../styles/colors';
+@forward './vars';
+
+.wr-checkbox {
+  --wr-checkbox-cursor: pointer;
+  --wr-checkbox-mark-opacity: 0;
+  --wr-checkbox-mark-transform: rotate(45deg) translateY(-2px) translateX(-1px) scale(0);
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--wr-checkbox-gap);
+
+    cursor: var(--wr-checkbox-cursor);
+
+    color: var(--wr-checkbox-color);
+    font-size: var(--wr-checkbox-font-size);
+    font-weight: var(--wr-checkbox-font-weight);
+    line-height: var(--wr-checkbox-line-height);
+  }
+
+  &__input {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  &__icon {
+    --wr-icon-size: var(--wr-checkbox-width);
+    color: var(--wr-checkbox-icon-color);
+    transition: var(--wr-transition-base);
+  }
+
+  &-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: var(--wr-checkbox-width);
+    height: var(--wr-checkbox-height);
+
+    background-color: var(--wr-checkbox-bg-color);
+    border: 1px solid var(--wr-checkbox-border-color);
+    border-radius: var(--wr-checkbox-border-radius);
+
+    transition: var(--wr-transition-base);
+
+    &__mark {
+      opacity: var(--wr-checkbox-mark-opacity);
+      height: 60%;
+      width: 40%;
+      border-bottom: var(--wr-checkbox-mark-width) solid var(--wr-checkbox-mark-color);
+      border-right: var(--wr-checkbox-mark-width) solid var(--wr-checkbox-mark-color);
+      transform: var(--wr-checkbox-mark-transform);
+      transition: var(--wr-transition-short);
+    }
+  }
+
+  &:hover {
+    --wr-checkbox-border-color: var(--wr-color-primary);
+  }
+
+  &--checked {
+    --wr-checkbox-icon-color: var(--wr-color-primary);
+    --wr-checkbox-bg-color: var(--wr-color-primary);
+    --wr-checkbox-border-color: var(--wr-color-primary);
+    --wr-checkbox-disabled-bg-color: var(--wr-color-primary-lighter);
+    --wr-checkbox-mark-opacity: 1;
+    --wr-checkbox-mark-transform: rotate(45deg) translateY(-2px) translateX(-1px) scale(1);
+
+    &:hover {
+      --wr-checkbox-bg-color: var(--wr-color-primary-lighter);
+      --wr-checkbox-border-color: var(--wr-color-primary-lighter);
+    }
+  }
+
+  &[disabled],
+  &:disabled {
+    --wr-checkbox-cursor: default;
+    --wr-checkbox-bg-color: var(--wr-checkbox-disabled-bg-color);
+    --wr-checkbox-border-color: var(--wr-checkbox-disabled-bg-color);
+  }
+}

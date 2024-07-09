@@ -1,0 +1,31 @@
+.ngwr-snippet {
+  --ngwr-snipper-padding: 1.5rem;
+
+  display: block;
+
+  border: 1px solid var(--wr-color-light-lighter);
+  border-radius: 0.75rem;
+  overflow: hidden;
+
+  &__code {
+    & > ngwr-code {
+      --ngwr-code-padding: var(--ngwr-snipper-padding);
+      --ngwr-code-border-raduis: 0;
+    }
+  }
+
+  &__body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: calc(var(--wr-grid-gutter) / 2);
+
+    padding: var(--ngwr-snipper-padding);
+    border-bottom: 1px solid var(--wr-color-light-lighter);
+
+    &:empty {
+      display: none;
+    }
+  }
+}

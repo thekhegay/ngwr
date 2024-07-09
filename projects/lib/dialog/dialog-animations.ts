@@ -1,3 +1,10 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
 import { animate, AnimationTriggerMetadata, state, style, transition, trigger } from '@angular/animations';
 
 export const WR_ANIMATION_ZOOM_CLASS_NAME_MAP = {
@@ -15,9 +22,9 @@ export const WR_ANIMATION_FADE_CLASS_NAME_MAP = {
 };
 
 export const wrDialogAnimations: {
-  readonly dialogContainer: AnimationTriggerMetadata;
+  readonly dialogComponent: AnimationTriggerMetadata;
 } = {
-  dialogContainer: trigger('dialogContainer', [
+  dialogComponent: trigger('dialogComponent', [
     state('void, exit', style({})),
     state('enter', style({})),
     transition('* => enter', animate('.24s', style({}))),

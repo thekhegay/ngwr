@@ -1,24 +1,15 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
-import { routes as r } from '#core/routes';
+import { routes as r } from '#routing';
 
-import { InstallationComponent } from './installation/installation.component';
-
-const routes: Routes = [
+export default [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: r.DOCS.GETTING_STARTED.INSTALLATION,
+    redirectTo: r.docs.gettingStarted.installation,
   },
   {
-    path: r.DOCS.GETTING_STARTED.INSTALLATION,
-    component: InstallationComponent,
+    path: r.docs.gettingStarted.installation,
+    loadComponent: () => import('./installation/installation.component').then(c => c.InstallationComponent),
   },
-];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class GettingStartedRouting {}
+] satisfies Routes;

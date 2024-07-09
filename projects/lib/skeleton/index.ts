@@ -1,2 +1,2 @@
-export { WrSkeleton } from './skeleton';
-export { WrSkeletonModule } from './skeleton-module';
+export * from './skeleton.component';
+export * from './skeleton.module';
