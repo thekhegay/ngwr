@@ -1,4 +1,4 @@
-# <img src="projects/showcase/src/assets/images/logo.svg" alt="ngwr logo" height="32px">
+# <img src="projects/showcase/public/images/logo.svg" alt="ngwr logo" height="32px">
 
 [![ngwr deploy](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/deploy.yml)](https://github.com/thekhegay/ngwr/actions/workflows/deploy.yml)
 [![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23f51c6a)](https://www.npmjs.com/package/ngwr)
@@ -12,7 +12,9 @@ NGWR is currently in development stage. All components are updating every week. 
 
 ```shell
 $ npm install ngwr
-# or yarn users
+# or
+$ pnpm add ngwr
+# or
 $ yarn add ngwr
 ```
 
@@ -25,21 +27,20 @@ Don't forget to add styles:
 
 ## [Components](https://ngwr.dev/docs/components)
 
+- [Alert](https://ngwr.dev/docs/components/alert)
+- [Avatar](https://ngwr.dev/docs/components/avatar)
 - [Button](https://ngwr.dev/docs/components/button)
+- [Button Group](https://ngwr.dev/docs/components/button-group)
 - [Checkbox](https://ngwr.dev/docs/components/checkbox)
 - [Dialog](https://ngwr.dev/docs/components/dialog)
 - [Divider](https://ngwr.dev/docs/components/divider)
 - [Form](https://ngwr.dev/docs/components/form)
 - [Icon](https://ngwr.dev/docs/components/icon)
 - [Input](https://ngwr.dev/docs/components/input)
-- [QRCode](https://ngwr.dev/docs/components/qrcode)
+- [QR](https://ngwr.dev/docs/components/qr)
 - [Skeleton](https://ngwr.dev/docs/components/skeleton)
 - [Spinner](https://ngwr.dev/docs/components/spinner)
 - [Tag](https://ngwr.dev/docs/components/tag)
-- [Tooltip](https://ngwr.dev/docs/components/tooltip)
-
-- [Colors](https://ngwr.dev/docs/core/colors)
-- [Grid](https://ngwr.dev/docs/core/grid)
 
 ## Authors
 - [Roman Khegay](https://github.com/thekhegay) – code, design
