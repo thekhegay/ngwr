@@ -6,9 +6,9 @@
     "dev": "ng serve --o",
     "test": "ng test",
     "lint": "ng lint",
-    "release:patch": "tsx ./scripts/release.ts --release-as=patch",
-    "release:minor": "tsx ./scripts/release.ts --release-as=minor",
-    "release:major": "tsx ./scripts/release.ts --release-as=major",
+    "release:patch": "tsx ./scripts/make-release.ts --release-as=patch",
+    "release:minor": "tsx ./scripts/make-release.ts --release-as=minor",
+    "release:major": "tsx ./scripts/make-release.ts --release-as=major",
     "build:lib": "tsx ./scripts/build-lib.ts",
     "build:showcase": "tsx ./scripts/build-showcase.ts",
     "publish:lib": "tsx ./scripts/publish.ts"
