@@ -1,0 +1,5 @@
+@use '@angular/cdk/overlay-prebuilt.css';
+
+.wr-backdrop {
+  background: rgba(var(--wr-color-black-rgb), 0.875);
+}

@@ -1,0 +1,98 @@
+@use './maps';
+
+$columns-count: 12;
+$gap: #{var(--wr-grid-gutter)};
+
+// Helpers
+@function bp-min($name, $breakpoints: maps.$breakpoints-map) {
+  $min: map-get($breakpoints, $name);
+  @return if($min != 0, $min, null);
+}
+@function bp-max($name, $breakpoints: maps.$breakpoints-map) {
+  $max: map-get($breakpoints, $name);
+  @return if($max and $max > 0, $max - .02, null);
+}
+@function bp-infix($name, $breakpoints: maps.$breakpoints-map) {
+  @return if(bp-min($name, $breakpoints) == null, '', '-#{$name}');
+}
+@mixin media-up($name, $breakpoints: maps.$breakpoints-map) {
+  $min: bp-min($name, $breakpoints);
+  @if $min {
+    @media (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+@mixin media-down($name, $breakpoints: maps.$breakpoints-map) {
+  $max: bp-max($name, $breakpoints);
+  @if $max {
+    @media (max-width: $max) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+@mixin make-container($gutter: $gap) {
+  width: 100%;
+  padding-right: calc($gap * 0.5);
+  padding-left: calc($gap * 0.5);
+  margin-left: auto;
+  margin-right: auto;
+}
+@mixin make-grid($columns: $columns-count, $breakpoints: maps.$breakpoints-map) {
+  @each $bp in map-keys($breakpoints) {
+    $infix: bp-infix($bp, $breakpoints);
+
+    @include media-up($bp, $breakpoints) {
+      @for $i from 1 through $columns {
+        .col#{$infix}-#{$i} {
+          grid-column: auto / span $i;
+        }
+      }
+    }
+  }
+}
+
+// Styles
+.container,
+.container-fluid {
+  @include make-container();
+}
+
+@each $bp, $max-width in maps.$container-widths-map {
+  .container-#{$bp} {
+    @extend .container-fluid;
+  }
+
+  @include media-up($bp, maps.$breakpoints-map) {
+    %responsive-container-#{$bp} {
+      max-width: $max-width;
+    }
+
+    $extend-breakpoint: true;
+
+    @each $name, $width in maps.$breakpoints-map {
+      @if ($extend-breakpoint) {
+        .container#{bp-infix($name, maps.$breakpoints-map)} {
+          @extend %responsive-container-#{$bp};
+        }
+
+        // Once the current breakpoint is reached, stop extending
+        @if ($bp == $name) {
+          $extend-breakpoint: false;
+        }
+      }
+    }
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat($columns-count, 1fr);
+  gap: $gap;
+
+  @include make-grid();
+}

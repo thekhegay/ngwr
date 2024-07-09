@@ -1,0 +1,21 @@
+@use '../../styles/maps' as maps;
+
+@each $color in maps.$theme-colors-map {
+  .wr-tag--color-#{$color} {
+    --wr-tag-color: var(--wr-color-#{$color}-contrast);
+    --wr-tag-border-color: var(--wr-color-#{$color});
+    --wr-tag-bg-color: var(--wr-color-#{$color});
+
+    &.wr-tag--outlined {
+      --wr-tag-color: var(--wr-color-#{$color});
+      --wr-tag-bg-color: rgba(var(--wr-color-#{$color}-rgb), 0.05);
+      --wr-tag-border-color: rgba(var(--wr-color-#{$color}-rgb), 0.25);
+    }
+
+    &.wr-tag--transparent {
+      --wr-tag-color: var(--wr-color-#{$color});
+      --wr-tag-bg-color: rgba(var(--wr-color-#{$color}-rgb), 0.1);
+      --wr-tag-border-color: transparent;
+    }
+  }
+}

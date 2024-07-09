@@ -21,7 +21,15 @@
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "ngwr/*": ["./projects/lib/*"],
+      "#root": ["projects/showcase/app/_root/root.component.ts"],
+      "#core/*": ["projects/showcase/app/_core/*"],
+      "#routing": ["projects/showcase/app/routing.ts"],
+      "#env": ["projects/showcase/environments/environment.ts"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

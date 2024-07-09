@@ -1,0 +1,86 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrCheckboxModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Checkbox can be used as <code class="ngwr-pre">wr-checkbox</code> component
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-checkbox [formControl]="value">Checkbox</wr-checkbox>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Using with <a class="ngwr-page-section__link" routerLink="fd">icons</a></h2>
+  <p class="ngwr-page-section__description">
+    Checkbox component can easily be replaced with icon. All you need is set icon name within
+    <code class="ngwr-pre">icon</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-checkbox [formControl]="iconValue" icon="shield-checkmark" />
+        <wr-checkbox [formControl]="iconValue2" icon="logo-angular" />
+        <wr-checkbox [formControl]="iconValue3" icon="logo-github" />
+      </ng-container>
+      <ngwr-code [code]="code.iconUsage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[color]</code></td>
+          <td>set color of button</td>
+          <td>
+            <code>
+              @for (color of colors; track $index) {
+                '{{ color.charAt(0) + color.slice(1) }}' |
+              }
+              null
+            </code>
+          </td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+<h1 wrDialogTitle>Dialog title</h1>
+
+<div wrDialogContent>
+  @for (i of 100 | newArray; track $index) {
+    <span>{{ $index }}</span>
+    <br />
+  }
+</div>
+
+<div wrDialogFooter>
+  <wr-btn wrDialogClose outlined color="danger">Close</wr-btn>
+</div>

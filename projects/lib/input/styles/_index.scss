@@ -1,0 +1,107 @@
+@forward './vars';
+
+.wr-input {
+  --wr-input-padding-right: var(--wr-input-padding-x);
+  --wr-input-cursor: default;
+
+  display: flex;
+
+  cursor: var(--wr-input-cursor);
+
+  color: var(--wr-input-color);
+  font-size: var(--wr-input-font-size);
+  font-weight: var(--wr-input-font-weight);
+  line-height: var(--wr-input-line-height);
+
+  background-color: var(--wr-input-bg-color);
+  border: 1px solid var(--wr-input-border-color);
+  border-radius: var(--wr-input-border-radius);
+  box-shadow: var(--wr-input-box-shadow);
+
+  overflow: hidden;
+  position: relative;
+
+  transition: var(--wr-transition-base);
+
+  &--rounded {
+    --wr-input-border-radius: 50rem;
+  }
+
+  &--disabled {
+    --wr-input-cursor: not-allowed;
+    --wr-input-color: var(--wr-color-medium);
+    --wr-input-bg-color: var(--wr-color-light-lighter);
+  }
+
+  &--focused {
+    --wr-input-border-color: var(--wr-color-primary);
+    --wr-input-box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.125);
+  }
+
+  &--password {
+    --wr-input-padding-right: calc(var(--wr-input-icon-size) + calc(var(--wr-input-padding-x) / 2));
+  }
+
+  &__native {
+    display: inline-block;
+
+    flex: 1;
+
+    appearance: none;
+    background: none;
+    border: none;
+    outline: none;
+    margin: 0;
+    vertical-align: middle;
+    white-space: normal;
+    resize: none;
+
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+
+    padding: var(--wr-input-padding-y) var(--wr-input-padding-x);
+    padding-right: var(--wr-input-padding-right);
+
+    &[disabled],
+    &:disabled {
+      cursor: var(--wr-input-cursor);
+    }
+
+    &::placeholder {
+      color: var(--wr-input-placeholder-color);
+      font-style: italic;
+    }
+  }
+
+  &-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: calc(var(--wr-input-icon-size) + calc(var(--wr-input-padding-x) / 2));
+    height: 100%;
+
+    cursor: pointer;
+
+    &--disabled {
+      cursor: var(--wr-input-cursor);
+      pointer-events: none;
+    }
+
+    &__icon {
+      --wr-icon-size: var(--wr-input-icon-size);
+      color: var(--wr-input-icon-color);
+      transition: var(--wr-transition-base);
+    }
+
+    &:hover {
+      --wr-input-icon-color: var(--wr-color-primary);
+    }
+  }
+}

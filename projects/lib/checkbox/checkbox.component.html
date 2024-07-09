@@ -1,0 +1,11 @@
+<label class="wr-checkbox__wrapper" [for]="id">
+  <input class="wr-checkbox__input" type="checkbox" [formControl]="formControl" [id]="id" />
+  @if (icon) {
+    <wr-icon class="wr-checkbox__icon" [name]="icon" />
+  } @else {
+    <div class="wr-checkbox-inner">
+      <div class="wr-checkbox-inner__mark"></div>
+    </div>
+  }
+  <ng-content />
+</label>

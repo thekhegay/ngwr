@@ -1,0 +1,318 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrButtonModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">
+    Button can be used as <code class="ngwr-pre">wr-btn</code> component or <code class="ngwr-pre">wr-btn</code> directive
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn>Button Component</wr-btn>
+        <button wr-btn>Native Button</button>
+        <a wr-btn>Anchor Button</a>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Color</h2>
+  <p class="ngwr-page-section__description">
+    Button is available in different colors. Color can be set with <code class="ngwr-pre">color</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-btn [color]="color">
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-btn>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.colors" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Outlined</h2>
+  <p class="ngwr-page-section__description">
+    If <code class="ngwr-pre">outlined</code> attribute is set, button will be displayed with stroke and without background.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-btn [color]="color" outlined>
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-btn>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.outlined" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Rounded</h2>
+  <p class="ngwr-page-section__description">
+    In need of round shaped button, you can set <code class="ngwr-pre">rounded</code> attribute
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        @for (color of colors; track $index) {
+          <wr-btn [color]="color" rounded>
+            {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+          </wr-btn>
+        }
+      </ng-container>
+      <ngwr-code [code]="code.rounded" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Small size</h2>
+  <p class="ngwr-page-section__description">
+    If you need a small sized button, you can set <code class="ngwr-pre">size="small"</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn>Default size</wr-btn>
+        <wr-btn size="small">Small size</wr-btn>
+        <wr-btn size="small" color="primary" rounded>Small rounded</wr-btn>
+        <wr-btn size="small" color="secondary" icon="add-circle">Small with icon</wr-btn>
+        <wr-btn size="small" color="success" outlined rounded>Small outlined rounded</wr-btn>
+      </ng-container>
+      <ngwr-code [code]="code.size" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<section class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Using with <a class="ngwr-page-section__link" routerLink="fd">icons</a></h2>
+  <p class="ngwr-page-section__description">
+    Button component can easily be enhanced by adding a icon. All you need is set icon name within
+    <code class="ngwr-pre">icon</code> attribute. Also you can set icon position with <code class="ngwr-pre">iconPosition</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__additional">
+    <ngwr-code [code]="code.iconProvider" codeLang="ts" code></ngwr-code>
+  </div>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn icon="add">Add</wr-btn>
+        <wr-btn color="primary" icon="copy-outline" outlined rounded>Copy</wr-btn>
+        <wr-btn color="success" icon="download" iconPosition="end">Download</wr-btn>
+        <wr-btn color="danger" icon="warning" rounded outlined size="small">Warning</wr-btn>
+      </ng-container>
+      <ngwr-code [code]="code.icon" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</section>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Disabled state</h2>
+  <p class="ngwr-page-section__description">
+    You can add <code class="ngwr-pre">disabled</code> attribute to prevent interacting with the button.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn disabled>Disabled</wr-btn>
+        <wr-btn disabled rounded color="secondary">Disabled</wr-btn>
+        <wr-btn disabled color="danger" icon="alert-circle">Disabled</wr-btn>
+      </ng-container>
+      <ngwr-code [code]="code.disabled" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Loading state</h2>
+  <p class="ngwr-page-section__description">
+    If you need a loading version of button, you can easily set
+    <code class="ngwr-pre">loading</code> attribute. You don't need to remove the inner text or icon, button component will maintain its
+    original size.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn loading>Loading</wr-btn>
+        <wr-btn [loading]="true" color="dark" rounded size="small">You can use boolean or string</wr-btn>
+        <wr-btn loading icon="add" color="secondary" outlined>Loading with icon</wr-btn>
+      </ng-container>
+      <ngwr-code [code]="code.loading" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Disabled when loading</h2>
+  <p class="ngwr-page-section__description">
+    By default, when button is <code class="ngwr-pre">loading</code>, user cannot interact with button. This behavior can be disabled with
+    <code class="ngwr-pre">isDisabledWhenLoading</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn [loading]="loading()" [isDisabledWhenLoading]="false" (click)="loading.set(!loading())">Click to toggle</wr-btn>
+      </ng-container>
+      <ngwr-code [code]="code.loadingDisabled" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Block buttons</h2>
+  <p class="ngwr-page-section__description">
+    In case you need a button that completely fills the width of parent block you can use
+    <code class="ngwr-pre">block</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn block>Full width button</wr-btn>
+        <wr-btn block color="secondary" rounded outlined icon="user">Full width button with icon</wr-btn>
+      </ng-container>
+      <ngwr-code [code]="code.block" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">You can change button styles with css variables.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[color]</code></td>
+          <td>set color of button</td>
+          <td>
+            <code>
+              @for (color of colors; track $index) {
+                '{{ color.charAt(0) + color.slice(1) }}' |
+              }
+              null
+            </code>
+          </td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><code>[outlined]</code></td>
+          <td>set outlined style for button</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[rounded]</code></td>
+          <td>set rounded style for button</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[size]</code></td>
+          <td>set size of button</td>
+          <td><code>'default' | 'small'</code></td>
+          <td></td>
+          <td><code>'default'</code></td>
+        </tr>
+        <tr>
+          <td><code>[block]</code></td>
+          <td>option to fit button width to its parent width</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[icon]</code></td>
+          <td>add icon to button</td>
+          <td><code>wrIconName | null</code></td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><code>[iconPosition]</code></td>
+          <td>set position of icon</td>
+          <td><code>'start' | 'end'</code></td>
+          <td></td>
+          <td><code>'start'</code></td>
+        </tr>
+        <tr>
+          <td><code>[loading]</code></td>
+          <td>set loading state for button</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[isDisabledWhenLoading]</code></td>
+          <td>disable pointer event when loading is true</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>true</code></td>
+        </tr>
+        <tr>
+          <td><code>[disabled]</code></td>
+          <td>set disabled state for button</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

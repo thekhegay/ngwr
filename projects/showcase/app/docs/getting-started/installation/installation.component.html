@@ -1,0 +1,28 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Documentation</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Install from package manager</h2>
+  <p class="ngwr-page-section__description">We suggest to use pnpm:</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.installNpm" codeLang="shell" />
+    <ngwr-code [code]="code.installYarn" codeLang="shell" />
+    <ngwr-code [code]="code.installPnpm" codeLang="shell" />
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Add styles</h2>
+  <p class="ngwr-page-section__description">
+    After installation, add SCSS styles to your <code class="ngwr-pre">styles.scss</code>
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code code="@use 'ngwr'" codeLang="scss" />
+  </div>
+</div>

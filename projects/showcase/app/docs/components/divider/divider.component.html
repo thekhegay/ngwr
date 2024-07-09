@@ -1,0 +1,101 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to use</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrDividerModule</code> into a module where you want to use.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Usage example</h2>
+  <p class="ngwr-page-section__description">Basic usage of divider component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider width="3px" color="primary"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider type="solid" color="secondary"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider type="dashed" color="warning"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+        <wr-divider type="dotted" color="success"></wr-divider>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">You can change button styles with css variables.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[color]</code></td>
+          <td>set color of divider</td>
+          <td>
+            <code>
+              @for (color of colors; track $index) {
+                '{{ color.charAt(0) + color.slice(1) }}'
+                @if (!$last) {
+                  |
+                }
+              }
+            </code>
+          </td>
+          <td></td>
+          <td><code>'light'</code></td>
+        </tr>
+        <tr>
+          <td><code>[type]</code></td>
+          <td>set type for divider</td>
+          <td><code>'solid' | 'dashed' | 'dotted'</code></td>
+          <td></td>
+          <td><code>'solid'</code></td>
+        </tr>
+        <tr>
+          <td><code>[width]</code></td>
+          <td>set width of divider</td>
+          <td><code>string</code></td>
+          <td></td>
+          <td><code>'1px'</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

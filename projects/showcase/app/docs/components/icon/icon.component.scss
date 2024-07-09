@@ -1,0 +1,38 @@
+.ngwr-icon {
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15%, 1fr));
+    gap: calc(var(--wr-grid-gutter) / 2);
+  }
+
+  &-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--wr-color-dark);
+    background-color: rgba(var(--wr-color-light-rgb), 0.125);
+    border-radius: 0.5rem;
+
+    padding: 1.5rem 0.5rem;
+
+    gap: 1rem;
+
+    &__icon {
+      --wr-icon-size: 2rem;
+    }
+
+    &__name,
+    &__camel {
+      color: var(--wr-color-light-darker);
+
+      font-size: 0.75rem;
+      font-weight: 400;
+      line-height: 1rem;
+
+      text-align: center;
+      word-break: break-all;
+    }
+  }
+}

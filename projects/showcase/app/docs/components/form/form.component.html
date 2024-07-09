@@ -1,0 +1,78 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Components</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to use</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrFormModule</code> into a module where you want to use.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Usage example</h2>
+  <p class="ngwr-page-section__description">Basic usage of form item component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-form-item>
+          <label>Username</label>
+          <wr-input placeholder="Username"></wr-input>
+        </wr-form-item>
+      </ng-container>
+      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Error item</h2>
+  <p class="ngwr-page-section__description">Basic usage of form item component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-form-item [hasError]="true">
+          <label>Username</label>
+          <wr-input></wr-input>
+          <wr-form-error>Username is required</wr-form-error>
+        </wr-form-item>
+      </ng-container>
+      <ngwr-code [code]="code.errorCode" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-table">
+    <table>
+      <tr class="ngwr-page-table__head">
+        <th>Property</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Default</th>
+      </tr>
+      <tr>
+        <td><code>[hasError]</code></td>
+        <td>set error state to form item</td>
+        <th></th>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+      </tr>
+    </table>
+  </div>
+</div>

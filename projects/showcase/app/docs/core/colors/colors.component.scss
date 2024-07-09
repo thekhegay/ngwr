@@ -1,0 +1,99 @@
+.colors {
+  &__list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: var(--wr-border-radius-base);
+    margin-right: 1rem;
+
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &--primary {
+      color: var(--wr-color-primary-contrast);
+      background-color: var(--wr-color-primary);
+
+      &--rgb {
+        color: var(--wr-color-primary);
+        background-color: rgba(var(--wr-color-primary-rgb), 0.125);
+      }
+    }
+    &--secondary {
+      color: var(--wr-color-secondary-contrast);
+      background-color: var(--wr-color-secondary);
+
+      &--rgb {
+        color: var(--wr-color-secondary);
+        background-color: rgba(var(--wr-color-secondary-rgb), 0.125);
+      }
+    }
+    &--success {
+      color: var(--wr-color-success-contrast);
+      background-color: var(--wr-color-success);
+
+      &--rgb {
+        color: var(--wr-color-success);
+        background-color: rgba(var(--wr-color-success-rgb), 0.125);
+      }
+    }
+    &--warning {
+      color: var(--wr-color-warning-contrast);
+      background-color: var(--wr-color-warning);
+
+      &--rgb {
+        color: var(--wr-color-warning);
+        background-color: rgba(var(--wr-color-warning-rgb), 0.125);
+      }
+    }
+    &--danger {
+      color: var(--wr-color-danger-contrast);
+      background-color: var(--wr-color-danger);
+
+      &--rgb {
+        color: var(--wr-color-danger);
+        background-color: rgba(var(--wr-color-danger-rgb), 0.125);
+      }
+    }
+    &--light {
+      color: var(--wr-color-light-contrast);
+      background-color: var(--wr-color-light);
+
+      &--rgb {
+        color: var(--wr-color-ligth);
+        background-color: rgba(var(--wr-color-light-rgb), 0.5);
+      }
+    }
+    &--medium {
+      color: var(--wr-color-medium-contrast);
+      background-color: var(--wr-color-medium);
+
+      &--rgb {
+        color: var(--wr-color-medium);
+        background-color: rgba(var(--wr-color-medium-rgb), 0.375);
+      }
+    }
+    &--dark {
+      color: var(--wr-color-dark-contrast);
+      background-color: var(--wr-color-dark);
+
+      &--rgb {
+        color: var(--wr-color-dark);
+        background-color: rgba(var(--wr-color-dark-rgb), 0.375);
+      }
+    }
+  }
+}

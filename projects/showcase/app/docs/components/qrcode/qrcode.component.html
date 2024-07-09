@@ -1,0 +1,173 @@
+<main class="ngwr-page">
+  <div class="ngwr-page-hero">
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Components</wr-tag>
+    <h1 class="ngwr-page-hero__title">QRCode</h1>
+    <p class="ngwr-page-hero__description">{{ description }}</p>
+  </div>
+
+  <div class="ngwr-page__content">
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">How to use</h2>
+      <p class="ngwr-page-section__description">
+        Import <code class="ngwr-pre">WrQRCodeModule</code> into a module where you want to use.
+      </p>
+
+      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Usage example</h2>
+      <p class="ngwr-page-section__description">
+        QRCode component can be used as standalone <code class="ngwr-pre">wr-qrcode</code> component
+      </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div slot="display">
+          <wr-qr value="https://ngwr.dev"></wr-qr>
+        </div>
+        <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Size</h2>
+      <p class="ngwr-page-section__description">
+        You can customize QR code size with <code class="ngwr-pre">size</code> attribute.
+      </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="qr__list" slot="display">
+          <wr-qr value="https://ngwr.dev" [size]="75"></wr-qr>
+          <wr-qr value="https://ngwr.dev" [size]="125"></wr-qr>
+          <wr-qr value="https://ngwr.dev" [size]="150"></wr-qr>
+        </div>
+        <ngwr-code [code]="sizeCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Error level</h2>
+      <p class="ngwr-page-section__description">
+        You can set QR code error level with <code class="ngwr-pre">level</code> attribute.
+      </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="qr__list" slot="display">
+          <wr-qr value="https://github.com/thekhegay/ngwr/issues" level="L"></wr-qr>
+          <wr-qr value="https://github.com/thekhegay/ngwr/issues" level="M"></wr-qr>
+          <wr-qr value="https://github.com/thekhegay/ngwr/issues" level="Q"></wr-qr>
+          <wr-qr value="https://github.com/thekhegay/ngwr/issues" level="H"></wr-qr>
+        </div>
+        <ngwr-code [code]="levelCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">With icon</h2>
+      <p class="ngwr-page-section__description"
+        >QRCode component can be used with icon from url or with
+        <a class="ngwr-page-section__link" routerLink="/components/icon">NGWR icons</a></p
+      >
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="qr__list" slot="display">
+          <wr-qr value="https://ngwr.dev" icon="logo-stingray"></wr-qr>
+          <wr-qr
+            value="https://ngwr.dev"
+            icon="logo-stingray"
+          ></wr-qr>
+        </div>
+        <ngwr-code [code]="iconsCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Colored</h2>
+      <p class="ngwr-page-section__description">
+        You can customize QR code color with <code class="ngwr-pre">color</code> attribute.
+      </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="qr__list" slot="display">
+          <wr-qr value="https://ngwr.dev" color="#3969e2"></wr-qr>
+          <wr-qr value="https://ngwr.dev" color="#f51c6a"></wr-qr>
+        </div>
+        <ngwr-code [code]="colorCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">With custom background color</h2>
+      <p class="ngwr-page-section__description">
+        You can customize QR code background color with <code class="ngwr-pre">bgColor</code> attribute.
+      </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div class="qr__list" slot="display">
+          <wr-qr value="https://ngwr.dev" bgColor="#40da15"></wr-qr>
+          <wr-qr value="https://ngwr.dev" bgColor="#F99B00"></wr-qr>
+        </div>
+        <ngwr-code [code]="bgCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">API</h2>
+
+      <table class="ngwr-page__table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><code>[value]</code></th>
+            <th>set value</th>
+            <th><code>string</code></th>
+            <th></th>
+          </tr>
+          <tr>
+            <th><code>[level]</code></th>
+            <th>set error level for qrcode</th>
+            <th><code>'L' | 'M' | 'Q' | 'H'</code></th>
+            <th><code>'M</code></th>
+          </tr>
+          <tr>
+            <th><code>[padding]</code></th>
+            <th>set padding</th>
+            <th><code>number</code></th>
+            <th><code>10</code></th>
+          </tr>
+          <tr>
+            <th><code>[color]</code></th>
+            <th>set color of qrcode</th>
+            <th><code>string</code></th>
+            <th><code>'#ffffff'</code></th>
+          </tr>
+          <tr>
+            <th><code>[size]</code></th>
+            <th>set size of qrcide</th>
+            <th><code>number</code></th>
+            <th><code>150</code></th>
+          </tr>
+          <tr>
+            <th><code>[icon]</code></th>
+            <th>add icon to qrcode</th>
+            <th><code>string | wrIconName</code></th>
+            <th></th>
+          </tr>
+          <tr>
+            <th><code>[iconSize]</code></th>
+            <th>set size of icon</th>
+            <th><code>number</code></th>
+            <th><code>42</code></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

@@ -1,0 +1,187 @@
+@forward './vars';
+
+@use '../../styles/maps' as maps;
+@use '../../styles/colors';
+
+@forward '../../spinner/styles';
+@forward '../../icon/styles';
+
+.wr-btn {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+
+  text-align: center;
+
+  appearance: none;
+  text-decoration: none;
+  list-style: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+
+  white-space: nowrap;
+  word-wrap: break-word;
+
+  color: var(--wr-btn-color);
+  background-color: var(--wr-btn-bg-color);
+
+  border-radius: var(--wr-btn-border-radius);
+  border: 1px solid var(--wr-btn-border-color);
+
+  font-family: var(--wr-btn-font-family);
+  font-size: var(--wr-btn-font-size);
+  font-weight: var(--wr-btn-font-weight);
+  line-height: var(--wr-btn-line-height);
+
+  padding: var(--wr-btn-padding-y) var(--wr-btn-padding-x);
+
+  transition: var(--wr-transition-base);
+
+  &__spin {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  &:hover {
+    --wr-btn-bg-color: var(--wr-color-light-lighter);
+  }
+
+  &[disabled],
+  &:disabled {
+    cursor: default;
+    --wr-btn-color: var(--wr-color-medium);
+    --wr-btn-bg-color: var(--wr-color-light-lighter);
+    pointer-events: none;
+  }
+
+  &:active {
+    --wr-btn-bg-color: var(--wr-color-light-shade);
+  }
+
+  &-group {
+    .wr-btn {
+      border-radius: 0;
+      border-left: none;
+
+      &:first-child {
+        border-top-left-radius: var(--wr-btn-border-radius);
+        border-bottom-left-radius: var(--wr-btn-border-radius);
+        border-left: 1px solid var(--wr-btn-border-color);
+      }
+
+      &:last-child {
+        border-top-right-radius: var(--wr-btn-border-radius);
+        border-bottom-right-radius: var(--wr-btn-border-radius);
+      }
+    }
+  }
+
+  &--loading {
+    &--disabled {
+      pointer-events: none;
+    }
+
+    .wr-btn__text,
+    .wr-btn__icon,{
+      opacity: 0;
+    }
+  }
+
+  &-group {
+    .wr-btn {
+      border-radius: 0;
+      border-left: none;
+
+      &:first-child {
+        border-top-left-radius: var(--wr-btn-border-radius);
+        border-bottom-left-radius: var(--wr-btn-border-radius);
+        border-left: 1px solid var(--wr-btn-border-color);
+      }
+
+      &:last-child {
+        border-top-right-radius: var(--wr-btn-border-radius);
+        border-bottom-right-radius: var(--wr-btn-border-radius);
+      }
+    }
+  }
+
+  &--small {
+    --wr-btn-icon-size: 0.825rem;
+    --wr-btn-font-size: 0.75rem;
+    --wr-btn-line-height: 1rem;
+    --wr-btn-border-radius: 0.25rem;
+    --wr-btn-padding-y: 0.25rem;
+    --wr-btn-padding-x: 0.75rem;
+  }
+
+  &--rounded {
+    --wr-btn-border-radius: 50rem;
+  }
+
+  &--block {
+    display: block;
+    width: 100%;
+  }
+
+  &__icon {
+    --wr-icon-size: var(--wr-btn-icon-size) !important;
+  }
+
+  &--icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+
+    &-end {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+@each $color in maps.$theme-colors-map {
+  .wr-btn--color-#{$color} {
+    --wr-btn-color: var(--wr-color-#{$color}-contrast);
+    --wr-btn-border-color: var(--wr-color-#{$color});
+    --wr-btn-bg-color: var(--wr-color-#{$color});
+
+    &:hover {
+      --wr-btn-border-color: var(--wr-color-#{$color}-dark);
+      --wr-btn-bg-color: var(--wr-color-#{$color}-dark);
+    }
+
+    &:active {
+      --wr-btn-border-color: var(--wr-color-#{$color}-darker);
+      --wr-btn-bg-color: var(--wr-color-#{$color}-darker);
+    }
+
+    &[disabled],
+    &:disabled {
+      --wr-btn-color: var(--wr-color-#{$color}-contrast);
+      --wr-btn-border-color: var(--wr-color-#{$color}-lighter);
+      --wr-btn-bg-color: var(--wr-color-#{$color}-lighter);
+    }
+
+    &.wr-btn--outlined {
+      --wr-btn-color: var(--wr-color-#{$color});
+      --wr-btn-border-color: rgba(var(--wr-color-#{$color}-rgb), 0.375);
+      --wr-btn-bg-color: transparent;
+
+      &:hover {
+        --wr-btn-color: var(--wr-color-#{$color}-contrast);
+        --wr-btn-border-color: var(--wr-color-#{$color}-dark);
+        --wr-btn-bg-color: var(--wr-color-#{$color}-dark);
+      }
+
+      &:active {
+        --wr-btn-color: var(--wr-color-#{$color}-contrast);
+        --wr-btn-border-color: var(--wr-color-#{$color}-darker);
+        --wr-btn-bg-color: var(--wr-color-#{$color}-darker);
+      }
+    }
+  }
+}

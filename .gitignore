@@ -1,2 +1,30 @@
+# Compiled output
+dist
+tmp
+out-tsc
+RELEASE_BODY.md
+.angular
+.sass-cache
+
 # Node.js
 node_modules
+
+# IDEs and editors
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode
+
+# misc
+*.log
+connect.lock
+coverage
+typings
+
+# System Files
+.DS_Store
+Thumbs.db

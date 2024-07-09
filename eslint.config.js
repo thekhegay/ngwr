@@ -27,28 +27,12 @@ module.exports = tsEslint.config(
         'error',
         {
           'template': 1,
-          'styles': 0,
-          'animations': 0
+          'styles': 1,
+          'animations': 1
         }
-      ],
-      '@angular-eslint/component-selector': [
-        'error',
-        {
-          type: ['element', 'attribute'],
-          prefix: ['wr', 'ngwr'],
-          style: 'kebab-case',
-        },
       ],
       '@angular-eslint/consistent-component-styles': 'error',
       '@angular-eslint/contextual-decorator': 'error',
-      '@angular-eslint/directive-selector': [
-        'error',
-        {
-          type: 'attribute',
-          prefix: ['wr', 'ngwr'],
-          style: 'camelCase',
-        },
-      ],
       '@angular-eslint/no-conflicting-lifecycle': 'error',
       '@angular-eslint/no-forward-ref': 'error',
       '@angular-eslint/no-lifecycle-call': 'error',
@@ -124,12 +108,7 @@ module.exports = tsEslint.config(
               "position": "before"
             },
             {
-              "pattern": "{ng-zorro-antd/**,ngwr/**,@jsverse/**}",
-              "group": "external",
-              "position": "before"
-            },
-            {
-              "pattern": "{#api,#core/**,#assets/**,#env/**,#app/**,#routing,#store/**}",
+              "pattern": "{#api,#core/**,#assets/**,#env/**,#app/**,#routing,#root,#store/**}",
               "group": "internal",
               "position": "before"
             }

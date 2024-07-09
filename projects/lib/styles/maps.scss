@@ -1,0 +1,31 @@
+$theme-colors-map: (
+  'primary',
+  'secondary',
+  'light',
+  'medium',
+  'dark',
+  'success',
+  'warning',
+  'danger'
+);
+$breakpoints-map: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+  xga: 1600px,
+  fhd: 1920px,
+  rt: 2560px
+);
+$container-widths-map: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  xxl: 1320px,
+  xga: 1530px,
+  fhd: 1830px,
+  rt: 2470px
+);

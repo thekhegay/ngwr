@@ -1,0 +1,27 @@
+@if (prefix) {
+  <div class="wr-input-prefix">
+    <span class="wr-input-prefix__text">{{ prefix }}</span>
+  </div>
+}
+
+<input
+  class="wr-input__native"
+  [type]="type"
+  [placeholder]="placeholder"
+  [readonly]="readonly"
+  [formControl]="formControl"
+  (focus)="isFocused.set(true)"
+  (blur)="isFocused.set(false)"
+/>
+
+@if (passwordIcons) {
+  <div class="wr-input-icon" [class.wr-input-icon--disabled]="formControl.disabled" (click)="onPasswordVisibilityChange()">
+    <wr-icon class="wr-input-icon__icon" [name]="eyeOn() ? 'eye' : 'eye-off'" />
+  </div>
+}
+
+@if (suffix) {
+  <div class="wr-input-suffix">
+    <span class="wr-input-suffix__text">{{ suffix }}</span>
+  </div>
+}

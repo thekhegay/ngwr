@@ -1,0 +1,39 @@
+.wr-avatar {
+  --wr-avatar-border-radius: 10%;
+  --wr-avatar-img-opacity: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--wr-avatar-border-radius);
+
+  position: relative;
+  overflow: hidden;
+
+  box-shadow: inset 0 0 0 1px rgba(var(--wr-color-light-rgb), 0.5);
+
+  &--rounded {
+    --wr-avatar-border-radius: 50%;
+  }
+
+  &--loaded {
+    --wr-avatar-img-opacity: 1;
+    box-shadow: inset 0 0 0 1px rgba(var(--wr-color-light-rgb), 0);
+  }
+
+  &__img {
+    pointer-events: none;
+    user-select: none;
+    opacity: var(--wr-avatar-img-opacity);
+    transition: var(--wr-transition-base);
+  }
+
+  &__spin {
+    color: rgba(var(--wr-color-medium-rgb), 0.5);
+    position: absolute;
+    width: 40%;
+    height: 40%;
+  }
+}

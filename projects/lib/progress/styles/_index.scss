@@ -1,0 +1,24 @@
+@forward './vars';
+@forward './theming';
+
+.wr-progress {
+  position: relative;
+  overflow: hidden;
+
+  height: var(--wr-progress-height);
+  width: 100%;
+
+  background: var(--wr-progress-bg-color);
+  border-radius: var(--wr-progress-border-radius);
+
+  &__bg {
+    position: absolute;
+    height: 100%;
+    background: var(--wr-progress-color);
+    border-top-right-radius: var(--wr-progress-border-radius);
+    border-bottom-right-radius: var(--wr-progress-border-radius);
+    transition: var(--wr-transition-base);
+  }
+}
+
+

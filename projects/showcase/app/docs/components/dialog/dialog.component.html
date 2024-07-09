@@ -1,0 +1,24 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Components</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+    <wr-tag transparent color="success">Service</wr-tag>
+    <wr-tag outlined color="danger" icon="warning">Outdated docs</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
+  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Usage example</h2>
+  <p class="ngwr-page-section__description">Basic usage of dialog component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn (click)="onDialogOpen()">Open dialog</wr-btn>
+      </ng-container>
+      <ngwr-code [code]="usageCode" codeLang="ts" slot="code"></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>

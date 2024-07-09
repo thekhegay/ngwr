@@ -1,0 +1,34 @@
+@forward '../../styles/animations';
+
+.wr-spinner {
+  display: inline-block;
+  color: inherit;
+  font-style: normal;
+  line-height: 0;
+  text-align: center;
+  text-transform: none;
+  vertical-align: -0.1rem;
+  box-sizing: content-box !important;
+
+  contain: strict;
+
+  width: 1em;
+  height: 1em;
+
+  * {
+    line-height: 1;
+  }
+
+  svg {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+
+    animation: rotate 2s linear infinite;
+
+    .path {
+      stroke: currentColor;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+  }
+}

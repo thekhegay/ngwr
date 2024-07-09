@@ -1,6 +1,2 @@
-/*
- * Public API Surface of my-lib
- */
-
-export * from './lib/my-lib.service';
-export * from './lib/my-lib.component';
+/* https://github.com/ng-packagr/ng-packagr/issues/1655 */
+export default void 0;

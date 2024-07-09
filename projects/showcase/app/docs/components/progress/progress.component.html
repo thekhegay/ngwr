@@ -1,0 +1,88 @@
+<main class="ngwr-page">
+  <div class="ngwr-page-hero">
+    <wr-tag class="ngwr-page-hero__tag" transparent rounded>Component</wr-tag>
+    <h1 class="ngwr-page-hero__title">Progress</h1>
+    <p class="ngwr-page-hero__description">{{ description }}</p>
+  </div>
+
+  <div class="ngwr-page__content">
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">How to use</h2>
+      <p class="ngwr-page-section__description">
+        Import <code class="ngwr-pre">WrProgressModule</code> into a module where you want to use.
+      </p>
+
+      <ngwr-code class="ngwr-page-section__code" [code]="importCode" codeLang="ts"></ngwr-code>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Usage example</h2>
+      <p class="ngwr-page-section__description">Basic usage of progress component</p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div slot="display">
+          <wr-progress [percent]="25"></wr-progress>
+        </div>
+        <ngwr-code [code]="usageCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">Color</h2>
+      <p class="ngwr-page-section__description">
+        Progress component is available in different
+        <a class="ngwr-page-section__link" routerLink="/docs/core/color">predefined colors</a>. Color can be set by
+        <code class="ngwr-pre">color</code> attribute.
+      </p>
+
+      <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
+        <div slot="display">
+          @for (color of colors; track $index) {
+            <wr-progress [color]="color" [percent]="generateRandomPercent()">
+              {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+            </wr-progress>
+          }
+        </div>
+        <ngwr-code [code]="colorsCode" codeLang="html" slot="code"></ngwr-code>
+      </ngwr-snippet>
+    </div>
+
+    <div class="ngwr-page-section">
+      <h2 class="ngwr-page-section__title">API</h2>
+
+      <table class="ngwr-page__table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><code>[percent]</code></th>
+            <th>set percent of progress</th>
+            <th><code>number</code></th>
+            <th><code>0</code></th>
+          </tr>
+          <tr>
+            <th><code>[color]</code></th>
+            <th>set color of progress</th>
+            <th>
+              <code>
+                @for (color of colors; track $index) {
+                  '{{ color.charAt(0) + color.slice(1) }}'
+                  @if (!$last) {
+                    |
+                  }
+                }
+              </code>
+            </th>
+            <th><code>'primary'</code></th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

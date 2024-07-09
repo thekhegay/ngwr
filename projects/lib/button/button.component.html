@@ -1,0 +1,9 @@
+@if (loading) {
+  <wr-spinner class="wr-btn__spin" />
+}
+@if (icon) {
+  <wr-icon class="wr-btn__icon" [name]="icon" />
+}
+<span class="wr-btn__text">
+  <ng-content />
+</span>

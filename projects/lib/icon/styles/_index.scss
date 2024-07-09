@@ -1,0 +1,29 @@
+@forward './vars';
+
+.wr-icon {
+  display: inline-block;
+  color: inherit;
+  font-style: normal;
+  line-height: 0;
+  text-align: center;
+  text-transform: none;
+  vertical-align: -0.125rem;
+
+  box-sizing: content-box !important;
+
+  contain: strict;
+
+  fill: currentColor;
+  width: var(--wr-icon-size);
+  height: var(--wr-icon-size);
+
+  * {
+    line-height: 1;
+  }
+
+  svg {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+  }
+}

@@ -1,0 +1,53 @@
+<div class="container">
+  <header class="ngwr-header__wrapper">
+    @if (isDocsPage()) {
+      <button
+        class="ngwr-header-toggle"
+        [class.ngwr-header-toggle--opened]="isSidebarOpened()"
+        (click)="onSidebarOpen()"
+      >
+        <svg class="ngwr-header-toggle__icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path
+            class="ngwr-header-toggle__line ngwr-header-toggle__line--1"
+            d="M 20,29.000046 H 80.000231 C 80.000231,29.000046 94.498839,28.817352 94.532987,66.711331 94.543142,77.980673 90.966081,81.670246 85.259173,81.668997 79.552261,81.667751 75.000211,74.999942 75.000211,74.999942 L 25.000021,25.000058"
+          />
+          <path class="ngwr-header-toggle__line ngwr-header-toggle__line--2" d="M 20,50 H 80" />
+          <path
+            class="ngwr-header-toggle__line ngwr-header-toggle__line--3"
+            d="M 20,70.999954 H 80.000231 C 80.000231,70.999954 94.498839,71.182648 94.532987,33.288669 94.543142,22.019327 90.966081,18.329754 85.259173,18.331003 79.552261,18.332249 75.000211,25.000058 75.000211,25.000058 L 25.000021,74.999942"
+          />
+        </svg>
+      </button>
+    }
+
+    <a
+      class="ngwr-header-logo"
+      [routerLink]="routes.index"
+      routerLinkActive="ngwr-header-logo--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <wr-avatar class="ngwr-header-logo__mark" url="images/logo-mark-color.svg" alt="NGWR Logo" size="1.625" />
+      <span class="ngwr-header-logo__title">ngwr</span>
+    </a>
+
+    <nav class="ngwr-header-menu" role="navigation">
+      @for (link of menuLinks; track $index) {
+        <a class="ngwr-header-menu__item" [routerLink]="link.url" routerLinkActive="ngwr-header-menu__item--active">
+          {{ link.name }}
+        </a>
+      }
+    </nav>
+
+    <div class="ngwr-header-actions">
+      @for (action of actionLinks; track $index) {
+        <a
+          class="ngwr-header-actions-item ngwr-header-actions-item--{{ action.class }}"
+          [href]="action.url"
+          target="_blank"
+        >
+          <wr-icon class="ngwr-header-actions-item__icon" [name]="action.icon"></wr-icon>
+        </a>
+      }
+    </div>
+  </header>
+</div>

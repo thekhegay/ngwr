@@ -1,0 +1,16 @@
+@if (!isClosed()) {
+  <div class="wr-alert__wrapper">
+    <div class="wr-alert__body">
+      <p class="wr-alert__title">{{ title }}</p>
+      @if (message) {
+        <p class="wr-alert__message">{{ message }}</p>
+      }
+    </div>
+
+    @if (closeable) {
+      <div class="wr-alert-close">
+        <wr-icon name="close" (click)="onClose()"></wr-icon>
+      </div>
+    }
+  </div>
+}
