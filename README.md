@@ -4,6 +4,7 @@
 [![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23f51c6a)](https://www.npmjs.com/package/ngwr)
 [![angular version](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr?ref=badge_shield)
 
 ## Important information
 NGWR is currently in development stage. All components are updating every week. Use it on your own risk. All bugreports and ideas are [welcomed](https://github.com/thekhegay/ngwr/issues/new).
@@ -51,3 +52,6 @@ Don't forget to add styles:
 
 ## License
 Feel free to use NGWR in your commercial projects. Everything is covered by [MIT](/LICENSE) license.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr?ref=badge_large)
