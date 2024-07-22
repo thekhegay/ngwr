@@ -5,24 +5,26 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   forwardRef,
   HostBinding,
+  inject,
   Input,
-  OnInit,
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { ControlValueAccessor, FormControl, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { debounceTime, noop, takeUntil, tap } from 'rxjs';
+import { noop } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/cdk';
 import { SafeAny } from 'ngwr/cdk/types';
-import { provideWrIcons, WrIconComponent, eye, eyeOff } from 'ngwr/icon';
+import { provideWrIcons, eye, eyeOff, WrIconModule } from 'ngwr/icon';
 
 import { WrInputType } from './input-types';
 
@@ -37,7 +39,7 @@ import { WrInputType } from './input-types';
   templateUrl: './input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [FormsModule, ReactiveFormsModule, WrIconComponent],
+  imports: [FormsModule, WrIconModule],
   providers: [
     provideWrIcons([eye, eyeOff]),
     {
@@ -48,43 +50,7 @@ import { WrInputType } from './input-types';
     },
   ],
 })
-export class WrInputComponent extends WrAbstractBase implements ControlValueAccessor, OnInit {
-  formControl: FormControl = new FormControl();
-  protected readonly eyeOn = signal(true);
-  protected readonly isFocused = signal(false);
-
-  onChange: (value: string) => void = noop;
-  onTouch: () => void = noop;
-
-  registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouch = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    if (isDisabled) {
-      return this.formControl.disable();
-    }
-    return this.formControl.enable();
-  }
-
-  writeValue(value: string): void {
-    this.formControl.setValue(value, { emitEvent: false });
-  }
-
-  ngOnInit(): void {
-    // this.formControl.valueChanges
-    //   .pipe(
-    //     debounceTime(200),
-    //     tap(value => this.onChange(value)),
-    //     takeUntil(this.destroyed$)
-    //   )
-    //   .subscribe();
-  }
-
+export class WrInputComponent extends WrAbstractBase implements ControlValueAccessor {
   @Input() placeholder = '';
   @Input() prefix: string | null = null;
   @Input() suffix: string | null = null;
@@ -101,9 +67,39 @@ export class WrInputComponent extends WrAbstractBase implements ControlValueAcce
       'wr-input--has-prefix': this.prefix,
       'wr-input--has-suffix': this.suffix,
       'wr-input--password': this.passwordIcons,
-      'wr-input--disabled': this.formControl.disabled,
+      'wr-input--disabled': this.isDisabled(),
       'wr-input--focused': this.isFocused(),
     };
+  }
+
+  protected readonly inputValue = signal<string | null>(null);
+
+  protected value?: string;
+
+  private readonly cdr = inject(ChangeDetectorRef);
+  protected readonly eyeOn = signal(true);
+  protected readonly isFocused = signal(false);
+  protected readonly isDisabled = signal(false);
+
+  onChange: (value: string) => void = noop;
+  onTouch: () => void = noop;
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouch = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.isDisabled.set(coerceBooleanProperty(isDisabled));
+  }
+
+  writeValue(value: string): void {
+    this.value = value;
+    this.onChange(value);
+    this.cdr.markForCheck();
   }
 
   onPasswordVisibilityChange(): void {

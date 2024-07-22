@@ -9,13 +9,15 @@
   [type]="type"
   [placeholder]="placeholder"
   [readonly]="readonly"
-  [formControl]="formControl"
+  [disabled]="isDisabled()"
+  [ngModel]="inputValue()"
+  (ngModelChange)="writeValue($event)"
   (focus)="isFocused.set(true)"
   (blur)="isFocused.set(false)"
 />
 
 @if (passwordIcons) {
-  <div class="wr-input-icon" [class.wr-input-icon--disabled]="formControl.disabled" (click)="onPasswordVisibilityChange()">
+  <div class="wr-input-icon" [class.wr-input-icon--disabled]="isDisabled()" (click)="onPasswordVisibilityChange()">
     <wr-icon class="wr-input-icon__icon" [name]="eyeOn() ? 'eye' : 'eye-off'" />
   </div>
 }
