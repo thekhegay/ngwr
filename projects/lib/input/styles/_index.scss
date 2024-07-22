@@ -104,4 +104,23 @@
       --wr-input-icon-color: var(--wr-color-primary);
     }
   }
+
+  &-prefix,
+  &-suffix {
+    color: var(--wr-input-suffix-prefix-color);
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+
+    padding-top: var(--wr-input-padding-y);
+    padding-bottom: var(--wr-input-padding-y);
+  }
+
+  &-prefix {
+    padding-left: var(--wr-input-padding-x);
+  }
+
+  &-suffix {
+    padding-right: var(--wr-input-padding-x);
+  }
 }
