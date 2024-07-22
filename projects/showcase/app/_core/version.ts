@@ -1,1 +1,1 @@
-export const NGWR_VERSION = '4.0.0';
+export const NGWR_VERSION = '4.0.1';
