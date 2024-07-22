@@ -76,13 +76,13 @@ export class WrInputComponent extends WrAbstractBase implements ControlValueAcce
   }
 
   ngOnInit(): void {
-    this.formControl.valueChanges
-      .pipe(
-        debounceTime(200),
-        tap(value => this.onChange(value)),
-        takeUntil(this.destroyed$)
-      )
-      .subscribe();
+    // this.formControl.valueChanges
+    //   .pipe(
+    //     debounceTime(200),
+    //     tap(value => this.onChange(value)),
+    //     takeUntil(this.destroyed$)
+    //   )
+    //   .subscribe();
   }
 
   @Input() placeholder = '';
