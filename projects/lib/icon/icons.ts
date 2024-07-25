@@ -468,6 +468,13 @@ export const logoGithub: {
   name: 'logo-github',
   data: `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 128 128" class="wr-icon__svg"><path d="M64 1.6c-35.3 0-64 28.7-64 64 0 28.3 18.3 52.3 43.8 60.7 3.2.6 4.4-1.4 4.4-3.1 0-1.5-.1-5.5-.1-10.9-17.8 3.9-21.6-8.6-21.6-8.6-2.9-7.4-7.1-9.4-7.1-9.4-5.8-4 .4-3.9.4-3.9 6.4.5 9.8 6.6 9.8 6.6 5.7 9.8 15 7 18.6 5.3.6-4.1 2.2-7 4.1-8.6-14.2-1.6-29.2-7.1-29.2-31.6 0-7 2.5-12.7 6.6-17.2-.7-1.6-2.9-8.1.6-16.9 0 0 5.4-1.7 17.6 6.6 5.1-1.4 10.6-2.1 16-2.2 5.4 0 10.9.7 16 2.2C92.1 26.3 97.5 28 97.5 28c3.5 8.8 1.3 15.3.6 16.9 4.1 4.5 6.6 10.2 6.6 17.2 0 24.6-15 30-29.2 31.6 2.3 2 4.3 5.9 4.3 11.9 0 8.6-.1 15.5-.1 17.6 0 1.7 1.2 3.7 4.4 3.1 25.4-8.5 43.7-32.5 43.7-60.7.2-35.4-28.5-64-63.8-64"/></svg>`
 };
+export const logoGitlab: {
+  name: 'logo-gitlab';
+  data: string;
+} = {
+  name: 'logo-gitlab',
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="wr-icon__svg"><path d="m46.2 19.4-.1-.2-6.2-16.3c-.1-.3-.4-.6-.6-.8-.6-.4-1.4-.3-1.9.1-.3.2-.5.5-.6.8l-4.2 13H15.4L11.2 3.1c-.1-.3-.3-.6-.6-.8-.6-.4-1.3-.5-1.9-.1-.2.1-.5.4-.6.7L1.8 19.2l-.1.2c-1.9 4.8-.3 10.3 3.9 13.4h.1l9.5 7.1 4.7 3.6 2.9 2.2c.7.5 1.6.5 2.3 0l2.9-2.2 4.7-3.6 9.6-7.2c4.2-3 5.8-8.5 3.9-13.3"/></svg>`
+};
 export const logoGooglePlay: {
   name: 'logo-google-play';
   data: string;
@@ -809,6 +816,7 @@ export type wrIconName =
   | 'logo-firebase'
   | 'logo-forte-bank'
   | 'logo-github'
+  | 'logo-gitlab'
   | 'logo-google-play'
   | 'logo-halyk-bank'
   | 'logo-jusan-bank'
@@ -921,6 +929,7 @@ export const wrIconSet = [
   logoFirebase,
   logoForteBank,
   logoGithub,
+  logoGitlab,
   logoGooglePlay,
   logoHalykBank,
   logoJusanBank,
