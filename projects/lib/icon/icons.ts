@@ -433,6 +433,13 @@ export const logoBankCenterCredit: {
   name: 'logo-bank-center-credit',
   data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="wr-icon__svg"><path d="m45.7 31-14-23.3c-3.5-5.8-11.9-5.8-15.5 0L2.3 31c-3.6 6.1.7 13.7 7.7 13.7h28c7 0 11.3-7.6 7.7-13.7m-5.9 8.7H11.7c-3.9 0-6.2-4.2-4.2-7.5l14-23.3c2-3.2 6.6-3.2 8.6 0l14 23.3c1.9 3.2-.4 7.5-4.3 7.5m-9.2-26.1c-1.3-2.4-4.7-2.4-6.1 0l-9.3 15.5c-1.4 2.4.3 5.4 3.1 5.4h18.6c2.8 0 4.5-3.1 3.1-5.4zm4.8 16H23.3c-1.1 0-1.7-1.2-1.2-2.1l6.1-10.1c.6-.9 1.9-.9 2.4 0l6.1 10.1c.4.9-.2 2.1-1.3 2.1"/></svg>`
 };
+export const logoChrome: {
+  name: 'logo-chrome';
+  data: string;
+} = {
+  name: 'logo-chrome',
+  data: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="wr-icon__svg"><path d="M17.1 24c0 3.8 3.1 6.9 6.9 6.9s6.9-3.1 6.9-6.9-3.1-6.9-6.9-6.9-6.9 3.1-6.9 6.9m29.6-3.9c-.2-1-.4-2-.7-3 .2 1 .5 2 .7 3-.2-1-.4-2-.7-3H30c2 1.7 3.2 4.1 3.2 6.9 0 1.6-.4 3.2-1.3 4.6L21.4 46.8c.9.2 1.7.2 2.6.2.7 0 1.4 0 2.1-.1 1-.1 2.1-.3 3.1-.5C39.4 44.1 47 34.9 47 24q0-1.95-.3-3.9M24 33.2c-3.4 0-6.3-1.8-7.9-4.6L5.5 10.4C-2 20.5.1 34.9 10.3 42.5c2.6 1.9 5.5 3.3 8.7 4l8-13.8c-1 .3-2 .5-3 .5M7.1 8.5 15 22.1c.9-4.3 4.6-7.4 9-7.4h21.1c-.7-1.6-1.6-3.1-2.6-4.5 1 1.4 1.9 2.9 2.6 4.5-.7-1.6-1.6-3.1-2.6-4.5C34.8.1 20.4-2 10.2 5.6 9.1 6.4 8 7.4 7.1 8.5"/></svg>`
+};
 export const logoDiscord: {
   name: 'logo-discord';
   data: string;
@@ -797,6 +804,7 @@ export type wrIconName =
   | 'logo-appscreener'
   | 'logo-appstore'
   | 'logo-bank-center-credit'
+  | 'logo-chrome'
   | 'logo-discord'
   | 'logo-firebase'
   | 'logo-forte-bank'
@@ -908,6 +916,7 @@ export const wrIconSet = [
   logoAppscreener,
   logoAppstore,
   logoBankCenterCredit,
+  logoChrome,
   logoDiscord,
   logoFirebase,
   logoForteBank,
