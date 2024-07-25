@@ -1,38 +1,94 @@
 .ngwr-icon {
-  &__list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15%, 1fr));
-    gap: calc(var(--wr-grid-gutter) / 2);
-  }
 
   &-item {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
 
-    color: var(--wr-color-dark);
-    background-color: rgba(var(--wr-color-light-rgb), 0.125);
-    border-radius: 0.5rem;
+    position: relative;
+    overflow: hidden;
 
-    padding: 1.5rem 0.5rem;
+    border-radius: var(--wr-border-radius-base);
 
-    gap: 1rem;
+    background: rgba(var(--wr-color-light-rgb), 0.125);
 
-    &__icon {
-      --wr-icon-size: 2rem;
+    &-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      padding: var(--wr-grid-gutter);
+
+      &__icon {
+        --wr-icon-size: 2rem;
+      }
     }
 
-    &__name,
-    &__camel {
-      color: var(--wr-color-light-darker);
+    &-footer {
+      display: flex;
+      align-items: center;
 
-      font-size: 0.75rem;
-      font-weight: 400;
-      line-height: 1rem;
+      padding: calc(var(--wr-grid-gutter) / 2);
 
-      text-align: center;
-      word-break: break-all;
+      border-top: 1px solid rgba(var(--wr-color-light-rgb), 0.125);
+
+      &__name {
+        color: var(--wr-color-light);
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1rem;
+        word-break: break-all;
+
+        flex: calc(100% - 2rem);
+      }
+
+      &__copy {
+        --ngwr-icon-copy-color: var(--wr-color-light);
+        --wr-icon-size: 1rem;
+
+        color: var(--ngwr-icon-copy-color);
+        flex: 2rem;
+        transition: var(--wr-transition-base);
+        cursor: pointer;
+
+        &:hover {
+          --ngwr-icon-copy-color: var(--wr-color-primary);
+        }
+      }
     }
   }
+
+
+
+
+
+  //&-item {
+  //  display: flex;
+  //  flex-direction: column;
+  //  align-items: center;
+  //  justify-content: center;
+  //
+  //  color: var(--wr-color-dark);
+  //  border: 1px solid var(--wr-color-light-lighter);
+  //  border-radius: 0.5rem;
+  //
+  //  padding: 2rem 0.5rem;
+  //
+  //  gap: 1rem;
+  //
+  //  &__icon {
+  //    --wr-icon-size: 2.5rem;
+  //  }
+  //
+  //  &__name {
+  //    color: var(--wr-color-light);
+  //
+  //    font-size: 0.75rem;
+  //    font-weight: 600;
+  //    line-height: 1rem;
+  //
+  //    text-align: center;
+  //    word-break: break-all;
+  //  }
+  //}
 }

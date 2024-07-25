@@ -10,7 +10,7 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">How to install</h2>
   <p class="ngwr-page-section__description">
-    Import <code class="ngwr-pre">WrIconComponent</code> into a component where you want to use.
+    Import <code class="ngwr-pre">WrIconModule</code> into a component where you want to use.
   </p>
   <div class="ngwr-page-section__content">
     <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
@@ -21,13 +21,18 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Basic usage</h2>
   <p class="ngwr-page-section__description">
-    Button can be used as <code class="ngwr-pre">wr-btn</code> component or <code class="ngwr-pre">wr-btn</code> directive
+    Icon component can be used as <code class="ngwr-pre">wr-icon</code> component. Icons must be provider by
+    <code class="ngwr-pre">provideWrIcons()</code> provider
   </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.provider" codeLang="ts"></ngwr-code>
+  </div>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-icon name="add"></wr-icon>
+        <wr-icon name="logo-angular"></wr-icon>
       </ng-container>
       <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
     </ngwr-snippet>
@@ -39,12 +44,42 @@
   <p class="ngwr-page-section__description">Beautiful hand-crafted icons</p>
 
   <div class="ngwr-page-section__content">
-    <div class="ngwr-icon__list">
+    <div class="grid">
       @for (i of icons; track $index) {
-        <div class="ngwr-icon-item">
-          <wr-icon class="ngwr-icon-item__icon" [name]="i.name" />
-          <span class="ngwr-icon-item__name">{{ i.name }}</span>
-          <span class="ngwr-icon-item__camel">{{ camelize(i.name) }}</span>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+          <div class="ngwr-icon-item">
+            <div class="ngwr-icon-item-body">
+              <wr-icon class="ngwr-icon-item-body__icon" [name]="i.name" />
+            </div>
+            <div class="ngwr-icon-item-footer">
+              <span class="ngwr-icon-item-footer__name">{{ camelize(i.name) }}</span>
+              <wr-icon
+                class="ngwr-icon-item-footer__copy"
+                name="copy-outline"
+                [cdkCopyToClipboard]="camelize(i.name)"
+              />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="grid">
+      @for (i of logoIcons; track $index) {
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+          <div class="ngwr-icon-item">
+            <div class="ngwr-icon-item-body">
+              <wr-icon class="ngwr-icon-item-body__icon" [name]="i.name" />
+            </div>
+            <div class="ngwr-icon-item-footer">
+              <span class="ngwr-icon-item-footer__name">{{ camelize(i.name) }}</span>
+              <wr-icon
+                class="ngwr-icon-item-footer__copy"
+                name="copy-outline"
+                [cdkCopyToClipboard]="camelize(i.name)"
+              />
+            </div>
+          </div>
         </div>
       }
     </div>
@@ -55,28 +90,24 @@
   <h2 class="ngwr-page-section__title">API</h2>
 
   <div class="ngwr-page-section__content">
-    <div class="ngwr-page__table">
+    <div class="ngwr-page-table">
       <table>
-        <thead>
-          <tr>
-            <th>Property</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Required</th>
-            <th>Default</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th><code>[name]</code></th>
-            <th>set name of icon</th>
-            <th>
-              <code>wrIconName</code>
-            </th>
-            <th>yes</th>
-            <th><code></code></th>
-          </tr>
-        </tbody>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[name]</code></td>
+          <td>set name of icon</td>
+          <td>
+            <code>wrIconName</code>
+          </td>
+          <td><code class="ngwr-pre--danger">yes</code></td>
+          <td><code></code></td>
+        </tr>
       </table>
     </div>
   </div>
