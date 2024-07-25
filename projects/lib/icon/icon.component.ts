@@ -22,6 +22,11 @@ import { SafeAny } from 'ngwr/cdk/types';
 import { WrIconPatchService, WrIconService } from './icon.service';
 import { wrIconName } from './icons';
 
+/**
+ * NGWR icon component.
+ *
+ * {@tutorial} [How to use wr-btn]{@link http://ngwr.dev/docs/components/icon}
+ */
 @Component({
   standalone: true,
   selector: 'wr-icon',
