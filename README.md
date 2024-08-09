@@ -9,7 +9,7 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr?ref=badge_shield&issueType=license)
 
 ## Important information
-NGWR is currently in development stage. All components are updating every week. Use it on your own risk. All bugreports and ideas are [welcomed](https://github.com/thekhegay/ngwr/issues/new).
+ngwr is currently in active development stage. Be careful when using in production. If you find an error or bug, [please open an issue](https://github.com/thekhegay/ngwr/issues/new).
 
 ## Installation
 
