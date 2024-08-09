@@ -1,5 +1,6 @@
 # <img src="https://ngwr.dev/assets/images/logo.svg" alt="ngwr logo" height="32px">
 
+[![ngwr website](https://img.shields.io/badge/ngwr.dev-3969e2)](https://ngwr.dev)
 [![ngwr deploy](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/deploy.yml)](https://github.com/thekhegay/ngwr/actions/workflows/deploy.yml)
 [![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23f51c6a)](https://www.npmjs.com/package/ngwr)
 [![angular version](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
