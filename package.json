@@ -13,10 +13,13 @@
     "build:showcase": "tsx ./scripts/build-showcase.ts",
     "publish:lib": "tsx ./scripts/publish.ts"
   },
-  "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
+  "packageManager": "pnpm@9.7.0",
   "engines": {
-    "node": ">=20",
-    "pnpm": ">=9"
+    "node": ">=22.6.0",
+    "pnpm": ">=9.7.0"
+  },
+  "pnpm": {
+    "allowedDeprecatedVersions": true
   },
   "dependencies": {
     "@angular/animations": "^18.1.4",
@@ -45,7 +48,7 @@
     "@semantic-release/release-notes-generator": "^14.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/js-beautify": "^1.14.3",
-    "@types/node": "^20.14.8",
+    "@types/node": "^22.1.0",
     "angular-eslint": "18.2.0",
     "commit-and-tag-version": "^12.4.1",
     "eslint": "^9.8.0",
