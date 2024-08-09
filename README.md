@@ -1,5 +1,6 @@
 # <img src="https://ngwr.dev/assets/images/logo.svg" alt="ngwr logo" height="32px">
 
+[![ngwr website](https://img.shields.io/badge/ngwr.dev-3969e2)](https://ngwr.dev)
 [![ngwr deploy](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/deploy.yml)](https://github.com/thekhegay/ngwr/actions/workflows/deploy.yml)
 [![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23f51c6a)](https://www.npmjs.com/package/ngwr)
 [![angular version](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
@@ -8,7 +9,7 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr?ref=badge_shield&issueType=license)
 
 ## Important information
-NGWR is currently in development stage. All components are updating every week. Use it on your own risk. All bugreports and ideas are [welcomed](https://github.com/thekhegay/ngwr/issues/new).
+ngwr is currently in active development stage. Be careful when using in production. If you find an error or bug, [please open an issue](https://github.com/thekhegay/ngwr/issues/new).
 
 ## Installation
 
