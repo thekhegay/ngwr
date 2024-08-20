@@ -1,4 +1,11 @@
 # Changelog
+## 4.2.2 (2024-08-20)
+
+
+### Bug Fixes
+
+* **input:** handle inputValue change ([3b2f6b8](https://github.com/thekhegay/ngwr/commit/3b2f6b8c1b38daa15ef2a2dbc39315f511508bf9))
+
 ## 4.2.1 (2024-08-09)
 
 ## 4.2.0 (2024-07-25)
