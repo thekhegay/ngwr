@@ -99,6 +99,7 @@ export class WrInputComponent extends WrAbstractBase implements ControlValueAcce
   writeValue(value: string): void {
     this.value = value;
     this.onChange(value);
+    this.inputValue.set(value);
     this.cdr.markForCheck();
   }
 
