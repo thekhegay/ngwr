@@ -70,4 +70,8 @@ export default [
     path: components.tag,
     loadComponent: () => import('./tag/tag.component').then(c => c.TagComponent),
   },
+  {
+    path: components.textarea,
+    loadComponent: () => import('./textarea/textarea.component').then(c => c.TextareaComponent),
+  },
 ] satisfies Routes;
