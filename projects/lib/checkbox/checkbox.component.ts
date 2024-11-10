@@ -5,31 +5,39 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   forwardRef,
   HostBinding,
+  inject,
   Input,
-  OnInit,
+  signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop, takeUntil } from 'rxjs';
+import { noop } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/cdk';
 import { SafeAny } from 'ngwr/cdk/types';
 import { generateRandomId } from 'ngwr/cdk/utils';
 import { WrIconComponent, wrIconName } from 'ngwr/icon';
 
+/**
+ * NGWR checkbox component.
+ *
+ * {@tutorial} [How to use wr-checkbox]{@link http://ngwr.dev/docs/components/checkbox}
+ */
 @Component({
   standalone: true,
   selector: 'wr-checkbox',
   templateUrl: './checkbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [ReactiveFormsModule, WrIconComponent],
+  imports: [FormsModule, WrIconComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -39,34 +47,33 @@ import { WrIconComponent, wrIconName } from 'ngwr/icon';
     },
   ],
 })
-export class WrCheckboxComponent extends WrAbstractBase implements ControlValueAccessor, OnInit {
-  @Input({ required: true }) formControl!: FormControl;
+export class WrCheckboxComponent extends WrAbstractBase implements ControlValueAccessor {
   @Input() id: string = generateRandomId();
   @Input() icon: wrIconName | null = null;
-
-  onChange: (value: boolean) => void = noop;
-  onTouched: () => void = noop;
 
   @HostBinding('class')
   get elClasses(): SafeAny {
     return {
       'wr-checkbox': true,
-      'wr-checkbox--checked': this.formControl.value,
+      'wr-checkbox--checked': this.inputValue(),
     };
   }
 
   @HostBinding('attr.disabled')
   get nativeDisabled(): '' | null {
-    return this.formControl.disabled ? '' : null;
+    return this.isDisabled() ? '' : null;
   }
 
-  ngOnInit(): void {
-    this.formControl.valueChanges
-      .pipe(takeUntil(this.destroyed$))
-      .subscribe((isChecked: boolean) => this.onChange(isChecked));
-  }
+  protected readonly inputValue = signal<boolean | null>(null);
+  protected value?: boolean;
 
-  registerOnChange(fn: () => void): void {
+  private readonly cdr = inject(ChangeDetectorRef);
+  protected readonly isDisabled = signal(false);
+
+  onChange: (value: boolean) => void = noop;
+  onTouched: () => void = noop;
+
+  registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
   }
 
@@ -74,15 +81,14 @@ export class WrCheckboxComponent extends WrAbstractBase implements ControlValueA
     this.onTouched = fn;
   }
 
-  writeValue(checked: boolean): void {
-    this.formControl.patchValue(checked, { emitEvent: false });
+  setDisabledState(isDisabled: boolean): void {
+    this.isDisabled.set(coerceBooleanProperty(isDisabled));
   }
 
-  setDisabledState?(isDisabled: boolean): void {
-    if (isDisabled) {
-      this.formControl.disable();
-    } else {
-      this.formControl.enable();
-    }
+  writeValue(value: boolean): void {
+    this.value = value;
+    this.onChange(value);
+    this.inputValue.set(value);
+    this.cdr.markForCheck();
   }
 }
