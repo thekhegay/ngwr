@@ -1,5 +1,12 @@
 <label class="wr-checkbox__wrapper" [for]="id">
-  <input class="wr-checkbox__input" type="checkbox" [formControl]="formControl" [id]="id" />
+  <input
+    class="wr-checkbox__input"
+    type="checkbox"
+    [id]="id"
+    [disabled]="isDisabled()"
+    [ngModel]="inputValue()"
+    (ngModelChange)="writeValue($event)"
+  />
   @if (icon) {
     <wr-icon class="wr-checkbox__icon" [name]="icon" />
   } @else {
