@@ -34,6 +34,13 @@
     --wr-textarea-resize: both;
   }
 
+  &--autosize {
+    .wr-textarea__native {
+      overflow-y: hidden;
+      resize: none;
+    }
+  }
+
   &__native {
     display: inline-block;
 

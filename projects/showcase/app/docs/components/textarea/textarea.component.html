@@ -10,7 +10,7 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">How to install</h2>
   <p class="ngwr-page-section__description">
-    Import <code class="ngwr-pre">WrInputComponent</code> into a component where you want to use.
+    Import <code class="ngwr-pre">WrTextareaComponent</code> into a component where you want to use.
   </p>
   <div class="ngwr-page-section__content">
     <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
@@ -21,7 +21,7 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Basic usage</h2>
   <p class="ngwr-page-section__description">
-    Basic usage of input component
+    Basic usage of textarea component
   </p>
 
   <div class="ngwr-page-section__content">
@@ -29,43 +29,23 @@
       <ng-container ngProjectAs="[body]">
         <wr-textarea />
       </ng-container>
-      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
+      <ngwr-code [code]="code.basic" codeLang="html" code></ngwr-code>
     </ngwr-snippet>
   </div>
 </div>
 
 <div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Prefix and suffix</h2>
+  <h2 class="ngwr-page-section__title">Autosize</h2>
   <p class="ngwr-page-section__description">
-    You can add <code class="ngwr-pre">prefix</code> or <code class="ngwr-pre">suffix</code>
-    attribute to add suffix and prefix to input.
+    Textarea with Autosize
   </p>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input prefix="Prefix"></wr-input>
-        <wr-input suffix="Suffix"></wr-input>
-        <wr-input prefix="Prefix" suffix="Suffix"></wr-input>
+        <wr-textarea [autosize]="true" />
       </ng-container>
-<!--      <ngwr-code [code]="prefixSuffixCode" codeLang="html" code></ngwr-code>-->
-    </ngwr-snippet>
-  </div>
-</div>
-
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Password input</h2>
-  <p class="ngwr-page-section__description">
-    If you need to display eye icons for password input, you can add
-    <code class="ngwr-pre">passwordIcons</code> attribute.
-  </p>
-
-  <div class="ngwr-page-section__content">
-    <ngwr-snippet>
-      <ng-container ngProjectAs="[body]">
-        <wr-input type="password" passwordIcons></wr-input>
-      </ng-container>
-      <!--    <ngwr-code [code]="passwordCode" codeLang="html" code></ngwr-code>-->
+      <ngwr-code [code]="code.autosize" codeLang="html" code></ngwr-code>
     </ngwr-snippet>
   </div>
 </div>
@@ -73,15 +53,15 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Disabled state</h2>
   <p class="ngwr-page-section__description">
-    You can add <code class="ngwr-pre">disabled</code> attribute to prevent interacting with the input.
+    You can add <code class="ngwr-pre">disabled</code> attribute to prevent interacting with the textarea.
   </p>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input [formControl]="disabledFormControl"></wr-input>
+        <wr-textarea [formControl]="disabledFormControl"></wr-textarea>
       </ng-container>
-      <!--    <ngwr-code [code]="disabledCode" codeLang="html" slot="code"></ngwr-code>-->
+      <ngwr-code [code]="code.disabled" codeLang="html" slot="code"></ngwr-code>
     </ngwr-snippet>
   </div>
 </div>
@@ -89,120 +69,70 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Readonly state</h2>
   <p class="ngwr-page-section__description">
-    You can add <code class="ngwr-pre">readonly</code> attribute to prevent change of with the input.
+    You can add <code class="ngwr-pre">readonly</code> attribute to prevent change of with the textarea.
   </p>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input readonly></wr-input>
+        <wr-textarea readonly></wr-textarea>
       </ng-container>
-      <!--    <ngwr-code [code]="readonlyCode" codeLang="html" slot="code"></ngwr-code>-->
+      <ngwr-code [code]="code.readonly" codeLang="html" slot="code"></ngwr-code>
     </ngwr-snippet>
   </div>
 </div>
 
-<!--<div class="ngwr-page-section">-->
-<!--  <h2 class="ngwr-page-section__title">API</h2>-->
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">You can change textarea styles with css variables.</p>
 
-<!--  <table class="ngwr-page__table">-->
-<!--    <thead>-->
-<!--    <tr>-->
-<!--      <th>Property</th>-->
-<!--      <th>Description</th>-->
-<!--      <th>Type</th>-->
-<!--      <th>Default</th>-->
-<!--    </tr>-->
-<!--    </thead>-->
-<!--    <tbody>-->
-<!--    <tr>-->
-<!--      <th><code>[value]</code></th>-->
-<!--      <th>set value of input</th>-->
-<!--      <th>-->
-<!--        <code>'string' | null</code>-->
-<!--      </th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[placeholder]</code></th>-->
-<!--      <th>set placeholder for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[type]</code></th>-->
-<!--      <th>set type of input</th>-->
-<!--      <th><code>'text' | 'number' | 'password' | 'email'</code></th>-->
-<!--      <th><code>'text'</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[autocomplete]</code></th>-->
-<!--      <th>set type of input</th>-->
-<!--      <th><code>'on' | 'off'</code></th>-->
-<!--      <th><code>'on'</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[inputmode]</code></th>-->
-<!--      <th>set type of input</th>-->
-<!--      <th><code>text' | 'numeric' | 'tel' | 'email' | 'url'</code></th>-->
-<!--      <th><code>'text'</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[autofocus]</code></th>-->
-<!--      <th>set autofocus</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[readonly]</code></th>-->
-<!--      <th>set readonly state for input</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[disabled]</code></th>-->
-<!--      <th>set disabled state for input</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[passwordIcons]</code></th>-->
-<!--      <th>display password icons</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[placeholder]</code></th>-->
-<!--      <th>set placeholder for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[prefix]</code></th>-->
-<!--      <th>set prefix for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[suffix]</code></th>-->
-<!--      <th>set suffix for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[ngModel]</code></th>-->
-<!--      <th>Two way binding, specifies whether the checkbox is checked</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>(ngModelChange)</code></th>-->
-<!--      <th>The callback function that is triggered when the state changes.</th>-->
-<!--      <th>-->
-<!--        <code>{{ ngModelChangeReturn }}</code>-->
-<!--      </th>-->
-<!--      <th><code>-</code></th>-->
-<!--    </tr>-->
-<!--    </tbody>-->
-<!--  </table>-->
-<!--</div>-->
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[placeholder]</code></td>
+          <td>set placeholder of textarea</td>
+          <td><code>string</code></td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><code>[readonly]</code></td>
+          <td>set readonly state for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[resizable]</code></td>
+          <td>set resizable state for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[autosize]</code></td>
+          <td>enable autosize for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

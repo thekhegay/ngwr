@@ -7,15 +7,16 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
+  AfterViewInit,
   booleanAttribute,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  Component,
+  Component, ElementRef,
   forwardRef,
   HostBinding,
   inject,
   Input,
-  signal,
+  signal, ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -46,10 +47,14 @@ import { SafeAny } from 'ngwr/cdk/types';
     },
   ],
 })
-export class WrTextareaComponent extends WrAbstractBase implements ControlValueAccessor {
+export class WrTextareaComponent extends WrAbstractBase implements ControlValueAccessor, AfterViewInit {
   @Input() placeholder = '';
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input({ transform: booleanAttribute }) resizable = true;
+  @Input({ transform: booleanAttribute }) autosize = false;
+
+  @ViewChild("textareaNative")
+  private textareaNative: ElementRef<HTMLTextAreaElement> | undefined;
 
   @HostBinding('class')
   get elClasses(): SafeAny {
@@ -57,6 +62,7 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
       'wr-textarea': true,
       'wr-textarea--resizable': this.resizable,
       'wr-textarea--disabled': this.isDisabled(),
+      "wr-textarea--autosize": this.autosize
     };
   }
 
@@ -66,6 +72,12 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
   protected readonly isDisabled = signal(false);
 
   private readonly cdr = inject(ChangeDetectorRef);
+
+  ngAfterViewInit(): void {
+    if (this.autosize) {
+      this.resizeTextarea();
+    }
+  }
 
   onChange: (value: string) => void = noop;
   onTouch: () => void = noop;
@@ -86,6 +98,22 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
     this.value = value;
     this.onChange(value);
     this.inputValue.set(value);
+
+    requestAnimationFrame(() => {
+      this.resizeTextarea();
+    });
+
     this.cdr.markForCheck();
+  }
+
+  resizeTextarea(): void {
+    if (!this.autosize || !this.textareaNative) {
+      return;
+    }
+
+    const textarea = this.textareaNative.nativeElement;
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
   }
 }

@@ -3,10 +3,9 @@ import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEn
 import { SeoService } from '#core/services';
 import { WrTagComponent } from 'ngwr/tag';
 import { CodeComponent, SnippetComponent } from '#core/components';
-import { WrInputComponent } from 'ngwr/input';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { WrButtonComponent } from 'ngwr/button';
 import { WrTextareaModule } from 'ngwr/textarea';
+import { wrThemeColors } from 'ngwr/cdk/types';
 
 @Component({
   standalone: true,
@@ -14,43 +13,51 @@ import { WrTextareaModule } from 'ngwr/textarea';
   templateUrl: './textarea.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [ReactiveFormsModule, WrButtonComponent, WrInputComponent, WrTagComponent, WrTextareaModule, CodeComponent, SnippetComponent],
+  imports: [ReactiveFormsModule, WrTagComponent, WrTextareaModule, CodeComponent, SnippetComponent],
 })
 export class TextareaComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
 
   private readonly seoService = inject(SeoService);
 
-  protected readonly title = 'Input';
-  protected readonly description = 'Basic text component used to provide or change data';
+  protected readonly title = 'Textarea';
+  protected readonly description = 'Basic textarea component used to provide or change data';
 
   protected readonly disabledFormControl = new FormControl({ value: null, disabled: true });
 
   protected readonly code = {
-    import: `import{WrInputComponent}from'ngwr/input';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrInputComponent,],})\nexport class MyComponent {}`,
-    usage: '<wr-btn>Button Component</wr-btn>\n<button wr-btn>Native Button</button>\n<a wr-btn>Anchor Button</a>',
-    colors:
-      '<wr-btn color="primary"></wr-btn>\n<wr-btn color="secondary"></wr-btn>\n<wr-btn color="success"></wr-btn>\n<wr-btn color="warning"></wr-btn>\n<wr-btn color="danger"></wr-btn>\n<wr-btn color="light"></wr-btn>\n<wr-btn color="medium"></wr-btn>\n<wr-btn color="dark"></wr-btn>',
-    outlined: '<wr-btn outlined></wr-btn>',
-    rounded: '<wr-btn rounded></wr-btn>',
-    size: '<wr-btn>Default size</wr-btn>\n<wr-btn size="small">Small size</wr-btn>',
-    iconProvider:
-      "import{provideWrIcons,wrIconAdd}from'ngwr/icon';\n//...\n@Component({\n//...\nimports: [\n//...\nWrButtonComponent],\nproviders: [\n//...\nprovideWrIcons([wrIconAdd])],})\nexport class MyComponent {}",
-    icon: '<wr-btn icon="add" iconPosition="start">Add</wr-btn>',
-    disabled: '<wr-btn disabled></wr-btn>',
-    loading:
-      '<wr-btn loading>Loading</wr-btn>\n<wr-btn [loading]="true" color="dark" rounded>You can use long text</wr-btn>\n<wr-btn loading icon="add" color="secondary" outlined>Loading with icon</wr-btn>',
-    loadingDisabled: `<wr-btn [isDisabledWhenLoading]="false">Enabled</wr-btn>`,
-    block: '<wr-btn block></wr-btn>',
-    styling:
-      ':root {\n--wr-btn-color: var(--wr-color-dark);\n--wr-btn-bg-color: var(--wr-color-white);\n--wr-btn-border-color: var(--wr-color-light-lighter);\n--wr-btn-icon-size: 1rem;\n--wr-btn-font-size: 0.875rem;\n--wr-btn-font-weight: 500;\n--wr-btn-font-family: var(--wr-font-family-base);\n--wr-btn-line-height: 1.25rem;\n--wr-btn-border-radius: 0.375rem;\n--wr-btn-padding-y: 0.375rem;\n--wr-btn-padding-x: 1rem;\n}',
+    import: `import{WrTextareaComponent}from'ngwr/textarea';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrTextareaComponent,],})\nexport class MyComponent {}`,
+    basic: '<wr-textarea />',
+    autosize: '<wr-textarea [autosize]="true" />',
+    usage: '<wr-textarea />',
+    disabled: '<wr-textarea [formControl]="disabledFormControl"></wr-textarea>',
+    readonly: '<wr-textarea readonly></wr-textarea>',
+    styling: ':root {\n' +
+      '  --wr-textarea-color: var(--wr-color-dark);\n' +
+      '  --wr-textarea-placeholder-color: var(--wr-color-light);\n' +
+      '  --wr-textarea-suffix-prefix-color: var(--wr-color-medium);\n' +
+      '  --wr-textarea-bg-color: var(--wr-color-white);\n' +
+      '  --wr-textarea-border-color: var(--wr-color-light-lighter);\n' +
+      '  --wr-textarea-border-radius: 0.375rem;\n' +
+      '  --wr-textarea-box-shadow: none;\n' +
+      '  --wr-textarea-icon-size: 1.25rem;\n' +
+      '  --wr-textarea-icon-color: var(--wr-color-medium);\n' +
+      '  --wr-textarea-font-size: 0.875rem;\n' +
+      '  --wr-textarea-font-weight: 400;\n' +
+      '  --wr-textarea-font-family: var(--wr-font-family-base);\n' +
+      '  --wr-textarea-line-height: 1.25rem;\n' +
+      '  --wr-textarea-padding-y: 0.375rem;\n' +
+      '  --wr-textarea-padding-x: 0.825rem;\n' +
+      '}\n',
   };
 
   ngOnInit(): void {
     this.seoService.setCanonicalURL();
-    this.seoService.setTitle('Input');
+    this.seoService.setTitle('Textarea');
     this.seoService.setDescription(this.description);
-    this.seoService.setKeywords(['input', 'wr-input']);
+    this.seoService.setKeywords(['textarea', 'wr-textarea']);
   }
+
+  protected readonly colors = wrThemeColors;
 }
