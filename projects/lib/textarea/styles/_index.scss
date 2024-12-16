@@ -1,11 +1,12 @@
 @forward './vars';
 
-.wr-textarea {
+textarea.wr-textarea {
   --wr-textarea-padding-right: var(--wr-textarea-padding-x);
   --wr-textarea-cursor: default;
   --wr-textarea-resize: none;
 
-  display: flex;
+  display: block;
+  width: 100%;
 
   cursor: var(--wr-textarea-cursor);
 
@@ -19,59 +20,33 @@
   border-radius: var(--wr-textarea-border-radius);
   box-shadow: var(--wr-textarea-box-shadow);
 
-  overflow: hidden;
-  position: relative;
+  padding: var(--wr-textarea-padding-y) var(--wr-textarea-padding-x);
+  padding-right: var(--wr-textarea-padding-right);
 
   transition: var(--wr-transition-base);
 
-  &--disabled {
+  &.wr-textarea--disabled {
     --wr-textarea-cursor: not-allowed;
     --wr-textarea-color: var(--wr-color-medium);
     --wr-textarea-bg-color: var(--wr-color-light-lighter);
   }
 
-  &--resizable {
+  &.wr-textarea--resizable {
     --wr-textarea-resize: both;
-  }
-
-  &--autosize {
-    .wr-textarea__native {
-      overflow-y: hidden;
-      resize: none;
-    }
-  }
-
-  &__native {
-    display: inline-block;
-
-    flex: 1;
-
-    appearance: none;
-    background: none;
-    border: none;
-    outline: none;
-    margin: 0;
-    vertical-align: middle;
-    white-space: normal;
-
     resize: var(--wr-textarea-resize);
+  }
 
-    color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: inherit;
+  &.wr-textarea--autosize {
+    overflow-y: hidden;
+    resize: none;
+  }
 
-    padding: var(--wr-textarea-padding-y) var(--wr-textarea-padding-x);
-    padding-right: var(--wr-textarea-padding-right);
+  &::placeholder {
+    color: var(--wr-textarea-placeholder-color);
+    font-style: italic;
+  }
 
-    &[disabled],
-    &:disabled {
-      cursor: var(--wr-textarea-cursor);
-    }
-
-    &::placeholder {
-      color: var(--wr-textarea-placeholder-color);
-      font-style: italic;
-    }
+  &:disabled {
+    cursor: var(--wr-textarea-cursor);
   }
 }

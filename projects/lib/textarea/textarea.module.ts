@@ -7,10 +7,10 @@
 
 import { NgModule } from '@angular/core';
 
-import { WrTextareaComponent } from './textarea.component';
+import { WrTextareaDirective } from './textarea.directive';
 
 @NgModule({
-  imports: [WrTextareaComponent],
-  exports: [WrTextareaComponent],
+  imports: [WrTextareaDirective],
+  exports: [WrTextareaDirective],
 })
 export class WrTextareaModule {}

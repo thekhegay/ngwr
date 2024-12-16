@@ -10,7 +10,7 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">How to install</h2>
   <p class="ngwr-page-section__description">
-    Import <code class="ngwr-pre">WrTextareaComponent</code> into a component where you want to use.
+    Import <code class="ngwr-pre">WrTextareaDirective</code> into a component where you want to use.
   </p>
   <div class="ngwr-page-section__content">
     <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
@@ -27,7 +27,7 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-textarea />
+        <textarea wr-textarea></textarea>
       </ng-container>
       <ngwr-code [code]="code.basic" codeLang="html" code></ngwr-code>
     </ngwr-snippet>
@@ -43,7 +43,7 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-textarea [autosize]="true" />
+        <textarea wr-textarea [autosize]="true"></textarea>
       </ng-container>
       <ngwr-code [code]="code.autosize" codeLang="html" code></ngwr-code>
     </ngwr-snippet>
@@ -59,7 +59,7 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-textarea [formControl]="disabledFormControl"></wr-textarea>
+        <textarea wr-textarea [formControl]="disabledFormControl"></textarea>
       </ng-container>
       <ngwr-code [code]="code.disabled" codeLang="html" slot="code"></ngwr-code>
     </ngwr-snippet>
@@ -75,7 +75,7 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-textarea readonly></wr-textarea>
+        <textarea wr-textarea readonly></textarea>
       </ng-container>
       <ngwr-code [code]="code.readonly" codeLang="html" slot="code"></ngwr-code>
     </ngwr-snippet>
@@ -103,27 +103,6 @@
           <th>Type</th>
           <th>Required</th>
           <th>Default</th>
-        </tr>
-        <tr>
-          <td><code>[placeholder]</code></td>
-          <td>set placeholder of textarea</td>
-          <td><code>string</code></td>
-          <td></td>
-          <td><code>null</code></td>
-        </tr>
-        <tr>
-          <td><code>[readonly]</code></td>
-          <td>set readonly state for textarea</td>
-          <td><code>boolean</code></td>
-          <td></td>
-          <td><code>false</code></td>
-        </tr>
-        <tr>
-          <td><code>[resizable]</code></td>
-          <td>set resizable state for textarea</td>
-          <td><code>boolean</code></td>
-          <td></td>
-          <td><code>false</code></td>
         </tr>
         <tr>
           <td><code>[autosize]</code></td>
