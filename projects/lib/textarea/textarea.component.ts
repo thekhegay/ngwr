@@ -11,12 +11,14 @@ import {
   booleanAttribute,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  Component, ElementRef,
+  Component,
+  ElementRef,
   forwardRef,
   HostBinding,
   inject,
   Input,
-  signal, ViewChild,
+  signal,
+  ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -52,8 +54,9 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input({ transform: booleanAttribute }) resizable = true;
   @Input({ transform: booleanAttribute }) autosize = false;
+  @Input({ transform: booleanAttribute }) rows = 2;
 
-  @ViewChild("textareaNative")
+  @ViewChild('textareaNative')
   private textareaNative: ElementRef<HTMLTextAreaElement> | undefined;
 
   @HostBinding('class')
@@ -62,7 +65,7 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
       'wr-textarea': true,
       'wr-textarea--resizable': this.resizable,
       'wr-textarea--disabled': this.isDisabled(),
-      "wr-textarea--autosize": this.autosize
+      'wr-textarea--autosize': this.autosize,
     };
   }
 
@@ -113,7 +116,7 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
 
     const textarea = this.textareaNative.nativeElement;
 
-    textarea.style.height = "auto";
+    textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;
   }
 }
