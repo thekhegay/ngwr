@@ -7,10 +7,13 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
+  AfterContentInit,
   booleanAttribute,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ContentChild,
+  ElementRef,
   forwardRef,
   HostBinding,
   inject,
@@ -25,8 +28,6 @@ import { noop } from 'rxjs';
 import { WrAbstractBase } from 'ngwr/cdk';
 import { SafeAny } from 'ngwr/cdk/types';
 import { provideWrIcons, eye, eyeOff, WrIconModule } from 'ngwr/icon';
-
-import { WrInputType } from './input-types';
 
 /**
  * NGWR input component.
@@ -50,14 +51,17 @@ import { WrInputType } from './input-types';
     },
   ],
 })
-export class WrInputComponent extends WrAbstractBase implements ControlValueAccessor {
-  @Input() placeholder = '';
+export class WrInputComponent extends WrAbstractBase implements ControlValueAccessor, AfterContentInit {
   @Input() prefix: string | null = null;
   @Input() suffix: string | null = null;
   @Input({ transform: booleanAttribute }) rounded = false;
   @Input({ transform: booleanAttribute }) passwordIcons = false;
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input() type: WrInputType = 'text';
+
+  @ContentChild('input') private inputRefFromTemplate?: ElementRef<HTMLInputElement>;
+
+  private get inputElement(): HTMLInputElement {
+    return this.inputRefFromTemplate?.nativeElement || this.elementRef.nativeElement.querySelector('input');
+  }
 
   @HostBinding('class')
   get elClasses(): SafeAny {
@@ -77,9 +81,40 @@ export class WrInputComponent extends WrAbstractBase implements ControlValueAcce
   protected value?: string;
 
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly elementRef = inject(ElementRef);
+
   protected readonly eyeOn = signal(true);
   protected readonly isFocused = signal(false);
   protected readonly isDisabled = signal(false);
+
+  ngAfterContentInit(): void {
+    if (this.inputElement) {
+      this.setupInputElement();
+    } else {
+      console.error('No input element found in wr-input component');
+    }
+  }
+
+  private setupInputElement(): void {
+    const input = this.inputElement;
+    input.classList.add('wr-input__native');
+
+    input.addEventListener('focus', () => {
+      this.isFocused.set(true);
+      this.cdr.markForCheck();
+    });
+
+    input.addEventListener('blur', () => {
+      this.isFocused.set(false);
+      this.onTouch();
+      this.cdr.markForCheck();
+    });
+
+    input.addEventListener('input', event => {
+      const value = (event.target as HTMLInputElement).value;
+      this.onChange(value);
+    });
+  }
 
   onChange: (value: string) => void = noop;
   onTouch: () => void = noop;
@@ -94,22 +129,24 @@ export class WrInputComponent extends WrAbstractBase implements ControlValueAcce
 
   setDisabledState(isDisabled: boolean): void {
     this.isDisabled.set(coerceBooleanProperty(isDisabled));
+
+    if (this.inputElement) {
+      this.inputElement.disabled = isDisabled;
+    }
   }
 
   writeValue(value: string): void {
-    this.value = value;
-    this.onChange(value);
-    this.inputValue.set(value);
+    if (this.inputElement) {
+      this.inputElement.value = value ?? '';
+    }
     this.cdr.markForCheck();
   }
 
   onPasswordVisibilityChange(): void {
-    if (this.type === 'password') {
-      this.type = 'text';
-      this.eyeOn.set(false);
-    } else {
-      this.type = 'password';
-      this.eyeOn.set(true);
-    }
+    if (!this.inputElement) return;
+
+    const newType = this.inputElement.type === 'password' ? 'text' : 'password';
+    this.inputElement.type = newType;
+    this.eyeOn.set(newType === 'password');
   }
 }

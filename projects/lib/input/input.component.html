@@ -4,17 +4,7 @@
   </div>
 }
 
-<input
-  class="wr-input__native"
-  [type]="type"
-  [placeholder]="placeholder"
-  [readonly]="readonly"
-  [disabled]="isDisabled()"
-  [ngModel]="inputValue()"
-  (ngModelChange)="writeValue($event)"
-  (focus)="isFocused.set(true)"
-  (blur)="isFocused.set(false)"
-/>
+<ng-content></ng-content>
 
 @if (passwordIcons) {
   <div class="wr-input-icon" [class.wr-input-icon--disabled]="isDisabled()" (click)="onPasswordVisibilityChange()">
