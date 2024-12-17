@@ -20,14 +20,14 @@
 
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Basic usage</h2>
-  <p class="ngwr-page-section__description">
-    Basic usage of input component
-  </p>
+  <p class="ngwr-page-section__description">Basic usage of input component</p>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input></wr-input>
+        <wr-input>
+          <input type="text" placeholder="Placeholder" />
+        </wr-input>
       </ng-container>
       <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
     </ngwr-snippet>
@@ -44,11 +44,17 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input prefix="Prefix"></wr-input>
-        <wr-input suffix="Suffix"></wr-input>
-        <wr-input prefix="Prefix" suffix="Suffix"></wr-input>
+        <wr-input prefix="Prefix">
+          <input type="text" />
+        </wr-input>
+        <wr-input suffix="Suffix">
+          <input type="text" />
+        </wr-input>
+        <wr-input prefix="Prefix" suffix="Suffix">
+          <input type="text" />
+        </wr-input>
       </ng-container>
-<!--      <ngwr-code [code]="prefixSuffixCode" codeLang="html" code></ngwr-code>-->
+      <!--      <ngwr-code [code]="prefixSuffixCode" codeLang="html" code></ngwr-code>-->
     </ngwr-snippet>
   </div>
 </div>
@@ -63,7 +69,9 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input type="password" passwordIcons></wr-input>
+        <wr-input passwordIcons>
+          <input type="password" />
+        </wr-input>
       </ng-container>
       <!--    <ngwr-code [code]="passwordCode" codeLang="html" code></ngwr-code>-->
     </ngwr-snippet>
@@ -79,7 +87,9 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input [formControl]="disabledFormControl"></wr-input>
+        <wr-input [formControl]="disabledFormControl">
+          <input type="text" />
+        </wr-input>
       </ng-container>
       <!--    <ngwr-code [code]="disabledCode" codeLang="html" slot="code"></ngwr-code>-->
     </ngwr-snippet>
@@ -95,7 +105,9 @@
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-input readonly></wr-input>
+        <wr-input>
+          <input type="text" readonly />
+        </wr-input>
       </ng-container>
       <!--    <ngwr-code [code]="readonlyCode" codeLang="html" slot="code"></ngwr-code>-->
     </ngwr-snippet>
@@ -107,102 +119,102 @@
 
 <!--  <table class="ngwr-page__table">-->
 <!--    <thead>-->
-<!--    <tr>-->
-<!--      <th>Property</th>-->
-<!--      <th>Description</th>-->
-<!--      <th>Type</th>-->
-<!--      <th>Default</th>-->
-<!--    </tr>-->
+<!--      <tr>-->
+<!--        <th>Property</th>-->
+<!--        <th>Description</th>-->
+<!--        <th>Type</th>-->
+<!--        <th>Default</th>-->
+<!--      </tr>-->
 <!--    </thead>-->
 <!--    <tbody>-->
-<!--    <tr>-->
-<!--      <th><code>[value]</code></th>-->
-<!--      <th>set value of input</th>-->
-<!--      <th>-->
-<!--        <code>'string' | null</code>-->
-<!--      </th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[placeholder]</code></th>-->
-<!--      <th>set placeholder for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[type]</code></th>-->
-<!--      <th>set type of input</th>-->
-<!--      <th><code>'text' | 'number' | 'password' | 'email'</code></th>-->
-<!--      <th><code>'text'</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[autocomplete]</code></th>-->
-<!--      <th>set type of input</th>-->
-<!--      <th><code>'on' | 'off'</code></th>-->
-<!--      <th><code>'on'</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[inputmode]</code></th>-->
-<!--      <th>set type of input</th>-->
-<!--      <th><code>text' | 'numeric' | 'tel' | 'email' | 'url'</code></th>-->
-<!--      <th><code>'text'</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[autofocus]</code></th>-->
-<!--      <th>set autofocus</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[readonly]</code></th>-->
-<!--      <th>set readonly state for input</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[disabled]</code></th>-->
-<!--      <th>set disabled state for input</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[passwordIcons]</code></th>-->
-<!--      <th>display password icons</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[placeholder]</code></th>-->
-<!--      <th>set placeholder for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[prefix]</code></th>-->
-<!--      <th>set prefix for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[suffix]</code></th>-->
-<!--      <th>set suffix for input</th>-->
-<!--      <th><code>'string' | null</code></th>-->
-<!--      <th><code>null</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>[ngModel]</code></th>-->
-<!--      <th>Two way binding, specifies whether the checkbox is checked</th>-->
-<!--      <th><code>boolean</code></th>-->
-<!--      <th><code>false</code></th>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th><code>(ngModelChange)</code></th>-->
-<!--      <th>The callback function that is triggered when the state changes.</th>-->
-<!--      <th>-->
-<!--        <code>{{ ngModelChangeReturn }}</code>-->
-<!--      </th>-->
-<!--      <th><code>-</code></th>-->
-<!--    </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[value]</code></th>-->
+<!--        <th>set value of input</th>-->
+<!--        <th>-->
+<!--          <code>'string' | null</code>-->
+<!--        </th>-->
+<!--        <th><code>null</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[placeholder]</code></th>-->
+<!--        <th>set placeholder for input</th>-->
+<!--        <th><code>'string' | null</code></th>-->
+<!--        <th><code>null</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[type]</code></th>-->
+<!--        <th>set type of input</th>-->
+<!--        <th><code>'text' | 'number' | 'password' | 'email'</code></th>-->
+<!--        <th><code>'text'</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[autocomplete]</code></th>-->
+<!--        <th>set type of input</th>-->
+<!--        <th><code>'on' | 'off'</code></th>-->
+<!--        <th><code>'on'</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[inputmode]</code></th>-->
+<!--        <th>set type of input</th>-->
+<!--        <th><code>text' | 'numeric' | 'tel' | 'email' | 'url'</code></th>-->
+<!--        <th><code>'text'</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[autofocus]</code></th>-->
+<!--        <th>set autofocus</th>-->
+<!--        <th><code>boolean</code></th>-->
+<!--        <th><code>false</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[readonly]</code></th>-->
+<!--        <th>set readonly state for input</th>-->
+<!--        <th><code>boolean</code></th>-->
+<!--        <th><code>false</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[disabled]</code></th>-->
+<!--        <th>set disabled state for input</th>-->
+<!--        <th><code>boolean</code></th>-->
+<!--        <th><code>false</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[passwordIcons]</code></th>-->
+<!--        <th>display password icons</th>-->
+<!--        <th><code>boolean</code></th>-->
+<!--        <th><code>false</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[placeholder]</code></th>-->
+<!--        <th>set placeholder for input</th>-->
+<!--        <th><code>'string' | null</code></th>-->
+<!--        <th><code>null</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[prefix]</code></th>-->
+<!--        <th>set prefix for input</th>-->
+<!--        <th><code>'string' | null</code></th>-->
+<!--        <th><code>null</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[suffix]</code></th>-->
+<!--        <th>set suffix for input</th>-->
+<!--        <th><code>'string' | null</code></th>-->
+<!--        <th><code>null</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>[ngModel]</code></th>-->
+<!--        <th>Two way binding, specifies whether the checkbox is checked</th>-->
+<!--        <th><code>boolean</code></th>-->
+<!--        <th><code>false</code></th>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <th><code>(ngModelChange)</code></th>-->
+<!--        <th>The callback function that is triggered when the state changes.</th>-->
+<!--        <th>-->
+<!--          <code>{{ ngModelChangeReturn }}</code>-->
+<!--        </th>-->
+<!--        <th><code>-</code></th>-->
+<!--      </tr>-->
 <!--    </tbody>-->
 <!--  </table>-->
 <!--</div>-->
