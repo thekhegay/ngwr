@@ -78,6 +78,9 @@
     },
     "./tag/styles": {
       "sass": "./tag/styles/_index.scss"
+    },
+    "./textarea/styles": {
+      "sass": "./textarea/styles/_index.scss"
     }
   }
 }

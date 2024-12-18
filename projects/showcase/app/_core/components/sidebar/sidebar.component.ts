@@ -72,6 +72,7 @@ export class SidebarComponent extends WrAbstractBase implements OnInit {
         { title: 'Skeleton', url: [routes.docs.components.index, routes.docs.components.skeleton] },
         { title: 'Spinner', url: [routes.docs.components.index, routes.docs.components.spinner] },
         { title: 'Tag', url: [routes.docs.components.index, routes.docs.components.tag] },
+        { title: 'Textarea', url: [routes.docs.components.index, routes.docs.components.textarea] },
       ],
     },
   ];

@@ -25,6 +25,7 @@ export const routes = {
       skeleton: 'skeleton',
       spinner: 'spinner',
       tag: 'tag',
+      textarea: 'textarea',
     },
     core: {
       index: 'core',
