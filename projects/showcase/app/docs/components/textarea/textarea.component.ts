@@ -26,8 +26,8 @@ export class TextareaComponent implements OnInit {
   protected readonly disabledFormControl = new FormControl({ value: null, disabled: true });
 
   protected readonly code = {
-    import: `import{WrTextareaComponent}from'ngwr/textarea';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrTextareaComponent,],})\nexport class MyComponent {}`,
+    import: `import{WrTextareaModule}from'ngwr/textarea';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrTextareaModule,],})\nexport class MyComponent {}`,
     basic: '<wr-textarea />',
     autosize: '<wr-textarea [autosize]="true" />',
     usage: '<wr-textarea />',
