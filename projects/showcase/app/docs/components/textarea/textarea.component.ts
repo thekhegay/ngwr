@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
-
-import { SeoService } from '#core/services';
-import { WrTagComponent } from 'ngwr/tag';
-import { CodeComponent, SnippetComponent } from '#core/components';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { WrTextareaModule } from 'ngwr/textarea';
+
 import { wrThemeColors } from 'ngwr/cdk/types';
+import { WrTagComponent } from 'ngwr/tag';
+import { WrTextareaModule } from 'ngwr/textarea';
+
+import { CodeComponent, SnippetComponent } from '#core/components';
+import { SeoService } from '#core/services';
 
 @Component({
   standalone: true,
@@ -31,9 +32,10 @@ export class TextareaComponent implements OnInit {
     basic: '<wr-textarea />',
     autosize: '<wr-textarea [autosize]="true" />',
     usage: '<wr-textarea />',
-    disabled: '<wr-textarea [formControl]="disabledFormControl"></wr-textarea>',
-    readonly: '<wr-textarea readonly></wr-textarea>',
-    styling: ':root {\n' +
+    disabled: '<wr-textarea [formControl]="disabledFormControl" />',
+    readonly: '<wr-textarea readonly />',
+    styling:
+      ':root {\n' +
       '  --wr-textarea-color: var(--wr-color-dark);\n' +
       '  --wr-textarea-placeholder-color: var(--wr-color-light);\n' +
       '  --wr-textarea-suffix-prefix-color: var(--wr-color-medium);\n' +
