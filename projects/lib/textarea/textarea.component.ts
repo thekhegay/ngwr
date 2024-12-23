@@ -6,6 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   booleanAttribute,
@@ -17,6 +18,8 @@ import {
   HostBinding,
   inject,
   Input,
+  numberAttribute,
+  PLATFORM_ID,
   signal,
   ViewChild,
   ViewEncapsulation,
@@ -54,7 +57,16 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
   @Input({ transform: booleanAttribute }) readonly = false;
   @Input({ transform: booleanAttribute }) resizable = true;
   @Input({ transform: booleanAttribute }) autosize = false;
-  @Input({ transform: booleanAttribute }) rows = 2;
+  @Input({ transform: numberAttribute }) rows = 2;
+  @Input({ transform: numberAttribute }) maxRows?: number;
+
+  @Input({ transform: booleanAttribute })
+  set disabled(value: boolean) {
+    this.isDisabled.set(value);
+  }
+  get disabled(): boolean {
+    return this.isDisabled();
+  }
 
   @ViewChild('textareaNative')
   private textareaNative: ElementRef<HTMLTextAreaElement> | undefined;
@@ -74,10 +86,15 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
   protected readonly inputValue = signal<string | null>(null);
   protected readonly isDisabled = signal(false);
 
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly cdr = inject(ChangeDetectorRef);
 
+  private get isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
+
   ngAfterViewInit(): void {
-    if (this.autosize) {
+    if (this.autosize && this.isBrowser) {
       this.resizeTextarea();
     }
   }
@@ -102,21 +119,39 @@ export class WrTextareaComponent extends WrAbstractBase implements ControlValueA
     this.onChange(value);
     this.inputValue.set(value);
 
-    requestAnimationFrame(() => {
-      this.resizeTextarea();
-    });
+    if (this.isBrowser) {
+      requestAnimationFrame(() => {
+        this.resizeTextarea();
+      });
+    }
 
     this.cdr.markForCheck();
   }
 
   resizeTextarea(): void {
-    if (!this.autosize || !this.textareaNative) {
+    if (!this.autosize || !this.textareaNative || !this.isBrowser) {
       return;
     }
 
     const textarea = this.textareaNative.nativeElement;
 
     textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
+
+    let newHeight: number;
+    let maxHeight = 'none';
+
+    if (this.maxRows) {
+      const computedStyle = getComputedStyle(textarea);
+      const lineHeight = parseInt(computedStyle.lineHeight, 10) || parseInt(computedStyle.fontSize, 10) * 1.2;
+
+      maxHeight = `${lineHeight * this.maxRows}px`;
+      newHeight = Math.min(textarea.scrollHeight, lineHeight * this.maxRows);
+    } else {
+      newHeight = textarea.scrollHeight;
+    }
+
+    textarea.style.maxHeight = maxHeight;
+    textarea.style.height = `${newHeight}px`;
+    textarea.style.overflowY = this.maxRows && textarea.scrollHeight > newHeight ? 'auto' : 'hidden';
   }
 }

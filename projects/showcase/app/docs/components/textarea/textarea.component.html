@@ -20,9 +20,7 @@
 
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Basic usage</h2>
-  <p class="ngwr-page-section__description">
-    Basic usage of textarea component
-  </p>
+  <p class="ngwr-page-section__description">Basic usage of textarea component</p>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
@@ -36,14 +34,12 @@
 
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Autosize</h2>
-  <p class="ngwr-page-section__description">
-    Textarea with Autosize
-  </p>
+  <p class="ngwr-page-section__description">Textarea with Autosize</p>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-textarea [autosize]="true" />
+        <wr-textarea [autosize]="true" [maxRows]="10" />
       </ng-container>
       <ngwr-code [code]="code.autosize" codeLang="html" code></ngwr-code>
     </ngwr-snippet>
@@ -60,6 +56,7 @@
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
         <wr-textarea [formControl]="disabledFormControl"></wr-textarea>
+        <wr-textarea disabled></wr-textarea>
       </ng-container>
       <ngwr-code [code]="code.disabled" codeLang="html" slot="code"></ngwr-code>
     </ngwr-snippet>
@@ -114,6 +111,13 @@
         <tr>
           <td><code>[readonly]</code></td>
           <td>set readonly state for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[disabled]</code></td>
+          <td>set disabled state for textarea</td>
           <td><code>boolean</code></td>
           <td></td>
           <td><code>false</code></td>

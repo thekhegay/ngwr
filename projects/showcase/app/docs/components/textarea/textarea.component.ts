@@ -32,7 +32,7 @@ export class TextareaComponent implements OnInit {
     basic: '<wr-textarea />',
     autosize: '<wr-textarea [autosize]="true" />',
     usage: '<wr-textarea />',
-    disabled: '<wr-textarea [formControl]="disabledFormControl" />',
+    disabled: `<wr-textarea [formControl]="disabledFormControl" />\n<wr-textarea disabled></wr-textarea>`,
     readonly: '<wr-textarea readonly />',
     styling:
       ':root {\n' +
