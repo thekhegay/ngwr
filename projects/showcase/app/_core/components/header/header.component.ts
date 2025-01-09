@@ -11,7 +11,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { BehaviorSubject, filter, takeUntil } from 'rxjs';
 
@@ -37,13 +37,13 @@ interface ActionLink {
 export const HEADER_HEIGHT = new InjectionToken<BehaviorSubject<number>>('ngwr_showcase_footer_height');
 
 @Component({
-    selector: 'ngwr-header',
-    templateUrl: './header.component.html',
-    styleUrl: './header.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [RouterLink, RouterLinkActive, WrAvatarComponent, WrIconComponent],
-    providers: [provideWrIcons([logoGithub, logoNpm])]
+  selector: 'ngwr-header',
+  templateUrl: './header.component.html',
+  styleUrl: './header.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [RouterLink, RouterLinkActive, WrAvatarComponent, WrIconComponent],
+  providers: [provideWrIcons([logoGithub, logoNpm])],
 })
 export class HeaderComponent extends WrAbstractBase implements OnInit, AfterViewInit {
   @HostBinding('class') class = 'ngwr-header';

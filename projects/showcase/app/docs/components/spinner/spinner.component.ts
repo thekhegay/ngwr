@@ -5,13 +5,12 @@ import { WrTagModule } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
-import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
-    selector: 'ngwr-spinner',
-    templateUrl: './spinner.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [WrSpinnerModule, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent]
+  selector: 'ngwr-spinner',
+  templateUrl: './spinner.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [WrSpinnerModule, WrTagModule, CodeComponent, SnippetComponent],
 })
 export class SpinnerComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

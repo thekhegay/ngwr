@@ -64,18 +64,15 @@
 
     <div class="ngwr-page-section">
       <h2 class="ngwr-page-section__title">With icon</h2>
-      <p class="ngwr-page-section__description"
-        >QRCode component can be used with icon from url or with
-        <a class="ngwr-page-section__link" routerLink="/components/icon">NGWR icons</a></p
-      >
+      <p class="ngwr-page-section__description">
+        QRCode component can be used with icon from url or with
+        <a class="ngwr-page-section__link" routerLink="/components/icon">NGWR icons</a>
+      </p>
 
       <ngwr-snippet class="ngwr-page-section__code" codeLang="html">
         <div class="qr__list" slot="display">
           <wr-qr value="https://ngwr.dev" icon="logo-stingray"></wr-qr>
-          <wr-qr
-            value="https://ngwr.dev"
-            icon="logo-stingray"
-          ></wr-qr>
+          <wr-qr value="https://ngwr.dev" icon="logo-stingray"></wr-qr>
         </div>
         <ngwr-code [code]="iconsCode" codeLang="html" slot="code"></ngwr-code>
       </ngwr-snippet>

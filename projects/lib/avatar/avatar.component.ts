@@ -24,11 +24,11 @@ import { SafeAny } from 'ngwr/cdk/types';
 import { WrSpinnerModule } from 'ngwr/spinner';
 
 @Component({
-    selector: 'wr-avatar',
-    templateUrl: './avatar.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [NgOptimizedImage, WrSpinnerModule]
+  selector: 'wr-avatar',
+  templateUrl: './avatar.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [NgOptimizedImage, WrSpinnerModule],
 })
 export class WrAvatarComponent {
   readonly cdr = inject(ChangeDetectorRef);

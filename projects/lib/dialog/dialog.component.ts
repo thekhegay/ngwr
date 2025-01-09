@@ -26,12 +26,12 @@ import { WrDialogBaseDirective } from './dialog-base.directive';
 import { WrDialogOptions } from './dialog-options';
 
 @Component({
-    selector: 'wr-dialog',
-    templateUrl: './dialog.component.html',
-    animations: [wrDialogAnimations.dialogComponent],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [CdkPortalOutlet]
+  selector: 'wr-dialog',
+  templateUrl: './dialog.component.html',
+  animations: [wrDialogAnimations.dialogComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [CdkPortalOutlet],
 })
 export class WrDialogComponent extends WrDialogBaseDirective {
   @ViewChild(CdkPortalOutlet, { static: true }) override portalOutlet!: CdkPortalOutlet;

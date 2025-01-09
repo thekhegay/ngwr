@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { wrThemeColors } from 'ngwr/core/color';
+
 import { SeoService } from '#core/services';
 
 @Component({
   selector: 'ngwr-colors',
   templateUrl: './colors.component.html',
-  styleUrls: ['./colors.component.scss'],
+  styleUrl: './colors.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ColorsComponent implements OnInit {

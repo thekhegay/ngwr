@@ -5,9 +5,9 @@ import { WrDialogModule } from 'ngwr/dialog';
 import { WrPipesModule } from 'ngwr/pipes';
 
 @Component({
-    selector: 'ngwr-dialog-example',
-    templateUrl: './dialog-example.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [WrButtonModule, WrDialogModule, WrPipesModule]
+  selector: 'ngwr-dialog-example',
+  templateUrl: './dialog-example.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [WrButtonModule, WrDialogModule, WrPipesModule],
 })
 export class DialogExampleComponent {}

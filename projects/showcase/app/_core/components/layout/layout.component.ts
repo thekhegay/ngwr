@@ -11,22 +11,20 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 
-import { combineLatest, filter, takeUntil } from 'rxjs';
+import { takeUntil } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/cdk';
-import { isDefined } from 'ngwr/cdk/rxjs';
-import { SafeAny } from 'ngwr/cdk/types';
 
-import { FOOTER_HEIGHT, HEADER_HEIGHT, SIDEBAR_OPENED, SidebarComponent } from '#core/components';
+import { HEADER_HEIGHT, SIDEBAR_OPENED, SidebarComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-    selector: 'ngwr-layout',
-    templateUrl: './layout.component.html',
-    styleUrl: './layout.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [RouterOutlet, SidebarComponent]
+  selector: 'ngwr-layout',
+  templateUrl: './layout.component.html',
+  styleUrl: './layout.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [RouterOutlet, SidebarComponent],
 })
 export class LayoutComponent extends WrAbstractBase implements OnInit {
   @HostBinding() class = 'ngwr-layout';
@@ -34,7 +32,6 @@ export class LayoutComponent extends WrAbstractBase implements OnInit {
   private readonly bpObs$ = inject(BreakpointObserver);
   private readonly sidebarOpened$ = inject(SIDEBAR_OPENED);
   private readonly headerHeight$ = inject(HEADER_HEIGHT);
-  private readonly footerHeight$ = inject(FOOTER_HEIGHT);
   private readonly seoService = inject(SeoService);
 
   protected readonly isSidebarOpened = toSignal(this.sidebarOpened$);

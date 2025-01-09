@@ -16,24 +16,24 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-    selector: 'ngwr-home',
-    templateUrl: './home.component.html',
-    styleUrl: './home.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        RouterLink,
-        DatePipe,
-        WrAvatarModule,
-        WrAlertModule,
-        WrButtonModule,
-        WrIconModule,
-        WrProgressModule,
-        WrQrModule,
-        WrSkeletonModule,
-        WrTagModule,
-        WrInputModule,
-    ],
-    providers: [provideWrIcons(wrIconSet)]
+  selector: 'ngwr-home',
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    RouterLink,
+    DatePipe,
+    WrAvatarModule,
+    WrAlertModule,
+    WrButtonModule,
+    WrIconModule,
+    WrProgressModule,
+    WrQrModule,
+    WrSkeletonModule,
+    WrTagModule,
+    WrInputModule,
+  ],
+  providers: [provideWrIcons(wrIconSet)],
 })
 export class HomeComponent implements OnInit {
   private readonly seoService = inject(SeoService);

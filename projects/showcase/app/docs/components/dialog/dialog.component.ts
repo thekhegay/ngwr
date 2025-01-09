@@ -11,11 +11,11 @@ import { SeoService } from '#core/services';
 import { DialogExampleComponent } from './dialog-example/dialog-example.component';
 
 @Component({
-    selector: 'ngwr-dialog',
-    templateUrl: './dialog.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [CodeComponent, SnippetComponent, WrButtonModule, WrDialogModule, WrTagModule],
-    providers: [provideWrIcons([warning])]
+  selector: 'ngwr-dialog',
+  templateUrl: './dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CodeComponent, SnippetComponent, WrButtonModule, WrDialogModule, WrTagModule],
+  providers: [provideWrIcons([warning])],
 })
 export class DialogComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

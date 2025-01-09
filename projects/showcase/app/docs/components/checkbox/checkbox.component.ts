@@ -12,19 +12,19 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-    selector: 'ngwr-checkbox',
-    templateUrl: './checkbox.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [
-        RouterLink,
-        ReactiveFormsModule,
-        CodeComponent,
-        SnippetComponent,
-        WrButtonModule,
-        WrCheckboxModule,
-        WrTagModule,
-    ],
-    providers: [provideWrIcons([shieldCheckmark, logoGithub, logoAngular])]
+  selector: 'ngwr-checkbox',
+  templateUrl: './checkbox.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    RouterLink,
+    ReactiveFormsModule,
+    CodeComponent,
+    SnippetComponent,
+    WrButtonModule,
+    WrCheckboxModule,
+    WrTagModule,
+  ],
+  providers: [provideWrIcons([shieldCheckmark, logoGithub, logoAngular])],
 })
 export class CheckboxComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

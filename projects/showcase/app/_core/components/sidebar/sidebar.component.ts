@@ -28,12 +28,12 @@ interface SidebarItem {
 export const SIDEBAR_OPENED = new InjectionToken<BehaviorSubject<boolean>>('ngwr_showcase_sidebar_opened');
 
 @Component({
-    selector: 'ngwr-sidebar',
-    templateUrl: './sidebar.component.html',
-    styleUrl: './sidebar.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [RouterLink, RouterLinkActive]
+  selector: 'ngwr-sidebar',
+  templateUrl: './sidebar.component.html',
+  styleUrl: './sidebar.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [RouterLink, RouterLinkActive],
 })
 export class SidebarComponent extends WrAbstractBase implements OnInit {
   @HostBinding('style.height') height = 'calc(100vh - 0)';

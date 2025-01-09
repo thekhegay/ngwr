@@ -27,12 +27,12 @@ import { WrAlertType } from './alert-type';
  * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/alert}
  */
 @Component({
-    selector: 'wr-alert',
-    templateUrl: './alert.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [WrIconModule],
-    providers: [provideWrIcons([close])]
+  selector: 'wr-alert',
+  templateUrl: './alert.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [WrIconModule],
+  providers: [provideWrIcons([close])],
 })
 export class WrAlertComponent {
   @Input({ required: true }) title!: string;

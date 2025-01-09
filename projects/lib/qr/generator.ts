@@ -8,14 +8,17 @@ const DEFAULT_BACKGROUND_COLOR = '#FFFFFF';
 const DEFAULT_ICONSIZE = 40;
 const DEFAULT_LEVEL: keyof typeof ERROR_LEVEL_MAP = 'M';
 
-export const ERROR_LEVEL_MAP: { [index in 'L' | 'M' | 'Q' | 'H']: qrcodegen.QrCode.Ecc } = {
+export const ERROR_LEVEL_MAP: Record<'L' | 'M' | 'Q' | 'H', qrcodegen.QrCode.Ecc> = {
   L: qrcodegen.QrCode.Ecc.LOW,
   M: qrcodegen.QrCode.Ecc.MEDIUM,
   Q: qrcodegen.QrCode.Ecc.QUARTILE,
   H: qrcodegen.QrCode.Ecc.HIGH,
 } as const;
 
-export const plotQRCodeData = (value: string, level: keyof typeof ERROR_LEVEL_MAP = DEFAULT_LEVEL): qrcodegen.QrCode | null => {
+export const plotQRCodeData = (
+  value: string,
+  level: keyof typeof ERROR_LEVEL_MAP = DEFAULT_LEVEL
+): qrcodegen.QrCode | null => {
   if (!value) {
     return null;
   }

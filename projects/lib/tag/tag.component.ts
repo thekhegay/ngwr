@@ -19,11 +19,11 @@ import { WrIconComponent, wrIconName } from 'ngwr/icon';
 import { WrSpinnerModule } from 'ngwr/spinner';
 
 @Component({
-    selector: 'wr-tag',
-    templateUrl: './tag.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [WrIconComponent, WrSpinnerModule]
+  selector: 'wr-tag',
+  templateUrl: './tag.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [WrIconComponent, WrSpinnerModule],
 })
 export class WrTagComponent {
   @Input() color: WrThemeColor = 'primary';

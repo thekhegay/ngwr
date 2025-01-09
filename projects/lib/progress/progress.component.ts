@@ -5,7 +5,14 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, HostBinding, Input, numberAttribute, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostBinding,
+  Input,
+  numberAttribute,
+  ViewEncapsulation,
+} from '@angular/core';
 
 import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 
@@ -18,7 +25,7 @@ import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 })
 export class WrProgressComponent {
   @Input() color: WrThemeColor | null = null;
-  @Input({ transform: numberAttribute }) percent: number = 0;
+  @Input({ transform: numberAttribute }) percent = 0;
 
   @HostBinding('class')
   get elClasses(): SafeAny {

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { WrButtonModule } from 'ngwr/button';
 import { WrTagModule } from 'ngwr/tag';
@@ -8,10 +7,11 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-    selector: 'ngwr-button-group',
-    templateUrl: './button-group.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [RouterLink, CodeComponent, SnippetComponent, WrButtonModule, WrTagModule]
+  standalone: true,
+  selector: 'ngwr-button-group',
+  templateUrl: './button-group.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CodeComponent, SnippetComponent, WrButtonModule, WrTagModule],
 })
 export class ButtonGroupComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

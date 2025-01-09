@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-
-import { SeoService } from '#core/services';
-import { wrThemeColors } from 'ngwr/cdk/types';
 import { RouterLink } from '@angular/router';
-import { WrTagModule } from 'ngwr/tag';
-import { CodeComponent, SnippetComponent } from '#core/components';
+
+import { wrThemeColors } from 'ngwr/cdk/types';
 import { WrProgressModule } from 'ngwr/progress';
+import { WrTagModule } from 'ngwr/tag';
+
+import { CodeComponent, SnippetComponent } from '#core/components';
+import { SeoService } from '#core/services';
 
 @Component({
-    selector: 'ngwr-progress',
-    templateUrl: './progress.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [RouterLink, WrProgressModule, WrTagModule, CodeComponent, SnippetComponent]
+  selector: 'ngwr-progress',
+  templateUrl: './progress.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, WrProgressModule, WrTagModule, CodeComponent, SnippetComponent],
 })
 export class ProgressComponent implements OnInit {
   readonly description: string = 'Display the current progress.';

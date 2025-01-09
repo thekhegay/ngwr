@@ -6,10 +6,10 @@ import { CodeComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-    selector: 'ngwr-installation',
-    templateUrl: './installation.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [WrTagModule, CodeComponent]
+  selector: 'ngwr-installation',
+  templateUrl: './installation.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [WrTagModule, CodeComponent],
 })
 export class InstallationComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

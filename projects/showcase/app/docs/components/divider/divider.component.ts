@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { wrThemeColors } from 'ngwr/cdk/types';
 import { WrDividerModule } from 'ngwr/divider';
@@ -10,11 +9,11 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-    selector: 'ngwr-divider',
-    templateUrl: './divider.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    encapsulation: ViewEncapsulation.None,
-    imports: [RouterLink, WrDividerModule, WrTagComponent, CodeComponent, SnippetComponent]
+  selector: 'ngwr-divider',
+  templateUrl: './divider.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  imports: [WrDividerModule, WrTagComponent, CodeComponent, SnippetComponent],
 })
 export class DividerComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
