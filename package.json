@@ -15,8 +15,8 @@
   },
   "packageManager": "pnpm@9.7.0",
   "engines": {
-    "node": ">=20 <=22",
-    "pnpm": ">=9.7.0"
+    "node": ">=20 <=23",
+    "pnpm": ">=9.15.2"
   },
   "pnpm": {
     "allowedDeprecatedVersions": true
