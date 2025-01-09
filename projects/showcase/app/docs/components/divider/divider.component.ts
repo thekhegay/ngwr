@@ -10,12 +10,11 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-divider',
-  templateUrl: './divider.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [RouterLink, WrDividerModule, WrTagComponent, CodeComponent, SnippetComponent],
+    selector: 'ngwr-divider',
+    templateUrl: './divider.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    imports: [RouterLink, WrDividerModule, WrTagComponent, CodeComponent, SnippetComponent]
 })
 export class DividerComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

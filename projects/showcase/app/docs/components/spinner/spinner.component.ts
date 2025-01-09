@@ -8,11 +8,10 @@ import { SeoService } from '#core/services';
 import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-spinner',
-  templateUrl: './spinner.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrSpinnerModule, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent],
+    selector: 'ngwr-spinner',
+    templateUrl: './spinner.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [WrSpinnerModule, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent]
 })
 export class SpinnerComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

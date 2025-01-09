@@ -10,12 +10,11 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-form',
-  templateUrl: './form.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [RouterLink, WrFormModule, WrInputModule, WrTagModule, CodeComponent, SnippetComponent],
+    selector: 'ngwr-form',
+    templateUrl: './form.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    imports: [RouterLink, WrFormModule, WrInputModule, WrTagModule, CodeComponent, SnippetComponent]
 })
 export class FormComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

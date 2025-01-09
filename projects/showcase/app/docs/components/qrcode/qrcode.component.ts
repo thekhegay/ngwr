@@ -7,11 +7,10 @@ import { WrTagModule } from 'ngwr/tag';
 import { CodeComponent, SnippetComponent } from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-qrcode',
-  templateUrl: './qrcode.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrQrModule, WrTagModule, CodeComponent, SnippetComponent]
+    selector: 'ngwr-qrcode',
+    templateUrl: './qrcode.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [RouterLink, WrQrModule, WrTagModule, CodeComponent, SnippetComponent]
 })
 export class QRCodeComponent implements OnInit {
   readonly description: string = 'A component used when some data needs to be converted into a QR Code';

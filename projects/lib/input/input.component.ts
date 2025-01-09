@@ -34,21 +34,20 @@ import { WrInputType } from './input-types';
  * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/input}
  */
 @Component({
-  standalone: true,
-  selector: 'wr-input',
-  templateUrl: './input.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [FormsModule, WrIconModule],
-  providers: [
-    provideWrIcons([eye, eyeOff]),
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrInputComponent),
-      multi: true,
-    },
-  ],
+    selector: 'wr-input',
+    templateUrl: './input.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    imports: [FormsModule, WrIconModule],
+    providers: [
+        provideWrIcons([eye, eyeOff]),
+        {
+            provide: NG_VALUE_ACCESSOR,
+            // eslint-disable-next-line @angular-eslint/no-forward-ref
+            useExisting: forwardRef(() => WrInputComponent),
+            multi: true,
+        },
+    ]
 })
 export class WrInputComponent extends WrAbstractBase implements ControlValueAccessor {
   @Input() placeholder = '';

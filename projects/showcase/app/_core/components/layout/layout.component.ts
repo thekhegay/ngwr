@@ -21,13 +21,12 @@ import { FOOTER_HEIGHT, HEADER_HEIGHT, SIDEBAR_OPENED, SidebarComponent } from '
 import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-layout',
-  templateUrl: './layout.component.html',
-  styleUrl: './layout.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [RouterOutlet, SidebarComponent],
+    selector: 'ngwr-layout',
+    templateUrl: './layout.component.html',
+    styleUrl: './layout.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    imports: [RouterOutlet, SidebarComponent]
 })
 export class LayoutComponent extends WrAbstractBase implements OnInit {
   @HostBinding() class = 'ngwr-layout';

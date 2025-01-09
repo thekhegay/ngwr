@@ -8,12 +8,11 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-input',
-  templateUrl: 'input.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [ReactiveFormsModule, WrButtonComponent, WrInputComponent, WrTagComponent, CodeComponent, SnippetComponent],
+    selector: 'ngwr-input',
+    templateUrl: 'input.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    imports: [ReactiveFormsModule, WrButtonComponent, WrInputComponent, WrTagComponent, CodeComponent, SnippetComponent]
 })
 export class InputComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

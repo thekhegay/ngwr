@@ -9,11 +9,10 @@ import { SeoService } from '#core/services';
 import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-skeleton',
-  templateUrl: './skeleton.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrSkeletonModule, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent],
+    selector: 'ngwr-skeleton',
+    templateUrl: './skeleton.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [WrSkeletonModule, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent]
 })
 export class SkeletonComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

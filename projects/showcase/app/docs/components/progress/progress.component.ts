@@ -8,11 +8,10 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { WrProgressModule } from 'ngwr/progress';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-progress',
-  templateUrl: './progress.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrProgressModule, WrTagModule, CodeComponent, SnippetComponent],
+    selector: 'ngwr-progress',
+    templateUrl: './progress.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [RouterLink, WrProgressModule, WrTagModule, CodeComponent, SnippetComponent]
 })
 export class ProgressComponent implements OnInit {
   readonly description: string = 'Display the current progress.';

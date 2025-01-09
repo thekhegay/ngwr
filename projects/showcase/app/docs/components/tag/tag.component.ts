@@ -9,11 +9,10 @@ import { SeoService } from '#core/services';
 import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-tag',
-  templateUrl: './tag.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent],
+    selector: 'ngwr-tag',
+    templateUrl: './tag.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [RouterLink, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent]
 })
 export class TagComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

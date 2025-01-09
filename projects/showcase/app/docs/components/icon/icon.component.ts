@@ -8,14 +8,13 @@ import { SeoService } from '#core/services';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-icon',
-  templateUrl: './icon.component.html',
-  styleUrl: './icon.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [CdkCopyToClipboard, WrTagComponent, WrIconComponent, CodeComponent, SnippetComponent],
-  providers: [provideWrIcons(wrIconSet)],
+    selector: 'ngwr-icon',
+    templateUrl: './icon.component.html',
+    styleUrl: './icon.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    imports: [CdkCopyToClipboard, WrTagComponent, WrIconComponent, CodeComponent, SnippetComponent],
+    providers: [provideWrIcons(wrIconSet)]
 })
 export class IconComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

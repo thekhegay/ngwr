@@ -11,12 +11,11 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-button',
-  templateUrl: './button.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrButtonComponent, WrTagComponent, CodeComponent, SnippetComponent],
-  providers: [provideWrIcons([addCircle, add, copyOutline, download, warning, alertCircle])],
+    selector: 'ngwr-button',
+    templateUrl: './button.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [RouterLink, WrButtonComponent, WrTagComponent, CodeComponent, SnippetComponent],
+    providers: [provideWrIcons([addCircle, add, copyOutline, download, warning, alertCircle])]
 })
 export class ButtonComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

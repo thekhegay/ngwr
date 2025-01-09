@@ -7,11 +7,10 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-avatar',
-  templateUrl: './avatar.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CodeComponent, SnippetComponent, WrAvatarModule, WrTagModule],
+    selector: 'ngwr-avatar',
+    templateUrl: './avatar.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [CodeComponent, SnippetComponent, WrAvatarModule, WrTagModule]
 })
 export class AvatarComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

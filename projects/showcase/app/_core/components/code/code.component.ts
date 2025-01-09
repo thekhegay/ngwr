@@ -8,13 +8,12 @@ import { BeatifyPipe } from '#core/pipes';
 import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-code',
-  templateUrl: './code.component.html',
-  styleUrl: './code.component.scss',
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HighlightAuto, HighlightLineNumbers, BeatifyPipe],
+    selector: 'ngwr-code',
+    templateUrl: './code.component.html',
+    styleUrl: './code.component.scss',
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [HighlightAuto, HighlightLineNumbers, BeatifyPipe]
 })
 export class CodeComponent {
   @Input({ required: true }) code!: string;

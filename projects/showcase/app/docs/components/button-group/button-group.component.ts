@@ -8,11 +8,10 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-button-group',
-  templateUrl: './button-group.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, CodeComponent, SnippetComponent, WrButtonModule, WrTagModule],
+    selector: 'ngwr-button-group',
+    templateUrl: './button-group.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [RouterLink, CodeComponent, SnippetComponent, WrButtonModule, WrTagModule]
 })
 export class ButtonGroupComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

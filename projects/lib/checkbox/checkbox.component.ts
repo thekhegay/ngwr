@@ -32,20 +32,19 @@ import { WrIconComponent, wrIconName } from 'ngwr/icon';
  * {@tutorial} [How to use wr-checkbox]{@link http://ngwr.dev/docs/components/checkbox}
  */
 @Component({
-  standalone: true,
-  selector: 'wr-checkbox',
-  templateUrl: './checkbox.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [FormsModule, WrIconComponent],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrCheckboxComponent),
-      multi: true,
-    },
-  ],
+    selector: 'wr-checkbox',
+    templateUrl: './checkbox.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    imports: [FormsModule, WrIconComponent],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            // eslint-disable-next-line @angular-eslint/no-forward-ref
+            useExisting: forwardRef(() => WrCheckboxComponent),
+            multi: true,
+        },
+    ]
 })
 export class WrCheckboxComponent extends WrAbstractBase implements ControlValueAccessor {
   @Input() id: string = generateRandomId();

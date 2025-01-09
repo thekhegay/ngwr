@@ -7,11 +7,10 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-alert',
-  templateUrl: './alert.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CodeComponent, SnippetComponent, WrAlertModule, WrTagModule],
+    selector: 'ngwr-alert',
+    templateUrl: './alert.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [CodeComponent, SnippetComponent, WrAlertModule, WrTagModule]
 })
 export class AlertComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
