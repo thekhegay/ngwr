@@ -21,13 +21,13 @@
     "url": "https://github.com/thekhegay/ngwr/issues"
   },
   "peerDependencies": {
-    "@angular/animations": ">=17.0.0 <=19.0.0",
-    "@angular/cdk": ">=17.0.0 <=19.0.0",
-    "@angular/common": ">=17.0.0 <=19.0.0",
-    "@angular/core": ">=17.0.0 <=19.0.0",
-    "@angular/forms": ">=17.0.0 <=19.0.0",
-    "@angular/platform-browser": ">=17.0.0 <=19.0.0",
-    "@angular/router": ">=17.0.0 <=19.0.0",
+    "@angular/animations": ">=17.0.0",
+    "@angular/cdk": ">=17.0.0",
+    "@angular/common": ">=17.0.0",
+    "@angular/core": ">=17.0.0",
+    "@angular/forms": ">=17.0.0",
+    "@angular/platform-browser": ">=17.0.0",
+    "@angular/router": ">=17.0.0",
     "rxjs": ">=7.0.0 <=7.9.0"
   },
   "exports": {
