@@ -1,4 +1,11 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, HostBinding, Input, ViewEncapsulation } from '@angular/core';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  HostBinding,
+  Input,
+  ViewEncapsulation,
+} from '@angular/core';
 
 import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 
@@ -11,7 +18,7 @@ import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 })
 export class WrSkeletonComponent {
   @Input() color: WrThemeColor = 'dark';
-  @Input({ transform: booleanAttribute }) animated: boolean = true;
+  @Input({ transform: booleanAttribute }) animated = true;
 
   @HostBinding('class')
   get elClasses(): SafeAny {

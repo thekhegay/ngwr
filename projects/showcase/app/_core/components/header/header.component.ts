@@ -11,7 +11,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { BehaviorSubject, filter, takeUntil } from 'rxjs';
 
@@ -37,7 +37,6 @@ interface ActionLink {
 export const HEADER_HEIGHT = new InjectionToken<BehaviorSubject<number>>('ngwr_showcase_footer_height');
 
 @Component({
-  standalone: true,
   selector: 'ngwr-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',

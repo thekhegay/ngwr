@@ -1,3 +1,4 @@
+@use 'sass:map';
 @use './maps';
 
 $columns-count: 12;
@@ -5,11 +6,11 @@ $gap: #{var(--wr-grid-gutter)};
 
 // Helpers
 @function bp-min($name, $breakpoints: maps.$breakpoints-map) {
-  $min: map-get($breakpoints, $name);
+  $min: map.get($breakpoints, $name);
   @return if($min != 0, $min, null);
 }
 @function bp-max($name, $breakpoints: maps.$breakpoints-map) {
-  $max: map-get($breakpoints, $name);
+  $max: map.get($breakpoints, $name);
   @return if($max and $max > 0, $max - .02, null);
 }
 @function bp-infix($name, $breakpoints: maps.$breakpoints-map) {
@@ -43,7 +44,7 @@ $gap: #{var(--wr-grid-gutter)};
   margin-right: auto;
 }
 @mixin make-grid($columns: $columns-count, $breakpoints: maps.$breakpoints-map) {
-  @each $bp in map-keys($breakpoints) {
+  @each $bp in map.keys($breakpoints) {
     $infix: bp-infix($bp, $breakpoints);
 
     @include media-up($bp, $breakpoints) {

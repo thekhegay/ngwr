@@ -1,3 +1,4 @@
+import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { provideWrIcons, WrIconComponent, wrIconSet } from 'ngwr/icon';
@@ -5,10 +6,8 @@ import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
-import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-icon',
   templateUrl: './icon.component.html',
   styleUrl: './icon.component.scss',

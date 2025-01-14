@@ -24,7 +24,6 @@ import { SafeAny } from 'ngwr/cdk/types';
 import { WrSpinnerModule } from 'ngwr/spinner';
 
 @Component({
-  standalone: true,
   selector: 'wr-avatar',
   templateUrl: './avatar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

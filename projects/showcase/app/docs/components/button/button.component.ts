@@ -11,7 +11,6 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-button',
   templateUrl: './button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -25,7 +25,6 @@ import { WrSpinnerModule } from 'ngwr/spinner';
  * {@tutorial} [How to use wr-btn]{@link http://ngwr.dev/docs/components/button}
  */
 @Component({
-  standalone: true,
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
   templateUrl: './button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

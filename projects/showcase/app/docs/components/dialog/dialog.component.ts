@@ -11,7 +11,6 @@ import { SeoService } from '#core/services';
 import { DialogExampleComponent } from './dialog-example/dialog-example.component';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-dialog',
   templateUrl: './dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -5,7 +5,6 @@ import { WrDialogModule } from 'ngwr/dialog';
 import { WrPipesModule } from 'ngwr/pipes';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-dialog-example',
   templateUrl: './dialog-example.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

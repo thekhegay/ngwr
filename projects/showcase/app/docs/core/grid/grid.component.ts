@@ -5,7 +5,7 @@ import { SeoService } from '#core/services';
 @Component({
   selector: 'ngwr-grid',
   templateUrl: './grid.component.html',
-  styleUrls: ['./grid.component.scss'],
+  styleUrl: './grid.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GridComponent implements OnInit {

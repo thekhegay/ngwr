@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { WrFormModule } from 'ngwr/form';
 import { WrInputModule } from 'ngwr/input';
@@ -10,12 +9,11 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-form',
   templateUrl: './form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [RouterLink, WrFormModule, WrInputModule, WrTagModule, CodeComponent, SnippetComponent],
+  imports: [WrFormModule, WrInputModule, WrTagModule, CodeComponent, SnippetComponent],
 })
 export class FormComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

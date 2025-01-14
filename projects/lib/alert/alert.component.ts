@@ -27,7 +27,6 @@ import { WrAlertType } from './alert-type';
  * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/alert}
  */
 @Component({
-  standalone: true,
   selector: 'wr-alert',
   templateUrl: './alert.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

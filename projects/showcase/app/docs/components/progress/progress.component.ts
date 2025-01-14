@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-
-import { SeoService } from '#core/services';
-import { wrThemeColors } from 'ngwr/cdk/types';
 import { RouterLink } from '@angular/router';
-import { WrTagModule } from 'ngwr/tag';
-import { CodeComponent, SnippetComponent } from '#core/components';
+
+import { wrThemeColors } from 'ngwr/cdk/types';
 import { WrProgressModule } from 'ngwr/progress';
+import { WrTagModule } from 'ngwr/tag';
+
+import { CodeComponent, SnippetComponent } from '#core/components';
+import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-progress',
   templateUrl: './progress.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

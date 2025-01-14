@@ -28,7 +28,6 @@ interface SidebarItem {
 export const SIDEBAR_OPENED = new InjectionToken<BehaviorSubject<boolean>>('ngwr_showcase_sidebar_opened');
 
 @Component({
-  standalone: true,
   selector: 'ngwr-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',

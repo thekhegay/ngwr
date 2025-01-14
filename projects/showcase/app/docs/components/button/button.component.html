@@ -21,7 +21,8 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Basic usage</h2>
   <p class="ngwr-page-section__description">
-    Button can be used as <code class="ngwr-pre">wr-btn</code> component or <code class="ngwr-pre">wr-btn</code> directive
+    Button can be used as <code class="ngwr-pre">wr-btn</code> component or
+    <code class="ngwr-pre">wr-btn</code> directive
   </p>
 
   <div class="ngwr-page-section__content">
@@ -59,7 +60,8 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Outlined</h2>
   <p class="ngwr-page-section__description">
-    If <code class="ngwr-pre">outlined</code> attribute is set, button will be displayed with stroke and without background.
+    If <code class="ngwr-pre">outlined</code> attribute is set, button will be displayed with stroke and without
+    background.
   </p>
 
   <div class="ngwr-page-section__content">
@@ -120,7 +122,8 @@
   <h2 class="ngwr-page-section__title">Using with <a class="ngwr-page-section__link" routerLink="fd">icons</a></h2>
   <p class="ngwr-page-section__description">
     Button component can easily be enhanced by adding a icon. All you need is set icon name within
-    <code class="ngwr-pre">icon</code> attribute. Also you can set icon position with <code class="ngwr-pre">iconPosition</code> attribute.
+    <code class="ngwr-pre">icon</code> attribute. Also you can set icon position with
+    <code class="ngwr-pre">iconPosition</code> attribute.
   </p>
 
   <div class="ngwr-page-section__additional">
@@ -162,8 +165,8 @@
   <h2 class="ngwr-page-section__title">Loading state</h2>
   <p class="ngwr-page-section__description">
     If you need a loading version of button, you can easily set
-    <code class="ngwr-pre">loading</code> attribute. You don't need to remove the inner text or icon, button component will maintain its
-    original size.
+    <code class="ngwr-pre">loading</code> attribute. You don't need to remove the inner text or icon, button component
+    will maintain its original size.
   </p>
 
   <div class="ngwr-page-section__content">
@@ -181,14 +184,16 @@
 <div class="ngwr-page-section">
   <h2 class="ngwr-page-section__title">Disabled when loading</h2>
   <p class="ngwr-page-section__description">
-    By default, when button is <code class="ngwr-pre">loading</code>, user cannot interact with button. This behavior can be disabled with
-    <code class="ngwr-pre">isDisabledWhenLoading</code> attribute.
+    By default, when button is <code class="ngwr-pre">loading</code>, user cannot interact with button. This behavior
+    can be disabled with <code class="ngwr-pre">isDisabledWhenLoading</code> attribute.
   </p>
 
   <div class="ngwr-page-section__content">
     <ngwr-snippet>
       <ng-container ngProjectAs="[body]">
-        <wr-btn [loading]="loading()" [isDisabledWhenLoading]="false" (click)="loading.set(!loading())">Click to toggle</wr-btn>
+        <wr-btn [loading]="loading()" [isDisabledWhenLoading]="false" (click)="loading.set(!loading())"
+          >Click to toggle</wr-btn
+        >
       </ng-container>
       <ngwr-code [code]="code.loadingDisabled" codeLang="html" code></ngwr-code>
     </ngwr-snippet>

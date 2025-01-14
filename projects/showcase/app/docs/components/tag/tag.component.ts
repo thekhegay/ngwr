@@ -6,14 +6,12 @@ import { WrTagModule } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
-import { WrButtonComponent } from 'ngwr/button';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-tag',
   templateUrl: './tag.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrTagModule, CodeComponent, SnippetComponent, WrButtonComponent],
+  imports: [RouterLink, WrTagModule, CodeComponent, SnippetComponent],
 })
 export class TagComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

@@ -4,7 +4,6 @@ import { RouterOutlet } from '@angular/router';
 import { FooterComponent, HeaderComponent } from '#core/components';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-root',
   template: '<ngwr-header /><router-outlet /><ngwr-footer />',
   styleUrl: './root.component.scss',

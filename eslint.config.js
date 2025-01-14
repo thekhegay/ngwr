@@ -56,74 +56,74 @@ module.exports = tsEslint.config(
           'suffixes': ['Component']
         }
       ],
-      "@typescript-eslint/consistent-type-definitions": "error",
-      "@typescript-eslint/no-unused-expressions": "error",
-      "@typescript-eslint/explicit-function-return-type": [
-        "error",
+      '@typescript-eslint/consistent-type-definitions': 'error',
+      '@typescript-eslint/no-unused-expressions': 'error',
+      '@typescript-eslint/explicit-function-return-type': [
+        'error',
         {
-          "allowExpressions": true,
-          "allowConciseArrowFunctionExpressionsStartingWithVoid": true
+          'allowExpressions': true,
+          'allowConciseArrowFunctionExpressionsStartingWithVoid': true
         }
       ],
-      "@typescript-eslint/no-inferrable-types": "error",
-      "import-x/no-empty-named-blocks": "error",
-      "import-x/no-duplicates": "error",
-      "import-x/no-unused-modules": "error",
-      "import-x/no-unassigned-import": "error",
-      "import-x/exports-last": "error",
-      "import-x/first": "error",
-      "import-x/newline-after-import": "error",
-      "import-x/order": [
-        "error",
+      '@typescript-eslint/no-inferrable-types': 'error',
+      'import-x/no-empty-named-blocks': 'error',
+      'import-x/no-duplicates': 'error',
+      'import-x/no-unused-modules': 'error',
+      'import-x/no-unassigned-import': 'error',
+      'import-x/exports-last': 'error',
+      'import-x/first': 'error',
+      'import-x/newline-after-import': 'error',
+      'import-x/order': [
+        'error',
         {
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": false
+          'alphabetize': {
+            'order': 'asc',
+            'caseInsensitive': false
           },
-          "newlines-between": "always",
-          "groups": [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
+          'newlines-between': 'always',
+          'groups': [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
             [
-              "sibling",
-              "index"
+              'sibling',
+              'index'
             ]
           ],
-          "pathGroups": [
+          'pathGroups': [
             {
-              "pattern": "@angular/**",
-              "group": "external",
-              "position": "before"
+              'pattern': '@angular/**',
+              'group': 'external',
+              'position': 'before'
             },
             {
-              "pattern": "{rxjs,rxjs/**}",
-              "group": "external",
-              "position": "before"
+              'pattern': '{rxjs,rxjs/**}',
+              'group': 'external',
+              'position': 'before'
             },
             {
-              "pattern": "@ngrx/**",
-              "group": "external",
-              "position": "before"
+              'pattern': '@ngrx/**',
+              'group': 'external',
+              'position': 'before'
             },
             {
-              "pattern": "{#api,#core/**,#assets/**,#env/**,#app/**,#routing,#root,#store/**}",
-              "group": "internal",
-              "position": "before"
+              'pattern': '{#api,#core/**,#assets/**,#env/**,#app/**,#routing,#root,#store/**}',
+              'group': 'internal',
+              'position': 'before'
             }
           ],
-          "pathGroupsExcludedImportTypes": []
+          'pathGroupsExcludedImportTypes': []
         }
       ],
-      "no-bitwise": "error",
-      "no-irregular-whitespace": "error",
-      "no-multiple-empty-lines": "error",
-      "no-redeclare": "error",
-      "no-sparse-arrays": "error",
-      "no-template-curly-in-string": "error",
-      "prefer-object-spread": "error",
-      "prefer-template": "error"
+      'no-bitwise': 'error',
+      'no-irregular-whitespace': 'error',
+      'no-multiple-empty-lines': 'error',
+      'no-redeclare': 'error',
+      'no-sparse-arrays': 'error',
+      'no-template-curly-in-string': 'error',
+      'prefer-object-spread': 'error',
+      'prefer-template': 'error'
 
 
     },
@@ -136,6 +136,9 @@ module.exports = tsEslint.config(
       prettierEslintRecommended,
     ],
     rules: {
+      '@angular-eslint/template/label-has-associated-control': 'off',
+      '@angular-eslint/template/click-events-have-key-events': 'off',
+      '@angular-eslint/template/interactive-supports-focus': 'off',
       'prettier/prettier': [
         'error',
         {

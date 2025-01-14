@@ -1,5 +1,6 @@
 import { provideZoneChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { BehaviorSubject } from 'rxjs';
@@ -9,7 +10,6 @@ import { provideHighlightOptions } from 'ngx-highlightjs';
 import { FOOTER_HEIGHT, HEADER_HEIGHT, SIDEBAR_OPENED } from '#core/components';
 import { RootComponent } from '#root';
 import { routing } from '#routing';
-import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(RootComponent, {
   providers: [

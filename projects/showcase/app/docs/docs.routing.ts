@@ -14,7 +14,7 @@ export default [
       },
       {
         path: routes.docs.gettingStarted.index,
-        loadChildren: () => import('./getting-started/getting-started.routing')
+        loadChildren: () => import('./getting-started/getting-started.routing'),
       },
       {
         path: routes.docs.components.index,

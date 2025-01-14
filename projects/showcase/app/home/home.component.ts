@@ -16,7 +16,6 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

@@ -7,7 +7,6 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-avatar',
   templateUrl: './avatar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

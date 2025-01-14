@@ -26,7 +26,6 @@ import { WrDialogBaseDirective } from './dialog-base.directive';
 import { WrDialogOptions } from './dialog-options';
 
 @Component({
-  standalone: true,
   selector: 'wr-dialog',
   templateUrl: './dialog.component.html',
   animations: [wrDialogAnimations.dialogComponent],

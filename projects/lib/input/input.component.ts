@@ -34,7 +34,6 @@ import { WrInputType } from './input-types';
  * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/input}
  */
 @Component({
-  standalone: true,
   selector: 'wr-input',
   templateUrl: './input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

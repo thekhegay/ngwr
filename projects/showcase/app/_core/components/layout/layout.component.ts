@@ -11,17 +11,14 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 
-import { combineLatest, filter, takeUntil } from 'rxjs';
+import { takeUntil } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/cdk';
-import { isDefined } from 'ngwr/cdk/rxjs';
-import { SafeAny } from 'ngwr/cdk/types';
 
-import { FOOTER_HEIGHT, HEADER_HEIGHT, SIDEBAR_OPENED, SidebarComponent } from '#core/components';
+import { HEADER_HEIGHT, SIDEBAR_OPENED, SidebarComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-layout',
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
@@ -35,7 +32,6 @@ export class LayoutComponent extends WrAbstractBase implements OnInit {
   private readonly bpObs$ = inject(BreakpointObserver);
   private readonly sidebarOpened$ = inject(SIDEBAR_OPENED);
   private readonly headerHeight$ = inject(HEADER_HEIGHT);
-  private readonly footerHeight$ = inject(FOOTER_HEIGHT);
   private readonly seoService = inject(SeoService);
 
   protected readonly isSidebarOpened = toSignal(this.sidebarOpened$);

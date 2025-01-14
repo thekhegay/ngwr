@@ -32,7 +32,6 @@ import { WrIconComponent, wrIconName } from 'ngwr/icon';
  * {@tutorial} [How to use wr-checkbox]{@link http://ngwr.dev/docs/components/checkbox}
  */
 @Component({
-  standalone: true,
   selector: 'wr-checkbox',
   templateUrl: './checkbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

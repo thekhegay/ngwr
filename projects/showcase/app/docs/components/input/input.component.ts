@@ -1,19 +1,18 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
-
-import { SeoService } from '#core/services';
-import { WrTagComponent } from 'ngwr/tag';
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { WrInputComponent } from 'ngwr/input';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { WrButtonComponent } from 'ngwr/button';
+
+import { WrInputComponent } from 'ngwr/input';
+import { WrTagComponent } from 'ngwr/tag';
+
+import { CodeComponent, SnippetComponent } from '#core/components';
+import { SeoService } from '#core/services';
 
 @Component({
-  standalone: true,
   selector: 'ngwr-input',
-  templateUrl: 'input.component.html',
+  templateUrl: './input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [ReactiveFormsModule, WrButtonComponent, WrInputComponent, WrTagComponent, CodeComponent, SnippetComponent],
+  imports: [ReactiveFormsModule, WrInputComponent, WrTagComponent, CodeComponent, SnippetComponent],
 })
 export class InputComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
