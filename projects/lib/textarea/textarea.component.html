@@ -1,0 +1,11 @@
+<textarea
+  #textareaNative
+  class="wr-textarea__native"
+  [placeholder]="placeholder"
+  [rows]="rows"
+  [readonly]="readonly"
+  [disabled]="isDisabled()"
+  [ngModel]="inputValue()"
+  (ngModelChange)="writeValue($event)"
+  (input)="resizeTextarea()"
+></textarea>

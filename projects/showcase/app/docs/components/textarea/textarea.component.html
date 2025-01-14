@@ -1,0 +1,142 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ title }}</h1>
+  <p class="ngwr-page-info__description">{{ description }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrTextareaModule</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">Basic usage of textarea component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-textarea />
+      </ng-container>
+      <ngwr-code [code]="code.basic" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Autosize</h2>
+  <p class="ngwr-page-section__description">Textarea with Autosize</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-textarea [autosize]="true" [maxRows]="10" />
+      </ng-container>
+      <ngwr-code [code]="code.autosize" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Disabled state</h2>
+  <p class="ngwr-page-section__description">
+    You can add <code class="ngwr-pre">disabled</code> attribute to prevent interacting with the textarea.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-textarea [formControl]="disabledFormControl"></wr-textarea>
+        <wr-textarea disabled></wr-textarea>
+      </ng-container>
+      <ngwr-code [code]="code.disabled" codeLang="html" slot="code"></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Readonly state</h2>
+  <p class="ngwr-page-section__description">
+    You can add <code class="ngwr-pre">readonly</code> attribute to prevent change of with the textarea.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-textarea readonly></wr-textarea>
+      </ng-container>
+      <ngwr-code [code]="code.readonly" codeLang="html" slot="code"></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">You can change textarea styles with css variables.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[placeholder]</code></td>
+          <td>set placeholder of textarea</td>
+          <td><code>string</code></td>
+          <td></td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><code>[readonly]</code></td>
+          <td>set readonly state for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[disabled]</code></td>
+          <td>set disabled state for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[resizable]</code></td>
+          <td>set resizable state for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[autosize]</code></td>
+          <td>enable autosize for textarea</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
