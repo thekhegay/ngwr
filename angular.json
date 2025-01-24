@@ -16,7 +16,7 @@
       "prefix": "wr",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "builder": "@angular/build:ng-packagr",
           "options": {
             "project": "projects/lib/ng-package.json"
           },
@@ -94,7 +94,7 @@
       "prefix": "ngwr",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular/build:application",
           "options": {
             "outputPath": {
               "base": "dist/showcase",
@@ -137,7 +137,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "showcase:build:production"
@@ -147,27 +147,6 @@
             }
           },
           "defaultConfiguration": "development"
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "projects/showcase/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/showcase/public"
-              }
-            ],
-            "styles": [
-              "projects/showcase/styles.scss"
-            ],
-            "scripts": []
-          }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
