@@ -14,10 +14,10 @@
     "publish:lib": "tsx ./scripts/publish.ts"
   },
   "engines": {
-    "node": ">=20 <=23",
-    "pnpm": ">=9.15.2"
+    "node": ">=20",
+    "pnpm": ">=9.15"
   },
-  "packageManager": "pnpm@9.15.2",
+  "packageManager": "pnpm@9.15.5",
   "pnpm": {
     "allowedDeprecatedVersions": true
   },
