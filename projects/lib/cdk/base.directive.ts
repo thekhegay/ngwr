@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Directive, OnDestroy } from '@angular/core';
+import { DestroyRef, Directive, inject, OnDestroy } from '@angular/core';
 
 import { Subject } from 'rxjs';
 
@@ -13,7 +13,8 @@ import { Subject } from 'rxjs';
   standalone: true,
 })
 export abstract class WrAbstractBase implements OnDestroy {
-  protected readonly destroyed$: Subject<void> = new Subject<void>();
+  protected readonly destroyed$: Subject<void> = new Subject<void>(); // TODO Перейти на destroyRef$
+  protected readonly destroyRef$ = inject(DestroyRef);
 
   ngOnDestroy(): void {
     this.destroyed$.next();

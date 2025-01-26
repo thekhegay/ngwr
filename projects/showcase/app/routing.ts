@@ -26,6 +26,7 @@ export const routes = {
       spinner: 'spinner',
       tag: 'tag',
       textarea: 'textarea',
+      select: 'select',
     },
     core: {
       index: 'core',

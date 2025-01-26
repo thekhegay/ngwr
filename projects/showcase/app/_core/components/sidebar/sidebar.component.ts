@@ -28,6 +28,7 @@ interface SidebarItem {
 export const SIDEBAR_OPENED = new InjectionToken<BehaviorSubject<boolean>>('ngwr_showcase_sidebar_opened');
 
 @Component({
+  standalone: true,
   selector: 'ngwr-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
@@ -72,6 +73,7 @@ export class SidebarComponent extends WrAbstractBase implements OnInit {
         { title: 'Spinner', url: [routes.docs.components.index, routes.docs.components.spinner] },
         { title: 'Tag', url: [routes.docs.components.index, routes.docs.components.tag] },
         { title: 'Textarea', url: [routes.docs.components.index, routes.docs.components.textarea] },
+        { title: 'Select', url: [routes.docs.components.index, routes.docs.components.select] },
       ],
     },
   ];

@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { WrQrModule } from 'ngwr/qr';
-import { WrTagModule } from 'ngwr/tag';
+import { WrQrComponent } from 'ngwr/qr';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-qrcode',
   templateUrl: './qrcode.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrQrModule, WrTagModule, CodeComponent, SnippetComponent],
+  imports: [RouterLink, WrQrComponent, WrTagComponent, CodeComponent, SnippetComponent],
 })
 export class QRCodeComponent implements OnInit {
   readonly description: string = 'A component used when some data needs to be converted into a QR Code';

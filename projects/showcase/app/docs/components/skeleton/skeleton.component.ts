@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
 
 import { wrThemeColors } from 'ngwr/cdk/types';
-import { WrSkeletonModule } from 'ngwr/skeleton';
-import { WrTagModule } from 'ngwr/tag';
+import { WrSkeletonComponent } from 'ngwr/skeleton';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-skeleton',
   templateUrl: './skeleton.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrSkeletonModule, WrTagModule, CodeComponent, SnippetComponent],
+  imports: [WrSkeletonComponent, WrTagComponent, CodeComponent, SnippetComponent],
 })
 export class SkeletonComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
@@ -24,8 +25,8 @@ export class SkeletonComponent implements OnInit {
   protected readonly colors = wrThemeColors;
 
   protected readonly code = {
-    import: `import{WrSkeletonModule}from'ngwr/skeleton';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrSkeletonModule,],})\nexport class MyComponent {}`,
+    import: `import{WrSkeletonComponent}from'ngwr/skeleton';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrSkeletonComponent,],})\nexport class MyComponent {}`,
     usage: `<wr-skeleton />`,
     colors:
       '<wr-skeleton color="primary" />\n<wr-skeleton color="secondary" />\n<wr-skeleton color="success" />\n<wr-skeleton color="warning" />\n<wr-skeleton color="danger" />\n<wr-skeleton color="light" />\n<wr-skeleton color="medium" />\n<wr-skeleton color="dark" />',

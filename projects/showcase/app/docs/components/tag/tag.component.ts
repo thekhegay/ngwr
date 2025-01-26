@@ -2,16 +2,17 @@ import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from 
 import { RouterLink } from '@angular/router';
 
 import { wrThemeColors } from 'ngwr/cdk/types';
-import { WrTagModule } from 'ngwr/tag';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-tag',
   templateUrl: './tag.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrTagModule, CodeComponent, SnippetComponent],
+  imports: [RouterLink, WrTagComponent, CodeComponent, SnippetComponent],
 })
 export class TagComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
@@ -24,8 +25,8 @@ export class TagComponent implements OnInit {
   protected readonly colors = wrThemeColors;
 
   protected readonly code = {
-    import: `import{WrTagModule}from'ngwr/tag';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrTagModule,],})\nexport class MyComponent {}`,
+    import: `import{WrTagComponent}from'ngwr/tag';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrTagComponent,],})\nexport class MyComponent {}`,
     usage: `<wr-tag>Tag Component</wr-tag>`,
     colors:
       '<wr-tag color="primary"></wr-tag>\n<wr-tag color="secondary"></wr-tag>\n<wr-tag color="success"></wr-tag>\n<wr-tag color="warning"></wr-tag>\n<wr-tag color="danger"></wr-tag>\n<wr-tag color="light"></wr-tag>\n<wr-tag color="medium"></wr-tag>\n<wr-tag color="dark"></wr-tag>',

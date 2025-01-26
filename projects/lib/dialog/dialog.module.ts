@@ -7,22 +7,10 @@
 
 import { NgModule } from '@angular/core';
 
-import { WrDialogCloseDirective } from './dialog-close.directive';
-import { WrDialogContentDirective } from './dialog-content.directive';
-import { WrDialogFooterDirective } from './dialog-footer.directive';
-import { WrDialogTitleDirective } from './dialog-title.directive';
-import { WrDialogComponent } from './dialog.component';
 import { WrDialogService } from './dialog.service';
 
 @NgModule({
-  imports: [
-    WrDialogComponent,
-    WrDialogFooterDirective,
-    WrDialogContentDirective,
-    WrDialogCloseDirective,
-    WrDialogTitleDirective,
-  ],
-  exports: [WrDialogCloseDirective, WrDialogFooterDirective, WrDialogContentDirective, WrDialogTitleDirective],
+  imports: [],
   providers: [WrDialogService],
 })
 export class WrDialogModule {}

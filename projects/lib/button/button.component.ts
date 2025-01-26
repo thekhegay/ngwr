@@ -16,7 +16,8 @@ import {
 
 import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 import { WrIconComponent, wrIconName } from 'ngwr/icon';
-import { WrSpinnerModule } from 'ngwr/spinner';
+
+import { WrSpinnerComponent } from '../spinner';
 
 /**
  * NGWR button component.
@@ -29,7 +30,8 @@ import { WrSpinnerModule } from 'ngwr/spinner';
   templateUrl: './button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [WrIconComponent, WrSpinnerModule],
+  imports: [WrIconComponent, WrSpinnerComponent],
+  standalone: true,
 })
 export class WrButtonComponent {
   @Input() color?: WrThemeColor | null;

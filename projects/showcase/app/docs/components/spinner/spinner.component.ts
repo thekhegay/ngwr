@@ -1,16 +1,17 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
 
-import { WrSpinnerModule } from 'ngwr/spinner';
-import { WrTagModule } from 'ngwr/tag';
+import { WrSpinnerComponent } from 'ngwr/spinner';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-spinner',
   templateUrl: './spinner.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrSpinnerModule, WrTagModule, CodeComponent, SnippetComponent],
+  imports: [WrSpinnerComponent, WrTagComponent, CodeComponent, SnippetComponent],
 })
 export class SpinnerComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
@@ -21,8 +22,8 @@ export class SpinnerComponent implements OnInit {
   protected readonly pageDescription = 'A spinner component for displaying loading state.';
 
   protected readonly code = {
-    import: `import{WrSpinnerModule}from'ngwr/spinner';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrSpinnerModule,],})\nexport class MyComponent {}`,
+    import: `import{WrSpinnerComponent}from'ngwr/spinner';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrSpinnerComponent,],})\nexport class MyComponent {}`,
     usage: `<wr-spinner />`,
   };
 

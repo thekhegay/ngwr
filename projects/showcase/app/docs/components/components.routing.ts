@@ -74,4 +74,8 @@ export default [
     path: components.textarea,
     loadComponent: () => import('./textarea/textarea.component').then(c => c.TextareaComponent),
   },
+  {
+    path: components.select,
+    loadComponent: () => import('./select/select.component').then(c => c.SelectComponent),
+  },
 ] satisfies Routes;

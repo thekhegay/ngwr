@@ -1,0 +1,324 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ title }}</h1>
+  <p class="ngwr-page-info__description">{{ description }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrSelectComponent, WrOptionComponent, WrOptionGroupComponent</code> into a component
+    where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">Basic usage of select component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedValue">
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.basic" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage with FormControl</h2>
+  <p class="ngwr-page-section__description">Basic usage of select component with FormControl</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [formControl]="formControl" [clearable]="true">
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+        <div style="width: 100%">FormControl value: {{ formControl.getRawValue() }}</div>
+      </ng-container>
+      <ngwr-code [code]="code.basicFormControl" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Multiple selection</h2>
+  <p class="ngwr-page-section__description">Select with multiple options selection</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedValues" [multiple]="true">
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.multiple" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Option groups</h2>
+  <p class="ngwr-page-section__description">Select with grouped options</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedGroupValue">
+          <wr-option-group *ngFor="let group of groupedOptions" [label]="group.label">
+            <wr-option *ngFor="let option of group.options" [value]="option.value" [label]="option.label"></wr-option>
+          </wr-option-group>
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.groups" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Searchable</h2>
+  <p class="ngwr-page-section__description">
+    You can enable search functionality by adding <code class="ngwr-pre">searchable</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedSearchValue" [searchable]="true">
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.search" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Searchable with Multiple Selection</h2>
+  <p class="ngwr-page-section__description">You can combine search functionality with multiple selection.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedSearchMultipleValues" [multiple]="true" [searchable]="true">
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.searchMultiple" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Max Multiple Count</h2>
+  <p class="ngwr-page-section__description">
+    You can limit the number of selected items in multiple mode using
+    <code class="ngwr-pre">maxMultipleCount</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedMaxValues" [multiple]="true" [maxMultipleCount]="2">
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.maxCount" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Clearable</h2>
+  <p class="ngwr-page-section__description">You can add a clear button to reset the selection.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedValues" [multiple]="true" [clearable]="true">
+          @for (option of options; track option.value) {
+            <wr-option [value]="option.value" [label]="option.label"></wr-option>
+          }
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.clearable" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Custom Templates</h2>
+  <p class="ngwr-page-section__description">You can customize the appearance of options using templates.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [(ngModel)]="selectedUserValue">
+          @for (user of users; track user.id) {
+            <wr-option [value]="user.id" [label]="user.name">
+              <ng-template let-option="option">
+                <div class="custom-option">
+                  <wr-avatar url="images/image_1.webp" size="2" [alt]="user.name" />
+                  <div class="custom-option__content">
+                    <div class="custom-option__title">{{ user.name }}</div>
+                    <div class="custom-option__subtitle">{{ user.position }}</div>
+                    <!--                    @if (option.selectComponent.isSelected(option)) {-->
+                    <!--                      <div class="custom-option__badge">Selected</div>-->
+                    <!--                    }-->
+                  </div>
+                </div>
+              </ng-template>
+            </wr-option>
+          }
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.customOptionTemplate" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Disabled state</h2>
+  <p class="ngwr-page-section__description">
+    You can add <code class="ngwr-pre">disabled</code> attribute to prevent interacting with the select.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-select [formControl]="disabledFormControl">
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+        <wr-select disabled>
+          <wr-option *ngFor="let option of options" [value]="option.value" [label]="option.label"></wr-option>
+        </wr-select>
+      </ng-container>
+      <ngwr-code [code]="code.disabled" codeLang="html" slot="code"></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Keyboard Navigation</h2>
+  <p class="ngwr-page-section__description">
+    Select component supports keyboard navigation for better user experience.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Key</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>↑</code></td>
+          <td>Navigate to previous option</td>
+        </tr>
+        <tr>
+          <td><code>↓</code></td>
+          <td>Navigate to next option</td>
+        </tr>
+        <tr>
+          <td><code>Enter</code></td>
+          <td>Select highlighted option</td>
+        </tr>
+        <tr>
+          <td><code>Backspace</code></td>
+          <td>Remove last selected item (in multiple mode)</td>
+        </tr>
+        <tr>
+          <td><code>Escape</code></td>
+          <td>Close dropdown</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">You can change select styles with css variables.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>[placeholder]</code></td>
+          <td>set placeholder of select</td>
+          <td><code>string</code></td>
+          <td></td>
+          <td><code>""</code></td>
+        </tr>
+        <tr>
+          <td><code>[noItemsLabel]</code></td>
+          <td>set "No Items" label text for list</td>
+          <td><code>string</code></td>
+          <td></td>
+          <td><code>""</code></td>
+        </tr>
+        <tr>
+          <td><code>[disabled]</code></td>
+          <td>set disabled state for select</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[searchable]</code></td>
+          <td>enable search functionality</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[clearable]</code></td>
+          <td>show clear button when value is selected</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[multiple]</code></td>
+          <td>enable multiple selection</td>
+          <td><code>boolean</code></td>
+          <td></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>[maxMultipleCount]</code></td>
+          <td>maximum number of items that can be selected in multiple mode</td>
+          <td><code>number</code></td>
+          <td></td>
+          <td><code>undefined</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

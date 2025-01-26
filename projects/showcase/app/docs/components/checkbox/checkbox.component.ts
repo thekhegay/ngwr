@@ -2,16 +2,17 @@ import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from 
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { WrButtonModule } from 'ngwr/button';
 import { wrThemeColors } from 'ngwr/cdk/types';
-import { WrCheckboxModule } from 'ngwr/checkbox';
+import { WrCheckboxComponent } from 'ngwr/checkbox';
+import { WrDialogModule } from 'ngwr/dialog';
 import { logoAngular, logoGithub, provideWrIcons, shieldCheckmark } from 'ngwr/icon';
-import { WrTagModule } from 'ngwr/tag';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-checkbox',
   templateUrl: './checkbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,9 +21,9 @@ import { SeoService } from '#core/services';
     ReactiveFormsModule,
     CodeComponent,
     SnippetComponent,
-    WrButtonModule,
-    WrCheckboxModule,
-    WrTagModule,
+    WrCheckboxComponent,
+    WrTagComponent,
+    WrDialogModule,
   ],
   providers: [provideWrIcons([shieldCheckmark, logoGithub, logoAngular])],
 })
@@ -37,8 +38,8 @@ export class CheckboxComponent implements OnInit {
   protected readonly colors = wrThemeColors;
 
   protected readonly code = {
-    import: `import{WrCheckboxModule}from'ngwr/checkbox';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrCheckboxModule,],})\nexport class MyComponent {}`,
+    import: `import{WrCheckboxComponent}from'ngwr/checkbox';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrCheckboxComponent,],})\nexport class MyComponent {}`,
     usage: '<wr-checkbox [formControl]="formControl">Checkbox</wr-checkbox>',
     iconUsage: '<wr-checkbox [formControl]="formControl" icon="logo-angular" />',
   };

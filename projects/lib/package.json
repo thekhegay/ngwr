@@ -81,6 +81,9 @@
     },
     "./textarea/styles": {
       "sass": "./textarea/styles/_index.scss"
+    },
+    "./select/styles": {
+      "sass": "./select/styles/_index.scss"
     }
   }
 }
