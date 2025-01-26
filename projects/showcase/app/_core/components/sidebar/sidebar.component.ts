@@ -74,8 +74,9 @@ export class SidebarComponent extends WrAbstractBase implements OnInit {
         { title: 'Tag', url: [routes.docs.components.index, routes.docs.components.tag] },
         { title: 'Textarea', url: [routes.docs.components.index, routes.docs.components.textarea] },
         { title: 'Select', url: [routes.docs.components.index, routes.docs.components.select] },
-        { title: 'Pagination', url: [routes.docs.components.index, routes.docs.components.pagination] },
         { title: 'Dropdown', url: [routes.docs.components.index, routes.docs.components.dropdown] },
+        { title: 'Pagination', url: [routes.docs.components.index, routes.docs.components.pagination] },
+        { title: 'Table', url: [routes.docs.components.index, routes.docs.components.table] },
       ],
     },
   ];

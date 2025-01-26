@@ -79,11 +79,15 @@ export default [
     loadComponent: () => import('./select/select.component').then(c => c.SelectComponent),
   },
   {
+    path: components.dropdown,
+    loadComponent: () => import('./dropdown/dropdown.component').then(c => c.DropdownComponent),
+  },
+  {
     path: components.pagination,
     loadComponent: () => import('./pagination/pagination.component').then(c => c.PaginationComponent),
   },
   {
-    path: components.dropdown,
-    loadComponent: () => import('./dropdown/dropdown.component').then(c => c.DropdownComponent),
+    path: components.table,
+    loadComponent: () => import('./table/table.component').then(c => c.TableComponent),
   },
 ] satisfies Routes;

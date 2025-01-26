@@ -27,8 +27,9 @@ export const routes = {
       tag: 'tag',
       textarea: 'textarea',
       select: 'select',
-      pagination: 'pagination',
       dropdown: 'dropdown',
+      pagination: 'pagination',
+      table: 'table',
     },
     core: {
       index: 'core',

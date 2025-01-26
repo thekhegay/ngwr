@@ -1,0 +1,22 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: var(--wr-color-light-lighter);
+  color: var(--wr-color-medium);
+
+  &.active {
+    background-color: rgba(var(--wr-color-success-rgb), 0.1);
+    color: var(--wr-color-success);
+  }
+}
+
+.sizes-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

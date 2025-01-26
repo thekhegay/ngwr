@@ -30,7 +30,7 @@ import { WrPaginationPosition } from './pagination.types';
   standalone: true,
   imports: [WrButtonComponent, WrSelectComponent, WrOptionComponent, FormsModule],
   templateUrl: './pagination.component.html',
-  styleUrl: './pagination.component.scss',
+  styleUrl: './table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   providers: [provideWrIcons([arrowBack, arrowForward])],

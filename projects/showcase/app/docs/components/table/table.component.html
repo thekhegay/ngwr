@@ -1,0 +1,191 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ title }}</h1>
+  <p class="ngwr-page-info__description">{{ description }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrTableComponent</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">Basic usage of table component</p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-table [columns]="columns" [items]="users"> </wr-table>
+      </ng-container>
+      <ngwr-code [code]="code.basic" codeLang="ts" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Pagination, Filtering and Sorting</h2>
+  <p class="ngwr-page-section__description">
+    Table with pagination support.<br />
+    Enable column sorting with three states: ascending, descending, and none. Click the sort icon to cycle through these
+    states.<br />
+    Add filters to columns with dropdown selection
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-table
+          [pagination]="true"
+          [columns]="columnsSortableFilter"
+          [items]="usersWithPagination"
+          [total]="total()"
+          [pageSizeOptions]="[15, 25, 50]"
+          [pageSize]="pageSize()"
+          [(currentPage)]="currentPage"
+          [(ordering)]="ordering"
+          (pageSizeChange)="onPageSizeChange($event)"
+          (filterChange)="onFilterChange($event)"
+        >
+        </wr-table>
+      </ng-container>
+      <ngwr-code [code]="code.pagination" codeLang="ts" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Custom Cell Template</h2>
+  <p class="ngwr-page-section__description">Customize cell content using templates</p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-table [columns]="columns" [items]="users">
+          <ng-template wrTableCell="status" let-status let-item="item">
+            <span class="status-badge" [class.active]="status === 'active'">
+              {{ status }}
+            </span>
+          </ng-template>
+        </wr-table>
+      </ng-container>
+      <ngwr-code [code]="code.customCell" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Loading State</h2>
+  <p class="ngwr-page-section__description">Show loading state while fetching data</p>
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-table [columns]="columns" [items]="users" [loading]="true" [pagination]="true"> </wr-table>
+      </ng-container>
+      <ngwr-code [code]="code.loading" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-table [columns]="columns" [items]="[]" [loading]="true"> </wr-table>
+      </ng-container>
+      <ngwr-code [code]="code.loadingItems" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">Customize table styles using CSS variables</p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>columns</code></td>
+          <td>Table columns configuration</td>
+          <td><code>WrTableColumns</code></td>
+          <td>Required</td>
+        </tr>
+        <tr>
+          <td><code>items</code></td>
+          <td>Data items to display</td>
+          <td><code>any[] | undefined</code></td>
+          <td>Required</td>
+        </tr>
+        <tr>
+          <td><code>total</code></td>
+          <td>Total number of items</td>
+          <td><code>number</code></td>
+          <td><code>1</code></td>
+        </tr>
+        <tr>
+          <td><code>currentPage</code></td>
+          <td>Current page number</td>
+          <td><code>number</code></td>
+          <td><code>1</code></td>
+        </tr>
+        <tr>
+          <td><code>pageSize</code></td>
+          <td>Items per page</td>
+          <td><code>number</code></td>
+          <td><code>15</code></td>
+        </tr>
+        <tr>
+          <td><code>pageSizeOptions</code></td>
+          <td>Available page sizes</td>
+          <td><code>number[]</code></td>
+          <td><code>[15, 25, 50]</code></td>
+        </tr>
+        <tr>
+          <td><code>loading</code></td>
+          <td>Loading state</td>
+          <td><code>boolean</code></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>ordering</code></td>
+          <td>Current sorting state</td>
+          <td><code>WrTableOrderItem[]</code></td>
+          <td><code>[]</code></td>
+        </tr>
+        <tr>
+          <td><code>currentPageChange</code></td>
+          <td>Emitted when current page changes</td>
+          <td><code>EventEmitter&lt;number&gt;</code></td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>pageSizeChange</code></td>
+          <td>Emitted when page size changes</td>
+          <td><code>EventEmitter&lt;number&gt;</code></td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>filterChange</code></td>
+          <td>Emitted when filter changes</td>
+          <td><code>EventEmitter&lt;WrTableFilterEmit&gt;</code></td>
+          <td>-</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

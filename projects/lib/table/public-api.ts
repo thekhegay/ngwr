@@ -5,5 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export * from './spinner.component';
-export * from './spinner.types';
+export * from './types';
+export * from './table.component';
+export * from './table-cell';
+export * from './table-filter';
+export * from './table-sort';

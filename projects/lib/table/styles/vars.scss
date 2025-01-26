@@ -1,0 +1,21 @@
+:root {
+  --wr-table-columns: 1;
+  --wr-table-padding: calc(var(--wr-grid-gutter) / 3);
+
+  // Icon variables
+  --wr-table-filter-size: 1.25rem;
+  --wr-table-filter-padding: 0.125rem;
+  --wr-table-filter-color: var(--wr-color-light);
+  --wr-table-filter-bg: transparent;
+
+  // Dropdown variables
+  --wr-table-filter-dd-padding: 0.375rem;
+  --wr-table-filter-dd-max-items: 10;
+  --wr-table-filter-dd-item-height: 2rem;
+
+  --wr-table-sort-size: 1.25rem;
+  --wr-table-sort-padding: 0.125rem;
+  --wr-table-sort-rotate: -90deg;
+  --wr-table-sort-color: var(--wr-color-light);
+  --wr-table-sort-bg: transparent;
+}
