@@ -6,4 +6,3 @@
  */
 
 export * from './qr.component';
-export * from './qr.module';

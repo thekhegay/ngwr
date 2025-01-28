@@ -32,6 +32,7 @@ import { WrDialogOptions } from './dialog-options';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   imports: [CdkPortalOutlet],
+  standalone: true,
 })
 export class WrDialogComponent extends WrDialogBaseDirective {
   @ViewChild(CdkPortalOutlet, { static: true }) override portalOutlet!: CdkPortalOutlet;

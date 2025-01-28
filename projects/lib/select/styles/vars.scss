@@ -1,0 +1,32 @@
+:root {
+  --wr-select-color: var(--wr-color-dark);
+  --wr-select-placeholder-color: var(--wr-color-light);
+  --wr-select-bg-color: var(--wr-color-white);
+  --wr-select-border-color: var(--wr-color-light-lighter);
+  --wr-select-border-radius: 0.375rem;
+  --wr-select-box-shadow: none;
+  --wr-select-font-size: 0.875rem;
+  --wr-select-font-weight: 400;
+  --wr-select-line-height: 1.25rem;
+  --wr-select-padding-y: 0.375rem;
+  --wr-select-padding-x: 0.825rem;
+
+  --wr-select-dropdown-bg: var(--wr-color-white);
+  --wr-select-dropdown-border-color: var(--wr-color-light-lighter);
+  --wr-select-dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --wr-select-dropdown-max-height: 256px;
+
+  --wr-select-option-hover-bg: rgba(var(--wr-color-light-rgb), 0.2);
+  --wr-select-option-selected-color: var(--wr-color-dark);
+  --wr-select-option-selected-bg: rgba(var(--wr-color-primary-rgb), 0.1);
+  --wr-select-option-disabled-color: var(--wr-color-medium);
+  --wr-select-option-height: 32px;
+
+  --wr-select-group-label-color: var(--wr-color-medium);
+  --wr-select-group-label-font-size: 0.75rem;
+
+  --wr-select-counter-color: var(--wr-color-medium);
+  --wr-select-counter-font-size: 0.775rem;
+
+  --wr-select-tag-line-height: 0.8rem;
+}

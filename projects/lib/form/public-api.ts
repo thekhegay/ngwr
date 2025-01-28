@@ -7,4 +7,3 @@
 
 export * from './form-error.component';
 export * from './form-item.component';
-export * from './form.module';

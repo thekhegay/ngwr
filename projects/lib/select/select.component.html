@@ -1,0 +1,64 @@
+<ng-template #searchTemplate let-placeholder="placeholder">
+  <input
+    #searchInput
+    class="wr-select__search"
+    [value]="searchValue()"
+    (input)="onSearch($event)"
+    (click)="$event.stopPropagation()"
+    [placeholder]="placeholder || ''"
+  />
+</ng-template>
+
+<ng-template #selectedOptionsTemplate>
+  @for (option of selectedOptions(); track option.value) {
+    <wr-tag [hoverable]="true" color="light" (click)="onOptionSelect(option); $event.stopPropagation()">
+      {{ option.label || option.value }}
+      <button class="wr-select__tag-remove">×</button>
+    </wr-tag>
+  }
+</ng-template>
+
+<div class="wr-select__trigger" (click)="toggle()">
+  <div class="wr-select__value">
+    @if (multiple) {
+      <div class="wr-select__tags">
+        <div class="wr-select__tags-container">
+          <ng-container *ngTemplateOutlet="selectedOptionsTemplate"></ng-container>
+        </div>
+
+        @if (searchable && isOpen()) {
+          <ng-container *ngTemplateOutlet="searchTemplate"></ng-container>
+        }
+
+        @if (maxMultipleCount) {
+          <div class="wr-select__counter">{{ selectedOptions().length }}/{{ maxMultipleCount }}</div>
+        }
+      </div>
+    } @else {
+      @if (searchable && isOpen()) {
+        <ng-container
+          *ngTemplateOutlet="searchTemplate; context: { placeholder: selectedLabel() || placeholder }"
+        ></ng-container>
+      } @else {
+        {{ selectedLabel() || placeholder }}
+      }
+    }
+  </div>
+
+  @if (clearable && selectedOptions().length) {
+    <button class="wr-select__clear" (click)="clear($event)" [class.wr-select__clear--multiple]="multiple">
+      <wr-icon name="close" />
+    </button>
+  }
+  <wr-icon class="wr-select__arrow" name="chevron-down" />
+</div>
+
+<div class="wr-select__dropdown" [class.wr-select__dropdown--open]="isOpen()">
+  <div class="wr-select__dropdown-content">
+    @if (!filteredOptions().length) {
+      <div class="wr-select__no-data">{{ noItemsLabel }}</div>
+    } @else {
+      <ng-content></ng-content>
+    }
+  </div>
+</div>

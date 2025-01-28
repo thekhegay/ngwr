@@ -7,4 +7,3 @@
 
 export * from './input-types';
 export * from './input.component';
-export * from './input.module';

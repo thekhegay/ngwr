@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
 
-import { WrTagModule } from 'ngwr/tag';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-installation',
   templateUrl: './installation.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrTagModule, CodeComponent],
+  imports: [WrTagComponent, CodeComponent],
 })
 export class InstallationComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';

@@ -16,14 +16,16 @@ import {
 
 import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 import { WrIconComponent, wrIconName } from 'ngwr/icon';
-import { WrSpinnerModule } from 'ngwr/spinner';
+
+import { WrSpinnerComponent } from '../spinner';
 
 @Component({
+  standalone: true,
   selector: 'wr-tag',
   templateUrl: './tag.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [WrIconComponent, WrSpinnerModule],
+  imports: [WrIconComponent, WrSpinnerComponent],
 })
 export class WrTagComponent {
   @Input() color: WrThemeColor = 'primary';

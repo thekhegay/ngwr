@@ -37,6 +37,7 @@ interface ActionLink {
 export const HEADER_HEIGHT = new InjectionToken<BehaviorSubject<number>>('ngwr_showcase_footer_height');
 
 @Component({
+  standalone: true,
   selector: 'ngwr-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',

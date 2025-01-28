@@ -11,6 +11,7 @@ import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-button',
   templateUrl: './button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,8 +30,8 @@ export class ButtonComponent implements OnInit {
   protected readonly loading = signal(false);
 
   protected readonly code = {
-    import: `import{WrButtonModule}from'ngwr/button';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrButtonModule,],})\nexport class MyComponent {}`,
+    import: `import{WrButtonComponent}from'ngwr/button';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrButtonComponent,],})\nexport class MyComponent {}`,
     usage: `<wr-btn>Button Component</wr-btn>\n<button wr-btn>Native Button</button>\n<a wr-btn>Anchor Button</a>`,
     colors:
       '<wr-btn color="primary"></wr-btn>\n<wr-btn color="secondary"></wr-btn>\n<wr-btn color="success"></wr-btn>\n<wr-btn color="warning"></wr-btn>\n<wr-btn color="danger"></wr-btn>\n<wr-btn color="light"></wr-btn>\n<wr-btn color="medium"></wr-btn>\n<wr-btn color="dark"></wr-btn>',

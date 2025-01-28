@@ -3,7 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { wrThemeColors } from 'ngwr/cdk/types';
 import { WrTagComponent } from 'ngwr/tag';
-import { WrTextareaModule } from 'ngwr/textarea';
+import { WrTextareaComponent } from 'ngwr/textarea';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
@@ -14,7 +14,7 @@ import { SeoService } from '#core/services';
   templateUrl: './textarea.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [ReactiveFormsModule, WrTagComponent, WrTextareaModule, CodeComponent, SnippetComponent],
+  imports: [ReactiveFormsModule, WrTagComponent, WrTextareaComponent, CodeComponent, SnippetComponent],
 })
 export class TextareaComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
@@ -27,8 +27,8 @@ export class TextareaComponent implements OnInit {
   protected readonly disabledFormControl = new FormControl({ value: null, disabled: true });
 
   protected readonly code = {
-    import: `import{WrTextareaModule}from'ngwr/textarea';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrTextareaModule,],})\nexport class MyComponent {}`,
+    import: `import{WrTextareaComponent}from'ngwr/textarea';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrTextareaComponent,],})\nexport class MyComponent {}`,
     basic: '<wr-textarea />',
     autosize: '<wr-textarea [autosize]="true" />',
     usage: '<wr-textarea />',

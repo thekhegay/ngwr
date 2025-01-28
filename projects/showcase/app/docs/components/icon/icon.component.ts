@@ -8,6 +8,7 @@ import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-icon',
   templateUrl: './icon.component.html',
   styleUrl: './icon.component.scss',
@@ -27,8 +28,8 @@ export class IconComponent implements OnInit {
   protected readonly logoIcons = wrIconSet.filter(i => i.name.startsWith('logo'));
 
   protected readonly code = {
-    import: `import{WrIconModule}from'ngwr/icon';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrIconModule,],})\nexport class MyComponent {}`,
+    import: `import{WrIconComponent}from'ngwr/icon';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrIconComponent,],})\nexport class MyComponent {}`,
     provider: `//...\nimport{provideWrIcons,logoAngular}from'ngwr/icon';\n//...\n@Component({\n//...\nproviders: [\n//...\nprovideWrIcons([logoAngular]),],})\nexport class MyComponent {}`,
     usage: '<wr-icon name="logo-angular" />',
   };

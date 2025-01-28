@@ -7,6 +7,7 @@ import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 import { BeatifyPipe } from '#core/pipes';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-code',
   templateUrl: './code.component.html',
   styleUrl: './code.component.scss',

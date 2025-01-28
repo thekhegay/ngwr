@@ -19,6 +19,7 @@ import { HEADER_HEIGHT, SIDEBAR_OPENED, SidebarComponent } from '#core/component
 import { SeoService } from '#core/services';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-layout',
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',

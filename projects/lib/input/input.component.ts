@@ -24,7 +24,7 @@ import { noop } from 'rxjs';
 
 import { WrAbstractBase } from 'ngwr/cdk';
 import { SafeAny } from 'ngwr/cdk/types';
-import { provideWrIcons, eye, eyeOff, WrIconModule } from 'ngwr/icon';
+import { provideWrIcons, eye, eyeOff, WrIconComponent } from 'ngwr/icon';
 
 import { WrInputType } from './input-types';
 
@@ -34,11 +34,12 @@ import { WrInputType } from './input-types';
  * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/input}
  */
 @Component({
+  standalone: true,
   selector: 'wr-input',
   templateUrl: './input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [FormsModule, WrIconModule],
+  imports: [FormsModule, WrIconComponent],
   providers: [
     provideWrIcons([eye, eyeOff]),
     {

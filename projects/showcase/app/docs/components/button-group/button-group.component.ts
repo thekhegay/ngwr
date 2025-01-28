@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
 
-import { WrButtonModule } from 'ngwr/button';
-import { WrTagModule } from 'ngwr/tag';
+import { WrButtonComponent, WrButtonGroupComponent } from 'ngwr/button';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { CodeComponent, SnippetComponent } from '#core/components';
 import { SeoService } from '#core/services';
@@ -11,7 +11,7 @@ import { SeoService } from '#core/services';
   selector: 'ngwr-button-group',
   templateUrl: './button-group.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CodeComponent, SnippetComponent, WrButtonModule, WrTagModule],
+  imports: [CodeComponent, SnippetComponent, WrButtonComponent, WrTagComponent, WrButtonGroupComponent],
 })
 export class ButtonGroupComponent implements OnInit {
   @HostBinding() class = 'ngwr-page';
@@ -22,8 +22,8 @@ export class ButtonGroupComponent implements OnInit {
   protected readonly pageDescription = 'A component to group buttons';
 
   protected readonly code = {
-    import: `import{WrButtonModule}from'ngwr/button';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrButtonModule,],})\nexport class MyComponent {}`,
+    import: `import{WrButtonComponent}from'ngwr/button';`,
+    component: `@Component({\n//...\nimports: [\n//...\nWrButtonComponent,],})\nexport class MyComponent {}`,
     usage: '<wr-btn-group>\n<wr-btn>Button</wr-btn>\n<wr-btn>Button</wr-btn>\n<wr-btn>Button</wr-btn>\n</wr-btn-group>',
     colors:
       '<wr-btn color="primary"></wr-btn>\n<wr-btn color="secondary"></wr-btn>\n<wr-btn color="success"></wr-btn>\n<wr-btn color="warning"></wr-btn>\n<wr-btn color="danger"></wr-btn>\n<wr-btn color="light"></wr-btn>\n<wr-btn color="medium"></wr-btn>\n<wr-btn color="dark"></wr-btn>',

@@ -6,4 +6,3 @@
  */
 
 export * from './new-array.pipe';
-export * from './pipes.module';

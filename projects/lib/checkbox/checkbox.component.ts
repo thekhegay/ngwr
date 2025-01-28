@@ -45,6 +45,7 @@ import { WrIconComponent, wrIconName } from 'ngwr/icon';
       multi: true,
     },
   ],
+  standalone: true,
 })
 export class WrCheckboxComponent extends WrAbstractBase implements ControlValueAccessor {
   @Input() id: string = generateRandomId();

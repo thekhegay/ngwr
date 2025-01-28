@@ -2,20 +2,21 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { WrAlertModule } from 'ngwr/alert';
-import { WrAvatarModule } from 'ngwr/avatar';
-import { WrButtonModule } from 'ngwr/button';
-import { provideWrIcons, WrIcon, WrIconModule, wrIconSet } from 'ngwr/icon';
-import { WrInputModule } from 'ngwr/input';
-import { WrProgressModule } from 'ngwr/progress';
-import { WrQrModule } from 'ngwr/qr';
-import { WrSkeletonModule } from 'ngwr/skeleton';
-import { WrTagModule } from 'ngwr/tag';
+import { WrAlertComponent } from 'ngwr/alert';
+import { WrAvatarComponent } from 'ngwr/avatar';
+import { WrButtonComponent } from 'ngwr/button';
+import { provideWrIcons, WrIcon, WrIconComponent, wrIconSet } from 'ngwr/icon';
+import { WrInputComponent } from 'ngwr/input';
+import { WrProgressComponent } from 'ngwr/progress';
+import { WrQrComponent } from 'ngwr/qr';
+import { WrSkeletonComponent } from 'ngwr/skeleton';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { SeoService } from '#core/services';
 import { routes } from '#routing';
 
 @Component({
+  standalone: true,
   selector: 'ngwr-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -23,15 +24,15 @@ import { routes } from '#routing';
   imports: [
     RouterLink,
     DatePipe,
-    WrAvatarModule,
-    WrAlertModule,
-    WrButtonModule,
-    WrIconModule,
-    WrProgressModule,
-    WrQrModule,
-    WrSkeletonModule,
-    WrTagModule,
-    WrInputModule,
+    WrIconComponent,
+    WrQrComponent,
+    WrProgressComponent,
+    WrAvatarComponent,
+    WrAlertComponent,
+    WrTagComponent,
+    WrSkeletonComponent,
+    WrButtonComponent,
+    WrInputComponent,
   ],
   providers: [provideWrIcons(wrIconSet)],
 })

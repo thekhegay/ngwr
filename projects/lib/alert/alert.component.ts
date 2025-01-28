@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 
 import { SafeAny } from 'ngwr/cdk/types';
-import { provideWrIcons, close, WrIconModule } from 'ngwr/icon';
+import { provideWrIcons, close, WrIconComponent } from 'ngwr/icon';
 
 import { WrAlertType } from './alert-type';
 
@@ -31,8 +31,9 @@ import { WrAlertType } from './alert-type';
   templateUrl: './alert.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [WrIconModule],
+  imports: [WrIconComponent],
   providers: [provideWrIcons([close])],
+  standalone: true,
 })
 export class WrAlertComponent {
   @Input({ required: true }) title!: string;
