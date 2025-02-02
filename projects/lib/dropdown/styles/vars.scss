@@ -1,0 +1,18 @@
+:root {
+  --wr-dropdown-bg: var(--wr-color-white);
+  --wr-dropdown-border-color: var(--wr-color-light-lighter);
+  --wr-dropdown-border-radius: 0.375rem;
+  --wr-dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --wr-dropdown-padding: 4px 0;
+  --wr-dropdown-min-width: 160px;
+
+  --wr-dropdown-item-height: 32px;
+  --wr-dropdown-item-padding: 0 16px;
+  --wr-dropdown-item-color: var(--wr-color-dark);
+  --wr-dropdown-item-hover-bg: rgba(var(--wr-color-light-rgb), 0.2);
+  --wr-dropdown-item-active-bg: var(--wr-color-light-lighter);
+  --wr-dropdown-item-disabled-color: var(--wr-color-medium);
+  --wr-dropdown-item-gap: 16px;
+  --wr-dropdown-item-icon-size: 16px;
+  --wr-dropdown-item-font-size: 14px;
+}
