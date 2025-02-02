@@ -1,0 +1,224 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ title }}</h1>
+  <p class="ngwr-page-info__description">{{ description }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrPaginationComponent</code> into a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">Basic usage of pagination component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-pagination [total]="total" [(currentPage)]="current" [(pageSize)]="pageSize"></wr-pagination>
+      </ng-container>
+      <ngwr-code [code]="code.basic" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Position</h2>
+  <p class="ngwr-page-section__description">Different positions of pagination</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <div class="position-demo">
+          <wr-pagination
+            [total]="total"
+            [(currentPage)]="current"
+            [(pageSize)]="pageSize"
+            position="start"
+          ></wr-pagination>
+
+          <wr-pagination
+            [total]="total"
+            [(currentPage)]="current"
+            [(pageSize)]="pageSize"
+            position="center"
+          ></wr-pagination>
+
+          <wr-pagination
+            [total]="total"
+            [(currentPage)]="current"
+            [(pageSize)]="pageSize"
+            position="end"
+          ></wr-pagination>
+        </div>
+      </ng-container>
+      <ngwr-code [code]="code.position" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">With Size Changer</h2>
+  <p class="ngwr-page-section__description">Pagination with page size selection</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-pagination
+          [total]="total"
+          [(currentPage)]="current"
+          [(pageSize)]="pageSize"
+          [showSizeChanger]="true"
+        ></wr-pagination>
+      </ng-container>
+      <ngwr-code [code]="code.withSizeChanger" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Show Total</h2>
+  <p class="ngwr-page-section__description">Show total number of items</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-pagination
+          [total]="total"
+          [(currentPage)]="current"
+          [(pageSize)]="pageSize"
+          [showTotal]="true"
+        ></wr-pagination>
+      </ng-container>
+      <ngwr-code [code]="code.withTotal" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">More Pages</h2>
+  <p class="ngwr-page-section__description">Pagination with more pages shows ellipsis for better navigation</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-pagination
+          [total]="totalLarge"
+          [(currentPage)]="currentLarge"
+          [(pageSize)]="pageSizeLarge"
+          [showSizeChanger]="true"
+        ></wr-pagination>
+      </ng-container>
+      <ngwr-code [code]="code.morePages" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Disabled</h2>
+  <p class="ngwr-page-section__description">Disabled state of pagination</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-pagination
+          [total]="total"
+          [(currentPage)]="current"
+          [(pageSize)]="pageSize"
+          [disabled]="true"
+        ></wr-pagination>
+      </ng-container>
+      <ngwr-code [code]="code.disabled" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">You can customize pagination styles using CSS variables.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>currentPage</code></td>
+          <td>Current page number</td>
+          <td><code>number</code></td>
+          <td><code>1</code></td>
+        </tr>
+        <tr>
+          <td><code>total</code></td>
+          <td>Total number of items</td>
+          <td><code>number</code></td>
+          <td><code>0</code></td>
+        </tr>
+        <tr>
+          <td><code>pageSize</code></td>
+          <td>Number of items per page</td>
+          <td><code>number</code></td>
+          <td><code>10</code></td>
+        </tr>
+        <tr>
+          <td><code>pageSizeOptions</code></td>
+          <td>Available page sizes</td>
+          <td><code>number[]</code></td>
+          <td><code>[10, 20, 50, 100]</code></td>
+        </tr>
+        <tr>
+          <td><code>showSizeChanger</code></td>
+          <td>Whether to show page size select</td>
+          <td><code>boolean</code></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>showTotal</code></td>
+          <td>Whether to show total number</td>
+          <td><code>boolean</code></td>
+          <td><code>false</code></td>
+        </tr>
+        <tr>
+          <td><code>ofLabel</code></td>
+          <td>Total number "of" label</td>
+          <td><code>string</code></td>
+          <td><code>"of"</code></td>
+        </tr>
+        <tr>
+          <td><code>position</code></td>
+          <td>Position of pagination</td>
+          <td><code>"start" | "center" | "end"</code></td>
+          <td><code>"start"</code></td>
+        </tr>
+        <tr>
+          <td><code>disabled</code></td>
+          <td>Whether pagination is disabled</td>
+          <td><code>boolean</code></td>
+          <td><code>false</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
