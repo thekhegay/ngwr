@@ -14,6 +14,7 @@ import {
   input,
   model,
   numberAttribute,
+  HostBinding,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -33,10 +34,6 @@ import { WrPaginationPosition } from './pagination.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   providers: [provideWrIcons([arrowBack, arrowForward])],
-  host: {
-    class: 'wr-pagination',
-    '[class.wr-pagination--disabled]': 'disabled()',
-  },
 })
 export class WrPaginationComponent {
   currentPage = model<number>(1);
@@ -48,6 +45,16 @@ export class WrPaginationComponent {
   position = input<WrPaginationPosition>('start');
   disabled = input<boolean, boolean>(false, { transform: booleanAttribute });
   ofLabel = input<string>('of');
+
+  @HostBinding('class')
+  get hostClasses(): Record<string, boolean> {
+    return {
+      'wr-pagination': true,
+      'wr-pagination--disabled': this.disabled(),
+    };
+  }
+
+  protected readonly String = String;
 
   protected readonly totalPages = computed(() => Math.ceil(this.total() / this.pageSize()));
 
@@ -105,7 +112,7 @@ export class WrPaginationComponent {
     return this.currentPage() === page;
   }
 
-  onPageChange(page: number): void {
+  protected onPageChange(page: number): void {
     if (this.disabled() || page === this.currentPage() || page < 1 || page > this.totalPages()) {
       return;
     }
@@ -113,7 +120,7 @@ export class WrPaginationComponent {
     this.currentPage.set(page);
   }
 
-  onPageSizeChange(size: number): void {
+  protected onPageSizeChange(size: number): void {
     if (this.disabled() || size === this.pageSize()) {
       return;
     }
@@ -125,6 +132,4 @@ export class WrPaginationComponent {
       this.onPageChange(newTotalPages);
     }
   }
-
-  protected readonly String = String;
 }
