@@ -5,7 +5,14 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, ViewChild, TemplateRef } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ViewEncapsulation,
+  ViewChild,
+  TemplateRef,
+  HostBinding,
+} from '@angular/core';
 
 @Component({
   selector: 'wr-dropdown-menu',
@@ -14,11 +21,15 @@ import { Component, ChangeDetectionStrategy, ViewEncapsulation, ViewChild, Templ
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  host: {
-    '[style.display]': '"none"',
-  },
 })
 export class WrDropdownMenuComponent {
+  @HostBinding('style')
+  get hostClasses(): Record<string, string> {
+    return {
+      display: 'none',
+    };
+  }
+
   @ViewChild('contentTpl')
   contentTpl!: TemplateRef<void>;
 }

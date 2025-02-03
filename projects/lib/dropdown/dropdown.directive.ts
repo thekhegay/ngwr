@@ -18,6 +18,7 @@ import {
   signal,
   DestroyRef,
   HostListener,
+  HostBinding,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -29,9 +30,6 @@ import { WR_DROPDOWN_POSITIONS, WrDropdownTrigger } from './dropdown.types';
 @Directive({
   selector: '[wrDropdown]',
   standalone: true,
-  host: {
-    '[class.wr-dropdown-trigger]': 'true',
-  },
 })
 export class WrDropdownDirective implements OnDestroy {
   dropdownMenu = input<WrDropdownMenuComponent>();
@@ -47,6 +45,13 @@ export class WrDropdownDirective implements OnDestroy {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly scrollStrategyOptions = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+
+  @HostBinding('class')
+  get hostClasses(): Record<string, boolean> {
+    return {
+      'wr-dropdown-trigger': true,
+    };
+  }
 
   constructor() {
     const isOpen = this.isOpen;
@@ -65,7 +70,7 @@ export class WrDropdownDirective implements OnDestroy {
   }
 
   @HostListener('click', ['$event'])
-  onClick(event: MouseEvent): void {
+  protected onClick(event: MouseEvent): void {
     if (this.trigger() !== 'click') {
       return;
     }
@@ -80,7 +85,7 @@ export class WrDropdownDirective implements OnDestroy {
   }
 
   @HostListener('mouseenter')
-  onMouseEnter(): void {
+  protected onMouseEnter(): void {
     if (this.trigger() !== 'hover') {
       return;
     }

@@ -24,10 +24,6 @@ import { WrIconComponent, wrIconName } from 'ngwr/icon';
   encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [WrIconComponent],
-  host: {
-    '[attr.role]': "'menuitem'",
-    '[attr.tabindex]': "disabled() ? null : '0'",
-  },
 })
 export class WrDropdownMenuItemComponent {
   icon = input<wrIconName | null>(null);
@@ -41,8 +37,14 @@ export class WrDropdownMenuItemComponent {
     };
   }
 
+  @HostBinding('attr.role')
+  attrRole = 'menuitem';
+
+  @HostBinding('attr.tabindex')
+  tabindex = this.disabled() ? '' : '0';
+
   @HostListener('click', ['$event'])
-  onClick(event: MouseEvent): void {
+  protected onClick(event: MouseEvent): void {
     if (this.disabled()) {
       event.preventDefault();
       event.stopPropagation();
