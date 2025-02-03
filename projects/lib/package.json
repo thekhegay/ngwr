@@ -84,6 +84,9 @@
     },
     "./select/styles": {
       "sass": "./select/styles/_index.scss"
+    },
+    "./pagination/styles": {
+      "sass": "./pagination/styles/_index.scss"
     }
   }
 }
