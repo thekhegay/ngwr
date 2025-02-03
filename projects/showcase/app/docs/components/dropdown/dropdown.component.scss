@@ -1,0 +1,36 @@
+.position-demo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 32px;
+}
+
+.hover-trigger {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid var(--wr-color-light);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.custom-content {
+  padding: 16px;
+  min-width: 200px;
+
+  h4 {
+    margin: 0 0 8px;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0 0 16px;
+    font-size: 14px;
+    color: var(--wr-color-medium);
+  }
+}
+
+.trigger-types-demo {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+}

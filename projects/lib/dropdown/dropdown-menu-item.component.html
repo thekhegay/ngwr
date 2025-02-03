@@ -1,0 +1,8 @@
+<div class="wr-dropdown-item__content">
+  @if (icon()) {
+    <wr-icon class="wr-dropdown-item__icon" [name]="icon()!" />
+  }
+  <span class="wr-dropdown-item__label">
+    <ng-content></ng-content>
+  </span>
+</div>

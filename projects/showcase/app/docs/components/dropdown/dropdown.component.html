@@ -1,0 +1,233 @@
+<div class="ngwr-page-info">
+  <div class="ngwr-page-info__tags">
+    <wr-tag transparent>Component</wr-tag>
+    <wr-tag transparent color="secondary">Standalone</wr-tag>
+  </div>
+  <h1 class="ngwr-page-info__title">{{ title }}</h1>
+  <p class="ngwr-page-info__description">{{ description }}</p>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">How to install</h2>
+  <p class="ngwr-page-section__description">
+    Import <code class="ngwr-pre">WrDropdownDirective, WrDropdownMenuComponent, WrDropdownMenuItemComponent</code> into
+    a component where you want to use.
+  </p>
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
+    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Basic usage</h2>
+  <p class="ngwr-page-section__description">Basic usage of dropdown component</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn wrDropdown [dropdownMenu]="basicMenu" icon="chevron-down" iconPosition="end">Dropdown</wr-btn>
+
+        <wr-dropdown-menu #basicMenu="wrDropdownMenu">
+          <wr-dropdown-menu-item>Item 1</wr-dropdown-menu-item>
+          <wr-dropdown-menu-item>Item 2</wr-dropdown-menu-item>
+        </wr-dropdown-menu>
+      </ng-container>
+      <ngwr-code [code]="code.basic" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Position</h2>
+  <p class="ngwr-page-section__description">
+    You can control dropdown position using the <code class="ngwr-pre">position</code> attribute.
+  </p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <div class="position-demo">
+          @for (
+            position of ['topLeft', 'top', 'topRight', 'bottomLeft', 'bottom', 'bottomRight', 'left', 'right'];
+            track position
+          ) {
+            <wr-btn wrDropdown [dropdownMenu]="positionMenu" [position]="position">
+              {{ position }}
+            </wr-btn>
+          }
+        </div>
+
+        <wr-dropdown-menu #positionMenu="wrDropdownMenu">
+          <wr-dropdown-menu-item>Item 1</wr-dropdown-menu-item>
+          <wr-dropdown-menu-item>Item 2</wr-dropdown-menu-item>
+        </wr-dropdown-menu>
+      </ng-container>
+      <ngwr-code [code]="code.position" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Items with Icons</h2>
+  <p class="ngwr-page-section__description">Dropdown menu items can include icons.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn wrDropdown [dropdownMenu]="iconMenu" icon="chevron-down" iconPosition="end">Items with Icons</wr-btn>
+
+        <wr-dropdown-menu #iconMenu="wrDropdownMenu">
+          @for (item of menuItems; track item) {
+            <wr-dropdown-menu-item [icon]="item.icon">
+              {{ item.label }}
+            </wr-dropdown-menu-item>
+          }
+        </wr-dropdown-menu>
+      </ng-container>
+      <ngwr-code [code]="code.withIcons" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Custom Content</h2>
+  <p class="ngwr-page-section__description">You can place any content inside the dropdown menu.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn wrDropdown [dropdownMenu]="customMenu" icon="chevron-down" iconPosition="end">Custom Content</wr-btn>
+
+        <wr-dropdown-menu #customMenu="wrDropdownMenu">
+          <div class="custom-content">
+            <h4>Custom Header</h4>
+            <p>Any content can be placed here</p>
+            <wr-btn>Action</wr-btn>
+          </div>
+        </wr-dropdown-menu>
+      </ng-container>
+      <ngwr-code [code]="code.customContent" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Trigger Types</h2>
+  <p class="ngwr-page-section__description">Dropdown can be triggered by click (default) or hover.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <div class="trigger-types-demo">
+          <wr-btn wrDropdown [dropdownMenu]="clickMenu" icon="chevron-down" iconPosition="end"> Click Trigger </wr-btn>
+
+          <wr-btn wrDropdown [dropdownMenu]="hoverMenu" trigger="hover" icon="chevron-down" iconPosition="end">
+            Hover Trigger
+          </wr-btn>
+        </div>
+
+        <wr-dropdown-menu #clickMenu="wrDropdownMenu">
+          <wr-dropdown-menu-item>Item 1</wr-dropdown-menu-item>
+          <wr-dropdown-menu-item>Item 2</wr-dropdown-menu-item>
+        </wr-dropdown-menu>
+
+        <wr-dropdown-menu #hoverMenu="wrDropdownMenu">
+          <wr-dropdown-menu-item>Item 1</wr-dropdown-menu-item>
+          <wr-dropdown-menu-item>Item 2</wr-dropdown-menu-item>
+        </wr-dropdown-menu>
+      </ng-container>
+      <ngwr-code [code]="code.triggerTypes" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Disabled Items</h2>
+  <p class="ngwr-page-section__description">Individual menu items can be disabled.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-snippet>
+      <ng-container ngProjectAs="[body]">
+        <wr-btn wrDropdown [dropdownMenu]="disabledMenu" icon="chevron-down" iconPosition="end">
+          With Disabled Items
+        </wr-btn>
+
+        <wr-dropdown-menu #disabledMenu="wrDropdownMenu">
+          <wr-dropdown-menu-item>Enabled Item</wr-dropdown-menu-item>
+          <wr-dropdown-menu-item [disabled]="true">Disabled Item</wr-dropdown-menu-item>
+        </wr-dropdown-menu>
+      </ng-container>
+      <ngwr-code [code]="code.disabled" codeLang="html" code></ngwr-code>
+    </ngwr-snippet>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">Styling</h2>
+  <p class="ngwr-page-section__description">You can customize dropdown styles using CSS variables.</p>
+
+  <div class="ngwr-page-section__content">
+    <ngwr-code [code]="code.styling" codeLang="scss"></ngwr-code>
+  </div>
+</div>
+
+<div class="ngwr-page-section">
+  <h2 class="ngwr-page-section__title">API</h2>
+
+  <div class="ngwr-page-section__content">
+    <h3>Dropdown Directive</h3>
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>dropdownMenu</code></td>
+          <td>Reference to dropdown menu</td>
+          <td><code>WrDropdownMenuComponent</code></td>
+          <td>Required</td>
+        </tr>
+        <tr>
+          <td><code>position</code></td>
+          <td>Dropdown position</td>
+          <td><code>keyof typeof WR_DROPDOWN_POSITIONS</code></td>
+          <td><code>'bottomLeft'</code></td>
+        </tr>
+        <tr>
+          <td><code>trigger</code></td>
+          <td>Type of trigger that will open the dropdown</td>
+          <td><code>"click" | "hover"</code></td>
+          <td><code>"click"</code></td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Dropdown Menu Item</h3>
+    <div class="ngwr-page-table">
+      <table>
+        <tr class="ngwr-page-table__head">
+          <th>Property</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Default</th>
+        </tr>
+        <tr>
+          <td><code>icon</code></td>
+          <td>Icon name</td>
+          <td><code>wrIconName | null</code></td>
+          <td><code>null</code></td>
+        </tr>
+        <tr>
+          <td><code>disabled</code></td>
+          <td>Whether the item is disabled</td>
+          <td><code>boolean</code></td>
+          <td><code>false</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

@@ -28,6 +28,7 @@ export const routes = {
       textarea: 'textarea',
       select: 'select',
       pagination: 'pagination',
+      dropdown: 'dropdown',
     },
     core: {
       index: 'core',

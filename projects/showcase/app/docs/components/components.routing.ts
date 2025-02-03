@@ -82,4 +82,8 @@ export default [
     path: components.pagination,
     loadComponent: () => import('./pagination/pagination.component').then(c => c.PaginationComponent),
   },
+  {
+    path: components.dropdown,
+    loadComponent: () => import('./dropdown/dropdown.component').then(c => c.DropdownComponent),
+  },
 ] satisfies Routes;
