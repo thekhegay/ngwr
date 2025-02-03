@@ -1,0 +1,14 @@
+:root {
+  --wr-pagination-gap: 1rem;
+  --wr-pagination-items-gap: 0.5rem;
+  --wr-pagination-font-size: 0.875rem;
+  --wr-pagination-total-color: var(--wr-color-medium);
+  --wr-pagination-ellipsis-color: var(--wr-color-medium);
+
+  --wr-pagination-item-size: 1.625rem;
+  --wr-pagination-item-padding: 0.5rem;
+
+  --wr-pagination-select-option-height: var(--wr-pagination-item-size);
+  --wr-pagination-select-padding-y: 0;
+  --wr-pagination-select-padding-x: 0.825rem;
+}

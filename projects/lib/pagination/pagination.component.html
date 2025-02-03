@@ -1,0 +1,46 @@
+<div class="wr-pagination-container" [class]="'wr-pagination--' + position()">
+  @if (showTotal()) {
+    <span class="wr-pagination-total">
+      {{ currentRange() }}
+    </span>
+  }
+
+  <div class="wr-pagination-items">
+    <wr-btn
+      outlined
+      [disabled]="disabled() || currentPage() === 1"
+      (click)="onPageChange(currentPage() - 1)"
+      icon="arrow-back"
+    ></wr-btn>
+
+    @for (page of pages(); track page) {
+      @if (page === '...') {
+        <span class="wr-pagination-ellipsis">...</span>
+      } @else {
+        <wr-btn
+          [outlined]="!isCurrentPage(page)"
+          [color]="isCurrentPage(page) ? 'primary' : 'medium'"
+          [disabled]="disabled()"
+          (click)="onPageChange(page)"
+        >
+          {{ page }}
+        </wr-btn>
+      }
+    }
+
+    <wr-btn
+      outlined
+      [disabled]="disabled() || currentPage() === totalPages()"
+      (click)="onPageChange(currentPage() + 1)"
+      icon="arrow-forward"
+    ></wr-btn>
+  </div>
+
+  @if (showSizeChanger()) {
+    <wr-select [disabled]="disabled()" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+      @for (option of pageSizeOptions(); track option) {
+        <wr-option [value]="option" [label]="String(option)"></wr-option>
+      }
+    </wr-select>
+  }
+</div>
