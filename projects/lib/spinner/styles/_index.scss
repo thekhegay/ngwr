@@ -12,9 +12,6 @@
 
   contain: strict;
 
-  width: 1em;
-  height: 1em;
-
   * {
     line-height: 1;
   }
@@ -30,5 +27,15 @@
       stroke: currentColor;
       animation: dash 1.5s ease-in-out infinite;
     }
+  }
+
+  &--small {
+    width: 1em;
+    height: 1em;
+  }
+
+  &--large {
+    width: 2em;
+    height: 2em;
   }
 }

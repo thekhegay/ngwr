@@ -1,0 +1,36 @@
+<div class="wr-table-filter-icon" wrDropdown [dropdownMenu]="tableFilterDropdown">
+  <wr-icon class="wr-table-filter-icon__icon" name="filter" />
+</div>
+
+<wr-dropdown-menu #tableFilterDropdown="wrDropdownMenu">
+  <div class="wr-table-filter-dropdown">
+    <input class="wr-table-filter-dropdown__input" [formControl]="search" placeholder="Поиск..." />
+
+    <div class="wr-table-filter-dropdown__body">
+      @if (filteredItems(); as items) {
+        @for (item of items; track $index) {
+          <div
+            class="wr-table-filter-dropdown-item"
+            [class.wr-table-filter-dropdown-item--selected]="item?.isSelected"
+            (click)="onItemSelect(item)"
+          >
+            <div class="wr-table-filter-dropdown-item-check">
+              <wr-icon class="wr-table-filter-dropdown-item-check__icon" name="checkmark" />
+            </div>
+            <span class="wr-table-filter-dropdown-item__title">{{ item?.title }}</span>
+          </div>
+        }
+
+        @if (items.length < 1) {
+          <div class="wr-table-filter-dropdown-empty">
+            <span class="wr-table-filter-dropdown-empty__title">Нет элементов</span>
+          </div>
+        }
+      }
+    </div>
+
+    @if (length > 0) {
+      <div class="wr-table-filter-dropdown__reset" (click)="onResetClick()">Сбросить</div>
+    }
+  </div>
+</wr-dropdown-menu>

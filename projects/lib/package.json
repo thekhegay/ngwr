@@ -90,6 +90,9 @@
     },
     "./dropdown/styles": {
       "sass": "./dropdown/styles/_index.scss"
+    },
+    "./table/styles": {
+      "sass": "./table/styles/_index.scss"
     }
   }
 }

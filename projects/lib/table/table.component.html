@@ -1,0 +1,111 @@
+@if (pagination()) {
+  <div class="wr-table-top">
+    @if (loading()) {
+      <wr-spinner class="wr-table__spinner" />
+    }
+
+    <div class="wr-table-hint" wrDropdown [dropdownMenu]="tablePaginationHelpDropdown">
+      <wr-icon class="wr-table-hint__icon" name="info-circle-outline" />
+    </div>
+
+    <ng-template [ngTemplateOutlet]="tablePagination" />
+  </div>
+}
+
+<div class="wr-table-head">
+  <div class="wr-table-head__wrapper">
+    @for (item of columns() | keyvalue: keepOrder; track item.key) {
+      @if (item.value; as column) {
+        <div class="wr-table-head-cell">
+          <span class="wr-table-head-cell__title">{{ column.title }}</span>
+
+          @if (column.sortable) {
+            <wr-table-sort [order]="getOrder(item.key)" (click)="onOrderChange(item.key)" />
+          }
+          @if (column.filterItems && column.filterItems.length > 0) {
+            <wr-table-filter [items]="column.filterItems" (selectedItems)="onFilterChange(item.key, $event)" />
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<div class="wr-table-body">
+  @if (items()?.length) {
+    @for (item of items(); track $index) {
+      <div class="wr-table-body__row">
+        @for (column of columns() | keyvalue: keepOrder; track column.key) {
+          <div class="wr-table-body-cell">
+            @if (hasCellTemplate(column.key)) {
+              <ng-container
+                [ngTemplateOutlet]="getCellTemplate(column.key)!"
+                [ngTemplateOutletContext]="{
+                  $implicit: item[column.key],
+                  item: item,
+                  column: column.value,
+                }"
+              />
+            } @else {
+              <span>{{ item[column.key] }}</span>
+            }
+          </div>
+        }
+      </div>
+    }
+  } @else {
+    <div class="wr-table-body__loader">
+      <wr-spinner size="large"></wr-spinner>
+    </div>
+
+    @for (i of pageSize() | newArray; track $index) {
+      <div class="wr-table-body__row">
+        @for (column of columns() | keyvalue; track column.key) {
+          <div class="wr-table-body-item">
+            <span>&nbsp;</span>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+@if (pagination()) {
+  <div class="wr-table-bot">
+    <ng-template [ngTemplateOutlet]="tablePagination" />
+  </div>
+}
+
+<ng-template #tablePagination>
+  <wr-pagination
+    class="wr-table__pagination"
+    [showSizeChanger]="true"
+    [disabled]="!!loading()"
+    [total]="total()"
+    [(currentPage)]="currentPage"
+    [(pageSize)]="pageSize"
+    [pageSizeOptions]="pageSizeOptions()"
+  />
+</ng-template>
+
+<wr-dropdown-menu #tablePaginationHelpDropdown="wrDropdownMenu">
+  <div class="wr-table-hint-dropdown">
+    <div class="wr-table-hint-dropdown-item">
+      <span class="wr-table-hint-dropdown-item__title">Next:</span>
+      <div class="wr-table-hint-dropdown-item__keys">
+        <span class="wr-table-hint-dropdown-item__key">Ctrl</span>
+        <span>+</span>
+        <span class="wr-table-hint-dropdown-item__key">{{ '>' }}</span>
+      </div>
+    </div>
+
+    <div class="wr-table-hint-dropdown-item">
+      <span class="wr-table-hint-dropdown-item__title">Prev:</span>
+      <div class="wr-table-hint-dropdown-item__keys">
+        <span class="wr-table-hint-dropdown-item__key">Ctrl</span>
+        <span>+</span>
+        <span class="wr-table-hint-dropdown-item__key">{{ '<' }}</span>
+      </div>
+    </div>
+  </div>
+</wr-dropdown-menu>

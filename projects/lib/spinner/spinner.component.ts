@@ -5,7 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, input, ViewEncapsulation } from '@angular/core';
+
+import { WrSpinnerSize } from './spinner.types';
 
 /**
  * NGWR spinner component.
@@ -21,5 +23,14 @@ import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } fr
   encapsulation: ViewEncapsulation.None,
 })
 export class WrSpinnerComponent {
-  @HostBinding() class = 'wr-spinner';
+  size = input<WrSpinnerSize>('small');
+
+  @HostBinding('class')
+  get hostClasses(): Record<string, boolean> {
+    return {
+      'wr-spinner': true,
+      'wr-spinner--small': this.size() === 'small',
+      'wr-spinner--large': this.size() === 'large',
+    };
+  }
 }
