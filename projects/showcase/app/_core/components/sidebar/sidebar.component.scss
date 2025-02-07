@@ -6,7 +6,7 @@
   display: flex;
 
   position: sticky;
-  max-width: 10rem;
+  max-width: 12rem;
   overflow: auto;
 
   @include grid.media-down(md) {
