@@ -18,7 +18,7 @@ import {
   ContentChild,
 } from '@angular/core';
 
-import { SafeAny } from '../cdk/types';
+import { SafeAny } from 'ngwr/cdk/types';
 
 import { WrSelectComponent } from './select.component';
 
@@ -27,7 +27,6 @@ import { WrSelectComponent } from './select.component';
   templateUrl: './select-option.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
   host: {
     '(click)': 'select()',
   },

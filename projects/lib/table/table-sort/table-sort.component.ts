@@ -5,7 +5,6 @@ import { arrowTop, provideWrIcons, WrIconComponent } from 'ngwr/icon';
 import { WrTableOrder } from '../types';
 
 @Component({
-  standalone: true,
   selector: 'wr-table-sort',
   templateUrl: './table-sort.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

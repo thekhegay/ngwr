@@ -15,7 +15,6 @@ import { WrSpinnerSize } from './spinner.types';
  * {@tutorial} [How to use wr-spinner]{@link http://ngwr.dev/docs/components/spinner
  */
 @Component({
-  standalone: true,
   selector: 'wr-spinner',
   template:
     '<svg viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" stroke-width="5" fill="none"></circle></svg>',

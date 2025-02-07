@@ -8,7 +8,6 @@
 import { Directive, HostBinding } from '@angular/core';
 
 @Directive({
-  standalone: true,
   selector: '[wrDialogTitle]',
 })
 export class WrDialogTitleDirective {

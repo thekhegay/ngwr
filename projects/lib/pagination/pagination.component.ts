@@ -20,18 +20,16 @@ import { FormsModule } from '@angular/forms';
 
 import { WrButtonComponent } from 'ngwr/button';
 import { provideWrIcons, arrowBack, arrowForward } from 'ngwr/icon';
-import { WrSelectComponent } from 'ngwr/select';
-import { WrOptionComponent } from 'ngwr/select/select-option.component';
+import { WrOptionComponent, WrSelectComponent } from 'ngwr/select';
 
 import { WrPaginationPosition } from './pagination.types';
 
 @Component({
   selector: 'wr-pagination',
-  standalone: true,
-  imports: [WrButtonComponent, WrSelectComponent, WrOptionComponent, FormsModule],
   templateUrl: './pagination.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  imports: [WrButtonComponent, WrSelectComponent, WrOptionComponent, FormsModule],
   providers: [provideWrIcons([arrowBack, arrowForward])],
 })
 export class WrPaginationComponent {

@@ -22,7 +22,6 @@ import { WrIconComponent, wrIconName } from 'ngwr/icon';
   templateUrl: './dropdown-menu-item.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
   imports: [WrIconComponent],
 })
 export class WrDropdownMenuItemComponent {

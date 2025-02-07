@@ -21,8 +21,7 @@ import {
 } from '@angular/core';
 
 import { SafeAny } from 'ngwr/cdk/types';
-
-import { WrSpinnerComponent } from '../spinner';
+import { WrSpinnerComponent } from 'ngwr/spinner';
 
 @Component({
   selector: 'wr-avatar',
@@ -30,7 +29,6 @@ import { WrSpinnerComponent } from '../spinner';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   imports: [NgOptimizedImage, WrSpinnerComponent],
-  standalone: true,
 })
 export class WrAvatarComponent {
   readonly cdr = inject(ChangeDetectorRef);

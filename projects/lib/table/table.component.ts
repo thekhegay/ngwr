@@ -17,12 +17,11 @@ import {
 } from '@angular/core';
 
 import { SafeAny } from 'ngwr/cdk/types';
+import { WrDropdownDirective, WrDropdownMenuComponent } from 'ngwr/dropdown';
 import { infoCircleOutline, provideWrIcons, WrIconComponent } from 'ngwr/icon';
+import { WrPaginationComponent } from 'ngwr/pagination';
 import { NewArrayPipe } from 'ngwr/pipes';
-
-import { WrDropdownDirective, WrDropdownMenuComponent } from '../dropdown';
-import { WrPaginationComponent } from '../pagination';
-import { WrSpinnerComponent } from '../spinner';
+import { WrSpinnerComponent } from 'ngwr/spinner';
 
 import { WrTableCellDirective } from './table-cell';
 import { WrTableFilterComponent } from './table-filter';
@@ -37,7 +36,6 @@ import {
 } from './types';
 
 @Component({
-  standalone: true,
   selector: 'wr-table',
   templateUrl: './table.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

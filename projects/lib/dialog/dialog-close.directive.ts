@@ -10,7 +10,6 @@ import { Directive, HostListener, Optional } from '@angular/core';
 import { WrDialogRef } from './dialog-ref';
 
 @Directive({
-  standalone: true,
   selector: `[wrDialogClose]`,
 })
 export class WrDialogCloseDirective {

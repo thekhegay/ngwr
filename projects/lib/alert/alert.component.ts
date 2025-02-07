@@ -33,7 +33,6 @@ import { WrAlertType } from './alert-type';
   encapsulation: ViewEncapsulation.None,
   imports: [WrIconComponent],
   providers: [provideWrIcons([close])],
-  standalone: true,
 })
 export class WrAlertComponent {
   @Input({ required: true }) title!: string;

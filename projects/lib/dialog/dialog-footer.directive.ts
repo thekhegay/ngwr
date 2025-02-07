@@ -10,7 +10,6 @@ import { Directive, HostBinding, Input } from '@angular/core';
 import { SafeAny } from 'ngwr/cdk/types';
 
 @Directive({
-  standalone: true,
   selector: '[wrDialogFooter]',
 })
 export class WrDialogFooterDirective {

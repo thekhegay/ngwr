@@ -24,7 +24,6 @@ import { WrOptionComponent } from './select-option.component';
   templateUrl: './select-option-group.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
 })
 export class WrOptionGroupComponent implements AfterContentInit {
   @Input()

@@ -10,7 +10,6 @@ import {
 import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 
 @Component({
-  standalone: true,
   selector: 'wr-divider',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,

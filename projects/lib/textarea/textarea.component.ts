@@ -37,7 +37,6 @@ import { SafeAny } from 'ngwr/cdk/types';
  * {@tutorial} [How to use wr-textarea]{@link http://ngwr.dev/docs/components/textarea}
  */
 @Component({
-  standalone: true,
   selector: 'wr-textarea',
   templateUrl: './textarea.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

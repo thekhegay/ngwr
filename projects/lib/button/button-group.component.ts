@@ -15,7 +15,6 @@ import { SafeAny } from 'ngwr/cdk/types';
  * {@tutorial} [How to use wr-btn-group]{@link http://ngwr.dev/docs/components/button-group}
  */
 @Component({
-  standalone: true,
   selector: 'wr-btn-group',
   template: '<ng-content />',
   changeDetection: ChangeDetectionStrategy.OnPush,

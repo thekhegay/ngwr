@@ -24,9 +24,7 @@ import { WR_ANIMATION_FADE_CLASS_NAME_MAP, WR_ANIMATION_ZOOM_CLASS_NAME_MAP } fr
 import { WrDialogOptions } from './dialog-options';
 import { WrDialogRef } from './dialog-ref';
 
-@Directive({
-  standalone: true,
-})
+@Directive()
 export class WrDialogBaseDirective extends BasePortalOutlet implements OnDestroy {
   portalOutlet!: CdkPortalOutlet;
   dialogElementRef!: ElementRef<HTMLDivElement>;

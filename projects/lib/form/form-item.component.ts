@@ -22,7 +22,6 @@ import { SafeAny } from 'ngwr/cdk/types';
  * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/form}
  */
 @Component({
-  standalone: true,
   selector: 'wr-form-item',
   template: `<ng-content />`,
   changeDetection: ChangeDetectionStrategy.OnPush,

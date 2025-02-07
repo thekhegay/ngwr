@@ -14,13 +14,12 @@ import { startWith } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { WrAbstractBase } from 'ngwr/cdk';
+import { WrDropdownDirective, WrDropdownMenuComponent } from 'ngwr/dropdown';
 import { checkmark, filter as filterIcon, provideWrIcons, WrIconComponent } from 'ngwr/icon';
 
-import { WrDropdownDirective, WrDropdownMenuComponent } from '../../dropdown';
 import { WrTableFilterItem } from '../types';
 
 @Component({
-  standalone: true,
   selector: 'wr-table-filter',
   templateUrl: './table-filter.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -28,7 +28,6 @@ import { wrIconName } from './icons';
  * {@tutorial} [How to use wr-btn]{@link http://ngwr.dev/docs/components/icon}
  */
 @Component({
-  standalone: true,
   selector: 'wr-icon',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,

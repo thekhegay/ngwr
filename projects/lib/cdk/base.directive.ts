@@ -13,7 +13,11 @@ import { Subject } from 'rxjs';
   standalone: true,
 })
 export abstract class WrAbstractBase implements OnDestroy {
-  protected readonly destroyed$: Subject<void> = new Subject<void>(); // TODO Перейти на destroyRef$
+  /**
+   * @deprecated use destroyRef$ instead
+   * @protected
+   */
+  protected readonly destroyed$: Subject<void> = new Subject<void>();
   protected readonly destroyRef$ = inject(DestroyRef);
 
   ngOnDestroy(): void {

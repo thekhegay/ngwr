@@ -16,11 +16,9 @@ import {
 
 import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 import { WrIconComponent, wrIconName } from 'ngwr/icon';
-
-import { WrSpinnerComponent } from '../spinner';
+import { WrSpinnerComponent } from 'ngwr/spinner';
 
 @Component({
-  standalone: true,
   selector: 'wr-tag',
   templateUrl: './tag.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

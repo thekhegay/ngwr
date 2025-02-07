@@ -30,7 +30,6 @@ import { wrIconName, WrIconService } from 'ngwr/icon';
 import { drawCanvas, ERROR_LEVEL_MAP, plotQRCodeData } from './generator';
 
 @Component({
-  standalone: true,
   selector: 'wr-qr',
   templateUrl: './qr.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

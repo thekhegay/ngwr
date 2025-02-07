@@ -13,7 +13,6 @@ import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } fr
  * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/form}
  */
 @Component({
-  standalone: true,
   selector: 'wr-form-error',
   template: `<ng-content />`,
   changeDetection: ChangeDetectionStrategy.OnPush,

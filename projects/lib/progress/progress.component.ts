@@ -17,7 +17,6 @@ import {
 import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
 
 @Component({
-  standalone: true,
   selector: 'wr-progress',
   templateUrl: './progress.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

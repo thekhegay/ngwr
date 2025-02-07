@@ -34,8 +34,7 @@ import { noop } from 'rxjs';
 import { WrAbstractBase } from 'ngwr/cdk';
 import { SafeAny } from 'ngwr/cdk/types';
 import { provideWrIcons, chevronDown, WrIconComponent, close } from 'ngwr/icon';
-
-import { WrTagComponent } from '../tag';
+import { WrTagComponent } from 'ngwr/tag';
 
 import { WrOptionGroupComponent } from './select-option-group.component';
 import { WrOptionComponent } from './select-option.component';
@@ -46,7 +45,6 @@ import { WrOptionComponent } from './select-option.component';
  * {@tutorial} [How to use wr-select]{@link http://ngwr.dev/docs/components/select}
  */
 @Component({
-  standalone: true,
   selector: 'wr-select',
   templateUrl: './select.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

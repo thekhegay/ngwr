@@ -29,7 +29,6 @@ import { WR_DROPDOWN_POSITIONS, WrDropdownTrigger } from './dropdown.types';
 
 @Directive({
   selector: '[wrDropdown]',
-  standalone: true,
 })
 export class WrDropdownDirective implements OnDestroy {
   dropdownMenu = input<WrDropdownMenuComponent>();

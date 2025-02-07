@@ -20,7 +20,6 @@ import {
   exportAs: 'wrDropdownMenu',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
 })
 export class WrDropdownMenuComponent {
   @HostBinding('style')
