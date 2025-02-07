@@ -39,6 +39,10 @@ export default [
     loadComponent: () => import('./divider/divider.component').then(c => c.DividerComponent),
   },
   {
+    path: components.dropdown,
+    loadComponent: () => import('./dropdown/dropdown.component').then(c => c.DropdownComponent),
+  },
+  {
     path: components.form,
     loadComponent: () => import('./form/form.component').then(c => c.FormComponent),
   },
@@ -51,12 +55,20 @@ export default [
     loadComponent: () => import('./input/input.component').then(c => c.InputComponent),
   },
   {
+    path: components.pagination,
+    loadComponent: () => import('./pagination/pagination.component').then(c => c.PaginationComponent),
+  },
+  {
     path: components.progress,
     loadComponent: () => import('./progress/progress.component').then(c => c.ProgressComponent),
   },
   {
     path: components.qrCode,
     loadComponent: () => import('./qrcode/qrcode.component').then(c => c.QRCodeComponent),
+  },
+  {
+    path: components.select,
+    loadComponent: () => import('./select/select.component').then(c => c.SelectComponent),
   },
   {
     path: components.skeleton,
@@ -67,27 +79,15 @@ export default [
     loadComponent: () => import('./spinner/spinner.component').then(c => c.SpinnerComponent),
   },
   {
+    path: components.table,
+    loadComponent: () => import('./table/table.component').then(c => c.TableComponent),
+  },
+  {
     path: components.tag,
     loadComponent: () => import('./tag/tag.component').then(c => c.TagComponent),
   },
   {
     path: components.textarea,
     loadComponent: () => import('./textarea/textarea.component').then(c => c.TextareaComponent),
-  },
-  {
-    path: components.select,
-    loadComponent: () => import('./select/select.component').then(c => c.SelectComponent),
-  },
-  {
-    path: components.dropdown,
-    loadComponent: () => import('./dropdown/dropdown.component').then(c => c.DropdownComponent),
-  },
-  {
-    path: components.pagination,
-    loadComponent: () => import('./pagination/pagination.component').then(c => c.PaginationComponent),
-  },
-  {
-    path: components.table,
-    loadComponent: () => import('./table/table.component').then(c => c.TableComponent),
   },
 ] satisfies Routes;
