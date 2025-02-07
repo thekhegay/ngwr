@@ -56,7 +56,7 @@ export class WrOptionComponent {
     };
   }
 
-  protected readonly context = {
+  protected readonly context: { $implicit: SafeAny; option: SafeAny } = {
     $implicit: this,
     option: this,
   };
