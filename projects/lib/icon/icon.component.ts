@@ -5,7 +5,6 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,6 +14,7 @@ import {
   Input,
   Renderer2,
   ViewEncapsulation,
+  DOCUMENT,
 } from '@angular/core';
 
 import { SafeAny } from 'ngwr/cdk/types';
