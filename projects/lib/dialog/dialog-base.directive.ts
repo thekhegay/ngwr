@@ -8,24 +8,14 @@
 import { AnimationEvent } from '@angular/animations';
 import { OverlayRef } from '@angular/cdk/overlay';
 import { BasePortalOutlet, CdkPortalOutlet, ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
-import {
-  ChangeDetectorRef,
-  ComponentRef,
-  Directive,
-  ElementRef,
-  EmbeddedViewRef,
-  EventEmitter,
-  OnDestroy,
-} from '@angular/core';
-
-import { Subject } from 'rxjs';
+import { ChangeDetectorRef, ComponentRef, Directive, ElementRef, EmbeddedViewRef, EventEmitter } from '@angular/core';
 
 import { WR_ANIMATION_FADE_CLASS_NAME_MAP, WR_ANIMATION_ZOOM_CLASS_NAME_MAP } from './dialog-animations';
 import { WrDialogOptions } from './dialog-options';
 import { WrDialogRef } from './dialog-ref';
 
 @Directive()
-export class WrDialogBaseDirective extends BasePortalOutlet implements OnDestroy {
+export class WrDialogBaseDirective extends BasePortalOutlet {
   portalOutlet!: CdkPortalOutlet;
   dialogElementRef!: ElementRef<HTMLDivElement>;
   dialogRef!: WrDialogRef;
@@ -35,19 +25,12 @@ export class WrDialogBaseDirective extends BasePortalOutlet implements OnDestroy
 
   state: 'void' | 'enter' | 'exit' = 'enter';
 
-  protected readonly destroyed$: Subject<void> = new Subject<void>();
-
   constructor(
     public cdr: ChangeDetectorRef,
     public options: WrDialogOptions,
     protected overlayRef: OverlayRef
   ) {
     super();
-  }
-
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 
   onContainerClick(e: MouseEvent): void {

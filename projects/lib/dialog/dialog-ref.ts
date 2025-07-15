@@ -7,17 +7,18 @@
 
 import { hasModifierKey } from '@angular/cdk/keycodes';
 import { OverlayRef } from '@angular/cdk/overlay';
+import { DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { filter, Subject, take, takeUntil } from 'rxjs';
+import { filter, Subject, take } from 'rxjs';
 
-import { WrAbstractBase } from 'ngwr/cdk';
 import { SafeAny } from 'ngwr/cdk/types';
 import { generateRandomId } from 'ngwr/cdk/utils';
 
 import { WrDialogBaseDirective } from './dialog-base.directive';
 import { WrDialogOptions } from './dialog-options';
 
-export class WrDialogRef<C = SafeAny, R = SafeAny> extends WrAbstractBase {
+export class WrDialogRef<C = SafeAny, R = SafeAny> {
   readonly id?: string;
 
   componentInstance: C | null = null;
@@ -28,13 +29,13 @@ export class WrDialogRef<C = SafeAny, R = SafeAny> extends WrAbstractBase {
 
   private closeTimeout?: ReturnType<typeof setTimeout>;
 
+  private readonly destroyRef$ = inject(DestroyRef);
+
   constructor(
     private overlayRef: OverlayRef,
     private options: WrDialogOptions,
     public baseInstance: WrDialogBaseDirective
   ) {
-    super();
-
     this.id = options.id || `wr__modal__${generateRandomId()}`;
 
     baseInstance.animationStateChanged
@@ -57,7 +58,7 @@ export class WrDialogRef<C = SafeAny, R = SafeAny> extends WrAbstractBase {
         this._finishDialogClose();
       });
 
-    baseInstance.containerClick.pipe(takeUntil(this.destroyed$)).subscribe(() => {
+    baseInstance.containerClick.pipe(takeUntilDestroyed(this.destroyRef$)).subscribe(() => {
       this.close();
     });
 
@@ -97,6 +98,5 @@ export class WrDialogRef<C = SafeAny, R = SafeAny> extends WrAbstractBase {
 
   private _finishDialogClose(): void {
     this.overlayRef.dispose();
-    this.destroyed$.next();
   }
 }
