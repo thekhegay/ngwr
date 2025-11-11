@@ -62,7 +62,7 @@ export class WrTableComponent implements AfterContentInit {
   items = input.required<SafeAny[] | undefined>();
   loading = input<boolean>();
   pagination = input<boolean>(false);
-  total = input<number, number>(1, { transform: numberAttribute });
+  total = input<number, unknown>(1, { transform: numberAttribute });
   currentPage = model<number>(1);
   pageSize = model<number>(15);
   pageSizeOptions = input<number[]>([15, 25, 50]);

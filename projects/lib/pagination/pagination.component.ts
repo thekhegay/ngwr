@@ -34,13 +34,13 @@ import { WrPaginationPosition } from './pagination.types';
 })
 export class WrPaginationComponent {
   currentPage = model<number>(1);
-  total = input<number, number>(0, { transform: numberAttribute });
+  total = input<number, unknown>(0, { transform: numberAttribute });
   pageSize = model<number>(10);
   pageSizeOptions = input<number[]>([10, 20, 50, 100]);
-  showSizeChanger = input<boolean, boolean>(false, { transform: booleanAttribute });
-  showTotal = input<boolean, boolean>(false, { transform: booleanAttribute });
+  showSizeChanger = input<boolean, unknown>(false, { transform: booleanAttribute });
+  showTotal = input<boolean, unknown>(false, { transform: booleanAttribute });
   position = input<WrPaginationPosition>('start');
-  disabled = input<boolean, boolean>(false, { transform: booleanAttribute });
+  disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
   ofLabel = input<string>('of');
 
   @HostBinding('class')

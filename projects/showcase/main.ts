@@ -1,4 +1,4 @@
-import { provideZoneChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
@@ -17,7 +17,7 @@ bootstrapApplication(RootComponent, {
     { provide: FOOTER_HEIGHT, useValue: new BehaviorSubject(0) },
     { provide: SIDEBAR_OPENED, useValue: new BehaviorSubject(false) },
     provideAnimations(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideZonelessChangeDetection(),
     provideRouter(routing, withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     provideHighlightOptions({
       coreLibraryLoader: () => import('highlight.js/lib/core'),
