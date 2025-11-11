@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 22 ]
+        node-version: [ 24 ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.15.4
+          version: 10.21.0
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -43,41 +43,38 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Run release
-        id: run-release
         run: |
           pnpm release:${{ github.event.inputs.mode }}
 
-          echo "new_version=$(node -p "require('./projects/lib/package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Generate Release body
-        id: generate_body
+      - name: Prepare release metadata
+        id: prepare-release
         run: |
-          npx extract-changelog-release > RELEASE_BODY.md
-          echo "tag_name=$(git describe --abbrev=0 --tags)" >> $GITHUB_OUTPUT
+          pnpm tsx ./scripts/generate-release-body.ts --output=RELEASE_BODY.md
 
-      - name: Get PR body
-        id: get-pr-body
-        run: |
-          body=$(cat RELEASE_BODY.md)
-          delimiter="$(openssl rand -hex 8)"
-          echo "body<<$delimiter" >> $GITHUB_OUTPUT
-          echo "$body" >> $GITHUB_OUTPUT
-          echo "$delimiter" >> $GITHUB_OUTPUT
+          version=$(node -p "require('./projects/lib/package.json').version")
+          tag="v$version"
+
+          {
+            echo "release_version=$version"
+            echo "tag_name=$tag"
+            echo "release_body<<'EOF'"
+            cat RELEASE_BODY.md
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           delete-branch: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: release/${{ steps.run-release.outputs.new_version }}
-          title: '🚀 Release v${{ steps.run-release.outputs.new_version }}'
-          body: |
-            ${{ steps.get-pr-body.outputs.body }}
+          branch: release/${{ steps.prepare-release.outputs.release_version }}
+          title: '🚀 Release v${{ steps.prepare-release.outputs.release_version }}'
+          body: ${{ steps.prepare-release.outputs.release_body }}
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1.14.0
         with:
-          name: ${{ steps.generate_body.outputs.tag_name }}
-          tag: ${{ steps.generate_body.outputs.tag_name }}
-          body: ${{ steps.get-pr-body.outputs.body }}
+          name: ${{ steps.prepare-release.outputs.tag_name }}
+          tag: ${{ steps.prepare-release.outputs.tag_name }}
+          body: ${{ steps.get-prepare-release.outputs.release_body }}
           token: ${{ secrets.GITHUB_TOKEN }}

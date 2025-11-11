@@ -8,10 +8,10 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { startWith } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 import { WrAbstractBase } from 'ngwr/cdk';
 import { WrDropdownDirective, WrDropdownMenuComponent } from 'ngwr/dropdown';
@@ -47,7 +47,7 @@ export class WrTableFilterComponent extends WrAbstractBase implements OnInit {
   ngOnInit(): void {
     this.search.valueChanges
       .pipe(startWith(null))
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef$))
       .subscribe(value => {
         let filtered = [...this.items()];
         if (value) {
