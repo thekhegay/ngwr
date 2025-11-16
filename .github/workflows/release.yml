@@ -57,7 +57,7 @@ jobs:
           {
             echo "release_version=$version"
             echo "tag_name=$tag"
-            echo "release_body<<'EOF'"
+            echo "release_body<<EOF"
             cat RELEASE_BODY.md
             echo "EOF"
           } >> $GITHUB_OUTPUT
