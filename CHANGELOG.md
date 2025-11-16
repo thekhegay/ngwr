@@ -1,4 +1,11 @@
 # Changelog
+## 6.1.0 (2025-11-16)
+
+
+### Bug Fixes
+
+* **ci:** fix typo ([dccfd6e](https://github.com/thekhegay/ngwr/commit/dccfd6e0d3dfd65418b838cfdb7759b00ae042ba))
+
 ## 6.0.0 (2025-02-07)
 
 ## 5.0.3 (2025-01-24)
