@@ -46,7 +46,7 @@
     "@eslint/js": "^9.19.0",
     "@semantic-release/release-notes-generator": "^14.0.3",
     "@types/js-beautify": "^1.14.3",
-    "@types/node": "^22.13.1",
+    "@types/node": "^24.10.1",
     "angular-eslint": "20.6.0",
     "commit-and-tag-version": "^12.6.0",
     "eslint": "^9.28.0",
