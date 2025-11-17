@@ -1,4 +1,5 @@
 version: 2
+
 updates:
   - package-ecosystem: "npm"
     directory: "/"
@@ -11,6 +12,15 @@ updates:
     labels:
       - "npm"
       - "deps"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch", "version-update:semver-minor"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "13:00"
+      timezone: "Asia/Almaty"
+    assignees:
+      - "thekhegay"
+    labels:
+      - "github-actions"
+      - "deps"
