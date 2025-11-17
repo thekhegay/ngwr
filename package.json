@@ -14,8 +14,8 @@
     "publish:lib": "tsx ./scripts/publish.ts"
   },
   "engines": {
-    "node": ">= 24",
-    "pnpm": ">= 10.21"
+    "node": ">=20.19.0",
+    "pnpm": ">=10.21.0"
   },
   "packageManager": "pnpm@10.21.0",
   "pnpm": {
