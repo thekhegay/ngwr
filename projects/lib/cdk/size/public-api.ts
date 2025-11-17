@@ -1,0 +1,10 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+export type { ResolvedCssSize, ResolveCssSizeOptions } from './css-size.types';
+export { resolveCssSize, getRootFontSize } from './css-size.util';
+export { DEFAULT_ROOT_FONT_SIZE } from './css-size.tokens';
