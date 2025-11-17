@@ -5,5 +5,5 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export * from './alert-type';
-export * from './alert.component';
+export type { WrAlertType } from './alert-type';
+export { WrAlertComponent } from './alert.component';

@@ -45,14 +45,26 @@
     align-items: center;
     justify-content: center;
 
-    min-width: 2rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+
+    padding: 0;
+    border: none;
+    background: none;
+    appearance: none;
 
     color: var(--wr-alert-close-color);
-    transition: var(--wr-transition-base);
+    transition: var(--wr-transition-short);
     cursor: pointer;
+
+    outline: 2px solid rgba(var(--wr-color-primary-rgb), 0);
 
     &:hover {
       color: var(--wr-alert-close-color-hover);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(var(--wr-color-primary-rgb), 0.5);
     }
   }
 }
