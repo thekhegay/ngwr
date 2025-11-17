@@ -36,8 +36,9 @@ import { WrAlertType } from './alert-type';
  * ></wr-alert>
  * ```
  *
- *  @see WrAlertType
- *  @see http://ngwr.dev/docs/components/alert
+ * @see WrAlertType
+ * @see http://ngwr.dev/docs/components/alert
+ *
  * @publicApi
  */
 @Component({

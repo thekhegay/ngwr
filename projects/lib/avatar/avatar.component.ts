@@ -47,7 +47,10 @@ import type { WrAvatarSize } from './avatar-size';
  * <wr-avatar url="/assets/user.png" alt="User avatar" size="3rem"></wr-avatar>
  * ```
  *
+ * @see WrAvatarSize
  * @see WrSpinnerComponent
+ * @see http://ngwr.dev/docs/components/avatar
+ *
  * @publicApi
  */
 @Component({
