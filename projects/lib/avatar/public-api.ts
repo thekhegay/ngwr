@@ -5,4 +5,5 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export * from './avatar.component';
+export type { WrAvatarSize } from './avatar-size';
+export { WrAvatarComponent } from './avatar.component';

@@ -1,22 +1,17 @@
 <ng-content />
 
-<!--
-  img need to be wrapped with @if
-  to check is url set
-  to trigger (load) listener
--->
-@if (url) {
+@if (url(); as src) {
   <img
     class="wr-avatar__img"
-    [ngSrc]="url"
-    (load)="isImgLoaded.set(true)"
-    [width]="size"
-    [height]="size"
-    [alt]="alt"
+    [ngSrc]="src"
+    (load)="handleImageLoad()"
+    [width]="resolvedSize().pxValue"
+    [height]="resolvedSize().pxValue"
+    [alt]="alt()"
     priority
   />
 }
 
-@if (!isImgLoaded()) {
+@if (url() && !isImgLoaded()) {
   <wr-spinner class="wr-avatar__spin" />
 }
