@@ -1,15 +1,23 @@
-import { copyFileSync } from 'node:fs';
+import { copyFileSync, existsSync } from 'node:fs';
 
-import { logInfo, logSuccess } from './log';
+import { logInfo, logSuccess, logWarning } from './log';
 
 export function copyAssets(): void {
   const distPath = 'dist/lib';
 
-  logInfo({ message: `Copy README.md...`, break: true });
-  copyFileSync('README.md', `${distPath}/README.md`);
-  logSuccess({ message: `README.md copied`, break: true });
+  const filesToCopy = ['README.md', 'LICENSE', 'CHANGELOG.md'];
 
-  logInfo({ message: `Copy LICENSE...`, break: true });
-  copyFileSync('LICENSE', `${distPath}/LICENSE`);
-  logSuccess({ message: `LICENSE copied`, break: true });
+  for (const file of filesToCopy) {
+    const src = file;
+    const dest = `${distPath}/${file}`;
+
+    if (!existsSync(src)) {
+      logWarning({ message: `${src} not found, skipping`, break: true });
+      continue;
+    }
+
+    logInfo({ message: `Copy ${src}...`, break: true });
+    copyFileSync(src, dest);
+    logSuccess({ message: `${src} copied`, break: true });
+  }
 }

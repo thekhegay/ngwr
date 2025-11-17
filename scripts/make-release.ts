@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 
 import { buildLib } from './build';
-import { getArgv } from './shared/argv';
+import { getArgv } from './shared/get-argv';
 import { bumpVersion } from './shared/bump-version';
 import { ReleaseMode } from './shared/release-mode';
 import { runCommitAndTagVersion } from './shared/run-commit-and-tag-version';

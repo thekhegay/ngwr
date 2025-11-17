@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { getArgv } from './shared/argv';
+import { getArgv } from './shared/get-argv';
 
 const specialCharactersRegExp = /[.*+?^${}()|[\]\\]/g;
 

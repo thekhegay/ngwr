@@ -27,7 +27,7 @@ export function logSuccess(options: LogOptions): void {
 }
 
 export function logWarning(options: LogOptions): void {
-  const _message = options.bg ? chalk.bgGreen(options.message) : chalk.yellow(options.message);
+  const _message = options.bg ? chalk.bgYellow(options.message) : chalk.yellow(options.message);
   console.log(prefix, chalk.yellow(_message));
   br(options.break);
 }
