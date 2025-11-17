@@ -76,5 +76,5 @@ jobs:
         with:
           name: ${{ steps.prepare-release.outputs.tag_name }}
           tag: ${{ steps.prepare-release.outputs.tag_name }}
-          body: ${{ steps.repare-release.outputs.release_body }}
+          body: ${{ steps.prepare-release.outputs.release_body }}
           token: ${{ secrets.GITHUB_TOKEN }}
