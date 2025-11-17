@@ -7,13 +7,24 @@ on:
     types:
       - closed
 
+concurrency:
+  group: deploy-ngwr-showcase
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
-    if: contains(github.head_ref, 'release/') && contains(github.base_ref, 'main') && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: >
+      contains(github.head_ref, 'release/')
+      && contains(github.base_ref, 'main')
+      && github.event.action == 'closed'
+      && github.event.pull_request.merged == true
+
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        node-version: [ 24 ]
+        node-version: [24]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
