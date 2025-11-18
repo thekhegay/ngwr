@@ -14,9 +14,9 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 
-import { WrThemeColor } from 'ngwr/cdk/types';
 import { WrIconComponent, type wrIconName } from 'ngwr/icon';
 import { WrSpinnerComponent } from 'ngwr/spinner';
+import { WrThemeColor } from 'ngwr/theme';
 
 import type { WrButtonSize } from './button-size';
 

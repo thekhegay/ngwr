@@ -56,7 +56,7 @@ module.exports = tsEslint.config(
           'suffixes': ['Component']
         }
       ],
-      '@typescript-eslint/consistent-type-definitions': 'error',
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/no-unused-expressions': 'error',
       '@typescript-eslint/explicit-function-return-type': [
         'error',

@@ -17,8 +17,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 
-import { resolveCssSize, type ResolvedCssSize } from 'ngwr/cdk/size';
 import { WrSpinnerComponent } from 'ngwr/spinner';
+import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
 
 import type { WrAvatarSize } from './avatar-size';
 

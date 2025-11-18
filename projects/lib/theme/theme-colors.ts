@@ -5,6 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+/**
+ * List of supported theme color names used across NGWR components.
+ *
+ * These names are aligned with SCSS theme maps and CSS variables:
+ * e.g. `primary` → `--wr-color-primary`, `$theme-colors-map`.
+ */
 export const wrThemeColors = [
   'primary',
   'secondary',
@@ -15,5 +21,3 @@ export const wrThemeColors = [
   'medium',
   'dark',
 ] as const;
-
-export type WrThemeColor = (typeof wrThemeColors)[number];

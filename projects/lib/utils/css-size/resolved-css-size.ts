@@ -8,7 +8,7 @@
 /**
  * Result of resolving a CSS size value.
  */
-export interface ResolvedCssSize {
+export type ResolvedCssSize = {
   /**
    * Value used in CSS styles (e.g. "48px", "3rem", "80%").
    */
@@ -19,15 +19,4 @@ export interface ResolvedCssSize {
    * When `null`, attributes should be omitted.
    */
   pxValue: number | null;
-}
-
-/**
- * Options for {@link resolveCssSize}.
- */
-export interface ResolveCssSizeOptions {
-  /**
-   * Fallback value used when the raw size is `null` or `undefined`.
-   * Can be any supported format (e.g. `"6rem"`, `"48px"`, `48`, `"80%"`).
-   */
-  defaultValue?: string | number;
-}
+};

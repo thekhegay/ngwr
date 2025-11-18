@@ -19,8 +19,8 @@ import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/f
 
 import { noop } from 'rxjs';
 
-import { generateRandomId } from 'ngwr/cdk/utils';
 import { WrIconComponent, wrIconName } from 'ngwr/icon';
+import { generateRandomId } from 'ngwr/utils';
 
 /**
  * NGWR checkbox component.

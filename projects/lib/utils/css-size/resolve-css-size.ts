@@ -5,29 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { DEFAULT_ROOT_FONT_SIZE } from './css-size.tokens';
-import type { ResolvedCssSize, ResolveCssSizeOptions } from './css-size.types';
+import { getRootFontSize } from '../dom/get-root-font-size';
 
-/**
- * Reads the root font size (in px) using `getComputedStyle(document.documentElement)`.
- * Falls back to {@link DEFAULT_ROOT_FONT_SIZE} when DOM is not available or parsing fails.
- *
- * @internal
- */
-export function getRootFontSize(): number {
-  try {
-    if (typeof window === 'undefined' || typeof document === 'undefined') {
-      return DEFAULT_ROOT_FONT_SIZE;
-    }
-
-    const fontSize = window.getComputedStyle(document.documentElement).fontSize.replace('px', '').trim();
-
-    const parsed = Number.parseFloat(fontSize);
-    return Number.isFinite(parsed) ? parsed : DEFAULT_ROOT_FONT_SIZE;
-  } catch {
-    return DEFAULT_ROOT_FONT_SIZE;
-  }
-}
+import type { ResolveCssSizeOptions } from './resolve-css-size-options';
+import type { ResolvedCssSize } from './resolved-css-size';
 
 /**
  * Resolves a raw size value into a CSS value and an optional pixel value.
@@ -46,6 +27,9 @@ export function getRootFontSize(): number {
  * // size.cssValue === '3rem'
  * // size.pxValue  === 3 * getRootFontSize()
  * ```
+ *
+ * @see ResolvedCssSize
+ * @see ResolveCssSizeOptions
  */
 export function resolveCssSize(raw: unknown, options: ResolveCssSizeOptions = {}): ResolvedCssSize {
   const rootFontSize = getRootFontSize();

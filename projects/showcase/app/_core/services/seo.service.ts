@@ -1,8 +1,6 @@
 import { inject, Injectable, DOCUMENT } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
-import { isArray } from 'ngwr/cdk/rxjs';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -14,7 +12,7 @@ export class SeoService {
   setTitle(titleOrTitleKeys: string[] | string): void {
     let title = '';
 
-    if (isArray(titleOrTitleKeys)) {
+    if (Array.isArray(titleOrTitleKeys)) {
       for (const key of titleOrTitleKeys) {
         title = title.concat(`${key} · `);
       }
