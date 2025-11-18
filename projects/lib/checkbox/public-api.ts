@@ -5,4 +5,4 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export * from './checkbox.component';
+export { WrCheckboxComponent } from './checkbox.component';

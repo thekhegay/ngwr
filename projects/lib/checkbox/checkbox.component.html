@@ -1,18 +1,21 @@
-<label class="wr-checkbox__wrapper" [for]="id">
+<label class="wr-checkbox__wrapper" [for]="id()">
   <input
     class="wr-checkbox__input"
     type="checkbox"
-    [id]="id"
+    [id]="id()"
+    [checked]="inputValue()"
     [disabled]="isDisabled()"
-    [ngModel]="inputValue()"
-    (ngModelChange)="writeValue($event)"
+    (change)="onInputChange($event)"
+    (blur)="onInputBlur()"
   />
-  @if (icon) {
-    <wr-icon class="wr-checkbox__icon" [name]="icon" />
+
+  @if (icon(); as iconName) {
+    <wr-icon class="wr-checkbox__icon" [name]="iconName" />
   } @else {
     <div class="wr-checkbox-inner">
       <div class="wr-checkbox-inner__mark"></div>
     </div>
   }
+
   <ng-content />
 </label>
