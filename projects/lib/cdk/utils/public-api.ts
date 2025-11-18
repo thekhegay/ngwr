@@ -5,4 +5,4 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export * from './generate-random-id';
+export { generateRandomId } from './generate-random-id';
