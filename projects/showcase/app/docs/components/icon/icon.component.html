@@ -1,114 +1,118 @@
-<div class="ngwr-page-info">
-  <div class="ngwr-page-info__tags">
-    <wr-tag transparent>Component</wr-tag>
-    <wr-tag transparent color="secondary">Standalone</wr-tag>
-  </div>
-  <h1 class="ngwr-page-info__title">{{ title }}</h1>
-  <p class="ngwr-page-info__description">{{ description }}</p>
-</div>
+<ngwr-code-snippet>
+  <wr-icon name="add" />
+</ngwr-code-snippet>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">How to install</h2>
-  <p class="ngwr-page-section__description">
-    Import <code class="ngwr-pre">WrIconComponent</code> into a component where you want to use.
-  </p>
-  <div class="ngwr-page-section__content">
-    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
-    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
-  </div>
-</div>
+<!--<div class="ngwr-page-info">-->
+<!--  <div class="ngwr-page-info__tags">-->
+<!--    <wr-tag transparent>Component</wr-tag>-->
+<!--    <wr-tag transparent color="secondary">Standalone</wr-tag>-->
+<!--  </div>-->
+<!--  <h1 class="ngwr-page-info__title">{{ title }}</h1>-->
+<!--  <p class="ngwr-page-info__description">{{ description }}</p>-->
+<!--</div>-->
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Basic usage</h2>
-  <p class="ngwr-page-section__description">
-    Icon component can be used as <code class="ngwr-pre">wr-icon</code> component. Icons must be provider by
-    <code class="ngwr-pre">provideWrIcons()</code> provider
-  </p>
+<!--<div class="ngwr-page-section">-->
+<!--  <h2 class="ngwr-page-section__title">How to install</h2>-->
+<!--  <p class="ngwr-page-section__description">-->
+<!--    Import <code class="ngwr-pre">WrIconComponent</code> into a component where you want to use.-->
+<!--  </p>-->
+<!--  <div class="ngwr-page-section__content">-->
+<!--    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>-->
+<!--    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>-->
+<!--  </div>-->
+<!--</div>-->
 
-  <div class="ngwr-page-section__content">
-    <ngwr-code [code]="code.provider" codeLang="ts"></ngwr-code>
-  </div>
+<!--<div class="ngwr-page-section">-->
+<!--  <h2 class="ngwr-page-section__title">Basic usage</h2>-->
+<!--  <p class="ngwr-page-section__description">-->
+<!--    Icon component can be used as <code class="ngwr-pre">wr-icon</code> component. Icons must be provider by-->
+<!--    <code class="ngwr-pre">provideWrIcons()</code> provider-->
+<!--  </p>-->
 
-  <div class="ngwr-page-section__content">
-    <ngwr-snippet>
-      <ng-container ngProjectAs="[body]">
-        <wr-icon name="logo-angular"></wr-icon>
-      </ng-container>
-      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
-    </ngwr-snippet>
-  </div>
-</div>
+<!--  <div class="ngwr-page-section__content">-->
+<!--    <ngwr-code [code]="code.provider" codeLang="ts"></ngwr-code>-->
+<!--  </div>-->
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Icon list</h2>
-  <p class="ngwr-page-section__description">Beautiful hand-crafted icons</p>
+<!--  <div class="ngwr-page-section__content">-->
+<!--    <ngwr-snippet>-->
+<!--      <ng-container ngProjectAs="[body]">-->
+<!--        <wr-icon name="logo-angular"></wr-icon>-->
+<!--      </ng-container>-->
+<!--      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>-->
+<!--    </ngwr-snippet>-->
+<!--  </div>-->
+<!--</div>-->
 
-  <div class="ngwr-page-section__content">
-    <div class="grid">
-      @for (i of icons; track $index) {
-        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
-          <div class="ngwr-icon-item">
-            <div class="ngwr-icon-item-body">
-              <wr-icon class="ngwr-icon-item-body__icon" [name]="i.name" />
-            </div>
-            <div class="ngwr-icon-item-footer">
-              <span class="ngwr-icon-item-footer__name">{{ camelize(i.name) }}</span>
-              <wr-icon
-                class="ngwr-icon-item-footer__copy"
-                name="copy-outline"
-                [cdkCopyToClipboard]="camelize(i.name)"
-              />
-            </div>
-          </div>
-        </div>
-      }
-    </div>
+<!--<div class="ngwr-page-section">-->
+<!--  <h2 class="ngwr-page-section__title">Icon list</h2>-->
+<!--  <p class="ngwr-page-section__description">Beautiful hand-crafted icons</p>-->
 
-    <div class="grid">
-      @for (i of logoIcons; track $index) {
-        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
-          <div class="ngwr-icon-item">
-            <div class="ngwr-icon-item-body">
-              <wr-icon class="ngwr-icon-item-body__icon" [name]="i.name" />
-            </div>
-            <div class="ngwr-icon-item-footer">
-              <span class="ngwr-icon-item-footer__name">{{ camelize(i.name) }}</span>
-              <wr-icon
-                class="ngwr-icon-item-footer__copy"
-                name="copy-outline"
-                [cdkCopyToClipboard]="camelize(i.name)"
-              />
-            </div>
-          </div>
-        </div>
-      }
-    </div>
-  </div>
-</div>
+<!--  <div class="ngwr-page-section__content">-->
+<!--    <div class="grid">-->
+<!--      @for (i of icons; track $index) {-->
+<!--        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">-->
+<!--          <div class="ngwr-icon-item">-->
+<!--            <div class="ngwr-icon-item-body">-->
+<!--              <wr-icon class="ngwr-icon-item-body__icon" [name]="i.name" />-->
+<!--            </div>-->
+<!--            <div class="ngwr-icon-item-footer">-->
+<!--              <span class="ngwr-icon-item-footer__name">{{ camelize(i.name) }}</span>-->
+<!--              <wr-icon-->
+<!--                class="ngwr-icon-item-footer__copy"-->
+<!--                name="copy-outline"-->
+<!--                [cdkCopyToClipboard]="camelize(i.name)"-->
+<!--              />-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      }-->
+<!--    </div>-->
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">API</h2>
+<!--    <div class="grid">-->
+<!--      @for (i of logoIcons; track $index) {-->
+<!--        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">-->
+<!--          <div class="ngwr-icon-item">-->
+<!--            <div class="ngwr-icon-item-body">-->
+<!--              <wr-icon class="ngwr-icon-item-body__icon" [name]="i.name" />-->
+<!--            </div>-->
+<!--            <div class="ngwr-icon-item-footer">-->
+<!--              <span class="ngwr-icon-item-footer__name">{{ camelize(i.name) }}</span>-->
+<!--              <wr-icon-->
+<!--                class="ngwr-icon-item-footer__copy"-->
+<!--                name="copy-outline"-->
+<!--                [cdkCopyToClipboard]="camelize(i.name)"-->
+<!--              />-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      }-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
 
-  <div class="ngwr-page-section__content">
-    <div class="ngwr-page-table">
-      <table>
-        <tr class="ngwr-page-table__head">
-          <th>Property</th>
-          <th>Description</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Default</th>
-        </tr>
-        <tr>
-          <td><code>[name]</code></td>
-          <td>set name of icon</td>
-          <td>
-            <code>wrIconName</code>
-          </td>
-          <td><code class="ngwr-pre--danger">yes</code></td>
-          <td><code></code></td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</div>
+<!--<div class="ngwr-page-section">-->
+<!--  <h2 class="ngwr-page-section__title">API</h2>-->
+
+<!--  <div class="ngwr-page-section__content">-->
+<!--    <div class="ngwr-page-table">-->
+<!--      <table>-->
+<!--        <tr class="ngwr-page-table__head">-->
+<!--          <th>Property</th>-->
+<!--          <th>Description</th>-->
+<!--          <th>Type</th>-->
+<!--          <th>Required</th>-->
+<!--          <th>Default</th>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--          <td><code>[name]</code></td>-->
+<!--          <td>set name of icon</td>-->
+<!--          <td>-->
+<!--            <code>wrIconName</code>-->
+<!--          </td>-->
+<!--          <td><code class="ngwr-pre&#45;&#45;danger">yes</code></td>-->
+<!--          <td><code></code></td>-->
+<!--        </tr>-->
+<!--      </table>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->

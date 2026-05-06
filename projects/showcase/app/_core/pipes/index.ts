@@ -1,1 +1,1 @@
-export * from './beatify.pipe';
+export { DisplayDatePipe } from './display-date.pipe';

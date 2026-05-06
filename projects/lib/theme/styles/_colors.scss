@@ -1,0 +1,68 @@
+@use 'sass:color';
+@use 'sass:map';
+
+// Base palette
+//
+// Override the whole palette via:
+//   @use 'ngwr/theme/colors' with (
+//     $base-colors: (primary: #...)
+//   );
+
+$base-colors: (
+  primary: #3969e2,
+  secondary: #f51c6a,
+  success: #00a400,
+  warning: #ffba00,
+  danger: #fa383e,
+  light: #cbd5e1,
+  medium: #8594a4,
+  dark: #0f172a,
+) !default;
+
+// Lightness threshold (HSL) above which a color is considered "light"
+// and should use a dark contrast. Tune if contrast looks off.
+$contrast-threshold: 55% !default;
+
+// Dark text used on light backgrounds.
+$contrast-dark: #171616 !default;
+
+// Light text used on dark backgrounds.
+$contrast-light: #ffffff !default;
+
+// Helpers
+
+@function _rgb-channels($c) {
+  @return color.channel($c, 'red'), color.channel($c, 'green'), color.channel($c, 'blue');
+}
+
+@function _contrast($c) {
+  @if color.channel($c, 'lightness', $space: hsl) > $contrast-threshold {
+    @return $contrast-dark;
+  }
+  @return $contrast-light;
+}
+
+// CSS variables
+
+:root {
+  --wr-color-white: #ffffff;
+  --wr-color-white-rgb: 255, 255, 255;
+  --wr-color-black: #000000;
+  --wr-color-black-rgb: 0, 0, 0;
+
+  @each $name, $base in $base-colors {
+    --wr-color-#{$name}: #{$base};
+    --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
+    --wr-color-#{$name}-contrast: #{_contrast($base)};
+    --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
+    --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
+    --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
+    --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+  }
+}
+
+// Public SCSS list
+//
+// Color names available for `@each` loops in component styles.
+
+$colors: map.keys($base-colors) !default;

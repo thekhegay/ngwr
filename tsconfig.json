@@ -1,4 +1,3 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -10,6 +9,7 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "isolatedModules": true,
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
@@ -17,25 +17,14 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ],
     "baseUrl": "./",
     "paths": {
       "ngwr/*": ["./projects/lib/*"],
-      "#root": ["./projects/showcase/app/_root/root.component.ts"],
+      "#root": ["./projects/showcase/app/_root/root.component"],
+      "#layout": ["./projects/showcase/app/_layout/layout.component"],
       "#core/*": ["./projects/showcase/app/_core/*"],
       "#routing": ["./projects/showcase/app/routing.ts"],
-      "#env": ["./projects/showcase/environments/environment.ts"]
     },
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
-    "types": [
-      "node"
-    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

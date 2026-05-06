@@ -5,6 +5,7 @@ out-tsc
 RELEASE_BODY.md
 .angular
 .sass-cache
+_old
 
 # Node.js
 node_modules
@@ -24,6 +25,7 @@ node_modules
 connect.lock
 coverage
 typings
+*.mjs.map
 
 # System Files
 .DS_Store

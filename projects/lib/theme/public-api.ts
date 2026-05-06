@@ -1,9 +1,2 @@
-/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
-export type { WrThemeColor } from './theme-color';
-export { wrThemeColors } from './theme-colors';
+export { WR_COLORS } from './colors';
+export type { WrColor } from './colors';

@@ -6,8 +6,24 @@
  */
 
 /**
- * Utility type representing a value that can be present or absent.
+ * Represents a value that may be absent.
  *
- * Equivalent to `T | null | undefined`.
+ * Preferred over inline `T | null | undefined` unions for consistency
+ * across the codebase and to reduce repetition in public API signatures.
+ *
+ * @example
+ * ```ts
+ * function findUser(id: string): Maybe<User> {
+ *   return db.get(id) ?? null;
+ * }
+ *
+ * const user: Maybe<User> = findUser('42');
+ *
+ * if (isDefined(user)) {
+ *   // user is User
+ * }
+ * ```
+ *
+ * @see {@link isDefined} — type guard that narrows `Maybe<T>` to `T`.
  */
-export type Maybe<T> = T | undefined | null;
+export type Maybe<T> = T | null | undefined;

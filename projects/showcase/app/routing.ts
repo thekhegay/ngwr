@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 
 export const routes = {
   index: '/',
@@ -40,10 +40,6 @@ export const routes = {
 };
 
 export const routing: Routes = [
-  {
-    path: '',
-    loadComponent: () => import('./home/home.component').then(c => c.HomeComponent),
-  },
   {
     path: routes.docs.index,
     loadChildren: () => import('./docs/docs.routing'),

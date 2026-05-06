@@ -1,11 +1,10 @@
-import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { provideWrIcons, WrIconComponent, wrIconSet } from 'ngwr/icon';
-import { WrTagComponent } from 'ngwr/tag';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import { MetaService } from '#core/services';
+import { CodeSnippetComponent } from '#core/components';
 
 @Component({
   standalone: true,
@@ -13,35 +12,33 @@ import { SeoService } from '#core/services';
   templateUrl: './icon.component.html',
   styleUrl: './icon.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [CdkCopyToClipboard, WrTagComponent, WrIconComponent, CodeComponent, SnippetComponent],
+  imports: [WrIconComponent, CodeSnippetComponent],
   providers: [provideWrIcons(wrIconSet)],
 })
-export class IconComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class IconComponent implements OnInit {
+  private readonly metaService = inject(MetaService);
 
-  private readonly seoService = inject(SeoService);
+  protected readonly pageTitle = 'Icon';
+  protected readonly pageDescription = 'Component to display icons';
 
-  protected readonly title = 'Icon';
-  protected readonly description = 'Component to display icons';
-  protected readonly icons = wrIconSet.filter(i => !i.name.startsWith('logo'));
-  protected readonly logoIcons = wrIconSet.filter(i => i.name.startsWith('logo'));
-
-  protected readonly code = {
-    import: `import{WrIconComponent}from'ngwr/icon';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrIconComponent,],})\nexport class MyComponent {}`,
-    provider: `//...\nimport{provideWrIcons,logoAngular}from'ngwr/icon';\n//...\n@Component({\n//...\nproviders: [\n//...\nprovideWrIcons([logoAngular]),],})\nexport class MyComponent {}`,
-    usage: '<wr-icon name="logo-angular" />',
-  };
+  // protected readonly icons = wrIconSet.filter(i => !i.name.startsWith('logo'));
+  // protected readonly logoIcons = wrIconSet.filter(i => i.name.startsWith('logo'));
+  //
+  // protected readonly code = {
+  //   import: `import{WrIconComponent}from'ngwr/icon';`,
+  //   component: `@Component({\n//...\nimports: [\n//...\nWrIconComponent,],})\nexport class MyComponent {}`,
+  //   provider: `//...\nimport{provideWrIcons,logoAngular}from'ngwr/icon';\n//...\n@Component({\n//...\nproviders: [\n//...\nprovideWrIcons([logoAngular]),],})\nexport class MyComponent {}`,
+  //   usage: '<wr-icon name="logo-angular" />',
+  // };
 
   ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.title, 'Components']);
-    this.seoService.setDescription(this.description);
-    this.seoService.setKeywords(['icon', 'wr-icon']);
+    this.metaService.setCanonicalURL();
+    this.metaService.setTitle([this.pageTitle, 'Components']);
+    this.metaService.setDescription(this.pageDescription);
+    this.metaService.setKeywords(['icon', 'wr-icon']);
   }
-
-  camelize(value: string): string {
-    return value.replace(/-./g, x => x[1].toUpperCase());
-  }
+  //
+  // camelize(value: string): string {
+  //   return value.replace(/-./g, x => x[1].toUpperCase());
+  // }
 }

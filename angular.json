@@ -31,47 +31,6 @@
           },
           "defaultConfiguration": "production"
         },
-        "generate-icons": {
-          "builder": "@angular-extensions/svg-icons-builder:svg-icons-constants-builder",
-          "options": {
-            "conversionType": "constants",
-            "delimiter": "KEBAB",
-            "fileName": "icons",
-            "generateType": true,
-            "typeName": "wrIconName",
-            "generateTypeObject": false,
-            "exportCompleteIconSet": true,
-            "generateCompleteIconSet": true,
-            "completeIconSetName": "wrIconSet",
-            "prefix": "",
-            "interfaceName": "WrIcon",
-            "srcFiles": ["./projects/lib/icon/_svg/**/*.svg"],
-            "outputDirectory": "./projects/lib/icon/",
-            "compileSources": true,
-            "svgoConfig": {
-              "plugins": [
-                "preset-default",
-                "convertStyleToAttrs",
-                {
-                  "name": "addClassesToSVGElement",
-                  "params": {
-                    "className": "wr-icon__svg"
-                  }
-                },
-                {
-                  "name": "convertColors",
-                  "params": {
-                    "currentColor": true,
-                    "names2hex": false,
-                    "rgb2hex": false,
-                    "shorthex": false,
-                    "shortname": false
-                  }
-                }
-              ]
-            }
-          }
-        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
@@ -116,9 +75,6 @@
             "styles": [
               "projects/showcase/styles.scss"
             ],
-            "allowedCommonJsDependencies": [
-              "js-beautify"
-            ],
             "scripts": []
           },
           "configurations": {
@@ -157,32 +113,6 @@
           }
         }
       }
-    }
-  },
-  "schematics": {
-    "@schematics/angular:component": {
-      "type": "component"
-    },
-    "@schematics/angular:directive": {
-      "type": "directive"
-    },
-    "@schematics/angular:service": {
-      "type": "service"
-    },
-    "@schematics/angular:guard": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:interceptor": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:module": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:pipe": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:resolver": {
-      "typeSeparator": "."
     }
   }
 }

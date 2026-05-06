@@ -1,0 +1,75 @@
+@use 'sass:map';
+
+// Breakpoints
+
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+  xga: 1600px,
+  fhd: 1920px,
+  rt: 2560px,
+) !default;
+
+$container-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  xxl: 1320px,
+  xga: 1530px,
+  fhd: 1830px,
+  rt: 2470px,
+) !default;
+
+// Helpers
+
+@function bp-min($name, $bps: $breakpoints) {
+  $min: map.get($bps, $name);
+  @if $min != 0 {
+    @return $min;
+  }
+  @return null;
+}
+
+@function bp-max($name, $bps: $breakpoints) {
+  $max: map.get($bps, $name);
+  @if $max and $max > 0 {
+    @return $max - 0.02;
+  }
+  @return null;
+}
+
+@function bp-infix($name, $bps: $breakpoints) {
+  @if bp-min($name, $bps) == null {
+    @return '';
+  }
+  @return '-#{$name}';
+}
+
+// Public mixins
+
+@mixin media-up($name, $bps: $breakpoints) {
+  $min: bp-min($name, $bps);
+  @if $min {
+    @media (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+@mixin media-down($name, $bps: $breakpoints) {
+  $max: bp-max($name, $bps);
+  @if $max {
+    @media (max-width: $max) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}

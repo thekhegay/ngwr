@@ -1,0 +1,16 @@
+// Design tokens that don't need runtime overrides but are exposed
+// as CSS variables for consistency. Consumers can still override
+// them at :root level or scope them to a subtree.
+
+:root {
+  // Border radius
+  --wr-border-radius-sm: 0.25rem;
+  --wr-border-radius-base: 0.625rem;
+  --wr-border-radius-lg: 1rem;
+  --wr-border-radius-pill: 50rem;
+
+  // Transitions
+  --wr-transition-short: 0.1s linear;
+  --wr-transition-base: 0.15s linear;
+  --wr-transition-long: 0.2s linear;
+}

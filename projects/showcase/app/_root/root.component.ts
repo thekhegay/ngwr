@@ -1,17 +1,11 @@
-import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { FooterComponent, HeaderComponent } from '#core/components';
-
 @Component({
-  standalone: true,
   selector: 'ngwr-root',
-  template: '<ngwr-header /><router-outlet /><ngwr-footer />',
+  templateUrl: './root.component.html',
   styleUrl: './root.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet],
 })
-export class RootComponent {
-  @HostBinding() class = 'ngwr-root';
-}
+export class RootComponent {}
