@@ -1,58 +1,57 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
-import { wrThemeColors } from 'ngwr/cdk/types';
-import { WrCheckboxComponent } from 'ngwr/checkbox';
-import { WrDialogModule } from 'ngwr/dialog';
-import { logoAngular, logoGithub, provideWrIcons, shieldCheckmark } from 'ngwr/icon';
-import { WrTagComponent } from 'ngwr/tag';
+import { WrCheckboxComponent, WrCheckboxGroupComponent } from 'ngwr/checkbox';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-checkbox',
+  selector: 'ngwr-checkbox-page',
   templateUrl: './checkbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RouterLink,
-    ReactiveFormsModule,
-    CodeComponent,
-    SnippetComponent,
+    FormsModule,
     WrCheckboxComponent,
-    WrTagComponent,
-    WrDialogModule,
+    WrCheckboxGroupComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
   ],
-  providers: [provideWrIcons([shieldCheckmark, logoGithub, logoAngular])],
 })
-export class CheckboxComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class CheckboxComponent {
+  protected readonly agree = signal(true);
+  protected readonly features = signal<string[]>(['autosave']);
 
-  private readonly seoService = inject(SeoService);
+  protected readonly snippets = {
+    install: `import { WrCheckboxComponent, WrCheckboxGroupComponent } from 'ngwr/checkbox';
+import { FormsModule } from '@angular/forms';
 
-  protected readonly pageTitle = 'Checkbox';
-  protected readonly pageDescription = 'A two state checkbox';
-
-  protected readonly colors = wrThemeColors;
-
-  protected readonly code = {
-    import: `import{WrCheckboxComponent}from'ngwr/checkbox';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrCheckboxComponent,],})\nexport class MyComponent {}`,
-    usage: '<wr-checkbox [formControl]="formControl">Checkbox</wr-checkbox>',
-    iconUsage: '<wr-checkbox [formControl]="formControl" icon="logo-angular" />',
+@Component({ imports: [WrCheckboxComponent, WrCheckboxGroupComponent, FormsModule] })
+export class MyComponent {}`,
+    standalone: `<wr-checkbox [(ngModel)]="agree">I agree</wr-checkbox>`,
+    group: `<wr-checkbox-group [(ngModel)]="features">
+  <wr-checkbox value="autosave">Autosave</wr-checkbox>
+  <wr-checkbox value="notifications">Notifications</wr-checkbox>
+  <wr-checkbox value="darkmode">Dark mode</wr-checkbox>
+</wr-checkbox-group>`,
+    disabled: `<wr-checkbox [disabled]="true">Disabled</wr-checkbox>`,
   };
 
-  protected readonly value = new FormControl<boolean>(true);
-  protected readonly iconValue = new FormControl<boolean>(true);
-  protected readonly iconValue2 = new FormControl<boolean>(true);
-  protected readonly iconValue3 = new FormControl<boolean>(true);
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'id', description: 'Stable id for the native input.', type: 'string', default: 'auto' },
+    { name: 'value', description: 'Used only inside <wr-checkbox-group>.', type: 'unknown', default: 'null' },
+  ];
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.pageTitle, 'Components']);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['checkbox', 'wr-checkbox']);
-  }
+  protected readonly groupApi: readonly DocApiRow[] = [
+    { name: '—', description: 'Provides itself via WR_CHECKBOX_GROUP to children.', type: '—', default: '—' },
+  ];
 }

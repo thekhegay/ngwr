@@ -1,160 +1,123 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { KeyValuePipe, NgTemplateOutlet } from '@angular/common';
+import type { TemplateRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  ContentChildren,
-  EventEmitter,
-  HostBinding,
-  HostListener,
-  numberAttribute,
-  Output,
-  QueryList,
-  TemplateRef,
   ViewEncapsulation,
-  AfterContentInit,
+  computed,
+  contentChildren,
   input,
   model,
+  output,
 } from '@angular/core';
 
-import { SafeAny } from 'ngwr/cdk/types';
-import { WrDropdownDirective, WrDropdownMenuComponent } from 'ngwr/dropdown';
-import { infoCircleOutline, provideWrIcons, WrIconComponent } from 'ngwr/icon';
-import { WrPaginationComponent } from 'ngwr/pagination';
-import { NewArrayPipe } from 'ngwr/pipes';
 import { WrSpinnerComponent } from 'ngwr/spinner';
 
-import { WrTableCellDirective } from './table-cell';
-import { WrTableFilterComponent } from './table-filter';
-import { WrTableSortComponent } from './table-sort';
-import {
+import { WrTableCellDirective } from './table-cell.directive';
+import { WrTableFilterComponent } from './table-filter.component';
+import { WrTableSortComponent } from './table-sort.component';
+import type {
   WrTableCellContext,
   WrTableColumns,
-  WrTableFilterEmit,
+  WrTableFilterChange,
   WrTableFilterItem,
-  WrTableOrder,
-  WrTableOrderItem,
+  WrTableSort,
+  WrTableSortDirection,
 } from './types';
 
+/**
+ * Data table with sortable / filterable headers and custom cell templates.
+ *
+ * Columns are defined via the `columns` input (a `Record<key, column>`).
+ * Rows are objects whose property names match the column keys. Cells can
+ * be customised by projecting an `[wrTableCell]="key"` template.
+ *
+ * @example
+ * ```html
+ * <wr-table
+ *   [columns]="columns"
+ *   [items]="rows"
+ *   [(sort)]="sort"
+ *   (filterChange)="onFilter($event)"
+ * >
+ *   <ng-template wrTableCell="role" let-value>
+ *     <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
+ *   </ng-template>
+ * </wr-table>
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/table
+ */
 @Component({
   selector: 'wr-table',
   templateUrl: './table.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [
-    NgTemplateOutlet,
-    KeyValuePipe,
-    NewArrayPipe,
-    WrIconComponent,
-    WrSpinnerComponent,
-    WrDropdownDirective,
-    WrDropdownMenuComponent,
-    WrPaginationComponent,
-    WrTableSortComponent,
-    WrTableFilterComponent,
-  ],
-  providers: [provideWrIcons([infoCircleOutline])],
-  host: {
-    class: 'wr-table',
-  },
+  host: { class: 'wr-table' },
+  imports: [NgTemplateOutlet, KeyValuePipe, WrSpinnerComponent, WrTableSortComponent, WrTableFilterComponent],
 })
-export class WrTableComponent implements AfterContentInit {
-  columns = input.required<WrTableColumns>();
-  items = input.required<SafeAny[] | undefined>();
-  loading = input<boolean>();
-  pagination = input<boolean>(false);
-  total = input<number, unknown>(1, { transform: numberAttribute });
-  currentPage = model<number>(1);
-  pageSize = model<number>(15);
-  pageSizeOptions = input<number[]>([15, 25, 50]);
-  ordering = model<WrTableOrderItem[]>();
+export class WrTableComponent {
+  /** Column definitions, keyed by row property name. */
+  readonly columns = input.required<WrTableColumns>();
 
-  @Output() readonly filterChange = new EventEmitter<WrTableFilterEmit>();
+  /** Row items. `null`/`undefined` → loading skeleton. */
+  readonly items = input<readonly Record<string, unknown>[] | null | undefined>(null);
 
-  @HostBinding('style')
-  get styles(): Record<string, string | number> {
-    return {
-      '--wr-table-columns': Object.keys(this.columns).length,
-    };
+  /** Show the loading spinner overlay. @default false */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /** Two-way bindable sort array. Order in array = application order. */
+  readonly sort = model<readonly WrTableSort[]>([]);
+
+  /** Fires whenever a column's filter selection changes. */
+  readonly filterChange = output<WrTableFilterChange>();
+
+  private readonly cellTemplates = contentChildren(WrTableCellDirective);
+
+  /** Map of column key → custom template (if provided via `[wrTableCell]`). */
+  protected readonly cellMap = computed(() => {
+    const map = new Map<string, TemplateRef<WrTableCellContext>>();
+    for (const cell of this.cellTemplates()) map.set(cell.columnKey(), cell.template);
+    return map;
+  });
+
+  /** Keep KeyValuePipe in declaration order (comparator that treats all keys as equal). */
+  protected readonly keepOrder = (): number => 0;
+
+  protected directionFor(key: string): WrTableSortDirection {
+    return this.sort().find(s => s.key === key)?.direction ?? null;
   }
 
-  @HostListener('document:keydown', ['$event'])
-  onKeypress(evt: KeyboardEvent): void {
-    const isCtrl = evt.ctrlKey;
-    const isPeriod = evt.code === 'Period';
-    const isComma = evt.code === 'Comma';
+  protected cycleSort(key: string): void {
+    const current = this.directionFor(key);
+    const next: WrTableSortDirection = current === null ? 'asc' : current === 'asc' ? 'desc' : null;
 
-    if (isCtrl && isPeriod) {
-      const totalPages = Math.ceil(this.total() / this.pageSize());
-
-      if (this.currentPage() < totalPages) {
-        this.currentPage.update(value => ++value);
-      }
-    }
-
-    if (isCtrl && isComma) {
-      if (this.currentPage() > 1) {
-        this.currentPage.update(value => --value);
-      }
-    }
+    const list = this.sort().filter(s => s.key !== key);
+    if (next !== null) list.push({ key, direction: next });
+    this.sort.set(list);
   }
 
-  @ContentChildren(WrTableCellDirective)
-  private customCells: QueryList<WrTableCellDirective> | undefined;
-
-  private cellTemplates = new Map<string, TemplateRef<WrTableCellContext>>();
-
-  ngAfterContentInit(): void {
-    this.customCells?.forEach(cell => {
-      this.cellTemplates.set(cell.columnKey(), cell.template);
-    });
-  }
-
-  protected getCellTemplate(columnKey: string): TemplateRef<WrTableCellContext> | null {
-    return this.cellTemplates.get(columnKey) || null;
-  }
-
-  protected hasCellTemplate(columnKey: string): boolean {
-    return this.cellTemplates.has(columnKey);
-  }
-
-  /**
-   * We need to pass null to save original order for keyvalue pipe
-   * https://angular.dev/api/common/KeyValuePipe?tab=description
-   */
-  protected readonly keepOrder = (): SafeAny => null;
-
-  protected getOrder(key: string): WrTableOrder {
-    return this.ordering()?.find(o => o.key === key)?.order ?? WrTableOrder.REMOVE;
-  }
-
-  protected onOrderChange(key: string): void {
-    const item = this.ordering()?.find(o => o.key === key);
-
-    let order: WrTableOrder;
-    switch (item?.order) {
-      case WrTableOrder.ASC:
-        order = WrTableOrder.DESC;
-        break;
-      case WrTableOrder.DESC:
-        order = WrTableOrder.REMOVE;
-        break;
-      default:
-        order = WrTableOrder.ASC;
-    }
-
-    const orderingItem: WrTableOrderItem = {
-      key,
-      order,
-    };
-
-    this.ordering.update(ordering => {
-      const orderingMap = new Map(ordering?.map(item => [item.key, item]) ?? []);
-      orderingMap.set(key, orderingItem);
-      return Array.from(orderingMap.values());
-    });
-  }
-
-  protected onFilterChange(key: string, items: WrTableFilterItem[]): void {
+  protected onFilter(key: string, items: readonly WrTableFilterItem[]): void {
     this.filterChange.emit({ key, items });
+  }
+
+  protected cellContext(item: Record<string, unknown>, key: string, column: unknown): WrTableCellContext {
+    return { $implicit: item[key], item, column: column as WrTableCellContext['column'] };
+  }
+
+  protected getValue(item: Record<string, unknown>, key: unknown): unknown {
+    return item[String(key)];
+  }
+
+  protected templateFor(key: unknown): TemplateRef<WrTableCellContext> | undefined {
+    return this.cellMap().get(String(key));
   }
 }

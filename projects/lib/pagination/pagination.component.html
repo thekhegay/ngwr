@@ -1,27 +1,27 @@
-<div class="wr-pagination-container" [class]="'wr-pagination--' + position()">
+<div class="wr-pagination__inner">
   @if (showTotal()) {
-    <span class="wr-pagination-total">
-      {{ currentRange() }}
-    </span>
+    <span class="wr-pagination__total">{{ rangeLabel() }}</span>
   }
 
-  <div class="wr-pagination-items">
+  <div class="wr-pagination__nav">
     <wr-btn
+      size="sm"
       outlined
-      [disabled]="disabled() || currentPage() === 1"
-      (click)="onPageChange(currentPage() - 1)"
       icon="arrow-back"
-    ></wr-btn>
+      [disabled]="disabled() || currentPage() === 1"
+      (click)="goTo(currentPage() - 1)"
+    />
 
-    @for (page of pages(); track page) {
-      @if (page === '...') {
-        <span class="wr-pagination-ellipsis">...</span>
+    @for (page of pages(); track $index) {
+      @if (page === ellipsis) {
+        <span class="wr-pagination__ellipsis">{{ ellipsis }}</span>
       } @else {
         <wr-btn
-          [outlined]="!isCurrentPage(page)"
-          [color]="isCurrentPage(page) ? 'primary' : 'medium'"
+          size="sm"
+          [outlined]="!isCurrent(page)"
+          [color]="isCurrent(page) ? 'primary' : null"
           [disabled]="disabled()"
-          (click)="onPageChange(page)"
+          (click)="goTo(page)"
         >
           {{ page }}
         </wr-btn>
@@ -29,17 +29,23 @@
     }
 
     <wr-btn
+      size="sm"
       outlined
-      [disabled]="disabled() || currentPage() === totalPages()"
-      (click)="onPageChange(currentPage() + 1)"
       icon="arrow-forward"
-    ></wr-btn>
+      [disabled]="disabled() || currentPage() === totalPages()"
+      (click)="goTo(currentPage() + 1)"
+    />
   </div>
 
   @if (showSizeChanger()) {
-    <wr-select [disabled]="disabled()" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+    <wr-select
+      class="wr-pagination__size"
+      [disabled]="disabled()"
+      [ngModel]="pageSize()"
+      (ngModelChange)="onSizeChange($event)"
+    >
       @for (option of pageSizeOptions(); track option) {
-        <wr-option [value]="option" [label]="String(option)"></wr-option>
+        <wr-option [value]="option">{{ option }} / page</wr-option>
       }
     </wr-select>
   }

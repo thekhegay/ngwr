@@ -1,0 +1,43 @@
+<ngwr-doc-page
+  title="Collapse"
+  description="Expandable panel with a clickable header. Two-way binds `open`. Wrap in `<wr-collapse-group accordion>` for single-open behavior."
+  [keywords]="['collapse', 'accordion', 'wr-collapse']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-collapse title="What is NGWR?">
+          A signals-first Angular 21 component library. Bring your own design tokens.
+        </wr-collapse>
+        <wr-collapse title="How do I install it?" [open]="true">
+          <code>pnpm add ngwr @angular/cdk</code> — then import the styles and the components you use.
+        </wr-collapse>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accordion" description="Opening one panel auto-closes the others.">
+    <ngwr-doc-snippet [code]="snippets.accordion">
+      <div style="width: 100%">
+        <wr-collapse-group accordion>
+          <wr-collapse title="One">First panel body.</wr-collapse>
+          <wr-collapse title="Two">Second panel body.</wr-collapse>
+          <wr-collapse title="Three">Third panel body.</wr-collapse>
+        </wr-collapse-group>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Collapse API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Collapse Group API">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

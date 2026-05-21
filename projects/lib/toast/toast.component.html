@@ -1,0 +1,12 @@
+<div class="wr-toast__body">
+  @if (title(); as text) {
+    <p class="wr-toast__title">{{ text }}</p>
+  }
+  <p class="wr-toast__message">{{ message() }}</p>
+</div>
+
+@if (dismissible()) {
+  <button type="button" class="wr-toast__close" aria-label="Dismiss" (click)="dismissed.emit()">
+    <wr-icon name="close" />
+  </button>
+}

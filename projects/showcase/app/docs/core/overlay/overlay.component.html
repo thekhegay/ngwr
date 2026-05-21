@@ -1,0 +1,29 @@
+<ngwr-doc-page
+  title="Overlay"
+  description="Every floating component in NGWR (dialog, drawer, dropdown, select, tooltip, popover, popconfirm, toast) is built on Angular CDK's overlay primitives. The lib ships an optional helper to tag NGWR overlays so you can scope CSS without affecting other libraries."
+  [keywords]="['overlay', 'cdk', 'isolation']"
+  [labels]="['Core', 'Optional']"
+>
+  <ngwr-doc-section
+    title="Why this exists"
+    description="CDK creates a single overlay container at the document root — every CDK consumer (NGWR, Angular Material, NG-ZORRO, etc.) attaches its overlays to the same element. Styling collisions are the usual symptom (z-index wars, shared `.cdk-overlay-pane` rules). `provideWrOverlay()` adds a `.wr-overlay-container` class so your CSS can target NGWR overlays specifically."
+  >
+    <ngwr-doc-code [code]="snippets.setup" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scope styles to NGWR overlays"
+    description="After provideWrOverlay() is registered, the overlay root element has both the standard `.cdk-overlay-container` class and `.wr-overlay-container`. Use the second to scope your overrides:"
+  >
+    <ngwr-doc-code [code]="snippets.scopeCss" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Caveats"
+    description="`provideWrOverlay()` does not split CDK into separate containers — last provider wins app-wide. If two libraries both override `OverlayContainer`, only one applies. For true isolation you'd need separate Angular injectors. The class hook is a pragmatic compromise that covers the common case (CSS conflicts)."
+  />
+
+  <ngwr-doc-section title="Components that use the overlay">
+    <ngwr-doc-code [code]="snippets.components" language="typescript" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

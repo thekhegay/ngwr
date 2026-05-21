@@ -1,126 +1,112 @@
-@forward './vars';
+@use '../../theme/styles' as theme;
 
 .wr-input {
-  --wr-input-padding-right: var(--wr-input-padding-x);
-  --wr-input-cursor: default;
-
-  display: flex;
-
-  cursor: var(--wr-input-cursor);
-
-  color: var(--wr-input-color);
-  font-size: var(--wr-input-font-size);
-  font-weight: var(--wr-input-font-weight);
-  line-height: var(--wr-input-line-height);
-
-  background-color: var(--wr-input-bg-color);
-  border: 1px solid var(--wr-input-border-color);
-  border-radius: var(--wr-input-border-radius);
-  box-shadow: var(--wr-input-box-shadow);
-
-  overflow: hidden;
+  display: inline-flex;
+  align-items: stretch;
+  vertical-align: middle;
   position: relative;
 
-  transition: var(--wr-transition-base);
+  // Defaults — modifiers override
+  --wr-input-color: var(--wr-color-dark);
+  --wr-input-placeholder: rgba(var(--wr-color-medium-rgb), 0.7);
+  --wr-input-bg: var(--wr-color-white);
+  --wr-input-border: var(--wr-color-light);
+  --wr-input-affix: var(--wr-color-medium);
+  --wr-input-radius: var(--wr-border-radius-base);
+  --wr-input-ring: transparent;
+  --wr-input-padding-y: 0.4375rem;
+  --wr-input-padding-x: 0.75rem;
+  --wr-input-font-size: 0.875rem;
+  --wr-input-line-height: 1.25rem;
+  --wr-input-toggle-size: 1rem;
+
+  color: var(--wr-input-color);
+  background: var(--wr-input-bg);
+  border: 1px solid var(--wr-input-border);
+  border-radius: var(--wr-input-radius);
+  box-shadow: 0 0 0 3px var(--wr-input-ring);
+  font-family: var(--wr-font-family-base);
+  font-size: var(--wr-input-font-size);
+  line-height: var(--wr-input-line-height);
+  transition: border-color var(--wr-transition-base), box-shadow var(--wr-transition-base),
+    background var(--wr-transition-base);
 
   &--rounded {
-    --wr-input-border-radius: 50rem;
-  }
-
-  &--disabled {
-    --wr-input-cursor: not-allowed;
-    --wr-input-color: var(--wr-color-medium);
-    --wr-input-bg-color: var(--wr-color-light-lighter);
+    --wr-input-radius: var(--wr-border-radius-pill);
+    --wr-input-padding-x: 1rem;
   }
 
   &--focused {
-    --wr-input-border-color: var(--wr-color-primary);
-    --wr-input-box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.125);
+    --wr-input-border: var(--wr-color-primary);
+    --wr-input-ring: rgba(var(--wr-color-primary-rgb), 0.15);
   }
 
-  &--password {
-    --wr-input-padding-right: calc(var(--wr-input-icon-size) + calc(var(--wr-input-padding-x) / 2));
+  &--disabled {
+    --wr-input-color: var(--wr-color-medium);
+    --wr-input-bg: rgba(var(--wr-color-light-rgb), 0.35);
+    cursor: not-allowed;
+
+    .wr-input__native {
+      cursor: not-allowed;
+    }
   }
 
   &__native {
-    display: inline-block;
-
-    flex: 1;
-
+    flex: 1 1 auto;
+    min-width: 0;
     appearance: none;
-    background: none;
-    border: none;
-    outline: none;
+    background: transparent;
+    border: 0;
+    outline: 0;
     margin: 0;
-    vertical-align: middle;
-    white-space: normal;
-    resize: none;
-
     color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
+    font: inherit;
     line-height: inherit;
-
     padding: var(--wr-input-padding-y) var(--wr-input-padding-x);
-    padding-right: var(--wr-input-padding-right);
-
-    &[disabled],
-    &:disabled {
-      cursor: var(--wr-input-cursor);
-    }
 
     &::placeholder {
-      color: var(--wr-input-placeholder-color);
-      font-style: italic;
+      color: var(--wr-input-placeholder);
     }
   }
 
-  &-icon {
-    display: flex;
-    flex-direction: column;
+  &--has-prefix &__native {
+    padding-left: 0.25rem;
+  }
+  &--has-suffix &__native {
+    padding-right: 0.25rem;
+  }
+
+  &__affix {
+    display: inline-flex;
+    align-items: center;
+    color: var(--wr-input-affix);
+    padding: 0 var(--wr-input-padding-x);
+    user-select: none;
+    pointer-events: none;
+    font-weight: 500;
+  }
+
+  &__toggle {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    position: absolute;
-    top: 0;
-    right: 0;
-
-    width: calc(var(--wr-input-icon-size) + calc(var(--wr-input-padding-x) / 2));
-    height: 100%;
-
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0 var(--wr-input-padding-x);
+    color: var(--wr-input-affix);
     cursor: pointer;
+    transition: color var(--wr-transition-base);
 
-    &--disabled {
-      cursor: var(--wr-input-cursor);
-      pointer-events: none;
+    --wr-icon-size: var(--wr-input-toggle-size);
+
+    &:hover:not(:disabled) {
+      color: var(--wr-color-primary);
     }
 
-    &__icon {
-      --wr-icon-size: var(--wr-input-icon-size);
-      color: var(--wr-input-icon-color);
-      transition: var(--wr-transition-base);
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
     }
-
-    &:hover {
-      --wr-input-icon-color: var(--wr-color-primary);
-    }
-  }
-
-  &-prefix,
-  &-suffix {
-    color: var(--wr-input-suffix-prefix-color);
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: inherit;
-
-    padding-top: var(--wr-input-padding-y);
-    padding-bottom: var(--wr-input-padding-y);
-  }
-
-  &-prefix {
-    padding-left: var(--wr-input-padding-x);
-  }
-
-  &-suffix {
-    padding-right: var(--wr-input-padding-x);
   }
 }

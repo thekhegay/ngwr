@@ -1,1 +1,1 @@
-export { SeoService } from './seo.service';
+export { MetaService } from './meta.service';

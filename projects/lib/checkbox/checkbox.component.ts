@@ -9,52 +9,50 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   ChangeDetectionStrategy,
   Component,
+  ViewEncapsulation,
+  computed,
   forwardRef,
-  HostBinding,
+  inject,
   input,
   signal,
-  ViewEncapsulation,
 } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop } from 'rxjs';
+import { WrIconComponent, type WrIconName } from 'ngwr/icon';
+import { noop, randomId } from 'ngwr/utils';
 
-import { WrIconComponent, wrIconName } from 'ngwr/icon';
-import { generateRandomId } from 'ngwr/utils';
+import { WR_CHECKBOX_GROUP } from './tokens';
 
 /**
- * NGWR checkbox component.
+ * Two-state checkbox.
  *
- * Can be used standalone or as part of Angular forms (reactive or template-driven)
- * thanks to the `ControlValueAccessor` implementation.
- *
- * @example
- * ```html
- * <wr-checkbox [(ngModel)]="isAccepted">
- *   I accept terms and conditions
- * </wr-checkbox>
- * ```
+ * **Standalone mode** — boolean value, works as a `ControlValueAccessor`:
  *
  * @example
  * ```html
- * <form [formGroup]="form">
- *   <wr-checkbox formControlName="rememberMe">
- *     Remember me
- *   </wr-checkbox>
- * </form>
+ * <wr-checkbox [(ngModel)]="agree">I agree</wr-checkbox>
  * ```
  *
- * @see WrIconComponent
- * @see http://ngwr.dev/docs/components/checkbox
+ * **Inside `<wr-checkbox-group>`** — the checkbox's `value` is added to
+ * or removed from the group's array. The standalone CVA is ignored.
  *
- * @publicApi
+ * @example
+ * ```html
+ * <wr-checkbox-group [(ngModel)]="features">
+ *   <wr-checkbox value="autosave">Autosave</wr-checkbox>
+ *   <wr-checkbox value="notifications">Notifications</wr-checkbox>
+ * </wr-checkbox-group>
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/checkbox
  */
 @Component({
   selector: 'wr-checkbox',
   templateUrl: './checkbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [FormsModule, WrIconComponent],
+  host: { '[class]': 'classes()' },
+  imports: [WrIconComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -66,123 +64,88 @@ import { generateRandomId } from 'ngwr/utils';
 })
 export class WrCheckboxComponent implements ControlValueAccessor {
   /**
-   * Unique id used to associate the host label and the native input.
+   * Stable id used to associate the native input with its label.
    *
-   * @default Randomly generated id
+   * @default Randomly generated
    */
-  readonly id = input<string>(generateRandomId('wr-checkbox'));
-  /**
-   * Optional icon to render instead of the default checkmark.
-   */
-  readonly icon = input<wrIconName | null>(null);
+  readonly id = input<string>(randomId('wr-checkbox'));
 
   /**
-   * Internal signal holding the current checkbox value.
-   *
-   * @internal
+   * Per-checkbox value used only when inside a `<wr-checkbox-group>`.
+   * Ignored in standalone mode.
    */
-  protected readonly inputValue = signal(false);
+  readonly value = input<unknown>(null);
 
   /**
-   * Internal disabled state controlled by Angular forms via `setDisabledState`.
+   * Disable the checkbox. Also set automatically by Angular forms.
    *
-   * @internal
+   * @default false
    */
-  protected readonly isDisabled = signal(false);
+  readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Callback registered by Angular forms to be notified when the value changes.
-   *
-   * @internal
+   * Optional icon name rendered inside the box when checked, in place of the
+   * default checkmark. Use any registered NGWR icon.
    */
+  readonly icon = input<WrIconName | null>(null);
+
+  private readonly group = inject(WR_CHECKBOX_GROUP, { optional: true });
+
+  // Standalone state. When inside a group, these are not used as the source of truth.
+  protected readonly standaloneChecked = signal(false);
+  protected readonly standaloneDisabledFromCva = signal(false);
+
+  /** Derived "is checked". Reads from group when grouped, else local state. */
+  protected readonly checked = computed(() => {
+    return this.group ? this.group.isSelected(this.value()) : this.standaloneChecked();
+  });
+
+  /** Effective disabled — input wins, then group, then CVA. */
+  protected readonly effectiveDisabled = computed(() => {
+    if (this.disabled()) return true;
+    return this.group ? this.group.isDisabled() : this.standaloneDisabledFromCva();
+  });
+
+  protected readonly classes = computed(() => {
+    const parts = ['wr-checkbox'];
+    if (this.checked()) parts.push('wr-checkbox--checked');
+    if (this.effectiveDisabled()) parts.push('wr-checkbox--disabled');
+    return parts.join(' ');
+  });
+
   private onChange: (value: boolean) => void = noop;
-
-  /**
-   * Callback registered by Angular forms to be notified when the control is touched.
-   *
-   * @internal
-   */
   private onTouched: () => void = noop;
 
-  /**
-   * Host CSS classes.
-   *
-   * Adds `wr-checkbox--checked` when the current value is `true`.
-   */
-  @HostBinding('class')
-  get hostClasses(): Record<string, boolean> {
-    const baseClass = 'wr-checkbox';
+  // ──────── ControlValueAccessor (standalone mode) ────────
 
-    return {
-      [baseClass]: true,
-      [`${baseClass}--checked`]: this.inputValue(),
-    };
-  }
-
-  /**
-   * Native `disabled` attribute on the host.
-   *
-   * Used to trigger `&[disabled]` styles in CSS.
-   */
-  @HostBinding('attr.disabled')
-  get nativeDisabled(): '' | null {
-    return this.isDisabled() ? '' : null;
-  }
-
-  // ──────────────────── ControlValueAccessor ────────────────────
-
-  /**
-   * Writes a new value from the form model into the view.
-   * This method is called by Angular forms.
-   */
   writeValue(value: boolean | null): void {
-    this.inputValue.set(!!value);
-    // Нет необходимости в ChangeDetectorRef:
-    // обновление signal автоматически помечает компонент на проверку.
+    this.standaloneChecked.set(!!value);
   }
 
-  /**
-   * Registers a callback function that should be called when the control's
-   * value changes in the UI (i.e. user interaction).
-   */
   registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
   }
 
-  /**
-   * Registers a callback function that should be called when the control is blurred.
-   */
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
-  /**
-   * Enables or disables the component from the Angular forms API.
-   */
   setDisabledState(isDisabled: boolean): void {
-    this.isDisabled.set(coerceBooleanProperty(isDisabled));
+    this.standaloneDisabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────────────────── Template event handlers ─────────────────
+  // ──────── Template handlers ────────
 
-  /**
-   * Handles native `<input type="checkbox">` change events.
-   *
-   * @internal
-   */
   protected onInputChange(event: Event): void {
-    const target = event.target as HTMLInputElement | null;
-    const checked = !!target?.checked;
-
-    this.inputValue.set(checked);
+    const checked = (event.target as HTMLInputElement).checked;
+    if (this.group) {
+      this.group.toggle(this.value());
+      return;
+    }
+    this.standaloneChecked.set(checked);
     this.onChange(checked);
   }
 
-  /**
-   * Handles native `<input>` blur events and notifies Angular forms.
-   *
-   * @internal
-   */
   protected onInputBlur(): void {
     this.onTouched();
   }

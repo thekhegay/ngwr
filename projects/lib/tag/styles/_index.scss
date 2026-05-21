@@ -1,32 +1,81 @@
-@forward './vars';
-@forward './theming';
+@use '../../theme/styles' as theme;
 
 .wr-tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   vertical-align: middle;
-  position: relative;
 
   appearance: none;
   text-decoration: none;
-  list-style: none;
-
   white-space: nowrap;
-  word-wrap: break-word;
+
+  // Defaults — color and style modifiers override
+  --wr-tag-color: var(--wr-color-dark);
+  --wr-tag-bg: var(--wr-color-white);
+  --wr-tag-border: var(--wr-color-light);
+  --wr-tag-radius: var(--wr-border-radius-sm);
+  --wr-tag-padding-y: 0.125rem;
+  --wr-tag-padding-x: 0.5rem;
+  --wr-tag-font-size: 0.75rem;
+  --wr-tag-font-weight: 500;
+  --wr-tag-line-height: 1rem;
 
   color: var(--wr-tag-color);
-  background-color: var(--wr-tag-bg-color);
-
-  border-radius: var(--wr-tag-border-radius);
-  border: 1px solid var(--wr-tag-border-color);
-
-  font-family: var(--wr-tag-font-family);
+  background: var(--wr-tag-bg);
+  border: 1px solid var(--wr-tag-border);
+  border-radius: var(--wr-tag-radius);
+  padding: var(--wr-tag-padding-y) var(--wr-tag-padding-x);
+  font-family: var(--wr-font-family-base);
   font-size: var(--wr-tag-font-size);
   font-weight: var(--wr-tag-font-weight);
   line-height: var(--wr-tag-line-height);
+  transition: var(--wr-transition-base);
 
-  padding: var(--wr-tag-padding-y) var(--wr-tag-padding-x);
-
+  // Shape
   &--rounded {
-    --wr-tag-border-radius: 50rem;
+    --wr-tag-radius: var(--wr-border-radius-pill);
+    --wr-tag-padding-x: 0.625rem;
+  }
+
+  // Icon slot sizing
+  &__adornment {
+    --wr-icon-size: 0.875rem;
+    color: inherit;
+    flex: 0 0 auto;
+  }
+
+  // Hoverable (used when the tag is interactive)
+  &--hoverable {
+    cursor: pointer;
+    &:hover {
+      filter: brightness(0.95);
+    }
+  }
+
+  // Loading: keep size; dim text a touch
+  &--loading {
+    opacity: 0.85;
+  }
+
+  // Colored variants
+  @each $name in theme.$colors {
+    &--#{$name} {
+      --wr-tag-color: var(--wr-color-#{$name}-contrast);
+      --wr-tag-bg: var(--wr-color-#{$name});
+      --wr-tag-border: var(--wr-color-#{$name});
+
+      &.wr-tag--outlined {
+        --wr-tag-color: var(--wr-color-#{$name});
+        --wr-tag-bg: rgba(var(--wr-color-#{$name}-rgb), 0.06);
+        --wr-tag-border: rgba(var(--wr-color-#{$name}-rgb), 0.25);
+      }
+
+      &.wr-tag--transparent {
+        --wr-tag-color: var(--wr-color-#{$name});
+        --wr-tag-bg: rgba(var(--wr-color-#{$name}-rgb), 0.1);
+        --wr-tag-border: transparent;
+      }
+    }
   }
 }

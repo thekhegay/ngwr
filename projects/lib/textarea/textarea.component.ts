@@ -5,43 +5,46 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
+import type { ElementRef } from '@angular/core';
 import {
-  AfterViewInit,
-  booleanAttribute,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  ElementRef,
-  forwardRef,
-  HostBinding,
-  inject,
-  Input,
-  numberAttribute,
   PLATFORM_ID,
-  signal,
-  ViewChild,
   ViewEncapsulation,
+  computed,
+  effect,
+  forwardRef,
+  inject,
+  input,
+  signal,
+  viewChild,
 } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop } from 'rxjs';
-
-import { WrAbstractBase } from 'ngwr/cdk';
-import { SafeAny } from 'ngwr/cdk/types';
+import { noop } from 'ngwr/utils';
 
 /**
- * NGWR textarea component.
+ * Multi-line text input.
  *
- * {@tutorial} [How to use wr-textarea]{@link http://ngwr.dev/docs/components/textarea}
+ * Implements `ControlValueAccessor`. Optional `autosize` grows the
+ * textarea with its content, capped at `maxRows` if provided.
+ *
+ * @example
+ * ```html
+ * <wr-textarea placeholder="Notes" [(ngModel)]="text" />
+ * <wr-textarea autosize [maxRows]="6" [(ngModel)]="text" />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/textarea
  */
 @Component({
   selector: 'wr-textarea',
   templateUrl: './textarea.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [FormsModule],
+  host: { '[class]': 'classes()' },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -51,106 +54,112 @@ import { SafeAny } from 'ngwr/cdk/types';
     },
   ],
 })
-export class WrTextareaComponent extends WrAbstractBase implements ControlValueAccessor, AfterViewInit {
-  @Input() placeholder = '';
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input({ transform: booleanAttribute }) resizable = true;
-  @Input({ transform: booleanAttribute }) autosize = false;
-  @Input({ transform: numberAttribute }) rows = 2;
-  @Input({ transform: numberAttribute }) maxRows?: number;
+export class WrTextareaComponent implements ControlValueAccessor {
+  /** Native placeholder text. @default '' */
+  readonly placeholder = input<string>('');
 
-  @Input({ transform: booleanAttribute })
-  set disabled(value: boolean) {
-    this.isDisabled.set(value);
-  }
-  get disabled(): boolean {
-    return this.isDisabled();
-  }
+  /** Visible row count. @default 3 */
+  readonly rows = input(3, { transform: (v: unknown): number => coerceNumberProperty(v, 3) });
 
-  @ViewChild('textareaNative')
-  private textareaNative: ElementRef<HTMLTextAreaElement> | undefined;
+  /** Allow user resize via the native handle. @default true */
+  readonly resizable = input(true, { transform: coerceBooleanProperty });
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'wr-textarea': true,
-      'wr-textarea--resizable': this.resizable,
-      'wr-textarea--disabled': this.isDisabled(),
-      'wr-textarea--autosize': this.autosize,
-    };
-  }
+  /** Read-only state. @default false */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
 
-  protected value?: string;
+  /** Grow the textarea to fit its content. @default false */
+  readonly autosize = input(false, { transform: coerceBooleanProperty });
 
-  protected readonly inputValue = signal<string | null>(null);
-  protected readonly isDisabled = signal(false);
+  /** Cap autosize at this many rows. Ignored when `autosize` is false. */
+  readonly maxRows = input<number | null>(null);
+
+  /**
+   * Disable the textarea. Also set by Angular forms via `setDisabledState`.
+   *
+   * @default false
+   */
+  readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  protected readonly value = signal<string>('');
+  protected readonly disabledFromCva = signal(false);
+  protected readonly focused = signal(false);
+
+  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
+
+  protected readonly native = viewChild.required<ElementRef<HTMLTextAreaElement>>('native');
+
+  protected readonly classes = computed(() => {
+    const parts = ['wr-textarea'];
+    if (!this.resizable() || this.autosize()) parts.push('wr-textarea--no-resize');
+    if (this.focused()) parts.push('wr-textarea--focused');
+    if (this.effectiveDisabled()) parts.push('wr-textarea--disabled');
+    return parts.join(' ');
+  });
 
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
-  private get isBrowser(): boolean {
-    return isPlatformBrowser(this.platformId);
+  private onChange: (value: string) => void = noop;
+  private onTouched: () => void = noop;
+
+  constructor() {
+    // Autosize: re-fit whenever value or autosize toggles.
+    effect(() => {
+      if (!this.autosize() || !this.isBrowser) return;
+      // Read `value` to register dependency
+      this.value();
+      requestAnimationFrame(() => this.resize());
+    });
   }
 
-  ngAfterViewInit(): void {
-    if (this.autosize && this.isBrowser) {
-      this.resizeTextarea();
-    }
-  }
+  // ──────── ControlValueAccessor ────────
 
-  onChange: (value: string) => void = noop;
-  onTouch: () => void = noop;
+  writeValue(value: string | null): void {
+    this.value.set(value ?? '');
+  }
 
   registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouch = fn;
+    this.onTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.isDisabled.set(coerceBooleanProperty(isDisabled));
+    this.disabledFromCva.set(isDisabled);
   }
 
-  writeValue(value: string): void {
-    this.value = value;
-    this.onChange(value);
-    this.inputValue.set(value);
+  // ──────── Template handlers ────────
 
-    if (this.isBrowser) {
-      requestAnimationFrame(() => {
-        this.resizeTextarea();
-      });
-    }
-
-    this.cdr.markForCheck();
+  protected onInput(event: Event): void {
+    const next = (event.target as HTMLTextAreaElement).value;
+    this.value.set(next);
+    this.onChange(next);
   }
 
-  resizeTextarea(): void {
-    if (!this.autosize || !this.textareaNative || !this.isBrowser) {
-      return;
-    }
+  protected onBlur(): void {
+    this.focused.set(false);
+    this.onTouched();
+  }
 
-    const textarea = this.textareaNative.nativeElement;
+  private resize(): void {
+    const el = this.native()?.nativeElement;
+    if (!el) return;
 
-    textarea.style.height = 'auto';
+    el.style.height = 'auto';
 
-    let newHeight: number;
-    let maxHeight = 'none';
-
-    if (this.maxRows) {
-      const computedStyle = getComputedStyle(textarea);
-      const lineHeight = parseInt(computedStyle.lineHeight, 10) || parseInt(computedStyle.fontSize, 10) * 1.2;
-
-      maxHeight = `${lineHeight * this.maxRows}px`;
-      newHeight = Math.min(textarea.scrollHeight, lineHeight * this.maxRows);
+    const maxRows = this.maxRows();
+    if (maxRows && maxRows > 0) {
+      const cs = getComputedStyle(el);
+      const lineHeight = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+      const cap = lineHeight * maxRows;
+      const next = Math.min(el.scrollHeight, cap);
+      el.style.height = `${next}px`;
+      el.style.overflowY = el.scrollHeight > cap ? 'auto' : 'hidden';
     } else {
-      newHeight = textarea.scrollHeight;
+      el.style.height = `${el.scrollHeight}px`;
+      el.style.overflowY = 'hidden';
     }
-
-    textarea.style.maxHeight = maxHeight;
-    textarea.style.height = `${newHeight}px`;
-    textarea.style.overflowY = this.maxRows && textarea.scrollHeight > newHeight ? 'auto' : 'hidden';
   }
 }

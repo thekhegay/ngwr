@@ -1,29 +1,29 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 
-import { routes as r } from '#core/routes';
+import { routes } from '#routing';
 
-import { ColorsComponent } from './colors/colors.component';
-import { GridComponent } from './grid/grid.component';
+const core = routes.docs.core;
 
-const routes: Routes = [
+export default [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: r.DOCS.CORE.COLORS,
+    redirectTo: core.colors,
   },
   {
-    path: r.DOCS.CORE.COLORS,
-    component: ColorsComponent,
+    path: core.colors,
+    loadComponent: () => import('./color/color.component'),
   },
   {
-    path: r.DOCS.CORE.GRID,
-    component: GridComponent,
+    path: core.grid,
+    loadComponent: () => import('./grid/grid.component'),
   },
-];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class CoreRouting {}
+  {
+    path: core.overlay,
+    loadComponent: () => import('./overlay/overlay.component'),
+  },
+  {
+    path: core.utils,
+    loadComponent: () => import('./utils/utils.component'),
+  },
+] satisfies Routes;

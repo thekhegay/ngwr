@@ -1,0 +1,9 @@
+@if (highlighted.value(); as html) {
+  <div class="ngwr-doc-code__html" [innerHTML]="html"></div>
+} @else {
+  <pre class="ngwr-doc-code__fallback"><code>{{ normalized() }}</code></pre>
+}
+
+<button type="button" class="ngwr-doc-code__copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
+  {{ copied() ? 'Copied' : 'Copy' }}
+</button>

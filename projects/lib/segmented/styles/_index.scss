@@ -1,0 +1,92 @@
+@use '../../theme/styles' as theme;
+
+.wr-segmented {
+  --wr-segmented-bg: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-segmented-color: var(--wr-color-dark);
+  --wr-segmented-selected-bg: var(--wr-color-white);
+  --wr-segmented-selected-color: var(--wr-color-dark);
+  --wr-segmented-radius: var(--wr-border-radius-base);
+  --wr-segmented-padding: 0.1875rem;
+
+  --wr-segmented-thumb-index: 0;
+  --wr-segmented-thumb-count: 1;
+
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: stretch;
+  background: var(--wr-segmented-bg);
+  padding: var(--wr-segmented-padding);
+  border-radius: var(--wr-segmented-radius);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+
+  &__thumb {
+    position: absolute;
+    top: var(--wr-segmented-padding);
+    bottom: var(--wr-segmented-padding);
+    left: var(--wr-segmented-padding);
+    width: calc((100% - 2 * var(--wr-segmented-padding)) / var(--wr-segmented-thumb-count));
+    transform: translateX(calc(100% * var(--wr-segmented-thumb-index)));
+    background: var(--wr-segmented-selected-bg);
+    border-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    pointer-events: none;
+    // Animate slides, but only after first paint — see `&--mounted` below.
+  }
+
+  &--mounted &__thumb {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &--unselected &__thumb {
+    opacity: 0;
+  }
+
+  &__option {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.3125rem 0.75rem;
+    border-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));
+    color: var(--wr-segmented-color);
+    font: inherit;
+    cursor: pointer;
+    transition: color var(--wr-transition-base);
+
+    &:hover:not(:disabled):not(.wr-segmented__option--selected) {
+      color: var(--wr-color-primary);
+    }
+
+    &--selected {
+      color: var(--wr-segmented-selected-color);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__icon {
+    --wr-icon-size: 0.875rem;
+  }
+
+  &__label {
+    line-height: 1.25rem;
+  }
+
+  &--disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}

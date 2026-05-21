@@ -1,0 +1,9 @@
+@for (toast of toasts(); track toast.id) {
+  <wr-toast
+    [type]="toast.type ?? 'info'"
+    [title]="toast.title ?? null"
+    [message]="toast.message"
+    [dismissible]="toast.dismissible ?? true"
+    (dismissed)="dismissed.emit(toast.id)"
+  />
+}

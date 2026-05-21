@@ -6,17 +6,19 @@
  */
 
 /**
- * Result of resolving a CSS size value.
+ * Result of resolving a CSS size value via {@link resolveCssSize}.
  */
 export type ResolvedCssSize = {
   /**
-   * Value used in CSS styles (e.g. "48px", "3rem", "80%").
+   * Value suitable for use in CSS styles (e.g. `"48px"`, `"3rem"`, `"80%"`).
    */
   cssValue: string;
 
   /**
-   * Value in pixels used for width/height attributes.
-   * When `null`, attributes should be omitted.
+   * Equivalent value in pixels, when computable.
+   *
+   * `null` for percentage-based or unknown units where a pixel
+   * equivalent cannot be determined.
    */
   pxValue: number | null;
 };

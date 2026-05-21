@@ -1,42 +1,50 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { wrThemeColors } from 'ngwr/cdk/types';
 import { WrDividerComponent } from 'ngwr/divider';
-import { WrTagComponent } from 'ngwr/tag';
+import { WR_COLORS } from 'ngwr/theme';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
-import { routes } from '#routing';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-divider',
+  selector: 'ngwr-divider-page',
   templateUrl: './divider.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [WrTagComponent, CodeComponent, SnippetComponent, WrDividerComponent],
+  imports: [
+    WrDividerComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class DividerComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class DividerComponent {
+  protected readonly colors = WR_COLORS;
 
-  private readonly seoService = inject(SeoService);
+  protected readonly snippets = {
+    install: `import { WrDividerComponent } from 'ngwr/divider';
 
-  protected readonly pageTitle = 'Divider';
-  protected readonly pageDescription = 'A divider line separates different content.';
-  protected readonly colors = wrThemeColors;
-  protected readonly routes = routes;
-
-  protected readonly code = {
-    import: `import{WrDividerModule}from'ngwr/divider';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrDividerModule,],})\nexport class MyComponent {}`,
-    usage: `<wr-divider />`,
-    styling: `:root {\n--wr-divider-width-base: 1px;\n--wr-divider-color-base: var(--wr-color-light);\n--wr-divider-margin-top-base: 0.5rem;\n--wr-divider-margin-bottom-base: 0.5rem;}`,
+@Component({ imports: [WrDividerComponent] })
+export class MyComponent {}`,
+    basic: `<wr-divider />`,
+    types: `<wr-divider type="solid" />
+<wr-divider type="dashed" />
+<wr-divider type="dotted" />`,
+    colors: `<wr-divider color="primary" />
+<wr-divider color="success" />`,
+    width: `<wr-divider [width]="3" color="primary" />`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.pageTitle, 'Components']);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['divider', 'wr-divider']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'color', description: 'Line color.', type: 'WrColor | null', default: 'null' },
+    { name: 'type', description: 'Line style.', type: "'solid' | 'dashed' | 'dotted'", default: "'solid'" },
+    { name: 'width', description: 'Line width in pixels.', type: 'number', default: '1' },
+  ];
 }

@@ -1,0 +1,9 @@
+<header class="ngwr-doc-section__header">
+  <h2 class="ngwr-doc-section__title">{{ title() }}</h2>
+  @if (description(); as d) {
+    <p class="ngwr-doc-section__description">{{ d }}</p>
+  }
+</header>
+<div class="ngwr-doc-section__content">
+  <ng-content />
+</div>

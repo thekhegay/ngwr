@@ -5,330 +5,221 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { NgTemplateOutlet } from '@angular/common';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { TemplatePortal } from '@angular/cdk/portal';
 import {
-  Component,
   ChangeDetectionStrategy,
-  ViewEncapsulation,
-  Input,
-  ContentChildren,
-  QueryList,
-  AfterContentInit,
-  forwardRef,
-  HostBinding,
-  inject,
-  signal,
-  computed,
-  ChangeDetectorRef,
-  booleanAttribute,
+  Component,
+  DestroyRef,
   ElementRef,
-  ViewChild,
-  HostListener,
-  numberAttribute,
+  TemplateRef,
+  ViewContainerRef,
+  ViewEncapsulation,
+  computed,
+  effect,
+  forwardRef,
+  inject,
+  input,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop } from 'rxjs';
+import { provideWrIcons, WrIconComponent, chevronDown } from 'ngwr/icon';
+import { WR_OVERLAY } from 'ngwr/overlay';
+import { noop } from 'ngwr/utils';
 
-import { WrAbstractBase } from 'ngwr/cdk';
-import { SafeAny } from 'ngwr/cdk/types';
-import { provideWrIcons, chevronDown, WrIconComponent, close } from 'ngwr/icon';
-import { WrTagComponent } from 'ngwr/tag';
-
-import { WrOptionGroupComponent } from './select-option-group.component';
-import { WrOptionComponent } from './select-option.component';
+import { WR_SELECT, type WrSelectContext } from './tokens';
 
 /**
- * NGWR select component.
+ * Native-like select.
  *
- * {@tutorial} [How to use wr-select]{@link http://ngwr.dev/docs/components/select}
+ * Renders a button that opens a CDK overlay containing the projected
+ * `<wr-option>` (and optionally `<wr-option-group>`) children. The
+ * selected option's label is shown in the button.
+ *
+ * Implements `ControlValueAccessor` — usable with `[(ngModel)]`,
+ * `formControl`, or `formControlName`.
+ *
+ * @example
+ * ```html
+ * <wr-select placeholder="Pick a size" [(ngModel)]="size">
+ *   <wr-option value="sm">Small</wr-option>
+ *   <wr-option value="md">Medium</wr-option>
+ *   <wr-option value="lg">Large</wr-option>
+ * </wr-select>
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/select
  */
 @Component({
   selector: 'wr-select',
   templateUrl: './select.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: { '[class]': 'classes()' },
+  imports: [WrIconComponent],
   providers: [
-    provideWrIcons([chevronDown, close]),
+    provideWrIcons([chevronDown]),
     {
       provide: NG_VALUE_ACCESSOR,
       // eslint-disable-next-line @angular-eslint/no-forward-ref
       useExisting: forwardRef(() => WrSelectComponent),
       multi: true,
     },
+    {
+      provide: WR_SELECT,
+      // eslint-disable-next-line @angular-eslint/no-forward-ref
+      useExisting: forwardRef(() => WrSelectComponent),
+    },
   ],
-  imports: [WrIconComponent, WrTagComponent, NgTemplateOutlet],
 })
-export class WrSelectComponent extends WrAbstractBase implements ControlValueAccessor, AfterContentInit {
-  @Input()
-  placeholder = '';
+export class WrSelectComponent implements ControlValueAccessor, WrSelectContext {
+  /** Placeholder shown when no option is selected. @default '' */
+  readonly placeholder = input<string>('');
 
-  @Input()
-  noItemsLabel = 'No Items';
+  /** Disable the select. Also set by Angular forms via `setDisabledState`. */
+  readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  @Input({ transform: booleanAttribute })
-  multiple = false;
+  /** Pill-shaped corners on the trigger. @default false */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
-  @Input({ transform: booleanAttribute })
-  searchable = false;
+  readonly value = signal<unknown>(null);
 
-  @Input({ transform: booleanAttribute })
-  clearable = false;
+  protected readonly open = signal(false);
+  protected readonly selectedLabel = signal<string | null>(null);
 
-  @Input({ transform: numberAttribute })
-  maxMultipleCount?: number;
+  private readonly disabledFromCva = signal(false);
 
-  @Input({ transform: booleanAttribute })
-  set disabled(value: boolean) {
-    this.isDisabled.set(value);
-  }
-  get disabled(): boolean {
-    return this.isDisabled();
-  }
+  /** Effective disabled state — input wins, CVA second. */
+  readonly isDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
-  @ViewChild('searchInput')
-  searchInput?: ElementRef<HTMLInputElement>;
-
-  @ContentChildren(WrOptionComponent, { descendants: true })
-  options!: QueryList<WrOptionComponent>;
-
-  @ContentChildren(WrOptionGroupComponent)
-  optionGroups!: QueryList<WrOptionGroupComponent>;
-
-  @HostBinding('class')
-  get hostClasses(): Record<string, boolean> {
-    return {
-      'wr-select': true,
-      'wr-select--open': this.isOpen(),
-      'wr-select--multiple': this.multiple,
-      'wr-select--disabled': this.isDisabled(),
-      'wr-select--focused': this.isFocused(),
-    };
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent): void {
-    if (!this.isOpen()) {
-      return;
-    }
-
-    const filteredOpts = this.filteredOptions();
-    const currentIndex = this.highlightedOptionIndex();
-
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        this.highlightedOptionIndex.set(currentIndex < filteredOpts.length - 1 ? currentIndex + 1 : 0);
-        break;
-
-      case 'ArrowUp':
-        event.preventDefault();
-        this.highlightedOptionIndex.set(currentIndex > 0 ? currentIndex - 1 : filteredOpts.length - 1);
-        break;
-
-      case 'Enter':
-        event.preventDefault();
-        if (currentIndex >= 0 && filteredOpts[currentIndex]) {
-          this.onOptionSelect(filteredOpts[currentIndex]);
-        }
-        break;
-
-      case 'Backspace':
-        if (this.multiple && !this.searchValue() && this.selectedOptions().length) {
-          const selectedOptionsArray = this.selectedOptions();
-          const lastSelected = selectedOptionsArray[selectedOptionsArray.length - 1];
-          this.onOptionSelect(lastSelected);
-        }
-        break;
-
-      case 'Escape':
-        event.preventDefault();
-        this.close();
-        break;
-    }
-  }
-
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: MouseEvent): void {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.close();
-    }
-  }
-
-  protected readonly value = signal<SafeAny>(null);
-  protected readonly isOpen = signal(false);
-  protected readonly isFocused = signal(false);
-  protected readonly isDisabled = signal(false);
-  protected readonly searchValue = signal('');
-  protected readonly highlightedOptionIndex = signal(-1);
-
-  protected readonly selectedOptions = computed(() => {
-    const currentValue = this.value();
-    const optionsArray = this.options?.toArray() || [];
-
-    if (this.multiple) {
-      return optionsArray.filter(option => Array.isArray(currentValue) && currentValue.includes(option.value));
-    }
-    return optionsArray.filter(option => option.value === currentValue);
+  protected readonly classes = computed(() => {
+    const parts = ['wr-select'];
+    if (this.open()) parts.push('wr-select--open');
+    if (this.rounded()) parts.push('wr-select--rounded');
+    if (this.isDisabled()) parts.push('wr-select--disabled');
+    return parts.join(' ');
   });
 
-  protected readonly selectedLabel = computed(() => {
-    const selected = this.selectedOptions();
-    return selected.length ? selected[0].label || selected[0].value : '';
-  });
+  protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
 
-  protected readonly filteredOptions = computed(() => {
-    const search = this.searchValue().toLowerCase();
-    const optionsArray = this.options?.toArray() || [];
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly overlay = inject(WR_OVERLAY);
+  private readonly vcr = inject(ViewContainerRef);
+  private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly destroyRef = inject(DestroyRef);
+  private overlayRef: OverlayRef | null = null;
 
-    let filteredArray = optionsArray;
-    if (this.multiple) {
-      const currentValue = this.value();
-      filteredArray = optionsArray.filter(
-        option => !Array.isArray(currentValue) || !currentValue.includes(option.value)
-      );
-    }
+  private onChange: (value: unknown) => void = noop;
+  protected onTouched: () => void = noop;
 
-    if (!search) {
-      return filteredArray;
-    }
-
-    return filteredArray.filter(option => (option.label || option.value.toString()).toLowerCase().includes(search));
-  });
-
-  private readonly elementRef = inject(ElementRef);
-  private readonly cdr = inject(ChangeDetectorRef);
-
-  get currentValue(): SafeAny {
-    return this.value();
-  }
-
-  get isMultiple(): boolean {
-    return this.multiple;
-  }
-
-  ngAfterContentInit(): void {
-    this.options.changes.pipe(takeUntilDestroyed(this.destroyRef$)).subscribe(() => {
-      this.cdr.markForCheck();
+  constructor() {
+    effect(() => {
+      if (this.open()) {
+        this.openOverlay();
+      } else {
+        this.closeOverlay();
+      }
     });
   }
 
-  onChange: (value: string) => void = noop;
-  onTouch: () => void = noop;
+  // ──────── WrSelectContext ────────
 
-  onOptionSelect(option: WrOptionComponent): void {
-    if (this.isDisabled()) return;
-
-    if (this.multiple) {
-      const currentValue = Array.isArray(this.value()) ? this.value() : [];
-
-      if (this.maxMultipleCount && !this.isSelectedOption(option) && currentValue.length >= this.maxMultipleCount) {
-        return;
-      }
-
-      const newValue = this.isSelectedOption(option)
-        ? currentValue.filter((v: SafeAny) => v !== option.value)
-        : [...currentValue, option.value];
-
-      this.writeValue(newValue);
-      this.searchValue.set('');
-    } else {
-      this.writeValue(option.value);
-      this.close();
-    }
-  }
-
-  onSearch(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchValue.set(value);
-  }
-
-  isHighlightedOption(option: WrOptionComponent): boolean {
-    if (this.highlightedOptionIndex() === -1) {
-      return false;
-    }
-
-    const filteredOpts = this.filteredOptions();
-    const optionIndex = filteredOpts.findIndex(item => item.value === option.value);
-
-    return optionIndex !== -1 && optionIndex === this.highlightedOptionIndex();
-  }
-
-  isFilteredOption(option: WrOptionComponent): boolean {
-    if (this.multiple) {
-      const currentValue = this.value();
-      if (Array.isArray(currentValue) && currentValue.includes(option.value)) {
-        return true;
-      }
-    }
-
-    const search = this.searchValue().toLowerCase();
-    if (search) {
-      return !(option.label || option.value.toString()).toLowerCase().includes(search);
-    }
-
-    return false;
-  }
-
-  writeValue(value: SafeAny): void {
+  selectOption(value: unknown, label: string): void {
     this.value.set(value);
+    this.selectedLabel.set(label);
     this.onChange(value);
-    this.cdr.markForCheck();
+    this.onTouched();
+    this.open.set(false);
   }
 
-  registerOnChange(fn: (value: SafeAny) => void): void {
+  // ──────── ControlValueAccessor ────────
+
+  writeValue(value: unknown): void {
+    this.value.set(value);
+    // Label resolution happens lazily — once options render they'll update
+    // their `selected` state via the context, and the trigger pulls
+    // `selectedLabel` for the display. When `writeValue` is called before
+    // options exist, the label may briefly be empty.
+  }
+
+  registerOnChange(fn: (value: unknown) => void): void {
     this.onChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouch = fn;
+    this.onTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.isDisabled.set(isDisabled);
+    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
+    if (isDisabled) this.open.set(false);
   }
 
-  clear(event: Event): void {
-    event.stopPropagation();
+  // ──────── Template handlers ────────
+
+  protected onTriggerClick(): void {
     if (this.isDisabled()) return;
+    this.open.update(v => !v);
+  }
 
-    if (this.multiple) {
-      this.writeValue([]);
-    } else {
-      this.writeValue(null);
+  protected onTriggerKey(event: KeyboardEvent): void {
+    if (this.isDisabled()) return;
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.open.set(true);
     }
   }
 
-  toggle(): void {
-    if (this.isDisabled()) {
-      return;
-    }
+  // ──────── Overlay ────────
 
-    this.isOpen.update(value => !value);
-    this.isFocused.update(value => !value);
+  private openOverlay(): void {
+    if (this.overlayRef) return;
 
-    if (this.isOpen() && this.searchable) {
-      // TODO Разобраться с этим хаком
-      setTimeout(() => {
-        this.searchInput?.nativeElement.focus();
-      }, 10);
-    }
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo(this.host)
+      .withPositions([
+        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+      ])
+      .withPush(true);
+
+    this.overlayRef = this.overlay.create({
+      positionStrategy,
+      scrollStrategy: this.scrollStrategies.reposition(),
+      width: this.host.nativeElement.getBoundingClientRect().width,
+      panelClass: 'wr-select-overlay',
+    });
+
+    const portal = new TemplatePortal(this.panelTpl(), this.vcr);
+    this.overlayRef.attach(portal);
+
+    this.overlayRef
+      .outsidePointerEvents()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (this.host.nativeElement.contains(event.target as Node)) return;
+        this.open.set(false);
+      });
+
+    this.overlayRef
+      .keydownEvents()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          this.open.set(false);
+        }
+      });
   }
 
-  private close(): void {
-    this.isOpen.set(false);
-    this.isFocused.set(false);
-    this.searchValue.set('');
-    this.highlightedOptionIndex.set(-1);
-  }
-
-  private isSelectedOption(option: WrOptionComponent): boolean {
-    const currentValue = this.value();
-    if (this.multiple) {
-      return Array.isArray(currentValue) && currentValue.includes(option.value);
-    }
-
-    return currentValue === option.value;
+  private closeOverlay(): void {
+    if (!this.overlayRef) return;
+    this.overlayRef.dispose();
+    this.overlayRef = null;
   }
 }

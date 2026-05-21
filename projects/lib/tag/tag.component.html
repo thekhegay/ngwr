@@ -1,13 +1,17 @@
-@if (loading && iconPosition === 'start') {
-  <wr-spinner class="wr-tag__spin" />
+@if (iconPosition() === 'start') {
+  @if (loading()) {
+    <wr-spinner class="wr-tag__adornment" size="sm" />
+  } @else if (icon(); as name) {
+    <wr-icon class="wr-tag__adornment" [name]="name" />
+  }
 }
-@if (icon && !loading && iconPosition === 'start') {
-  <wr-icon class="wr-tag__icon" [name]="icon" />
-}
+
 <ng-content />
-@if (loading && iconPosition === 'end') {
-  <wr-spinner class="wr-tag__spin" />
-}
-@if (icon && !loading && iconPosition === 'end') {
-  <wr-icon class="wr-tag__icon" [name]="icon" />
+
+@if (iconPosition() === 'end') {
+  @if (loading()) {
+    <wr-spinner class="wr-tag__adornment" size="sm" />
+  } @else if (icon(); as name) {
+    <wr-icon class="wr-tag__adornment" [name]="name" />
+  }
 }

@@ -1,0 +1,6 @@
+<h2 wrDialogTitle>{{ data.title }}</h2>
+<div wrDialogContent>{{ data.message }}</div>
+<div wrDialogFooter>
+  <wr-btn wrDialogClose>Cancel</wr-btn>
+  <wr-btn color="danger" [wrDialogClose]="true">Delete</wr-btn>
+</div>

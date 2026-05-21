@@ -1,41 +1,57 @@
-@forward '../../styles/animations';
+@use '../../theme/styles' as theme;
 
 .wr-spinner {
   display: inline-block;
+  box-sizing: content-box;
   color: inherit;
-  font-style: normal;
   line-height: 0;
-  text-align: center;
-  text-transform: none;
-  vertical-align: -0.1rem;
-  box-sizing: content-box !important;
-
+  vertical-align: -0.125em;
   contain: strict;
 
-  * {
-    line-height: 1;
+  // Defaults — sized modifiers override
+  --wr-spinner-size: 1.25em;
+
+  width: var(--wr-spinner-size);
+  height: var(--wr-spinner-size);
+
+  &--sm {
+    --wr-spinner-size: 1em;
+  }
+  &--lg {
+    --wr-spinner-size: 2em;
   }
 
   svg {
-    display: inline-block;
+    display: block;
     width: 100%;
     height: 100%;
-
-    animation: rotate 2s linear infinite;
-
-    .path {
-      stroke: currentColor;
-      animation: dash 1.5s ease-in-out infinite;
-    }
+    animation: wr-spinner-rotate 2s linear infinite;
   }
 
-  &--small {
-    width: 1em;
-    height: 1em;
+  &__path {
+    stroke: currentColor;
+    stroke-linecap: round;
+    animation: wr-spinner-dash 1.5s ease-in-out infinite;
   }
+}
 
-  &--large {
-    width: 2em;
-    height: 2em;
+@keyframes wr-spinner-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wr-spinner-dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
   }
 }

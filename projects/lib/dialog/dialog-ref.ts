@@ -5,98 +5,58 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { hasModifierKey } from '@angular/cdk/keycodes';
-import { OverlayRef } from '@angular/cdk/overlay';
-import { DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import type { OverlayRef } from '@angular/cdk/overlay';
+import type { ComponentRef } from '@angular/core';
 
-import { filter, Subject, take } from 'rxjs';
+import { Subject } from 'rxjs';
 
-import { SafeAny } from 'ngwr/cdk/types';
-import { generateRandomId } from 'ngwr/cdk/utils';
+/**
+ * Handle returned by `WrDialogService.open()`.
+ *
+ * Wraps the underlying `OverlayRef` and tracks the close result.
+ *
+ * @example
+ * ```ts
+ * const ref = dialog.open<ConfirmComponent, boolean>(ConfirmComponent);
+ * const result = await ref.awaitClose(); // boolean | undefined
+ * ```
+ */
+export class WrDialogRef<C, R = unknown> {
+  /** Emits the close result once and completes. */
+  readonly closed = new Subject<R | undefined>();
 
-import { WrDialogBaseDirective } from './dialog-base.directive';
-import { WrDialogOptions } from './dialog-options';
+  /** @internal */
+  componentRef: ComponentRef<C> | null = null;
 
-export class WrDialogRef<C = SafeAny, R = SafeAny> {
-  readonly id?: string;
+  constructor(private readonly _overlayRef: OverlayRef) {}
 
-  componentInstance: C | null = null;
-  result?: R;
-
-  readonly afterOpened: Subject<void> = new Subject<void>();
-  readonly afterClosed: Subject<R | undefined> = new Subject<R | undefined>();
-
-  private closeTimeout?: ReturnType<typeof setTimeout>;
-
-  private readonly destroyRef$ = inject(DestroyRef);
-
-  constructor(
-    private overlayRef: OverlayRef,
-    private options: WrDialogOptions,
-    public baseInstance: WrDialogBaseDirective
-  ) {
-    this.id = options.id || `wr__modal__${generateRandomId()}`;
-
-    baseInstance.animationStateChanged
-      .pipe(
-        filter(evt => evt.phaseName === 'done' && evt.toState === 'enter'),
-        take(1)
-      )
-      .subscribe(() => {
-        this.afterOpened.next();
-        this.afterOpened.complete();
-      });
-
-    baseInstance.animationStateChanged
-      .pipe(
-        filter(evt => evt.phaseName === 'done' && evt.toState === 'exit'),
-        take(1)
-      )
-      .subscribe(() => {
-        clearTimeout(this.closeTimeout);
-        this._finishDialogClose();
-      });
-
-    baseInstance.containerClick.pipe(takeUntilDestroyed(this.destroyRef$)).subscribe(() => {
-      this.close();
-    });
-
-    overlayRef.backdropClick().subscribe(() => this.close(undefined));
-
-    overlayRef.keydownEvents().subscribe(event => {
-      if (event.code === 'Escape' && !hasModifierKey(event)) {
-        event.preventDefault();
-        this.close(undefined);
-      }
-    });
-
-    overlayRef.detachments().subscribe(() => {
-      this.afterClosed.next(this.result);
-      this.afterClosed.complete();
-      this.componentInstance = null;
-      this.overlayRef.dispose();
-    });
+  /** The instantiated dialog component. */
+  get componentInstance(): C {
+    if (!this.componentRef) {
+      throw new Error('WrDialogRef: component not yet attached');
+    }
+    return this.componentRef.instance;
   }
 
+  /** Close the dialog, optionally returning a result. */
   close(result?: R): void {
-    this.result = result;
-    this.baseInstance.animationStateChanged
-      .pipe(
-        filter(event => event.phaseName === 'start'),
-        take(1)
-      )
-      .subscribe(event => {
-        this.overlayRef.detachBackdrop();
-        this.closeTimeout = setTimeout(() => {
-          this._finishDialogClose();
-        }, event.totalTime + 100);
-      });
-
-    this.baseInstance.startExitAnimation();
+    this.closed.next(result);
+    this.closed.complete();
+    this._overlayRef.dispose();
   }
 
-  private _finishDialogClose(): void {
-    this.overlayRef.dispose();
+  /** Resolves with the close result when the dialog is dismissed. */
+  awaitClose(): Promise<R | undefined> {
+    return new Promise(resolve => {
+      this.closed.subscribe({
+        next: value => resolve(value),
+        complete: () => resolve(undefined),
+      });
+    });
+  }
+
+  /** Underlying overlay ref — escape hatch for advanced cases. */
+  get overlayRef(): OverlayRef {
+    return this._overlayRef;
   }
 }

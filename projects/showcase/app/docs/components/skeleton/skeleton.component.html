@@ -1,89 +1,52 @@
-<div class="ngwr-page-info">
-  <div class="ngwr-page-info__tags">
-    <wr-tag transparent>Component</wr-tag>
-    <wr-tag transparent color="secondary">Standalone</wr-tag>
-  </div>
-  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
-  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
-</div>
+<ngwr-doc-page
+  title="Skeleton"
+  description="Placeholder block shown while content is loading. Default height matches the surrounding line height (1lh)."
+  [keywords]="['skeleton', 'loading', 'placeholder', 'wr-skeleton']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">How to install</h2>
-  <p class="ngwr-page-section__description">
-    Import <code class="ngwr-pre">WrButtonComponent</code> into a component where you want to use.
-  </p>
-  <div class="ngwr-page-section__content">
-    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
-    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
-  </div>
-</div>
-
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Basic usage</h2>
-  <p class="ngwr-page-section__description">
-    Skeleton can be used as <code class="ngwr-pre">wr-skeleton</code> component
-  </p>
-
-  <div class="ngwr-page-section__content">
-    <ngwr-snippet>
-      <ng-container ngProjectAs="[body]">
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
         <wr-skeleton />
-      </ng-container>
-      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
-    </ngwr-snippet>
-  </div>
-</div>
+        <wr-skeleton />
+        <wr-skeleton />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Color</h2>
-  <p class="ngwr-page-section__description">
-    Skeleton is available in different colors. Color can be set with <code class="ngwr-pre">color</code> attribute.
-  </p>
-
-  <div class="ngwr-page-section__content">
-    <ngwr-snippet>
-      <ng-container ngProjectAs="[body]">
-        @for (color of colors; track $index) {
-          <wr-skeleton [color]="color" />
+  <ngwr-doc-section title="Colors">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
+        @for (c of colors; track c) {
+          <wr-skeleton [color]="c" />
         }
-      </ng-container>
-      <ngwr-code [code]="code.colors" codeLang="html" code></ngwr-code>
-    </ngwr-snippet>
-  </div>
-</div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">API</h2>
+  <ngwr-doc-section
+    title="Custom shape"
+    description="Override --wr-skeleton-height and --wr-skeleton-radius for blocks, cards, avatars, etc."
+  >
+    <ngwr-doc-snippet [code]="snippets.custom">
+      <div style="width: 100%; display: flex; gap: 0.75rem; align-items: center">
+        <wr-skeleton style="--wr-skeleton-height: 3rem; --wr-skeleton-radius: 50%; width: 3rem; flex: 0 0 3rem" />
+        <wr-skeleton style="--wr-skeleton-height: 4rem; --wr-skeleton-radius: 1rem" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
-  <div class="ngwr-page-section__content">
-    <div class="ngwr-page-table">
-      <table>
-        <tr class="ngwr-page-table__head">
-          <th>Property</th>
-          <th>Description</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Default</th>
-        </tr>
-        <tr>
-          <td><code>[color]</code></td>
-          <td>set color of skeleton</td>
-          <td>
-            <code>'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'</code>
-          </td>
-          <td></td>
-          <td><code>'primary'</code></td>
-        </tr>
-        <tr>
-          <td><code>[animated]</code></td>
-          <td>set animated state of skeleton</td>
-          <td>
-            <code>boolean</code>
-          </td>
-          <td></td>
-          <td><code>true</code></td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</div>
+  <ngwr-doc-section title="Static" description="Disable the shimmer animation.">
+    <ngwr-doc-snippet [code]="snippets.static">
+      <div style="width: 100%"><wr-skeleton [animated]="false" /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

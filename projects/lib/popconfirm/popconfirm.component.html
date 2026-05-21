@@ -1,0 +1,6 @@
+<p class="wr-popconfirm__message">{{ message() }}</p>
+
+<div class="wr-popconfirm__actions">
+  <wr-btn size="sm" (click)="cancelled.emit()">{{ cancelText() }}</wr-btn>
+  <wr-btn size="sm" [color]="confirmColor()" (click)="confirmed.emit()">{{ confirmText() }}</wr-btn>
+</div>

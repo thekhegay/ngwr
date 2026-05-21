@@ -1,0 +1,27 @@
+@use '../../theme/styles' as theme;
+
+.wr-popover-overlay {
+  > * {
+    display: block;
+    min-width: 8rem;
+    max-width: 22rem;
+    background: var(--wr-color-white);
+    border: 1px solid var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
+    font-family: var(--wr-font-family-base);
+    color: var(--wr-color-dark);
+    animation: wr-popover-fade 0.12s ease-out;
+  }
+}
+
+@keyframes wr-popover-fade {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

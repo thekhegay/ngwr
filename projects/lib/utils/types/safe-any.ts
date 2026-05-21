@@ -6,8 +6,20 @@
  */
 
 /**
- * Escapes ESLint `no-explicit-any` in places where `any` is intentional,
- * e.g. public APIs that must accept arbitrary values.
+ * Explicitly untyped value.
+ *
+ * Use in places where `any` is intentional and unavoidable,
+ * such as generic wrappers around third-party APIs that do not
+ * expose precise types.
+ *
+ * Prefer narrowing to a concrete type whenever possible.
+ *
+ * @example
+ * ```ts
+ * function wrapThirdPartyCallback(fn: (...args: SafeAny[]) => SafeAny): void {
+ *   // ...
+ * }
+ * ```
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SafeAny = any;

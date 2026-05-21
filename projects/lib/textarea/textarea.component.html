@@ -1,11 +1,12 @@
 <textarea
-  #textareaNative
+  #native
   class="wr-textarea__native"
-  [placeholder]="placeholder"
-  [rows]="rows"
-  [readonly]="readonly"
-  [disabled]="isDisabled()"
-  [ngModel]="inputValue()"
-  (ngModelChange)="writeValue($event)"
-  (input)="resizeTextarea()"
+  [placeholder]="placeholder()"
+  [rows]="rows()"
+  [readonly]="readonly()"
+  [disabled]="effectiveDisabled()"
+  [value]="value()"
+  (input)="onInput($event)"
+  (focus)="focused.set(true)"
+  (blur)="onBlur()"
 ></textarea>

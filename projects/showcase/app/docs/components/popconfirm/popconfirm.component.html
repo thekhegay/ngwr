@@ -1,0 +1,31 @@
+<ngwr-doc-page
+  title="Popconfirm"
+  description='Small "Are you sure?" panel anchored to its trigger. Emits confirmed or cancelled.'
+  [keywords]="['popconfirm', 'confirm', 'wr-popconfirm']"
+  [labels]="['Directive', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-btn
+        color="danger"
+        [wrPopconfirm]="'Delete this item?'"
+        confirmText="Delete"
+        confirmColor="danger"
+        (confirmed)="onConfirm()"
+        (cancelled)="onCancel()"
+        >Delete</wr-btn
+      >
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem; align-self: center">
+        Last result: {{ status() }}
+      </span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

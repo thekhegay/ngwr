@@ -1,0 +1,44 @@
+<ngwr-doc-page
+  title="Badge"
+  description="Small status indicator with color variants and optional pill shape."
+  [keywords]="['badge', 'status', 'wr-badge']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-badge>New</wr-badge>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colors">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      @for (c of colors; track c) {
+        <wr-badge [color]="c">{{ c }}</wr-badge>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sizes">
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <wr-badge size="sm">12</wr-badge>
+      <wr-badge size="md">12</wr-badge>
+      <wr-badge size="lg">12</wr-badge>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rounded">
+    <ngwr-doc-snippet [code]="snippets.rounded">
+      @for (c of colors; track c) {
+        <wr-badge [color]="c" rounded>{{ c }}</wr-badge>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

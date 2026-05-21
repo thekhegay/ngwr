@@ -1,0 +1,58 @@
+.ngwr-doc-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 1.5rem;
+  max-width: 64rem;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 0.25rem;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--wr-border-radius-pill);
+    background: rgba(var(--wr-color-light-rgb), 0.4);
+    color: var(--wr-color-medium);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--wr-color-dark);
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 2.25rem;
+    letter-spacing: -0.5px;
+  }
+
+  &__description {
+    margin: 0;
+    color: var(--wr-color-medium);
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.625rem;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+}

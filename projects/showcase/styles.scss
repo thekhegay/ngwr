@@ -1,7 +1,41 @@
-/* You can add global styles to this file, and also import other style files */
-
+// Lib defaults: theme + every component.
 @use '../lib/styles';
 
-@forward './styles/components';
-@forward './styles/fonts';
-@forward './styles/variables';
+// Opt-in utilities the showcase relies on.
+@use '../lib/styles/grid';
+
+// Showcase-only fonts: declares `@font-face` blocks and overrides
+// `--wr-font-family-*` to Inter.
+@use 'styles/fonts';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--wr-font-family-base);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--wr-color-dark);
+  background: var(--wr-color-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}

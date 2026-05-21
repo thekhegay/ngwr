@@ -1,0 +1,30 @@
+@use '../../theme/styles' as theme;
+
+.wr-tooltip-overlay {
+  pointer-events: none;
+}
+
+.wr-tooltip {
+  display: inline-block;
+  max-width: 18rem;
+  padding: 0.3125rem 0.5rem;
+  background: var(--wr-color-dark);
+  color: var(--wr-color-dark-contrast);
+  border-radius: var(--wr-border-radius-sm);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: wr-tooltip-fade 0.12s ease-out;
+}
+
+@keyframes wr-tooltip-fade {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

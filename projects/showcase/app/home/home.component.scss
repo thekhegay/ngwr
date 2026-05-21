@@ -1,16 +1,20 @@
-@use '../../../lib/styles/grid' as grid;
+@use '../../../lib/styles/breakpoints' as bp;
 
 .ngwr-home {
+  display: block;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+
   &-hero {
     display: flex;
     flex-direction: column;
-    align-items: baseline;
+    align-items: flex-start;
     justify-content: center;
     height: 100%;
 
-    @include grid.media-down(md) {
-      padding-top: 5rem;
-      padding-bottom: 5rem;
+    @include bp.media-down(md) {
+      padding-top: 3rem;
+      padding-bottom: 2rem;
     }
 
     &__title {
@@ -19,12 +23,10 @@
       font-weight: 700;
       line-height: 3.25rem;
       letter-spacing: -1px;
-      vertical-align: middle;
-      margin-bottom: 1rem;
+      margin: 0 0 1rem;
 
       wr-icon {
         --wr-icon-size: 2.75rem;
-
         color: var(--wr-color-secondary);
         vertical-align: -0.375rem;
       }
@@ -33,46 +35,111 @@
     &__description {
       color: var(--wr-color-medium);
       font-size: 1rem;
-      font-weight: 400;
       line-height: 1.5rem;
-      margin-bottom: 1rem;
+      margin: 0 0 1.5rem;
     }
   }
 
-
   &-showcase {
     background-color: rgba(var(--wr-color-primary-rgb), 0.125);
-    border-radius: 0 0 0.5rem 0.5rem;
-
+    border-radius: var(--wr-border-radius-base);
     padding: 2rem;
-    gap: 2rem;
-
     max-height: 45rem;
     overflow: hidden;
 
-    @include grid.media-down(md) {
-      border-radius: 0.5rem;
-      padding: 0.5rem;
+    @include bp.media-down(md) {
+      padding: 0.75rem;
       max-height: none;
       margin-bottom: 2rem;
+    }
+
+    &__column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    &__panel {
+      background-color: var(--wr-color-white);
+      border-radius: var(--wr-border-radius-base);
+      padding: 1.5rem;
+      box-shadow: 0 3px 5px rgba(var(--wr-color-primary-rgb), 0.125);
+    }
+
+    &__tags {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    &__icons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem;
+    }
+
+    &__buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    &__skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+
+    &__skeleton-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    &__skeleton-avatar {
+      --wr-skeleton-height: 2.5rem;
+      --wr-skeleton-radius: 50%;
+      width: 2.5rem;
+      flex: 0 0 2.5rem;
+    }
+
+    &__skeleton-lines {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    &__skeleton-line {
+      --wr-skeleton-height: 0.5rem;
+      width: 100%;
+
+      &--sm {
+        width: 30%;
+      }
+      &--md {
+        width: 70%;
+      }
     }
 
     &-card {
       display: flex;
       flex-direction: column;
-      align-items: baseline;
-      gap: calc(var(--wr-grid-gutter) * 1.125);
-
+      align-items: flex-start;
+      gap: 1rem;
       background-color: var(--wr-color-dark);
-      border-radius: 0.5rem;
+      color: var(--wr-color-white);
+      border-radius: var(--wr-border-radius-base);
       padding: 1.875rem;
-      box-shadow: 0 3px 5px 0 rgba(var(--wr-color-primary-rgb), 0.125);
+      box-shadow: 0 3px 5px rgba(var(--wr-color-primary-rgb), 0.125);
 
       &-date {
         display: flex;
         align-items: center;
-        color: var(--wr-color-medium);
         gap: 0.25rem;
+        color: var(--wr-color-medium);
 
         &__icon {
           --wr-icon-size: 1.25rem;
@@ -86,16 +153,17 @@
       }
 
       &__title {
+        margin: 0;
         color: var(--wr-color-white);
         font-size: 1.375rem;
         font-weight: 600;
-        line-height: 1.5rem;
+        line-height: 1.625rem;
       }
 
       &-quote {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.625rem;
 
         &-author {
           display: flex;
@@ -110,7 +178,7 @@
           }
 
           &__subtitle {
-            color: rgba(var(--wr-color-light-rgb), 0.5);
+            color: rgba(var(--wr-color-light-rgb), 0.6);
             font-size: 0.75rem;
             font-weight: 400;
             line-height: 1rem;
@@ -119,47 +187,19 @@
       }
     }
 
-    &__div {
-      background-color: var(--wr-color-white);
-      border-radius: 0.5rem;
-      padding: 1.875rem;
-      box-shadow: 0 3px 5px 0 rgba(var(--wr-color-primary-rgb), 0.125);
-
-      &--column {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-    }
-
-    &__tags {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    &__icons {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      padding: 1rem;
-      gap: 0.5rem;
-    }
-
     &-icon {
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-
-      width: 4rem;
-      height: 4rem;
-
-      background-color: rgba(var(--wr-color-light-rgb), 0.125);
-      border-radius: 0.25rem;
-
+      width: 3.5rem;
+      height: 3.5rem;
+      background-color: rgba(var(--wr-color-light-rgb), 0.15);
+      border-radius: var(--wr-border-radius-sm);
       color: var(--wr-color-dark);
+
+      &__icon {
+        --wr-icon-size: 1.5rem;
+      }
     }
   }
 }

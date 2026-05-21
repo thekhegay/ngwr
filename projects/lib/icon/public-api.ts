@@ -1,11 +1,4 @@
-/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
-export * from './icon.component';
-export * from './icon.service';
+export { WrIconComponent } from './icon.component';
+export { provideWrIcons } from './providers';
+export type { WrIcon, WrIconName, WrBuiltInIconName } from './types';
 export * from './icons';
-export * from './provide-wr-icons';

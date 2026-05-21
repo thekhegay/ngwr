@@ -1,0 +1,60 @@
+<ngwr-doc-page
+  title="Tabs"
+  description="Tabbed container. Use projected content for simple tabs, or set routerLink on children to switch into router mode."
+  [keywords]="['tabs', 'wr-tabs', 'wr-tab']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Content tabs"
+    description="Children project body content; parent renders an active-tab panel."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-tabs [(active)]="active">
+          <wr-tab key="overview" title="Overview">
+            <p style="margin: 0; color: var(--wr-color-medium)">Overview content — short and friendly.</p>
+          </wr-tab>
+          <wr-tab key="details" title="Details">
+            <p style="margin: 0; color: var(--wr-color-medium)">Detail-heavy content here.</p>
+          </wr-tab>
+          <wr-tab key="logs" title="Logs">
+            <pre style="margin: 0; color: var(--wr-color-medium); font-family: var(--wr-font-family-mono)">
+2026-05-21 12:00:00 boot ok
+2026-05-21 12:00:01 ready</pre
+            >
+          </wr-tab>
+        </wr-tabs>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Router tabs"
+    description="Set routerLink on any child to switch the whole strip into router mode. The parent skips its content panel — drop a <router-outlet> below."
+  >
+    <ngwr-doc-code [code]="snippets.router" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled tab">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <div style="width: 100%">
+        <wr-tabs>
+          <wr-tab key="active" title="Active">Active</wr-tab>
+          <wr-tab key="wip" title="WIP" disabled>—</wr-tab>
+        </wr-tabs>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tabs API">
+    <ngwr-doc-api [rows]="tabsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tab API">
+    <ngwr-doc-api [rows]="tabApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

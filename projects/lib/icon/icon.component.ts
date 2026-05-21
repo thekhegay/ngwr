@@ -9,91 +9,72 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostBinding,
-  inject,
-  Input,
-  Renderer2,
   ViewEncapsulation,
-  DOCUMENT,
+  computed,
+  effect,
+  inject,
+  input,
+  isDevMode,
 } from '@angular/core';
 
-import { SafeAny } from 'ngwr/cdk/types';
-
-import { WrIconPatchService, WrIconService } from './icon.service';
-import { wrIconName } from './icons';
+import { WR_ICONS } from './tokens';
+import type { WrIcon, WrIconName } from './types';
 
 /**
- * NGWR icon component.
+ * Renders a registered SVG icon.
  *
- * {@tutorial} [How to use wr-btn]{@link http://ngwr.dev/docs/components/icon}
+ * Icons must be registered via {@link provideWrIcons} before use —
+ * either at the application root or on any ancestor component.
+ *
+ * @example
+ * ```html
+ * <wr-icon name="home" />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/icon
  */
 @Component({
   selector: 'wr-icon',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'wr-icon',
+    '[attr.data-icon]': 'name()',
+  },
 })
 export class WrIconComponent {
-  @Input({ required: true })
-  set name(value: wrIconName) {
-    this.setIcon(value);
-  }
+  readonly name = input.required<WrIconName>();
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'wr-icon': true,
-    };
-  }
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly iconSets = inject(WR_ICONS, { optional: true }) ?? [];
 
-  private readonly r2 = inject(Renderer2);
-  private readonly patchService = inject(WrIconPatchService, { optional: true });
-  private readonly iconService = inject(WrIconService);
-  private readonly elRef = inject(ElementRef);
-  private readonly doc = inject(DOCUMENT);
-
-  private setIcon(name: wrIconName): void {
-    if (!this.iconService.registry.has(name)) {
-      return console.warn(`[NGWR]\nNo icon named ${name} was found.\nYou may need to import it using provideWrIcons()`);
-    }
-
-    const iconData = this.iconService.registry.get(name);
-
-    if (iconData) {
-      this.setElement(this.svgElementFromString(iconData));
-    }
-  }
-
-  private svgElementFromString(svgContent: string): SVGElement {
-    const div = this.doc.createElement('div');
-    div.innerHTML = svgContent;
-    const svg: SVGElement | null = div.querySelector('svg');
-    if (!svg) {
-      throw new Error('<svg> tag not found');
-    }
-    return svg;
-  }
-
-  private setElement(svg: SVGElement): void {
-    this.clearElement();
-    this.r2.appendChild(this.elRef.nativeElement, svg);
-  }
-
-  private clearElement(): void {
-    const el: HTMLElement = this.elRef.nativeElement;
-    const children = el.childNodes;
-    const length = children.length;
-    for (let i = length - 1; i >= 0; i--) {
-      const child = children[i] as SafeAny;
-      if (child.tagName?.toLowerCase() === 'svg') {
-        this.r2.removeChild(el, child);
+  private readonly registry = computed(() => {
+    const map = new Map<WrIconName, WrIcon>();
+    for (const set of this.iconSets) {
+      for (const icon of set) {
+        map.set(icon.name, icon);
       }
     }
-  }
+    return map;
+  });
+
+  private readonly icon = computed(() => this.registry().get(this.name()));
 
   constructor() {
-    if (this.patchService) {
-      this.patchService.addIcons();
-    }
+    effect(() => {
+      const icon = this.icon();
+      const name = this.name();
+
+      if (!icon) {
+        if (isDevMode()) {
+          throw new Error(`[NGWR] No icon named "${name}" is registered. Did you forget to call provideWrIcons()?`);
+        }
+        this.host.nativeElement.innerHTML = '';
+        return;
+      }
+
+      this.host.nativeElement.innerHTML = icon.data;
+    });
   }
 }

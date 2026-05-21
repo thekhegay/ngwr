@@ -1,0 +1,44 @@
+<ngwr-doc-page
+  title="Drawer"
+  description="Side panel that slides in from any edge. Two-way binds `open`; renders into a CDK overlay so it sits above page content."
+  [keywords]="['drawer', 'wr-drawer', 'panel', 'overlay']"
+  [labels]="['Component', 'Directives', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-code [code]="snippets.basic" language="html" />
+
+    <ngwr-doc-snippet code="dialog.open(...)">
+      <wr-segmented [options]="positionOptions" [(value)]="position" />
+      <wr-btn color="primary" (click)="open.set(true)">Open drawer</wr-btn>
+    </ngwr-doc-snippet>
+
+    <wr-drawer [(open)]="open" [position]="position()" width="22rem">
+      <h2 wrDrawerTitle>Settings</h2>
+      <div wrDrawerContent>
+        <p style="margin: 0 0 0.75rem; color: var(--wr-color-medium); font-size: 0.875rem">
+          A side panel for secondary navigation, filters, or forms. Backdrop click and Escape close by default — opt out
+          with `closeOnBackdropClick` / `closeOnEscape`.
+        </p>
+        <p style="margin: 0; color: var(--wr-color-medium); font-size: 0.875rem">
+          Pick a side using the segmented above and re-open.
+        </p>
+      </div>
+      <div wrDrawerFooter>
+        <wr-btn wrDrawerClose>Cancel</wr-btn>
+        <wr-btn color="primary" wrDrawerClose>Save</wr-btn>
+      </div>
+    </wr-drawer>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Drawer API">
+    <ngwr-doc-api [rows]="drawerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Layout directives">
+    <ngwr-doc-api [rows]="directivesApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

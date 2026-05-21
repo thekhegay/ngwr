@@ -7,38 +7,43 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
-  booleanAttribute,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  forwardRef,
-  HostBinding,
-  inject,
-  Input,
-  signal,
   ViewEncapsulation,
+  computed,
+  forwardRef,
+  input,
+  signal,
 } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop } from 'rxjs';
+import { provideWrIcons, WrIconComponent, eye, eyeOff } from 'ngwr/icon';
+import { noop } from 'ngwr/utils';
 
-import { WrAbstractBase } from 'ngwr/cdk';
-import { SafeAny } from 'ngwr/cdk/types';
-import { provideWrIcons, eye, eyeOff, WrIconComponent } from 'ngwr/icon';
-
-import { WrInputType } from './input-types';
+import type { WrInputType } from './types';
 
 /**
- * NGWR input component.
+ * Single-line text input with optional prefix/suffix and password reveal.
  *
- * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/input}
+ * Implements `ControlValueAccessor` — usable with `[(ngModel)]`,
+ * `formControlName`, or `[formControl]`.
+ *
+ * @example
+ * ```html
+ * <wr-input placeholder="Email" type="email" [(ngModel)]="email" />
+ * <wr-input prefix="$" suffix="USD" type="number" />
+ * <wr-input type="password" passwordToggle />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/input
  */
 @Component({
   selector: 'wr-input',
   templateUrl: './input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [FormsModule, WrIconComponent],
+  host: { '[class]': 'classes()' },
+  imports: [WrIconComponent],
   providers: [
     provideWrIcons([eye, eyeOff]),
     {
@@ -49,66 +54,129 @@ import { WrInputType } from './input-types';
     },
   ],
 })
-export class WrInputComponent extends WrAbstractBase implements ControlValueAccessor {
-  @Input() placeholder = '';
-  @Input() prefix: string | null = null;
-  @Input() suffix: string | null = null;
-  @Input({ transform: booleanAttribute }) rounded = false;
-  @Input({ transform: booleanAttribute }) passwordIcons = false;
-  @Input({ transform: booleanAttribute }) readonly = false;
-  @Input() type: WrInputType = 'text';
+export class WrInputComponent implements ControlValueAccessor {
+  /**
+   * Native input type.
+   *
+   * @default 'text'
+   */
+  readonly type = input<WrInputType>('text');
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'wr-input': true,
-      'wr-input--rounded': this.rounded,
-      'wr-input--has-prefix': this.prefix,
-      'wr-input--has-suffix': this.suffix,
-      'wr-input--password': this.passwordIcons,
-      'wr-input--disabled': this.isDisabled(),
-      'wr-input--focused': this.isFocused(),
-    };
+  /**
+   * Native placeholder text.
+   *
+   * @default ''
+   */
+  readonly placeholder = input<string>('');
+
+  /**
+   * Static text shown before the input value.
+   *
+   * @default null
+   */
+  readonly prefix = input<string | null>(null);
+
+  /**
+   * Static text shown after the input value.
+   *
+   * @default null
+   */
+  readonly suffix = input<string | null>(null);
+
+  /**
+   * Read-only state.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Pill-shaped corners.
+   *
+   * @default false
+   */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Adds an eye toggle that flips `type` between `password` and `text`.
+   * Has no effect when `type` is not `password`.
+   *
+   * @default false
+   */
+  readonly passwordToggle = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Disable the input. Also set automatically by Angular forms via
+   * `setDisabledState` (e.g. `formControl.disable()`).
+   *
+   * @default false
+   */
+  readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  protected readonly value = signal<string>('');
+  protected readonly disabledFromCva = signal(false);
+  protected readonly focused = signal(false);
+  protected readonly passwordRevealed = signal(false);
+
+  /** Effective disabled — true if either the `disabled` input or CVA says so. */
+  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
+
+  /**
+   * Effective input type — flips when the password toggle is active.
+   *
+   * @internal
+   */
+  protected readonly effectiveType = computed<WrInputType>(() => {
+    return this.type() === 'password' && this.passwordRevealed() ? 'text' : this.type();
+  });
+
+  protected readonly classes = computed(() => {
+    const parts = ['wr-input'];
+    if (this.rounded()) parts.push('wr-input--rounded');
+    if (this.focused()) parts.push('wr-input--focused');
+    if (this.effectiveDisabled()) parts.push('wr-input--disabled');
+    if (this.prefix()) parts.push('wr-input--has-prefix');
+    if (this.suffix() || (this.type() === 'password' && this.passwordToggle())) {
+      parts.push('wr-input--has-suffix');
+    }
+    return parts.join(' ');
+  });
+
+  private onChange: (value: string) => void = noop;
+  private onTouched: () => void = noop;
+
+  // ──────── ControlValueAccessor ────────
+
+  writeValue(value: string | null): void {
+    this.value.set(value ?? '');
   }
-
-  protected readonly inputValue = signal<string | null>(null);
-
-  protected value?: string;
-
-  private readonly cdr = inject(ChangeDetectorRef);
-  protected readonly eyeOn = signal(true);
-  protected readonly isFocused = signal(false);
-  protected readonly isDisabled = signal(false);
-
-  onChange: (value: string) => void = noop;
-  onTouch: () => void = noop;
 
   registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouch = fn;
+    this.onTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.isDisabled.set(coerceBooleanProperty(isDisabled));
+    this.disabledFromCva.set(isDisabled);
   }
 
-  writeValue(value: string): void {
-    this.value = value;
-    this.onChange(value);
-    this.inputValue.set(value);
-    this.cdr.markForCheck();
+  // ──────── Template handlers ────────
+
+  protected onInput(event: Event): void {
+    const next = (event.target as HTMLInputElement).value;
+    this.value.set(next);
+    this.onChange(next);
   }
 
-  onPasswordVisibilityChange(): void {
-    if (this.type === 'password') {
-      this.type = 'text';
-      this.eyeOn.set(false);
-    } else {
-      this.type = 'password';
-      this.eyeOn.set(true);
-    }
+  protected onBlur(): void {
+    this.focused.set(false);
+    this.onTouched();
+  }
+
+  protected togglePassword(): void {
+    this.passwordRevealed.update(v => !v);
   }
 }

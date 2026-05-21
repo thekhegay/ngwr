@@ -1,36 +1,45 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { WrSpinnerComponent } from 'ngwr/spinner';
-import { WrTagComponent } from 'ngwr/tag';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-spinner',
+  selector: 'ngwr-spinner-page',
   templateUrl: './spinner.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrSpinnerComponent, WrTagComponent, CodeComponent, SnippetComponent],
+  imports: [
+    WrSpinnerComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class SpinnerComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class SpinnerComponent {
+  protected readonly snippets = {
+    install: `import { WrSpinnerComponent } from 'ngwr/spinner';
 
-  private readonly seoService = inject(SeoService);
-
-  protected readonly pageTitle = 'Spinner';
-  protected readonly pageDescription = 'A spinner component for displaying loading state.';
-
-  protected readonly code = {
-    import: `import{WrSpinnerComponent}from'ngwr/spinner';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrSpinnerComponent,],})\nexport class MyComponent {}`,
-    usage: `<wr-spinner />`,
+@Component({ imports: [WrSpinnerComponent] })
+export class MyComponent {}`,
+    basic: `<wr-spinner />`,
+    sizes: `<wr-spinner size="sm" />
+<wr-spinner size="md" />
+<wr-spinner size="lg" />`,
+    color: `<div style="color: var(--wr-color-primary)">
+  <wr-spinner />
+</div>`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.pageTitle, 'Components']);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['spinner', 'wr-spinner']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'size', description: 'Size variant (em-based).', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+  ];
 }

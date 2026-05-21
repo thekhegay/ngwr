@@ -1,8 +1,3 @@
-/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
 export { WrCheckboxComponent } from './checkbox.component';
+export { WrCheckboxGroupComponent } from './checkbox-group.component';
+export { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';

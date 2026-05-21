@@ -5,36 +5,44 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  HostBinding,
-  Input,
-  ViewEncapsulation,
-} from '@angular/core';
-
-import { SafeAny } from 'ngwr/cdk/types';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /**
- * NGWR form item component.
+ * Wraps a label + control + error message into a single field row.
  *
- * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/form}
+ * Toggle `hasError` to apply error styling to the projected label and
+ * any descendant input / textarea / checkbox.
+ *
+ * @example
+ * ```html
+ * <wr-form-item [hasError]="form.controls.email.invalid">
+ *   <label>Email</label>
+ *   <wr-input formControlName="email" />
+ *   <wr-form-error>Invalid email</wr-form-error>
+ * </wr-form-item>
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/form
  */
 @Component({
   selector: 'wr-form-item',
-  template: `<ng-content />`,
+  template: '<ng-content />',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: { '[class]': 'classes()' },
 })
 export class WrFormItemComponent {
-  @Input({ transform: booleanAttribute }) hasError = false;
+  /**
+   * When `true`, applies error coloring to the projected label and inputs.
+   *
+   * @default false
+   */
+  readonly hasError = input(false, { transform: coerceBooleanProperty });
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'wr-form-item': true,
-      'wr-form-item--has-error': this.hasError,
-    };
-  }
+  protected readonly classes = computed(() => {
+    const parts = ['wr-form-item'];
+    if (this.hasError()) parts.push('wr-form-item--error');
+    return parts.join(' ');
+  });
 }

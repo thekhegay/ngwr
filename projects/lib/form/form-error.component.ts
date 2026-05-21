@@ -5,19 +5,21 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, HostBinding, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 
 /**
- * NGWR form error component.
+ * Inline error message rendered below a form control.
  *
- * {@tutorial} [How to use wr-alert]{@link http://ngwr.dev/docs/components/form}
+ * Use inside a {@link WrFormItemComponent}; the message is automatically
+ * colored danger via the form-item's error styles.
+ *
+ * @see https://ngwr.dev/docs/components/form
  */
 @Component({
   selector: 'wr-form-error',
-  template: `<ng-content />`,
+  template: '<ng-content />',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: { class: 'wr-form-error', role: 'alert' },
 })
-export class WrFormErrorComponent {
-  @HostBinding() class = 'wr-form-error';
-}
+export class WrFormErrorComponent {}

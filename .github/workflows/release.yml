@@ -1,80 +1,69 @@
-name: Make release
+name: Release PR
 
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        description: 'Release type'
+      bump:
+        description: 'Version bump (rc publishes to npm dist-tag `next`, everything else to `latest`)'
         required: true
         type: choice
-        default: 'patch'
+        default: patch
         options:
           - patch
           - minor
           - major
+          - rc
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  create-release:
+  release-pr:
+    name: Cut release PR
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [ 24 ]
+    # Always cut releases from main — there is no separate release branch.
+    if: github.ref == 'refs/heads/main'
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
         with:
-          version: 10.21.0
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          version: 10.33.0
 
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Config git
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-
-      - name: Run release
-        run: |
-          pnpm release:${{ github.event.inputs.mode }}
-
-      - name: Prepare release metadata
-        id: prepare-release
-        run: |
-          pnpm tsx ./scripts/generate-release-body.ts --output=RELEASE_BODY.md
-
-          version=$(node -p "require('./projects/lib/package.json').version")
-          tag="v$version"
-
-          {
-            echo "release_version=$version"
-            echo "tag_name=$tag"
-            echo "release_body<<EOF"
-            cat RELEASE_BODY.md
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+      - uses: actions/setup-node@v4
         with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Configure git
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Bump version and update CHANGELOG
+        id: prepare
+        run: pnpm release:prepare --bump=${{ inputs.bump }} > /dev/null
+
+      - name: Generate release body
+        run: pnpm release:body --output=.release-body.md
+
+      - name: Create release PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: release/v${{ steps.prepare.outputs.version }}
+          base: main
           delete-branch: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: release/${{ steps.prepare-release.outputs.release_version }}
-          title: '🚀 Release v${{ steps.prepare-release.outputs.release_version }}'
-          body: ${{ steps.prepare-release.outputs.release_body }}
-
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1.14.0
-        with:
-          name: ${{ steps.prepare-release.outputs.tag_name }}
-          tag: ${{ steps.prepare-release.outputs.tag_name }}
-          body: ${{ steps.prepare-release.outputs.release_body }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(release): v${{ steps.prepare.outputs.version }}'
+          title: 'chore(release): v${{ steps.prepare.outputs.version }}'
+          body-path: .release-body.md
+          labels: |
+            release
+            ${{ steps.prepare.outputs.is_rc == 'true' && 'release:rc' || 'release:stable' }}

@@ -1,28 +1,52 @@
-<div class="ngwr-page-info">
-  <div class="ngwr-page-info__tags">
-    <wr-tag transparent>Documentation</wr-tag>
-  </div>
-  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
-  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
-</div>
+<ngwr-doc-page
+  title="Installation"
+  description="Install NGWR, wire it into your Angular 21 app, and start using components."
+  [keywords]="['install', 'setup', 'getting started']"
+  [labels]="['Getting started']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="bash" />
+  </ngwr-doc-section>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Install from package manager</h2>
-  <p class="ngwr-page-section__description">We suggest to use pnpm:</p>
+  <ngwr-doc-section
+    title="Bootstrap"
+    description="NGWR targets Angular 21+ with standalone components and zoneless change detection. The minimal app config:"
+  >
+    <ngwr-doc-code [code]="snippets.appConfig" language="typescript" />
+  </ngwr-doc-section>
 
-  <div class="ngwr-page-section__content">
-    <ngwr-code [code]="code.installNpm" codeLang="shell" />
-    <ngwr-code [code]="code.installYarn" codeLang="shell" />
-    <ngwr-code [code]="code.installPnpm" codeLang="shell" />
-  </div>
-</div>
+  <ngwr-doc-section
+    title="Global styles"
+    description="Import once in your global stylesheet. The umbrella entry pulls theme tokens + every component's styles. Utilities are opt-in."
+  >
+    <ngwr-doc-code [code]="snippets.globalStyles" language="scss" />
+  </ngwr-doc-section>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Add styles</h2>
-  <p class="ngwr-page-section__description">
-    After installation, add SCSS styles to your <code class="ngwr-pre">styles.scss</code>
-  </p>
-  <div class="ngwr-page-section__content">
-    <ngwr-code code="@use 'ngwr'" codeLang="scss" />
-  </div>
-</div>
+  <ngwr-doc-section
+    title="Per-component styles"
+    description="Each component also ships a standalone SCSS entry. Theme tokens are auto-imported and deduped."
+  >
+    <ngwr-doc-code [code]="snippets.perComponent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Use a component"
+    description="Import the component class into the standalone component's imports array."
+  >
+    <ngwr-doc-code [code]="snippets.usage" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Override design tokens"
+    description="Every visual is driven by --wr-* CSS variables. Override them anywhere — :root for app-wide, any subtree for scoped."
+  >
+    <ngwr-doc-code [code]="snippets.overrideTokens" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Override the palette at compile time"
+    description="If you'd rather change the source-of-truth colors and let NGWR regenerate every variant (contrast / dark / light / rgb), configure the SCSS module."
+  >
+    <ngwr-doc-code [code]="snippets.overridePalette" language="scss" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,70 +1,52 @@
-<div class="ngwr-page-info">
-  <div class="ngwr-page-info__tags">
-    <wr-tag transparent>Component</wr-tag>
-    <wr-tag transparent color="secondary">Standalone</wr-tag>
-    <wr-tag transparent color="medium">Experimental</wr-tag>
-  </div>
-  <h1 class="ngwr-page-info__title">{{ pageTitle }}</h1>
-  <p class="ngwr-page-info__description">{{ pageDescription }}</p>
-</div>
+<ngwr-doc-page
+  title="Avatar"
+  description="Image avatar with a fixed square or rounded shape. Shows a spinner while the image loads."
+  [keywords]="['avatar', 'profile', 'image', 'wr-avatar']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">How to install</h2>
-  <p class="ngwr-page-section__description">
-    Import <code class="ngwr-pre">WrAvatarComponent</code> into a component where you want to use.
-  </p>
-  <div class="ngwr-page-section__content">
-    <ngwr-code [code]="code.import" codeLang="ts"></ngwr-code>
-    <ngwr-code [code]="code.component" codeLang="ts"></ngwr-code>
-  </div>
-</div>
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-avatar [url]="sampleUrl" alt="Sample" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
-<div class="ngwr-page-section">
-  <h2 class="ngwr-page-section__title">Basic usage</h2>
-  <p class="ngwr-page-section__description">Avatar can be used as <code class="ngwr-pre">wr-avatar</code> component</p>
+  <ngwr-doc-section
+    title="Sizes"
+    description="Accepts a number (pixels), '48', '48px', or '3rem'. No percentages — avatars need a deterministic pixel size."
+  >
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <wr-avatar [url]="sampleUrl" alt="" [size]="32" />
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" />
+      <wr-avatar [url]="sampleUrl" alt="" size="6rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
-  <div class="ngwr-page-section__content">
-    <ngwr-snippet>
-      <ng-container ngProjectAs="[body]">
-        <wr-avatar url="images/image_1.webp" alt="WrAvatar example image" />
-      </ng-container>
-      <ngwr-code [code]="code.usage" codeLang="html" code></ngwr-code>
-    </ngwr-snippet>
-  </div>
-</div>
+  <ngwr-doc-section title="Rounded">
+    <ngwr-doc-snippet [code]="snippets.rounded">
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" rounded />
+      <wr-avatar [url]="sampleUrl" alt="" size="6rem" rounded />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
-<!--<div class="ngwr-page-section">-->
-<!--  <h2 class="ngwr-page-section__title">API</h2>-->
+  <ngwr-doc-section
+    title="Initials fallback"
+    description="When the avatar has no image, projected content fills the box. Use a flex layout to center it."
+  >
+    <ngwr-doc-snippet [code]="snippets.initials">
+      <wr-avatar [size]="48" rounded>
+        <span style="font-size: 0.875rem; font-weight: 600; color: var(--wr-color-medium)">RK</span>
+      </wr-avatar>
+      <wr-avatar [size]="64" style="background: rgba(var(--wr-color-primary-rgb), 0.15)">
+        <span style="font-size: 1.125rem; font-weight: 600; color: var(--wr-color-primary)">AB</span>
+      </wr-avatar>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
-<!--  <div class="ngwr-page-section__content">-->
-<!--    <div class="ngwr-page__table">-->
-<!--      <table>-->
-<!--        <thead>-->
-<!--          <tr>-->
-<!--            <th>Property</th>-->
-<!--            <th>Description</th>-->
-<!--            <th>Type</th>-->
-<!--            <th>Required</th>-->
-<!--            <th>Default</th>-->
-<!--          </tr>-->
-<!--        </thead>-->
-<!--        <tbody>-->
-<!--          <tr>-->
-<!--            <th><code>[url]</code></th>-->
-<!--            <th>set url of avatar</th>-->
-<!--            <th><code>string</code></th>-->
-<!--            <th><code class="ngwr-pre&#45;&#45;danger">yes</code></th>-->
-<!--            <th><code></code></th>-->
-<!--          </tr>-->
-<!--          <tr>-->
-<!--            <th><code>[alt]</code></th>-->
-<!--            <th>set alter text for image</th>-->
-<!--            <th><code>string</code></th>-->
-<!--            <th><code class="ngwr-pre&#45;&#45;danger">yes</code></th>-->
-<!--            <th><code></code></th>-->
-<!--          </tr>-->
-<!--        </tbody>-->
-<!--      </table>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

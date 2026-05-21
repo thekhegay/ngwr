@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 
 export const routes = {
   index: '/',
@@ -12,20 +12,34 @@ export const routes = {
       index: 'components',
       alert: 'alert',
       avatar: 'avatar',
+      badge: 'badge',
+      breadcrumbs: 'breadcrumbs',
       button: 'button',
       buttonGroup: 'button-group',
       checkbox: 'checkbox',
+      checkboxGroup: 'checkbox-group',
+      collapse: 'collapse',
       dialog: 'dialog',
       divider: 'divider',
+      drawer: 'drawer',
       form: 'form',
       icon: 'icon',
       input: 'input',
+      popconfirm: 'popconfirm',
+      popover: 'popover',
       progress: 'progress',
       qrCode: 'qrcode',
+      radio: 'radio',
+      radioGroup: 'radio-group',
+      segmented: 'segmented',
       skeleton: 'skeleton',
       spinner: 'spinner',
+      switch: 'switch',
       tag: 'tag',
+      tabs: 'tabs',
       textarea: 'textarea',
+      toast: 'toast',
+      tooltip: 'tooltip',
       select: 'select',
       dropdown: 'dropdown',
       pagination: 'pagination',
@@ -35,6 +49,8 @@ export const routes = {
       index: 'core',
       colors: 'color',
       grid: 'grid',
+      overlay: 'overlay',
+      utils: 'utils',
     },
   },
 };
@@ -42,10 +58,17 @@ export const routes = {
 export const routing: Routes = [
   {
     path: '',
-    loadComponent: () => import('./home/home.component').then(c => c.HomeComponent),
-  },
-  {
-    path: routes.docs.index,
-    loadChildren: () => import('./docs/docs.routing'),
+    loadComponent: () => import('#shell'),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./home/home.component'),
+      },
+      {
+        path: routes.docs.index,
+        loadChildren: () => import('./docs/docs.routing'),
+      },
+    ],
   },
 ];

@@ -1,91 +1,56 @@
 {
-  "name": "ngwr",
+  "name": "ngwr-workspace",
   "version": "0.0.0-NOT-USED",
   "private": true,
   "scripts": {
     "dev": "ng serve --o",
     "test": "ng test",
     "lint": "ng lint",
-    "release:patch": "tsx ./scripts/make-release.ts --release-as=patch",
-    "release:minor": "tsx ./scripts/make-release.ts --release-as=minor",
-    "release:major": "tsx ./scripts/make-release.ts --release-as=major",
-    "build:lib": "tsx ./scripts/build-lib.ts",
-    "build:showcase": "tsx ./scripts/build-showcase.ts",
-    "publish:lib": "tsx ./scripts/publish.ts"
+    "build:lib": "ng build lib",
+    "build:showcase": "ng build showcase",
+    "generate:icons": "tsx scripts/generate-icons.ts",
+    "release:prepare": "tsx scripts/release-prepare.ts",
+    "release:body": "tsx scripts/release-body.ts"
   },
   "engines": {
-    "node": ">=20.19.0",
-    "pnpm": ">=10.21.0"
+    "node": "^20.19.0 || ^22.12.0 || ^24.0.0",
+    "pnpm": "^10"
   },
-  "packageManager": "pnpm@10.21.0",
-  "pnpm": {
-    "allowedDeprecatedVersions": true
-  },
+  "packageManager": "pnpm@10.33.0",
   "dependencies": {
-    "@angular/animations": "^20.3.12",
-    "@angular/cdk": "^20.2.13",
-    "@angular/common": "^20.3.12",
-    "@angular/compiler": "^20.3.12",
-    "@angular/core": "^20.3.12",
-    "@angular/forms": "^20.3.12",
-    "@angular/platform-browser": "^20.3.12",
-    "@angular/platform-browser-dynamic": "^20.3.12",
-    "@angular/router": "^20.3.12",
-    "chalk": "^5.4.1",
-    "highlight.js": "^11.11.1",
-    "js-beautify": "^1.15.1",
-    "ngx-highlightjs": "^14.0.0",
+    "@angular/animations": "^21.2.8",
+    "@angular/cdk": "^21.2.6",
+    "@angular/common": "^21.2.8",
+    "@angular/compiler": "^21.2.8",
+    "@angular/core": "^21.2.8",
+    "@angular/forms": "^21.2.8",
+    "@angular/platform-browser": "^21.2.8",
+    "@angular/platform-browser-dynamic": "^21.2.8",
+    "@angular/router": "^21.2.8",
     "rxjs": "~7.8.0",
+    "shiki": "^4.0.2",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@angular-extensions/svg-icons-builder": "^11.0.0",
-    "@angular/build": "^20.3.10",
-    "@angular/cli": "^20.3.10",
-    "@angular/compiler-cli": "^20.3.12",
-    "@eslint/js": "^9.19.0",
-    "@semantic-release/release-notes-generator": "^14.0.3",
-    "@types/js-beautify": "^1.14.3",
-    "@types/node": "^22.13.1",
-    "angular-eslint": "20.6.0",
-    "commit-and-tag-version": "^12.6.0",
-    "eslint": "^9.28.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-import-x": "^4.6.1",
-    "eslint-plugin-prettier": "^5.2.3",
-    "ng-packagr": "^20.1.0",
-    "prettier": "3.4.2",
-    "tsx": "^4.19.2",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.33.1"
-  },
-  "commit-and-tag-version": {
-    "scripts": {
-      "postbump": "tsx ./scripts/postbump.ts"
-    },
-    "packageFiles": [
-      "projects/lib/package.json"
-    ],
-    "bumpFiles": [
-      {
-        "filename": "projects/lib/package.json",
-        "type": "json"
-      }
-    ],
-    "header": "# Changelog",
-    "types": [
-      {
-        "type": "feat",
-        "section": "Features"
-      },
-      {
-        "type": "fix",
-        "section": "Bug Fixes"
-      },
-      {
-        "type": "deprecate",
-        "section": "Deprecated"
-      }
-    ]
+    "@angular/build": "^21.2.7",
+    "@angular/cli": "^21.2.7",
+    "@angular/compiler-cli": "^21.2.8",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.12.2",
+    "@types/semver": "^7.7.0",
+    "conventional-changelog-cli": "^5.0.0",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "semver": "^7.7.1",
+    "angular-eslint": "^21.3.1",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import-x": "^4.16.2",
+    "eslint-plugin-prettier": "^5.5.5",
+    "ng-packagr": "^21.2.2",
+    "prettier": "^3.8.3",
+    "svgo": "^4.0.1",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.58.2"
   }
 }

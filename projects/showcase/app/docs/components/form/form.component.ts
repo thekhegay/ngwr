@@ -1,49 +1,61 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
+import { WrButtonComponent } from 'ngwr/button';
 import { WrFormErrorComponent, WrFormItemComponent } from 'ngwr/form';
 import { WrInputComponent } from 'ngwr/input';
-import { WrTagComponent } from 'ngwr/tag';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
-import { routes } from '#routing';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-form',
+  selector: 'ngwr-form-page',
   templateUrl: './form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
   imports: [
+    FormsModule,
     WrInputComponent,
-    WrTagComponent,
-    CodeComponent,
-    SnippetComponent,
+    WrButtonComponent,
     WrFormItemComponent,
     WrFormErrorComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
   ],
 })
-export class FormComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class FormComponent {
+  protected readonly email = signal('');
+  protected readonly emailInvalid = signal(false);
 
-  private readonly seoService = inject(SeoService);
-  protected readonly pageTitle = 'Form';
-  protected readonly pageDescription = 'Form is used to collect, validate, and submit the user input.';
-  protected readonly routes = routes;
+  protected readonly snippets = {
+    install: `import { WrFormItemComponent, WrFormErrorComponent } from 'ngwr/form';
 
-  protected readonly code = {
-    import: `import{WrFormItemComponent}from'ngwr/form';\n
-    import{WrFormErrorComponent}from'ngwr/form';
-    `,
-    component: `@Component({\n//...\nimports: [\n//...\nWrFormItemComponent,\nWrFormErrorComponent,],})\nexport class MyComponent {}`,
-    usage: `<wr-form-item>\n<label>Username</label>\n<wr-input placeholder="Username" />\n</wr-form-item>`,
-    errorCode: `<wr-form-item [hasError]="true">\n<label></label>\n<wr-input />\n<wr-form-error>Username is required</wr-form-error>\n</wr-form-item>`,
+@Component({ imports: [WrFormItemComponent, WrFormErrorComponent] })
+export class MyComponent {}`,
+    basic: `<wr-form-item>
+  <label>Email</label>
+  <wr-input type="email" [(ngModel)]="email" />
+</wr-form-item>`,
+    error: `<wr-form-item [hasError]="invalid()">
+  <label>Email</label>
+  <wr-input type="email" [(ngModel)]="email" />
+  <wr-form-error>Please enter a valid email.</wr-form-error>
+</wr-form-item>`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle(this.pageTitle);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['form', 'wr-form-item', 'wr-form-error']);
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'hasError', description: 'Apply error coloring to label + input.', type: 'boolean', default: 'false' },
+  ];
+
+  protected validate(): void {
+    this.emailInvalid.set(!this.email().includes('@'));
   }
 }

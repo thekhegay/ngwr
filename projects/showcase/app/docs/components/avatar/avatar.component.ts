@@ -1,36 +1,61 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { WrAvatarComponent } from 'ngwr/avatar';
-import { WrTagComponent } from 'ngwr/tag';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
+
+const SAMPLE_URL = 'https://avatars.githubusercontent.com/u/9893827?v=4';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-avatar',
+  selector: 'ngwr-avatar-page',
   templateUrl: './avatar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CodeComponent, SnippetComponent, WrAvatarComponent, WrTagComponent],
+  imports: [
+    WrAvatarComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class AvatarComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class AvatarComponent {
+  protected readonly sampleUrl = SAMPLE_URL;
 
-  private readonly seoService = inject(SeoService);
+  protected readonly snippets = {
+    install: `import { WrAvatarComponent } from 'ngwr/avatar';
 
-  protected readonly pageTitle = 'Avatar';
-  protected readonly pageDescription = 'Component for display profile picture';
-
-  protected readonly code = {
-    import: `import{WrAvatarComponent}from'ngwr/avatar';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrAvatarComponent,],})\nexport class MyComponent {}`,
-    usage: '<wr-avatar url="images/image_1.webp" alt="WrAvatar example image" />',
+@Component({ imports: [WrAvatarComponent] })
+export class MyComponent {}`,
+    basic: `<wr-avatar url="/me.png" alt="Roman" />`,
+    sizes: `<wr-avatar url="/me.png" alt="Roman" [size]="32" />
+<wr-avatar url="/me.png" alt="Roman" size="4rem" />
+<wr-avatar url="/me.png" alt="Roman" size="6rem" />`,
+    rounded: `<wr-avatar url="/me.png" alt="Roman" rounded />`,
+    initials: `<wr-avatar [size]="48" rounded>RK</wr-avatar>`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.pageTitle, 'Components']);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['avatar', 'wr-avatar']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    {
+      name: 'url',
+      description: 'Image URL. When unset, only projected content shows.',
+      type: 'string | null',
+      default: 'null',
+    },
+    { name: 'alt', description: 'Alt text for the image.', type: 'string', default: "'Avatar'" },
+    {
+      name: 'size',
+      description: 'Box size. Accepts number, px, or rem string.',
+      type: 'WrAvatarSize',
+      default: "'6rem'",
+    },
+    { name: 'rounded', description: 'Render as a circle.', type: 'boolean', default: 'false' },
+  ];
 }

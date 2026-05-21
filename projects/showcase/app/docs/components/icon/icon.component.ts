@@ -1,47 +1,135 @@
-import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
-import { provideWrIcons, WrIconComponent, wrIconSet } from 'ngwr/icon';
-import { WrTagComponent } from 'ngwr/tag';
+import { provideWrIcons, WrIconComponent, type WrBuiltInIconName, wrIconSet } from 'ngwr/icon';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import { iconTags } from './_data/icon-tags.generated';
+
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
+import { copyToClipboard } from '#core/utils';
+
+/** 'logo-github' → 'logoGithub' */
+function camelize(value: string): string {
+  return value.replace(/-([a-z\d])/g, (_, c: string) => c.toUpperCase());
+}
+
+type IconRow = {
+  readonly name: WrBuiltInIconName;
+  readonly camel: string;
+  readonly haystack: string;
+};
+
+function buildRow(name: WrBuiltInIconName): IconRow {
+  const tags = iconTags[name] ?? [];
+  return {
+    name,
+    camel: camelize(name),
+    // Pre-built lowercase haystack for fast filter().
+    haystack: [name, ...tags].join(' ').toLowerCase(),
+  };
+}
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-icon',
+  selector: 'ngwr-icon-page',
   templateUrl: './icon.component.html',
   styleUrl: './icon.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [CdkCopyToClipboard, WrTagComponent, WrIconComponent, CodeComponent, SnippetComponent],
+  imports: [
+    WrIconComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
   providers: [provideWrIcons(wrIconSet)],
 })
-export class IconComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class IconComponent {
+  protected readonly query = signal('');
+  protected readonly copiedName = signal<string | null>(null);
 
-  private readonly seoService = inject(SeoService);
+  private readonly allRows: readonly IconRow[] = wrIconSet.map(i => buildRow(i.name as WrBuiltInIconName));
 
-  protected readonly title = 'Icon';
-  protected readonly description = 'Component to display icons';
-  protected readonly icons = wrIconSet.filter(i => !i.name.startsWith('logo'));
-  protected readonly logoIcons = wrIconSet.filter(i => i.name.startsWith('logo'));
+  protected readonly icons = computed(() => this.filter(r => !r.name.startsWith('logo')));
+  protected readonly logoIcons = computed(() => this.filter(r => r.name.startsWith('logo')));
 
-  protected readonly code = {
-    import: `import{WrIconComponent}from'ngwr/icon';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrIconComponent,],})\nexport class MyComponent {}`,
-    provider: `//...\nimport{provideWrIcons,logoAngular}from'ngwr/icon';\n//...\n@Component({\n//...\nproviders: [\n//...\nprovideWrIcons([logoAngular]),],})\nexport class MyComponent {}`,
-    usage: '<wr-icon name="logo-angular" />',
+  protected readonly snippets = {
+    install: `import { WrIconComponent } from 'ngwr/icon';
+
+@Component({
+  imports: [WrIconComponent],
+})
+export class MyComponent {}`,
+    registerApp: `import { provideWrIcons, logoAngular } from 'ngwr/icon';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideWrIcons([logoAngular])],
+});`,
+    registerComponent: `import { provideWrIcons, WrIconComponent, logoGithub, logoNpm } from 'ngwr/icon';
+
+@Component({
+  selector: 'app-header',
+  imports: [WrIconComponent],
+  providers: [provideWrIcons([logoGithub, logoNpm])],
+  template: \`
+    <wr-icon name="logo-github" />
+    <wr-icon name="logo-npm" />
+  \`,
+})
+export class HeaderComponent {}`,
+    custom: `import type { WrIcon } from 'ngwr/icon';
+
+export const myBrand: WrIcon = {
+  name: 'my-brand',
+  data: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="..." /></svg>',
+};`,
+    customRegister: `import { provideWrIcons, WrIconComponent } from 'ngwr/icon';
+
+import { myBrand } from './my-brand.icon';
+
+@Component({
+  imports: [WrIconComponent],
+  providers: [provideWrIcons([myBrand])],
+  template: \`<wr-icon name="my-brand" />\`,
+})
+export class BrandComponent {}`,
+    usage: `<wr-icon name="logo-angular" />`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.title, 'Components']);
-    this.seoService.setDescription(this.description);
-    this.seoService.setKeywords(['icon', 'wr-icon']);
+  protected readonly api: readonly DocApiRow[] = [
+    {
+      name: 'name',
+      description: 'Name of a registered icon.',
+      type: 'WrIconName',
+      required: true,
+    },
+  ];
+
+  protected readonly tagsFor = (name: WrBuiltInIconName): readonly string[] => iconTags[name] ?? [];
+
+  protected onQueryInput(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
   }
 
-  camelize(value: string): string {
-    return value.replace(/-./g, x => x[1].toUpperCase());
+  protected async onCopy(name: WrBuiltInIconName): Promise<void> {
+    const ok = await copyToClipboard(camelize(name));
+    if (!ok) return;
+    this.copiedName.set(name);
+    setTimeout(() => {
+      if (this.copiedName() === name) this.copiedName.set(null);
+    }, 1500);
+  }
+
+  private filter(predicate: (row: IconRow) => boolean): readonly IconRow[] {
+    const q = this.query().trim().toLowerCase();
+    const base = this.allRows.filter(predicate);
+    if (!q) return base;
+    return base.filter(r => r.haystack.includes(q));
   }
 }

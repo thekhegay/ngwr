@@ -1,22 +1,31 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { WrAlertComponent } from 'ngwr/alert';
 import { WrAvatarComponent } from 'ngwr/avatar';
 import { WrButtonComponent } from 'ngwr/button';
-import { provideWrIcons, WrIcon, WrIconComponent, wrIconSet } from 'ngwr/icon';
+import { provideWrIcons, type WrIcon, WrIconComponent, wrIconSet } from 'ngwr/icon';
 import { WrInputComponent } from 'ngwr/input';
 import { WrProgressComponent } from 'ngwr/progress';
 import { WrQrComponent } from 'ngwr/qr';
 import { WrSkeletonComponent } from 'ngwr/skeleton';
 import { WrTagComponent } from 'ngwr/tag';
 
-import { SeoService } from '#core/services';
+import { MetaService } from '#core/services';
 import { routes } from '#routing';
 
+/** Fisher–Yates shuffle. Returns a new array. */
+function shuffle<T>(input: readonly T[]): T[] {
+  const out = [...input];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 @Component({
-  standalone: true,
   selector: 'ngwr-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -36,22 +45,18 @@ import { routes } from '#routing';
   ],
   providers: [provideWrIcons(wrIconSet)],
 })
-export class HomeComponent implements OnInit {
-  private readonly seoService = inject(SeoService);
+export default class HomeComponent {
   protected readonly currentDate = new Date();
-  protected readonly icons = this.shuffleArray(wrIconSet);
+  protected readonly icons: readonly WrIcon[] = shuffle(wrIconSet).slice(0, 30);
   protected readonly routes = routes;
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle('NGWR – Angular UI components library');
-  }
-
-  shuffleArray(array: WrIcon[]): WrIcon[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+  constructor() {
+    const meta = inject(MetaService);
+    meta.setCanonicalURL();
+    meta.setTitle(null);
+    meta.setDescription(
+      'NGWR — open source Angular 21 components. Standalone, signals-first, bring-your-own design system.'
+    );
+    meta.setKeywords(['home', 'landing']);
   }
 }

@@ -1,21 +1,32 @@
-<label class="wr-checkbox__wrapper" [for]="id()">
+<label class="wr-checkbox__label" [for]="id()">
   <input
     class="wr-checkbox__input"
     type="checkbox"
     [id]="id()"
-    [checked]="inputValue()"
-    [disabled]="isDisabled()"
+    [checked]="checked()"
+    [disabled]="effectiveDisabled()"
     (change)="onInputChange($event)"
     (blur)="onInputBlur()"
   />
 
-  @if (icon(); as iconName) {
-    <wr-icon class="wr-checkbox__icon" [name]="iconName" />
-  } @else {
-    <div class="wr-checkbox-inner">
-      <div class="wr-checkbox-inner__mark"></div>
-    </div>
-  }
+  <span class="wr-checkbox__box" aria-hidden="true">
+    @if (icon(); as iconName) {
+      <wr-icon class="wr-checkbox__icon" [name]="iconName" />
+    } @else {
+      <svg viewBox="0 0 16 16" class="wr-checkbox__mark">
+        <polyline
+          points="3.5 8.5 6.5 11.5 12.5 5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    }
+  </span>
 
-  <ng-content />
+  <span class="wr-checkbox__text">
+    <ng-content />
+  </span>
 </label>

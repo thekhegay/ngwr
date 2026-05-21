@@ -1,0 +1,9 @@
+<wr-breadcrumbs>
+  @for (crumb of crumbs(); track crumb.url ?? crumb.label) {
+    @if (crumb.url; as url) {
+      <wr-breadcrumb-item [routerLink]="url">{{ crumb.label }}</wr-breadcrumb-item>
+    } @else {
+      <wr-breadcrumb-item>{{ crumb.label }}</wr-breadcrumb-item>
+    }
+  }
+</wr-breadcrumbs>

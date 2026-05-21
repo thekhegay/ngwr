@@ -1,12 +1,13 @@
-/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
-export * from './types';
-export * from './table.component';
-export * from './table-cell';
-export * from './table-filter';
-export * from './table-sort';
+export { WrTableComponent } from './table.component';
+export { WrTableCellDirective } from './table-cell.directive';
+export { WrTableSortComponent } from './table-sort.component';
+export { WrTableFilterComponent } from './table-filter.component';
+export type {
+  WrTableCellContext,
+  WrTableColumn,
+  WrTableColumns,
+  WrTableFilterChange,
+  WrTableFilterItem,
+  WrTableSort,
+  WrTableSortDirection,
+} from './types';

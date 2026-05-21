@@ -1,41 +1,47 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { wrThemeColors } from 'ngwr/cdk/types';
 import { WrSkeletonComponent } from 'ngwr/skeleton';
-import { WrTagComponent } from 'ngwr/tag';
+import { WR_COLORS } from 'ngwr/theme';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-skeleton',
+  selector: 'ngwr-skeleton-page',
   templateUrl: './skeleton.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrSkeletonComponent, WrTagComponent, CodeComponent, SnippetComponent],
+  imports: [
+    WrSkeletonComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class SkeletonComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class SkeletonComponent {
+  protected readonly colors = WR_COLORS;
 
-  private readonly seoService = inject(SeoService);
+  protected readonly snippets = {
+    install: `import { WrSkeletonComponent } from 'ngwr/skeleton';
 
-  protected readonly pageTitle = 'Skeleton';
-  protected readonly pageDescription = 'A visual placeholder component.';
-
-  protected readonly colors = wrThemeColors;
-
-  protected readonly code = {
-    import: `import{WrSkeletonComponent}from'ngwr/skeleton';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrSkeletonComponent,],})\nexport class MyComponent {}`,
-    usage: `<wr-skeleton />`,
-    colors:
-      '<wr-skeleton color="primary" />\n<wr-skeleton color="secondary" />\n<wr-skeleton color="success" />\n<wr-skeleton color="warning" />\n<wr-skeleton color="danger" />\n<wr-skeleton color="light" />\n<wr-skeleton color="medium" />\n<wr-skeleton color="dark" />',
+@Component({ imports: [WrSkeletonComponent] })
+export class MyComponent {}`,
+    basic: `<wr-skeleton />`,
+    colors: `<wr-skeleton color="primary" />
+<wr-skeleton color="success" />`,
+    custom: `<wr-skeleton style="--wr-skeleton-height: 4rem; --wr-skeleton-radius: 1rem" />`,
+    static: `<wr-skeleton [animated]="false" />`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.pageTitle, 'Components']);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['skeleton', 'loader', 'loading', 'wr-skeleton']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'color', description: 'Tint color.', type: 'WrColor', default: "'dark'" },
+    { name: 'animated', description: 'Run the shimmer animation.', type: 'boolean', default: 'true' },
+  ];
 }

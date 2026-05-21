@@ -1,55 +1,65 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit, ViewEncapsulation } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { WrInputComponent } from 'ngwr/input';
-import { WrTagComponent } from 'ngwr/tag';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-input',
+  selector: 'ngwr-input-page',
   templateUrl: './input.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  imports: [ReactiveFormsModule, WrInputComponent, WrTagComponent, CodeComponent, SnippetComponent],
+  imports: [
+    FormsModule,
+    WrInputComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class InputComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class InputComponent {
+  protected readonly text = signal('Hello world');
+  protected readonly password = signal('');
 
-  private readonly seoService = inject(SeoService);
+  protected readonly snippets = {
+    install: `import { WrInputComponent } from 'ngwr/input';
+import { FormsModule } from '@angular/forms';
 
-  protected readonly title = 'Input';
-  protected readonly description = 'Basic text component used to provide or change data';
-
-  protected readonly disabledFormControl = new FormControl({ value: null, disabled: true });
-
-  protected readonly code = {
-    import: `import{WrInputComponent}from'ngwr/input';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrInputComponent,],})\nexport class MyComponent {}`,
-    usage: '<wr-btn>Button Component</wr-btn>\n<button wr-btn>Native Button</button>\n<a wr-btn>Anchor Button</a>',
-    colors:
-      '<wr-btn color="primary"></wr-btn>\n<wr-btn color="secondary"></wr-btn>\n<wr-btn color="success"></wr-btn>\n<wr-btn color="warning"></wr-btn>\n<wr-btn color="danger"></wr-btn>\n<wr-btn color="light"></wr-btn>\n<wr-btn color="medium"></wr-btn>\n<wr-btn color="dark"></wr-btn>',
-    outlined: '<wr-btn outlined></wr-btn>',
-    rounded: '<wr-btn rounded></wr-btn>',
-    size: '<wr-btn>Default size</wr-btn>\n<wr-btn size="small">Small size</wr-btn>',
-    iconProvider:
-      "import{provideWrIcons,wrIconAdd}from'ngwr/icon';\n//...\n@Component({\n//...\nimports: [\n//...\nWrButtonComponent],\nproviders: [\n//...\nprovideWrIcons([wrIconAdd])],})\nexport class MyComponent {}",
-    icon: '<wr-btn icon="add" iconPosition="start">Add</wr-btn>',
-    disabled: '<wr-btn disabled></wr-btn>',
-    loading:
-      '<wr-btn loading>Loading</wr-btn>\n<wr-btn [loading]="true" color="dark" rounded>You can use long text</wr-btn>\n<wr-btn loading icon="add" color="secondary" outlined>Loading with icon</wr-btn>',
-    loadingDisabled: `<wr-btn [isDisabledWhenLoading]="false">Enabled</wr-btn>`,
-    block: '<wr-btn block></wr-btn>',
-    styling:
-      ':root {\n--wr-btn-color: var(--wr-color-dark);\n--wr-btn-bg-color: var(--wr-color-white);\n--wr-btn-border-color: var(--wr-color-light-lighter);\n--wr-btn-icon-size: 1rem;\n--wr-btn-font-size: 0.875rem;\n--wr-btn-font-weight: 500;\n--wr-btn-font-family: var(--wr-font-family-base);\n--wr-btn-line-height: 1.25rem;\n--wr-btn-border-radius: 0.375rem;\n--wr-btn-padding-y: 0.375rem;\n--wr-btn-padding-x: 1rem;\n}',
+@Component({ imports: [WrInputComponent, FormsModule] })
+export class MyComponent {
+  text = signal('');
+}`,
+    basic: `<wr-input placeholder="Type here…" [(ngModel)]="text" />`,
+    types: `<wr-input type="email" placeholder="you@example.com" />
+<wr-input type="number" placeholder="0" />
+<wr-input type="search" placeholder="Search" />`,
+    affixes: `<wr-input prefix="$" suffix="USD" type="number" />`,
+    rounded: `<wr-input placeholder="Rounded" rounded />`,
+    password: `<wr-input type="password" placeholder="Password" passwordToggle />`,
+    disabled: `<wr-input placeholder="Disabled" [disabled]="true" />`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle('Input');
-    this.seoService.setDescription(this.description);
-    this.seoService.setKeywords(['input', 'wr-input']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'type', description: 'Native input type.', type: 'WrInputType', default: "'text'" },
+    { name: 'placeholder', description: 'Placeholder text.', type: 'string', default: "''" },
+    { name: 'prefix', description: 'Static text before the value.', type: 'string | null', default: 'null' },
+    { name: 'suffix', description: 'Static text after the value.', type: 'string | null', default: 'null' },
+    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+    { name: 'readonly', description: 'Read-only state.', type: 'boolean', default: 'false' },
+    {
+      name: 'passwordToggle',
+      description: 'Show an eye toggle for password fields.',
+      type: 'boolean',
+      default: 'false',
+    },
+  ];
 }

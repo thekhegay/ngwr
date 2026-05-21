@@ -1,29 +1,30 @@
-@if (prefix) {
-  <div class="wr-input-prefix">
-    <span class="wr-input-prefix__text">{{ prefix }}</span>
-  </div>
+@if (prefix(); as text) {
+  <span class="wr-input__affix wr-input__affix--prefix">{{ text }}</span>
 }
 
 <input
   class="wr-input__native"
-  [type]="type"
-  [placeholder]="placeholder"
-  [readonly]="readonly"
-  [disabled]="isDisabled()"
-  [ngModel]="inputValue()"
-  (ngModelChange)="writeValue($event)"
-  (focus)="isFocused.set(true)"
-  (blur)="isFocused.set(false)"
+  [type]="effectiveType()"
+  [placeholder]="placeholder()"
+  [readonly]="readonly()"
+  [disabled]="effectiveDisabled()"
+  [value]="value()"
+  (input)="onInput($event)"
+  (focus)="focused.set(true)"
+  (blur)="onBlur()"
 />
 
-@if (passwordIcons) {
-  <div class="wr-input-icon" [class.wr-input-icon--disabled]="isDisabled()" (click)="onPasswordVisibilityChange()">
-    <wr-icon class="wr-input-icon__icon" [name]="eyeOn() ? 'eye' : 'eye-off'" />
-  </div>
-}
-
-@if (suffix) {
-  <div class="wr-input-suffix">
-    <span class="wr-input-suffix__text">{{ suffix }}</span>
-  </div>
+@if (type() === 'password' && passwordToggle()) {
+  <button
+    type="button"
+    class="wr-input__toggle"
+    [attr.aria-label]="passwordRevealed() ? 'Hide password' : 'Show password'"
+    [attr.aria-pressed]="passwordRevealed()"
+    [disabled]="effectiveDisabled()"
+    (click)="togglePassword()"
+  >
+    <wr-icon [name]="passwordRevealed() ? 'eye-off' : 'eye'" />
+  </button>
+} @else if (suffix(); as text) {
+  <span class="wr-input__affix wr-input__affix--suffix">{{ text }}</span>
 }

@@ -1,37 +1,59 @@
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  HostBinding,
-  Input,
-  ViewEncapsulation,
-} from '@angular/core';
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
 
-import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import type { WrColor } from 'ngwr/theme';
+
+/**
+ * Placeholder block shown while content is loading.
+ *
+ * Default sizing fills the parent width and matches the surrounding
+ * text height (`1lh`). Override `--wr-skeleton-height` / `width` on the
+ * host for custom shapes.
+ *
+ * @example
+ * ```html
+ * <wr-skeleton />
+ * <wr-skeleton color="primary" [animated]="false" />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/skeleton
+ */
 @Component({
   selector: 'wr-skeleton',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: {
+    'aria-busy': 'true',
+    'aria-live': 'polite',
+    '[class]': 'classes()',
+  },
 })
 export class WrSkeletonComponent {
-  @Input() color: WrThemeColor = 'dark';
-  @Input({ transform: booleanAttribute }) animated = true;
+  /**
+   * Color tint for the placeholder.
+   *
+   * @default 'dark'
+   */
+  readonly color = input<WrColor>('dark');
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'wr-skeleton': true,
-      'wr-skeleton--animated': this.animated,
-      'wr-skeleton--primary': this.color === 'primary',
-      'wr-skeleton--secondary': this.color === 'secondary',
-      'wr-skeleton--success': this.color === 'success',
-      'wr-skeleton--warning': this.color === 'warning',
-      'wr-skeleton--danger': this.color === 'danger',
-      'wr-skeleton--light': this.color === 'light',
-      'wr-skeleton--medium': this.color === 'medium',
-      'wr-skeleton--dark': this.color === 'dark',
-    };
-  }
+  /**
+   * Whether the shimmer animation runs.
+   *
+   * @default true
+   */
+  readonly animated = input(true, { transform: coerceBooleanProperty });
+
+  protected readonly classes = computed(() => {
+    const parts = ['wr-skeleton', `wr-skeleton--${this.color()}`];
+    if (this.animated()) parts.push('wr-skeleton--animated');
+    return parts.join(' ');
+  });
 }

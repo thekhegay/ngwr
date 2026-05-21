@@ -1,187 +1,182 @@
-@forward './vars';
-
-@use '../../styles/maps' as maps;
-@use '../../styles/colors';
-
-@forward '../../spinner/styles';
-@forward '../../icon/styles';
+@use '../../theme/styles' as theme;
 
 .wr-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
   vertical-align: middle;
   position: relative;
 
-  text-align: center;
-
   appearance: none;
+  text-align: center;
   text-decoration: none;
-  list-style: none;
   cursor: pointer;
   touch-action: manipulation;
   user-select: none;
-
   white-space: nowrap;
-  word-wrap: break-word;
+
+  // Defaults — modifiers override
+  --wr-btn-color: var(--wr-color-dark);
+  --wr-btn-bg: var(--wr-color-white);
+  --wr-btn-border: var(--wr-color-light);
+  --wr-btn-radius: var(--wr-border-radius-sm);
+  --wr-btn-padding-y: 0.375rem;
+  --wr-btn-padding-x: 1rem;
+  --wr-btn-font-size: 0.875rem;
+  --wr-btn-font-weight: 500;
+  --wr-btn-line-height: 1.25rem;
+  --wr-btn-icon-size: 1rem;
 
   color: var(--wr-btn-color);
-  background-color: var(--wr-btn-bg-color);
-
-  border-radius: var(--wr-btn-border-radius);
-  border: 1px solid var(--wr-btn-border-color);
-
-  font-family: var(--wr-btn-font-family);
+  background: var(--wr-btn-bg);
+  border: 1px solid var(--wr-btn-border);
+  border-radius: var(--wr-btn-radius);
+  padding: var(--wr-btn-padding-y) var(--wr-btn-padding-x);
+  font-family: var(--wr-font-family-base);
   font-size: var(--wr-btn-font-size);
   font-weight: var(--wr-btn-font-weight);
   line-height: var(--wr-btn-line-height);
-
-  padding: var(--wr-btn-padding-y) var(--wr-btn-padding-x);
-
   transition: var(--wr-transition-base);
 
-  &__spin {
-    position: absolute;
-    z-index: 3;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+  &:hover {
+    --wr-btn-bg: rgba(var(--wr-color-light-rgb), 0.4);
   }
 
-  &:hover {
-    --wr-btn-bg-color: var(--wr-color-light-lighter);
+  &:active {
+    --wr-btn-bg: rgba(var(--wr-color-light-rgb), 0.6);
   }
 
   &[disabled],
   &:disabled {
     cursor: default;
-    --wr-btn-color: var(--wr-color-medium);
-    --wr-btn-bg-color: var(--wr-color-light-lighter);
     pointer-events: none;
-  }
-
-  &:active {
-    --wr-btn-bg-color: var(--wr-color-light-shade);
-  }
-
-  &-group {
-    .wr-btn {
-      border-radius: 0;
-      border-left: none;
-
-      &:first-child {
-        border-top-left-radius: var(--wr-btn-border-radius);
-        border-bottom-left-radius: var(--wr-btn-border-radius);
-        border-left: 1px solid var(--wr-btn-border-color);
-      }
-
-      &:last-child {
-        border-top-right-radius: var(--wr-btn-border-radius);
-        border-bottom-right-radius: var(--wr-btn-border-radius);
-      }
-    }
-  }
-
-  &--loading {
-    &--disabled {
-      pointer-events: none;
-    }
-
-    .wr-btn__text,
-    .wr-btn__icon,{
-      opacity: 0;
-    }
-  }
-
-  &-group {
-    .wr-btn {
-      border-radius: 0;
-      border-left: none;
-
-      &:first-child {
-        border-top-left-radius: var(--wr-btn-border-radius);
-        border-bottom-left-radius: var(--wr-btn-border-radius);
-        border-left: 1px solid var(--wr-btn-border-color);
-      }
-
-      &:last-child {
-        border-top-right-radius: var(--wr-btn-border-radius);
-        border-bottom-right-radius: var(--wr-btn-border-radius);
-      }
-    }
-  }
-
-  &--small {
-    --wr-btn-icon-size: 0.825rem;
-    --wr-btn-font-size: 0.75rem;
-    --wr-btn-line-height: 1rem;
-    --wr-btn-border-radius: 0.25rem;
-    --wr-btn-padding-y: 0.25rem;
-    --wr-btn-padding-x: 0.75rem;
-  }
-
-  &--rounded {
-    --wr-btn-border-radius: 50rem;
-  }
-
-  &--block {
-    display: block;
-    width: 100%;
+    opacity: 0.6;
   }
 
   &__icon {
-    --wr-icon-size: var(--wr-btn-icon-size) !important;
+    --wr-icon-size: var(--wr-btn-icon-size);
+    color: inherit;
+    flex: 0 0 auto;
   }
 
-  &--icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
+  &__spin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
 
-    &-end {
-      flex-direction: row-reverse;
+  &__label {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  // Sizes
+  &--sm {
+    --wr-btn-padding-y: 0.25rem;
+    --wr-btn-padding-x: 0.75rem;
+    --wr-btn-font-size: 0.75rem;
+    --wr-btn-line-height: 1rem;
+    --wr-btn-icon-size: 0.875rem;
+    --wr-btn-radius: var(--wr-border-radius-sm);
+  }
+
+  &--lg {
+    --wr-btn-padding-y: 0.625rem;
+    --wr-btn-padding-x: 1.25rem;
+    --wr-btn-font-size: 1rem;
+    --wr-btn-line-height: 1.5rem;
+    --wr-btn-icon-size: 1.25rem;
+    --wr-btn-radius: var(--wr-border-radius-base);
+  }
+
+  // Shape
+  &--rounded {
+    --wr-btn-radius: var(--wr-border-radius-pill);
+  }
+
+  // Layout
+  &--block {
+    display: flex;
+    width: 100%;
+  }
+
+  // Icon position
+  &--icon-end {
+    flex-direction: row-reverse;
+  }
+
+  // Loading — hide label/icon contents but keep their footprint
+  &--loading {
+    .wr-btn__label,
+    .wr-btn__icon {
+      visibility: hidden;
+    }
+  }
+
+  // Color variants
+  @each $name in theme.$colors {
+    &--#{$name} {
+      --wr-btn-color: var(--wr-color-#{$name}-contrast);
+      --wr-btn-bg: var(--wr-color-#{$name});
+      --wr-btn-border: var(--wr-color-#{$name});
+
+      &:hover {
+        --wr-btn-bg: var(--wr-color-#{$name}-dark);
+        --wr-btn-border: var(--wr-color-#{$name}-dark);
+      }
+
+      &:active {
+        --wr-btn-bg: var(--wr-color-#{$name}-darker);
+        --wr-btn-border: var(--wr-color-#{$name}-darker);
+      }
+
+      &.wr-btn--outlined {
+        --wr-btn-color: var(--wr-color-#{$name});
+        --wr-btn-bg: transparent;
+        --wr-btn-border: rgba(var(--wr-color-#{$name}-rgb), 0.4);
+
+        &:hover {
+          --wr-btn-color: var(--wr-color-#{$name}-contrast);
+          --wr-btn-bg: var(--wr-color-#{$name}-dark);
+          --wr-btn-border: var(--wr-color-#{$name}-dark);
+        }
+
+        &:active {
+          --wr-btn-color: var(--wr-color-#{$name}-contrast);
+          --wr-btn-bg: var(--wr-color-#{$name}-darker);
+          --wr-btn-border: var(--wr-color-#{$name}-darker);
+        }
+      }
     }
   }
 }
 
-@each $color in maps.$theme-colors-map {
-  .wr-btn--color-#{$color} {
-    --wr-btn-color: var(--wr-color-#{$color}-contrast);
-    --wr-btn-border-color: var(--wr-color-#{$color});
-    --wr-btn-bg-color: var(--wr-color-#{$color});
+.wr-btn-group {
+  display: inline-flex;
+  vertical-align: middle;
 
-    &:hover {
-      --wr-btn-border-color: var(--wr-color-#{$color}-dark);
-      --wr-btn-bg-color: var(--wr-color-#{$color}-dark);
+  > .wr-btn {
+    border-radius: 0;
+    margin-left: -1px;
+
+    &:first-child {
+      margin-left: 0;
+      border-top-left-radius: var(--wr-btn-radius);
+      border-bottom-left-radius: var(--wr-btn-radius);
     }
 
+    &:last-child {
+      border-top-right-radius: var(--wr-btn-radius);
+      border-bottom-right-radius: var(--wr-btn-radius);
+    }
+
+    &:hover,
+    &:focus-visible,
     &:active {
-      --wr-btn-border-color: var(--wr-color-#{$color}-darker);
-      --wr-btn-bg-color: var(--wr-color-#{$color}-darker);
-    }
-
-    &[disabled],
-    &:disabled {
-      --wr-btn-color: var(--wr-color-#{$color}-contrast);
-      --wr-btn-border-color: var(--wr-color-#{$color}-lighter);
-      --wr-btn-bg-color: var(--wr-color-#{$color}-lighter);
-    }
-
-    &.wr-btn--outlined {
-      --wr-btn-color: var(--wr-color-#{$color});
-      --wr-btn-border-color: rgba(var(--wr-color-#{$color}-rgb), 0.375);
-      --wr-btn-bg-color: transparent;
-
-      &:hover {
-        --wr-btn-color: var(--wr-color-#{$color}-contrast);
-        --wr-btn-border-color: var(--wr-color-#{$color}-dark);
-        --wr-btn-bg-color: var(--wr-color-#{$color}-dark);
-      }
-
-      &:active {
-        --wr-btn-color: var(--wr-color-#{$color}-contrast);
-        --wr-btn-border-color: var(--wr-color-#{$color}-darker);
-        --wr-btn-bg-color: var(--wr-color-#{$color}-darker);
-      }
+      z-index: 1;
     }
   }
 }

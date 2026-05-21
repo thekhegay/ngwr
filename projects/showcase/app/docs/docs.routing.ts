@@ -1,16 +1,16 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 
 import { routes } from '#routing';
 
 export default [
   {
     path: '',
-    loadComponent: () => import('#core/components/layout/layout.component').then(c => c.LayoutComponent),
+    loadComponent: () => import('#layout'),
     children: [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: routes.docs.gettingStarted.index,
+        redirectTo: `${routes.docs.gettingStarted.index}/${routes.docs.gettingStarted.installation}`,
       },
       {
         path: routes.docs.gettingStarted.index,
@@ -19,6 +19,10 @@ export default [
       {
         path: routes.docs.components.index,
         loadChildren: () => import('./components/components.routing'),
+      },
+      {
+        path: routes.docs.core.index,
+        loadChildren: () => import('./core/core.routing'),
       },
     ],
   },

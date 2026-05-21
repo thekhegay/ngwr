@@ -1,49 +1,65 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  HostBinding,
-  Input,
-  numberAttribute,
-  ViewEncapsulation,
-} from '@angular/core';
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
 
-import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
+import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import type { WrColor } from 'ngwr/theme';
+
+import type { WrDividerType } from './types';
+
+/**
+ * Horizontal separator line.
+ *
+ * @example
+ * ```html
+ * <wr-divider />
+ * <wr-divider type="dashed" color="primary" [width]="2" />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/divider
+ */
 @Component({
   selector: 'wr-divider',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: {
+    role: 'separator',
+    '[class]': 'classes()',
+    '[style.--wr-divider-width.px]': 'width()',
+  },
 })
 export class WrDividerComponent {
-  @Input() color: WrThemeColor | null = null;
-  @Input() type: 'solid' | 'dashed' | 'dotted' = 'solid';
-  @Input({ transform: numberAttribute }) width = 1;
+  /**
+   * Color of the divider line. Omit for the neutral default.
+   *
+   * @default null
+   */
+  readonly color = input<WrColor | null>(null);
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'wr-divider': true,
-      'wr-divider--primary': this.color === 'primary',
-      'wr-divider--secondary': this.color === 'secondary',
-      'wr-divider--success': this.color === 'success',
-      'wr-divider--warning': this.color === 'warning',
-      'wr-divider--danger': this.color === 'danger',
-      'wr-divider--light': this.color === 'light',
-      'wr-divider--medium': this.color === 'medium',
-      'wr-divider--dark': this.color === 'dark',
-      'wr-divider--solid': this.type === 'solid',
-      'wr-divider--dashed': this.type === 'dashed',
-      'wr-divider--dotted': this.type === 'dotted',
-    };
-  }
+  /**
+   * Line style.
+   *
+   * @default 'solid'
+   */
+  readonly type = input<WrDividerType>('solid');
 
-  @HostBinding('style')
-  get elStyles(): SafeAny {
-    return {
-      '--wr-divider-width': `${this.width}px`,
-    };
-  }
+  /**
+   * Line width in pixels.
+   *
+   * @default 1
+   */
+  readonly width = input(1, { transform: (v: unknown): number => coerceNumberProperty(v, 1) });
 
-  @HostBinding('role') role = 'separator';
+  protected readonly classes = computed(() => {
+    const parts = ['wr-divider', `wr-divider--${this.type()}`];
+    const color = this.color();
+    if (color) parts.push(`wr-divider--${color}`);
+    return parts.join(' ');
+  });
 }

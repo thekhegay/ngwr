@@ -1,0 +1,71 @@
+@use 'sass:map';
+@forward 'breakpoints';
+@use 'breakpoints' as bp;
+
+// Grid-scoped token. Declared here (not in theme) because grid is the
+// only consumer. Override on `:root` or any subtree to retune spacing.
+:root {
+  --wr-grid-gutter: 1rem;
+}
+
+// Config
+
+$columns: 12;
+$gutter: var(--wr-grid-gutter);
+
+// Container
+
+.container,
+.container-fluid {
+  width: 100%;
+  padding-right: calc(#{$gutter} * 0.5);
+  padding-left: calc(#{$gutter} * 0.5);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@each $name, $max-width in bp.$container-widths {
+  .container-#{$name} {
+    @extend .container-fluid;
+  }
+
+  @include bp.media-up($name) {
+    %responsive-container-#{$name} {
+      max-width: $max-width;
+    }
+
+    $extend-breakpoint: true;
+
+    @each $bp-name, $_ in bp.$breakpoints {
+      @if $extend-breakpoint {
+        .container#{bp.bp-infix($bp-name)} {
+          @extend %responsive-container-#{$name};
+        }
+
+        @if $name == $bp-name {
+          $extend-breakpoint: false;
+        }
+      }
+    }
+  }
+}
+
+// Grid
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: #{$gutter};
+}
+
+@each $name in map.keys(bp.$breakpoints) {
+  $infix: bp.bp-infix($name);
+
+  @include bp.media-up($name) {
+    @for $i from 1 through $columns {
+      .col#{$infix}-#{$i} {
+        grid-column: auto / span $i;
+      }
+    }
+  }
+}

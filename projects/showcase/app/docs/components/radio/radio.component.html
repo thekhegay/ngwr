@@ -1,0 +1,50 @@
+<ngwr-doc-page
+  title="Radio"
+  description="Single-choice option. Always used inside <wr-radio-group>, which implements ControlValueAccessor."
+  [keywords]="['radio', 'wr-radio', 'wr-radio-group']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem">
+        <wr-radio-group [(ngModel)]="size">
+          <wr-radio value="sm">Small</wr-radio>
+          <wr-radio value="md">Medium</wr-radio>
+          <wr-radio value="lg">Large</wr-radio>
+        </wr-radio-group>
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ size() }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Plans (cards-style)">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-radio-group [(ngModel)]="plan">
+        <wr-radio value="starter">Starter — $0/mo</wr-radio>
+        <wr-radio value="pro">Pro — $9/mo</wr-radio>
+        <wr-radio value="enterprise">Enterprise — custom</wr-radio>
+      </wr-radio-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-radio-group disabled [(ngModel)]="size">
+        <wr-radio value="sm">Small</wr-radio>
+        <wr-radio value="md">Medium</wr-radio>
+      </wr-radio-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Radio API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Radio Group API">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

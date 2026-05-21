@@ -5,39 +5,51 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  HostBinding,
-  Input,
-  numberAttribute,
-  ViewEncapsulation,
-} from '@angular/core';
+import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import { SafeAny, WrThemeColor } from 'ngwr/cdk/types';
+import type { WrColor } from 'ngwr/theme';
 
+/**
+ * Horizontal progress bar.
+ *
+ * @example
+ * ```html
+ * <wr-progress [value]="42" />
+ * <wr-progress color="success" [value]="80" />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/progress
+ */
 @Component({
   selector: 'wr-progress',
-  templateUrl: './progress.component.html',
+  template: `<div class="wr-progress__bar" [style.width.%]="clamped()"></div>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: {
+    role: 'progressbar',
+    'aria-valuemin': '0',
+    'aria-valuemax': '100',
+    '[attr.aria-valuenow]': 'clamped()',
+    '[class]': 'classes()',
+  },
 })
 export class WrProgressComponent {
-  @Input() color: WrThemeColor | null = null;
-  @Input({ transform: numberAttribute }) percent = 0;
+  /**
+   * Bar color.
+   *
+   * @default 'primary'
+   */
+  readonly color = input<WrColor>('primary');
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'wr-progress': true,
-      'wr-progress--color-primary': this.color === 'primary',
-      'wr-progress--color-secondary': this.color === 'secondary',
-      'wr-progress--color-success': this.color === 'success',
-      'wr-progress--color-warning': this.color === 'warning',
-      'wr-progress--color-danger': this.color === 'danger',
-      'wr-progress--color-light': this.color === 'light',
-      'wr-progress--color-medium': this.color === 'medium',
-      'wr-progress--color-dark': this.color === 'dark',
-    };
-  }
+  /**
+   * Progress value, clamped to `[0, 100]`.
+   *
+   * @default 0
+   */
+  readonly value = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
+
+  protected readonly clamped = computed(() => Math.max(0, Math.min(100, this.value())));
+
+  protected readonly classes = computed(() => `wr-progress wr-progress--${this.color()}`);
 }

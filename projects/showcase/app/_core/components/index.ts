@@ -1,6 +1,6 @@
-export * from './code/code.component';
-export * from './footer/footer.component';
-export * from './header/header.component';
-export * from './layout/layout.component';
-export * from './sidebar/sidebar.component';
-export * from './snippet/snippet.component';
+export { DocPageComponent } from './doc-page/doc-page.component';
+export { DocSectionComponent } from './doc-section/doc-section.component';
+export { DocSnippetComponent } from './doc-snippet/doc-snippet.component';
+export { DocCodeComponent } from './doc-code/doc-code.component';
+export { DocApiComponent } from './doc-api/doc-api.component';
+export type { DocApiRow } from './doc-api/types';

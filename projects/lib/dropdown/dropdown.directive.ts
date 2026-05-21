@@ -5,191 +5,183 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Overlay, OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
+  DestroyRef,
   Directive,
   ElementRef,
-  inject,
-  input,
-  OnDestroy,
   ViewContainerRef,
   effect,
+  inject,
+  input,
+  output,
   signal,
-  DestroyRef,
-  HostListener,
-  HostBinding,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { filter, fromEvent, merge } from 'rxjs';
+import { WR_OVERLAY } from 'ngwr/overlay';
 
-import { WrDropdownMenuComponent } from './dropdown-menu.component';
-import { WR_DROPDOWN_POSITIONS, WrDropdownTrigger } from './dropdown.types';
+import type { WrDropdownMenuComponent } from './dropdown-menu.component';
+import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger } from './types';
 
+/**
+ * Attach to any element to open a `<wr-dropdown-menu>` as a CDK overlay.
+ *
+ * @example
+ * ```html
+ * <button [wrDropdown]="menu" position="bottom-start" trigger="click">
+ *   Actions
+ * </button>
+ *
+ * <wr-dropdown-menu #menu>
+ *   <wr-dropdown-item icon="copy" (click)="copy()">Copy</wr-dropdown-item>
+ *   <wr-dropdown-item icon="trash" (click)="remove()">Delete</wr-dropdown-item>
+ * </wr-dropdown-menu>
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/dropdown
+ */
 @Directive({
   selector: '[wrDropdown]',
+  host: {
+    class: 'wr-dropdown-trigger',
+    '(click)': 'onClick($event)',
+    '(mouseenter)': 'onMouseEnter()',
+    '(mouseleave)': 'onMouseLeave($event)',
+  },
 })
-export class WrDropdownDirective implements OnDestroy {
-  dropdownMenu = input<WrDropdownMenuComponent>();
-  trigger = input<WrDropdownTrigger>('click');
-  position = input<keyof typeof WR_DROPDOWN_POSITIONS>('bottomLeft');
+export class WrDropdownDirective {
+  /** Menu to open. Pass a `<wr-dropdown-menu>` template reference. */
+  readonly menu = input.required<WrDropdownMenuComponent>({ alias: 'wrDropdown' });
 
-  private readonly isOpen = signal(false);
-  private overlayRef?: OverlayRef;
-  private clickTimeStamp = 0;
+  /** How the menu opens. @default 'click' */
+  readonly trigger = input<WrDropdownTrigger>('click');
 
-  private readonly overlay = inject(Overlay);
-  private readonly elementRef = inject(ElementRef);
-  private readonly viewContainerRef = inject(ViewContainerRef);
-  private readonly scrollStrategyOptions = inject(ScrollStrategyOptions);
+  /** Where the menu anchors relative to the trigger. @default 'bottom-start' */
+  readonly position = input<WrDropdownPosition>('bottom-start');
+
+  /** Fires after the menu opens. */
+  readonly opened = output<void>();
+
+  /** Fires after the menu closes. */
+  readonly closed = output<void>();
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly overlay = inject(WR_OVERLAY);
+  private readonly vcr = inject(ViewContainerRef);
+  private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
 
-  @HostBinding('class')
-  get hostClasses(): Record<string, boolean> {
-    return {
-      'wr-dropdown-trigger': true,
-    };
-  }
+  private readonly isOpen = signal(false);
+  private overlayRef: OverlayRef | null = null;
 
   constructor() {
-    const isOpen = this.isOpen;
-
     effect(() => {
-      if (isOpen()) {
-        this.open();
+      if (this.isOpen()) {
+        this.openOverlay();
       } else {
-        this.close();
+        this.closeOverlay();
       }
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroyOverlay();
-  }
-
-  @HostListener('click', ['$event'])
-  protected onClick(event: MouseEvent): void {
-    if (this.trigger() !== 'click') {
-      return;
-    }
-
-    event.stopPropagation();
-
-    if (event.timeStamp === this.clickTimeStamp) {
-      return;
-    }
-
-    this.isOpen.update(value => !value);
-  }
-
-  @HostListener('mouseenter')
-  protected onMouseEnter(): void {
-    if (this.trigger() !== 'hover') {
-      return;
-    }
-
+  /** Open the menu. */
+  open(): void {
     this.isOpen.set(true);
   }
 
-  private open(): void {
-    if (this.overlayRef || !this.dropdownMenu()) {
-      return;
-    }
+  /** Close the menu. */
+  close(): void {
+    this.isOpen.set(false);
+  }
+
+  /** Toggle the menu. */
+  toggle(): void {
+    this.isOpen.update(v => !v);
+  }
+
+  // ──────── Host listeners ────────
+
+  /** @internal */
+  protected onClick(event: MouseEvent): void {
+    if (this.trigger() !== 'click') return;
+    event.stopPropagation();
+    this.toggle();
+  }
+
+  /** @internal */
+  protected onMouseEnter(): void {
+    if (this.trigger() !== 'hover') return;
+    this.isOpen.set(true);
+  }
+
+  /** @internal */
+  protected onMouseLeave(event: MouseEvent): void {
+    if (this.trigger() !== 'hover') return;
+    const related = event.relatedTarget as Node | null;
+    if (related && this.overlayRef?.overlayElement.contains(related)) return;
+    this.isOpen.set(false);
+  }
+
+  // ──────── Overlay management ────────
+
+  private openOverlay(): void {
+    if (this.overlayRef) return;
 
     const positionStrategy = this.overlay
       .position()
-      .flexibleConnectedTo(this.elementRef)
+      .flexibleConnectedTo(this.host)
       .withPositions(WR_DROPDOWN_POSITIONS[this.position()])
       .withPush(true);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: this.scrollStrategyOptions.reposition(),
-      panelClass: ['wr-dropdown-overlay', `wr-dropdown--${this.position()}`],
+      scrollStrategy: this.scrollStrategies.reposition(),
+      panelClass: ['wr-dropdown-overlay', `wr-dropdown-overlay--${this.position()}`],
     });
 
-    const portal = new TemplatePortal(this.dropdownMenu()!.contentTpl, this.viewContainerRef);
-
+    const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
-    if (this.trigger() === 'hover') {
-      this.setupHoverEvents();
-    } else {
-      this.setupClickEvents();
-    }
+    this.overlayRef
+      .outsidePointerEvents()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (this.host.nativeElement.contains(event.target as Node)) return;
+        this.isOpen.set(false);
+      });
 
     this.overlayRef
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (event.key === 'Escape') {
-          this.clickTimeStamp = event.timeStamp;
+          event.preventDefault();
           this.isOpen.set(false);
         }
       });
 
-    setTimeout(() => {
-      this.overlayRef?.updatePosition();
-    });
-  }
-
-  private setupClickEvents(): void {
-    this.overlayRef!.outsidePointerEvents()
-      .pipe(
-        filter(event => !this.elementRef.nativeElement.contains(event.target)),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(event => {
-        this.clickTimeStamp = event.timeStamp;
-        this.isOpen.set(false);
-      });
-  }
-
-  private setupHoverEvents(): void {
-    const overlayElement = this.overlayRef!.overlayElement;
-    const triggerElement = this.elementRef.nativeElement;
-
-    const triggerLeave$ = fromEvent<MouseEvent>(triggerElement, 'mouseleave').pipe(
-      filter(event => {
-        const relatedTarget = event.relatedTarget as Element;
-        return !overlayElement.contains(relatedTarget) && relatedTarget !== overlayElement;
-      })
-    );
-
-    const overlayLeave$ = fromEvent<MouseEvent>(overlayElement, 'mouseleave').pipe(
-      filter(event => {
-        const relatedTarget = event.relatedTarget as Element;
-        return !triggerElement.contains(relatedTarget) && relatedTarget !== triggerElement;
-      })
-    );
-
-    merge(triggerLeave$, overlayLeave$)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (!triggerElement.matches(':hover') && !overlayElement.matches(':hover')) {
-          this.isOpen.set(false);
-        }
-      });
-
-    fromEvent(overlayElement, 'mouseenter')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.isOpen.set(true);
-      });
-  }
-
-  private close(): void {
-    if (this.overlayRef) {
-      this.overlayRef.detach();
-      this.destroyOverlay();
+    if (this.trigger() === 'hover') {
+      this.overlayRef.overlayElement.addEventListener('mouseleave', this.onOverlayMouseLeave);
     }
+
+    this.opened.emit();
   }
 
-  private destroyOverlay(): void {
-    if (this.overlayRef) {
-      this.overlayRef.dispose();
-      this.overlayRef = undefined;
+  private closeOverlay(): void {
+    if (!this.overlayRef) return;
+    if (this.trigger() === 'hover') {
+      this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayMouseLeave);
     }
+    this.overlayRef.dispose();
+    this.overlayRef = null;
+    this.closed.emit();
   }
+
+  private readonly onOverlayMouseLeave = (event: MouseEvent): void => {
+    const related = event.relatedTarget as Node | null;
+    if (related && this.host.nativeElement.contains(related)) return;
+    this.isOpen.set(false);
+  };
 }

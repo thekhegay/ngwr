@@ -1,11 +1,4 @@
-/**
- * @license
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
- */
-
-export * from './dropdown.types';
-export * from './dropdown.directive';
-export * from './dropdown-menu.component';
-export * from './dropdown-menu-item.component';
+export { WrDropdownDirective } from './dropdown.directive';
+export { WrDropdownMenuComponent } from './dropdown-menu.component';
+export { WrDropdownItemComponent } from './dropdown-item.component';
+export type { WrDropdownPosition, WrDropdownTrigger } from './types';

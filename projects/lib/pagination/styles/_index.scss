@@ -1,60 +1,57 @@
-@forward "./vars";
+@use '../../theme/styles' as theme;
 
 .wr-pagination {
-  --wr-select-option-height: var(--wr-pagination-select-option-height);
-  --wr-select-padding-y: var(--wr-pagination-select-padding-y);
-  --wr-select-padding-x: var(--wr-pagination-select-padding-x);
-
   display: block;
-
-  &-container {
-    display: flex;
-    align-items: center;
-    gap: var(--wr-pagination-gap);
-  }
-
-  &--start {
-    justify-content: flex-start;
-  }
-
-  &--center {
-    justify-content: center;
-  }
-
-  &--end {
-    justify-content: flex-end;
-  }
 
   &--disabled {
     opacity: 0.6;
     pointer-events: none;
   }
 
-  &-total {
-    color: var(--wr-pagination-total-color);
-    font-size: var(--wr-pagination-font-size);
-  }
-
-  &-items {
+  &__inner {
     display: flex;
     align-items: center;
-    gap: var(--wr-pagination-items-gap);
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
-  &-ellipsis {
-    color: var(--wr-pagination-ellipsis-color);
-    padding: 0 var(--wr-pagination-item-padding);
+  &--start &__inner {
+    justify-content: flex-start;
+  }
+  &--center &__inner {
+    justify-content: center;
+  }
+  &--end &__inner {
+    justify-content: flex-end;
+  }
+
+  &__total {
+    color: var(--wr-color-medium);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.8125rem;
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    .wr-btn {
+      min-width: 2rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+  }
+
+  &__ellipsis {
+    display: inline-flex;
+    min-width: 2rem;
+    justify-content: center;
+    color: var(--wr-color-medium);
     user-select: none;
   }
 
-  wr-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: var(--wr-pagination-item-size);
-    height: var(--wr-pagination-item-size);
-    padding: 0;
-    gap: 0;
-    text-align: center;
+  &__size {
+    min-width: 0;
   }
 }

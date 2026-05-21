@@ -1,0 +1,136 @@
+@use '../../theme/styles' as theme;
+
+$toast-colors: (
+  info: primary,
+  success: success,
+  warning: warning,
+  danger: danger,
+);
+
+.wr-toast-overlay {
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+.wr-toast-host {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  pointer-events: none;
+  max-width: 22rem;
+  width: 100%;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  &--top {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  &--top-start {
+    top: 0;
+    left: 0;
+  }
+  &--top-end {
+    top: 0;
+    right: 0;
+  }
+  &--bottom {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: column-reverse;
+  }
+  &--bottom-start {
+    bottom: 0;
+    left: 0;
+    flex-direction: column-reverse;
+  }
+  &--bottom-end {
+    bottom: 0;
+    right: 0;
+    flex-direction: column-reverse;
+  }
+}
+
+.wr-toast {
+  --wr-toast-bg: var(--wr-color-white);
+  --wr-toast-border: var(--wr-color-light);
+  --wr-toast-accent: var(--wr-color-primary);
+  --wr-toast-title: var(--wr-color-dark);
+  --wr-toast-message: var(--wr-color-medium);
+
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--wr-toast-bg);
+  border: 1px solid var(--wr-toast-border);
+  border-left: 3px solid var(--wr-toast-accent);
+  border-radius: var(--wr-border-radius-base);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
+  font-family: var(--wr-font-family-base);
+  animation: wr-toast-in 0.18s ease-out;
+
+  &__body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0 0 0.125rem;
+    color: var(--wr-toast-title);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+  }
+
+  &__message {
+    margin: 0;
+    color: var(--wr-toast-message);
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+    word-wrap: break-word;
+  }
+
+  &__close {
+    flex: 0 0 auto;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.125rem;
+    color: var(--wr-color-medium);
+    cursor: pointer;
+    border-radius: var(--wr-border-radius-sm);
+    transition: color var(--wr-transition-base), background var(--wr-transition-base);
+
+    --wr-icon-size: 0.875rem;
+
+    &:hover {
+      color: var(--wr-color-dark);
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+    }
+  }
+
+  @each $variant, $color in $toast-colors {
+    &--#{$variant} {
+      --wr-toast-accent: var(--wr-color-#{$color});
+    }
+  }
+}
+
+@keyframes wr-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

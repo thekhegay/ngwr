@@ -1,1 +1,1 @@
-export * from './spinner.component';
+export * from './public-api';

@@ -5,190 +5,136 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  HostBinding,
-  input,
-  ViewEncapsulation,
-} from '@angular/core';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import { WrIconComponent, type wrIconName } from 'ngwr/icon';
+import { WrIconComponent, type WrIconName } from 'ngwr/icon';
 import { WrSpinnerComponent } from 'ngwr/spinner';
-import { WrThemeColor } from 'ngwr/theme';
+import type { WrColor } from 'ngwr/theme';
 
-import type { WrButtonSize } from './button-size';
+import type { WrButtonIconPosition, WrButtonSize } from './types';
 
 /**
- * NGWR button component.
- *
- * Triggers an operation or performs an action. Can be rendered as:
- * - native `<button wr-btn>`
- * - anchor `<a wr-btn>`
- * - custom `<wr-btn>`
+ * Trigger an action. Renders as a `<wr-btn>` element, or attach to a
+ * native `<button>` / `<a>` via the `wr-btn` attribute selector.
  *
  * @example
  * ```html
  * <button wr-btn color="primary">Save</button>
- * <button wr-btn color="danger" [outlined]="true">Delete</button>
- * <button wr-btn color="primary" [loading]="true">Loading...</button>
+ * <a wr-btn color="primary" outlined>Cancel</a>
+ * <wr-btn color="danger" icon="trash">Delete</wr-btn>
+ * <wr-btn color="primary" loading>Saving</wr-btn>
  * ```
  *
- * @example
- * ```html
- * <button wr-btn color="primary" icon="check">Save</button>
- * <button wr-btn color="secondary" icon="arrow-right" iconPosition="end">
- *   Next
- * </button>
- * ```
- *
- * @see WrButtonGroupComponent
- * @see http://ngwr.dev/docs/components/button
- *
- * @publicApi
+ * @see https://ngwr.dev/docs/components/button
  */
 @Component({
-  standalone: true,
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
   templateUrl: './button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: {
+    '[class]': 'classes()',
+    '[attr.disabled]': 'nativeDisabled()',
+    '[attr.aria-busy]': 'loading() ? "true" : null',
+  },
   imports: [WrIconComponent, WrSpinnerComponent],
 })
 export class WrButtonComponent {
   /**
-   * Theme color for the button.
-   * When not set, the default neutral style is used.
+   * Color variant. Omit for the neutral default style.
+   *
+   * @default null
    */
-  readonly color = input<WrThemeColor | null>(null);
+  readonly color = input<WrColor | null>(null);
 
   /**
-   * Size of the button.
+   * Size variant.
    *
-   * - `'default'` – base size
-   * - `'small'`   – compact version
-   *
-   * @default 'default'
+   * @default 'md'
    */
-  readonly size = input<WrButtonSize>('default');
+  readonly size = input<WrButtonSize>('md');
 
   /**
-   * Optional icon name from the NGWR icon set.
-   * When provided, the icon is rendered before or after the text.
+   * Icon name to render alongside the label. The icon is hidden while
+   * `loading` is `true` so the spinner can take its place.
+   *
+   * @default null
    */
-  readonly icon = input<wrIconName | null>(null);
+  readonly icon = input<WrIconName | null>(null);
 
   /**
-   * Icon position relative to the button text.
-   *
-   * - `'start'` – icon before text
-   * - `'end'`   – icon after text
+   * Position of the icon relative to the label.
    *
    * @default 'start'
    */
-  readonly iconPosition = input<'start' | 'end'>('start');
+  readonly iconPosition = input<WrButtonIconPosition>('start');
 
   /**
-   * Disables the button.
-   * Sets the native `disabled` attribute when possible and applies disabled styles.
+   * Disable the button.
    *
    * @default false
    */
-  readonly disabled = input(false, { transform: booleanAttribute });
+  readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Outlined variant:
-   * renders a bordered button with transparent background.
+   * Outlined variant — colored text and border on a transparent background.
    *
    * @default false
    */
-  readonly outlined = input(false, { transform: booleanAttribute });
+  readonly outlined = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Fully rounded button: pill-shaped style.
+   * Pill-shaped corners.
    *
    * @default false
    */
-  readonly rounded = input(false, { transform: booleanAttribute });
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Makes the button take the full width of its container.
+   * Stretch the button to fill its parent's width.
    *
    * @default false
    */
-  readonly block = input(false, { transform: booleanAttribute });
+  readonly block = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Shows loading spinner and applies loading styles.
+   * Show a spinner overlaying the label. Layout is preserved.
    *
    * @default false
    */
-  readonly loading = input(false, { transform: booleanAttribute });
+  readonly loading = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * When `true` and the button is loading, pointer events are disabled
-   * and the button is visually treated as disabled.
+   * When `loading` is `true` and this is also `true`, pointer events
+   * are suppressed and the button reports as disabled to assistive tech.
    *
    * @default true
    */
-  readonly isDisabledWhenLoading = input(true, { transform: booleanAttribute });
+  readonly isDisabledWhenLoading = input(true, { transform: coerceBooleanProperty });
 
-  /**
-   * Native `disabled` attribute for `<button>`.
-   *
-   * Note: On `<a>` elements this attribute has no semantic effect, but it's
-   * harmless and allows consistent styling via `[disabled]` selectors.
-   */
-  @HostBinding('attr.disabled')
-  get nativeDisabled(): '' | null {
-    const disabled = this.disabled() || (this.loading() && this.isDisabledWhenLoading());
-    return disabled ? '' : null;
-  }
+  protected readonly nativeDisabled = computed<'' | null>(() => {
+    const off = this.disabled() || (this.loading() && this.isDisabledWhenLoading());
+    return off ? '' : null;
+  });
 
-  /**
-   * Host CSS classes:
-   */
-  @HostBinding('class')
-  get hostClasses(): Record<string, boolean> {
-    const baseClass = 'wr-btn';
+  protected readonly classes = computed(() => {
+    const parts = ['wr-btn'];
+
     const color = this.color();
+    if (color) parts.push(`wr-btn--${color}`);
+
     const size = this.size();
-    const icon = this.icon();
-    const iconPosition = this.iconPosition();
-    const block = this.block();
-    const rounded = this.rounded();
-    const outlined = this.outlined();
-    const loading = this.loading();
-    const isDisabledWhenLoading = this.isDisabledWhenLoading();
+    if (size !== 'md') parts.push(`wr-btn--${size}`);
 
-    return {
-      [baseClass]: true,
+    if (this.outlined()) parts.push('wr-btn--outlined');
+    if (this.rounded()) parts.push('wr-btn--rounded');
+    if (this.block()) parts.push('wr-btn--block');
+    if (this.loading()) parts.push('wr-btn--loading');
 
-      // Colors
-      [`${baseClass}--color-primary`]: color === 'primary',
-      [`${baseClass}--color-secondary`]: color === 'secondary',
-      [`${baseClass}--color-success`]: color === 'success',
-      [`${baseClass}--color-warning`]: color === 'warning',
-      [`${baseClass}--color-danger`]: color === 'danger',
-      [`${baseClass}--color-light`]: color === 'light',
-      [`${baseClass}--color-medium`]: color === 'medium',
-      [`${baseClass}--color-dark`]: color === 'dark',
+    const hasAdornment = !!this.icon() || this.loading();
+    if (hasAdornment) parts.push(`wr-btn--icon-${this.iconPosition()}`);
 
-      // Size / layout
-      [`${baseClass}--small`]: size === 'small',
-      [`${baseClass}--block`]: block,
-      [`${baseClass}--rounded`]: rounded,
-
-      // Icon modifiers
-      [`${baseClass}--icon`]: !!icon,
-      [`${baseClass}--icon-start`]: !!icon && iconPosition === 'start',
-      [`${baseClass}--icon-end`]: !!icon && iconPosition === 'end',
-
-      // Variants
-      [`${baseClass}--outlined`]: outlined,
-      [`${baseClass}--loading`]: loading,
-      [`${baseClass}--loading--disabled`]: loading && isDisabledWhenLoading,
-    };
-  }
+    return parts.join(' ');
+  });
 }

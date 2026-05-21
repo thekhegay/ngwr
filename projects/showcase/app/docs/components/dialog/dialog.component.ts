@@ -1,51 +1,90 @@
-import { ChangeDetectionStrategy, Component, HostBinding, OnInit, ViewContainerRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 
 import { WrButtonComponent } from 'ngwr/button';
-import { WrDialogModule, WrDialogService } from 'ngwr/dialog';
-import { provideWrIcons, warning } from 'ngwr/icon';
-import { WrTagComponent } from 'ngwr/tag';
+import { WrDialogService } from 'ngwr/dialog';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import { ConfirmDialogComponent, type ConfirmData } from './confirm-dialog.component';
 
-import { DialogExampleComponent } from './dialog-example/dialog-example.component';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-dialog',
+  selector: 'ngwr-dialog-page',
   templateUrl: './dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CodeComponent, SnippetComponent, WrButtonComponent, WrDialogModule, WrTagComponent],
-  providers: [provideWrIcons([warning])],
+  imports: [
+    WrButtonComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class DialogComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class DialogPageComponent {
+  private readonly dialog = inject(WrDialogService);
+  protected readonly lastResult = signal<string>('—');
 
-  protected readonly pageTitle = 'Dialog';
-  protected readonly pageDescription: string = 'A modal dialog.';
+  protected readonly snippets = {
+    install: `import { WrDialogService } from 'ngwr/dialog';
 
-  readonly importCode: string =
-    "import { WrDialogComponent } from 'ngwr/dialog';\n\n@NgModule({\n  imports: [\n    // ...\n    WrDialogComponent,\n  ],\n  // ...\n})\nexport class MyModule {}";
-  readonly usageCode: string =
-    "import { WrDialogService } from 'ngwr/dialog';\n\nconstructor(\n  private readonly dialogService: WrDialogService,\n  private readonly vcr: ViewContainerRef,\n) {}\n  \nonDialogOpen(): void {\n  this.dialogService.open({\n    component: DialogExampleComponent,\n    viewContainerRef: this.vcr,\n  });\n}";
+@Component({...})
+export class MyComponent {
+  private readonly dialog = inject(WrDialogService);
+}`,
+    open: `const ref = dialog.open(ConfirmComponent, {
+  data: { title: 'Delete', message: 'Are you sure?' },
+  width: '24rem',
+});
 
-  constructor(
-    private readonly dialogService: WrDialogService,
-    private readonly seoService: SeoService,
-    private readonly vcr: ViewContainerRef
-  ) {}
+const ok = await ref.awaitClose(); // result from <wr-btn wrDialogClose value>`,
+    template: `// Inside the opened component
+<h2 wrDialogTitle>Delete</h2>
+<div wrDialogContent>Are you sure?</div>
+<div wrDialogFooter>
+  <wr-btn wrDialogClose>Cancel</wr-btn>
+  <wr-btn color="danger" [wrDialogClose]="true">Delete</wr-btn>
+</div>`,
+  };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.pageTitle, 'Components']);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['dialog', 'wr-dialog']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    {
+      name: 'open(component, options?)',
+      description: 'Opens a dialog. Returns a WrDialogRef.',
+      type: '(component, WrDialogOptions) => WrDialogRef',
+      default: '—',
+    },
+  ];
 
-  onDialogOpen(): void {
-    this.dialogService.open({
-      component: DialogExampleComponent,
-      viewContainerRef: this.vcr,
+  protected readonly directivesApi: readonly DocApiRow[] = [
+    { name: '[wrDialogTitle]', description: 'Styles the title row.', type: 'directive', default: '—' },
+    { name: '[wrDialogContent]', description: 'Styles the scrollable body.', type: 'directive', default: '—' },
+    {
+      name: '[wrDialogFooter]',
+      description: 'Styles the footer; align="start" | "center" | "end" (default end).',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrDialogClose]="value?"',
+      description: 'Closes the dialog when clicked; optional value becomes the close result.',
+      type: 'directive',
+      default: '—',
+    },
+  ];
+
+  protected async openConfirm(): Promise<void> {
+    const ref = this.dialog.open<ConfirmDialogComponent, boolean, ConfirmData>(ConfirmDialogComponent, {
+      data: { title: 'Delete item?', message: 'This action cannot be undone.' },
+      width: '24rem',
     });
+    const result = await ref.awaitClose();
+    this.lastResult.set(result === true ? 'Confirmed' : 'Cancelled');
   }
 }

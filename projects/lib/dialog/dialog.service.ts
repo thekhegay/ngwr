@@ -5,137 +5,93 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import {
-  ComponentType,
-  Overlay,
-  OverlayConfig,
-  OverlayRef,
-  PositionStrategy,
-  ScrollStrategy,
-} from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
-import { inject, Injectable, Injector } from '@angular/core';
+import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
+import { EnvironmentInjector, Injectable, Injector, inject } from '@angular/core';
 
-import { Subject } from 'rxjs';
+import { WR_OVERLAY } from 'ngwr/overlay';
 
-import { SafeAny } from 'ngwr/cdk/types';
-
-import { WrDialogBaseDirective } from './dialog-base.directive';
-import { WR_DIALOG_DATA } from './dialog-data.token';
-import { WrDialogOptions } from './dialog-options';
 import { WrDialogRef } from './dialog-ref';
-import { WrDialogComponent } from './dialog.component';
+import { WR_DIALOG_DATA, WR_DIALOG_REF } from './tokens';
+import type { WrDialogOptions } from './types';
+
+const DEFAULT_PANEL_CLASS = 'wr-dialog-panel';
+const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
 
 /**
- * NGWR dialog service.
+ * Opens dialog components in an isolated NGWR overlay.
  *
- * {@tutorial} [How to use wr-dialog]{@link http://ngwr.dev/docs/components/dialog}
+ * Uses `WR_OVERLAY` so it composes cleanly with `provideWrOverlay()`
+ * — dialogs render into NGWR's own overlay container and never collide
+ * with other CDK consumers (Material, NG-ZORRO, etc.).
+ *
+ * @example
+ * ```ts
+ * const dialog = inject(WrDialogService);
+ *
+ * const ref = dialog.open(ConfirmComponent, {
+ *   data: { message: 'Delete this item?' },
+ *   width: '24rem',
+ * });
+ *
+ * const ok = await ref.awaitClose();
+ * if (ok) remove();
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/dialog
  */
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class WrDialogService {
-  private readonly overlay = inject(Overlay);
-  private readonly injector = inject(Injector);
-  private readonly parentModal = inject(WrDialogService, { optional: true, skipSelf: true });
+  private readonly overlay = inject(WR_OVERLAY);
+  private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly parentInjector = inject(EnvironmentInjector);
 
-  private openedDialogsAtThisLevel: WrDialogRef[] = [];
-  private readonly afterAllClosedAtThisLevel = new Subject<void>();
-
-  get openedDialogs(): WrDialogRef[] {
-    return this.parentModal ? this.parentModal.openedDialogs : this.openedDialogsAtThisLevel;
-  }
-
-  get _afterAllClosed(): Subject<void> {
-    const parent = this.parentModal;
-    return parent ? parent._afterAllClosed : this.afterAllClosedAtThisLevel;
-  }
-
-  open<C = SafeAny, R = SafeAny>(options: WrDialogOptions<C>): WrDialogRef<C, R> {
-    const _options = options || new WrDialogOptions<SafeAny>();
-
-    const positionStrategy = _options?.positionStrategy || this._defaultPositionStrategy();
-    const scrollStrategy = _options?.scrollStrategy || this._defaultScrollStrategy();
-    const hasBackdrop = _options?.hasBackdrop || true;
-    const backdropClass = _options?.backdropClass || 'wr-backdrop';
-
-    const overlayRef = this._createOverlay(positionStrategy, scrollStrategy, hasBackdrop, backdropClass);
-    const dialogContainer = this._attachDialogContainer(overlayRef, _options);
-    const dialogRef = this._attachDialogContent<C, R>(dialogContainer, overlayRef, _options);
-
-    dialogContainer.dialogRef = dialogRef;
-    this.openedDialogsAtThisLevel.push(dialogRef);
-    dialogRef.afterClosed.subscribe(() => this._removeOpenedModal(dialogRef));
-    return dialogRef;
-  }
-
-  private _defaultPositionStrategy(): PositionStrategy {
-    return this.overlay.position().global().centerVertically().centerHorizontally();
-  }
-
-  private _defaultScrollStrategy(): ScrollStrategy {
-    return this.overlay.scrollStrategies.block();
-  }
-
-  private _createOverlay(
-    positionStrategy: PositionStrategy,
-    scrollStrategy: ScrollStrategy,
-    hasBackdrop: boolean,
-    backdropClass: string
-  ): OverlayRef {
-    const overlayConfig = new OverlayConfig({
-      positionStrategy,
-      hasBackdrop,
-      backdropClass,
-      scrollStrategy,
-    });
-    return this.overlay.create(overlayConfig);
-  }
-
-  private _attachDialogContainer(overlayRef: OverlayRef, options?: WrDialogOptions): WrDialogBaseDirective {
-    const userInjector = options && options.viewContainerRef && options.viewContainerRef.injector;
-    const injector = Injector.create({
-      parent: userInjector || this.injector,
-      providers: [
-        { provide: OverlayRef, useValue: overlayRef },
-        { provide: WrDialogOptions, useValue: options },
-      ],
-    });
-
-    const containerPortal = new ComponentPortal(WrDialogComponent, options?.viewContainerRef, injector);
-    const containerRef = overlayRef.attach(containerPortal);
-    return containerRef.instance;
-  }
-
-  private _attachDialogContent<C, R>(
-    container: WrDialogBaseDirective,
-    overlayRef: OverlayRef,
-    options: WrDialogOptions<C>
-  ): WrDialogRef<C, R> {
-    const dialogRef = new WrDialogRef(overlayRef, options, container);
-
-    const userInjector = options && options.viewContainerRef && options.viewContainerRef?.injector;
-    const injector = Injector.create({
-      parent: userInjector || this.injector,
-      providers: [
-        { provide: WrDialogRef, useValue: dialogRef },
-        { provide: WR_DIALOG_DATA, useValue: options?.data },
-      ],
-    });
-
-    const contentRef = container.attachComponentPortal<C>(
-      new ComponentPortal(options?.component as ComponentType<C>, options?.viewContainerRef, injector)
-    );
-    dialogRef.componentInstance = contentRef.instance;
-    return dialogRef;
-  }
-
-  private _removeOpenedModal(dialogRef: WrDialogRef): void {
-    const index = this.openedDialogs.indexOf(dialogRef);
-    if (index > -1) {
-      this.openedDialogs.splice(index, 1);
-
-      if (!this.openedDialogs.length) {
-        this._afterAllClosed.next();
-      }
+  open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
+    const panelClasses: string[] = [DEFAULT_PANEL_CLASS];
+    const extra = options.panelClass;
+    if (typeof extra === 'string') {
+      panelClasses.push(extra);
+    } else if (extra) {
+      for (const cls of extra) panelClasses.push(cls);
     }
+
+    const overlayRef: OverlayRef = this.overlay.create({
+      positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
+      scrollStrategy: this.scrollStrategies.block(),
+      hasBackdrop: true,
+      backdropClass: DEFAULT_BACKDROP_CLASS,
+      panelClass: panelClasses,
+      width: options.width,
+      maxWidth: options.maxWidth,
+    });
+
+    const dialogRef = new WrDialogRef<C, R>(overlayRef);
+
+    const injector = Injector.create({
+      parent: this.parentInjector,
+      providers: [
+        { provide: WR_DIALOG_DATA, useValue: options.data },
+        { provide: WR_DIALOG_REF, useValue: dialogRef },
+      ],
+    });
+
+    const portal = new ComponentPortal(component, null, injector);
+    dialogRef.componentRef = overlayRef.attach(portal);
+
+    // Overlay subscriptions complete when the overlay is disposed, so no
+    // explicit teardown is required.
+    if (options.closeOnBackdropClick !== false) {
+      overlayRef.backdropClick().subscribe(() => dialogRef.close());
+    }
+    if (options.closeOnEscape !== false) {
+      overlayRef.keydownEvents().subscribe(event => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          dialogRef.close();
+        }
+      });
+    }
+
+    return dialogRef;
   }
 }

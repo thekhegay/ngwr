@@ -1,38 +1,55 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { WrAlertComponent } from 'ngwr/alert';
-import { WrTagComponent } from 'ngwr/tag';
+import { WrAlertComponent, type WrAlertType } from 'ngwr/alert';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-alert',
+  selector: 'ngwr-alert-page',
   templateUrl: './alert.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CodeComponent, SnippetComponent, WrAlertComponent, WrTagComponent],
+  imports: [
+    WrAlertComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class AlertComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class AlertComponent {
+  protected readonly types: readonly WrAlertType[] = ['info', 'success', 'warning', 'danger'];
 
-  private readonly seoService = inject(SeoService);
+  protected readonly snippets = {
+    install: `import { WrAlertComponent } from 'ngwr/alert';
 
-  protected readonly pageTitle = 'Alert';
-  protected readonly pageDescription = 'Component that shows some feedback';
-
-  protected readonly code = {
-    import: `import{WrAlertComponent}from'ngwr/alert';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrAlertComponent,],})\nexport class MyComponent {}`,
-    usage: '<wr-alert title="Title" message="Message" />',
-    types: `<wr-alert type="info" title="Info" />\n<wr-alert type="success" title="Success" />\n<wr-alert type="warning" title="Warning" />\n<wr-alert type="danger" title="Danger" />`,
-    closeable: '<wr-alert title="Closeable" closeable/>',
+@Component({ imports: [WrAlertComponent] })
+export class MyComponent {}`,
+    basic: `<wr-alert title="Heads up" message="Your trial ends in 3 days." />`,
+    types: `<wr-alert title="Info" type="info" />
+<wr-alert title="Success" type="success" />
+<wr-alert title="Warning" type="warning" />
+<wr-alert title="Danger" type="danger" />`,
+    closeable: `<wr-alert title="Saved" type="success" closeable (closed)="onClose()" />`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle([this.pageTitle, 'Components']);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['alert', 'wr-alert']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'title', description: 'Headline.', type: 'string', required: true },
+    { name: 'type', description: 'Visual variant.', type: 'WrAlertType', default: "'info'" },
+    { name: 'message', description: 'Optional secondary message.', type: 'string | null', default: 'null' },
+    { name: 'closeable', description: 'Show a close button.', type: 'boolean', default: 'false' },
+    {
+      name: '(closed)',
+      description: 'Fires when the close button is clicked.',
+      type: 'EventEmitter<void>',
+      default: '—',
+    },
+  ];
 }

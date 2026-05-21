@@ -1,50 +1,64 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { wrThemeColors } from 'ngwr/cdk/types';
+import { provideWrIcons, checkmark, close, flash, warning } from 'ngwr/icon';
 import { WrTagComponent } from 'ngwr/tag';
+import { WR_COLORS } from 'ngwr/theme';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-tag',
+  selector: 'ngwr-tag-page',
   templateUrl: './tag.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrTagComponent, CodeComponent, SnippetComponent],
+  imports: [
+    WrTagComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
+  providers: [provideWrIcons([checkmark, close, flash, warning])],
 })
-export class TagComponent implements OnInit {
-  @HostBinding() class = 'ngwr-page';
+export default class TagComponent {
+  protected readonly colors = WR_COLORS;
 
-  private readonly seoService = inject(SeoService);
+  protected readonly snippets = {
+    install: `import { WrTagComponent } from 'ngwr/tag';
 
-  protected readonly pageTitle = 'Tag';
-  protected readonly pageDescription: string = 'Tag component';
-
-  protected readonly colors = wrThemeColors;
-
-  protected readonly code = {
-    import: `import{WrTagComponent}from'ngwr/tag';`,
-    component: `@Component({\n//...\nimports: [\n//...\nWrTagComponent,],})\nexport class MyComponent {}`,
-    usage: `<wr-tag>Tag Component</wr-tag>`,
-    colors:
-      '<wr-tag color="primary"></wr-tag>\n<wr-tag color="secondary"></wr-tag>\n<wr-tag color="success"></wr-tag>\n<wr-tag color="warning"></wr-tag>\n<wr-tag color="danger"></wr-tag>\n<wr-tag color="light"></wr-tag>\n<wr-tag color="medium"></wr-tag>\n<wr-tag color="dark"></wr-tag>',
-    outlined: '<wr-tag outlined></wr-tag>',
-    rounded: '<wr-tag rounded></wr-tag>',
-    transparent: '<wr-tag transparent></wr-tag>',
-    hoverable: '<wr-tag hoverable></wr-tag>',
-    iconProvider:
-      "import{provideWrIcons,wrIconAdd}from'ngwr/icon';\n//...\n@Component({\n//...\nimports: [\n//...\nWrButtonComponent],\nproviders: [\n//...\nprovideWrIcons([wrIconAdd])],})\nexport class MyComponent {}",
-    icon: '<wr-tag icon="add" iconPosition="start">Add</wr-tag>',
-    loading:
-      '<wr-tag loading>Loading</wr-tag>\n<wr-tag [loading]="true" color="dark" rounded>You can use long text</wr-tag>\n<wr-tag loading icon="add" color="secondary" outlined>Loading with icon</wr-tag>',
+@Component({ imports: [WrTagComponent] })
+export class MyComponent {}`,
+    basic: `<wr-tag>Tag</wr-tag>`,
+    colors: `<wr-tag color="primary">Primary</wr-tag>
+<wr-tag color="success">Success</wr-tag>`,
+    outlined: `<wr-tag color="primary" outlined>Outlined</wr-tag>`,
+    transparent: `<wr-tag color="primary" transparent>Transparent</wr-tag>`,
+    rounded: `<wr-tag color="primary" rounded>Rounded</wr-tag>`,
+    icons: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
+<wr-tag color="danger" icon="close" iconPosition="end">Failed</wr-tag>`,
+    loading: `<wr-tag color="primary" loading>Saving</wr-tag>`,
   };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle(this.pageTitle);
-    this.seoService.setDescription(this.pageDescription);
-    this.seoService.setKeywords(['tag', 'wr-tag']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'color', description: 'Color variant.', type: 'WrColor', default: "'primary'" },
+    { name: 'icon', description: 'Icon name shown beside content.', type: 'WrIconName | null', default: 'null' },
+    {
+      name: 'iconPosition',
+      description: 'Where the icon/spinner is rendered.',
+      type: "'start' | 'end'",
+      default: "'start'",
+    },
+    { name: 'outlined', description: 'Outlined style.', type: 'boolean', default: 'false' },
+    { name: 'transparent', description: 'Transparent tinted style.', type: 'boolean', default: 'false' },
+    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+    { name: 'hoverable', description: 'Adds a hover state for interactive tags.', type: 'boolean', default: 'false' },
+    { name: 'loading', description: 'Show a spinner in place of the icon.', type: 'boolean', default: 'false' },
+  ];
 }

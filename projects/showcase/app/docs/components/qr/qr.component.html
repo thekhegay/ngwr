@@ -1,0 +1,39 @@
+<ngwr-doc-page
+  title="QR Code"
+  description="Renders a QR code on a canvas. Optional center icon overlay."
+  [keywords]="['qr', 'qr-code', 'wr-qr']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-qr value="https://ngwr.dev" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sized, colored, high error correction"
+    description="Use level='H' when you plan to overlay anything in the center."
+  >
+    <ngwr-doc-snippet [code]="snippets.sized">
+      <wr-qr value="ngwr" [size]="180" level="H" color="#3969e2" />
+      <wr-qr value="ngwr" [size]="180" level="H" color="#0f172a" bgColor="#f1f5f9" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Interactive">
+    <ngwr-doc-snippet [code]="snippets.interactive">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center">
+        <wr-qr [value]="text()" [size]="180" />
+        <wr-input [(ngModel)]="text" placeholder="Type to encode" style="min-width: 18rem" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

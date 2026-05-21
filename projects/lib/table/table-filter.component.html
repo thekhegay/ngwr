@@ -1,0 +1,40 @@
+<button type="button" class="wr-table-filter__trigger" [wrDropdown]="menu" aria-label="Filter column">
+  <wr-icon name="filter" />
+  @if (selectedCount() > 0) {
+    <span class="wr-table-filter__count">{{ selectedCount() }}</span>
+  }
+</button>
+
+<wr-dropdown-menu #menu>
+  <div class="wr-table-filter__panel">
+    <input
+      class="wr-table-filter__search"
+      type="search"
+      placeholder="Search"
+      [value]="query()"
+      (input)="onSearchInput($event)"
+    />
+
+    <div class="wr-table-filter__list">
+      @for (item of visible(); track item.value) {
+        <button
+          type="button"
+          class="wr-table-filter__item"
+          [class.wr-table-filter__item--selected]="item.selected"
+          (click)="onToggle(item)"
+        >
+          <span class="wr-table-filter__check">
+            <wr-icon name="checkmark" />
+          </span>
+          <span class="wr-table-filter__title">{{ item.title }}</span>
+        </button>
+      } @empty {
+        <div class="wr-table-filter__empty">No matches</div>
+      }
+    </div>
+
+    @if (selectedCount() > 0) {
+      <button type="button" class="wr-table-filter__reset" (click)="onReset()">Reset</button>
+    }
+  </div>
+</wr-dropdown-menu>

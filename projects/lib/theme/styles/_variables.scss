@@ -1,0 +1,27 @@
+// Design tokens exposed as CSS custom properties.
+//
+// These are the canonical knobs every component reads from. Consumers
+// override them on `:root` (or any subtree) without touching SCSS.
+
+:root {
+  // Border radius
+  --wr-border-radius-sm: 0.25rem;
+  --wr-border-radius-base: 0.625rem;
+  --wr-border-radius-lg: 1rem;
+  --wr-border-radius-pill: 50rem;
+
+  // Transitions
+  --wr-transition-short: 0.1s linear;
+  --wr-transition-base: 0.15s linear;
+  --wr-transition-long: 0.2s linear;
+
+  // Typography
+  //
+  // The library only declares system-font fallback chains. Apps that ship
+  // their own typeface should override these on `:root` after loading the
+  // theme — e.g. `:root { --wr-font-family-base: 'Inter', ...; }`.
+  --wr-font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --wr-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}

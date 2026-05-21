@@ -1,28 +1,48 @@
-@forward './styles/maps';
-@forward './styles/colors';
-@forward './styles/variables';
-@forward './styles/grid' show media-up, media-down;
-@forward './styles/reset';
-@forward './styles/animations';
-@forward './styles/cdk';
+// Umbrella stylesheet — the "import once, everything works" entry.
+//
+// Loads:
+//   - Theme tokens (--wr-* CSS custom properties)
+//   - SCSS API   (breakpoints mixins; no CSS output)
+//   - Every component's styles (.wr-name and modifiers)
+//
+// Does NOT load utilities. Opt in explicitly:
+//   @use 'ngwr/grid';   // .grid, .container, .col-*
+//   @use 'ngwr/reset';  // box-sizing, body margin, etc.
+//
+// Consumers can also pull individual components without the umbrella:
+//   @use 'ngwr/badge';  // includes theme automatically, dedup-safe.
+
+@forward './theme/styles';
+@forward './styles/breakpoints';
 
 @forward './alert/styles';
 @forward './avatar/styles';
+@forward './badge/styles';
+@forward './breadcrumbs/styles';
 @forward './button/styles';
 @forward './checkbox/styles';
+@forward './collapse/styles';
 @forward './dialog/styles';
 @forward './divider/styles';
+@forward './drawer/styles';
+@forward './dropdown/styles';
 @forward './form/styles';
 @forward './icon/styles';
 @forward './input/styles';
+@forward './pagination/styles';
+@forward './popconfirm/styles';
+@forward './popover/styles';
 @forward './progress/styles';
 @forward './qr/styles';
+@forward './radio/styles';
+@forward './segmented/styles';
+@forward './select/styles';
 @forward './skeleton/styles';
 @forward './spinner/styles';
+@forward './switch/styles';
+@forward './table/styles';
+@forward './tabs/styles';
 @forward './tag/styles';
 @forward './textarea/styles';
-@forward './select/styles';
-@forward './dropdown/styles';
-@forward './pagination/styles';
-@forward './table/styles';
-//@forward './tooltip';
+@forward './toast/styles';
+@forward './tooltip/styles';

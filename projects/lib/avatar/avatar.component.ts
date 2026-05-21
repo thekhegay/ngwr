@@ -5,161 +5,91 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { NgOptimizedImage } from '@angular/common';
-import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  HostBinding,
-  input,
-  signal,
-  ViewEncapsulation,
-} from '@angular/core';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
 
 import { WrSpinnerComponent } from 'ngwr/spinner';
 import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
 
-import type { WrAvatarSize } from './avatar-size';
+import type { WrAvatarSize } from './types';
+
+const DEFAULT_SIZE: WrAvatarSize = '6rem';
 
 /**
- * NGWR avatar component.
+ * Image avatar with a fixed square or rounded shape.
  *
- * Displays a square or rounded avatar with an optional loading spinner
- * while the image is being loaded.
- *
- * @example
- * ```html
- * <wr-avatar
- *   url="/assets/user.png"
- *   alt="User avatar"
- *   size="6rem"
- *   [rounded]="true"
- * ></wr-avatar>
- * ```
+ * A spinner is shown while the image loads, then crossfades in.
  *
  * @example
  * ```html
- * <!-- 48x48px avatar -->
- * <wr-avatar url="/assets/user.png" alt="User avatar" size="48"></wr-avatar>
- *
- * <!-- 3rem avatar (based on root font size) -->
- * <wr-avatar url="/assets/user.png" alt="User avatar" size="3rem"></wr-avatar>
+ * <wr-avatar url="/me.png" alt="Roman" size="3rem" rounded />
+ * <wr-avatar url="/me.png" alt="Roman" [size]="48" />
  * ```
  *
- * @see WrAvatarSize
- * @see WrSpinnerComponent
- * @see http://ngwr.dev/docs/components/avatar
- *
- * @publicApi
+ * @see https://ngwr.dev/docs/components/avatar
  */
 @Component({
-  standalone: true,
   selector: 'wr-avatar',
   templateUrl: './avatar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [NgOptimizedImage, WrSpinnerComponent],
+  host: {
+    '[class]': 'classes()',
+    '[style.width]': 'cssSize()',
+    '[style.height]': 'cssSize()',
+  },
+  imports: [WrSpinnerComponent],
 })
 export class WrAvatarComponent {
   /**
-   * Image URL for the avatar.
-   * When not set, only projected content will be shown.
+   * Image URL. When unset, only projected content (e.g. initials) renders.
    *
    * @default null
    */
   readonly url = input<string | null>(null);
 
   /**
-   * Accessible alternative text for the avatar image.
-   * Should describe the person or object shown in the avatar.
+   * Alt text for the image.
    *
    * @default 'Avatar'
    */
   readonly alt = input<string>('Avatar');
 
   /**
-   * When `true`, renders the avatar as a circle instead of a rounded square.
+   * Render as a circle instead of a rounded square.
    *
    * @default false
    */
-  readonly rounded = input(false, { transform: booleanAttribute });
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Avatar size.
-   *
-   * Supported formats:
-   * - number        → pixels            (e.g. `48`     → 48px)
-   * - `"12px"`      → pixels            (e.g. "12px"   → 12px)
-   * - `"3rem"`      → rems (via root)   (e.g. "3rem"   → 3 × root font size)
-   * - `"15"`        → pixels            (e.g. "15"     → 15px)
-   *
-   * Percentage values (e.g. `"80%"`, `"100%"`) are not supported.
+   * Box size. See {@link WrAvatarSize} for accepted values.
    *
    * @default '6rem'
-   * @see WrAvatarSize
    */
-  readonly size = input<WrAvatarSize>('6rem');
+  readonly size = input<WrAvatarSize>(DEFAULT_SIZE);
 
-  /**
-   * Internal signal that tracks whether the image has finished loading.
-   *
-   * @internal
-   */
-  protected readonly isImgLoaded = signal(false);
+  protected readonly loaded = signal(false);
 
-  /**
-   * Resolved size for the avatar, containing both CSS and pixel values.
-   * Percentage values are not allowed and will fall back to "6rem" with a warning.
-   *
-   * @internal
-   */
-  protected readonly resolvedSize = computed<ResolvedCssSize>(() => {
-    const result = resolveCssSize(this.size(), { defaultValue: '6rem' });
-
+  protected readonly resolved = computed<ResolvedCssSize>(() => {
+    const result = resolveCssSize(this.size(), { defaultValue: DEFAULT_SIZE });
     if (result.pxValue == null || result.pxValue <= 0) {
-      console.warn('[ngwr] WrAvatarComponent: resolved pixel size for `size` is invalid. Falling back to "6rem".');
-      return resolveCssSize('6rem', { defaultValue: '6rem' });
+      return resolveCssSize(DEFAULT_SIZE, { defaultValue: DEFAULT_SIZE });
     }
-
     return result;
   });
 
-  /**
-   * Host CSS classes:
-   *
-   * - always includes `'wr-avatar'`
-   * - adds `'wr-avatar--rounded'` when {@link rounded} is `true`
-   * - adds `'wr-avatar--loaded'` when the image load has completed
-   */
-  @HostBinding('class')
-  get hostClasses(): Record<string, boolean> {
-    const baseClass = `wr-avatar`;
+  protected readonly cssSize = computed(() => this.resolved().cssValue);
+  protected readonly pxSize = computed(() => this.resolved().pxValue);
 
-    return {
-      [baseClass]: true,
-      [`${baseClass}--rounded`]: this.rounded(),
-      [`${baseClass}--loaded`]: this.isImgLoaded(),
-    };
-  }
+  protected readonly classes = computed(() => {
+    const parts = ['wr-avatar'];
+    if (this.rounded()) parts.push('wr-avatar--rounded');
+    if (this.loaded()) parts.push('wr-avatar--loaded');
+    return parts.join(' ');
+  });
 
-  /**
-   * Inline host styles for width and height based on the resolved CSS value.
-   */
-  @HostBinding('style')
-  get hostStyles(): Record<string, string> {
-    const { cssValue } = this.resolvedSize();
-
-    return {
-      width: cssValue,
-      height: cssValue,
-    };
-  }
-
-  /**
-   * Handles the image load event and marks the avatar as loaded.
-   */
-  protected handleImageLoad(): void {
-    this.isImgLoaded.set(true);
+  protected onImageLoad(): void {
+    this.loaded.set(true);
   }
 }

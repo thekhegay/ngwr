@@ -1,0 +1,28 @@
+<ngwr-doc-page
+  title="Segmented"
+  description="Single-choice picker rendered as a segmented control. Two-way binds the selected value."
+  [keywords]="['segmented', 'wr-segmented']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-segmented [options]="rangeOptions" [(value)]="range" />
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ range() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With icons">
+    <ngwr-doc-snippet [code]="snippets.icons">
+      <wr-segmented [options]="modeOptions" [(value)]="mode" />
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ mode() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

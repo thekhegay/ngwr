@@ -1,0 +1,20 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { InjectionToken, type Signal } from '@angular/core';
+
+/**
+ * Contract a breadcrumb item uses to talk to its parent `<wr-breadcrumbs>`.
+ *
+ * @internal
+ */
+export type WrBreadcrumbsContext = {
+  /** Separator string used between items. */
+  readonly separator: Signal<string>;
+};
+
+export const WR_BREADCRUMBS = new InjectionToken<WrBreadcrumbsContext>('WR_BREADCRUMBS');

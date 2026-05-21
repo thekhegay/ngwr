@@ -1,40 +1,52 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
-import { wrThemeColors } from 'ngwr/cdk/types';
 import { WrProgressComponent } from 'ngwr/progress';
-import { WrTagComponent } from 'ngwr/tag';
+import { WR_COLORS } from 'ngwr/theme';
 
-import { CodeComponent, SnippetComponent } from '#core/components';
-import { SeoService } from '#core/services';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
-  standalone: true,
-  selector: 'ngwr-progress',
+  selector: 'ngwr-progress-page',
   templateUrl: './progress.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, WrProgressComponent, WrTagComponent, CodeComponent, SnippetComponent],
+  imports: [
+    WrProgressComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
-export class ProgressComponent implements OnInit {
-  readonly description: string = 'Display the current progress.';
-  readonly colors = wrThemeColors;
+export default class ProgressComponent {
+  protected readonly colors = WR_COLORS;
+  protected readonly demoValue = signal(35);
 
-  readonly importCode: string =
-    "import { WrProgressComponent } from 'ngwr/progress';\n\n@NgModule({\n  imports: [\n    // ...\n    WrProgressComponent,\n  ],\n  // ...\n})\nexport class MyModule {}";
-  readonly usageCode: string = `<wr-progress></wr-progress>`;
-  readonly colorsCode: string =
-    '<wr-progress color="primary"></wr-progress>\n<wr-progress color="secondary"></wr-progress>\n<wr-progress color="success"></wr-progress>\n<wr-progress color="warning"></wr-progress>\n<wr-progress color="danger"></wr-progress>\n<wr-progress color="light"></wr-progress>\n<wr-progress color="medium"></wr-progress>\n<wr-progress color="dark"></wr-progress>';
+  protected readonly snippets = {
+    install: `import { WrProgressComponent } from 'ngwr/progress';
 
-  constructor(private readonly seoService: SeoService) {}
+@Component({ imports: [WrProgressComponent] })
+export class MyComponent {}`,
+    basic: `<wr-progress [value]="42" />`,
+    colors: `<wr-progress color="success" [value]="80" />`,
+    interactive: `<wr-progress [value]="value()" />
+<input type="range" min="0" max="100" [value]="value()" (input)="value.set(+$event.target.value)" />`,
+  };
 
-  ngOnInit(): void {
-    this.seoService.setCanonicalURL();
-    this.seoService.setTitle(['Progress', 'Components']);
-    this.seoService.setDescription(this.description);
-    this.seoService.setKeywords(['progress', 'wr-progress']);
-  }
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'color', description: 'Bar color.', type: 'WrColor', default: "'primary'" },
+    { name: 'value', description: 'Progress value, clamped to [0, 100].', type: 'number', default: '0' },
+  ];
 
-  generateRandomPercent(): number {
-    return Math.floor(Math.random() * (100 + 1));
+  protected onInput(event: Event): void {
+    const v = Number((event.target as HTMLInputElement).value);
+    this.demoValue.set(v);
   }
 }

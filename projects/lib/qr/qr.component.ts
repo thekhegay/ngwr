@@ -5,99 +5,91 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
+import type { ElementRef } from '@angular/core';
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  HostBinding,
-  inject,
-  Input,
-  numberAttribute,
-  OnChanges,
-  OnInit,
   PLATFORM_ID,
-  signal,
-  SimpleChanges,
-  ViewChild,
   ViewEncapsulation,
+  effect,
+  inject,
+  input,
+  viewChild,
 } from '@angular/core';
 
-import { WrAbstractBase } from 'ngwr/cdk';
-import { wrIconName, WrIconService } from 'ngwr/icon';
+import { drawQrCode } from './generator';
+import type { WrQrErrorLevel } from './types';
 
-import { drawCanvas, ERROR_LEVEL_MAP, plotQRCodeData } from './generator';
+const numAttr =
+  (fallback: number) =>
+  (v: unknown): number =>
+    coerceNumberProperty(v, fallback);
 
+/**
+ * Renders a QR code on a `<canvas>`.
+ *
+ * @example
+ * ```html
+ * <wr-qr value="https://ngwr.dev" [size]="200" level="H" />
+ * <wr-qr value="..." iconUrl="/logo.png" [iconSize]="48" level="H" />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/qr
+ */
 @Component({
   selector: 'wr-qr',
   templateUrl: './qr.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: { class: 'wr-qr', '[style.background]': 'bgColor()' },
 })
-export class WrQrComponent extends WrAbstractBase implements OnInit, AfterViewInit, OnChanges {
-  @HostBinding() class = 'wr-qrcode';
-  @ViewChild('canvas', { static: false }) canvas!: ElementRef<HTMLCanvasElement>;
+export class WrQrComponent {
+  /** Text or URL to encode. Required. */
+  readonly value = input.required<string>();
 
-  @Input({ required: true }) value!: string;
-  @Input() level: keyof typeof ERROR_LEVEL_MAP = 'M';
-  @Input({ transform: numberAttribute }) padding = 10;
-  @Input() color = '#000000';
-  @Input() bgColor = '#ffffff';
-  @Input({ transform: numberAttribute }) size = 150;
-  @Input() icon: wrIconName | null = null;
-  @Input({ transform: numberAttribute }) iconSize = 42;
+  /** Error correction level. Use `'H'` if you overlay an icon. @default 'M' */
+  readonly level = input<WrQrErrorLevel>('M');
 
-  private readonly pid = inject(PLATFORM_ID);
-  private readonly elRef = inject(ElementRef);
-  private readonly wrIconService = inject(WrIconService);
-  protected readonly isBrowser = signal(true);
+  /** Side length of the rendered canvas, in pixels. @default 160 */
+  readonly size = input(160, { transform: numAttr(160) });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const { value, level, padding, color, bgColor, size, icon, iconSize } = changes;
+  /** Outer quiet-zone padding in pixels. @default 10 */
+  readonly padding = input(10, { transform: numAttr(10) });
 
-    if ((value || level || padding || color || bgColor || size || icon || iconSize) && this.canvas) {
-      this.drawCanvas();
-    }
+  /** Module (dot) color. @default '#000000' */
+  readonly color = input<string>('#000000');
 
-    if (bgColor) {
-      this.setElBg();
-    }
-  }
+  /** Background color of the canvas + host. @default '#ffffff' */
+  readonly bgColor = input<string>('#ffffff');
 
-  ngOnInit(): void {
-    this.isBrowser.set(isPlatformBrowser(this.pid));
-    this.setElBg();
-  }
+  /** Optional image URL or data URL to overlay in the center. */
+  readonly iconUrl = input<string | null>(null);
 
-  ngAfterViewInit(): void {
-    this.drawCanvas();
-  }
+  /** Center icon size in logical pixels. @default 42 */
+  readonly iconSize = input(42, { transform: numAttr(42) });
 
-  setElBg(): void {
-    this.elRef.nativeElement.style.backgroundColor = this.bgColor;
-  }
+  protected readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+  protected readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  drawCanvas(): void {
-    if (this.canvas) {
-      let icon = '';
-
-      if (this.icon && this.wrIconService.registry.has(this.icon)) {
-        const iconData = this.wrIconService.registry.get(this.icon) || '';
-        icon = `data:image/svg+xml;base64,${btoa(iconData)}`;
-      }
-
-      drawCanvas(
-        this.canvas.nativeElement,
-        plotQRCodeData(this.value, this.level),
-        this.size,
-        10,
-        this.padding,
-        this.color,
-        this.bgColor,
-        this.iconSize,
-        icon
-      );
-    }
+  constructor() {
+    effect(() => {
+      // Read every input to register reactive deps
+      const opts = {
+        value: this.value(),
+        size: this.size(),
+        padding: this.padding(),
+        color: this.color(),
+        bgColor: this.bgColor(),
+        level: this.level(),
+        iconUrl: this.iconUrl(),
+        iconSize: this.iconSize(),
+      };
+      if (!this.isBrowser) return;
+      const el = this.canvas()?.nativeElement;
+      if (!el) return;
+      drawQrCode(el, opts);
+    });
   }
 }

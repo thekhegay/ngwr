@@ -1,7 +1,10 @@
-.wr-qrcode {
+@use '../../theme/styles' as theme;
+
+.wr-qr {
   display: inline-block;
-  padding: 0;
-  margin: 0;
+  line-height: 0;
+  border-radius: var(--wr-border-radius-base);
+  overflow: hidden;
 
   > canvas {
     display: block;
