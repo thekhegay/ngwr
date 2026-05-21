@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/thekhegay/ngwr/discussions
+    about: Questions about usage, ideas to gauge interest, anything that isn't a bug or concrete feature request.
+  - name: 🔒 Security vulnerability
+    url: https://github.com/thekhegay/ngwr/security/advisories/new
+    about: Report a security issue privately. Do NOT use public issues.
+  - name: 📚 Documentation
+    url: https://ngwr.dev
+    about: Component API reference, examples, theming guide.
