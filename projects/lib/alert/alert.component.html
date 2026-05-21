@@ -1,0 +1,14 @@
+@if (!dismissed()) {
+  <div class="wr-alert__body">
+    <p class="wr-alert__title">{{ title() }}</p>
+    @if (message(); as text) {
+      <p class="wr-alert__message">{{ text }}</p>
+    }
+  </div>
+
+  @if (closeable()) {
+    <button type="button" class="wr-alert__close" aria-label="Close alert" (click)="onClose()">
+      <wr-icon name="close" />
+    </button>
+  }
+}

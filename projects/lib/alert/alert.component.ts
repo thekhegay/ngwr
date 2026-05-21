@@ -1,0 +1,81 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
+
+import { provideWrIcons, WrIconComponent, close } from 'ngwr/icon';
+
+import type { WrAlertType } from './types';
+
+/**
+ * Inline status banner. Use for feedback messages — saved/failed/notice etc.
+ *
+ * @example
+ * ```html
+ * <wr-alert title="Saved" message="Your changes are live." type="success" />
+ * <wr-alert title="Failed" type="danger" closeable (closed)="onClose()" />
+ * ```
+ *
+ * @see https://ngwr.dev/docs/components/alert
+ */
+@Component({
+  selector: 'wr-alert',
+  templateUrl: './alert.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  host: {
+    '[class]': 'classes()',
+    '[attr.role]': 'dismissed() ? null : "status"',
+    '[attr.aria-live]': 'dismissed() ? null : "polite"',
+  },
+  imports: [WrIconComponent],
+  providers: [provideWrIcons([close])],
+})
+export class WrAlertComponent {
+  /** Required headline shown at the top of the alert. */
+  readonly title = input.required<string>();
+
+  /**
+   * Visual variant.
+   *
+   * @default 'info'
+   */
+  readonly type = input<WrAlertType>('info');
+
+  /**
+   * Optional secondary message rendered below the title.
+   *
+   * @default null
+   */
+  readonly message = input<string | null>(null);
+
+  /**
+   * When `true`, renders a close button.
+   *
+   * @default false
+   */
+  readonly closeable = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Emitted when the user dismisses the alert via the close button.
+   */
+  readonly closed = output<void>();
+
+  protected readonly dismissed = signal(false);
+
+  protected readonly classes = computed(() => {
+    const parts = ['wr-alert', `wr-alert--${this.type()}`];
+    if (this.dismissed()) parts.push('wr-alert--dismissed');
+    return parts.join(' ');
+  });
+
+  protected onClose(): void {
+    this.dismissed.set(true);
+    this.closed.emit();
+  }
+}

@@ -1,0 +1,88 @@
+@use '../../theme/styles' as theme;
+
+$alert-colors: (
+  info: primary,
+  success: success,
+  warning: warning,
+  danger: danger,
+);
+
+.wr-alert {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+
+  // Defaults — overridden per variant below.
+  --wr-alert-bg: rgba(var(--wr-color-primary-rgb), 0.08);
+  --wr-alert-border: var(--wr-color-primary);
+  --wr-alert-title: var(--wr-color-primary);
+  --wr-alert-message: var(--wr-color-dark);
+  --wr-alert-close: var(--wr-color-medium);
+
+  background: var(--wr-alert-bg);
+  border-left: 3px solid var(--wr-alert-border);
+  border-radius: var(--wr-border-radius-base);
+  padding: 0.75rem 1rem;
+
+  &--dismissed {
+    display: none;
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    color: var(--wr-alert-title);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+  }
+
+  &__message {
+    margin: 0;
+    color: var(--wr-alert-message);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+  }
+
+  &__close {
+    flex: 0 0 auto;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.125rem;
+    color: var(--wr-alert-close);
+    cursor: pointer;
+    border-radius: var(--wr-border-radius-sm);
+    transition: color var(--wr-transition-base), background var(--wr-transition-base);
+
+    --wr-icon-size: 1rem;
+
+    &:hover {
+      color: var(--wr-alert-title);
+      background: rgba(var(--wr-color-light-rgb), 0.4);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(var(--wr-color-primary-rgb), 0.5);
+      outline-offset: 1px;
+    }
+  }
+
+  @each $variant, $color in $alert-colors {
+    &--#{$variant} {
+      --wr-alert-bg: rgba(var(--wr-color-#{$color}-rgb), 0.08);
+      --wr-alert-border: var(--wr-color-#{$color});
+      --wr-alert-title: var(--wr-color-#{$color});
+    }
+  }
+}

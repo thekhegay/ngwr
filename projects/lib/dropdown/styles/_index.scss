@@ -1,0 +1,100 @@
+@use '../../theme/styles' as theme;
+
+.wr-dropdown {
+  &-trigger {
+    cursor: pointer;
+  }
+
+  &-menu {
+    --wr-dropdown-bg: var(--wr-color-white);
+    --wr-dropdown-border: var(--wr-color-light);
+    --wr-dropdown-radius: var(--wr-border-radius-base);
+    --wr-dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
+    --wr-dropdown-min-width: 10rem;
+    --wr-dropdown-padding: 0.25rem;
+
+    display: flex;
+    flex-direction: column;
+    min-width: var(--wr-dropdown-min-width);
+    padding: var(--wr-dropdown-padding);
+    background: var(--wr-dropdown-bg);
+    border: 1px solid var(--wr-dropdown-border);
+    border-radius: var(--wr-dropdown-radius);
+    box-shadow: var(--wr-dropdown-shadow);
+    font-family: var(--wr-font-family-base);
+  }
+
+  &-overlay {
+    // Positional offsets between trigger and menu by side.
+    &--top,
+    &--top-start,
+    &--top-end {
+      padding-bottom: 0.25rem;
+    }
+    &--bottom,
+    &--bottom-start,
+    &--bottom-end {
+      padding-top: 0.25rem;
+    }
+    &--left {
+      padding-right: 0.25rem;
+    }
+    &--right {
+      padding-left: 0.25rem;
+    }
+  }
+}
+
+.wr-dropdown-item {
+  --wr-dropdown-item-padding-y: 0.375rem;
+  --wr-dropdown-item-padding-x: 0.625rem;
+  --wr-dropdown-item-color: var(--wr-color-dark);
+  --wr-dropdown-item-bg-hover: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-dropdown-item-radius: var(--wr-border-radius-sm);
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: var(--wr-dropdown-item-padding-y) var(--wr-dropdown-item-padding-x);
+  border-radius: var(--wr-dropdown-item-radius);
+  color: var(--wr-dropdown-item-color);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--wr-transition-short);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--wr-dropdown-item-bg-hover);
+    outline: none;
+  }
+
+  &__icon {
+    --wr-icon-size: 1rem;
+    flex: 0 0 auto;
+    color: var(--wr-color-medium);
+  }
+
+  &__label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--disabled {
+    color: var(--wr-color-medium);
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+<button
+  type="button"
+  class="wr-select__trigger"
+  [disabled]="isDisabled()"
+  [attr.aria-haspopup]="'listbox'"
+  [attr.aria-expanded]="open()"
+  (click)="onTriggerClick()"
+  (keydown)="onTriggerKey($event)"
+  (blur)="onTouched()"
+>
+  @if (selectedLabel(); as label) {
+    <span class="wr-select__value">{{ label }}</span>
+  } @else {
+    <span class="wr-select__placeholder">{{ placeholder() }}</span>
+  }
+
+  <wr-icon class="wr-select__chevron" name="chevron-down" />
+</button>
+
+<ng-template #panelTpl>
+  <div class="wr-select-panel" role="listbox">
+    <ng-content />
+  </div>
+</ng-template>
