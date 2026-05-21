@@ -11,7 +11,7 @@
         <wr-icon class="ngwr-sidebar__group-chevron" name="chevron-down" size="14" />
       </button>
 
-      @if (isOpen(group.title)) {
+      <div class="ngwr-sidebar__group-wrap" [attr.aria-hidden]="!isOpen(group.title)">
         <div class="ngwr-sidebar__group-body">
           @if (group.children) {
             <ul class="ngwr-sidebar__list">
@@ -66,7 +66,7 @@
             }
           }
         </div>
-      }
+      </div>
     </section>
   }
 </nav>

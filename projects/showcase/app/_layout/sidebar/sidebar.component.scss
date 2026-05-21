@@ -77,11 +77,24 @@
       transform: rotate(-90deg);
     }
 
+    // CSS-only smooth collapse via grid-template-rows interpolation.
+    &-wrap {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows var(--wr-transition-base);
+    }
+
+    &--collapsed &-wrap {
+      grid-template-rows: 0fr;
+    }
+
     &-body {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
       padding: 0.25rem 0 0.5rem 0.5rem;
+      min-height: 0;
+      overflow: hidden;
     }
   }
 
