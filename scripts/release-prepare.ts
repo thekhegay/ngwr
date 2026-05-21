@@ -49,7 +49,7 @@ if (!next) {
 
 writeVersion(next);
 info(`✓ Bumped ${current} → ${next}`);
-info('✓ Synced showcase NGWR_VERSION');
+info('✓ Synced WR_VERSION in projects/lib/version/wr-version.ts');
 
 regenerateChangelog();
 info('✓ CHANGELOG.md updated');
