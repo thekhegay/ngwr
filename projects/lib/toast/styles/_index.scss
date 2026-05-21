@@ -7,10 +7,12 @@ $toast-colors: (
   danger: danger,
 );
 
+// Toast pane stays zero-sized so the CDK global wrapper around it doesn't
+// swallow clicks on the rest of the page. The actual toast stack is rendered
+// by `.wr-toast-host` below, which is `position: fixed` and therefore lays
+// itself out against the viewport, not this pane.
 .wr-toast-overlay {
   pointer-events: none;
-  width: 100%;
-  height: 100%;
 }
 
 .wr-toast-host {
