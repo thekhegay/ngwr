@@ -23,6 +23,10 @@ export default [
     loadComponent: () => import('./badge/badge.component'),
   },
   {
+    path: components.breadcrumbs,
+    loadComponent: () => import('./breadcrumbs/breadcrumbs.component'),
+  },
+  {
     path: components.button,
     loadComponent: () => import('./button/button.component'),
   },
@@ -33,6 +37,10 @@ export default [
   {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox.component'),
+  },
+  {
+    path: components.collapse,
+    loadComponent: () => import('./collapse/collapse.component'),
   },
   {
     path: components.dialog,
@@ -75,6 +83,10 @@ export default [
     loadComponent: () => import('./radio/radio.component'),
   },
   {
+    path: components.segmented,
+    loadComponent: () => import('./segmented/segmented.component'),
+  },
+  {
     path: components.select,
     loadComponent: () => import('./select/select.component'),
   },
@@ -87,8 +99,16 @@ export default [
     loadComponent: () => import('./spinner/spinner.component'),
   },
   {
+    path: components.switch,
+    loadComponent: () => import('./switch/switch.component'),
+  },
+  {
     path: components.table,
     loadComponent: () => import('./table/table.component'),
+  },
+  {
+    path: components.tabs,
+    loadComponent: () => import('./tabs/tabs.component'),
   },
   {
     path: components.tag,

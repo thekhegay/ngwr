@@ -18,4 +18,8 @@ export default [
     path: core.grid,
     loadComponent: () => import('./grid/grid.component'),
   },
+  {
+    path: core.utils,
+    loadComponent: () => import('./utils/utils.component'),
+  },
 ] satisfies Routes;
