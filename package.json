@@ -2,6 +2,7 @@
   "name": "ngwr-workspace",
   "version": "0.0.0-NOT-USED",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "ng serve --o",
     "test": "ng test",
