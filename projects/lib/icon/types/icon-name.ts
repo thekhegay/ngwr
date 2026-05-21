@@ -131,5 +131,4 @@ export type WrBuiltInIconName =
  * The `string & {}` intersection preserves autocomplete for
  * built-in names while accepting any custom string.
  */
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type WrIconName = WrBuiltInIconName | (string & {});

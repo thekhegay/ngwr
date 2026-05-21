@@ -5,10 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { Provider } from '@angular/core';
+import { type Provider, isDevMode } from '@angular/core';
 
 import { WR_ICONS } from '../tokens';
 import type { WrIcon } from '../types';
+import { validateIcon } from '../utils';
 
 /**
  * Registers a set of icons for use by `<wr-icon>`.
@@ -17,6 +18,10 @@ import type { WrIcon } from '../types';
  * Works at both the application root and at the component level,
  * so a feature module or a single component can bring its own icons
  * without polluting the global config.
+ *
+ * In dev mode, each icon is validated for common issues (missing
+ * `viewBox`, malformed root). Validation is dropped from production
+ * builds via `isDevMode()` tree-shaking.
  *
  * @example
  * ```ts
@@ -45,5 +50,8 @@ import type { WrIcon } from '../types';
  * ```
  */
 export function provideWrIcons(icons: WrIcon[]): Provider[] {
+  if (isDevMode()) {
+    for (const icon of icons) validateIcon(icon);
+  }
   return [{ provide: WR_ICONS, useValue: icons, multi: true }];
 }
