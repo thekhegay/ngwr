@@ -73,6 +73,9 @@
     "./divider": {
       "sass": "./divider/styles/_index.scss"
     },
+    "./drawer": {
+      "sass": "./drawer/styles/_index.scss"
+    },
     "./dropdown": {
       "sass": "./dropdown/styles/_index.scss"
     },
@@ -85,8 +88,15 @@
     "./input": {
       "sass": "./input/styles/_index.scss"
     },
+    "./overlay": {},
     "./pagination": {
       "sass": "./pagination/styles/_index.scss"
+    },
+    "./popconfirm": {
+      "sass": "./popconfirm/styles/_index.scss"
+    },
+    "./popover": {
+      "sass": "./popover/styles/_index.scss"
     },
     "./progress": {
       "sass": "./progress/styles/_index.scss"
@@ -123,6 +133,12 @@
     },
     "./textarea": {
       "sass": "./textarea/styles/_index.scss"
+    },
+    "./toast": {
+      "sass": "./toast/styles/_index.scss"
+    },
+    "./tooltip": {
+      "sass": "./tooltip/styles/_index.scss"
     }
   }
 }

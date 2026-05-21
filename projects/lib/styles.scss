@@ -24,11 +24,14 @@
 @forward './collapse/styles';
 @forward './dialog/styles';
 @forward './divider/styles';
+@forward './drawer/styles';
 @forward './dropdown/styles';
 @forward './form/styles';
 @forward './icon/styles';
 @forward './input/styles';
 @forward './pagination/styles';
+@forward './popconfirm/styles';
+@forward './popover/styles';
 @forward './progress/styles';
 @forward './qr/styles';
 @forward './radio/styles';
@@ -41,3 +44,5 @@
 @forward './tabs/styles';
 @forward './tag/styles';
 @forward './textarea/styles';
+@forward './toast/styles';
+@forward './tooltip/styles';
