@@ -1,0 +1,53 @@
+<ngwr-doc-page
+  title="Popover"
+  description="Anchored content panel. Project any template; click or hover to open. Built on CDK Overlay."
+  [keywords]="['popover', 'wr-popover', 'overlay']"
+  [labels]="['Directive', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-btn color="primary" [wrPopover]="info">Details</wr-btn>
+
+      <ng-template #info>
+        <div style="padding: 1rem; max-width: 18rem">
+          <p style="margin: 0 0 0.375rem; font-weight: 600">About NGWR</p>
+          <p style="margin: 0; color: var(--wr-color-medium); font-size: 0.8125rem">
+            A signals-first Angular 21 component library. Pop anything in here — forms, code, summaries.
+          </p>
+        </div>
+      </ng-template>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Hover trigger">
+    <ngwr-doc-snippet [code]="snippets.hover">
+      <wr-btn [wrPopover]="card" trigger="hover">Hover me</wr-btn>
+
+      <ng-template #card>
+        <div style="padding: 0.875rem 1rem; color: var(--wr-color-medium); font-size: 0.8125rem">
+          Closes when the pointer leaves both trigger and panel.
+        </div>
+      </ng-template>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Positions">
+    <ngwr-doc-snippet [code]="snippets.positions">
+      <wr-btn [wrPopover]="hint" position="bottom-start">Bottom start</wr-btn>
+      <wr-btn [wrPopover]="hint" position="top-end">Top end</wr-btn>
+      <wr-btn [wrPopover]="hint" position="right">Right</wr-btn>
+
+      <ng-template #hint>
+        <div style="padding: 0.625rem 0.875rem; font-size: 0.8125rem">CDK auto-flips if there's no room.</div>
+      </ng-template>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

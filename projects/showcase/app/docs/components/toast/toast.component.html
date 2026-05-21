@@ -1,0 +1,47 @@
+<ngwr-doc-page
+  title="Toast"
+  description="Stack of dismissible notifications anchored to a viewport corner. Service-driven; rendered in a single shared CDK overlay."
+  [keywords]="['toast', 'notification', 'wr-toast']"
+  [labels]="['Service', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Show a toast">
+    <ngwr-doc-code [code]="snippets.show" language="typescript" />
+
+    <ngwr-doc-snippet code="toast.show(...)">
+      <wr-btn (click)="fire('info')">Info</wr-btn>
+      <wr-btn color="success" (click)="fire('success')">Success</wr-btn>
+      <wr-btn color="warning" (click)="fire('warning')">Warning</wr-btn>
+      <wr-btn color="danger" (click)="fire('danger')">Danger</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Persistent toast"
+    description="Pass `duration: 0` to disable auto-dismiss — the user closes it manually."
+  >
+    <ngwr-doc-code [code]="snippets.persistent" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <wr-btn color="warning" (click)="firePersistent()">Open persistent</wr-btn>
+      <wr-btn outlined (click)="dismissAll()">Dismiss all</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Position" description="Switch the corner toasts open in.">
+    <ngwr-doc-code [code]="snippets.position" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <wr-segmented [options]="positionOptions" [value]="position()" (valueChange)="onPositionChange($event)" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Service API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrToastConfig">
+    <ngwr-doc-api [rows]="configApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
