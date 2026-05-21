@@ -1,20 +1,28 @@
-<aside class="ngwr-sidebar__wrapper">
-  @for (item of items; track $index) {
-    @if (item.isCategory) {
-      <div class="ngwr-sidebar-item">
-        <span class="ngwr-sidebar-item__title">{{ item.title }}</span>
-        <div class="ngwr-sidebar-item__list">
-          @for (link of item.children; track $index) {
-            <a
-              class="ngwr-sidebar-item__link"
-              [routerLink]="link.url!"
-              routerLinkActive="ngwr-sidebar-item__link--active"
-            >
-              {{ link.title }}
-            </a>
-          }
-        </div>
-      </div>
-    }
+<nav class="ngwr-sidebar__inner" aria-label="Documentation">
+  @for (group of groups; track group.title) {
+    <section class="ngwr-sidebar__group">
+      <h3 class="ngwr-sidebar__group-title">{{ group.title }}</h3>
+      <ul class="ngwr-sidebar__list">
+        @for (link of group.children; track link.title) {
+          <li>
+            @if (link.disabled || !link.url) {
+              <span class="ngwr-sidebar__link ngwr-sidebar__link--disabled" aria-disabled="true">
+                {{ link.title }}
+                <small class="ngwr-sidebar__badge">soon</small>
+              </span>
+            } @else {
+              <a
+                class="ngwr-sidebar__link"
+                routerLinkActive="ngwr-sidebar__link--active"
+                [routerLink]="link.url"
+                (click)="onLinkClick()"
+              >
+                {{ link.title }}
+              </a>
+            }
+          </li>
+        }
+      </ul>
+    </section>
   }
-</aside>
+</nav>

@@ -1,32 +1,25 @@
 .ngwr-footer {
-  grid-column: 1 / 4;
-  border-top: 1px solid var(--wr-color-light-lighter);
-  background-color: var(--wr-color-white);
-  z-index: 10;
+  display: block;
+  border-top: 1px solid var(--wr-color-light);
+  background: var(--wr-color-white);
 
-  &__wrapper {
+  &__inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1.5rem;
+    color: var(--wr-color-medium);
+    font-size: 0.75rem;
+    line-height: 1rem;
   }
 
-  &__item {
-    --ngwr-footer-item-color: var(--wr-color-medium);
+  &__version {
+    color: var(--wr-color-medium);
+    transition: color var(--wr-transition-base);
 
-    color: var(--ngwr-footer-item-color);
-    font-size: 0.75rem;
-    font-weight: 400;
-    line-height: 1rem;
-
-    padding-top: calc(var(--wr-grid-gutter) / 2);
-    padding-bottom: calc(var(--wr-grid-gutter) / 2);
-
-    transition: var(--wr-transition-base);
-
-    &--link {
-      &:hover {
-        --ngwr-footer-item-color: var(--wr-color-primary);
-      }
+    &:hover {
+      color: var(--wr-color-primary);
     }
   }
 }

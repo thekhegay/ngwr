@@ -1,98 +1,77 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  HostBinding,
-  inject,
-  InjectionToken,
-  OnInit,
-  ViewEncapsulation,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { BehaviorSubject, takeUntil } from 'rxjs';
+import { LayoutState } from '../layout-state.service';
 
-import { WrAbstractBase } from 'ngwr/cdk';
-import { SafeAny } from 'ngwr/cdk/types';
+type SidebarLink = {
+  readonly title: string;
+  readonly url?: string[];
+  /** Mark items not yet migrated — rendered as plain disabled rows. */
+  readonly disabled?: boolean;
+};
 
-import { HEADER_HEIGHT } from '#core/components';
-import { routes } from '#routing';
-
-interface SidebarItem {
-  title: string;
-  url?: string[];
-  isCategory?: boolean;
-  children?: SidebarItem[];
-}
-
-export const SIDEBAR_OPENED = new InjectionToken<BehaviorSubject<boolean>>('ngwr_showcase_sidebar_opened');
+type SidebarGroup = {
+  readonly title: string;
+  readonly children: readonly SidebarLink[];
+};
 
 @Component({
-  standalone: true,
   selector: 'ngwr-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'ngwr-sidebar',
+    '[class.ngwr-sidebar--opened]': 'layoutState.sidebarOpen()',
+  },
   imports: [RouterLink, RouterLinkActive],
 })
-export class SidebarComponent extends WrAbstractBase implements OnInit {
-  @HostBinding('style.height') height = 'calc(100vh - 0)';
-  @HostBinding('style.top') styleTop = '0px';
+export class SidebarComponent {
+  protected readonly layoutState = inject(LayoutState);
 
-  private readonly sidebarOpened$ = inject(SIDEBAR_OPENED);
-  private readonly headerHeight$ = inject(HEADER_HEIGHT);
-
-  protected readonly isSidebarOpened = toSignal(this.sidebarOpened$);
-
-  protected readonly items: SidebarItem[] = [
+  protected readonly groups: readonly SidebarGroup[] = [
     {
       title: 'Getting started',
-      isCategory: true,
-      children: [
-        { title: 'Installation', url: [routes.docs.gettingStarted.index, routes.docs.gettingStarted.installation] },
-      ],
+      children: [{ title: 'Installation', url: ['/docs', 'getting-started', 'installation'] }],
     },
     {
       title: 'Components',
-      isCategory: true,
       children: [
-        { title: 'Alert', url: [routes.docs.components.index, routes.docs.components.alert] },
-        { title: 'Avatar', url: [routes.docs.components.index, routes.docs.components.avatar] },
-        { title: 'Button', url: [routes.docs.components.index, routes.docs.components.button] },
-        { title: 'Button Group', url: [routes.docs.components.index, routes.docs.components.buttonGroup] },
-        { title: 'Checkbox', url: [routes.docs.components.index, routes.docs.components.checkbox] },
-        { title: 'Dialog', url: [routes.docs.components.index, routes.docs.components.dialog] },
-        { title: 'Divider', url: [routes.docs.components.index, routes.docs.components.divider] },
-        { title: 'Dropdown', url: [routes.docs.components.index, routes.docs.components.dropdown] },
-        { title: 'Form', url: [routes.docs.components.index, routes.docs.components.form] },
-        { title: 'Icon', url: [routes.docs.components.index, routes.docs.components.icon] },
-        { title: 'Input', url: [routes.docs.components.index, routes.docs.components.input] },
-        { title: 'Pagination', url: [routes.docs.components.index, routes.docs.components.pagination] },
-        { title: 'Progress', url: [routes.docs.components.index, routes.docs.components.progress] },
-        { title: 'QR', url: [routes.docs.components.index, routes.docs.components.qrCode] },
-        { title: 'Select', url: [routes.docs.components.index, routes.docs.components.select] },
-        { title: 'Skeleton', url: [routes.docs.components.index, routes.docs.components.skeleton] },
-        { title: 'Spinner', url: [routes.docs.components.index, routes.docs.components.spinner] },
-        { title: 'Table', url: [routes.docs.components.index, routes.docs.components.table] },
-        { title: 'Tag', url: [routes.docs.components.index, routes.docs.components.tag] },
-        { title: 'Textarea', url: [routes.docs.components.index, routes.docs.components.textarea] },
+        { title: 'Alert', url: ['/docs', 'components', 'alert'] },
+        { title: 'Avatar', url: ['/docs', 'components', 'avatar'] },
+        { title: 'Badge', url: ['/docs', 'components', 'badge'] },
+        { title: 'Button', url: ['/docs', 'components', 'button'] },
+        { title: 'Button Group', url: ['/docs', 'components', 'button-group'] },
+        { title: 'Checkbox', url: ['/docs', 'components', 'checkbox'] },
+        { title: 'Dialog', url: ['/docs', 'components', 'dialog'] },
+        { title: 'Divider', url: ['/docs', 'components', 'divider'] },
+        { title: 'Dropdown', url: ['/docs', 'components', 'dropdown'] },
+        { title: 'Form', url: ['/docs', 'components', 'form'] },
+        { title: 'Icon', url: ['/docs', 'components', 'icon'] },
+        { title: 'Input', url: ['/docs', 'components', 'input'] },
+        { title: 'Pagination', url: ['/docs', 'components', 'pagination'] },
+        { title: 'Progress', url: ['/docs', 'components', 'progress'] },
+        { title: 'QR', url: ['/docs', 'components', 'qrcode'] },
+        { title: 'Radio', url: ['/docs', 'components', 'radio'] },
+        { title: 'Select', url: ['/docs', 'components', 'select'] },
+        { title: 'Skeleton', url: ['/docs', 'components', 'skeleton'] },
+        { title: 'Spinner', url: ['/docs', 'components', 'spinner'] },
+        { title: 'Table', url: ['/docs', 'components', 'table'] },
+        { title: 'Tag', url: ['/docs', 'components', 'tag'] },
+        { title: 'Textarea', url: ['/docs', 'components', 'textarea'] },
+      ],
+    },
+    {
+      title: 'Core',
+      children: [
+        { title: 'Color', url: ['/docs', 'core', 'color'] },
+        { title: 'Grid', url: ['/docs', 'core', 'grid'] },
       ],
     },
   ];
 
-  @HostBinding('class')
-  get elClasses(): SafeAny {
-    return {
-      'ngwr-sidebar': true,
-      'ngwr-sidebar--opened': this.isSidebarOpened(),
-    };
-  }
-
-  ngOnInit(): void {
-    this.headerHeight$.pipe(takeUntil(this.destroyed$)).subscribe(h => {
-      this.height = `calc(100vh - ${h}px`;
-      this.styleTop = `${h}px`;
-    });
+  protected onLinkClick(): void {
+    this.layoutState.closeSidebar();
   }
 }

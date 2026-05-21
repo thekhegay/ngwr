@@ -1,1 +1,20 @@
-<router-outlet />
+<ngwr-header />
+
+<div class="ngwr-layout__body">
+  <ngwr-sidebar />
+
+  <main class="ngwr-layout__main">
+    <router-outlet />
+  </main>
+</div>
+
+<ngwr-footer />
+
+@if (layoutState.sidebarOpen()) {
+  <button
+    type="button"
+    class="ngwr-layout__backdrop"
+    aria-label="Close navigation"
+    (click)="onBackdropClick()"
+  ></button>
+}
