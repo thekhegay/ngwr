@@ -1,0 +1,65 @@
+@use '../../theme/styles' as theme;
+
+.wr-textarea {
+  display: block;
+  position: relative;
+
+  // Defaults
+  --wr-textarea-color: var(--wr-color-dark);
+  --wr-textarea-placeholder: rgba(var(--wr-color-medium-rgb), 0.7);
+  --wr-textarea-bg: var(--wr-color-white);
+  --wr-textarea-border: var(--wr-color-light);
+  --wr-textarea-radius: var(--wr-border-radius-base);
+  --wr-textarea-ring: transparent;
+  --wr-textarea-padding-y: 0.5rem;
+  --wr-textarea-padding-x: 0.75rem;
+  --wr-textarea-font-size: 0.875rem;
+  --wr-textarea-line-height: 1.375rem;
+
+  background: var(--wr-textarea-bg);
+  color: var(--wr-textarea-color);
+  border: 1px solid var(--wr-textarea-border);
+  border-radius: var(--wr-textarea-radius);
+  box-shadow: 0 0 0 3px var(--wr-textarea-ring);
+  transition: border-color var(--wr-transition-base), box-shadow var(--wr-transition-base),
+    background var(--wr-transition-base);
+
+  &--focused {
+    --wr-textarea-border: var(--wr-color-primary);
+    --wr-textarea-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+  }
+
+  &--disabled {
+    --wr-textarea-color: var(--wr-color-medium);
+    --wr-textarea-bg: rgba(var(--wr-color-light-rgb), 0.35);
+    cursor: not-allowed;
+  }
+
+  &--no-resize &__native {
+    resize: none;
+  }
+
+  &__native {
+    display: block;
+    width: 100%;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    margin: 0;
+    color: inherit;
+    font-family: var(--wr-font-family-base);
+    font-size: var(--wr-textarea-font-size);
+    line-height: var(--wr-textarea-line-height);
+    padding: var(--wr-textarea-padding-y) var(--wr-textarea-padding-x);
+    resize: vertical;
+
+    &::placeholder {
+      color: var(--wr-textarea-placeholder);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}

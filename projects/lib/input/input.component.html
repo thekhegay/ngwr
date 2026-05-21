@@ -1,0 +1,30 @@
+@if (prefix(); as text) {
+  <span class="wr-input__affix wr-input__affix--prefix">{{ text }}</span>
+}
+
+<input
+  class="wr-input__native"
+  [type]="effectiveType()"
+  [placeholder]="placeholder()"
+  [readonly]="readonly()"
+  [disabled]="effectiveDisabled()"
+  [value]="value()"
+  (input)="onInput($event)"
+  (focus)="focused.set(true)"
+  (blur)="onBlur()"
+/>
+
+@if (type() === 'password' && passwordToggle()) {
+  <button
+    type="button"
+    class="wr-input__toggle"
+    [attr.aria-label]="passwordRevealed() ? 'Hide password' : 'Show password'"
+    [attr.aria-pressed]="passwordRevealed()"
+    [disabled]="effectiveDisabled()"
+    (click)="togglePassword()"
+  >
+    <wr-icon [name]="passwordRevealed() ? 'eye-off' : 'eye'" />
+  </button>
+} @else if (suffix(); as text) {
+  <span class="wr-input__affix wr-input__affix--suffix">{{ text }}</span>
+}

@@ -1,0 +1,28 @@
+<label class="wr-checkbox__label" [for]="id()">
+  <input
+    class="wr-checkbox__input"
+    type="checkbox"
+    [id]="id()"
+    [checked]="checked()"
+    [disabled]="effectiveDisabled()"
+    (change)="onInputChange($event)"
+    (blur)="onInputBlur()"
+  />
+
+  <span class="wr-checkbox__box" aria-hidden="true">
+    <svg viewBox="0 0 16 16" class="wr-checkbox__mark">
+      <polyline
+        points="3.5 8.5 6.5 11.5 12.5 5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </span>
+
+  <span class="wr-checkbox__text">
+    <ng-content />
+  </span>
+</label>

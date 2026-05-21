@@ -1,0 +1,112 @@
+@use '../../theme/styles' as theme;
+
+.wr-input {
+  display: inline-flex;
+  align-items: stretch;
+  vertical-align: middle;
+  position: relative;
+
+  // Defaults — modifiers override
+  --wr-input-color: var(--wr-color-dark);
+  --wr-input-placeholder: rgba(var(--wr-color-medium-rgb), 0.7);
+  --wr-input-bg: var(--wr-color-white);
+  --wr-input-border: var(--wr-color-light);
+  --wr-input-affix: var(--wr-color-medium);
+  --wr-input-radius: var(--wr-border-radius-base);
+  --wr-input-ring: transparent;
+  --wr-input-padding-y: 0.4375rem;
+  --wr-input-padding-x: 0.75rem;
+  --wr-input-font-size: 0.875rem;
+  --wr-input-line-height: 1.25rem;
+  --wr-input-toggle-size: 1rem;
+
+  color: var(--wr-input-color);
+  background: var(--wr-input-bg);
+  border: 1px solid var(--wr-input-border);
+  border-radius: var(--wr-input-radius);
+  box-shadow: 0 0 0 3px var(--wr-input-ring);
+  font-family: var(--wr-font-family-base);
+  font-size: var(--wr-input-font-size);
+  line-height: var(--wr-input-line-height);
+  transition: border-color var(--wr-transition-base), box-shadow var(--wr-transition-base),
+    background var(--wr-transition-base);
+
+  &--rounded {
+    --wr-input-radius: var(--wr-border-radius-pill);
+    --wr-input-padding-x: 1rem;
+  }
+
+  &--focused {
+    --wr-input-border: var(--wr-color-primary);
+    --wr-input-ring: rgba(var(--wr-color-primary-rgb), 0.15);
+  }
+
+  &--disabled {
+    --wr-input-color: var(--wr-color-medium);
+    --wr-input-bg: rgba(var(--wr-color-light-rgb), 0.35);
+    cursor: not-allowed;
+
+    .wr-input__native {
+      cursor: not-allowed;
+    }
+  }
+
+  &__native {
+    flex: 1 1 auto;
+    min-width: 0;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    padding: var(--wr-input-padding-y) var(--wr-input-padding-x);
+
+    &::placeholder {
+      color: var(--wr-input-placeholder);
+    }
+  }
+
+  &--has-prefix &__native {
+    padding-left: 0.25rem;
+  }
+  &--has-suffix &__native {
+    padding-right: 0.25rem;
+  }
+
+  &__affix {
+    display: inline-flex;
+    align-items: center;
+    color: var(--wr-input-affix);
+    padding: 0 var(--wr-input-padding-x);
+    user-select: none;
+    pointer-events: none;
+    font-weight: 500;
+  }
+
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0 var(--wr-input-padding-x);
+    color: var(--wr-input-affix);
+    cursor: pointer;
+    transition: color var(--wr-transition-base);
+
+    --wr-icon-size: var(--wr-input-toggle-size);
+
+    &:hover:not(:disabled) {
+      color: var(--wr-color-primary);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}

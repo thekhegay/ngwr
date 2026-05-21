@@ -1,0 +1,88 @@
+@use '../../theme/styles' as theme;
+
+.wr-radio {
+  --wr-radio-size: 1.125rem;
+  --wr-radio-bg: var(--wr-color-white);
+  --wr-radio-border: var(--wr-color-light);
+  --wr-radio-dot: transparent;
+  --wr-radio-color: var(--wr-color-dark);
+
+  display: inline-flex;
+  vertical-align: middle;
+  color: var(--wr-radio-color);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+
+    &:focus-visible + .wr-radio__dot {
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.2);
+    }
+  }
+
+  &__dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: var(--wr-radio-size);
+    height: var(--wr-radio-size);
+    background: var(--wr-radio-bg);
+    border: 1px solid var(--wr-radio-border);
+    border-radius: 50%;
+    transition: var(--wr-transition-base);
+
+    &::after {
+      content: '';
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--wr-radio-dot);
+      transform: scale(0);
+      transition: transform var(--wr-transition-base);
+    }
+  }
+
+  &__label:hover &__dot {
+    --wr-radio-border: var(--wr-color-primary);
+  }
+
+  &--checked {
+    --wr-radio-border: var(--wr-color-primary);
+    --wr-radio-dot: var(--wr-color-primary);
+
+    .wr-radio__dot::after {
+      transform: scale(1);
+    }
+  }
+
+  &--disabled {
+    --wr-radio-color: var(--wr-color-medium);
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}
+
+.wr-radio-group {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
