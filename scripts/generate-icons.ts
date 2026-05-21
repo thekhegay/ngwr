@@ -6,11 +6,18 @@
  * Usage:
  *   pnpm tsx scripts/generate-icons.ts
  *
- * Input:  projects/lib/icon/_svg/*.svg
- * Output: projects/lib/icon/icons.ts
+ * Inputs:
+ *   - projects/lib/icon/_svg/*.svg     — icon sources
+ *   - projects/lib/icon/_svg/_tags.json — { [kebab]: string[] } search tags (showcase only)
+ *
+ * Outputs:
+ *   - projects/lib/icon/icons/*.ts                              — pure icon data (lib bundle)
+ *   - projects/lib/icon/types/icon-name.ts                      — name union (lib bundle)
+ *   - projects/showcase/app/docs/components/icon/_data/icon-tags.generated.ts
+ *                                                               — search tags (showcase only)
  */
 
-import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 
 import { type Config, optimize } from 'svgo';
@@ -18,8 +25,11 @@ import { type Config, optimize } from 'svgo';
 // Config
 const ROOT = resolve(__dirname, '..');
 const SVG_DIR = join(ROOT, 'projects/lib/icon/_svg');
+const TAGS_FILE = join(SVG_DIR, '_tags.json');
 const ICONS_DIR = join(ROOT, 'projects/lib/icon/icons');
 const TYPES_DIR = join(ROOT, 'projects/lib/icon/types');
+const SHOWCASE_DATA_DIR = join(ROOT, 'projects/showcase/app/docs/components/icon/_data');
+const SHOWCASE_TAGS_FILE = join(SHOWCASE_DATA_DIR, 'icon-tags.generated.ts');
 
 const LICENSE = `/**
  * @license
@@ -103,7 +113,6 @@ ${names};
  * The \`string & {}\` intersection preserves autocomplete for
  * built-in names while accepting any custom string.
  */
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type WrIconName = WrBuiltInIconName | (string & {});
 `;
 
@@ -121,14 +130,72 @@ function writeIconFile(icon: Icon): void {
   writeFileSync(join(ICONS_DIR, `${icon.kebab}.ts`), content, 'utf-8');
 }
 
+function readTags(): Record<string, string[]> {
+  if (!existsSync(TAGS_FILE)) {
+    console.warn(`[icons] _tags.json not found at ${TAGS_FILE} — emitting empty tag map.`);
+    return {};
+  }
+  const raw = readFileSync(TAGS_FILE, 'utf-8');
+  return JSON.parse(raw) as Record<string, string[]>;
+}
+
+function writeShowcaseTags(icons: Icon[], tags: Record<string, string[]>): void {
+  const known = new Set(icons.map(i => i.kebab));
+
+  // Warn on stale entries
+  for (const key of Object.keys(tags)) {
+    if (!known.has(key)) {
+      console.warn(`[icons] _tags.json: '${key}' has no matching SVG — entry will be dropped.`);
+    }
+  }
+
+  // Warn on icons missing tags
+  const missing = icons.filter(i => !tags[i.kebab]).map(i => i.kebab);
+  if (missing.length) {
+    console.warn(`[icons] ${missing.length} icon(s) without tags: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}`);
+  }
+
+  const entries = icons
+    .map(i => {
+      const list = tags[i.kebab] ?? [];
+      const arr = list.map(t => `'${t.replace(/'/g, "\\'")}'`).join(', ');
+      // Quote keys only when they aren't valid identifiers (kebab-case needs quotes).
+      const key = /^[A-Za-z_$][\w$]*$/.test(i.kebab) ? i.kebab : `'${i.kebab}'`;
+      return `  ${key}: [${arr}],`;
+    })
+    .join('\n');
+
+  const content = `${LICENSE}\n${AUTOGEN}/* eslint-disable */\n
+import type { WrBuiltInIconName } from 'ngwr/icon';
+
+/**
+ * Search tags for the built-in icon set.
+ *
+ * Showcase-only — kept out of the published library so end-user bundles
+ * don't pay for it. Source of truth: \`projects/lib/icon/_svg/_tags.json\`.
+ */
+export const iconTags: Record<WrBuiltInIconName, readonly string[]> = {
+${entries}
+};
+`;
+
+  mkdirSync(SHOWCASE_DATA_DIR, { recursive: true });
+  writeFileSync(SHOWCASE_TAGS_FILE, content, 'utf-8');
+}
+
 function writeIconsIndex(icons: Icon[]): void {
-  const exports = icons.map(i => `export { ${i.camel} } from './${i.kebab}';`).join('\n');
-  const imports = icons.map(i => `import { ${i.camel} } from './${i.kebab}';`).join('\n');
-  const all = icons.map(i => i.camel).join(', ');
+  // Sort by camel name so the output matches `import-x/order` (alphabetical).
+  const sorted = [...icons].sort((a, b) => a.camel.localeCompare(b.camel));
+
+  const imports = sorted.map(i => `import { ${i.camel} } from './${i.kebab}';`).join('\n');
+  const exports = sorted.map(i => `export { ${i.camel} } from './${i.kebab}';`).join('\n');
+  const setMembers = sorted.map(i => `  ${i.camel},`).join('\n');
 
   const content =
-    `${AUTOGEN}\n${exports}\n\n${imports}\n\n` +
+    `${AUTOGEN}\n` +
     `import type { WrIcon } from '../types';\n\n` +
+    `${imports}\n\n` +
+    `${exports}\n\n` +
     `/**\n` +
     ` * Complete set of built-in icons.\n` +
     ` *\n` +
@@ -136,7 +203,7 @@ function writeIconsIndex(icons: Icon[]): void {
     ` * individual icons by name for tree-shaking. Use \`wrIconSet\` only for\n` +
     ` * icon pickers, documentation pages, or similar exhaustive listings.\n` +
     ` */\n` +
-    `export const wrIconSet: WrIcon[] = [${all}];\n`;
+    `export const wrIconSet: WrIcon[] = [\n${setMembers}\n];\n`;
 
   writeFileSync(join(ICONS_DIR, 'index.ts'), content, 'utf-8');
 }
@@ -148,9 +215,12 @@ mkdirSync(ICONS_DIR, { recursive: true });
 mkdirSync(TYPES_DIR, { recursive: true });
 
 const icons = collectIcons();
+const tags = readTags();
 
 writeIconNameType(icons);
 for (const icon of icons) writeIconFile(icon);
 writeIconsIndex(icons);
+writeShowcaseTags(icons, tags);
 
 console.log(`Generated ${icons.length} icons → ${ICONS_DIR}`);
+console.log(`Generated tag map → ${SHOWCASE_TAGS_FILE}`);
