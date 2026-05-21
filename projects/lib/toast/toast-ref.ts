@@ -5,16 +5,16 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrToastConfig } from './types';
+import type { WrToastOptions } from './types';
 
 /**
  * Handle returned by `WrToastService.show()`. Call `dismiss()` to remove
- * the toast early. Read `id` to track it.
+ * the toast early. Inspect `options` to see what the caller requested.
  */
 export class WrToastRef {
   constructor(
     readonly id: number,
-    readonly config: WrToastConfig,
+    readonly options: WrToastOptions,
     private readonly onDismiss: (id: number) => void
   ) {}
 

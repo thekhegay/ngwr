@@ -67,6 +67,7 @@ $toast-colors: (
   --wr-toast-title: var(--wr-color-dark);
   --wr-toast-message: var(--wr-color-medium);
 
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
@@ -75,9 +76,12 @@ $toast-colors: (
   border: 1px solid var(--wr-toast-border);
   border-left: 3px solid var(--wr-toast-accent);
   border-radius: var(--wr-border-radius-base);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
   font-family: var(--wr-font-family-base);
   animation: wr-toast-in 0.18s ease-out;
+  overflow: hidden;
 
   &__body {
     flex: 1 1 auto;
@@ -100,8 +104,14 @@ $toast-colors: (
     word-wrap: break-word;
   }
 
-  &__close {
+  &__actions {
     flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+  }
+
+  &__action {
     appearance: none;
     background: transparent;
     border: 0;
@@ -109,7 +119,9 @@ $toast-colors: (
     color: var(--wr-color-medium);
     cursor: pointer;
     border-radius: var(--wr-border-radius-sm);
-    transition: color var(--wr-transition-base), background var(--wr-transition-base);
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
 
     --wr-icon-size: 0.875rem;
 
@@ -117,6 +129,22 @@ $toast-colors: (
       color: var(--wr-color-dark);
       background: rgba(var(--wr-color-light-rgb), 0.5);
     }
+  }
+
+  &__progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    transform-origin: left;
+    background: var(--wr-toast-accent);
+    animation: wr-toast-progress linear forwards;
+    animation-duration: var(--wr-toast-duration, 4000ms);
+  }
+
+  &:hover &__progress {
+    animation-play-state: paused;
   }
 
   @each $variant, $color in $toast-colors {
@@ -135,4 +163,47 @@ $toast-colors: (
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes wr-toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.wr-toast-host__close-all {
+  align-self: flex-end;
+  pointer-events: auto;
+  appearance: none;
+  background: var(--wr-color-white);
+  border: 1px solid var(--wr-color-light);
+  border-radius: var(--wr-border-radius-pill);
+  padding: 0.1875rem 0.625rem;
+  color: var(--wr-color-medium);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition:
+    color var(--wr-transition-base),
+    background var(--wr-transition-base),
+    border-color var(--wr-transition-base);
+
+  &:hover {
+    color: var(--wr-color-dark);
+    border-color: var(--wr-color-medium);
+  }
+}
+
+// Bottom positions reverse so the close-all sits *above* the newest toast.
+.wr-toast-host--bottom .wr-toast-host__close-all,
+.wr-toast-host--bottom-start .wr-toast-host__close-all,
+.wr-toast-host--bottom-end .wr-toast-host__close-all {
+  order: 99;
+  align-self: flex-end;
 }

@@ -63,9 +63,9 @@ export class MyComponent {
 
   protected readonly api: readonly DocApiRow[] = [
     {
-      name: 'show(config)',
+      name: 'show(options)',
       description: 'Opens a toast and returns a handle (`dismiss()`).',
-      type: '(WrToastConfig) => WrToastRef',
+      type: '(WrToastOptions) => WrToastRef',
       default: '—',
     },
     { name: 'dismiss(id)', description: 'Removes a single toast by id.', type: '(number) => void', default: '—' },

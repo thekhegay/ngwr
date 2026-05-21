@@ -5,8 +5,32 @@
   <p class="wr-toast__message">{{ message() }}</p>
 </div>
 
-@if (dismissible()) {
-  <button type="button" class="wr-toast__close" aria-label="Dismiss" (click)="dismissed.emit()">
-    <wr-icon name="close" />
-  </button>
+<div class="wr-toast__actions">
+  @if (showCopy()) {
+    <button
+      type="button"
+      class="wr-toast__action"
+      [attr.aria-label]="justCopied() ? labels().copied : labels().copy"
+      [title]="justCopied() ? labels().copied : labels().copy"
+      (click)="onCopy()"
+    >
+      <wr-icon [name]="justCopied() ? 'checkmark' : 'copy'" />
+    </button>
+  }
+
+  @if (dismissible()) {
+    <button
+      type="button"
+      class="wr-toast__action"
+      [attr.aria-label]="labels().close"
+      [title]="labels().close"
+      (click)="dismissed.emit()"
+    >
+      <wr-icon name="close" />
+    </button>
+  }
+</div>
+
+@if (progressVisible()) {
+  <span class="wr-toast__progress" aria-hidden="true"></span>
 }

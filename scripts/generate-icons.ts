@@ -169,7 +169,7 @@ function writeShowcaseTags(icons: Icon[], tags: Record<string, string[]>): void 
     })
     .join('\n');
 
-  const content = `${LICENSE}\n${AUTOGEN}/* eslint-disable */\n
+  const content = `${LICENSE}\n${AUTOGEN}\n
 import type { WrBuiltInIconName } from 'ngwr/icon';
 
 /**

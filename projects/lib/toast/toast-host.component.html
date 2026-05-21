@@ -1,9 +1,21 @@
+@if (closeAllVisible()) {
+  <button type="button" class="wr-toast-host__close-all" (click)="dismissAllRequested.emit()">
+    {{ config().labels.closeAll }} ({{ toasts().length }})
+  </button>
+}
+
 @for (toast of toasts(); track toast.id) {
   <wr-toast
     [type]="toast.type ?? 'info'"
     [title]="toast.title ?? null"
     [message]="toast.message"
     [dismissible]="toast.dismissible ?? true"
+    [showProgress]="showProgressFor(toast)"
+    [showCopy]="showCopyFor(toast)"
+    [duration]="toast.resolvedDuration"
+    [labels]="config().labels"
     (dismissed)="dismissed.emit(toast.id)"
+    (pauseRequested)="pauseRequested.emit(toast.id)"
+    (resumeRequested)="resumeRequested.emit(toast.id)"
   />
 }
