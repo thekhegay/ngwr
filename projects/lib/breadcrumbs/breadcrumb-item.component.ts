@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -20,7 +21,7 @@ import { WR_BREADCRUMBS } from './tokens';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-breadcrumb-item' },
-  imports: [RouterLink],
+  imports: [NgTemplateOutlet, RouterLink],
 })
 export class WrBreadcrumbItemComponent {
   /** Optional router target. Omit on the current/last item. */
