@@ -5,9 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import type { WrColor } from '../theme';
+import type { WrColor } from 'ngwr/theme';
 
 import type { WrBadgeSize } from './types';
 
@@ -54,7 +55,7 @@ export class WrBadgeComponent {
    *
    * @default false
    */
-  readonly rounded = input(false, { transform: (v: boolean | string) => v === '' || v === true });
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
     const parts = ['wr-badge', `wr-badge--${this.color()}`];
