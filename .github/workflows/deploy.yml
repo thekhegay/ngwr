@@ -1,58 +1,42 @@
 name: Deploy showcase
 
 on:
-  pull_request:
-    branches:
-      - main
-    types:
-      - closed
+  push:
+    branches: [main]
 
 concurrency:
   group: deploy-ngwr-showcase
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
-    if: >
-      contains(github.head_ref, 'release/')
-      && contains(github.base_ref, 'main')
-      && github.event.action == 'closed'
-      && github.event.pull_request.merged == true
-
+  deploy:
+    name: Build & deploy showcase
+    # Only deploy when the head commit is a stable release.
+    if: startsWith(github.event.head_commit.message, 'chore(release): v')
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [24]
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
-          version: 10.21.0
+          version: 10.33.0
 
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          node-version: 24
+          cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install --frozen-lockfile
 
-      - name: Build showcase
-        run: pnpm build:showcase
+      - run: pnpm build:showcase
 
-      - name: Deploy
-        uses: easingthemes/ssh-deploy@main
+      - uses: easingthemes/ssh-deploy@main
         with:
           SCRIPT_BEFORE: ls
-          ARGS: "-rlgoDzvc -i"
+          ARGS: '-rlgoDzvc -i'
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SOURCE: "dist/showcase/"
+          SOURCE: 'dist/showcase/'
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
-          TARGET: "/var/www/ngwr-showcase/"
+          TARGET: '/var/www/ngwr-showcase/'

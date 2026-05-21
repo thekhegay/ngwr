@@ -1,50 +1,100 @@
 name: Publish
 
 on:
-  pull_request:
-    branches:
-      - main
-    types:
-      - closed
+  push:
+    branches: [main, next]
 
 concurrency:
-  group: publish-ngwr
+  group: publish-${{ github.ref }}
   cancel-in-progress: false
 
-jobs:
-  build-and-publish:
-    if: >
-      contains(github.head_ref, 'release/')
-      && contains(github.base_ref, 'main')
-      && github.event.action == 'closed'
-      && github.event.pull_request.merged == true
+permissions:
+  contents: write   # tag + create release
+  id-token: write   # npm publish --provenance via OIDC
 
+jobs:
+  detect:
+    name: Detect release commit
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.check.outputs.is_release }}
+      version: ${{ steps.check.outputs.version }}
+      tag: ${{ steps.check.outputs.tag }}
+      is_rc: ${{ steps.check.outputs.is_rc }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: check
+        name: Inspect head commit
+        run: |
+          subject=$(git log -1 --pretty=%s)
+          echo "Head subject: $subject"
+          if [[ "$subject" =~ ^chore\(release\):\ v([0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?)$ ]]; then
+            version="${BASH_REMATCH[1]}"
+            tag="v$version"
+            is_rc=$([[ "$version" == *-rc.* ]] && echo true || echo false)
+            echo "is_release=true"  >> "$GITHUB_OUTPUT"
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+            echo "tag=$tag"         >> "$GITHUB_OUTPUT"
+            echo "is_rc=$is_rc"     >> "$GITHUB_OUTPUT"
+          else
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    name: Tag, release & npm publish
+    needs: detect
+    if: needs.detect.outputs.is_release == 'true'
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [24]
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
         with:
-          version: 10.21.0
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
           registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install --frozen-lockfile
 
-      - name: Build and Publish to NPM
-        run: pnpm publish:lib
+      - run: pnpm build:lib
+
+      - name: Copy README and LICENSE into dist/lib
+        run: |
+          cp README.md  dist/lib/README.md
+          cp LICENSE    dist/lib/LICENSE
+
+      - name: Generate release body
+        run: pnpm release:body --output=.release-body.md
+
+      - name: Create git tag
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a "${{ needs.detect.outputs.tag }}" -m "Release ${{ needs.detect.outputs.tag }}"
+          git push origin "${{ needs.detect.outputs.tag }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.detect.outputs.tag }}
+          name: Release ${{ needs.detect.outputs.tag }}
+          body_path: .release-body.md
+          prerelease: ${{ needs.detect.outputs.is_rc == 'true' }}
+          make_latest: ${{ needs.detect.outputs.is_rc == 'false' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          tag=$([[ "${{ needs.detect.outputs.is_rc }}" == "true" ]] && echo "next" || echo "latest")
+          npm publish dist/lib --access public --provenance --tag "$tag"
