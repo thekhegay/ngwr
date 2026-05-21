@@ -22,7 +22,7 @@ jobs:
       tag: ${{ steps.check.outputs.tag }}
       is_rc: ${{ steps.check.outputs.is_rc }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - id: check
         name: Inspect head commit
@@ -48,16 +48,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
-          version: 10.33.0
+          version: 11.1.3
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
@@ -83,7 +83,7 @@ jobs:
           git push origin "${{ needs.detect.outputs.tag }}"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.detect.outputs.tag }}
           name: Release ${{ needs.detect.outputs.tag }}
