@@ -10,7 +10,11 @@
     (blur)="onBlur()"
   />
 
-  <span class="wr-radio__dot" aria-hidden="true"></span>
+  <span class="wr-radio__dot" aria-hidden="true">
+    @if (icon(); as iconName) {
+      <wr-icon class="wr-radio__icon" [name]="iconName" />
+    }
+  </span>
 
   <span class="wr-radio__text">
     <ng-content />

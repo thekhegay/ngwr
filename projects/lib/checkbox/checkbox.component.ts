@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { WrIconComponent, type WrIconName } from 'ngwr/icon';
 import { noop, randomId } from 'ngwr/utils';
 
 import { WR_CHECKBOX_GROUP } from './tokens';
@@ -51,6 +52,7 @@ import { WR_CHECKBOX_GROUP } from './tokens';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
+  imports: [WrIconComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -80,6 +82,12 @@ export class WrCheckboxComponent implements ControlValueAccessor {
    * @default false
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Optional icon name rendered inside the box when checked, in place of the
+   * default checkmark. Use any registered NGWR icon.
+   */
+  readonly icon = input<WrIconName | null>(null);
 
   private readonly group = inject(WR_CHECKBOX_GROUP, { optional: true });
 

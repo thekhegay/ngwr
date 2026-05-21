@@ -65,12 +65,35 @@
     --wr-radio-border: var(--wr-color-primary);
   }
 
+  &__icon {
+    --wr-icon-size: calc(var(--wr-radio-size) - 0.375rem);
+    color: var(--wr-color-primary-contrast);
+    opacity: 0;
+    transform: scale(0.7);
+    transition:
+      transform var(--wr-transition-base),
+      opacity var(--wr-transition-base);
+  }
+
+  &--has-icon &__dot::after {
+    display: none;
+  }
+
+  &--has-icon.wr-radio--checked {
+    --wr-radio-bg: var(--wr-color-primary);
+  }
+
   &--checked {
     --wr-radio-border: var(--wr-color-primary);
     --wr-radio-dot: var(--wr-color-primary);
 
     .wr-radio__dot::after {
       transform: scale(1);
+    }
+
+    .wr-radio__icon {
+      transform: scale(1);
+      opacity: 1;
     }
   }
 

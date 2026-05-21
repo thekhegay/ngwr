@@ -10,16 +10,20 @@
   />
 
   <span class="wr-checkbox__box" aria-hidden="true">
-    <svg viewBox="0 0 16 16" class="wr-checkbox__mark">
-      <polyline
-        points="3.5 8.5 6.5 11.5 12.5 5"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
+    @if (icon(); as iconName) {
+      <wr-icon class="wr-checkbox__icon" [name]="iconName" />
+    } @else {
+      <svg viewBox="0 0 16 16" class="wr-checkbox__mark">
+        <polyline
+          points="3.5 8.5 6.5 11.5 12.5 5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    }
   </span>
 
   <span class="wr-checkbox__text">

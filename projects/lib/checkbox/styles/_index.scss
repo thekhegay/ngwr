@@ -61,6 +61,15 @@
     transition: transform var(--wr-transition-base), opacity var(--wr-transition-base);
   }
 
+  &__icon {
+    --wr-icon-size: calc(var(--wr-checkbox-size) - 0.375rem);
+    opacity: 0;
+    transform: scale(0.7);
+    transition:
+      transform var(--wr-transition-base),
+      opacity var(--wr-transition-base);
+  }
+
   &__label:hover &__box {
     --wr-checkbox-border: var(--wr-color-primary);
   }
@@ -70,7 +79,8 @@
     --wr-checkbox-border: var(--wr-color-primary);
     --wr-checkbox-mark: var(--wr-color-primary-contrast);
 
-    .wr-checkbox__mark {
+    .wr-checkbox__mark,
+    .wr-checkbox__icon {
       transform: scale(1);
       opacity: 1;
     }

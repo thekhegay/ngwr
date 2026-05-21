@@ -7,6 +7,7 @@
 
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
+import { WrIconComponent, type WrIconName } from 'ngwr/icon';
 import { randomId } from 'ngwr/utils';
 
 import { WR_RADIO_GROUP } from './tokens';
@@ -31,6 +32,7 @@ import { WR_RADIO_GROUP } from './tokens';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
+  imports: [WrIconComponent],
 })
 export class WrRadioComponent {
   /** Stable id used to associate the native input with its label. */
@@ -38,6 +40,12 @@ export class WrRadioComponent {
 
   /** Value selected when this radio is checked. */
   readonly value = input.required<unknown>();
+
+  /**
+   * Optional icon name rendered inside the dot when checked, in place of the
+   * default solid circle. Use any registered NGWR icon.
+   */
+  readonly icon = input<WrIconName | null>(null);
 
   private readonly group = inject(WR_RADIO_GROUP, { optional: true });
 
@@ -55,6 +63,7 @@ export class WrRadioComponent {
     const parts = ['wr-radio'];
     if (this.checked()) parts.push('wr-radio--checked');
     if (this.disabled()) parts.push('wr-radio--disabled');
+    if (this.icon()) parts.push('wr-radio--has-icon');
     return parts.join(' ');
   });
 
