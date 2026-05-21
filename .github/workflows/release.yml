@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: 'Version bump'
+        description: 'Version bump (rc publishes to npm dist-tag `next`, everything else to `latest`)'
         required: true
         type: choice
         default: patch
@@ -22,21 +22,10 @@ jobs:
   release-pr:
     name: Cut release PR
     runs-on: ubuntu-latest
+    # Always cut releases from main — there is no separate release branch.
+    if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Validate branch / bump combination
-        run: |
-          ref="${{ github.ref_name }}"
-          bump="${{ inputs.bump }}"
-          if [ "$bump" = "rc" ] && [ "$ref" != "next" ]; then
-            echo "❌ rc releases must be cut from the 'next' branch (current: $ref)" >&2
-            exit 1
-          fi
-          if [ "$bump" != "rc" ] && [ "$ref" != "main" ]; then
-            echo "❌ $bump releases must be cut from 'main' (current: $ref)" >&2
-            exit 1
-          fi
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -70,7 +59,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: release/v${{ steps.prepare.outputs.version }}
-          base: ${{ github.ref_name }}
+          base: main
           delete-branch: true
           commit-message: 'chore(release): v${{ steps.prepare.outputs.version }}'
           title: 'chore(release): v${{ steps.prepare.outputs.version }}'

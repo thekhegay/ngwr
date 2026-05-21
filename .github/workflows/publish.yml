@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    branches: [main, next]
+    branches: [main]
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -10,7 +10,7 @@ concurrency:
 
 permissions:
   contents: write   # tag + create release
-  id-token: write   # npm publish --provenance via OIDC
+  id-token: write   # npm publish via Trusted Publisher OIDC
 
 jobs:
   detect:
@@ -62,7 +62,6 @@ jobs:
           node-version: 24
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
-          # No always-auth / token — publishes via npm Trusted Publisher (OIDC).
 
       - run: pnpm install --frozen-lockfile
 
@@ -94,7 +93,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Ensure npm CLI supports Trusted Publishing
-        # Trusted Publisher OIDC support landed in npm 11.5.1.
+        # OIDC support landed in npm 11.5.1.
         run: npm install -g npm@latest
 
       - name: Publish to npm (Trusted Publisher)

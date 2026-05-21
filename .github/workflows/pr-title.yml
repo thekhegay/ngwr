@@ -2,7 +2,7 @@ name: PR title
 
 on:
   pull_request:
-    branches: [main, next]
+    branches: [main]
     types: [opened, edited, synchronize, reopened]
 
 permissions:
@@ -17,7 +17,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Allowed types and scopes mirror our commit message convention.
           types: |
             feat
             fix

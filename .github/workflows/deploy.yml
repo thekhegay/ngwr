@@ -11,8 +11,8 @@ concurrency:
 jobs:
   deploy:
     name: Build & deploy showcase
-    # Only deploy when the head commit is a stable release.
-    if: startsWith(github.event.head_commit.message, 'chore(release): v')
+    # Only on stable releases (skip RCs and non-release commits).
+    if: "startsWith(github.event.head_commit.message, 'chore(release): v') && !contains(github.event.head_commit.message, '-rc.')"
     runs-on: ubuntu-latest
 
     steps:
