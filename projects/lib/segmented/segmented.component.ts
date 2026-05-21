@@ -48,10 +48,27 @@ export class WrSegmentedComponent<T = unknown> {
   /** Disable the whole control. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /** Index of the selected option, or `-1` when nothing is selected. */
+  protected readonly selectedIndex = computed(() => {
+    const v = this.value();
+    return this.options().findIndex(o => o.value === v);
+  });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-segmented'];
     if (this.disabled()) parts.push('wr-segmented--disabled');
+    if (this.selectedIndex() < 0) parts.push('wr-segmented--unselected');
     return parts.join(' ');
+  });
+
+  /** Inline CSS vars driving the sliding thumb position. */
+  protected readonly thumbStyle = computed<Record<string, string>>(() => {
+    const i = Math.max(0, this.selectedIndex());
+    const count = Math.max(1, this.options().length);
+    return {
+      '--wr-segmented-thumb-index': `${i}`,
+      '--wr-segmented-thumb-count': `${count}`,
+    };
   });
 
   protected isSelected(option: WrSegmentedOption<T>): boolean {

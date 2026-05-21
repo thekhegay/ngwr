@@ -8,9 +8,9 @@
   --wr-segmented-radius: var(--wr-border-radius-base);
   --wr-segmented-padding: 0.1875rem;
 
+  position: relative;
   display: inline-flex;
   align-items: stretch;
-  gap: 0.125rem;
   background: var(--wr-segmented-bg);
   padding: var(--wr-segmented-padding);
   border-radius: var(--wr-segmented-radius);
@@ -18,7 +18,31 @@
   font-size: 0.8125rem;
   line-height: 1.25rem;
 
+  &__thumb {
+    --wr-segmented-thumb-index: 0;
+    --wr-segmented-thumb-count: 1;
+
+    position: absolute;
+    top: var(--wr-segmented-padding);
+    bottom: var(--wr-segmented-padding);
+    left: var(--wr-segmented-padding);
+    width: calc((100% - 2 * var(--wr-segmented-padding)) / var(--wr-segmented-thumb-count));
+    transform: translateX(calc(100% * var(--wr-segmented-thumb-index)));
+    background: var(--wr-segmented-selected-bg);
+    border-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  &--unselected &__thumb {
+    opacity: 0;
+  }
+
   &__option {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -31,17 +55,14 @@
     color: var(--wr-segmented-color);
     font: inherit;
     cursor: pointer;
-    transition: background var(--wr-transition-base), color var(--wr-transition-base),
-      box-shadow var(--wr-transition-base);
+    transition: color var(--wr-transition-base);
 
     &:hover:not(:disabled):not(.wr-segmented__option--selected) {
-      background: rgba(var(--wr-color-white-rgb), 0.5);
+      color: var(--wr-color-primary);
     }
 
     &--selected {
-      background: var(--wr-segmented-selected-bg);
       color: var(--wr-segmented-selected-color);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     }
 
     &:disabled {
