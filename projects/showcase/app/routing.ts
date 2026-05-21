@@ -46,6 +46,7 @@ export const routes = {
       dropdown: 'dropdown',
       pagination: 'pagination',
       table: 'table',
+      window: 'window',
     },
     core: {
       index: 'core',

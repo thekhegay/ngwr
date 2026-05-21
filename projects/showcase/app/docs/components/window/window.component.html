@@ -1,0 +1,107 @@
+<ngwr-doc-page
+  title="Window"
+  description="Free-floating OS-style window. Drag the header to move, drag any edge or corner to resize, click the chrome buttons to minimize / maximize / close. Multiple windows stack via `WrWindowManager` — clicking a background one brings it to the front."
+  [keywords]="['window', 'floating', 'panel', 'wr-window']"
+  [labels]="['Service', 'a11y']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic"
+    description="Two-way bind `open`. The window opens at a cascaded position (offset by ~30px from the previous one)."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="html" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="basicOpen.set(true)">Open window</wr-btn>
+
+      <wr-window [(open)]="basicOpen" title="Untitled">
+        <p style="margin: 0 0 0.5rem; font-size: 0.875rem; line-height: 1.4">
+          Drag the title bar to move. Drag any edge or corner to resize.
+        </p>
+        <p style="margin: 0; font-size: 0.875rem; line-height: 1.4; color: var(--wr-color-medium)">
+          Click outside, then click back on the window — it jumps to the front.
+        </p>
+      </wr-window>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Fixed size & position"
+    description="Set `resizable=false` to lock the size; `showMaximize=false` to hide the maximize button. Initial position / size via the `initial*` inputs."
+  >
+    <ngwr-doc-code [code]="snippets.fixed" language="html" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="fixedOpen.set(true)">Open fixed window</wr-btn>
+
+      <wr-window
+        [(open)]="fixedOpen"
+        title="Help"
+        [initialX]="120"
+        [initialY]="120"
+        [initialWidth]="320"
+        [initialHeight]="220"
+        [resizable]="false"
+        [showMaximize]="false"
+      >
+        <p style="margin: 0; font-size: 0.875rem; line-height: 1.4">
+          This window can’t be resized or maximized. The minimize button still works.
+        </p>
+      </wr-window>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Stacking"
+    description="Each window owns its own z-index via the manager. Open all three, then click any one — it jumps to the top."
+  >
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="toggleStacked(0)">Toggle #1</wr-btn>
+      <wr-btn (click)="toggleStacked(1)">Toggle #2</wr-btn>
+      <wr-btn (click)="toggleStacked(2)">Toggle #3</wr-btn>
+
+      @if (stackedOpen()[0]) {
+        <wr-window
+          [open]="true"
+          (closed)="toggleStacked(0)"
+          title="Window 1"
+          [initialWidth]="280"
+          [initialHeight]="180"
+        >
+          Click my header, then click another window.
+        </wr-window>
+      }
+      @if (stackedOpen()[1]) {
+        <wr-window
+          [open]="true"
+          (closed)="toggleStacked(1)"
+          title="Window 2"
+          [initialWidth]="280"
+          [initialHeight]="180"
+        >
+          Each click brings me to the front.
+        </wr-window>
+      }
+      @if (stackedOpen()[2]) {
+        <wr-window
+          [open]="true"
+          (closed)="toggleStacked(2)"
+          title="Window 3"
+          [initialWidth]="280"
+          [initialHeight]="180"
+        >
+          The manager owns the z-index counter.
+        </wr-window>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Events">
+    <ngwr-doc-api [rows]="events" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,66 @@
+<div class="wr-window__chrome" (pointerdown)="startMove($event)" (dblclick)="showMaximize() && maximize()">
+  <div class="wr-window__title">{{ title() }}</div>
+
+  <div class="wr-window__chrome-actions">
+    @if (showMinimize()) {
+      <button
+        type="button"
+        class="wr-window__chrome-action wr-window__chrome-action--minimize"
+        [attr.aria-label]="state() === 'minimized' ? 'Restore' : 'Minimize'"
+        (click)="minimize()"
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+          <line x1="1" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    }
+
+    @if (showMaximize()) {
+      <button
+        type="button"
+        class="wr-window__chrome-action wr-window__chrome-action--maximize"
+        [attr.aria-label]="state() === 'maximized' ? 'Restore down' : 'Maximize'"
+        (click)="maximize()"
+      >
+        @if (state() === 'maximized') {
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <rect x="1.5" y="2.5" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.2" />
+            <rect x="3" y="1" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        } @else {
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        }
+      </button>
+    }
+
+    @if (showClose()) {
+      <button
+        type="button"
+        class="wr-window__chrome-action wr-window__chrome-action--close"
+        aria-label="Close"
+        (click)="close()"
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+          <path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    }
+  </div>
+</div>
+
+<div class="wr-window__body">
+  <ng-content />
+</div>
+
+@if (resizable() && state() === 'normal') {
+  <span class="wr-window__handle wr-window__handle--t" (pointerdown)="resizeT($event)"></span>
+  <span class="wr-window__handle wr-window__handle--r" (pointerdown)="resizeR($event)"></span>
+  <span class="wr-window__handle wr-window__handle--b" (pointerdown)="resizeB($event)"></span>
+  <span class="wr-window__handle wr-window__handle--l" (pointerdown)="resizeL($event)"></span>
+  <span class="wr-window__handle wr-window__handle--tl" (pointerdown)="resizeTL($event)"></span>
+  <span class="wr-window__handle wr-window__handle--tr" (pointerdown)="resizeTR($event)"></span>
+  <span class="wr-window__handle wr-window__handle--bl" (pointerdown)="resizeBL($event)"></span>
+  <span class="wr-window__handle wr-window__handle--br" (pointerdown)="resizeBR($event)"></span>
+}

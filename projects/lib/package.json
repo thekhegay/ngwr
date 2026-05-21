@@ -145,6 +145,9 @@
     },
     "./tooltip": {
       "sass": "./tooltip/styles/_index.scss"
+    },
+    "./window": {
+      "sass": "./window/styles/_index.scss"
     }
   }
 }

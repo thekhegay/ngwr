@@ -146,4 +146,8 @@ export default [
     path: components.tooltip,
     loadComponent: () => import('./tooltip/tooltip.component'),
   },
+  {
+    path: components.window,
+    loadComponent: () => import('./window/window.component'),
+  },
 ] satisfies Routes;

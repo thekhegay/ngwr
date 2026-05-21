@@ -115,6 +115,7 @@ export class SidebarComponent {
             { title: 'Popover', url: ['/docs', 'components', 'popover'] },
             { title: 'Toast', url: ['/docs', 'components', 'toast'] },
             { title: 'Tooltip', url: ['/docs', 'components', 'tooltip'] },
+            { title: 'Window', url: ['/docs', 'components', 'window'] },
           ],
         },
       ],
