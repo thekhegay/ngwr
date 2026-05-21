@@ -141,13 +141,19 @@ export class SidebarComponent {
     { initialValue: this.router.url }
   );
 
+  /** Last URL we auto-expanded for — prevents re-opening a group the user just collapsed. */
+  private lastAutoUrl: string | null = null;
+
   constructor() {
-    // Auto-expand whichever group contains the active route.
+    // Auto-expand whichever group contains the active route, but only on
+    // URL change — so the user can collapse the active group and it stays
+    // collapsed until they navigate elsewhere.
     effect(() => {
       const url = this.currentUrl();
+      if (url === this.lastAutoUrl) return;
+      this.lastAutoUrl = url;
       const match = this.findGroupForUrl(url);
-      if (!match) return;
-      if (this.opened().has(match)) return;
+      if (!match || this.opened().has(match)) return;
       const next = new Set(this.opened());
       next.add(match);
       this.opened.set(next);
