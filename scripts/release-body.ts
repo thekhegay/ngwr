@@ -17,16 +17,18 @@
 
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { argv } from 'node:process';
 
-import { extractLatestSection, withEmojiHeadings } from './lib/changelog';
-import { out } from './lib/log';
-import { ROOT } from './lib/paths';
+import { extractLatestSection } from './lib/changelog/extract-latest-section';
+import { withEmojiHeadings } from './lib/changelog/with-emoji-headings';
+import { out } from './lib/log/out';
+import { ROOT_PATH } from './lib/paths/root';
 
 const body = withEmojiHeadings(extractLatestSection());
 
-const output = process.argv.find(a => a.startsWith('--output='))?.split('=')[1];
+const output = argv.find(a => a.startsWith('--output='))?.split('=')[1];
 if (output) {
-  writeFileSync(resolve(ROOT, output), `${body}\n`);
+  writeFileSync(resolve(ROOT_PATH, output), `${body}\n`);
 } else {
   out(`${body}\n`);
 }

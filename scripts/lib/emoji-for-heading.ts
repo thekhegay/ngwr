@@ -6,8 +6,8 @@
  */
 
 /**
- * Maps a conventional-changelog section heading (e.g. "Features", "Bug Fixes")
- * to the emoji prefix used in the GitHub Release body.
+ * Returns the emoji prefix used for a conventional-changelog section heading
+ * (e.g. "Features" → 🚀, "Bug Fixes" → 🐛).
  */
 
 const RULES: readonly (readonly [RegExp, string])[] = [
@@ -27,8 +27,7 @@ const RULES: readonly (readonly [RegExp, string])[] = [
 
 const DEFAULT_EMOJI = '✨';
 
-/** Returns the emoji that should prefix the given section heading. */
-export function emojiFor(heading: string): string {
+export function emojiForHeading(heading: string): string {
   const h = heading.toLowerCase();
   for (const [pattern, emoji] of RULES) {
     if (pattern.test(h)) return emoji;

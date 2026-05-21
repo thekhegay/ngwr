@@ -6,11 +6,7 @@
  */
 
 /**
- * Type definitions shared across the release helper scripts.
- */
-
-/**
  * Release bump kind selected by the maintainer when triggering the Release PR
  * workflow. `rc` cuts a prerelease cycle published to the npm dist-tag `next`.
  */
-export type Bump = 'patch' | 'minor' | 'major' | 'rc';
+export type ReleaseType = 'patch' | 'minor' | 'major' | 'rc';

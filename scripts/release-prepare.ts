@@ -22,24 +22,29 @@
  */
 
 import { appendFileSync } from 'node:fs';
+import { argv, env, exit } from 'node:process';
 
-import { parseBumpArg } from './lib/bump';
-import { regenerateChangelog } from './lib/changelog';
-import { err, info, out } from './lib/log';
-import { nextVersion, readCurrentVersion, writeVersion } from './lib/version';
+import { regenerateChangelog } from './lib/changelog/regenerate';
+import { err } from './lib/log/err';
+import { info } from './lib/log/info';
+import { out } from './lib/log/out';
+import { parseReleaseType } from './lib/parse-release-type';
+import { nextVersion } from './lib/version/next';
+import { readCurrentVersion } from './lib/version/read-current';
+import { writeVersion } from './lib/version/write';
 
-const bump = parseBumpArg(process.argv);
-if (!bump) {
+const type = parseReleaseType(argv);
+if (!type) {
   err('Usage: release:prepare --bump=<patch|minor|major|rc>');
-  process.exit(1);
+  exit(1);
 }
 
 const current = readCurrentVersion();
-const next = nextVersion(current, bump);
+const next = nextVersion(current, type);
 
 if (!next) {
-  err(`Cannot compute next version from ${current} with bump=${bump}`);
-  process.exit(1);
+  err(`Cannot compute next version from ${current} with bump=${type}`);
+  exit(1);
 }
 
 writeVersion(next);
@@ -51,7 +56,7 @@ info('✓ CHANGELOG.md updated');
 
 out(`${next}\n`);
 
-const ghOutput = process.env['GITHUB_OUTPUT'];
+const ghOutput = env['GITHUB_OUTPUT'];
 if (ghOutput) {
-  appendFileSync(ghOutput, `version=${next}\ntag=v${next}\nis_rc=${bump === 'rc'}\n`);
+  appendFileSync(ghOutput, `version=${next}\ntag=v${next}\nis_rc=${type === 'rc'}\n`);
 }
