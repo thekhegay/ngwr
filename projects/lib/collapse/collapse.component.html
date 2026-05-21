@@ -1,0 +1,16 @@
+<button
+  type="button"
+  class="wr-collapse__header"
+  [attr.aria-expanded]="open()"
+  [disabled]="disabled()"
+  (click)="toggle()"
+>
+  <span class="wr-collapse__title">{{ title() }}</span>
+  <wr-icon class="wr-collapse__chevron" name="chevron-down" />
+</button>
+
+<div class="wr-collapse__body" [class.wr-collapse__body--open]="open()" [attr.aria-hidden]="!open()">
+  <div class="wr-collapse__content">
+    <ng-content />
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<label class="wr-switch__label" [for]="id()">
+  <input
+    class="wr-switch__input"
+    type="checkbox"
+    role="switch"
+    [id]="id()"
+    [checked]="checked()"
+    [disabled]="effectiveDisabled()"
+    (change)="onInputChange($event)"
+    (blur)="onInputBlur()"
+  />
+
+  <span class="wr-switch__track" aria-hidden="true">
+    <span class="wr-switch__thumb"></span>
+  </span>
+
+  <span class="wr-switch__text">
+    <ng-content />
+  </span>
+</label>

@@ -1,0 +1,57 @@
+@use '../../theme/styles' as theme;
+
+.wr-tabs {
+  --wr-tabs-border: var(--wr-color-light);
+  --wr-tabs-color: var(--wr-color-medium);
+  --wr-tabs-color-hover: var(--wr-color-dark);
+  --wr-tabs-color-active: var(--wr-color-primary);
+  --wr-tabs-indicator: var(--wr-color-primary);
+
+  display: block;
+  font-family: var(--wr-font-family-base);
+
+  &__strip {
+    display: flex;
+    align-items: stretch;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--wr-tabs-border);
+    overflow-x: auto;
+  }
+
+  &__tab {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    text-decoration: none;
+    padding: 0.625rem 1rem;
+    margin-bottom: -1px;
+    color: var(--wr-tabs-color);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--wr-transition-base), border-color var(--wr-transition-base);
+
+    &:hover:not(.wr-tabs__tab--active):not(.wr-tabs__tab--disabled):not(:disabled) {
+      color: var(--wr-tabs-color-hover);
+    }
+
+    &--active {
+      color: var(--wr-tabs-color-active);
+      border-bottom-color: var(--wr-tabs-indicator);
+    }
+
+    &--disabled,
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__panel {
+    padding-top: 1rem;
+  }
+}

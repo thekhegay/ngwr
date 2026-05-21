@@ -1,0 +1,11 @@
+@if (isLink()) {
+  <a class="wr-breadcrumb-item__link" [routerLink]="routerLink()">
+    <ng-content />
+  </a>
+} @else {
+  <span class="wr-breadcrumb-item__current" aria-current="page">
+    <ng-content />
+  </span>
+}
+
+<span class="wr-breadcrumb-item__separator" aria-hidden="true">{{ separator() }}</span>

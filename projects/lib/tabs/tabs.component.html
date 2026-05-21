@@ -1,0 +1,35 @@
+<div class="wr-tabs__strip" role="tablist">
+  @for (tab of tabs(); track tab.key()) {
+    @if (tab.routerLink(); as link) {
+      <a
+        class="wr-tabs__tab"
+        role="tab"
+        routerLinkActive="wr-tabs__tab--active"
+        [routerLink]="link"
+        [class.wr-tabs__tab--disabled]="tab.disabled()"
+        [attr.aria-disabled]="tab.disabled() ? true : null"
+      >
+        {{ tab.title() }}
+      </a>
+    } @else {
+      <button
+        type="button"
+        class="wr-tabs__tab"
+        role="tab"
+        [class.wr-tabs__tab--active]="tab === activeTab()"
+        [class.wr-tabs__tab--disabled]="tab.disabled()"
+        [attr.aria-selected]="tab === activeTab()"
+        [disabled]="tab.disabled()"
+        (click)="onTabClick(tab)"
+      >
+        {{ tab.title() }}
+      </button>
+    }
+  }
+</div>
+
+@if (!isRouter() && activeTab(); as tab) {
+  <div class="wr-tabs__panel" role="tabpanel">
+    <ng-container [ngTemplateOutlet]="tab.contentTpl()" />
+  </div>
+}

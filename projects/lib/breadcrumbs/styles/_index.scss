@@ -1,0 +1,43 @@
+@use '../../theme/styles' as theme;
+
+.wr-breadcrumbs {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-family: var(--wr-font-family-base);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--wr-color-medium);
+}
+
+.wr-breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &__link {
+    color: var(--wr-color-medium);
+    text-decoration: none;
+    transition: color var(--wr-transition-base);
+
+    &:hover {
+      color: var(--wr-color-primary);
+    }
+  }
+
+  &__current {
+    color: var(--wr-color-dark);
+    font-weight: 500;
+  }
+
+  &__separator {
+    color: rgba(var(--wr-color-medium-rgb), 0.6);
+    user-select: none;
+  }
+
+  // Last item shouldn't show its trailing separator
+  &:last-child > .wr-breadcrumb-item__separator {
+    display: none;
+  }
+}

@@ -1,0 +1,17 @@
+@for (option of options(); track option.value) {
+  <button
+    type="button"
+    class="wr-segmented__option"
+    [class.wr-segmented__option--selected]="isSelected(option)"
+    [disabled]="disabled() || !!option.disabled"
+    [attr.aria-pressed]="isSelected(option)"
+    (click)="select(option)"
+  >
+    @if (option.icon) {
+      <wr-icon class="wr-segmented__icon" [name]="option.icon" />
+    }
+    @if (option.label) {
+      <span class="wr-segmented__label">{{ option.label }}</span>
+    }
+  </button>
+}

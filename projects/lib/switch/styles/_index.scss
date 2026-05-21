@@ -1,0 +1,82 @@
+@use '../../theme/styles' as theme;
+
+.wr-switch {
+  --wr-switch-track-width: 2.25rem;
+  --wr-switch-track-height: 1.25rem;
+  --wr-switch-thumb-size: 1rem;
+  --wr-switch-bg: var(--wr-color-light);
+  --wr-switch-bg-checked: var(--wr-color-primary);
+  --wr-switch-thumb: var(--wr-color-white);
+  --wr-switch-color: var(--wr-color-dark);
+
+  display: inline-flex;
+  vertical-align: middle;
+  color: var(--wr-switch-color);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+
+    &:focus-visible + .wr-switch__track {
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.25);
+    }
+  }
+
+  &__track {
+    flex: 0 0 auto;
+    position: relative;
+    width: var(--wr-switch-track-width);
+    height: var(--wr-switch-track-height);
+    background: var(--wr-switch-bg);
+    border-radius: var(--wr-border-radius-pill);
+    transition: background var(--wr-transition-base);
+  }
+
+  &__thumb {
+    position: absolute;
+    top: 50%;
+    left: calc((var(--wr-switch-track-height) - var(--wr-switch-thumb-size)) / 2);
+    transform: translateY(-50%);
+    width: var(--wr-switch-thumb-size);
+    height: var(--wr-switch-thumb-size);
+    background: var(--wr-switch-thumb);
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: left var(--wr-transition-base);
+  }
+
+  &--checked {
+    --wr-switch-bg: var(--wr-switch-bg-checked);
+
+    .wr-switch__thumb {
+      left: calc(
+        var(--wr-switch-track-width) - var(--wr-switch-thumb-size) -
+          ((var(--wr-switch-track-height) - var(--wr-switch-thumb-size)) / 2)
+      );
+    }
+  }
+
+  &--disabled {
+    --wr-switch-color: var(--wr-color-medium);
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}

@@ -1,0 +1,95 @@
+@use '../../theme/styles' as theme;
+
+.wr-collapse {
+  --wr-collapse-bg: var(--wr-color-white);
+  --wr-collapse-border: var(--wr-color-light);
+  --wr-collapse-radius: var(--wr-border-radius-base);
+  --wr-collapse-color: var(--wr-color-dark);
+
+  display: block;
+  border: 1px solid var(--wr-collapse-border);
+  border-radius: var(--wr-collapse-radius);
+  background: var(--wr-collapse-bg);
+  color: var(--wr-collapse-color);
+  font-family: var(--wr-font-family-base);
+  overflow: hidden;
+
+  & + & {
+    margin-top: 0.5rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      background: rgba(var(--wr-color-light-rgb), 0.25);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &__title {
+    flex: 1 1 auto;
+  }
+
+  &__chevron {
+    --wr-icon-size: 1rem;
+    flex: 0 0 auto;
+    color: var(--wr-color-medium);
+    transition: transform var(--wr-transition-base);
+  }
+
+  &--open &__chevron {
+    transform: rotate(180deg);
+  }
+
+  &__body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--wr-transition-base);
+    border-top: 1px solid transparent;
+
+    &--open {
+      grid-template-rows: 1fr;
+      border-top-color: var(--wr-collapse-border);
+    }
+  }
+
+  &__content {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  &__body--open &__content,
+  &__body &__content {
+    padding: 0 1rem;
+  }
+
+  &__body--open &__content {
+    padding: 0.875rem 1rem;
+  }
+
+  &--disabled {
+    --wr-collapse-color: var(--wr-color-medium);
+    opacity: 0.7;
+  }
+}
+
+.wr-collapse-group {
+  display: block;
+}
