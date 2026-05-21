@@ -51,6 +51,10 @@ export default [
     loadComponent: () => import('./divider/divider.component'),
   },
   {
+    path: components.drawer,
+    loadComponent: () => import('./drawer/drawer.component'),
+  },
+  {
     path: components.dropdown,
     loadComponent: () => import('./dropdown/dropdown.component'),
   },
@@ -69,6 +73,14 @@ export default [
   {
     path: components.pagination,
     loadComponent: () => import('./pagination/pagination.component'),
+  },
+  {
+    path: components.popconfirm,
+    loadComponent: () => import('./popconfirm/popconfirm.component'),
+  },
+  {
+    path: components.popover,
+    loadComponent: () => import('./popover/popover.component'),
   },
   {
     path: components.progress,
@@ -117,5 +129,13 @@ export default [
   {
     path: components.textarea,
     loadComponent: () => import('./textarea/textarea.component'),
+  },
+  {
+    path: components.toast,
+    loadComponent: () => import('./toast/toast.component'),
+  },
+  {
+    path: components.tooltip,
+    loadComponent: () => import('./tooltip/tooltip.component'),
   },
 ] satisfies Routes;

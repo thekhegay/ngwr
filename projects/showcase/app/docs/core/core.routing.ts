@@ -19,6 +19,10 @@ export default [
     loadComponent: () => import('./grid/grid.component'),
   },
   {
+    path: core.overlay,
+    loadComponent: () => import('./overlay/overlay.component'),
+  },
+  {
     path: core.utils,
     loadComponent: () => import('./utils/utils.component'),
   },
