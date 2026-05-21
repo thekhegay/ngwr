@@ -6,9 +6,9 @@
  */
 
 /**
- * Bumps `projects/lib/package.json`, syncs the showcase footer's
- * `NGWR_VERSION`, and prepends a new section to `CHANGELOG.md` based on the
- * conventional commits since the last release.
+ * Bumps `projects/lib/package.json`, syncs the lib's `WR_VERSION` constant,
+ * and prepends a new section to `CHANGELOG.md` based on the conventional
+ * commits since the last release.
  *
  * Usage:
  *   pnpm release:prepare --bump=patch
@@ -33,30 +33,37 @@ import { nextVersion } from './lib/version/next';
 import { readCurrentVersion } from './lib/version/read-current';
 import { writeVersion } from './lib/version/write';
 
-const type = parseReleaseType(argv);
-if (!type) {
-  err('Usage: release:prepare --bump=<patch|minor|major|rc>');
+async function main(): Promise<void> {
+  const type = parseReleaseType(argv);
+  if (!type) {
+    err('Usage: release:prepare --bump=<patch|minor|major|rc>');
+    exit(1);
+  }
+
+  const current = readCurrentVersion();
+  const next = nextVersion(current, type);
+
+  if (!next) {
+    err(`Cannot compute next version from ${current} with bump=${type}`);
+    exit(1);
+  }
+
+  writeVersion(next);
+  info(`✓ Bumped ${current} → ${next}`);
+  info('✓ Synced WR_VERSION in projects/lib/version/wr-version.ts');
+
+  await regenerateChangelog();
+  info('✓ CHANGELOG.md updated');
+
+  out(`${next}\n`);
+
+  const ghOutput = env['GITHUB_OUTPUT'];
+  if (ghOutput) {
+    appendFileSync(ghOutput, `version=${next}\ntag=v${next}\nis_rc=${type === 'rc'}\n`);
+  }
+}
+
+main().catch((error: unknown) => {
+  err(`Release prepare failed: ${String(error)}`);
   exit(1);
-}
-
-const current = readCurrentVersion();
-const next = nextVersion(current, type);
-
-if (!next) {
-  err(`Cannot compute next version from ${current} with bump=${type}`);
-  exit(1);
-}
-
-writeVersion(next);
-info(`✓ Bumped ${current} → ${next}`);
-info('✓ Synced WR_VERSION in projects/lib/version/wr-version.ts');
-
-regenerateChangelog();
-info('✓ CHANGELOG.md updated');
-
-out(`${next}\n`);
-
-const ghOutput = env['GITHUB_OUTPUT'];
-if (ghOutput) {
-  appendFileSync(ghOutput, `version=${next}\ntag=v${next}\nis_rc=${type === 'rc'}\n`);
-}
+});

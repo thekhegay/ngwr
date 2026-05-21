@@ -7,34 +7,28 @@
 
 /**
  * Prepends a new section to `CHANGELOG.md` for the version currently set in
- * `projects/lib/package.json`. Shells out to `conventional-changelog`.
- * Throws when the underlying tool exits non-zero.
+ * `projects/lib/package.json`, using the `conventional-changelog` v7 fluent
+ * API directly (no CLI shellout).
  */
 
-import { spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
 
-import { ROOT_PATH } from '../paths/root';
+import { ConventionalChangelog } from 'conventional-changelog';
 
-export function regenerateChangelog(): void {
-  const result = spawnSync(
-    'pnpm',
-    [
-      'exec',
-      'conventional-changelog',
-      '-p',
-      'conventionalcommits',
-      '-i',
-      'CHANGELOG.md',
-      '-s',
-      '-r',
-      '1',
-      '--pkg',
-      'projects/lib/package.json',
-    ],
-    { cwd: ROOT_PATH, stdio: 'inherit' }
-  );
+import { CHANGELOG_PATH } from '../paths/changelog';
+import { LIB_PKG_PATH } from '../paths/lib-pkg';
 
-  if (result.status !== 0) {
-    throw new Error(`conventional-changelog exited with status ${result.status ?? 'unknown'}`);
+export async function regenerateChangelog(): Promise<void> {
+  const generator = new ConventionalChangelog()
+    .readPackage(LIB_PKG_PATH)
+    .readRepository()
+    .loadPreset('conventionalcommits');
+
+  let section = '';
+  for await (const chunk of generator.write()) {
+    section += chunk;
   }
+
+  const existing = readFileSync(CHANGELOG_PATH, 'utf8');
+  writeFileSync(CHANGELOG_PATH, `${section}${existing}`);
 }

@@ -18,12 +18,14 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { basename, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { type Config, optimize } from 'svgo';
 
 // Config
-const ROOT = resolve(__dirname, '..');
+const HERE = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(HERE, '..');
 const SVG_DIR = join(ROOT, 'projects/lib/icon/_svg');
 const TAGS_FILE = join(SVG_DIR, '_tags.json');
 const ICONS_DIR = join(ROOT, 'projects/lib/icon/icons');
