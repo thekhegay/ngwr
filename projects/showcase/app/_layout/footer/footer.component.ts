@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
 
-import { NGWR_VERSION } from '#core/version';
+import { WR_VERSION_TOKEN } from 'ngwr/version';
 
 @Component({
   selector: 'ngwr-footer',
@@ -11,7 +11,7 @@ import { NGWR_VERSION } from '#core/version';
   host: { class: 'ngwr-footer', role: 'contentinfo' },
 })
 export class FooterComponent {
-  protected readonly version = NGWR_VERSION;
+  protected readonly version = inject(WR_VERSION_TOKEN);
   protected readonly copyright = `2022 – ${new Date().getFullYear()} © Roman Khegay`;
   protected readonly npmLink = 'https://www.npmjs.com/package/ngwr';
 }

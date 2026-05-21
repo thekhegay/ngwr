@@ -17,4 +17,10 @@ export type WrBreadcrumbsContext = {
   readonly separator: Signal<string>;
 };
 
+/**
+ * Token a `<wr-breadcrumb>` reads to pull the shared separator (and future
+ * state) from its parent `<wr-breadcrumbs>` host.
+ *
+ * @internal
+ */
 export const WR_BREADCRUMBS = new InjectionToken<WrBreadcrumbsContext>('WR_BREADCRUMBS');

@@ -21,4 +21,10 @@ export type WrSelectContext = {
   selectOption(value: unknown, label: string): void;
 };
 
+/**
+ * Token a `<wr-option>` injects to register itself with and notify its
+ * parent `<wr-select>`.
+ *
+ * @internal
+ */
 export const WR_SELECT = new InjectionToken<WrSelectContext>('WR_SELECT');
