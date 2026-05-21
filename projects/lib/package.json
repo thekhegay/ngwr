@@ -55,11 +55,17 @@
     "./badge": {
       "sass": "./badge/styles/_index.scss"
     },
+    "./breadcrumbs": {
+      "sass": "./breadcrumbs/styles/_index.scss"
+    },
     "./button": {
       "sass": "./button/styles/_index.scss"
     },
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
+    },
+    "./collapse": {
+      "sass": "./collapse/styles/_index.scss"
     },
     "./dialog": {
       "sass": "./dialog/styles/_index.scss"
@@ -91,6 +97,9 @@
     "./radio": {
       "sass": "./radio/styles/_index.scss"
     },
+    "./segmented": {
+      "sass": "./segmented/styles/_index.scss"
+    },
     "./select": {
       "sass": "./select/styles/_index.scss"
     },
@@ -100,8 +109,14 @@
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"
     },
+    "./switch": {
+      "sass": "./switch/styles/_index.scss"
+    },
     "./table": {
       "sass": "./table/styles/_index.scss"
+    },
+    "./tabs": {
+      "sass": "./tabs/styles/_index.scss"
     },
     "./tag": {
       "sass": "./tag/styles/_index.scss"
