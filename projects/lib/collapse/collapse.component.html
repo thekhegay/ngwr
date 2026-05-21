@@ -11,6 +11,8 @@
 
 <div class="wr-collapse__body" [class.wr-collapse__body--open]="open()" [attr.aria-hidden]="!open()">
   <div class="wr-collapse__content">
-    <ng-content />
+    <div class="wr-collapse__inner">
+      <ng-content />
+    </div>
   </div>
 </div>
