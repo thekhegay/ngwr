@@ -10,11 +10,19 @@ export default [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: routes.docs.components.index,
+        redirectTo: `${routes.docs.gettingStarted.index}/${routes.docs.gettingStarted.installation}`,
+      },
+      {
+        path: routes.docs.gettingStarted.index,
+        loadChildren: () => import('./getting-started/getting-started.routing'),
       },
       {
         path: routes.docs.components.index,
         loadChildren: () => import('./components/components.routing'),
+      },
+      {
+        path: routes.docs.core.index,
+        loadChildren: () => import('./core/core.routing'),
       },
     ],
   },
