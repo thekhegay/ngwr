@@ -81,6 +81,7 @@
     &-wrap {
       display: grid;
       grid-template-rows: 1fr;
+      overflow: hidden;
       transition: grid-template-rows var(--wr-transition-base);
     }
 
@@ -94,7 +95,6 @@
       gap: 0.5rem;
       padding: 0.25rem 0 0.5rem 0.5rem;
       min-height: 0;
-      overflow: hidden;
     }
   }
 
