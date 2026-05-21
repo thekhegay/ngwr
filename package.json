@@ -6,7 +6,11 @@
     "dev": "ng serve --o",
     "test": "ng test",
     "lint": "ng lint",
-    "generate:icons": "tsx scripts/generate-icons.ts"
+    "build:lib": "ng build lib",
+    "build:showcase": "ng build showcase",
+    "generate:icons": "tsx scripts/generate-icons.ts",
+    "release:prepare": "tsx scripts/release-prepare.ts",
+    "release:body": "tsx scripts/release-body.ts"
   },
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || ^24.0.0",
@@ -33,6 +37,10 @@
     "@angular/compiler-cli": "^21.2.8",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.2",
+    "@types/semver": "^7.7.0",
+    "conventional-changelog-cli": "^5.0.0",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "semver": "^7.7.1",
     "angular-eslint": "^21.3.1",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
