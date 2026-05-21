@@ -10,6 +10,8 @@
   --wr-slider-label: var(--wr-color-medium);
 
   display: block;
+  width: 100%;
+  min-width: 0;
   font-family: var(--wr-font-family-base);
   padding: calc(var(--wr-slider-thumb-size) / 2) 0;
 
