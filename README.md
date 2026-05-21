@@ -156,24 +156,9 @@ pnpm build:showcase # ng build showcase
 pnpm lint           # ng lint
 ```
 
-## Releasing
-
-Releases are cut by maintainers via the **Release PR** GitHub Action:
-
-1. Actions → **Release PR** → pick `patch` / `minor` / `major` / `rc`.
-2. A `chore(release): vX.Y.Z` PR opens with the version bump + auto-generated CHANGELOG section.
-3. On merge, the **Publish** workflow tags the commit, creates a GitHub Release, and publishes to npm via [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (OIDC, with provenance):
-   - stable → `npm install ngwr` (dist-tag `latest`)
-   - rc → `npm install ngwr@next` (dist-tag `next`)
-
 ## Authors
 
 - [Roman Khegay](https://github.com/thekhegay) — code, design
-
-## Sponsors
-
-- [Garuna](https://garuna.dev/)
-- [Stingray Technologies](https://stingray-mobile.ru/)
 
 ## License
 
