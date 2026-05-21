@@ -33,8 +33,12 @@
     background: var(--wr-segmented-selected-bg);
     border-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
+    // Animate slides, but only after first paint — see `&--mounted` below.
+  }
+
+  &--mounted &__thumb {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &--unselected &__thumb {

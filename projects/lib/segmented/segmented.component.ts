@@ -6,7 +6,16 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, model } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  input,
+  model,
+  signal,
+} from '@angular/core';
 
 import { WrIconComponent } from 'ngwr/icon';
 
@@ -54,10 +63,18 @@ export class WrSegmentedComponent<T = unknown> {
     return this.options().findIndex(o => o.value === v);
   });
 
+  /** Flips true after the first paint so the thumb only animates user-driven changes, not the initial snap. */
+  private readonly mounted = signal(false);
+
+  constructor() {
+    afterNextRender(() => this.mounted.set(true));
+  }
+
   protected readonly classes = computed(() => {
     const parts = ['wr-segmented'];
     if (this.disabled()) parts.push('wr-segmented--disabled');
     if (this.selectedIndex() < 0) parts.push('wr-segmented--unselected');
+    if (this.mounted()) parts.push('wr-segmented--mounted');
     return parts.join(' ');
   });
 

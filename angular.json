@@ -92,7 +92,14 @@
               }
             },
             "development": {
-              "optimization": false,
+              "optimization": {
+                "scripts": false,
+                "styles": {
+                  "minify": false,
+                  "inlineCritical": false
+                },
+                "fonts": false
+              },
               "extractLicenses": false,
               "sourceMap": true
             }
