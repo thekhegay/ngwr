@@ -1,0 +1,58 @@
+.ngwr-doc-code {
+  --ngwr-doc-code-padding: 1rem;
+  --ngwr-doc-code-radius: var(--wr-border-radius-base);
+  --ngwr-doc-code-bg: var(--wr-color-dark);
+  --ngwr-doc-code-fg: var(--wr-color-dark-contrast);
+  --ngwr-doc-code-font-size: 0.8125rem;
+  --ngwr-doc-code-line-height: 1.5;
+
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--ngwr-doc-code-radius);
+  background: var(--ngwr-doc-code-bg);
+  color: var(--ngwr-doc-code-fg);
+  font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+
+  pre {
+    margin: 0;
+    padding: var(--ngwr-doc-code-padding);
+    overflow-x: auto;
+    font-size: var(--ngwr-doc-code-font-size);
+    line-height: var(--ngwr-doc-code-line-height);
+  }
+
+  &__html {
+    .shiki,
+    .shiki span {
+      color: var(--shiki-light);
+      background-color: var(--shiki-light-bg);
+    }
+  }
+
+  &__copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.625rem;
+    border: 0;
+    border-radius: var(--wr-border-radius-sm);
+    background: rgba(var(--wr-color-white-rgb), 0.1);
+    color: var(--wr-color-white);
+    font-family: inherit;
+    font-size: 0.75rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transition: background var(--wr-transition-base), opacity var(--wr-transition-base);
+
+    &:hover {
+      background: rgba(var(--wr-color-white-rgb), 0.2);
+    }
+  }
+
+  &:hover &__copy,
+  &__copy:focus-visible {
+    opacity: 1;
+  }
+}

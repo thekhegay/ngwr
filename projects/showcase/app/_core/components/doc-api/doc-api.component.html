@@ -1,0 +1,35 @@
+<div class="ngwr-doc-api__scroll">
+  <table class="ngwr-doc-api__table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.name) {
+        <tr>
+          <td>
+            <code>{{ row.name }}</code>
+            @if (row.required) {
+              <span class="ngwr-doc-api__required">required</span>
+            }
+          </td>
+          <td>{{ row.description }}</td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            @if (row.default; as d) {
+              <code>{{ d }}</code>
+            } @else {
+              <span class="ngwr-doc-api__none">—</span>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
