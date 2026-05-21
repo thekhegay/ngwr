@@ -1,0 +1,107 @@
+# Run with:
+#   npx github-label-sync --access-token $GITHUB_TOKEN --labels .github/labels.yml thekhegay/ngwr
+#
+# To DELETE labels that aren't in this file, omit `--allow-added-labels`.
+
+# ── Types ────────────────────────────────────────────────────────────
+- name: 'type: feat'
+  color: 'a371f7'
+  description: New feature or capability
+- name: 'type: fix'
+  color: 'd73a4a'
+  description: Bug fix
+- name: 'type: docs'
+  color: '0075ca'
+  description: Documentation only
+- name: 'type: refactor'
+  color: 'ffa657'
+  description: Code change that's neither feature nor fix
+- name: 'type: perf'
+  color: 'fbca04'
+  description: Performance improvement
+- name: 'type: chore'
+  color: 'cccccc'
+  description: Build, CI, tooling
+
+# ── Scope ────────────────────────────────────────────────────────────
+- name: 'area: components'
+  color: 'c5def5'
+  description: One of the wr-* components
+- name: 'area: theme'
+  color: 'c5def5'
+  description: Tokens, SCSS, color palette
+- name: 'area: showcase'
+  color: 'c5def5'
+  description: Docs site (projects/showcase)
+- name: 'area: ci/build'
+  color: 'c5def5'
+  description: Workflows, ng-packagr, release scripts
+- name: 'area: utils'
+  color: 'c5def5'
+  description: Shared helpers / pipes
+
+# ── Status ───────────────────────────────────────────────────────────
+- name: 'triage'
+  color: 'fbca04'
+  description: Awaits first look — applied automatically to new issues
+- name: 'needs info'
+  color: 'd4c5f9'
+  description: Waiting on the reporter
+- name: 'blocked'
+  color: 'b60205'
+  description: Can't move forward
+- name: 'stale'
+  color: 'cccccc'
+  description: No activity, will close if no update
+
+# ── Severity / cross-cutting ─────────────────────────────────────────
+- name: 'breaking'
+  color: 'b60205'
+  description: Breaking API change (surfaces in changelog)
+- name: 'security'
+  color: 'b60205'
+  description: Vulnerability or security-relevant change
+- name: 'a11y'
+  color: '5319e7'
+  description: Accessibility
+
+# ── Dependencies ─────────────────────────────────────────────────────
+- name: 'dependencies'
+  color: '0366d6'
+  description: Dependency bump (used by Dependabot)
+- name: 'github-actions'
+  color: '000000'
+  description: GitHub Actions ecosystem only
+
+# ── Release (created automatically by .github/workflows/release.yml) ─
+- name: 'release'
+  color: '6f42c1'
+  description: Generated release PR
+- name: 'release:rc'
+  color: '5319e7'
+  description: Pre-release (-rc.N), publishes to npm dist-tag `next`
+- name: 'release:stable'
+  color: '0e8a16'
+  description: Stable release, publishes to npm dist-tag `latest`
+
+# ── Community ────────────────────────────────────────────────────────
+- name: 'good first issue'
+  color: '7057ff'
+  description: Approachable for first-time contributors
+- name: 'help wanted'
+  color: '008672'
+  description: Maintainer would welcome a PR
+- name: 'question'
+  color: 'd876e3'
+  description: Usage question — consider Discussions instead
+
+# ── Standard ─────────────────────────────────────────────────────────
+- name: 'duplicate'
+  color: 'cfd3d7'
+  description: This issue or PR already exists
+- name: 'invalid'
+  color: 'e4e669'
+  description: This doesn't seem right
+- name: 'wontfix'
+  color: 'ffffff'
+  description: This won't be worked on
