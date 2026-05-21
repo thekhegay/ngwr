@@ -1,26 +1,46 @@
 version: 2
 
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      time: "13:00"
-      timezone: "Asia/Almaty"
+      interval: 'weekly'
+      time: '13:00'
+      timezone: 'Asia/Almaty'
+    open-pull-requests-limit: 10
     assignees:
-      - "thekhegay"
+      - 'thekhegay'
     labels:
-      - "npm"
-      - "deps"
+      - 'dependencies'
+      - 'type: chore'
+    groups:
+      angular:
+        patterns:
+          - '@angular/*'
+          - '@angular-eslint/*'
+          - 'angular-eslint'
+          - 'ng-packagr'
+      eslint:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - 'typescript-eslint'
+          - 'prettier'
+          - 'prettier-*'
+      types:
+        patterns:
+          - '@types/*'
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      time: "13:00"
-      timezone: "Asia/Almaty"
+      interval: 'weekly'
+      time: '13:00'
+      timezone: 'Asia/Almaty'
     assignees:
-      - "thekhegay"
+      - 'thekhegay'
     labels:
-      - "github-actions"
-      - "deps"
+      - 'dependencies'
+      - 'github-actions'
+      - 'type: chore'

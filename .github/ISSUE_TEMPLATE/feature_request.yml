@@ -1,0 +1,59 @@
+name: ✨ Feature request
+description: Propose a new component, input, or capability
+title: 'feat: '
+labels: ['type: feat', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us what you want to build *and why* before suggesting an API. We'll discuss the shape in this issue before any code lands.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What use case isn't currently covered? Concrete examples help.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should it work from a consumer's perspective? Pseudo-API is fine.
+      placeholder: |
+        ```html
+        <wr-rating [(value)]="stars" max="5" allowHalf />
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you've tried, similar APIs from other libraries, etc.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - New component
+        - New input/output on an existing component
+        - Theming / CSS tokens
+        - Tooling / build
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched [existing issues](https://github.com/thekhegay/ngwr/issues) and didn't find a duplicate
+          required: true
+        - label: I'm willing to open a PR for this
+          required: false

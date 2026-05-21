@@ -1,0 +1,88 @@
+name: 🐛 Bug report
+description: Something in NGWR isn't working the way it should
+title: 'bug: '
+labels: ['type: fix', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug! A small, runnable reproduction is the single biggest factor in getting your issue fixed fast.
+
+  - type: input
+    id: ngwr-version
+    attributes:
+      label: NGWR version
+      description: Output of `npm ls ngwr` or the value in your `package.json`.
+      placeholder: '6.1.1'
+    validations:
+      required: true
+
+  - type: input
+    id: angular-version
+    attributes:
+      label: Angular version
+      description: Output of `ng version` (or `@angular/core` from `package.json`).
+      placeholder: '21.2.13'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug. What did you expect? What did you actually see?
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: |
+        Link to a StackBlitz, CodeSandbox, or a minimal GitHub repo.
+        **Issues without a reproduction may be closed pending one.**
+      placeholder: 'https://stackblitz.com/edit/…'
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps using the reproduction above.
+      placeholder: |
+        1. Open the StackBlitz
+        2. Click the button
+        3. Observe the console error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output / stack trace
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched [existing issues](https://github.com/thekhegay/ngwr/issues) and didn't find a duplicate
+          required: true
+        - label: I'm on the latest stable NGWR
+          required: false
