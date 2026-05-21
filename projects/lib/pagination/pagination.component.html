@@ -1,0 +1,52 @@
+<div class="wr-pagination__inner">
+  @if (showTotal()) {
+    <span class="wr-pagination__total">{{ rangeLabel() }}</span>
+  }
+
+  <div class="wr-pagination__nav">
+    <wr-btn
+      size="sm"
+      outlined
+      icon="arrow-back"
+      [disabled]="disabled() || currentPage() === 1"
+      (click)="goTo(currentPage() - 1)"
+    />
+
+    @for (page of pages(); track $index) {
+      @if (page === ellipsis) {
+        <span class="wr-pagination__ellipsis">{{ ellipsis }}</span>
+      } @else {
+        <wr-btn
+          size="sm"
+          [outlined]="!isCurrent(page)"
+          [color]="isCurrent(page) ? 'primary' : null"
+          [disabled]="disabled()"
+          (click)="goTo(page)"
+        >
+          {{ page }}
+        </wr-btn>
+      }
+    }
+
+    <wr-btn
+      size="sm"
+      outlined
+      icon="arrow-forward"
+      [disabled]="disabled() || currentPage() === totalPages()"
+      (click)="goTo(currentPage() + 1)"
+    />
+  </div>
+
+  @if (showSizeChanger()) {
+    <wr-select
+      class="wr-pagination__size"
+      [disabled]="disabled()"
+      [ngModel]="pageSize()"
+      (ngModelChange)="onSizeChange($event)"
+    >
+      @for (option of pageSizeOptions(); track option) {
+        <wr-option [value]="option">{{ option }} / page</wr-option>
+      }
+    </wr-select>
+  }
+</div>

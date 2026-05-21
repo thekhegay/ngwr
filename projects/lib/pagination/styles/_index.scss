@@ -1,0 +1,57 @@
+@use '../../theme/styles' as theme;
+
+.wr-pagination {
+  display: block;
+
+  &--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &--start &__inner {
+    justify-content: flex-start;
+  }
+  &--center &__inner {
+    justify-content: center;
+  }
+  &--end &__inner {
+    justify-content: flex-end;
+  }
+
+  &__total {
+    color: var(--wr-color-medium);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.8125rem;
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    .wr-btn {
+      min-width: 2rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+  }
+
+  &__ellipsis {
+    display: inline-flex;
+    min-width: 2rem;
+    justify-content: center;
+    color: var(--wr-color-medium);
+    user-select: none;
+  }
+
+  &__size {
+    min-width: 0;
+  }
+}

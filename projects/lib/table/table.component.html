@@ -1,0 +1,63 @@
+@if (loading()) {
+  <div class="wr-table__loading">
+    <wr-spinner size="lg" />
+  </div>
+}
+
+<div class="wr-table__scroll">
+  <table class="wr-table__table">
+    <thead>
+      <tr>
+        @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
+          <th class="wr-table__th">
+            <div class="wr-table__th-inner">
+              <span class="wr-table__title">{{ entry.value.title }}</span>
+
+              @if (entry.value.sortable) {
+                <button
+                  type="button"
+                  class="wr-table__sort-btn"
+                  aria-label="Sort column"
+                  (click)="cycleSort(entry.key)"
+                >
+                  <wr-table-sort [direction]="directionFor(entry.key)" />
+                </button>
+              }
+
+              @if (entry.value.filterItems?.length) {
+                <wr-table-filter [items]="entry.value.filterItems!" (selectionChange)="onFilter(entry.key, $event)" />
+              }
+            </div>
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @if (items(); as rows) {
+        @if (rows.length === 0) {
+          <tr>
+            <td class="wr-table__empty" [attr.colspan]="(columns() | keyvalue).length">No data</td>
+          </tr>
+        } @else {
+          @for (row of rows; track $index) {
+            <tr class="wr-table__tr">
+              @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
+                <td class="wr-table__td">
+                  @if (templateFor(entry.key); as tpl) {
+                    <ng-container
+                      [ngTemplateOutlet]="tpl"
+                      [ngTemplateOutletContext]="cellContext(row, $any(entry.key), entry.value)"
+                    />
+                  } @else {
+                    {{ getValue(row, entry.key) }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        }
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,12 @@
+@use '../../theme/styles' as theme;
+
+.wr-qr {
+  display: inline-block;
+  line-height: 0;
+  border-radius: var(--wr-border-radius-base);
+  overflow: hidden;
+
+  > canvas {
+    display: block;
+  }
+}
