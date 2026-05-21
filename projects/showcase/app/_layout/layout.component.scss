@@ -1,16 +1,9 @@
 @use '../../../lib/styles/breakpoints' as bp;
 
-:root {
-  --ngwr-header-height: 4rem;
-}
-
 .ngwr-layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  display: block;
 
   &__body {
-    flex: 1 1 auto;
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: start;

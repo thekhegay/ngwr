@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+
+import { filter, map } from 'rxjs';
 
 import { provideWrIcons, WrIconComponent, type WrBuiltInIconName, logoGithub, logoNpm } from 'ngwr/icon';
 
@@ -24,6 +27,18 @@ type ActionLink = {
 })
 export class HeaderComponent {
   protected readonly layoutState = inject(LayoutState);
+  private readonly router = inject(Router);
+
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(() => this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
+
+  /** Mobile toggle + sidebar only matter on `/docs/*` routes. */
+  protected readonly isDocsRoute = computed(() => this.url().startsWith('/docs'));
 
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'logo-github', modifier: 'github', label: 'GitHub' },

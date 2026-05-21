@@ -1,16 +1,18 @@
 <div class="ngwr-header__inner">
-  <button
-    type="button"
-    class="ngwr-header__toggle"
-    [class.ngwr-header__toggle--opened]="layoutState.sidebarOpen()"
-    [attr.aria-expanded]="layoutState.sidebarOpen()"
-    aria-label="Toggle navigation"
-    (click)="onToggleSidebar()"
-  >
-    <span class="ngwr-header__toggle-bar"></span>
-    <span class="ngwr-header__toggle-bar"></span>
-    <span class="ngwr-header__toggle-bar"></span>
-  </button>
+  @if (isDocsRoute()) {
+    <button
+      type="button"
+      class="ngwr-header__toggle"
+      [class.ngwr-header__toggle--opened]="layoutState.sidebarOpen()"
+      [attr.aria-expanded]="layoutState.sidebarOpen()"
+      aria-label="Toggle navigation"
+      (click)="onToggleSidebar()"
+    >
+      <span class="ngwr-header__toggle-bar"></span>
+      <span class="ngwr-header__toggle-bar"></span>
+      <span class="ngwr-header__toggle-bar"></span>
+    </button>
+  }
 
   <a
     class="ngwr-header__brand"

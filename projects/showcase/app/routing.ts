@@ -46,11 +46,17 @@ export const routes = {
 export const routing: Routes = [
   {
     path: '',
-    pathMatch: 'full',
-    loadComponent: () => import('./home/home.component'),
-  },
-  {
-    path: routes.docs.index,
-    loadChildren: () => import('./docs/docs.routing'),
+    loadComponent: () => import('#shell'),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./home/home.component'),
+      },
+      {
+        path: routes.docs.index,
+        loadChildren: () => import('./docs/docs.routing'),
+      },
+    ],
   },
 ];
