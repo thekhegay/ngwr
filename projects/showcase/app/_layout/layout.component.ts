@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { DocsBreadcrumbsComponent } from './docs-breadcrumbs/docs-breadcrumbs.component';
 import { LayoutState } from './layout-state.service';
 import { SidebarComponent } from './sidebar/sidebar.component';
 
@@ -15,7 +16,7 @@ import { SidebarComponent } from './sidebar/sidebar.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'ngwr-layout' },
-  imports: [RouterOutlet, SidebarComponent],
+  imports: [RouterOutlet, SidebarComponent, DocsBreadcrumbsComponent],
 })
 export default class LayoutComponent {
   protected readonly layoutState = inject(LayoutState);
