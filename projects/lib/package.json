@@ -21,6 +21,7 @@
     "url": "https://github.com/thekhegay/ngwr/issues"
   },
   "peerDependencies": {
+    "@angular/cdk": ">=21.0.0",
     "@angular/common": ">=21.0.0",
     "@angular/core": ">=21.0.0",
     "@angular/platform-browser": ">=21.0.0",
@@ -33,17 +34,80 @@
     ".": {
       "sass": "./styles.scss"
     },
-    "./grid": {
-      "sass": "./styles/grid.scss"
-    },
     "./theme": {
       "sass": "./theme/styles/_index.scss"
+    },
+    "./breakpoints": {
+      "sass": "./styles/_breakpoints.scss"
+    },
+    "./grid": {
+      "sass": "./styles/_grid.scss"
+    },
+    "./reset": {
+      "sass": "./styles/_reset.scss"
+    },
+    "./alert": {
+      "sass": "./alert/styles/_index.scss"
+    },
+    "./avatar": {
+      "sass": "./avatar/styles/_index.scss"
     },
     "./badge": {
       "sass": "./badge/styles/_index.scss"
     },
+    "./button": {
+      "sass": "./button/styles/_index.scss"
+    },
+    "./checkbox": {
+      "sass": "./checkbox/styles/_index.scss"
+    },
+    "./dialog": {
+      "sass": "./dialog/styles/_index.scss"
+    },
+    "./divider": {
+      "sass": "./divider/styles/_index.scss"
+    },
+    "./dropdown": {
+      "sass": "./dropdown/styles/_index.scss"
+    },
+    "./form": {
+      "sass": "./form/styles/_index.scss"
+    },
     "./icon": {
       "sass": "./icon/styles/_index.scss"
+    },
+    "./input": {
+      "sass": "./input/styles/_index.scss"
+    },
+    "./pagination": {
+      "sass": "./pagination/styles/_index.scss"
+    },
+    "./progress": {
+      "sass": "./progress/styles/_index.scss"
+    },
+    "./qr": {
+      "sass": "./qr/styles/_index.scss"
+    },
+    "./radio": {
+      "sass": "./radio/styles/_index.scss"
+    },
+    "./select": {
+      "sass": "./select/styles/_index.scss"
+    },
+    "./skeleton": {
+      "sass": "./skeleton/styles/_index.scss"
+    },
+    "./spinner": {
+      "sass": "./spinner/styles/_index.scss"
+    },
+    "./table": {
+      "sass": "./table/styles/_index.scss"
+    },
+    "./tag": {
+      "sass": "./tag/styles/_index.scss"
+    },
+    "./textarea": {
+      "sass": "./textarea/styles/_index.scss"
     }
   }
 }

@@ -1,8 +1,38 @@
-@forward './styles/breakpoints';
-@forward './styles/grid';
+// Umbrella stylesheet — the "import once, everything works" entry.
+//
+// Loads:
+//   - Theme tokens (--wr-* CSS custom properties)
+//   - SCSS API   (breakpoints mixins; no CSS output)
+//   - Every component's styles (.wr-name and modifiers)
+//
+// Does NOT load utilities. Opt in explicitly:
+//   @use 'ngwr/grid';   // .grid, .container, .col-*
+//   @use 'ngwr/reset';  // box-sizing, body margin, etc.
+//
+// Consumers can also pull individual components without the umbrella:
+//   @use 'ngwr/badge';  // includes theme automatically, dedup-safe.
 
 @forward './theme/styles';
+@forward './styles/breakpoints';
 
+@forward './alert/styles';
+@forward './avatar/styles';
 @forward './badge/styles';
+@forward './button/styles';
+@forward './checkbox/styles';
+@forward './dialog/styles';
+@forward './divider/styles';
+@forward './dropdown/styles';
+@forward './form/styles';
 @forward './icon/styles';
-
+@forward './input/styles';
+@forward './pagination/styles';
+@forward './progress/styles';
+@forward './qr/styles';
+@forward './radio/styles';
+@forward './select/styles';
+@forward './skeleton/styles';
+@forward './spinner/styles';
+@forward './table/styles';
+@forward './tag/styles';
+@forward './textarea/styles';
