@@ -5,11 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Overlay, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { WR_OVERLAY } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 
 import { WrPopconfirmComponent } from './popconfirm.component';
@@ -59,7 +60,7 @@ export class WrPopconfirmDirective {
   readonly cancelled = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly overlay = inject(Overlay);
+  private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);

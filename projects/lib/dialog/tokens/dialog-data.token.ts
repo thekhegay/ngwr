@@ -5,13 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { DIALOG_DATA } from '@angular/cdk/dialog';
+import { InjectionToken } from '@angular/core';
 
 /**
  * Token that exposes the `data` payload passed to `WrDialogService.open()`.
- *
- * Re-exports CDK's `DIALOG_DATA` so the wr namespace is consistent and the
- * caller never reaches into `@angular/cdk/dialog` directly.
  *
  * @example
  * ```ts
@@ -21,4 +18,4 @@ import { DIALOG_DATA } from '@angular/cdk/dialog';
  * }
  * ```
  */
-export const WR_DIALOG_DATA = DIALOG_DATA;
+export const WR_DIALOG_DATA = new InjectionToken<unknown>('WR_DIALOG_DATA');

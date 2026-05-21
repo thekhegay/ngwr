@@ -5,9 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Overlay, type OverlayRef } from '@angular/cdk/overlay';
+import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { type ComponentRef, Injectable, inject } from '@angular/core';
+
+import { WR_OVERLAY } from 'ngwr/overlay';
 
 import { WrToastHostComponent } from './toast-host.component';
 import { WrToastRef } from './toast-ref';
@@ -33,7 +35,7 @@ type ActiveEntry = WrToastConfig & { readonly id: number; timer?: ReturnType<typ
  */
 @Injectable({ providedIn: 'root' })
 export class WrToastService {
-  private readonly overlay = inject(Overlay);
+  private readonly overlay = inject(WR_OVERLAY);
 
   private overlayRef: OverlayRef | null = null;
   private hostRef: ComponentRef<WrToastHostComponent> | null = null;

@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Overlay, type OverlayRef } from '@angular/cdk/overlay';
+import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
   ChangeDetectionStrategy,
@@ -22,6 +22,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import { WR_OVERLAY } from 'ngwr/overlay';
 
 import type { WrDrawerPosition } from './types';
 
@@ -81,7 +83,7 @@ export class WrDrawerComponent {
     return `wr-drawer__panel--${pos}`;
   }
 
-  private readonly overlay = inject(Overlay);
+  private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
 

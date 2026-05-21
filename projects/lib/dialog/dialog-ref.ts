@@ -5,15 +5,15 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { DialogRef } from '@angular/cdk/dialog';
+import type { OverlayRef } from '@angular/cdk/overlay';
+import type { ComponentRef } from '@angular/core';
+
+import { Subject } from 'rxjs';
 
 /**
  * Handle returned by `WrDialogService.open()`.
  *
- * Thin re-typing of CDK's `DialogRef`:
- * - `R` is the result type returned via `close(value)` and surfaced
- *   through `closed` / `awaitClose()`
- * - `C` is the dialog component type
+ * Wraps the underlying `OverlayRef` and tracks the close result.
  *
  * @example
  * ```ts
@@ -22,27 +22,41 @@ import type { DialogRef } from '@angular/cdk/dialog';
  * ```
  */
 export class WrDialogRef<C, R = unknown> {
-  constructor(private readonly _ref: DialogRef<R, C>) {}
+  /** Emits the close result once and completes. */
+  readonly closed = new Subject<R | undefined>();
+
+  /** @internal */
+  componentRef: ComponentRef<C> | null = null;
+
+  constructor(private readonly _overlayRef: OverlayRef) {}
 
   /** The instantiated dialog component. */
   get componentInstance(): C {
-    return this._ref.componentInstance!;
+    if (!this.componentRef) {
+      throw new Error('WrDialogRef: component not yet attached');
+    }
+    return this.componentRef.instance;
   }
 
   /** Close the dialog, optionally returning a result. */
   close(result?: R): void {
-    this._ref.close(result);
+    this.closed.next(result);
+    this.closed.complete();
+    this._overlayRef.dispose();
   }
 
   /** Resolves with the close result when the dialog is dismissed. */
   awaitClose(): Promise<R | undefined> {
     return new Promise(resolve => {
-      this._ref.closed.subscribe(value => resolve(value));
+      this.closed.subscribe({
+        next: value => resolve(value),
+        complete: () => resolve(undefined),
+      });
     });
   }
 
-  /** Underlying CDK ref — escape hatch for advanced cases. */
-  get cdkRef(): DialogRef<R, C> {
-    return this._ref;
+  /** Underlying overlay ref — escape hatch for advanced cases. */
+  get overlayRef(): OverlayRef {
+    return this._overlayRef;
   }
 }

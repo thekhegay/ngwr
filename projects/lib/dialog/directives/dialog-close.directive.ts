@@ -5,8 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { DialogRef } from '@angular/cdk/dialog';
 import { Directive, inject, input } from '@angular/core';
+
+import type { WrDialogRef } from '../dialog-ref';
+import { WR_DIALOG_REF } from '../tokens';
 
 /**
  * Closes the dialog when the host element is clicked.
@@ -30,7 +32,7 @@ export class WrDialogCloseDirective<R = unknown> {
    */
   readonly result = input<R | undefined>(undefined, { alias: 'wrDialogClose' });
 
-  private readonly ref = inject<DialogRef<R>>(DialogRef, { optional: true });
+  private readonly ref = inject<WrDialogRef<unknown, R>>(WR_DIALOG_REF, { optional: true });
 
   protected onClick(): void {
     this.ref?.close(this.result());

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Overlay, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import type { TemplateRef } from '@angular/core';
 import {
@@ -20,6 +20,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import { WR_OVERLAY } from 'ngwr/overlay';
 
 import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './types';
 
@@ -66,7 +68,7 @@ export class WrPopoverDirective {
   readonly closed = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly overlay = inject(Overlay);
+  private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);

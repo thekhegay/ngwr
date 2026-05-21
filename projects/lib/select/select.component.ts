@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Overlay, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
   ChangeDetectionStrategy,
@@ -28,6 +28,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { provideWrIcons, WrIconComponent, chevronDown } from 'ngwr/icon';
+import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
 import { WR_SELECT, type WrSelectContext } from './tokens';
@@ -106,7 +107,7 @@ export class WrSelectComponent implements ControlValueAccessor, WrSelectContext 
   protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly overlay = inject(Overlay);
+  private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);

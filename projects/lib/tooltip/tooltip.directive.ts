@@ -6,9 +6,11 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { Overlay, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input } from '@angular/core';
+
+import { WR_OVERLAY } from 'ngwr/overlay';
 
 import { WrTooltipComponent } from './tooltip.component';
 import { WR_TOOLTIP_POSITIONS, type WrTooltipPosition } from './types';
@@ -52,7 +54,7 @@ export class WrTooltipDirective {
   readonly hideDelay = input(150, { transform: numAttr(150) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly overlay = inject(Overlay);
+  private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
 
