@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+
+import { filter, map, startWith } from 'rxjs';
 
 import { WrIconComponent, chevronDown, provideWrIcons } from 'ngwr/icon';
 
@@ -125,18 +128,53 @@ export class SidebarComponent {
     },
   ];
 
-  /** Titles of currently collapsed groups. All groups are open by default. */
-  private readonly collapsed = signal<ReadonlySet<string>>(new Set());
+  /** Titles of currently expanded groups. All groups are collapsed by default. */
+  private readonly opened = signal<ReadonlySet<string>>(new Set());
+
+  private readonly router = inject(Router);
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(e => e.urlAfterRedirects),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
+
+  constructor() {
+    // Auto-expand whichever group contains the active route.
+    effect(() => {
+      const url = this.currentUrl();
+      const match = this.findGroupForUrl(url);
+      if (!match) return;
+      if (this.opened().has(match)) return;
+      const next = new Set(this.opened());
+      next.add(match);
+      this.opened.set(next);
+    });
+  }
 
   protected isOpen(title: string): boolean {
-    return !this.collapsed().has(title);
+    return this.opened().has(title);
   }
 
   protected toggleGroup(title: string): void {
-    const next = new Set(this.collapsed());
+    const next = new Set(this.opened());
     if (next.has(title)) next.delete(title);
     else next.add(title);
-    this.collapsed.set(next);
+    this.opened.set(next);
+  }
+
+  private findGroupForUrl(url: string): string | null {
+    for (const group of this.groups) {
+      if (group.children?.some(l => l.url && url.startsWith(l.url.join('/')))) {
+        return group.title;
+      }
+      if (group.categories?.some(c => c.children.some(l => l.url && url.startsWith(l.url.join('/'))))) {
+        return group.title;
+      }
+    }
+    return null;
   }
 
   protected onLinkClick(): void {
