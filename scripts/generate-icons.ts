@@ -132,7 +132,7 @@ function writeIconFile(icon: Icon): void {
 
 function readTags(): Record<string, string[]> {
   if (!existsSync(TAGS_FILE)) {
-    console.warn(`[icons] _tags.json not found at ${TAGS_FILE} — emitting empty tag map.`);
+    process.stderr.write(`[icons] _tags.json not found at ${TAGS_FILE} — emitting empty tag map.\n`);
     return {};
   }
   const raw = readFileSync(TAGS_FILE, 'utf-8');
@@ -145,14 +145,16 @@ function writeShowcaseTags(icons: Icon[], tags: Record<string, string[]>): void 
   // Warn on stale entries
   for (const key of Object.keys(tags)) {
     if (!known.has(key)) {
-      console.warn(`[icons] _tags.json: '${key}' has no matching SVG — entry will be dropped.`);
+      process.stderr.write(`[icons] _tags.json: '${key}' has no matching SVG — entry will be dropped.\n`);
     }
   }
 
   // Warn on icons missing tags
   const missing = icons.filter(i => !tags[i.kebab]).map(i => i.kebab);
   if (missing.length) {
-    console.warn(`[icons] ${missing.length} icon(s) without tags: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}`);
+    process.stderr.write(
+      `[icons] ${missing.length} icon(s) without tags: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}\n`
+    );
   }
 
   const entries = icons
@@ -222,5 +224,5 @@ for (const icon of icons) writeIconFile(icon);
 writeIconsIndex(icons);
 writeShowcaseTags(icons, tags);
 
-console.log(`Generated ${icons.length} icons → ${ICONS_DIR}`);
-console.log(`Generated tag map → ${SHOWCASE_TAGS_FILE}`);
+process.stderr.write(`Generated ${icons.length} icons → ${ICONS_DIR}\n`);
+process.stderr.write(`Generated tag map → ${SHOWCASE_TAGS_FILE}\n`);

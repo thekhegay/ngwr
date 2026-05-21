@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ng serve --o",
     "test": "ng test",
-    "lint": "ng lint",
+    "lint": "ng lint && eslint scripts",
     "build:lib": "ng build lib",
     "build:showcase": "ng build showcase",
     "generate:icons": "tsx scripts/generate-icons.ts",
