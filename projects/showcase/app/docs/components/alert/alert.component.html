@@ -1,0 +1,40 @@
+<ngwr-doc-page
+  title="Alert"
+  description="Inline status banner — info, success, warning, danger."
+  [keywords]="['alert', 'banner', 'wr-alert']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-alert title="Heads up" message="Your trial ends in 3 days." />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-snippet [code]="snippets.types">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        @for (t of types; track t) {
+          <wr-alert [title]="t" message="Sample message" [type]="t" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Closeable">
+    <ngwr-doc-snippet [code]="snippets.closeable">
+      <div style="width: 100%">
+        <wr-alert title="Saved" message="Your changes are live." type="success" closeable />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

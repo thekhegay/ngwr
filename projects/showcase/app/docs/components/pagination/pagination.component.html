@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="Pagination"
+  description="Numbered page navigator. Two-way binds currentPage and pageSize via signal models."
+  [keywords]="['pagination', 'wr-pagination']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-pagination [total]="120" [(currentPage)]="page" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With total + size changer"
+    description="Combine showTotal and showSizeChanger for full controls. align='end' pushes to the right."
+  >
+    <ngwr-doc-snippet [code]="snippets.full">
+      <div style="width: 100%">
+        <wr-pagination [total]="320" [(currentPage)]="page" [(pageSize)]="size" showTotal showSizeChanger align="end" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

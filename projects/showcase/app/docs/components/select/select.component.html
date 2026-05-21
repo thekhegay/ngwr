@@ -1,0 +1,60 @@
+<ngwr-doc-page
+  title="Select"
+  description="Native-like select built on CDK Overlay. Implements ControlValueAccessor."
+  [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
+  [labels]="['Component', 'Standalone', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-select placeholder="Pick a size" [(ngModel)]="size">
+          <wr-option value="sm">Small</wr-option>
+          <wr-option value="md">Medium</wr-option>
+          <wr-option value="lg">Large</wr-option>
+        </wr-select>
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ size() ?? 'none' }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Groups" description="Use <wr-option-group> to label sections of related options.">
+    <ngwr-doc-snippet [code]="snippets.groups">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-select [(ngModel)]="framework">
+          <wr-option-group label="Frontend">
+            <wr-option value="angular">Angular</wr-option>
+            <wr-option value="react">React</wr-option>
+            <wr-option value="vue">Vue</wr-option>
+          </wr-option-group>
+          <wr-option-group label="Backend">
+            <wr-option value="nest">NestJS</wr-option>
+            <wr-option value="fastify">Fastify</wr-option>
+          </wr-option-group>
+        </wr-select>
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ framework() ?? 'none' }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-select placeholder="Disabled" disabled />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Select API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Option API">
+    <ngwr-doc-api [rows]="optionApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Option Group API">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

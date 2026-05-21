@@ -1,0 +1,50 @@
+<ngwr-doc-page
+  title="Checkbox"
+  description="Two-state checkbox. Standalone (boolean) or inside <wr-checkbox-group> (array of values)."
+  [keywords]="['checkbox', 'wr-checkbox', 'wr-checkbox-group']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Standalone" description="Boolean value via [(ngModel)] or formControl.">
+    <ngwr-doc-snippet [code]="snippets.standalone">
+      <wr-checkbox [(ngModel)]="agree">I agree to the terms</wr-checkbox>
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ agree() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inside a group"
+    description="The group manages an array of values. Each child contributes its value when checked."
+  >
+    <ngwr-doc-snippet [code]="snippets.group">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <wr-checkbox-group [(ngModel)]="features">
+          <wr-checkbox value="autosave">Autosave</wr-checkbox>
+          <wr-checkbox value="notifications">Notifications</wr-checkbox>
+          <wr-checkbox value="darkmode">Dark mode</wr-checkbox>
+        </wr-checkbox-group>
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: [{{ features().join(', ') }}]</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-checkbox [disabled]="true">Disabled</wr-checkbox>
+        <wr-checkbox [disabled]="true" [(ngModel)]="agree">Disabled (checked)</wr-checkbox>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Checkbox API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Checkbox Group API">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Textarea"
+  description="Multi-line text input. Implements ControlValueAccessor. Optional autosize."
+  [keywords]="['textarea', 'wr-textarea']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%"><wr-textarea placeholder="Notes" [(ngModel)]="text" /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rows">
+    <ngwr-doc-snippet [code]="snippets.rows">
+      <div style="width: 100%"><wr-textarea [rows]="5" placeholder="5 rows" /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Autosize" description="Grows with content. Combine with maxRows to cap height.">
+    <ngwr-doc-snippet [code]="snippets.autosize">
+      <div style="width: 100%">
+        <wr-textarea autosize [maxRows]="6" [(ngModel)]="autoText" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Fixed size">
+    <ngwr-doc-snippet [code]="snippets.fixed">
+      <div style="width: 100%">
+        <wr-textarea [resizable]="false" [rows]="4" placeholder="No resize handle" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

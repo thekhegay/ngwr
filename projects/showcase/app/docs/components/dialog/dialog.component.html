@@ -1,0 +1,30 @@
+<ngwr-doc-page
+  title="Dialog"
+  description="Modal dialogs via a service that wraps @angular/cdk/dialog. Open any component as a dialog and read its close result as a Promise."
+  [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
+  [labels]="['Service', 'Directives', 'CDK Dialog']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Open a dialog">
+    <ngwr-doc-code [code]="snippets.open" language="typescript" />
+    <ngwr-doc-code [code]="snippets.template" language="html" />
+
+    <ngwr-doc-snippet code="dialog.open(ConfirmComponent, { data, width: '24rem' })">
+      <wr-btn color="danger" (click)="openConfirm()">Open confirm dialog</wr-btn>
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem; align-self: center">
+        Last result: {{ lastResult() }}
+      </span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Service API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Layout directives">
+    <ngwr-doc-api [rows]="directivesApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

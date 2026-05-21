@@ -1,0 +1,48 @@
+<ngwr-doc-page
+  title="Button Group"
+  description="Visually groups buttons by merging their borders."
+  [keywords]="['button group', 'wr-btn-group']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-btn-group>
+        <button wr-btn>Left</button>
+        <button wr-btn>Middle</button>
+        <button wr-btn>Right</button>
+      </wr-btn-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colored">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      <wr-btn-group>
+        <button wr-btn color="primary">Save</button>
+        <button wr-btn color="primary">Save & Continue</button>
+      </wr-btn-group>
+      <wr-btn-group>
+        <button wr-btn color="success" outlined>Approve</button>
+        <button wr-btn color="success" outlined>Approve all</button>
+      </wr-btn-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Segmented control" description="Use color to highlight the active option.">
+    <ngwr-doc-snippet [code]="snippets.toggle">
+      <wr-btn-group>
+        <button wr-btn [color]="colorFor('left')" (click)="setAlign('left')">Left</button>
+        <button wr-btn [color]="colorFor('center')" (click)="setAlign('center')">Center</button>
+        <button wr-btn [color]="colorFor('right')" (click)="setAlign('right')">Right</button>
+      </wr-btn-group>
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem">Selected: {{ align() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,52 @@
+<ngwr-doc-page
+  title="Avatar"
+  description="Image avatar with a fixed square or rounded shape. Shows a spinner while the image loads."
+  [keywords]="['avatar', 'profile', 'image', 'wr-avatar']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-avatar [url]="sampleUrl" alt="Sample" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sizes"
+    description="Accepts a number (pixels), '48', '48px', or '3rem'. No percentages — avatars need a deterministic pixel size."
+  >
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <wr-avatar [url]="sampleUrl" alt="" [size]="32" />
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" />
+      <wr-avatar [url]="sampleUrl" alt="" size="6rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rounded">
+    <ngwr-doc-snippet [code]="snippets.rounded">
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" rounded />
+      <wr-avatar [url]="sampleUrl" alt="" size="6rem" rounded />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Initials fallback"
+    description="When the avatar has no image, projected content fills the box. Use a flex layout to center it."
+  >
+    <ngwr-doc-snippet [code]="snippets.initials">
+      <wr-avatar [size]="48" rounded>
+        <span style="font-size: 0.875rem; font-weight: 600; color: var(--wr-color-medium)">RK</span>
+      </wr-avatar>
+      <wr-avatar [size]="64" style="background: rgba(var(--wr-color-primary-rgb), 0.15)">
+        <span style="font-size: 1.125rem; font-weight: 600; color: var(--wr-color-primary)">AB</span>
+      </wr-avatar>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

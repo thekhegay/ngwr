@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Table"
+  description="Data table with sortable / filterable headers and custom cell templates."
+  [keywords]="['table', 'wr-table']"
+  [labels]="['Component', 'Directive', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Define columns as a record keyed by row property names. Rows are plain objects."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sort + filter + custom cell"
+    description="Sortable columns cycle asc → desc → off. Filter dropdown emits the selected items via filterChange. Project an [wrTableCell] template to customize a column's rendering."
+  >
+    <ngwr-doc-snippet [code]="snippets.custom">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="visibleRows()" [(sort)]="sort" (filterChange)="onFilter($event)">
+          <ng-template wrTableCell="role" let-value>
+            <wr-tag [color]="value === 'admin' ? 'danger' : value === 'editor' ? 'primary' : 'medium'" transparent>
+              {{ value }}
+            </wr-tag>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

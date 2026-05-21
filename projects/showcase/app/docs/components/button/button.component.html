@@ -1,0 +1,96 @@
+<ngwr-doc-page
+  title="Button"
+  description="Trigger an action. Renders as <wr-btn>, button[wr-btn], or a[wr-btn]."
+  [keywords]="['button', 'wr-btn']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="The same selector matches a custom element, a native button, and an anchor."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-btn>Default</wr-btn>
+      <button wr-btn>Native button</button>
+      <a wr-btn>Anchor</a>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colors">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      @for (c of colors; track c) {
+        <wr-btn [color]="c">{{ c }}</wr-btn>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Outlined">
+    <ngwr-doc-snippet [code]="snippets.outlined">
+      @for (c of colors; track c) {
+        <wr-btn [color]="c" outlined>{{ c }}</wr-btn>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sizes">
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <wr-btn size="sm" color="primary">Small</wr-btn>
+      <wr-btn size="md" color="primary">Medium</wr-btn>
+      <wr-btn size="lg" color="primary">Large</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rounded">
+    <ngwr-doc-snippet [code]="snippets.rounded">
+      @for (c of colors; track c) {
+        <wr-btn [color]="c" rounded>{{ c }}</wr-btn>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With icon"
+    description="Pass any icon registered via provideWrIcons. iconPosition switches between start/end."
+  >
+    <ngwr-doc-snippet [code]="snippets.icon">
+      <wr-btn icon="add" color="primary">Add</wr-btn>
+      <wr-btn icon="checkmark" color="success">Confirm</wr-btn>
+      <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
+      <wr-btn icon="download" iconPosition="end" color="dark">Download</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-btn disabled>Disabled</wr-btn>
+      <wr-btn color="primary" disabled>Disabled</wr-btn>
+      <wr-btn color="danger" outlined disabled>Disabled</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loading"
+    description="The spinner overlays the label so layout stays put. By default pointer events are blocked while loading."
+  >
+    <ngwr-doc-snippet [code]="snippets.loading">
+      <wr-btn [loading]="loading()" color="primary" (click)="loading.set(!loading())">Click to toggle</wr-btn>
+      <wr-btn loading color="success">Saving</wr-btn>
+      <wr-btn loading icon="add" color="dark" outlined>With icon</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Block" description="Fills the parent's width.">
+    <ngwr-doc-snippet [code]="snippets.block">
+      <div style="width: 100%">
+        <wr-btn color="primary" block icon="checkmark">Full width</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

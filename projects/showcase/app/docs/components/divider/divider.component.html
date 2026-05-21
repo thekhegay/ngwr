@@ -1,0 +1,50 @@
+<ngwr-doc-page
+  title="Divider"
+  description="Horizontal separator. Solid, dashed, or dotted; tinted with any theme color."
+  [keywords]="['divider', 'separator', 'wr-divider']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%">
+        <wr-divider />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Line styles">
+    <ngwr-doc-snippet [code]="snippets.types">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem">
+        <wr-divider type="solid" />
+        <wr-divider type="dashed" />
+        <wr-divider type="dotted" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colors">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem">
+        @for (c of colors; track c) {
+          <wr-divider [color]="c" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Width">
+    <ngwr-doc-snippet [code]="snippets.width">
+      <div style="width: 100%">
+        <wr-divider [width]="3" color="primary" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

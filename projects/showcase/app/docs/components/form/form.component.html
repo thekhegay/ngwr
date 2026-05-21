@@ -1,0 +1,47 @@
+<ngwr-doc-page
+  title="Form"
+  description="Layout helpers: <wr-form-item> wraps a label + control + error message; <wr-form-error> renders inline error text."
+  [keywords]="['form', 'wr-form-item', 'wr-form-error']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%; max-width: 24rem">
+        <wr-form-item>
+          <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+          <label>Email</label>
+          <wr-input type="email" [(ngModel)]="email" placeholder="you@example.com" />
+        </wr-form-item>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With error"
+    description="Toggle hasError to color label/input red and reveal the error message."
+  >
+    <ngwr-doc-snippet [code]="snippets.error">
+      <div style="width: 100%; max-width: 24rem; display: flex; flex-direction: column; gap: 0.75rem">
+        <wr-form-item [hasError]="emailInvalid()">
+          <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+          <label>Email</label>
+          <wr-input type="email" [(ngModel)]="email" placeholder="you@example.com" />
+          @if (emailInvalid()) {
+            <wr-form-error>Please enter a valid email.</wr-form-error>
+          }
+        </wr-form-item>
+        <div>
+          <wr-btn color="primary" (click)="validate()">Validate</wr-btn>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Form Item API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

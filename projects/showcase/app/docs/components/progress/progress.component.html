@@ -1,0 +1,39 @@
+<ngwr-doc-page
+  title="Progress"
+  description="Horizontal progress bar with theme colors and an animated fill."
+  [keywords]="['progress', 'wr-progress']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="width: 100%"><wr-progress [value]="42" /></div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Colors">
+    <ngwr-doc-snippet [code]="snippets.colors">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
+        @for (c of colors; track c) {
+          <wr-progress [color]="c" [value]="65" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Interactive" description="Bar width animates between changes.">
+    <ngwr-doc-snippet [code]="snippets.interactive">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-progress [value]="demoValue()" />
+        <input type="range" min="0" max="100" [value]="demoValue()" (input)="onInput($event)" style="width: 100%" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

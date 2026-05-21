@@ -1,0 +1,67 @@
+<ngwr-doc-page
+  title="Dropdown"
+  description="Attach a floating menu to any trigger via the wrDropdown directive. Built on CDK Overlay — handles outside clicks, Escape, and edge collisions."
+  [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
+  [labels]="['Directive', 'Components', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <button wr-btn color="primary" [wrDropdown]="basicMenu">Actions</button>
+      <wr-dropdown-menu #basicMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="download">Download</wr-dropdown-item>
+        <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Positions" description="Eight anchor sides; CDK auto-flips when there's not enough room.">
+    <ngwr-doc-snippet [code]="snippets.positions">
+      <button wr-btn [wrDropdown]="positionMenu" position="bottom-start">Bottom start</button>
+      <button wr-btn [wrDropdown]="positionMenu" position="bottom-end">Bottom end</button>
+      <button wr-btn [wrDropdown]="positionMenu" position="top-start">Top start</button>
+      <button wr-btn [wrDropdown]="positionMenu" position="right">Right</button>
+      <wr-dropdown-menu #positionMenu>
+        <wr-dropdown-item icon="cog">Settings</wr-dropdown-item>
+        <wr-dropdown-item icon="external-outline">Help</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Hover trigger"
+    description="Opens on mouseenter; closes when the pointer leaves both trigger and menu."
+  >
+    <ngwr-doc-snippet [code]="snippets.hover">
+      <button wr-btn color="dark" [wrDropdown]="hoverMenu" trigger="hover">Hover me</button>
+      <wr-dropdown-menu #hoverMenu>
+        <wr-dropdown-item>Item 1</wr-dropdown-item>
+        <wr-dropdown-item>Item 2</wr-dropdown-item>
+        <wr-dropdown-item>Item 3</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled item">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <button wr-btn [wrDropdown]="disabledMenu">Open</button>
+      <wr-dropdown-menu #disabledMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>
+        <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Directive API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Item API">
+    <ngwr-doc-api [rows]="itemApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
