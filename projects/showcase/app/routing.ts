@@ -12,9 +12,11 @@ export const routes = {
       index: 'components',
       alert: 'alert',
       avatar: 'avatar',
+      badge: 'badge',
       button: 'button',
       buttonGroup: 'button-group',
       checkbox: 'checkbox',
+      checkboxGroup: 'checkbox-group',
       dialog: 'dialog',
       divider: 'divider',
       form: 'form',
@@ -22,6 +24,8 @@ export const routes = {
       input: 'input',
       progress: 'progress',
       qrCode: 'qrcode',
+      radio: 'radio',
+      radioGroup: 'radio-group',
       skeleton: 'skeleton',
       spinner: 'spinner',
       tag: 'tag',
@@ -40,6 +44,11 @@ export const routes = {
 };
 
 export const routing: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./home/home.component'),
+  },
   {
     path: routes.docs.index,
     loadChildren: () => import('./docs/docs.routing'),
