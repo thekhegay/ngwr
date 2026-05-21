@@ -1,0 +1,59 @@
+<ngwr-doc-page
+  title="Color"
+  description="The theme ships 8 base colors. Each color exposes 7 CSS variables: base, rgb, contrast, dark, darker, light, lighter."
+  [keywords]="['color', 'palette', 'theme', 'tokens']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section title="Palette">
+    <div class="color-grid">
+      @for (color of colors; track color) {
+        <div class="color-grid__row">
+          <span class="color-grid__name">{{ color }}</span>
+          <div class="color-grid__swatches">
+            @for (v of variants; track v.suffix) {
+              <div
+                class="color-grid__chip"
+                [style.background]="styleFor(color, v.suffix)"
+                [style.color]="styleFor(color, '-contrast')"
+                [title]="cssVarFor(color, v.suffix)"
+              >
+                <span class="color-grid__label">{{ v.label }}</span>
+                <code class="color-grid__var">{{ cssVarFor(color, v.suffix) }}</code>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="CSS variables">
+    <ngwr-doc-code [code]="snippets.cssVars" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Using them"
+    description="Use the base + contrast pair for solid surfaces. Use the -rgb channel with rgba() for tints and rings."
+  >
+    <ngwr-doc-code [code]="snippets.consume" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Override at runtime"
+    description="Redeclare a token at :root (or any subtree). For app-wide rebrand, override the SCSS palette below — it auto-generates contrast + light/dark variants."
+  >
+    <ngwr-doc-code [code]="snippets.overrideRoot" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Override the palette at compile time"
+    description="The cleanest way to rebrand. Pass your colors to the SCSS module; NGWR regenerates all variants."
+  >
+    <ngwr-doc-code [code]="snippets.overrideScss" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Iterating the palette">
+    <ngwr-doc-code [code]="snippets.iterateScss" language="scss" />
+    <ngwr-doc-code [code]="snippets.iterateTs" language="typescript" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

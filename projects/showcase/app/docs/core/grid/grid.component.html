@@ -1,0 +1,73 @@
+<ngwr-doc-page
+  title="Grid"
+  description="A 12-column CSS grid + container utilities, plus a media-query mixin you can use in your own SCSS."
+  [keywords]="['grid', 'columns', 'breakpoints', 'responsive']"
+  [labels]="['Core', 'Opt-in']"
+>
+  <ngwr-doc-section
+    title="Opt in"
+    description="Utilities are not part of the umbrella entry. Pull grid into your global stylesheet."
+  >
+    <ngwr-doc-code [code]="snippets.optIn" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Breakpoints">
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Min width</th>
+          <th>Container max-width</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (bp of breakpoints; track bp.name) {
+          <tr>
+            <td>
+              <code>{{ bp.name }}</code>
+            </td>
+            <td>{{ bp.min }}</td>
+            <td>{{ bp.container }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="12-column grid"
+    description="Hover the rows below — each labelled span shows the 12-column slot it occupies."
+  >
+    <div class="grid-demo">
+      @for (span of cols; track span) {
+        <div class="grid grid-demo__row">
+          @for (i of [].constructor(colSpan(span)); track $index) {
+            <div class="grid-demo__cell" [class]="'col-' + span">.col-{{ span }}</div>
+          }
+        </div>
+      }
+    </div>
+    <ngwr-doc-code [code]="snippets.grid" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Container"
+    description="container-* caps width at the named breakpoint and up; below that it's fluid. container-fluid is always 100%."
+  >
+    <ngwr-doc-code [code]="snippets.container" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Gutter"
+    description="The gap between grid cells (and container padding) is driven by a single CSS variable."
+  >
+    <ngwr-doc-code [code]="snippets.gutter" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Media-query mixin"
+    description="You can use the same breakpoint mixins NGWR uses internally — pull them from the breakpoints sub-entry (no CSS emitted)."
+  >
+    <ngwr-doc-code [code]="snippets.mediaUp" language="scss" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
