@@ -1,0 +1,112 @@
+@use '../../theme/styles' as theme;
+
+.wr-drawer-backdrop {
+  background: rgba(var(--wr-color-dark-rgb), 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.wr-drawer-overlay {
+  pointer-events: auto;
+}
+
+.wr-drawer__panel {
+  --wr-drawer-bg: var(--wr-color-white);
+  --wr-drawer-shadow: 0 20px 48px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: var(--wr-drawer-bg);
+  color: var(--wr-color-dark);
+  box-shadow: var(--wr-drawer-shadow);
+  font-family: var(--wr-font-family-base);
+  overflow: hidden;
+
+  &--left {
+    animation: wr-drawer-slide-left 0.22s ease-out;
+  }
+  &--right {
+    animation: wr-drawer-slide-right 0.22s ease-out;
+  }
+  &--top {
+    animation: wr-drawer-slide-top 0.22s ease-out;
+  }
+  &--bottom {
+    animation: wr-drawer-slide-bottom 0.22s ease-out;
+  }
+}
+
+.wr-drawer {
+  &__title {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    color: var(--wr-color-dark);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+    border-bottom: 1px solid var(--wr-color-light);
+  }
+
+  &__content {
+    flex: 1 1 auto;
+    padding: 1rem 1.25rem;
+    overflow: auto;
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--wr-color-light);
+
+    &--start {
+      justify-content: flex-start;
+    }
+    &--center {
+      justify-content: center;
+    }
+    &--end {
+      justify-content: flex-end;
+    }
+  }
+}
+
+@keyframes wr-drawer-slide-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes wr-drawer-slide-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes wr-drawer-slide-top {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes wr-drawer-slide-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
