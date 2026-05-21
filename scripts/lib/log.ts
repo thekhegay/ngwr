@@ -11,6 +11,9 @@
  * Lint forbids `console.*` repo-wide. The release scripts still need to print
  * status to stderr (so consumers can pipe stdout cleanly) and write the final
  * version to stdout. These wrappers do exactly that.
+ *
+ * `process` is a Node global — no explicit `import` is required and adding
+ * one would be flagged as an unused import.
  */
 
 /** Print a progress / status line to stderr. */

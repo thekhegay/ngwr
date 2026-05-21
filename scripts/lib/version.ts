@@ -7,7 +7,8 @@
 
 /**
  * Reads / writes the published library's version and computes the next one
- * from a `Bump` choice.
+ * from a `Bump` choice. Also keeps the showcase's hard-coded `NGWR_VERSION`
+ * constant in sync with the lib.
  *
  * RC bumps follow the convention used by most npm libraries:
  *   1.2.3        → 1.2.4-rc.0   (first RC for the next patch)
@@ -18,8 +19,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 import semver from 'semver';
 
-import type { Bump } from './bump';
-import { LIB_PKG } from './paths';
+import { LIB_PKG, SHOWCASE_VERSION } from './paths';
+import type { Bump } from './types';
 
 type Pkg = { version: string; [key: string]: unknown };
 
@@ -29,11 +30,19 @@ export function readCurrentVersion(): string {
   return pkg.version;
 }
 
-/** Writes a new version into `projects/lib/package.json`, preserving JSON layout. */
+/**
+ * Writes a new version into `projects/lib/package.json` and syncs the
+ * showcase's `NGWR_VERSION` constant so the docs footer always reflects
+ * the published version.
+ */
 export function writeVersion(next: string): void {
   const pkg = JSON.parse(readFileSync(LIB_PKG, 'utf8')) as Pkg;
   pkg.version = next;
   writeFileSync(LIB_PKG, `${JSON.stringify(pkg, null, 2)}\n`);
+
+  const showcase = readFileSync(SHOWCASE_VERSION, 'utf8');
+  const updated = showcase.replace(/export const NGWR_VERSION = '[^']*';/, `export const NGWR_VERSION = '${next}';`);
+  writeFileSync(SHOWCASE_VERSION, updated);
 }
 
 /** Computes the next version for the given bump kind, or `null` when the input is invalid. */

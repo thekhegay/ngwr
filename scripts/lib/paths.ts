@@ -25,3 +25,6 @@ export const LIB_PKG = resolve(ROOT, 'projects/lib/package.json');
 
 /** Path to the repository `CHANGELOG.md`. */
 export const CHANGELOG = resolve(ROOT, 'CHANGELOG.md');
+
+/** Path to the showcase's hard-coded `NGWR_VERSION` constant, kept in sync with the lib. */
+export const SHOWCASE_VERSION = resolve(ROOT, 'projects/showcase/app/_core/version.ts');

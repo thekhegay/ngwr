@@ -6,8 +6,9 @@
  */
 
 /**
- * Bumps `projects/lib/package.json` and prepends a new section to
- * `CHANGELOG.md` based on the conventional commits since the last release.
+ * Bumps `projects/lib/package.json`, syncs the showcase footer's
+ * `NGWR_VERSION`, and prepends a new section to `CHANGELOG.md` based on the
+ * conventional commits since the last release.
  *
  * Usage:
  *   pnpm release:prepare --bump=patch
@@ -43,13 +44,14 @@ if (!next) {
 
 writeVersion(next);
 info(`✓ Bumped ${current} → ${next}`);
+info('✓ Synced showcase NGWR_VERSION');
 
 regenerateChangelog();
 info('✓ CHANGELOG.md updated');
 
 out(`${next}\n`);
 
-const ghOutput = process.env.GITHUB_OUTPUT;
+const ghOutput = process.env['GITHUB_OUTPUT'];
 if (ghOutput) {
   appendFileSync(ghOutput, `version=${next}\ntag=v${next}\nis_rc=${bump === 'rc'}\n`);
 }
