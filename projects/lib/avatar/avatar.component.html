@@ -1,0 +1,17 @@
+<ng-content />
+
+@if (url(); as src) {
+  <img
+    class="wr-avatar__img"
+    [src]="src"
+    [alt]="alt()"
+    [attr.width]="pxSize()"
+    [attr.height]="pxSize()"
+    (load)="onImageLoad()"
+    decoding="async"
+  />
+
+  @if (!loaded()) {
+    <wr-spinner class="wr-avatar__spin" />
+  }
+}

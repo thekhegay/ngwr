@@ -1,0 +1,42 @@
+@use '../../theme/styles' as theme;
+
+.wr-avatar {
+  // Defaults
+  --wr-avatar-radius: 10%;
+  --wr-avatar-img-opacity: 0;
+  --wr-avatar-ring: rgba(var(--wr-color-light-rgb), 0.5);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--wr-avatar-radius);
+  box-shadow: inset 0 0 0 1px var(--wr-avatar-ring);
+
+  &--rounded {
+    --wr-avatar-radius: 50%;
+  }
+
+  &--loaded {
+    --wr-avatar-img-opacity: 1;
+    --wr-avatar-ring: transparent;
+  }
+
+  &__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+    opacity: var(--wr-avatar-img-opacity);
+    transition: opacity var(--wr-transition-base);
+  }
+
+  &__spin {
+    position: absolute;
+    color: rgba(var(--wr-color-medium-rgb), 0.6);
+    --wr-spinner-size: 40%;
+  }
+}
