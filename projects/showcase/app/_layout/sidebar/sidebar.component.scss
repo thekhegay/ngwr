@@ -77,12 +77,12 @@
       transform: rotate(-90deg);
     }
 
-    // CSS-only smooth collapse via grid-template-rows interpolation.
+    // Smooth collapse using interpolate-size on grid-template-rows.
+    // Grid item (body) clips its overflow so the track size truly drives height.
     &-wrap {
       display: grid;
       grid-template-rows: 1fr;
-      overflow: hidden;
-      transition: grid-template-rows var(--wr-transition-base);
+      transition: grid-template-rows 0.25s ease;
     }
 
     &--collapsed &-wrap {
@@ -93,8 +93,15 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      padding: 0.25rem 0 0.5rem 0.5rem;
       min-height: 0;
+      overflow: hidden;
+    }
+
+    &-inner {
+      padding: 0.25rem 0 0.5rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
   }
 

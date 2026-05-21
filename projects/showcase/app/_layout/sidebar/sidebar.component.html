@@ -13,58 +13,60 @@
 
       <div class="ngwr-sidebar__group-wrap" [attr.aria-hidden]="!isOpen(group.title)">
         <div class="ngwr-sidebar__group-body">
-          @if (group.children) {
-            <ul class="ngwr-sidebar__list">
-              @for (link of group.children; track link.title) {
-                <li>
-                  @if (link.disabled || !link.url) {
-                    <span class="ngwr-sidebar__link ngwr-sidebar__link--disabled" aria-disabled="true">
-                      {{ link.title }}
-                      <small class="ngwr-sidebar__badge">soon</small>
-                    </span>
-                  } @else {
-                    <a
-                      class="ngwr-sidebar__link"
-                      routerLinkActive="ngwr-sidebar__link--active"
-                      [routerLink]="link.url"
-                      (click)="onLinkClick()"
-                    >
-                      {{ link.title }}
-                    </a>
-                  }
-                </li>
-              }
-            </ul>
-          }
-
-          @if (group.categories) {
-            @for (category of group.categories; track category.title) {
-              <div class="ngwr-sidebar__category">
-                <h4 class="ngwr-sidebar__category-title">{{ category.title }}</h4>
-                <ul class="ngwr-sidebar__list">
-                  @for (link of category.children; track link.title) {
-                    <li>
-                      @if (link.disabled || !link.url) {
-                        <span class="ngwr-sidebar__link ngwr-sidebar__link--disabled" aria-disabled="true">
-                          {{ link.title }}
-                          <small class="ngwr-sidebar__badge">soon</small>
-                        </span>
-                      } @else {
-                        <a
-                          class="ngwr-sidebar__link"
-                          routerLinkActive="ngwr-sidebar__link--active"
-                          [routerLink]="link.url"
-                          (click)="onLinkClick()"
-                        >
-                          {{ link.title }}
-                        </a>
-                      }
-                    </li>
-                  }
-                </ul>
-              </div>
+          <div class="ngwr-sidebar__group-inner">
+            @if (group.children) {
+              <ul class="ngwr-sidebar__list">
+                @for (link of group.children; track link.title) {
+                  <li>
+                    @if (link.disabled || !link.url) {
+                      <span class="ngwr-sidebar__link ngwr-sidebar__link--disabled" aria-disabled="true">
+                        {{ link.title }}
+                        <small class="ngwr-sidebar__badge">soon</small>
+                      </span>
+                    } @else {
+                      <a
+                        class="ngwr-sidebar__link"
+                        routerLinkActive="ngwr-sidebar__link--active"
+                        [routerLink]="link.url"
+                        (click)="onLinkClick()"
+                      >
+                        {{ link.title }}
+                      </a>
+                    }
+                  </li>
+                }
+              </ul>
             }
-          }
+
+            @if (group.categories) {
+              @for (category of group.categories; track category.title) {
+                <div class="ngwr-sidebar__category">
+                  <h4 class="ngwr-sidebar__category-title">{{ category.title }}</h4>
+                  <ul class="ngwr-sidebar__list">
+                    @for (link of category.children; track link.title) {
+                      <li>
+                        @if (link.disabled || !link.url) {
+                          <span class="ngwr-sidebar__link ngwr-sidebar__link--disabled" aria-disabled="true">
+                            {{ link.title }}
+                            <small class="ngwr-sidebar__badge">soon</small>
+                          </span>
+                        } @else {
+                          <a
+                            class="ngwr-sidebar__link"
+                            routerLinkActive="ngwr-sidebar__link--active"
+                            [routerLink]="link.url"
+                            (click)="onLinkClick()"
+                          >
+                            {{ link.title }}
+                          </a>
+                        }
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            }
+          </div>
         </div>
       </div>
     </section>
