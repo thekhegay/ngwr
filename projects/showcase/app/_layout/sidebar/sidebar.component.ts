@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+
+import { WrIconComponent, chevronDown, provideWrIcons } from 'ngwr/icon';
 
 import { LayoutState } from '../layout-state.service';
 
@@ -31,7 +33,8 @@ type SidebarGroup = {
     class: 'ngwr-sidebar',
     '[class.ngwr-sidebar--opened]': 'layoutState.sidebarOpen()',
   },
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, WrIconComponent],
+  providers: [provideWrIcons([chevronDown])],
 })
 export class SidebarComponent {
   protected readonly layoutState = inject(LayoutState);
@@ -121,6 +124,20 @@ export class SidebarComponent {
       ],
     },
   ];
+
+  /** Titles of currently collapsed groups. All groups are open by default. */
+  private readonly collapsed = signal<ReadonlySet<string>>(new Set());
+
+  protected isOpen(title: string): boolean {
+    return !this.collapsed().has(title);
+  }
+
+  protected toggleGroup(title: string): void {
+    const next = new Set(this.collapsed());
+    if (next.has(title)) next.delete(title);
+    else next.add(title);
+    this.collapsed.set(next);
+  }
 
   protected onLinkClick(): void {
     this.layoutState.closeSidebar();
