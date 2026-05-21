@@ -1,0 +1,28 @@
+<ngwr-doc-page
+  title="Switch"
+  description="Boolean toggle with an iOS-style slider. Implements ControlValueAccessor."
+  [keywords]="['switch', 'toggle', 'wr-switch']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-switch [(ngModel)]="enabled">Notifications</wr-switch>
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ enabled() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-switch disabled>Off</wr-switch>
+      <wr-switch disabled [(ngModel)]="enabled">On + disabled</wr-switch>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

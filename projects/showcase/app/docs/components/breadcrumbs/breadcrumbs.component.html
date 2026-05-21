@@ -1,0 +1,38 @@
+<ngwr-doc-page
+  title="Breadcrumbs"
+  description="Navigation trail. Items become routerLinks when given a target, or plain text for the current page."
+  [keywords]="['breadcrumbs', 'wr-breadcrumbs', 'navigation']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-breadcrumbs>
+        <wr-breadcrumb-item routerLink="/">Home</wr-breadcrumb-item>
+        <wr-breadcrumb-item routerLink="/docs">Docs</wr-breadcrumb-item>
+        <wr-breadcrumb-item>Breadcrumbs</wr-breadcrumb-item>
+      </wr-breadcrumbs>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom separator">
+    <ngwr-doc-snippet [code]="snippets.separator">
+      <wr-breadcrumbs separator="›">
+        <wr-breadcrumb-item routerLink="/">Home</wr-breadcrumb-item>
+        <wr-breadcrumb-item routerLink="/docs">Docs</wr-breadcrumb-item>
+        <wr-breadcrumb-item>Current</wr-breadcrumb-item>
+      </wr-breadcrumbs>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Breadcrumbs API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Item API">
+    <ngwr-doc-api [rows]="itemApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
