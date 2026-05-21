@@ -8,10 +8,31 @@
     <ngwr-doc-code [code]="snippets.install" language="typescript" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Show a toast">
+  <ngwr-doc-section
+    title="Global config"
+    description="Register `provideWrToastConfig` once at bootstrap to set defaults — position, duration, progress bar, copy button, max stack, label strings (i18n). Any field you omit falls back to the library default; the `labels` sub-object is merged separately so you can override a single string at a time."
+  >
+    <ngwr-doc-code [code]="snippets.config" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Show a toast"
+    description="Toggle the demo controls below to preview progress bar and copy button on the fired toasts."
+  >
     <ngwr-doc-code [code]="snippets.show" language="typescript" />
 
     <ngwr-doc-snippet code="toast.show(...)">
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.75rem">
+        <label style="display: inline-flex; gap: 0.375rem; align-items: center; font-size: 0.8125rem; cursor: pointer">
+          <input type="checkbox" [checked]="showProgress()" (change)="showProgress.set(!showProgress())" />
+          Show progress
+        </label>
+        <label style="display: inline-flex; gap: 0.375rem; align-items: center; font-size: 0.8125rem; cursor: pointer">
+          <input type="checkbox" [checked]="showCopy()" (change)="showCopy.set(!showCopy())" />
+          Show copy button
+        </label>
+      </div>
+
       <wr-btn (click)="fire('info')">Info</wr-btn>
       <wr-btn color="success" (click)="fire('success')">Success</wr-btn>
       <wr-btn color="warning" (click)="fire('warning')">Warning</wr-btn>
@@ -20,17 +41,39 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Per-toast overrides"
+    description="Each call to `show()` accepts the same fields as the global config — handy for one-off positions, copy buttons, longer durations."
+  >
+    <ngwr-doc-code [code]="snippets.overrides" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="fireCopy()">Show with copy button</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Close all"
+    description="When the stack reaches `closeAllThreshold` (default 2), a pill-styled “Close all” button appears above the toasts."
+  >
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="fireStack()">Open 3 toasts</wr-btn>
+      <wr-btn outlined (click)="dismissAll()">Dismiss all programmatically</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Persistent toast"
-    description="Pass `duration: 0` to disable auto-dismiss — the user closes it manually."
+    description="Pass `duration: 0` to disable auto-dismiss — the user closes it manually. Progress bar is hidden automatically."
   >
     <ngwr-doc-code [code]="snippets.persistent" language="typescript" />
     <ngwr-doc-snippet code="">
       <wr-btn color="warning" (click)="firePersistent()">Open persistent</wr-btn>
-      <wr-btn outlined (click)="dismissAll()">Dismiss all</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Position" description="Switch the corner toasts open in.">
+  <ngwr-doc-section
+    title="Position"
+    description="Switch the default corner. Per-toast `position` overrides win for that toast only."
+  >
     <ngwr-doc-code [code]="snippets.position" language="typescript" />
     <ngwr-doc-snippet code="">
       <wr-segmented [options]="positionOptions" [value]="position()" (valueChange)="onPositionChange($event)" />
@@ -38,10 +81,20 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Service API">
-    <ngwr-doc-api [rows]="api" />
+    <ngwr-doc-api [rows]="serviceApi" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="WrToastConfig">
+  <ngwr-doc-section
+    title="WrToastOptions"
+    description="Per-call options accepted by `toast.show()`. Any omitted field falls back to the global `WrToastConfig`."
+  >
+    <ngwr-doc-api [rows]="optionsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrToastConfig"
+    description="Global configuration registered through `provideWrToastConfig`. These values back every `WrToastOptions` field that isn't overridden at call time."
+  >
     <ngwr-doc-api [rows]="configApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>
