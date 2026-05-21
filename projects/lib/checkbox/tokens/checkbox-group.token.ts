@@ -21,4 +21,10 @@ export type WrCheckboxGroupContext = {
   readonly isDisabled: Signal<boolean>;
 };
 
+/**
+ * Token a `<wr-checkbox>` injects to read selection state from — and
+ * toggle values in — its parent `<wr-checkbox-group>` (when present).
+ *
+ * @internal
+ */
 export const WR_CHECKBOX_GROUP = new InjectionToken<WrCheckboxGroupContext>('WR_CHECKBOX_GROUP');

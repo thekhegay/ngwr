@@ -23,4 +23,11 @@ export type WrCollapseGroupContext = {
   unregister(memberId: object): void;
 };
 
+/**
+ * Token a `<wr-collapse>` injects to register itself with — and notify of
+ * open events — its parent `<wr-collapse-group>`. Drives the accordion
+ * behaviour when the group has `accordion` enabled.
+ *
+ * @internal
+ */
 export const WR_COLLAPSE_GROUP = new InjectionToken<WrCollapseGroupContext>('WR_COLLAPSE_GROUP');

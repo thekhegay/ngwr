@@ -23,4 +23,10 @@ export type WrTabsContext = {
   unregister(key: string): void;
 };
 
+/**
+ * Token a `<wr-tab>` injects to register itself with — and read the active
+ * key from — its parent `<wr-tabs>` host.
+ *
+ * @internal
+ */
 export const WR_TABS = new InjectionToken<WrTabsContext>('WR_TABS');

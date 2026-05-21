@@ -7,6 +7,19 @@
 
 import { Directive } from '@angular/core';
 
+/**
+ * Marks an element as the drawer's title row. Applies the `wr-drawer__title`
+ * class so the drawer's stylesheet can lay it out alongside content and
+ * footer slots.
+ *
+ * @example
+ * ```html
+ * <wr-drawer [(open)]="open">
+ *   <h2 wrDrawerTitle>Settings</h2>
+ *   <div wrDrawerContent>…</div>
+ * </wr-drawer>
+ * ```
+ */
 @Directive({
   selector: '[wrDrawerTitle]',
   host: { class: 'wr-drawer__title' },
