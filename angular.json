@@ -81,7 +81,15 @@
             "production": {
               "outputHashing": "all",
               "extractLicenses": false,
-              "sourceMap": false
+              "sourceMap": false,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              }
             },
             "development": {
               "optimization": false,
