@@ -67,11 +67,6 @@ jobs:
 
       - run: pnpm build:lib
 
-      - name: Copy README and LICENSE into dist/lib
-        run: |
-          cp README.md  dist/lib/README.md
-          cp LICENSE    dist/lib/LICENSE
-
       - name: Generate release body
         run: pnpm release:body --output=.release-body.md
 

@@ -6,7 +6,7 @@
     "dev": "ng serve --o",
     "test": "ng test",
     "lint": "ng lint && eslint scripts",
-    "build:lib": "ng build lib",
+    "build:lib": "ng build lib && tsx scripts/copy-dist-assets.ts",
     "build:showcase": "ng build showcase",
     "generate:icons": "tsx scripts/generate-icons.ts",
     "release:prepare": "tsx scripts/release-prepare.ts",
