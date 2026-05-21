@@ -2,6 +2,12 @@
 @forward 'breakpoints';
 @use 'breakpoints' as bp;
 
+// Grid-scoped token. Declared here (not in theme) because grid is the
+// only consumer. Override on `:root` or any subtree to retune spacing.
+:root {
+  --wr-grid-gutter: 1rem;
+}
+
 // Config
 
 $columns: 12;

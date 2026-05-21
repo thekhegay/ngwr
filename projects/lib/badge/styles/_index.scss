@@ -1,4 +1,8 @@
-@use '../../theme/styles/colors' as theme;
+// Pull the whole theme so a standalone `@use 'ngwr/badge'` brings in
+// every design token the badge uses (border-radius, colors, etc.).
+// Sass deduplicates `@use` per compilation, so multiple components
+// importing theme only emit it once.
+@use '../../theme/styles' as theme;
 
 .wr-badge {
   display: inline-flex;
