@@ -71,6 +71,10 @@ export default [
     loadComponent: () => import('./input/input.component'),
   },
   {
+    path: components.inputOtp,
+    loadComponent: () => import('./input-otp/input-otp.component'),
+  },
+  {
     path: components.pagination,
     loadComponent: () => import('./pagination/pagination.component'),
   },
@@ -105,6 +109,10 @@ export default [
   {
     path: components.skeleton,
     loadComponent: () => import('./skeleton/skeleton.component'),
+  },
+  {
+    path: components.slider,
+    loadComponent: () => import('./slider/slider.component'),
   },
   {
     path: components.spinner,

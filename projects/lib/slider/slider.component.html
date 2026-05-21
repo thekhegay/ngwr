@@ -1,0 +1,37 @@
+<div #track class="wr-slider__track" (pointerdown)="onTrackPointerDown($event)">
+  <span class="wr-slider__fill" [style.left.%]="fillLeft()" [style.width.%]="fillWidth()"></span>
+
+  <button
+    type="button"
+    class="wr-slider__thumb wr-slider__thumb--low"
+    role="slider"
+    [style.left.%]="lowPercent()"
+    [disabled]="effectiveDisabled()"
+    [attr.aria-valuemin]="min()"
+    [attr.aria-valuemax]="range() ? high() : max()"
+    [attr.aria-valuenow]="low()"
+    [attr.aria-label]="range() ? 'Lower value' : 'Value'"
+    (pointerdown)="onPointerDown($event, 'low')"
+    (keydown)="onKey($event, 'low')"
+  ></button>
+
+  @if (range()) {
+    <button
+      type="button"
+      class="wr-slider__thumb wr-slider__thumb--high"
+      role="slider"
+      [style.left.%]="highPercent()"
+      [disabled]="effectiveDisabled()"
+      [attr.aria-valuemin]="low()"
+      [attr.aria-valuemax]="max()"
+      [attr.aria-valuenow]="high()"
+      aria-label="Upper value"
+      (pointerdown)="onPointerDown($event, 'high')"
+      (keydown)="onKey($event, 'high')"
+    ></button>
+  }
+</div>
+
+@if (showLabel()) {
+  <div class="wr-slider__label">{{ label() }}</div>
+}

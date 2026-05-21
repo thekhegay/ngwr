@@ -88,6 +88,9 @@
     "./input": {
       "sass": "./input/styles/_index.scss"
     },
+    "./input-otp": {
+      "sass": "./input-otp/styles/_index.scss"
+    },
     "./overlay": {},
     "./pagination": {
       "sass": "./pagination/styles/_index.scss"
@@ -115,6 +118,9 @@
     },
     "./skeleton": {
       "sass": "./skeleton/styles/_index.scss"
+    },
+    "./slider": {
+      "sass": "./slider/styles/_index.scss"
     },
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"

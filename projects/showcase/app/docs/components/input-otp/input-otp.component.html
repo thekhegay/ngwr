@@ -1,0 +1,62 @@
+<ngwr-doc-page
+  title="Input OTP"
+  description="Fixed-length one-time-code input. One cell per character, auto-advances focus on typing, handles paste of a full code, optional masking like a password field."
+  [keywords]="['otp', 'pin', 'code', 'verification', 'wr-input-otp']"
+  [labels]="['ControlValueAccessor', 'a11y']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic (numeric, 6 cells)"
+    description="The default. `completed` fires once every cell holds a character — paste the value `123456` to try it."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="html" />
+    <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='code' (completed)='onCompleted($event)' />">
+      <wr-input-otp [(ngModel)]="code" (completed)="onCompleted($event)" />
+      @if (lastCompleted(); as value) {
+        <p style="margin: 0.75rem 0 0; font-size: 0.8125rem; color: var(--wr-color-medium)">
+          completed: <code>{{ value }}</code>
+        </p>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom length">
+    <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='codeShort' length='4' />">
+      <wr-input-otp [(ngModel)]="codeShort" length="4" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Alphanumeric" description="Letters and digits. Useful for invitation codes.">
+    <ngwr-doc-code [code]="snippets.alpha" language="html" />
+    <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='alphaNumeric' mode='alphanumeric' length='8' />">
+      <wr-input-otp [(ngModel)]="alphaNumeric" mode="alphanumeric" length="8" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Masked"
+    description="Renders cells as `type='password'` — characters are hidden as you type."
+  >
+    <ngwr-doc-code [code]="snippets.masked" language="html" />
+    <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='secret' mask />">
+      <wr-input-otp [(ngModel)]="secret" mask />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled">
+    <ngwr-doc-snippet code="<wr-input-otp disabled />">
+      <wr-input-otp disabled />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Events">
+    <ngwr-doc-api [rows]="events" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

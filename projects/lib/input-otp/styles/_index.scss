@@ -1,0 +1,53 @@
+@use '../../theme/styles' as theme;
+
+.wr-input-otp {
+  --wr-input-otp-bg: var(--wr-color-white);
+  --wr-input-otp-border: var(--wr-color-light);
+  --wr-input-otp-color: var(--wr-color-dark);
+  --wr-input-otp-focus: var(--wr-color-primary);
+  --wr-input-otp-size: 2.75rem;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--wr-font-family-base);
+
+  &__cell {
+    width: var(--wr-input-otp-size);
+    height: var(--wr-input-otp-size);
+    padding: 0;
+    text-align: center;
+    font-family: var(--wr-font-family-mono, monospace);
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--wr-input-otp-color);
+    background: var(--wr-input-otp-bg);
+    border: 1px solid var(--wr-input-otp-border);
+    border-radius: var(--wr-border-radius-base);
+    appearance: none;
+    transition:
+      border-color var(--wr-transition-base),
+      box-shadow var(--wr-transition-base);
+
+    &::placeholder {
+      color: rgba(var(--wr-color-medium-rgb), 0.5);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--wr-input-otp-focus);
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+    }
+
+    &:disabled {
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+      color: var(--wr-color-medium);
+      cursor: not-allowed;
+    }
+  }
+
+  &--disabled {
+    opacity: 0.7;
+  }
+}

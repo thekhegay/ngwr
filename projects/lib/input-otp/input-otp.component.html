@@ -1,0 +1,20 @@
+@for (cell of cells(); track trackIndex($index)) {
+  <input
+    #cell
+    class="wr-input-otp__cell"
+    [type]="cellType()"
+    [attr.inputmode]="cellInputMode()"
+    maxlength="1"
+    autocomplete="one-time-code"
+    autocapitalize="off"
+    spellcheck="false"
+    [value]="cell"
+    [disabled]="effectiveDisabled()"
+    [placeholder]="placeholder()"
+    [attr.aria-label]="'Digit ' + ($index + 1)"
+    (input)="onInput($event, $index)"
+    (keydown)="onKeyDown($event, $index)"
+    (paste)="onPaste($event)"
+    (blur)="onBlur()"
+  />
+}
