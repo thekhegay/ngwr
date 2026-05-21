@@ -1,0 +1,32 @@
+@use '../../theme/styles' as theme;
+
+.wr-progress {
+  position: relative;
+  display: block;
+  overflow: hidden;
+
+  // Defaults — color modifiers override the bar color.
+  --wr-progress-height: 0.5rem;
+  --wr-progress-radius: var(--wr-border-radius-pill);
+  --wr-progress-track: rgba(var(--wr-color-light-rgb), 0.35);
+  --wr-progress-bar: var(--wr-color-primary);
+
+  width: 100%;
+  height: var(--wr-progress-height);
+  border-radius: var(--wr-progress-radius);
+  background: var(--wr-progress-track);
+
+  &__bar {
+    height: 100%;
+    background: var(--wr-progress-bar);
+    border-radius: inherit;
+    transition: width var(--wr-transition-base);
+  }
+
+  @each $name in theme.$colors {
+    &--#{$name} {
+      --wr-progress-track: rgba(var(--wr-color-#{$name}-rgb), 0.2);
+      --wr-progress-bar: var(--wr-color-#{$name});
+    }
+  }
+}

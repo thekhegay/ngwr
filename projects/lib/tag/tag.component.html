@@ -1,0 +1,17 @@
+@if (iconPosition() === 'start') {
+  @if (loading()) {
+    <wr-spinner class="wr-tag__adornment" size="sm" />
+  } @else if (icon(); as name) {
+    <wr-icon class="wr-tag__adornment" [name]="name" />
+  }
+}
+
+<ng-content />
+
+@if (iconPosition() === 'end') {
+  @if (loading()) {
+    <wr-spinner class="wr-tag__adornment" size="sm" />
+  } @else if (icon(); as name) {
+    <wr-icon class="wr-tag__adornment" [name]="name" />
+  }
+}

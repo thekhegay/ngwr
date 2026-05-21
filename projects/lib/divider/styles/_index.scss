@@ -1,0 +1,31 @@
+@use '../../theme/styles' as theme;
+
+.wr-divider {
+  display: block;
+  width: 100%;
+  user-select: none;
+  pointer-events: none;
+
+  // Defaults — color modifiers override
+  --wr-divider-width: 1px;
+  --wr-divider-color: var(--wr-color-light);
+
+  border-bottom-width: var(--wr-divider-width);
+  border-bottom-color: var(--wr-divider-color);
+
+  &--solid {
+    border-bottom-style: solid;
+  }
+  &--dashed {
+    border-bottom-style: dashed;
+  }
+  &--dotted {
+    border-bottom-style: dotted;
+  }
+
+  @each $name in theme.$colors {
+    &--#{$name} {
+      --wr-divider-color: var(--wr-color-#{$name});
+    }
+  }
+}

@@ -1,0 +1,51 @@
+@use '../../theme/styles' as theme;
+
+.wr-skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+
+  // Defaults — override on the host element for custom shapes.
+  --wr-skeleton-height: 1lh;
+  --wr-skeleton-radius: var(--wr-border-radius-base);
+
+  width: 100%;
+  height: var(--wr-skeleton-height);
+  border-radius: var(--wr-skeleton-radius);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    animation: none;
+  }
+
+  &--animated::after {
+    animation: wr-skeleton-shimmer 2s infinite;
+  }
+
+  @each $name in theme.$colors {
+    &--#{$name} {
+      background: rgba(var(--wr-color-#{$name}-rgb), 0.125);
+
+      &::after {
+        background-image: linear-gradient(
+          90deg,
+          rgba(var(--wr-color-#{$name}-rgb), 0) 0,
+          rgba(var(--wr-color-#{$name}-rgb), 0.125) 20%,
+          rgba(var(--wr-color-#{$name}-rgb), 0.25) 60%,
+          rgba(var(--wr-color-#{$name}-rgb), 0)
+        );
+      }
+    }
+  }
+}
+
+@keyframes wr-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
