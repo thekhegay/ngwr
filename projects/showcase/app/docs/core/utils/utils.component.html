@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Utils"
+  description="A small set of framework-agnostic helpers used internally by every component — and useful in app code too."
+  [keywords]="['utils', 'helpers', 'css-size', 'random-id']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="CSS size resolution"
+    description="Turn loose inputs (numbers, px / rem / % strings) into a CSS value paired with a pixel equivalent — used by avatar, qr, anything with a `size` prop."
+  >
+    <ngwr-doc-code [code]="snippets.cssSize" language="typescript" />
+    <ngwr-doc-api [rows]="cssSizeApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Stable random ids"
+    description="For associating native inputs with labels (checkbox, radio, switch, input) without colliding across instances."
+  >
+    <ngwr-doc-code [code]="snippets.randomId" language="typescript" />
+    <ngwr-doc-api [rows]="idApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Type guards">
+    <ngwr-doc-code [code]="snippets.guards" language="typescript" />
+    <ngwr-doc-api [rows]="guardsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Misc">
+    <ngwr-doc-code [code]="snippets.noop" language="typescript" />
+    <ngwr-doc-code [code]="snippets.log" language="typescript" />
+    <ngwr-doc-api [rows]="miscApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Types">
+    <ngwr-doc-api [rows]="types" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
