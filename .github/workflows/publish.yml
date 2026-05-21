@@ -62,6 +62,7 @@ jobs:
           node-version: 24
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
+          # No always-auth / token — publishes via npm Trusted Publisher (OIDC).
 
       - run: pnpm install --frozen-lockfile
 
@@ -92,9 +93,11 @@ jobs:
           make_latest: ${{ needs.detect.outputs.is_rc == 'false' }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Ensure npm CLI supports Trusted Publishing
+        # Trusted Publisher OIDC support landed in npm 11.5.1.
+        run: npm install -g npm@latest
+
+      - name: Publish to npm (Trusted Publisher)
         run: |
           tag=$([[ "${{ needs.detect.outputs.is_rc }}" == "true" ]] && echo "next" || echo "latest")
           npm publish dist/lib --access public --provenance --tag "$tag"
