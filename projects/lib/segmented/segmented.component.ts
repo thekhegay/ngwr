@@ -35,7 +35,7 @@ import type { WrSegmentedOption } from './types';
   templateUrl: './segmented.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', role: 'group' },
+  host: { '[class]': 'classes()', '[style]': 'thumbStyle()', role: 'group' },
   imports: [WrIconComponent],
 })
 export class WrSegmentedComponent<T = unknown> {

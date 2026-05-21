@@ -8,8 +8,13 @@
   --wr-segmented-radius: var(--wr-border-radius-base);
   --wr-segmented-padding: 0.1875rem;
 
+  --wr-segmented-thumb-index: 0;
+  --wr-segmented-thumb-count: 1;
+
   position: relative;
-  display: inline-flex;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   align-items: stretch;
   background: var(--wr-segmented-bg);
   padding: var(--wr-segmented-padding);
@@ -19,9 +24,6 @@
   line-height: 1.25rem;
 
   &__thumb {
-    --wr-segmented-thumb-index: 0;
-    --wr-segmented-thumb-count: 1;
-
     position: absolute;
     top: var(--wr-segmented-padding);
     bottom: var(--wr-segmented-padding);
@@ -42,7 +44,7 @@
   &__option {
     position: relative;
     z-index: 1;
-    flex: 1 1 0;
+    min-width: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
