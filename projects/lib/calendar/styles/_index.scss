@@ -1,0 +1,170 @@
+@use '../../theme/styles' as theme;
+
+.wr-calendar {
+  --wr-calendar-width: 17rem;
+  --wr-calendar-bg: var(--wr-color-white);
+  --wr-calendar-border: var(--wr-color-light);
+  --wr-calendar-color: var(--wr-color-dark);
+  --wr-calendar-muted: var(--wr-color-medium);
+  --wr-calendar-radius: var(--wr-border-radius-base);
+  --wr-calendar-day-radius: var(--wr-border-radius-sm);
+  --wr-calendar-cell-size: 2rem;
+  --wr-calendar-accent: var(--wr-color-primary);
+  --wr-calendar-accent-rgb: var(--wr-color-primary-rgb);
+  --wr-calendar-accent-contrast: var(--wr-color-primary-contrast);
+
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: var(--wr-calendar-width);
+  padding: 0.75rem;
+  background: var(--wr-calendar-bg);
+  border: 1px solid var(--wr-calendar-border);
+  border-radius: var(--wr-calendar-radius);
+  color: var(--wr-calendar-color);
+  font-family: var(--wr-font-family-base);
+  outline: none;
+  user-select: none;
+
+  // ──────── Header ────────
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__label {
+    flex: 1 1 auto;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+  }
+
+  &__nav {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--wr-calendar-day-radius);
+    color: var(--wr-calendar-muted);
+    font-size: 1.125rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      color: var(--wr-calendar-color);
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.4);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  // ──────── Weekday header row ────────
+  &__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+  }
+
+  &__weekday {
+    text-align: center;
+    color: var(--wr-calendar-muted);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  // ──────── Day grid ────────
+  &__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+  }
+
+  &__day {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    height: var(--wr-calendar-cell-size);
+    font-family: inherit;
+    font-size: 0.8125rem;
+    line-height: var(--wr-calendar-cell-size);
+    color: var(--wr-calendar-color);
+    border-radius: var(--wr-calendar-day-radius);
+    cursor: pointer;
+    transition:
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    &:hover:not(:disabled):not(.wr-calendar__day--selected) {
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.5);
+    }
+
+    // States — order matters; later rules override earlier ones.
+    &--out-of-month {
+      color: var(--wr-calendar-muted);
+      opacity: 0.55;
+    }
+
+    &--today:not(.wr-calendar__day--selected) {
+      box-shadow: inset 0 0 0 1px var(--wr-calendar-accent);
+      color: var(--wr-calendar-accent);
+      font-weight: 600;
+    }
+
+    &--in-range {
+      background: rgba(var(--wr-calendar-accent-rgb), 0.12);
+      border-radius: 0;
+    }
+
+    &--range-preview {
+      background: rgba(var(--wr-calendar-accent-rgb), 0.06);
+      border-radius: 0;
+    }
+
+    &--selected {
+      background: var(--wr-calendar-accent);
+      color: var(--wr-calendar-accent-contrast);
+      font-weight: 600;
+    }
+
+    &:disabled {
+      color: var(--wr-calendar-muted);
+      cursor: not-allowed;
+      opacity: 0.35;
+    }
+  }
+
+  &--disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}

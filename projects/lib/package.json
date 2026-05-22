@@ -61,6 +61,9 @@
     "./button": {
       "sass": "./button/styles/_index.scss"
     },
+    "./calendar": {
+      "sass": "./calendar/styles/_index.scss"
+    },
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
     },

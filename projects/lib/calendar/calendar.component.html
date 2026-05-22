@@ -1,0 +1,55 @@
+<div class="wr-calendar__header">
+  <button
+    type="button"
+    class="wr-calendar__nav wr-calendar__nav--prev"
+    aria-label="Previous month"
+    [disabled]="disabled()"
+    (click)="prevMonth()"
+  >
+    ‹
+  </button>
+  <span class="wr-calendar__label" aria-live="polite">{{ monthLabel() }}</span>
+  <button
+    type="button"
+    class="wr-calendar__nav wr-calendar__nav--next"
+    aria-label="Next month"
+    [disabled]="disabled()"
+    (click)="nextMonth()"
+  >
+    ›
+  </button>
+</div>
+
+<div class="wr-calendar__weekdays" role="row">
+  @for (name of weekdayNames(); track name) {
+    <span class="wr-calendar__weekday" role="columnheader">{{ name }}</span>
+  }
+</div>
+
+<div class="wr-calendar__grid" (mouseleave)="onCellLeave()">
+  @for (week of weeks(); track $index) {
+    <div class="wr-calendar__week" role="row">
+      @for (day of week; track trackByTime($index, day)) {
+        <button
+          type="button"
+          class="wr-calendar__day"
+          role="gridcell"
+          [class.wr-calendar__day--today]="isToday(day)"
+          [class.wr-calendar__day--out-of-month]="isOutOfMonth(day)"
+          [class.wr-calendar__day--selected]="isSelected(day)"
+          [class.wr-calendar__day--in-range]="isInRange(day)"
+          [class.wr-calendar__day--range-preview]="isInRangePreview(day)"
+          [class.wr-calendar__day--focused]="isFocused(day)"
+          [disabled]="isDisabled(day)"
+          [attr.tabindex]="isFocused(day) ? 0 : -1"
+          [attr.aria-selected]="isSelected(day)"
+          [attr.aria-disabled]="isDisabled(day)"
+          (click)="onCellClick(day)"
+          (mouseenter)="onCellEnter(day)"
+        >
+          {{ day.getDate() }}
+        </button>
+      }
+    </div>
+  }
+</div>
