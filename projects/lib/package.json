@@ -70,6 +70,7 @@
     "./color-picker": {
       "sass": "./color-picker/styles/_index.scss"
     },
+    "./date-adapter": {},
     "./dialog": {
       "sass": "./dialog/styles/_index.scss"
     },
