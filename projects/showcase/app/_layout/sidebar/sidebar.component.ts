@@ -88,6 +88,7 @@ export class SidebarComponent {
             { title: 'Color Picker', url: ['/docs', 'components', 'color-picker'] },
             { title: 'Date Picker', url: ['/docs', 'components', 'date-picker'] },
             { title: 'Date Time Picker', url: ['/docs', 'components', 'date-time-picker'] },
+            { title: 'File Upload', url: ['/docs', 'components', 'file-upload'] },
             { title: 'Form', url: ['/docs', 'components', 'form'] },
             { title: 'Input', url: ['/docs', 'components', 'input'] },
             { title: 'Input Number', url: ['/docs', 'components', 'input-number'] },

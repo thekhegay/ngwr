@@ -79,6 +79,10 @@ export default [
     loadComponent: () => import('./dropdown/dropdown.component'),
   },
   {
+    path: components.fileUpload,
+    loadComponent: () => import('./file-upload/file-upload.component'),
+  },
+  {
     path: components.form,
     loadComponent: () => import('./form/form.component'),
   },

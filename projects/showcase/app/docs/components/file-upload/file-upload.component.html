@@ -1,0 +1,49 @@
+<ngwr-doc-page
+  title="File Upload"
+  description="Drag-and-drop zone with click-to-browse and an optional file list. Value type is `File | File[] | null`. Rejected files surface through the `(rejected)` output."
+  [keywords]="['file', 'upload', 'drop zone', 'wr-file-upload']"
+  [labels]="['ControlValueAccessor']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Single file" description="Default mode — last accepted file wins.">
+    <ngwr-doc-code [code]="snippets.single" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-file-upload [(ngModel)]="single" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Multiple files" description="`multiple` enables additive selection; `maxFiles` caps it.">
+    <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-file-upload [(ngModel)]="multi" [multiple]="true" [maxFiles]="5" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Constrained"
+    description="`accept` filters by extension or MIME; `maxSize` enforces a per-file byte cap. Rejected files come through `(rejected)`."
+  >
+    <ngwr-doc-code [code]="snippets.constrained" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-file-upload
+        [(ngModel)]="avatar"
+        accept=".png,.jpg,image/webp"
+        [maxSize]="2 * 1024 * 1024"
+        helperText="PNG, JPG or WebP, up to 2 MB"
+        (rejected)="onRejected($event)"
+      />
+      @if (lastRejection()) {
+        <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+          Rejected: {{ lastRejection() }}
+        </small>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -51,6 +51,7 @@ export const routes = {
       tooltip: 'tooltip',
       select: 'select',
       dropdown: 'dropdown',
+      fileUpload: 'file-upload',
       pagination: 'pagination',
       table: 'table',
       window: 'window',
