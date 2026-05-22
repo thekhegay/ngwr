@@ -11,4 +11,12 @@
  * Add a new language: extend this union and register it in
  * {@link createAppHighlighter}.
  */
-export type ShikiLang = 'html' | 'typescript' | 'scss' | 'bash';
+export type ShikiLang =
+  | 'angular-html'
+  | 'angular-ts'
+  | 'angulat-template'
+  | 'angular-expression'
+  | 'typescript'
+  | 'html'
+  | 'scss'
+  | 'bash';

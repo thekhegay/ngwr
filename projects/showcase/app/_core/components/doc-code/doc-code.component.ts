@@ -43,7 +43,10 @@ export class DocCodeComponent {
       const highlighter = await getHighlighter();
       const html = highlighter.codeToHtml(params.code, {
         lang: params.lang,
-        themes: { light: 'github-light', dark: 'github-dark' },
+        themes: {
+          light: 'github-light',
+          dark: 'github-light',
+        },
         defaultColor: false,
       });
       return this.sanitizer.bypassSecurityTrustHtml(html);

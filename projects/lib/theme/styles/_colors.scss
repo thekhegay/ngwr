@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use 'sass:map';
+@use 'sass:math';
 
 // Base palette
 //
@@ -19,9 +20,12 @@ $base-colors: (
   dark: #0f172a,
 ) !default;
 
-// Lightness threshold (HSL) above which a color is considered "light"
-// and should use a dark contrast. Tune if contrast looks off.
-$contrast-threshold: 55% !default;
+// YIQ luminosity threshold (0–255) above which a color is treated as
+// "light" and pairs with dark text. Uses the classic Bootstrap formula —
+// it weights the green channel higher than blue, which matches human
+// perception of brightness far better than HSL lightness (HSL classes
+// pure blue as 50%-lightness even though it reads as dark).
+$contrast-threshold: 150 !default;
 
 // Dark text used on light backgrounds.
 $contrast-dark: #171616 !default;
@@ -36,7 +40,11 @@ $contrast-light: #ffffff !default;
 }
 
 @function _contrast($c) {
-  @if color.channel($c, 'lightness', $space: hsl) > $contrast-threshold {
+  $r: color.channel($c, 'red');
+  $g: color.channel($c, 'green');
+  $b: color.channel($c, 'blue');
+  $yiq: math.div($r * 299 + $g * 587 + $b * 114, 1000);
+  @if $yiq >= $contrast-threshold {
     @return $contrast-dark;
   }
   @return $contrast-light;

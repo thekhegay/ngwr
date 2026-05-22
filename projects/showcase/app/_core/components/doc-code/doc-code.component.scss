@@ -1,7 +1,7 @@
 .ngwr-doc-code {
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
-  --ngwr-doc-code-bg: var(--wr-color-dark);
+  --ngwr-doc-code-bg: var(--wr-color-light-lighter);
   --ngwr-doc-code-fg: var(--wr-color-dark-contrast);
   --ngwr-doc-code-font-size: 0.8125rem;
   --ngwr-doc-code-line-height: 1.5;
@@ -26,7 +26,7 @@
     .shiki,
     .shiki span {
       color: var(--shiki-light);
-      background-color: var(--shiki-light-bg);
+      background-color: transparent;
     }
   }
 
@@ -37,7 +37,7 @@
     padding: 0.25rem 0.625rem;
     border: 0;
     border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-white-rgb), 0.1);
+    background: rgba(var(--wr-color-dark-rgb), 0.25);
     color: var(--wr-color-white);
     font-family: inherit;
     font-size: 0.75rem;
@@ -47,7 +47,7 @@
     transition: background var(--wr-transition-base), opacity var(--wr-transition-base);
 
     &:hover {
-      background: rgba(var(--wr-color-white-rgb), 0.2);
+      background: rgba(var(--wr-color-primary-rgb), 0.375);
     }
   }
 
