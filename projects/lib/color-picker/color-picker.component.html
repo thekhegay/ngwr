@@ -1,0 +1,27 @@
+<div class="wr-color-picker__sv" (pointerdown)="onPointerDown($event, 'sv')">
+  <span class="wr-color-picker__thumb" [style.left.%]="svThumbX()" [style.top.%]="svThumbY()"></span>
+</div>
+
+<div class="wr-color-picker__slider wr-color-picker__slider--hue" (pointerdown)="onPointerDown($event, 'hue')">
+  <span class="wr-color-picker__thumb wr-color-picker__thumb--slider" [style.left.%]="hueThumbX()"></span>
+</div>
+
+@if (alpha()) {
+  <div class="wr-color-picker__slider wr-color-picker__slider--alpha" (pointerdown)="onPointerDown($event, 'alpha')">
+    <span class="wr-color-picker__thumb wr-color-picker__thumb--slider" [style.left.%]="alphaThumbX()"></span>
+  </div>
+}
+
+<div class="wr-color-picker__footer">
+  <span class="wr-color-picker__preview" [style.background]="hex()"></span>
+  <input
+    class="wr-color-picker__hex"
+    type="text"
+    spellcheck="false"
+    autocomplete="off"
+    [value]="hexInput()"
+    [disabled]="effectiveDisabled()"
+    (input)="onHexInput($event)"
+    (blur)="onHexBlur()"
+  />
+</div>

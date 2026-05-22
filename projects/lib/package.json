@@ -67,6 +67,9 @@
     "./collapse": {
       "sass": "./collapse/styles/_index.scss"
     },
+    "./color-picker": {
+      "sass": "./color-picker/styles/_index.scss"
+    },
     "./dialog": {
       "sass": "./dialog/styles/_index.scss"
     },

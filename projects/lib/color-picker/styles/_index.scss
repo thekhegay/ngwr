@@ -1,0 +1,158 @@
+@use '../../theme/styles' as theme;
+
+.wr-color-picker {
+  --wr-color-picker-width: 17rem;
+  --wr-color-picker-sv-height: 10rem;
+  --wr-color-picker-slider-height: 0.75rem;
+  --wr-color-picker-thumb-size: 0.875rem;
+  --wr-color-picker-radius: var(--wr-border-radius-base);
+  --wr-color-picker-padding: 0.75rem;
+  --wr-color-picker-bg: var(--wr-color-white);
+  --wr-color-picker-border: var(--wr-color-light);
+  --wr-color-picker-gap: 0.625rem;
+
+  // Driven by host bindings on the component
+  --wr-color-picker-hue: hsl(0, 100%, 50%);
+  --wr-color-picker-rgb: 0, 0, 0;
+
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--wr-color-picker-gap);
+  width: var(--wr-color-picker-width);
+  padding: var(--wr-color-picker-padding);
+  background: var(--wr-color-picker-bg);
+  border: 1px solid var(--wr-color-picker-border);
+  border-radius: var(--wr-color-picker-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  font-family: var(--wr-font-family-base);
+  user-select: none;
+
+  // ──────── SV (saturation + value) canvas ────────
+  &__sv {
+    position: relative;
+    width: 100%;
+    height: var(--wr-color-picker-sv-height);
+    border-radius: var(--wr-color-picker-radius);
+    cursor: crosshair;
+    touch-action: none;
+    background:
+      linear-gradient(to top, #000, transparent),
+      linear-gradient(to right, #fff, transparent),
+      var(--wr-color-picker-hue);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
+
+  // ──────── Hue + alpha sliders ────────
+  &__slider {
+    position: relative;
+    width: 100%;
+    height: var(--wr-color-picker-slider-height);
+    border-radius: var(--wr-color-picker-slider-height);
+    cursor: ew-resize;
+    touch-action: none;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
+
+  &__slider--hue {
+    background: linear-gradient(
+      to right,
+      hsl(0, 100%, 50%),
+      hsl(60, 100%, 50%),
+      hsl(120, 100%, 50%),
+      hsl(180, 100%, 50%),
+      hsl(240, 100%, 50%),
+      hsl(300, 100%, 50%),
+      hsl(360, 100%, 50%)
+    );
+  }
+
+  &__slider--alpha {
+    background-image:
+      linear-gradient(to right, rgba(var(--wr-color-picker-rgb), 0), rgba(var(--wr-color-picker-rgb), 1)),
+      conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
+    background-size:
+      auto,
+      8px 8px;
+  }
+
+  // ──────── Thumb ────────
+  &__thumb {
+    position: absolute;
+    width: var(--wr-color-picker-thumb-size);
+    height: var(--wr-color-picker-thumb-size);
+    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.3),
+      0 1px 2px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    background: transparent;
+  }
+
+  // Sliders position their thumb at vertical centre.
+  &__thumb--slider {
+    top: 50%;
+  }
+
+  // ──────── Footer (preview + hex input) ────────
+  &__footer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__preview {
+    --wr-preview-size: 1.75rem;
+    flex: 0 0 auto;
+    display: inline-block;
+    width: var(--wr-preview-size);
+    height: var(--wr-preview-size);
+    border-radius: var(--wr-color-picker-radius);
+    background-image:
+      linear-gradient(currentColor, currentColor),
+      conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
+    background-size:
+      auto,
+      8px 8px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    color: transparent; // background-image already set inline via [style.background]
+  }
+
+  &__hex {
+    flex: 1 1 auto;
+    min-width: 0;
+    appearance: none;
+    background: var(--wr-color-white);
+    border: 1px solid var(--wr-color-light);
+    border-radius: var(--wr-border-radius-sm);
+    padding: 0.3125rem 0.5rem;
+    color: var(--wr-color-dark);
+    font-family: var(--wr-font-family-mono, monospace);
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+    text-transform: lowercase;
+    outline: 0;
+    transition:
+      border-color var(--wr-transition-base),
+      box-shadow var(--wr-transition-base);
+
+    &:focus {
+      border-color: var(--wr-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+    }
+
+    &:disabled {
+      background: rgba(var(--wr-color-light-rgb), 0.35);
+      color: var(--wr-color-medium);
+      cursor: not-allowed;
+    }
+  }
+
+  &--disabled {
+    pointer-events: none;
+    opacity: 0.65;
+  }
+}
