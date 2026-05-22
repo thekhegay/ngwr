@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Number Input"
   description="Numeric input with locale-aware formatting and ▲▼ stepper buttons. Value is `number | null`. Parses leniently while typing, re-formats with grouping + fixed decimals on blur."
-  [keywords]="['number', 'input', 'stepper', 'numeric', 'wr-number-input']"
+  [keywords]="['number', 'input', 'stepper', 'numeric', 'wr-input-number']"
   [labels]="['ControlValueAccessor']"
 >
   <ngwr-doc-section title="Installation">
@@ -11,7 +11,7 @@
   <ngwr-doc-section title="Basic" description="Locale comes from Angular's `LOCALE_ID`.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-number-input [(ngModel)]="basic" />
+      <wr-input-number [(ngModel)]="basic" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -21,28 +21,28 @@
   >
     <ngwr-doc-code [code]="snippets.bounded" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-number-input [(ngModel)]="bounded" [min]="0" [max]="100" [step]="5" />
+      <wr-input-number [(ngModel)]="bounded" [min]="0" [max]="100" [step]="5" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Prefix and decimals" description="Fix the number of decimals shown on blur.">
     <ngwr-doc-code [code]="snippets.price" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-number-input [(ngModel)]="price" prefix="$" [decimals]="2" />
+      <wr-input-number [(ngModel)]="price" prefix="$" [decimals]="2" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Suffix and fractional step">
     <ngwr-doc-code [code]="snippets.weight" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-number-input [(ngModel)]="weight" suffix="kg" [decimals]="1" [step]="0.1" />
+      <wr-input-number [(ngModel)]="weight" suffix="kg" [decimals]="1" [step]="0.1" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Without steppers" description="Hide the ▲▼ column for a plain numeric input.">
     <ngwr-doc-code [code]="snippets.noSteppers" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-number-input [(ngModel)]="noSteppers" [showSteppers]="false" />
+      <wr-input-number [(ngModel)]="noSteppers" [showSteppers]="false" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

@@ -101,11 +101,11 @@
     "./input": {
       "sass": "./input/styles/_index.scss"
     },
+    "./input-number": {
+      "sass": "./input-number/styles/_index.scss"
+    },
     "./input-otp": {
       "sass": "./input-otp/styles/_index.scss"
-    },
-    "./number-input": {
-      "sass": "./number-input/styles/_index.scss"
     },
     "./overlay": {},
     "./pagination": {

@@ -87,12 +87,12 @@ export default [
     loadComponent: () => import('./input/input.component'),
   },
   {
-    path: components.inputOtp,
-    loadComponent: () => import('./input-otp/input-otp.component'),
+    path: components.inputNumber,
+    loadComponent: () => import('./input-number/input-number.component'),
   },
   {
-    path: components.numberInput,
-    loadComponent: () => import('./number-input/number-input.component'),
+    path: components.inputOtp,
+    loadComponent: () => import('./input-otp/input-otp.component'),
   },
   {
     path: components.pagination,

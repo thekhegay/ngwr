@@ -21,10 +21,10 @@
     <span wrInputSuffix>{{ s }}</span>
   }
   @if (showSteppers()) {
-    <div class="wr-number-input__steppers" wrInputSuffix>
+    <div class="wr-input-number__steppers" wrInputSuffix>
       <button
         type="button"
-        class="wr-number-input__step"
+        class="wr-input-number__step"
         tabindex="-1"
         aria-label="Increment"
         [disabled]="!interactive() || atMax()"
@@ -36,7 +36,7 @@
       </button>
       <button
         type="button"
-        class="wr-number-input__step"
+        class="wr-input-number__step"
         tabindex="-1"
         aria-label="Decrement"
         [disabled]="!interactive() || atMin()"

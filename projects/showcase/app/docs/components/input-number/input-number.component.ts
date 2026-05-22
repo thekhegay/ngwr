@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrNumberInputComponent } from 'ngwr/number-input';
+import { WrInputNumberComponent } from 'ngwr/input-number';
 
 import {
   DocApiComponent,
@@ -13,12 +13,12 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-number-input-page',
-  templateUrl: './number-input.component.html',
+  selector: 'ngwr-input-number-page',
+  templateUrl: './input-number.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    WrNumberInputComponent,
+    WrInputNumberComponent,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -26,7 +26,7 @@ import {
     DocApiComponent,
   ],
 })
-export default class NumberInputPageComponent {
+export default class InputNumberPageComponent {
   protected readonly basic = signal<number | null>(1);
   protected readonly bounded = signal<number | null>(50);
   protected readonly price = signal<number | null>(199.99);
@@ -34,22 +34,22 @@ export default class NumberInputPageComponent {
   protected readonly noSteppers = signal<number | null>(42);
 
   protected readonly snippets = {
-    install: `import { WrNumberInputComponent } from 'ngwr/number-input';
+    install: `import { WrInputNumberComponent } from 'ngwr/input-number';
 
-@Component({ imports: [WrNumberInputComponent, FormsModule] })
+@Component({ imports: [WrInputNumberComponent, FormsModule] })
 export class MyComponent {
   protected readonly value = signal<number | null>(0);
 }`,
 
-    basic: `<wr-number-input [(ngModel)]="value" />`,
+    basic: `<wr-input-number [(ngModel)]="value" />`,
 
-    bounded: `<wr-number-input [(ngModel)]="value" [min]="0" [max]="100" [step]="5" />`,
+    bounded: `<wr-input-number [(ngModel)]="value" [min]="0" [max]="100" [step]="5" />`,
 
-    price: `<wr-number-input [(ngModel)]="price" prefix="$" [decimals]="2" />`,
+    price: `<wr-input-number [(ngModel)]="price" prefix="$" [decimals]="2" />`,
 
-    weight: `<wr-number-input [(ngModel)]="weight" suffix="kg" [decimals]="1" [step]="0.1" />`,
+    weight: `<wr-input-number [(ngModel)]="weight" suffix="kg" [decimals]="1" [step]="0.1" />`,
 
-    noSteppers: `<wr-number-input [(ngModel)]="value" [showSteppers]="false" />`,
+    noSteppers: `<wr-input-number [(ngModel)]="value" [showSteppers]="false" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

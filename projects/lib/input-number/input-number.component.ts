@@ -47,20 +47,20 @@ function resolveSeparators(locale: string): { decimal: string; group: string } {
  * Parses leniently while typing (allows partial input like `"1."` or `"-"`),
  * re-formats with grouping + fixed decimals on blur.
  *
- * Locale comes from Angular's `LOCALE_ID` — number-input intentionally does
+ * Locale comes from Angular's `LOCALE_ID` — input-number intentionally does
  * NOT depend on `ngwr/date-adapter` so it can be used in date-free apps.
  *
  * @example
  * ```html
- * <wr-number-input [(ngModel)]="qty" [min]="0" [max]="100" />
- * <wr-number-input [(ngModel)]="price" [decimals]="2" suffix="USD" />
+ * <wr-input-number [(ngModel)]="qty" [min]="0" [max]="100" />
+ * <wr-input-number [(ngModel)]="price" [decimals]="2" suffix="USD" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/number-input
+ * @see https://ngwr.dev/docs/components/input-number
  */
 @Component({
-  selector: 'wr-number-input',
-  templateUrl: './number-input.component.html',
+  selector: 'wr-input-number',
+  templateUrl: './input-number.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
@@ -69,12 +69,12 @@ function resolveSeparators(locale: string): { decimal: string; group: string } {
     {
       provide: NG_VALUE_ACCESSOR,
       // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrNumberInputComponent),
+      useExisting: forwardRef(() => WrInputNumberComponent),
       multi: true,
     },
   ],
 })
-export class WrNumberInputComponent implements ControlValueAccessor {
+export class WrInputNumberComponent implements ControlValueAccessor {
   /** Minimum allowed value. @default -Infinity */
   readonly min = input(Number.NEGATIVE_INFINITY, {
     transform: (v: unknown): number => coerceNumberProperty(v, Number.NEGATIVE_INFINITY),
@@ -135,8 +135,8 @@ export class WrNumberInputComponent implements ControlValueAccessor {
   });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-number-input'];
-    if (this.effectiveDisabled()) parts.push('wr-number-input--disabled');
+    const parts = ['wr-input-number'];
+    if (this.effectiveDisabled()) parts.push('wr-input-number--disabled');
     return parts.join(' ');
   });
 
