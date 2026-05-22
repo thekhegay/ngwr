@@ -150,6 +150,9 @@
     "./textarea": {
       "sass": "./textarea/styles/_index.scss"
     },
+    "./time-picker": {
+      "sass": "./time-picker/styles/_index.scss"
+    },
     "./toast": {
       "sass": "./toast/styles/_index.scss"
     },

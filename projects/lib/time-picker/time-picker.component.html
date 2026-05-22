@@ -1,0 +1,56 @@
+<label class="wr-time-picker__field" aria-label="Hours">
+  <input
+    type="number"
+    [attr.min]="is12h() ? 1 : 0"
+    [attr.max]="is12h() ? 12 : 23"
+    [value]="hoursDisplay()"
+    [disabled]="effectiveDisabled()"
+    [readonly]="readonly()"
+    (input)="onHoursInput($any($event.target).value)"
+    (blur)="onBlur()"
+  />
+</label>
+
+<span class="wr-time-picker__sep" aria-hidden="true">:</span>
+
+<label class="wr-time-picker__field" aria-label="Minutes">
+  <input
+    type="number"
+    min="0"
+    max="59"
+    [attr.step]="step()"
+    [value]="minutesDisplay()"
+    [disabled]="effectiveDisabled()"
+    [readonly]="readonly()"
+    (input)="onMinutesInput($any($event.target).value)"
+    (blur)="onBlur()"
+  />
+</label>
+
+@if (showSeconds()) {
+  <span class="wr-time-picker__sep" aria-hidden="true">:</span>
+
+  <label class="wr-time-picker__field" aria-label="Seconds">
+    <input
+      type="number"
+      min="0"
+      max="59"
+      [attr.step]="step()"
+      [value]="secondsDisplay()"
+      [disabled]="effectiveDisabled()"
+      [readonly]="readonly()"
+      (input)="onSecondsInput($any($event.target).value)"
+      (blur)="onBlur()"
+    />
+  </label>
+}
+
+@if (is12h()) {
+  <wr-segmented
+    class="wr-time-picker__ampm"
+    [options]="ampmOptions"
+    [value]="isPm() ? 'pm' : 'am'"
+    [disabled]="effectiveDisabled() || readonly()"
+    (valueChange)="onAmPmChange($event)"
+  />
+}
