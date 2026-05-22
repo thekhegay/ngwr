@@ -1,0 +1,45 @@
+<ngwr-doc-page
+  title="Rating"
+  description="Star rating input with whole or half-step granularity. Value type is `number | null` (clamped to `[0, count]`). Keyboard: arrows step by `step`, Home / End jump to 0 / max, Delete / Backspace clears."
+  [keywords]="['rating', 'stars', 'review', 'wr-rating']"
+  [labels]="['ControlValueAccessor']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [(ngModel)]="basic" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Half stars"
+    description='`step="0.5"` enables half-star granularity (hover the left half of a star).'
+  >
+    <ngwr-doc-code [code]="snippets.halves" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [(ngModel)]="halves" step="0.5" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom count">
+    <ngwr-doc-code [code]="snippets.tenStar" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [(ngModel)]="tenStar" [count]="10" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Read-only" description="Use to display an existing rating without interaction.">
+    <ngwr-doc-code [code]="snippets.readonlyDemo" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rating [ngModel]="readonlyValue()" step="0.5" [readonly]="true" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

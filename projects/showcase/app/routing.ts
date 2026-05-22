@@ -38,6 +38,7 @@ export const routes = {
       qrCode: 'qrcode',
       radio: 'radio',
       radioGroup: 'radio-group',
+      rating: 'rating',
       segmented: 'segmented',
       skeleton: 'skeleton',
       slider: 'slider',

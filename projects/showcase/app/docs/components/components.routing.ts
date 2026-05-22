@@ -127,6 +127,10 @@ export default [
     loadComponent: () => import('./radio/radio.component'),
   },
   {
+    path: components.rating,
+    loadComponent: () => import('./rating/rating.component'),
+  },
+  {
     path: components.segmented,
     loadComponent: () => import('./segmented/segmented.component'),
   },
