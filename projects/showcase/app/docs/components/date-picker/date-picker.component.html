@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Date Picker"
+  description="Input + calendar popover. Parses on every keystroke (silently — only emits when valid), re-formats canonical on blur. Format driven by `WrDateAdapter` — both named keys (`shortDate`, `mediumDate`, `longDate`) and raw tokens (`dd.MM.yyyy`) work."
+  [keywords]="['date', 'picker', 'wr-date-picker']"
+  [labels]="['ControlValueAccessor', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic" description="Default `shortDate` format follows the active locale.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker [(ngModel)]="basic" placeholder="Pick a date" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom format"
+    description="Pass any token string supported by the adapter: `yyyy / yy / MMMM / MMM / MM / M / dd / d / HH / H / hh / h / mm / ss / a`."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker [(ngModel)]="formatted" format="dd.MM.yyyy" placeholder="dd.MM.yyyy" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Bounds + filter"
+    description="`min`, `max`, and `dateFilter` are forwarded to the inner calendar. Out-of-bounds typed values are not emitted."
+  >
+    <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker [(ngModel)]="bounded" [min]="today" [max]="nextMonth" [dateFilter]="isWeekday" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

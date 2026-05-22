@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Calendar"
+  description="Month-view calendar — standalone widget for picking a single date or a date range. Built on the `WrDateAdapter` abstraction. Click the header label to zoom into month / year quick-pick views."
+  [keywords]="['calendar', 'date', 'range', 'wr-calendar']"
+  [labels]="['ControlValueAccessor', 'a11y']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Single date" description="Default mode. Two-way bind a `Date` (or `null`).">
+    <ngwr-doc-code [code]="snippets.single" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar [(date)]="single" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Date range"
+    description='Set `mode="range"` and bind `[(range)]` to a `[start, end]` tuple. Hovering after picking the start previews the would-be selection.'
+  >
+    <ngwr-doc-code [code]="snippets.range" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar mode="range" [(range)]="range" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Bounds + filter"
+    description="`min` / `max` clamp the selectable range; `dateFilter` is a predicate that disables individual dates (here: only weekdays)."
+  >
+    <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar [(date)]="single" [min]="minDate" [max]="maxDate" [dateFilter]="isWeekday" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

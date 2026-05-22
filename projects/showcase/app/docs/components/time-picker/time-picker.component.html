@@ -1,0 +1,45 @@
+<ngwr-doc-page
+  title="Time Picker"
+  description="Numeric `HH:MM` (or `HH:MM:SS`) input with optional AM/PM toggle. Value is `Date | null` — the date portion is preserved across edits. 12 / 24-hour mode auto-detected from the active locale."
+  [keywords]="['time', 'picker', 'clock', 'wr-time-picker']"
+  [labels]="['ControlValueAccessor']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic" description='`format="auto"` picks 12h or 24h based on `WR_DATE_LOCALE`.'>
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-time-picker [(ngModel)]="basic" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="24-hour mode">
+    <ngwr-doc-code [code]="snippets.twentyFour" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-time-picker [(ngModel)]="h24" format="24h" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="12-hour mode" description="AM/PM toggle is a `<wr-segmented>` switcher.">
+    <ngwr-doc-code [code]="snippets.twelve" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-time-picker [(ngModel)]="h12" format="12h" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Seconds and step"
+    description="Adds a third input. `step` applies to both minutes and seconds."
+  >
+    <ngwr-doc-code [code]="snippets.seconds" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-time-picker [(ngModel)]="withSeconds" [showSeconds]="true" [step]="5" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

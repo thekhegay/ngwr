@@ -82,8 +82,11 @@ export class SidebarComponent {
         {
           title: 'Form',
           children: [
+            { title: 'Calendar', url: ['/docs', 'components', 'calendar'] },
             { title: 'Checkbox', url: ['/docs', 'components', 'checkbox'] },
             { title: 'Color Picker', url: ['/docs', 'components', 'color-picker'] },
+            { title: 'Date Picker', url: ['/docs', 'components', 'date-picker'] },
+            { title: 'Date Time Picker', url: ['/docs', 'components', 'date-time-picker'] },
             { title: 'Form', url: ['/docs', 'components', 'form'] },
             { title: 'Input', url: ['/docs', 'components', 'input'] },
             { title: 'Input OTP', url: ['/docs', 'components', 'input-otp'] },
@@ -93,6 +96,7 @@ export class SidebarComponent {
             { title: 'Slider', url: ['/docs', 'components', 'slider'] },
             { title: 'Switch', url: ['/docs', 'components', 'switch'] },
             { title: 'Textarea', url: ['/docs', 'components', 'textarea'] },
+            { title: 'Time Picker', url: ['/docs', 'components', 'time-picker'] },
           ],
         },
         {

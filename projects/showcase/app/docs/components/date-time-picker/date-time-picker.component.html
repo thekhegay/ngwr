@@ -1,0 +1,52 @@
+<ngwr-doc-page
+  title="Date Time Picker"
+  description="Input + popover containing a calendar AND a time picker stacked vertically. Selecting a date doesn't close the overlay — the user typically wants to set the time next. Outside click or Escape closes."
+  [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-time-picker']"
+  [labels]="['ControlValueAccessor', 'CDK Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic" description="Default `shortDateTime` format follows the active locale.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-time-picker [(ngModel)]="basic" placeholder="Pick date & time" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom format"
+    description="Same token set as `<wr-date-picker>`. Time portion can use `HH` (24h) or `hh a` (12h)."
+  >
+    <ngwr-doc-code [code]="snippets.format" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-time-picker
+        [(ngModel)]="customFormat"
+        format="dd.MM.yyyy HH:mm"
+        timeFormat="24h"
+        placeholder="dd.MM.yyyy HH:mm"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With seconds"
+    description="Adds the seconds input. `step` applies to both minutes and seconds."
+  >
+    <ngwr-doc-code [code]="snippets.seconds" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-time-picker
+        [(ngModel)]="withSeconds"
+        format="dd.MM.yyyy HH:mm:ss"
+        timeFormat="24h"
+        [showSeconds]="true"
+        [step]="5"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

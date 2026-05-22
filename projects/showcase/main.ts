@@ -2,6 +2,7 @@ import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } fr
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 
+import { provideWrDateAdapter } from 'ngwr/date-adapter';
 import { provideWrOverlay } from 'ngwr/overlay';
 
 import { RootComponent } from '#root';
@@ -15,5 +16,6 @@ void bootstrapApplication(RootComponent, {
     provideRouter(routing),
     // ngwr
     provideWrOverlay(),
+    provideWrDateAdapter(),
   ],
 });

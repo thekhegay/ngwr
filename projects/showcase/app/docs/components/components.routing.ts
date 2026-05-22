@@ -35,6 +35,10 @@ export default [
     loadComponent: () => import('./button-group/button-group.component'),
   },
   {
+    path: components.calendar,
+    loadComponent: () => import('./calendar/calendar.component'),
+  },
+  {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox.component'),
   },
@@ -45,6 +49,14 @@ export default [
   {
     path: components.colorPicker,
     loadComponent: () => import('./color-picker/color-picker.component'),
+  },
+  {
+    path: components.datePicker,
+    loadComponent: () => import('./date-picker/date-picker.component'),
+  },
+  {
+    path: components.dateTimePicker,
+    loadComponent: () => import('./date-time-picker/date-time-picker.component'),
   },
   {
     path: components.dialog,
@@ -141,6 +153,10 @@ export default [
   {
     path: components.textarea,
     loadComponent: () => import('./textarea/textarea.component'),
+  },
+  {
+    path: components.timePicker,
+    loadComponent: () => import('./time-picker/time-picker.component'),
   },
   {
     path: components.toast,
