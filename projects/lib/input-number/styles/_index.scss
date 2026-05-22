@@ -4,10 +4,10 @@
   display: inline-block;
 
   // Steppers live as a compact vertical column inside the suffix slot.
-  // `<wr-input-group>` sets `pointer-events: none` on non-button affixes to
-  // let clicks fall through to the input — re-enable here so the ▲▼ buttons
-  // actually receive clicks.
-  &__steppers {
+  // `<wr-input-group>` sets `pointer-events: none` on non-button affixes
+  // (selector specificity 0,1,1 — class + `:not(element)`). We chain
+  // `.wr-input-group__affix` to match that specificity so our override wins.
+  &__steppers.wr-input-group__affix {
     display: inline-flex;
     flex-direction: column;
     align-items: stretch;
