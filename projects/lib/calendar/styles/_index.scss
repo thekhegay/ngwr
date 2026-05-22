@@ -35,10 +35,34 @@
 
   &__label {
     flex: 1 1 auto;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0 0.5rem;
+    color: inherit;
     text-align: center;
+    font-family: inherit;
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1.5rem;
+    border-radius: var(--wr-calendar-day-radius);
+    cursor: pointer;
+    transition:
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.4);
+    }
+
+    &:disabled {
+      cursor: default;
+    }
   }
 
   &__nav {
@@ -148,6 +172,64 @@
     &--range-preview {
       background: rgba(var(--wr-calendar-accent-rgb), 0.06);
       border-radius: 0;
+    }
+
+    &--selected {
+      background: var(--wr-calendar-accent);
+      color: var(--wr-calendar-accent-contrast);
+      font-weight: 600;
+    }
+
+    &:disabled {
+      color: var(--wr-calendar-muted);
+      cursor: not-allowed;
+      opacity: 0.35;
+    }
+  }
+
+  // ──────── Month + year quick-pick views ────────
+  &__months {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+  }
+
+  &__years {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.25rem;
+  }
+
+  &__chip {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    height: 2.5rem;
+    font-family: inherit;
+    font-size: 0.8125rem;
+    line-height: 2.5rem;
+    color: var(--wr-calendar-color);
+    border-radius: var(--wr-calendar-day-radius);
+    cursor: pointer;
+    transition:
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    &:hover:not(:disabled):not(.wr-calendar__chip--selected) {
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.5);
+    }
+
+    &--current:not(.wr-calendar__chip--selected) {
+      box-shadow: inset 0 0 0 1px var(--wr-calendar-accent);
+      color: var(--wr-calendar-accent);
+      font-weight: 600;
     }
 
     &--selected {

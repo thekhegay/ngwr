@@ -89,14 +89,36 @@ export class WrCalendarComponent {
   /** Hovered date during range-mode end-pick — drives the preview highlight. */
   protected readonly hoverDate = signal<Date | null>(null);
 
+  /** Which sub-view is currently shown. Cycles `day → month → year` on header click. */
+  protected readonly viewMode = signal<'day' | 'month' | 'year'>('day');
+
   protected readonly today = computed(() => this.adapter.today());
 
   protected readonly weekdayNames = computed(() => this.adapter.getDayOfWeekNames('short'));
 
-  protected readonly monthLabel = computed(() => {
+  protected readonly monthsView = computed(() => this.adapter.getMonthNames('short'));
+
+  /** 12-year window centered on the floor-aligned decade containing `viewDate`. */
+  protected readonly yearsView = computed<readonly number[]>(() => {
+    const y = this.adapter.getYear(this.viewDate());
+    const start = Math.floor(y / 12) * 12;
+    return Array.from({ length: 12 }, (_, i) => start + i);
+  });
+
+  protected readonly headerLabel = computed(() => {
     const v = this.viewDate();
-    const monthNames = this.adapter.getMonthNames('long');
-    return `${monthNames[this.adapter.getMonth(v)]} ${this.adapter.getYear(v)}`;
+    switch (this.viewMode()) {
+      case 'day': {
+        const monthNames = this.adapter.getMonthNames('long');
+        return `${monthNames[this.adapter.getMonth(v)]} ${this.adapter.getYear(v)}`;
+      }
+      case 'month':
+        return `${this.adapter.getYear(v)}`;
+      case 'year': {
+        const years = this.yearsView();
+        return `${years[0]} – ${years[years.length - 1]}`;
+      }
+    }
   });
 
   /** 6×7 day grid covering the current month plus spillover. */
@@ -146,12 +168,50 @@ export class WrCalendarComponent {
 
   // ──────── Navigation ────────
 
-  protected prevMonth(): void {
-    this.viewDate.set(this.adapter.addMonths(this.viewDate(), -1));
+  /** Header `‹` button — steps by month / year / decade based on the active view. */
+  protected prev(): void {
+    this.viewDate.set(this.stepViewDate(-1));
   }
 
-  protected nextMonth(): void {
-    this.viewDate.set(this.adapter.addMonths(this.viewDate(), 1));
+  /** Header `›` button — steps by month / year / decade based on the active view. */
+  protected next(): void {
+    this.viewDate.set(this.stepViewDate(1));
+  }
+
+  /** Header label click — zooms out (`day → month → year`). No-op at year view. */
+  protected onLabelClick(): void {
+    if (this.disabled()) return;
+    if (this.viewMode() === 'day') {
+      this.viewMode.set('month');
+    } else if (this.viewMode() === 'month') {
+      this.viewMode.set('year');
+    }
+  }
+
+  protected onMonthSelect(monthIdx: number): void {
+    if (this.isMonthDisabled(monthIdx)) return;
+    const v = this.viewDate();
+    this.viewDate.set(this.adapter.createDate(this.adapter.getYear(v), monthIdx, 1));
+    this.viewMode.set('day');
+  }
+
+  protected onYearSelect(year: number): void {
+    if (this.isYearDisabled(year)) return;
+    const v = this.viewDate();
+    this.viewDate.set(this.adapter.createDate(year, this.adapter.getMonth(v), 1));
+    this.viewMode.set('month');
+  }
+
+  private stepViewDate(direction: -1 | 1): Date {
+    const v = this.viewDate();
+    switch (this.viewMode()) {
+      case 'day':
+        return this.adapter.addMonths(v, direction);
+      case 'month':
+        return this.adapter.addYears(v, direction);
+      case 'year':
+        return this.adapter.addYears(v, direction * 12);
+    }
   }
 
   // ──────── Cell state predicates (used by template) ────────
@@ -205,6 +265,48 @@ export class WrCalendarComponent {
     if (max && this.adapter.compareDate(date, max) > 0) return true;
     const filter = this.dateFilter();
     if (filter && !filter(date)) return true;
+    return false;
+  }
+
+  // ──────── Month / year view predicates ────────
+
+  protected isMonthCurrent(monthIdx: number): boolean {
+    return this.adapter.getMonth(this.viewDate()) === monthIdx;
+  }
+
+  protected isMonthSelected(monthIdx: number): boolean {
+    const v = this.mode() === 'single' ? this.date() : this.range()[0];
+    if (!v) return false;
+    return this.adapter.getYear(v) === this.adapter.getYear(this.viewDate()) && this.adapter.getMonth(v) === monthIdx;
+  }
+
+  protected isMonthDisabled(monthIdx: number): boolean {
+    if (this.disabled()) return true;
+    const year = this.adapter.getYear(this.viewDate());
+    const monthStart = this.adapter.createDate(year, monthIdx, 1);
+    const monthEnd = this.adapter.createDate(year, monthIdx, this.adapter.getDaysInMonth(monthStart));
+    const min = this.min();
+    if (min && this.adapter.compareDate(monthEnd, min) < 0) return true;
+    const max = this.max();
+    if (max && this.adapter.compareDate(monthStart, max) > 0) return true;
+    return false;
+  }
+
+  protected isYearCurrent(year: number): boolean {
+    return this.adapter.getYear(this.viewDate()) === year;
+  }
+
+  protected isYearSelected(year: number): boolean {
+    const v = this.mode() === 'single' ? this.date() : this.range()[0];
+    return v ? this.adapter.getYear(v) === year : false;
+  }
+
+  protected isYearDisabled(year: number): boolean {
+    if (this.disabled()) return true;
+    const min = this.min();
+    if (min && year < this.adapter.getYear(min)) return true;
+    const max = this.max();
+    if (max && year > this.adapter.getYear(max)) return true;
     return false;
   }
 

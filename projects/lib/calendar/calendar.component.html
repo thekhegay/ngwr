@@ -2,54 +2,108 @@
   <button
     type="button"
     class="wr-calendar__nav wr-calendar__nav--prev"
-    aria-label="Previous month"
+    [attr.aria-label]="
+      viewMode() === 'year' ? 'Previous 12 years' : viewMode() === 'month' ? 'Previous year' : 'Previous month'
+    "
     [disabled]="disabled()"
-    (click)="prevMonth()"
+    (click)="prev()"
   >
     ‹
   </button>
-  <span class="wr-calendar__label" aria-live="polite">{{ monthLabel() }}</span>
+  <button
+    type="button"
+    class="wr-calendar__label"
+    aria-live="polite"
+    [disabled]="disabled() || viewMode() === 'year'"
+    (click)="onLabelClick()"
+  >
+    {{ headerLabel() }}
+  </button>
   <button
     type="button"
     class="wr-calendar__nav wr-calendar__nav--next"
-    aria-label="Next month"
+    [attr.aria-label]="viewMode() === 'year' ? 'Next 12 years' : viewMode() === 'month' ? 'Next year' : 'Next month'"
     [disabled]="disabled()"
-    (click)="nextMonth()"
+    (click)="next()"
   >
     ›
   </button>
 </div>
 
-<div class="wr-calendar__weekdays" role="row">
-  @for (name of weekdayNames(); track name) {
-    <span class="wr-calendar__weekday" role="columnheader">{{ name }}</span>
-  }
-</div>
+@switch (viewMode()) {
+  @case ('day') {
+    <div class="wr-calendar__weekdays" role="row">
+      @for (name of weekdayNames(); track name) {
+        <span class="wr-calendar__weekday" role="columnheader">{{ name }}</span>
+      }
+    </div>
 
-<div class="wr-calendar__grid" (mouseleave)="onCellLeave()">
-  @for (week of weeks(); track $index) {
-    <div class="wr-calendar__week" role="row">
-      @for (day of week; track trackByTime($index, day)) {
+    <div class="wr-calendar__grid" (mouseleave)="onCellLeave()">
+      @for (week of weeks(); track $index) {
+        <div class="wr-calendar__week" role="row">
+          @for (day of week; track trackByTime($index, day)) {
+            <button
+              type="button"
+              class="wr-calendar__day"
+              role="gridcell"
+              [class.wr-calendar__day--today]="isToday(day)"
+              [class.wr-calendar__day--out-of-month]="isOutOfMonth(day)"
+              [class.wr-calendar__day--selected]="isSelected(day)"
+              [class.wr-calendar__day--in-range]="isInRange(day)"
+              [class.wr-calendar__day--range-preview]="isInRangePreview(day)"
+              [class.wr-calendar__day--focused]="isFocused(day)"
+              [disabled]="isDisabled(day)"
+              [attr.tabindex]="isFocused(day) ? 0 : -1"
+              [attr.aria-selected]="isSelected(day)"
+              [attr.aria-disabled]="isDisabled(day)"
+              (click)="onCellClick(day)"
+              (mouseenter)="onCellEnter(day)"
+            >
+              {{ day.getDate() }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @case ('month') {
+    <div class="wr-calendar__months" role="grid">
+      @for (name of monthsView(); track name; let i = $index) {
         <button
           type="button"
-          class="wr-calendar__day"
+          class="wr-calendar__chip"
           role="gridcell"
-          [class.wr-calendar__day--today]="isToday(day)"
-          [class.wr-calendar__day--out-of-month]="isOutOfMonth(day)"
-          [class.wr-calendar__day--selected]="isSelected(day)"
-          [class.wr-calendar__day--in-range]="isInRange(day)"
-          [class.wr-calendar__day--range-preview]="isInRangePreview(day)"
-          [class.wr-calendar__day--focused]="isFocused(day)"
-          [disabled]="isDisabled(day)"
-          [attr.tabindex]="isFocused(day) ? 0 : -1"
-          [attr.aria-selected]="isSelected(day)"
-          [attr.aria-disabled]="isDisabled(day)"
-          (click)="onCellClick(day)"
-          (mouseenter)="onCellEnter(day)"
+          [class.wr-calendar__chip--current]="isMonthCurrent(i)"
+          [class.wr-calendar__chip--selected]="isMonthSelected(i)"
+          [disabled]="isMonthDisabled(i)"
+          [attr.aria-selected]="isMonthSelected(i)"
+          [attr.aria-disabled]="isMonthDisabled(i)"
+          (click)="onMonthSelect(i)"
         >
-          {{ day.getDate() }}
+          {{ name }}
         </button>
       }
     </div>
   }
-</div>
+
+  @case ('year') {
+    <div class="wr-calendar__years" role="grid">
+      @for (year of yearsView(); track year) {
+        <button
+          type="button"
+          class="wr-calendar__chip"
+          role="gridcell"
+          [class.wr-calendar__chip--current]="isYearCurrent(year)"
+          [class.wr-calendar__chip--selected]="isYearSelected(year)"
+          [disabled]="isYearDisabled(year)"
+          [attr.aria-selected]="isYearSelected(year)"
+          [attr.aria-disabled]="isYearDisabled(year)"
+          (click)="onYearSelect(year)"
+        >
+          {{ year }}
+        </button>
+      }
+    </div>
+  }
+}
