@@ -1,56 +1,125 @@
-<label class="wr-time-picker__field" aria-label="Hours">
+<div class="wr-time-picker__col">
+  <button
+    type="button"
+    class="wr-time-picker__step wr-time-picker__step--up"
+    aria-label="Increment hours"
+    [disabled]="!interactive()"
+    (click)="stepHours(1)"
+  >
+    ▲
+  </button>
   <input
-    type="number"
-    [attr.min]="is12h() ? 1 : 0"
-    [attr.max]="is12h() ? 12 : 23"
+    class="wr-time-picker__input"
+    type="text"
+    inputmode="numeric"
+    aria-label="Hours"
     [value]="hoursDisplay()"
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
     (input)="onHoursInput($any($event.target).value)"
     (blur)="onBlur()"
   />
-</label>
+  <button
+    type="button"
+    class="wr-time-picker__step wr-time-picker__step--down"
+    aria-label="Decrement hours"
+    [disabled]="!interactive()"
+    (click)="stepHours(-1)"
+  >
+    ▼
+  </button>
+</div>
 
 <span class="wr-time-picker__sep" aria-hidden="true">:</span>
 
-<label class="wr-time-picker__field" aria-label="Minutes">
+<div class="wr-time-picker__col">
+  <button
+    type="button"
+    class="wr-time-picker__step wr-time-picker__step--up"
+    aria-label="Increment minutes"
+    [disabled]="!interactive()"
+    (click)="stepMinutes(1)"
+  >
+    ▲
+  </button>
   <input
-    type="number"
-    min="0"
-    max="59"
-    [attr.step]="step()"
+    class="wr-time-picker__input"
+    type="text"
+    inputmode="numeric"
+    aria-label="Minutes"
     [value]="minutesDisplay()"
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
     (input)="onMinutesInput($any($event.target).value)"
     (blur)="onBlur()"
   />
-</label>
+  <button
+    type="button"
+    class="wr-time-picker__step wr-time-picker__step--down"
+    aria-label="Decrement minutes"
+    [disabled]="!interactive()"
+    (click)="stepMinutes(-1)"
+  >
+    ▼
+  </button>
+</div>
 
 @if (showSeconds()) {
   <span class="wr-time-picker__sep" aria-hidden="true">:</span>
 
-  <label class="wr-time-picker__field" aria-label="Seconds">
+  <div class="wr-time-picker__col">
+    <button
+      type="button"
+      class="wr-time-picker__step wr-time-picker__step--up"
+      aria-label="Increment seconds"
+      [disabled]="!interactive()"
+      (click)="stepSeconds(1)"
+    >
+      ▲
+    </button>
     <input
-      type="number"
-      min="0"
-      max="59"
-      [attr.step]="step()"
+      class="wr-time-picker__input"
+      type="text"
+      inputmode="numeric"
+      aria-label="Seconds"
       [value]="secondsDisplay()"
       [disabled]="effectiveDisabled()"
       [readonly]="readonly()"
       (input)="onSecondsInput($any($event.target).value)"
       (blur)="onBlur()"
     />
-  </label>
+    <button
+      type="button"
+      class="wr-time-picker__step wr-time-picker__step--down"
+      aria-label="Decrement seconds"
+      [disabled]="!interactive()"
+      (click)="stepSeconds(-1)"
+    >
+      ▼
+    </button>
+  </div>
 }
 
 @if (is12h()) {
-  <wr-segmented
-    class="wr-time-picker__ampm"
-    [options]="ampmOptions"
-    [value]="isPm() ? 'pm' : 'am'"
-    [disabled]="effectiveDisabled() || readonly()"
-    (valueChange)="onAmPmChange($event)"
-  />
+  <div class="wr-time-picker__col wr-time-picker__col--ampm">
+    <button
+      type="button"
+      class="wr-time-picker__step wr-time-picker__step--up"
+      aria-label="Toggle AM / PM"
+      [disabled]="!interactive()"
+      (click)="toggleAmPm()"
+    >
+      ▲
+    </button>
+    <span class="wr-time-picker__label" aria-live="polite">{{ amPmLabel() }}</span>
+    <button
+      type="button"
+      class="wr-time-picker__step wr-time-picker__step--down"
+      aria-label="Toggle AM / PM"
+      [disabled]="!interactive()"
+      (click)="toggleAmPm()"
+    >
+      ▼
+    </button>
+  </div>
 }

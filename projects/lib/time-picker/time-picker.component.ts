@@ -19,7 +19,6 @@ import {
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date-adapter';
-import { WrSegmentedComponent, type WrSegmentedOption } from 'ngwr/segmented';
 import { noop } from 'ngwr/utils';
 
 function clamp(v: number, min: number, max: number): number {
@@ -28,6 +27,11 @@ function clamp(v: number, min: number, max: number): number {
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
+}
+
+/** Wraps a value into `[0, modulus)` so steppers cycle nicely. */
+function wrap(v: number, modulus: number): number {
+  return ((v % modulus) + modulus) % modulus;
 }
 
 /** Detect whether a locale uses 12-hour time by default. */
@@ -40,7 +44,9 @@ function isLocaleHour12(locale: string): boolean {
 }
 
 /**
- * Numeric time picker — `HH:MM` (or `HH:MM:SS`) with optional AM/PM toggle.
+ * Numeric time picker — `HH:MM` (or `HH:MM:SS`) with optional AM/PM column.
+ * Each field is a stepper: ▲ / typeable input / ▼. AM/PM works the same
+ * — both arrows toggle.
  *
  * Implements `ControlValueAccessor` — value is `Date | null` (only the hours,
  * minutes and seconds matter; the date portion is preserved). When typing
@@ -64,7 +70,6 @@ function isLocaleHour12(locale: string): boolean {
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrSegmentedComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -78,10 +83,10 @@ export class WrTimePickerComponent implements ControlValueAccessor {
   /** 12 / 24-hour mode. @default 'auto' (derived from the locale) */
   readonly format = input<'auto' | '12h' | '24h'>('auto');
 
-  /** Render a third input for seconds. @default false */
+  /** Render a third column for seconds. @default false */
   readonly showSeconds = input(false, { transform: coerceBooleanProperty });
 
-  /** Step applied to minutes and seconds inputs. @default 1 */
+  /** Step applied to minutes / seconds steppers. @default 1 */
   readonly step = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
 
   /** Disable interaction. @default false */
@@ -105,6 +110,8 @@ export class WrTimePickerComponent implements ControlValueAccessor {
 
   protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
+  protected readonly interactive = computed(() => !this.effectiveDisabled() && !this.readonly());
+
   /** Resolved format — turns 'auto' into '12h' or '24h' based on the locale. */
   protected readonly is12h = computed(() => {
     const f = this.format();
@@ -122,10 +129,12 @@ export class WrTimePickerComponent implements ControlValueAccessor {
 
   protected readonly isPm = computed(() => this.hours() >= 12);
 
-  protected readonly ampmOptions: readonly WrSegmentedOption<'am' | 'pm'>[] = [
-    { value: 'am', label: 'AM' },
-    { value: 'pm', label: 'PM' },
-  ];
+  protected readonly amPmLabel = computed(() => (this.isPm() ? 'PM' : 'AM'));
+
+  // Padded values for the input display.
+  protected readonly hoursDisplay = computed(() => pad(this.displayHours()));
+  protected readonly minutesDisplay = computed(() => pad(this.minutes()));
+  protected readonly secondsDisplay = computed(() => pad(this.seconds()));
 
   protected readonly classes = computed(() => {
     const parts = ['wr-time-picker'];
@@ -166,13 +175,12 @@ export class WrTimePickerComponent implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // ──────── Typed-input handlers ────────
 
   protected onHoursInput(raw: string): void {
     const n = Number(raw);
     if (Number.isNaN(n)) return;
     if (this.is12h()) {
-      // raw is 1-12; convert to 24-hour form using the existing isPm state.
       const h12 = clamp(Math.trunc(n), 1, 12) % 12;
       this.hours.set(this.isPm() ? h12 + 12 : h12);
     } else {
@@ -195,21 +203,36 @@ export class WrTimePickerComponent implements ControlValueAccessor {
     this.emit();
   }
 
-  protected onAmPmChange(next: string | null): void {
-    if (next !== 'am' && next !== 'pm') return;
-    const h = this.hours() % 12;
-    this.hours.set(next === 'pm' ? h + 12 : h);
-    this.emit();
-  }
-
   protected onBlur(): void {
     this.onTouched();
   }
 
-  // Padded values for the input display (template uses these via computed).
-  protected readonly hoursDisplay = computed(() => pad(this.displayHours()));
-  protected readonly minutesDisplay = computed(() => pad(this.minutes()));
-  protected readonly secondsDisplay = computed(() => pad(this.seconds()));
+  // ──────── Stepper handlers (▲ / ▼ buttons) ────────
+
+  protected stepHours(direction: 1 | -1): void {
+    if (!this.interactive()) return;
+    this.hours.set(wrap(this.hours() + direction, 24));
+    this.emit();
+  }
+
+  protected stepMinutes(direction: 1 | -1): void {
+    if (!this.interactive()) return;
+    this.minutes.set(wrap(this.minutes() + direction * this.step(), 60));
+    this.emit();
+  }
+
+  protected stepSeconds(direction: 1 | -1): void {
+    if (!this.interactive()) return;
+    this.seconds.set(wrap(this.seconds() + direction * this.step(), 60));
+    this.emit();
+  }
+
+  protected toggleAmPm(): void {
+    if (!this.interactive()) return;
+    // ±12 hours flips AM ↔ PM; using +12 is enough because wrap handles overflow.
+    this.hours.set(wrap(this.hours() + 12, 24));
+    this.emit();
+  }
 
   // ──────── Emission ────────
 
