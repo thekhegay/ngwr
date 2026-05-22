@@ -1,0 +1,67 @@
+<div
+  class="wr-file-upload__zone"
+  role="button"
+  tabindex="0"
+  [attr.aria-disabled]="effectiveDisabled() || null"
+  (click)="openPicker()"
+  (keydown)="onZoneKey($event)"
+  (dragenter)="onDragEnter($event)"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+>
+  <svg class="wr-file-upload__icon" width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M12 16V4M12 4l-4 4M12 4l4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+  <div class="wr-file-upload__hint">
+    <strong>{{ pickLabel() }}</strong>
+    <span>{{ dropLabel() }}</span>
+    @if (helperText()) {
+      <small>{{ helperText() }}</small>
+    }
+  </div>
+  <input
+    #picker
+    class="wr-file-upload__picker"
+    type="file"
+    [attr.accept]="accept() || null"
+    [attr.multiple]="multiple() ? '' : null"
+    [disabled]="effectiveDisabled()"
+    (change)="onPickerChange($event)"
+  />
+</div>
+
+@if (showList() && files().length > 0) {
+  <ul class="wr-file-upload__list">
+    @for (file of files(); track $index; let i = $index) {
+      <li class="wr-file-upload__item">
+        <span class="wr-file-upload__name" [title]="file.name">{{ file.name }}</span>
+        <span class="wr-file-upload__size">{{ formatBytes(file.size) }}</span>
+        <button
+          type="button"
+          class="wr-file-upload__remove"
+          aria-label="Remove file"
+          [disabled]="effectiveDisabled()"
+          (click)="removeAt(i)"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+            <path
+              d="M2 2 L10 10 M10 2 L2 10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </li>
+    }
+  </ul>
+}

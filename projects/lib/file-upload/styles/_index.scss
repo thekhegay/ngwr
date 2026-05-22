@@ -1,0 +1,152 @@
+@use '../../theme/styles' as theme;
+
+.wr-file-upload {
+  display: block;
+  font-family: var(--wr-font-family-base);
+
+  &__zone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: var(--wr-color-white);
+    border: 1.5px dashed var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+    color: var(--wr-color-dark);
+    text-align: center;
+    cursor: pointer;
+    outline: 0;
+    transition:
+      border-color var(--wr-transition-base),
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--wr-color-primary);
+      background: rgba(var(--wr-color-primary-rgb), 0.04);
+    }
+  }
+
+  &--dragging &__zone {
+    border-color: var(--wr-color-primary);
+    background: rgba(var(--wr-color-primary-rgb), 0.08);
+    color: var(--wr-color-primary);
+  }
+
+  &--disabled &__zone {
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &__icon {
+    color: var(--wr-color-medium);
+    transition: color var(--wr-transition-base);
+  }
+
+  &--dragging &__icon,
+  &__zone:hover &__icon {
+    color: var(--wr-color-primary);
+  }
+
+  &__hint {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+
+    strong {
+      font-weight: 600;
+      color: var(--wr-color-primary);
+    }
+
+    span {
+      color: var(--wr-color-medium);
+    }
+
+    small {
+      margin-top: 0.25rem;
+      color: var(--wr-color-medium);
+      font-size: 0.75rem;
+    }
+  }
+
+  // Native <input type="file"> stays in the DOM (so the picker can be opened
+  // programmatically) but is visually hidden.
+  &__picker {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4375rem 0.625rem 0.4375rem 0.75rem;
+    background: var(--wr-color-white);
+    border: 1px solid var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  &__name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--wr-color-dark);
+  }
+
+  &__size {
+    flex: 0 0 auto;
+    color: var(--wr-color-medium);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__remove {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.25rem;
+    color: var(--wr-color-medium);
+    border-radius: var(--wr-border-radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      color: var(--wr-color-danger, var(--wr-color-primary));
+      background: rgba(var(--wr-color-primary-rgb), 0.08);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+  }
+}
