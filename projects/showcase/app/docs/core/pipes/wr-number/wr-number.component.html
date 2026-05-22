@@ -1,0 +1,24 @@
+<ngwr-doc-page
+  title="wrNumber"
+  description="Locale-aware number formatting via Intl.NumberFormat. Uses Angular's LOCALE_ID. Accepts a style shortcut ('decimal' | 'percent' | 'currency') with optional currency code, or a full Intl.NumberFormatOptions object."
+  [keywords]="['pipe', 'wrNumber', 'number', 'format', 'intl']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>
+        {{ amount() | wrNumber }} · {{ 0.875 | wrNumber: 'percent' }} ·
+        {{ amount() | wrNumber: 'currency' : 'USD' }}
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

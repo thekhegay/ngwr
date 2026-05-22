@@ -27,8 +27,8 @@ export default [
     loadComponent: () => import('./overlay/overlay.component'),
   },
   {
-    path: core.pipes,
-    loadComponent: () => import('./pipes/pipes.component'),
+    path: core.pipes.index,
+    loadChildren: () => import('./pipes/pipes.routing'),
   },
   {
     path: core.services,

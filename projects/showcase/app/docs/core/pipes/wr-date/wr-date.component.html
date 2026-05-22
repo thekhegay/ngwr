@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="wrDate"
+  description="Uses WrDateAdapter when provideWrDateAdapter() is wired up; otherwise falls back to Intl.DateTimeFormat with the same named format keys."
+  [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ now() | wrDate }} · {{ now() | wrDate: 'mediumDateTime' }} · {{ now() | wrDate: 'dd.MM.yyyy' }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

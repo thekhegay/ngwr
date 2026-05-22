@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="wrTruncate"
+  description="Clamp string length with optional ellipsis."
+  [keywords]="['pipe', 'wrTruncate', 'truncate', 'string', 'ellipsis']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ longText() | wrTruncate: 20 }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

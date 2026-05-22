@@ -144,7 +144,16 @@ export class SidebarComponent {
     { title: 'Directives', url: ['/docs', 'core', 'directives'] },
     { title: 'Grid', url: ['/docs', 'core', 'grid'] },
     { title: 'Overlay', url: ['/docs', 'core', 'overlay'] },
-    { title: 'Pipes', url: ['/docs', 'core', 'pipes'] },
+    {
+      title: 'Pipes',
+      children: [
+        { title: 'wrNumber', url: ['/docs', 'core', 'pipes', 'wr-number'] },
+        { title: 'wrBytes', url: ['/docs', 'core', 'pipes', 'wr-bytes'] },
+        { title: 'wrDate', url: ['/docs', 'core', 'pipes', 'wr-date'] },
+        { title: 'wrTruncate', url: ['/docs', 'core', 'pipes', 'wr-truncate'] },
+        { title: 'range', url: ['/docs', 'core', 'pipes', 'range'] },
+      ],
+    },
     { title: 'Services', url: ['/docs', 'core', 'services'] },
     { title: 'Utils', url: ['/docs', 'core', 'utils'] },
   ];

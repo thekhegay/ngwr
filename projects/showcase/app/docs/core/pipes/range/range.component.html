@@ -1,0 +1,25 @@
+<ngwr-doc-page
+  title="range"
+  description="Create `[0, 1, …, length - 1]` — useful for repeating template blocks a fixed number of times."
+  [keywords]="['pipe', 'range', 'for', 'sequence']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ul>
+        @for (i of 3 | range; track i) {
+          <li>Item {{ i + 1 }}</li>
+        }
+      </ul>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
