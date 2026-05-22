@@ -9,6 +9,7 @@
     [placeholder]="placeholder()"
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
+    (click)="openOnInput()"
     (input)="onInput($event)"
     (blur)="onBlur()"
   />

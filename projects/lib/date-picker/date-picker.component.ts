@@ -168,6 +168,12 @@ export class WrDatePickerComponent implements ControlValueAccessor {
     }
   }
 
+  /** Called by the input's click — opens the overlay if it isn't open already. */
+  protected openOnInput(): void {
+    if (this.effectiveDisabled() || this.overlayRef) return;
+    this.openOverlay();
+  }
+
   protected toggleOverlay(): void {
     if (this.effectiveDisabled()) return;
     if (this.overlayRef) {
