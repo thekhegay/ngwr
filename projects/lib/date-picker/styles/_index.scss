@@ -1,0 +1,33 @@
+@use '../../theme/styles' as theme;
+
+.wr-date-picker {
+  display: inline-block;
+
+  // Inner button — same affix sizing rules as wr-input-group's toggle.
+  &__trigger {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0 var(--wr-input-group-padding-x, 0.75rem);
+    color: var(--wr-color-medium);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    pointer-events: auto;
+    transition: color var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      color: var(--wr-color-primary);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+}
+
+// Overlay pane — z-index isolation only; <wr-calendar> brings its own chrome.
+.wr-date-picker-overlay {
+  z-index: 1050;
+}
