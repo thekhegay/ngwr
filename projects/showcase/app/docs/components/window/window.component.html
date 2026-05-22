@@ -5,14 +5,14 @@
   [labels]="['Service', 'a11y']"
 >
   <ngwr-doc-section title="Installation">
-    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Basic"
     description="Two-way bind `open`. The window opens at a cascaded position (offset by ~30px from the previous one)."
   >
-    <ngwr-doc-code [code]="snippets.basic" language="html" />
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-btn (click)="basicOpen.set(true)">Open window</wr-btn>
 
@@ -31,7 +31,7 @@
     title="Fixed size & position"
     description="Set `resizable=false` to lock the size; `showMaximize=false` to hide the maximize button. Initial position / size via the `initial*` inputs."
   >
-    <ngwr-doc-code [code]="snippets.fixed" language="html" />
+    <ngwr-doc-code [code]="snippets.fixed" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-btn (click)="fixedOpen.set(true)">Open fixed window</wr-btn>
 

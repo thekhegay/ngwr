@@ -5,14 +5,14 @@
   [labels]="['ControlValueAccessor', 'a11y']"
 >
   <ngwr-doc-section title="Installation">
-    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Basic (numeric, 6 cells)"
     description="The default. `completed` fires once every cell holds a character — paste the value `123456` to try it."
   >
-    <ngwr-doc-code [code]="snippets.basic" language="html" />
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='code' (completed)='onCompleted($event)' />">
       <wr-input-otp [(ngModel)]="code" (completed)="onCompleted($event)" />
       @if (lastCompleted(); as value) {
@@ -30,7 +30,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Alphanumeric" description="Letters and digits. Useful for invitation codes.">
-    <ngwr-doc-code [code]="snippets.alpha" language="html" />
+    <ngwr-doc-code [code]="snippets.alpha" language="angular-html" />
     <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='alphaNumeric' mode='alphanumeric' length='8' />">
       <wr-input-otp [(ngModel)]="alphaNumeric" mode="alphanumeric" length="8" />
     </ngwr-doc-snippet>
@@ -40,7 +40,7 @@
     title="Masked"
     description="Renders cells as `type='password'` — characters are hidden as you type."
   >
-    <ngwr-doc-code [code]="snippets.masked" language="html" />
+    <ngwr-doc-code [code]="snippets.masked" language="angular-html" />
     <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='secret' mask />">
       <wr-input-otp [(ngModel)]="secret" mask />
     </ngwr-doc-snippet>

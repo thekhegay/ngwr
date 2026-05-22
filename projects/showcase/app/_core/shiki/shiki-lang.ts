@@ -14,7 +14,7 @@
 export type ShikiLang =
   | 'angular-html'
   | 'angular-ts'
-  | 'angulat-template'
+  | 'angular-template'
   | 'angular-expression'
   | 'typescript'
   | 'html'

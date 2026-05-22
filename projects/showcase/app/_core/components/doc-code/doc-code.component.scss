@@ -1,7 +1,7 @@
 .ngwr-doc-code {
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
-  --ngwr-doc-code-bg: var(--wr-color-light-lighter);
+  --ngwr-doc-code-bg: rgba(var(--wr-color-light-rgb), 0.2);
   --ngwr-doc-code-fg: var(--wr-color-dark-contrast);
   --ngwr-doc-code-font-size: 0.8125rem;
   --ngwr-doc-code-line-height: 1.5;

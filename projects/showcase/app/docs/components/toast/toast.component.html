@@ -5,21 +5,21 @@
   [labels]="['Service', 'CDK Overlay']"
 >
   <ngwr-doc-section title="Installation">
-    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Global config"
     description="Register `provideWrToastConfig` once at bootstrap to set defaults — position, duration, progress bar, copy button, max stack, label strings (i18n). Any field you omit falls back to the library default; the `labels` sub-object is merged separately so you can override a single string at a time."
   >
-    <ngwr-doc-code [code]="snippets.config" language="typescript" />
+    <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Show a toast"
     description="Toggle the demo controls below to preview progress bar and copy button on the fired toasts."
   >
-    <ngwr-doc-code [code]="snippets.show" language="typescript" />
+    <ngwr-doc-code [code]="snippets.show" language="angular-ts" />
 
     <ngwr-doc-snippet code="toast.show(...)">
       <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.75rem">
@@ -44,7 +44,7 @@
     title="Per-toast overrides"
     description="Each call to `show()` accepts the same fields as the global config — handy for one-off positions, copy buttons, longer durations."
   >
-    <ngwr-doc-code [code]="snippets.overrides" language="typescript" />
+    <ngwr-doc-code [code]="snippets.overrides" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-btn (click)="fireCopy()">Show with copy button</wr-btn>
     </ngwr-doc-snippet>
@@ -64,7 +64,7 @@
     title="Persistent toast"
     description="Pass `duration: 0` to disable auto-dismiss — the user closes it manually. Progress bar is hidden automatically."
   >
-    <ngwr-doc-code [code]="snippets.persistent" language="typescript" />
+    <ngwr-doc-code [code]="snippets.persistent" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-btn color="warning" (click)="firePersistent()">Open persistent</wr-btn>
     </ngwr-doc-snippet>
@@ -74,7 +74,7 @@
     title="Position"
     description="Switch the default corner. Per-toast `position` overrides win for that toast only."
   >
-    <ngwr-doc-code [code]="snippets.position" language="typescript" />
+    <ngwr-doc-code [code]="snippets.position" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-segmented [options]="positionOptions" [value]="position()" (valueChange)="onPositionChange($event)" />
     </ngwr-doc-snippet>

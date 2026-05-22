@@ -8,7 +8,7 @@
     title="Why this exists"
     description="CDK creates a single overlay container at the document root — every CDK consumer (NGWR, Angular Material, NG-ZORRO, etc.) attaches its overlays to the same element. Styling collisions are the usual symptom (z-index wars, shared `.cdk-overlay-pane` rules). `provideWrOverlay()` adds a `.wr-overlay-container` class so your CSS can target NGWR overlays specifically."
   >
-    <ngwr-doc-code [code]="snippets.setup" language="typescript" />
+    <ngwr-doc-code [code]="snippets.setup" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -24,6 +24,6 @@
   />
 
   <ngwr-doc-section title="Components that use the overlay">
-    <ngwr-doc-code [code]="snippets.components" language="typescript" />
+    <ngwr-doc-code [code]="snippets.components" language="angular-ts" />
   </ngwr-doc-section>
 </ngwr-doc-page>
