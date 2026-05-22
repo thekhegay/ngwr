@@ -90,6 +90,7 @@ export class SidebarComponent {
             { title: 'Form', url: ['/docs', 'components', 'form'] },
             { title: 'Input', url: ['/docs', 'components', 'input'] },
             { title: 'Input OTP', url: ['/docs', 'components', 'input-otp'] },
+            { title: 'Number Input', url: ['/docs', 'components', 'number-input'] },
             { title: 'Radio', url: ['/docs', 'components', 'radio'] },
             { title: 'Segmented', url: ['/docs', 'components', 'segmented'] },
             { title: 'Select', url: ['/docs', 'components', 'select'] },

@@ -91,6 +91,10 @@ export default [
     loadComponent: () => import('./input-otp/input-otp.component'),
   },
   {
+    path: components.numberInput,
+    loadComponent: () => import('./number-input/number-input.component'),
+  },
+  {
     path: components.pagination,
     loadComponent: () => import('./pagination/pagination.component'),
   },
