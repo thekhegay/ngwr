@@ -61,7 +61,7 @@
     border: 1px solid var(--wr-time-picker-border);
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-time-picker-color);
-    font-family: var(--wr-font-family-mono, monospace);
+    font-family: var(--wr-font-family-base);
     font-size: 0.9375rem;
     line-height: 1.25rem;
     font-weight: 600;
@@ -100,7 +100,7 @@
     border: 1px solid var(--wr-time-picker-border);
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-time-picker-color);
-    font-family: var(--wr-font-family-mono, monospace);
+    font-family: var(--wr-font-family-base);
     font-size: 0.9375rem;
     font-weight: 600;
     user-select: none;

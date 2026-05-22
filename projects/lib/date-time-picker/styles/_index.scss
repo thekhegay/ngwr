@@ -30,19 +30,27 @@
   z-index: 1050;
 }
 
-// Internal panel — stacks calendar + time picker.
+// Internal panel — stacks calendar + time picker as one continuous surface.
 .wr-date-time-panel {
   display: inline-flex;
   flex-direction: column;
   gap: 0;
 
+  // Flatten the calendar's bottom corners + bottom border so the time row
+  // joins it visually as one panel.
+  > .wr-calendar {
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
   &__time {
     display: flex;
     justify-content: center;
-    padding: 0.625rem 0.75rem;
-    border-top: 1px solid var(--wr-color-light);
+    padding: 0.75rem;
     background: var(--wr-color-white);
-    // Borrow calendar's outer radius look so the panel reads as one block.
+    border: 1px solid var(--wr-color-light);
+    border-top: 0;
     border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
   }
 }
