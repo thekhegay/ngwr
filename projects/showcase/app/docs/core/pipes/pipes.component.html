@@ -1,0 +1,58 @@
+<ngwr-doc-page
+  title="Pipes"
+  description="Locale-aware template pipes — numbers, bytes, dates, strings."
+  [keywords]="['pipes', 'wrNumber', 'wrBytes', 'wrDate', 'wrTruncate', 'range']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrNumber" description="Locale-aware Intl.NumberFormat.">
+    <ngwr-doc-code [code]="snippets.number" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>
+        {{ amount() | wrNumber }} · {{ 0.875 | wrNumber: 'percent' }} · {{ amount() | wrNumber: 'currency' : 'USD' }}
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrBytes" description="Binary (1024) byte units.">
+    <ngwr-doc-code [code]="snippets.bytes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ bytes() | wrBytes }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="wrDate"
+    description="Uses WrDateAdapter when provideWrDateAdapter() is wired up; otherwise falls back to Intl.DateTimeFormat."
+  >
+    <ngwr-doc-code [code]="snippets.date" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ now() | wrDate }} · {{ now() | wrDate: 'mediumDateTime' }} · {{ now() | wrDate: 'dd.MM.yyyy' }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrTruncate" description="Clamp string length with optional ellipsis.">
+    <ngwr-doc-code [code]="snippets.truncate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ longText() | wrTruncate: 20 }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="range" description="Sequential indices for @for.">
+    <ngwr-doc-code [code]="snippets.range" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ul>
+        @for (i of 3 | range; track i) {
+          <li>Item {{ i + 1 }}</li>
+        }
+      </ul>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

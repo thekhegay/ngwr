@@ -1,0 +1,74 @@
+<ngwr-doc-page
+  title="Directives"
+  description="Small behavioral directives — focus, autosize, click-outside, clipboard."
+  [keywords]="['directives', 'wrAutofocus', 'wrAutosize', 'wrClickOutside', 'wrCopyToClipboard']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrAutofocus" description="Focuses the host after the first render.">
+    <ngwr-doc-code [code]="snippets.autofocus" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrAutosize" description="Auto-grow a textarea with min / max row bounds.">
+    <ngwr-doc-code [code]="snippets.autosize" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <textarea
+        wrAutosize
+        minRows="2"
+        maxRows="8"
+        style="
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid var(--wr-color-light);
+          border-radius: 0.375rem;
+          font-family: inherit;
+        "
+        [(ngModel)]="textareaValue"
+      ></textarea>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrClickOutside" description="Emits when a click lands outside the host element.">
+    <ngwr-doc-code [code]="snippets.clickOutside" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="display: inline-block; padding: 0.75rem 1rem; background: rgba(0, 0, 0, 0.04); border-radius: 0.375rem"
+        (wrClickOutside)="onOutside()"
+      >
+        Click outside this box (count: {{ outside() }})
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrCopyToClipboard" description="Copy text on host click.">
+    <ngwr-doc-code [code]="snippets.clipboard" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button
+        type="button"
+        style="
+          padding: 0.4rem 0.875rem;
+          border-radius: 0.375rem;
+          border: 1px solid var(--wr-color-light);
+          background: var(--wr-color-white);
+          cursor: pointer;
+        "
+        [wrCopyToClipboard]="clipboardText()"
+        (copied)="onCopied($event)"
+      >
+        Copy "{{ clipboardText() }}"
+      </button>
+      @if (copied()) {
+        <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+          Last copied: {{ copied() }}
+        </small>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

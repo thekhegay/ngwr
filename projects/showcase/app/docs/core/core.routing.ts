@@ -15,12 +15,20 @@ export default [
     loadComponent: () => import('./color/color.component'),
   },
   {
+    path: core.directives,
+    loadComponent: () => import('./directives/directives.component'),
+  },
+  {
     path: core.grid,
     loadComponent: () => import('./grid/grid.component'),
   },
   {
     path: core.overlay,
     loadComponent: () => import('./overlay/overlay.component'),
+  },
+  {
+    path: core.pipes,
+    loadComponent: () => import('./pipes/pipes.component'),
   },
   {
     path: core.utils,

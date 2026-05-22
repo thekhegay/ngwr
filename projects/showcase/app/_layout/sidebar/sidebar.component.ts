@@ -133,8 +133,10 @@ export class SidebarComponent {
       title: 'Core',
       children: [
         { title: 'Color', url: ['/docs', 'core', 'color'] },
+        { title: 'Directives', url: ['/docs', 'core', 'directives'] },
         { title: 'Grid', url: ['/docs', 'core', 'grid'] },
         { title: 'Overlay', url: ['/docs', 'core', 'overlay'] },
+        { title: 'Pipes', url: ['/docs', 'core', 'pipes'] },
         { title: 'Utils', url: ['/docs', 'core', 'utils'] },
       ],
     },

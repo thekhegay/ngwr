@@ -60,8 +60,10 @@ export const routes = {
     core: {
       index: 'core',
       colors: 'color',
+      directives: 'directives',
       grid: 'grid',
       overlay: 'overlay',
+      pipes: 'pipes',
       utils: 'utils',
     },
   },

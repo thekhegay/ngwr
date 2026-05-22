@@ -16,7 +16,7 @@ import {
 })
 export default class UtilsPageComponent {
   protected readonly snippets = {
-    install: `import { resolveCssSize, randomId, noop, isDefined } from 'ngwr/utils';`,
+    install: `import { resolveCssSize, randomId, noop, isDefined, KEYS, debounce } from 'ngwr/utils';`,
     cssSize: `import { resolveCssSize } from 'ngwr/utils';
 
 resolveCssSize(48);       // { cssValue: '48px',  pxValue: 48 }
@@ -40,6 +40,22 @@ badgeLog('SAVED', '#10b981', 'profile updated');
 class MyService {
   private onChange: (v: string) => void = noop;
 }`,
+    keyboard: `import { KEYS, hasModifier, isPrintableKey } from 'ngwr/utils';
+
+if (event.key === KEYS.ESCAPE) { close(); }
+if (hasModifier(event)) { /* ctrl/cmd/alt/shift held */ }
+if (isPrintableKey(event)) { /* single printable char */ }`,
+    focus: `import { getFocusableElements, trapFocus } from 'ngwr/utils';
+
+const els = getFocusableElements(rootEl);  // ordered focusables
+@HostListener('keydown', ['$event']) onKey(e: KeyboardEvent) {
+  trapFocus(rootEl, e); // cycles Tab inside rootEl
+}`,
+    rate: `import { debounce, throttle } from 'ngwr/utils';
+
+const onResize = debounce(() => recalcLayout(), 150);
+const onScroll = throttle(() => trackScroll(), 100);
+onResize.cancel();  // both expose cancel()`,
   };
 
   protected readonly cssSizeApi: readonly DocApiRow[] = [
@@ -105,6 +121,58 @@ class MyService {
       name: 'badgeLog(badge, color, message)',
       description: 'Styled badge log to the browser console — quick dev signal.',
       type: '(badge: string, color: string, message: unknown) => void',
+      default: '—',
+    },
+  ];
+
+  protected readonly keyboardApi: readonly DocApiRow[] = [
+    {
+      name: 'KEYS',
+      description: 'Canonical `KeyboardEvent.key` constants — ENTER, ESCAPE, ARROW_UP, …',
+      type: 'const record',
+      default: '—',
+    },
+    { name: 'WrKey', description: 'Union of every value in `KEYS`.', type: 'type', default: '—' },
+    {
+      name: 'hasModifier(event)',
+      description: 'True when Ctrl / Cmd / Alt / Shift / Meta is held.',
+      type: '(e: KeyboardEvent) => boolean',
+      default: '—',
+    },
+    {
+      name: 'isPrintableKey(event)',
+      description: 'True when the key is a single printable character (no modifiers).',
+      type: '(e: KeyboardEvent) => boolean',
+      default: '—',
+    },
+  ];
+
+  protected readonly focusApi: readonly DocApiRow[] = [
+    {
+      name: 'getFocusableElements(root)',
+      description: 'Every focusable descendant in DOM order, visibility-filtered.',
+      type: '(root: HTMLElement) => readonly HTMLElement[]',
+      default: '—',
+    },
+    {
+      name: 'trapFocus(root, event)',
+      description: 'Cycle Tab focus inside `root` — call from a keydown handler. Returns true when handled.',
+      type: '(root: HTMLElement, e: KeyboardEvent) => boolean',
+      default: '—',
+    },
+  ];
+
+  protected readonly rateApi: readonly DocApiRow[] = [
+    {
+      name: 'debounce(fn, waitMs)',
+      description: 'Fires `fn` once `waitMs` after the last call. Returns the wrapper + `.cancel()`.',
+      type: '(fn, ms) => WrDebouncedFn',
+      default: '—',
+    },
+    {
+      name: 'throttle(fn, waitMs)',
+      description: 'Fires `fn` at most every `waitMs` (leading + trailing edge). Returns the wrapper + `.cancel()`.',
+      type: '(fn, ms) => WrThrottledFn',
       default: '—',
     },
   ];
