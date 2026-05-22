@@ -238,3 +238,9 @@
     opacity: 0.65;
   }
 }
+
+// Overlay pane used by [wrColorPickerTrigger]. The inner `.wr-color-picker`
+// brings its own border + shadow, so the pane just provides z-index isolation.
+.wr-color-picker-overlay {
+  z-index: 1050;
+}
