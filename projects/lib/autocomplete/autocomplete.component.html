@@ -1,0 +1,57 @@
+<wr-input-group>
+  <input
+    #input
+    wrInput
+    type="text"
+    autocomplete="off"
+    spellcheck="false"
+    role="combobox"
+    aria-autocomplete="list"
+    [attr.aria-controls]="listboxId"
+    [attr.aria-expanded]="open()"
+    [attr.aria-activedescendant]="activeId()"
+    [value]="text()"
+    [placeholder]="placeholder()"
+    [disabled]="effectiveDisabled()"
+    [readonly]="readonly()"
+    (focus)="onFocus()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    (keydown)="onKeydown($event)"
+  />
+  <button
+    type="button"
+    wrInputSuffix
+    class="wr-autocomplete__trigger"
+    tabindex="-1"
+    aria-label="Toggle suggestions"
+    [disabled]="effectiveDisabled()"
+    (click)="toggleOverlay()"
+  >
+    <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true">
+      <path d="M0 0 L5 6 L10 0 Z" fill="currentColor" />
+    </svg>
+  </button>
+</wr-input-group>
+
+<ng-template #panelTpl>
+  <ul class="wr-autocomplete__panel" role="listbox" [id]="listboxId" [style.width.px]="panelWidth()">
+    @if (filtered().length === 0) {
+      <li class="wr-autocomplete__empty">{{ noResultsText() }}</li>
+    } @else {
+      @for (item of filtered(); track $index; let i = $index) {
+        <li
+          class="wr-autocomplete__option"
+          role="option"
+          [id]="optionId(i)"
+          [class.wr-autocomplete__option--active]="i === activeIndex()"
+          [attr.aria-selected]="i === activeIndex()"
+          (mouseenter)="activeIndex.set(i)"
+          (mousedown)="selectByIndex(i, $event)"
+        >
+          {{ displayWith()(item) }}
+        </li>
+      }
+    }
+  </ul>
+</ng-template>

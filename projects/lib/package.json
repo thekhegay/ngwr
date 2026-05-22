@@ -49,6 +49,9 @@
     "./alert": {
       "sass": "./alert/styles/_index.scss"
     },
+    "./autocomplete": {
+      "sass": "./autocomplete/styles/_index.scss"
+    },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss"
     },
