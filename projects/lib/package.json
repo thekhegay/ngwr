@@ -77,6 +77,9 @@
     "./date-picker": {
       "sass": "./date-picker/styles/_index.scss"
     },
+    "./date-time-picker": {
+      "sass": "./date-time-picker/styles/_index.scss"
+    },
     "./dialog": {
       "sass": "./dialog/styles/_index.scss"
     },

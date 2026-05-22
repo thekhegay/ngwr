@@ -1,0 +1,17 @@
+<wr-calendar
+  [date]="calendarValue()"
+  [min]="min()"
+  [max]="max()"
+  [dateFilter]="dateFilter()"
+  (dateChange)="onCalendarSelect($event)"
+/>
+
+<div class="wr-date-time-panel__time">
+  <wr-time-picker
+    [ngModel]="timeValue()"
+    [format]="timeFormat()"
+    [showSeconds]="showSeconds()"
+    [step]="step()"
+    (ngModelChange)="onTimeChange($event)"
+  />
+</div>
