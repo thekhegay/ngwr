@@ -12,16 +12,146 @@
   </div>
 }
 
-<div class="wr-color-picker__footer">
+<div class="wr-color-picker__chrome">
   <span class="wr-color-picker__preview" [style.background]="hex()"></span>
-  <input
-    class="wr-color-picker__hex"
-    type="text"
-    spellcheck="false"
-    autocomplete="off"
-    [value]="hexInput()"
-    [disabled]="effectiveDisabled()"
-    (input)="onHexInput($event)"
-    (blur)="onHexBlur()"
+  <wr-segmented
+    class="wr-color-picker__tabs"
+    [options]="tabOptions"
+    [value]="activeTab()"
+    (valueChange)="onTabChange($event)"
   />
 </div>
+
+@switch (activeTab()) {
+  @case ('hex') {
+    <div class="wr-color-picker__inputs wr-color-picker__inputs--hex">
+      <label class="wr-color-picker__field wr-color-picker__field--wide">
+        <input
+          type="text"
+          spellcheck="false"
+          autocomplete="off"
+          [value]="hexInput()"
+          [disabled]="effectiveDisabled()"
+          (input)="onHexInput($event)"
+          (blur)="onHexBlur()"
+        />
+        <span class="wr-color-picker__field-label">HEX</span>
+      </label>
+    </div>
+  }
+  @case ('rgb') {
+    <div class="wr-color-picker__inputs">
+      <label class="wr-color-picker__field">
+        <input
+          type="number"
+          min="0"
+          max="255"
+          [value]="rgb().r"
+          [disabled]="effectiveDisabled()"
+          (input)="onRgbChannel('r', $any($event.target).value)"
+        />
+        <span class="wr-color-picker__field-label">R</span>
+      </label>
+      <label class="wr-color-picker__field">
+        <input
+          type="number"
+          min="0"
+          max="255"
+          [value]="rgb().g"
+          [disabled]="effectiveDisabled()"
+          (input)="onRgbChannel('g', $any($event.target).value)"
+        />
+        <span class="wr-color-picker__field-label">G</span>
+      </label>
+      <label class="wr-color-picker__field">
+        <input
+          type="number"
+          min="0"
+          max="255"
+          [value]="rgb().b"
+          [disabled]="effectiveDisabled()"
+          (input)="onRgbChannel('b', $any($event.target).value)"
+        />
+        <span class="wr-color-picker__field-label">B</span>
+      </label>
+      @if (alpha()) {
+        <label class="wr-color-picker__field">
+          <input
+            type="number"
+            min="0"
+            max="100"
+            [value]="alphaPercent()"
+            [disabled]="effectiveDisabled()"
+            (input)="onAlphaPercent($any($event.target).value)"
+          />
+          <span class="wr-color-picker__field-label">A%</span>
+        </label>
+      }
+    </div>
+  }
+  @case ('hsl') {
+    <div class="wr-color-picker__inputs">
+      <label class="wr-color-picker__field">
+        <input
+          type="number"
+          min="0"
+          max="360"
+          [value]="hslView().h | number: '1.0-0'"
+          [disabled]="effectiveDisabled()"
+          (input)="onHslChannel('h', $any($event.target).value)"
+        />
+        <span class="wr-color-picker__field-label">H</span>
+      </label>
+      <label class="wr-color-picker__field">
+        <input
+          type="number"
+          min="0"
+          max="100"
+          [value]="hslView().s * 100 | number: '1.0-0'"
+          [disabled]="effectiveDisabled()"
+          (input)="onHslChannel('s', $any($event.target).value)"
+        />
+        <span class="wr-color-picker__field-label">S%</span>
+      </label>
+      <label class="wr-color-picker__field">
+        <input
+          type="number"
+          min="0"
+          max="100"
+          [value]="hslView().l * 100 | number: '1.0-0'"
+          [disabled]="effectiveDisabled()"
+          (input)="onHslChannel('l', $any($event.target).value)"
+        />
+        <span class="wr-color-picker__field-label">L%</span>
+      </label>
+      @if (alpha()) {
+        <label class="wr-color-picker__field">
+          <input
+            type="number"
+            min="0"
+            max="100"
+            [value]="alphaPercent()"
+            [disabled]="effectiveDisabled()"
+            (input)="onAlphaPercent($any($event.target).value)"
+          />
+          <span class="wr-color-picker__field-label">A%</span>
+        </label>
+      }
+    </div>
+  }
+}
+
+@if (swatches().length > 0) {
+  <div class="wr-color-picker__swatches">
+    @for (color of swatches(); track color) {
+      <button
+        type="button"
+        class="wr-color-picker__swatch"
+        [style.background]="color"
+        [attr.aria-label]="color"
+        [disabled]="effectiveDisabled()"
+        (click)="onSwatchClick(color)"
+      ></button>
+    }
+  </div>
+}

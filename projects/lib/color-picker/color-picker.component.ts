@@ -6,6 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,10 +18,13 @@ import {
 } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { WrSegmentedComponent, type WrSegmentedOption } from 'ngwr/segmented';
 import { noop } from 'ngwr/utils';
 
-import { hsvToRgb, parseHex, rgbToHsv, toHex } from './color';
+import { hslToRgb, hsvToRgb, parseHex, rgbToHsl, rgbToHsv, toHex, type WrHsl, type WrRgb } from './color';
 import type { WrColorFormat } from './types';
+
+type Tab = 'hex' | 'rgb' | 'hsl';
 
 type Edges = 'sv' | 'hue' | 'alpha';
 
@@ -52,6 +56,7 @@ function clamp(v: number, min: number, max: number): number {
     '[style.--wr-color-picker-hue]': 'hueCss()',
     '[style.--wr-color-picker-rgb]': 'rgbCss()',
   },
+  imports: [DecimalPipe, WrSegmentedComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -71,6 +76,9 @@ export class WrColorPickerComponent implements ControlValueAccessor {
   /** Output format produced through the CVA. @default 'hex' */
   readonly format = input<WrColorFormat>('hex');
 
+  /** Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. @default [] */
+  readonly swatches = input<readonly string[]>([]);
+
   // ──────── Source of truth: HSV + alpha ────────
 
   protected readonly h = signal(0);
@@ -84,7 +92,8 @@ export class WrColorPickerComponent implements ControlValueAccessor {
 
   // ──────── Derived values ────────
 
-  private readonly rgb = computed(() => hsvToRgb({ h: this.h(), s: this.s(), v: this.v(), a: this.a() }));
+  /** RGB view of the current colour, computed lazily. */
+  protected readonly rgb = computed<WrRgb>(() => hsvToRgb({ h: this.h(), s: this.s(), v: this.v(), a: this.a() }));
 
   /** Canonical hex (used by the input field and by drag emits). */
   protected readonly hex = computed(() => toHex(this.rgb(), this.alpha()));
@@ -106,6 +115,21 @@ export class WrColorPickerComponent implements ControlValueAccessor {
 
   /** Mirror of the canonical hex, edited by the user via the input field. */
   protected readonly hexInput = signal('');
+
+  /** Active tab in the input switcher. */
+  protected readonly activeTab = signal<Tab>('hex');
+
+  /** HSL view of the current colour, computed lazily. */
+  protected readonly hslView = computed<WrHsl>(() => rgbToHsl(this.rgb()));
+
+  /** Alpha as integer percent for display in numeric tabs. */
+  protected readonly alphaPercent = computed(() => Math.round(this.a() * 100));
+
+  protected readonly tabOptions: readonly WrSegmentedOption<Tab>[] = [
+    { value: 'hex', label: 'HEX' },
+    { value: 'rgb', label: 'RGB' },
+    { value: 'hsl', label: 'HSL' },
+  ];
 
   protected readonly classes = computed(() => {
     const parts = ['wr-color-picker'];
@@ -208,5 +232,52 @@ export class WrColorPickerComponent implements ControlValueAccessor {
 
   private emitWithoutHexSync(): void {
     this.onChange(this.hex());
+  }
+
+  // ──────── Tab + channel handlers ────────
+
+  protected onTabChange(tab: Tab | null): void {
+    if (tab) this.activeTab.set(tab);
+  }
+
+  protected onRgbChannel(channel: 'r' | 'g' | 'b', raw: string): void {
+    const n = clamp(Number(raw), 0, 255);
+    if (Number.isNaN(n)) return;
+    const current = this.rgb();
+    const next: WrRgb = { ...current, [channel]: n };
+    this.applyRgb(next);
+  }
+
+  protected onHslChannel(channel: 'h' | 's' | 'l', raw: string): void {
+    const n = Number(raw);
+    if (Number.isNaN(n)) return;
+    const current = this.hslView();
+    const next: WrHsl =
+      channel === 'h' ? { ...current, h: clamp(n, 0, 360) } : { ...current, [channel]: clamp(n, 0, 100) / 100 };
+    this.applyRgb(hslToRgb(next));
+  }
+
+  protected onAlphaPercent(raw: string): void {
+    const n = clamp(Number(raw), 0, 100);
+    if (Number.isNaN(n)) return;
+    this.a.set(n / 100);
+    this.emit();
+  }
+
+  protected onSwatchClick(hex: string): void {
+    if (this.effectiveDisabled()) return;
+    const rgb = parseHex(hex);
+    if (!rgb) return;
+    this.applyRgb(rgb);
+  }
+
+  /** Push an RGB triple into the HSV source of truth (preserving the current alpha if the swap removes it). */
+  private applyRgb(rgb: WrRgb): void {
+    const hsv = rgbToHsv(rgb);
+    this.h.set(hsv.h);
+    this.s.set(hsv.s);
+    this.v.set(hsv.v);
+    this.a.set(hsv.a);
+    this.emit();
   }
 }
