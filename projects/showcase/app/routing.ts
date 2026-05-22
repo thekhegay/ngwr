@@ -19,6 +19,7 @@ export const routes = {
       checkbox: 'checkbox',
       checkboxGroup: 'checkbox-group',
       collapse: 'collapse',
+      colorPicker: 'color-picker',
       dialog: 'dialog',
       divider: 'divider',
       drawer: 'drawer',

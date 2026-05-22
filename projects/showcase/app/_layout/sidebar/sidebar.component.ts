@@ -83,6 +83,7 @@ export class SidebarComponent {
           title: 'Form',
           children: [
             { title: 'Checkbox', url: ['/docs', 'components', 'checkbox'] },
+            { title: 'Color Picker', url: ['/docs', 'components', 'color-picker'] },
             { title: 'Form', url: ['/docs', 'components', 'form'] },
             { title: 'Input', url: ['/docs', 'components', 'input'] },
             { title: 'Input OTP', url: ['/docs', 'components', 'input-otp'] },

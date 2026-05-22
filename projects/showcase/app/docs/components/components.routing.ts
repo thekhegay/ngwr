@@ -43,6 +43,10 @@ export default [
     loadComponent: () => import('./collapse/collapse.component'),
   },
   {
+    path: components.colorPicker,
+    loadComponent: () => import('./color-picker/color-picker.component'),
+  },
+  {
     path: components.dialog,
     loadComponent: () => import('./dialog/dialog.component'),
   },
