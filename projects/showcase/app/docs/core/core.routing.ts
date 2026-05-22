@@ -31,6 +31,10 @@ export default [
     loadComponent: () => import('./pipes/pipes.component'),
   },
   {
+    path: core.services,
+    loadComponent: () => import('./services/services.component'),
+  },
+  {
     path: core.utils,
     loadComponent: () => import('./utils/utils.component'),
   },

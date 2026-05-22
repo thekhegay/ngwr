@@ -64,6 +64,7 @@ export const routes = {
       grid: 'grid',
       overlay: 'overlay',
       pipes: 'pipes',
+      services: 'services',
       utils: 'utils',
     },
   },

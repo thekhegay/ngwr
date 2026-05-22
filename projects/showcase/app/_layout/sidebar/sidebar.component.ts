@@ -137,6 +137,7 @@ export class SidebarComponent {
         { title: 'Grid', url: ['/docs', 'core', 'grid'] },
         { title: 'Overlay', url: ['/docs', 'core', 'overlay'] },
         { title: 'Pipes', url: ['/docs', 'core', 'pipes'] },
+        { title: 'Services', url: ['/docs', 'core', 'services'] },
         { title: 'Utils', url: ['/docs', 'core', 'utils'] },
       ],
     },

@@ -1,0 +1,79 @@
+<ngwr-doc-page
+  title="Services"
+  description="Tier-1 services for app-wide concerns — head metadata, viewport queries, environment probes."
+  [keywords]="['services', 'meta', 'media', 'platform', 'WrMetaService', 'WrMediaService', 'WrPlatformService']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section
+    title="WrMetaService"
+    description="Centralised <head> manager — title, description, keywords, canonical, Open Graph and Twitter Card. Stack-based push/pop so route overrides auto-revert."
+  >
+    <ngwr-doc-code [code]="snippets.metaInstall" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.metaPush" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.metaDirective" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button
+        type="button"
+        style="
+          padding: 0.4rem 0.875rem;
+          border-radius: 0.375rem;
+          border: 1px solid var(--wr-color-light);
+          background: var(--wr-color-white);
+          cursor: pointer;
+        "
+        (click)="pushMeta()"
+      >
+        Push demo meta (auto-pops after 4s)
+      </button>
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+        Open devtools → Elements → &lt;head&gt; to watch tags update.
+      </small>
+    </ngwr-doc-snippet>
+    <ngwr-doc-api [rows]="metaApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrMediaService"
+    description="Signal-backed viewport queries. Named breakpoints mirror _breakpoints.scss; raw matchMedia strings work too."
+  >
+    <ngwr-doc-code [code]="snippets.mediaInstall" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.mediaUsage" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
+        <div>
+          Current breakpoint: <strong>{{ currentBreakpoint() }}</strong>
+        </div>
+        <div>
+          matches('md'): <strong>{{ isMd() }}</strong>
+        </div>
+        <div>
+          matches('lg'): <strong>{{ isLg() }}</strong>
+        </div>
+        <small style="color: var(--wr-color-medium)">Resize the window — values update live.</small>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-api [rows]="mediaApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrPlatformService"
+    description="SSR-safe environment probes. Use to gate browser-only code paths and react to user preferences."
+  >
+    <ngwr-doc-code [code]="snippets.platformUsage" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
+        <div>
+          isBrowser: <strong>{{ isBrowser }}</strong>
+        </div>
+        <div>
+          prefersDark: <strong>{{ prefersDark() }}</strong>
+        </div>
+        <div>
+          prefersReducedMotion: <strong>{{ prefersReducedMotion() }}</strong>
+        </div>
+        <small style="color: var(--wr-color-medium)">Reflects your OS / browser preferences.</small>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-api [rows]="platformApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
