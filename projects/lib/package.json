@@ -104,6 +104,9 @@
     "./input-otp": {
       "sass": "./input-otp/styles/_index.scss"
     },
+    "./number-input": {
+      "sass": "./number-input/styles/_index.scss"
+    },
     "./overlay": {},
     "./pagination": {
       "sass": "./pagination/styles/_index.scss"

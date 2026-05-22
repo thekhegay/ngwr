@@ -1,0 +1,51 @@
+<wr-input-group>
+  @if (prefix(); as p) {
+    <span wrInputPrefix>{{ p }}</span>
+  }
+  <input
+    #input
+    wrInput
+    type="text"
+    inputmode="decimal"
+    autocomplete="off"
+    spellcheck="false"
+    [value]="text()"
+    [placeholder]="placeholder()"
+    [disabled]="effectiveDisabled()"
+    [readonly]="readonly()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    (keydown)="onKeydown($event)"
+  />
+  @if (suffix(); as s) {
+    <span wrInputSuffix>{{ s }}</span>
+  }
+  @if (showSteppers()) {
+    <div class="wr-number-input__steppers" wrInputSuffix>
+      <button
+        type="button"
+        class="wr-number-input__step"
+        tabindex="-1"
+        aria-label="Increment"
+        [disabled]="!interactive() || atMax()"
+        (click)="stepBy(1)"
+      >
+        <svg width="8" height="5" viewBox="0 0 8 5" aria-hidden="true">
+          <path d="M0 5 L4 0 L8 5 Z" fill="currentColor" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="wr-number-input__step"
+        tabindex="-1"
+        aria-label="Decrement"
+        [disabled]="!interactive() || atMin()"
+        (click)="stepBy(-1)"
+      >
+        <svg width="8" height="5" viewBox="0 0 8 5" aria-hidden="true">
+          <path d="M0 0 L4 5 L8 0 Z" fill="currentColor" />
+        </svg>
+      </button>
+    </div>
+  }
+</wr-input-group>
