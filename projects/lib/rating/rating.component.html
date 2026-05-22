@@ -1,0 +1,44 @@
+<div
+  class="wr-rating__row"
+  role="slider"
+  [attr.aria-label]="ariaLabel()"
+  [attr.aria-valuemin]="0"
+  [attr.aria-valuemax]="count()"
+  [attr.aria-valuenow]="value() ?? 0"
+  [attr.aria-readonly]="readonly() || null"
+  [attr.aria-disabled]="effectiveDisabled() || null"
+  [attr.tabindex]="interactive() ? 0 : -1"
+  (keydown)="onKeydown($event)"
+  (mouseleave)="onLeave()"
+>
+  @for (slot of slots(); track $index; let i = $index) {
+    <!-- The parent row owns keyboard focus + handlers; slots are pointer-only
+         click targets, so the a11y rules below are intentionally suppressed. -->
+    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+    <span
+      class="wr-rating__slot"
+      [class.wr-rating__slot--interactive]="interactive()"
+      [style.--wr-rating-fill]="fillFor(i)"
+      (mousemove)="onSlotMove($event, i)"
+      (click)="onSlotClick($event, i)"
+    >
+      <!-- Outline (always visible) -->
+      <svg class="wr-rating__icon wr-rating__icon--bg" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.58L12 17.6l-5.9 3.08 1.13-6.58L2.45 9.44l6.6-.96L12 2.5z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <!-- Filled overlay, clipped by --wr-rating-fill (0..1) -->
+      <svg class="wr-rating__icon wr-rating__icon--fg" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 2.5l2.95 5.98 6.6.96-4.78 4.66 1.13 6.58L12 17.6l-5.9 3.08 1.13-6.58L2.45 9.44l6.6-.96L12 2.5z"
+          fill="currentColor"
+        />
+      </svg>
+    </span>
+  }
+</div>

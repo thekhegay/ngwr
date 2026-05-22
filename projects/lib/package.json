@@ -132,6 +132,9 @@
     "./radio": {
       "sass": "./radio/styles/_index.scss"
     },
+    "./rating": {
+      "sass": "./rating/styles/_index.scss"
+    },
     "./segmented": {
       "sass": "./segmented/styles/_index.scss"
     },
