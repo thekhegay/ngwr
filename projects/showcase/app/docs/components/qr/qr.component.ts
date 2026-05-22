@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrInputComponent } from 'ngwr/input';
+import { WrInputDirective } from 'ngwr/input';
 import { WrQrComponent } from 'ngwr/qr';
 
 import {
@@ -20,7 +20,7 @@ import {
   imports: [
     FormsModule,
     WrQrComponent,
-    WrInputComponent,
+    WrInputDirective,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

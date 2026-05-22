@@ -14,7 +14,7 @@
         <wr-form-item>
           <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
           <label>Email</label>
-          <wr-input type="email" [(ngModel)]="email" placeholder="you@example.com" />
+          <input wrInput type="email" [(ngModel)]="email" placeholder="you@example.com" />
         </wr-form-item>
       </div>
     </ngwr-doc-snippet>
@@ -29,7 +29,7 @@
         <wr-form-item [hasError]="emailInvalid()">
           <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
           <label>Email</label>
-          <wr-input type="email" [(ngModel)]="email" placeholder="you@example.com" />
+          <input wrInput type="email" [(ngModel)]="email" placeholder="you@example.com" />
           @if (emailInvalid()) {
             <wr-form-error>Please enter a valid email.</wr-form-error>
           }

@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Input"
-  description="Single-line text input. Implements ControlValueAccessor."
-  [keywords]="['input', 'wr-input', 'text']"
-  [labels]="['Component', 'Standalone']"
+  description="Attribute directive applied to a native `<input>` (or `<textarea>`). Because the styling lives on the real input, third-party directives like `ngx-mask`, custom validators, and `[(ngModel)]` compose naturally on the same element."
+  [keywords]="['input', 'wrInput', 'mask', 'ngx-mask', 'text']"
+  [labels]="['Directive', 'a11y']"
 >
   <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
@@ -10,45 +10,83 @@
 
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
-      <wr-input placeholder="Type here…" [(ngModel)]="text" />
+      <input wrInput placeholder="Type here…" [(ngModel)]="text" />
       <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ text() }}</span>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Types">
+  <ngwr-doc-section
+    title="Types"
+    description="Set any native `type` — text, number, email, search, tel, url, password."
+  >
     <ngwr-doc-snippet [code]="snippets.types">
-      <wr-input type="email" placeholder="you@example.com" />
-      <wr-input type="number" placeholder="0" />
-      <wr-input type="search" placeholder="Search" />
+      <input wrInput type="email" placeholder="you@example.com" />
+      <input wrInput type="number" placeholder="0" />
+      <input wrInput type="search" placeholder="Search" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Prefix & suffix">
+  <ngwr-doc-section
+    title="Prefix & suffix"
+    description="Wrap in `<wr-input-group>` and mark sibling elements with `[wrInputPrefix]` / `[wrInputSuffix]`. The group owns the border and focus ring (via `:focus-within`)."
+  >
     <ngwr-doc-snippet [code]="snippets.affixes">
-      <wr-input prefix="$" suffix="USD" type="number" placeholder="0" />
-      <wr-input prefix="https://" placeholder="example.com" />
+      <wr-input-group>
+        <span wrInputPrefix>$</span>
+        <input wrInput type="number" placeholder="0" [(ngModel)]="amount" />
+        <span wrInputSuffix>USD</span>
+      </wr-input-group>
+      <wr-input-group>
+        <span wrInputPrefix>https://</span>
+        <input wrInput placeholder="example.com" />
+      </wr-input-group>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Rounded">
     <ngwr-doc-snippet [code]="snippets.rounded">
-      <wr-input placeholder="Rounded" rounded />
+      <input wrInput rounded placeholder="Rounded" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Password" description="The eye toggle is only rendered when type='password'.">
+  <ngwr-doc-section
+    title="Password reveal"
+    description="`<wr-password-toggle>` flips its linked input's `type` attribute between `password` and `text`. Use a template ref to wire them up."
+  >
     <ngwr-doc-snippet [code]="snippets.password">
-      <wr-input type="password" placeholder="Password" passwordToggle [(ngModel)]="password" />
+      <wr-input-group>
+        <input wrInput type="password" placeholder="Password" [(ngModel)]="password" #pwInput />
+        <wr-password-toggle [for]="pwInput" />
+      </wr-input-group>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With ngx-mask"
+    description="Because `[wrInput]` is just a directive on the real `<input>`, ngx-mask (or any other input directive) plugs in on the same element."
+  >
+    <ngwr-doc-code [code]="snippets.mask" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled">
     <ngwr-doc-snippet [code]="snippets.disabled">
-      <wr-input placeholder="Disabled" disabled />
+      <input wrInput placeholder="Disabled" disabled />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="API">
-    <ngwr-doc-api [rows]="api" />
+  <ngwr-doc-section title="[wrInput] directive">
+    <ngwr-doc-api [rows]="directiveApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="<wr-input-group>">
+    <ngwr-doc-api [rows]="groupApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Prefix & suffix directives">
+    <ngwr-doc-api [rows]="affixApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="<wr-password-toggle>">
+    <ngwr-doc-api [rows]="passwordToggleApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

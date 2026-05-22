@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 
 import { WrButtonComponent } from 'ngwr/button';
 import { WrFormErrorComponent, WrFormItemComponent } from 'ngwr/form';
-import { WrInputComponent } from 'ngwr/input';
+import { WrInputDirective } from 'ngwr/input';
 
 import {
   DocApiComponent,
@@ -20,7 +20,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    WrInputComponent,
+    WrInputDirective,
     WrButtonComponent,
     WrFormItemComponent,
     WrFormErrorComponent,

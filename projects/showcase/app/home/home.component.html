@@ -93,9 +93,15 @@
                 <wr-btn color="success" outlined loading block>Button with long title</wr-btn>
               </div>
 
-              <wr-input placeholder="Awesome inputs" prefix="Also" />
-              <wr-input placeholder="Fully customized" />
-              <wr-input placeholder="Super strong password" type="password" passwordToggle />
+              <wr-input-group>
+                <span wrInputPrefix>Also</span>
+                <input wrInput placeholder="Awesome inputs" />
+              </wr-input-group>
+              <input wrInput placeholder="Fully customized" />
+              <wr-input-group>
+                <input wrInput type="password" placeholder="Super strong password" #homePw />
+                <wr-password-toggle [for]="homePw" />
+              </wr-input-group>
 
               <wr-btn color="primary" icon="arrow-forward" iconPosition="end">Start</wr-btn>
               <wr-btn color="danger" icon="alert-circle-outline" iconPosition="end" outlined>Forms included</wr-btn>

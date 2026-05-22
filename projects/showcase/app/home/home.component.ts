@@ -6,7 +6,7 @@ import { WrAlertComponent } from 'ngwr/alert';
 import { WrAvatarComponent } from 'ngwr/avatar';
 import { WrButtonComponent } from 'ngwr/button';
 import { provideWrIcons, type WrIcon, WrIconComponent, wrIconSet } from 'ngwr/icon';
-import { WrInputComponent } from 'ngwr/input';
+import { WrInputDirective, WrInputGroupComponent, WrInputPrefixDirective, WrPasswordToggleComponent } from 'ngwr/input';
 import { WrProgressComponent } from 'ngwr/progress';
 import { WrQrComponent } from 'ngwr/qr';
 import { WrSkeletonComponent } from 'ngwr/skeleton';
@@ -41,7 +41,10 @@ function shuffle<T>(input: readonly T[]): T[] {
     WrTagComponent,
     WrSkeletonComponent,
     WrButtonComponent,
-    WrInputComponent,
+    WrInputDirective,
+    WrInputGroupComponent,
+    WrInputPrefixDirective,
+    WrPasswordToggleComponent,
   ],
   providers: [provideWrIcons(wrIconSet)],
 })

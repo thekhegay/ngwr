@@ -28,7 +28,7 @@
     <ngwr-doc-snippet [code]="snippets.interactive">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center">
         <wr-qr [value]="text()" [size]="180" />
-        <wr-input [(ngModel)]="text" placeholder="Type to encode" style="min-width: 18rem" />
+        <input wrInput [(ngModel)]="text" placeholder="Type to encode" style="min-width: 18rem" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

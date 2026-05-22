@@ -1,7 +1,13 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrInputComponent } from 'ngwr/input';
+import {
+  WrInputDirective,
+  WrInputGroupComponent,
+  WrInputPrefixDirective,
+  WrInputSuffixDirective,
+  WrPasswordToggleComponent,
+} from 'ngwr/input';
 
 import {
   DocApiComponent,
@@ -18,7 +24,11 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    WrInputComponent,
+    WrInputDirective,
+    WrInputGroupComponent,
+    WrInputPrefixDirective,
+    WrInputSuffixDirective,
+    WrPasswordToggleComponent,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -28,38 +38,86 @@ import {
 })
 export default class InputComponent {
   protected readonly text = signal('Hello world');
+  protected readonly amount = signal(0);
   protected readonly password = signal('');
+  protected readonly phone = signal('');
 
   protected readonly snippets = {
-    install: `import { WrInputComponent } from 'ngwr/input';
+    install: `import {
+  WrInputDirective,
+  WrInputGroupComponent,
+  WrInputPrefixDirective,
+  WrInputSuffixDirective,
+  WrPasswordToggleComponent,
+} from 'ngwr/input';
 import { FormsModule } from '@angular/forms';
 
-@Component({ imports: [WrInputComponent, FormsModule] })
+@Component({
+  imports: [
+    WrInputDirective,
+    WrInputGroupComponent,
+    WrInputPrefixDirective,
+    WrInputSuffixDirective,
+    WrPasswordToggleComponent,
+    FormsModule,
+  ],
+})
 export class MyComponent {
   text = signal('');
 }`,
-    basic: `<wr-input placeholder="Type here…" [(ngModel)]="text" />`,
-    types: `<wr-input type="email" placeholder="you@example.com" />
-<wr-input type="number" placeholder="0" />
-<wr-input type="search" placeholder="Search" />`,
-    affixes: `<wr-input prefix="$" suffix="USD" type="number" />`,
-    rounded: `<wr-input placeholder="Rounded" rounded />`,
-    password: `<wr-input type="password" placeholder="Password" passwordToggle />`,
-    disabled: `<wr-input placeholder="Disabled" [disabled]="true" />`,
+
+    basic: `<input wrInput placeholder="Type here…" [(ngModel)]="text" />`,
+
+    types: `<input wrInput type="email" placeholder="you@example.com" />
+<input wrInput type="number" placeholder="0" />
+<input wrInput type="search" placeholder="Search" />`,
+
+    affixes: `<wr-input-group>
+  <span wrInputPrefix>$</span>
+  <input wrInput type="number" [(ngModel)]="amount" />
+  <span wrInputSuffix>USD</span>
+</wr-input-group>`,
+
+    rounded: `<input wrInput rounded placeholder="Rounded" />`,
+
+    password: `<wr-input-group>
+  <input wrInput type="password" [(ngModel)]="password" #pwInput />
+  <wr-password-toggle [for]="pwInput" />
+</wr-input-group>`,
+
+    mask: `<!-- Compatible with ngx-mask out of the box,
+     because [wrInput] sits on the native <input>: -->
+<input wrInput mask="(000) 000-0000" [(ngModel)]="phone" />`,
+
+    disabled: `<input wrInput placeholder="Disabled" disabled />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'type', description: 'Native input type.', type: 'WrInputType', default: "'text'" },
-    { name: 'placeholder', description: 'Placeholder text.', type: 'string', default: "''" },
-    { name: 'prefix', description: 'Static text before the value.', type: 'string | null', default: 'null' },
-    { name: 'suffix', description: 'Static text after the value.', type: 'string | null', default: 'null' },
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
-    { name: 'readonly', description: 'Read-only state.', type: 'boolean', default: 'false' },
+  protected readonly directiveApi: readonly DocApiRow[] = [
     {
-      name: 'passwordToggle',
-      description: 'Show an eye toggle for password fields.',
-      type: 'boolean',
-      default: 'false',
+      name: 'wrInput',
+      description: 'Selector. Applies NGWR input styling to a native `<input>` or `<textarea>`.',
+      type: 'attribute',
+      default: '—',
     },
+    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+  ];
+
+  protected readonly groupApi: readonly DocApiRow[] = [
+    {
+      name: 'wr-input-group',
+      description: 'Wrapper for the input + prefix/suffix/toggle siblings.',
+      type: 'component',
+      default: '—',
+    },
+    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+  ];
+
+  protected readonly affixApi: readonly DocApiRow[] = [
+    { name: '[wrInputPrefix]', description: 'Marks an element as the left affix.', type: 'attribute', default: '—' },
+    { name: '[wrInputSuffix]', description: 'Marks an element as the right affix.', type: 'attribute', default: '—' },
+  ];
+
+  protected readonly passwordToggleApi: readonly DocApiRow[] = [
+    { name: 'for', description: 'The linked password `<input>` reference.', type: 'HTMLInputElement', required: true },
   ];
 }
