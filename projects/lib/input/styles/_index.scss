@@ -115,11 +115,17 @@
     color: var(--wr-input-group-affix);
     padding: 0 var(--wr-input-group-padding-x);
     user-select: none;
-    pointer-events: none;
     font-weight: 500;
     font-family: var(--wr-font-family-base);
     font-size: 0.875rem;
     line-height: 1.25rem;
+  }
+
+  // Decorative affixes (`<span wrInputSuffix>USD</span>`) should let clicks
+  // fall through to the input. Interactive affixes (`<button>`) keep their
+  // own pointer behaviour — applies to date / date-time picker triggers.
+  &__affix:not(button) {
+    pointer-events: none;
   }
 
   &__affix--prefix + .wr-input {
