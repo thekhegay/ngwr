@@ -15,6 +15,10 @@ export default [
     loadComponent: () => import('./alert/alert.component'),
   },
   {
+    path: components.autocomplete,
+    loadComponent: () => import('./autocomplete/autocomplete.component'),
+  },
+  {
     path: components.avatar,
     loadComponent: () => import('./avatar/avatar.component'),
   },

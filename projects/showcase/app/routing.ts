@@ -11,6 +11,7 @@ export const routes = {
     components: {
       index: 'components',
       alert: 'alert',
+      autocomplete: 'autocomplete',
       avatar: 'avatar',
       badge: 'badge',
       breadcrumbs: 'breadcrumbs',

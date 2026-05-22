@@ -82,6 +82,7 @@ export class SidebarComponent {
         {
           title: 'Form',
           children: [
+            { title: 'Autocomplete', url: ['/docs', 'components', 'autocomplete'] },
             { title: 'Calendar', url: ['/docs', 'components', 'calendar'] },
             { title: 'Checkbox', url: ['/docs', 'components', 'checkbox'] },
             { title: 'Color Picker', url: ['/docs', 'components', 'color-picker'] },
