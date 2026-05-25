@@ -1,47 +1,55 @@
 @use '../../theme/styles' as theme;
 
+// `.wr-dropdown` is the inline trigger marker; the menu and overlay live
+// in the CDK overlay portal and so are separate blocks, not elements.
+
 .wr-dropdown {
-  &-trigger {
-    cursor: pointer;
+  cursor: pointer;
+}
+
+.wr-dropdown-trigger {
+  cursor: pointer;
+}
+
+.wr-dropdown-menu {
+  --wr-dropdown-bg: var(--wr-color-white);
+  --wr-dropdown-border: var(--wr-color-light);
+  --wr-dropdown-radius: var(--wr-border-radius-base);
+  --wr-dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --wr-dropdown-min-width: 10rem;
+  --wr-dropdown-padding: 0.25rem;
+
+  display: flex;
+  flex-direction: column;
+  min-width: var(--wr-dropdown-min-width);
+  padding: var(--wr-dropdown-padding);
+  background: var(--wr-dropdown-bg);
+  border: 1px solid var(--wr-dropdown-border);
+  border-radius: var(--wr-dropdown-radius);
+  box-shadow: var(--wr-dropdown-shadow);
+  font-family: var(--wr-font-family-base);
+}
+
+.wr-dropdown-overlay {
+  // Positional offsets between trigger and menu by side.
+  &--top,
+  &--top-start,
+  &--top-end {
+    padding-bottom: 0.25rem;
   }
 
-  &-menu {
-    --wr-dropdown-bg: var(--wr-color-white);
-    --wr-dropdown-border: var(--wr-color-light);
-    --wr-dropdown-radius: var(--wr-border-radius-base);
-    --wr-dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
-    --wr-dropdown-min-width: 10rem;
-    --wr-dropdown-padding: 0.25rem;
-
-    display: flex;
-    flex-direction: column;
-    min-width: var(--wr-dropdown-min-width);
-    padding: var(--wr-dropdown-padding);
-    background: var(--wr-dropdown-bg);
-    border: 1px solid var(--wr-dropdown-border);
-    border-radius: var(--wr-dropdown-radius);
-    box-shadow: var(--wr-dropdown-shadow);
-    font-family: var(--wr-font-family-base);
+  &--bottom,
+  &--bottom-start,
+  &--bottom-end {
+    padding-top: 0.25rem;
   }
 
-  &-overlay {
-    // Positional offsets between trigger and menu by side.
-    &--top,
-    &--top-start,
-    &--top-end {
-      padding-bottom: 0.25rem;
-    }
-    &--bottom,
-    &--bottom-start,
-    &--bottom-end {
-      padding-top: 0.25rem;
-    }
-    &--left {
-      padding-right: 0.25rem;
-    }
-    &--right {
-      padding-left: 0.25rem;
-    }
+  &--left {
+    padding-right: 0.25rem;
+  }
+
+  &--right {
+    padding-left: 0.25rem;
   }
 }
 
