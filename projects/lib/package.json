@@ -78,6 +78,9 @@
     "./badge": {
       "sass": "./badge/styles/_index.scss"
     },
+    "./bar-chart": {
+      "sass": "./bar-chart/styles/_index.scss"
+    },
     "./breadcrumbs": {
       "sass": "./breadcrumbs/styles/_index.scss"
     },
@@ -119,6 +122,9 @@
     },
     "./divider": {
       "sass": "./divider/styles/_index.scss"
+    },
+    "./donut-chart": {
+      "sass": "./donut-chart/styles/_index.scss"
     },
     "./drawer": {
       "sass": "./drawer/styles/_index.scss"

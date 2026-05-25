@@ -1,0 +1,29 @@
+<div class="wr-donut-chart__surface" [style.width.px]="size()">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    @for (slice of slices(); track $index) {
+      <path [attr.d]="slice.path" [attr.fill]="slice.color"></path>
+    }
+  </svg>
+  @if (centerValue() || centerLabel()) {
+    <div class="wr-donut-chart__center">
+      @if (centerValue()) {
+        <div class="wr-donut-chart__center-value">{{ centerValue() }}</div>
+      }
+      @if (centerLabel()) {
+        <div class="wr-donut-chart__center-label">{{ centerLabel() }}</div>
+      }
+    </div>
+  }
+</div>
+
+@if (showLegend()) {
+  <ul class="wr-donut-chart__legend">
+    @for (slice of slices(); track $index) {
+      <li class="wr-donut-chart__legend-item">
+        <span class="wr-donut-chart__swatch" [style.background]="slice.color"></span>
+        <span class="wr-donut-chart__legend-label">{{ slice.label }}</span>
+        <span class="wr-donut-chart__legend-value">{{ slice.value }}</span>
+      </li>
+    }
+  </ul>
+}

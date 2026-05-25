@@ -1,0 +1,15 @@
+<div class="wr-bar-chart__plot" [style.height.px]="height()">
+  @for (bar of bars(); track $index) {
+    <div class="wr-bar-chart__column">
+      @if (showValues()) {
+        <span class="wr-bar-chart__value">{{ bar.value }}</span>
+      }
+      <div class="wr-bar-chart__bar" [style.height.%]="bar.heightPercent" [style.background]="bar.color"></div>
+    </div>
+  }
+</div>
+<div class="wr-bar-chart__labels">
+  @for (bar of bars(); track $index) {
+    <span class="wr-bar-chart__label">{{ bar.label }}</span>
+  }
+</div>

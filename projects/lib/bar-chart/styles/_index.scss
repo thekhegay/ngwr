@@ -1,0 +1,56 @@
+@use '../../theme/styles' as theme;
+
+.wr-bar-chart {
+  display: block;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-dark);
+
+  &__plot {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--wr-color-light);
+  }
+
+  &__column {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  &__value {
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  &__bar {
+    width: 100%;
+    border-radius: var(--wr-border-radius-sm) var(--wr-border-radius-sm) 0 0;
+    transition: height var(--wr-duration-slow) var(--wr-ease-out);
+    min-height: 1px;
+  }
+
+  &__labels {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__label {
+    flex: 1 1 0;
+    text-align: center;
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-medium);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
