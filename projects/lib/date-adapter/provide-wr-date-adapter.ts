@@ -21,7 +21,7 @@ export type WrDateAdapterOptions = {
    * Pass a custom subclass to swap implementations (`WrDateFnsAdapter`,
    * `WrLuxonAdapter`, …).
    */
-  readonly adapter?: Type<WrDateAdapter>;
+  readonly adapter?: Type<WrDateAdapter<unknown>>;
 
   /**
    * BCP 47 locale tag (`'en-US'`, `'ru-RU'`, …). Default: `navigator.language`
