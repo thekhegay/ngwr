@@ -1,0 +1,144 @@
+<ngwr-doc-page
+  title="Squircle"
+  description="Figma-style smooth-corner rectangle. Standalone `<wr-squircle>` or `[wrSquircle]` directive that clips any element with a superellipse path. Re-computes on resize."
+  [keywords]="['squircle', 'wr-squircle', 'smooth-corner', 'figma']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Standalone" description="Drop-in container. Acts like a div with smooth corners.">
+    <ngwr-doc-code [code]="snippets.standalone" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap">
+        <wr-squircle
+          [radius]="24"
+          style="
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(135deg, var(--wr-color-primary), var(--wr-color-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+          "
+        >
+          Squircle
+        </wr-squircle>
+        <wr-squircle
+          [radius]="48"
+          [smoothing]="0.6"
+          style="
+            width: 160px;
+            height: 100px;
+            background: var(--wr-color-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--wr-color-white);
+            font-weight: 600;
+          "
+        >
+          smoothing 0.6
+        </wr-squircle>
+        <wr-squircle
+          [radius]="0"
+          style="
+            width: 100px;
+            height: 100px;
+            background: var(--wr-color-success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+          "
+        >
+          radius 0
+        </wr-squircle>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Directive on any element"
+    description="Add `wrSquircle` to anything — buttons, tags, images, custom components."
+  >
+    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap">
+        <button
+          wrSquircle
+          [radius]="16"
+          style="padding: 0.5rem 1rem; background: var(--wr-color-primary); color: white; border: 0; font-weight: 600"
+        >
+          Smooth button
+        </button>
+        <span
+          wrSquircle
+          [radius]="14"
+          style="
+            padding: 0.25rem 0.75rem;
+            background: rgba(var(--wr-color-success-rgb), 0.15);
+            color: var(--wr-color-success);
+            font-size: 0.875rem;
+            font-weight: 600;
+          "
+        >
+          Smooth tag
+        </span>
+        <div
+          wrSquircle
+          [radius]="20"
+          style="
+            width: 120px;
+            height: 60px;
+            background: var(--wr-color-warning);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+          "
+        >
+          Card
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Try it" description="Drag the sliders.">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap">
+        <wr-squircle
+          [radius]="radius()"
+          [smoothing]="smoothing()"
+          style="
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, var(--wr-color-primary), var(--wr-color-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+          "
+        >
+          {{ radius() }} · {{ smoothing() }}
+        </wr-squircle>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 16rem">
+          <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+            Radius: <strong>{{ radius() }}px</strong>
+            <input type="range" min="0" max="80" [value]="radius()" (input)="onRadius($event)" />
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+            Smoothing: <strong>{{ smoothing() }}</strong>
+            <input type="range" min="0" max="1" step="0.05" [value]="smoothing()" (input)="onSmoothing($event)" />
+          </label>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

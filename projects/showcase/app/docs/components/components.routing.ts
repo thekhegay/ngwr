@@ -59,6 +59,10 @@ export default [
     loadComponent: () => import('./charts/charts.component'),
   },
   {
+    path: components.squircle,
+    loadComponent: () => import('./squircle/squircle.component'),
+  },
+  {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox.component'),
   },

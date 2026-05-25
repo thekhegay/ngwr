@@ -21,6 +21,7 @@ export const routes = {
       marquee: 'marquee',
       motion: 'motion',
       charts: 'charts',
+      squircle: 'squircle',
       backTop: 'back-top',
       badge: 'badge',
       breadcrumbs: 'breadcrumbs',

@@ -230,6 +230,9 @@
     "./splitter": {
       "sass": "./splitter/styles/_index.scss"
     },
+    "./squircle": {
+      "sass": "./squircle/styles/_index.scss"
+    },
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"
     },
