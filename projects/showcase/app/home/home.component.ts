@@ -1,20 +1,32 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { WrAlertComponent } from 'ngwr/alert';
+import { WrAvatarComponent } from 'ngwr/avatar';
 import { WrButtonComponent } from 'ngwr/button';
 import { WrCopyToClipboardDirective } from 'ngwr/directives';
-import { WrIconComponent, provideWrIcons, wrIconSet } from 'ngwr/icon';
-import { WrInputDirective, WrInputGroupComponent } from 'ngwr/input';
-import { WrKbdComponent } from 'ngwr/keyboard';
+import { provideWrIcons, type WrIcon, WrIconComponent, wrIconSet } from 'ngwr/icon';
+import { WrInputDirective, WrInputGroupComponent, WrInputPrefixDirective, WrPasswordToggleComponent } from 'ngwr/input';
 import { WrProgressComponent } from 'ngwr/progress';
-import { WrSwitchComponent } from 'ngwr/switch';
+import { WrQrComponent } from 'ngwr/qr';
+import { WrSkeletonComponent } from 'ngwr/skeleton';
 import { WrTagComponent } from 'ngwr/tag';
 import { WrToastService } from 'ngwr/toast';
 import { WrTypographyComponent } from 'ngwr/typography';
 
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
+
+/** Fisher–Yates shuffle. Returns a new array. */
+function shuffle<T>(input: readonly T[]): T[] {
+  const out = [...input];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 type WhyTile = {
   readonly icon: string;
@@ -29,34 +41,47 @@ type WhyTile = {
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
+    DatePipe,
     RouterLink,
     WrIconComponent,
-    WrButtonComponent,
-    WrSwitchComponent,
+    WrQrComponent,
     WrProgressComponent,
+    WrAvatarComponent,
+    WrAlertComponent,
     WrTagComponent,
+    WrSkeletonComponent,
+    WrButtonComponent,
     WrInputDirective,
     WrInputGroupComponent,
-    WrKbdComponent,
+    WrInputPrefixDirective,
+    WrPasswordToggleComponent,
     WrTypographyComponent,
     WrCopyToClipboardDirective,
   ],
   providers: [provideWrIcons(wrIconSet)],
 })
 export default class HomeComponent {
+  protected readonly currentDate = new Date();
+  protected readonly icons: readonly WrIcon[] = shuffle(wrIconSet).slice(0, 30);
   protected readonly routes = routes;
 
-  /** Live demo state for the components tile. */
-  protected readonly neonMode = signal(true);
-  protected readonly buildPct = signal(93);
-  protected readonly coveragePct = signal(94);
-
-  /** Tag list for the badge tile. */
-  protected readonly demoTags = ['Live', 'v1.6.0', 'TypeScript', 'Passed'] as const;
-
-  /** Install command for the hero terminal. */
+  /** Install command for the hero terminal field. */
   protected readonly installCmd = 'pnpm add ngwr';
+
+  /** Snippet shown in the "Zero config" code card. */
+  protected readonly snippet = `import { Component } from '@angular/core';
+import { WrButtonComponent } from 'ngwr/button';
+import { WrInputDirective } from 'ngwr/input';
+
+@Component({
+  selector: 'signup-card',
+  imports: [WrInputDirective, WrButtonComponent],
+  template: \`
+    <input wrInput placeholder="you@company.dev" />
+    <wr-btn color="primary">Reserve your spot →</wr-btn>
+  \`,
+})
+export class SignupCard {}`;
 
   /** "Why ngwr" tiles. */
   protected readonly whyTiles: readonly WhyTile[] = [
@@ -98,25 +123,6 @@ export default class HomeComponent {
     },
   ];
 
-  /** Snippet shown in the "Zero config" code card. */
-  protected readonly snippet = `import { Component } from '@angular/core';
-import { WrButtonComponent } from 'ngwr/button';
-import { WrCardComponent } from 'ngwr/card';
-import { WrInputDirective } from 'ngwr/input';
-
-@Component({
-  selector: 'signup-card',
-  imports: [WrCardComponent, WrInputDirective, WrButtonComponent],
-  template: \`
-    <wr-card class="p-6">
-      <h2 class="wr-text-xl wr-font-bold">Join the waitlist</h2>
-      <input wrInput placeholder="you@company.dev" />
-      <wr-btn color="primary">Reserve your spot →</wr-btn>
-    </wr-card>
-  \`,
-})
-export class SignupCard {}`;
-
   private readonly toast = inject(WrToastService);
 
   constructor() {
@@ -131,13 +137,5 @@ export class SignupCard {}`;
 
   protected onCopied(): void {
     this.toast.show({ type: 'success', message: 'Copied install command' });
-  }
-
-  protected demoToast(): void {
-    this.toast.show({
-      type: 'success',
-      title: 'Deployed to production',
-      message: 'ngwr.preview.vercel.app',
-    });
   }
 }
