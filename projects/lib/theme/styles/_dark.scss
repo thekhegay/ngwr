@@ -1,0 +1,22 @@
+// Dark theme overrides — opt-in via `[data-theme="dark"]` on <html>.
+// Drive the toggle from `WrThemeService` (provided automatically with
+// `provideWrTheme(...)`).
+//
+// Only semantic tokens flip — palette hues stay so brand-coloured
+// elements look the same regardless of theme.
+
+[data-theme='dark'] {
+  --wr-color-white: #0f172a;
+  --wr-color-white-rgb: 15, 23, 42;
+
+  --wr-color-dark: #f1f5f9;
+  --wr-color-dark-rgb: 241, 245, 249;
+
+  --wr-color-light: #334155;
+  --wr-color-light-rgb: 51, 65, 85;
+
+  --wr-color-medium: #94a3b8;
+  --wr-color-medium-rgb: 148, 163, 184;
+
+  color-scheme: dark;
+}
