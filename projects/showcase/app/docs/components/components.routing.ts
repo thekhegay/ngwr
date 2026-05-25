@@ -139,6 +139,10 @@ export default [
     loadComponent: () => import('./mention/mention.component'),
   },
   {
+    path: components.motion,
+    loadComponent: () => import('./motion/motion.component'),
+  },
+  {
     path: components.meterGroup,
     loadComponent: () => import('./meter-group/meter-group.component'),
   },
