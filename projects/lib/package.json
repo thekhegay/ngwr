@@ -132,6 +132,9 @@
     "./form": {
       "sass": "./form/styles/_index.scss"
     },
+    "./gauge": {
+      "sass": "./gauge/styles/_index.scss"
+    },
     "./hotkey": {},
     "./icon": {
       "sass": "./icon/styles/_index.scss"
@@ -205,6 +208,9 @@
     },
     "./slider": {
       "sass": "./slider/styles/_index.scss"
+    },
+    "./sparkline": {
+      "sass": "./sparkline/styles/_index.scss"
     },
     "./speed-dial": {
       "sass": "./speed-dial/styles/_index.scss"

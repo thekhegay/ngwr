@@ -1,0 +1,9 @@
+.wr-sparkline {
+  display: inline-block;
+  line-height: 0;
+
+  svg {
+    display: block;
+    overflow: visible;
+  }
+}

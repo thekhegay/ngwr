@@ -1,0 +1,23 @@
+<div class="wr-gauge__surface" [style.width.px]="size()">
+  <svg [attr.viewBox]="viewBox" aria-hidden="true">
+    <path
+      [attr.d]="trackPath()"
+      fill="none"
+      [attr.stroke]="trackColor()"
+      [attr.stroke-width]="strokeWidth()"
+      stroke-linecap="round"
+    />
+    <path
+      [attr.d]="valuePath()"
+      fill="none"
+      [attr.stroke]="valueColor()"
+      [attr.stroke-width]="strokeWidth()"
+      stroke-linecap="round"
+    />
+  </svg>
+  @if (showValue()) {
+    <div class="wr-gauge__text">
+      {{ value() }}<span class="wr-gauge__suffix">{{ suffix() }}</span>
+    </div>
+  }
+</div>
