@@ -229,3 +229,57 @@
     transition: none;
   }
 }
+
+// ───── Border glow (rotating conic-gradient) ─────────────────────────────
+.wr-border-glow {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--wr-border-glow-thickness, 1.5px) * -1);
+    border-radius: inherit;
+    padding: var(--wr-border-glow-thickness, 1.5px);
+    background:
+      conic-gradient(
+        from var(--wr-border-glow-angle, 0deg),
+        var(
+          --wr-border-glow-colors,
+          rgb(var(--wr-color-primary-rgb)),
+          rgb(var(--wr-color-success-rgb)),
+          rgb(var(--wr-color-warning-rgb)),
+          rgb(var(--wr-color-primary-rgb))
+        )
+      );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: wr-border-glow-spin var(--wr-border-glow-speed, 6s) linear infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+@property --wr-border-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes wr-border-glow-spin {
+  to {
+    --wr-border-glow-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wr-border-glow::before {
+    animation: none;
+  }
+}
