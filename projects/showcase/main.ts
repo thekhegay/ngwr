@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
 import { provideWrOverlay } from 'ngwr/overlay';
+import { provideWrTheme } from 'ngwr/theme';
 
 import { RootComponent } from '#root';
 import { routing } from '#routing';
@@ -17,5 +18,6 @@ void bootstrapApplication(RootComponent, {
     // ngwr
     provideWrOverlay(),
     provideWrDateAdapter(),
+    provideWrTheme(),
   ],
 });

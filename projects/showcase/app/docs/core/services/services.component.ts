@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { WrMediaService } from 'ngwr/media';
 import { WrMetaService } from 'ngwr/meta';
 import { WrPlatformService } from 'ngwr/platform';
+import { WrThemeService } from 'ngwr/theme';
 
 import {
   DocApiComponent,
@@ -23,6 +24,7 @@ export default class ServicesPageComponent {
   private readonly metaService = inject(WrMetaService);
   private readonly mediaService = inject(WrMediaService);
   private readonly platformService = inject(WrPlatformService);
+  protected readonly themeService = inject(WrThemeService);
 
   // Live demo signals — read from the service singletons.
   protected readonly currentBreakpoint = this.mediaService.current;
@@ -38,6 +40,10 @@ export default class ServicesPageComponent {
       description: 'Open devtools → Elements → <head> to see the changes.',
     });
     setTimeout(() => handle.pop(), 4000);
+  }
+
+  protected setTheme(mode: 'light' | 'dark' | 'auto'): void {
+    this.themeService.set(mode);
   }
 
   protected readonly snippets = {
@@ -90,6 +96,20 @@ if (this.platform.isBrowser) {
 
 protected readonly dark = this.platform.prefersDark;       // Signal<boolean>
 protected readonly reduce = this.platform.prefersReducedMotion;`,
+
+    themeInstall: `import { provideWrTheme, WrThemeService } from 'ngwr/theme';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideWrTheme({ defaultMode: 'auto' })],
+});`,
+
+    themeUsage: `private readonly theme = inject(WrThemeService);
+
+this.theme.set('dark');
+this.theme.toggle();
+
+protected readonly resolved = this.theme.resolved; // Signal<'light' | 'dark'>
+protected readonly mode = this.theme.mode;         // Signal<'light' | 'dark' | 'auto'>`,
   };
 
   protected readonly metaApi: readonly DocApiRow[] = [
@@ -170,6 +190,29 @@ protected readonly reduce = this.platform.prefersReducedMotion;`,
       name: 'prefersReducedMotion',
       description: 'Signal mirroring `(prefers-reduced-motion: reduce)`.',
       type: 'Signal<boolean>',
+      default: '—',
+    },
+  ];
+
+  protected readonly themeApi: readonly DocApiRow[] = [
+    {
+      name: 'mode',
+      description: "User-selected mode — `'light' | 'dark' | 'auto'`.",
+      type: 'Signal<WrThemeMode>',
+      default: '—',
+    },
+    {
+      name: 'resolved',
+      description: "Resolved theme actually applied to <html> — `'light' | 'dark'`.",
+      type: 'Signal<WrTheme>',
+      default: '—',
+    },
+    { name: 'set(mode)', description: 'Switch to a specific mode.', type: '(m: WrThemeMode) => void', default: '—' },
+    { name: 'toggle()', description: 'Flip light ↔ dark (skips auto).', type: '() => void', default: '—' },
+    {
+      name: 'provideWrTheme(config?)',
+      description: 'Configure defaultMode, storageKey (null disables persistence), attribute name.',
+      type: '(config?: Partial<WrThemeConfig>) => EnvironmentProviders',
       default: '—',
     },
   ];

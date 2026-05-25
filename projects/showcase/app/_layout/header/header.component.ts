@@ -4,7 +4,8 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 
 import { filter, map } from 'rxjs';
 
-import { provideWrIcons, WrIconComponent, type WrBuiltInIconName, logoGithub, logoNpm } from 'ngwr/icon';
+import { provideWrIcons, WrIconComponent, type WrBuiltInIconName, logoGithub, logoNpm, moon, sun } from 'ngwr/icon';
+import { WrThemeService } from 'ngwr/theme';
 
 import { LayoutState } from '../layout-state.service';
 
@@ -23,10 +24,11 @@ type ActionLink = {
   encapsulation: ViewEncapsulation.None,
   host: { class: 'ngwr-header', role: 'banner' },
   imports: [RouterLink, RouterLinkActive, WrIconComponent],
-  providers: [provideWrIcons([logoGithub, logoNpm])],
+  providers: [provideWrIcons([logoGithub, logoNpm, moon, sun])],
 })
 export class HeaderComponent {
   protected readonly layoutState = inject(LayoutState);
+  protected readonly theme = inject(WrThemeService);
   private readonly router = inject(Router);
 
   private readonly url = toSignal(
@@ -47,5 +49,9 @@ export class HeaderComponent {
 
   protected onToggleSidebar(): void {
     this.layoutState.toggleSidebar();
+  }
+
+  protected onToggleTheme(): void {
+    this.theme.toggle();
   }
 }
