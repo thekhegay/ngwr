@@ -46,6 +46,13 @@
     "./reset": {
       "sass": "./styles/_reset.scss"
     },
+    "./typography": {
+      "sass": "./styles/_typography.scss"
+    },
+    "./animations": {
+      "sass": "./styles/_animations.scss"
+    },
+    "./scroll": {},
     "./alert": {
       "sass": "./alert/styles/_index.scss"
     },
