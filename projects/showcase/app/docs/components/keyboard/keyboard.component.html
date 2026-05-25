@@ -1,0 +1,32 @@
+<ngwr-doc-page
+  title="Keyboard"
+  description="Keycap chip for rendering keyboard shortcuts in copy. Stack with a plain `+` between caps for chords."
+  [keywords]="['kbd', 'keyboard', 'keycap', 'shortcut', 'wr-kbd']"
+  [labels]="['Display']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p>Open the command palette: <wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sizes">
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 0.5rem">
+        <wr-kbd size="sm">Esc</wr-kbd>
+        <wr-kbd size="md">Enter</wr-kbd>
+        <wr-kbd size="lg">⌫</wr-kbd>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

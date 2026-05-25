@@ -138,6 +138,9 @@
     "./dropdown": {
       "sass": "./dropdown/styles/_index.scss"
     },
+    "./empty": {
+      "sass": "./empty/styles/_index.scss"
+    },
     "./file-upload": {
       "sass": "./file-upload/styles/_index.scss"
     },
@@ -162,6 +165,9 @@
     },
     "./input-otp": {
       "sass": "./input-otp/styles/_index.scss"
+    },
+    "./keyboard": {
+      "sass": "./keyboard/styles/_index.scss"
     },
     "./knob": {
       "sass": "./knob/styles/_index.scss"

@@ -83,6 +83,14 @@ export default [
     loadComponent: () => import('./counter/counter.component'),
   },
   {
+    path: components.empty,
+    loadComponent: () => import('./empty/empty.component'),
+  },
+  {
+    path: components.keyboard,
+    loadComponent: () => import('./keyboard/keyboard.component'),
+  },
+  {
     path: components.datePicker,
     loadComponent: () => import('./date-picker/date-picker.component'),
   },

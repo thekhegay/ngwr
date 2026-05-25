@@ -1,0 +1,44 @@
+@use '../../theme/styles' as theme;
+
+.wr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--wr-color-medium);
+  text-align: center;
+
+  &__icon {
+    color: var(--wr-color-medium);
+    opacity: 0.6;
+    margin-bottom: 0.25rem;
+  }
+
+  &__title {
+    color: var(--wr-color-dark);
+    font-size: var(--wr-text-base);
+    font-weight: var(--wr-font-weight-semibold);
+  }
+
+  &__description {
+    font-size: var(--wr-text-sm);
+    color: var(--wr-color-medium);
+    max-width: 32rem;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+
+    &:empty {
+      display: none;
+    }
+  }
+}

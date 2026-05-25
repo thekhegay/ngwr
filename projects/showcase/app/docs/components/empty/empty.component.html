@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="Empty"
+  description="Empty-state placeholder for when the underlying data is missing. Project a description and an optional `[wrEmptyActions]` row."
+  [keywords]="['empty', 'placeholder', 'no data', 'wr-empty']"
+  [labels]="['Display']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Default">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-empty />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With description and action">
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-empty icon="search" title="No results">
+        Try a different query or clear filters.
+        <ng-container wrEmptyActions>
+          <wr-btn>Reset filters</wr-btn>
+        </ng-container>
+      </wr-empty>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

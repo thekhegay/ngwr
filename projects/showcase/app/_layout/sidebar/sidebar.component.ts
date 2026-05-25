@@ -84,6 +84,8 @@ export class SidebarComponent {
         { title: 'Compare', url: ['/docs', 'components', 'compare'] },
         { title: 'Counter', url: ['/docs', 'components', 'counter'] },
         { title: 'Descriptions', url: ['/docs', 'components', 'descriptions'] },
+        { title: 'Empty', url: ['/docs', 'components', 'empty'] },
+        { title: 'Keyboard', url: ['/docs', 'components', 'keyboard'] },
         { title: 'Divider', url: ['/docs', 'components', 'divider'] },
         { title: 'Icon', url: ['/docs', 'components', 'icon'] },
         { title: 'Image Cropper', url: ['/docs', 'components', 'image-cropper'] },
