@@ -9,6 +9,7 @@ import { Injectable, signal } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class LayoutState {
   readonly sidebarOpen = signal(false);
+  readonly paletteOpen = signal(false);
 
   toggleSidebar(): void {
     this.sidebarOpen.update(v => !v);
@@ -16,5 +17,13 @@ export class LayoutState {
 
   closeSidebar(): void {
     this.sidebarOpen.set(false);
+  }
+
+  openPalette(): void {
+    this.paletteOpen.set(true);
+  }
+
+  closePalette(): void {
+    this.paletteOpen.set(false);
   }
 }

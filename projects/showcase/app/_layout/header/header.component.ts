@@ -54,4 +54,12 @@ export class HeaderComponent {
   protected onToggleTheme(): void {
     this.theme.toggle();
   }
+
+  protected onOpenPalette(): void {
+    this.layoutState.openPalette();
+  }
+
+  /** Render ⌘ on macOS, Ctrl elsewhere. */
+  protected readonly isMac =
+    typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
 }
