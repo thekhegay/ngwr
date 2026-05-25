@@ -63,6 +63,22 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Virtual scroll"
+    description="For large option lists. Uses CDK's `cdk-virtual-scroll-viewport` — only the visible rows live in the DOM, so 5 000 items render as cheaply as 10."
+  >
+    <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-autocomplete
+        [options]="largeList"
+        [(ngModel)]="virtualValue"
+        [virtualScroll]="true"
+        [itemSize]="32"
+        placeholder="Search 5 000 items"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

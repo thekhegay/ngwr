@@ -78,11 +78,15 @@ export default class AutocompletePageComponent {
 
   protected readonly userLabel = (u: User): string => `${u.name} <${u.email}>`;
 
+  /** 5 000-item dataset to exercise virtual scroll. */
+  protected readonly largeList: readonly string[] = Array.from({ length: 5000 }, (_, i) => `Item ${i + 1}`);
+
   protected readonly basic = signal<string | null>(null);
   protected readonly objectValue = signal<User | string | null>(null);
   protected readonly freeText = signal<string | null>(null);
   protected readonly minChars = signal<string | null>(null);
   protected readonly asyncValue = signal<string | null>(null);
+  protected readonly virtualValue = signal<string | null>(null);
 
   /** Fake remote search — returns countries matching the query after a small delay. */
   protected readonly searchCountries = (query: string): Observable<readonly string[]> =>
@@ -124,6 +128,15 @@ protected readonly userLabel = (u: User) => \`\${u.name} <\${u.email}>\`;
   [minChars]="1"
   placeholder="Search remotely"
 />`,
+
+    virtual: `// 5 000 options — DOM stays at ~10 rows thanks to CDK virtual scroll.
+<wr-autocomplete
+  [options]="largeList"
+  [(ngModel)]="picked"
+  [virtualScroll]="true"
+  [itemSize]="32"
+  placeholder="Search 5 000 items"
+/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -148,6 +161,19 @@ protected readonly userLabel = (u: User) => \`\${u.name} <\${u.email}>\`;
       default: 'null',
     },
     { name: 'debounceMs', description: 'Debounce applied to async loader calls.', type: 'number', default: '250' },
+    {
+      name: 'virtualScroll',
+      description: 'Virtualize the options panel using CDK virtual scroll. Use for large lists.',
+      type: 'boolean',
+      default: 'false',
+    },
+    { name: 'itemSize', description: 'Item row height (px) when virtualScroll is on.', type: 'number', default: '32' },
+    {
+      name: 'viewportHeight',
+      description: 'Viewport height (px) when virtualScroll is on.',
+      type: 'number',
+      default: '256',
+    },
     { name: 'placeholder', description: 'Placeholder shown when empty.', type: 'string', default: "''" },
     { name: 'minChars', description: 'Minimum query length before the panel opens.', type: 'number', default: '0' },
     {
