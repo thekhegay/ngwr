@@ -90,6 +90,9 @@
     "./calendar": {
       "sass": "./calendar/styles/_index.scss"
     },
+    "./calendar-heatmap": {
+      "sass": "./calendar-heatmap/styles/_index.scss"
+    },
     "./carousel": {
       "sass": "./carousel/styles/_index.scss"
     },

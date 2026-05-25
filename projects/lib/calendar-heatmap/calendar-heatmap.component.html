@@ -1,0 +1,35 @@
+<div
+  class="wr-calendar-heatmap__grid"
+  [style.--wr-heatmap-cell-size.px]="cellSize()"
+  [style.--wr-heatmap-cell-gap.px]="cellGap()"
+  [style.grid-template-columns]="'repeat(' + columnCount() + ', var(--wr-heatmap-cell-size))'"
+>
+  @if (showLabels()) {
+    <div class="wr-calendar-heatmap__weekdays">
+      @for (label of weekdayLabels; track $index) {
+        <span class="wr-calendar-heatmap__weekday">{{ label }}</span>
+      }
+    </div>
+  }
+
+  <div class="wr-calendar-heatmap__cells">
+    @for (cell of cells(); track cell.iso) {
+      <span
+        class="wr-calendar-heatmap__cell"
+        [style.background]="colorFor(cell.intensity)"
+        [style.opacity]="opacityFor(cell.intensity)"
+        [style.grid-column]="cell.week + 1"
+        [style.grid-row]="cell.day + 1"
+        [title]="cell.iso + ': ' + cell.value"
+      ></span>
+    }
+  </div>
+
+  @if (showLabels()) {
+    <div class="wr-calendar-heatmap__months">
+      @for (m of monthLabels(); track $index) {
+        <span class="wr-calendar-heatmap__month" [style.grid-column]="m.week + 1">{{ m.label }}</span>
+      }
+    </div>
+  }
+</div>

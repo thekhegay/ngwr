@@ -1,0 +1,65 @@
+@use '../../theme/styles' as theme;
+
+.wr-calendar-heatmap {
+  display: inline-block;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-medium);
+
+  &__grid {
+    display: grid;
+    grid-template-areas:
+      '. months'
+      'weekdays cells';
+    grid-template-columns: auto 1fr;
+    gap: 0.375rem;
+  }
+
+  &__weekdays {
+    grid-area: weekdays;
+    display: grid;
+    grid-template-rows: repeat(7, var(--wr-heatmap-cell-size));
+    gap: var(--wr-heatmap-cell-gap);
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-medium);
+    align-items: center;
+  }
+
+  &__weekday {
+    line-height: 1;
+    height: var(--wr-heatmap-cell-size);
+    display: flex;
+    align-items: center;
+  }
+
+  &__months {
+    grid-area: months;
+    display: grid;
+    grid-template-columns: subgrid;
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-medium);
+  }
+
+  &__month {
+    grid-row: 1;
+    white-space: nowrap;
+  }
+
+  &__cells {
+    grid-area: cells;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: repeat(7, var(--wr-heatmap-cell-size));
+    gap: var(--wr-heatmap-cell-gap);
+  }
+
+  &__cell {
+    width: var(--wr-heatmap-cell-size);
+    height: var(--wr-heatmap-cell-size);
+    border-radius: 2px;
+    transition: transform var(--wr-transition-base);
+
+    &:hover {
+      transform: scale(1.4);
+    }
+  }
+}
