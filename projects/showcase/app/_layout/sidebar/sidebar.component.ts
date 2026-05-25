@@ -72,6 +72,7 @@ export class SidebarComponent {
       children: [
         { title: 'Pagination', url: ['/docs', 'components', 'pagination'] },
         { title: 'Table', url: ['/docs', 'components', 'table'] },
+        { title: 'Tree', url: ['/docs', 'components', 'tree'] },
       ],
     },
     {

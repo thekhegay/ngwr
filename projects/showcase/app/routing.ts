@@ -51,6 +51,7 @@ export const routes = {
       timePicker: 'time-picker',
       toast: 'toast',
       tooltip: 'tooltip',
+      tree: 'tree',
       select: 'select',
       dropdown: 'dropdown',
       fileUpload: 'file-upload',

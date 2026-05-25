@@ -1,0 +1,40 @@
+<ngwr-doc-page
+  title="Tree"
+  description="Hierarchical list with expand / collapse, selection (single or multi), and full keyboard navigation. Data-driven — pass an array of `WrTreeNode<TId>` with optional `children`."
+  [keywords]="['tree', 'wr-tree', 'hierarchy', 'folders']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Single selection"
+    description="Click a row to select. Arrow keys navigate, ←/→ collapse/expand, Enter or Space selects, Home/End jump to ends."
+  >
+    <ngwr-doc-code [code]="snippets.single" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-tree [nodes]="folders" [(selected)]="singleSelected" [(expanded)]="expanded" />
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+        Selected: {{ singleSelected().join(', ') || '(none)' }}
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Multi selection"
+    description="Cmd / Ctrl + click toggles individual selections in multi mode."
+  >
+    <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-tree [nodes]="folders" [(selected)]="multiSelected" selectionMode="multi" />
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+        Selected: {{ multiSelected().join(', ') || '(none)' }}
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

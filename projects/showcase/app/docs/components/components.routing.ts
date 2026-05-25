@@ -187,6 +187,10 @@ export default [
     loadComponent: () => import('./tooltip/tooltip.component'),
   },
   {
+    path: components.tree,
+    loadComponent: () => import('./tree/tree.component'),
+  },
+  {
     path: components.window,
     loadComponent: () => import('./window/window.component'),
   },
