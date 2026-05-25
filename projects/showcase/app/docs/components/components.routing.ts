@@ -55,6 +55,10 @@ export default [
     loadComponent: () => import('./color-picker/color-picker.component'),
   },
   {
+    path: components.compare,
+    loadComponent: () => import('./compare/compare.component'),
+  },
+  {
     path: components.datePicker,
     loadComponent: () => import('./date-picker/date-picker.component'),
   },

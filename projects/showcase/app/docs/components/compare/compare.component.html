@@ -1,0 +1,105 @@
+<ngwr-doc-page
+  title="Compare"
+  description="Before/after split with a draggable divider. Project anything (images, text, divs, components) via `[wrCompareBefore]` and `[wrCompareAfter]` attributes — the component stacks them and clips the after side."
+  [keywords]="['compare', 'slider', 'diff', 'before-after', 'wr-compare']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Image compare" description="Drag the divider — or use ←/→ on the focused slider.">
+    <ngwr-doc-code [code]="snippets.images" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-compare
+        [(position)]="imagePos"
+        style="
+          display: block;
+          width: 100%;
+          max-width: 36rem;
+          aspect-ratio: 16 / 10;
+          border-radius: 0.5rem;
+          overflow: hidden;
+        "
+      >
+        <img wrCompareBefore src="/images/image_1.webp" alt="Before" style="filter: grayscale(1)" />
+        <img wrCompareAfter src="/images/image_1.webp" alt="After" />
+      </wr-compare>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Vertical split">
+    <ngwr-doc-code [code]="snippets.vertical" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-compare
+        [(position)]="verticalPos"
+        orientation="vertical"
+        style="
+          display: block;
+          width: 100%;
+          max-width: 36rem;
+          aspect-ratio: 16 / 10;
+          border-radius: 0.5rem;
+          overflow: hidden;
+        "
+      >
+        <img wrCompareBefore src="/images/image_1.webp" alt="Before" style="filter: sepia(1)" />
+        <img wrCompareAfter src="/images/image_1.webp" alt="After" />
+      </wr-compare>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Arbitrary content"
+    description="Works with any HTML. The `before` slot determines natural size; the `after` slot must occupy the same box."
+  >
+    <ngwr-doc-code [code]="snippets.text" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-compare
+        [(position)]="textPos"
+        style="
+          display: block;
+          width: 100%;
+          max-width: 36rem;
+          height: 12rem;
+          border: 1px solid var(--wr-color-light);
+          border-radius: 0.5rem;
+          overflow: hidden;
+        "
+      >
+        <div
+          wrCompareBefore
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: var(--wr-color-light);
+            color: var(--wr-color-dark);
+            font-weight: 600;
+          "
+        >
+          Before
+        </div>
+        <div
+          wrCompareAfter
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: var(--wr-color-primary);
+            color: var(--wr-color-white);
+            font-weight: 600;
+          "
+        >
+          After
+        </div>
+      </wr-compare>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -81,6 +81,7 @@ export class SidebarComponent {
         { title: 'Alert', url: ['/docs', 'components', 'alert'] },
         { title: 'Avatar', url: ['/docs', 'components', 'avatar'] },
         { title: 'Badge', url: ['/docs', 'components', 'badge'] },
+        { title: 'Compare', url: ['/docs', 'components', 'compare'] },
         { title: 'Divider', url: ['/docs', 'components', 'divider'] },
         { title: 'Icon', url: ['/docs', 'components', 'icon'] },
         { title: 'Image Cropper', url: ['/docs', 'components', 'image-cropper'] },

@@ -22,6 +22,7 @@ export const routes = {
       checkboxGroup: 'checkbox-group',
       collapse: 'collapse',
       colorPicker: 'color-picker',
+      compare: 'compare',
       datePicker: 'date-picker',
       dateTimePicker: 'date-time-picker',
       dialog: 'dialog',
