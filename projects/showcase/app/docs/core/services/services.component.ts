@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 
+import { WrHotkeyService } from 'ngwr/hotkey';
 import { WrMediaService } from 'ngwr/media';
 import { WrMetaService } from 'ngwr/meta';
 import { WrPlatformService } from 'ngwr/platform';
@@ -25,6 +26,8 @@ export default class ServicesPageComponent {
   private readonly mediaService = inject(WrMediaService);
   private readonly platformService = inject(WrPlatformService);
   protected readonly themeService = inject(WrThemeService);
+  private readonly hotkeys = inject(WrHotkeyService);
+  protected readonly lastHotkey = signal<string>('');
 
   // Live demo signals — read from the service singletons.
   protected readonly currentBreakpoint = this.mediaService.current;
@@ -44,6 +47,13 @@ export default class ServicesPageComponent {
 
   protected setTheme(mode: 'light' | 'dark' | 'auto'): void {
     this.themeService.set(mode);
+  }
+
+  constructor() {
+    const handle = this.hotkeys.bind('mod+/', () => {
+      this.lastHotkey.set(`mod+/ fired at ${new Date().toLocaleTimeString()}`);
+    });
+    inject(DestroyRef).onDestroy(() => handle.unbind());
   }
 
   protected readonly snippets = {
@@ -110,6 +120,19 @@ this.theme.toggle();
 
 protected readonly resolved = this.theme.resolved; // Signal<'light' | 'dark'>
 protected readonly mode = this.theme.mode;         // Signal<'light' | 'dark' | 'auto'>`,
+
+    hotkeyUsage: `private readonly hotkeys = inject(WrHotkeyService);
+
+ngOnInit() {
+  const handle = this.hotkeys.bind('mod+k', () => this.openPalette(), {
+    preventDefault: true,
+    allowInInput: false,
+  });
+  this.destroyRef.onDestroy(() => handle.unbind());
+}
+
+// Or use the directive form:
+// <button [wrHotkey]="'mod+k'" (wrHotkeyMatch)="openPalette()">…</button>`,
   };
 
   protected readonly metaApi: readonly DocApiRow[] = [
@@ -190,6 +213,28 @@ protected readonly mode = this.theme.mode;         // Signal<'light' | 'dark' | 
       name: 'prefersReducedMotion',
       description: 'Signal mirroring `(prefers-reduced-motion: reduce)`.',
       type: 'Signal<boolean>',
+      default: '—',
+    },
+  ];
+
+  protected readonly hotkeyApi: readonly DocApiRow[] = [
+    {
+      name: 'bind(spec, handler, options?)',
+      description: 'Register a binding. Returns `{ unbind }`.',
+      type: '(spec, handler, options?) => WrHotkeyHandle',
+      default: '—',
+    },
+    {
+      name: '[wrHotkey]',
+      description: 'Directive form: binds on init, re-binds on input change, unbinds on destroy.',
+      type: 'WrHotkeySpec',
+      default: '—',
+    },
+    {
+      name: 'spec format',
+      description:
+        "'+'-separated tokens: modifiers (ctrl/alt/shift/meta/cmd/mod) + key. `mod` = Cmd on macOS, Ctrl elsewhere.",
+      type: 'string',
       default: '—',
     },
   ];
