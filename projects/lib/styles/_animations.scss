@@ -1,0 +1,200 @@
+// Animation utility classes — opt-in.
+//
+// Not loaded by the umbrella `ngwr` entry. Bring in explicitly:
+//
+//   @use 'ngwr/animations';
+//
+// Duration / easing read from the `--wr-duration-*` / `--wr-ease-*`
+// tokens, so global timing tweaks land everywhere in one place.
+// Respects `prefers-reduced-motion` — all animations collapse to a
+// single frame so users who opt out don't see motion.
+
+// ── Keyframes ────────────────────────────────────────────────────────
+@keyframes wr-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wr-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wr-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wr-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wr-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes wr-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes wr-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wr-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes wr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wr-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes wr-bounce {
+  0%,
+  100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes wr-shimmer {
+  100% {
+    background-position-x: -200%;
+  }
+}
+
+// ── Utility classes ──────────────────────────────────────────────────
+.wr-animate-fade-in {
+  animation: wr-fade-in var(--wr-duration-base) var(--wr-ease-out) both;
+}
+.wr-animate-fade-out {
+  animation: wr-fade-out var(--wr-duration-base) var(--wr-ease-in) both;
+}
+.wr-animate-slide-up {
+  animation: wr-slide-up var(--wr-duration-base) var(--wr-ease-out) both;
+}
+.wr-animate-slide-down {
+  animation: wr-slide-down var(--wr-duration-base) var(--wr-ease-out) both;
+}
+.wr-animate-slide-left {
+  animation: wr-slide-left var(--wr-duration-base) var(--wr-ease-out) both;
+}
+.wr-animate-slide-right {
+  animation: wr-slide-right var(--wr-duration-base) var(--wr-ease-out) both;
+}
+.wr-animate-scale-in {
+  animation: wr-scale-in var(--wr-duration-base) var(--wr-ease-out) both;
+}
+.wr-animate-scale-out {
+  animation: wr-scale-out var(--wr-duration-base) var(--wr-ease-in) both;
+}
+.wr-animate-spin {
+  animation: wr-spin 1s linear infinite;
+}
+.wr-animate-pulse {
+  animation: wr-pulse 2s var(--wr-ease-in-out) infinite;
+}
+.wr-animate-bounce {
+  animation: wr-bounce 1s infinite;
+}
+
+// ── Reveal-on-scroll integration ─────────────────────────────────────
+// Initial state — set by `[wrReveal]` on the host element via the
+// `wr-reveal` host class. The directive flips `wr-reveal--visible`
+// once the element enters the viewport.
+.wr-reveal {
+  opacity: 0;
+  transform: translateY(0.75rem);
+  transition:
+    opacity var(--wr-duration-slow) var(--wr-ease-out),
+    transform var(--wr-duration-slow) var(--wr-ease-out);
+
+  &--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── prefers-reduced-motion ───────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .wr-animate-fade-in,
+  .wr-animate-fade-out,
+  .wr-animate-slide-up,
+  .wr-animate-slide-down,
+  .wr-animate-slide-left,
+  .wr-animate-slide-right,
+  .wr-animate-scale-in,
+  .wr-animate-scale-out,
+  .wr-animate-spin,
+  .wr-animate-pulse,
+  .wr-animate-bounce {
+    animation: none !important;
+  }
+
+  .wr-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

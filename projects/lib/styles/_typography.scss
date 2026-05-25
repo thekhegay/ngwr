@@ -1,0 +1,122 @@
+// Typography utility classes — opt-in.
+//
+// Not loaded by the umbrella `ngwr` entry. Bring in explicitly:
+//
+//   @use 'ngwr/typography';
+//
+// All values read from the `--wr-text-*` / `--wr-font-weight-*` /
+// `--wr-leading-*` / `--wr-tracking-*` tokens, so overriding the tokens
+// at `:root` re-themes every utility class in one place.
+
+// ── Size ─────────────────────────────────────────────────────────────
+.wr-text-xs {
+  font-size: var(--wr-text-xs);
+}
+.wr-text-sm {
+  font-size: var(--wr-text-sm);
+}
+.wr-text-base {
+  font-size: var(--wr-text-base);
+}
+.wr-text-lg {
+  font-size: var(--wr-text-lg);
+}
+.wr-text-xl {
+  font-size: var(--wr-text-xl);
+}
+.wr-text-2xl {
+  font-size: var(--wr-text-2xl);
+}
+.wr-text-3xl {
+  font-size: var(--wr-text-3xl);
+}
+.wr-text-4xl {
+  font-size: var(--wr-text-4xl);
+}
+.wr-text-5xl {
+  font-size: var(--wr-text-5xl);
+}
+
+// ── Weight ───────────────────────────────────────────────────────────
+.wr-font-thin {
+  font-weight: var(--wr-font-weight-thin);
+}
+.wr-font-light {
+  font-weight: var(--wr-font-weight-light);
+}
+.wr-font-regular {
+  font-weight: var(--wr-font-weight-regular);
+}
+.wr-font-medium {
+  font-weight: var(--wr-font-weight-medium);
+}
+.wr-font-semibold {
+  font-weight: var(--wr-font-weight-semibold);
+}
+.wr-font-bold {
+  font-weight: var(--wr-font-weight-bold);
+}
+.wr-font-extrabold {
+  font-weight: var(--wr-font-weight-extrabold);
+}
+
+// ── Leading ──────────────────────────────────────────────────────────
+.wr-leading-none {
+  line-height: var(--wr-leading-none);
+}
+.wr-leading-tight {
+  line-height: var(--wr-leading-tight);
+}
+.wr-leading-snug {
+  line-height: var(--wr-leading-snug);
+}
+.wr-leading-normal {
+  line-height: var(--wr-leading-normal);
+}
+.wr-leading-relaxed {
+  line-height: var(--wr-leading-relaxed);
+}
+.wr-leading-loose {
+  line-height: var(--wr-leading-loose);
+}
+
+// ── Tracking ─────────────────────────────────────────────────────────
+.wr-tracking-tighter {
+  letter-spacing: var(--wr-tracking-tighter);
+}
+.wr-tracking-tight {
+  letter-spacing: var(--wr-tracking-tight);
+}
+.wr-tracking-normal {
+  letter-spacing: var(--wr-tracking-normal);
+}
+.wr-tracking-wide {
+  letter-spacing: var(--wr-tracking-wide);
+}
+.wr-tracking-wider {
+  letter-spacing: var(--wr-tracking-wider);
+}
+.wr-tracking-widest {
+  letter-spacing: var(--wr-tracking-widest);
+}
+
+// ── Family ───────────────────────────────────────────────────────────
+.wr-font-base {
+  font-family: var(--wr-font-family-base);
+}
+.wr-font-mono {
+  font-family: var(--wr-font-family-mono);
+}
+
+// ── Misc ─────────────────────────────────────────────────────────────
+.wr-text-balance {
+  text-wrap: balance;
+}
+.wr-text-pretty {
+  text-wrap: pretty;
+}
+.wr-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
