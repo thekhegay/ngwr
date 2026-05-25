@@ -1,0 +1,60 @@
+@if (objectUrl(); as url) {
+  <div class="wr-image-cropper__canvas">
+    <img #img class="wr-image-cropper__image" [src]="url" alt="" draggable="false" (load)="onImageLoad()" />
+
+    @if (display().w > 0) {
+      <!-- Semi-transparent backdrop with a cut-out for the crop window. -->
+      <div
+        class="wr-image-cropper__backdrop"
+        [style.clip-path]="
+          'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 ' +
+          cropDisplay().y +
+          'px, ' +
+          cropDisplay().x +
+          'px ' +
+          cropDisplay().y +
+          'px, ' +
+          cropDisplay().x +
+          'px ' +
+          (cropDisplay().y + cropDisplay().h) +
+          'px, ' +
+          (cropDisplay().x + cropDisplay().w) +
+          'px ' +
+          (cropDisplay().y + cropDisplay().h) +
+          'px, ' +
+          (cropDisplay().x + cropDisplay().w) +
+          'px ' +
+          cropDisplay().y +
+          'px, 0 ' +
+          cropDisplay().y +
+          'px)'
+        "
+      ></div>
+
+      <!-- Crop window — drag to move, with eight resize handles. -->
+      <div
+        class="wr-image-cropper__window"
+        [style.left.px]="cropDisplay().x"
+        [style.top.px]="cropDisplay().y"
+        [style.width.px]="cropDisplay().w"
+        [style.height.px]="cropDisplay().h"
+        (pointerdown)="onPointerDown('move', $event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp($event)"
+        (pointercancel)="onPointerUp($event)"
+      >
+        @for (h of ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']; track h) {
+          <span
+            class="wr-image-cropper__handle wr-image-cropper__handle--{{ h }}"
+            (pointerdown)="onPointerDown($any(h), $event)"
+            (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp($event)"
+            (pointercancel)="onPointerUp($event)"
+          ></span>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <div class="wr-image-cropper__empty">No image</div>
+}

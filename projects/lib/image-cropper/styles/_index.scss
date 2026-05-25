@@ -1,0 +1,114 @@
+@use '../../theme/styles' as theme;
+
+.wr-image-cropper {
+  display: block;
+  font-family: var(--wr-font-family-base);
+  user-select: none;
+  touch-action: none;
+
+  &__canvas {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    line-height: 0;
+  }
+
+  &__image {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+
+  &__window {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid var(--wr-color-white);
+    cursor: move;
+    box-shadow: 0 0 0 1px rgba(var(--wr-color-primary-rgb), 0.6);
+  }
+
+  &__handle {
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--wr-color-white);
+    border: 1px solid var(--wr-color-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+
+    // Position each handle by its edge / corner.
+    &--n,
+    &--s {
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: ns-resize;
+    }
+
+    &--e,
+    &--w {
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: ew-resize;
+    }
+
+    &--n {
+      top: -0.4375rem;
+    }
+
+    &--s {
+      bottom: -0.4375rem;
+    }
+
+    &--e {
+      right: -0.4375rem;
+    }
+
+    &--w {
+      left: -0.4375rem;
+    }
+
+    &--ne {
+      top: -0.4375rem;
+      right: -0.4375rem;
+      cursor: nesw-resize;
+    }
+
+    &--nw {
+      top: -0.4375rem;
+      left: -0.4375rem;
+      cursor: nwse-resize;
+    }
+
+    &--se {
+      bottom: -0.4375rem;
+      right: -0.4375rem;
+      cursor: nwse-resize;
+    }
+
+    &--sw {
+      bottom: -0.4375rem;
+      left: -0.4375rem;
+      cursor: nesw-resize;
+    }
+  }
+
+  &__empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--wr-color-medium);
+    background: rgba(var(--wr-color-light-rgb), 0.4);
+    border: 1px dashed var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+  }
+}
