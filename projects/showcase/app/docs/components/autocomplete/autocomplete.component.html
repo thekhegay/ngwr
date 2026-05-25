@@ -47,6 +47,22 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Async loader"
+    description="`asyncOptions` accepts an Observable, Promise or array. Calls are debounced; in-flight requests are auto-cancelled when a new keystroke arrives. Spinner shows while loading."
+  >
+    <ngwr-doc-code [code]="snippets.async" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-autocomplete
+        [asyncOptions]="searchCountries"
+        [(ngModel)]="asyncValue"
+        [debounceMs]="300"
+        [minChars]="1"
+        placeholder="Search countries (simulated 400ms latency)"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

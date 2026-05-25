@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { type Observable, delay, of } from 'rxjs';
+
 import { WrAutocompleteComponent } from 'ngwr/autocomplete';
 
 import {
@@ -80,6 +82,11 @@ export default class AutocompletePageComponent {
   protected readonly objectValue = signal<User | string | null>(null);
   protected readonly freeText = signal<string | null>(null);
   protected readonly minChars = signal<string | null>(null);
+  protected readonly asyncValue = signal<string | null>(null);
+
+  /** Fake remote search — returns countries matching the query after a small delay. */
+  protected readonly searchCountries = (query: string): Observable<readonly string[]> =>
+    of(this.countries.filter(c => c.toLowerCase().includes(query.toLowerCase()))).pipe(delay(400));
 
   protected readonly snippets = {
     install: `import { WrAutocompleteComponent } from 'ngwr/autocomplete';
@@ -106,6 +113,17 @@ protected readonly userLabel = (u: User) => \`\${u.name} <\${u.email}>\`;
     freeText: `<wr-autocomplete [options]="countries" [(ngModel)]="picked" [freeText]="true" />`,
 
     minChars: `<wr-autocomplete [options]="countries" [(ngModel)]="picked" [minChars]="2" />`,
+
+    async: `protected readonly searchCountries = (query: string) =>
+  this.http.get<readonly string[]>(\`/api/countries?q=\${query}\`);
+
+<wr-autocomplete
+  [asyncOptions]="searchCountries"
+  [(ngModel)]="picked"
+  [debounceMs]="300"
+  [minChars]="1"
+  placeholder="Search remotely"
+/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -122,6 +140,14 @@ protected readonly userLabel = (u: User) => \`\${u.name} <\${u.email}>\`;
       type: '((query: string, item: T) => boolean) | null',
       default: 'null',
     },
+    {
+      name: 'asyncOptions',
+      description:
+        'Loader called on every (debounced) keystroke. Returns Observable / Promise / array. Wins over `options`.',
+      type: '((q: string) => Observable<T[]> | Promise<T[]> | T[]) | null',
+      default: 'null',
+    },
+    { name: 'debounceMs', description: 'Debounce applied to async loader calls.', type: 'number', default: '250' },
     { name: 'placeholder', description: 'Placeholder shown when empty.', type: 'string', default: "''" },
     { name: 'minChars', description: 'Minimum query length before the panel opens.', type: 'number', default: '0' },
     {
@@ -135,6 +161,12 @@ protected readonly userLabel = (u: User) => \`\${u.name} <\${u.email}>\`;
       description: 'Text shown when no options match the query.',
       type: 'string',
       default: "'No results'",
+    },
+    {
+      name: 'loadingText',
+      description: 'Text shown in the panel while async results are loading.',
+      type: 'string',
+      default: "'Loading…'",
     },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     { name: 'readonly', description: 'Input not typeable, panel cannot open.', type: 'boolean', default: 'false' },
