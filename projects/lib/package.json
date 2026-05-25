@@ -99,6 +99,7 @@
     "./color-picker": {
       "sass": "./color-picker/styles/_index.scss"
     },
+    "./confetti": {},
     "./command-palette": {
       "sass": "./command-palette/styles/_index.scss"
     },
