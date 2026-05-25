@@ -161,6 +161,8 @@ export class SidebarComponent {
     },
     { title: 'Motion', url: ['/docs', 'components', 'motion'] },
     { title: 'Charts', url: ['/docs', 'components', 'charts'] },
+    { title: 'Auth', url: ['/docs', 'components', 'auth'] },
+    { title: 'Blocks', url: ['/docs', 'components', 'blocks'] },
 
     // ─── Core (single-page entries, flattened into direct-link groups) ───
     { title: 'Color', url: ['/docs', 'core', 'color'] },

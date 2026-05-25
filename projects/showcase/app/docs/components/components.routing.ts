@@ -59,6 +59,14 @@ export default [
     loadComponent: () => import('./charts/charts.component'),
   },
   {
+    path: components.auth,
+    loadComponent: () => import('./auth/auth.component'),
+  },
+  {
+    path: components.blocks,
+    loadComponent: () => import('./blocks/blocks.component'),
+  },
+  {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox.component'),
   },

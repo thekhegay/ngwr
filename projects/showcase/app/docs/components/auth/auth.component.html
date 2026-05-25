@@ -1,0 +1,43 @@
+<ngwr-doc-page
+  title="Auth"
+  description="Pre-styled auth forms — Login, Register, Forgot, Reset. Headless: each form emits `(submitted)` with its values; you wire the API call."
+  [keywords]="['auth', 'login', 'register', 'forgot', 'reset']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Login">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-auth-login (submitted)="onSubmit('login', $event)">
+        <a wrAuthFooter href="#">Forgot password?</a>
+      </wr-auth-login>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Register">
+    <ngwr-doc-snippet code="">
+      <wr-auth-register (submitted)="onSubmit('register', $event)">
+        <span wrAuthFooter>Already have an account? <a href="#">Sign in</a></span>
+      </wr-auth-register>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Forgot password">
+    <ngwr-doc-snippet code="">
+      <wr-auth-forgot (submitted)="onSubmit('forgot', $event)">
+        <span wrAuthFooter><a href="#">Back to sign in</a></span>
+      </wr-auth-forgot>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Reset password">
+    <ngwr-doc-snippet code="">
+      <wr-auth-reset (submitted)="onSubmit('reset', $event)" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  @if (lastSubmission()) {
+    <small style="display: block; margin-top: 1rem; color: var(--wr-color-medium)">
+      Last submit → {{ lastSubmission() }}
+    </small>
+  }
+</ngwr-doc-page>
