@@ -1,0 +1,45 @@
+<div
+  class="wr-knob__surface"
+  role="slider"
+  [attr.aria-valuemin]="min()"
+  [attr.aria-valuemax]="max()"
+  [attr.aria-valuenow]="value()"
+  [attr.aria-disabled]="effectiveDisabled() || null"
+  [attr.tabindex]="interactive() ? 0 : -1"
+  [style.width.px]="size()"
+  [style.height.px]="size()"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (keydown)="onKeydown($event)"
+>
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <path
+      class="wr-knob__track"
+      [attr.d]="trackPath()"
+      [attr.stroke]="trackColor()"
+      [attr.stroke-width]="strokeWidth()"
+      fill="none"
+      stroke-linecap="round"
+    />
+    <path
+      class="wr-knob__value"
+      [attr.d]="valuePath()"
+      [attr.stroke]="valueColor()"
+      [attr.stroke-width]="strokeWidth()"
+      fill="none"
+      stroke-linecap="round"
+    />
+    <circle
+      class="wr-knob__handle"
+      [attr.cx]="handlePos().x"
+      [attr.cy]="handlePos().y"
+      [attr.r]="strokeWidth() / 2"
+      [attr.fill]="valueColor()"
+    />
+  </svg>
+  @if (showValue()) {
+    <div class="wr-knob__text">{{ value() }}<span class="wr-knob__suffix">{{ suffix() }}</span></div>
+  }
+</div>

@@ -1,0 +1,30 @@
+<ul class="wr-anchor__list">
+  @for (link of links(); track link.id) {
+    <li class="wr-anchor__item">
+      <a
+        class="wr-anchor__link"
+        [class.wr-anchor__link--active]="activeId() === link.id"
+        [href]="'#' + link.id"
+        (click)="onClick(link.id, $event)"
+      >
+        {{ link.label }}
+      </a>
+      @if (link.children?.length) {
+        <ul class="wr-anchor__list wr-anchor__list--nested">
+          @for (child of link.children; track child.id) {
+            <li class="wr-anchor__item">
+              <a
+                class="wr-anchor__link"
+                [class.wr-anchor__link--active]="activeId() === child.id"
+                [href]="'#' + child.id"
+                (click)="onClick(child.id, $event)"
+              >
+                {{ child.label }}
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </li>
+  }
+</ul>

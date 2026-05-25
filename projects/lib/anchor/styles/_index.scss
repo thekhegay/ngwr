@@ -1,0 +1,59 @@
+@use '../../theme/styles' as theme;
+
+.wr-anchor {
+  display: block;
+  font-family: var(--wr-font-family-base);
+  border-left: 1.5px solid var(--wr-color-light);
+  padding-left: 0.875rem;
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    &--nested {
+      margin-top: 0.125rem;
+      padding-left: 0.875rem;
+    }
+  }
+
+  &__link {
+    position: relative;
+    display: block;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--wr-border-radius-sm);
+    color: var(--wr-color-medium);
+    font-size: var(--wr-text-sm);
+    line-height: var(--wr-leading-snug);
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0.25rem;
+      bottom: 0.25rem;
+      left: -1rem;
+      width: 1.5px;
+      background: transparent;
+      transition: background var(--wr-transition-base);
+    }
+
+    &:hover {
+      color: var(--wr-color-dark);
+    }
+
+    &--active {
+      color: var(--wr-color-primary);
+      font-weight: var(--wr-font-weight-semibold);
+
+      &::before {
+        background: var(--wr-color-primary);
+      }
+    }
+  }
+}

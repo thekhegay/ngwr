@@ -56,6 +56,9 @@
     "./alert": {
       "sass": "./alert/styles/_index.scss"
     },
+    "./anchor": {
+      "sass": "./anchor/styles/_index.scss"
+    },
     "./autocomplete": {
       "sass": "./autocomplete/styles/_index.scss"
     },
@@ -136,6 +139,9 @@
     },
     "./input-otp": {
       "sass": "./input-otp/styles/_index.scss"
+    },
+    "./knob": {
+      "sass": "./knob/styles/_index.scss"
     },
     "./layout": {
       "sass": "./layout/styles/_index.scss"
