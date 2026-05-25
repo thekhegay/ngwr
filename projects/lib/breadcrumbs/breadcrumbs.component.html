@@ -1,0 +1,7 @@
+@if (auto()) {
+  @for (item of resolved(); track item.url; let last = $last) {
+    <wr-breadcrumb-item [routerLink]="last ? null : item.url">{{ item.label }}</wr-breadcrumb-item>
+  }
+} @else {
+  <ng-content />
+}
