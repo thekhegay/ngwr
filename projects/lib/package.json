@@ -76,6 +76,9 @@
     "./color-picker": {
       "sass": "./color-picker/styles/_index.scss"
     },
+    "./compare": {
+      "sass": "./compare/styles/_index.scss"
+    },
     "./date-adapter": {},
     "./directives": {},
     "./date-picker": {

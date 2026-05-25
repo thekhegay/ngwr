@@ -1,0 +1,95 @@
+@use '../../theme/styles' as theme;
+
+.wr-compare {
+  display: block;
+  position: relative;
+  user-select: none;
+  touch-action: none;
+
+  &__surface {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    outline: 0;
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.25);
+      border-radius: var(--wr-border-radius-sm);
+    }
+  }
+
+  &--horizontal &__surface {
+    cursor: ew-resize;
+  }
+
+  &--vertical &__surface {
+    cursor: ns-resize;
+  }
+
+  &--disabled &__surface {
+    cursor: not-allowed;
+  }
+
+  // Stack both layers in the same grid cell so they overlap exactly. The
+  // "before" defines natural size; "after" is clipped via clip-path.
+  &__layers {
+    display: grid;
+    grid-template-areas: 'stack';
+    width: 100%;
+    height: 100%;
+  }
+
+  &__layer {
+    grid-area: stack;
+    min-width: 0;
+    min-height: 0;
+
+    > * {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+    }
+
+    img {
+      object-fit: cover;
+    }
+  }
+
+  &__divider {
+    position: absolute;
+    background: var(--wr-color-white);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+  }
+
+  &--horizontal &__divider {
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    transform: translateX(-50%);
+  }
+
+  &--vertical &__divider {
+    left: 0;
+    right: 0;
+    height: 2px;
+    transform: translateY(-50%);
+  }
+
+  &__handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: var(--wr-color-white);
+    color: var(--wr-color-dark);
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+}
