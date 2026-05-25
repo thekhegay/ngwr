@@ -55,6 +55,10 @@ export default [
     loadComponent: () => import('./carousel/carousel.component'),
   },
   {
+    path: components.charts,
+    loadComponent: () => import('./charts/charts.component'),
+  },
+  {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox.component'),
   },

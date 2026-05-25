@@ -20,6 +20,7 @@ export const routes = {
       countUp: 'count-up',
       marquee: 'marquee',
       motion: 'motion',
+      charts: 'charts',
       backTop: 'back-top',
       badge: 'badge',
       breadcrumbs: 'breadcrumbs',
