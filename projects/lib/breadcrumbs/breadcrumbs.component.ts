@@ -6,11 +6,19 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, forwardRef, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewEncapsulation,
+  computed,
+  forwardRef,
+  inject,
+  input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 
-import { EMPTY, filter, map, startWith } from 'rxjs';
+import { EMPTY, type Observable, filter, map, startWith } from 'rxjs';
 
 import { WrBreadcrumbItemComponent } from './breadcrumb-item.component';
 import { WR_BREADCRUMBS, type WrBreadcrumbsContext } from './tokens';
@@ -99,9 +107,11 @@ export class WrBreadcrumbsComponent implements WrBreadcrumbsContext {
       ? this.router.events.pipe(
           filter(e => e instanceof NavigationEnd),
           startWith(null),
-          map(() => (this.route ? buildAuto(this.route.root, this.homeLabel(), this.homeUrl()) : ([] as readonly AutoItem[])))
+          map(() =>
+            this.route ? buildAuto(this.route.root, this.homeLabel(), this.homeUrl()) : ([] as readonly AutoItem[])
+          )
         )
-      : (EMPTY as unknown as import('rxjs').Observable<readonly AutoItem[]>),
+      : (EMPTY as unknown as Observable<readonly AutoItem[]>),
     { initialValue: [] as readonly AutoItem[] }
   );
 

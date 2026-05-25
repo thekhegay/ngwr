@@ -215,6 +215,9 @@
     "./select": {
       "sass": "./select/styles/_index.scss"
     },
+    "./sidebar": {
+      "sass": "./sidebar/styles/_index.scss"
+    },
     "./skeleton": {
       "sass": "./skeleton/styles/_index.scss"
     },

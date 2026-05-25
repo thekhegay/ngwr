@@ -1,0 +1,58 @@
+<nav class="wr-sidebar__inner">
+  @for (entry of entries(); track entry.title) {
+    @if (!isGroup(entry)) {
+      <a
+        class="wr-sidebar__entry"
+        routerLinkActive="wr-sidebar__entry--active"
+        [routerLink]="asItem(entry).url"
+        [class.wr-sidebar__entry--disabled]="asItem(entry).disabled"
+      >
+        <wr-icon class="wr-sidebar__icon" [name]="$any(asItem(entry).icon ?? defaultGroupIcon())" size="16" />
+        <span class="wr-sidebar__title">{{ entry.title }}</span>
+        @if (asItem(entry).badge) {
+          <small class="wr-sidebar__badge">{{ asItem(entry).badge }}</small>
+        }
+      </a>
+    } @else {
+      <section class="wr-sidebar__group" [class.wr-sidebar__group--collapsed]="!isOpen(entry.title)">
+        <button
+          type="button"
+          class="wr-sidebar__group-toggle"
+          [attr.aria-expanded]="isOpen(entry.title)"
+          (click)="toggleGroup(entry.title)"
+        >
+          <wr-icon class="wr-sidebar__icon" [name]="$any(asGroup(entry).icon ?? defaultGroupIcon())" size="16" />
+          <span class="wr-sidebar__title">{{ entry.title }}</span>
+          <wr-icon class="wr-sidebar__chevron" name="chevron-down" size="14" />
+        </button>
+        <div class="wr-sidebar__group-wrap">
+          <div class="wr-sidebar__group-body">
+            <ul class="wr-sidebar__list">
+              @for (child of asGroup(entry).children; track child.title) {
+                <li>
+                  @if (child.disabled || !child.url.length) {
+                    <span class="wr-sidebar__item wr-sidebar__item--disabled">
+                      <wr-icon class="wr-sidebar__icon" [name]="$any(child.icon ?? defaultItemIcon())" size="14" />
+                      <span class="wr-sidebar__item-title">{{ child.title }}</span>
+                      @if (child.badge) {
+                        <small class="wr-sidebar__badge">{{ child.badge }}</small>
+                      }
+                    </span>
+                  } @else {
+                    <a class="wr-sidebar__item" routerLinkActive="wr-sidebar__item--active" [routerLink]="child.url">
+                      <wr-icon class="wr-sidebar__icon" [name]="$any(child.icon ?? defaultItemIcon())" size="14" />
+                      <span class="wr-sidebar__item-title">{{ child.title }}</span>
+                      @if (child.badge) {
+                        <small class="wr-sidebar__badge">{{ child.badge }}</small>
+                      }
+                    </a>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </section>
+    }
+  }
+</nav>
