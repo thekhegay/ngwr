@@ -10,10 +10,23 @@
   --wr-border-radius-lg: 1rem;
   --wr-border-radius-pill: 50rem;
 
-  // Transitions
-  --wr-transition-short: 0.1s linear;
-  --wr-transition-base: 0.15s linear;
-  --wr-transition-long: 0.2s linear;
+  // Easing curves
+  --wr-ease-linear: linear;
+  --wr-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --wr-ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --wr-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --wr-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // Durations
+  --wr-duration-fast: 0.1s;
+  --wr-duration-base: 0.15s;
+  --wr-duration-slow: 0.3s;
+  --wr-duration-slower: 0.5s;
+
+  // Transition shorthands
+  --wr-transition-short: var(--wr-duration-fast) var(--wr-ease-out);
+  --wr-transition-base: var(--wr-duration-base) var(--wr-ease-out);
+  --wr-transition-long: var(--wr-duration-slow) var(--wr-ease-out);
 
   // Typography
   //
@@ -24,4 +37,40 @@
     sans-serif;
   --wr-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
+
+  // Font size scale (1rem = 16px)
+  --wr-text-xs: 0.75rem;
+  --wr-text-sm: 0.875rem;
+  --wr-text-base: 1rem;
+  --wr-text-lg: 1.125rem;
+  --wr-text-xl: 1.25rem;
+  --wr-text-2xl: 1.5rem;
+  --wr-text-3xl: 1.875rem;
+  --wr-text-4xl: 2.25rem;
+  --wr-text-5xl: 3rem;
+
+  // Font weight scale
+  --wr-font-weight-thin: 200;
+  --wr-font-weight-light: 300;
+  --wr-font-weight-regular: 400;
+  --wr-font-weight-medium: 500;
+  --wr-font-weight-semibold: 600;
+  --wr-font-weight-bold: 700;
+  --wr-font-weight-extrabold: 800;
+
+  // Line height (leading)
+  --wr-leading-none: 1;
+  --wr-leading-tight: 1.25;
+  --wr-leading-snug: 1.375;
+  --wr-leading-normal: 1.5;
+  --wr-leading-relaxed: 1.625;
+  --wr-leading-loose: 2;
+
+  // Letter spacing (tracking)
+  --wr-tracking-tighter: -0.05em;
+  --wr-tracking-tight: -0.025em;
+  --wr-tracking-normal: 0;
+  --wr-tracking-wide: 0.025em;
+  --wr-tracking-wider: 0.05em;
+  --wr-tracking-widest: 0.1em;
 }
