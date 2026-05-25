@@ -1,0 +1,47 @@
+@if (title() || subtitle()) {
+  <header class="wr-block-pricing__header">
+    @if (title()) {
+      <h2 class="wr-block-pricing__title">{{ title() }}</h2>
+    }
+    @if (subtitle()) {
+      <p class="wr-block-pricing__subtitle">{{ subtitle() }}</p>
+    }
+  </header>
+}
+
+<div class="wr-block-pricing__grid">
+  @for (tier of tiers(); track tier.id) {
+    <article class="wr-block-pricing__tier" [class.wr-block-pricing__tier--highlighted]="tier.highlighted">
+      <h3 class="wr-block-pricing__name">{{ tier.name }}</h3>
+      <div class="wr-block-pricing__price">
+        <span class="wr-block-pricing__price-value">{{ tier.price }}</span>
+        @if (tier.priceSuffix) {
+          <span class="wr-block-pricing__price-suffix">{{ tier.priceSuffix }}</span>
+        }
+      </div>
+      @if (tier.description) {
+        <p class="wr-block-pricing__description">{{ tier.description }}</p>
+      }
+      <ul class="wr-block-pricing__features">
+        @for (feature of tier.features; track feature) {
+          <li class="wr-block-pricing__feature">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+              <path
+                d="M3 7.5 L6 10.5 L11 4.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>{{ feature }}</span>
+          </li>
+        }
+      </ul>
+      <button type="button" class="wr-block-pricing__cta" (click)="onPick(tier.id)">
+        {{ tier.ctaLabel ?? 'Choose' }}
+      </button>
+    </article>
+  }
+</div>

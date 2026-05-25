@@ -84,6 +84,9 @@
     "./bar-chart": {
       "sass": "./bar-chart/styles/_index.scss"
     },
+    "./blocks": {
+      "sass": "./blocks/styles/_index.scss"
+    },
     "./breadcrumbs": {
       "sass": "./breadcrumbs/styles/_index.scss"
     },
