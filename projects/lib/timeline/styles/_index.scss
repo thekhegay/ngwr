@@ -1,0 +1,121 @@
+@use '../../theme/styles' as theme;
+
+.wr-timeline {
+  display: flex;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-dark);
+
+  &--vertical {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &--horizontal {
+    flex-direction: row;
+    gap: 2rem;
+    overflow-x: auto;
+  }
+}
+
+.wr-timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+
+  &__dot {
+    flex: 0 0 auto;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-top: 0.3125rem;
+    border-radius: 50%;
+    background: var(--wr-color-primary);
+    box-shadow: 0 0 0 2px var(--wr-color-white);
+    z-index: 1;
+  }
+
+  &--success &__dot {
+    background: var(--wr-color-success);
+  }
+
+  &--warning &__dot {
+    background: var(--wr-color-warning);
+  }
+
+  &--danger &__dot {
+    background: var(--wr-color-danger);
+  }
+
+  &--medium &__dot {
+    background: var(--wr-color-medium);
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__time {
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-medium);
+    font-weight: var(--wr-font-weight-medium);
+    margin-bottom: 0.125rem;
+  }
+
+  &__title {
+    font-size: var(--wr-text-sm);
+    font-weight: var(--wr-font-weight-semibold);
+    line-height: var(--wr-leading-snug);
+  }
+
+  &__content {
+    margin-top: 0.25rem;
+    font-size: var(--wr-text-sm);
+    line-height: var(--wr-leading-relaxed);
+    color: var(--wr-color-dark);
+  }
+
+  // Vertical: connector line between dots.
+  .wr-timeline--vertical & {
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0.34375rem;
+      top: 1rem;
+      bottom: -1.25rem;
+      width: 1.5px;
+      background: var(--wr-color-light);
+    }
+
+    &:last-child::before {
+      display: none;
+    }
+  }
+
+  // Horizontal: row layout with line through dots.
+  .wr-timeline--horizontal & {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 8rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0.625rem;
+      left: 50%;
+      right: -2rem;
+      height: 1.5px;
+      background: var(--wr-color-light);
+    }
+
+    &:last-child::before {
+      display: none;
+    }
+
+    .wr-timeline-item__body {
+      margin-top: 0.5rem;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+<span class="wr-timeline-item__dot" aria-hidden="true"></span>
+<div class="wr-timeline-item__body">
+  @if (time()) {
+    <div class="wr-timeline-item__time">{{ time() }}</div>
+  }
+  @if (title()) {
+    <div class="wr-timeline-item__title">{{ title() }}</div>
+  }
+  <div class="wr-timeline-item__content">
+    <ng-content />
+  </div>
+</div>

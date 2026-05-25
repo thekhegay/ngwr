@@ -1,0 +1,26 @@
+<div class="wr-splitter__pane wr-splitter__pane--start" [style.flex-basis]="startStyle()">
+  <ng-content select="[wrSplitterStart]" />
+</div>
+
+<!-- Roving focus + arrow keys for keyboard resizing. -->
+<div
+  class="wr-splitter__divider"
+  role="separator"
+  [attr.aria-orientation]="orientation() === 'horizontal' ? 'vertical' : 'horizontal'"
+  [attr.aria-valuemin]="minPosition()"
+  [attr.aria-valuemax]="maxPosition()"
+  [attr.aria-valuenow]="position()"
+  [attr.aria-disabled]="disabled() || null"
+  [attr.tabindex]="disabled() ? -1 : 0"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (keydown)="onKeydown($event)"
+>
+  <span class="wr-splitter__handle" aria-hidden="true"></span>
+</div>
+
+<div class="wr-splitter__pane wr-splitter__pane--end" [style.flex-basis]="endStyle()">
+  <ng-content select="[wrSplitterEnd]" />
+</div>

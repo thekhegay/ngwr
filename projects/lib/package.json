@@ -62,6 +62,9 @@
     "./avatar": {
       "sass": "./avatar/styles/_index.scss"
     },
+    "./back-top": {
+      "sass": "./back-top/styles/_index.scss"
+    },
     "./badge": {
       "sass": "./badge/styles/_index.scss"
     },
@@ -180,6 +183,9 @@
     "./slider": {
       "sass": "./slider/styles/_index.scss"
     },
+    "./splitter": {
+      "sass": "./splitter/styles/_index.scss"
+    },
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"
     },
@@ -206,6 +212,9 @@
     },
     "./time-picker": {
       "sass": "./time-picker/styles/_index.scss"
+    },
+    "./timeline": {
+      "sass": "./timeline/styles/_index.scss"
     },
     "./toolbar": {
       "sass": "./toolbar/styles/_index.scss"

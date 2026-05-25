@@ -1,0 +1,42 @@
+@use '../../theme/styles' as theme;
+
+.wr-back-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.5rem);
+  transition:
+    opacity var(--wr-duration-base) var(--wr-ease-out),
+    transform var(--wr-duration-base) var(--wr-ease-out);
+
+  &--visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  &__button {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--wr-color-primary);
+    color: var(--wr-color-primary-contrast, var(--wr-color-white));
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    transition:
+      background var(--wr-transition-base),
+      transform var(--wr-transition-base);
+
+    &:hover {
+      background: var(--wr-color-primary-dark, var(--wr-color-primary));
+      transform: translateY(-2px);
+    }
+  }
+}
