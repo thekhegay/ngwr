@@ -1,0 +1,44 @@
+<ngwr-doc-page
+  title="Counter"
+  description="Animated number display. Use **odometer** mode for rolling-digit motion (mechanical counter look) or **tween** mode for an eased count-up from the previous value."
+  [keywords]="['counter', 'odometer', 'count-up', 'animated number', 'wr-counter']"
+  [labels]="['Display']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Odometer" description="Digits roll vertically. Reacts to any value change.">
+    <ngwr-doc-code [code]="snippets.odometer" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+        <wr-counter [value]="oilGauge()" mode="odometer" />
+        <wr-btn (click)="randomize()">Randomize</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tween" description="Eased single interpolation. Good for monetary values.">
+    <ngwr-doc-code [code]="snippets.tween" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+        <wr-counter [value]="stocks()" mode="tween" [decimals]="2" prefix="$" />
+        <wr-btn (click)="randomize()">Randomize</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Padded integer" description="Force a minimum number of integer digits.">
+    <ngwr-doc-code [code]="snippets.minDigits" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+        <wr-counter [value]="progress()" [minIntegerDigits]="6" mode="odometer" />
+        <wr-btn (click)="stepProgress()">Step</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

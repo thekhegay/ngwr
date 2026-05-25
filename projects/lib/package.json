@@ -66,6 +66,9 @@
       "sass": "./aurora/styles/_index.scss"
     },
     "./count-up": {},
+    "./counter": {
+      "sass": "./counter/styles/_index.scss"
+    },
     "./autocomplete": {
       "sass": "./autocomplete/styles/_index.scss"
     },

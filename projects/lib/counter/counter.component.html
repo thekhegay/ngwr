@@ -1,0 +1,24 @@
+@if (mode() === 'tween') {
+  <span class="wr-counter__tween">{{ prefix() }}{{ tweenText() }}{{ suffix() }}</span>
+} @else {
+  <span class="wr-counter__odo">
+    @if (prefix()) {
+      <span class="wr-counter__static">{{ prefix() }}</span>
+    }
+    @for (cell of cells(); track $index) {
+      @if (cell.kind === 'digit') {
+        <span class="wr-counter__digit">
+          <span class="wr-counter__strip" [style.transform]="'translateY(' + -cell.fraction * 10 + '%)'">
+            <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span> <span>5</span><span>6</span
+            ><span>7</span><span>8</span><span>9</span>
+          </span>
+        </span>
+      } @else {
+        <span class="wr-counter__static">{{ cell.char }}</span>
+      }
+    }
+    @if (suffix()) {
+      <span class="wr-counter__static">{{ suffix() }}</span>
+    }
+  </span>
+}

@@ -34,6 +34,7 @@ export const routes = {
       collapse: 'collapse',
       colorPicker: 'color-picker',
       compare: 'compare',
+      counter: 'counter',
       datePicker: 'date-picker',
       dateTimePicker: 'date-time-picker',
       dialog: 'dialog',

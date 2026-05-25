@@ -1,0 +1,44 @@
+@use '../../theme/styles' as theme;
+
+.wr-counter {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--wr-color-dark);
+
+  &__odo {
+    display: inline-flex;
+    align-items: stretch;
+    line-height: 1;
+  }
+
+  &__static {
+    display: inline-block;
+  }
+
+  &__digit {
+    position: relative;
+    display: inline-block;
+    width: 1ch;
+    height: 1em;
+    overflow: hidden;
+    vertical-align: top;
+  }
+
+  &__strip {
+    display: flex;
+    flex-direction: column;
+    height: 1000%; // 10 digits × 100%
+    will-change: transform;
+    transition: transform 60ms linear;
+
+    > span {
+      flex: 1 1 10%;
+      height: 10%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}

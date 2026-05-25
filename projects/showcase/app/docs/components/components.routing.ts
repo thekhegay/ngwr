@@ -79,6 +79,10 @@ export default [
     loadComponent: () => import('./compare/compare.component'),
   },
   {
+    path: components.counter,
+    loadComponent: () => import('./counter/counter.component'),
+  },
+  {
     path: components.datePicker,
     loadComponent: () => import('./date-picker/date-picker.component'),
   },
