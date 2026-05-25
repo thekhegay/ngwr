@@ -1,0 +1,55 @@
+<form class="wr-auth__form" (submit)="onSubmit($event)">
+  <header class="wr-auth__header">
+    <h1 class="wr-auth__title">{{ title() }}</h1>
+    @if (subtitle()) {
+      <p class="wr-auth__subtitle">{{ subtitle() }}</p>
+    }
+  </header>
+
+  <div class="wr-auth__field">
+    <label class="wr-auth__label" for="wr-auth-reset-password">New password</label>
+    <wr-input-group>
+      <input
+        id="wr-auth-reset-password"
+        wrInput
+        type="password"
+        autocomplete="new-password"
+        required
+        #pw
+        [ngModel]="password()"
+        (ngModelChange)="password.set($event)"
+        name="password"
+      />
+      <wr-password-toggle [for]="pw" />
+    </wr-input-group>
+  </div>
+
+  <div class="wr-auth__field">
+    <label class="wr-auth__label" for="wr-auth-reset-confirm">Confirm password</label>
+    <wr-input-group>
+      <input
+        id="wr-auth-reset-confirm"
+        wrInput
+        type="password"
+        autocomplete="new-password"
+        required
+        #pwc
+        [ngModel]="confirm()"
+        (ngModelChange)="confirm.set($event)"
+        name="confirm"
+      />
+      <wr-password-toggle [for]="pwc" />
+    </wr-input-group>
+    @if (mismatch()) {
+      <small class="wr-auth__hint wr-auth__hint--error">Passwords don't match.</small>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <div class="wr-auth__error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <button type="submit" class="wr-auth__submit" [disabled]="loading() || mismatch()">
+    {{ loading() ? 'Updating…' : submitText() }}
+  </button>
+</form>
