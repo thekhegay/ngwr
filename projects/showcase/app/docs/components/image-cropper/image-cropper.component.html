@@ -1,0 +1,49 @@
+<ngwr-doc-page
+  title="Image Cropper"
+  description="DOM-based crop UI. Drag the box to move, drag any of the eight handles to resize. Optional `[aspectRatio]` locks the box shape. `(cropped)` fires with a `Blob` after each drag end — wire to upload or preview."
+  [keywords]="['image', 'cropper', 'crop', 'wr-image-cropper']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic"
+    description="Pick an image, then drag the crop box. Live preview reflects each drag end."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <input type="file" accept="image/*" (change)="onFileChange($event)" />
+        <wr-image-cropper [src]="src()" (cropped)="onCropped($event)" />
+        @if (previewUrl()) {
+          <div>
+            <small style="display: block; color: var(--wr-color-medium); margin-bottom: 0.25rem">Preview</small>
+            <img
+              [src]="previewUrl()"
+              alt="Cropped preview"
+              style="
+                max-width: 12rem;
+                max-height: 12rem;
+                border: 1px solid var(--wr-color-light);
+                border-radius: 0.375rem;
+              "
+            />
+          </div>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Square (1:1)" description="Lock the crop to a fixed aspect ratio.">
+    <ngwr-doc-code [code]="snippets.square" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-image-cropper [src]="square()" [aspectRatio]="1" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

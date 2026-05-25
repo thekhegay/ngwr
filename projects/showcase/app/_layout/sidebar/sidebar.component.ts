@@ -83,6 +83,7 @@ export class SidebarComponent {
         { title: 'Badge', url: ['/docs', 'components', 'badge'] },
         { title: 'Divider', url: ['/docs', 'components', 'divider'] },
         { title: 'Icon', url: ['/docs', 'components', 'icon'] },
+        { title: 'Image Cropper', url: ['/docs', 'components', 'image-cropper'] },
         { title: 'Progress', url: ['/docs', 'components', 'progress'] },
         { title: 'QR', url: ['/docs', 'components', 'qrcode'] },
         { title: 'Skeleton', url: ['/docs', 'components', 'skeleton'] },

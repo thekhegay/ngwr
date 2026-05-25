@@ -29,6 +29,7 @@ export const routes = {
       drawer: 'drawer',
       form: 'form',
       icon: 'icon',
+      imageCropper: 'image-cropper',
       input: 'input',
       inputNumber: 'input-number',
       inputOtp: 'input-otp',

@@ -91,6 +91,10 @@ export default [
     loadComponent: () => import('./icon/icon.component'),
   },
   {
+    path: components.imageCropper,
+    loadComponent: () => import('./image-cropper/image-cropper.component'),
+  },
+  {
     path: components.input,
     loadComponent: () => import('./input/input.component'),
   },
