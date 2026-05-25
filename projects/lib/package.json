@@ -131,6 +131,9 @@
     "./input-otp": {
       "sass": "./input-otp/styles/_index.scss"
     },
+    "./layout": {
+      "sass": "./layout/styles/_index.scss"
+    },
     "./media": {},
     "./mention": {
       "sass": "./mention/styles/_index.scss"
