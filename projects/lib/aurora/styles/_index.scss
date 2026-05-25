@@ -1,0 +1,60 @@
+@use '../../theme/styles' as theme;
+
+.wr-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+
+  &__layer {
+    position: absolute;
+    display: block;
+    width: 60vmax;
+    height: 60vmax;
+    filter: blur(40px);
+    will-change: transform;
+
+    &--a {
+      top: -20vmax;
+      left: -10vmax;
+      animation: wr-aurora-a 16s ease-in-out infinite alternate;
+    }
+
+    &--b {
+      bottom: -20vmax;
+      right: -10vmax;
+      animation: wr-aurora-b 20s ease-in-out infinite alternate;
+    }
+
+    &--c {
+      top: 30%;
+      left: 30%;
+      animation: wr-aurora-c 24s ease-in-out infinite alternate;
+    }
+  }
+}
+
+@keyframes wr-aurora-a {
+  to {
+    transform: translate(15vmax, 10vmax) scale(1.2);
+  }
+}
+
+@keyframes wr-aurora-b {
+  to {
+    transform: translate(-15vmax, -10vmax) scale(1.15);
+  }
+}
+
+@keyframes wr-aurora-c {
+  to {
+    transform: translate(-10vmax, 10vmax) scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wr-aurora__layer {
+    animation: none !important;
+  }
+}

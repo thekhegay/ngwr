@@ -1,0 +1,10 @@
+<div class="wr-marquee__track" [style.gap]="gapStyle()">
+  <div class="wr-marquee__group" [style.gap]="gapStyle()">
+    <ng-content />
+  </div>
+  <!-- Duplicate for seamless loop — projected nodes can't be re-rendered
+       so authors should keep the content small enough to be cheap. -->
+  <div class="wr-marquee__group" aria-hidden="true" [style.gap]="gapStyle()">
+    <ng-content />
+  </div>
+</div>

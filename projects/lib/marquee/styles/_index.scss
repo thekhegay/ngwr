@@ -1,0 +1,72 @@
+@use '../../theme/styles' as theme;
+
+.wr-marquee {
+  display: block;
+  overflow: hidden;
+  font-family: var(--wr-font-family-base);
+
+  &__track {
+    display: flex;
+    width: max-content;
+  }
+
+  &__group {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  &--left &__track {
+    animation: wr-marquee-x var(--wr-marquee-duration, 20s) linear infinite;
+  }
+
+  &--right &__track {
+    animation: wr-marquee-x var(--wr-marquee-duration, 20s) linear infinite reverse;
+  }
+
+  &--up,
+  &--down {
+    height: 100%;
+  }
+
+  &--up &__track,
+  &--down &__track {
+    flex-direction: column;
+    width: auto;
+    height: max-content;
+  }
+
+  &--up &__group,
+  &--down &__group {
+    flex-direction: column;
+  }
+
+  &--up &__track {
+    animation: wr-marquee-y var(--wr-marquee-duration, 20s) linear infinite;
+  }
+
+  &--down &__track {
+    animation: wr-marquee-y var(--wr-marquee-duration, 20s) linear infinite reverse;
+  }
+
+  &--pause-on-hover:hover &__track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes wr-marquee-x {
+  to {
+    transform: translateX(calc(-50% - var(--wr-marquee-half-gap, 0px)));
+  }
+}
+
+@keyframes wr-marquee-y {
+  to {
+    transform: translateY(calc(-50% - var(--wr-marquee-half-gap, 0px)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wr-marquee__track {
+    animation: none !important;
+  }
+}
