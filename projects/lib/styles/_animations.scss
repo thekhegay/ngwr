@@ -159,6 +159,37 @@
   animation: wr-bounce 1s infinite;
 }
 
+// ── Shimmer text ─────────────────────────────────────────────────────
+// Pair with `[wrShimmer]`. Gradient sweeps across the text once a second.
+.wr-shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--wr-color-dark) 30%,
+    rgba(var(--wr-color-primary-rgb), 0.9) 50%,
+    var(--wr-color-dark) 70%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: wr-shimmer 2.5s linear infinite;
+}
+
+// ── Tilt glare overlay ───────────────────────────────────────────────
+// Span appended by `[wrTilt]` when `[glare]="true"`.
+.wr-tilt-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--wr-tilt-glare-x, 50%) var(--wr-tilt-glare-y, 50%),
+    rgba(255, 255, 255, 0.25),
+    transparent 60%
+  );
+  mix-blend-mode: overlay;
+}
+
 // ── Reveal-on-scroll integration ─────────────────────────────────────
 // Initial state — set by `[wrReveal]` on the host element via the
 // `wr-reveal` host class. The directive flips `wr-reveal--visible`

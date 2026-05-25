@@ -3,3 +3,6 @@ export { WrAutosizeDirective } from './autosize.directive';
 export { WrClickOutsideDirective } from './click-outside.directive';
 export { WrCopyToClipboardDirective } from './copy-to-clipboard.directive';
 export { WrRevealDirective } from './reveal.directive';
+export { WrShimmerDirective } from './shimmer.directive';
+export { WrSpotlightDirective } from './spotlight.directive';
+export { WrTiltDirective } from './tilt.directive';
