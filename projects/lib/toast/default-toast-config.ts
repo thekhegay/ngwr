@@ -15,6 +15,7 @@ import type { WrToastConfig } from './types';
  */
 export const DEFAULT_TOAST_CONFIG: WrToastConfig = {
   position: 'top-end',
+  mode: 'stack',
   duration: 4000,
   showProgress: true,
   showCopy: false,

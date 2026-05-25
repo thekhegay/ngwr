@@ -143,6 +143,7 @@ export class WrToastService {
     const portal = new ComponentPortal(WrToastHostComponent);
     this.hostRef = this.overlayRef.attach(portal);
     this.hostRef.setInput('position', position);
+    this.hostRef.setInput('mode', this.config.mode);
     this.hostRef.setInput('config', this.config);
 
     const inst = this.hostRef.instance;

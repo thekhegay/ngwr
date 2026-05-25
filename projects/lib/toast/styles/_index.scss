@@ -29,6 +29,58 @@ $toast-colors: (
     pointer-events: auto;
   }
 
+  // ───── Sonner-style stack ─────────────────────────────────────────────
+  // Collapsed: every toast except the front one collapses behind it with a
+  // scale-down + tiny offset. Hovering the host expands them into the
+  // normal vertical list.
+  &--stack {
+    // Anchor for absolute children when collapsed.
+    position: fixed;
+  }
+
+  &--stack:not(.wr-toast-host--expanded) {
+    .wr-toast {
+      --wr-toast-i: var(--wr-toast-stack-index, 0);
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      width: auto;
+      max-width: calc(100% - 2rem);
+      transition:
+        transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 240ms ease,
+        box-shadow 240ms ease;
+      transform-origin: center top;
+      transform: translateY(calc(var(--wr-toast-i) * 8px)) scale(calc(1 - var(--wr-toast-i) * 0.05));
+      opacity: calc(1 - var(--wr-toast-i) * 0.3);
+      z-index: calc(100 - var(--wr-toast-i));
+
+      // Hide toasts more than 3 deep.
+      &:where([style*='--wr-toast-stack-index: 3']),
+      &:where([style*='--wr-toast-stack-index: 4']),
+      &:where([style*='--wr-toast-stack-index: 5']) {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+  }
+
+  // Bottom-anchored hosts: stack grows UPWARD (newest at the bottom).
+  &--stack:not(.wr-toast-host--expanded).wr-toast-host--bottom,
+  &--stack:not(.wr-toast-host--expanded).wr-toast-host--bottom-start,
+  &--stack:not(.wr-toast-host--expanded).wr-toast-host--bottom-end {
+    .wr-toast {
+      transform-origin: center bottom;
+      transform: translateY(calc(var(--wr-toast-i) * -8px)) scale(calc(1 - var(--wr-toast-i) * 0.05));
+    }
+  }
+
+  &--stack.wr-toast-host--expanded .wr-toast {
+    transition:
+      transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 240ms ease;
+  }
+
   &--top {
     top: 0;
     left: 50%;

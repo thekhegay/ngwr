@@ -8,7 +8,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
 import { WrToastComponent } from './toast.component';
-import type { WrToastConfig, WrToastOptions, WrToastPosition } from './types';
+import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './types';
 
 /** Active entry pushed by the service — adds the bookkeeping fields the host renders. */
 type ActiveToast = WrToastOptions & {
@@ -27,12 +27,23 @@ type ActiveToast = WrToastOptions & {
   templateUrl: './toast-host.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', role: 'region', 'aria-label': 'Notifications' },
+  host: {
+    '[class]': 'classes()',
+    role: 'region',
+    'aria-label': 'Notifications',
+    '(mouseenter)': 'expanded.set(true)',
+    '(mouseleave)': 'expanded.set(false)',
+  },
   imports: [WrToastComponent],
 })
 export class WrToastHostComponent {
   readonly position = input<WrToastPosition>('top-end');
   readonly config = input.required<WrToastConfig>();
+  /** Layout mode. @default 'stack' (Sonner-style; hover to fan out) */
+  readonly mode = input<WrToastMode>('stack');
+
+  /** @internal — hover toggles this in stack mode. */
+  protected readonly expanded = signal(false);
 
   /** @internal — pushed by the service. */
   readonly toasts = signal<readonly ActiveToast[]>([]);
@@ -43,7 +54,16 @@ export class WrToastHostComponent {
   readonly resumeRequested = output<number>();
   readonly dismissAllRequested = output<void>();
 
-  protected readonly classes = computed(() => `wr-toast-host wr-toast-host--${this.position()}`);
+  protected readonly classes = computed(() => {
+    const parts = ['wr-toast-host', `wr-toast-host--${this.position()}`, `wr-toast-host--${this.mode()}`];
+    if (this.mode() === 'stack' && this.expanded()) parts.push('wr-toast-host--expanded');
+    return parts.join(' ');
+  });
+
+  /** Distance from the front of the stack (0 = newest / fully visible). */
+  protected stackIndex(i: number): number {
+    return this.toasts().length - 1 - i;
+  }
 
   protected readonly closeAllVisible = computed(() => {
     const cfg = this.config();

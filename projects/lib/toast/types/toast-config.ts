@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrToastMode } from './toast-mode';
 import type { WrToastPosition } from './toast-position';
 
 /**
@@ -16,6 +17,8 @@ import type { WrToastPosition } from './toast-position';
 export type WrToastConfig = {
   /** Corner the stack renders in. @default 'top-end' */
   readonly position: WrToastPosition;
+  /** Layout mode for multiple toasts. @default 'stack' (Sonner-style hover-to-expand) */
+  readonly mode: WrToastMode;
   /** Auto-dismiss after N ms. `0` disables auto-dismiss. @default 4000 */
   readonly duration: number;
   /** Render a countdown progress bar that pauses on hover. @default true */

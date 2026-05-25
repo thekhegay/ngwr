@@ -4,8 +4,9 @@
   </button>
 }
 
-@for (toast of toasts(); track toast.id) {
+@for (toast of toasts(); track toast.id; let i = $index) {
   <wr-toast
+    [style.--wr-toast-stack-index]="stackIndex(i)"
     [type]="toast.type ?? 'info'"
     [title]="toast.title ?? null"
     [message]="toast.message"
