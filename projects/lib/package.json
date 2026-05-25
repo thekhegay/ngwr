@@ -102,6 +102,7 @@
     "./form": {
       "sass": "./form/styles/_index.scss"
     },
+    "./hotkey": {},
     "./icon": {
       "sass": "./icon/styles/_index.scss"
     },
