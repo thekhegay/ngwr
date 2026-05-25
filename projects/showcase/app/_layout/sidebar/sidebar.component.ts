@@ -105,6 +105,7 @@ export class SidebarComponent {
         { title: 'Input', url: ['/docs', 'components', 'input'] },
         { title: 'Input Number', url: ['/docs', 'components', 'input-number'] },
         { title: 'Input OTP', url: ['/docs', 'components', 'input-otp'] },
+        { title: 'Mention', url: ['/docs', 'components', 'mention'] },
         { title: 'Radio', url: ['/docs', 'components', 'radio'] },
         { title: 'Rating', url: ['/docs', 'components', 'rating'] },
         { title: 'Segmented', url: ['/docs', 'components', 'segmented'] },

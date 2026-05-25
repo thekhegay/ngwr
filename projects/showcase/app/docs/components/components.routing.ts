@@ -103,6 +103,10 @@ export default [
     loadComponent: () => import('./input-otp/input-otp.component'),
   },
   {
+    path: components.mention,
+    loadComponent: () => import('./mention/mention.component'),
+  },
+  {
     path: components.pagination,
     loadComponent: () => import('./pagination/pagination.component'),
   },

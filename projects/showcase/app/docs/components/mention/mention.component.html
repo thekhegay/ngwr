@@ -1,0 +1,66 @@
+<ngwr-doc-page
+  title="Mention"
+  description="`@`-style mention picker for `<textarea>` and `<input>`. Detects trigger characters at word boundaries, opens an overlay at the caret, commits the selection back into the field."
+  [keywords]="['mention', 'autocomplete', 'wr-mention', 'tagging']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic"
+    description="Type `@` at the start or after a space to open the picker. Arrows navigate, Enter / Tab commits, Esc cancels."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <textarea
+        wrMention
+        [wrMentionItems]="users"
+        [displayWith]="userDisplay"
+        [(ngModel)]="basicText"
+        rows="3"
+        style="
+          width: 100%;
+          padding: 0.5rem 0.75rem;
+          border: 1px solid var(--wr-color-light);
+          border-radius: 0.375rem;
+          font-family: inherit;
+          font-size: 0.875rem;
+          line-height: 1.4;
+          resize: vertical;
+        "
+      ></textarea>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom trigger"
+    description="`triggers` accepts any character (or set of characters). Use `#` for tags, `:` for emoji, etc."
+  >
+    <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <textarea
+        wrMention
+        [wrMentionItems]="tags"
+        [triggers]="['#']"
+        [(ngModel)]="multiText"
+        rows="3"
+        style="
+          width: 100%;
+          padding: 0.5rem 0.75rem;
+          border: 1px solid var(--wr-color-light);
+          border-radius: 0.375rem;
+          font-family: inherit;
+          font-size: 0.875rem;
+          line-height: 1.4;
+          resize: vertical;
+        "
+      ></textarea>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

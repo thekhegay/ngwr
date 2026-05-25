@@ -32,6 +32,7 @@ export const routes = {
       input: 'input',
       inputNumber: 'input-number',
       inputOtp: 'input-otp',
+      mention: 'mention',
       popconfirm: 'popconfirm',
       popover: 'popover',
       progress: 'progress',
