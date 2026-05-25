@@ -115,6 +115,9 @@
     "./compare": {
       "sass": "./compare/styles/_index.scss"
     },
+    "./context-menu": {
+      "sass": "./context-menu/styles/_index.scss"
+    },
     "./date-adapter": {},
     "./directives": {},
     "./date-picker": {

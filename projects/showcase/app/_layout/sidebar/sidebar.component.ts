@@ -82,6 +82,7 @@ export class SidebarComponent {
         { title: 'Avatar', url: ['/docs', 'components', 'avatar'] },
         { title: 'Badge', url: ['/docs', 'components', 'badge'] },
         { title: 'Compare', url: ['/docs', 'components', 'compare'] },
+        { title: 'Context Menu', url: ['/docs', 'components', 'context-menu'] },
         { title: 'Counter', url: ['/docs', 'components', 'counter'] },
         { title: 'Descriptions', url: ['/docs', 'components', 'descriptions'] },
         { title: 'Empty', url: ['/docs', 'components', 'empty'] },

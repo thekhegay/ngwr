@@ -1,0 +1,44 @@
+<ngwr-doc-page
+  title="Context Menu"
+  description="Attach `[wrContextMenu]` to any element to open a `<wr-context-menu>` at the pointer position on right-click. Native browser menu is suppressed on the host."
+  [keywords]="['context menu', 'right click', 'menu', 'wr-context-menu']"
+  [labels]="['Overlay']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic" description="Right-click the area below.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        [wrContextMenu]="menu"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 8rem;
+          border: 1px dashed var(--wr-color-light);
+          border-radius: 0.5rem;
+          color: var(--wr-color-medium);
+        "
+      >
+        Right-click here — last action: {{ last || '(none)' }}
+      </div>
+
+      <wr-context-menu #menu>
+        <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
+        <wr-context-menu-item icon="document" (click)="pick('paste')">Paste</wr-context-menu-item>
+        <wr-context-menu-item icon="trash" (click)="pick('delete')">Delete</wr-context-menu-item>
+      </wr-context-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Directive API">
+    <ngwr-doc-api [rows]="directiveApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Item API">
+    <ngwr-doc-api [rows]="itemApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,54 @@
+@use '../../theme/styles' as theme;
+
+.wr-context-menu-overlay {
+  z-index: var(--wr-z-overlay, 1000);
+}
+
+.wr-context-menu {
+  min-width: 10rem;
+  padding: 0.25rem;
+  background: var(--wr-color-white, #fff);
+  border: 1px solid var(--wr-color-light);
+  border-radius: var(--wr-border-radius-md);
+  box-shadow:
+    0 12px 24px -8px rgba(0, 0, 0, 0.16),
+    0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.wr-context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4375rem 0.625rem;
+  border-radius: var(--wr-border-radius-sm);
+  color: var(--wr-color-dark);
+  font-size: var(--wr-text-sm);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--wr-transition-base),
+    color var(--wr-transition-base);
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(var(--wr-color-primary-rgb), 0.08);
+    color: var(--wr-color-primary);
+    outline: none;
+  }
+
+  &--disabled {
+    color: var(--wr-color-medium);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &__icon {
+    flex: 0 0 auto;
+    color: currentColor;
+  }
+
+  &__label {
+    flex: 1 1 auto;
+  }
+}

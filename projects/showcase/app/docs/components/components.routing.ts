@@ -79,6 +79,10 @@ export default [
     loadComponent: () => import('./compare/compare.component'),
   },
   {
+    path: components.contextMenu,
+    loadComponent: () => import('./context-menu/context-menu.component'),
+  },
+  {
     path: components.counter,
     loadComponent: () => import('./counter/counter.component'),
   },
