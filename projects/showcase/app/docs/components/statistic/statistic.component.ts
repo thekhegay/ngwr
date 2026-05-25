@@ -1,0 +1,16 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+
+import { WrStatisticComponent } from 'ngwr/statistic';
+
+import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+
+@Component({
+  selector: 'ngwr-statistic-page',
+  templateUrl: './statistic.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [WrStatisticComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+})
+export default class StatisticPageComponent {
+  protected readonly snippet = `<wr-statistic label="Active users" [value]="12345" />
+<wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />`;
+}

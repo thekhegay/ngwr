@@ -1,0 +1,17 @@
+<ngwr-doc-page
+  title="Timeline"
+  description="Event ladder with markers. Vertical (default) or horizontal. Dot colors: primary / success / warning / danger / medium."
+  [keywords]="['timeline', 'wr-timeline']"
+>
+  <ngwr-doc-section title="Vertical">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-timeline>
+        <wr-timeline-item title="Created" time="2026-05-01">Initial commit.</wr-timeline-item>
+        <wr-timeline-item title="Reviewed" time="2026-05-02" color="warning">Three changes requested.</wr-timeline-item>
+        <wr-timeline-item title="Merged" time="2026-05-03" color="success">Squashed and merged.</wr-timeline-item>
+        <wr-timeline-item title="Deployed" time="2026-05-04">Live in production.</wr-timeline-item>
+      </wr-timeline>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

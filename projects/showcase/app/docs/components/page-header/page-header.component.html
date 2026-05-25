@@ -1,0 +1,18 @@
+<ngwr-doc-page
+  title="Page Header"
+  description="Top-of-page heading block with three projected slots — breadcrumbs, actions, extra (tags / metadata)."
+  [keywords]="['page-header', 'wr-page-header']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-page-header title="Settings" subtitle="Manage your workspace">
+        <div wrPageHeaderActions>
+          <button>Invite</button>
+          <button>Save</button>
+        </div>
+      </wr-page-header>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

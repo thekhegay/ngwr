@@ -1,0 +1,16 @@
+<ngwr-doc-page
+  title="Statistic"
+  description="KPI card — label + big number + optional prefix / suffix + delta."
+  [keywords]="['statistic', 'kpi', 'wr-statistic']"
+>
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2.5rem; flex-wrap: wrap">
+        <wr-statistic label="Active users" [value]="12345" />
+        <wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />
+        <wr-statistic label="Churn" [value]="1.8" suffix="%" [delta]="-0.4" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

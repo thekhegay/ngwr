@@ -1,0 +1,31 @@
+<ngwr-doc-page
+  title="Splitter"
+  description="Resizable two-pane split. Drag the divider or focus it and use arrows. Two-way `[(position)]` (0–100)."
+  [keywords]="['splitter', 'pane', 'wr-splitter']"
+>
+  <ngwr-doc-section title="Horizontal">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-splitter
+        [(position)]="horizontalPos"
+        style="height: 12rem; border: 1px solid var(--wr-color-light); border-radius: 0.5rem; overflow: hidden"
+      >
+        <div wrSplitterStart style="padding: 0.75rem; background: rgba(var(--wr-color-light-rgb), 0.4)">Files</div>
+        <div wrSplitterEnd style="padding: 0.75rem">Editor</div>
+      </wr-splitter>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Vertical">
+    <ngwr-doc-snippet code="">
+      <wr-splitter
+        [(position)]="verticalPos"
+        orientation="vertical"
+        style="height: 16rem; border: 1px solid var(--wr-color-light); border-radius: 0.5rem; overflow: hidden"
+      >
+        <div wrSplitterStart style="padding: 0.75rem">Preview</div>
+        <div wrSplitterEnd style="padding: 0.75rem; background: rgba(var(--wr-color-light-rgb), 0.4)">Logs</div>
+      </wr-splitter>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

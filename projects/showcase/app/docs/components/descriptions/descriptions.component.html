@@ -1,0 +1,16 @@
+<ngwr-doc-page
+  title="Descriptions"
+  description="Read-only labeled key/value list. `inline` for label-left / value-right, `bordered` for a card."
+  [keywords]="['descriptions', 'wr-descriptions']"
+>
+  <ngwr-doc-section title="Inline + bordered">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-descriptions title="Account" inline bordered>
+        <wr-description-item label="Name">Ada Lovelace</wr-description-item>
+        <wr-description-item label="Email">ada@example.com</wr-description-item>
+        <wr-description-item label="Joined">2024-03-12</wr-description-item>
+      </wr-descriptions>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,19 @@
+<ngwr-doc-page
+  title="Speed Dial"
+  description="Floating action button that fans out a set of secondary actions on click."
+  [keywords]="['speed-dial', 'fab', 'wr-speed-dial']"
+>
+  <ngwr-doc-section title="Up direction" description="Click the FAB to expand the fan.">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="padding-top: 8rem; padding-bottom: 0.5rem; display: flex; justify-content: center">
+        <wr-speed-dial [actions]="actions" direction="up" (pick)="onPick($event)" />
+      </div>
+      @if (lastPick()) {
+        <small style="display: block; text-align: center; color: var(--wr-color-medium)"
+          >Picked: {{ lastPick() }}</small
+        >
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -184,7 +184,7 @@ export class WrKnobComponent implements ControlValueAccessor {
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive()) return;
     const step = event.shiftKey ? this.step() * 10 : this.step();
-    let next: number | null = null;
+    let next: number | null;
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowUp':

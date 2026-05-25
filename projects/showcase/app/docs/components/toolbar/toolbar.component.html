@@ -1,0 +1,20 @@
+<ngwr-doc-page
+  title="Toolbar"
+  description="Three-zone action bar — start / center / end. Each zone collapses when empty."
+  [keywords]="['toolbar', 'wr-toolbar']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-toolbar>
+        <div wrToolbarStart><strong>Items</strong></div>
+        <div wrToolbarCenter>
+          <button>Grid</button>
+          <button>List</button>
+        </div>
+        <div wrToolbarEnd><button>New</button></div>
+      </wr-toolbar>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

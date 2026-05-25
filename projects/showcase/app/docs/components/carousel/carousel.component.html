@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="Carousel"
+  description="Slide carousel with prev/next, dots, and optional autoplay. Pause on hover."
+  [keywords]="['carousel', 'slider', 'wr-carousel']"
+>
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-carousel
+        [(active)]="idx"
+        autoplay
+        style="width: 100%; max-width: 36rem; aspect-ratio: 16 / 9; border-radius: 0.5rem; overflow: hidden"
+      >
+        @for (color of slides; track $index; let i = $index) {
+          <wr-carousel-slide>
+            <div
+              [style.background]="color"
+              style="
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 1.5rem;
+                font-weight: 600;
+              "
+            >
+              Slide {{ i + 1 }}
+            </div>
+          </wr-carousel-slide>
+        }
+      </wr-carousel>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

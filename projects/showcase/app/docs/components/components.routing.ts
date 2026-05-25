@@ -15,12 +15,20 @@ export default [
     loadComponent: () => import('./alert/alert.component'),
   },
   {
+    path: components.anchor,
+    loadComponent: () => import('./anchor/anchor.component'),
+  },
+  {
     path: components.autocomplete,
     loadComponent: () => import('./autocomplete/autocomplete.component'),
   },
   {
     path: components.avatar,
     loadComponent: () => import('./avatar/avatar.component'),
+  },
+  {
+    path: components.backTop,
+    loadComponent: () => import('./back-top/back-top.component'),
   },
   {
     path: components.badge,
@@ -43,6 +51,10 @@ export default [
     loadComponent: () => import('./calendar/calendar.component'),
   },
   {
+    path: components.carousel,
+    loadComponent: () => import('./carousel/carousel.component'),
+  },
+  {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox.component'),
   },
@@ -61,6 +73,10 @@ export default [
   {
     path: components.datePicker,
     loadComponent: () => import('./date-picker/date-picker.component'),
+  },
+  {
+    path: components.descriptions,
+    loadComponent: () => import('./descriptions/descriptions.component'),
   },
   {
     path: components.dateTimePicker,
@@ -115,8 +131,20 @@ export default [
     loadComponent: () => import('./input-otp/input-otp.component'),
   },
   {
+    path: components.knob,
+    loadComponent: () => import('./knob/knob.component'),
+  },
+  {
     path: components.mention,
     loadComponent: () => import('./mention/mention.component'),
+  },
+  {
+    path: components.meterGroup,
+    loadComponent: () => import('./meter-group/meter-group.component'),
+  },
+  {
+    path: components.pageHeader,
+    loadComponent: () => import('./page-header/page-header.component'),
   },
   {
     path: components.pagination,
@@ -147,6 +175,10 @@ export default [
     loadComponent: () => import('./rating/rating.component'),
   },
   {
+    path: components.result,
+    loadComponent: () => import('./result/result.component'),
+  },
+  {
     path: components.segmented,
     loadComponent: () => import('./segmented/segmented.component'),
   },
@@ -163,8 +195,20 @@ export default [
     loadComponent: () => import('./slider/slider.component'),
   },
   {
+    path: components.speedDial,
+    loadComponent: () => import('./speed-dial/speed-dial.component'),
+  },
+  {
     path: components.spinner,
     loadComponent: () => import('./spinner/spinner.component'),
+  },
+  {
+    path: components.splitter,
+    loadComponent: () => import('./splitter/splitter.component'),
+  },
+  {
+    path: components.statistic,
+    loadComponent: () => import('./statistic/statistic.component'),
   },
   {
     path: components.stepper,
@@ -195,8 +239,16 @@ export default [
     loadComponent: () => import('./time-picker/time-picker.component'),
   },
   {
+    path: components.timeline,
+    loadComponent: () => import('./timeline/timeline.component'),
+  },
+  {
     path: components.toast,
     loadComponent: () => import('./toast/toast.component'),
+  },
+  {
+    path: components.toolbar,
+    loadComponent: () => import('./toolbar/toolbar.component'),
   },
   {
     path: components.tooltip,

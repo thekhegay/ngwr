@@ -1,0 +1,16 @@
+<ngwr-doc-page
+  title="Knob"
+  description="Radial dial input. CVA-backed `number | null`. Drag around the dial or use arrow keys (Shift = ×10)."
+  [keywords]="['knob', 'dial', 'wr-knob']"
+  [labels]="['ControlValueAccessor']"
+>
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
+        <wr-knob [(ngModel)]="value" />
+        <wr-knob [(ngModel)]="volume" suffix="%" valueColor="var(--wr-color-success)" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>
