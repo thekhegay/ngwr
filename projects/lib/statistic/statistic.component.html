@@ -1,0 +1,26 @@
+@if (label()) {
+  <div class="wr-statistic__label">{{ label() }}</div>
+}
+<div class="wr-statistic__value">
+  @if (prefix()) {
+    <span class="wr-statistic__prefix">{{ prefix() }}</span>
+  }
+  <span class="wr-statistic__number">{{ value() ?? '—' }}</span>
+  @if (suffix()) {
+    <span class="wr-statistic__suffix">{{ suffix() }}</span>
+  }
+</div>
+@if (hasDelta()) {
+  <div class="wr-statistic__delta wr-statistic__delta--{{ deltaDirection() }}">
+    @if (deltaDirection() === 'up') {
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M5 1 L9 8 L1 8 Z" fill="currentColor" />
+      </svg>
+    } @else if (deltaDirection() === 'down') {
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M5 9 L9 2 L1 2 Z" fill="currentColor" />
+      </svg>
+    }
+    <span>{{ deltaText() }}</span>
+  </div>
+}

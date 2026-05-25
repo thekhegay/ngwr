@@ -1,0 +1,54 @@
+@use '../../theme/styles' as theme;
+
+.wr-statistic {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-dark);
+
+  &__label {
+    font-size: var(--wr-text-sm);
+    color: var(--wr-color-medium);
+    line-height: var(--wr-leading-normal);
+  }
+
+  &__value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    font-size: var(--wr-text-3xl);
+    font-weight: var(--wr-font-weight-semibold);
+    line-height: var(--wr-leading-tight);
+    letter-spacing: var(--wr-tracking-tight);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__prefix,
+  &__suffix {
+    font-size: var(--wr-text-lg);
+    font-weight: var(--wr-font-weight-medium);
+    color: var(--wr-color-medium);
+  }
+
+  &__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: var(--wr-text-xs);
+    font-weight: var(--wr-font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+
+    &--up {
+      color: var(--wr-color-success);
+    }
+
+    &--down {
+      color: var(--wr-color-danger);
+    }
+
+    &--flat {
+      color: var(--wr-color-medium);
+    }
+  }
+}

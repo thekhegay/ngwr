@@ -1,0 +1,70 @@
+<div class="wr-result__icon" aria-hidden="true">
+  @switch (status()) {
+    @case ('success') {
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.12" />
+        <path
+          d="M20 32 L28 40 L44 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    }
+    @case ('warning') {
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.12" />
+        <path
+          d="M32 18 L32 36 M32 44 L32 46"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3.5"
+          stroke-linecap="round"
+        />
+      </svg>
+    }
+    @case ('error') {
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.12" />
+        <path
+          d="M22 22 L42 42 M42 22 L22 42"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          stroke-linecap="round"
+        />
+      </svg>
+    }
+    @case ('empty') {
+      <svg width="72" height="56" viewBox="0 0 72 56">
+        <rect x="6" y="14" width="60" height="36" rx="4" fill="currentColor" opacity="0.12" />
+        <path d="M6 26 L36 26 L40 20 L66 20" fill="none" stroke="currentColor" stroke-width="2" />
+      </svg>
+    }
+    @default {
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="currentColor" opacity="0.12" />
+        <path
+          d="M32 20 L32 36 M32 42 L32 44"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3.5"
+          stroke-linecap="round"
+        />
+      </svg>
+    }
+  }
+</div>
+
+@if (title()) {
+  <h2 class="wr-result__title">{{ title() }}</h2>
+}
+@if (description()) {
+  <p class="wr-result__description">{{ description() }}</p>
+}
+
+<div class="wr-result__extra">
+  <ng-content select="[wrResultExtra]" />
+</div>

@@ -1,0 +1,21 @@
+<div class="wr-page-header__breadcrumbs">
+  <ng-content select="[wrPageHeaderBreadcrumbs]" />
+</div>
+
+<div class="wr-page-header__main">
+  <div class="wr-page-header__heading">
+    @if (title()) {
+      <h1 class="wr-page-header__title">{{ title() }}</h1>
+    }
+    @if (subtitle()) {
+      <p class="wr-page-header__subtitle">{{ subtitle() }}</p>
+    }
+  </div>
+  <div class="wr-page-header__actions">
+    <ng-content select="[wrPageHeaderActions]" />
+  </div>
+</div>
+
+<div class="wr-page-header__extra">
+  <ng-content select="[wrPageHeaderExtra]" />
+</div>

@@ -1,0 +1,64 @@
+@use '../../theme/styles' as theme;
+
+.wr-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-dark);
+
+  &__icon {
+    line-height: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--wr-text-2xl);
+    font-weight: var(--wr-font-weight-semibold);
+    line-height: var(--wr-leading-tight);
+    letter-spacing: var(--wr-tracking-tight);
+  }
+
+  &__description {
+    margin: 0;
+    max-width: 32rem;
+    font-size: var(--wr-text-sm);
+    color: var(--wr-color-medium);
+    line-height: var(--wr-leading-relaxed);
+  }
+
+  &__extra {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &--success &__icon {
+    color: var(--wr-color-success);
+  }
+
+  &--warning &__icon {
+    color: var(--wr-color-warning);
+  }
+
+  &--error &__icon {
+    color: var(--wr-color-danger);
+  }
+
+  &--info &__icon {
+    color: var(--wr-color-primary);
+  }
+
+  &--empty &__icon {
+    color: var(--wr-color-medium);
+  }
+}

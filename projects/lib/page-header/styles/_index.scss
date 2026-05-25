@@ -1,0 +1,67 @@
+@use '../../theme/styles' as theme;
+
+.wr-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--wr-color-light);
+  font-family: var(--wr-font-family-base);
+
+  &__breadcrumbs:empty {
+    display: none;
+  }
+
+  &__main {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--wr-text-3xl);
+    font-weight: var(--wr-font-weight-semibold);
+    line-height: var(--wr-leading-tight);
+    letter-spacing: var(--wr-tracking-tight);
+    color: var(--wr-color-dark);
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: var(--wr-text-sm);
+    line-height: var(--wr-leading-normal);
+    color: var(--wr-color-medium);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__extra {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    &:empty {
+      display: none;
+    }
+  }
+}

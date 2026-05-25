@@ -1,0 +1,104 @@
+@use '../../theme/styles' as theme;
+
+.wr-descriptions {
+  display: block;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-dark);
+
+  &__title {
+    font-size: var(--wr-text-base);
+    font-weight: var(--wr-font-weight-semibold);
+    margin-bottom: 0.75rem;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0;
+  }
+
+  &__label {
+    font-size: var(--wr-text-xs);
+    font-weight: var(--wr-font-weight-medium);
+    color: var(--wr-color-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--wr-tracking-wide);
+  }
+
+  &__value {
+    margin: 0;
+    font-size: var(--wr-text-sm);
+    line-height: var(--wr-leading-normal);
+    color: var(--wr-color-dark);
+  }
+
+  // ───────── Inline ─────────
+  &--inline &__list {
+    display: grid;
+    grid-template-columns: minmax(8rem, max-content) 1fr;
+    gap: 0.5rem 1rem;
+    align-items: baseline;
+  }
+
+  &--inline &__row {
+    display: contents;
+  }
+
+  &--inline &__label {
+    text-transform: none;
+    letter-spacing: var(--wr-tracking-normal);
+    font-weight: var(--wr-font-weight-medium);
+    font-size: var(--wr-text-sm);
+  }
+
+  // ───────── Bordered ─────────
+  &--bordered &__list {
+    gap: 0;
+    border: 1px solid var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+    overflow: hidden;
+  }
+
+  &--bordered &__row {
+    padding: 0.625rem 0.875rem;
+
+    & + & {
+      border-top: 1px solid var(--wr-color-light);
+    }
+  }
+
+  &--bordered#{&}--inline &__list {
+    display: grid;
+    grid-template-columns: minmax(8rem, max-content) 1fr;
+    gap: 0;
+  }
+
+  &--bordered#{&}--inline &__row {
+    display: contents;
+  }
+
+  &--bordered#{&}--inline &__label,
+  &--bordered#{&}--inline &__value {
+    padding: 0.625rem 0.875rem;
+    border-top: 1px solid var(--wr-color-light);
+  }
+
+  &--bordered#{&}--inline &__row:first-child &__label,
+  &--bordered#{&}--inline &__row:first-child &__value {
+    border-top: 0;
+  }
+
+  &--bordered#{&}--inline &__label {
+    background: rgba(var(--wr-color-light-rgb), 0.35);
+    border-right: 1px solid var(--wr-color-light);
+  }
+}

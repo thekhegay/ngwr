@@ -140,6 +140,9 @@
     },
     "./meta": {},
     "./overlay": {},
+    "./page-header": {
+      "sass": "./page-header/styles/_index.scss"
+    },
     "./pagination": {
       "sass": "./pagination/styles/_index.scss"
     },
@@ -162,6 +165,9 @@
     "./rating": {
       "sass": "./rating/styles/_index.scss"
     },
+    "./result": {
+      "sass": "./result/styles/_index.scss"
+    },
     "./segmented": {
       "sass": "./segmented/styles/_index.scss"
     },
@@ -176,6 +182,9 @@
     },
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"
+    },
+    "./statistic": {
+      "sass": "./statistic/styles/_index.scss"
     },
     "./stepper": {
       "sass": "./stepper/styles/_index.scss"
@@ -197,6 +206,9 @@
     },
     "./time-picker": {
       "sass": "./time-picker/styles/_index.scss"
+    },
+    "./toolbar": {
+      "sass": "./toolbar/styles/_index.scss"
     },
     "./toast": {
       "sass": "./toast/styles/_index.scss"
