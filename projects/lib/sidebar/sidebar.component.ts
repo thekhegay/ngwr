@@ -118,6 +118,11 @@ export class WrSidebarComponent {
     return this.opened().has(title);
   }
 
+  /** Stable id for the group body, referenced by the toggle's `aria-controls`. */
+  protected groupBodyId(title: string): string {
+    return `wr-sidebar-group-${title.replace(/\s+/g, '-').toLowerCase()}`;
+  }
+
   protected toggleGroup(title: string): void {
     this.opened.update(prev => {
       const next = new Set(prev);

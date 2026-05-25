@@ -2,6 +2,7 @@
   type="button"
   class="wr-collapse__header"
   [attr.aria-expanded]="open()"
+  [attr.aria-controls]="bodyId"
   [disabled]="disabled()"
   (click)="toggle()"
 >
@@ -9,7 +10,13 @@
   <wr-icon class="wr-collapse__chevron" name="chevron-down" />
 </button>
 
-<div class="wr-collapse__body" [class.wr-collapse__body--open]="open()" [attr.aria-hidden]="!open()">
+<div
+  class="wr-collapse__body"
+  [attr.id]="bodyId"
+  [class.wr-collapse__body--open]="open()"
+  [attr.aria-hidden]="!open()"
+  [attr.inert]="!open() ? '' : null"
+>
   <div class="wr-collapse__content">
     <div class="wr-collapse__inner">
       <ng-content />

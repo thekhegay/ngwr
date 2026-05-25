@@ -19,13 +19,18 @@
           type="button"
           class="wr-sidebar__group-toggle"
           [attr.aria-expanded]="isOpen(entry.title)"
+          [attr.aria-controls]="groupBodyId(entry.title)"
           (click)="toggleGroup(entry.title)"
         >
           <wr-icon class="wr-sidebar__icon" [name]="$any(asGroup(entry).icon ?? defaultGroupIcon())" size="16" />
           <span class="wr-sidebar__title">{{ entry.title }}</span>
           <wr-icon class="wr-sidebar__chevron" name="chevron-down" size="14" />
         </button>
-        <div class="wr-sidebar__group-wrap">
+        <div
+          class="wr-sidebar__group-wrap"
+          [attr.id]="groupBodyId(entry.title)"
+          [attr.inert]="!isOpen(entry.title) ? '' : null"
+        >
           <div class="wr-sidebar__group-body">
             <ul class="wr-sidebar__list">
               @for (child of asGroup(entry).children; track child.title) {

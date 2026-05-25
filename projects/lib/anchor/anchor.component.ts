@@ -56,7 +56,7 @@ export type WrAnchorLink = {
   templateUrl: './anchor.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-anchor' },
+  host: { class: 'wr-anchor', role: 'navigation', 'aria-label': 'Table of contents' },
 })
 export class WrAnchorComponent {
   readonly links = input<readonly WrAnchorLink[]>([]);

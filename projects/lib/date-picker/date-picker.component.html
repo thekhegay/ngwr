@@ -5,6 +5,8 @@
     type="text"
     autocomplete="off"
     spellcheck="false"
+    [attr.aria-haspopup]="'dialog'"
+    [attr.aria-expanded]="overlayOpen()"
     [value]="text()"
     [placeholder]="placeholder()"
     [disabled]="effectiveDisabled()"

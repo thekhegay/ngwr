@@ -27,7 +27,7 @@ type ActiveToast = WrToastOptions & {
   templateUrl: './toast-host.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { '[class]': 'classes()', role: 'region', 'aria-label': 'Notifications' },
   imports: [WrToastComponent],
 })
 export class WrToastHostComponent {

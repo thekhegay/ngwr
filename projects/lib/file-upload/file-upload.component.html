@@ -2,6 +2,7 @@
   class="wr-file-upload__zone"
   role="button"
   tabindex="0"
+  aria-label="File upload drop zone — click or drop files"
   [attr.aria-disabled]="effectiveDisabled() || null"
   (click)="openPicker()"
   (keydown)="onZoneKey($event)"

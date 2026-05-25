@@ -105,6 +105,9 @@ export class WrDatePickerComponent implements ControlValueAccessor {
 
   protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
+  /** Whether the calendar overlay is currently open. */
+  protected readonly overlayOpen = signal(false);
+
   protected readonly classes = computed(() => {
     const parts = ['wr-date-picker'];
     if (this.effectiveDisabled()) parts.push('wr-date-picker--disabled');
@@ -204,6 +207,7 @@ export class WrDatePickerComponent implements ControlValueAccessor {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: 'wr-date-picker-overlay',
     });
+    this.overlayOpen.set(true);
 
     const portal = new ComponentPortal(WrCalendarComponent);
     const ref = this.overlayRef.attach(portal);
@@ -249,6 +253,7 @@ export class WrDatePickerComponent implements ControlValueAccessor {
       this.overlayRef.dispose();
       this.overlayRef = null;
     }
+    this.overlayOpen.set(false);
   }
 
   // ──────── Helpers ────────

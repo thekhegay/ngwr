@@ -43,9 +43,14 @@ import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './types';
  *
  * @see https://ngwr.dev/docs/components/popover
  */
+let popoverUid = 0;
+
 @Directive({
   selector: '[wrPopover]',
   host: {
+    '[attr.aria-haspopup]': '"dialog"',
+    '[attr.aria-expanded]': 'isOpen()',
+    '[attr.aria-controls]': 'isOpen() ? panelId : null',
     '(click)': 'onClick($event)',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave($event)',
@@ -73,7 +78,12 @@ export class WrPopoverDirective {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly isOpen = signal(false);
+  /** @internal */
+  readonly isOpen = signal(false);
+
+  /** Auto-generated id for `aria-controls`. */
+  protected readonly panelId = `wr-popover-${++popoverUid}`;
+
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
@@ -141,6 +151,7 @@ export class WrPopoverDirective {
 
     const portal = new TemplatePortal(this.content(), this.vcr);
     this.overlayRef.attach(portal);
+    this.overlayRef.overlayElement.id = this.panelId;
 
     this.overlayRef
       .outsidePointerEvents()

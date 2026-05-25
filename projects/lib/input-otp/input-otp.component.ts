@@ -46,7 +46,7 @@ import type { WrInputOtpMode } from './types';
   templateUrl: './input-otp.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { '[class]': 'classes()', role: 'group', 'aria-label': 'Verification code' },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

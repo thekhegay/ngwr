@@ -23,15 +23,14 @@
 }
 
 @if (showDots() && count() > 1) {
-  <div class="wr-carousel__dots" role="tablist">
+  <div class="wr-carousel__dots" role="group" aria-label="Carousel pagination">
     @for (slide of slides(); track $index; let i = $index) {
       <button
         type="button"
         class="wr-carousel__dot"
-        role="tab"
         [class.wr-carousel__dot--active]="i === active()"
-        [attr.aria-selected]="i === active()"
-        [attr.aria-label]="'Slide ' + (i + 1)"
+        [attr.aria-current]="i === active() ? 'true' : null"
+        [attr.aria-label]="'Go to slide ' + (i + 1)"
         (click)="goTo(i)"
       ></button>
     }

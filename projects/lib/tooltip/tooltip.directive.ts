@@ -8,7 +8,7 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, signal } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
@@ -31,13 +31,17 @@ const numAttr =
  *
  * @see https://ngwr.dev/docs/components/tooltip
  */
+let tooltipUid = 0;
+
 @Directive({
   selector: '[wrTooltip]',
   host: {
+    '[attr.aria-describedby]': 'open() ? tooltipId : null',
     '(mouseenter)': 'show()',
     '(mouseleave)': 'hide()',
     '(focus)': 'show()',
     '(blur)': 'hide()',
+    '(keydown.escape)': 'hide()',
   },
 })
 export class WrTooltipDirective {
@@ -57,6 +61,12 @@ export class WrTooltipDirective {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
+
+  /** Auto-generated id for `aria-describedby`. */
+  protected readonly tooltipId = `wr-tooltip-${++tooltipUid}`;
+
+  /** @internal Open state for host bindings. */
+  readonly open = signal(false);
 
   private overlayRef: OverlayRef | null = null;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
@@ -97,6 +107,10 @@ export class WrTooltipDirective {
     const portal = new ComponentPortal(WrTooltipComponent, this.vcr);
     const ref = this.overlayRef.attach(portal);
     ref.setInput('text', this.text());
+    // Stamp the id onto the tooltip host so aria-describedby can resolve it.
+    this.overlayRef.overlayElement.id = this.tooltipId;
+    this.overlayRef.overlayElement.setAttribute('role', 'tooltip');
+    this.open.set(true);
   }
 
   private dispose(): void {
@@ -104,6 +118,7 @@ export class WrTooltipDirective {
       this.overlayRef.dispose();
       this.overlayRef = null;
     }
+    this.open.set(false);
   }
 
   private clearTimers(): void {

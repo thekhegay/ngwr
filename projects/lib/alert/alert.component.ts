@@ -30,8 +30,8 @@ import type { WrAlertType } from './types';
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',
-    '[attr.role]': 'dismissed() ? null : "status"',
-    '[attr.aria-live]': 'dismissed() ? null : "polite"',
+    '[attr.role]': 'liveRole()',
+    '[attr.aria-live]': 'liveLevel()',
   },
   imports: [WrIconComponent],
   providers: [provideWrIcons([close])],
@@ -73,6 +73,14 @@ export class WrAlertComponent {
     if (this.dismissed()) parts.push('wr-alert--dismissed');
     return parts.join(' ');
   });
+
+  /** Escalate role/aria-live for danger/warning alerts. */
+  protected readonly liveRole = computed(() =>
+    this.dismissed() ? null : this.type() === 'danger' ? 'alert' : 'status'
+  );
+  protected readonly liveLevel = computed(() =>
+    this.dismissed() ? null : this.type() === 'danger' || this.type() === 'warning' ? 'assertive' : 'polite'
+  );
 
   protected onClose(): void {
     this.dismissed.set(true);

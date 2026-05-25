@@ -46,7 +46,7 @@ const numAttr =
   templateUrl: './pagination.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { '[class]': 'classes()', role: 'navigation', 'aria-label': 'Pagination' },
   imports: [FormsModule, WrButtonComponent, WrSelectComponent, WrOptionComponent],
   providers: [provideWrIcons([arrowBack, arrowForward])],
 })

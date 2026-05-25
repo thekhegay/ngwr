@@ -25,8 +25,8 @@ import type { WrToastConfig, WrToastType } from './types';
   host: {
     '[class]': 'classes()',
     '[style.--wr-toast-duration]': 'durationMs()',
-    role: 'status',
-    'aria-live': 'polite',
+    '[attr.role]': 'liveRole()',
+    '[attr.aria-live]': 'liveLevel()',
     '(mouseenter)': 'pauseRequested.emit()',
     '(mouseleave)': 'resumeRequested.emit()',
   },
@@ -53,6 +53,12 @@ export class WrToastComponent {
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly classes = computed(() => `wr-toast wr-toast--${this.type()}`);
+
+  /** Escalate to `alert`/`assertive` for danger/warning toasts. */
+  protected readonly liveRole = computed(() => (this.type() === 'danger' ? 'alert' : 'status'));
+  protected readonly liveLevel = computed(() =>
+    this.type() === 'danger' || this.type() === 'warning' ? 'assertive' : 'polite'
+  );
 
   /** Inline CSS value for `--wr-toast-duration`. */
   protected readonly durationMs = computed(() => `${this.duration()}ms`);

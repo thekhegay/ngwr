@@ -64,6 +64,9 @@ export class WrCollapseComponent {
   /** Identity used by the parent group when tracking children. @internal */
   readonly id = { name: randomId('wr-collapse') };
 
+  /** DOM id for the body element, referenced by header's `aria-controls`. */
+  protected readonly bodyId = `wr-collapse-body-${this.id.name}`;
+
   private readonly group = inject(WR_COLLAPSE_GROUP, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
 
