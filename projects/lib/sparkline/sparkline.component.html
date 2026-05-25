@@ -1,12 +1,6 @@
 <svg [attr.viewBox]="viewBox" [style.width]="width()" [style.height]="height()" preserveAspectRatio="none">
   @if (showArea() && areaPath()) {
-    <path
-      class="wr-sparkline__area"
-      [attr.d]="areaPath()"
-      [attr.fill]="color()"
-      fill-opacity="0.15"
-      stroke="none"
-    />
+    <path class="wr-sparkline__area" [attr.d]="areaPath()" [attr.fill]="color()" fill-opacity="0.15" stroke="none" />
   }
   @if (linePath()) {
     <path
@@ -21,12 +15,6 @@
     />
   }
   @if (showTip() && tipPoint(); as tip) {
-    <circle
-      class="wr-sparkline__tip"
-      [attr.cx]="tip.x"
-      [attr.cy]="tip.y"
-      r="1.5"
-      [attr.fill]="color()"
-    />
+    <circle class="wr-sparkline__tip" [attr.cx]="tip.x" [attr.cy]="tip.y" r="1.5" [attr.fill]="color()" />
   }
 </svg>

@@ -163,6 +163,9 @@
     "./layout": {
       "sass": "./layout/styles/_index.scss"
     },
+    "./line-chart": {
+      "sass": "./line-chart/styles/_index.scss"
+    },
     "./media": {},
     "./mention": {
       "sass": "./mention/styles/_index.scss"

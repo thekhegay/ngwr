@@ -1,0 +1,93 @@
+@use '../../theme/styles' as theme;
+
+.wr-line-chart {
+  display: block;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-dark);
+
+  &__legend {
+    list-style: none;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem 0.875rem;
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--wr-text-xs);
+  }
+
+  &__swatch {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    flex: 0 0 auto;
+  }
+
+  &__plot {
+    position: relative;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__tooltip {
+    position: absolute;
+    transform: translate(-50%, 0.5rem);
+    background: var(--wr-color-white);
+    border: 1px solid var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 0.5rem 0.625rem;
+    font-size: var(--wr-text-xs);
+    pointer-events: none;
+    z-index: 1;
+    min-width: 6rem;
+  }
+
+  &__tooltip-label {
+    font-weight: var(--wr-font-weight-semibold);
+    margin-bottom: 0.25rem;
+  }
+
+  &__tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__tooltip-name {
+    flex: 1 1 auto;
+    color: var(--wr-color-medium);
+  }
+
+  &__tooltip-value {
+    font-weight: var(--wr-font-weight-semibold);
+  }
+
+  &__x-labels {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    padding-left: 36px;
+    padding-right: 16px;
+  }
+
+  &__x-label {
+    flex: 1 1 0;
+    text-align: center;
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-medium);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

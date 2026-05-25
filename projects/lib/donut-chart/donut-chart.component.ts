@@ -8,7 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-export type WrDonutSegment = {
+type WrDonutSegment = {
   readonly label: string;
   readonly value: number;
   readonly color?: string;
@@ -111,11 +111,7 @@ export class WrDonutChartComponent {
         `A ${ro} ${ro} 0 1 1 ${cx + ro} ${cy}`,
       ];
       if (ri > 0) {
-        path.push(
-          `M ${cx + ri} ${cy}`,
-          `A ${ri} ${ri} 0 1 0 ${cx - ri} ${cy}`,
-          `A ${ri} ${ri} 0 1 0 ${cx + ri} ${cy}`
-        );
+        path.push(`M ${cx + ri} ${cy}`, `A ${ri} ${ri} 0 1 0 ${cx - ri} ${cy}`, `A ${ri} ${ri} 0 1 0 ${cx + ri} ${cy}`);
       }
       return path.join(' ');
     }
@@ -140,3 +136,5 @@ export class WrDonutChartComponent {
     ].join(' ');
   }
 }
+
+export type { WrDonutSegment };

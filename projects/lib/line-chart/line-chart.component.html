@@ -1,0 +1,108 @@
+@if (showLegend() && resolvedSeries().length > 0) {
+  <ul class="wr-line-chart__legend">
+    @for (s of resolvedSeries(); track s.label) {
+      <li class="wr-line-chart__legend-item">
+        <span class="wr-line-chart__swatch" [style.background]="s.color"></span>
+        <span>{{ s.label }}</span>
+      </li>
+    }
+  </ul>
+}
+
+<div class="wr-line-chart__plot" [style.height.px]="height()">
+  <svg
+    [attr.viewBox]="viewBox()"
+    preserveAspectRatio="none"
+    (pointermove)="onPointerMove($event)"
+    (pointerleave)="onPointerLeave()"
+  >
+    @if (showGrid()) {
+      @for (tick of yTicks(); track tick.value) {
+        <line
+          [attr.x1]="padding.left"
+          [attr.x2]="vbW - padding.right"
+          [attr.y1]="tick.y"
+          [attr.y2]="tick.y"
+          stroke="rgba(var(--wr-color-light-rgb), 0.7)"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        />
+        <text
+          [attr.x]="padding.left - 6"
+          [attr.y]="tick.y + 4"
+          text-anchor="end"
+          fill="var(--wr-color-medium)"
+          font-size="10"
+          font-family="var(--wr-font-family-base)"
+        >
+          {{ formatTick(tick.value) }}
+        </text>
+      }
+    }
+
+    @for (s of resolvedSeries(); track s.label) {
+      <path
+        [attr.d]="pathFor(s)"
+        fill="none"
+        [attr.stroke]="s.color"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
+      />
+      @if (showDots()) {
+        @for (v of s.data; track $index; let i = $index) {
+          <circle [attr.cx]="pointX(i)" [attr.cy]="pointY(v)" r="3" [attr.fill]="s.color" />
+        }
+      }
+    }
+
+    @if (hoveredIndex() !== null && hoverPoints().length > 0) {
+      <line
+        [attr.x1]="pointX(hoveredIndex()!)"
+        [attr.x2]="pointX(hoveredIndex()!)"
+        [attr.y1]="padding.top"
+        [attr.y2]="vbH - padding.bottom"
+        stroke="var(--wr-color-medium)"
+        stroke-width="1"
+        stroke-dasharray="3 3"
+        vector-effect="non-scaling-stroke"
+      />
+      @for (p of hoverPoints(); track p.label) {
+        <circle
+          [attr.cx]="p.x"
+          [attr.cy]="p.y"
+          r="5"
+          fill="var(--wr-color-white)"
+          [attr.stroke]="p.color"
+          stroke-width="2"
+        />
+      }
+    }
+  </svg>
+
+  @if (hoveredIndex() !== null && hoverPoints().length > 0) {
+    <div
+      class="wr-line-chart__tooltip"
+      [style.left.%]="(pointX(hoveredIndex()!) / vbW) * 100"
+      [style.top.px]="padding.top"
+    >
+      <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>
+      @for (p of hoverPoints(); track p.label) {
+        <div class="wr-line-chart__tooltip-row">
+          <span class="wr-line-chart__swatch" [style.background]="p.color"></span>
+          <span class="wr-line-chart__tooltip-name">{{ p.label }}</span>
+          <span class="wr-line-chart__tooltip-value">{{ p.value }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (xLabels().length > 0) {
+  <div class="wr-line-chart__x-labels">
+    @for (label of xLabels(); track $index) {
+      <span class="wr-line-chart__x-label">{{ label }}</span>
+    }
+  </div>
+}
