@@ -1,0 +1,42 @@
+<!-- Roving tabindex: the tree owns keyboard focus and routes arrow keys
+     to its currently-focused row. -->
+<!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+<ul class="wr-tree__list" role="tree" (keydown)="onKeydown($event)">
+  @for (entry of flat(); track entry.node.id; let i = $index) {
+    <!-- Click handler lives on focusable rows; keyboard handling is owned
+         by the parent <ul> via the roving-tabindex pattern. -->
+    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
+    <li
+      class="wr-tree__row"
+      role="treeitem"
+      [class.wr-tree__row--selected]="selectedSet().has(entry.node.id)"
+      [class.wr-tree__row--focused]="i === focusedIndex()"
+      [class.wr-tree__row--disabled]="entry.node.disabled"
+      [attr.aria-level]="entry.depth + 1"
+      [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"
+      [attr.aria-selected]="selectionMode() === 'none' ? null : selectedSet().has(entry.node.id)"
+      [attr.aria-disabled]="entry.node.disabled || disabled() || null"
+      [attr.data-tree-index]="i"
+      [attr.tabindex]="i === focusedIndex() ? 0 : -1"
+      [style.--wr-tree-depth]="entry.depth"
+      (click)="onRowClick(entry, $event)"
+    >
+      @if (entry.hasChildren) {
+        <button
+          type="button"
+          class="wr-tree__toggle"
+          tabindex="-1"
+          [attr.aria-label]="expandedSet().has(entry.node.id) ? 'Collapse' : 'Expand'"
+          (click)="onToggleClick(entry.node, $event)"
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M3 1 L7 5 L3 9 Z" fill="currentColor" />
+          </svg>
+        </button>
+      } @else {
+        <span class="wr-tree__toggle wr-tree__toggle--leaf" aria-hidden="true"></span>
+      }
+      <span class="wr-tree__label">{{ entry.node.label }}</span>
+    </li>
+  }
+</ul>
