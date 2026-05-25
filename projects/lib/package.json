@@ -155,6 +155,9 @@
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"
     },
+    "./stepper": {
+      "sass": "./stepper/styles/_index.scss"
+    },
     "./switch": {
       "sass": "./switch/styles/_index.scss"
     },

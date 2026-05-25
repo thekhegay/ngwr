@@ -1,0 +1,158 @@
+@use '../../theme/styles' as theme;
+
+.wr-stepper {
+  --wr-stepper-indicator-size: 1.75rem;
+  --wr-stepper-connector: var(--wr-color-light);
+  --wr-stepper-muted: var(--wr-color-medium);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--wr-font-family-base);
+
+  &__headers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 0;
+  }
+
+  &--vertical &__headers {
+    flex-direction: column;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    gap: 0.75rem;
+    min-width: 0;
+
+    &--disabled {
+      opacity: 0.5;
+    }
+  }
+
+  &--vertical &__header {
+    align-items: stretch;
+    flex: 0 0 auto;
+  }
+
+  &__header-button {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.25rem 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--wr-color-dark);
+    cursor: pointer;
+    text-align: left;
+    flex: 0 0 auto;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) .wr-stepper__indicator {
+      border-color: var(--wr-color-primary);
+      color: var(--wr-color-primary);
+    }
+  }
+
+  &__indicator {
+    width: var(--wr-stepper-indicator-size);
+    height: var(--wr-stepper-indicator-size);
+    border-radius: 50%;
+    border: 1.5px solid var(--wr-color-light);
+    background: var(--wr-color-white);
+    color: var(--wr-stepper-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    transition:
+      background var(--wr-transition-base),
+      border-color var(--wr-transition-base),
+      color var(--wr-transition-base);
+  }
+
+  &__header--active &__indicator {
+    border-color: var(--wr-color-primary);
+    color: var(--wr-color-primary);
+    background: rgba(var(--wr-color-primary-rgb), 0.08);
+  }
+
+  &__header--completed &__indicator {
+    background: var(--wr-color-primary);
+    border-color: var(--wr-color-primary);
+    color: var(--wr-color-white);
+  }
+
+  &__label {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.0625rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+  }
+
+  &__header--active &__label {
+    color: var(--wr-color-primary);
+  }
+
+  &__optional,
+  &__description {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--wr-stepper-muted);
+    text-transform: none;
+    letter-spacing: 0.01em;
+  }
+
+  &__optional {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__connector {
+    flex: 1 1 auto;
+    height: 1.5px;
+    background: var(--wr-stepper-connector);
+    min-width: 1rem;
+    margin: 0 0.5rem;
+  }
+
+  &--vertical &__connector {
+    width: 1.5px;
+    min-height: 1.25rem;
+    height: auto;
+    margin: 0.25rem 0 0.25rem calc(var(--wr-stepper-indicator-size) / 2);
+    align-self: stretch;
+    flex: 0 0 auto;
+  }
+
+  &__header--completed + &__header &__connector,
+  &__header--completed &__connector {
+    background: var(--wr-color-primary);
+  }
+
+  &__body {
+    min-height: 0;
+  }
+}
+
+// `<wr-step>` itself — visibility is driven by an `--active` class
+// the stepper toggles via host binding.
+.wr-step {
+  display: none;
+}
+
+.wr-step--active {
+  display: block;
+}

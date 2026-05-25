@@ -1,0 +1,52 @@
+<ol class="wr-stepper__headers" role="list">
+  @for (step of steps(); track $index; let i = $index; let last = $last) {
+    <li
+      class="wr-stepper__header"
+      [class.wr-stepper__header--active]="i === active()"
+      [class.wr-stepper__header--completed]="isCompleted(i)"
+      [class.wr-stepper__header--reachable]="isReachable(i)"
+      [class.wr-stepper__header--disabled]="step.disabled()"
+    >
+      <button
+        type="button"
+        class="wr-stepper__header-button"
+        [disabled]="!isReachable(i) || step.disabled()"
+        [attr.aria-current]="i === active() ? 'step' : null"
+        (click)="onHeaderClick(i)"
+      >
+        <span class="wr-stepper__indicator" aria-hidden="true">
+          @if (isCompleted(i)) {
+            <svg width="14" height="14" viewBox="0 0 14 14">
+              <path
+                d="M3 7.5 L6 10.5 L11 4.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          } @else {
+            {{ i + 1 }}
+          }
+        </span>
+        <span class="wr-stepper__label">
+          {{ step.label() }}
+          @if (step.optional()) {
+            <small class="wr-stepper__optional">optional</small>
+          }
+          @if (step.description()) {
+            <small class="wr-stepper__description">{{ step.description() }}</small>
+          }
+        </span>
+      </button>
+      @if (!last) {
+        <span class="wr-stepper__connector" aria-hidden="true"></span>
+      }
+    </li>
+  }
+</ol>
+
+<div class="wr-stepper__body">
+  <ng-content />
+</div>
