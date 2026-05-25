@@ -138,9 +138,14 @@ export class WrImageCropperComponent {
 
   protected onImageLoad(): void {
     const img = this.imgEl().nativeElement;
-    const natural = { w: img.naturalWidth, h: img.naturalHeight };
     const rect = img.getBoundingClientRect();
     const display = { w: rect.width, h: rect.height };
+    // Some SVGs and odd images report zero natural dimensions — fall back
+    // to the rendered size so the crop math stays well-defined.
+    const natural = {
+      w: img.naturalWidth || display.w,
+      h: img.naturalHeight || display.h,
+    };
     this.natural.set(natural);
     this.display.set(display);
     this.cropDisplay.set(this.initialCrop(display));

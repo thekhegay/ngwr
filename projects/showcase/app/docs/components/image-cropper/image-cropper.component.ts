@@ -25,8 +25,8 @@ import {
   ],
 })
 export default class ImageCropperPageComponent {
-  protected readonly src = signal<string | File>('/images/logo-mark-color.svg');
-  protected readonly square = signal<string | File>('/images/logo-mark-color.svg');
+  protected readonly src = signal<string | File>('/images/image_1.webp');
+  protected readonly square = signal<string | File>('/images/image_1.webp');
   protected readonly previewUrl = signal<string>('');
 
   protected onFileChange(event: Event): void {
