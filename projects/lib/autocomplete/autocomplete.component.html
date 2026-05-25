@@ -35,25 +35,49 @@
 </wr-input-group>
 
 <ng-template #panelTpl>
-  <ul class="wr-autocomplete__panel" role="listbox" [id]="listboxId" [style.width.px]="panelWidth()">
+  <div class="wr-autocomplete__panel" role="listbox" [id]="listboxId" [style.width.px]="panelWidth()">
     @if (loading()) {
-      <li class="wr-autocomplete__loading" aria-busy="true">{{ loadingText() }}</li>
+      <div class="wr-autocomplete__loading" aria-busy="true">{{ loadingText() }}</div>
     } @else if (filtered().length === 0) {
-      <li class="wr-autocomplete__empty">{{ noResultsText() }}</li>
-    } @else {
-      @for (item of filtered(); track $index; let i = $index) {
-        <li
+      <div class="wr-autocomplete__empty">{{ noResultsText() }}</div>
+    } @else if (virtualScroll()) {
+      <cdk-virtual-scroll-viewport
+        class="wr-autocomplete__viewport"
+        [itemSize]="itemSize()"
+        [minBufferPx]="itemSize() * 4"
+        [maxBufferPx]="itemSize() * 8"
+        [style.height.px]="viewportHeight()"
+      >
+        <div
+          *cdkVirtualFor="let item of filtered(); let i = index"
           class="wr-autocomplete__option"
           role="option"
           [id]="optionId(i)"
           [class.wr-autocomplete__option--active]="i === activeIndex()"
           [attr.aria-selected]="i === activeIndex()"
+          [style.height.px]="itemSize()"
           (mouseenter)="activeIndex.set(i)"
           (mousedown)="selectByIndex(i, $event)"
         >
           {{ displayWith()(item) }}
-        </li>
-      }
+        </div>
+      </cdk-virtual-scroll-viewport>
+    } @else {
+      <ul class="wr-autocomplete__list">
+        @for (item of filtered(); track $index; let i = $index) {
+          <li
+            class="wr-autocomplete__option"
+            role="option"
+            [id]="optionId(i)"
+            [class.wr-autocomplete__option--active]="i === activeIndex()"
+            [attr.aria-selected]="i === activeIndex()"
+            (mouseenter)="activeIndex.set(i)"
+            (mousedown)="selectByIndex(i, $event)"
+          >
+            {{ displayWith()(item) }}
+          </li>
+        }
+      </ul>
     }
-  </ul>
+  </div>
 </ng-template>

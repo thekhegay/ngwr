@@ -8,6 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,6 +18,7 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   computed,
+  effect,
   forwardRef,
   inject,
   input,
@@ -75,7 +77,7 @@ function defaultFilter<T>(query: string, item: T, displayWith: (item: T) => stri
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrInputDirective, WrInputGroupComponent, WrInputSuffixDirective],
+  imports: [WrInputDirective, WrInputGroupComponent, WrInputSuffixDirective, ScrollingModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -126,6 +128,21 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
   /** Read-only — input not typeable, panel cannot open. @default false */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Virtualize the options panel using CDK's `cdk-virtual-scroll-viewport`.
+   * Use for large option lists (hundreds+) — small lists pay no benefit and
+   * lose the variable-height layout. @default false
+   */
+  readonly virtualScroll = input(false, { transform: coerceBooleanProperty });
+
+  /** Item row height (px) used by the virtual scroll viewport. @default 32 */
+  readonly itemSize = input(32, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 32)) });
+
+  /** Viewport height (px) when `virtualScroll` is on. @default 256 */
+  readonly viewportHeight = input(256, {
+    transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 256)),
+  });
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
@@ -134,6 +151,7 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
 
   protected readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('input');
   protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
+  protected readonly viewport = viewChild(CdkVirtualScrollViewport);
 
   /** Currently bound value (last committed selection). */
   protected readonly value = signal<T | string | null>(null);
@@ -187,6 +205,14 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
 
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
+
+    // Keep the highlighted option visible when virtual scroll is on —
+    // ArrowDown past the rendered window won't be visible otherwise.
+    effect(() => {
+      const i = this.activeIndex();
+      const viewport = this.viewport();
+      if (viewport && i >= 0) viewport.scrollToIndex(i, 'smooth');
+    });
 
     // Async loader pipeline — only triggers when `asyncOptions` is set and
     // the query satisfies `minChars`. `switchMap` cancels in-flight requests
