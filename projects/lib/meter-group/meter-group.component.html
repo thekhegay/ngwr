@@ -1,0 +1,24 @@
+<div class="wr-meter-group__bar" role="progressbar" [attr.aria-valuemin]="0" [attr.aria-valuemax]="resolvedMax()">
+  @for (slice of slices(); track $index) {
+    <span
+      class="wr-meter-group__slice"
+      [title]="slice.label"
+      [style.width.%]="slice.percent"
+      [style.background]="slice.color"
+    ></span>
+  }
+</div>
+
+@if (showLegend() && slices().length > 0) {
+  <ul class="wr-meter-group__legend">
+    @for (slice of slices(); track $index) {
+      <li class="wr-meter-group__legend-item">
+        <span class="wr-meter-group__swatch" aria-hidden="true" [style.background]="slice.color"></span>
+        <span class="wr-meter-group__legend-label">{{ slice.label }}</span>
+        @if (showValues()) {
+          <span class="wr-meter-group__legend-value">{{ slice.value }}</span>
+        }
+      </li>
+    }
+  </ul>
+}

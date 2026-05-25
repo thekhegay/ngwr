@@ -1,0 +1,155 @@
+@use '../../theme/styles' as theme;
+
+.wr-speed-dial {
+  --wr-speed-dial-size: 3.25rem;
+  --wr-speed-dial-action-size: 2.5rem;
+  --wr-speed-dial-gap: 0.625rem;
+
+  position: relative;
+  display: inline-block;
+  font-family: var(--wr-font-family-base);
+
+  &__trigger {
+    width: var(--wr-speed-dial-size);
+    height: var(--wr-speed-dial-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--wr-color-primary);
+    color: var(--wr-color-primary-contrast, var(--wr-color-white));
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    transition: transform var(--wr-transition-base);
+
+    --wr-icon-size: 1.25rem;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &--open &__trigger {
+    transform: rotate(45deg);
+  }
+
+  &__actions {
+    position: absolute;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  &__action-wrap {
+    position: absolute;
+    transition:
+      transform var(--wr-duration-base) var(--wr-ease-spring),
+      opacity var(--wr-duration-base) var(--wr-ease-out);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &--open &__action-wrap {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // Place the action buttons in a line in the chosen direction.
+  $offset: 'calc(var(--wr-speed-dial-i) * (var(--wr-speed-dial-action-size) + var(--wr-speed-dial-gap)))';
+
+  &--up {
+    .wr-speed-dial__actions {
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .wr-speed-dial__action-wrap {
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 0.5rem);
+    }
+  }
+
+  &--up.wr-speed-dial--open .wr-speed-dial__action-wrap {
+    transform: translate(-50%, calc(-1 * #{$offset}));
+  }
+
+  &--down {
+    .wr-speed-dial__actions {
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .wr-speed-dial__action-wrap {
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -0.5rem);
+    }
+  }
+
+  &--down.wr-speed-dial--open .wr-speed-dial__action-wrap {
+    transform: translate(-50%, #{$offset});
+  }
+
+  &--left {
+    .wr-speed-dial__actions {
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .wr-speed-dial__action-wrap {
+      right: 0;
+      top: 50%;
+      transform: translate(0.5rem, -50%);
+    }
+  }
+
+  &--left.wr-speed-dial--open .wr-speed-dial__action-wrap {
+    transform: translate(calc(-1 * #{$offset}), -50%);
+  }
+
+  &--right {
+    .wr-speed-dial__actions {
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .wr-speed-dial__action-wrap {
+      left: 0;
+      top: 50%;
+      transform: translate(-0.5rem, -50%);
+    }
+  }
+
+  &--right.wr-speed-dial--open .wr-speed-dial__action-wrap {
+    transform: translate(#{$offset}, -50%);
+  }
+
+  &__action {
+    width: var(--wr-speed-dial-action-size);
+    height: var(--wr-speed-dial-action-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--wr-color-white);
+    color: var(--wr-color-dark);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition:
+      transform var(--wr-transition-base),
+      background var(--wr-transition-base);
+
+    --wr-icon-size: 1rem;
+
+    &:hover {
+      transform: scale(1.06);
+      background: var(--wr-color-primary);
+      color: var(--wr-color-primary-contrast, var(--wr-color-white));
+    }
+  }
+}

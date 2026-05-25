@@ -1,0 +1,39 @@
+<div
+  class="wr-carousel__viewport"
+  aria-roledescription="carousel"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <div class="wr-carousel__track" [style.transform]="trackStyle()">
+    <ng-content />
+  </div>
+</div>
+
+@if (showArrows() && count() > 1) {
+  <button type="button" class="wr-carousel__nav wr-carousel__nav--prev" aria-label="Previous slide" (click)="prev()">
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+      <path d="M9 2 L4 7 L9 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+  </button>
+  <button type="button" class="wr-carousel__nav wr-carousel__nav--next" aria-label="Next slide" (click)="next()">
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+      <path d="M5 2 L10 7 L5 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+  </button>
+}
+
+@if (showDots() && count() > 1) {
+  <div class="wr-carousel__dots" role="tablist">
+    @for (slide of slides(); track $index; let i = $index) {
+      <button
+        type="button"
+        class="wr-carousel__dot"
+        role="tab"
+        [class.wr-carousel__dot--active]="i === active()"
+        [attr.aria-selected]="i === active()"
+        [attr.aria-label]="'Slide ' + (i + 1)"
+        (click)="goTo(i)"
+      ></button>
+    }
+  </div>
+}
