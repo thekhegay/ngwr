@@ -69,10 +69,33 @@
   }
 }
 
-.wr-autocomplete__empty {
+.wr-autocomplete__empty,
+.wr-autocomplete__loading {
   padding: 0.5rem 0.75rem;
   color: var(--wr-color-medium);
   font-family: var(--wr-font-family-base);
   font-size: 0.875rem;
   user-select: none;
+}
+
+.wr-autocomplete__loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &::before {
+    content: '';
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    border: 2px solid rgba(var(--wr-color-primary-rgb), 0.25);
+    border-top-color: var(--wr-color-primary);
+    animation: wr-autocomplete-spin 0.65s linear infinite;
+  }
+}
+
+@keyframes wr-autocomplete-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

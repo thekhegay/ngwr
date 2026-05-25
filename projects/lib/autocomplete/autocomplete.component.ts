@@ -23,12 +23,17 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
 
 import { WrInputDirective, WrInputGroupComponent, WrInputSuffixDirective } from 'ngwr/input';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop, randomId } from 'ngwr/utils';
+
+/** Function signature for async option loaders. */
+type WrAutocompleteAsyncLoader<T> = (query: string) => Observable<readonly T[]> | Promise<readonly T[]> | readonly T[];
 
 function defaultFilter<T>(query: string, item: T, displayWith: (item: T) => string): boolean {
   if (!query) return true;
@@ -90,6 +95,16 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
   /** Custom filter predicate. Falls back to case-insensitive `includes`. @default null */
   readonly filterWith = input<((query: string, item: T) => boolean) | null>(null);
 
+  /**
+   * Async loader called on each (debounced) keystroke when set. Wins over
+   * `options` + `filterWith` — the panel shows whatever the loader returns
+   * verbatim. Supports Observables, Promises, and plain arrays.
+   */
+  readonly asyncOptions = input<WrAutocompleteAsyncLoader<T> | null>(null);
+
+  /** Debounce (ms) applied to async loader calls. @default 250 */
+  readonly debounceMs = input(250, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 250)) });
+
   /** Placeholder shown when the input is empty. */
   readonly placeholder = input<string>('');
 
@@ -101,6 +116,9 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
 
   /** Text shown when no options match the query. @default 'No results' */
   readonly noResultsText = input<string>('No results');
+
+  /** Text shown while async results are loading. @default 'Loading…' */
+  readonly loadingText = input<string>('Loading…');
 
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
@@ -127,6 +145,12 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
   protected readonly activeIndex = signal(-1);
   protected readonly panelWidth = signal<number>(0);
 
+  /** Last results returned by the async loader. */
+  protected readonly asyncResults = signal<readonly T[]>([]);
+
+  /** True while an async loader call is in flight. */
+  protected readonly loading = signal(false);
+
   protected readonly listboxId = `wr-autocomplete-listbox-${randomId()}`;
   protected readonly optionId = (i: number): string => `${this.listboxId}-opt-${i}`;
   protected readonly activeId = computed(() => {
@@ -140,13 +164,14 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
 
   protected readonly interactive = computed(() => !this.effectiveDisabled() && !this.readonly());
 
-  /** Filtered options based on current `text`. */
+  /** Filtered options based on current `text`. Returns async results when an async loader is set. */
   protected readonly filtered = computed<readonly T[]>(() => {
     const q = this.text();
+    if (q.length < this.minChars()) return [];
+    if (this.asyncOptions()) return this.asyncResults();
     const items = this.options();
     const display = this.displayWith();
     const custom = this.filterWith();
-    if (q.length < this.minChars()) return [];
     if (custom) return items.filter(item => custom(q, item));
     return items.filter(item => defaultFilter(q, item, display));
   });
@@ -162,6 +187,31 @@ export class WrAutocompleteComponent<T = string> implements ControlValueAccessor
 
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
+
+    // Async loader pipeline — only triggers when `asyncOptions` is set and
+    // the query satisfies `minChars`. `switchMap` cancels in-flight requests
+    // when a new keystroke arrives, so stale responses can't clobber fresh
+    // ones.
+    toObservable(this.text)
+      .pipe(
+        debounceTime(this.debounceMs()),
+        switchMap(query => {
+          const loader = this.asyncOptions();
+          if (!loader || query.length < this.minChars()) {
+            this.loading.set(false);
+            return of<readonly T[]>([]);
+          }
+          this.loading.set(true);
+          const result = loader(query);
+          const source: Observable<readonly T[]> = isObservable(result) ? result : from(Promise.resolve(result));
+          return source.pipe(finalize(() => this.loading.set(false)));
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(items => {
+        this.asyncResults.set(items);
+        this.activeIndex.set(items.length > 0 ? 0 : -1);
+      });
   }
 
   // ──────── ControlValueAccessor ────────
