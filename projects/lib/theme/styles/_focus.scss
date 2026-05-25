@@ -1,0 +1,95 @@
+// Baseline `:focus-visible` ring applied to interactive controls across the
+// library. Component-specific focus styles still win via higher specificity;
+// this is a safety net so every keyboard-reachable target has a visible
+// focus indicator out of the box.
+
+@mixin focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.25);
+}
+
+// Tabs
+.wr-tabs__tab:focus-visible {
+  @include focus-ring;
+}
+
+// Sidebar
+.wr-sidebar__entry:focus-visible,
+.wr-sidebar__item:focus-visible,
+.wr-sidebar__group-toggle:focus-visible {
+  @include focus-ring;
+}
+
+// Anchor / breadcrumbs
+.wr-anchor__link:focus-visible,
+.wr-breadcrumb-item:focus-visible {
+  @include focus-ring;
+}
+
+// Collapse / accordion header
+.wr-collapse__header:focus-visible {
+  @include focus-ring;
+}
+
+// Command palette options
+.wr-command-palette__option:focus-visible,
+.wr-command-palette__panel input:focus-visible {
+  @include focus-ring;
+}
+
+// Mention / autocomplete option rows
+.wr-autocomplete__option:focus-visible,
+.wr-mention__option:focus-visible {
+  @include focus-ring;
+}
+
+// Segmented buttons
+.wr-segmented__option:focus-visible {
+  @include focus-ring;
+}
+
+// Back-to-top
+.wr-back-top:focus-visible {
+  @include focus-ring;
+}
+
+// Carousel nav + dots
+.wr-carousel__nav:focus-visible,
+.wr-carousel__dot:focus-visible {
+  @include focus-ring;
+}
+
+// Speed dial
+.wr-speed-dial__trigger:focus-visible,
+.wr-speed-dial__action:focus-visible {
+  @include focus-ring;
+}
+
+// Stepper step headers
+.wr-stepper__step:focus-visible {
+  @include focus-ring;
+}
+
+// Toast close/copy
+.wr-toast__close:focus-visible,
+.wr-toast__copy:focus-visible {
+  @include focus-ring;
+}
+
+// Window chrome
+.wr-window__chrome-action:focus-visible {
+  @include focus-ring;
+}
+
+// Date / time picker chrome buttons
+.wr-date-picker__trigger:focus-visible,
+.wr-time-picker__step:focus-visible {
+  @include focus-ring;
+}
+
+// Pagination ellipsis is non-interactive; page buttons inherit wr-btn focus.
+
+// Dropdown menu items
+.wr-dropdown-item:focus-visible {
+  @include focus-ring;
+}
