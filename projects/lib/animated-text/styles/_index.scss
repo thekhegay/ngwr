@@ -1,0 +1,26 @@
+@use '../../theme/styles' as theme;
+
+.wr-animated-text {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+
+  &--typewriter::after {
+    content: '|';
+    display: inline-block;
+    margin-left: 2px;
+    color: var(--wr-color-primary);
+    animation: wr-animated-text-blink 0.9s steps(1) infinite;
+  }
+}
+
+@keyframes wr-animated-text-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wr-animated-text--typewriter::after {
+    animation: none;
+  }
+}

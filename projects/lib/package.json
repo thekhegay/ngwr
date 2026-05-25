@@ -59,6 +59,10 @@
     "./anchor": {
       "sass": "./anchor/styles/_index.scss"
     },
+    "./animated-text": {
+      "sass": "./animated-text/styles/_index.scss"
+    },
+    "./count-up": {},
     "./autocomplete": {
       "sass": "./autocomplete/styles/_index.scss"
     },
