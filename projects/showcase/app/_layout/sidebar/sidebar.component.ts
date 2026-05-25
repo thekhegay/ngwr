@@ -86,6 +86,7 @@ export class SidebarComponent {
         { title: 'QR', url: ['/docs', 'components', 'qrcode'] },
         { title: 'Skeleton', url: ['/docs', 'components', 'skeleton'] },
         { title: 'Spinner', url: ['/docs', 'components', 'spinner'] },
+        { title: 'Stepper', url: ['/docs', 'components', 'stepper'] },
         { title: 'Tag', url: ['/docs', 'components', 'tag'] },
       ],
     },

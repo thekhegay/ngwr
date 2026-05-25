@@ -151,6 +151,10 @@ export default [
     loadComponent: () => import('./spinner/spinner.component'),
   },
   {
+    path: components.stepper,
+    loadComponent: () => import('./stepper/stepper.component'),
+  },
+  {
     path: components.switch,
     loadComponent: () => import('./switch/switch.component'),
   },

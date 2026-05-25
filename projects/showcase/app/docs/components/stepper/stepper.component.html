@@ -1,0 +1,72 @@
+<ngwr-doc-page
+  title="Stepper"
+  description="Multi-step wizard. Numbered headers with completed / active / pending states, content body for the active step. Two-way bind `[(active)]` to the step index."
+  [keywords]="['stepper', 'wizard', 'wr-stepper']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic" description="Click any header to jump to that step.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-stepper [(active)]="basic">
+        <wr-step label="Account">
+          <p>Tell us about your account.</p>
+        </wr-step>
+        <wr-step label="Profile" description="Optional">
+          <p>Fill in your profile details.</p>
+        </wr-step>
+        <wr-step label="Confirm">
+          <p>Review and submit.</p>
+        </wr-step>
+      </wr-stepper>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Linear"
+    description="Headers past the latest completed step are locked. Use `next()` / `prev()` to navigate."
+  >
+    <ngwr-doc-code [code]="snippets.linear" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-stepper #linearStepper [(active)]="linear" linear>
+        <wr-step label="One" [completed]="linear() > 0">
+          <p>Step one — click Next to advance.</p>
+        </wr-step>
+        <wr-step label="Two" [completed]="linear() > 1">
+          <p>Step two.</p>
+        </wr-step>
+        <wr-step label="Three">
+          <p>Final step.</p>
+        </wr-step>
+      </wr-stepper>
+      <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem">
+        <button type="button" (click)="linearPrev()">Prev</button>
+        <button type="button" (click)="linearNext()">Next</button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Vertical">
+    <ngwr-doc-code [code]="snippets.vertical" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-stepper [(active)]="vertical" orientation="vertical">
+        <wr-step label="Pick a plan">
+          <p>Choose monthly or yearly.</p>
+        </wr-step>
+        <wr-step label="Billing">
+          <p>Enter payment details.</p>
+        </wr-step>
+        <wr-step label="Done">
+          <p>All set.</p>
+        </wr-step>
+      </wr-stepper>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

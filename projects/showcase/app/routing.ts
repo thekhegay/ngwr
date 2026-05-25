@@ -43,6 +43,7 @@ export const routes = {
       skeleton: 'skeleton',
       slider: 'slider',
       spinner: 'spinner',
+      stepper: 'stepper',
       switch: 'switch',
       tag: 'tag',
       tabs: 'tabs',
