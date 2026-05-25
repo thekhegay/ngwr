@@ -76,6 +76,7 @@ export const routes = {
       switch: 'switch',
       tag: 'tag',
       tabs: 'tabs',
+      typography: 'typography',
       textarea: 'textarea',
       timePicker: 'time-picker',
       toast: 'toast',

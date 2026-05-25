@@ -47,6 +47,9 @@
       "sass": "./styles/_reset.scss"
     },
     "./typography": {
+      "sass": "./typography/styles/_index.scss"
+    },
+    "./typography-utilities": {
       "sass": "./styles/_typography.scss"
     },
     "./animations": {

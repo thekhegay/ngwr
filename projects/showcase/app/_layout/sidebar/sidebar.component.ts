@@ -99,6 +99,7 @@ export class SidebarComponent {
         { title: 'Statistic', url: ['/docs', 'components', 'statistic'] },
         { title: 'Stepper', url: ['/docs', 'components', 'stepper'] },
         { title: 'Tag', url: ['/docs', 'components', 'tag'] },
+        { title: 'Typography', url: ['/docs', 'components', 'typography'] },
         { title: 'Timeline', url: ['/docs', 'components', 'timeline'] },
       ],
     },

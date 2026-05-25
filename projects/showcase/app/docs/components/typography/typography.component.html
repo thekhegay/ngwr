@@ -1,0 +1,57 @@
+<ngwr-doc-page
+  title="Typography"
+  description="Semantic + display variants reading from the `--wr-text-*` / `--wr-font-weight-*` tokens. Themeable by overriding tokens at `:root`."
+  [keywords]="['typography', 'heading', 'text', 'wr-typography']"
+  [labels]="['Display']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Variants">
+    <ngwr-doc-code [code]="snippets.variants" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem">
+        <wr-typography variant="display">Display</wr-typography>
+        <wr-typography variant="h1">Heading 1</wr-typography>
+        <wr-typography variant="h2">Heading 2</wr-typography>
+        <wr-typography variant="h3">Heading 3</wr-typography>
+        <wr-typography variant="lead">Lead paragraph — a calmer subhead.</wr-typography>
+        <wr-typography>Body copy in the default variant.</wr-typography>
+        <wr-typography variant="small">Small print.</wr-typography>
+        <wr-typography variant="caption">Captions and helper text.</wr-typography>
+        <wr-typography variant="overline">Section label</wr-typography>
+        <wr-typography variant="code">code()</wr-typography>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tones">
+    <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.25rem">
+        <wr-typography tone="primary">Primary</wr-typography>
+        <wr-typography tone="success">Success</wr-typography>
+        <wr-typography tone="warning">Warning</wr-typography>
+        <wr-typography tone="danger">Danger</wr-typography>
+        <wr-typography tone="medium">Muted</wr-typography>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Alignment + truncation">
+    <ngwr-doc-code [code]="snippets.modifiers" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-typography align="center">Centered</wr-typography>
+        <wr-typography truncate style="max-width: 16rem; display: inline-block">
+          A long line that gets ellipsized when it overflows the container.
+        </wr-typography>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

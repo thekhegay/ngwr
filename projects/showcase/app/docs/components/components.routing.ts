@@ -259,6 +259,10 @@ export default [
     loadComponent: () => import('./tag/tag.component'),
   },
   {
+    path: components.typography,
+    loadComponent: () => import('./typography/typography.component'),
+  },
+  {
     path: components.textarea,
     loadComponent: () => import('./textarea/textarea.component'),
   },
