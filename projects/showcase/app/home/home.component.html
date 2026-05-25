@@ -1,114 +1,238 @@
 <main class="ngwr-home">
-  <div class="container">
-    <div class="grid">
-      <div class="col-12 col-md-5">
-        <div class="ngwr-home-hero">
-          <h1 class="ngwr-home-hero__title">
-            The best way to make stylish <wr-icon name="logo-angular" />Angular applications
-          </h1>
-          <p class="ngwr-home-hero__description">
-            NGWR offers a suite of open-source components for building modern Angular applications. Standalone,
-            signals-first, and easy to dress up with your own design tokens.
-          </p>
-          <a
-            class="ngwr-home-hero__btn"
-            wr-btn
-            color="primary"
-            [routerLink]="routes.docs.index"
-            icon="arrow-forward"
-            iconPosition="end"
+  <!-- ───── Hero ───── -->
+  <section class="ngwr-hero">
+    <div class="ngwr-hero__grid" aria-hidden="true"></div>
+    <div class="ngwr-hero__glow" aria-hidden="true"></div>
+
+    <div class="container ngwr-hero__inner">
+      <div class="ngwr-hero__chip">
+        <span class="ngwr-hero__chip-dot"></span>
+        <span>v1.6.0 is live</span>
+        <span class="ngwr-hero__chip-sep">|</span>
+        <span class="ngwr-hero__chip-muted">+ 80 components</span>
+      </div>
+
+      <wr-typography variant="display" align="center" class="ngwr-hero__title">
+        Build interfaces<br />
+        that feel <span class="ngwr-hero__title-accent">alive.</span>
+      </wr-typography>
+
+      <wr-typography variant="lead" align="center" class="ngwr-hero__lead">
+        Open-source Angular 21 components — standalone, signals-first, themed via CSS variables.<br />
+        Drop them in. Re-skin them. Ship faster.
+      </wr-typography>
+
+      <div class="ngwr-hero__cta">
+        <a wr-btn color="primary" size="lg" [routerLink]="routes.docs.index">Browse components</a>
+
+        <div class="ngwr-hero__install">
+          <span class="ngwr-hero__install-prompt">&gt;_</span>
+          <code class="ngwr-hero__install-cmd">{{ installCmd }}</code>
+          <button
+            type="button"
+            class="ngwr-hero__install-copy"
+            [wrCopyToClipboard]="installCmd"
+            (copied)="onCopied()"
+            aria-label="Copy install command"
           >
-            Get started
-          </a>
+            COPY
+          </button>
         </div>
       </div>
 
-      <div class="col-12 col-md-7">
-        <div class="ngwr-home-showcase">
-          <div class="grid">
-            <div class="col-12 col-md-8 ngwr-home-showcase__column">
-              <div class="ngwr-home-showcase-card">
-                <div class="ngwr-home-showcase-card-date">
-                  <wr-icon class="ngwr-home-showcase-card-date__icon" name="time" />
-                  <span class="ngwr-home-showcase-card-date__date">{{ currentDate | date: 'longDate' }}</span>
-                </div>
+      <ul class="ngwr-hero__attrs" aria-label="Project attributes">
+        <li>Open source</li>
+        <li>MIT Licensed</li>
+        <li>TypeScript ready</li>
+        <li>Angular 21+</li>
+      </ul>
+    </div>
+  </section>
 
-                <wr-qr color="#fff" bgColor="transparent" [padding]="0" [size]="75" value="https://ngwr.dev" />
+  <!-- ───── Components grid ───── -->
+  <section class="ngwr-section">
+    <div class="container">
+      <div class="ngwr-section__head">
+        <wr-typography variant="overline" tone="primary">/ Components</wr-typography>
+        <wr-typography variant="h1">
+          Built from primitives<br />
+          polished like products.
+        </wr-typography>
+        <wr-typography variant="lead">
+          Every component is accessible, themeable, and obsessively crafted. Hover anything below — it reacts.
+        </wr-typography>
+      </div>
 
-                <wr-progress color="primary" [value]="60" />
+      <div class="ngwr-grid ngwr-grid--components">
+        <!-- Button tile -->
+        <article class="ngwr-tile ngwr-tile--wide">
+          <header class="ngwr-tile__label">Button</header>
+          <div class="ngwr-tile__body ngwr-tile__row">
+            <wr-btn color="primary">Primary</wr-btn>
+            <wr-btn>Secondary</wr-btn>
+            <wr-btn color="primary" outlined>Outline</wr-btn>
+            <wr-btn ghost>Ghost</wr-btn>
+            <wr-btn color="danger" outlined>Danger</wr-btn>
+          </div>
+          <footer class="ngwr-tile__foot">5 variants / 4 sizes</footer>
+        </article>
 
-                <h4 class="ngwr-home-showcase-card__title">
-                  Easy-to-customize components for your business applications
-                </h4>
-
-                <div class="ngwr-home-showcase-card-quote">
-                  <wr-avatar
-                    class="ngwr-home-showcase-card-quote__avatar"
-                    rounded
-                    url="images/image_1.webp"
-                    size="2.5rem"
-                    alt="NGWR avatar example"
-                  />
-                  <div class="ngwr-home-showcase-card-quote-author">
-                    <span class="ngwr-home-showcase-card-quote-author__title">Emelia Ferguson</span>
-                    <span class="ngwr-home-showcase-card-quote-author__subtitle">NGWR Team</span>
-                  </div>
-                </div>
-              </div>
-
-              <wr-alert type="info" title="Bring your own design system" closeable />
-
-              <div class="ngwr-home-showcase__panel ngwr-home-showcase__icons">
-                @for (icon of icons; track icon.name) {
-                  <div class="ngwr-home-showcase-icon">
-                    <wr-icon class="ngwr-home-showcase-icon__icon" [name]="icon.name" />
-                  </div>
-                }
-              </div>
+        <!-- Switch tile -->
+        <article class="ngwr-tile">
+          <header class="ngwr-tile__label">Switch</header>
+          <div class="ngwr-tile__body ngwr-tile__row ngwr-tile__row--apart">
+            <div>
+              <wr-typography variant="h5">Neon mode</wr-typography>
+              <wr-typography variant="caption">Brighter accents, louder glow</wr-typography>
             </div>
+            <wr-switch [(ngModel)]="neonMode" />
+          </div>
+          <footer class="ngwr-tile__foot">
+            <span class="ngwr-dot" [class.ngwr-dot--on]="neonMode()"></span>
+            {{ neonMode() ? 'Active' : 'Off' }}
+          </footer>
+        </article>
 
-            <div class="col-12 col-md-4 ngwr-home-showcase__column">
-              <div class="ngwr-home-showcase__panel ngwr-home-showcase__tags">
-                <wr-tag color="danger" outlined>Angular</wr-tag>
-                <wr-tag color="primary" outlined>TypeScript</wr-tag>
-                <wr-tag color="secondary" outlined>SCSS</wr-tag>
+        <!-- Badge tile -->
+        <article class="ngwr-tile">
+          <header class="ngwr-tile__label">Badge</header>
+          <div class="ngwr-tile__body ngwr-tile__row">
+            @for (tag of demoTags; track tag) {
+              <wr-tag outlined>{{ tag }}</wr-tag>
+            }
+          </div>
+          <wr-input-group class="ngwr-tile__input">
+            <input wrInput placeholder="your@email.dev" />
+          </wr-input-group>
+        </article>
+
+        <!-- Progress tile -->
+        <article class="ngwr-tile">
+          <header class="ngwr-tile__label">Progress</header>
+          <div class="ngwr-tile__body ngwr-tile__col">
+            <div class="ngwr-meter">
+              <div class="ngwr-meter__row">
+                <span>Build</span><span>{{ buildPct() }}%</span>
               </div>
-
-              <div class="ngwr-home-showcase__panel ngwr-home-showcase__skeleton">
-                <div class="ngwr-home-showcase__skeleton-row">
-                  <wr-skeleton class="ngwr-home-showcase__skeleton-avatar" />
-                  <div class="ngwr-home-showcase__skeleton-lines">
-                    <wr-skeleton class="ngwr-home-showcase__skeleton-line ngwr-home-showcase__skeleton-line--sm" />
-                    <wr-skeleton class="ngwr-home-showcase__skeleton-line" />
-                  </div>
-                </div>
-                <wr-skeleton class="ngwr-home-showcase__skeleton-line" />
-                <wr-skeleton class="ngwr-home-showcase__skeleton-line" />
-                <wr-skeleton class="ngwr-home-showcase__skeleton-line ngwr-home-showcase__skeleton-line--md" />
+              <wr-progress color="primary" [value]="buildPct()" />
+            </div>
+            <div class="ngwr-meter">
+              <div class="ngwr-meter__row">
+                <span>Coverage</span><span>{{ coveragePct() }}%</span>
               </div>
-
-              <div class="ngwr-home-showcase__panel ngwr-home-showcase__buttons">
-                <wr-btn color="primary" block>Easy to start</wr-btn>
-                <wr-btn color="secondary" outlined block icon="discover">Easy to customize</wr-btn>
-                <wr-btn color="success" outlined loading block>Button with long title</wr-btn>
-              </div>
-
-              <wr-input-group>
-                <span wrInputPrefix>Also</span>
-                <input wrInput placeholder="Awesome inputs" />
-              </wr-input-group>
-              <input wrInput placeholder="Fully customized" />
-              <wr-input-group>
-                <input wrInput type="password" placeholder="Super strong password" #homePw />
-                <wr-password-toggle [for]="homePw" />
-              </wr-input-group>
-
-              <wr-btn color="primary" icon="arrow-forward" iconPosition="end">Start</wr-btn>
-              <wr-btn color="danger" icon="alert-circle-outline" iconPosition="end" outlined>Forms included</wr-btn>
+              <wr-progress color="success" [value]="coveragePct()" />
+            </div>
+            <div class="ngwr-meter">
+              <div class="ngwr-meter__row"><span>Bundle</span><span>32.4kb</span></div>
+              <wr-progress color="warning" [value]="42" />
             </div>
           </div>
-        </div>
+        </article>
+
+        <!-- Toast tile -->
+        <article class="ngwr-tile ngwr-tile--toast">
+          <header class="ngwr-tile__label">Toast</header>
+          <div class="ngwr-tile__body">
+            <div class="ngwr-toast-preview">
+              <span class="ngwr-toast-preview__icon">✓</span>
+              <div class="ngwr-toast-preview__body">
+                <strong>Deployed to production</strong>
+                <small>ngwr.preview.vercel.app</small>
+              </div>
+              <wr-btn ghost size="sm" (click)="demoToast()">Try</wr-btn>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- ───── Zero config / TypeScript native ───── -->
+  <section class="ngwr-section ngwr-section--dx">
+    <div class="container ngwr-dx">
+      <div class="ngwr-dx__copy">
+        <wr-typography variant="overline" tone="primary">/ Developer experience</wr-typography>
+        <wr-typography variant="h1">
+          Zero config.<br />
+          TypeScript native.
+        </wr-typography>
+        <wr-typography variant="lead">
+          Import what you need. Tree-shake the rest. ngwr ships as standalone Angular components styled with CSS
+          variables and fully typed, zero-runtime primitives.
+        </wr-typography>
+
+        <ul class="ngwr-checks">
+          <li><span aria-hidden="true">✓</span> Framework-agnostic: works with SSR, Vite, and zoneless Angular</li>
+          <li><span aria-hidden="true">✓</span> 100% ownership — fork any component, the source is yours</li>
+          <li><span aria-hidden="true">✓</span> CSS variables for effortless theming</li>
+          <li><span aria-hidden="true">✓</span> A11y-first — tested against ARIA + VoiceOver</li>
+        </ul>
+      </div>
+
+      <div class="ngwr-codecard">
+        <div class="ngwr-codecard__chrome">
+          <span class="ngwr-codecard__dot ngwr-codecard__dot--r"></span>
+          <span class="ngwr-codecard__dot ngwr-codecard__dot--y"></span>
+          <span class="ngwr-codecard__dot ngwr-codecard__dot--g"></span>
+          <span class="ngwr-codecard__file">signup-card.ts</span>
+          <button
+            type="button"
+            class="ngwr-codecard__copy"
+            [wrCopyToClipboard]="snippet"
+            (copied)="onCopied()"
+            aria-label="Copy snippet"
+          >
+            Copy
+          </button>
+        </div>
+        <pre class="ngwr-codecard__code"><code>{{ snippet }}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Why ngwr ───── -->
+  <section class="ngwr-section">
+    <div class="container">
+      <div class="ngwr-section__head ngwr-section__head--why">
+        <div>
+          <wr-typography variant="overline" tone="primary">/ Why ngwr</wr-typography>
+          <wr-typography variant="h1">
+            Everything you'd build.<br />
+            None of the boilerplate.
+          </wr-typography>
+        </div>
+        <wr-typography variant="lead" class="ngwr-section__head-aside">
+          Obsessively crafted primitives so you can focus on what actually makes your product memorable.
+        </wr-typography>
+      </div>
+
+      <div class="ngwr-grid ngwr-grid--why">
+        @for (tile of whyTiles; track tile.title) {
+          <article class="ngwr-why">
+            <div class="ngwr-why__icon" [attr.data-accent]="tile.accent">
+              <wr-icon [name]="$any(tile.icon)" size="20" />
+            </div>
+            <wr-typography variant="h5">{{ tile.title }}</wr-typography>
+            <wr-typography variant="small" tone="medium">{{ tile.description }}</wr-typography>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Footer CTA ───── -->
+  <section class="ngwr-section ngwr-section--cta">
+    <div class="container ngwr-cta">
+      <wr-typography variant="h2" align="center">Ship interfaces your users remember.</wr-typography>
+      <wr-typography variant="lead" align="center">
+        Press <wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd> to search components, or jump straight in.
+      </wr-typography>
+      <div class="ngwr-cta__buttons">
+        <a wr-btn color="primary" size="lg" [routerLink]="routes.docs.index">Get started</a>
+        <a wr-btn outlined size="lg" href="https://github.com/thekhegay/ngwr" target="_blank" rel="noreferrer">
+          Star on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
 </main>
