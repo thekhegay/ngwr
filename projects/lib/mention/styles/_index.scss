@@ -1,0 +1,47 @@
+@use '../../theme/styles' as theme;
+
+.wr-mention-overlay {
+  pointer-events: auto;
+}
+
+.wr-mention-panel {
+  display: block;
+  min-width: 12rem;
+  max-width: 20rem;
+  background: var(--wr-color-white);
+  border: 1px solid var(--wr-color-light);
+  border-radius: var(--wr-border-radius-base);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.875rem;
+  color: var(--wr-color-dark);
+  overflow: hidden;
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+    max-height: 14rem;
+    overflow-y: auto;
+  }
+
+  &__option {
+    padding: 0.4375rem 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1.25rem;
+    transition: background var(--wr-transition-base);
+
+    &--active,
+    &:hover {
+      background: rgba(var(--wr-color-primary-rgb), 0.08);
+    }
+  }
+
+  &__empty {
+    padding: 0.5rem 0.75rem;
+    color: var(--wr-color-medium);
+    font-size: 0.875rem;
+    user-select: none;
+  }
+}

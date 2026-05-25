@@ -116,6 +116,9 @@
       "sass": "./input-otp/styles/_index.scss"
     },
     "./media": {},
+    "./mention": {
+      "sass": "./mention/styles/_index.scss"
+    },
     "./meta": {},
     "./overlay": {},
     "./pagination": {
