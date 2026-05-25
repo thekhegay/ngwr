@@ -4,6 +4,7 @@ import { WrHotkeyService } from 'ngwr/hotkey';
 import { WrMediaService } from 'ngwr/media';
 import { WrMetaService } from 'ngwr/meta';
 import { WrPlatformService } from 'ngwr/platform';
+import { WrScrollService } from 'ngwr/scroll';
 import { WrThemeService } from 'ngwr/theme';
 
 import {
@@ -28,6 +29,11 @@ export default class ServicesPageComponent {
   protected readonly themeService = inject(WrThemeService);
   private readonly hotkeys = inject(WrHotkeyService);
   protected readonly lastHotkey = signal<string>('');
+  private readonly scroll = inject(WrScrollService);
+
+  protected scrollToTop(): void {
+    this.scroll.toTop({ offset: 80 });
+  }
 
   // Live demo signals — read from the service singletons.
   protected readonly currentBreakpoint = this.mediaService.current;
@@ -133,6 +139,12 @@ ngOnInit() {
 
 // Or use the directive form:
 // <button [wrHotkey]="'mod+k'" (wrHotkeyMatch)="openPalette()">…</button>`,
+
+    scrollUsage: `private readonly scroll = inject(WrScrollService);
+
+this.scroll.to('#section-three', { offset: 80 });
+this.scroll.toTop({ smooth: false });
+this.scroll.intoView(myEl, { offset: 64 });`,
   };
 
   protected readonly metaApi: readonly DocApiRow[] = [
@@ -214,6 +226,45 @@ ngOnInit() {
       description: 'Signal mirroring `(prefers-reduced-motion: reduce)`.',
       type: 'Signal<boolean>',
       default: '—',
+    },
+  ];
+
+  protected readonly scrollApi: readonly DocApiRow[] = [
+    {
+      name: 'to(target, options?)',
+      description: 'Scroll to an element, id (`#foo`), CSS selector, or `{ top, left }` coords.',
+      type: '(t, opts?) => void',
+      default: '—',
+    },
+    {
+      name: 'intoView(el, options?)',
+      description: 'Convenience for an Element — same options as `to`.',
+      type: '(el, opts?) => void',
+      default: '—',
+    },
+    {
+      name: 'toTop(options?)',
+      description: 'Scroll the page (or container) to the top.',
+      type: '(opts?) => void',
+      default: '—',
+    },
+    {
+      name: 'options.offset',
+      description: 'Pixel offset subtracted from the target (sticky-header compensation).',
+      type: 'number',
+      default: '0',
+    },
+    {
+      name: 'options.smooth',
+      description: 'Smooth or instant. Auto-falls-back to instant when `prefers-reduced-motion: reduce`.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'options.container',
+      description: 'Override the scroll container. Defaults to `window`.',
+      type: 'Window | Element',
+      default: 'window',
     },
   ];
 

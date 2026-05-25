@@ -3,6 +3,8 @@
 
 // Opt-in utilities the showcase relies on.
 @use '../lib/styles/grid';
+@use '../lib/styles/animations';
+@use '../lib/styles/typography';
 
 // Showcase-only fonts: declares `@font-face` blocks and overrides
 // `--wr-font-family-*` to Inter.

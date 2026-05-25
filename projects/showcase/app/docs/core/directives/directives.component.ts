@@ -1,7 +1,12 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrAutosizeDirective, WrClickOutsideDirective, WrCopyToClipboardDirective } from 'ngwr/directives';
+import {
+  WrAutosizeDirective,
+  WrClickOutsideDirective,
+  WrCopyToClipboardDirective,
+  WrRevealDirective,
+} from 'ngwr/directives';
 
 import {
   DocApiComponent,
@@ -21,6 +26,7 @@ import {
     WrAutosizeDirective,
     WrClickOutsideDirective,
     WrCopyToClipboardDirective,
+    WrRevealDirective,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -57,6 +63,11 @@ export default class DirectivesPageComponent {
     clickOutside: `<div class="popup" (wrClickOutside)="close()"> … </div>`,
 
     clipboard: `<button [wrCopyToClipboard]="value" (copied)="toast('Copied!')">Copy</button>`,
+
+    reveal: `<!-- Add 'ngwr/animations' for the .wr-reveal enter styles. -->
+<h2 wrReveal>Animates in once visible</h2>
+<div wrReveal threshold="0.5" rootMargin="-100px 0px">…</div>
+<p wrReveal [once]="false">Re-runs on every entry</p>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -82,6 +93,12 @@ export default class DirectivesPageComponent {
       name: '[wrCopyToClipboard]',
       description: 'Copies the bound string on host click. `(copied)` / `(copyFailed)` outputs.',
       type: 'string',
+      default: '—',
+    },
+    {
+      name: '[wrReveal]',
+      description: 'Adds `.wr-reveal--visible` once the host enters the viewport. Pair with `ngwr/animations` styles.',
+      type: 'directive',
       default: '—',
     },
   ];
