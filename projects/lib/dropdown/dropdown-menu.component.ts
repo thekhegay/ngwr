@@ -5,7 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, signal, viewChild } from '@angular/core';
+
+let uid = 0;
 
 /**
  * Holds the menu content rendered when a {@link WrDropdownDirective} opens.
@@ -26,7 +28,8 @@ import { ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, vie
  */
 @Component({
   selector: 'wr-dropdown-menu',
-  template: '<ng-template><div class="wr-dropdown-menu"><ng-content /></div></ng-template>',
+  template:
+    '<ng-template><div class="wr-dropdown-menu" role="menu" [attr.id]="menuId()" [attr.aria-labelledby]="triggerId() || null"><ng-content /></div></ng-template>',
   exportAs: 'wrDropdownMenu',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
@@ -35,4 +38,10 @@ import { ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, vie
 export class WrDropdownMenuComponent {
   /** The internal template the directive portals into the overlay. @internal */
   readonly contentTpl = viewChild.required(TemplateRef);
+
+  /** Stable id used on the menu element and referenced from the trigger's `aria-controls`. */
+  readonly menuId = signal(`wr-dropdown-menu-${++uid}`);
+
+  /** Trigger element id, set by the directive for `aria-labelledby` wiring. */
+  readonly triggerId = signal<string | null>(null);
 }

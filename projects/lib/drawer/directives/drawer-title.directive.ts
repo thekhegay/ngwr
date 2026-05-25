@@ -7,10 +7,13 @@
 
 import { Directive } from '@angular/core';
 
+let uid = 0;
+
 /**
  * Marks an element as the drawer's title row. Applies the `wr-drawer__title`
  * class so the drawer's stylesheet can lay it out alongside content and
- * footer slots.
+ * footer slots. Auto-assigns an `id` so the drawer panel references it via
+ * `aria-labelledby`.
  *
  * @example
  * ```html
@@ -22,6 +25,9 @@ import { Directive } from '@angular/core';
  */
 @Directive({
   selector: '[wrDrawerTitle]',
-  host: { class: 'wr-drawer__title' },
+  host: { class: 'wr-drawer__title', '[attr.id]': 'id' },
 })
-export class WrDrawerTitleDirective {}
+export class WrDrawerTitleDirective {
+  /** Generated id used by the drawer panel for `aria-labelledby`. */
+  readonly id = `wr-drawer-title-${++uid}`;
+}

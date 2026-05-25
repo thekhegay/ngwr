@@ -26,6 +26,7 @@ import { WrWindowManager } from './window-manager.service';
 type Edges = { readonly t?: boolean; readonly r?: boolean; readonly b?: boolean; readonly l?: boolean };
 
 const MIN_ON_VIEWPORT = 24; // keep at least this many px of the window inside the viewport
+let titleUid = 0;
 
 function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
@@ -69,6 +70,7 @@ function viewportHeight(): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
+    role: 'dialog',
     '[class]': 'classes()',
     '[style.left.px]': 'x()',
     '[style.top.px]': 'y()',
@@ -76,6 +78,7 @@ function viewportHeight(): number {
     '[style.height.px]': 'height()',
     '[style.z-index]': 'z()',
     '[attr.aria-hidden]': '!open()',
+    '[attr.aria-labelledby]': 'titleId',
     '(pointerdown)': 'focusWindow()',
   },
 })
@@ -88,6 +91,9 @@ export class WrWindowComponent {
 
   /** Header title. */
   readonly title = input<string>('');
+
+  /** Auto-generated id for the title element, referenced by `aria-labelledby`. */
+  protected readonly titleId = `wr-window-title-${++titleUid}`;
 
   /** Initial position. `null` = auto-cascade from the manager. */
   readonly initialX = input<number | null>(null, {

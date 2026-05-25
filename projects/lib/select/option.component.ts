@@ -9,14 +9,18 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   ViewEncapsulation,
   computed,
+  effect,
   inject,
   input,
 } from '@angular/core';
 
 import { WR_SELECT } from './tokens';
+
+let uid = 0;
 
 /**
  * Single option inside a `<wr-select>`.
@@ -37,6 +41,7 @@ import { WR_SELECT } from './tokens';
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'option',
+    '[attr.id]': 'id',
     '[class]': 'classes()',
     '[attr.aria-selected]': 'selected()',
     '[attr.aria-disabled]': 'disabled() ? true : null',
@@ -50,18 +55,37 @@ export class WrOptionComponent {
   /** Disable this option. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /** Stable id used for `aria-activedescendant`. */
+  readonly id = `wr-option-${++uid}`;
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly parent = inject(WR_SELECT, { optional: true });
 
   /** @internal — true when this option matches the parent's current value. */
   protected readonly selected = computed(() => this.parent?.value() === this.value());
 
+  /** @internal — true when this option is the keyboard cursor target. */
+  protected readonly active = computed(() => this.parent?.activeOptionId() === this.id);
+
   protected readonly classes = computed(() => {
     const parts = ['wr-option'];
     if (this.selected()) parts.push('wr-option--selected');
+    if (this.active()) parts.push('wr-option--active');
     if (this.disabled()) parts.push('wr-option--disabled');
     return parts.join(' ');
   });
+
+  constructor() {
+    if (this.parent) {
+      const parent = this.parent;
+      // Re-register when disabled or value changes so the parent has fresh metadata.
+      effect(onCleanup => {
+        const unreg = parent.registerOption({ id: this.id, value: this.value(), disabled: this.disabled() });
+        onCleanup(() => unreg());
+      });
+      inject(DestroyRef);
+    }
+  }
 
   protected onClick(): void {
     if (this.disabled() || !this.parent) return;

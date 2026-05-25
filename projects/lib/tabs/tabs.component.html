@@ -1,13 +1,16 @@
-<div class="wr-tabs__strip" role="tablist">
+<!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+<div #strip class="wr-tabs__strip" role="tablist" aria-orientation="horizontal" (keydown)="onStripKeydown($event)">
   @for (tab of tabs(); track tab.key()) {
     @if (tab.routerLink(); as link) {
       <a
         class="wr-tabs__tab"
         role="tab"
         routerLinkActive="wr-tabs__tab--active"
+        [attr.id]="headerId(tab.key())"
         [routerLink]="link"
         [class.wr-tabs__tab--disabled]="tab.disabled()"
         [attr.aria-disabled]="tab.disabled() ? true : null"
+        [attr.tabindex]="tab.disabled() ? -1 : 0"
       >
         {{ tab.title() }}
       </a>
@@ -16,6 +19,9 @@
         type="button"
         class="wr-tabs__tab"
         role="tab"
+        [attr.id]="headerId(tab.key())"
+        [attr.aria-controls]="panelId(tab.key())"
+        [attr.tabindex]="tab === activeTab() ? 0 : -1"
         [class.wr-tabs__tab--active]="tab === activeTab()"
         [class.wr-tabs__tab--disabled]="tab.disabled()"
         [attr.aria-selected]="tab === activeTab()"
@@ -29,7 +35,13 @@
 </div>
 
 @if (!isRouter() && activeTab(); as tab) {
-  <div class="wr-tabs__panel" role="tabpanel">
+  <div
+    class="wr-tabs__panel"
+    role="tabpanel"
+    tabindex="0"
+    [attr.id]="panelId(tab.key())"
+    [attr.aria-labelledby]="headerId(tab.key())"
+  >
     <ng-container [ngTemplateOutlet]="tab.contentTpl()" />
   </div>
 }

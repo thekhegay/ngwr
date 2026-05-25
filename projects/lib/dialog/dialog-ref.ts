@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { ConfigurableFocusTrap } from '@angular/cdk/a11y';
 import type { OverlayRef } from '@angular/cdk/overlay';
 import type { ComponentRef } from '@angular/core';
 
@@ -28,6 +29,12 @@ export class WrDialogRef<C, R = unknown> {
   /** @internal */
   componentRef: ComponentRef<C> | null = null;
 
+  /** @internal */
+  focusTrap: ConfigurableFocusTrap | null = null;
+
+  /** @internal */
+  previouslyFocused: HTMLElement | null = null;
+
   constructor(private readonly _overlayRef: OverlayRef) {}
 
   /** The instantiated dialog component. */
@@ -42,7 +49,15 @@ export class WrDialogRef<C, R = unknown> {
   close(result?: R): void {
     this.closed.next(result);
     this.closed.complete();
+    this.focusTrap?.destroy();
+    this.focusTrap = null;
+    const restore = this.previouslyFocused;
+    this.previouslyFocused = null;
     this._overlayRef.dispose();
+    // Restore focus after disposal so the trigger is reachable again.
+    if (restore && typeof restore.focus === 'function') {
+      restore.focus();
+    }
   }
 
   /** Resolves with the close result when the dialog is dismissed. */

@@ -5,13 +5,16 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  PLATFORM_ID,
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
@@ -86,8 +89,12 @@ export class WrDrawerComponent {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private overlayRef: OverlayRef | null = null;
+  private focusTrap: ConfigurableFocusTrap | null = null;
+  private previouslyFocused: HTMLElement | null = null;
 
   constructor() {
     effect(() => {
@@ -128,6 +135,20 @@ export class WrDrawerComponent {
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
+    if (this.isBrowser) {
+      const active = document.activeElement;
+      this.previouslyFocused = active instanceof HTMLElement ? active : null;
+      const host = this.overlayRef.overlayElement;
+      host.setAttribute('role', 'dialog');
+      host.setAttribute('aria-modal', 'true');
+      queueMicrotask(() => {
+        const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
+        if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
+      });
+      this.focusTrap = this.focusTrapFactory.create(host);
+      void this.focusTrap.focusInitialElementWhenReady();
+    }
+
     if (this.closeOnBackdropClick()) {
       this.overlayRef
         .backdropClick()
@@ -150,7 +171,14 @@ export class WrDrawerComponent {
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
+    this.focusTrap?.destroy();
+    this.focusTrap = null;
+    const restore = this.previouslyFocused;
+    this.previouslyFocused = null;
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (restore && typeof restore.focus === 'function') {
+      restore.focus();
+    }
   }
 }

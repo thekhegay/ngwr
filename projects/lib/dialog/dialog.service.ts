@@ -5,9 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
-import { EnvironmentInjector, Injectable, Injector, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { EnvironmentInjector, Injectable, Injector, PLATFORM_ID, inject } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
@@ -45,6 +47,8 @@ export class WrDialogService {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly parentInjector = inject(EnvironmentInjector);
+  private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const panelClasses: string[] = [DEFAULT_PANEL_CLASS];
@@ -67,6 +71,11 @@ export class WrDialogService {
 
     const dialogRef = new WrDialogRef<C, R>(overlayRef);
 
+    if (this.isBrowser) {
+      const active = document.activeElement;
+      dialogRef.previouslyFocused = active instanceof HTMLElement ? active : null;
+    }
+
     const injector = Injector.create({
       parent: this.parentInjector,
       providers: [
@@ -77,6 +86,21 @@ export class WrDialogService {
 
     const portal = new ComponentPortal(component, null, injector);
     dialogRef.componentRef = overlayRef.attach(portal);
+
+    if (this.isBrowser) {
+      const host = overlayRef.overlayElement;
+      host.setAttribute('role', 'dialog');
+      host.setAttribute('aria-modal', 'true');
+      // Wire aria-labelledby to wrDialogTitle's auto-id once content is in DOM.
+      queueMicrotask(() => {
+        const titleEl = host.querySelector<HTMLElement>('[wrDialogTitle], [wr-dialog-title]');
+        if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
+      });
+      // Trap focus inside the dialog and move initial focus in.
+      const trap = this.focusTrapFactory.create(host);
+      dialogRef.focusTrap = trap;
+      void trap.focusInitialElementWhenReady();
+    }
 
     // Overlay subscriptions complete when the overlay is disposed, so no
     // explicit teardown is required.

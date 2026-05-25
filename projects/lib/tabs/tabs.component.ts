@@ -9,12 +9,14 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  type ElementRef,
   ViewEncapsulation,
   computed,
   contentChildren,
   forwardRef,
   input,
   model,
+  viewChild,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -100,8 +102,55 @@ export class WrTabsComponent implements WrTabsContext {
 
   // ──────── Template handlers ────────
 
+  protected readonly stripRef = viewChild<ElementRef<HTMLElement>>('strip');
+
   protected onTabClick(tab: WrTabComponent): void {
     if (tab.disabled()) return;
     if (!this.isRouter()) this.activate(tab.key());
+  }
+
+  /** Header id for `aria-labelledby` on the panel. @internal */
+  headerId(key: string): string {
+    return `wr-tab-${key}-header`;
+  }
+
+  /** Panel id for `aria-controls` on the tab header. @internal */
+  panelId(key: string): string {
+    return `wr-tab-${key}-panel`;
+  }
+
+  /** ArrowLeft/Right/Home/End keyboard navigation on the tab strip. */
+  protected onStripKeydown(event: KeyboardEvent): void {
+    const tabs = this.tabs().filter(t => !t.disabled());
+    if (tabs.length === 0) return;
+    const active = this.activeTab();
+    const idx = active ? tabs.indexOf(active) : -1;
+    let nextIdx: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        nextIdx = idx < tabs.length - 1 ? idx + 1 : 0;
+        break;
+      case 'ArrowLeft':
+        nextIdx = idx > 0 ? idx - 1 : tabs.length - 1;
+        break;
+      case 'Home':
+        nextIdx = 0;
+        break;
+      case 'End':
+        nextIdx = tabs.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    const next = tabs[nextIdx];
+    if (!this.isRouter()) this.activate(next.key());
+    // Move focus to the corresponding header element.
+    const headerEl = this.stripRef()?.nativeElement.querySelector<HTMLElement>(
+      `#${CSS.escape(this.headerId(next.key()))}`
+    );
+    headerEl?.focus();
   }
 }

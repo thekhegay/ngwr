@@ -1,1 +1,1 @@
-export { WR_SELECT, type WrSelectContext } from './select.token';
+export { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './select.token';

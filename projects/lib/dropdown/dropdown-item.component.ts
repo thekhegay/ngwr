@@ -6,7 +6,15 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 
 import { WrIconComponent, type WrIconName } from 'ngwr/icon';
 
@@ -27,8 +35,10 @@ import { WrIconComponent, type WrIconName } from 'ngwr/icon';
   host: {
     role: 'menuitem',
     '[class]': 'classes()',
-    '[attr.tabindex]': 'disabled() ? -1 : 0',
+    '[attr.tabindex]': '-1',
     '[attr.aria-disabled]': 'disabled() ? true : null',
+    '(keydown.enter)': 'activate($event)',
+    '(keydown.space)': 'activate($event)',
   },
   imports: [WrIconComponent],
 })
@@ -44,4 +54,13 @@ export class WrDropdownItemComponent {
     if (this.disabled()) parts.push('wr-dropdown-item--disabled');
     return parts.join(' ');
   });
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /** @internal Keyboard activation — fires the same click consumers bind to. */
+  protected activate(event: Event): void {
+    if (this.disabled()) return;
+    event.preventDefault();
+    this.host.nativeElement.click();
+  }
 }

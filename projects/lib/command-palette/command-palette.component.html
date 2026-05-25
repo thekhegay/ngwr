@@ -7,7 +7,7 @@
 
     <!-- Keydown is delegated from the search input; tabindex enables Esc when
          the input is unfocused. -->
-    <div class="wr-command-palette__panel" tabindex="-1" (keydown)="onKeydown($event)">
+    <div #panel class="wr-command-palette__panel" tabindex="-1" (keydown)="onKeydown($event)">
       <div class="wr-command-palette__search">
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
           <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5" />
@@ -16,8 +16,13 @@
         <input
           #input
           type="text"
+          role="combobox"
           autocomplete="off"
           spellcheck="false"
+          aria-autocomplete="list"
+          [attr.aria-controls]="listboxId"
+          [attr.aria-expanded]="true"
+          [attr.aria-activedescendant]="activeOptionId() || null"
           [placeholder]="placeholder()"
           [value]="query()"
           (input)="onQueryInput($event)"
@@ -25,7 +30,7 @@
         <kbd class="wr-command-palette__hint">esc</kbd>
       </div>
 
-      <div class="wr-command-palette__body" role="listbox">
+      <div class="wr-command-palette__body" role="listbox" [attr.id]="listboxId">
         @if (filtered().length === 0) {
           <div class="wr-command-palette__empty">{{ emptyText() }}</div>
         } @else {
@@ -39,6 +44,7 @@
                 <div
                   class="wr-command-palette__option"
                   role="option"
+                  [attr.id]="optionId(indexOf(item))"
                   [class.wr-command-palette__option--active]="indexOf(item) === activeIndex()"
                   [attr.aria-selected]="indexOf(item) === activeIndex()"
                   (mouseenter)="onItemHover(item)"

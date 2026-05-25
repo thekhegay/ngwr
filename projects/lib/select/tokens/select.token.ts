@@ -7,6 +7,13 @@
 
 import { InjectionToken, type Signal } from '@angular/core';
 
+/** Per-option registration metadata. @internal */
+export type WrSelectOptionRegistration = {
+  readonly id: string;
+  readonly value: unknown;
+  readonly disabled: boolean;
+};
+
 /**
  * Contract a `<wr-option>` uses to talk to its parent `<wr-select>`.
  *
@@ -17,8 +24,12 @@ export type WrSelectContext = {
   readonly value: Signal<unknown>;
   /** Whether the select is disabled. */
   readonly isDisabled: Signal<boolean>;
+  /** Id of the option currently highlighted by keyboard navigation. */
+  readonly activeOptionId: Signal<string | null>;
   /** Called when a child option is clicked. */
   selectOption(value: unknown, label: string): void;
+  /** Register an option; returns an unregister function. */
+  registerOption(reg: WrSelectOptionRegistration): () => void;
 };
 
 /**

@@ -31,7 +31,9 @@ import { provideWrIcons, WrIconComponent, chevronDown } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
-import { WR_SELECT, type WrSelectContext } from './tokens';
+import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
+
+let listboxUid = 0;
 
 /**
  * Native-like select.
@@ -88,6 +90,22 @@ export class WrSelectComponent implements ControlValueAccessor, WrSelectContext 
 
   readonly value = signal<unknown>(null);
 
+  /** Listbox id used by the trigger's `aria-controls`. */
+  protected readonly listboxId = `wr-select-listbox-${++listboxUid}`;
+
+  /** Registered options (insertion order). */
+  private readonly options = signal<readonly WrSelectOptionRegistration[]>([]);
+
+  /** Keyboard cursor index into `options`. -1 = none. */
+  private readonly activeIndex = signal(-1);
+
+  /** Id of the active option (for `aria-activedescendant`). */
+  readonly activeOptionId = computed<string | null>(() => {
+    const idx = this.activeIndex();
+    const list = this.options();
+    return idx >= 0 && idx < list.length ? list[idx].id : null;
+  });
+
   protected readonly open = signal(false);
   protected readonly selectedLabel = signal<string | null>(null);
 
@@ -136,6 +154,11 @@ export class WrSelectComponent implements ControlValueAccessor, WrSelectContext 
     this.open.set(false);
   }
 
+  registerOption(reg: WrSelectOptionRegistration): () => void {
+    this.options.update(list => [...list, reg]);
+    return () => this.options.update(list => list.filter(o => o.id !== reg.id));
+  }
+
   // ──────── ControlValueAccessor ────────
 
   writeValue(value: unknown): void {
@@ -168,10 +191,82 @@ export class WrSelectComponent implements ControlValueAccessor, WrSelectContext 
 
   protected onTriggerKey(event: KeyboardEvent): void {
     if (this.isDisabled()) return;
-    if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
-      event.preventDefault();
-      this.open.set(true);
+
+    if (!this.open()) {
+      if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.seedActiveIndex();
+        this.open.set(true);
+      }
+      return;
     }
+
+    // Open — navigation/selection.
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.moveActive(1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.moveActive(-1);
+        break;
+      case 'Home':
+        event.preventDefault();
+        this.activeIndex.set(this.firstEnabled());
+        break;
+      case 'End':
+        event.preventDefault();
+        this.activeIndex.set(this.lastEnabled());
+        break;
+      case 'Enter':
+      case ' ': {
+        event.preventDefault();
+        const idx = this.activeIndex();
+        const list = this.options();
+        if (idx >= 0 && idx < list.length && !list[idx].disabled) {
+          const id = list[idx].id;
+          const el = this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+          el?.click();
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  private seedActiveIndex(): void {
+    const list = this.options();
+    const selectedIdx = list.findIndex(o => o.value === this.value());
+    this.activeIndex.set(selectedIdx >= 0 ? selectedIdx : this.firstEnabled());
+  }
+
+  private moveActive(delta: number): void {
+    const list = this.options();
+    if (list.length === 0) return;
+    let i = this.activeIndex();
+    let attempts = list.length;
+    while (attempts-- > 0) {
+      i = (i + delta + list.length) % list.length;
+      if (!list[i].disabled) {
+        this.activeIndex.set(i);
+        return;
+      }
+    }
+  }
+
+  private firstEnabled(): number {
+    return this.options().findIndex(o => !o.disabled);
+  }
+
+  private lastEnabled(): number {
+    const list = this.options();
+    let found = -1;
+    list.forEach((o, i) => {
+      if (!o.disabled) found = i;
+    });
+    return found;
   }
 
   // ──────── Overlay ────────

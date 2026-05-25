@@ -1,9 +1,12 @@
 <button
   type="button"
   class="wr-select__trigger"
+  role="combobox"
   [disabled]="isDisabled()"
   [attr.aria-haspopup]="'listbox'"
   [attr.aria-expanded]="open()"
+  [attr.aria-controls]="listboxId"
+  [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
   (click)="onTriggerClick()"
   (keydown)="onTriggerKey($event)"
   (blur)="onTouched()"
@@ -18,7 +21,7 @@
 </button>
 
 <ng-template #panelTpl>
-  <div class="wr-select-panel" role="listbox">
+  <div class="wr-select-panel" role="listbox" [attr.id]="listboxId">
     <ng-content />
   </div>
 </ng-template>

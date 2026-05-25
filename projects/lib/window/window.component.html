@@ -1,5 +1,5 @@
 <div class="wr-window__chrome" (pointerdown)="startMove($event)" (dblclick)="showMaximize() && maximize()">
-  <div class="wr-window__title">{{ title() }}</div>
+  <div class="wr-window__title" [attr.id]="titleId">{{ title() }}</div>
 
   <div class="wr-window__chrome-actions">
     @if (showMinimize()) {

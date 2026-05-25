@@ -42,11 +42,18 @@ import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger 
  *
  * @see https://ngwr.dev/docs/components/dropdown
  */
+let triggerUid = 0;
+
 @Directive({
   selector: '[wrDropdown]',
   host: {
     class: 'wr-dropdown-trigger',
+    '[attr.id]': 'triggerId',
+    '[attr.aria-haspopup]': '"menu"',
+    '[attr.aria-expanded]': 'isOpen()',
+    '[attr.aria-controls]': 'isOpen() ? menu().menuId() : null',
     '(click)': 'onClick($event)',
+    '(keydown)': 'onKeydown($event)',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave($event)',
   },
@@ -73,7 +80,12 @@ export class WrDropdownDirective {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly isOpen = signal(false);
+  /** @internal Public so host bindings can read it. */
+  readonly isOpen = signal(false);
+
+  /** Auto-generated id for `aria-labelledby` wiring on the menu. */
+  protected readonly triggerId = `wr-dropdown-trigger-${++triggerUid}`;
+
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
@@ -141,8 +153,14 @@ export class WrDropdownDirective {
       panelClass: ['wr-dropdown-overlay', `wr-dropdown-overlay--${this.position()}`],
     });
 
+    // Wire trigger id into menu so it can render aria-labelledby.
+    this.menu().triggerId.set(this.triggerId);
+
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
+
+    // Focus the first menu item after the menu renders.
+    queueMicrotask(() => this.focusItemAt(0));
 
     this.overlayRef
       .outsidePointerEvents()
@@ -156,10 +174,7 @@ export class WrDropdownDirective {
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          this.isOpen.set(false);
-        }
+        this.handleMenuKeydown(event);
       });
 
     if (this.trigger() === 'hover') {
@@ -177,6 +192,68 @@ export class WrDropdownDirective {
     this.overlayRef.dispose();
     this.overlayRef = null;
     this.closed.emit();
+  }
+
+  // ──────── Keyboard handling ────────
+
+  /** @internal Trigger keydown — ArrowDown/Up/Enter/Space open the menu. */
+  protected onKeydown(event: KeyboardEvent): void {
+    if (this.isOpen()) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.open();
+    }
+  }
+
+  private handleMenuKeydown(event: KeyboardEvent): void {
+    const items = this.getItems();
+    if (items.length === 0 && event.key !== 'Escape' && event.key !== 'Tab') return;
+    const current = document.activeElement as HTMLElement | null;
+    const idx = current ? items.indexOf(current) : -1;
+
+    switch (event.key) {
+      case 'Escape':
+        event.preventDefault();
+        this.isOpen.set(false);
+        this.host.nativeElement.focus();
+        break;
+      case 'Tab':
+        // Let focus leave naturally; close the menu.
+        this.isOpen.set(false);
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.focusItemAt(idx < items.length - 1 ? idx + 1 : 0);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.focusItemAt(idx > 0 ? idx - 1 : items.length - 1);
+        break;
+      case 'Home':
+        event.preventDefault();
+        this.focusItemAt(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        this.focusItemAt(items.length - 1);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private getItems(): readonly HTMLElement[] {
+    if (!this.overlayRef) return [];
+    return Array.from(
+      this.overlayRef.overlayElement.querySelectorAll<HTMLElement>('.wr-dropdown-item:not(.wr-dropdown-item--disabled)')
+    );
+  }
+
+  private focusItemAt(index: number): void {
+    const items = this.getItems();
+    if (items.length === 0) return;
+    const clamped = ((index % items.length) + items.length) % items.length;
+    items[clamped]?.focus();
   }
 
   private readonly onOverlayMouseLeave = (event: MouseEvent): void => {
