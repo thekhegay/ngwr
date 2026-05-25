@@ -1,0 +1,59 @@
+<ngwr-doc-page
+  title="Layout"
+  description="App-shell layout primitives. Container switches to row automatically when a sider is among its children — drop in header / sider / content / footer and it falls into place."
+  [keywords]="['layout', 'shell', 'header', 'sider', 'wr-layout']"
+  [labels]="['Composite']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Header / content / footer">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-layout
+        style="height: 14rem; border: 1px solid var(--wr-color-light); border-radius: 0.5rem; overflow: hidden"
+      >
+        <wr-layout-header>App bar</wr-layout-header>
+        <wr-layout-content>Main content area</wr-layout-content>
+        <wr-layout-footer>© 2026</wr-layout-footer>
+      </wr-layout>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Collapsible sider" description="Nested row layout — header on top, sider + content beneath.">
+    <ngwr-doc-code [code]="snippets.withSider" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-layout
+        style="height: 16rem; border: 1px solid var(--wr-color-light); border-radius: 0.5rem; overflow: hidden"
+      >
+        <wr-layout-header>
+          <button
+            type="button"
+            style="
+              padding: 0.25rem 0.625rem;
+              border-radius: 0.25rem;
+              border: 1px solid var(--wr-color-light);
+              background: var(--wr-color-white);
+              cursor: pointer;
+              font-size: 0.8125rem;
+            "
+            (click)="toggleSider()"
+          >
+            {{ collapsed() ? 'Expand' : 'Collapse' }} sider
+          </button>
+        </wr-layout-header>
+        <wr-layout>
+          <wr-layout-sider [(collapsed)]="collapsed" width="12rem">
+            <div style="padding: 0.75rem; font-size: 0.8125rem">Sidebar</div>
+          </wr-layout-sider>
+          <wr-layout-content>Main content area</wr-layout-content>
+        </wr-layout>
+      </wr-layout>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

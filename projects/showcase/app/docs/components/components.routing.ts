@@ -103,6 +103,10 @@ export default [
     loadComponent: () => import('./input/input.component'),
   },
   {
+    path: components.layout,
+    loadComponent: () => import('./layout/layout.component'),
+  },
+  {
     path: components.inputNumber,
     loadComponent: () => import('./input-number/input-number.component'),
   },

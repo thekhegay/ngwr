@@ -120,7 +120,10 @@ export class SidebarComponent {
     },
     {
       title: 'Layout',
-      children: [{ title: 'Collapse', url: ['/docs', 'components', 'collapse'] }],
+      children: [
+        { title: 'Collapse', url: ['/docs', 'components', 'collapse'] },
+        { title: 'Layout', url: ['/docs', 'components', 'layout'] },
+      ],
     },
     {
       title: 'Navigation',

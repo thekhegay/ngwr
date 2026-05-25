@@ -33,6 +33,7 @@ export const routes = {
       imageCropper: 'image-cropper',
       input: 'input',
       inputNumber: 'input-number',
+      layout: 'layout',
       inputOtp: 'input-otp',
       mention: 'mention',
       popconfirm: 'popconfirm',
