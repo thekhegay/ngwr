@@ -7,7 +7,9 @@
 .wr-logo-loop {
   --wr-logo-loop-gap: 32px;
   --wr-logo-loop-height: 28px;
-  --wr-logo-loop-fade-color-auto: #ffffff;
+  // Default to the lib's surface colour; consumers can override via
+  // `[fadeOutColor]` or by setting `--wr-logo-loop-fade-color` directly.
+  --wr-logo-loop-fade-color-auto: var(--wr-color-white, #ffffff);
 
   position: relative;
   display: block;
@@ -121,10 +123,6 @@
       var(--wr-logo-loop-fade-color, var(--wr-logo-loop-fade-color-auto)) 0%,
       rgba(0, 0, 0, 0) 100%
     );
-  }
-
-  @media (prefers-color-scheme: dark) {
-    --wr-logo-loop-fade-color-auto: #0b0b0b;
   }
 
   @media (prefers-reduced-motion: reduce) {

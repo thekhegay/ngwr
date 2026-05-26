@@ -1,3 +1,11 @@
+<ng-template #angularLogo><wr-icon name="logo-angular" size="36" /></ng-template>
+<ng-template #chromeLogo><wr-icon name="logo-chrome" size="36" /></ng-template>
+<ng-template #firebaseLogo><wr-icon name="logo-firebase" size="36" /></ng-template>
+<ng-template #githubLogo><wr-icon name="logo-github" size="36" /></ng-template>
+<ng-template #gitlabLogo><wr-icon name="logo-gitlab" size="36" /></ng-template>
+<ng-template #npmLogo><wr-icon name="logo-npm" size="36" /></ng-template>
+<ng-template #telegramLogo><wr-icon name="logo-telegram" size="36" /></ng-template>
+
 <ngwr-doc-page
   title="Logo Loop"
   description="Endless logo carousel. Auto-duplicates content to cover the viewport, then animates the track at a configurable speed with smooth easing. *Angular adaptation of the [LogoLoop effect by David Haz / reactbits.dev](https://www.reactbits.dev/animations/logo-loop).*"
@@ -11,7 +19,7 @@
   <ngwr-doc-section title="Basic">
     <ngwr-doc-code [code]="snippets.basic" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-logo-loop [logos]="logos" />
+      <wr-logo-loop [logos]="logos()" [logoHeight]="36" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -19,7 +27,7 @@
     <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-logo-loop
-        [logos]="logos"
+        [logos]="logos()"
         [speed]="60"
         [gap]="48"
         [logoHeight]="36"
