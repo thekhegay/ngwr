@@ -22,6 +22,21 @@ window.addEventListener('scroll', onScroll);
 
 onScroll.cancel();   // teardown`;
 
+  protected readonly whySnippet = `// Native — most hand-rolled throttles forget the trailing edge.
+let lastRun = 0;
+function onScroll() {
+  const now = Date.now();
+  if (now - lastRun >= 100) {
+    lastRun = now;
+    trackScroll();
+  }
+}
+// → final scroll position is never reported (no trailing call).
+
+// ngwr — leading + trailing edge, with \`.cancel()\` for teardown.
+const onScroll = throttle(() => trackScroll(), 100);
+destroyRef.onDestroy(() => onScroll.cancel());`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'throttle(fn, waitMs)',

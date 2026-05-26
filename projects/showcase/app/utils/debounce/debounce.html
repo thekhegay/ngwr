@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Resize / input / scroll handlers almost always want debouncing. Rolling your own with `setTimeout` / `clearTimeout` is doable but easy to leak on teardown, and reaching for lodash pulls ~70 KB just for one helper. ngwr's version is tiny and exposes `.cancel()` so the host's `DestroyRef.onDestroy` can clean up cleanly."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

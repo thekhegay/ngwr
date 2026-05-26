@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="With strict TS (`noUncheckedIndexedAccess: true`), `if (arr.length > 0) arr[0]` still types `arr[0]` as `T | undefined` — TS can't connect the length check to the index access. The guard narrows the tuple shape to `[T, ...T[]]` so `[0]` is `T`. Saves a non-null assertion."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

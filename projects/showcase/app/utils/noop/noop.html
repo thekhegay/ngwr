@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Inline `() => {}` defaults look harmless, but each call site / class instance creates a fresh function reference. That breaks `===` equality across renders and triggers unnecessary OnPush updates / `@Input` change-detection cycles. `noop` is a single shared reference — the comparison stays stable."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

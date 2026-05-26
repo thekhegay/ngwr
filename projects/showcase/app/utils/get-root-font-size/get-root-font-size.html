@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="There's no built-in way to read the root font-size in TS — the recipe (`parseFloat(getComputedStyle(document.documentElement).fontSize)`) is verbose, easy to mistype (people often grab `body` instead of `documentElement`), and crashes during SSR where `document` is undefined. ngwr wraps it once, SSR-safely."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

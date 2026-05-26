@@ -22,6 +22,26 @@ export default class TrapFocusPage {
   trapFocus(dialogRef.nativeElement, e);
 }`;
 
+  protected readonly whySnippet = `// Native — what an accessible dialog actually needs to do.
+@HostListener('keydown', ['$event'])
+onKey(e: KeyboardEvent) {
+  if (e.key !== 'Tab') return;
+  const focusables = getAllVisibleFocusableSortedByTabindex(this.el.nativeElement);
+  if (focusables.length === 0) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+}
+// → Then you implement \`getAllVisibleFocusableSortedByTabindex\` per dialog.
+
+// ngwr — one line.
+@HostListener('keydown', ['$event'])
+onKey(e: KeyboardEvent) {
+  trapFocus(this.el.nativeElement, e);
+}`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'trapFocus(root, event)',

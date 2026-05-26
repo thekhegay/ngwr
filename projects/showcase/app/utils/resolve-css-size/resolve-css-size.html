@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Components that accept a size input often need both a CSS string (for `width:` / `height:`) AND a pixel number (for canvas math, ResizeObserver thresholds, intersection-observer roots). Parsing `'3rem'` to px, handling `null` defaults, supporting `%` / `vh` / `em` — the same 15 lines end up duplicated across every component that takes a `size` input."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

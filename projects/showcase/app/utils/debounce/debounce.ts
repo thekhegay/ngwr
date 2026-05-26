@@ -23,6 +23,20 @@ window.addEventListener('resize', onResize);
 // Cancel any pending invocation on teardown:
 onResize.cancel();`;
 
+  protected readonly whySnippet = `// Native — manual timer dance, easy to leak on teardown.
+let t: ReturnType<typeof setTimeout> | undefined;
+function onResize() {
+  if (t) clearTimeout(t);
+  t = setTimeout(() => recalcLayout(), 150);
+}
+// → on destroy, you need to remember to \`clearTimeout(t)\` yourself.
+
+// lodash — ~70 KB pulled in just for one utility.
+
+// ngwr — tiny, with \`.cancel()\` for safe teardown.
+const onResize = debounce(() => recalcLayout(), 150);
+destroyRef.onDestroy(() => onResize.cancel());`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'debounce(fn, waitMs)',

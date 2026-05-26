@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="`value instanceof Observable` forces an `import { Observable } from 'rxjs'` into every consumer — even code paths that never actually subscribe. ngwr's duck-typed check (`value && typeof (value as Observable<unknown>).subscribe === 'function'`) stays zero-dep, so a util layer can support both plain values and streams without dragging rxjs in."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

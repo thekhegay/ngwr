@@ -19,6 +19,14 @@ export default class RandomIdUtilPageComponent {
 
 const id = randomId('wr-input'); // 'wr-input-h7m4k2'`;
 
+  protected readonly whySnippet = `// Native options all have downsides:
+const a = Math.random().toString(36).slice(2);   // collides under load, no prefix
+const b = \`id-\${Date.now()}\`;                    // collides when called twice the same tick
+const c = crypto.randomUUID();                   // 36 chars, ugly in HTML, not in every SSR runtime
+
+// ngwr — short, prefixed, collision-resistant, SSR-safe.
+const id = randomId('wr-input');   // 'wr-input-h7m4k2'`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'randomId(prefix?)',

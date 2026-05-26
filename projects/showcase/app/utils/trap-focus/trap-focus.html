@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Doing this by hand is ~30 lines of Tab detection, focusable enumeration, and active-element checks — repeated in every dialog, drawer, command palette, and tooltip-with-actions. Getting it wrong is an accessibility bug. One helper, called from any keydown handler, makes the trap a one-liner."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="TypeScript doesn't narrow through inline arrow predicates, so `arr.filter(x => x !== null && x !== undefined)` returns `(T | null | undefined)[]` — still nullable. A named function with a type-predicate signature narrows the array element. It's tiny but actually pays off in code that walks collections of optionals."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

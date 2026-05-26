@@ -20,6 +20,15 @@ export default class IsDefinedPage {
 const items: (string | null | undefined)[] = ['a', null, 'b', undefined];
 const present = items.filter(isDefined);   // string[] — narrowed`;
 
+  protected readonly whySnippet = `// Native — TS doesn't narrow through an inline arrow predicate.
+const items: (string | null | undefined)[] = ['a', null, 'b'];
+const a = items.filter(x => x !== null && x !== undefined);
+//    ^? (string | null | undefined)[]      ← still nullable!
+
+// ngwr — type predicate signature narrows the result.
+const b = items.filter(isDefined);
+//    ^? string[]                          ← clean`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isDefined(v)',

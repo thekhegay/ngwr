@@ -22,6 +22,19 @@ if (isNonEmptyArray(rows)) {
   highlight(rows[0]);
 }`;
 
+  protected readonly whySnippet = `// Native — with \`noUncheckedIndexedAccess\` enabled, length check
+// doesn't propagate to the indexed access.
+if (rows.length > 0) {
+  highlight(rows[0]);
+  //        ^? Row | undefined          ← still nullable!
+}
+
+// ngwr — narrows the tuple shape, so [0] is Row.
+if (isNonEmptyArray(rows)) {
+  highlight(rows[0]);
+  //        ^? Row                      ← clean
+}`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isNonEmptyArray(v)',

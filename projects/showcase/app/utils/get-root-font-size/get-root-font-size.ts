@@ -20,6 +20,13 @@ export default class GetRootFontSizePage {
 const px = getRootFontSize();   // e.g. 16
 const remToPx = 2 * px;          // convert '2rem' to pixels`;
 
+  protected readonly whySnippet = `// Native — verbose, easy to typo \`body\` instead of \`documentElement\`,
+// and crashes on SSR where \`document\` is undefined.
+const px = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+// ngwr — one call, SSR-safe (returns a sensible 16 when document isn't available).
+const px = getRootFontSize();`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'getRootFontSize()',

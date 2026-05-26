@@ -8,6 +8,13 @@
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Every component that pairs a label with a control (`<label for>`, `aria-describedby`, `aria-controls`) needs a stable unique id per instance. Each native option is unsatisfying: `Math.random()` collides under load, `Date.now()` collides on the same tick, `crypto.randomUUID()` is 36 chars and isn't in every SSR runtime. `randomId` is short, prefixed, and SSR-safe."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

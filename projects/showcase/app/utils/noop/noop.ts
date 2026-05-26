@@ -21,6 +21,18 @@ class MyService {
   private onChange: (v: string) => void = noop;
 }`;
 
+  protected readonly whySnippet = `// Native — each instance gets a fresh arrow, breaking ref equality.
+class MyComponent {
+  // \`() => {}\` here creates a new function per instance.
+  onChange = () => {};
+}
+// → OnPush comparing \`onChange\` between renders sees "changed" every time.
+
+// ngwr — single shared function reference; ref equality is stable.
+class MyComponent {
+  onChange = noop;
+}`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'noop()',

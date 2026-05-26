@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="The textbook `querySelectorAll('button, [href], …')` misses `[contenteditable]`, ignores visibility (returns `display:none` nodes), doesn't honour explicit `tabindex` order, and includes disabled controls. Getting accessible focus management right means handling all four — easier to share one helper than copy-paste the selector + filter + sort into every dialog."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

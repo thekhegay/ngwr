@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="The seemingly-obvious `e.key.length === 1` is wrong: it matches modifier chords too (Ctrl+A has `e.key === 'a'`, length 1). For type-to-search and inline-edit flows you want printable AND un-chorded — the predicate gets it right in one place."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

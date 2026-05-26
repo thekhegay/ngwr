@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="`KeyboardEvent.key` is the standard, but the values are surprising: arrow keys are `'ArrowUp'` (not `'Up'`), space is `' '` (a literal space, not `'Space'`), and a typo like `'Esacpe'` silently never matches. `KEYS` gives you autocomplete, spec-correct values, and `WrKey` as a union for type-safe function signatures."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

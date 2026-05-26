@@ -20,6 +20,16 @@ export default class GetFocusableElementsPage {
 const els = getFocusableElements(menuRef.nativeElement);
 els[0]?.focus();   // move focus to the first interactive child`;
 
+  protected readonly whySnippet = `// Native — the obvious one-liner misses several cases.
+const els = root.querySelectorAll<HTMLElement>(
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+);
+// → misses [contenteditable], doesn't filter invisible elements,
+//   doesn't honour tabindex order, returns disabled controls.
+
+// ngwr — selector + visibility filter + tabindex sort, all included.
+const els = getFocusableElements(root);`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'getFocusableElements(root)',

@@ -22,6 +22,21 @@ resolveCssSize('3rem');   // { cssValue: '3rem',  pxValue: 3 * rootFont }
 resolveCssSize('80%');    // { cssValue: '80%',   pxValue: null }
 resolveCssSize(null, { defaultValue: '6rem' }); // falls back`;
 
+  protected readonly whySnippet = `// Native — you need to handle every shape yourself.
+function pxForCss(raw: number | string | null): number | null {
+  if (raw == null) return null;
+  if (typeof raw === 'number') return raw;
+  if (raw.endsWith('px')) return parseFloat(raw);
+  if (raw.endsWith('rem')) {
+    const root = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    return parseFloat(raw) * root;
+  }
+  return null; // '%', 'vh', 'em', … ignored — bug surface
+}
+
+// ngwr — one call, returns both the CSS value and the px equivalent.
+const { cssValue, pxValue } = resolveCssSize(raw);`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'resolveCssSize(raw, options?)',

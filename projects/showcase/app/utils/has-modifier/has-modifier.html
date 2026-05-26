@@ -7,6 +7,14 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Almost every single-key shortcut (J/K nav, slash-to-search, type-to-jump) needs to back off when a chord is being typed — otherwise Cmd+K hits both the OS shortcut AND your handler. Spelling out `e.ctrlKey || e.metaKey || e.altKey || e.shiftKey` everywhere is noise; the helper makes the intent obvious."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

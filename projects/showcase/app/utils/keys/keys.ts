@@ -23,6 +23,16 @@ if (event.key === KEYS.ESCAPE) {
 
 function onArrow(key: WrKey) { /* strictly-typed */ }`;
 
+  protected readonly whySnippet = `// Native — string literals are typo-prone and the spec is surprising.
+if (event.key === 'Esacpe') close();   // typo → silently never fires
+if (event.key === 'Up') {} //          ← wrong, it's 'ArrowUp'
+if (event.key === 'Space') {} //       ← wrong, it's ' ' (a literal space)
+
+// ngwr — autocomplete + spec-correct + WrKey union for type-safe matching.
+if (event.key === KEYS.ESCAPE) close();
+if (event.key === KEYS.ARROW_UP) prev();
+if (event.key === KEYS.SPACE) toggle();`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'KEYS',

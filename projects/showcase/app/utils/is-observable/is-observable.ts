@@ -23,6 +23,14 @@ if (isObservable(input)) {
   render(input);
 }`;
 
+  protected readonly whySnippet = `// Native — \`instanceof Observable\` forces rxjs into the bundle.
+import { Observable } from 'rxjs';   // ← pulled into every consumer
+if (input instanceof Observable) input.subscribe(render);
+
+// ngwr — duck-typed check. Zero runtime dependency on rxjs.
+import { isObservable } from 'ngwr/utils';
+if (isObservable(input)) input.subscribe(render);`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isObservable(v)',

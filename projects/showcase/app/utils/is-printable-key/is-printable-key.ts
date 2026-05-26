@@ -22,6 +22,13 @@ export default class IsPrintableKeyPage {
   if (isPrintableKey(e)) buffer.push(e.key);
 }`;
 
+  protected readonly whySnippet = `// Native — "length === 1" looks right but matches modifier chords.
+if (e.key.length === 1) buffer.push(e.key);
+// → Ctrl+A: e.key is 'a' (length 1), so this pushes 'a'. Bug.
+
+// ngwr — excludes chorded keys explicitly.
+if (isPrintableKey(e)) buffer.push(e.key);`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isPrintableKey(event)',

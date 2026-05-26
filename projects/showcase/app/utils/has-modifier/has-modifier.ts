@@ -22,6 +22,18 @@ export default class HasModifierPage {
   if (e.key === 'k') focusSearch();
 }`;
 
+  protected readonly whySnippet = `// Native — boilerplate, repeats across handlers.
+@HostListener('keydown', ['$event']) onKey(e: KeyboardEvent) {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+  if (e.key === 'k') focusSearch();
+}
+
+// ngwr — one call, OS-agnostic.
+@HostListener('keydown', ['$event']) onKey(e: KeyboardEvent) {
+  if (hasModifier(e)) return;
+  if (e.key === 'k') focusSearch();
+}`;
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'hasModifier(event)',
