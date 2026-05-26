@@ -73,13 +73,6 @@ export class WrButtonGroup implements WrButtonGroupContext {
     // shape is squircle. Children read `shape()` via WR_BUTTON_GROUP and
     // skip their own per-button squircle (see WrButton.effectiveShape).
     const squircle = inject(WrSquircle, { self: true });
-    effect(() => {
-      const isSquircle = this.shape() === 'squircle';
-      squircle.enabled.set(isSquircle);
-      // The squircle clip would crop a CSS border on the wrapper — paint
-      // the ring via the directive's ::before composite instead. Child
-      // borders are stripped in SCSS so they don't fight the ring.
-      squircle.borderWidth.set(isSquircle ? 1 : 0);
-    });
+    effect(() => squircle.enabled.set(this.shape() === 'squircle'));
   }
 }

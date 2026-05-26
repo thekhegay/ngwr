@@ -221,14 +221,10 @@
   // WrSquircle directive's bordered mode). Children drop their own
   // borders and use a single 1px left divider between segments.
   &--squircle {
-    // The directive paints an opaque inner via `--wr-squircle-content-bg`
-    // to hide ring bleed-through. Match it to the page surface so
-    // children sit cleanly on top.
-    --wr-squircle-content-bg: var(--wr-color-white);
-    // Inset children by 1px so the host's ring color (painted as the
-    // wrapper bg + cropped by the squircle clip) is visible at the
-    // perimeter. Without this, the children fill edge-to-edge and
-    // cover the ring entirely.
+    // The wrapper's bg IS the ring — cropped to a squircle by the
+    // host-composed WrSquircle clip-path. Padding insets the children
+    // so the bg shows as a 1px perimeter outline.
+    background-color: var(--wr-color-light);
     padding: 1px;
 
     > .wr-btn {
