@@ -1,24 +1,22 @@
 @use 'lib/styles/breakpoints' as bp;
 
 :host {
+  --ngwr-sidebar-width: 14rem;
+
   position: sticky;
-  top: 0;
   overflow-y: auto;
-  max-height: calc(100vh - var(--ngwr-header-height, 4rem));
+  height: calc(100vh - var(--ngwr-header-height, 4rem));
   top: var(--ngwr-header-height, 4rem);
-}
-
-.ngwr-sidebar {
-  --ngwr-sidebar-width: 15rem;
-
-
 
   align-self: start;
   width: var(--ngwr-sidebar-width);
 
+  border-right: 1px solid var(--wr-color-light-lighter);
 
   padding: 1.5rem 0.75rem 2rem;
+}
 
+.ngwr-sidebar {
   @include bp.media-down(md) {
     position: fixed;
     top: var(--ngwr-header-height, 4rem);
@@ -89,6 +87,7 @@
     }
 
     &-chevron {
+      --wr-icon-size: 1rem;
       flex: 0 0 auto;
       color: var(--wr-color-medium);
       transition: transform var(--wr-transition-base);

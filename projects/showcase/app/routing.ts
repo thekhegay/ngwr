@@ -134,7 +134,10 @@ export const routes = {
     randomId: 'random-id',
     guards: 'guards',
     keys: 'keys',
-    misc: 'misc',
+    noop: 'noop',
+    badgeLog: 'badge-log',
+    rate: 'rate',
+    focus: 'focus',
   },
 };
 

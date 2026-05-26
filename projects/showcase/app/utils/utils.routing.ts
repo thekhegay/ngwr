@@ -10,5 +10,8 @@ export default [
   { path: utils.randomId, loadComponent: () => import('./random-id/random-id') },
   { path: utils.guards, loadComponent: () => import('./guards/guards') },
   { path: utils.keys, loadComponent: () => import('./keys/keys') },
-  { path: utils.misc, loadComponent: () => import('./misc/misc') },
+  { path: utils.noop, loadComponent: () => import('./noop/noop') },
+  { path: utils.badgeLog, loadComponent: () => import('./badge-log/badge-log') },
+  { path: utils.rate, loadComponent: () => import('./rate/rate') },
+  { path: utils.focus, loadComponent: () => import('./focus/focus') },
 ] satisfies Routes;
