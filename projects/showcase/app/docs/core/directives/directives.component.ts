@@ -2,10 +2,15 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import {
+  WrAutofocusDirective,
   WrAutosizeDirective,
+  WrBorderGlowDirective,
   WrClickOutsideDirective,
   WrCopyToClipboardDirective,
   WrRevealDirective,
+  WrShimmerDirective,
+  WrSpotlightDirective,
+  WrTiltDirective,
 } from 'ngwr/directives';
 
 import {
@@ -23,10 +28,15 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
+    WrAutofocusDirective,
     WrAutosizeDirective,
+    WrBorderGlowDirective,
     WrClickOutsideDirective,
     WrCopyToClipboardDirective,
     WrRevealDirective,
+    WrShimmerDirective,
+    WrSpotlightDirective,
+    WrTiltDirective,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -39,6 +49,7 @@ export default class DirectivesPageComponent {
   protected readonly clipboardText = signal('Hello from ngwr!');
   protected readonly copied = signal<string>('');
   protected readonly outside = signal<number>(0);
+  protected readonly autofocusOn = signal(true);
 
   protected onCopied(text: string): void {
     this.copied.set(text);
@@ -48,17 +59,30 @@ export default class DirectivesPageComponent {
     this.outside.update(n => n + 1);
   }
 
+  protected toggleAutofocus(): void {
+    this.autofocusOn.update(v => !v);
+  }
+
   protected readonly snippets = {
     install: `import {
+  WrAutofocusDirective,
   WrAutosizeDirective,
+  WrBorderGlowDirective,
   WrClickOutsideDirective,
   WrCopyToClipboardDirective,
+  WrRevealDirective,
+  WrShimmerDirective,
+  WrSpotlightDirective,
+  WrTiltDirective,
 } from 'ngwr/directives';`,
 
     autofocus: `<input wrAutofocus placeholder="Focused on init" />
 <input [wrAutofocus]="shouldFocus()" />`,
 
     autosize: `<textarea wrAutosize minRows="2" maxRows="8" [(ngModel)]="text"></textarea>`,
+
+    borderGlow: `<!-- Loads from 'ngwr/animations' — make sure it's imported. -->
+<div wrBorderGlow [speed]="6" [thickness]="2" class="card">…</div>`,
 
     clickOutside: `<div class="popup" (wrClickOutside)="close()"> … </div>`,
 
@@ -68,6 +92,17 @@ export default class DirectivesPageComponent {
 <h2 wrReveal>Animates in once visible</h2>
 <div wrReveal threshold="0.5" rootMargin="-100px 0px">…</div>
 <p wrReveal [once]="false">Re-runs on every entry</p>`,
+
+    shimmer: `<!-- Add 'ngwr/animations' for the .wr-shimmer keyframes. -->
+<h1 wrShimmer>Premium</h1>`,
+
+    spotlight: `<!-- Cursor-following radial highlight. -->
+<div wrSpotlight class="hero-card">…</div>`,
+
+    tilt: `<!-- Cursor-tracked 3D tilt. Adjusts perspective on hover. -->
+<div wrTilt [maxTilt]="10" [scale]="1.02">
+  <img src="…" />
+</div>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -81,6 +116,12 @@ export default class DirectivesPageComponent {
       name: '[wrAutosize]',
       description: 'Auto-grow <textarea> based on scrollHeight; bounded by minRows / maxRows.',
       type: 'directive on textarea',
+      default: '—',
+    },
+    {
+      name: '[wrBorderGlow]',
+      description: 'Animated rotating conic-gradient border. `[speed]` (seconds) and `[thickness]` (px) inputs.',
+      type: 'directive',
       default: '—',
     },
     {
@@ -98,6 +139,24 @@ export default class DirectivesPageComponent {
     {
       name: '[wrReveal]',
       description: 'Adds `.wr-reveal--visible` once the host enters the viewport. Pair with `ngwr/animations` styles.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrShimmer]',
+      description: 'Applies a moving highlight sweep to text. Pair with `ngwr/animations` for keyframes.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrSpotlight]',
+      description: 'Cursor-following radial highlight on hover — gives flat cards interactive depth.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrTilt]',
+      description: '3D tilt that follows the cursor. `[maxTilt]` degrees and `[scale]` factor inputs.',
       type: 'directive',
       default: '—',
     },
