@@ -8,14 +8,14 @@ import { WrIconComponent, caretForward, chevronDown, folder, provideWrIcons, typ
 
 import { LayoutState } from '../layout-state.service';
 
-type SidebarLink = {
+interface SidebarLink {
   readonly title: string;
   readonly url?: string[];
   /** Icon shown to the left of the title. Defaults to `caret-forward`. */
   readonly icon?: WrIconName;
   /** Mark items not yet migrated — rendered as plain disabled rows. */
   readonly disabled?: boolean;
-};
+}
 
 /**
  * A top-level entry in the sidebar.
@@ -24,12 +24,12 @@ type SidebarLink = {
  * - With `url`: renders as a single direct-link row (no expand toggle).
  *   Useful for one-page sections like Pipes, Services, Utils.
  */
-type SidebarGroup = {
+interface SidebarGroup {
   readonly title: string;
   readonly icon?: WrIconName;
   readonly url?: string[];
   readonly children?: readonly SidebarLink[];
-};
+}
 
 const DEFAULT_GROUP_ICON: WrIconName = 'folder';
 const DEFAULT_LINK_ICON: WrIconName = 'caret-forward';

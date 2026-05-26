@@ -24,7 +24,10 @@ import { WrBreadcrumbItemComponent } from './breadcrumb-item.component';
 import { WR_BREADCRUMBS, type WrBreadcrumbsContext } from './tokens';
 
 /** One auto-built item. */
-type AutoItem = { readonly label: string; readonly url: string };
+interface AutoItem {
+  readonly label: string;
+  readonly url: string;
+}
 
 function buildAuto(root: ActivatedRoute, homeLabel: string, homeUrl: string): readonly AutoItem[] {
   const items: AutoItem[] = [{ label: homeLabel, url: homeUrl }];

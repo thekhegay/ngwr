@@ -8,18 +8,18 @@
 import { InjectionToken, type Signal } from '@angular/core';
 
 /** Per-option registration metadata. @internal */
-export type WrSelectOptionRegistration = {
+export interface WrSelectOptionRegistration {
   readonly id: string;
   readonly value: unknown;
   readonly disabled: boolean;
-};
+}
 
 /**
  * Contract a `<wr-option>` uses to talk to its parent `<wr-select>`.
  *
  * @internal
  */
-export type WrSelectContext = {
+export interface WrSelectContext {
   /** Currently selected value. */
   readonly value: Signal<unknown>;
   /** Whether the select is disabled. */
@@ -30,7 +30,7 @@ export type WrSelectContext = {
   selectOption(value: unknown, label: string): void;
   /** Register an option; returns an unregister function. */
   registerOption(reg: WrSelectOptionRegistration): () => void;
-};
+}
 
 /**
  * Token a `<wr-option>` injects to register itself with and notify its

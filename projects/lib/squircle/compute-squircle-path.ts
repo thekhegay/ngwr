@@ -10,14 +10,14 @@
  */
 
 /** Per-corner radii for the squircle. */
-type WrSquircleCorners = {
+interface WrSquircleCorners {
   readonly topLeft: number;
   readonly topRight: number;
   readonly bottomRight: number;
   readonly bottomLeft: number;
-};
+}
 
-type CornerParams = {
+interface CornerParams {
   readonly a: number;
   readonly b: number;
   readonly c: number;
@@ -25,7 +25,7 @@ type CornerParams = {
   readonly p: number;
   readonly arcSectionLength: number;
   readonly cornerRadius: number;
-};
+}
 
 function toRadians(deg: number): number {
   return (deg * Math.PI) / 180;

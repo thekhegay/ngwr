@@ -2,7 +2,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
-type Breakpoint = { readonly name: string; readonly min: string; readonly container: string };
+interface Breakpoint {
+  readonly name: string;
+  readonly min: string;
+  readonly container: string;
+}
 
 @Component({
   selector: 'ngwr-grid-page',

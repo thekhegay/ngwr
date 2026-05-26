@@ -6,11 +6,11 @@
  */
 
 /** One segment of a {@link WrMeterGroupComponent}. */
-export type WrMeterSegment = {
+export interface WrMeterSegment {
   /** Label shown in the legend. */
   readonly label: string;
   /** Magnitude — interpreted as a portion of the sum of all segments. */
   readonly value: number;
   /** CSS color for the bar slice and legend swatch. Defaults to `--wr-color-primary` etc. */
   readonly color?: string;
-};
+}

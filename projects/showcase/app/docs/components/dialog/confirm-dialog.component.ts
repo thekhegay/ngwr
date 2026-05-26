@@ -9,7 +9,10 @@ import {
   WrDialogTitleDirective,
 } from 'ngwr/dialog';
 
-export type ConfirmData = { readonly title: string; readonly message: string };
+export interface ConfirmData {
+  readonly title: string;
+  readonly message: string;
+}
 
 @Component({
   selector: 'ngwr-confirm-dialog',

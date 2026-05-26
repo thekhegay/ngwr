@@ -9,7 +9,7 @@
 export type WrFileUploadRejectionReason = 'type' | 'size' | 'count';
 
 /** A single rejected file + the reason. Emitted via `(rejected)`. */
-export type WrFileUploadRejection = {
+export interface WrFileUploadRejection {
   readonly file: File;
   readonly reason: WrFileUploadRejectionReason;
-};
+}

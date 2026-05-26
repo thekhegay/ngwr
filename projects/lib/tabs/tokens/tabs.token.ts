@@ -12,7 +12,7 @@ import { InjectionToken, type Signal } from '@angular/core';
  *
  * @internal
  */
-export type WrTabsContext = {
+export interface WrTabsContext {
   /** Currently active tab key (component-managed only). */
   readonly active: Signal<string | null>;
   /** Activate a tab by key (component-managed only). */
@@ -21,7 +21,7 @@ export type WrTabsContext = {
   register(tab: { key: string; routerLink: unknown }): void;
   /** Unregister on destroy. */
   unregister(key: string): void;
-};
+}
 
 /**
  * Token a `<wr-tab>` injects to register itself with — and read the active

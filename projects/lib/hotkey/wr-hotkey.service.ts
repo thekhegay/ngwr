@@ -13,11 +13,11 @@ import { WrPlatformService } from 'ngwr/platform';
 import { matchesHotkey, parseHotkeySpec, type WrParsedHotkey } from './parse-spec';
 import type { WrHotkeyHandle, WrHotkeyOptions, WrHotkeySpec } from './wr-hotkey-types';
 
-type Binding = {
+interface Binding {
   readonly parsed: WrParsedHotkey;
   readonly handler: (event: KeyboardEvent) => void;
   readonly options: Required<WrHotkeyOptions>;
-};
+}
 
 const FALLBACK_OPTIONS: Required<WrHotkeyOptions> = {
   element: undefined as unknown as HTMLElement,

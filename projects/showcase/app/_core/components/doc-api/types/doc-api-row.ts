@@ -12,7 +12,7 @@
  * ];
  * ```
  */
-export type DocApiRow = {
+export interface DocApiRow {
   /** Property name as written in templates (e.g. `color`, `[size]`, `(closed)`). */
   name: string;
   /** Short description shown in the table. */
@@ -23,4 +23,4 @@ export type DocApiRow = {
   default?: string;
   /** Marks the property as required. */
   required?: boolean;
-};
+}

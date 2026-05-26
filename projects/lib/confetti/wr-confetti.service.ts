@@ -24,7 +24,7 @@ const DEFAULTS: Required<WrConfettiOptions> = {
   ttl: 180,
 };
 
-type Particle = {
+interface Particle {
   x: number;
   y: number;
   vx: number;
@@ -34,7 +34,7 @@ type Particle = {
   color: string;
   size: number;
   ttl: number;
-};
+}
 
 /**
  * Burst of celebratory confetti particles painted onto a single shared

@@ -2,7 +2,7 @@
   <div class="wr-command-palette" role="dialog" aria-modal="true" aria-label="Command palette">
     <!-- Backdrop captures clicks to close. Not focusable — keyboard users use
          Esc on the panel below. -->
-    <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+
     <div class="wr-command-palette__backdrop" aria-hidden="true" (click)="onBackdropClick()"></div>
 
     <!-- Keydown is delegated from the search input; tabindex enables Esc when
@@ -40,7 +40,6 @@
                 <div class="wr-command-palette__group-title">{{ bucket.title }}</div>
               }
               @for (item of bucket.items; track item.id) {
-                <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
                 <div
                   class="wr-command-palette__option"
                   role="option"

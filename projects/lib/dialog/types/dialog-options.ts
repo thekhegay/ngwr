@@ -8,7 +8,7 @@
 /**
  * Options accepted by `WrDialogService.open()`.
  */
-export type WrDialogOptions<D = unknown> = {
+export interface WrDialogOptions<D = unknown> {
   /** Data payload exposed to the dialog content via `WR_DIALOG_DATA`. */
   readonly data?: D;
   /** When `true`, clicks on the backdrop close the dialog. @default true */
@@ -21,4 +21,4 @@ export type WrDialogOptions<D = unknown> = {
   readonly maxWidth?: string;
   /** Extra CSS class(es) added to the panel. */
   readonly panelClass?: string | readonly string[];
-};
+}

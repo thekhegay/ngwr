@@ -10,7 +10,10 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, forwardRef, inpu
 
 import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext } from './tokens';
 
-type Member = { close(): void; readonly id: object };
+interface Member {
+  close(): void;
+  readonly id: object;
+}
 
 /**
  * Visual + behavioral grouping of `<wr-collapse>` children. When

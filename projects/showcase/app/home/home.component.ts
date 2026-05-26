@@ -28,12 +28,12 @@ function shuffle<T>(input: readonly T[]): T[] {
   return out;
 }
 
-type WhyTile = {
+interface WhyTile {
   readonly icon: string;
   readonly title: string;
   readonly description: string;
   readonly accent: 'primary' | 'success' | 'warning' | 'info' | 'danger' | 'secondary';
-};
+}
 
 @Component({
   selector: 'ngwr-home',

@@ -63,7 +63,11 @@ const SVGO_CONFIG = {
 
 // Types
 
-type Icon = { kebab: string; camel: string; svg: string };
+interface Icon {
+  kebab: string;
+  camel: string;
+  svg: string;
+}
 
 // Helpers
 

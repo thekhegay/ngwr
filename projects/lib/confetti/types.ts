@@ -6,7 +6,7 @@
  */
 
 /** Options for {@link WrConfettiService.fire}. */
-export type WrConfettiOptions = {
+export interface WrConfettiOptions {
   /** Number of particles. @default 80 */
   readonly count?: number;
   /** Spread cone in degrees. @default 60 */
@@ -28,4 +28,4 @@ export type WrConfettiOptions = {
   readonly size?: number;
   /** Lifetime in frames (~60fps). @default 180 */
   readonly ttl?: number;
-};
+}

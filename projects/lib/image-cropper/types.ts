@@ -6,12 +6,12 @@
  */
 
 /** Crop rectangle in source-image (natural) pixel coordinates. */
-export type WrCropRect = {
+export interface WrCropRect {
   readonly x: number;
   readonly y: number;
   readonly width: number;
   readonly height: number;
-};
+}
 
 /** Possible drag handles on the crop overlay. */
 export type WrCropHandle = 'move' | 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';

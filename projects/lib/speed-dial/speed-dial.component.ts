@@ -11,11 +11,11 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input,
 import { WrIconComponent, type WrIconName } from 'ngwr/icon';
 
 /** Per-button action shown when the dial expands. */
-export type WrSpeedDialAction = {
+export interface WrSpeedDialAction {
   readonly id: string;
   readonly label: string;
   readonly icon?: WrIconName;
-};
+}
 
 /** Direction the action buttons fan out. */
 export type WrSpeedDialDirection = 'up' | 'down' | 'left' | 'right';

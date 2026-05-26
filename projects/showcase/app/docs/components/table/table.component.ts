@@ -18,7 +18,11 @@ import {
   DocSnippetComponent,
 } from '#core/components';
 
-type Row = { name: string; email: string; role: 'admin' | 'editor' | 'viewer' };
+interface Row {
+  name: string;
+  email: string;
+  role: 'admin' | 'editor' | 'viewer';
+}
 
 const RAW_ROWS: readonly Row[] = [
   { name: 'Roman', email: 'rk@garuna.dev', role: 'admin' },

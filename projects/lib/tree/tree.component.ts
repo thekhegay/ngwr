@@ -20,11 +20,11 @@ import {
 
 import type { WrTreeNode, WrTreeSelectionMode } from './types';
 
-type FlatNode<TId> = {
+interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;
   readonly depth: number;
   readonly hasChildren: boolean;
-};
+}
 
 /**
  * Hierarchical tree. Data-driven — pass `[nodes]` with optional `children`

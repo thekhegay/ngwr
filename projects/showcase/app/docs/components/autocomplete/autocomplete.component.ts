@@ -14,11 +14,11 @@ import {
   DocSnippetComponent,
 } from '#core/components';
 
-type User = {
+interface User {
   readonly id: number;
   readonly name: string;
   readonly email: string;
-};
+}
 
 @Component({
   selector: 'ngwr-autocomplete-page',

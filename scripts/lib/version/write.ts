@@ -16,7 +16,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { LIB_PKG_PATH } from '../paths/lib-pkg';
 import { LIB_VERSION_PATH } from '../paths/lib-version';
 
-type Pkg = { version: string; [key: string]: unknown };
+interface Pkg {
+  version: string;
+  [key: string]: unknown;
+}
 
 export function writeVersion(next: string): void {
   const pkg = JSON.parse(readFileSync(LIB_PKG_PATH, 'utf8')) as Pkg;

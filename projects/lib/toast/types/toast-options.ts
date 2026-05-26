@@ -12,7 +12,7 @@ import type { WrToastType } from './toast-type';
  * Per-toast options passed to {@link WrToastService.show}. Any field
  * omitted falls back to the global {@link WrToastConfig}.
  */
-export type WrToastOptions = {
+export interface WrToastOptions {
   /** Visual type. @default 'info' */
   readonly type?: WrToastType;
   /** Heading shown at the top of the toast. */
@@ -29,4 +29,4 @@ export type WrToastOptions = {
   readonly showProgress?: boolean;
   /** Override the copy button visibility for this toast only. */
   readonly showCopy?: boolean;
-};
+}

@@ -4,7 +4,10 @@ import { WR_COLORS, type WrColor } from 'ngwr/theme';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
-type Variant = { readonly suffix: string; readonly label: string };
+interface Variant {
+  readonly suffix: string;
+  readonly label: string;
+}
 
 @Component({
   selector: 'ngwr-color-page',

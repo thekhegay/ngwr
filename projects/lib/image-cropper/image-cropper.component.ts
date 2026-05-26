@@ -23,7 +23,12 @@ import {
 
 import type { WrCropHandle, WrCropRect, WrImageOutputType } from './types';
 
-type RectPx = { x: number; y: number; w: number; h: number };
+interface RectPx {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
 
 function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));

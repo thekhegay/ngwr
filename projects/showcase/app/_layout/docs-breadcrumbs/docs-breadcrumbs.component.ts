@@ -6,7 +6,10 @@ import { filter, map } from 'rxjs';
 
 import { WrBreadcrumbItemComponent, WrBreadcrumbsComponent } from 'ngwr/breadcrumbs';
 
-type Crumb = { readonly label: string; readonly url: string | null };
+interface Crumb {
+  readonly label: string;
+  readonly url: string | null;
+}
 
 /** "button-group" → "Button Group" */
 function titleize(segment: string): string {

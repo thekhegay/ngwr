@@ -23,7 +23,12 @@ import {
 import type { WrWindowState } from './types';
 import { WrWindowManager } from './window-manager.service';
 
-type Edges = { readonly t?: boolean; readonly r?: boolean; readonly b?: boolean; readonly l?: boolean };
+interface Edges {
+  readonly t?: boolean;
+  readonly r?: boolean;
+  readonly b?: boolean;
+  readonly l?: boolean;
+}
 
 const MIN_ON_VIEWPORT = 24; // keep at least this many px of the window inside the viewport
 let titleUid = 0;

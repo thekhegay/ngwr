@@ -31,7 +31,10 @@ import { WrIconComponent } from 'ngwr/icon';
 
 import type { WrCommandItem } from './types';
 
-type Bucket = { readonly title: string | null; readonly items: readonly WrCommandItem[] };
+interface Bucket {
+  readonly title: string | null;
+  readonly items: readonly WrCommandItem[];
+}
 
 let listboxUid = 0;
 

@@ -22,14 +22,14 @@ const KEY_ALIASES: Readonly<Record<string, string>> = {
 };
 
 /** Normalised representation of a hotkey spec — easy to match against an event. */
-type WrParsedHotkey = {
+interface WrParsedHotkey {
   readonly ctrl: boolean;
   readonly alt: boolean;
   readonly shift: boolean;
   readonly meta: boolean;
   /** Lowercased `KeyboardEvent.key` value the spec matches. */
   readonly key: string;
-};
+}
 
 /**
  * Parse a hotkey spec like `'mod+shift+k'` into a normalised structure.

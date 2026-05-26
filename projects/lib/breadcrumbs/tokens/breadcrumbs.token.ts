@@ -12,10 +12,10 @@ import { InjectionToken, type Signal } from '@angular/core';
  *
  * @internal
  */
-export type WrBreadcrumbsContext = {
+export interface WrBreadcrumbsContext {
   /** Separator string used between items. */
   readonly separator: Signal<string>;
-};
+}
 
 /**
  * Token a `<wr-breadcrumb>` reads to pull the shared separator (and future

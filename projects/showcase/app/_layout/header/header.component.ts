@@ -9,12 +9,12 @@ import { WrThemeService } from 'ngwr/theme';
 
 import { LayoutState } from '../layout-state.service';
 
-type ActionLink = {
+interface ActionLink {
   readonly url: string;
   readonly icon: WrBuiltInIconName;
   readonly modifier: string;
   readonly label: string;
-};
+}
 
 @Component({
   selector: 'ngwr-header',

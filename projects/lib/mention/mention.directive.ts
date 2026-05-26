@@ -26,11 +26,11 @@ import { getCaretCoordinates } from './caret';
 import { WrMentionPanelComponent } from './mention-panel.component';
 import type { WrMentionCommit, WrMentionItem } from './types';
 
-type ActiveState = {
+interface ActiveState {
   trigger: string;
   query: string;
   startIndex: number;
-};
+}
 
 /**
  * `@`-style mention picker for `<textarea>` and `<input>`. Listens for

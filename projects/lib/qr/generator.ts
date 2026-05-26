@@ -8,7 +8,7 @@
 import qrcodegen from './qrcodegen';
 import type { WrQrErrorLevel } from './types';
 
-type DrawOptionsInternal = {
+interface DrawOptionsInternal {
   readonly value: string;
   readonly size: number;
   readonly padding: number;
@@ -17,7 +17,7 @@ type DrawOptionsInternal = {
   readonly level: WrQrErrorLevel;
   readonly iconUrl?: string | null;
   readonly iconSize?: number;
-};
+}
 
 const ERROR_LEVEL_MAP: Record<WrQrErrorLevel, qrcodegen.QrCode.Ecc> = {
   L: qrcodegen.QrCode.Ecc.LOW,

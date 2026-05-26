@@ -12,7 +12,7 @@ import { InjectionToken, type Signal } from '@angular/core';
  *
  * @internal
  */
-export type WrCollapseGroupContext = {
+export interface WrCollapseGroupContext {
   /** When true, only one child collapse may be open at a time. */
   readonly accordion: Signal<boolean>;
   /** Called by a child when it opens — closes siblings in accordion mode. */
@@ -21,7 +21,7 @@ export type WrCollapseGroupContext = {
   register(member: { close(): void; readonly id: object }): void;
   /** Unregister on destroy. */
   unregister(memberId: object): void;
-};
+}
 
 /**
  * Token a `<wr-collapse>` injects to register itself with — and notify of

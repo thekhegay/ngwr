@@ -6,17 +6,17 @@
  */
 
 /** A mentionable item — extend with whatever metadata your app needs. */
-export type WrMentionItem = {
+export interface WrMentionItem {
   readonly label: string;
   readonly [key: string]: unknown;
-};
+}
 
 /** Payload emitted by `(wrMentionSelected)` on commit. */
-export type WrMentionCommit<T extends WrMentionItem = WrMentionItem> = {
+export interface WrMentionCommit<T extends WrMentionItem = WrMentionItem> {
   /** The selected item. */
   readonly item: T;
   /** The trigger character that opened the panel (e.g. `'@'`). */
   readonly trigger: string;
   /** The query text the user typed after the trigger. */
   readonly query: string;
-};
+}

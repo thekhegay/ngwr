@@ -8,7 +8,7 @@
 import type { WrTableFilterItem } from './table-filter-item';
 
 /** Payload emitted by `<wr-table>` when a column's filter selection changes. */
-export type WrTableFilterChange = {
+export interface WrTableFilterChange {
   readonly key: string;
   readonly items: readonly WrTableFilterItem[];
-};
+}

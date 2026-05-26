@@ -8,8 +8,8 @@
 /**
  * Single picker entry inside a column's filter dropdown.
  */
-export type WrTableFilterItem<T = unknown> = {
+export interface WrTableFilterItem<T = unknown> {
   readonly title: string;
   readonly value: T;
   selected?: boolean;
-};
+}

@@ -19,11 +19,11 @@ function camelize(value: string): string {
   return value.replace(/-([a-z\d])/g, (_, c: string) => c.toUpperCase());
 }
 
-type IconRow = {
+interface IconRow {
   readonly name: WrBuiltInIconName;
   readonly camel: string;
   readonly haystack: string;
-};
+}
 
 function buildRow(name: WrBuiltInIconName): IconRow {
   const tags = iconTags[name] ?? [];

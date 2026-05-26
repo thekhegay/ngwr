@@ -25,11 +25,11 @@ const FALLBACK_COLORS = [
   'var(--wr-color-danger)',
 ];
 
-export type WrLineSeries = {
+export interface WrLineSeries {
   readonly label: string;
   readonly data: readonly number[];
   readonly color?: string;
-};
+}
 
 /**
  * Multi-series line chart with axes, gridlines, and a hover tooltip.

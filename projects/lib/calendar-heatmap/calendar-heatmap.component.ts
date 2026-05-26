@@ -8,19 +8,19 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-type WrHeatmapDatum = {
+interface WrHeatmapDatum {
   /** ISO date string (`YYYY-MM-DD`) or `Date`. */
   readonly date: string | Date;
   readonly value: number;
-};
+}
 
-type Cell = {
+interface Cell {
   readonly iso: string;
   readonly value: number;
   readonly intensity: number;
   readonly week: number;
   readonly day: number;
-};
+}
 
 function toIso(d: Date): string {
   const y = d.getFullYear();

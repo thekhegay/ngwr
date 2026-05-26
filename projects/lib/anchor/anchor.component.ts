@@ -22,13 +22,13 @@ import { WrPlatformService } from 'ngwr/platform';
 import { WrScrollService } from 'ngwr/scroll';
 
 /** One entry in a {@link WrAnchorComponent}. */
-export type WrAnchorLink = {
+export interface WrAnchorLink {
   /** id of the target element (without `#`). */
   readonly id: string;
   readonly label: string;
   /** Optional nested links (single level of nesting supported). */
   readonly children?: readonly WrAnchorLink[];
-};
+}
 
 /**
  * Scroll-spy in-page navigation. Renders a list of links to elements on

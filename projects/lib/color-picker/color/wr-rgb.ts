@@ -11,9 +11,9 @@
  * - `r`, `g`, `b` ∈ `[0, 255]`
  * - `a` ∈ `[0, 1]`
  */
-export type WrRgb = {
+export interface WrRgb {
   readonly r: number;
   readonly g: number;
   readonly b: number;
   readonly a: number;
-};
+}

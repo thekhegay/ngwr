@@ -14,14 +14,14 @@ export type WrThemeMode = 'light' | 'dark' | 'auto';
 export type WrTheme = 'light' | 'dark';
 
 /** Configuration for {@link WrThemeService}. */
-export type WrThemeConfig = {
+export interface WrThemeConfig {
   /** Initial mode used when no persisted value is present. @default 'auto' */
   readonly defaultMode: WrThemeMode;
   /** localStorage key for persistence. Set to `null` to disable persistence. @default 'wr-theme' */
   readonly storageKey: string | null;
   /** Attribute applied to `<html>` to expose the resolved theme. @default 'data-theme' */
   readonly attribute: string;
-};
+}
 
 export const DEFAULT_WR_THEME_CONFIG: WrThemeConfig = {
   defaultMode: 'auto',

@@ -6,30 +6,30 @@
  */
 
 /** Open Graph (`og:*`) tag values. */
-export type WrMetaOg = {
+export interface WrMetaOg {
   readonly title?: string;
   readonly description?: string;
   readonly image?: string;
   readonly url?: string;
   readonly type?: string;
   readonly siteName?: string;
-};
+}
 
 /** Twitter card (`twitter:*`) tag values. */
-export type WrMetaTwitter = {
+export interface WrMetaTwitter {
   readonly card?: 'summary' | 'summary_large_image' | 'app' | 'player';
   readonly title?: string;
   readonly description?: string;
   readonly image?: string;
   readonly creator?: string;
-};
+}
 
 /**
  * Declarative description of `<head>` metadata. Every field is optional —
  * unset values inherit from the layer below or fall back to defaults
  * registered via {@link provideWrMeta}.
  */
-export type WrMetaConfig = {
+export interface WrMetaConfig {
   readonly title?: string;
   /** Template applied to `title` when set — `%s` is replaced with the title. */
   readonly titleTemplate?: string;
@@ -39,9 +39,9 @@ export type WrMetaConfig = {
   readonly themeColor?: string;
   readonly og?: WrMetaOg;
   readonly twitter?: WrMetaTwitter;
-};
+}
 
 /** Returned by {@link WrMetaService.push} — call `.pop()` to remove the layer. */
-export type WrMetaHandle = {
+export interface WrMetaHandle {
   readonly pop: () => void;
-};
+}

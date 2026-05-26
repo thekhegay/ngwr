@@ -8,11 +8,11 @@
 import { InjectionToken, type Signal } from '@angular/core';
 
 /** Surface a {@link WrStepperComponent} provides for its child `<wr-step>`s. */
-export type WrStepperContext = {
+export interface WrStepperContext {
   /** Index of the currently visible step. */
   readonly active: Signal<number>;
   /** Linear mode — steps after the latest completed one are locked. */
   readonly linear: Signal<boolean>;
-};
+}
 
 export const WR_STEPPER = new InjectionToken<WrStepperContext>('WR_STEPPER');

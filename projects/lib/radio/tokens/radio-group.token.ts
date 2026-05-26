@@ -12,7 +12,7 @@ import { InjectionToken, type Signal } from '@angular/core';
  *
  * @internal
  */
-export type WrRadioGroupContext = {
+export interface WrRadioGroupContext {
   /** Shared `name` attribute applied to every native input in the group. */
   readonly name: Signal<string>;
   /** Currently selected value. */
@@ -23,7 +23,7 @@ export type WrRadioGroupContext = {
   select(value: unknown): void;
   /** Mark the group as touched (called on blur from any child). */
   touch(): void;
-};
+}
 
 /**
  * Token a `<wr-radio>` injects to participate in its parent `<wr-radio-group>`

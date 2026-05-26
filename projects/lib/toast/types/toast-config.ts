@@ -14,7 +14,7 @@ import type { WrToastPosition } from './toast-position';
  * Per-toast {@link WrToastOptions} can override individual fields at call
  * time (`position`, `duration`, `showProgress`, `showCopy`).
  */
-export type WrToastConfig = {
+export interface WrToastConfig {
   /** Corner the stack renders in. @default 'top-end' */
   readonly position: WrToastPosition;
   /** Layout mode for multiple toasts. @default 'stack' (Sonner-style hover-to-expand) */
@@ -38,4 +38,4 @@ export type WrToastConfig = {
     readonly copied: string;
     readonly closeAll: string;
   };
-};
+}

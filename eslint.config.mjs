@@ -29,7 +29,7 @@ export default tsEslint.config(
       'import-x': importX,
     },
     rules: {
-      // Angular
+      // ───── Angular (current style guide — angular.dev/style-guide) ─────
       '@angular-eslint/no-async-lifecycle-method': 'error',
       '@angular-eslint/no-attribute-decorator': 'error',
       '@angular-eslint/sort-lifecycle-methods': 'warn',
@@ -47,10 +47,19 @@ export default tsEslint.config(
       '@angular-eslint/relative-url-prefix': 'error',
       '@angular-eslint/use-lifecycle-interface': 'error',
       '@angular-eslint/use-pipe-transform-interface': 'error',
-      '@angular-eslint/directive-class-suffix': ['error', { suffixes: ['Directive', 'Component'] }],
-      '@angular-eslint/component-class-suffix': ['error', { suffixes: ['Component'] }],
-      // TypeScript
-      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+
+      // Current style drops the Component/Directive/Pipe/Service suffix.
+      // `MatButton`, `MatTooltip`, `MatDialog` — not `MatButtonComponent`.
+      '@angular-eslint/component-class-suffix': 'off',
+      '@angular-eslint/directive-class-suffix': 'off',
+      '@angular-eslint/pipe-prefix': 'off',
+
+      // Signals-first preferences.
+      '@angular-eslint/prefer-signals': 'error',
+
+      // ───── TypeScript (Google TS style guide) ─────
+      // Google: prefer interfaces over type aliases for object shapes.
+      '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/no-unused-expressions': 'error',
       '@typescript-eslint/explicit-function-return-type': [
@@ -61,7 +70,32 @@ export default tsEslint.config(
         },
       ],
       '@typescript-eslint/no-inferrable-types': 'error',
-      // Imports
+      // Forbid `any` per Google guide — use `unknown` or specific types.
+      '@typescript-eslint/no-explicit-any': 'error',
+      // Forbid `#private` fields — use the `private` keyword instead.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'PropertyDefinition[key.type="PrivateIdentifier"]',
+          message: 'Use the `private` keyword instead of `#private` fields (Google TS style guide).',
+        },
+        {
+          selector: 'MethodDefinition[key.type="PrivateIdentifier"]',
+          message: 'Use the `private` keyword instead of `#private` methods (Google TS style guide).',
+        },
+      ],
+      // Google: never use `var`.
+      'no-var': 'error',
+      // Google: parameter properties OK; visibility default is public; restrict explicit `public`.
+      '@typescript-eslint/explicit-member-accessibility': [
+        'error',
+        {
+          accessibility: 'no-public',
+          overrides: { parameterProperties: 'explicit' },
+        },
+      ],
+
+      // ───── Imports ─────
       'import-x/no-empty-named-blocks': 'error',
       'import-x/no-duplicates': 'error',
       'import-x/no-unused-modules': 'error',
@@ -69,6 +103,8 @@ export default tsEslint.config(
       'import-x/exports-last': 'error',
       'import-x/first': 'error',
       'import-x/newline-after-import': 'error',
+      // Google: no default exports (allowed for Angular lazy-loaded route components).
+      'import-x/no-default-export': 'error',
       'import-x/order': [
         'error',
         {
@@ -90,7 +126,8 @@ export default tsEslint.config(
           pathGroupsExcludedImportTypes: [],
         },
       ],
-      // General
+
+      // ───── General ─────
       'no-bitwise': 'error',
       'no-console': 'error',
       'no-irregular-whitespace': 'error',
@@ -100,6 +137,21 @@ export default tsEslint.config(
       'no-template-curly-in-string': 'error',
       'prefer-object-spread': 'error',
       'prefer-template': 'error',
+    },
+  },
+  // Lazy-loaded route components must use `export default` — Angular's
+  // loadComponent / loadChildren contract relies on it.
+  {
+    files: ['**/*.routing.ts', '**/*.component.ts', '**/*.page.ts'],
+    rules: {
+      'import-x/no-default-export': 'off',
+    },
+  },
+  // Showcase docs pages are lazy-loaded; they keep their default export.
+  {
+    files: ['projects/showcase/app/**/*.ts'],
+    rules: {
+      'import-x/no-default-export': 'off',
     },
   },
   {

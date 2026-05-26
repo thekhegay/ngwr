@@ -15,12 +15,12 @@
 export type WrHotkeySpec = string;
 
 /** Returned by {@link WrHotkeyService.bind} — call `.unbind()` to remove. */
-export type WrHotkeyHandle = {
+export interface WrHotkeyHandle {
   readonly unbind: () => void;
-};
+}
 
 /** Options accepted by {@link WrHotkeyService.bind}. */
-export type WrHotkeyOptions = {
+export interface WrHotkeyOptions {
   /**
    * Scope the listener to a specific element instead of `document`. The
    * element must be focusable (or contain the focus) for the binding to
@@ -44,4 +44,4 @@ export type WrHotkeyOptions = {
    * handler calls `event.preventDefault()`. @default 0
    */
   readonly priority?: number;
-};
+}

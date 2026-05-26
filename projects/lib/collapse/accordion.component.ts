@@ -9,7 +9,10 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, forwardRef, sign
 
 import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext } from './tokens';
 
-type Member = { close(): void; readonly id: object };
+interface Member {
+  close(): void;
+  readonly id: object;
+}
 
 /**
  * Accordion — a `<wr-collapse>` container that enforces single-open

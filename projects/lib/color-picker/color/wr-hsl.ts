@@ -11,9 +11,9 @@
  * - `h` ∈ `[0, 360)` (degrees)
  * - `s`, `l`, `a` ∈ `[0, 1]`
  */
-export type WrHsl = {
+export interface WrHsl {
   readonly h: number;
   readonly s: number;
   readonly l: number;
   readonly a: number;
-};
+}

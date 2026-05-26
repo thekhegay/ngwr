@@ -13,8 +13,8 @@ import type { WrToastOptions } from './types';
  */
 export class WrToastRef {
   constructor(
-    readonly id: number,
-    readonly options: WrToastOptions,
+    public readonly id: number,
+    public readonly options: WrToastOptions,
     private readonly onDismiss: (id: number) => void
   ) {}
 

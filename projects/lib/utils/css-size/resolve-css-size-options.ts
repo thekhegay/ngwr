@@ -8,7 +8,7 @@
 /**
  * Options for {@link resolveCssSize}.
  */
-export type ResolveCssSizeOptions = {
+export interface ResolveCssSizeOptions {
   /**
    * Fallback value used when the raw input is `null` or `undefined`.
    *
@@ -16,4 +16,4 @@ export type ResolveCssSizeOptions = {
    * numbers, pixel strings, rem strings, percentages, etc.
    */
   defaultValue?: unknown;
-};
+}

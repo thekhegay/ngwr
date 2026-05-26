@@ -13,9 +13,9 @@ import type { WrIconName } from 'ngwr/icon';
  * `value` is what the model receives when this segment is picked.
  * `label` is shown when present; otherwise an icon-only segment renders.
  */
-export type WrSegmentedOption<T = unknown> = {
+export interface WrSegmentedOption<T = unknown> {
   readonly value: T;
   readonly label?: string;
   readonly icon?: WrIconName;
   readonly disabled?: boolean;
-};
+}

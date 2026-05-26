@@ -6,12 +6,12 @@
  */
 
 /** A single node in a {@link WrTreeComponent}. Nodes are immutable. */
-export type WrTreeNode<TId = string> = {
+export interface WrTreeNode<TId = string> {
   readonly id: TId;
   readonly label: string;
   readonly children?: readonly WrTreeNode<TId>[];
   readonly disabled?: boolean;
-};
+}
 
 /** Selection mode for {@link WrTreeComponent}. */
 export type WrTreeSelectionMode = 'none' | 'single' | 'multi';

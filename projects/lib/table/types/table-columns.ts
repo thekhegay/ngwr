@@ -8,14 +8,14 @@
 import type { WrTableFilterItem } from './table-filter-item';
 
 /** A single column definition. */
-export type WrTableColumn = {
+export interface WrTableColumn {
   /** Heading shown in the column's header. */
   readonly title: string;
   /** Show a clickable sort indicator in the header. */
   readonly sortable?: boolean;
   /** When non-empty, shows a filter dropdown in the header. */
   readonly filterItems?: readonly WrTableFilterItem[];
-};
+}
 
 /**
  * Column map — keys are the row's property names; values are column defs.

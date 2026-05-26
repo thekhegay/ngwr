@@ -8,7 +8,7 @@
 import type { WrIconName } from 'ngwr/icon';
 
 /** A single action / page entry in {@link WrCommandPaletteComponent}. */
-export type WrCommandItem = {
+export interface WrCommandItem {
   /** Stable identifier — used for `track $index` and option focus. */
   readonly id: string;
   /** Primary visible label. */
@@ -25,10 +25,10 @@ export type WrCommandItem = {
   readonly shortcut?: string;
   /** Imperative callback fired when this item is picked. */
   readonly action?: () => void;
-};
+}
 
 /** Flat list of items grouped under a single header — convenience type. */
-export type WrCommandGroup = {
+export interface WrCommandGroup {
   readonly title: string;
   readonly items: readonly WrCommandItem[];
-};
+}

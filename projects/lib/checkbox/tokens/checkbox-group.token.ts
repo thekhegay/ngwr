@@ -12,14 +12,14 @@ import { InjectionToken, type Signal } from '@angular/core';
  *
  * @internal
  */
-export type WrCheckboxGroupContext = {
+export interface WrCheckboxGroupContext {
   /** Is the given value currently selected? */
   isSelected(value: unknown): boolean;
   /** Toggle the given value in the group. */
   toggle(value: unknown): void;
   /** Whether the entire group is disabled. */
   readonly isDisabled: Signal<boolean>;
-};
+}
 
 /**
  * Token a `<wr-checkbox>` injects to read selection state from — and

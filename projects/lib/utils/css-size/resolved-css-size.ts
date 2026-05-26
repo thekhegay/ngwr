@@ -8,7 +8,7 @@
 /**
  * Result of resolving a CSS size value via {@link resolveCssSize}.
  */
-export type ResolvedCssSize = {
+export interface ResolvedCssSize {
   /**
    * Value suitable for use in CSS styles (e.g. `"48px"`, `"3rem"`, `"80%"`).
    */
@@ -21,4 +21,4 @@ export type ResolvedCssSize = {
    * equivalent cannot be determined.
    */
   pxValue: number | null;
-};
+}

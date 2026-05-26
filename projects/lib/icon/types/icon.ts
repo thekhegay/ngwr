@@ -23,7 +23,7 @@ import type { WrIconName } from './icon-name';
  * provideWrIcons([myIcon]);
  * ```
  */
-export type WrIcon = {
+export interface WrIcon {
   name: WrIconName;
   data: string;
-};
+}

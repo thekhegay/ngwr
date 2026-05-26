@@ -14,7 +14,7 @@ import { WrNativeDateAdapter } from './wr-native-date-adapter';
 /**
  * Options for {@link provideWrDateAdapter}.
  */
-export type WrDateAdapterOptions = {
+export interface WrDateAdapterOptions {
   /**
    * Adapter class. Default: {@link WrNativeDateAdapter}.
    *
@@ -28,7 +28,7 @@ export type WrDateAdapterOptions = {
    * in the browser, `'en-US'` on the server.
    */
   readonly locale?: string;
-};
+}
 
 /**
  * Register the date adapter and locale used by the calendar / date picker /

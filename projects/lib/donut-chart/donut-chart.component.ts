@@ -8,11 +8,11 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-type WrDonutSegment = {
+interface WrDonutSegment {
   readonly label: string;
   readonly value: number;
   readonly color?: string;
-};
+}
 
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',
