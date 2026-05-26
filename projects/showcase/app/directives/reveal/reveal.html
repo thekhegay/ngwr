@@ -1,0 +1,37 @@
+<ngwr-doc-page
+  title="wrReveal"
+  description="IntersectionObserver-driven enter animation. Adds `.wr-reveal--visible` once the host crosses the viewport threshold. Pair with `@use 'ngwr/animations';` for the default fade-and-slide-up styles."
+  [keywords]="['wrReveal', 'reveal', 'intersection observer', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 14rem; overflow-y: auto; padding: 0.5rem">
+        <p>Scroll inside this box to trigger the reveal below.</p>
+        <div style="height: 12rem"></div>
+        <div
+          wrReveal
+          style="
+            padding: 1rem;
+            background: rgba(var(--wr-color-primary-rgb), 0.08);
+            border: 1px solid var(--wr-color-primary);
+            border-radius: 0.5rem;
+            color: var(--wr-color-primary);
+            font-weight: 600;
+          "
+        >
+          Hello! I faded in.
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

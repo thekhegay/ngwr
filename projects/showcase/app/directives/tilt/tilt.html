@@ -1,0 +1,40 @@
+<ngwr-doc-page
+  title="wrTilt"
+  description="Cursor-tracked 3D tilt for cards, hero images, anything that benefits from parallax-style feedback. `[maxTilt]` (degrees) and `[scale]` adjust the intensity."
+  [keywords]="['wrTilt', 'tilt', 'parallax', '3d', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        wrTilt
+        [maxTilt]="10"
+        [scale]="1.04"
+        style="
+          padding: 2rem;
+          background: linear-gradient(
+            135deg,
+            var(--wr-color-primary),
+            var(--wr-color-secondary, var(--wr-color-primary))
+          );
+          color: var(--wr-color-white);
+          border-radius: 0.75rem;
+          font-weight: 600;
+          text-align: center;
+          will-change: transform;
+        "
+      >
+        Move the cursor across me.
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

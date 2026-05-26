@@ -1,0 +1,26 @@
+<ngwr-doc-page
+  title="wrClickOutside"
+  description="Emits when a mousedown lands outside the host. Useful for dismissing inline popovers / inline edit fields."
+  [keywords]="['wrClickOutside', 'click', 'outside', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="display: inline-block; padding: 0.75rem 1rem; background: rgba(0, 0, 0, 0.04); border-radius: 0.375rem"
+        (wrClickOutside)="onOutside()"
+      >
+        Click outside this box (count: {{ outside() }})
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

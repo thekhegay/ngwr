@@ -1,9 +1,14 @@
 import type { SidebarGroup } from '../sidebar.types';
 
-/**
- * Flat sidebar for `/directives` — currently a single landing page; add
- * one entry per directive here as they get their own pages.
- */
+/** Flat sidebar for `/directives/*` — one direct-link row per directive. */
 export const DIRECTIVES_SIDEBAR: readonly SidebarGroup[] = [
-  { title: 'Overview', url: ['/directives'] },
+  { title: 'wrAutofocus', url: ['/directives', 'autofocus'] },
+  { title: 'wrAutosize', url: ['/directives', 'autosize'] },
+  { title: 'wrBorderGlow', url: ['/directives', 'border-glow'] },
+  { title: 'wrClickOutside', url: ['/directives', 'click-outside'] },
+  { title: 'wrCopyToClipboard', url: ['/directives', 'copy-to-clipboard'] },
+  { title: 'wrReveal', url: ['/directives', 'reveal'] },
+  { title: 'wrShimmer', url: ['/directives', 'shimmer'] },
+  { title: 'wrSpotlight', url: ['/directives', 'spotlight'] },
+  { title: 'wrTilt', url: ['/directives', 'tilt'] },
 ];

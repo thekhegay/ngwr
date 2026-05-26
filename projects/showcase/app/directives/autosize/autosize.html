@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="wrAutosize"
+  description="Auto-grow a `<textarea>` between `minRows` and `maxRows` based on its scroll height. Composes natively with `[(ngModel)]`, `[formControl]`, validators, and third-party input directives."
+  [keywords]="['wrAutosize', 'autosize', 'textarea', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <textarea
+        wrAutosize
+        minRows="2"
+        maxRows="8"
+        style="
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid var(--wr-color-light);
+          border-radius: 0.375rem;
+          font-family: inherit;
+        "
+        [(ngModel)]="textareaValue"
+      ></textarea>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

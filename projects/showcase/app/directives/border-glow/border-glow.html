@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="wrBorderGlow"
+  description="Rotating conic-gradient border. Tune speed in seconds via `[speed]` and the ring thickness via `[thickness]` (pixels). Requires `@use 'ngwr/animations';` for the keyframes."
+  [keywords]="['wrBorderGlow', 'border', 'glow', 'animation', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        wrBorderGlow
+        [speed]="8"
+        [thickness]="2"
+        style="
+          display: inline-flex;
+          align-items: center;
+          padding: 1rem 1.5rem;
+          background: var(--wr-color-dark);
+          color: var(--wr-color-white);
+          border-radius: 0.75rem;
+          font-weight: 600;
+        "
+      >
+        Animated border
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

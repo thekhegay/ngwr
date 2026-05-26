@@ -1,0 +1,39 @@
+<ngwr-doc-page
+  title="wrCopyToClipboard"
+  description="Copies the bound string on host click. Emits `(copied)` on success and `(copyFailed)` if the Clipboard API is unavailable."
+  [keywords]="['wrCopyToClipboard', 'copy', 'clipboard', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button
+        type="button"
+        style="
+          padding: 0.4rem 0.875rem;
+          border-radius: 0.375rem;
+          border: 1px solid var(--wr-color-light);
+          background: var(--wr-color-white);
+          cursor: pointer;
+        "
+        [wrCopyToClipboard]="clipboardText()"
+        (copied)="onCopied($event)"
+      >
+        Copy "{{ clipboardText() }}"
+      </button>
+      @if (copied()) {
+        <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+          Last copied: {{ copied() }}
+        </small>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

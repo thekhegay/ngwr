@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="wrSpotlight"
+  description="Cursor-following radial highlight. Gives flat cards a sense of interactive depth on hover."
+  [keywords]="['wrSpotlight', 'spotlight', 'cursor', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        wrSpotlight
+        style="
+          padding: 2rem;
+          background: var(--wr-color-dark);
+          color: var(--wr-color-white);
+          border-radius: 0.75rem;
+          font-weight: 600;
+          text-align: center;
+        "
+      >
+        Hover me — the cursor leaves a soft halo.
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
