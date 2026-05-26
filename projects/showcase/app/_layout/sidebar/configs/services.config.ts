@@ -1,0 +1,11 @@
+import type { SidebarGroup } from '../sidebar.types';
+
+/** Flat sidebar for `/services/*` — one direct-link row per service. */
+export const SERVICES_SIDEBAR: readonly SidebarGroup[] = [
+  { title: 'WrTheme', url: ['/services', 'theme'] },
+  { title: 'WrScroll', url: ['/services', 'scroll'] },
+  { title: 'WrHotkey', url: ['/services', 'hotkey'] },
+  { title: 'WrMedia', url: ['/services', 'media'] },
+  { title: 'WrPlatform', url: ['/services', 'platform'] },
+  { title: 'WrMeta', url: ['/services', 'meta'] },
+];

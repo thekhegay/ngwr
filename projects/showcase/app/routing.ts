@@ -1,6 +1,13 @@
 import type { Routes } from '@angular/router';
 
-import { COMPONENTS_SIDEBAR, DOCS_SIDEBAR } from './_layout/sidebar/configs';
+import {
+  COMPONENTS_SIDEBAR,
+  DIRECTIVES_SIDEBAR,
+  DOCS_SIDEBAR,
+  PIPES_SIDEBAR,
+  SERVICES_SIDEBAR,
+  UTILS_SIDEBAR,
+} from './_layout/sidebar/configs';
 
 export const routes = {
   index: '/',
@@ -13,35 +20,39 @@ export const routes = {
     core: {
       index: 'core',
       colors: 'color',
-      directives: 'directives',
       grid: 'grid',
       overlay: 'overlay',
-      pipes: {
-        index: 'pipes',
-        wrNumber: 'wr-number',
-        wrBytes: 'wr-bytes',
-        wrDate: 'wr-date',
-        wrTruncate: 'wr-truncate',
-        range: 'range',
-      },
-      services: {
-        index: 'services',
-        theme: 'theme',
-        scroll: 'scroll',
-        hotkey: 'hotkey',
-        media: 'media',
-        platform: 'platform',
-        meta: 'meta',
-      },
-      utils: {
-        index: 'utils',
-        cssSize: 'css-size',
-        randomId: 'random-id',
-        guards: 'guards',
-        keys: 'keys',
-        misc: 'misc',
-      },
     },
+  },
+  // Sibling sections — same pattern as `/components`. Each owns its own
+  // sidebar config and routing file.
+  directives: {
+    index: 'directives',
+  },
+  pipes: {
+    index: 'pipes',
+    wrNumber: 'wr-number',
+    wrBytes: 'wr-bytes',
+    wrDate: 'wr-date',
+    wrTruncate: 'wr-truncate',
+    range: 'range',
+  },
+  services: {
+    index: 'services',
+    theme: 'theme',
+    scroll: 'scroll',
+    hotkey: 'hotkey',
+    media: 'media',
+    platform: 'platform',
+    meta: 'meta',
+  },
+  utils: {
+    index: 'utils',
+    cssSize: 'css-size',
+    randomId: 'random-id',
+    guards: 'guards',
+    keys: 'keys',
+    misc: 'misc',
   },
   // `/components/*` is a sibling section to `/docs/*`. Same loadChildren
   // bundle as before, just mounted at the root instead of nested under docs.
@@ -145,6 +156,26 @@ export const routing: Routes = [
         path: routes.components.index,
         data: { sidebar: COMPONENTS_SIDEBAR },
         loadChildren: () => import('./docs/components/components.routing'),
+      },
+      {
+        path: routes.directives.index,
+        data: { sidebar: DIRECTIVES_SIDEBAR },
+        loadComponent: () => import('./docs/core/directives/directives'),
+      },
+      {
+        path: routes.pipes.index,
+        data: { sidebar: PIPES_SIDEBAR },
+        loadChildren: () => import('./docs/core/pipes/pipes.routing'),
+      },
+      {
+        path: routes.services.index,
+        data: { sidebar: SERVICES_SIDEBAR },
+        loadChildren: () => import('./docs/core/services/services.routing'),
+      },
+      {
+        path: routes.utils.index,
+        data: { sidebar: UTILS_SIDEBAR },
+        loadChildren: () => import('./docs/core/utils/utils.routing'),
       },
     ],
   },

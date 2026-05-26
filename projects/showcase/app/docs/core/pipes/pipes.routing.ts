@@ -2,7 +2,7 @@ import type { Routes } from '@angular/router';
 
 import { routes } from '#routing';
 
-const pipes = routes.docs.core.pipes;
+const pipes = routes.pipes;
 
 export default [
   {

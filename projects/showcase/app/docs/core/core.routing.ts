@@ -2,6 +2,9 @@ import type { Routes } from '@angular/router';
 
 import { routes } from '#routing';
 
+// Pipes / services / utils / directives moved out to top-level sibling
+// routes (see routing.ts). This file now only holds the remaining
+// core docs that don't have their own section.
 const core = routes.docs.core;
 
 export default [
@@ -15,27 +18,11 @@ export default [
     loadComponent: () => import('./color/color'),
   },
   {
-    path: core.directives,
-    loadComponent: () => import('./directives/directives'),
-  },
-  {
     path: core.grid,
     loadComponent: () => import('./grid/grid'),
   },
   {
     path: core.overlay,
     loadComponent: () => import('./overlay/overlay'),
-  },
-  {
-    path: core.pipes.index,
-    loadChildren: () => import('./pipes/pipes.routing'),
-  },
-  {
-    path: core.services.index,
-    loadChildren: () => import('./services/services.routing'),
-  },
-  {
-    path: core.utils.index,
-    loadChildren: () => import('./utils/utils.routing'),
   },
 ] satisfies Routes;

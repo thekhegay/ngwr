@@ -2,7 +2,7 @@ import type { Routes } from '@angular/router';
 
 import { routes } from '#routing';
 
-const utils = routes.docs.core.utils;
+const utils = routes.utils;
 
 export default [
   { path: '', pathMatch: 'full', redirectTo: utils.cssSize },

@@ -2,7 +2,7 @@ import type { Routes } from '@angular/router';
 
 import { routes } from '#routing';
 
-const services = routes.docs.core.services;
+const services = routes.services;
 
 export default [
   { path: '', pathMatch: 'full', redirectTo: services.theme },
