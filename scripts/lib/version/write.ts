@@ -7,7 +7,7 @@
 
 /**
  * Writes a new version into `projects/lib/package.json` and syncs the lib's
- * `WR_VERSION` constant — the single source of truth consumed by both the
+ * `NGWR_VERSION` constant — the single source of truth consumed by both the
  * library and the showcase footer via `ngwr/version`.
  */
 
@@ -27,6 +27,9 @@ export function writeVersion(next: string): void {
   writeFileSync(LIB_PKG_PATH, `${JSON.stringify(pkg, null, 2)}\n`);
 
   const versionTs = readFileSync(LIB_VERSION_PATH, 'utf8');
-  const updated = versionTs.replace(/export const WR_VERSION = '[^']*';/, `export const WR_VERSION = '${next}';`);
+  const updated = versionTs.replace(
+    /export const NGWR_VERSION = '[^']*';/,
+    `export const NGWR_VERSION = '${next}';`,
+  );
   writeFileSync(LIB_VERSION_PATH, updated);
 }

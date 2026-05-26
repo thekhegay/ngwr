@@ -6,7 +6,7 @@
  */
 
 /**
- * Bumps `projects/lib/package.json`, syncs the lib's `WR_VERSION` constant,
+ * Bumps `projects/lib/package.json`, syncs the lib's `NGWR_VERSION` constant,
  * and prepends a new section to `CHANGELOG.md` based on the conventional
  * commits since the last release.
  *
@@ -50,7 +50,7 @@ async function main(): Promise<void> {
 
   writeVersion(next);
   info(`✓ Bumped ${current} → ${next}`);
-  info('✓ Synced WR_VERSION in projects/lib/version/wr-version.ts');
+  info('✓ Synced NGWR_VERSION in projects/lib/version/version.ts');
 
   await regenerateChangelog();
   info('✓ CHANGELOG.md updated');

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { MetaService } from '#core/services';
 
@@ -8,6 +9,11 @@ import { MetaService } from '#core/services';
  * Renders the page header (label chips, title, description) and projects
  * the page content below. Wires up `MetaService` automatically — pages
  * don't need to set the title, description, keywords, or canonical URL.
+ *
+ * **Category** — the title-bar category prefix (e.g. "Components", "Utils")
+ * is derived from the first URL segment by default, so per-page boilerplate
+ * stays minimal. Override `[category]` only for the rare page that needs
+ * a forced label.
  *
  * @example
  * ```html
@@ -40,16 +46,23 @@ export class DocPageComponent {
   /** Decorative chips shown above the title (e.g. "Component", "Standalone"). */
   readonly labels = input<readonly string[]>([]);
 
-  /** Title category prefix used in the document title (e.g. "Components"). */
-  readonly category = input<string>('Components');
+  /**
+   * Override the auto-derived category. Pass `null` to use the URL-derived
+   * value (default behaviour). The derived value comes from the first URL
+   * segment, mapped via {@link CATEGORY_BY_SEGMENT}.
+   */
+  readonly category = input<string | null>(null);
 
+  private readonly router = inject(Router);
   private readonly meta = inject(MetaService);
+
+  protected readonly resolvedCategory = computed(() => this.category() ?? this.deriveCategoryFromUrl());
 
   constructor() {
     this.meta.setCanonicalURL();
 
     effect(() => {
-      this.meta.setTitle([this.title(), this.category()]);
+      this.meta.setTitle([this.title(), this.resolvedCategory()]);
 
       const description = this.description();
       if (description) this.meta.setDescription(description);
@@ -58,4 +71,21 @@ export class DocPageComponent {
       if (keywords.length) this.meta.setKeywords([...keywords]);
     });
   }
+
+  private deriveCategoryFromUrl(): string {
+    // First non-empty path segment, e.g. `/utils/keys` → 'utils'.
+    const segment = this.router.url.split(/[/?#]/).find(s => s.length > 0) ?? '';
+    return CATEGORY_BY_SEGMENT[segment] ?? FALLBACK_CATEGORY;
+  }
 }
+
+const FALLBACK_CATEGORY = 'Docs';
+
+const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
+  components: 'Components',
+  directives: 'Directives',
+  pipes: 'Pipes',
+  services: 'Services',
+  utils: 'Utils',
+  'getting-started': 'Getting Started',
+};

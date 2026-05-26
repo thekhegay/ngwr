@@ -6,10 +6,13 @@
  */
 
 /**
- * Library version string, kept in sync with `projects/lib/package.json`
- * by `scripts/release-prepare.ts`.
+ * The ngwr library version string, kept in sync with
+ * `projects/lib/package.json` by `scripts/release-prepare.ts`.
  *
  * Prefer this over reading `package.json` at runtime — that requires a JSON
  * import or `require`, neither of which tree-shakes well in Angular builds.
+ *
+ * Distinct from `Version` exported by `@angular/core`, which reports the
+ * loaded Angular runtime version (e.g. `'21.2.13'`), not ngwr's.
  */
-export const WR_VERSION = '6.1.1';
+export const NGWR_VERSION = '7.0.0';

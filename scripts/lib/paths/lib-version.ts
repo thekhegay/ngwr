@@ -5,10 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** Absolute path to the published library's `WR_VERSION` constant source. */
+/** Absolute path to the published library's `NGWR_VERSION` constant source. */
 
 import { resolve } from 'node:path';
 
 import { ROOT_PATH } from './root';
 
-export const LIB_VERSION_PATH = resolve(ROOT_PATH, 'projects/lib/version/wr-version.ts');
+export const LIB_VERSION_PATH = resolve(ROOT_PATH, 'projects/lib/version/version.ts');
