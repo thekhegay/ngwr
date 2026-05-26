@@ -265,6 +265,9 @@
     "./splitter": {
       "sass": "./splitter/styles/_index.scss"
     },
+    "./split-text": {
+      "sass": "./split-text/styles/_index.scss"
+    },
     "./squircle": {
       "sass": "./squircle/styles/_index.scss"
     },

@@ -1,0 +1,18 @@
+.wr-split-text {
+  display: inline-block;
+  overflow: hidden;
+  white-space: normal;
+  word-wrap: break-word;
+  will-change: transform, opacity;
+
+  &__piece {
+    display: inline-block;
+    will-change: transform, opacity;
+  }
+
+  // Whitespace between pieces — keep flowing.
+  &__space {
+    display: inline;
+    white-space: pre;
+  }
+}

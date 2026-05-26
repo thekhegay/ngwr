@@ -1,0 +1,7 @@
+@for (p of pieces(); track $index) {
+  @if (p.kind === 'piece') {
+    <span class="wr-split-text__piece">{{ p.text }}</span>
+  } @else {
+    <span class="wr-split-text__space">{{ p.text }}</span>
+  }
+}

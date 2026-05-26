@@ -1,0 +1,72 @@
+<ngwr-doc-page
+  title="Split Text"
+  description="Reveals text by splitting it into chars or words and staggering each piece in from a `from` state to a `to` state when the element scrolls into view. *Angular adaptation of the [SplitText effect by David Haz / reactbits.dev](https://www.reactbits.dev/text-animations/split-text). GSAP-free port — uses `IntersectionObserver` + Web Animations API.*"
+  [keywords]="['split-text', 'wr-split-text', 'text animation', 'reactbits']"
+  [labels]="['Animation', 'Reactbits port']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic (chars)">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%">
+        <button
+          type="button"
+          (click)="replay()"
+          style="padding: 0.375rem 0.75rem; border: 1px solid var(--wr-color-light); border-radius: 0.375rem; background: var(--wr-color-white); cursor: pointer; font-size: 0.75rem"
+        >
+          Replay
+        </button>
+        @for (k of [replayKey()]; track k) {
+          <wr-split-text
+            text="Hello, ngwr!"
+            [delay]="40"
+            [duration]="1.2"
+            [rootMargin]="'0px'"
+            style="font-size: 2rem; font-weight: 700; color: var(--wr-color-dark)"
+          />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Words">
+    <ngwr-doc-code [code]="snippets.words" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      @for (k of [replayKey()]; track k) {
+        <wr-split-text
+          text="Animate every word with a slide-and-fade."
+          splitType="words"
+          [delay]="80"
+          [from]="{ opacity: 0, y: 30 }"
+          [to]="{ opacity: 1, y: 0 }"
+          [rootMargin]="'0px'"
+          style="font-size: 1.25rem; font-weight: 500; color: var(--wr-color-dark)"
+        />
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Scale + rotate">
+    <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      @for (k of [replayKey()]; track k) {
+        <wr-split-text
+          text="Scale + rotate in"
+          [from]="{ opacity: 0, scale: 0.4, rotate: -15 }"
+          [to]="{ opacity: 1, scale: 1, rotate: 0 }"
+          [duration]="0.9"
+          [delay]="30"
+          [rootMargin]="'0px'"
+          style="font-size: 2rem; font-weight: 700; color: var(--wr-color-primary)"
+        />
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
