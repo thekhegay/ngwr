@@ -1,1 +1,1 @@
-export { WrGaugeComponent } from './gauge.component';
+export { WrGauge } from './gauge';

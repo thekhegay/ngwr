@@ -1,0 +1,22 @@
+<ngwr-doc-page
+  title="WrHotkey"
+  description="Global keybinding registry. Specs like `'mod+k'` — `mod` auto-resolves to Cmd on macOS / Ctrl elsewhere. Skips bindings while an input / textarea has focus by default. Use `[wrHotkey]` directive for element-scoped bindings."
+  [keywords]="['service', 'hotkey', 'keyboard', 'WrHotkey']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
+        <div>Press <kbd>Cmd</kbd>+<kbd>/</kbd> (or <kbd>Ctrl</kbd>+<kbd>/</kbd>) anywhere on this page.</div>
+        @if (lastHotkey()) {
+          <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">{{ lastHotkey() }}</small>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

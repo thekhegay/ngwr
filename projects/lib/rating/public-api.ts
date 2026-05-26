@@ -1,1 +1,1 @@
-export { WrRatingComponent } from './rating.component';
+export { WrRating } from './rating';

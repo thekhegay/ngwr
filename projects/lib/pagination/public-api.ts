@@ -1,2 +1,2 @@
-export { WrPaginationComponent } from './pagination.component';
+export { WrPagination } from './pagination';
 export type { WrPaginationAlign } from './types';

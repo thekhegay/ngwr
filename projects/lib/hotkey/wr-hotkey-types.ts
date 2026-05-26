@@ -14,12 +14,12 @@
  */
 export type WrHotkeySpec = string;
 
-/** Returned by {@link WrHotkeyService.bind} — call `.unbind()` to remove. */
+/** Returned by {@link WrHotkey.bind} — call `.unbind()` to remove. */
 export interface WrHotkeyHandle {
   readonly unbind: () => void;
 }
 
-/** Options accepted by {@link WrHotkeyService.bind}. */
+/** Options accepted by {@link WrHotkey.bind}. */
 export interface WrHotkeyOptions {
   /**
    * Scope the listener to a specific element instead of `document`. The

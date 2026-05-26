@@ -1,1 +1,1 @@
-export { WrAutocompleteComponent } from './autocomplete.component';
+export { WrAutocomplete } from './autocomplete';

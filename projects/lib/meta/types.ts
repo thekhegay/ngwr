@@ -41,7 +41,7 @@ export interface WrMetaConfig {
   readonly twitter?: WrMetaTwitter;
 }
 
-/** Returned by {@link WrMetaService.push} — call `.pop()` to remove the layer. */
+/** Returned by {@link WrMeta.push} — call `.pop()` to remove the layer. */
 export interface WrMetaHandle {
   readonly pop: () => void;
 }

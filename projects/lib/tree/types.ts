@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** A single node in a {@link WrTreeComponent}. Nodes are immutable. */
+/** A single node in a {@link WrTree}. Nodes are immutable. */
 export interface WrTreeNode<TId = string> {
   readonly id: TId;
   readonly label: string;
@@ -13,5 +13,5 @@ export interface WrTreeNode<TId = string> {
   readonly disabled?: boolean;
 }
 
-/** Selection mode for {@link WrTreeComponent}. */
+/** Selection mode for {@link WrTree}. */
 export type WrTreeSelectionMode = 'none' | 'single' | 'multi';

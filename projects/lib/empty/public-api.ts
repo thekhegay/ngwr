@@ -1,1 +1,1 @@
-export { WrEmptyComponent } from './empty.component';
+export { WrEmpty } from './empty';

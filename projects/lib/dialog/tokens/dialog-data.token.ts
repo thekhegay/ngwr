@@ -8,7 +8,7 @@
 import { InjectionToken } from '@angular/core';
 
 /**
- * Token that exposes the `data` payload passed to `WrDialogService.open()`.
+ * Token that exposes the `data` payload passed to `WrDialog.open()`.
  *
  * @example
  * ```ts

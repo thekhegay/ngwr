@@ -1,0 +1,15 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+
+import { WrBackTop } from 'ngwr/back-top';
+
+import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+
+@Component({
+  selector: 'ngwr-back-top-page',
+  templateUrl: './back-top.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [WrBackTop, DocPageComponent, DocSectionComponent, DocCodeComponent],
+})
+export default class BackTopPageComponent {
+  protected readonly snippet = `<wr-back-top visibilityThreshold="400" [offset]="80" />`;
+}

@@ -12,7 +12,7 @@ import { WR_TOAST_CONFIG } from './tokens';
 import type { WrToastConfig } from './types';
 
 /**
- * Registers a global {@link WrToastConfig} for {@link WrToastService}. Any
+ * Registers a global {@link WrToastConfig} for {@link WrToast}. Any
  * field you omit falls back to {@link DEFAULT_TOAST_CONFIG}; the `labels`
  * sub-object is merged separately so you can override a single string at a
  * time (useful for i18n).

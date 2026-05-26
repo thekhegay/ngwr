@@ -1,2 +1,2 @@
-export { WrAlertComponent } from './alert.component';
+export { WrAlert } from './alert';
 export type { WrAlertType } from './types';

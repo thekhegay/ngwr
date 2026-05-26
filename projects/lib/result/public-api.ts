@@ -1,1 +1,1 @@
-export { WrResultComponent, type WrResultStatus } from './result.component';
+export { WrResult, type WrResultStatus } from './result';

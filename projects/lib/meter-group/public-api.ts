@@ -1,2 +1,2 @@
-export { WrMeterGroupComponent } from './meter-group.component';
+export { WrMeterGroup } from './meter-group';
 export type { WrMeterSegment } from './types';

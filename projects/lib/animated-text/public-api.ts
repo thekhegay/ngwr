@@ -1,1 +1,1 @@
-export { WrAnimatedTextComponent, type WrAnimatedTextMode } from './animated-text.component';
+export { WrAnimatedText, type WrAnimatedTextMode } from './animated-text';

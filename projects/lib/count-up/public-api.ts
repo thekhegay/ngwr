@@ -1,1 +1,1 @@
-export { WrCountUpComponent } from './count-up.component';
+export { WrCountUp } from './count-up';

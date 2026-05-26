@@ -1,1 +1,1 @@
-export { WrBackTopComponent } from './back-top.component';
+export { WrBackTop } from './back-top';

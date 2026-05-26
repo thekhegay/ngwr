@@ -1,2 +1,2 @@
-export { WrTypographyDirective } from './typography.directive';
+export { WrTypography } from './typography';
 export type { WrTypographyVariant, WrTypographyAlign, WrTypographyTone } from './types';

@@ -1,1 +1,1 @@
-export { WrCompareComponent } from './compare.component';
+export { WrCompare } from './compare';

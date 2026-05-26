@@ -1,2 +1,2 @@
-export { WrFormItemComponent } from './form-item.component';
-export { WrFormErrorComponent } from './form-error.component';
+export { WrFormItem } from './form-item';
+export { WrFormError } from './form-error';

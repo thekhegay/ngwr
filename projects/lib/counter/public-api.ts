@@ -1,2 +1,2 @@
-export { WrCounterComponent } from './counter.component';
+export { WrCounter } from './counter';
 export type { WrCounterMode } from './types';

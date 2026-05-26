@@ -1,13 +1,13 @@
-export { WrTableComponent } from './table.component';
-export { WrTableCellDirective } from './table-cell.directive';
-export { WrTableSortComponent } from './table-sort.component';
-export { WrTableFilterComponent } from './table-filter.component';
+export { WrTable } from './table';
+export { WrTableCell } from './table-cell';
+export { WrTableSort } from './table-sort';
+export { WrTableFilter } from './table-filter';
 export type {
   WrTableCellContext,
   WrTableColumn,
   WrTableColumns,
   WrTableFilterChange,
   WrTableFilterItem,
-  WrTableSort,
+  WrTableSortState,
   WrTableSortDirection,
 } from './types';

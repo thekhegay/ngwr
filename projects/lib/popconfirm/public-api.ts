@@ -1,3 +1,3 @@
-export { WrPopconfirmDirective } from './popconfirm.directive';
-export { WrPopconfirmComponent } from './popconfirm.component';
+export { WrPopconfirm } from './popconfirm';
+export { WrPopconfirmPanel } from './popconfirm-panel';
 export type { WrPopconfirmPosition } from './types';

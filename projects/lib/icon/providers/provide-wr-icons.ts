@@ -8,7 +8,7 @@
 import { type Provider, isDevMode } from '@angular/core';
 
 import { WR_ICONS } from '../tokens';
-import type { WrIcon } from '../types';
+import type { WrIconDef } from '../types';
 import { validateIcon } from '../utils';
 
 /**
@@ -38,18 +38,18 @@ import { validateIcon } from '../utils';
  * @example
  * ```ts
  * // Component-level registration
- * import { logoGithub, logoNpm, provideWrIcons, WrIconComponent } from 'ngwr/icon';
+ * import { logoGithub, logoNpm, provideWrIcons, WrIconDef } from 'ngwr/icon';
  *
  * @Component({
  *   selector: 'ngwr-header',
- *   imports: [WrIconComponent],
+ *   imports: [WrIcon],
  *   providers: [provideWrIcons([logoGithub, logoNpm])],
  *   template: `<wr-icon name="logo-github" />`,
  * })
  * export class HeaderComponent {}
  * ```
  */
-export function provideWrIcons(icons: WrIcon[]): Provider[] {
+export function provideWrIcons(icons: WrIconDef[]): Provider[] {
   if (isDevMode()) {
     for (const icon of icons) validateIcon(icon);
   }

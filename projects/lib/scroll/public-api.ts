@@ -1,2 +1,2 @@
-export { WrScrollService } from './wr-scroll.service';
+export { WrScroll } from './wr-scroll';
 export type { WrScrollTarget, WrScrollOptions } from './types';

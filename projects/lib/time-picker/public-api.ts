@@ -1,1 +1,1 @@
-export { WrTimePickerComponent } from './time-picker.component';
+export { WrTimePicker } from './time-picker';

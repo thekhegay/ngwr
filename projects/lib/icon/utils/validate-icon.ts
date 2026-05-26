@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrIcon } from '../types';
+import type { WrIconDef } from '../types';
 
 const VIEW_BOX_RE = /<svg\b[^>]*\bviewBox\s*=/i;
 const SVG_ROOT_RE = /<svg\b/i;
@@ -21,7 +21,7 @@ const SVG_ROOT_RE = /<svg\b/i;
  *
  * @internal
  */
-export function validateIcon(icon: WrIcon): void {
+export function validateIcon(icon: WrIconDef): void {
   if (!SVG_ROOT_RE.test(icon.data)) {
     // eslint-disable-next-line no-console -- dev-mode validation
     console.warn(

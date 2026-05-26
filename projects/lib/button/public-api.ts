@@ -1,3 +1,3 @@
-export { WrButtonComponent } from './button.component';
-export { WrButtonGroupComponent } from './button-group.component';
+export { WrButton } from './button';
+export { WrButtonGroup } from './button-group';
 export type { WrButtonSize, WrButtonIconPosition } from './types';

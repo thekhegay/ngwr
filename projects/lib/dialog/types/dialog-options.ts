@@ -6,7 +6,7 @@
  */
 
 /**
- * Options accepted by `WrDialogService.open()`.
+ * Options accepted by `WrDialog.open()`.
  */
 export interface WrDialogOptions<D = unknown> {
   /** Data payload exposed to the dialog content via `WR_DIALOG_DATA`. */

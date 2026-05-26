@@ -1,2 +1,2 @@
-export { WrDividerComponent } from './divider.component';
+export { WrDivider } from './divider';
 export type { WrDividerType } from './types';

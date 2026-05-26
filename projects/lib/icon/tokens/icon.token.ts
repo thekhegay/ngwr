@@ -7,7 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-import type { WrIcon } from '../types';
+import type { WrIconDef } from '../types';
 
 /**
  * Multi-provider token for registering icons with the icon registry.
@@ -16,4 +16,4 @@ import type { WrIcon } from '../types';
  *
  * @internal
  */
-export const WR_ICONS = new InjectionToken<readonly WrIcon[][]>('WR_ICONS');
+export const WR_ICONS = new InjectionToken<readonly WrIconDef[][]>('WR_ICONS');

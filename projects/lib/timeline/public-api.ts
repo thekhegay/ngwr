@@ -1,2 +1,2 @@
-export { WrTimelineComponent } from './timeline.component';
-export { WrTimelineItemComponent, type WrTimelineColor } from './timeline-item.component';
+export { WrTimeline } from './timeline';
+export { WrTimelineItem, type WrTimelineColor } from './timeline-item';

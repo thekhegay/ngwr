@@ -8,7 +8,7 @@
 import type { WrToastOptions } from './types';
 
 /**
- * Handle returned by `WrToastService.show()`. Call `dismiss()` to remove
+ * Handle returned by `WrToast.show()`. Call `dismiss()` to remove
  * the toast early. Inspect `options` to see what the caller requested.
  */
 export class WrToastRef {

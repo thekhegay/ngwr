@@ -1,2 +1,2 @@
-export { WrImageCropperComponent } from './image-cropper.component';
+export { WrImageCropper } from './image-cropper';
 export type { WrCropRect, WrCropHandle, WrImageOutputType } from './types';

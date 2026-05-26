@@ -11,7 +11,7 @@ import type { WrTableSortDirection } from './table-sort-direction';
  * Per-column sort state. The full sort emitted by `<wr-table>` is an
  * array of these — the order in the array is the application order.
  */
-export interface WrTableSort {
+export interface WrTableSortState {
   readonly key: string;
   readonly direction: WrTableSortDirection;
 }

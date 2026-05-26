@@ -1,1 +1,1 @@
-export { WrTextareaComponent } from './textarea.component';
+export { WrTextarea } from './textarea';

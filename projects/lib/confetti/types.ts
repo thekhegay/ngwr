@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** Options for {@link WrConfettiService.fire}. */
+/** Options for {@link WrConfetti.fire}. */
 export interface WrConfettiOptions {
   /** Number of particles. @default 80 */
   readonly count?: number;

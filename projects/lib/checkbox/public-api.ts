@@ -1,3 +1,3 @@
-export { WrCheckboxComponent } from './checkbox.component';
-export { WrCheckboxGroupComponent } from './checkbox-group.component';
+export { WrCheckbox } from './checkbox';
+export { WrCheckboxGroup } from './checkbox-group';
 export { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';

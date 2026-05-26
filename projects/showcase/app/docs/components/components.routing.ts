@@ -12,286 +12,286 @@ export default [
   },
   {
     path: components.alert,
-    loadComponent: () => import('./alert/alert.component'),
+    loadComponent: () => import('./alert/alert'),
   },
   {
     path: components.anchor,
-    loadComponent: () => import('./anchor/anchor.component'),
+    loadComponent: () => import('./anchor/anchor'),
   },
   {
     path: components.autocomplete,
-    loadComponent: () => import('./autocomplete/autocomplete.component'),
+    loadComponent: () => import('./autocomplete/autocomplete'),
   },
   {
     path: components.avatar,
-    loadComponent: () => import('./avatar/avatar.component'),
+    loadComponent: () => import('./avatar/avatar'),
   },
   {
     path: components.backTop,
-    loadComponent: () => import('./back-top/back-top.component'),
+    loadComponent: () => import('./back-top/back-top'),
   },
   {
     path: components.badge,
-    loadComponent: () => import('./badge/badge.component'),
+    loadComponent: () => import('./badge/badge'),
   },
   {
     path: components.breadcrumbs,
-    loadComponent: () => import('./breadcrumbs/breadcrumbs.component'),
+    loadComponent: () => import('./breadcrumbs/breadcrumbs'),
   },
   {
     path: components.button,
-    loadComponent: () => import('./button/button.component'),
+    loadComponent: () => import('./button/button'),
   },
   {
     path: components.buttonGroup,
-    loadComponent: () => import('./button-group/button-group.component'),
+    loadComponent: () => import('./button-group/button-group'),
   },
   {
     path: components.calendar,
-    loadComponent: () => import('./calendar/calendar.component'),
+    loadComponent: () => import('./calendar/calendar'),
   },
   {
     path: components.carousel,
-    loadComponent: () => import('./carousel/carousel.component'),
+    loadComponent: () => import('./carousel/carousel'),
   },
   {
     path: components.charts,
-    loadComponent: () => import('./charts/charts.component'),
+    loadComponent: () => import('./charts/charts'),
   },
   {
     path: components.squircle,
-    loadComponent: () => import('./squircle/squircle.component'),
+    loadComponent: () => import('./squircle/squircle'),
   },
   {
     path: components.checkbox,
-    loadComponent: () => import('./checkbox/checkbox.component'),
+    loadComponent: () => import('./checkbox/checkbox'),
   },
   {
     path: components.collapse,
-    loadComponent: () => import('./collapse/collapse.component'),
+    loadComponent: () => import('./collapse/collapse'),
   },
   {
     path: components.colorPicker,
-    loadComponent: () => import('./color-picker/color-picker.component'),
+    loadComponent: () => import('./color-picker/color-picker'),
   },
   {
     path: components.compare,
-    loadComponent: () => import('./compare/compare.component'),
+    loadComponent: () => import('./compare/compare'),
   },
   {
     path: components.contextMenu,
-    loadComponent: () => import('./context-menu/context-menu.component'),
+    loadComponent: () => import('./context-menu/context-menu'),
   },
   {
     path: components.counter,
-    loadComponent: () => import('./counter/counter.component'),
+    loadComponent: () => import('./counter/counter'),
   },
   {
     path: components.empty,
-    loadComponent: () => import('./empty/empty.component'),
+    loadComponent: () => import('./empty/empty'),
   },
   {
     path: components.keyboard,
-    loadComponent: () => import('./keyboard/keyboard.component'),
+    loadComponent: () => import('./keyboard/keyboard'),
   },
   {
     path: components.datePicker,
-    loadComponent: () => import('./date-picker/date-picker.component'),
+    loadComponent: () => import('./date-picker/date-picker'),
   },
   {
     path: components.descriptions,
-    loadComponent: () => import('./descriptions/descriptions.component'),
+    loadComponent: () => import('./descriptions/descriptions'),
   },
   {
     path: components.dateTimePicker,
-    loadComponent: () => import('./date-time-picker/date-time-picker.component'),
+    loadComponent: () => import('./date-time-picker/date-time-picker'),
   },
   {
     path: components.dialog,
-    loadComponent: () => import('./dialog/dialog.component'),
+    loadComponent: () => import('./dialog/dialog'),
   },
   {
     path: components.divider,
-    loadComponent: () => import('./divider/divider.component'),
+    loadComponent: () => import('./divider/divider'),
   },
   {
     path: components.drawer,
-    loadComponent: () => import('./drawer/drawer.component'),
+    loadComponent: () => import('./drawer/drawer'),
   },
   {
     path: components.dropdown,
-    loadComponent: () => import('./dropdown/dropdown.component'),
+    loadComponent: () => import('./dropdown/dropdown'),
   },
   {
     path: components.fileUpload,
-    loadComponent: () => import('./file-upload/file-upload.component'),
+    loadComponent: () => import('./file-upload/file-upload'),
   },
   {
     path: components.form,
-    loadComponent: () => import('./form/form.component'),
+    loadComponent: () => import('./form/form'),
   },
   {
     path: components.icon,
-    loadComponent: () => import('./icon/icon.component'),
+    loadComponent: () => import('./icon/icon'),
   },
   {
     path: components.imageCropper,
-    loadComponent: () => import('./image-cropper/image-cropper.component'),
+    loadComponent: () => import('./image-cropper/image-cropper'),
   },
   {
     path: components.input,
-    loadComponent: () => import('./input/input.component'),
+    loadComponent: () => import('./input/input'),
   },
   {
     path: components.layout,
-    loadComponent: () => import('./layout/layout.component'),
+    loadComponent: () => import('./layout/layout'),
   },
   {
     path: components.inputNumber,
-    loadComponent: () => import('./input-number/input-number.component'),
+    loadComponent: () => import('./input-number/input-number'),
   },
   {
     path: components.inputOtp,
-    loadComponent: () => import('./input-otp/input-otp.component'),
+    loadComponent: () => import('./input-otp/input-otp'),
   },
   {
     path: components.knob,
-    loadComponent: () => import('./knob/knob.component'),
+    loadComponent: () => import('./knob/knob'),
   },
   {
     path: components.mention,
-    loadComponent: () => import('./mention/mention.component'),
+    loadComponent: () => import('./mention/mention'),
   },
   {
     path: components.motion,
-    loadComponent: () => import('./motion/motion.component'),
+    loadComponent: () => import('./motion/motion'),
   },
   {
     path: components.meterGroup,
-    loadComponent: () => import('./meter-group/meter-group.component'),
+    loadComponent: () => import('./meter-group/meter-group'),
   },
   {
     path: components.pageHeader,
-    loadComponent: () => import('./page-header/page-header.component'),
+    loadComponent: () => import('./page-header/page-header'),
   },
   {
     path: components.pagination,
-    loadComponent: () => import('./pagination/pagination.component'),
+    loadComponent: () => import('./pagination/pagination'),
   },
   {
     path: components.popconfirm,
-    loadComponent: () => import('./popconfirm/popconfirm.component'),
+    loadComponent: () => import('./popconfirm/popconfirm'),
   },
   {
     path: components.popover,
-    loadComponent: () => import('./popover/popover.component'),
+    loadComponent: () => import('./popover/popover'),
   },
   {
     path: components.progress,
-    loadComponent: () => import('./progress/progress.component'),
+    loadComponent: () => import('./progress/progress'),
   },
   {
     path: components.qrCode,
-    loadComponent: () => import('./qr/qr.component'),
+    loadComponent: () => import('./qr/qr'),
   },
   {
     path: components.radio,
-    loadComponent: () => import('./radio/radio.component'),
+    loadComponent: () => import('./radio/radio'),
   },
   {
     path: components.rating,
-    loadComponent: () => import('./rating/rating.component'),
+    loadComponent: () => import('./rating/rating'),
   },
   {
     path: components.result,
-    loadComponent: () => import('./result/result.component'),
+    loadComponent: () => import('./result/result'),
   },
   {
     path: components.segmented,
-    loadComponent: () => import('./segmented/segmented.component'),
+    loadComponent: () => import('./segmented/segmented'),
   },
   {
     path: components.select,
-    loadComponent: () => import('./select/select.component'),
+    loadComponent: () => import('./select/select'),
   },
   {
     path: components.skeleton,
-    loadComponent: () => import('./skeleton/skeleton.component'),
+    loadComponent: () => import('./skeleton/skeleton'),
   },
   {
     path: components.slider,
-    loadComponent: () => import('./slider/slider.component'),
+    loadComponent: () => import('./slider/slider'),
   },
   {
     path: components.speedDial,
-    loadComponent: () => import('./speed-dial/speed-dial.component'),
+    loadComponent: () => import('./speed-dial/speed-dial'),
   },
   {
     path: components.spinner,
-    loadComponent: () => import('./spinner/spinner.component'),
+    loadComponent: () => import('./spinner/spinner'),
   },
   {
     path: components.splitter,
-    loadComponent: () => import('./splitter/splitter.component'),
+    loadComponent: () => import('./splitter/splitter'),
   },
   {
     path: components.statistic,
-    loadComponent: () => import('./statistic/statistic.component'),
+    loadComponent: () => import('./statistic/statistic'),
   },
   {
     path: components.stepper,
-    loadComponent: () => import('./stepper/stepper.component'),
+    loadComponent: () => import('./stepper/stepper'),
   },
   {
     path: components.switch,
-    loadComponent: () => import('./switch/switch.component'),
+    loadComponent: () => import('./switch/switch'),
   },
   {
     path: components.table,
-    loadComponent: () => import('./table/table.component'),
+    loadComponent: () => import('./table/table'),
   },
   {
     path: components.tabs,
-    loadComponent: () => import('./tabs/tabs.component'),
+    loadComponent: () => import('./tabs/tabs'),
   },
   {
     path: components.tag,
-    loadComponent: () => import('./tag/tag.component'),
+    loadComponent: () => import('./tag/tag'),
   },
   {
     path: components.typography,
-    loadComponent: () => import('./typography/typography.component'),
+    loadComponent: () => import('./typography/typography'),
   },
   {
     path: components.textarea,
-    loadComponent: () => import('./textarea/textarea.component'),
+    loadComponent: () => import('./textarea/textarea'),
   },
   {
     path: components.timePicker,
-    loadComponent: () => import('./time-picker/time-picker.component'),
+    loadComponent: () => import('./time-picker/time-picker'),
   },
   {
     path: components.timeline,
-    loadComponent: () => import('./timeline/timeline.component'),
+    loadComponent: () => import('./timeline/timeline'),
   },
   {
     path: components.toast,
-    loadComponent: () => import('./toast/toast.component'),
+    loadComponent: () => import('./toast/toast'),
   },
   {
     path: components.toolbar,
-    loadComponent: () => import('./toolbar/toolbar.component'),
+    loadComponent: () => import('./toolbar/toolbar'),
   },
   {
     path: components.tooltip,
-    loadComponent: () => import('./tooltip/tooltip.component'),
+    loadComponent: () => import('./tooltip/tooltip'),
   },
   {
     path: components.tree,
-    loadComponent: () => import('./tree/tree.component'),
+    loadComponent: () => import('./tree/tree'),
   },
   {
     path: components.window,
-    loadComponent: () => import('./window/window.component'),
+    loadComponent: () => import('./window/window'),
   },
 ] satisfies Routes;

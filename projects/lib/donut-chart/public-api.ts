@@ -1,1 +1,1 @@
-export { WrDonutChartComponent, type WrDonutSegment } from './donut-chart.component';
+export { WrDonutChart, type WrDonutSegment } from './donut-chart';

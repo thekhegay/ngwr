@@ -1,1 +1,1 @@
-export { WrDatePickerComponent } from './date-picker.component';
+export { WrDatePicker } from './date-picker';

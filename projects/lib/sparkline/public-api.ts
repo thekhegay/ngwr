@@ -1,1 +1,1 @@
-export { WrSparklineComponent } from './sparkline.component';
+export { WrSparkline } from './sparkline';

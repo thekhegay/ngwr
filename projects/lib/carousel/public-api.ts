@@ -1,2 +1,2 @@
-export { WrCarouselComponent } from './carousel.component';
-export { WrCarouselSlideComponent } from './carousel-slide.component';
+export { WrCarousel } from './carousel';
+export { WrCarouselSlide } from './carousel-slide';

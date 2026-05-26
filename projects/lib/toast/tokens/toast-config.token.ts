@@ -11,7 +11,7 @@ import { DEFAULT_TOAST_CONFIG } from '../default-toast-config';
 import type { WrToastConfig } from '../types';
 
 /**
- * Holds the global {@link WrToastConfig} used by {@link WrToastService}.
+ * Holds the global {@link WrToastConfig} used by {@link WrToast}.
  * The default factory returns {@link DEFAULT_TOAST_CONFIG} so the service
  * works out of the box; override via {@link provideWrToastConfig}.
  */

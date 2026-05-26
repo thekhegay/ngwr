@@ -1,4 +1,4 @@
-export { WrToastService } from './toast.service';
+export { WrToast } from './toast';
 export { WrToastRef } from './toast-ref';
 export { provideWrToastConfig } from './provide-wr-toast-config';
 export { DEFAULT_TOAST_CONFIG } from './default-toast-config';

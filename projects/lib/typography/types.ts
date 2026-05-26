@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** Semantic + display variants for {@link WrTypographyComponent}. */
+/** Semantic + display variants for {@link WrTypography}. */
 export type WrTypographyVariant =
   | 'display'
   | 'h1'

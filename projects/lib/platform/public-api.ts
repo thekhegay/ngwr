@@ -1,1 +1,1 @@
-export { WrPlatformService } from './wr-platform.service';
+export { WrPlatform } from './wr-platform';

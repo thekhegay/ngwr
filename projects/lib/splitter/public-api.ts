@@ -1,1 +1,1 @@
-export { WrSplitterComponent } from './splitter.component';
+export { WrSplitter } from './splitter';

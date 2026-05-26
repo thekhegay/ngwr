@@ -1,2 +1,2 @@
-export { WrAvatarComponent } from './avatar.component';
+export { WrAvatar } from './avatar';
 export type { WrAvatarSize } from './types';

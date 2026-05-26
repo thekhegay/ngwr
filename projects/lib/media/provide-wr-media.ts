@@ -10,7 +10,7 @@ import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/co
 import { DEFAULT_WR_BREAKPOINTS, WR_BREAKPOINTS, type WrBreakpointMap } from './wr-breakpoints';
 
 /**
- * Override the breakpoint map used by {@link WrMediaService}. Partial maps
+ * Override the breakpoint map used by {@link WrMedia}. Partial maps
  * are merged with {@link DEFAULT_WR_BREAKPOINTS}, so you only need to list
  * the breakpoints you want to change.
  *

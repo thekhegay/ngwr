@@ -1,3 +1,3 @@
-export { WrMentionDirective } from './mention.directive';
-export { WrMentionPanelComponent } from './mention-panel.component';
+export { WrMention } from './mention';
+export { WrMentionPanel } from './mention-panel';
 export type { WrMentionItem, WrMentionCommit } from './types';

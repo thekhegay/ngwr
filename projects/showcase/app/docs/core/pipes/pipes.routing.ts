@@ -12,22 +12,22 @@ export default [
   },
   {
     path: pipes.wrNumber,
-    loadComponent: () => import('./wr-number/wr-number.component'),
+    loadComponent: () => import('./wr-number/wr-number'),
   },
   {
     path: pipes.wrBytes,
-    loadComponent: () => import('./wr-bytes/wr-bytes.component'),
+    loadComponent: () => import('./wr-bytes/wr-bytes'),
   },
   {
     path: pipes.wrDate,
-    loadComponent: () => import('./wr-date/wr-date.component'),
+    loadComponent: () => import('./wr-date/wr-date'),
   },
   {
     path: pipes.wrTruncate,
-    loadComponent: () => import('./wr-truncate/wr-truncate.component'),
+    loadComponent: () => import('./wr-truncate/wr-truncate'),
   },
   {
     path: pipes.range,
-    loadComponent: () => import('./range/range.component'),
+    loadComponent: () => import('./range/range'),
   },
 ] satisfies Routes;

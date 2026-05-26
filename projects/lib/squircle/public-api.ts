@@ -1,3 +1,3 @@
 export { squirclePath, type WrSquircleCorners } from './compute-squircle-path';
-export { WrSquircleDirective } from './wr-squircle.directive';
-export { WrSquircleComponent } from './wr-squircle.component';
+export { WrSquircle } from './wr-squircle';
+export { WrSquircleHost } from './wr-squircle-host';

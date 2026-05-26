@@ -1,1 +1,1 @@
-export { WrAnchorComponent, type WrAnchorLink } from './anchor.component';
+export { WrAnchor, type WrAnchorLink } from './anchor';

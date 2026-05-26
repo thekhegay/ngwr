@@ -1,1 +1,1 @@
-export { WrSwitchComponent } from './switch.component';
+export { WrSwitch } from './switch';

@@ -7,7 +7,7 @@
 
 import type { WrIconName } from 'ngwr/icon';
 
-/** A single action / page entry in {@link WrCommandPaletteComponent}. */
+/** A single action / page entry in {@link WrCommandPalette}. */
 export interface WrCommandItem {
   /** Stable identifier — used for `track $index` and option focus. */
   readonly id: string;

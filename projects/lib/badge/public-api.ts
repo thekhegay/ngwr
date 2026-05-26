@@ -1,2 +1,2 @@
-export { WrBadgeComponent } from './badge.component';
+export { WrBadge } from './badge';
 export type { WrBadgeSize } from './types';

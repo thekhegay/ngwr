@@ -1,1 +1,1 @@
-export { WrToolbarComponent } from './toolbar.component';
+export { WrToolbar } from './toolbar';

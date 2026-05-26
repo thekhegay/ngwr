@@ -1,1 +1,1 @@
-export { WrLineChartComponent, type WrLineSeries } from './line-chart.component';
+export { WrLineChart, type WrLineSeries } from './line-chart';

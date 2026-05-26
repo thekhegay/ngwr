@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** One segment of a {@link WrMeterGroupComponent}. */
+/** One segment of a {@link WrMeterGroup}. */
 export interface WrMeterSegment {
   /** Label shown in the legend. */
   readonly label: string;

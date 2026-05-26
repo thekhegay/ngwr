@@ -1,1 +1,1 @@
-export { WrAuroraComponent } from './aurora.component';
+export { WrAurora } from './aurora';

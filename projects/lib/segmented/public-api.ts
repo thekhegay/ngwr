@@ -1,2 +1,2 @@
-export { WrSegmentedComponent } from './segmented.component';
+export { WrSegmented } from './segmented';
 export type { WrSegmentedOption } from './types';

@@ -1,4 +1,4 @@
-export { WrCollapseComponent } from './collapse.component';
-export { WrCollapseGroupComponent } from './collapse-group.component';
-export { WrAccordionComponent } from './accordion.component';
+export { WrCollapse } from './collapse';
+export { WrCollapseGroup } from './collapse-group';
+export { WrAccordion } from './accordion';
 export { WR_COLLAPSE_GROUP, type WrCollapseGroupContext } from './tokens';

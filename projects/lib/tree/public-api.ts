@@ -1,2 +1,2 @@
-export { WrTreeComponent } from './tree.component';
+export { WrTree } from './tree';
 export type { WrTreeNode, WrTreeSelectionMode } from './types';

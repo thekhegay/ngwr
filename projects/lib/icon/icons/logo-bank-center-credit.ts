@@ -5,9 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrIcon } from '../types';
+import type { WrIconDef } from '../types';
 
-export const logoBankCenterCredit: WrIcon = {
+export const logoBankCenterCredit: WrIconDef = {
   name: 'logo-bank-center-credit',
   data: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="wr-icon__svg"><path d="m45.7 31-14-23.3c-3.5-5.8-11.9-5.8-15.5 0L2.3 31c-3.6 6.1.7 13.7 7.7 13.7h28c7 0 11.3-7.6 7.7-13.7m-5.9 8.7H11.7c-3.9 0-6.2-4.2-4.2-7.5l14-23.3c2-3.2 6.6-3.2 8.6 0l14 23.3c1.9 3.2-.4 7.5-4.3 7.5m-9.2-26.1c-1.3-2.4-4.7-2.4-6.1 0l-9.3 15.5c-1.4 2.4.3 5.4 3.1 5.4h18.6c2.8 0 4.5-3.1 3.1-5.4zm4.8 16H23.3c-1.1 0-1.7-1.2-1.2-2.1l6.1-10.1c.6-.9 1.9-.9 2.4 0l6.1 10.1c.4.9-.2 2.1-1.3 2.1"/></svg>',
 };

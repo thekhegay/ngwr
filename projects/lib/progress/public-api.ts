@@ -1,1 +1,1 @@
-export { WrProgressComponent } from './progress.component';
+export { WrProgress } from './progress';

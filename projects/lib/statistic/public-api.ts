@@ -1,1 +1,1 @@
-export { WrStatisticComponent } from './statistic.component';
+export { WrStatistic } from './statistic';

@@ -1,2 +1,2 @@
-export { WrQrComponent } from './qr.component';
+export { WrQr } from './qr';
 export type { WrQrErrorLevel } from './types';

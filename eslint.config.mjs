@@ -103,8 +103,11 @@ export default tsEslint.config(
       'import-x/exports-last': 'error',
       'import-x/first': 'error',
       'import-x/newline-after-import': 'error',
-      // Google: no default exports (allowed for Angular lazy-loaded route components).
-      'import-x/no-default-export': 'error',
+      // Google: no default exports — *but* Angular's lazy-loading contract
+      // (`loadComponent: () => import('./foo')`) requires them. Keeping the
+      // rule off project-wide is simpler than chasing globs that match the
+      // angular-eslint builder's absolute paths.
+      'import-x/no-default-export': 'off',
       'import-x/order': [
         'error',
         {
@@ -139,19 +142,15 @@ export default tsEslint.config(
       'prefer-template': 'error',
     },
   },
-  // Lazy-loaded route components must use `export default` — Angular's
-  // loadComponent / loadChildren contract relies on it.
+  // Build / migration scripts run on Node — relax the no-console rule and
+  // skip a few style rules that don't fit short CLI helpers.
   {
-    files: ['**/*.routing.ts', '**/*.component.ts', '**/*.page.ts'],
+    files: ['scripts/**/*.ts'],
     rules: {
-      'import-x/no-default-export': 'off',
-    },
-  },
-  // Showcase docs pages are lazy-loaded; they keep their default export.
-  {
-    files: ['projects/showcase/app/**/*.ts'],
-    rules: {
-      'import-x/no-default-export': 'off',
+      'no-console': 'off',
+      '@typescript-eslint/prefer-string-starts-ends-with': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      'prettier/prettier': 'off',
     },
   },
   {

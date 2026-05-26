@@ -1,2 +1,2 @@
-export { WrCalendarComponent } from './calendar.component';
+export { WrCalendar } from './calendar';
 export type { WrCalendarMode, WrCalendarRange } from './types';

@@ -1,1 +1,1 @@
-export { WrKnobComponent } from './knob.component';
+export { WrKnob } from './knob';

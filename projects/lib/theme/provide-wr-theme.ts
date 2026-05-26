@@ -10,7 +10,7 @@ import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/co
 import { DEFAULT_WR_THEME_CONFIG, WR_THEME_CONFIG, type WrThemeConfig } from './wr-theme-config';
 
 /**
- * Configure {@link WrThemeService}. Partial — merged with defaults.
+ * Configure {@link WrTheme}. Partial — merged with defaults.
  *
  * @example
  * ```ts

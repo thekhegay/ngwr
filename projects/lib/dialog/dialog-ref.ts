@@ -12,7 +12,7 @@ import type { ComponentRef } from '@angular/core';
 import { Subject } from 'rxjs';
 
 /**
- * Handle returned by `WrDialogService.open()`.
+ * Handle returned by `WrDialog.open()`.
  *
  * Wraps the underlying `OverlayRef` and tracks the close result.
  *

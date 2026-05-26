@@ -20,9 +20,9 @@
     "baseUrl": "./",
     "paths": {
       "ngwr/*": ["./projects/lib/*"],
-      "#root": ["./projects/showcase/app/_root/root.component"],
-      "#shell": ["./projects/showcase/app/_layout/shell.component"],
-      "#layout": ["./projects/showcase/app/_layout/layout.component"],
+      "#root": ["./projects/showcase/app/_root/root"],
+      "#shell": ["./projects/showcase/app/_layout/shell"],
+      "#layout": ["./projects/showcase/app/_layout/layout"],
       "#core/*": ["./projects/showcase/app/_core/*"],
       "#routing": ["./projects/showcase/app/routing.ts"],
     },

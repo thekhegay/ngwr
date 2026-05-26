@@ -1,2 +1,2 @@
-export { WrTagComponent } from './tag.component';
+export { WrTag } from './tag';
 export type { WrTagIconPosition } from './types';

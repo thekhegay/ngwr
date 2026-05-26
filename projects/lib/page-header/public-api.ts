@@ -1,1 +1,1 @@
-export { WrPageHeaderComponent } from './page-header.component';
+export { WrPageHeader } from './page-header';

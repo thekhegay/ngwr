@@ -1,1 +1,1 @@
-export { WrSkeletonComponent } from './skeleton.component';
+export { WrSkeleton } from './skeleton';

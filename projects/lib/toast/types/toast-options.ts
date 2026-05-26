@@ -9,7 +9,7 @@ import type { WrToastPosition } from './toast-position';
 import type { WrToastType } from './toast-type';
 
 /**
- * Per-toast options passed to {@link WrToastService.show}. Any field
+ * Per-toast options passed to {@link WrToast.show}. Any field
  * omitted falls back to the global {@link WrToastConfig}.
  */
 export interface WrToastOptions {

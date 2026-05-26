@@ -11,9 +11,9 @@ import { InjectionToken } from '@angular/core';
 export type WrThemeMode = 'light' | 'dark' | 'auto';
 
 /** Resolved theme — what's actually applied to the DOM. */
-export type WrTheme = 'light' | 'dark';
+export type WrResolvedTheme = 'light' | 'dark';
 
-/** Configuration for {@link WrThemeService}. */
+/** Configuration for {@link WrTheme}. */
 export interface WrThemeConfig {
   /** Initial mode used when no persisted value is present. @default 'auto' */
   readonly defaultMode: WrThemeMode;

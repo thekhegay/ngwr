@@ -1,4 +1,4 @@
-export { WrSelectComponent } from './select.component';
-export { WrOptionComponent } from './option.component';
-export { WrOptionGroupComponent } from './option-group.component';
+export { WrSelect } from './select';
+export { WrOption } from './option';
+export { WrOptionGroup } from './option-group';
 export { WR_SELECT, type WrSelectContext } from './tokens';

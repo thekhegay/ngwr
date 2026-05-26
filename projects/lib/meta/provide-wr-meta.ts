@@ -11,7 +11,7 @@ import { WR_META_DEFAULTS } from './tokens';
 import type { WrMetaConfig } from './types';
 
 /**
- * Register app-wide defaults for {@link WrMetaService}. Use to set a
+ * Register app-wide defaults for {@link WrMeta}. Use to set a
  * consistent baseline `title` / `titleTemplate` / `og` / `twitter` for every
  * route — individual routes / components can override via
  * `metaService.push(...)` or the `[wrMeta]` directive.

@@ -1,1 +1,1 @@
-export { WrInputNumberComponent } from './input-number.component';
+export { WrInputNumber } from './input-number';

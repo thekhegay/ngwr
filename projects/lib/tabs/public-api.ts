@@ -1,3 +1,3 @@
-export { WrTabsComponent } from './tabs.component';
-export { WrTabComponent } from './tab.component';
+export { WrTabs } from './tabs';
+export { WrTab } from './tab';
 export { WR_TABS, type WrTabsContext } from './tokens';

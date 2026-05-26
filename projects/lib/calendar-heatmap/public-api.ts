@@ -1,1 +1,1 @@
-export { WrCalendarHeatmapComponent, type WrHeatmapDatum } from './calendar-heatmap.component';
+export { WrCalendarHeatmap, type WrHeatmapDatum } from './calendar-heatmap';

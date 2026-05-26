@@ -1,4 +1,4 @@
-export { WrDialogTitleDirective } from './dialog-title.directive';
-export { WrDialogContentDirective } from './dialog-content.directive';
-export { WrDialogFooterDirective } from './dialog-footer.directive';
-export { WrDialogCloseDirective } from './dialog-close.directive';
+export { WrDialogTitle } from './dialog-title';
+export { WrDialogContent } from './dialog-content';
+export { WrDialogFooter } from './dialog-footer';
+export { WrDialogClose } from './dialog-close';

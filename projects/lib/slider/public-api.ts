@@ -1,2 +1,2 @@
-export { WrSliderComponent } from './slider.component';
+export { WrSlider } from './slider';
 export type { WrSliderValue } from './types';

@@ -15,7 +15,7 @@ import type { WrIconName } from './icon-name';
  *
  * @example
  * ```ts
- * const myIcon: WrIcon = {
+ * const myIcon: WrIconDef = {
  *   name: 'my-custom-logo',
  *   data: '<svg viewBox="0 0 24 24">...</svg>',
  * };
@@ -23,7 +23,7 @@ import type { WrIconName } from './icon-name';
  * provideWrIcons([myIcon]);
  * ```
  */
-export interface WrIcon {
+export interface WrIconDef {
   name: WrIconName;
   data: string;
 }

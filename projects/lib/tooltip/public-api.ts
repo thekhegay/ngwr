@@ -1,2 +1,2 @@
-export { WrTooltipDirective } from './tooltip.directive';
+export { WrTooltip } from './tooltip';
 export type { WrTooltipPosition } from './types';

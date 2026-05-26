@@ -1,1 +1,1 @@
-export { MetaService } from './meta.service';
+export { MetaService } from './meta';

@@ -1,5 +1,5 @@
-export { WrLayoutComponent } from './layout.component';
-export { WrLayoutHeaderComponent } from './layout-header.component';
-export { WrLayoutSiderComponent } from './layout-sider.component';
-export { WrLayoutContentComponent } from './layout-content.component';
-export { WrLayoutFooterComponent } from './layout-footer.component';
+export { WrLayout } from './layout';
+export { WrLayoutHeader } from './layout-header';
+export { WrLayoutSider } from './layout-sider';
+export { WrLayoutContent } from './layout-content';
+export { WrLayoutFooter } from './layout-footer';

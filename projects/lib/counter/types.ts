@@ -6,7 +6,7 @@
  */
 
 /**
- * Animation mode for {@link WrCounterComponent}.
+ * Animation mode for {@link WrCounter}.
  *
  * - `odometer` — digits roll vertically like a mechanical counter.
  * - `tween` — single eased interpolation from the previous value to the new

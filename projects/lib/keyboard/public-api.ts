@@ -1,2 +1,2 @@
-export { WrKbdComponent } from './kbd.component';
+export { WrKbd } from './kbd';
 export type { WrKbdSize } from './types';

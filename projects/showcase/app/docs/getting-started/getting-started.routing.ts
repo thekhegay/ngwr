@@ -12,6 +12,6 @@ export default [
   },
   {
     path: gettingStarted.installation,
-    loadComponent: () => import('./installation/installation.component'),
+    loadComponent: () => import('./installation/installation'),
   },
 ] satisfies Routes;

@@ -1,2 +1,2 @@
-export { WrDescriptionsComponent } from './descriptions.component';
-export { WrDescriptionItemComponent } from './description-item.component';
+export { WrDescriptions } from './descriptions';
+export { WrDescriptionItem } from './description-item';

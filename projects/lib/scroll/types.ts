@@ -11,7 +11,7 @@
  */
 export type WrScrollTarget = Element | string | { top: number; left?: number };
 
-/** Options accepted by {@link WrScrollService} scroll methods. */
+/** Options accepted by {@link WrScroll} scroll methods. */
 export interface WrScrollOptions {
   /** Pixel offset to subtract from the target — handy for sticky headers. @default 0 */
   readonly offset?: number;

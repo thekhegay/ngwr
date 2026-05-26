@@ -1,2 +1,2 @@
-export { WrInputOtpComponent } from './input-otp.component';
+export { WrInputOtp } from './input-otp';
 export type { WrInputOtpMode } from './types';

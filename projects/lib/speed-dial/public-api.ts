@@ -1,1 +1,1 @@
-export { WrSpeedDialComponent, type WrSpeedDialAction, type WrSpeedDialDirection } from './speed-dial.component';
+export { WrSpeedDial, type WrSpeedDialAction, type WrSpeedDialDirection } from './speed-dial';

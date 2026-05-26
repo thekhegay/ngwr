@@ -1,5 +1,5 @@
-export { WrBytesPipe } from './bytes.pipe';
-export { WrDatePipe } from './date.pipe';
-export { WrNumberPipe, type WrNumberStyle } from './number.pipe';
-export { WrRangePipe } from './range.pipe';
-export { WrTruncatePipe } from './truncate.pipe';
+export { WrBytes } from './bytes';
+export { WrDate } from './date';
+export { WrNumber, type WrNumberStyle } from './number';
+export { WrRange } from './range';
+export { WrTruncate } from './truncate';

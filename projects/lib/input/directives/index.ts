@@ -1,3 +1,3 @@
-export { WrInputDirective } from './wr-input.directive';
-export { WrInputPrefixDirective } from './wr-input-prefix.directive';
-export { WrInputSuffixDirective } from './wr-input-suffix.directive';
+export { WrInput } from './wr-input';
+export { WrInputPrefix } from './wr-input-prefix';
+export { WrInputSuffix } from './wr-input-suffix';

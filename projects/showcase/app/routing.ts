@@ -132,7 +132,7 @@ export const routing: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        loadComponent: () => import('./home/home.component'),
+        loadComponent: () => import('./home/home'),
       },
       {
         path: routes.docs.index,

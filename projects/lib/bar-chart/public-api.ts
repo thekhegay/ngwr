@@ -1,1 +1,1 @@
-export { WrBarChartComponent, type WrBarChartDatum } from './bar-chart.component';
+export { WrBarChart, type WrBarChartDatum } from './bar-chart';
