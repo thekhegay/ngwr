@@ -30,4 +30,5 @@ export default [
   { path: a.rotatingText, loadComponent: () => import('./rotating-text/rotating-text') },
   { path: a.typewriter, loadComponent: () => import('./typewriter/typewriter') },
   { path: a.scrambleText, loadComponent: () => import('./scramble-text/scramble-text') },
+  { path: a.decryptText, loadComponent: () => import('./decrypt-text/decrypt-text') },
 ] satisfies Routes;

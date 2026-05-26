@@ -1,0 +1,8 @@
+<span class="wr-decrypt-text__sr-only">{{ text() }}</span>
+<span aria-hidden="true">
+  @for (c of chars(); track $index) {
+    <span [class]="c.revealed ? 'wr-decrypt-text__char' : 'wr-decrypt-text__char wr-decrypt-text__char--encrypted'">{{
+      c.ch
+    }}</span>
+  }
+</span>

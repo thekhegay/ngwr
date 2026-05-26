@@ -143,6 +143,9 @@
     "./date-time-picker": {
       "sass": "./date-time-picker/styles/_index.scss"
     },
+    "./decrypt-text": {
+      "sass": "./decrypt-text/styles/_index.scss"
+    },
     "./dialog": {
       "sass": "./dialog/styles/_index.scss"
     },

@@ -29,7 +29,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Rotating Text', url: ['/animations', 'rotating-text'] },
       { title: 'Typewriter', url: ['/animations', 'typewriter'] },
       { title: 'Scramble Text', url: ['/animations', 'scramble-text'] },
-      { title: 'Decrypt Text', url: ['/animations', 'decrypt-text'], disabled: true },
+      { title: 'Decrypt Text', url: ['/animations', 'decrypt-text'] },
       { title: 'Glitch Text', url: ['/animations', 'glitch-text'], disabled: true },
       { title: 'Fuzzy Text', url: ['/animations', 'fuzzy-text'], disabled: true },
       { title: 'Falling Text', url: ['/animations', 'falling-text'], disabled: true },

@@ -1,0 +1,26 @@
+.wr-decrypt-text {
+  display: inline-block;
+  white-space: pre-wrap;
+
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  &__char {
+    display: inline;
+  }
+
+  // Hook for consumers to style the scrambled state distinctly (e.g. dim
+  // the scramble glyphs). Apply via `[encryptedClassName]`-style overrides
+  // by extending `.wr-decrypt-text__char--encrypted`.
+  &__char--encrypted {
+    /* default: no visual change; consumers override as needed */
+  }
+}
