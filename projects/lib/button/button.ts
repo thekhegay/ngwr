@@ -132,13 +132,14 @@ export class WrButton {
   private readonly group = inject(WR_BUTTON_GROUP, { optional: true });
 
   /**
-   * Resolved shape. An enclosing `<wr-btn-group shape="…">` ALWAYS wins
-   * over the child's own `[shape]` — a group exists precisely to enforce
-   * a consistent corner treatment across its members. If the group did
-   * not set a shape (or there's no group), fall back to the child's own
-   * input, then to the rounded default.
+   * Resolved shape. Inside a `<wr-btn-group>`, the group ALWAYS wins —
+   * child `[shape]` is ignored entirely so the group reads as one
+   * coherent control. Outside a group, the button's own `[shape]` is
+   * used, falling back to `rounded`.
    */
-  protected readonly effectiveShape = computed<WrButtonShape>(() => this.group?.shape() ?? this.shape() ?? 'rounded');
+  protected readonly effectiveShape = computed<WrButtonShape>(() =>
+    this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded'),
+  );
 
   constructor() {
     // The host directive composes a `WrSquircle` instance — drive its
