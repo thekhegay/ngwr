@@ -31,4 +31,5 @@ export default [
   { path: a.typewriter, loadComponent: () => import('./typewriter/typewriter') },
   { path: a.scrambleText, loadComponent: () => import('./scramble-text/scramble-text') },
   { path: a.decryptText, loadComponent: () => import('./decrypt-text/decrypt-text') },
+  { path: a.glitchText, loadComponent: () => import('./glitch-text/glitch-text') },
 ] satisfies Routes;

@@ -1,0 +1,75 @@
+<ngwr-doc-page
+  title="Glitch Text"
+  description="Colour-split horizontal-tear glitch on the provided text. Defaults to glitching on hover; flip `[enableOnHover]` to play constantly. Pure CSS port — two pseudo-element clones with offset coloured shadows and a clip-path keyframe."
+  [keywords]="['glitch-text', 'wr-glitch-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="glitch-text" category="text-animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Hover (default)">
+    <ngwr-doc-code [code]="snippets.hover" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          padding: 2rem;
+          background: var(--wr-color-dark);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <wr-glitch-text text="ERROR" style="font-size: clamp(2rem, 8vw, 6rem)" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Always-on, faster">
+    <ngwr-doc-code [code]="snippets.always" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          padding: 2rem;
+          background: var(--wr-color-dark);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <wr-glitch-text
+          text="404"
+          [enableOnHover]="false"
+          [speed]="0.5"
+          style="font-size: clamp(3rem, 12vw, 8rem)"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="No shadows (monochrome)">
+    <ngwr-doc-code [code]="snippets.noShadows" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          padding: 2rem;
+          background: var(--wr-color-dark);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <wr-glitch-text text="MONO GLITCH" [enableShadows]="false" style="font-size: clamp(1.5rem, 6vw, 4rem)" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

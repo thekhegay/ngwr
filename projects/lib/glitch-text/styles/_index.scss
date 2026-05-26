@@ -1,0 +1,88 @@
+// Glitch text (reactbits port). Two pseudo-element clones of the text
+// are offset by ±5px and tinted with `text-shadow` (red / cyan).
+// A clip-path keyframe slices random horizontal bands of each clone.
+
+.wr-glitch-text {
+  --wr-glitch-text-before-duration: 2s;
+  --wr-glitch-text-after-duration: 3s;
+  --wr-glitch-text-before-shadow: 5px 0 cyan;
+  --wr-glitch-text-after-shadow: -5px 0 red;
+  --wr-glitch-text-bg: var(--wr-color-dark, #120f17);
+
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  user-select: none;
+  font-weight: 900;
+  color: var(--wr-color-white, #fff);
+
+  &::before,
+  &::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    color: inherit;
+    background-color: var(--wr-glitch-text-bg);
+    overflow: hidden;
+    clip-path: inset(0 0 0 0);
+  }
+
+  // Always-on variant — pseudos animate continuously.
+  &:not(&--hover-only)::before {
+    left: -10px;
+    text-shadow: var(--wr-glitch-text-before-shadow);
+    animation: wr-glitch-text-tear var(--wr-glitch-text-before-duration) infinite linear alternate-reverse;
+  }
+  &:not(&--hover-only)::after {
+    left: 10px;
+    text-shadow: var(--wr-glitch-text-after-shadow);
+    animation: wr-glitch-text-tear var(--wr-glitch-text-after-duration) infinite linear alternate-reverse;
+  }
+
+  // Hover-only variant — pseudos hidden by default, animate on :hover.
+  &--hover-only::before,
+  &--hover-only::after {
+    content: '';
+    opacity: 0;
+    animation: none;
+  }
+
+  &--hover-only:hover::before {
+    content: attr(data-text);
+    opacity: 1;
+    left: -10px;
+    text-shadow: var(--wr-glitch-text-before-shadow);
+    animation: wr-glitch-text-tear var(--wr-glitch-text-before-duration) infinite linear alternate-reverse;
+  }
+  &--hover-only:hover::after {
+    content: attr(data-text);
+    opacity: 1;
+    left: 10px;
+    text-shadow: var(--wr-glitch-text-after-shadow);
+    animation: wr-glitch-text-tear var(--wr-glitch-text-after-duration) infinite linear alternate-reverse;
+  }
+}
+
+@keyframes wr-glitch-text-tear {
+  0% { clip-path: inset(20% 0 50% 0); }
+  5% { clip-path: inset(10% 0 60% 0); }
+  10% { clip-path: inset(15% 0 55% 0); }
+  15% { clip-path: inset(25% 0 35% 0); }
+  20% { clip-path: inset(30% 0 40% 0); }
+  25% { clip-path: inset(40% 0 20% 0); }
+  30% { clip-path: inset(10% 0 60% 0); }
+  35% { clip-path: inset(15% 0 55% 0); }
+  40% { clip-path: inset(25% 0 35% 0); }
+  45% { clip-path: inset(30% 0 40% 0); }
+  50% { clip-path: inset(20% 0 50% 0); }
+  55% { clip-path: inset(10% 0 60% 0); }
+  60% { clip-path: inset(15% 0 55% 0); }
+  65% { clip-path: inset(25% 0 35% 0); }
+  70% { clip-path: inset(30% 0 40% 0); }
+  75% { clip-path: inset(40% 0 20% 0); }
+  80% { clip-path: inset(20% 0 50% 0); }
+  85% { clip-path: inset(10% 0 60% 0); }
+  90% { clip-path: inset(15% 0 55% 0); }
+  95% { clip-path: inset(25% 0 35% 0); }
+  100% { clip-path: inset(30% 0 40% 0); }
+}

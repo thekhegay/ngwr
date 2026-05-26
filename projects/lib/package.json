@@ -173,6 +173,9 @@
     "./gauge": {
       "sass": "./gauge/styles/_index.scss"
     },
+    "./glitch-text": {
+      "sass": "./glitch-text/styles/_index.scss"
+    },
     "./gradient-text": {
       "sass": "./gradient-text/styles/_index.scss"
     },
