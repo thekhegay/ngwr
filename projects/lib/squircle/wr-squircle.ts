@@ -5,9 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Directive, ElementRef, PLATFORM_ID, effect, inject, input } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, PLATFORM_ID, effect, inject, input, model } from '@angular/core';
 
 import { squirclePath } from './compute-squircle-path';
 
@@ -44,11 +44,15 @@ export class WrSquircle {
 
   /**
    * Whether the squircle clip-path is applied. When `false`, the directive
-   * stays inert (clip-path cleared) so consumers can compose this directive
-   * via `hostDirectives` and toggle it via a single input.
+   * stays inert (clip-path cleared).
+   *
+   * Modelled as `model()` so a parent component composing this directive
+   * (`inject(WrSquircle, { self: true }).enabled.set(...)`) can flip the
+   * state from outside without exposing an `enabled` input on its own API.
+   *
    * @default true
    */
-  readonly enabled = input(true, { transform: coerceBooleanProperty });
+  readonly enabled = model(true);
 
   /**
    * Border thickness in CSS pixels. `0` disables the border ring entirely.

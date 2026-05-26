@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
@@ -120,6 +120,14 @@ export class WrButton {
    * @default true
    */
   readonly isDisabledWhenLoading = input(true, { transform: coerceBooleanProperty });
+
+  constructor() {
+    // The host directive composes a `WrSquircle` instance — flip it on
+    // only when shape="squircle" so the default (rounded) keeps its
+    // real CSS border instead of being clipped away.
+    const squircle = inject(WrSquircle, { self: true });
+    effect(() => squircle.enabled.set(this.shape() === 'squircle'));
+  }
 
   protected readonly nativeDisabled = computed<'' | null>(() => {
     const off = this.disabled() || (this.loading() && this.isDisabledWhenLoading());
