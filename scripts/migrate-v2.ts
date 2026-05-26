@@ -86,18 +86,71 @@ function planFileRenames(root: string): readonly FileRename[] {
   return renames;
 }
 
+/**
+ * Cases where dropping the suffix collides with another class in the same
+ * package; the consumer-facing class keeps the bare name (handled by the
+ * generic suffix-strip below), the OTHER class gets a descriptive label.
+ *
+ * Keys are the v1 class name; values are the v2 name.
+ */
+const COLLISION_MAP: Readonly<Record<string, string>> = {
+  // tooltip — directive kept bare, panel component renamed
+  WrTooltipComponent: 'WrTooltipPanel',
+  // popconfirm — directive kept bare, panel component renamed
+  WrPopconfirmComponent: 'WrPopconfirmPanel',
+  // toast — service kept bare, item component renamed
+  WrToastComponent: 'WrToastItem',
+  // context-menu — directive kept bare, panel component renamed
+  WrContextMenuComponent: 'WrContextMenuPanel',
+  // squircle — directive kept bare, host component renamed
+  WrSquircleComponent: 'WrSquircleHost',
+  // meta — service kept bare, directive renamed
+  WrMetaDirective: 'WrMetaBinding',
+  // hotkey — service kept bare, directive renamed
+  WrHotkeyDirective: 'WrHotkeyBinding',
+};
+
+/** Type renames where the new name avoids a collision with a class. */
+const TYPE_RENAMES: Readonly<Record<string, string>> = {
+  // The icon DATA type — renamed because `WrIcon` is now the component class.
+  // Consumers writing `provideWrIcons([{ name, data } satisfies WrIcon])`
+  // must use `WrIconDef`.
+  WrIcon: 'WrIconDef',
+  // The table SORT STATE type — renamed because `WrTableSort` is the directive.
+  WrTableSort: 'WrTableSortState',
+};
+
 /** Replace `WrFooComponent` / `WrFooDirective` / etc. with `WrFoo` everywhere. */
 function rewriteClassReferences(content: string): string {
-  // Word boundary on both sides; capture an UpperCamelCase identifier
-  // followed by a suffix. Skip `provideHttpClient`-style false positives
-  // by requiring the suffix to be one of the known set.
+  // 1. Resolve collision-mapped names first (they're more specific).
+  let out = content;
+  for (const [from, to] of Object.entries(COLLISION_MAP)) {
+    out = out.replace(new RegExp(`\\b${from}\\b`, 'g'), to);
+  }
+
+  // 2. Strip the generic suffix from any remaining `Wr*Component` etc.
   const re = new RegExp(`\\b(Wr[A-Z][A-Za-z0-9]*)(${SUFFIXES.join('|')})\\b`, 'g');
-  return content.replace(re, (_full, base: string, suffix: Suffix) => {
-    // Don't touch `provideWrXxxService` style helper names — those don't
-    // start with `Wr`. The `\bWr…` anchor handles that already.
+  out = out.replace(re, (_full, base: string, suffix: Suffix) => {
     void suffix;
     return base;
   });
+
+  // 3. Apply targeted TYPE renames — only inside `import type {…}` clauses
+  // or `: Foo` annotations, so we don't accidentally clobber the class name
+  // that now occupies the bare identifier.
+  for (const [from, to] of Object.entries(TYPE_RENAMES)) {
+    // `import type { …, From, … } from 'ngwr/…'`
+    out = out.replace(new RegExp(`(import\\s+type\\s*\\{[^}]*?)\\b${from}\\b`, 'g'), `$1${to}`);
+    // `import { type From }` mixed clause
+    out = out.replace(new RegExp(`(import\\s*\\{[^}]*?\\btype\\s+)${from}\\b`, 'g'), `$1${to}`);
+    // `: From` annotation
+    out = out.replace(new RegExp(`(:\\s*)${from}\\b`, 'g'), `$1${to}`);
+    // `<From>` generic argument
+    out = out.replace(new RegExp(`<${from}\\b`, 'g'), `<${to}`);
+    // `as From` assertion
+    out = out.replace(new RegExp(`\\bas ${from}\\b`, 'g'), `as ${to}`);
+  }
+  return out;
 }
 
 /**
