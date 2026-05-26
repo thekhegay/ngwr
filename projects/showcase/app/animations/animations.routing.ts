@@ -27,4 +27,5 @@ export default [
   { path: a.blurText, loadComponent: () => import('./blur-text/blur-text') },
   { path: a.shinyText, loadComponent: () => import('./shiny-text/shiny-text') },
   { path: a.gradientText, loadComponent: () => import('./gradient-text/gradient-text') },
+  { path: a.rotatingText, loadComponent: () => import('./rotating-text/rotating-text') },
 ] satisfies Routes;

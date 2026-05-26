@@ -1,0 +1,16 @@
+<!-- Screen-reader-only live region with the canonical text. -->
+<span class="wr-rotating-text__sr-only">{{ current() }}</span>
+
+<!-- Animated visual content. -->
+<span class="wr-rotating-text__inner" aria-hidden="true">
+  @for (word of words(); track $index) {
+    <span class="wr-rotating-text__word">
+      @for (char of word.characters; track $index) {
+        <span class="wr-rotating-text__char">{{ char }}</span>
+      }
+      @if (word.needsSpace) {
+        <span class="wr-rotating-text__space">&nbsp;</span>
+      }
+    </span>
+  }
+</span>

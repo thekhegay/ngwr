@@ -1,0 +1,80 @@
+<ngwr-doc-page
+  title="Rotating Text"
+  description="Cycles through a list of strings, animating each transition character-by-character (or word/line). Auto-advances on a timer by default; also controllable imperatively via `next()` / `previous()` / `jumpTo()` / `reset()`."
+  [keywords]="['rotating-text', 'wr-rotating-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="rotating-text" category="text-animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <span style="display: inline-flex; gap: 0.5rem; font-size: 2rem; font-weight: 700; color: var(--wr-color-dark)">
+        We
+        <wr-rotating-text
+          [texts]="['design', 'ship', 'iterate']"
+          style="color: var(--wr-color-primary)"
+        />
+        every day.
+      </span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Stagger from center">
+    <ngwr-doc-code [code]="snippets.stagger" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-rotating-text
+        [texts]="['React', 'Vue', 'Angular', 'Svelte']"
+        [rotationInterval]="2500"
+        [staggerDuration]="0.04"
+        staggerFrom="center"
+        style="font-size: 2.25rem; font-weight: 700; color: var(--wr-color-primary)"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Manual control">
+    <ngwr-doc-code [code]="snippets.manual" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center">
+        <wr-rotating-text
+          #manual
+          [texts]="['one', 'two', 'three']"
+          [auto]="false"
+          style="font-size: 2rem; font-weight: 700; color: var(--wr-color-dark)"
+        />
+        <div style="display: flex; gap: 0.5rem">
+          <button
+            type="button"
+            (click)="previous()"
+            style="padding: 0.375rem 0.75rem; border: 1px solid var(--wr-color-light); border-radius: 0.375rem; background: var(--wr-color-white); cursor: pointer; font-size: 0.75rem"
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            (click)="next()"
+            style="padding: 0.375rem 0.75rem; border: 1px solid var(--wr-color-light); border-radius: 0.375rem; background: var(--wr-color-white); cursor: pointer; font-size: 0.75rem"
+          >
+            Next
+          </button>
+          <button
+            type="button"
+            (click)="reset()"
+            style="padding: 0.375rem 0.75rem; border: 1px solid var(--wr-color-light); border-radius: 0.375rem; background: var(--wr-color-white); cursor: pointer; font-size: 0.75rem"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

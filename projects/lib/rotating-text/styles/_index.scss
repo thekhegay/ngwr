@@ -1,0 +1,39 @@
+// Cycling-text rotator (reactbits port). The host clips overflow so the
+// chars can translate above/below without leaking outside the line.
+
+.wr-rotating-text {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  vertical-align: bottom;
+
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  &__inner {
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  &__word {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__char {
+    display: inline-block;
+    will-change: transform, opacity;
+  }
+
+  &__space {
+    display: inline;
+    white-space: pre;
+  }
+}
