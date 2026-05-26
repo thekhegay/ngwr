@@ -1,7 +1,8 @@
 <ngwr-doc-page
   title="Meter Group"
-  description="Stacked-segment progress bar. Each segment is sized proportionally; legend included."
+  description="Stacked-segment progress bar. Each segment is sized proportionally to its `value` relative to the sum (or the explicit `max`); legend listed underneath."
   [keywords]="['meter', 'progress', 'wr-meter-group']"
+  [labels]="['Display']"
 >
   <ngwr-doc-section title="Disk usage">
     <ngwr-doc-code [code]="snippet" language="angular-html" />
@@ -10,5 +11,13 @@
         <wr-meter-group [segments]="diskUsage" />
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrMeterSegment">
+    <ngwr-doc-api [rows]="segmentApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>
