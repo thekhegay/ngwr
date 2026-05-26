@@ -6,8 +6,4 @@ export const DIRECTIVES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'wrAutosize', url: ['/directives', 'autosize'] },
   { title: 'wrClickOutside', url: ['/directives', 'click-outside'] },
   { title: 'wrCopyToClipboard', url: ['/directives', 'copy-to-clipboard'] },
-  { title: 'wrReveal', url: ['/directives', 'reveal'] },
-  { title: 'wrShimmer', url: ['/directives', 'shimmer'] },
-  { title: 'wrSpotlight', url: ['/directives', 'spotlight'] },
-  { title: 'wrTilt', url: ['/directives', 'tilt'] },
 ];

@@ -83,6 +83,7 @@ const FALLBACK_CATEGORY = 'Docs';
 
 const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   components: 'Components',
+  animations: 'Animations',
   directives: 'Directives',
   pipes: 'Pipes',
   services: 'Services',

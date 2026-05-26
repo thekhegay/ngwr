@@ -1,0 +1,27 @@
+<ngwr-doc-page
+  title="Confetti"
+  description="Imperative confetti service. Inject `WrConfetti` and call `.burst()` on a celebration event."
+  [keywords]="['confetti', 'WrConfetti']"
+  [labels]="['Effect', 'Service']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <button
+        type="button"
+        (click)="fire()"
+        style="padding: 0.5rem 1rem; border: 1px solid var(--wr-color-light); border-radius: 0.375rem; cursor: pointer"
+      >
+        Fire confetti
+      </button>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

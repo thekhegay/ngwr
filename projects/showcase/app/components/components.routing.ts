@@ -35,10 +35,6 @@ export default [
     loadComponent: () => import('./badge/badge'),
   },
   {
-    path: components.borderGlow,
-    loadComponent: () => import('./border-glow/border-glow'),
-  },
-  {
     path: components.button,
     loadComponent: () => import('./button/button'),
   },
@@ -161,10 +157,6 @@ export default [
   {
     path: components.mention,
     loadComponent: () => import('./mention/mention'),
-  },
-  {
-    path: components.motion,
-    loadComponent: () => import('./motion/motion'),
   },
   {
     path: components.meterGroup,

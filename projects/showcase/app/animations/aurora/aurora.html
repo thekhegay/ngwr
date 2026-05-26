@@ -1,0 +1,23 @@
+<ngwr-doc-page
+  title="Aurora"
+  description="Animated aurora-style gradient backdrop. Use as a hero / section background."
+  [keywords]="['aurora', 'wr-aurora', 'background', 'animation']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="position: relative; width: 100%; height: 12rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-aurora />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

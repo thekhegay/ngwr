@@ -1,6 +1,7 @@
 import type { Routes } from '@angular/router';
 
 import {
+  ANIMATIONS_SIDEBAR,
   COMPONENTS_SIDEBAR,
   DIRECTIVES_SIDEBAR,
   GETTING_STARTED_SIDEBAR,
@@ -26,15 +27,11 @@ export const routes = {
     aurora: 'aurora',
     autocomplete: 'autocomplete',
     avatar: 'avatar',
-    confetti: 'confetti',
     countUp: 'count-up',
-    marquee: 'marquee',
-    motion: 'motion',
     charts: 'charts',
     squircle: 'squircle',
     backTop: 'back-top',
     badge: 'badge',
-    borderGlow: 'border-glow',
     button: 'button',
     buttonGroup: 'button-group',
     calendar: 'calendar',
@@ -101,15 +98,42 @@ export const routes = {
   },
   directives: {
     index: 'directives',
-    // Filled in by Phase 2 (split into per-directive pages).
     autofocus: 'autofocus',
     autosize: 'autosize',
     clickOutside: 'click-outside',
     copyToClipboard: 'copy-to-clipboard',
+  },
+  // Visual effects + animations. Mixed bag of in-house components and
+  // ports of reactbits.dev effects (attribution in each file).
+  animations: {
+    index: 'animations',
+    motion: 'motion',
+    borderGlow: 'border-glow',
+    aurora: 'aurora',
+    marquee: 'marquee',
+    animatedText: 'animated-text',
+    confetti: 'confetti',
     reveal: 'reveal',
     shimmer: 'shimmer',
     spotlight: 'spotlight',
     tilt: 'tilt',
+    // Reactbits ports (built in follow-up commits)
+    spotlightCard: 'spotlight-card',
+    logoLoop: 'logo-loop',
+    clickSpark: 'click-spark',
+    splitText: 'split-text',
+    blurText: 'blur-text',
+    shinyText: 'shiny-text',
+    gradientText: 'gradient-text',
+    rotatingText: 'rotating-text',
+    typewriter: 'typewriter',
+    scrambleText: 'scramble-text',
+    decryptText: 'decrypt-text',
+    glitchText: 'glitch-text',
+    fuzzyText: 'fuzzy-text',
+    fallingText: 'falling-text',
+    circularText: 'circular-text',
+    countUpText: 'count-up-text',
   },
   pipes: {
     index: 'pipes',
@@ -177,6 +201,11 @@ export const routing: Routes = [
         path: routes.directives.index,
         data: { sidebar: DIRECTIVES_SIDEBAR },
         loadChildren: () => import('./directives/directives.routing'),
+      },
+      {
+        path: routes.animations.index,
+        data: { sidebar: ANIMATIONS_SIDEBAR },
+        loadChildren: () => import('./animations/animations.routing'),
       },
       {
         path: routes.pipes.index,

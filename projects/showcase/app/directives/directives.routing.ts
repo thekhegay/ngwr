@@ -10,8 +10,4 @@ export default [
   { path: directives.autosize, loadComponent: () => import('./autosize/autosize') },
   { path: directives.clickOutside, loadComponent: () => import('./click-outside/click-outside') },
   { path: directives.copyToClipboard, loadComponent: () => import('./copy-to-clipboard/copy-to-clipboard') },
-  { path: directives.reveal, loadComponent: () => import('./reveal/reveal') },
-  { path: directives.shimmer, loadComponent: () => import('./shimmer/shimmer') },
-  { path: directives.spotlight, loadComponent: () => import('./spotlight/spotlight') },
-  { path: directives.tilt, loadComponent: () => import('./tilt/tilt') },
 ] satisfies Routes;

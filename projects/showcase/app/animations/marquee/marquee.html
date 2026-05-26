@@ -1,0 +1,26 @@
+<ngwr-doc-page
+  title="Marquee"
+  description="Endless horizontal scroller. Project any content as children — the component duplicates it under the hood for seamless looping."
+  [keywords]="['marquee', 'wr-marquee', 'animation']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-marquee style="width: 100%">
+        <span style="padding: 0 1rem">One · </span>
+        <span style="padding: 0 1rem">Two · </span>
+        <span style="padding: 0 1rem">Three · </span>
+        <span style="padding: 0 1rem">Four · </span>
+      </wr-marquee>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

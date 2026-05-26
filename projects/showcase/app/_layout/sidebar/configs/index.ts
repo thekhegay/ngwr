@@ -1,3 +1,4 @@
+export { ANIMATIONS_SIDEBAR } from './animations.config';
 export { COMPONENTS_SIDEBAR } from './components.config';
 export { DIRECTIVES_SIDEBAR } from './directives.config';
 export { GETTING_STARTED_SIDEBAR } from './getting-started.config';

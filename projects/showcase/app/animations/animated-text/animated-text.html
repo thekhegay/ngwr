@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="Animated Text"
+  description="In-house character-by-character text reveal."
+  [keywords]="['animated-text', 'wr-animated-text']"
+  [labels]="['Animation']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-animated-text text="Hello, ngwr!" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
