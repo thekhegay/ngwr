@@ -49,16 +49,28 @@ export class MyComponent {}`,
   <button wr-btn [color]="align() === 'center' ? 'primary' : null" (click)="align.set('center')">Center</button>
   <button wr-btn [color]="align() === 'right' ? 'primary' : null" (click)="align.set('right')">Right</button>
 </wr-btn-group>`,
-    shape: `<wr-btn-group shape="pill">
-  <button wr-btn>Pill</button>
-  <button wr-btn>Group</button>
-  <button wr-btn>Cascade</button>
+    shape: `<wr-btn-group shape="rounded">
+  <button wr-btn>One</button>
+  <button wr-btn>Two</button>
+  <button wr-btn>Three</button>
+</wr-btn-group>
+
+<wr-btn-group shape="pill">
+  <button wr-btn>One</button>
+  <button wr-btn>Two</button>
+  <button wr-btn>Three</button>
 </wr-btn-group>
 
 <wr-btn-group shape="squircle">
-  <button wr-btn>Squircle</button>
-  <button wr-btn>Group</button>
-  <button wr-btn shape="pill">Overrides</button>
+  <button wr-btn>One</button>
+  <button wr-btn>Two</button>
+  <button wr-btn>Three</button>
+</wr-btn-group>
+
+<!-- Group shape wins over child [shape] -->
+<wr-btn-group shape="pill">
+  <button wr-btn>Forced</button>
+  <button wr-btn shape="squircle">Pill anyway</button>
 </wr-btn-group>`,
   };
 
@@ -66,7 +78,7 @@ export class MyComponent {}`,
     {
       name: 'shape',
       description:
-        'Cascaded corner treatment for every child `<wr-btn>` that has not set its own. `null` (default) leaves children alone.',
+        'Enforced corner treatment for every child `<wr-btn>`. Child `[shape]` is ignored when set on the group. `null` (default) leaves children alone.',
       type: "'rounded' | 'pill' | 'squircle' | null",
       default: 'null',
     },

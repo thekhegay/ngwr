@@ -29,8 +29,9 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
  * <wr-btn color="primary" shape="squircle">Squircle</wr-btn>
  * ```
  *
- * Inside a `<wr-btn-group shape="…">`, the group's shape cascades to
- * every child that hasn't set its own. Explicit child `[shape]` wins.
+ * Inside a `<wr-btn-group shape="…">`, the group's shape is enforced on
+ * every child — child `[shape]` inputs are ignored so the group reads as
+ * one coherent control.
  *
  * @see https://ngwr.dev/docs/components/button
  */
@@ -69,8 +70,9 @@ export class WrButton {
 
   /**
    * Corner treatment — `rounded`, `pill`, or `squircle`. `null` (default)
-   * means "inherit from the enclosing `<wr-btn-group>`'s shape, or fall
-   * back to `rounded`".
+   * means "fall back to `rounded`". Inside a `<wr-btn-group shape="…">`,
+   * the group's shape ALWAYS wins over this input — the group enforces
+   * a consistent corner treatment across its members.
    *
    * @default null
    */
@@ -129,8 +131,14 @@ export class WrButton {
 
   private readonly group = inject(WR_BUTTON_GROUP, { optional: true });
 
-  /** Resolved shape — own input wins, then group cascade, then default. */
-  protected readonly effectiveShape = computed<WrButtonShape>(() => this.shape() ?? this.group?.shape() ?? 'rounded');
+  /**
+   * Resolved shape. An enclosing `<wr-btn-group shape="…">` ALWAYS wins
+   * over the child's own `[shape]` — a group exists precisely to enforce
+   * a consistent corner treatment across its members. If the group did
+   * not set a shape (or there's no group), fall back to the child's own
+   * input, then to the rounded default.
+   */
+  protected readonly effectiveShape = computed<WrButtonShape>(() => this.group?.shape() ?? this.shape() ?? 'rounded');
 
   constructor() {
     // The host directive composes a `WrSquircle` instance — drive its
