@@ -1,12 +1,11 @@
 <nav class="ngwr-sidebar__inner" aria-label="Documentation">
-  @for (group of groups; track group.title) {
+  @for (group of groups(); track group.title) {
     <!-- Direct-link group: single page, no expand toggle. -->
     @if (group.url) {
       <a
         class="ngwr-sidebar__group-link"
         routerLinkActive="ngwr-sidebar__group-link--active"
         [routerLink]="group.url"
-        (click)="onLinkClick()"
       >
         <span class="ngwr-sidebar__group-title">{{ group.title }}</span>
       </a>
@@ -40,7 +39,6 @@
                           class="ngwr-sidebar__link"
                           routerLinkActive="ngwr-sidebar__link--active"
                           [routerLink]="link.url"
-                          (click)="onLinkClick()"
                         >
                           <span class="ngwr-sidebar__link-title">{{ link.title }}</span>
                         </a>

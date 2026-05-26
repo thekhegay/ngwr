@@ -17,6 +17,7 @@ import { WrTypography } from 'ngwr/typography';
 
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
+import { WR_VERSION, WR_VERSION_TOKEN } from 'ngwr/version';
 
 /** Fisher–Yates shuffle. Returns a new array. */
 function shuffle<T>(input: readonly T[]): T[] {
@@ -64,6 +65,7 @@ export default class HomeComponent {
   protected readonly currentDate = new Date();
   protected readonly icons: readonly WrIconDef[] = shuffle(wrIconSet).slice(0, 30);
   protected readonly routes = routes;
+  protected readonly version = inject(WR_VERSION_TOKEN);
 
   /** Install command for the hero terminal field. */
   protected readonly installCmd = 'pnpm add ngwr';

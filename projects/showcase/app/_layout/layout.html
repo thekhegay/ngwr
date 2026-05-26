@@ -1,16 +1,8 @@
-<div class="ngwr-layout__body">
+<div class="ngwr-layout">
   <ngwr-sidebar />
 
-  <main class="ngwr-layout__main">
+  <main class="ngwr-layout__content">
     <router-outlet />
+    <ngwr-footer />
   </main>
 </div>
-
-@if (layoutState.sidebarOpen()) {
-  <button
-    type="button"
-    class="ngwr-layout__backdrop"
-    aria-label="Close navigation"
-    (click)="onBackdropClick()"
-  ></button>
-}

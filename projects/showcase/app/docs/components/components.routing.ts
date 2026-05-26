@@ -2,7 +2,7 @@ import type { Routes } from '@angular/router';
 
 import { routes } from '#routing';
 
-const components = routes.docs.components;
+const components = routes.components;
 
 export default [
   {

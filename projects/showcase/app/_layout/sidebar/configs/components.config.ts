@@ -1,0 +1,114 @@
+import type { SidebarGroup } from '../sidebar.types';
+
+/**
+ * Sidebar for `/components/*` — every UI component grouped by purpose.
+ * Attached via `data: { sidebar: COMPONENTS_SIDEBAR }` on the
+ * `/components` route (see `routing.ts`).
+ */
+export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
+  {
+    title: 'Button',
+    children: [
+      { title: 'Button', url: ['/components', 'button'] },
+      { title: 'Button Group', url: ['/components', 'button-group'] },
+    ],
+  },
+  {
+    title: 'Data',
+    children: [
+      { title: 'Pagination', url: ['/components', 'pagination'] },
+      { title: 'Table', url: ['/components', 'table'] },
+      { title: 'Tree', url: ['/components', 'tree'] },
+    ],
+  },
+  {
+    title: 'Display',
+    children: [
+      { title: 'Alert', url: ['/components', 'alert'] },
+      { title: 'Avatar', url: ['/components', 'avatar'] },
+      { title: 'Badge', url: ['/components', 'badge'] },
+      { title: 'Compare', url: ['/components', 'compare'] },
+      { title: 'Context Menu', url: ['/components', 'context-menu'] },
+      { title: 'Counter', url: ['/components', 'counter'] },
+      { title: 'Descriptions', url: ['/components', 'descriptions'] },
+      { title: 'Empty', url: ['/components', 'empty'] },
+      { title: 'Keyboard', url: ['/components', 'keyboard'] },
+      { title: 'Divider', url: ['/components', 'divider'] },
+      { title: 'Icon', url: ['/components', 'icon'] },
+      { title: 'Image Cropper', url: ['/components', 'image-cropper'] },
+      { title: 'Meter Group', url: ['/components', 'meter-group'] },
+      { title: 'Progress', url: ['/components', 'progress'] },
+      { title: 'QR', url: ['/components', 'qrcode'] },
+      { title: 'Result', url: ['/components', 'result'] },
+      { title: 'Skeleton', url: ['/components', 'skeleton'] },
+      { title: 'Spinner', url: ['/components', 'spinner'] },
+      { title: 'Statistic', url: ['/components', 'statistic'] },
+      { title: 'Stepper', url: ['/components', 'stepper'] },
+      { title: 'Tag', url: ['/components', 'tag'] },
+      { title: 'Typography', url: ['/components', 'typography'] },
+      { title: 'Timeline', url: ['/components', 'timeline'] },
+    ],
+  },
+  {
+    title: 'Form',
+    children: [
+      { title: 'Autocomplete', url: ['/components', 'autocomplete'] },
+      { title: 'Calendar', url: ['/components', 'calendar'] },
+      { title: 'Checkbox', url: ['/components', 'checkbox'] },
+      { title: 'Color Picker', url: ['/components', 'color-picker'] },
+      { title: 'Date Picker', url: ['/components', 'date-picker'] },
+      { title: 'Date Time Picker', url: ['/components', 'date-time-picker'] },
+      { title: 'File Upload', url: ['/components', 'file-upload'] },
+      { title: 'Form', url: ['/components', 'form'] },
+      { title: 'Input', url: ['/components', 'input'] },
+      { title: 'Input Number', url: ['/components', 'input-number'] },
+      { title: 'Input OTP', url: ['/components', 'input-otp'] },
+      { title: 'Knob', url: ['/components', 'knob'] },
+      { title: 'Mention', url: ['/components', 'mention'] },
+      { title: 'Radio', url: ['/components', 'radio'] },
+      { title: 'Rating', url: ['/components', 'rating'] },
+      { title: 'Segmented', url: ['/components', 'segmented'] },
+      { title: 'Select', url: ['/components', 'select'] },
+      { title: 'Slider', url: ['/components', 'slider'] },
+      { title: 'Switch', url: ['/components', 'switch'] },
+      { title: 'Textarea', url: ['/components', 'textarea'] },
+      { title: 'Time Picker', url: ['/components', 'time-picker'] },
+    ],
+  },
+  {
+    title: 'Layout',
+    children: [
+      { title: 'Collapse', url: ['/components', 'collapse'] },
+      { title: 'Layout', url: ['/components', 'layout'] },
+      { title: 'Page Header', url: ['/components', 'page-header'] },
+      { title: 'Splitter', url: ['/components', 'splitter'] },
+      { title: 'Toolbar', url: ['/components', 'toolbar'] },
+    ],
+  },
+  {
+    title: 'Navigation',
+    children: [
+      { title: 'Anchor', url: ['/components', 'anchor'] },
+      { title: 'Back to Top', url: ['/components', 'back-top'] },
+      { title: 'Carousel', url: ['/components', 'carousel'] },
+      { title: 'Dropdown', url: ['/components', 'dropdown'] },
+      { title: 'Speed Dial', url: ['/components', 'speed-dial'] },
+      { title: 'Tabs', url: ['/components', 'tabs'] },
+    ],
+  },
+  {
+    title: 'Popups',
+    children: [
+      { title: 'Dialog', url: ['/components', 'dialog'] },
+      { title: 'Drawer', url: ['/components', 'drawer'] },
+      { title: 'Popconfirm', url: ['/components', 'popconfirm'] },
+      { title: 'Popover', url: ['/components', 'popover'] },
+      { title: 'Toast', url: ['/components', 'toast'] },
+      { title: 'Tooltip', url: ['/components', 'tooltip'] },
+      { title: 'Window', url: ['/components', 'window'] },
+    ],
+  },
+  { title: 'Motion', url: ['/components', 'motion'] },
+  { title: 'Charts', url: ['/components', 'charts'] },
+  { title: 'Squircle', url: ['/components', 'squircle'] },
+];

@@ -25,7 +25,7 @@
 
   // Transition shorthands
   --wr-transition-short: var(--wr-duration-fast) var(--wr-ease-out);
-  --wr-transition-base: var(--wr-duration-base) var(--wr-ease-out);
+  --wr-transition-base: var(--wr-duration-base) var(--wr-ease-linear);
   --wr-transition-long: var(--wr-duration-slow) var(--wr-ease-out);
 
   // Typography

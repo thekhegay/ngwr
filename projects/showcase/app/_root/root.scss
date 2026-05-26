@@ -1,5 +1,5 @@
 :host {
-  display: grid;
-  grid-template: auto 1fr auto / auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
