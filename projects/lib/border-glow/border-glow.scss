@@ -1,0 +1,4 @@
+// Component-scoped, but the lib uses `ViewEncapsulation.None` everywhere so
+// the selector starts with `.wr-border-glow` — the same as the umbrella
+// stylesheet entry. Importing the lib styles or just this file works.
+@forward './styles';

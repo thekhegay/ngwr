@@ -4,7 +4,6 @@ import type { SidebarGroup } from '../sidebar.types';
 export const DIRECTIVES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'wrAutofocus', url: ['/directives', 'autofocus'] },
   { title: 'wrAutosize', url: ['/directives', 'autosize'] },
-  { title: 'wrBorderGlow', url: ['/directives', 'border-glow'] },
   { title: 'wrClickOutside', url: ['/directives', 'click-outside'] },
   { title: 'wrCopyToClipboard', url: ['/directives', 'copy-to-clipboard'] },
   { title: 'wrReveal', url: ['/directives', 'reveal'] },

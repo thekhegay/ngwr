@@ -93,6 +93,9 @@
     "./bar-chart": {
       "sass": "./bar-chart/styles/_index.scss"
     },
+    "./border-glow": {
+      "sass": "./border-glow/styles/_index.scss"
+    },
     "./button": {
       "sass": "./button/styles/_index.scss"
     },

@@ -27,6 +27,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Alert', url: ['/components', 'alert'] },
       { title: 'Avatar', url: ['/components', 'avatar'] },
       { title: 'Badge', url: ['/components', 'badge'] },
+      { title: 'Border Glow', url: ['/components', 'border-glow'] },
       { title: 'Compare', url: ['/components', 'compare'] },
       { title: 'Context Menu', url: ['/components', 'context-menu'] },
       { title: 'Counter', url: ['/components', 'counter'] },

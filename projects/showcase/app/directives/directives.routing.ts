@@ -8,7 +8,6 @@ export default [
   { path: '', pathMatch: 'full', redirectTo: directives.autofocus },
   { path: directives.autofocus, loadComponent: () => import('./autofocus/autofocus') },
   { path: directives.autosize, loadComponent: () => import('./autosize/autosize') },
-  { path: directives.borderGlow, loadComponent: () => import('./border-glow/border-glow') },
   { path: directives.clickOutside, loadComponent: () => import('./click-outside/click-outside') },
   { path: directives.copyToClipboard, loadComponent: () => import('./copy-to-clipboard/copy-to-clipboard') },
   { path: directives.reveal, loadComponent: () => import('./reveal/reveal') },

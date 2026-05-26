@@ -34,6 +34,7 @@ export const routes = {
     squircle: 'squircle',
     backTop: 'back-top',
     badge: 'badge',
+    borderGlow: 'border-glow',
     button: 'button',
     buttonGroup: 'button-group',
     calendar: 'calendar',
@@ -103,7 +104,6 @@ export const routes = {
     // Filled in by Phase 2 (split into per-directive pages).
     autofocus: 'autofocus',
     autosize: 'autosize',
-    borderGlow: 'border-glow',
     clickOutside: 'click-outside',
     copyToClipboard: 'copy-to-clipboard',
     reveal: 'reveal',

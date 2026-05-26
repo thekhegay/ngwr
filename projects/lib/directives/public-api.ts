@@ -1,6 +1,5 @@
 export { WrAutofocus } from './autofocus';
 export { WrAutosize } from './autosize';
-export { WrBorderGlow } from './border-glow';
 export { WrClickOutside } from './click-outside';
 export { WrCopyToClipboard } from './copy-to-clipboard';
 export { WrReveal } from './reveal';
