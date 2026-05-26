@@ -33,6 +33,10 @@ export class Header {
   protected readonly nav: readonly NavLink[] = [
     { url: [routes.index, routes.docs.index], label: 'Docs' },
     { url: [routes.index, routes.components.index], label: 'Components' },
+    { url: [routes.index, routes.directives.index], label: 'Directives' },
+    { url: [routes.index, routes.pipes.index], label: 'Pipes' },
+    { url: [routes.index, routes.services.index], label: 'Services' },
+    { url: [routes.index, routes.utils.index], label: 'Utils' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'logo-github', modifier: 'github', label: 'GitHub' },
