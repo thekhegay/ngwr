@@ -4,16 +4,18 @@
   position: sticky;
   top: 0;
   overflow-y: auto;
+  max-height: calc(100vh - var(--ngwr-header-height, 4rem));
+  top: var(--ngwr-header-height, 4rem);
 }
 
 .ngwr-sidebar {
   --ngwr-sidebar-width: 15rem;
 
 
-  top: var(--ngwr-header-height, 4rem);
+
   align-self: start;
   width: var(--ngwr-sidebar-width);
-  max-height: calc(100vh - var(--ngwr-header-height, 4rem));
+
 
   padding: 1.5rem 0.75rem 2rem;
 

@@ -1,19 +1,19 @@
-<header class="ngwr-doc-page__header">
+<header class="header">
   @if (labels().length) {
-    <div class="ngwr-doc-page__labels">
+    <div class="labels">
       @for (label of labels(); track label) {
-        <span class="ngwr-doc-page__label">{{ label }}</span>
+        <span class="label">{{ label }}</span>
       }
     </div>
   }
 
-  <h1 class="ngwr-doc-page__title">{{ title() }}</h1>
+  <h1 class="title">{{ title() }}</h1>
 
   @if (description(); as d) {
-    <p class="ngwr-doc-page__description">{{ d }}</p>
+    <p class="description">{{ d }}</p>
   }
 </header>
 
-<div class="ngwr-doc-page__content">
+<div class="content">
   <ng-content />
 </div>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
 
 import { MetaService } from '#core/services';
 
@@ -26,8 +26,6 @@ import { MetaService } from '#core/services';
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  host: { class: 'ngwr-doc-page' },
 })
 export class DocPageComponent {
   /** Page title. Used as the H1 and in the document title. */

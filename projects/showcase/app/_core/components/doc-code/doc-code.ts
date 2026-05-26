@@ -1,13 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  resource,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, resource, signal } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { getHighlighter, type ShikiLang } from '#core/shiki';
@@ -25,8 +16,6 @@ import { copyToClipboard, stripIndent } from '#core/utils';
   templateUrl: './doc-code.html',
   styleUrl: './doc-code.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  host: { class: 'ngwr-doc-code' },
 })
 export class DocCodeComponent {
   readonly code = input.required<string>();

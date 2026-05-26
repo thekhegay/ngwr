@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 import type { DocApiRow } from './types';
 
@@ -18,8 +18,6 @@ import type { DocApiRow } from './types';
   templateUrl: './doc-api.html',
   styleUrl: './doc-api.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
-  host: { class: 'ngwr-doc-api' },
 })
 export class DocApiComponent {
   readonly rows = input.required<readonly DocApiRow[]>();
