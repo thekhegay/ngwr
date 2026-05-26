@@ -1,0 +1,46 @@
+<div class="wr-logo-loop__track" #track (mouseenter)="onEnter()" (mouseleave)="onLeave()">
+  @for (copyIndex of copyIndices(); track copyIndex) {
+    <ul class="wr-logo-loop__list" role="list" [attr.aria-hidden]="copyIndex > 0" [attr.data-copy]="copyIndex">
+      @for (item of logos(); track $index) {
+        <li class="wr-logo-loop__item" role="listitem">
+          @if (item.href) {
+            <a
+              class="wr-logo-loop__link"
+              [href]="item.href"
+              [attr.aria-label]="
+                isNodeItem(item) ? (item.ariaLabel || item.title || 'logo link') : (item.alt || item.title || 'logo link')
+              "
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <ng-container *ngTemplateOutlet="content; context: { $implicit: item }"></ng-container>
+            </a>
+          } @else {
+            <ng-container *ngTemplateOutlet="content; context: { $implicit: item }"></ng-container>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+<ng-template #content let-item>
+  @if (isNodeItem(item)) {
+    <span class="wr-logo-loop__node" [attr.aria-hidden]="!!item.href && !item.ariaLabel">
+      <ng-container *ngTemplateOutlet="item.node"></ng-container>
+    </span>
+  } @else {
+    <img
+      [src]="item.src"
+      [srcset]="item.srcSet || null"
+      [sizes]="item.sizes || null"
+      [width]="item.width || null"
+      [height]="item.height || null"
+      [alt]="item.alt || ''"
+      [title]="item.title || null"
+      loading="lazy"
+      decoding="async"
+      draggable="false"
+    />
+  }
+</ng-template>

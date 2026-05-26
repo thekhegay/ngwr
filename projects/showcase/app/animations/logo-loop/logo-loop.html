@@ -1,0 +1,37 @@
+<ngwr-doc-page
+  title="Logo Loop"
+  description="Endless logo carousel. Auto-duplicates content to cover the viewport, then animates the track at a configurable speed with smooth easing. *Angular adaptation of the [LogoLoop effect by David Haz / reactbits.dev](https://www.reactbits.dev/animations/logo-loop).*"
+  [keywords]="['logo-loop', 'wr-logo-loop', 'marquee', 'reactbits']"
+  [labels]="['Animation', 'Reactbits port']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-logo-loop [logos]="logos" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With edge fade + hover scale + pause">
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-logo-loop
+        [logos]="logos"
+        [speed]="60"
+        [gap]="48"
+        [logoHeight]="36"
+        direction="right"
+        [fadeOut]="true"
+        [scaleOnHover]="true"
+        [pauseOnHover]="true"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
