@@ -247,6 +247,9 @@
     "./rotating-text": {
       "sass": "./rotating-text/styles/_index.scss"
     },
+    "./scramble-text": {
+      "sass": "./scramble-text/styles/_index.scss"
+    },
     "./segmented": {
       "sass": "./segmented/styles/_index.scss"
     },

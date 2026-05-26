@@ -1,0 +1,62 @@
+<ngwr-doc-page
+  title="Scramble Text"
+  description="Cursor-proximity scrambler. Each character within `radius` px of the pointer scrambles through `scrambleChars` then settles back. Closer pointer means longer scramble. Dependency-free port — vanilla DOM split + per-char `setInterval` loop."
+  [keywords]="['scramble-text', 'wr-scramble-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="scrambled-text" category="text-animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-scramble-text
+        style="
+          display: block;
+          padding: 1.5rem;
+          background: var(--wr-color-dark);
+          color: var(--wr-color-white);
+          border-radius: 0.75rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 1.125rem;
+          line-height: 1.6;
+          max-width: 36rem;
+        "
+      >
+        Hover this paragraph to scramble characters near the cursor.
+      </wr-scramble-text>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tuned: wider radius, longer scramble, custom glyphs">
+    <ngwr-doc-code [code]="snippets.tuned" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-scramble-text
+        [radius]="140"
+        [duration]="1.8"
+        [speed]="0.04"
+        scrambleChars="!&%*?<>"
+        style="
+          display: block;
+          padding: 1.5rem;
+          background: linear-gradient(135deg, #1e1b4b, #4c1d95);
+          color: #fbbf24;
+          border-radius: 0.75rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 1.125rem;
+          line-height: 1.6;
+          max-width: 36rem;
+        "
+      >
+        A wider radius, longer scramble, custom glyph pool.
+      </wr-scramble-text>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

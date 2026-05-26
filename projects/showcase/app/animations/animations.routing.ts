@@ -29,4 +29,5 @@ export default [
   { path: a.gradientText, loadComponent: () => import('./gradient-text/gradient-text') },
   { path: a.rotatingText, loadComponent: () => import('./rotating-text/rotating-text') },
   { path: a.typewriter, loadComponent: () => import('./typewriter/typewriter') },
+  { path: a.scrambleText, loadComponent: () => import('./scramble-text/scramble-text') },
 ] satisfies Routes;
