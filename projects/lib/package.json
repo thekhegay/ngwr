@@ -170,6 +170,7 @@
     "./form": {
       "sass": "./form/styles/_index.scss"
     },
+    "./fuzzy-text": {},
     "./gauge": {
       "sass": "./gauge/styles/_index.scss"
     },

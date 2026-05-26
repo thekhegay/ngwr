@@ -32,4 +32,5 @@ export default [
   { path: a.scrambleText, loadComponent: () => import('./scramble-text/scramble-text') },
   { path: a.decryptText, loadComponent: () => import('./decrypt-text/decrypt-text') },
   { path: a.glitchText, loadComponent: () => import('./glitch-text/glitch-text') },
+  { path: a.fuzzyText, loadComponent: () => import('./fuzzy-text/fuzzy-text') },
 ] satisfies Routes;

@@ -1,0 +1,58 @@
+<ngwr-doc-page
+  title="Fuzzy Text"
+  description="Canvas-rendered fuzzy text — each row (or column) is offset by a random amount per frame for a TV-static or motion-blur look. Intensity ramps up on hover, click, and during periodic glitch bursts."
+  [keywords]="['fuzzy-text', 'wr-fuzzy-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="fuzzy-text" category="text-animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="padding: 2rem; background: var(--wr-color-dark); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center">
+        <wr-fuzzy-text text="404" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tuned colour + range">
+    <ngwr-doc-code [code]="snippets.tuned" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="padding: 2rem; background: var(--wr-color-dark); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center">
+        <wr-fuzzy-text text="HELLO" color="#0ea5e9" [fuzzRange]="60" [hoverIntensity]="0.9" fontSize="6rem" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Glitch mode + click effect">
+    <ngwr-doc-code [code]="snippets.glitch" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="padding: 2rem; background: var(--wr-color-dark); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center">
+        <wr-fuzzy-text
+          text="GLITCH"
+          [glitchMode]="true"
+          [glitchInterval]="1500"
+          [glitchDuration]="250"
+          [clickEffect]="true"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Gradient + both directions">
+    <ngwr-doc-code [code]="snippets.gradient" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="padding: 2rem; background: var(--wr-color-dark); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center">
+        <wr-fuzzy-text text="SUNSET" [gradient]="['#f97316', '#dc2626', '#7c3aed']" direction="both" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
