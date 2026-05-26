@@ -108,6 +108,50 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Border"
+    description="Pass `[borderWidth]` (px) + `[borderColor]` to paint a ring along the squircle. The directive composites an inner squircle in the content background so the outer ring shows through. Set `--wr-squircle-content-bg` on the host (CSS var) to colour the inner fill."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap">
+        <wr-squircle
+          [radius]="24"
+          [borderWidth]="2"
+          borderColor="var(--wr-color-primary)"
+          style="
+            width: 140px;
+            height: 140px;
+            --wr-squircle-content-bg: var(--wr-color-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--wr-color-primary);
+            font-weight: 600;
+          "
+        >
+          2px border
+        </wr-squircle>
+        <wr-squircle
+          [radius]="32"
+          [borderWidth]="6"
+          borderColor="var(--wr-color-danger)"
+          style="
+            width: 140px;
+            height: 140px;
+            --wr-squircle-content-bg: var(--wr-color-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--wr-color-white);
+            font-weight: 600;
+          "
+        >
+          6px border
+        </wr-squircle>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Try it" description="Drag the sliders.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap">

@@ -13,7 +13,7 @@ import { WrSpinner } from 'ngwr/spinner';
 import { WrSquircle } from 'ngwr/squircle';
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrButtonIconPosition, WrButtonSize } from './types';
+import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 /**
  * Trigger an action. Renders as a `<wr-btn>` element, or attach to a
@@ -24,7 +24,8 @@ import type { WrButtonIconPosition, WrButtonSize } from './types';
  * <button wr-btn color="primary">Save</button>
  * <a wr-btn color="primary" outlined>Cancel</a>
  * <wr-btn color="danger" icon="trash">Delete</wr-btn>
- * <wr-btn color="primary" loading>Saving</wr-btn>
+ * <wr-btn color="primary" shape="pill">Pill</wr-btn>
+ * <wr-btn color="primary" shape="squircle">Squircle</wr-btn>
  * ```
  *
  * @see https://ngwr.dev/docs/components/button
@@ -43,7 +44,7 @@ import type { WrButtonIconPosition, WrButtonSize } from './types';
   hostDirectives: [
     {
       directive: WrSquircle,
-      inputs: ['enabled: squircle', 'radius: squircleRadius', 'smoothing: squircleSmoothing'],
+      inputs: ['radius: squircleRadius', 'smoothing: squircleSmoothing'],
     },
   ],
 })
@@ -61,6 +62,13 @@ export class WrButton {
    * @default 'md'
    */
   readonly size = input<WrButtonSize>('md');
+
+  /**
+   * Corner treatment — `rounded` (default), `pill`, or `squircle`.
+   *
+   * @default 'rounded'
+   */
+  readonly shape = input<WrButtonShape>('rounded');
 
   /**
    * Icon name to render alongside the label. The icon is hidden while
@@ -90,22 +98,6 @@ export class WrButton {
    * @default false
    */
   readonly outlined = input(false, { transform: coerceBooleanProperty });
-
-  /**
-   * Pill-shaped corners.
-   *
-   * @default false
-   */
-  readonly rounded = input(false, { transform: coerceBooleanProperty });
-
-  /**
-   * Apply a Figma-style smooth-corner squircle clip-path. Pair with
-   * `[squircleRadius]` (default 12) and `[squircleSmoothing]` (default 1)
-   * to tune.
-   *
-   * @default false
-   */
-  readonly squircle = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Stretch the button to fill its parent's width.
@@ -143,8 +135,10 @@ export class WrButton {
     const size = this.size();
     if (size !== 'md') parts.push(`wr-btn--${size}`);
 
+    const shape = this.shape();
+    if (shape !== 'rounded') parts.push(`wr-btn--${shape}`);
+
     if (this.outlined()) parts.push('wr-btn--outlined');
-    if (this.rounded()) parts.push('wr-btn--rounded');
     if (this.block()) parts.push('wr-btn--block');
     if (this.loading()) parts.push('wr-btn--loading');
 

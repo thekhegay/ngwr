@@ -43,11 +43,21 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Rounded">
-    <ngwr-doc-snippet [code]="snippets.rounded">
-      @for (c of colors; track c) {
-        <wr-btn [color]="c" rounded>{{ c }}</wr-btn>
-      }
+  <ngwr-doc-section
+    title="Shape"
+    description="`shape` chooses the corner treatment — `rounded` (default), `pill` (fully rounded), or `squircle` (Figma-style smooth corners)."
+  >
+    <ngwr-doc-snippet [code]="snippets.shape">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem">
+        @for (c of colors; track c) {
+          <wr-btn [color]="c" shape="pill">{{ c }}</wr-btn>
+        }
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+        @for (c of colors; track c) {
+          <wr-btn [color]="c" shape="squircle">{{ c }}</wr-btn>
+        }
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

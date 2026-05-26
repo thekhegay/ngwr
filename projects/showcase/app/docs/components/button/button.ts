@@ -38,7 +38,8 @@ export class MyComponent {}`,
     sizes: `<wr-btn size="sm">Small</wr-btn>
 <wr-btn size="md">Medium</wr-btn>
 <wr-btn size="lg">Large</wr-btn>`,
-    rounded: `<wr-btn color="primary" rounded>Rounded</wr-btn>`,
+    shape: `<wr-btn color="primary" shape="pill">Pill</wr-btn>
+<wr-btn color="primary" shape="squircle">Squircle</wr-btn>`,
     block: `<wr-btn color="primary" block>Full width</wr-btn>`,
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
 <wr-btn icon="download" iconPosition="end" color="success">Download</wr-btn>`,
@@ -54,7 +55,12 @@ export class MyComponent {}`,
     { name: 'icon', description: 'Icon shown beside the label.', type: 'WrIconName | null', default: 'null' },
     { name: 'iconPosition', description: 'Where the icon sits.', type: "'start' | 'end'", default: "'start'" },
     { name: 'outlined', description: 'Outlined style.', type: 'boolean', default: 'false' },
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+    {
+      name: 'shape',
+      description: 'Corner treatment — `rounded` (default), `pill` (fully rounded), or `squircle`.',
+      type: "'rounded' | 'pill' | 'squircle'",
+      default: "'rounded'",
+    },
     { name: 'block', description: 'Stretch to parent width.', type: 'boolean', default: 'false' },
     { name: 'loading', description: 'Show a spinner overlaying the label.', type: 'boolean', default: 'false' },
     {

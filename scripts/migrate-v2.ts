@@ -154,6 +154,23 @@ function rewriteClassReferences(content: string): string {
 }
 
 /**
+ * Rewrite v6 button props that fused into the new `[shape]` enum.
+ *   `<wr-btn rounded>`         → `<wr-btn shape="pill">`
+ *   `<wr-btn [rounded]="true">`→ `<wr-btn shape="pill">`
+ *   `<wr-btn squircle>`        → `<wr-btn shape="squircle">`
+ *
+ * Runs on `.html` and `.ts` (template literal strings).
+ */
+function rewriteButtonProps(content: string): string {
+  return (
+    content
+      // `rounded` and `[rounded]="true"` on <wr-btn> / button[wr-btn] / a[wr-btn].
+      .replace(/(<(?:wr-btn|[^<>]*?\bwr-btn\b)[^>]*?\s)\[?rounded\]?(?:="true")?(\s|>|\/>)/g, '$1shape="pill"$2')
+      .replace(/(<(?:wr-btn|[^<>]*?\bwr-btn\b)[^>]*?\s)\[?squircle\]?(?:="true")?(\s|>|\/>)/g, '$1shape="squircle"$2')
+  );
+}
+
+/**
  * Update path strings like `./button.component` → `./button` and
  * `./button.component.html` → `./button.html`. Lookahead allows trailing
  * extensions (`.html`, `.scss`) without consuming them.
@@ -176,6 +193,9 @@ function planContentRewrites(root: string): readonly FileEdit[] {
     let after = before;
     if (/\.(ts|html|md)$/.test(file)) {
       after = rewriteClassReferences(after);
+    }
+    if (/\.(ts|html)$/.test(file)) {
+      after = rewriteButtonProps(after);
     }
     if (/\.ts$/.test(file)) {
       after = rewritePathStrings(after);

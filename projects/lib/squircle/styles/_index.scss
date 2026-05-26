@@ -1,3 +1,34 @@
 .wr-squircle {
   display: block;
 }
+
+// When a [wrSquircle] host has a non-zero borderWidth, the directive sets
+// --wr-squircle-inner-path / --wr-squircle-border-color and adds this
+// modifier class. A ::before pseudo paints the inner squircle in the
+// content background, leaving the outer ring of the host visible as the
+// "border".
+//
+// The directive sets the host's `background-color` to the border colour;
+// consumers override the *content* background via `--wr-squircle-content-bg`
+// (defaults to the host's `background-color` cascaded through `inherit`).
+.wr-squircle--bordered {
+  position: relative;
+  background-color: var(--wr-squircle-border-color, currentColor);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: var(--wr-squircle-border-width, 0);
+    background-color: var(--wr-squircle-content-bg, transparent);
+    clip-path: var(--wr-squircle-inner-path, none);
+    -webkit-clip-path: var(--wr-squircle-inner-path, none);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  // Lift real content above the bordered pseudo.
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}

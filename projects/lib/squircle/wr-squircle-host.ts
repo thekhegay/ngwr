@@ -28,6 +28,6 @@ import { WrSquircle } from './wr-squircle';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-squircle' },
-  hostDirectives: [{ directive: WrSquircle, inputs: ['radius', 'smoothing'] }],
+  hostDirectives: [{ directive: WrSquircle, inputs: ['radius', 'smoothing', 'borderWidth', 'borderColor'] }],
 })
 export class WrSquircleHost {}
