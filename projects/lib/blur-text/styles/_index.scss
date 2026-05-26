@@ -1,0 +1,14 @@
+.wr-blur-text {
+  display: inline-flex;
+  flex-wrap: wrap;
+
+  &__piece {
+    display: inline-block;
+    will-change: transform, filter, opacity;
+  }
+
+  &__space {
+    display: inline;
+    white-space: pre;
+  }
+}

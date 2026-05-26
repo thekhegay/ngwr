@@ -24,4 +24,5 @@ export default [
   { path: a.logoLoop, loadComponent: () => import('./logo-loop/logo-loop') },
   { path: a.clickSpark, loadComponent: () => import('./click-spark/click-spark') },
   { path: a.splitText, loadComponent: () => import('./split-text/split-text') },
+  { path: a.blurText, loadComponent: () => import('./blur-text/blur-text') },
 ] satisfies Routes;

@@ -1,0 +1,64 @@
+<ngwr-doc-page
+  title="Blur Text"
+  description="Reveals text by blurring each piece in from a coloured offset, through a half-blurred mid-step, into the steady state. Triggers on viewport entry. *Angular adaptation of the [BlurText effect by David Haz / reactbits.dev](https://www.reactbits.dev/text-animations/blur-text). Dependency-free port — uses `IntersectionObserver` + Web Animations API.*"
+  [keywords]="['blur-text', 'wr-blur-text', 'text animation', 'reactbits']"
+  [labels]="['Animation', 'Reactbits port']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%">
+        <button
+          type="button"
+          (click)="replay()"
+          style="padding: 0.375rem 0.75rem; border: 1px solid var(--wr-color-light); border-radius: 0.375rem; background: var(--wr-color-white); cursor: pointer; font-size: 0.75rem"
+        >
+          Replay
+        </button>
+        @for (k of [replayKey()]; track k) {
+          <wr-blur-text
+            text="Welcome to ngwr"
+            style="font-size: 2rem; font-weight: 700; color: var(--wr-color-dark)"
+          />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Direction: bottom">
+    <ngwr-doc-code [code]="snippets.bottom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      @for (k of [replayKey()]; track k) {
+        <wr-blur-text
+          text="Sliding up from the bottom."
+          direction="bottom"
+          [delay]="120"
+          style="font-size: 1.25rem; font-weight: 500; color: var(--wr-color-dark)"
+        />
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Character-by-character">
+    <ngwr-doc-code [code]="snippets.chars" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      @for (k of [replayKey()]; track k) {
+        <wr-blur-text
+          text="Every character blurs in"
+          animateBy="chars"
+          [delay]="40"
+          [stepDuration]="0.3"
+          style="font-size: 1.75rem; font-weight: 600; color: var(--wr-color-primary)"
+        />
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
