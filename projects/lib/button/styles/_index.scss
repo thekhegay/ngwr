@@ -107,28 +107,27 @@
     border: 0; // the squircle clip would crop a CSS border anyway
 
     // Outlined squircle: paint the border via the squircle directive's
-    // ring composite (the CSS `border` would be clipped away). The
-    // outer host is filled with the ring colour; the ::before is inset
-    // by 1px and filled with the inner colour.
+    // ring composite (the CSS `border` would be clipped away). The host
+    // is painted with the ring colour; an inset `::before` paints the
+    // inner squircle. CRITICAL: the inner has to be OPAQUE — otherwise
+    // a transparent inner lets the ring colour bleed through the whole
+    // button (transparent over coloured = visible coloured fill).
     //
-    // To read as a true ring (not a translucent fill), the ring colour
-    // must be FULL OPACITY. We use `--wr-btn-color` (the text/accent at
-    // full opacity) for the ring, and `--wr-btn-bg` (transparent off,
-    // accent-dark on hover) for the inner fill.
+    // Off-state uses `--wr-color-white` for the inner so the button
+    // reads as a hollow ring on a light-themed page. On hover/active,
+    // ring + inner both collapse to `--wr-btn-bg` so the button looks
+    // like a solid filled squircle (the standard outlined hover style).
     //
-    // - Off:    ring = accent (full),       inner = transparent  → hollow ring
-    // - Hover:  ring = accent-dark,         inner = accent-dark  → solid fill
-    // - Active: ring = accent-darker,       inner = accent-darker
-    //
-    // On hover/active we flip the ring colour from "text" to "bg" so
-    // the inverted-fill state of an outlined button reads cleanly.
+    // For dark themes, override `--wr-squircle-content-bg` on the
+    // button to the surface colour.
     &.wr-btn--outlined {
       --wr-squircle-border-color: var(--wr-btn-color);
-      --wr-squircle-content-bg: var(--wr-btn-bg);
+      --wr-squircle-content-bg: var(--wr-color-white);
 
       &:hover,
       &:active {
         --wr-squircle-border-color: var(--wr-btn-bg);
+        --wr-squircle-content-bg: var(--wr-btn-bg);
       }
     }
   }
