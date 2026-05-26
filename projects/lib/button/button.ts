@@ -133,11 +133,18 @@ export class WrButton {
   protected readonly effectiveShape = computed<WrButtonShape>(() => this.shape() ?? this.group?.shape() ?? 'rounded');
 
   constructor() {
-    // The host directive composes a `WrSquircle` instance — flip it on
-    // only when the resolved shape is "squircle" so the default (rounded)
-    // keeps its real CSS border instead of being clipped away.
+    // The host directive composes a `WrSquircle` instance — drive its
+    // enabled / border state from this button's shape + outlined inputs.
     const squircle = inject(WrSquircle, { self: true });
-    effect(() => squircle.enabled.set(this.effectiveShape() === 'squircle'));
+    effect(() => {
+      const isSquircle = this.effectiveShape() === 'squircle';
+      squircle.enabled.set(isSquircle);
+      // For outlined squircle, the regular CSS border is clipped away by
+      // the squircle path. Hand the directive a 1px border so its
+      // ::before-composite paints a visible ring in the button's text
+      // colour (currentColor → outline accent).
+      squircle.borderWidth.set(isSquircle && this.outlined() ? 1 : 0);
+    });
   }
 
   protected readonly nativeDisabled = computed<'' | null>(() => {

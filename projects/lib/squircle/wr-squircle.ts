@@ -56,16 +56,20 @@ export class WrSquircle {
 
   /**
    * Border thickness in CSS pixels. `0` disables the border ring entirely.
+   * Modelled (not `input()`) so parent components composing this directive
+   * can flip it imperatively — e.g. `WrButton` turning on a 1px ring when
+   * `shape="squircle" outlined` is active.
    * @default 0
    */
-  readonly borderWidth = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
+  readonly borderWidth = model(0);
 
   /**
    * Border colour — any CSS colour. Applied to the host's background so the
-   * outer squircle reveals it. Defaults to `currentColor`.
+   * outer squircle reveals it. Defaults to `currentColor` so the consuming
+   * element's text colour drives the ring.
    * @default 'currentColor'
    */
-  readonly borderColor = input<string>('currentColor');
+  readonly borderColor = model<string>('currentColor');
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
