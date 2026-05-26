@@ -125,7 +125,16 @@ export class WrSquircle {
         host.style.setProperty('--wr-squircle-inner-path', `path("${inner}")`);
       }
       host.style.setProperty('--wr-squircle-border-width', `${bw}px`);
-      host.style.setProperty('--wr-squircle-border-color', this.borderColor());
+      // Only set the colour var inline when the consumer asked for a
+      // specific colour. Leaving the default `'currentColor'` un-inlined
+      // lets host CSS (e.g. WrButton's outlined-squircle rule) override
+      // the var via SCSS without losing to inline-style specificity.
+      const bc = this.borderColor();
+      if (bc && bc !== 'currentColor') {
+        host.style.setProperty('--wr-squircle-border-color', bc);
+      } else {
+        host.style.removeProperty('--wr-squircle-border-color');
+      }
     } else {
       host.style.removeProperty('--wr-squircle-inner-path');
       host.style.removeProperty('--wr-squircle-border-width');

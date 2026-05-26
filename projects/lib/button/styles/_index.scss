@@ -106,18 +106,23 @@
     --wr-btn-radius: 0; // clip-path overrides; flatten to keep visual clean
     border: 0; // the squircle clip would crop a CSS border anyway
 
-    // Outlined squircle: drop the host background so the directive's
-    // ::before composite can paint the inner fill, and the outer host
-    // (set to currentColor by the squircle directive) becomes the ring.
-    // Hover/active still flips `currentColor` via the colour variants
-    // below, so the ring tracks the state.
+    // Outlined squircle: re-route the squircle border ring + inner fill
+    // through the button's own `--wr-btn-*` cascade. The directive paints
+    // the host with `var(--wr-squircle-border-color)` (the ring) and the
+    // ::before pseudo with `var(--wr-squircle-content-bg)` (the inner
+    // fill). By wiring both vars to the button's bg/border tokens, the
+    // ring + fill follow hover / active / disabled exactly like the
+    // non-squircle outlined variant does.
+    //
+    // - Off:    --wr-btn-border = rgba(accent, 0.4) → translucent ring
+    //           --wr-btn-bg     = transparent         → hollow fill
+    // - Hover:  --wr-btn-border = accent-dark         → ring darkens AND
+    //           --wr-btn-bg     = accent-dark         → fill matches ring
+    //                                                    = looks solid
+    // - Active: same idea, accent-darker for both.
     &.wr-btn--outlined {
-      // Match the inner fill to the page background — for the showcase
-      // and most consumer apps that's `transparent` (the default the
-      // squircle SCSS uses). Override per-app with
-      // `--wr-squircle-content-bg`.
-      --wr-squircle-content-bg: transparent;
-      background: transparent;
+      --wr-squircle-border-color: var(--wr-btn-border);
+      --wr-squircle-content-bg: var(--wr-btn-bg);
     }
   }
 
