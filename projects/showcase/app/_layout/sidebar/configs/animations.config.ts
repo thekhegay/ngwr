@@ -2,12 +2,12 @@ import type { SidebarGroup } from '../sidebar.types';
 
 /**
  * Sidebar for `/animations/*` — animated UI effects. Mix of in-house ngwr
- * components and ports of reactbits.dev effects (each port file credits
- * the original author).
+ * components and reactbits.dev ports. Per-page attribution lives on each
+ * port page via `<ngwr-reactbits-credit>` so the nav stays uncluttered.
  */
 export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
   {
-    title: 'In-house',
+    title: 'Animations',
     children: [
       { title: 'Motion (Web Animations)', url: ['/animations', 'motion'] },
       { title: 'Border Glow', url: ['/animations', 'border-glow'] },
@@ -19,11 +19,6 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Shimmer', url: ['/animations', 'shimmer'] },
       { title: 'Spotlight', url: ['/animations', 'spotlight'] },
       { title: 'Tilt', url: ['/animations', 'tilt'] },
-    ],
-  },
-  {
-    title: 'Reactbits ports',
-    children: [
       { title: 'Spotlight Card', url: ['/animations', 'spotlight-card'] },
       { title: 'Logo Loop', url: ['/animations', 'logo-loop'] },
       { title: 'Click Spark', url: ['/animations', 'click-spark'] },

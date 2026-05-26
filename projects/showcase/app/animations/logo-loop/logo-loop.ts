@@ -20,6 +20,7 @@ import {
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  ReactbitsCredit,
 } from '#core/components';
 
 @Component({
@@ -34,6 +35,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    ReactbitsCredit,
   ],
   providers: [
     provideWrIcons([logoAngular, logoChrome, logoFirebase, logoGithub, logoGitlab, logoNpm, logoTelegram]),

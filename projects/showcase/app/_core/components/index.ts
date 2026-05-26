@@ -4,3 +4,4 @@ export { DocSnippetComponent } from './doc-snippet/doc-snippet';
 export { DocCodeComponent } from './doc-code/doc-code';
 export { DocApiComponent } from './doc-api/doc-api';
 export type { DocApiRow } from './doc-api/types';
+export { ReactbitsCredit } from './reactbits-credit/reactbits-credit';

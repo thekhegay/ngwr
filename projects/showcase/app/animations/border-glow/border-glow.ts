@@ -9,13 +9,22 @@ import {
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  ReactbitsCredit,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-border-glow-page',
   templateUrl: './border-glow.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrBorderGlow, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrBorderGlow,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    ReactbitsCredit,
+  ],
 })
 export default class BorderGlowPage {
   protected readonly snippets = {

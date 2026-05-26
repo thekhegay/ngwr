@@ -9,13 +9,22 @@ import {
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  ReactbitsCredit,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-split-text-page',
   templateUrl: './split-text.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrSplitText, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrSplitText,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    ReactbitsCredit,
+  ],
 })
 export default class SplitTextPage {
   /** Replayable key — bump it to remount and re-trigger the animation. */

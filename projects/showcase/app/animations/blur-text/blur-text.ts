@@ -9,13 +9,22 @@ import {
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  ReactbitsCredit,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-blur-text-page',
   templateUrl: './blur-text.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrBlurText, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrBlurText,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    ReactbitsCredit,
+  ],
 })
 export default class BlurTextPage {
   protected readonly replayKey = signal(0);
