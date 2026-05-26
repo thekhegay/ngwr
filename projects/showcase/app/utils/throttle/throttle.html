@@ -1,13 +1,12 @@
 <ngwr-doc-page
-  title="Type guards"
-  description="Small predicates that narrow types — pairs well with TypeScript's control-flow analysis."
-  [keywords]="['utils', 'isDefined', 'isNonEmptyArray', 'isObservable', 'type guards']"
+  title="throttle"
+  description="Wrap a callback so it fires at most every `waitMs`, honouring both the leading and trailing edge. Returns a function with a `.cancel()` method for safe teardown."
+  [keywords]="['throttle', 'rate limit', 'utils']"
   [labels]="['Util']"
 >
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
-
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

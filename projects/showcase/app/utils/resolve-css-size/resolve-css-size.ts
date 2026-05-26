@@ -9,13 +9,13 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-utl-css-size-page',
-  templateUrl: './css-size.html',
+  selector: 'ngwr-utl-resolve-css-size-page',
+  templateUrl: './resolve-css-size.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })
-export default class CssSizeUtilPageComponent {
-  protected readonly snippet = `import { resolveCssSize, getRootFontSize } from 'ngwr/utils';
+export default class ResolveCssSizePage {
+  protected readonly snippet = `import { resolveCssSize } from 'ngwr/utils';
 
 resolveCssSize(48);       // { cssValue: '48px',  pxValue: 48 }
 resolveCssSize('3rem');   // { cssValue: '3rem',  pxValue: 3 * rootFont }
@@ -41,6 +41,5 @@ resolveCssSize(null, { defaultValue: '6rem' }); // falls back`;
       type: 'type',
       default: '—',
     },
-    { name: 'getRootFontSize()', description: 'Pixel value of `:root` font-size.', type: '() => number', default: '—' },
   ];
 }

@@ -130,14 +130,27 @@ export const routes = {
   },
   utils: {
     index: 'utils',
-    cssSize: 'css-size',
+    // Css helpers
+    resolveCssSize: 'resolve-css-size',
+    getRootFontSize: 'get-root-font-size',
+    // Ids
     randomId: 'random-id',
-    guards: 'guards',
+    // Type guards
+    isDefined: 'is-defined',
+    isNonEmptyArray: 'is-non-empty-array',
+    isObservable: 'is-observable',
+    // Keyboard
     keys: 'keys',
+    hasModifier: 'has-modifier',
+    isPrintableKey: 'is-printable-key',
+    // Functional primitives
     noop: 'noop',
     badgeLog: 'badge-log',
-    rate: 'rate',
-    focus: 'focus',
+    debounce: 'debounce',
+    throttle: 'throttle',
+    // Focus
+    getFocusableElements: 'get-focusable-elements',
+    trapFocus: 'trap-focus',
   },
 };
 

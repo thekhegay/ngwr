@@ -5,13 +5,20 @@ import { routes } from '#routing';
 const utils = routes.utils;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: utils.cssSize },
-  { path: utils.cssSize, loadComponent: () => import('./css-size/css-size') },
+  { path: '', pathMatch: 'full', redirectTo: utils.resolveCssSize },
+  { path: utils.resolveCssSize, loadComponent: () => import('./resolve-css-size/resolve-css-size') },
+  { path: utils.getRootFontSize, loadComponent: () => import('./get-root-font-size/get-root-font-size') },
   { path: utils.randomId, loadComponent: () => import('./random-id/random-id') },
-  { path: utils.guards, loadComponent: () => import('./guards/guards') },
+  { path: utils.isDefined, loadComponent: () => import('./is-defined/is-defined') },
+  { path: utils.isNonEmptyArray, loadComponent: () => import('./is-non-empty-array/is-non-empty-array') },
+  { path: utils.isObservable, loadComponent: () => import('./is-observable/is-observable') },
   { path: utils.keys, loadComponent: () => import('./keys/keys') },
+  { path: utils.hasModifier, loadComponent: () => import('./has-modifier/has-modifier') },
+  { path: utils.isPrintableKey, loadComponent: () => import('./is-printable-key/is-printable-key') },
   { path: utils.noop, loadComponent: () => import('./noop/noop') },
   { path: utils.badgeLog, loadComponent: () => import('./badge-log/badge-log') },
-  { path: utils.rate, loadComponent: () => import('./rate/rate') },
-  { path: utils.focus, loadComponent: () => import('./focus/focus') },
+  { path: utils.debounce, loadComponent: () => import('./debounce/debounce') },
+  { path: utils.throttle, loadComponent: () => import('./throttle/throttle') },
+  { path: utils.getFocusableElements, loadComponent: () => import('./get-focusable-elements/get-focusable-elements') },
+  { path: utils.trapFocus, loadComponent: () => import('./trap-focus/trap-focus') },
 ] satisfies Routes;

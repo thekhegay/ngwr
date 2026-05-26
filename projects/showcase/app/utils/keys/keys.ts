@@ -14,31 +14,26 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })
-export default class KeysUtilPageComponent {
-  protected readonly snippet = `import { KEYS, hasModifier, isPrintableKey } from 'ngwr/utils';
+export default class KeysPage {
+  protected readonly snippet = `import { KEYS, type WrKey } from 'ngwr/utils';
 
-if (event.key === KEYS.ESCAPE) { close(); }
-if (hasModifier(event)) { /* ctrl/cmd/alt/shift held */ }
-if (isPrintableKey(event)) { /* single printable char */ }`;
+if (event.key === KEYS.ESCAPE) {
+  close();
+}
+
+function onArrow(key: WrKey) { /* strictly-typed */ }`;
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'KEYS',
-      description: 'Canonical `KeyboardEvent.key` constants — `ENTER`, `ESCAPE`, `ARROW_UP`, …',
+      description: 'Canonical `KeyboardEvent.key` constants — `ENTER`, `ESCAPE`, `ARROW_UP`, `ARROW_DOWN`, `TAB`, `SPACE`, …',
       type: 'const record',
       default: '—',
     },
-    { name: 'WrKey', description: 'Union of every value in `KEYS`.', type: 'type', default: '—' },
     {
-      name: 'hasModifier(event)',
-      description: 'True when Ctrl / Cmd / Alt / Shift / Meta is held.',
-      type: '(e: KeyboardEvent) => boolean',
-      default: '—',
-    },
-    {
-      name: 'isPrintableKey(event)',
-      description: 'True when the key is a single printable character (no modifiers).',
-      type: '(e: KeyboardEvent) => boolean',
+      name: 'WrKey',
+      description: 'Union of every value in `KEYS` — drop into function signatures for type-safe key matching.',
+      type: 'type',
       default: '—',
     },
   ];
