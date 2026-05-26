@@ -13,6 +13,7 @@ import { WrSpinner } from 'ngwr/spinner';
 import { WrSquircle } from 'ngwr/squircle';
 import type { WrColor } from 'ngwr/theme';
 
+import { WR_BUTTON_GROUP } from './tokens';
 import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 /**
@@ -27,6 +28,9 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
  * <wr-btn color="primary" shape="pill">Pill</wr-btn>
  * <wr-btn color="primary" shape="squircle">Squircle</wr-btn>
  * ```
+ *
+ * Inside a `<wr-btn-group shape="…">`, the group's shape cascades to
+ * every child that hasn't set its own. Explicit child `[shape]` wins.
  *
  * @see https://ngwr.dev/docs/components/button
  */
@@ -64,11 +68,13 @@ export class WrButton {
   readonly size = input<WrButtonSize>('md');
 
   /**
-   * Corner treatment — `rounded` (default), `pill`, or `squircle`.
+   * Corner treatment — `rounded`, `pill`, or `squircle`. `null` (default)
+   * means "inherit from the enclosing `<wr-btn-group>`'s shape, or fall
+   * back to `rounded`".
    *
-   * @default 'rounded'
+   * @default null
    */
-  readonly shape = input<WrButtonShape>('rounded');
+  readonly shape = input<WrButtonShape | null>(null);
 
   /**
    * Icon name to render alongside the label. The icon is hidden while
@@ -121,12 +127,17 @@ export class WrButton {
    */
   readonly isDisabledWhenLoading = input(true, { transform: coerceBooleanProperty });
 
+  private readonly group = inject(WR_BUTTON_GROUP, { optional: true });
+
+  /** Resolved shape — own input wins, then group cascade, then default. */
+  protected readonly effectiveShape = computed<WrButtonShape>(() => this.shape() ?? this.group?.shape() ?? 'rounded');
+
   constructor() {
     // The host directive composes a `WrSquircle` instance — flip it on
-    // only when shape="squircle" so the default (rounded) keeps its
-    // real CSS border instead of being clipped away.
+    // only when the resolved shape is "squircle" so the default (rounded)
+    // keeps its real CSS border instead of being clipped away.
     const squircle = inject(WrSquircle, { self: true });
-    effect(() => squircle.enabled.set(this.shape() === 'squircle'));
+    effect(() => squircle.enabled.set(this.effectiveShape() === 'squircle'));
   }
 
   protected readonly nativeDisabled = computed<'' | null>(() => {
@@ -143,7 +154,7 @@ export class WrButton {
     const size = this.size();
     if (size !== 'md') parts.push(`wr-btn--${size}`);
 
-    const shape = this.shape();
+    const shape = this.effectiveShape();
     if (shape !== 'rounded') parts.push(`wr-btn--${shape}`);
 
     if (this.outlined()) parts.push('wr-btn--outlined');

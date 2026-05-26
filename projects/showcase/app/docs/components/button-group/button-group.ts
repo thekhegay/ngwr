@@ -49,10 +49,27 @@ export class MyComponent {}`,
   <button wr-btn [color]="align() === 'center' ? 'primary' : null" (click)="align.set('center')">Center</button>
   <button wr-btn [color]="align() === 'right' ? 'primary' : null" (click)="align.set('right')">Right</button>
 </wr-btn-group>`,
+    shape: `<wr-btn-group shape="pill">
+  <button wr-btn>Pill</button>
+  <button wr-btn>Group</button>
+  <button wr-btn>Cascade</button>
+</wr-btn-group>
+
+<wr-btn-group shape="squircle">
+  <button wr-btn>Squircle</button>
+  <button wr-btn>Group</button>
+  <button wr-btn shape="pill">Overrides</button>
+</wr-btn-group>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: '—', description: 'No inputs. Place buttons as children.', type: '—', default: '—' },
+    {
+      name: 'shape',
+      description:
+        'Cascaded corner treatment for every child `<wr-btn>` that has not set its own. `null` (default) leaves children alone.',
+      type: "'rounded' | 'pill' | 'squircle' | null",
+      default: 'null',
+    },
   ];
 
   protected colorFor(value: Align): 'primary' | null {
