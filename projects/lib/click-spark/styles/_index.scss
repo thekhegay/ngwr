@@ -1,0 +1,16 @@
+// Click spark — canvas overlay that ignores pointer events so projected
+// children stay interactive.
+.wr-click-spark {
+  position: relative;
+  display: block;
+
+  &__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+  }
+}

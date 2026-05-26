@@ -111,6 +111,9 @@
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
     },
+    "./click-spark": {
+      "sass": "./click-spark/styles/_index.scss"
+    },
     "./collapse": {
       "sass": "./collapse/styles/_index.scss"
     },

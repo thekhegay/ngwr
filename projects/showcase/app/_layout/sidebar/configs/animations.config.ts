@@ -26,7 +26,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
     children: [
       { title: 'Spotlight Card', url: ['/animations', 'spotlight-card'] },
       { title: 'Logo Loop', url: ['/animations', 'logo-loop'] },
-      { title: 'Click Spark', url: ['/animations', 'click-spark'], disabled: true },
+      { title: 'Click Spark', url: ['/animations', 'click-spark'] },
       { title: 'Split Text', url: ['/animations', 'split-text'], disabled: true },
       { title: 'Blur Text', url: ['/animations', 'blur-text'], disabled: true },
       { title: 'Shiny Text', url: ['/animations', 'shiny-text'], disabled: true },

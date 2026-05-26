@@ -1,0 +1,68 @@
+<ngwr-doc-page
+  title="Click Spark"
+  description="Click ripple. Bursts a ring of short line sparks from the click point across any projected content. The canvas overlay has `pointer-events: none`, so projected DOM stays fully interactive. *Angular adaptation of the [ClickSpark effect by David Haz / reactbits.dev](https://www.reactbits.dev/animations/click-spark).*"
+  [keywords]="['click-spark', 'wr-click-spark', 'reactbits']"
+  [labels]="['Animation', 'Reactbits port']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-click-spark
+        style="
+          display: block;
+          width: 100%;
+          min-height: 12rem;
+          background: var(--wr-color-dark);
+          color: var(--wr-color-white);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-weight: 600;
+        "
+      >
+        Click anywhere
+      </wr-click-spark>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom">
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-click-spark
+        sparkColor="#6366f1"
+        [sparkCount]="12"
+        [sparkRadius]="30"
+        [sparkSize]="14"
+        [duration]="600"
+        easing="ease-in-out"
+        [extraScale]="1.5"
+        style="
+          display: block;
+          width: 100%;
+          min-height: 12rem;
+          background: rgba(99, 102, 241, 0.08);
+          border: 1px solid rgba(99, 102, 241, 0.2);
+          color: var(--wr-color-dark);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-weight: 600;
+        "
+      >
+        Click for a bigger burst
+      </wr-click-spark>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
