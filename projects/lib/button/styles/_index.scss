@@ -221,11 +221,14 @@
   // WrSquircle directive's bordered mode). Children drop their own
   // borders and use a single 1px left divider between segments.
   &--squircle {
-    // The wrapper's bg IS the ring — cropped to a squircle by the
-    // host-composed WrSquircle clip-path. Padding insets the children
-    // so the bg shows as a 1px perimeter outline.
+    // Wrapper bg IS the ring — cropped to a squircle by the host-composed
+    // WrSquircle clip-path. Padding insets the children so the bg shows
+    // as a 1px perimeter. `border-radius` is a fallback so the rounding
+    // still reads even before the directive's first apply() lands.
     background-color: var(--wr-color-light);
+    border-radius: 12px;
     padding: 1px;
+    overflow: hidden;
 
     > .wr-btn {
       border: 0;

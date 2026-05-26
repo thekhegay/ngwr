@@ -52,7 +52,7 @@ import type { WrButtonShape } from './types';
     '[class.wr-btn-group--squircle]': "shape() === 'squircle'",
   },
   providers: [{ provide: WR_BUTTON_GROUP, useExisting: forwardRef(() => WrButtonGroup) }],
-  hostDirectives: [WrSquircle],
+  hostDirectives: [{ directive: WrSquircle, inputs: ['radius: squircleRadius', 'smoothing: squircleSmoothing'] }],
 })
 export class WrButtonGroup implements WrButtonGroupContext {
   /**
