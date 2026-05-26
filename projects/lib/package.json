@@ -271,6 +271,9 @@
     "./split-text": {
       "sass": "./split-text/styles/_index.scss"
     },
+    "./shiny-text": {
+      "sass": "./shiny-text/styles/_index.scss"
+    },
     "./squircle": {
       "sass": "./squircle/styles/_index.scss"
     },

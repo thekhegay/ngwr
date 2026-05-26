@@ -1,0 +1,50 @@
+<ngwr-doc-page
+  title="Shiny Text"
+  description="Shimmer-over-text effect. A bright stripe sweeps across the text using `background-clip: text` + an animated `background-position`. Pure CSS port — no JS animation loop."
+  [keywords]="['shiny-text', 'wr-shiny-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="shiny-text" category="text-animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-shiny-text text="Premium" style="font-size: 2.5rem; font-weight: 700" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom palette + pause">
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-shiny-text
+        text="Custom shimmer"
+        color="#1f2937"
+        shineColor="#60a5fa"
+        [speed]="3"
+        [delay]="0.5"
+        [spread]="100"
+        style="font-size: 2.25rem; font-weight: 700"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Yoyo + pause-on-hover">
+    <ngwr-doc-code [code]="snippets.yoyo" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-shiny-text
+        text="Yoyo back and forth"
+        [yoyo]="true"
+        [pauseOnHover]="true"
+        style="font-size: 2rem; font-weight: 600"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

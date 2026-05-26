@@ -1,0 +1,54 @@
+// Shimmering text (reactbits port). Clips an animated linear gradient to
+// the text via `background-clip: text`.
+//
+// The keyframes are 0% → 50%, then hold at the end position. Inputs set
+// `animation-duration` to (speed + delay); the keyframe hits the end at
+// the 50%/totalDuration mark and rests for the rest, which collapses to
+// `speed` of motion + `delay` of pause — without needing two animations.
+
+.wr-shiny-text {
+  display: inline-block;
+  background-size: 200% auto;
+  background-position: 150% center;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation-name: wr-shiny-text-sweep;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  animation-fill-mode: both;
+  animation-play-state: running;
+
+  &--reverse {
+    animation-direction: reverse;
+  }
+
+  &--yoyo {
+    animation-direction: alternate;
+
+    &.wr-shiny-text--reverse {
+      animation-direction: alternate-reverse;
+    }
+  }
+
+  &--paused {
+    animation-play-state: paused;
+  }
+
+  &--pause-on-hover:hover {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes wr-shiny-text-sweep {
+  0% {
+    background-position: 150% center;
+  }
+  50% {
+    background-position: -50% center;
+  }
+  100% {
+    background-position: -50% center;
+  }
+}

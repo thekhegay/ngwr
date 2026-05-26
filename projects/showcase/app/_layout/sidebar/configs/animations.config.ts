@@ -24,7 +24,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Click Spark', url: ['/animations', 'click-spark'] },
       { title: 'Split Text', url: ['/animations', 'split-text'] },
       { title: 'Blur Text', url: ['/animations', 'blur-text'] },
-      { title: 'Shiny Text', url: ['/animations', 'shiny-text'], disabled: true },
+      { title: 'Shiny Text', url: ['/animations', 'shiny-text'] },
       { title: 'Gradient Text', url: ['/animations', 'gradient-text'], disabled: true },
       { title: 'Rotating Text', url: ['/animations', 'rotating-text'], disabled: true },
       { title: 'Typewriter', url: ['/animations', 'typewriter'], disabled: true },
