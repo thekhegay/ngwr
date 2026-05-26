@@ -180,7 +180,7 @@ export class SidebarComponent {
         { title: 'wrBytes', url: ['/docs', 'core', 'pipes', 'wr-bytes'] },
         { title: 'wrDate', url: ['/docs', 'core', 'pipes', 'wr-date'] },
         { title: 'wrTruncate', url: ['/docs', 'core', 'pipes', 'wr-truncate'] },
-        { title: 'range', url: ['/docs', 'core', 'pipes', 'range'] },
+        { title: 'wrRange', url: ['/docs', 'core', 'pipes', 'range'] },
       ],
     },
     { title: 'Services', url: ['/docs', 'core', 'services'] },

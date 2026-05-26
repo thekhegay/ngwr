@@ -15,13 +15,13 @@ import type { PipeTransform } from '@angular/core';
  *
  * @example
  * ```html
- * @for (i of (5 | range); track i) {
+ * @for (i of (5 | wrRange); track i) {
  *   <div>Item {{ i }}</div>
  * }
  * ```
  */
-@Pipe({ name: 'range' })
-export class RangePipe implements PipeTransform {
+@Pipe({ name: 'wrRange' })
+export class WrRangePipe implements PipeTransform {
   transform(length: number): number[] {
     return Array.from({ length }, (_, i) => i);
   }
