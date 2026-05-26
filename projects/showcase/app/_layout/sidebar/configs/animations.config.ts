@@ -24,7 +24,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Reactbits ports',
     children: [
-      { title: 'Spotlight Card', url: ['/animations', 'spotlight-card'], disabled: true },
+      { title: 'Spotlight Card', url: ['/animations', 'spotlight-card'] },
       { title: 'Logo Loop', url: ['/animations', 'logo-loop'], disabled: true },
       { title: 'Click Spark', url: ['/animations', 'click-spark'], disabled: true },
       { title: 'Split Text', url: ['/animations', 'split-text'], disabled: true },

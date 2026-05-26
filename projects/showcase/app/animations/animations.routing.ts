@@ -19,8 +19,8 @@ export default [
   { path: a.spotlight, loadComponent: () => import('./spotlight/spotlight') },
   { path: a.tilt, loadComponent: () => import('./tilt/tilt') },
 
-  // Reactbits ports (added per follow-up commit).
-  // { path: a.spotlightCard, loadComponent: () => import('./spotlight-card/spotlight-card') },
+  // Reactbits ports.
+  { path: a.spotlightCard, loadComponent: () => import('./spotlight-card/spotlight-card') },
   // { path: a.logoLoop, loadComponent: () => import('./logo-loop/logo-loop') },
   // { path: a.clickSpark, loadComponent: () => import('./click-spark/click-spark') },
   // { path: a.splitText, loadComponent: () => import('./split-text/split-text') },

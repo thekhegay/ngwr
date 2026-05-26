@@ -253,6 +253,9 @@
     "./speed-dial": {
       "sass": "./speed-dial/styles/_index.scss"
     },
+    "./spotlight-card": {
+      "sass": "./spotlight-card/styles/_index.scss"
+    },
     "./splitter": {
       "sass": "./splitter/styles/_index.scss"
     },
