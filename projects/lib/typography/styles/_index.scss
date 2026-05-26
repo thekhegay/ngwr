@@ -1,7 +1,7 @@
 @use '../../theme/styles' as theme;
 
 .wr-typography {
-  display: block;
+  // Inherit the host element's native display (block for h1/p, inline for span).
   margin: 0;
   color: var(--wr-color-dark);
   font-family: var(--wr-font-family-base);

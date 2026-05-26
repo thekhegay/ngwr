@@ -12,16 +12,16 @@
     <ngwr-doc-code [code]="snippets.variants" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 1rem">
-        <wr-typography variant="display">Display</wr-typography>
-        <wr-typography variant="h1">Heading 1</wr-typography>
-        <wr-typography variant="h2">Heading 2</wr-typography>
-        <wr-typography variant="h3">Heading 3</wr-typography>
-        <wr-typography variant="lead">Lead paragraph — a calmer subhead.</wr-typography>
-        <wr-typography>Body copy in the default variant.</wr-typography>
-        <wr-typography variant="small">Small print.</wr-typography>
-        <wr-typography variant="caption">Captions and helper text.</wr-typography>
-        <wr-typography variant="overline">Section label</wr-typography>
-        <wr-typography variant="code">code()</wr-typography>
+        <p wrTypography variant="display">Display</p>
+        <p wrTypography variant="h1">Heading 1</p>
+        <p wrTypography variant="h2">Heading 2</p>
+        <p wrTypography variant="h3">Heading 3</p>
+        <p wrTypography variant="lead">Lead paragraph — a calmer subhead.</p>
+        <p wrTypography>Body copy in the default variant.</p>
+        <p wrTypography variant="small">Small print.</p>
+        <p wrTypography variant="caption">Captions and helper text.</p>
+        <p wrTypography variant="overline">Section label</p>
+        <p wrTypography variant="code">code()</p>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -30,11 +30,11 @@
     <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.25rem">
-        <wr-typography tone="primary">Primary</wr-typography>
-        <wr-typography tone="success">Success</wr-typography>
-        <wr-typography tone="warning">Warning</wr-typography>
-        <wr-typography tone="danger">Danger</wr-typography>
-        <wr-typography tone="medium">Muted</wr-typography>
+        <p wrTypography tone="primary">Primary</p>
+        <p wrTypography tone="success">Success</p>
+        <p wrTypography tone="warning">Warning</p>
+        <p wrTypography tone="danger">Danger</p>
+        <p wrTypography tone="medium">Muted</p>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -43,10 +43,10 @@
     <ngwr-doc-code [code]="snippets.modifiers" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
-        <wr-typography align="center">Centered</wr-typography>
-        <wr-typography [truncate]="true" style="max-width: 16rem; display: inline-block">
+        <p wrTypography align="center">Centered</p>
+        <p wrTypography [truncate]="true" style="max-width: 16rem; display: inline-block">
           A long line that gets ellipsized when it overflows the container.
-        </wr-typography>
+        </p>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -5,15 +5,15 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { Directive, computed, input } from '@angular/core';
 
 import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from './types';
 
 /**
- * Semantic typography element. Renders a `<span>` by default and applies
- * the visual treatment for the chosen `variant` (e.g. `'h1'`, `'lead'`,
- * `'caption'`). Pair with `as` to switch the rendered tag without losing
- * the visual style.
+ * Semantic typography directive. Attaches to any native element and
+ * applies the visual treatment for the chosen `variant` (`h1`–`h6`,
+ * `display`, `lead`, `body`, `small`, `caption`, `overline`, `code`).
  *
  * Reads from the same `--wr-text-*` / `--wr-font-weight-*` / `--wr-leading-*`
  * tokens used by the opt-in typography utility classes — themeable by
@@ -21,22 +21,20 @@ import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from '.
  *
  * @example
  * ```html
- * <wr-typography variant="display">Build interfaces</wr-typography>
- * <wr-typography variant="h2" tone="primary">that feel alive.</wr-typography>
- * <wr-typography variant="lead">A developer-first library.</wr-typography>
- * <wr-typography variant="caption" tone="medium">v1.6.0 — released today</wr-typography>
+ * <h1 wrTypography variant="display">Build interfaces</h1>
+ * <h2 wrTypography variant="h2" tone="primary">that feel alive.</h2>
+ * <p wrTypography variant="lead">A developer-first library.</p>
+ * <span wrTypography variant="caption" tone="medium">v1.6.0 — released today</span>
+ * <code wrTypography variant="code">inject(WrThemeService)</code>
  * ```
  *
  * @see https://ngwr.dev/docs/components/typography
  */
-@Component({
-  selector: 'wr-typography, [wr-typography]',
-  template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
+@Directive({
+  selector: '[wrTypography]',
   host: { '[class]': 'classes()' },
 })
-export class WrTypographyComponent {
+export class WrTypographyDirective {
   /** Visual variant. @default 'body' */
   readonly variant = input<WrTypographyVariant>('body');
 
@@ -47,10 +45,10 @@ export class WrTypographyComponent {
   readonly align = input<WrTypographyAlign | null>(null);
 
   /** Truncate to single line with ellipsis. @default false */
-  readonly truncate = input<boolean>(false);
+  readonly truncate = input(false, { transform: coerceBooleanProperty });
 
   /** Render with monospace font. @default false (auto-true for `code`) */
-  readonly mono = input<boolean>(false);
+  readonly mono = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
     const parts = ['wr-typography', `wr-typography--${this.variant()}`, `wr-typography--tone-${this.tone()}`];

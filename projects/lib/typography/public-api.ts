@@ -1,2 +1,2 @@
-export { WrTypographyComponent } from './typography.component';
+export { WrTypographyDirective } from './typography.directive';
 export type { WrTypographyVariant, WrTypographyAlign, WrTypographyTone } from './types';

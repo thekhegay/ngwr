@@ -158,15 +158,15 @@
   <section class="ngwr-section">
     <div class="container ngwr-dx">
       <div class="ngwr-dx__copy">
-        <wr-typography variant="overline" tone="primary">/ Developer experience</wr-typography>
-        <wr-typography variant="h1">
+        <p wrTypography variant="overline" tone="primary">/ Developer experience</p>
+        <p wrTypography variant="h1">
           Zero config.<br />
           TypeScript native.
-        </wr-typography>
-        <wr-typography variant="lead">
+        </p>
+        <p wrTypography variant="lead">
           Import what you need. Tree-shake the rest. ngwr ships as standalone Angular components styled with CSS
           variables and fully typed, zero-runtime primitives.
-        </wr-typography>
+        </p>
 
         <ul class="ngwr-checks">
           <li><span aria-hidden="true">✓</span> Framework-agnostic: works with SSR, Vite, and zoneless Angular</li>
@@ -202,15 +202,15 @@
     <div class="container">
       <div class="ngwr-section__head ngwr-section__head--why">
         <div>
-          <wr-typography variant="overline" tone="primary">/ Why ngwr</wr-typography>
-          <wr-typography variant="h1">
+          <p wrTypography variant="overline" tone="primary">/ Why ngwr</p>
+          <p wrTypography variant="h1">
             Everything you'd build.<br />
             None of the boilerplate.
-          </wr-typography>
+          </p>
         </div>
-        <wr-typography variant="lead" class="ngwr-section__head-aside">
+        <p wrTypography variant="lead" class="ngwr-section__head-aside">
           Obsessively crafted primitives so you can focus on what actually makes your product memorable.
-        </wr-typography>
+        </p>
       </div>
 
       <div class="ngwr-why-grid">
@@ -219,8 +219,8 @@
             <div class="ngwr-why__icon" [attr.data-accent]="tile.accent">
               <wr-icon [name]="$any(tile.icon)" size="20" />
             </div>
-            <wr-typography variant="h5">{{ tile.title }}</wr-typography>
-            <wr-typography variant="small" tone="medium">{{ tile.description }}</wr-typography>
+            <p wrTypography variant="h5">{{ tile.title }}</p>
+            <p wrTypography variant="small" tone="medium">{{ tile.description }}</p>
           </article>
         }
       </div>

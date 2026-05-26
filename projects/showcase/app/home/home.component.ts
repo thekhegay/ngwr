@@ -13,7 +13,7 @@ import { WrQrComponent } from 'ngwr/qr';
 import { WrSkeletonComponent } from 'ngwr/skeleton';
 import { WrTagComponent } from 'ngwr/tag';
 import { WrToastService } from 'ngwr/toast';
-import { WrTypographyComponent } from 'ngwr/typography';
+import { WrTypographyDirective } from 'ngwr/typography';
 
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
@@ -55,7 +55,7 @@ type WhyTile = {
     WrInputGroupComponent,
     WrInputPrefixDirective,
     WrPasswordToggleComponent,
-    WrTypographyComponent,
+    WrTypographyDirective,
     WrCopyToClipboardDirective,
   ],
   providers: [provideWrIcons(wrIconSet)],
