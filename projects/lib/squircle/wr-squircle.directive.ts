@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, effect, inject, input } from '@angular/core';
 
@@ -32,6 +32,14 @@ export class WrSquircleDirective {
     transform: (v: unknown): number => Math.min(1, Math.max(0, coerceNumberProperty(v, 1))),
   });
 
+  /**
+   * Whether the squircle clip-path is applied. When `false`, the directive
+   * stays inert (clip-path cleared) so consumers can compose this directive
+   * via `hostDirectives` and toggle it via a single input.
+   * @default true
+   */
+  readonly enabled = input(true, { transform: coerceBooleanProperty });
+
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly destroyRef = inject(DestroyRef);
@@ -44,6 +52,7 @@ export class WrSquircleDirective {
     effect(() => {
       this.radius();
       this.smoothing();
+      this.enabled();
       this.apply();
     });
     // Re-apply on resize.
@@ -51,18 +60,27 @@ export class WrSquircleDirective {
     this.observer.observe(host);
     this.destroyRef.onDestroy(() => {
       this.observer?.disconnect();
-      host.style.removeProperty('clip-path');
-      host.style.removeProperty('-webkit-clip-path');
+      this.clear();
     });
   }
 
   private apply(): void {
     const host = this.el.nativeElement;
+    if (!this.enabled()) {
+      this.clear();
+      return;
+    }
     const rect = host.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
     const d = squirclePath(rect.width, rect.height, this.radius(), this.smoothing());
     const value = `path("${d}")`;
     host.style.clipPath = value;
     host.style.setProperty('-webkit-clip-path', value);
+  }
+
+  private clear(): void {
+    const host = this.el.nativeElement;
+    host.style.removeProperty('clip-path');
+    host.style.removeProperty('-webkit-clip-path');
   }
 }

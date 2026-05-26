@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 
 import { WrIconComponent } from 'ngwr/icon';
+import { WrSquircleDirective } from 'ngwr/squircle';
 
 import type { WrSegmentedOption } from './types';
 
@@ -46,6 +47,12 @@ import type { WrSegmentedOption } from './types';
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', '[style]': 'thumbStyle()', role: 'group' },
   imports: [WrIconComponent],
+  hostDirectives: [
+    {
+      directive: WrSquircleDirective,
+      inputs: ['enabled: squircle', 'radius: squircleRadius', 'smoothing: squircleSmoothing'],
+    },
+  ],
 })
 export class WrSegmentedComponent<T = unknown> {
   /** The segments to render. */
@@ -56,6 +63,12 @@ export class WrSegmentedComponent<T = unknown> {
 
   /** Disable the whole control. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Apply a Figma-style smooth-corner squircle clip-path to the control.
+   * @default false
+   */
+  readonly squircle = input(false, { transform: coerceBooleanProperty });
 
   /** Index of the selected option, or `-1` when nothing is selected. */
   protected readonly selectedIndex = computed(() => {

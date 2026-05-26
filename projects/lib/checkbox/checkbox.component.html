@@ -9,7 +9,7 @@
     (blur)="onInputBlur()"
   />
 
-  <span class="wr-checkbox__box" aria-hidden="true">
+  <span class="wr-checkbox__box" aria-hidden="true" wrSquircle [enabled]="squircle()" [radius]="6">
     @if (icon(); as iconName) {
       <wr-icon class="wr-checkbox__icon" [name]="iconName" />
     } @else {

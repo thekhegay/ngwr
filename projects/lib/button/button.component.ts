@@ -10,6 +10,7 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
 
 import { WrIconComponent, type WrIconName } from 'ngwr/icon';
 import { WrSpinnerComponent } from 'ngwr/spinner';
+import { WrSquircleDirective } from 'ngwr/squircle';
 import type { WrColor } from 'ngwr/theme';
 
 import type { WrButtonIconPosition, WrButtonSize } from './types';
@@ -39,6 +40,12 @@ import type { WrButtonIconPosition, WrButtonSize } from './types';
     '[attr.aria-busy]': 'loading() ? "true" : null',
   },
   imports: [WrIconComponent, WrSpinnerComponent],
+  hostDirectives: [
+    {
+      directive: WrSquircleDirective,
+      inputs: ['enabled: squircle', 'radius: squircleRadius', 'smoothing: squircleSmoothing'],
+    },
+  ],
 })
 export class WrButtonComponent {
   /**
@@ -90,6 +97,15 @@ export class WrButtonComponent {
    * @default false
    */
   readonly rounded = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Apply a Figma-style smooth-corner squircle clip-path. Pair with
+   * `[squircleRadius]` (default 12) and `[squircleSmoothing]` (default 1)
+   * to tune.
+   *
+   * @default false
+   */
+  readonly squircle = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Stretch the button to fill its parent's width.

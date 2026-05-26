@@ -3,6 +3,9 @@
   role="button"
   tabindex="0"
   aria-label="File upload drop zone — click or drop files"
+  wrSquircle
+  [enabled]="squircle()"
+  [radius]="14"
   [attr.aria-disabled]="effectiveDisabled() || null"
   (click)="openPicker()"
   (keydown)="onZoneKey($event)"
