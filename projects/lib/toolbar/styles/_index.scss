@@ -9,12 +9,15 @@
   background: var(--wr-color-white);
   border: 1px solid var(--wr-color-light);
   border-radius: var(--wr-border-radius-base);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
   font-family: var(--wr-font-family-base);
+  color: var(--wr-color-dark);
 
   &__zone {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0;
 
     &:empty {
       display: none;
@@ -27,12 +30,29 @@
     &--center {
       flex: 1 1 auto;
       justify-content: center;
-      min-width: 0;
     }
 
     &--end {
       flex: 0 0 auto;
       margin-left: auto;
+    }
+  }
+
+  // Subtle hairline divider between adjacent zones — only shown when both
+  // sides have content (the `:empty` rule above collapses unused zones).
+  &__zone--center + &__zone--end,
+  &__zone--start + &__zone--center {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 1.25rem;
+      width: 1px;
+      background: var(--wr-color-light);
     }
   }
 }
