@@ -106,27 +106,29 @@
     --wr-btn-radius: 0; // clip-path overrides; flatten to keep visual clean
     border: 0; // the squircle clip would crop a CSS border anyway
 
-    // Outlined squircle: paint the border via the squircle directive's
-    // ring composite (the CSS `border` would be clipped away). The host
-    // is painted with the ring colour; an inset `::before` paints the
-    // inner squircle. CRITICAL: the inner has to be OPAQUE — otherwise
-    // a transparent inner lets the ring colour bleed through the whole
-    // button (transparent over coloured = visible coloured fill).
+    // The CSS border is clipped, so the squircle directive's ::before
+    // composite paints the ring. Drive its colours from the existing
+    // button vars so every colour / hover / active cascade keeps working
+    // unchanged.
     //
-    // Off-state uses `--wr-color-white` for the inner so the button
-    // reads as a hollow ring on a light-themed page. On hover/active,
-    // ring + inner both collapse to `--wr-btn-bg` so the button looks
-    // like a solid filled squircle (the standard outlined hover style).
+    // Ring colour = --wr-btn-border (matches the rounded/pill border).
+    // Inner = --wr-btn-bg for filled buttons — solid colour over solid
+    //   ring composites cleanly as a filled squircle.
     //
-    // For dark themes, override `--wr-squircle-content-bg` on the
-    // button to the surface colour.
+    // Outlined squircle is the special case: `--wr-btn-bg: transparent`
+    // would let the translucent ring colour show through the whole shape
+    // and look like a solid translucent fill. So outlined forces the
+    // inner to opaque white. Hover/active collapse back to --wr-btn-bg
+    // (which is the solid hover colour) for the standard fill-on-hover
+    // behaviour. For dark themes, override --wr-squircle-content-bg.
+    --wr-squircle-border-color: var(--wr-btn-border);
+    --wr-squircle-content-bg: var(--wr-btn-bg);
+
     &.wr-btn--outlined {
-      --wr-squircle-border-color: var(--wr-btn-color);
       --wr-squircle-content-bg: var(--wr-color-white);
 
       &:hover,
       &:active {
-        --wr-squircle-border-color: var(--wr-btn-bg);
         --wr-squircle-content-bg: var(--wr-btn-bg);
       }
     }

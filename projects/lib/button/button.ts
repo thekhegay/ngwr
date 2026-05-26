@@ -139,11 +139,12 @@ export class WrButton {
     effect(() => {
       const isSquircle = this.effectiveShape() === 'squircle';
       squircle.enabled.set(isSquircle);
-      // For outlined squircle, the regular CSS border is clipped away by
-      // the squircle path. Hand the directive a 1px border so its
-      // ::before-composite paints a visible ring in the button's text
-      // colour (currentColor → outline accent).
-      squircle.borderWidth.set(isSquircle && this.outlined() ? 1 : 0);
+      // Squircle clip-path eats the CSS border, so we paint the ring via
+      // the directive's ::before composite. Always-on for squircle (1px)
+      // so default + outlined both get a visible edge; the ring colour
+      // follows `--wr-btn-border` via SCSS so all colour / hover cascades
+      // continue to work.
+      squircle.borderWidth.set(isSquircle ? 1 : 0);
     });
   }
 
