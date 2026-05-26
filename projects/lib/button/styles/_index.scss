@@ -225,6 +225,11 @@
     // to hide ring bleed-through. Match it to the page surface so
     // children sit cleanly on top.
     --wr-squircle-content-bg: var(--wr-color-white);
+    // Inset children by 1px so the host's ring color (painted as the
+    // wrapper bg + cropped by the squircle clip) is visible at the
+    // perimeter. Without this, the children fill edge-to-edge and
+    // cover the ring entirely.
+    padding: 1px;
 
     > .wr-btn {
       border: 0;
