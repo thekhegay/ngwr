@@ -183,8 +183,27 @@ export class SidebarComponent {
         { title: 'wrRange', url: ['/docs', 'core', 'pipes', 'range'] },
       ],
     },
-    { title: 'Services', url: ['/docs', 'core', 'services'] },
-    { title: 'Utils', url: ['/docs', 'core', 'utils'] },
+    {
+      title: 'Services',
+      children: [
+        { title: 'WrThemeService', url: ['/docs', 'core', 'services', 'theme'] },
+        { title: 'WrScrollService', url: ['/docs', 'core', 'services', 'scroll'] },
+        { title: 'WrHotkeyService', url: ['/docs', 'core', 'services', 'hotkey'] },
+        { title: 'WrMediaService', url: ['/docs', 'core', 'services', 'media'] },
+        { title: 'WrPlatformService', url: ['/docs', 'core', 'services', 'platform'] },
+        { title: 'WrMetaService', url: ['/docs', 'core', 'services', 'meta'] },
+      ],
+    },
+    {
+      title: 'Utils',
+      children: [
+        { title: 'resolveCssSize', url: ['/docs', 'core', 'utils', 'css-size'] },
+        { title: 'randomId', url: ['/docs', 'core', 'utils', 'random-id'] },
+        { title: 'Type guards', url: ['/docs', 'core', 'utils', 'guards'] },
+        { title: 'Keyboard', url: ['/docs', 'core', 'utils', 'keys'] },
+        { title: 'Misc', url: ['/docs', 'core', 'utils', 'misc'] },
+      ],
+    },
   ];
 
   /** Titles of currently expanded groups. All groups are collapsed by default. */

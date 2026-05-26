@@ -1,0 +1,34 @@
+<ngwr-doc-page
+  title="Misc utilities"
+  description="Grab-bag of small helpers — `noop`, `badgeLog`, rate-limiters, focus helpers."
+  [keywords]="['utils', 'noop', 'debounce', 'throttle', 'focus trap']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section title="noop">
+    <ngwr-doc-code [code]="snippets.noop" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="badgeLog">
+    <ngwr-doc-code [code]="snippets.log" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="debounce / throttle">
+    <ngwr-doc-code [code]="snippets.rate" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Focus helpers">
+    <ngwr-doc-code [code]="snippets.focus" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Misc API">
+    <ngwr-doc-api [rows]="miscApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rate limiters">
+    <ngwr-doc-api [rows]="rateApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Focus helpers API">
+    <ngwr-doc-api [rows]="focusApi" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

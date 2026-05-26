@@ -31,11 +31,11 @@ export default [
     loadChildren: () => import('./pipes/pipes.routing'),
   },
   {
-    path: core.services,
-    loadComponent: () => import('./services/services.component'),
+    path: core.services.index,
+    loadChildren: () => import('./services/services.routing'),
   },
   {
-    path: core.utils,
-    loadComponent: () => import('./utils/utils.component'),
+    path: core.utils.index,
+    loadChildren: () => import('./utils/utils.routing'),
   },
 ] satisfies Routes;

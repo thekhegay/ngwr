@@ -1,0 +1,28 @@
+<ngwr-doc-page
+  title="WrPlatformService"
+  description="SSR-safe environment probes. Use to gate browser-only code paths and react to user preferences."
+  [keywords]="['service', 'platform', 'SSR', 'WrPlatformService']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
+        <div>
+          isBrowser: <strong>{{ isBrowser }}</strong>
+        </div>
+        <div>
+          prefersDark: <strong>{{ prefersDark() }}</strong>
+        </div>
+        <div>
+          prefersReducedMotion: <strong>{{ prefersReducedMotion() }}</strong>
+        </div>
+        <small style="color: var(--wr-color-medium)">Reflects your OS / browser preferences.</small>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

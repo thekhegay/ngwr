@@ -1,0 +1,40 @@
+<ngwr-doc-page
+  title="WrMetaService"
+  description="Centralised `<head>` manager — title, description, keywords, canonical, Open Graph and Twitter Card. Stack-based push/pop so route overrides auto-revert."
+  [keywords]="['service', 'meta', 'head', 'SEO', 'WrMetaService']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Push / pop">
+    <ngwr-doc-code [code]="snippets.push" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Directive form">
+    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <button
+        type="button"
+        style="
+          padding: 0.4rem 0.875rem;
+          border-radius: 0.375rem;
+          border: 1px solid var(--wr-color-light);
+          background: var(--wr-color-white);
+          cursor: pointer;
+        "
+        (click)="pushMeta()"
+      >
+        Push demo meta (auto-pops after 4s)
+      </button>
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+        Open devtools → Elements → &lt;head&gt; to watch tags update.
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
