@@ -28,4 +28,5 @@ export default [
   { path: a.shinyText, loadComponent: () => import('./shiny-text/shiny-text') },
   { path: a.gradientText, loadComponent: () => import('./gradient-text/gradient-text') },
   { path: a.rotatingText, loadComponent: () => import('./rotating-text/rotating-text') },
+  { path: a.typewriter, loadComponent: () => import('./typewriter/typewriter') },
 ] satisfies Routes;

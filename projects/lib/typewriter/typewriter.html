@@ -1,0 +1,4 @@
+<span class="wr-typewriter__content">{{ displayed() }}</span>
+@if (cursorVisible()) {
+  <span class="wr-typewriter__cursor" aria-hidden="true">{{ cursorCharacter() }}</span>
+}

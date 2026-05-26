@@ -27,7 +27,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Shiny Text', url: ['/animations', 'shiny-text'] },
       { title: 'Gradient Text', url: ['/animations', 'gradient-text'] },
       { title: 'Rotating Text', url: ['/animations', 'rotating-text'] },
-      { title: 'Typewriter', url: ['/animations', 'typewriter'], disabled: true },
+      { title: 'Typewriter', url: ['/animations', 'typewriter'] },
       { title: 'Scramble Text', url: ['/animations', 'scramble-text'], disabled: true },
       { title: 'Decrypt Text', url: ['/animations', 'decrypt-text'], disabled: true },
       { title: 'Glitch Text', url: ['/animations', 'glitch-text'], disabled: true },
