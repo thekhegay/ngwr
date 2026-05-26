@@ -37,7 +37,10 @@
       color: var(--wr-color-primary);
     }
 
-    &--focused {
+    // Visible ring only when the row truly has keyboard focus — not
+    // just because it's the roving-tabindex cursor row.
+    &:focus-visible {
+      outline: none;
       box-shadow: 0 0 0 2px rgba(var(--wr-color-primary-rgb), 0.25);
     }
 

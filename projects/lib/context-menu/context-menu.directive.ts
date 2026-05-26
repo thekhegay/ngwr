@@ -7,7 +7,7 @@
 
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { DestroyRef, Directive, ElementRef, ViewContainerRef, effect, inject, input, signal } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
@@ -47,42 +47,30 @@ export class WrContextMenuDirective {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly isOpen = signal(false);
   private overlayRef: OverlayRef | null = null;
-  private pointer: { x: number; y: number } = { x: 0, y: 0 };
 
   constructor() {
-    effect(() => {
-      if (this.isOpen()) {
-        this.openOverlay();
-      } else {
-        this.closeOverlay();
-      }
-    });
+    this.destroyRef.onDestroy(() => this.closeOverlay());
   }
 
-  /** @internal */
+  /** @internal Right-click handler — opens at the pointer (or re-positions if already open). */
   protected onContextMenu(event: MouseEvent): void {
     event.preventDefault();
-    this.pointer = { x: event.clientX, y: event.clientY };
+    event.stopPropagation();
     // Re-open at the new position even if it was already open.
-    if (this.isOpen()) {
-      this.closeOverlay();
-    }
-    this.isOpen.set(true);
+    this.closeOverlay();
+    this.openOverlay(event.clientX, event.clientY);
   }
 
   /** Close the menu. */
   close(): void {
-    this.isOpen.set(false);
+    this.closeOverlay();
   }
 
   // ──────── Overlay ────────
 
-  private openOverlay(): void {
-    if (this.overlayRef) return;
-
-    const positionStrategy = this.overlay.position().global().left(`${this.pointer.x}px`).top(`${this.pointer.y}px`);
+  private openOverlay(x: number, y: number): void {
+    const positionStrategy = this.overlay.position().global().left(`${x}px`).top(`${y}px`);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
@@ -96,7 +84,7 @@ export class WrContextMenuDirective {
     this.overlayRef
       .outsidePointerEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.isOpen.set(false));
+      .subscribe(() => this.closeOverlay());
 
     this.overlayRef
       .keydownEvents()
@@ -104,7 +92,7 @@ export class WrContextMenuDirective {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.isOpen.set(false);
+          this.closeOverlay();
           this.host.nativeElement.focus();
         }
       });

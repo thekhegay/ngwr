@@ -106,6 +106,11 @@ export class WrToastService {
     if (this.hostRef) this.hostRef.setInput('position', position);
   }
 
+  /** Switch the layout mode at runtime. Affects the live host. */
+  setMode(mode: 'stack' | 'list'): void {
+    if (this.hostRef) this.hostRef.setInput('mode', mode);
+  }
+
   // ──────── Timer ────────
 
   private startTimer(entry: ActiveEntry): void {

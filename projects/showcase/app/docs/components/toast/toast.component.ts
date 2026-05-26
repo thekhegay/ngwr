@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 
 import { WrButtonComponent } from 'ngwr/button';
 import { WrSegmentedComponent, type WrSegmentedOption } from 'ngwr/segmented';
-import { WrToastService, type WrToastPosition, type WrToastType } from 'ngwr/toast';
+import { WrToastService, type WrToastMode, type WrToastPosition, type WrToastType } from 'ngwr/toast';
 
 import {
   DocApiComponent,
@@ -31,8 +31,19 @@ export default class ToastPageComponent {
   private readonly toast = inject(WrToastService);
 
   protected readonly position = signal<WrToastPosition>('top-end');
+  protected readonly mode = signal<WrToastMode>('stack');
   protected readonly showProgress = signal(true);
   protected readonly showCopy = signal(false);
+
+  protected readonly modeOptions: readonly WrSegmentedOption<WrToastMode>[] = [
+    { value: 'stack', label: 'Stack (Sonner)' },
+    { value: 'list', label: 'List' },
+  ];
+
+  protected onModeChange(value: WrToastMode): void {
+    this.mode.set(value);
+    this.toast.setMode(value);
+  }
 
   protected readonly positionOptions: readonly WrSegmentedOption<WrToastPosition>[] = [
     { value: 'top-start', label: 'Top start' },

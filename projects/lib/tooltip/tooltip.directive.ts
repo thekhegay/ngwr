@@ -51,11 +51,11 @@ export class WrTooltipDirective {
   /** Anchor side. @default 'top' */
   readonly position = input<WrTooltipPosition>('top');
 
-  /** Delay before showing, in milliseconds. @default 300 */
-  readonly showDelay = input(300, { transform: numAttr(300) });
+  /** Delay before showing, in milliseconds. @default 120 */
+  readonly showDelay = input(120, { transform: numAttr(120) });
 
-  /** Delay before hiding, in milliseconds. @default 150 */
-  readonly hideDelay = input(150, { transform: numAttr(150) });
+  /** Delay before hiding, in milliseconds. @default 60 */
+  readonly hideDelay = input(60, { transform: numAttr(60) });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);

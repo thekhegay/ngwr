@@ -10,7 +10,6 @@
       class="wr-tree__row"
       role="treeitem"
       [class.wr-tree__row--selected]="selectedSet().has(entry.node.id)"
-      [class.wr-tree__row--focused]="i === focusedIndex()"
       [class.wr-tree__row--disabled]="entry.node.disabled"
       [attr.aria-level]="entry.depth + 1"
       [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"

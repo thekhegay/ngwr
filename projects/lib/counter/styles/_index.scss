@@ -9,12 +9,15 @@
 
   &__odo {
     display: inline-flex;
-    align-items: stretch;
+    align-items: flex-start;
     line-height: 1;
+    white-space: nowrap;
   }
 
   &__static {
     display: inline-block;
+    height: 1em;
+    line-height: 1;
   }
 
   &__digit {
@@ -27,18 +30,15 @@
   }
 
   &__strip {
-    display: flex;
-    flex-direction: column;
-    height: 1000%; // 10 digits × 100%
+    display: block;
     will-change: transform;
     transition: transform 60ms linear;
 
     > span {
-      flex: 1 1 10%;
-      height: 10%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: block;
+      height: 1em;
+      line-height: 1;
+      text-align: center;
     }
   }
 }

@@ -67,6 +67,11 @@ export class WrToastHostComponent {
 
   protected readonly closeAllVisible = computed(() => {
     const cfg = this.config();
+    // In stack mode the toasts cascade absolutely while collapsed, which
+    // makes the close-all button jump between layout positions on hover
+    // (button moves → cursor leaves → host collapses → cycle = blink).
+    // Only show it once the stack is expanded, or always in list mode.
+    if (this.mode() === 'stack' && !this.expanded()) return false;
     return cfg.showCloseAll && this.toasts().length >= cfg.closeAllThreshold;
   });
 
