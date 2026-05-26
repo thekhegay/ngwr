@@ -75,6 +75,9 @@
             "styles": [
               "projects/showcase/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects"]
+            },
             "scripts": []
           },
           "configurations": {
