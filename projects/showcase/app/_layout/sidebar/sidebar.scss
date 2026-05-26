@@ -1,14 +1,20 @@
 @use 'lib/styles/breakpoints' as bp;
 
+:host {
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
 .ngwr-sidebar {
   --ngwr-sidebar-width: 15rem;
 
-  position: sticky;
+
   top: var(--ngwr-header-height, 4rem);
   align-self: start;
   width: var(--ngwr-sidebar-width);
   max-height: calc(100vh - var(--ngwr-header-height, 4rem));
-  overflow-y: auto;
+
   padding: 1.5rem 0.75rem 2rem;
 
   @include bp.media-down(md) {

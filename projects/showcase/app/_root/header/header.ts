@@ -31,7 +31,7 @@ export class Header {
 
   protected readonly routes = routes;
   protected readonly nav: readonly NavLink[] = [
-    { url: [routes.index, routes.docs.index], label: 'Docs' },
+    { url: [routes.index, routes.gettingStarted.index], label: 'Getting Started' },
     { url: [routes.index, routes.components.index], label: 'Components' },
     { url: [routes.index, routes.directives.index], label: 'Directives' },
     { url: [routes.index, routes.pipes.index], label: 'Pipes' },

@@ -3,7 +3,7 @@ import type { Routes } from '@angular/router';
 import {
   COMPONENTS_SIDEBAR,
   DIRECTIVES_SIDEBAR,
-  DOCS_SIDEBAR,
+  GETTING_STARTED_SIDEBAR,
   PIPES_SIDEBAR,
   SERVICES_SIDEBAR,
   UTILS_SIDEBAR,
@@ -11,51 +11,13 @@ import {
 
 export const routes = {
   index: '/',
-  docs: {
-    index: 'docs',
-    gettingStarted: {
-      index: 'getting-started',
-      installation: 'installation',
-    },
-    core: {
-      index: 'core',
-      colors: 'color',
-      grid: 'grid',
-      overlay: 'overlay',
-    },
+  gettingStarted: {
+    index: 'getting-started',
+    installation: 'installation',
+    color: 'color',
+    grid: 'grid',
+    overlay: 'overlay',
   },
-  // Sibling sections — same pattern as `/components`. Each owns its own
-  // sidebar config and routing file.
-  directives: {
-    index: 'directives',
-  },
-  pipes: {
-    index: 'pipes',
-    wrNumber: 'wr-number',
-    wrBytes: 'wr-bytes',
-    wrDate: 'wr-date',
-    wrTruncate: 'wr-truncate',
-    range: 'range',
-  },
-  services: {
-    index: 'services',
-    theme: 'theme',
-    scroll: 'scroll',
-    hotkey: 'hotkey',
-    media: 'media',
-    platform: 'platform',
-    meta: 'meta',
-  },
-  utils: {
-    index: 'utils',
-    cssSize: 'css-size',
-    randomId: 'random-id',
-    guards: 'guards',
-    keys: 'keys',
-    misc: 'misc',
-  },
-  // `/components/*` is a sibling section to `/docs/*`. Same loadChildren
-  // bundle as before, just mounted at the root instead of nested under docs.
   components: {
     index: 'components',
     alert: 'alert',
@@ -136,6 +98,44 @@ export const routes = {
     table: 'table',
     window: 'window',
   },
+  directives: {
+    index: 'directives',
+    // Filled in by Phase 2 (split into per-directive pages).
+    autofocus: 'autofocus',
+    autosize: 'autosize',
+    borderGlow: 'border-glow',
+    clickOutside: 'click-outside',
+    copyToClipboard: 'copy-to-clipboard',
+    reveal: 'reveal',
+    shimmer: 'shimmer',
+    spotlight: 'spotlight',
+    tilt: 'tilt',
+  },
+  pipes: {
+    index: 'pipes',
+    wrNumber: 'wr-number',
+    wrBytes: 'wr-bytes',
+    wrDate: 'wr-date',
+    wrTruncate: 'wr-truncate',
+    range: 'range',
+  },
+  services: {
+    index: 'services',
+    theme: 'theme',
+    scroll: 'scroll',
+    hotkey: 'hotkey',
+    media: 'media',
+    platform: 'platform',
+    meta: 'meta',
+  },
+  utils: {
+    index: 'utils',
+    cssSize: 'css-size',
+    randomId: 'random-id',
+    guards: 'guards',
+    keys: 'keys',
+    misc: 'misc',
+  },
 };
 
 export const routing: Routes = [
@@ -148,34 +148,34 @@ export const routing: Routes = [
     loadComponent: () => import('#layout'),
     children: [
       {
-        path: routes.docs.index,
-        data: { sidebar: DOCS_SIDEBAR },
-        loadChildren: () => import('./docs/docs.routing'),
+        path: routes.gettingStarted.index,
+        data: { sidebar: GETTING_STARTED_SIDEBAR },
+        loadChildren: () => import('./getting-started/getting-started.routing'),
       },
       {
         path: routes.components.index,
         data: { sidebar: COMPONENTS_SIDEBAR },
-        loadChildren: () => import('./docs/components/components.routing'),
+        loadChildren: () => import('./components/components.routing'),
       },
       {
         path: routes.directives.index,
         data: { sidebar: DIRECTIVES_SIDEBAR },
-        loadComponent: () => import('./docs/core/directives/directives'),
+        loadChildren: () => import('./directives/directives.routing'),
       },
       {
         path: routes.pipes.index,
         data: { sidebar: PIPES_SIDEBAR },
-        loadChildren: () => import('./docs/core/pipes/pipes.routing'),
+        loadChildren: () => import('./pipes/pipes.routing'),
       },
       {
         path: routes.services.index,
         data: { sidebar: SERVICES_SIDEBAR },
-        loadChildren: () => import('./docs/core/services/services.routing'),
+        loadChildren: () => import('./services/services.routing'),
       },
       {
         path: routes.utils.index,
         data: { sidebar: UTILS_SIDEBAR },
-        loadChildren: () => import('./docs/core/utils/utils.routing'),
+        loadChildren: () => import('./utils/utils.routing'),
       },
     ],
   },

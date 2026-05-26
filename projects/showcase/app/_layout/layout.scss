@@ -1,51 +1,20 @@
 @use 'lib/styles/breakpoints' as bp;
 
 .ngwr-layout {
-  display: block;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
 
-  &__body {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: start;
-
-    @include bp.media-down(md) {
-      grid-template-columns: 1fr;
-    }
+  @include bp.media-down(md) {
+    grid-template-columns: 1fr;
   }
 
-  &__main {
+  &__content {
     min-width: 0;
     padding: 0;
 
     @include bp.media-down(md) {
       grid-column: 1;
     }
-  }
-
-  &__backdrop {
-    position: fixed;
-    top: var(--ngwr-header-height);
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 12;
-    border: 0;
-    padding: 0;
-    background: rgba(var(--wr-color-dark-rgb), 0.4);
-    cursor: pointer;
-    animation: ngwr-layout-fade var(--wr-transition-base);
-
-    @include bp.media-up(md) {
-      display: none;
-    }
-  }
-}
-
-@keyframes ngwr-layout-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
