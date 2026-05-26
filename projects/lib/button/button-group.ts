@@ -5,18 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  effect,
-  forwardRef,
-  inject,
-  input,
-} from '@angular/core';
-
-import { WrSquircle } from 'ngwr/squircle';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, forwardRef, input } from '@angular/core';
 
 import { WR_BUTTON_GROUP, type WrButtonGroupContext } from './tokens';
 import type { WrButtonShape } from './types';
@@ -34,11 +23,17 @@ import type { WrButtonShape } from './types';
  *   <button wr-btn>Right</button>
  * </wr-btn-group>
  *
- * <wr-btn-group shape="pill">
- *   <button wr-btn>Pill</button>
- *   <button wr-btn>Group</button>
+ * <wr-btn-group shape="squircle">
+ *   <button wr-btn>One</button>
+ *   <button wr-btn>Two</button>
+ *   <button wr-btn>Three</button>
  * </wr-btn-group>
  * ```
+ *
+ * For `shape="squircle"`, the group itself stays a plain inline-flex —
+ * children handle their own squircle clip, with the first child clipping
+ * only its left corners and the last child clipping only its right
+ * corners (see `WrButton`).
  *
  * @see https://ngwr.dev/docs/components/button-group
  */
@@ -52,17 +47,12 @@ import type { WrButtonShape } from './types';
     role: 'group',
   },
   providers: [{ provide: WR_BUTTON_GROUP, useExisting: forwardRef(() => WrButtonGroup) }],
-  hostDirectives: [{ directive: WrSquircle, inputs: ['radius: squircleRadius', 'smoothing: squircleSmoothing'] }],
 })
 export class WrButtonGroup implements WrButtonGroupContext {
   /**
    * Corner treatment enforced on every child `<wr-btn>`. Child `[shape]`
    * inputs are ignored when this is set — the group exists to make a
    * uniform control. `null` (default) leaves children alone.
-   *
-   * For `'squircle'`, the squircle clip-path is applied to the GROUP
-   * wrapper (not each child) so the row is cropped as one shape;
-   * children render as plain rounded segments inside the clip.
    *
    * @default null
    */
@@ -74,12 +64,4 @@ export class WrButtonGroup implements WrButtonGroupContext {
     if (s) parts.push(`wr-btn-group--${s}`);
     return parts.join(' ');
   });
-
-  constructor() {
-    // Drive the host-composed WrSquircle: enable it only when the group
-    // shape is squircle. Children read `shape()` via WR_BUTTON_GROUP and
-    // skip their own per-button squircle (see WrButton.effectiveShape).
-    const squircle = inject(WrSquircle, { self: true });
-    effect(() => squircle.enabled.set(this.shape() === 'squircle'));
-  }
 }

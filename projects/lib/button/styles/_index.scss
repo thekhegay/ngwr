@@ -220,24 +220,8 @@
   // Squircle group: the squircle ring is painted on the wrapper (via the
   // WrSquircle directive's bordered mode). Children drop their own
   // borders and use a single 1px left divider between segments.
-  &--squircle {
-    // Wrapper bg IS the ring — cropped to a squircle by the host-composed
-    // WrSquircle clip-path. Padding insets the children so the bg shows
-    // as a 1px perimeter. `border-radius` is a fallback so the rounding
-    // still reads even before the directive's first apply() lands.
-    background-color: var(--wr-color-light);
-    border-radius: 12px;
-    padding: 1px;
-    overflow: hidden;
-
-    > .wr-btn {
-      border: 0;
-      border-radius: 0;
-      margin-left: 0;
-
-      &:not(:first-child) {
-        box-shadow: -1px 0 0 0 var(--wr-color-light);
-      }
-    }
-  }
+  // shape="squircle" on the group needs no wrapper styling — each
+  // child's WrSquircle clips only its outer corners (first → left,
+  // last → right), and the standard merged-border row layout above
+  // forms the outline naturally.
 }

@@ -9,7 +9,33 @@ import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, effect, inject, input, model } from '@angular/core';
 
-import { squirclePath } from './compute-squircle-path';
+import { squirclePath, type WrSquircleCorners } from './compute-squircle-path';
+
+/**
+ * Which corners to squircle. `'all'` = standard four-corner squircle;
+ * the side-named values squircle the two corners on that side and leave
+ * the other two at 90°. Useful for tab-/segment-style controls where
+ * only outer corners need smoothing.
+ */
+export type WrSquircleCornerMask = 'all' | 'left' | 'right' | 'top' | 'bottom' | 'none';
+
+function maskToRadii(mask: WrSquircleCornerMask, r: number): WrSquircleCorners {
+  switch (mask) {
+    case 'left':
+      return { topLeft: r, topRight: 0, bottomRight: 0, bottomLeft: r };
+    case 'right':
+      return { topLeft: 0, topRight: r, bottomRight: r, bottomLeft: 0 };
+    case 'top':
+      return { topLeft: r, topRight: r, bottomRight: 0, bottomLeft: 0 };
+    case 'bottom':
+      return { topLeft: 0, topRight: 0, bottomRight: r, bottomLeft: r };
+    case 'none':
+      return { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 };
+    case 'all':
+    default:
+      return { topLeft: r, topRight: r, bottomRight: r, bottomLeft: r };
+  }
+}
 
 /**
  * Apply a Figma-style smooth-corner ("squircle") `clip-path` to the host
@@ -71,6 +97,20 @@ export class WrSquircle {
    */
   readonly borderColor = model<string>('currentColor');
 
+  /**
+   * Which corners to squircle. `'all'` (default) is the standard four-
+   * corner shape; `'left'` / `'right'` / `'top'` / `'bottom'` squircle
+   * only the two corners on the named side and leave the other two at
+   * 90°. `'none'` is equivalent to disabling the directive.
+   *
+   * Modelled so parent components composing the directive can flip the
+   * value imperatively — used by `WrButtonGroup` to squircle only the
+   * outer corners of the first / last child.
+   *
+   * @default 'all'
+   */
+  readonly corners = model<WrSquircleCornerMask>('all');
+
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly destroyRef = inject(DestroyRef);
@@ -86,6 +126,7 @@ export class WrSquircle {
       this.enabled();
       this.borderWidth();
       this.borderColor();
+      this.corners();
       this.apply();
     });
     // Re-apply on resize.
@@ -108,7 +149,8 @@ export class WrSquircle {
 
     const r = this.radius();
     const s = this.smoothing();
-    const outer = squirclePath(rect.width, rect.height, r, s);
+    const radii = maskToRadii(this.corners(), r);
+    const outer = squirclePath(rect.width, rect.height, radii, s);
     const value = `path("${outer}")`;
     host.style.clipPath = value;
     host.style.setProperty('-webkit-clip-path', value);
@@ -121,7 +163,8 @@ export class WrSquircle {
       const innerH = Math.max(0, rect.height - bw * 2);
       const innerR = Math.max(0, r - bw);
       if (innerW > 0 && innerH > 0) {
-        const inner = squirclePath(innerW, innerH, innerR, s);
+        const innerRadii = maskToRadii(this.corners(), innerR);
+        const inner = squirclePath(innerW, innerH, innerRadii, s);
         host.style.setProperty('--wr-squircle-inner-path', `path("${inner}")`);
       }
       host.style.setProperty('--wr-squircle-border-width', `${bw}px`);

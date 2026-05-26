@@ -6,7 +6,16 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
@@ -137,31 +146,58 @@ export class WrButton {
    * coherent control. Outside a group, the button's own `[shape]` is
    * used, falling back to `rounded`.
    */
-  protected readonly effectiveShape = computed<WrButtonShape>(() => {
-    if (this.group) {
-      const g = this.group.shape() ?? 'rounded';
-      // Squircle on a group is rendered as a single clip on the group
-      // wrapper — children must stay plain rounded segments, otherwise
-      // each button gets its own squircle clip and the row stops
-      // reading as one shape.
-      return g === 'squircle' ? 'rounded' : g;
-    }
-    return this.shape() ?? 'rounded';
-  });
+  protected readonly effectiveShape = computed<WrButtonShape>(() =>
+    this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded'),
+  );
+
+  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
 
   constructor() {
     // The host directive composes a `WrSquircle` instance — drive its
-    // enabled / border state from this button's shape + outlined inputs.
+    // enabled / corners / border state from this button's resolved shape.
     const squircle = inject(WrSquircle, { self: true });
     effect(() => {
       const isSquircle = this.effectiveShape() === 'squircle';
-      squircle.enabled.set(isSquircle);
-      // Squircle clip-path eats the CSS border, so we paint the ring via
-      // the directive's ::before composite. Always-on for squircle (1px)
-      // so default + outlined both get a visible edge; the ring colour
-      // follows `--wr-btn-border` via SCSS so all colour / hover cascades
-      // continue to work.
-      squircle.borderWidth.set(isSquircle ? 1 : 0);
+      const inGroup = !!this.group;
+
+      if (!isSquircle) {
+        squircle.enabled.set(false);
+        squircle.borderWidth.set(0);
+        return;
+      }
+
+      if (inGroup) {
+        // In a squircle group: each child squircles only its OUTER
+        // corners — first → left, last → right, middle children get no
+        // clip (rendered as plain rectangles whose borders merge via the
+        // group's `margin-left: -1px`). The host's CSS border survives
+        // because the squircle path crosses straight across the
+        // un-squircled side.
+        const host = this.el.nativeElement;
+        const isFirst = !host.previousElementSibling;
+        const isLast = !host.nextElementSibling;
+        if (isFirst && isLast) {
+          squircle.enabled.set(true);
+          squircle.corners.set('all');
+        } else if (isFirst) {
+          squircle.enabled.set(true);
+          squircle.corners.set('left');
+        } else if (isLast) {
+          squircle.enabled.set(true);
+          squircle.corners.set('right');
+        } else {
+          squircle.enabled.set(false);
+        }
+        // No ring composite for grouped buttons — children's own CSS
+        // borders form the row outline naturally.
+        squircle.borderWidth.set(0);
+        return;
+      }
+
+      // Standalone squircle: full four-corner clip + ring composite.
+      squircle.enabled.set(true);
+      squircle.corners.set('all');
+      squircle.borderWidth.set(1);
     });
   }
 
@@ -180,7 +216,14 @@ export class WrButton {
     if (size !== 'md') parts.push(`wr-btn--${size}`);
 
     const shape = this.effectiveShape();
-    if (shape !== 'rounded') parts.push(`wr-btn--${shape}`);
+    // Inside a group, the squircle is realised purely by the directive's
+    // per-corner clip on first/last children — children keep their
+    // normal CSS border so the row outline reads naturally. The
+    // `.wr-btn--squircle` class strips the border + flattens radius, so
+    // skip it for grouped buttons.
+    if (shape !== 'rounded' && !(shape === 'squircle' && this.group)) {
+      parts.push(`wr-btn--${shape}`);
+    }
 
     if (this.outlined()) parts.push('wr-btn--outlined');
     if (this.block()) parts.push('wr-btn--block');
