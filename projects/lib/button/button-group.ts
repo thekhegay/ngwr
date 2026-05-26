@@ -9,6 +9,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ViewEncapsulation,
+  computed,
   effect,
   forwardRef,
   inject,
@@ -47,9 +48,8 @@ import type { WrButtonShape } from './types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
-    class: 'wr-btn-group',
+    '[class]': 'hostClasses()',
     role: 'group',
-    '[class.wr-btn-group--squircle]': "shape() === 'squircle'",
   },
   providers: [{ provide: WR_BUTTON_GROUP, useExisting: forwardRef(() => WrButtonGroup) }],
   hostDirectives: [{ directive: WrSquircle, inputs: ['radius: squircleRadius', 'smoothing: squircleSmoothing'] }],
@@ -67,6 +67,13 @@ export class WrButtonGroup implements WrButtonGroupContext {
    * @default null
    */
   readonly shape = input<WrButtonShape | null>(null);
+
+  protected readonly hostClasses = computed(() => {
+    const parts = ['wr-btn-group'];
+    const s = this.shape();
+    if (s) parts.push(`wr-btn-group--${s}`);
+    return parts.join(' ');
+  });
 
   constructor() {
     // Drive the host-composed WrSquircle: enable it only when the group
