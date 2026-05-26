@@ -137,9 +137,17 @@ export class WrButton {
    * coherent control. Outside a group, the button's own `[shape]` is
    * used, falling back to `rounded`.
    */
-  protected readonly effectiveShape = computed<WrButtonShape>(() =>
-    this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded'),
-  );
+  protected readonly effectiveShape = computed<WrButtonShape>(() => {
+    if (this.group) {
+      const g = this.group.shape() ?? 'rounded';
+      // Squircle on a group is rendered as a single clip on the group
+      // wrapper — children must stay plain rounded segments, otherwise
+      // each button gets its own squircle clip and the row stops
+      // reading as one shape.
+      return g === 'squircle' ? 'rounded' : g;
+    }
+    return this.shape() ?? 'rounded';
+  });
 
   constructor() {
     // The host directive composes a `WrSquircle` instance — drive its

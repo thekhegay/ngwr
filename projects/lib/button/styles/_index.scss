@@ -216,4 +216,13 @@
       z-index: 1;
     }
   }
+
+  // Squircle group: the clip-path lives on the wrapper, not the children.
+  // Flatten child radii so the cropped outline reads as one clean squircle.
+  &--squircle > .wr-btn {
+    &:first-child,
+    &:last-child {
+      border-radius: 0;
+    }
+  }
 }
