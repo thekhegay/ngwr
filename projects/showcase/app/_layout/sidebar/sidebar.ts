@@ -4,15 +4,13 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 
 import { filter, map, startWith } from 'rxjs';
 
-import { WrIcon, caretForward, chevronDown, folder, provideWrIcons, type WrIconName } from 'ngwr/icon';
+import { WrIcon, chevronDown, provideWrIcons } from 'ngwr/icon';
 
 import { LayoutState } from '../layout-state';
 
 interface SidebarLink {
   readonly title: string;
   readonly url?: string[];
-  /** Icon shown to the left of the title. Defaults to `caret-forward`. */
-  readonly icon?: WrIconName;
   /** Mark items not yet migrated — rendered as plain disabled rows. */
   readonly disabled?: boolean;
 }
@@ -26,13 +24,9 @@ interface SidebarLink {
  */
 interface SidebarGroup {
   readonly title: string;
-  readonly icon?: WrIconName;
   readonly url?: string[];
   readonly children?: readonly SidebarLink[];
 }
-
-const DEFAULT_GROUP_ICON: WrIconName = 'folder';
-const DEFAULT_LINK_ICON: WrIconName = 'caret-forward';
 
 @Component({
   selector: 'ngwr-sidebar',
@@ -45,13 +39,10 @@ const DEFAULT_LINK_ICON: WrIconName = 'caret-forward';
     '[class.ngwr-sidebar--opened]': 'layoutState.sidebarOpen()',
   },
   imports: [RouterLink, RouterLinkActive, WrIcon],
-  providers: [provideWrIcons([chevronDown, folder, caretForward])],
+  providers: [provideWrIcons([chevronDown])],
 })
 export class SidebarComponent {
   protected readonly layoutState = inject(LayoutState);
-
-  protected readonly defaultGroupIcon = DEFAULT_GROUP_ICON;
-  protected readonly defaultLinkIcon = DEFAULT_LINK_ICON;
 
   protected readonly groups: readonly SidebarGroup[] = [
     {
@@ -144,7 +135,6 @@ export class SidebarComponent {
       children: [
         { title: 'Anchor', url: ['/docs', 'components', 'anchor'] },
         { title: 'Back to Top', url: ['/docs', 'components', 'back-top'] },
-        { title: 'Breadcrumbs', url: ['/docs', 'components', 'breadcrumbs'] },
         { title: 'Carousel', url: ['/docs', 'components', 'carousel'] },
         { title: 'Dropdown', url: ['/docs', 'components', 'dropdown'] },
         { title: 'Speed Dial', url: ['/docs', 'components', 'speed-dial'] },

@@ -8,7 +8,6 @@
         [routerLink]="group.url"
         (click)="onLinkClick()"
       >
-        <wr-icon class="ngwr-sidebar__icon" [name]="group.icon ?? defaultGroupIcon" size="16" />
         <span class="ngwr-sidebar__group-title">{{ group.title }}</span>
       </a>
     } @else {
@@ -20,7 +19,6 @@
           [attr.aria-expanded]="isOpen(group.title)"
           (click)="toggleGroup(group.title)"
         >
-          <wr-icon class="ngwr-sidebar__icon" [name]="group.icon ?? defaultGroupIcon" size="16" />
           <span class="ngwr-sidebar__group-title">{{ group.title }}</span>
           <wr-icon class="ngwr-sidebar__group-chevron" name="chevron-down" size="14" />
         </button>
@@ -34,7 +32,6 @@
                     <li>
                       @if (link.disabled || !link.url) {
                         <span class="ngwr-sidebar__link ngwr-sidebar__link--disabled" aria-disabled="true">
-                          <wr-icon class="ngwr-sidebar__icon" [name]="link.icon ?? defaultLinkIcon" size="14" />
                           <span class="ngwr-sidebar__link-title">{{ link.title }}</span>
                           <small class="ngwr-sidebar__badge">soon</small>
                         </span>
@@ -45,7 +42,6 @@
                           [routerLink]="link.url"
                           (click)="onLinkClick()"
                         >
-                          <wr-icon class="ngwr-sidebar__icon" [name]="link.icon ?? defaultLinkIcon" size="14" />
                           <span class="ngwr-sidebar__link-title">{{ link.title }}</span>
                         </a>
                       }

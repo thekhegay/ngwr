@@ -16,7 +16,7 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@a
  * @example
  * ```html
  * <wr-page-header title="Settings" subtitle="Manage your workspace">
- *   <wr-breadcrumbs wrPageHeaderBreadcrumbs>…</wr-breadcrumbs>
+ *   <nav wrPageHeaderBreadcrumbs>…</nav>
  *   <div wrPageHeaderActions>
  *     <button wrButton>Invite</button>
  *     <button wrButton color="primary">Save</button>

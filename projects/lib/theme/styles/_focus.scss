@@ -20,9 +20,8 @@
   @include focus-ring;
 }
 
-// Anchor / breadcrumbs
-.wr-anchor__link:focus-visible,
-.wr-breadcrumb-item:focus-visible {
+// Anchor
+.wr-anchor__link:focus-visible {
   @include focus-ring;
 }
 

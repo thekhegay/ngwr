@@ -24,7 +24,6 @@ export const routes = {
       squircle: 'squircle',
       backTop: 'back-top',
       badge: 'badge',
-      breadcrumbs: 'breadcrumbs',
       button: 'button',
       buttonGroup: 'button-group',
       calendar: 'calendar',
