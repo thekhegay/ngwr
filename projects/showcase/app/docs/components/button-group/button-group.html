@@ -42,6 +42,28 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Shape cascade"
+    description="`shape` on the group cascades to every child `<wr-btn>` that hasn't set its own. Per-child `[shape]` always wins."
+  >
+    <ngwr-doc-snippet [code]="snippets.shape">
+      <wr-btn-group shape="pill">
+        <button wr-btn>Pill</button>
+        <button wr-btn>Group</button>
+        <button wr-btn>Cascade</button>
+      </wr-btn-group>
+      <wr-btn-group shape="squircle">
+        <button wr-btn>Squircle</button>
+        <button wr-btn>Group</button>
+        <button wr-btn shape="pill">Overrides</button>
+      </wr-btn-group>
+      <wr-btn-group shape="pill">
+        <button wr-btn color="primary">Save</button>
+        <button wr-btn color="primary" outlined>Discard</button>
+      </wr-btn-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
