@@ -1,0 +1,50 @@
+<ngwr-doc-page
+  title="Gradient Text"
+  description="Animated multi-stop gradient text. The gradient slides across the text via `background-clip: text`. Optional border variant wraps the text in a dark pill with the same animated gradient as a border ring. Pure CSS port — no JS animation loop."
+  [keywords]="['gradient-text', 'wr-gradient-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="gradient-text" category="text-animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-gradient-text style="font-size: 3rem; font-weight: 700">Hello, ngwr!</wr-gradient-text>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom palette + diagonal">
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-gradient-text
+        [colors]="['#ff6b6b', '#feca57', '#48dbfb', '#ff6b6b']"
+        [animationSpeed]="5"
+        direction="diagonal"
+        style="font-size: 2.25rem; font-weight: 700"
+      >
+        Custom palette
+      </wr-gradient-text>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With border + pause-on-hover">
+    <ngwr-doc-code [code]="snippets.border" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-gradient-text
+        [showBorder]="true"
+        [pauseOnHover]="true"
+        style="font-size: 1rem; font-weight: 600; color: white"
+      >
+        Premium feature
+      </wr-gradient-text>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

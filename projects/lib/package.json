@@ -170,6 +170,9 @@
     "./gauge": {
       "sass": "./gauge/styles/_index.scss"
     },
+    "./gradient-text": {
+      "sass": "./gradient-text/styles/_index.scss"
+    },
     "./hotkey": {},
     "./icon": {
       "sass": "./icon/styles/_index.scss"

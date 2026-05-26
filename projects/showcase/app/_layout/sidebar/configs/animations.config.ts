@@ -25,7 +25,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Split Text', url: ['/animations', 'split-text'] },
       { title: 'Blur Text', url: ['/animations', 'blur-text'] },
       { title: 'Shiny Text', url: ['/animations', 'shiny-text'] },
-      { title: 'Gradient Text', url: ['/animations', 'gradient-text'], disabled: true },
+      { title: 'Gradient Text', url: ['/animations', 'gradient-text'] },
       { title: 'Rotating Text', url: ['/animations', 'rotating-text'], disabled: true },
       { title: 'Typewriter', url: ['/animations', 'typewriter'], disabled: true },
       { title: 'Scramble Text', url: ['/animations', 'scramble-text'], disabled: true },

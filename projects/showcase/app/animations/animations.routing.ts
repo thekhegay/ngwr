@@ -26,4 +26,5 @@ export default [
   { path: a.splitText, loadComponent: () => import('./split-text/split-text') },
   { path: a.blurText, loadComponent: () => import('./blur-text/blur-text') },
   { path: a.shinyText, loadComponent: () => import('./shiny-text/shiny-text') },
+  { path: a.gradientText, loadComponent: () => import('./gradient-text/gradient-text') },
 ] satisfies Routes;

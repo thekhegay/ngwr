@@ -1,0 +1,103 @@
+// Animated gradient text (reactbits port). The gradient is shared between
+// the text fill (via `background-clip: text`) and an optional outer ring.
+// Both layers use the same animation, so the ring + text stay in sync.
+
+.wr-gradient-text {
+  --wr-gradient-text-image: linear-gradient(to right, #5227ff, #ff9ffc, #b497cf, #5227ff);
+  --wr-gradient-text-size: 300% 100%;
+  --wr-gradient-text-duration: 8s;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.25;
+  overflow: hidden;
+
+  &--border {
+    padding: 0.35rem 0.75rem;
+    border-radius: 1.25rem;
+  }
+
+  &__text {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    background-image: var(--wr-gradient-text-image);
+    background-size: var(--wr-gradient-text-size);
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: wr-gradient-text-horizontal var(--wr-gradient-text-duration) linear infinite;
+  }
+
+  // Border variant — animated gradient ring + dark inner pill behind the
+  // text. The inner uses a `::before` so the gradient is only visible at
+  // the perimeter.
+  &__border {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: var(--wr-gradient-text-image);
+    background-size: var(--wr-gradient-text-size);
+    background-position: 0% 50%;
+    animation: wr-gradient-text-horizontal var(--wr-gradient-text-duration) linear infinite;
+    z-index: 0;
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      background-color: #120f17;
+      z-index: 1;
+    }
+  }
+
+  // Direction variants change which axis the gradient slides on.
+  &--vertical &__text,
+  &--vertical &__border {
+    background-position: 50% 0%;
+    animation-name: wr-gradient-text-vertical;
+  }
+
+  // Diagonal: same as horizontal motion but a diagonal angle on the
+  // gradient itself.
+  &--diagonal &__text,
+  &--diagonal &__border {
+    background-position: 0% 50%;
+    animation-name: wr-gradient-text-horizontal;
+  }
+
+  &--yoyo &__text,
+  &--yoyo &__border {
+    animation-direction: alternate;
+  }
+
+  &--pause-on-hover:hover &__text,
+  &--pause-on-hover:hover &__border {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes wr-gradient-text-horizontal {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes wr-gradient-text-vertical {
+  from {
+    background-position: 50% 0%;
+  }
+  to {
+    background-position: 50% 100%;
+  }
+}
