@@ -82,6 +82,10 @@ export class WrImageCropperComponent {
   /** Resolved object URL for `src` (so File / Blob render in `<img>`). */
   protected readonly objectUrl = signal<string | null>(null);
 
+  /** Previous object URL we created — kept off-signal so the resolve
+   *  effect doesn't depend on its own writes (which would loop). */
+  private previousObjectUrl: string | null = null;
+
   /** Natural (source) pixel dimensions. */
   protected readonly natural = signal<{ w: number; h: number }>({ w: 0, h: 0 });
 
@@ -116,21 +120,30 @@ export class WrImageCropperComponent {
 
   constructor() {
     // Resolve the source into a usable URL the <img> can render.
+    // We only read `src()` here — `previousObjectUrl` is a plain field, so
+    // writing to `objectUrl` doesn't re-trigger this effect (and hang the
+    // tab on file upload).
     effect(() => {
       const src = this.src();
-      const prev = this.objectUrl();
-      if (prev?.startsWith('blob:')) URL.revokeObjectURL(prev);
+      if (this.previousObjectUrl) {
+        URL.revokeObjectURL(this.previousObjectUrl);
+        this.previousObjectUrl = null;
+      }
       if (!src) {
         this.objectUrl.set(null);
         return;
       }
-      if (typeof src === 'string') this.objectUrl.set(src);
-      else this.objectUrl.set(URL.createObjectURL(src));
+      if (typeof src === 'string') {
+        this.objectUrl.set(src);
+      } else {
+        const url = URL.createObjectURL(src);
+        this.previousObjectUrl = url;
+        this.objectUrl.set(url);
+      }
     });
 
     this.destroyRef.onDestroy(() => {
-      const url = this.objectUrl();
-      if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
+      if (this.previousObjectUrl) URL.revokeObjectURL(this.previousObjectUrl);
     });
   }
 

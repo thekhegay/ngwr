@@ -2,7 +2,7 @@
   class="wr-calendar-heatmap__grid"
   [style.--wr-heatmap-cell-size.px]="cellSize()"
   [style.--wr-heatmap-cell-gap.px]="cellGap()"
-  [style.grid-template-columns]="'repeat(' + columnCount() + ', var(--wr-heatmap-cell-size))'"
+  [style.--wr-heatmap-columns]="columnCount()"
 >
   @if (showLabels()) {
     <div class="wr-calendar-heatmap__weekdays">

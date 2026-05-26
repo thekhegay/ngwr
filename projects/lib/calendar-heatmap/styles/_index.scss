@@ -31,10 +31,17 @@
     align-items: center;
   }
 
+  // The two grid cells that hold week columns get their own N-column
+  // sub-grids — `--wr-heatmap-columns` is set by the component.
+  &__months,
+  &__cells {
+    display: grid;
+    grid-template-columns: repeat(var(--wr-heatmap-columns, 53), var(--wr-heatmap-cell-size));
+    gap: var(--wr-heatmap-cell-gap);
+  }
+
   &__months {
     grid-area: months;
-    display: grid;
-    grid-template-columns: subgrid;
     font-size: var(--wr-text-xs);
     color: var(--wr-color-medium);
   }
@@ -46,10 +53,7 @@
 
   &__cells {
     grid-area: cells;
-    display: grid;
-    grid-template-columns: subgrid;
     grid-template-rows: repeat(7, var(--wr-heatmap-cell-size));
-    gap: var(--wr-heatmap-cell-gap);
   }
 
   &__cell {

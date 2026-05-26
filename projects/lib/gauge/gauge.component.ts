@@ -73,8 +73,10 @@ export class WrGaugeComponent {
     const angle = Math.PI * (1 - this.ratio());
     const ex = this.cx + r * Math.cos(angle);
     const ey = this.cy - r * Math.sin(angle);
-    const largeArc = this.ratio() > 0.5 ? 1 : 0;
-    return `M ${this.cx - r} ${this.cy} A ${r} ${r} 0 ${largeArc} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
+    // The arc always spans `π × ratio` radians (≤ 180°), so largeArc stays 0.
+    // Previously this was set to 1 when ratio > 0.5, which made the swept arc
+    // take the long way round and visually flipped the bar.
+    return `M ${this.cx - r} ${this.cy} A ${r} ${r} 0 0 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
   });
 
   protected readonly viewBox = '0 0 100 56';
