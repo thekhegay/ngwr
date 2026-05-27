@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrScrambleText } from 'ngwr/scramble-text';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,26 +21,40 @@ import {
     WrScrambleText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class ScrambleTextPage {
-  protected readonly snippets = {
-    install: `import { WrScrambleText } from 'ngwr/scramble-text';`,
-    basic: `<wr-scramble-text>
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly radius = signal(100);
+  protected readonly duration = signal(1.2);
+  protected readonly speed = signal(0.05);
+  protected readonly scrambleChars = signal('.:');
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-scramble-text
+  [radius]="${this.radius()}"
+  [duration]="${this.duration()}"
+  [speed]="${this.speed()}"
+  scrambleChars="${this.scrambleChars()}"
+>
   Hover this paragraph to scramble characters near the cursor.
 </wr-scramble-text>`,
-    tuned: `<wr-scramble-text
-  [radius]="140"
-  [duration]="1.8"
-  [speed]="0.04"
-  scrambleChars="!&%*?<>"
->
-  A wider radius, longer scramble, custom glyph pool.
-</wr-scramble-text>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Radius (px)', signal: this.radius, min: 20, max: 240, step: 5, unit: 'px' },
+    { kind: 'slider', label: 'Duration (s)', signal: this.duration, min: 0.2, max: 3, step: 0.1, precision: 1, unit: 's' },
+    { kind: 'slider', label: 'Speed (s)', signal: this.speed, min: 0.01, max: 0.2, step: 0.01, precision: 2, unit: 's' },
+    { kind: 'text', label: 'Glyph Pool', signal: this.scrambleChars, placeholder: '.:' },
+  ];
+
+  protected readonly snippets = {
+    install: `import { WrScrambleText } from 'ngwr/scramble-text';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

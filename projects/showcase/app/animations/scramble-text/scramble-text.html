@@ -10,11 +10,13 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <wr-scramble-text
-        [radius]="60"
+        [radius]="radius()"
+        [duration]="duration()"
+        [speed]="speed()"
+        [scrambleChars]="scrambleChars()"
         style="
           display: block;
           padding: 1.5rem;
@@ -29,32 +31,7 @@
       >
         Hover this paragraph to scramble characters near the cursor.
       </wr-scramble-text>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Tuned: wider radius, longer scramble, custom glyphs">
-    <ngwr-doc-code [code]="snippets.tuned" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-scramble-text
-        [radius]="140"
-        [duration]="1.8"
-        [speed]="0.04"
-        scrambleChars="!&%*?<>"
-        style="
-          display: block;
-          padding: 1.5rem;
-          background: linear-gradient(135deg, #1e1b4b, #4c1d95);
-          color: #fbbf24;
-          border-radius: 0.75rem;
-          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-          font-size: 1.125rem;
-          line-height: 1.6;
-          max-width: 36rem;
-        "
-      >
-        A wider radius, longer scramble, custom glyph pool.
-      </wr-scramble-text>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
