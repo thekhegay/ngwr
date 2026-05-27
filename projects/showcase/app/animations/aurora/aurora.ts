@@ -7,23 +7,26 @@ import {
   type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-aurora-page',
   templateUrl: './aurora.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [WrAurora, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrAurora, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AuroraPage {
+  protected readonly snippet = `<wr-aurora />`;
+
   protected readonly snippets = {
     install: `import { WrAurora } from 'ngwr/aurora';`,
-    basic: `<wr-aurora />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: '<wr-aurora>', description: 'Drop-in animated aurora gradient backdrop.', type: 'component', default: '—' },
+    { name: 'colorA', description: 'First gradient layer.', type: 'string', default: 'primary blob' },
+    { name: 'colorB', description: 'Second gradient layer.', type: 'string', default: 'secondary blob' },
+    { name: 'colorC', description: 'Third gradient layer.', type: 'string', default: 'success blob' },
   ];
 }
