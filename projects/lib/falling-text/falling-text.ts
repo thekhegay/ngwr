@@ -103,7 +103,7 @@ export class WrFallingText {
   /** Font size as a CSS length. @default '1rem' */
   readonly fontSize = input('1rem');
 
-  @ViewChild('words', { static: true }) private readonly wordsRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('wordsContainer', { static: true }) private readonly wordsRef!: ElementRef<HTMLDivElement>;
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
