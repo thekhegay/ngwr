@@ -164,6 +164,9 @@
     "./empty": {
       "sass": "./empty/styles/_index.scss"
     },
+    "./falling-text": {
+      "sass": "./falling-text/styles/_index.scss"
+    },
     "./file-upload": {
       "sass": "./file-upload/styles/_index.scss"
     },

@@ -33,4 +33,5 @@ export default [
   { path: a.decryptText, loadComponent: () => import('./decrypt-text/decrypt-text') },
   { path: a.glitchText, loadComponent: () => import('./glitch-text/glitch-text') },
   { path: a.fuzzyText, loadComponent: () => import('./fuzzy-text/fuzzy-text') },
+  { path: a.fallingText, loadComponent: () => import('./falling-text/falling-text') },
 ] satisfies Routes;

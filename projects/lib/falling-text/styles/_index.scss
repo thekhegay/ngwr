@@ -1,0 +1,30 @@
+.wr-falling-text {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  touch-action: none; // pointer-driven drag — disable browser scroll on touch
+
+  &__words {
+    line-height: 1.4;
+  }
+
+  &__word {
+    display: inline-block;
+    will-change: transform;
+    user-select: none;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &--hl {
+      color: var(--wr-color-primary);
+    }
+  }
+
+  &__space {
+    display: inline;
+    white-space: pre;
+  }
+}

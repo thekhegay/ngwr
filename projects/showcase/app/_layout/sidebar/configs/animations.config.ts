@@ -32,7 +32,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Decrypt Text', url: ['/animations', 'decrypt-text'] },
       { title: 'Glitch Text', url: ['/animations', 'glitch-text'] },
       { title: 'Fuzzy Text', url: ['/animations', 'fuzzy-text'] },
-      { title: 'Falling Text', url: ['/animations', 'falling-text'], disabled: true },
+      { title: 'Falling Text', url: ['/animations', 'falling-text'] },
       { title: 'Circular Text', url: ['/animations', 'circular-text'], disabled: true },
       { title: 'Count Up Text', url: ['/animations', 'count-up-text'], disabled: true },
     ],

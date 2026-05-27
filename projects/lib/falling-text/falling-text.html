@@ -1,0 +1,8 @@
+<div #words class="wr-falling-text__words" [style.font-size]="fontSize()">
+  @for (w of words(); track $index; let last = $last) {
+    <span class="wr-falling-text__word" [class.wr-falling-text__word--hl]="w.highlighted">{{ w.text }}</span>
+    @if (!last) {
+      <span class="wr-falling-text__space">&nbsp;</span>
+    }
+  }
+</div>
