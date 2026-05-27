@@ -10,46 +10,31 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Hover to release">
-    <ngwr-doc-code [code]="snippets.hover" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-falling-text
-        text="Hover this block. Each word falls and you can drag them around."
-        [highlightWords]="['Hover', 'drag']"
-        trigger="hover"
-        fontSize="1.5rem"
-        style="
-          display: block;
-          height: 18rem;
-          background: rgba(var(--wr-color-light-rgb), 0.2);
-          border-radius: 0.75rem;
-          padding: 1rem;
-          line-height: 1.4;
-        "
-      />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Auto release, lower gravity">
-    <ngwr-doc-code [code]="snippets.auto" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-falling-text
-        text="ngwr ships an in-house physics simulator — gravity, walls, body collision, cursor drag, all dependency-free."
-        [highlightWords]="['ngwr', 'physics']"
-        trigger="auto"
-        [gravity]="600"
-        fontSize="1.125rem"
-        style="
-          display: block;
-          height: 16rem;
-          background: var(--wr-color-dark);
-          color: var(--wr-color-white);
-          border-radius: 0.75rem;
-          padding: 1rem;
-          line-height: 1.4;
-        "
-      />
-    </ngwr-doc-snippet>
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground
+      [code]="snippet()"
+      [controls]="controls"
+      [showReplay]="true"
+      (replay)="replay()"
+    >
+      @for (k of [replayKey()]; track k) {
+        <wr-falling-text
+          [text]="text()"
+          [trigger]="trigger()"
+          [gravity]="gravity()"
+          [fontSize]="fontSize()"
+          style="
+            display: block;
+            width: 100%;
+            height: 18rem;
+            background: rgba(var(--wr-color-light-rgb), 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            line-height: 1.4;
+          "
+        />
+      }
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

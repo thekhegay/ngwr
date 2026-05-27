@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrFallingText } from 'ngwr/falling-text';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,28 +21,44 @@ import {
     WrFallingText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class FallingTextPage {
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly text = signal('Hover this block. Each word falls and you can drag them around.');
+  protected readonly trigger = signal<'auto' | 'scroll' | 'hover' | 'click'>('hover');
+  protected readonly gravity = signal(980);
+  protected readonly fontSize = signal('1.5rem');
+
+  protected readonly replayKey = signal(0);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-falling-text
+  text="${this.text()}"
+  trigger="${this.trigger()}"
+  [gravity]="${this.gravity()}"
+  fontSize="${this.fontSize()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'select', label: 'Trigger', signal: this.trigger, options: ['auto', 'hover', 'click', 'scroll'] as const },
+    { kind: 'slider', label: 'Gravity', signal: this.gravity, min: 100, max: 2000, step: 50 },
+    { kind: 'text', label: 'Font Size', signal: this.fontSize, placeholder: '1.5rem' },
+    { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
+  ];
+
+  protected replay(): void {
+    this.replayKey.update(n => n + 1);
+  }
+
   protected readonly snippets = {
     install: `import { WrFallingText } from 'ngwr/falling-text';`,
-    hover: `<wr-falling-text
-  text="Hover this block. Each word falls and you can drag them around."
-  [highlightWords]="['Hover', 'drag']"
-  trigger="hover"
-  fontSize="1.5rem"
-/>`,
-    auto: `<wr-falling-text
-  text="ngwr ships an in-house physics simulator — gravity, walls, body collision, cursor drag, all dependency-free."
-  [highlightWords]="['ngwr', 'physics']"
-  trigger="auto"
-  [gravity]="600"
-  fontSize="1.125rem"
-/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
