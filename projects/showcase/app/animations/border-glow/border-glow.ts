@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrBorderGlow } from 'ngwr/border-glow';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,32 +21,46 @@ import {
     WrBorderGlow,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class BorderGlowPage {
-  protected readonly snippets = {
-    install: `import { WrBorderGlow } from 'ngwr/border-glow';`,
-    basic: `<wr-border-glow>
-  <h3>Hover me</h3>
-  <p>The border lights up where the cursor is.</p>
-</wr-border-glow>`,
-    animated: `<!-- One-shot sweep on mount. -->
-<wr-border-glow [animated]="true">
-  <p>This card draws attention to itself.</p>
-</wr-border-glow>`,
-    custom: `<wr-border-glow
-  glowColor="320 100 70"
-  [colors]="['#f472b6', '#fbbf24', '#34d399']"
-  [borderRadius]="20"
-  [glowRadius]="60"
-  [coneSpread]="35"
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly glowColor = signal('40 80 80');
+  protected readonly borderRadius = signal(28);
+  protected readonly glowRadius = signal(40);
+  protected readonly coneSpread = signal(25);
+  protected readonly glowIntensity = signal(1);
+  protected readonly animated = signal(false);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-border-glow
+  glowColor="${this.glowColor()}"
+  [borderRadius]="${this.borderRadius()}"
+  [glowRadius]="${this.glowRadius()}"
+  [coneSpread]="${this.coneSpread()}"
+  [glowIntensity]="${this.glowIntensity()}"
+  [animated]="${this.animated()}"
 >
   …
 </wr-border-glow>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Border Radius (px)', signal: this.borderRadius, min: 0, max: 60, step: 1, unit: 'px' },
+    { kind: 'slider', label: 'Glow Radius (px)', signal: this.glowRadius, min: 10, max: 120, step: 1, unit: 'px' },
+    { kind: 'slider', label: 'Cone Spread (%)', signal: this.coneSpread, min: 5, max: 60, step: 1, unit: '%' },
+    { kind: 'slider', label: 'Glow Intensity', signal: this.glowIntensity, min: 0, max: 2, step: 0.1, precision: 1 },
+    { kind: 'toggle', label: 'Animated', signal: this.animated },
+    { kind: 'text', label: 'Glow Color (HSL)', signal: this.glowColor, placeholder: 'H S L' },
+  ];
+
+  protected readonly snippets = {
+    install: `import { WrBorderGlow } from 'ngwr/border-glow';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

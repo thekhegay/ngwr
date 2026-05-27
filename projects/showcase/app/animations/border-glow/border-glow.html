@@ -10,13 +10,17 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Basic"
-    description="Hover the card to light up the nearest edge of the border. Move the pointer around the perimeter to chase the glow."
-  >
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-border-glow style="min-width: 18rem">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-border-glow
+        [glowColor]="glowColor()"
+        [borderRadius]="borderRadius()"
+        [glowRadius]="glowRadius()"
+        [coneSpread]="coneSpread()"
+        [glowIntensity]="glowIntensity()"
+        [animated]="animated()"
+        style="min-width: 18rem"
+      >
         <div style="padding: 1.5rem 1.75rem; color: white">
           <h3 style="margin: 0 0 0.25rem; font-size: 1.125rem">Hover me</h3>
           <p style="margin: 0; color: rgba(255, 255, 255, 0.7); font-size: 0.875rem">
@@ -24,47 +28,7 @@
           </p>
         </div>
       </wr-border-glow>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Animated"
-    description="One-shot perimeter sweep on mount — useful for drawing attention to a freshly-rendered card."
-  >
-    <ngwr-doc-code [code]="snippets.animated" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-border-glow [animated]="true" style="min-width: 18rem">
-        <div style="padding: 1.5rem 1.75rem; color: white">
-          <p style="margin: 0; color: rgba(255, 255, 255, 0.85); font-size: 0.875rem">
-            This card draws attention to itself.
-          </p>
-        </div>
-      </wr-border-glow>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Custom palette"
-    description="Tune the halo colour, mesh-gradient palette, corner radius, halo extent and cone width."
-  >
-    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-border-glow
-        glowColor="320 100 70"
-        [colors]="['#f472b6', '#fbbf24', '#34d399']"
-        [borderRadius]="20"
-        [glowRadius]="60"
-        [coneSpread]="35"
-        style="min-width: 18rem"
-      >
-        <div style="padding: 1.5rem 1.75rem; color: white">
-          <h3 style="margin: 0 0 0.25rem; font-size: 1.125rem">Warm palette</h3>
-          <p style="margin: 0; color: rgba(255, 255, 255, 0.7); font-size: 0.875rem">
-            Wider cone, brighter halo.
-          </p>
-        </div>
-      </wr-border-glow>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
