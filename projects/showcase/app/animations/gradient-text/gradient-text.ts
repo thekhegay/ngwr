@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrGradientText } from 'ngwr/gradient-text';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,29 +21,45 @@ import {
     WrGradientText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class GradientTextPage {
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly text = signal('Hello, ngwr!');
+  protected readonly animationSpeed = signal(8);
+  protected readonly direction = signal<'horizontal' | 'vertical' | 'diagonal'>('horizontal');
+  protected readonly yoyo = signal(true);
+  protected readonly pauseOnHover = signal(false);
+  protected readonly showBorder = signal(false);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-gradient-text
+  [animationSpeed]="${this.animationSpeed()}"
+  direction="${this.direction()}"
+  [yoyo]="${this.yoyo()}"
+  [pauseOnHover]="${this.pauseOnHover()}"
+  [showBorder]="${this.showBorder()}"
+>
+  ${this.text()}
+</wr-gradient-text>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Speed (s)', signal: this.animationSpeed, min: 1, max: 20, step: 0.5, precision: 1, unit: 's' },
+    { kind: 'select', label: 'Direction', signal: this.direction, options: ['horizontal', 'vertical', 'diagonal'] as const },
+    { kind: 'toggle', label: 'Yoyo', signal: this.yoyo },
+    { kind: 'toggle', label: 'Pause on Hover', signal: this.pauseOnHover },
+    { kind: 'toggle', label: 'Border', signal: this.showBorder },
+    { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
+  ];
+
   protected readonly snippets = {
     install: `import { WrGradientText } from 'ngwr/gradient-text';`,
-    basic: `<wr-gradient-text>Hello, ngwr!</wr-gradient-text>`,
-    custom: `<wr-gradient-text
-  [colors]="['#ff6b6b', '#feca57', '#48dbfb', '#ff6b6b']"
-  [animationSpeed]="5"
-  direction="diagonal"
->
-  Custom palette
-</wr-gradient-text>`,
-    border: `<wr-gradient-text
-  [showBorder]="true"
-  [pauseOnHover]="true"
->
-  Premium feature
-</wr-gradient-text>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

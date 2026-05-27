@@ -10,38 +10,19 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-gradient-text style="font-size: 3rem; font-weight: 700">Hello, ngwr!</wr-gradient-text>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Custom palette + diagonal">
-    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <wr-gradient-text
-        [colors]="['#ff6b6b', '#feca57', '#48dbfb', '#ff6b6b']"
-        [animationSpeed]="5"
-        direction="diagonal"
-        style="font-size: 2.25rem; font-weight: 700"
+        [animationSpeed]="animationSpeed()"
+        [direction]="direction()"
+        [yoyo]="yoyo()"
+        [pauseOnHover]="pauseOnHover()"
+        [showBorder]="showBorder()"
+        style="font-size: 3rem; font-weight: 700"
       >
-        Custom palette
+        {{ text() }}
       </wr-gradient-text>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="With border + pause-on-hover">
-    <ngwr-doc-code [code]="snippets.border" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-gradient-text
-        [showBorder]="true"
-        [pauseOnHover]="true"
-        style="font-size: 1rem; font-weight: 600; color: white"
-      >
-        Premium feature
-      </wr-gradient-text>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
