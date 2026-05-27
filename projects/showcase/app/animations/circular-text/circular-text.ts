@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrCircularText } from 'ngwr/circular-text';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,22 +21,35 @@ import {
     WrCircularText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class CircularTextPage {
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly text = signal('HELLO * NGWR * ');
+  protected readonly spinDuration = signal(20);
+  protected readonly onHover = signal<'speedUp' | 'slowDown' | 'pause' | 'goBonkers'>('speedUp');
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-circular-text
+  text="${this.text()}"
+  [spinDuration]="${this.spinDuration()}"
+  onHover="${this.onHover()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Spin Duration (s)', signal: this.spinDuration, min: 2, max: 60, step: 1, unit: 's' },
+    { kind: 'select', label: 'On Hover', signal: this.onHover, options: ['speedUp', 'slowDown', 'pause', 'goBonkers'] as const },
+    { kind: 'text', label: 'Text', signal: this.text, placeholder: 'TEXT * ' },
+  ];
+
   protected readonly snippets = {
     install: `import { WrCircularText } from 'ngwr/circular-text';`,
-    basic: `<wr-circular-text text="HELLO * NGWR * " />`,
-    pause: `<wr-circular-text text="PAUSE ON HOVER * " onHover="pause" />`,
-    bonkers: `<wr-circular-text
-  text="GO BONKERS * "
-  onHover="goBonkers"
-  [spinDuration]="14"
-/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

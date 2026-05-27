@@ -10,40 +10,17 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Default — speed up on hover">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <div style="display: flex; justify-content: center; padding: 1rem">
-        <wr-circular-text text="HELLO * NGWR * " style="font-size: 1.25rem; color: var(--wr-color-dark)" />
-      </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Pause on hover">
-    <ngwr-doc-code [code]="snippets.pause" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <div style="display: flex; justify-content: center; padding: 1rem">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div style="display: flex; justify-content: center; padding: 1rem; width: 100%">
         <wr-circular-text
-          text="PAUSE ON HOVER * "
-          onHover="pause"
-          style="font-size: 1.125rem; color: var(--wr-color-primary)"
-        />
-      </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Go bonkers on hover">
-    <ngwr-doc-code [code]="snippets.bonkers" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <div style="display: flex; justify-content: center; padding: 1rem">
-        <wr-circular-text
-          text="GO BONKERS * "
-          onHover="goBonkers"
-          [spinDuration]="14"
+          [text]="text()"
+          [spinDuration]="spinDuration()"
+          [onHover]="onHover()"
           style="font-size: 1.25rem; color: var(--wr-color-dark)"
         />
       </div>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
