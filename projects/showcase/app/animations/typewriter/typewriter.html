@@ -10,53 +10,21 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Cycle through strings">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <span style="display: inline-flex; gap: 0.5rem; font-size: 1.75rem; font-weight: 700; color: var(--wr-color-dark)">
         We
         <wr-typewriter
-          [texts]="['design.', 'ship.', 'iterate.']"
+          [texts]="texts()"
+          [typingSpeed]="typingSpeed()"
+          [deletingSpeed]="deletingSpeed()"
+          [pauseDuration]="pauseDuration()"
+          [loop]="loop()"
+          [cursorCharacter]="cursorCharacter()"
           style="color: var(--wr-color-primary)"
         />
       </span>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Single string, no loop">
-    <ngwr-doc-code [code]="snippets.single" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-typewriter
-        text="Hello, ngwr."
-        [loop]="false"
-        [typingSpeed]="40"
-        cursorCharacter="▎"
-        style="font-size: 1.75rem; font-weight: 700; color: var(--wr-color-dark)"
-      />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Variable speed">
-    <ngwr-doc-code [code]="snippets.variable" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-typewriter
-        [texts]="['Some text types fast.', 'Some types slow.', 'Some in between.']"
-        [variableSpeed]="{ min: 20, max: 120 }"
-        [pauseDuration]="1200"
-        style="font-size: 1.25rem; font-weight: 500; color: var(--wr-color-dark)"
-      />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Per-string colours">
-    <ngwr-doc-code [code]="snippets.colors" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-typewriter
-        [texts]="['React', 'Vue', 'Angular', 'Svelte']"
-        [textColors]="['#06b6d4', '#10b981', '#dc2626', '#f59e0b']"
-        style="font-size: 2rem; font-weight: 700"
-      />
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

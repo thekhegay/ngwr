@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrTypewriter } from 'ngwr/typewriter';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,31 +21,44 @@ import {
     WrTypewriter,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class TypewriterPage {
+  protected readonly texts = signal<readonly string[]>(['design.', 'ship.', 'iterate.']);
+
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly typingSpeed = signal(50);
+  protected readonly deletingSpeed = signal(30);
+  protected readonly pauseDuration = signal(2000);
+  protected readonly loop = signal(true);
+  protected readonly cursorCharacter = signal('|');
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-typewriter
+  [texts]="['design.', 'ship.', 'iterate.']"
+  [typingSpeed]="${this.typingSpeed()}"
+  [deletingSpeed]="${this.deletingSpeed()}"
+  [pauseDuration]="${this.pauseDuration()}"
+  [loop]="${this.loop()}"
+  cursorCharacter="${this.cursorCharacter()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Typing Speed (ms)', signal: this.typingSpeed, min: 10, max: 200, step: 5, unit: 'ms' },
+    { kind: 'slider', label: 'Deleting Speed (ms)', signal: this.deletingSpeed, min: 5, max: 150, step: 5, unit: 'ms' },
+    { kind: 'slider', label: 'Pause (ms)', signal: this.pauseDuration, min: 200, max: 5000, step: 100, unit: 'ms' },
+    { kind: 'toggle', label: 'Loop', signal: this.loop },
+    { kind: 'text', label: 'Cursor', signal: this.cursorCharacter, placeholder: '|' },
+  ];
+
   protected readonly snippets = {
     install: `import { WrTypewriter } from 'ngwr/typewriter';`,
-    basic: `<wr-typewriter [texts]="['design.', 'ship.', 'iterate.']" />`,
-    single: `<wr-typewriter
-  text="Hello, ngwr."
-  [loop]="false"
-  [typingSpeed]="40"
-  cursorCharacter="▎"
-/>`,
-    variable: `<wr-typewriter
-  [texts]="['Some text types fast.', 'Some types slow.', 'Some in between.']"
-  [variableSpeed]="{ min: 20, max: 120 }"
-  [pauseDuration]="1200"
-/>`,
-    colors: `<wr-typewriter
-  [texts]="['React', 'Vue', 'Angular', 'Svelte']"
-  [textColors]="['#06b6d4', '#10b981', '#dc2626', '#f59e0b']"
-/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
