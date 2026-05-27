@@ -8,24 +8,19 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-tilt-card style="min-width: 18rem; max-width: 24rem">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-tilt-card
+        [maxTilt]="maxTilt()"
+        [perspective]="perspective()"
+        [scale]="scale()"
+        [glare]="glare()"
+        style="min-width: 18rem; max-width: 24rem"
+      >
         <h3 style="margin: 0 0 0.25rem; font-size: 1.125rem">Hover me</h3>
         <p style="margin: 0; color: rgba(255, 255, 255, 0.7); font-size: 0.875rem">Move the cursor across me.</p>
       </wr-tilt-card>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Glare">
-    <ngwr-doc-code [code]="snippets.glare" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-tilt-card [maxTilt]="20" [scale]="1.05" [glare]="true" style="min-width: 18rem; max-width: 24rem">
-        <h3 style="margin: 0 0 0.25rem; font-size: 1.125rem">Glare</h3>
-        <p style="margin: 0; color: rgba(255, 255, 255, 0.7); font-size: 0.875rem">Adds a moving highlight overlay.</p>
-      </wr-tilt-card>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Directive variant ([wrTilt])">

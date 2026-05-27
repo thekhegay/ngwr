@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrTilt, WrTiltCard } from 'ngwr/tilt-card';
 
@@ -6,7 +6,9 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
@@ -20,22 +22,41 @@ import {
     WrTilt,
     DocPageComponent,
     DocSectionComponent,
+    DocPlaygroundComponent,
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
   ],
 })
 export default class TiltCardPage {
-  protected readonly snippets = {
-    install: `import { WrTiltCard, WrTilt } from 'ngwr/tilt-card';`,
-    basic: `<wr-tilt-card>
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly maxTilt = signal(12);
+  protected readonly perspective = signal(800);
+  protected readonly scale = signal(1.03);
+  protected readonly glare = signal(false);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-tilt-card
+  [maxTilt]="${this.maxTilt()}"
+  [perspective]="${this.perspective()}"
+  [scale]="${this.scale()}"
+  [glare]="${this.glare()}"
+>
   <h3>Hover me</h3>
   <p>Move the cursor across me.</p>
 </wr-tilt-card>`,
-    glare: `<wr-tilt-card [maxTilt]="20" [scale]="1.05" [glare]="true">
-  <h3>Glare</h3>
-  <p>Adds a moving highlight overlay.</p>
-</wr-tilt-card>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Max Tilt (°)', signal: this.maxTilt, min: 0, max: 45, step: 1, unit: '°' },
+    { kind: 'slider', label: 'Perspective (px)', signal: this.perspective, min: 200, max: 2000, step: 50, unit: 'px' },
+    { kind: 'slider', label: 'Scale', signal: this.scale, min: 1, max: 1.2, step: 0.01, precision: 2 },
+    { kind: 'toggle', label: 'Glare', signal: this.glare },
+  ];
+
+  protected readonly snippets = {
+    install: `import { WrTiltCard, WrTilt } from 'ngwr/tilt-card';`,
     directive: `// Directive variant — same package, drops on any element.
 import { WrTilt } from 'ngwr/tilt-card';
 
