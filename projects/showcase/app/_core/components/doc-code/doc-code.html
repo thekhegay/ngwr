@@ -1,4 +1,4 @@
-@if (highlighted.value(); as html) {
+@if (lastHtml(); as html) {
   <div class="html" [innerHTML]="html"></div>
 } @else {
   <pre class="fallback"><code>{{ normalized() }}</code></pre>
