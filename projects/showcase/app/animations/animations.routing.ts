@@ -8,7 +8,6 @@ export default [
   { path: '', pathMatch: 'full', redirectTo: a.borderGlow },
 
   // In-house animations / effects.
-  { path: a.motion, loadComponent: () => import('./motion/motion') },
   { path: a.borderGlow, loadComponent: () => import('./border-glow/border-glow') },
   { path: a.aurora, loadComponent: () => import('./aurora/aurora') },
   { path: a.marquee, loadComponent: () => import('./marquee/marquee') },

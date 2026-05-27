@@ -9,7 +9,6 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Animations',
     children: [
-      { title: 'Motion (Web Animations)', url: ['/animations', 'motion'] },
       { title: 'Border Glow', url: ['/animations', 'border-glow'] },
       { title: 'Aurora', url: ['/animations', 'aurora'] },
       { title: 'Marquee', url: ['/animations', 'marquee'] },

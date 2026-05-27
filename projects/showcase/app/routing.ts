@@ -107,7 +107,6 @@ export const routes = {
   // ports of reactbits.dev effects (attribution in each file).
   animations: {
     index: 'animations',
-    motion: 'motion',
     borderGlow: 'border-glow',
     aurora: 'aurora',
     marquee: 'marquee',
