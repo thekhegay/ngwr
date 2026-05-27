@@ -243,6 +243,10 @@ export default [
     loadComponent: () => import('./table/table'),
   },
   {
+    path: components.virtualScroll,
+    loadComponent: () => import('./virtual-scroll/virtual-scroll'),
+  },
+  {
     path: components.tabs,
     loadComponent: () => import('./tabs/tabs'),
   },

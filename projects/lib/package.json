@@ -346,6 +346,9 @@
     "./typewriter": {
       "sass": "./typewriter/styles/_index.scss"
     },
+    "./virtual-scroll": {
+      "sass": "./virtual-scroll/styles/_index.scss"
+    },
     "./window": {
       "sass": "./window/styles/_index.scss"
     }

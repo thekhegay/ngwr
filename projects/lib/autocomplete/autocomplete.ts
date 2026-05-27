@@ -8,7 +8,6 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -32,6 +31,7 @@ import { type Observable, debounceTime, finalize, from, isObservable, of, switch
 
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY } from 'ngwr/overlay';
+import { WrVirtualScroll } from 'ngwr/virtual-scroll';
 import { noop, randomId } from 'ngwr/utils';
 
 /** Function signature for async option loaders. */
@@ -77,7 +77,7 @@ function defaultFilter<T>(query: string, item: T, displayWith: (item: T) => stri
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrInput, WrInputGroup, WrInputSuffix, ScrollingModule],
+  imports: [WrInput, WrInputGroup, WrInputSuffix, WrVirtualScroll],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -151,7 +151,7 @@ export class WrAutocomplete<T = string> implements ControlValueAccessor {
 
   protected readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('input');
   protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
-  protected readonly viewport = viewChild(CdkVirtualScrollViewport);
+  protected readonly viewport = viewChild(WrVirtualScroll);
 
   /** Currently bound value (last committed selection). */
   protected readonly value = signal<T | string | null>(null);

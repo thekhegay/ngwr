@@ -94,6 +94,7 @@ export const routes = {
     fileUpload: 'file-upload',
     pagination: 'pagination',
     table: 'table',
+    virtualScroll: 'virtual-scroll',
     window: 'window',
   },
   directives: {

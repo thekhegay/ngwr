@@ -1,0 +1,35 @@
+<ngwr-doc-page
+  title="Virtual Scroll"
+  description="Fixed-size virtual scroll viewport. Thin wrapper around CDK's `cdk-virtual-scroll-viewport` with ngwr theming + sensible buffer defaults. Renders only the rows actually on screen, so a 100k-row list costs the same as a 30-row list."
+  [keywords]="['virtual-scroll', 'wr-virtual-scroll', 'cdk-virtual-scroll-viewport', 'list', 'performance']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-virtual-scroll
+        [items]="rows()"
+        [itemSize]="itemSize()"
+        [height]="height()"
+        style="width: 100%; border: 1px solid var(--wr-color-light); border-radius: 0.5rem"
+      >
+        <ng-template let-row let-i="index">
+          <div
+            [style.height.px]="itemSize()"
+            [style.line-height.px]="itemSize()"
+            style="padding: 0 1rem; border-bottom: 1px solid rgba(0,0,0,0.04); font-variant-numeric: tabular-nums"
+          >
+            {{ i + 1 }}. {{ row.label }}
+          </div>
+        </ng-template>
+      </wr-virtual-scroll>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

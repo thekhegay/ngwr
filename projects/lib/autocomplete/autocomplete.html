@@ -41,27 +41,27 @@
     } @else if (filtered().length === 0) {
       <div class="wr-autocomplete__empty">{{ noResultsText() }}</div>
     } @else if (virtualScroll()) {
-      <cdk-virtual-scroll-viewport
+      <wr-virtual-scroll
         class="wr-autocomplete__viewport"
+        [items]="filtered()"
         [itemSize]="itemSize()"
-        [minBufferPx]="itemSize() * 4"
-        [maxBufferPx]="itemSize() * 8"
-        [style.height.px]="viewportHeight()"
+        [height]="viewportHeight()"
       >
-        <div
-          *cdkVirtualFor="let item of filtered(); let i = index"
-          class="wr-autocomplete__option"
-          role="option"
-          [id]="optionId(i)"
-          [class.wr-autocomplete__option--active]="i === activeIndex()"
-          [attr.aria-selected]="i === activeIndex()"
-          [style.height.px]="itemSize()"
-          (mouseenter)="activeIndex.set(i)"
-          (mousedown)="selectByIndex(i, $event)"
-        >
-          {{ displayWith()(item) }}
-        </div>
-      </cdk-virtual-scroll-viewport>
+        <ng-template let-item let-i="index">
+          <div
+            class="wr-autocomplete__option"
+            role="option"
+            [id]="optionId(i)"
+            [class.wr-autocomplete__option--active]="i === activeIndex()"
+            [attr.aria-selected]="i === activeIndex()"
+            [style.height.px]="itemSize()"
+            (mouseenter)="activeIndex.set(i)"
+            (mousedown)="selectByIndex(i, $event)"
+          >
+            {{ displayWith()(item) }}
+          </div>
+        </ng-template>
+      </wr-virtual-scroll>
     } @else {
       <ul class="wr-autocomplete__list">
         @for (item of filtered(); track $index; let i = $index) {

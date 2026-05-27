@@ -1,0 +1,11 @@
+<cdk-virtual-scroll-viewport
+  class="wr-virtual-scroll__viewport"
+  [itemSize]="itemSize()"
+  [minBufferPx]="resolvedMinBuffer()"
+  [maxBufferPx]="resolvedMaxBuffer()"
+  [style.height]="resolvedHeight()"
+>
+  <ng-container *cdkVirtualFor="let item of items(); let i = index; trackBy: trackBy()">
+    <ng-container *ngTemplateOutlet="rowTemplate(); context: { $implicit: item, index: i }" />
+  </ng-container>
+</cdk-virtual-scroll-viewport>
