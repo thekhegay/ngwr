@@ -10,24 +10,13 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-spotlight-card style="min-width: 18rem; max-width: 24rem">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-spotlight-card [spotlightColor]="spotlightColor()" style="min-width: 18rem; max-width: 24rem">
         <h3 style="margin: 0 0 0.25rem; font-size: 1.125rem">Cursor-tracked spotlight</h3>
         <p style="margin: 0; color: rgba(255, 255, 255, 0.7); font-size: 0.875rem">Move the pointer across this card.</p>
       </wr-spotlight-card>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Custom colour">
-    <ngwr-doc-code [code]="snippets.color" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-spotlight-card spotlightColor="rgba(120, 180, 255, 0.35)" style="min-width: 18rem; max-width: 24rem">
-        <h3 style="margin: 0 0 0.25rem; font-size: 1.125rem">Blue spotlight</h3>
-        <p style="margin: 0; color: rgba(255, 255, 255, 0.7); font-size: 0.875rem">Pass any CSS colour.</p>
-      </wr-spotlight-card>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Directive variant ([wrSpotlight])">

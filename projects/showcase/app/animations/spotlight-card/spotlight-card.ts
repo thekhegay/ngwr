@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrSpotlight, WrSpotlightCard } from 'ngwr/spotlight-card';
 
@@ -6,7 +6,9 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
   DocSnippetComponent,
   ReactbitsCredit,
@@ -21,6 +23,7 @@ import {
     WrSpotlight,
     DocPageComponent,
     DocSectionComponent,
+    DocPlaygroundComponent,
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
@@ -28,16 +31,23 @@ import {
   ],
 })
 export default class SpotlightCardPage {
-  protected readonly snippets = {
-    install: `import { WrSpotlightCard } from 'ngwr/spotlight-card';`,
-    basic: `<wr-spotlight-card>
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly spotlightColor = signal('rgba(255, 255, 255, 0.25)');
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-spotlight-card spotlightColor="${this.spotlightColor()}">
   <h3>Cursor-tracked spotlight</h3>
   <p>Move the pointer across this card.</p>
 </wr-spotlight-card>`,
-    color: `<wr-spotlight-card spotlightColor="rgba(120, 180, 255, 0.35)">
-  <h3>Blue spotlight</h3>
-  <p>Pass any CSS colour.</p>
-</wr-spotlight-card>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'text', label: 'Spotlight Color', signal: this.spotlightColor, placeholder: 'CSS colour' },
+  ];
+
+  protected readonly snippets = {
+    install: `import { WrSpotlightCard } from 'ngwr/spotlight-card';`,
     directive: `// Directive variant — same package, drops on any element.
 import { WrSpotlight } from 'ngwr/spotlight-card';
 
