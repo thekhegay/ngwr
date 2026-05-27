@@ -6,10 +6,11 @@ export { DocApiComponent } from './doc-api/doc-api';
 export type { DocApiRow } from './doc-api/types';
 export { DocPlaygroundComponent } from './doc-playground/doc-playground';
 export type {
+  DocColorControl,
   DocControl,
   DocSelectControl,
   DocSliderControl,
-  DocToggleControl,
   DocTextControl,
+  DocToggleControl,
 } from './doc-playground/types';
 export { ReactbitsCredit } from './reactbits-credit/reactbits-credit';

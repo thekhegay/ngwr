@@ -32,7 +32,7 @@ import {
 })
 export default class SpotlightCardPage {
   // ── Live demo state ─────────────────────────────────────────────
-  protected readonly spotlightColor = signal('rgba(255, 255, 255, 0.25)');
+  protected readonly spotlightColor = signal('#ffffff40');
 
   protected readonly snippet = computed(
     () =>
@@ -43,7 +43,7 @@ export default class SpotlightCardPage {
   );
 
   protected readonly controls: readonly DocControl[] = [
-    { kind: 'text', label: 'Spotlight Color', signal: this.spotlightColor, placeholder: 'CSS colour' },
+    { kind: 'color', label: 'Spotlight Color', signal: this.spotlightColor },
   ];
 
   protected readonly snippets = {

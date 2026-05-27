@@ -40,5 +40,20 @@ export interface DocTextControl extends ControlBase {
   readonly placeholder?: string;
 }
 
+/** Color swatch trigger bound to a hex string signal. */
+export interface DocColorControl extends ControlBase {
+  readonly kind: 'color';
+  readonly signal: WritableSignal<string>;
+  /** Include alpha slider in the picker. @default true */
+  readonly alpha?: boolean;
+  /** Preset hex swatches. */
+  readonly swatches?: readonly string[];
+}
+
 /** Union of all control descriptors a `<ngwr-doc-playground>` can render. */
-export type DocControl = DocSelectControl | DocSliderControl | DocToggleControl | DocTextControl;
+export type DocControl =
+  | DocSelectControl
+  | DocSliderControl
+  | DocToggleControl
+  | DocTextControl
+  | DocColorControl;

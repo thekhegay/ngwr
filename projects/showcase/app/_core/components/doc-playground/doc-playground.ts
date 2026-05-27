@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
+import { WrColorPickerTrigger } from 'ngwr/color-picker';
+
 import { DocCodeComponent } from '../doc-code/doc-code';
 
 import type { ShikiLang } from '#core/shiki';
@@ -47,7 +49,7 @@ import type { DocControl, DocSliderControl } from './types';
   templateUrl: './doc-playground.html',
   styleUrl: './doc-playground.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DocCodeComponent],
+  imports: [DocCodeComponent, WrColorPickerTrigger],
 })
 export class DocPlaygroundComponent {
   /** Source code snippet shown beneath the preview. Pass `''` to omit. */
@@ -72,7 +74,7 @@ export class DocPlaygroundComponent {
   // discriminates by kind, and each branch only touches the right shape.
 
   protected setStr(c: DocControl, v: string): void {
-    if (c.kind === 'select' || c.kind === 'text') c.signal.set(v);
+    if (c.kind === 'select' || c.kind === 'text' || c.kind === 'color') c.signal.set(v);
   }
 
   protected setNum(c: DocControl, v: number): void {

@@ -29,7 +29,7 @@ import {
 })
 export default class ClickSparkPage {
   // ── Live demo state ─────────────────────────────────────────────
-  protected readonly sparkColor = signal('#fff');
+  protected readonly sparkColor = signal('#ffffff');
   protected readonly sparkCount = signal(8);
   protected readonly sparkRadius = signal(15);
   protected readonly sparkSize = signal(10);
@@ -56,7 +56,7 @@ export default class ClickSparkPage {
     { kind: 'slider', label: 'Spark Size (px)', signal: this.sparkSize, min: 2, max: 30, step: 1, unit: 'px' },
     { kind: 'slider', label: 'Duration (ms)', signal: this.duration, min: 100, max: 1500, step: 50, unit: 'ms' },
     { kind: 'select', label: 'Easing', signal: this.easing, options: ['linear', 'ease-in', 'ease-out', 'ease-in-out'] as const },
-    { kind: 'text', label: 'Color', signal: this.sparkColor, placeholder: 'CSS colour' },
+    { kind: 'color', label: 'Color', signal: this.sparkColor },
   ];
 
   protected readonly snippets = {

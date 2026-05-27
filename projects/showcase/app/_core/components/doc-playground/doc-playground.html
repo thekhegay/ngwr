@@ -76,6 +76,21 @@
               (input)="setStr(ctrl, $any($event.target).value)"
             />
           }
+
+          @case ('color') {
+            <button
+              type="button"
+              class="chip__color"
+              [value]="ctrl.signal()"
+              (valueChange)="setStr(ctrl, $event)"
+              [alpha]="ctrl.alpha ?? true"
+              [swatches]="ctrl.swatches ?? []"
+              wrColorPickerTrigger
+            >
+              <span class="chip__color-swatch" [style.background]="ctrl.signal()"></span>
+              <span class="chip__color-value">{{ ctrl.signal() }}</span>
+            </button>
+          }
         }
       </div>
     }

@@ -87,15 +87,15 @@
   gap: 0.75rem;
   min-height: 2.75rem;
   padding: 0.625rem 0.875rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--wr-color-light);
   border-radius: 0.5rem;
-  background: #1a1a1a;
-  color: rgba(255, 255, 255, 0.92);
+  background: rgba(var(--wr-color-light-rgb), 0.2);
+  color: var(--wr-color-dark);
   font-size: 0.8125rem;
 
   &__label {
     flex: 0 0 auto;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(var(--wr-color-dark-rgb), 0.6);
     white-space: nowrap;
   }
 
@@ -132,7 +132,7 @@
     background-repeat: no-repeat;
 
     option {
-      color: #1a1a1a;
+      color: var(--wr-color-dark);
     }
   }
 
@@ -146,7 +146,7 @@
     min-width: 0;
     height: 0.25rem;
     appearance: none;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(var(--wr-color-dark-rgb), 0.15);
     border-radius: 999px;
     cursor: pointer;
 
@@ -155,7 +155,7 @@
       width: 0.875rem;
       height: 0.875rem;
       border-radius: 50%;
-      background: var(--wr-color-white);
+      background: var(--wr-color-dark);
       border: 0;
       cursor: pointer;
     }
@@ -164,7 +164,7 @@
       width: 0.875rem;
       height: 0.875rem;
       border-radius: 50%;
-      background: var(--wr-color-white);
+      background: var(--wr-color-dark);
       border: 0;
       cursor: pointer;
     }
@@ -179,7 +179,7 @@
     flex: 0 0 auto;
     min-width: 2.5rem;
     text-align: right;
-    color: rgba(255, 255, 255, 0.92);
+    color: var(--wr-color-dark);
     font-variant-numeric: tabular-nums;
   }
 
@@ -192,7 +192,7 @@
     padding: 0;
     border: 0;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(var(--wr-color-dark-rgb), 0.2);
     cursor: pointer;
     transition: background 0.15s ease;
 
@@ -219,5 +219,56 @@
     .chip__toggle--on & {
       transform: translateX(1rem);
     }
+  }
+
+  // ── Color picker trigger ─────────────────────────────────────────
+  &__color {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--wr-color-light);
+    border-radius: 0.375rem;
+    background: var(--wr-color-white);
+    color: inherit;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+
+    &:hover {
+      border-color: rgba(var(--wr-color-dark-rgb), 0.3);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__color-swatch {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(var(--wr-color-dark-rgb), 0.15);
+    // Checkerboard for translucent colours.
+    background-image:
+      linear-gradient(45deg, rgba(0, 0, 0, 0.08) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(0, 0, 0, 0.08) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.08) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.08) 75%);
+    background-size: 0.5rem 0.5rem;
+    background-position:
+      0 0,
+      0 0.25rem,
+      0.25rem -0.25rem,
+      -0.25rem 0;
+  }
+
+  &__color-value {
+    text-transform: uppercase;
+    font-size: 0.75rem;
   }
 }
