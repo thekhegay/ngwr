@@ -7,13 +7,32 @@
  * Angular adaptation of the CircularText effect by David Haz / reactbits.dev.
  * Original: https://www.reactbits.dev/text-animations/circular-text
  *
- * The reactbits version uses `motion/react`. This port is pure CSS — a
- * keyframe rotates the whole host; hover swaps the animation duration
- * (or pauses it / scales the host) per `[onHover]` mode.
+ * Reactbits drives the rotation with `motion/react`, which lets the spin
+ * angle persist across speed changes. CSS keyframes can't do that — when
+ * `animation-duration` changes mid-flight, the browser recomputes the
+ * progress as `(elapsed % newDuration) / newDuration`, which visibly
+ * jumps the rotation. So this port drives the rotation through the
+ * Web Animations API and preserves the current angle when hover swaps
+ * the duration. Bonkers `scale` is still CSS-driven (no conflict — the
+ * rotation lives on an inner wrapper).
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  PLATFORM_ID,
+  ViewChild,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 
 export type WrCircularTextHover = 'speedUp' | 'slowDown' | 'pause' | 'goBonkers' | null;
 
@@ -28,9 +47,9 @@ interface Char {
 }
 
 /**
- * Text laid out around a circle, with the whole circle spinning on a
- * keyframe. Hover behaviour swaps the spin rate (or pauses) without
- * resetting the rotation angle.
+ * Text laid out around a circle, with the whole circle spinning. Hover
+ * behaviour swaps the spin rate (or pauses it) — the current rotation
+ * angle is preserved across the swap so there's no visible jump.
  *
  * @example
  * ```html
@@ -48,11 +67,7 @@ interface Char {
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-circular-text',
-    '[class.wr-circular-text--speed-up]': "onHover() === 'speedUp'",
-    '[class.wr-circular-text--slow-down]': "onHover() === 'slowDown'",
-    '[class.wr-circular-text--pause]': "onHover() === 'pause'",
     '[class.wr-circular-text--bonkers]': "onHover() === 'goBonkers'",
-    '[style.--wr-circular-text-duration]': "spinDuration() + 's'",
   },
 })
 export class WrCircularText {
@@ -71,11 +86,108 @@ export class WrCircularText {
     if (len === 0) return [];
     return letters.map((ch, i) => {
       const rotation = (360 / len) * i;
-      // Rotate around the host's centre, then push each char outward by
-      // the orbit radius (set via CSS var). All chars end up on a circle
-      // of constant radius — not a diagonal line.
+      // Rotate around the spinner's centre, then push each char outward
+      // by the orbit radius (set via CSS var). All chars end up on a
+      // circle of constant radius — not a diagonal line.
       const transform = `rotate(${rotation}deg) translateY(calc(-1 * var(--wr-circular-text-radius)))`;
       return { ch, transform };
     });
   });
+
+  @ViewChild('spin', { static: true }) private readonly spinEl!: ElementRef<HTMLElement>;
+
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private rotation: Animation | null = null;
+  private hovered = false;
+
+  /** Active spin duration in seconds — base, or hover-modified. */
+  private effectiveDuration(): number | 'pause' {
+    const base = this.spinDuration();
+    if (!this.hovered) return base;
+    switch (this.onHover()) {
+      case 'speedUp':
+        return base / 4;
+      case 'slowDown':
+        return base * 2;
+      case 'pause':
+        return 'pause';
+      case 'goBonkers':
+        return base / 20;
+      default:
+        return base;
+    }
+  }
+
+  constructor() {
+    if (!this.isBrowser) return;
+
+    afterNextRender(() => {
+      this.startOrSwap();
+
+      const host = this.spinEl.nativeElement.parentElement!;
+      const onEnter = (): void => {
+        this.hovered = true;
+        this.startOrSwap();
+      };
+      const onLeave = (): void => {
+        this.hovered = false;
+        this.startOrSwap();
+      };
+      host.addEventListener('mouseenter', onEnter);
+      host.addEventListener('mouseleave', onLeave);
+      this.destroyRef.onDestroy(() => {
+        host.removeEventListener('mouseenter', onEnter);
+        host.removeEventListener('mouseleave', onLeave);
+        this.rotation?.cancel();
+      });
+    });
+
+    // React to input changes (spinDuration, onHover) without losing angle.
+    effect(() => {
+      this.spinDuration();
+      this.onHover();
+      queueMicrotask(() => this.startOrSwap());
+    });
+  }
+
+  /**
+   * Start the rotation, or swap its duration while preserving the
+   * current angle. If the new mode is `pause`, just pause the animation.
+   */
+  private startOrSwap(): void {
+    if (!this.spinEl) return;
+    const target = this.effectiveDuration();
+
+    if (target === 'pause') {
+      this.rotation?.pause();
+      return;
+    }
+
+    const newDurMs = Math.max(1, target * 1000);
+
+    // First start — no previous animation to preserve.
+    if (!this.rotation) {
+      this.rotation = this.spinEl.nativeElement.animate(
+        [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
+        { duration: newDurMs, iterations: Infinity, easing: 'linear' },
+      );
+      return;
+    }
+
+    // Compute the current angle (0..1 of a full turn) under the old
+    // timing, then restart with the new duration seeked to the same
+    // angle — keeps the visual continuous across speed changes.
+    const oldEffect = this.rotation.effect as KeyframeEffect | null;
+    const oldDurMs = ((oldEffect?.getTiming().duration as number) || newDurMs) || newDurMs;
+    const oldTime = (this.rotation.currentTime as number) ?? 0;
+    const ratio = ((oldTime % oldDurMs) + oldDurMs) % oldDurMs / oldDurMs;
+
+    this.rotation.cancel();
+    this.rotation = this.spinEl.nativeElement.animate(
+      [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
+      { duration: newDurMs, iterations: Infinity, easing: 'linear' },
+    );
+    this.rotation.currentTime = ratio * newDurMs;
+  }
 }

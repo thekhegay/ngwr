@@ -1,3 +1,5 @@
-@for (c of chars(); track $index) {
-  <span class="wr-circular-text__char" [style.transform]="c.transform">{{ c.ch }}</span>
-}
+<span class="wr-circular-text__spin" #spin>
+  @for (c of chars(); track $index) {
+    <span class="wr-circular-text__char" [style.transform]="c.transform">{{ c.ch }}</span>
+  }
+</span>

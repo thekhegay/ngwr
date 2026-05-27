@@ -1,11 +1,11 @@
 // Circular text (reactbits port). Each char is absolutely positioned at
-// the host's centre, then transformed `rotate() translateY(-radius)` so
-// it lands on the perimeter of a circle of constant radius. The host
-// itself spins via a keyframe; hover modes tweak the duration / pause /
-// scale of that spin.
+// the spinner's centre, then transformed `rotate() translateY(-radius)`
+// so it lands on the perimeter of a circle of constant radius. The host
+// itself is static; the inner `__spin` element drives the rotation via
+// the Web Animations API (see component for the why). Hover-mode `scale`
+// lives on the host so it never fights the rotation.
 
 .wr-circular-text {
-  --wr-circular-text-duration: 20s;
   --wr-circular-text-size: 12rem;
   --wr-circular-text-radius: calc(var(--wr-circular-text-size) / 2);
 
@@ -17,48 +17,29 @@
   font-weight: 700;
   text-align: center;
   user-select: none;
-  animation: wr-circular-text-spin var(--wr-circular-text-duration) linear infinite;
   transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+
+  &__spin {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
 
   &__char {
     position: absolute;
     top: 50%;
     left: 50%;
     display: inline-block;
-    // Pre-shift by -50% so the char's centre sits at the host centre
+    // Pre-shift by -50% so the char's centre sits at the spinner centre
     // before the per-char `rotate translateY(-radius)` runs.
     margin-left: -0.5em;
     margin-top: -0.5em;
     line-height: 1;
   }
 
-  // Speed up on hover — shorter duration.
-  &--speed-up:hover {
-    animation-duration: calc(var(--wr-circular-text-duration) / 4);
-  }
-
-  // Slow down on hover — longer duration.
-  &--slow-down:hover {
-    animation-duration: calc(var(--wr-circular-text-duration) * 2);
-  }
-
-  // Pause on hover.
-  &--pause:hover {
-    animation-play-state: paused;
-  }
-
-  // Bonkers — very fast + scale down.
+  // Bonkers — scale the whole host on hover (rotation lives on inner,
+  // so the transforms never fight each other).
   &--bonkers:hover {
-    animation-duration: calc(var(--wr-circular-text-duration) / 20);
     transform: scale(0.8);
-  }
-}
-
-@keyframes wr-circular-text-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
   }
 }
