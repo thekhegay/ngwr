@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrRotatingText } from 'ngwr/rotating-text';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,40 +21,44 @@ import {
     WrRotatingText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class RotatingTextPage {
-  @ViewChild('manual') protected manual?: WrRotatingText;
+  protected readonly texts = signal<readonly string[]>(['design', 'ship', 'iterate']);
 
-  protected next(): void {
-    this.manual?.next();
-  }
-  protected previous(): void {
-    this.manual?.previous();
-  }
-  protected reset(): void {
-    this.manual?.reset();
-  }
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly rotationInterval = signal(2000);
+  protected readonly splitBy = signal<'characters' | 'words' | 'lines'>('characters');
+  protected readonly staggerDuration = signal(0);
+  protected readonly staggerFrom = signal<'first' | 'last' | 'center'>('first');
+  protected readonly loop = signal(true);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-rotating-text
+  [texts]="['design', 'ship', 'iterate']"
+  [rotationInterval]="${this.rotationInterval()}"
+  splitBy="${this.splitBy()}"
+  [staggerDuration]="${this.staggerDuration()}"
+  staggerFrom="${this.staggerFrom()}"
+  [loop]="${this.loop()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Interval (ms)', signal: this.rotationInterval, min: 500, max: 6000, step: 100, unit: 'ms' },
+    { kind: 'select', label: 'Split By', signal: this.splitBy, options: ['characters', 'words', 'lines'] as const },
+    { kind: 'slider', label: 'Stagger (s)', signal: this.staggerDuration, min: 0, max: 0.2, step: 0.01, precision: 2, unit: 's' },
+    { kind: 'select', label: 'Stagger From', signal: this.staggerFrom, options: ['first', 'last', 'center'] as const },
+    { kind: 'toggle', label: 'Loop', signal: this.loop },
+  ];
 
   protected readonly snippets = {
     install: `import { WrRotatingText } from 'ngwr/rotating-text';`,
-    basic: `<wr-rotating-text [texts]="['design', 'ship', 'iterate']" />`,
-    stagger: `<wr-rotating-text
-  [texts]="['React', 'Vue', 'Angular', 'Svelte']"
-  [rotationInterval]="2500"
-  [staggerDuration]="0.04"
-  staggerFrom="center"
-/>`,
-    manual: `<wr-rotating-text
-  #rotator
-  [texts]="['one', 'two', 'three']"
-  [auto]="false"
-/>
-<button (click)="rotator.next()">Next</button>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
