@@ -20,6 +20,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Table', url: ['/components', 'table'] },
       { title: 'Tree', url: ['/components', 'tree'] },
       { title: 'Virtual Scroll', url: ['/components', 'virtual-scroll'] },
+      { title: 'Drag & Drop', url: ['/components', 'drag-drop'] },
     ],
   },
   {

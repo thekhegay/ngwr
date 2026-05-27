@@ -125,7 +125,7 @@ export class AppComponent {
 
 **Layout** — [carousel](https://ngwr.dev/components/carousel), [collapse](https://ngwr.dev/components/collapse), [compare](https://ngwr.dev/components/compare), [layout](https://ngwr.dev/components/layout), [splitter](https://ngwr.dev/components/splitter).
 
-**Data** — [charts](https://ngwr.dev/components/charts) (bar / line / donut / gauge / calendar-heatmap / sparkline), [image-cropper](https://ngwr.dev/components/image-cropper), [table](https://ngwr.dev/components/table).
+**Data** — [charts](https://ngwr.dev/components/charts) (bar / line / donut / gauge / calendar-heatmap / sparkline), [drag-drop](https://ngwr.dev/components/drag-drop), [image-cropper](https://ngwr.dev/components/image-cropper), [table](https://ngwr.dev/components/table), [virtual-scroll](https://ngwr.dev/components/virtual-scroll).
 
 ### Animations
 

@@ -1,0 +1,48 @@
+<ngwr-doc-page
+  title="Drag & Drop"
+  description="`<wr-sortable-list>` wraps CDK's `cdkDropList` + `cdkDrag` with a signal-based two-way `[(items)]` binding. Includes the `[wrDragHandle]` helper and themed `.cdk-drag-preview` / `.cdk-drag-placeholder` defaults."
+  [keywords]="['drag-drop', 'sortable', 'wr-sortable-list', 'wrDragHandle', 'cdk-drag', 'reorder']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic — drag the row">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
+        <wr-sortable-list [(items)]="tasks" (reorder)="onReorder($event)">
+          <ng-template let-task let-i="index">
+            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid var(--wr-color-light); border-radius: 0.5rem; background: var(--wr-color-white); margin-bottom: 0.5rem">
+              <span style="color: rgba(0,0,0,0.4); font-variant-numeric: tabular-nums; min-width: 1.5rem">#{{ i + 1 }}</span>
+              <span>{{ task.label }}</span>
+            </div>
+          </ng-template>
+        </wr-sortable-list>
+        <p style="margin: 0; color: rgba(0,0,0,0.6); font-size: 0.875rem">Last reorder: {{ lastReorder() }}</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With drag handle">
+    <ngwr-doc-code [code]="snippets.handle" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
+        <wr-sortable-list [(items)]="tasks">
+          <ng-template let-task>
+            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid var(--wr-color-light); border-radius: 0.5rem; background: var(--wr-color-white); margin-bottom: 0.5rem; cursor: default">
+              <span wrDragHandle style="font-size: 1.25rem; line-height: 1; padding: 0 0.25rem">≡</span>
+              <span>{{ task.label }}</span>
+            </div>
+          </ng-template>
+        </wr-sortable-list>
+        <p style="margin: 0; color: rgba(0,0,0,0.6); font-size: 0.875rem">Only the ≡ handle starts a drag — clicking the row text does nothing.</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

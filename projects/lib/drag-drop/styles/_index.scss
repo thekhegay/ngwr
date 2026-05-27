@@ -1,0 +1,89 @@
+// Drag-to-reorder list. Visual chrome lives here; the layout + drop
+// mechanics come from CDK's `cdkDropList` / `cdkDrag` directives.
+//
+// CDK adds these classes during a drag:
+//   .cdk-drag-preview     — floating preview that follows the cursor
+//   .cdk-drag-placeholder — empty slot left at the source position
+//   .cdk-drag-animating   — in the post-drop settle animation
+// We theme them so the default look matches the rest of the lib; apps
+// can override `.cdk-drag-preview` etc. per drop list.
+
+.wr-sortable-list {
+  display: block;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__item {
+    cursor: grab;
+    user-select: none;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+
+    &.cdk-drag-disabled {
+      cursor: default;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+// Horizontal orientation — the @for stays the same; CDK swaps the
+// pointer-position math when `cdkDropListOrientation="horizontal"`.
+.wr-sortable-list[orientation='horizontal'] .wr-sortable-list__list,
+.wr-sortable-list[data-orientation='horizontal'] .wr-sortable-list__list {
+  flex-direction: row;
+}
+
+// Drag handle — restricts grab cursor to the handle (the row itself
+// stays interactive for clicks / inputs).
+.wr-drag-handle {
+  cursor: grab;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(var(--wr-color-dark-rgb), 0.45);
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--wr-color-dark);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// ── CDK overlays applied by drag-drop ────────────────────────────────
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: var(--wr-border-radius-base);
+  background: var(--wr-color-white);
+  box-shadow:
+    0 8px 20px rgba(var(--wr-color-dark-rgb), 0.14),
+    0 2px 4px rgba(var(--wr-color-dark-rgb), 0.06);
+  color: var(--wr-color-dark);
+  font-family: var(--wr-font-family-base);
+  // CDK sets pointer-events to none on the preview; we keep visuals only.
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.35;
+  // Subtle dashed outline so users see where the item came from.
+  background: rgba(var(--wr-color-light-rgb), 0.6);
+  border-radius: var(--wr-border-radius-base);
+  outline: 1px dashed rgba(var(--wr-color-dark-rgb), 0.25);
+  outline-offset: -1px;
+}
+
+.cdk-drag-animating {
+  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+
+.wr-sortable-list__list.cdk-drop-list-dragging .wr-sortable-list__item:not(.cdk-drag-placeholder) {
+  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}

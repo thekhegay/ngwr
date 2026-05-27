@@ -247,6 +247,10 @@ export default [
     loadComponent: () => import('./virtual-scroll/virtual-scroll'),
   },
   {
+    path: components.dragDrop,
+    loadComponent: () => import('./drag-drop/drag-drop'),
+  },
+  {
     path: components.tabs,
     loadComponent: () => import('./tabs/tabs'),
   },

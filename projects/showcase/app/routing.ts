@@ -95,6 +95,7 @@ export const routes = {
     pagination: 'pagination',
     table: 'table',
     virtualScroll: 'virtual-scroll',
+    dragDrop: 'drag-drop',
     window: 'window',
   },
   directives: {

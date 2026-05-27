@@ -1,0 +1,18 @@
+<div
+  cdkDropList
+  class="wr-sortable-list__list"
+  [cdkDropListOrientation]="orientation()"
+  [cdkDropListDisabled]="disabled()"
+  (cdkDropListDropped)="onDrop($event)"
+>
+  @for (item of items(); track trackBy()($index, item); let i = $index) {
+    <div
+      cdkDrag
+      class="wr-sortable-list__item"
+      [cdkDragDisabled]="disabled()"
+      [cdkDragLockAxis]="lockAxis() ?? null"
+    >
+      <ng-container *ngTemplateOutlet="rowTemplate(); context: { $implicit: item, index: i }" />
+    </div>
+  }
+</div>
