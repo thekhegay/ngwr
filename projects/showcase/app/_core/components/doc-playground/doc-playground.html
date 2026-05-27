@@ -1,0 +1,83 @@
+<div class="card">
+  <div class="preview">
+    <ng-content />
+    @if (showReplay()) {
+      <button
+        class="replay"
+        type="button"
+        (click)="onReplayClick()"
+        aria-label="Replay animation"
+        title="Replay"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 3-6.7" />
+          <polyline points="3 3 3 9 9 9" />
+        </svg>
+      </button>
+    }
+  </div>
+  @if (code()) {
+    <ngwr-doc-code class="code" [code]="code()" [language]="language()" />
+  }
+</div>
+
+@if (hasControls()) {
+  <h4 class="customize-title">Customize</h4>
+  <div class="controls">
+    @for (ctrl of controls(); track ctrl.label) {
+      <div class="chip" [attr.data-kind]="ctrl.kind">
+        <span class="chip__label">{{ ctrl.label }}</span>
+
+        @switch (ctrl.kind) {
+          @case ('select') {
+            <select
+              class="chip__select"
+              [value]="ctrl.signal()"
+              (change)="setStr(ctrl, $any($event.target).value)"
+            >
+              @for (opt of ctrl.options; track opt) {
+                <option [value]="opt">{{ opt }}</option>
+              }
+            </select>
+          }
+
+          @case ('slider') {
+            <input
+              type="range"
+              class="chip__slider"
+              [value]="ctrl.signal()"
+              [min]="ctrl.min"
+              [max]="ctrl.max"
+              [step]="ctrl.step ?? (ctrl.precision ? 0.1 : 1)"
+              (input)="setNum(ctrl, $any($event.target).valueAsNumber)"
+            />
+            <span class="chip__value">{{ display(ctrl) }}</span>
+          }
+
+          @case ('toggle') {
+            <button
+              type="button"
+              class="chip__toggle"
+              [class.chip__toggle--on]="ctrl.signal()"
+              (click)="toggle(ctrl)"
+              role="switch"
+              [attr.aria-checked]="ctrl.signal()"
+            >
+              <span class="chip__toggle-thumb"></span>
+            </button>
+          }
+
+          @case ('text') {
+            <input
+              type="text"
+              class="chip__text"
+              [value]="ctrl.signal()"
+              [placeholder]="ctrl.placeholder ?? ''"
+              (input)="setStr(ctrl, $any($event.target).value)"
+            />
+          }
+        }
+      </div>
+    }
+  </div>
+}

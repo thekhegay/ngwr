@@ -4,4 +4,12 @@ export { DocSnippetComponent } from './doc-snippet/doc-snippet';
 export { DocCodeComponent } from './doc-code/doc-code';
 export { DocApiComponent } from './doc-api/doc-api';
 export type { DocApiRow } from './doc-api/types';
+export { DocPlaygroundComponent } from './doc-playground/doc-playground';
+export type {
+  DocControl,
+  DocSelectControl,
+  DocSliderControl,
+  DocToggleControl,
+  DocTextControl,
+} from './doc-playground/types';
 export { ReactbitsCredit } from './reactbits-credit/reactbits-credit';

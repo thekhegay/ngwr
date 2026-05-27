@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrSplitText } from 'ngwr/split-text';
 
 import {
-  DocApiComponent,
   type DocApiRow,
+  type DocControl,
+  DocApiComponent,
   DocCodeComponent,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,15 +21,39 @@ import {
     WrSplitText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class SplitTextPage {
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly text = signal('Hello, ngwr!');
+  protected readonly splitType = signal<'chars' | 'words'>('chars');
+  protected readonly delay = signal(40);
+  protected readonly duration = signal(1.2);
+
   /** Replayable key — bump it to remount and re-trigger the animation. */
   protected readonly replayKey = signal(0);
+
+  /** Live snippet that reflects the current control values. */
+  protected readonly snippet = computed(
+    () =>
+      `<wr-split-text
+  text="${this.text()}"
+  splitType="${this.splitType()}"
+  [delay]="${this.delay()}"
+  [duration]="${this.duration()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'select', label: 'Split Type', signal: this.splitType, options: ['chars', 'words'] as const },
+    { kind: 'slider', label: 'Stagger Delay (ms)', signal: this.delay, min: 0, max: 200, step: 5 },
+    { kind: 'slider', label: 'Duration (s)', signal: this.duration, min: 0.2, max: 3, step: 0.1, precision: 1, unit: 's' },
+    { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text to animate' },
+  ];
 
   protected replay(): void {
     this.replayKey.update(n => n + 1);
@@ -36,25 +61,6 @@ export default class SplitTextPage {
 
   protected readonly snippets = {
     install: `import { WrSplitText } from 'ngwr/split-text';`,
-    basic: `<wr-split-text
-  text="Hello, ngwr!"
-  [delay]="40"
-  [duration]="1.2"
-/>`,
-    words: `<wr-split-text
-  text="Animate every word with a slide-and-fade."
-  splitType="words"
-  [delay]="80"
-  [from]="{ opacity: 0, y: 30 }"
-  [to]="{ opacity: 1, y: 0 }"
-/>`,
-    scale: `<wr-split-text
-  text="Scale + rotate in"
-  [from]="{ opacity: 0, scale: 0.4, rotate: -15 }"
-  [to]="{ opacity: 1, scale: 1, rotate: 0 }"
-  [duration]="0.9"
-  [delay]="30"
-/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
