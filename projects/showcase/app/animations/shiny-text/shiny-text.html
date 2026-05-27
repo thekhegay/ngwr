@@ -10,38 +10,18 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-shiny-text text="Premium" style="font-size: 2.5rem; font-weight: 700" />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Custom palette + pause">
-    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <wr-shiny-text
-        text="Custom shimmer"
-        color="#1f2937"
-        shineColor="#60a5fa"
-        [speed]="3"
-        [delay]="0.5"
-        [spread]="100"
-        style="font-size: 2.25rem; font-weight: 700"
+        [text]="text()"
+        [speed]="speed()"
+        [spread]="spread()"
+        [direction]="direction()"
+        [yoyo]="yoyo()"
+        [pauseOnHover]="pauseOnHover()"
+        style="font-size: 2.5rem; font-weight: 700"
       />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Yoyo + pause-on-hover">
-    <ngwr-doc-code [code]="snippets.yoyo" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-shiny-text
-        text="Yoyo back and forth"
-        [yoyo]="true"
-        [pauseOnHover]="true"
-        style="font-size: 2rem; font-weight: 600"
-      />
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Directive variant ([wrShimmer])">
