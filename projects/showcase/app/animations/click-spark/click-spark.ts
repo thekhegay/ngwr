@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrClickSpark } from 'ngwr/click-spark';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,29 +21,46 @@ import {
     WrClickSpark,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class ClickSparkPage {
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly sparkColor = signal('#fff');
+  protected readonly sparkCount = signal(8);
+  protected readonly sparkRadius = signal(15);
+  protected readonly sparkSize = signal(10);
+  protected readonly duration = signal(400);
+  protected readonly easing = signal<'linear' | 'ease-in' | 'ease-in-out' | 'ease-out'>('ease-out');
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-click-spark
+  sparkColor="${this.sparkColor()}"
+  [sparkCount]="${this.sparkCount()}"
+  [sparkRadius]="${this.sparkRadius()}"
+  [sparkSize]="${this.sparkSize()}"
+  [duration]="${this.duration()}"
+  easing="${this.easing()}"
+>
+  <div>Click me</div>
+</wr-click-spark>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Spark Count', signal: this.sparkCount, min: 2, max: 24, step: 1 },
+    { kind: 'slider', label: 'Spark Radius (px)', signal: this.sparkRadius, min: 5, max: 60, step: 1, unit: 'px' },
+    { kind: 'slider', label: 'Spark Size (px)', signal: this.sparkSize, min: 2, max: 30, step: 1, unit: 'px' },
+    { kind: 'slider', label: 'Duration (ms)', signal: this.duration, min: 100, max: 1500, step: 50, unit: 'ms' },
+    { kind: 'select', label: 'Easing', signal: this.easing, options: ['linear', 'ease-in', 'ease-out', 'ease-in-out'] as const },
+    { kind: 'text', label: 'Color', signal: this.sparkColor, placeholder: 'CSS colour' },
+  ];
+
   protected readonly snippets = {
     install: `import { WrClickSpark } from 'ngwr/click-spark';`,
-    basic: `<wr-click-spark>
-  <button>Click me</button>
-</wr-click-spark>`,
-    custom: `<wr-click-spark
-  sparkColor="#6366f1"
-  [sparkCount]="12"
-  [sparkRadius]="30"
-  [sparkSize]="14"
-  [duration]="600"
-  easing="ease-in-out"
-  [extraScale]="1.5"
->
-  <div>Click for a bigger burst</div>
-</wr-click-spark>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

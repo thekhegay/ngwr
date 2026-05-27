@@ -10,18 +10,22 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <wr-click-spark
+        [sparkColor]="sparkColor()"
+        [sparkCount]="sparkCount()"
+        [sparkRadius]="sparkRadius()"
+        [sparkSize]="sparkSize()"
+        [duration]="duration()"
+        [easing]="easing()"
         style="
-          display: block;
+          display: flex;
           width: 100%;
           min-height: 12rem;
           background: var(--wr-color-dark);
           color: var(--wr-color-white);
           border-radius: 0.75rem;
-          display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
@@ -30,38 +34,7 @@
       >
         Click anywhere
       </wr-click-spark>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Custom">
-    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-click-spark
-        sparkColor="#6366f1"
-        [sparkCount]="12"
-        [sparkRadius]="30"
-        [sparkSize]="14"
-        [duration]="600"
-        easing="ease-in-out"
-        [extraScale]="1.5"
-        style="
-          display: block;
-          width: 100%;
-          min-height: 12rem;
-          background: rgba(99, 102, 241, 0.08);
-          border: 1px solid rgba(99, 102, 241, 0.2);
-          color: var(--wr-color-dark);
-          border-radius: 0.75rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-weight: 600;
-        "
-      >
-        Click for a bigger burst
-      </wr-click-spark>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
