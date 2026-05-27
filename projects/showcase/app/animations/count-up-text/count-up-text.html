@@ -10,63 +10,24 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%">
-        <button
-          type="button"
-          (click)="replay()"
-          style="padding: 0.375rem 0.75rem; border: 1px solid var(--wr-color-light); border-radius: 0.375rem; background: var(--wr-color-white); cursor: pointer; font-size: 0.75rem"
-        >
-          Replay
-        </button>
-        @for (k of [replayKey()]; track k) {
-          <wr-count-up-text [to]="2025" style="font-size: 3rem; font-weight: 700; color: var(--wr-color-dark)" />
-        }
-      </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="With thousands separator">
-    <ngwr-doc-code [code]="snippets.grouped" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground
+      [code]="snippet()"
+      [controls]="controls"
+      [showReplay]="true"
+      (replay)="replay()"
+    >
       @for (k of [replayKey()]; track k) {
         <wr-count-up-text
-          [to]="1234567"
-          separator=","
-          style="font-size: 2.5rem; font-weight: 700; color: var(--wr-color-primary)"
+          [from]="from()"
+          [to]="to()"
+          [duration]="duration()"
+          [direction]="direction()"
+          [separator]="separator()"
+          style="font-size: 3rem; font-weight: 700; color: var(--wr-color-dark)"
         />
       }
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Decimals + slower duration">
-    <ngwr-doc-code [code]="snippets.decimals" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      @for (k of [replayKey()]; track k) {
-        <wr-count-up-text
-          [from]="0"
-          [to]="99.99"
-          [duration]="2.5"
-          style="font-size: 2.5rem; font-weight: 700; color: var(--wr-color-dark)"
-        />
-      }
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Count down">
-    <ngwr-doc-code [code]="snippets.down" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      @for (k of [replayKey()]; track k) {
-        <wr-count-up-text
-          [from]="0"
-          [to]="100"
-          direction="down"
-          style="font-size: 2.5rem; font-weight: 700; color: var(--wr-color-dark)"
-        />
-      }
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
