@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild, computed, signal } from '@angular/core';
 
 import {
   WrIcon,
@@ -17,9 +17,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -32,7 +33,7 @@ import {
     WrIcon,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
@@ -52,6 +53,36 @@ export default class MarqueePage {
 
   protected readonly items = signal<readonly WrMarqueeItem[]>([]);
 
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly speed = signal(120);
+  protected readonly gap = signal(48);
+  protected readonly itemHeight = signal(36);
+  protected readonly direction = signal<'left' | 'right'>('left');
+  protected readonly pauseOnHover = signal(false);
+  protected readonly fadeOut = signal(true);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-marquee
+  [items]="items"
+  [speed]="${this.speed()}"
+  [gap]="${this.gap()}"
+  [itemHeight]="${this.itemHeight()}"
+  direction="${this.direction()}"
+  [pauseOnHover]="${this.pauseOnHover()}"
+  [fadeOut]="${this.fadeOut()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Speed (px/s)', signal: this.speed, min: 10, max: 300, step: 5 },
+    { kind: 'slider', label: 'Gap (px)', signal: this.gap, min: 8, max: 96, step: 2, unit: 'px' },
+    { kind: 'slider', label: 'Item Height (px)', signal: this.itemHeight, min: 16, max: 72, step: 1, unit: 'px' },
+    { kind: 'select', label: 'Direction', signal: this.direction, options: ['left', 'right'] as const },
+    { kind: 'toggle', label: 'Pause on Hover', signal: this.pauseOnHover },
+    { kind: 'toggle', label: 'Fade Out', signal: this.fadeOut },
+  ];
+
   ngAfterViewInit(): void {
     this.items.set([
       { node: this.angularLogo, ariaLabel: 'Angular' },
@@ -66,30 +97,6 @@ export default class MarqueePage {
 
   protected readonly snippets = {
     install: `import { WrMarquee } from 'ngwr/marquee';`,
-    basic: `<wr-marquee [items]="items" />
-
-// Image variant:
-protected readonly items = [
-  { src: '/assets/angular.svg', alt: 'Angular' },
-  // …
-];
-
-// Template variant (any Angular content):
-<ng-template #npmLogo><wr-icon name="logo-npm" size="36" /></ng-template>
-protected readonly items = [
-  { node: this.npmLogo, ariaLabel: 'npm' },
-  // …
-];`,
-    custom: `<wr-marquee
-  [items]="items"
-  [speed]="60"
-  [gap]="48"
-  [itemHeight]="36"
-  direction="right"
-  [fadeOut]="true"
-  [scaleOnHover]="true"
-  [pauseOnHover]="true"
-/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

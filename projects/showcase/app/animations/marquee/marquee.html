@@ -18,28 +18,19 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-marquee [items]="items()" [itemHeight]="36" [gap]="48" [fadeOut]="true" style="width: 100%" />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Tuned: reverse, scale-on-hover, pause-on-hover">
-    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <wr-marquee
         [items]="items()"
-        [speed]="60"
-        [gap]="48"
-        [itemHeight]="36"
-        direction="right"
-        [fadeOut]="true"
-        [scaleOnHover]="true"
-        [pauseOnHover]="true"
+        [speed]="speed()"
+        [gap]="gap()"
+        [itemHeight]="itemHeight()"
+        [direction]="direction()"
+        [pauseOnHover]="pauseOnHover()"
+        [fadeOut]="fadeOut()"
         style="width: 100%"
       />
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
