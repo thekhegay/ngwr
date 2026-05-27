@@ -142,6 +142,17 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
         this.closeOverlay();
       }
     });
+
+    // Resolve the trigger label whenever the value or options change.
+    // Previously the label was only set on user click — so `writeValue`
+    // (and signal-driven `[ngModel]`) left the trigger blank until the
+    // user opened the dropdown and picked something.
+    effect(() => {
+      const v = this.value();
+      const list = this.options();
+      const match = list.find(o => o.value === v);
+      this.selectedLabel.set(match ? match.getLabel() : null);
+    });
   }
 
   // ──────── WrSelectContext ────────

@@ -12,6 +12,11 @@ export interface WrSelectOptionRegistration {
   readonly id: string;
   readonly value: unknown;
   readonly disabled: boolean;
+  /**
+   * Lazy label reader. Options render text via `<ng-content>`, so we
+   * read it at call time once Angular has settled the projected content.
+   */
+  readonly getLabel: () => string;
 }
 
 /**

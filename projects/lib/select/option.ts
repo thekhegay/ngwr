@@ -80,7 +80,12 @@ export class WrOption {
       const parent = this.parent;
       // Re-register when disabled or value changes so the parent has fresh metadata.
       effect(onCleanup => {
-        const unreg = parent.registerOption({ id: this.id, value: this.value(), disabled: this.disabled() });
+        const unreg = parent.registerOption({
+          id: this.id,
+          value: this.value(),
+          disabled: this.disabled(),
+          getLabel: () => this.host.nativeElement.textContent?.trim() ?? '',
+        });
         onCleanup(() => unreg());
       });
       inject(DestroyRef);
