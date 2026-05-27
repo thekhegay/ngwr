@@ -10,9 +10,8 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Hover (default)">
-    <ngwr-doc-code [code]="snippets.hover" language="angular-html" />
-    <ngwr-doc-snippet code="">
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <div
         style="
           padding: 2rem;
@@ -21,52 +20,18 @@
           display: flex;
           align-items: center;
           justify-content: center;
-        "
-      >
-        <wr-glitch-text text="ERROR" style="font-size: clamp(2rem, 8vw, 6rem)" />
-      </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Always-on, faster">
-    <ngwr-doc-code [code]="snippets.always" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <div
-        style="
-          padding: 2rem;
-          background: var(--wr-color-dark);
-          border-radius: 0.75rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          width: 100%;
         "
       >
         <wr-glitch-text
-          text="404"
-          [enableOnHover]="false"
-          [speed]="0.5"
-          style="font-size: clamp(3rem, 12vw, 8rem)"
+          [text]="text()"
+          [speed]="speed()"
+          [enableShadows]="enableShadows()"
+          [enableOnHover]="enableOnHover()"
+          style="font-size: clamp(2rem, 8vw, 6rem)"
         />
       </div>
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="No shadows (monochrome)">
-    <ngwr-doc-code [code]="snippets.noShadows" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <div
-        style="
-          padding: 2rem;
-          background: var(--wr-color-dark);
-          border-radius: 0.75rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        "
-      >
-        <wr-glitch-text text="MONO GLITCH" [enableShadows]="false" style="font-size: clamp(1.5rem, 6vw, 4rem)" />
-      </div>
-    </ngwr-doc-snippet>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
