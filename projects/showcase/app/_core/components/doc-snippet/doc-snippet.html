@@ -1,4 +1,4 @@
-<div class="demo">
+<div class="demo" [class.demo--no-code]="!hasCode()">
   <ng-content />
 </div>
-<ngwr-doc-code class="code" [code]="code()" [language]="language()" />
+<ngwr-doc-code class="code" [code]="code()" [language]="language()" [files]="files()" />

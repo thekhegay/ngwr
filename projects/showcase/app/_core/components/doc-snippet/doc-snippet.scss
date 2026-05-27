@@ -17,6 +17,11 @@
   &:empty {
     display: none;
   }
+
+  // No source block underneath — drop the divider.
+  &--no-code {
+    border-bottom: 0;
+  }
 }
 
 .code {

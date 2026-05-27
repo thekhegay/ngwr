@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { WrColorPickerTrigger } from 'ngwr/color-picker';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
+import type { DocCodeFile } from '../doc-code/types';
 
 import type { ShikiLang } from '#core/shiki';
 import type { DocControl, DocSliderControl } from './types';
@@ -52,11 +53,20 @@ import type { DocControl, DocSliderControl } from './types';
   imports: [DocCodeComponent, WrColorPickerTrigger],
 })
 export class DocPlaygroundComponent {
-  /** Source code snippet shown beneath the preview. Pass `''` to omit. */
+  /** Single source snippet shown beneath the preview. Pass `''` to omit. */
   readonly code = input<string>('');
 
-  /** Shiki language for the snippet. @default 'html' */
+  /** Shiki language for the single-file snippet. @default 'html' */
   readonly language = input<ShikiLang>('html');
+
+  /** Multi-file source — rendered with a tab strip when set. */
+  readonly files = input<readonly DocCodeFile[] | null>(null);
+
+  protected readonly hasCode = computed(() => {
+    const fs = this.files();
+    if (fs && fs.some(f => f.code.trim().length > 0)) return true;
+    return this.code().trim().length > 0;
+  });
 
   /** Customise-panel controls. Empty array hides the panel. */
   readonly controls = input<readonly DocControl[]>([]);

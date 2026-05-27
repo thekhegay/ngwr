@@ -1,9 +1,28 @@
-@if (lastHtml(); as html) {
-  <div class="html" [innerHTML]="html"></div>
-} @else {
-  <pre class="fallback"><code>{{ normalized() }}</code></pre>
-}
+@if (tabs().length > 0) {
+  @if (tabs().length > 1) {
+    <div class="tabs" role="tablist">
+      @for (t of tabs(); track t.label; let i = $index) {
+        <button
+          type="button"
+          class="tabs__btn"
+          role="tab"
+          [class.tabs__btn--active]="i === activeIndex()"
+          [attr.aria-selected]="i === activeIndex()"
+          (click)="select(i)"
+        >
+          {{ t.label }}
+        </button>
+      }
+    </div>
+  }
 
-<button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
-  {{ copied() ? 'Copied' : 'Copy' }}
-</button>
+  @if (lastHtml(); as html) {
+    <div class="html" [innerHTML]="html"></div>
+  } @else {
+    <pre class="fallback"><code>{{ normalized() }}</code></pre>
+  }
+
+  <button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
+    {{ copied() ? 'Copied' : 'Copy' }}
+  </button>
+}

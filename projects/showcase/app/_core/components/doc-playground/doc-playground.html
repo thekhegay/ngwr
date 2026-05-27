@@ -16,8 +16,8 @@
       </button>
     }
   </div>
-  @if (code()) {
-    <ngwr-doc-code class="code" [code]="code()" [language]="language()" />
+  @if (hasCode()) {
+    <ngwr-doc-code class="code" [code]="code()" [language]="language()" [files]="files()" />
   }
 </div>
 
