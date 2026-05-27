@@ -1,9 +1,19 @@
 <ngwr-doc-page
   title="Marquee"
-  description="Endless horizontal scroller. Project any content as children — the component duplicates it under the hood for seamless looping."
-  [keywords]="['marquee', 'wr-marquee', 'animation']"
+  description="Endless rAF-driven horizontal carousel. Pass items as image sources or Angular templates; the track auto-duplicates to cover the container. Optional edge fades, pause/scale-on-hover, custom hover speed."
+  [keywords]="['marquee', 'wr-marquee', 'logo-loop', 'carousel', 'animation', 'reactbits']"
   [labels]="['Animation']"
 >
+  <ngwr-reactbits-credit slug="logo-loop" category="animations" />
+
+  <ng-template #angularLogo><wr-icon name="logo-angular" size="36" /></ng-template>
+  <ng-template #chromeLogo><wr-icon name="logo-chrome" size="36" /></ng-template>
+  <ng-template #firebaseLogo><wr-icon name="logo-firebase" size="36" /></ng-template>
+  <ng-template #githubLogo><wr-icon name="logo-github" size="36" /></ng-template>
+  <ng-template #gitlabLogo><wr-icon name="logo-gitlab" size="36" /></ng-template>
+  <ng-template #npmLogo><wr-icon name="logo-npm" size="36" /></ng-template>
+  <ng-template #telegramLogo><wr-icon name="logo-telegram" size="36" /></ng-template>
+
   <ngwr-doc-section title="Import">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
@@ -11,12 +21,24 @@
   <ngwr-doc-section title="Basic">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-marquee style="width: 100%">
-        <span style="padding: 0 1rem">One · </span>
-        <span style="padding: 0 1rem">Two · </span>
-        <span style="padding: 0 1rem">Three · </span>
-        <span style="padding: 0 1rem">Four · </span>
-      </wr-marquee>
+      <wr-marquee [items]="items()" [itemHeight]="36" [gap]="48" [fadeOut]="true" style="width: 100%" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tuned: reverse, scale-on-hover, pause-on-hover">
+    <ngwr-doc-code [code]="snippets.custom" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-marquee
+        [items]="items()"
+        [speed]="60"
+        [gap]="48"
+        [itemHeight]="36"
+        direction="right"
+        [fadeOut]="true"
+        [scaleOnHover]="true"
+        [pauseOnHover]="true"
+        style="width: 100%"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

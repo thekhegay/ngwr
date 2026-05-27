@@ -1,10 +1,46 @@
-<div class="wr-marquee__track" [style.gap]="gapStyle()">
-  <div class="wr-marquee__group" [style.gap]="gapStyle()">
-    <ng-content />
-  </div>
-  <!-- Duplicate for seamless loop — projected nodes can't be re-rendered
-       so authors should keep the content small enough to be cheap. -->
-  <div class="wr-marquee__group" aria-hidden="true" [style.gap]="gapStyle()">
-    <ng-content />
-  </div>
+<div class="wr-marquee__track" #track (mouseenter)="onEnter()" (mouseleave)="onLeave()">
+  @for (copyIndex of copyIndices(); track copyIndex) {
+    <ul class="wr-marquee__list" role="list" [attr.aria-hidden]="copyIndex > 0" [attr.data-copy]="copyIndex">
+      @for (item of items(); track $index) {
+        <li class="wr-marquee__item" role="listitem">
+          @if (item.href) {
+            <a
+              class="wr-marquee__link"
+              [href]="item.href"
+              [attr.aria-label]="
+                isNodeItem(item) ? (item.ariaLabel || item.title || 'link') : (item.alt || item.title || 'link')
+              "
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <ng-container *ngTemplateOutlet="content; context: { $implicit: item }"></ng-container>
+            </a>
+          } @else {
+            <ng-container *ngTemplateOutlet="content; context: { $implicit: item }"></ng-container>
+          }
+        </li>
+      }
+    </ul>
+  }
 </div>
+
+<ng-template #content let-item>
+  @if (isNodeItem(item)) {
+    <span class="wr-marquee__node" [attr.aria-hidden]="!!item.href && !item.ariaLabel">
+      <ng-container *ngTemplateOutlet="item.node"></ng-container>
+    </span>
+  } @else {
+    <img
+      [src]="item.src"
+      [srcset]="item.srcSet || null"
+      [sizes]="item.sizes || null"
+      [width]="item.width || null"
+      [height]="item.height || null"
+      [alt]="item.alt || ''"
+      [title]="item.title || null"
+      loading="lazy"
+      decoding="async"
+      draggable="false"
+    />
+  }
+</ng-template>

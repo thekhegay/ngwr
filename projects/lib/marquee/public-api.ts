@@ -1,1 +1,1 @@
-export { WrMarquee, type WrMarqueeDirection } from './marquee';
+export { WrMarquee, type WrMarqueeItem, type WrMarqueeImage, type WrMarqueeNode } from './marquee';

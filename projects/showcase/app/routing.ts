@@ -118,7 +118,6 @@ export const routes = {
     tilt: 'tilt',
     // Reactbits ports (built in follow-up commits)
     spotlightCard: 'spotlight-card',
-    logoLoop: 'logo-loop',
     clickSpark: 'click-spark',
     splitText: 'split-text',
     blurText: 'blur-text',

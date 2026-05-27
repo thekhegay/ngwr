@@ -1,72 +1,138 @@
-@use '../../theme/styles' as theme;
+// Endless marquee (reactbits LogoLoop port).
+// Vars driven from component inputs:
+//   --wr-marquee-gap         gap between items (px)
+//   --wr-marquee-height      item height (px)
+//   --wr-marquee-fade-color  edge fade colour (falls back to page bg)
 
 .wr-marquee {
+  --wr-marquee-gap: 32px;
+  --wr-marquee-height: 28px;
+  // Default to the lib's surface colour; consumers can override via
+  // `[fadeOutColor]` or by setting `--wr-marquee-fade-color` directly.
+  --wr-marquee-fade-color-auto: var(--wr-color-white, #ffffff);
+
+  position: relative;
   display: block;
+  width: 100%;
   overflow: hidden;
-  font-family: var(--wr-font-family-base);
+
+  &--scale-hover {
+    padding-top: calc(var(--wr-marquee-height) * 0.1);
+    padding-bottom: calc(var(--wr-marquee-height) * 0.1);
+  }
 
   &__track {
     display: flex;
     width: max-content;
+    will-change: transform;
+    user-select: none;
+    position: relative;
+    z-index: 0;
   }
 
-  &__group {
+  &__list {
     display: flex;
-    flex-shrink: 0;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  &--left &__track {
-    animation: wr-marquee-x var(--wr-marquee-duration, 20s) linear infinite;
+  &__item {
+    flex: 0 0 auto;
+    margin-right: var(--wr-marquee-gap);
+    font-size: var(--wr-marquee-height);
+    line-height: 1;
   }
 
-  &--right &__track {
-    animation: wr-marquee-x var(--wr-marquee-duration, 20s) linear infinite reverse;
+  &__item:last-child {
+    margin-right: var(--wr-marquee-gap);
   }
 
-  &--up,
-  &--down {
-    height: 100%;
+  &__node {
+    display: inline-flex;
+    align-items: center;
   }
 
-  &--up &__track,
-  &--down &__track {
-    flex-direction: column;
+  &__item img {
+    height: var(--wr-marquee-height);
     width: auto;
-    height: max-content;
+    display: block;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    -webkit-user-drag: none;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  &--up &__group,
-  &--down &__group {
-    flex-direction: column;
+  &--scale-hover &__item {
+    overflow: visible;
   }
 
-  &--up &__track {
-    animation: wr-marquee-y var(--wr-marquee-duration, 20s) linear infinite;
+  &--scale-hover &__item:hover img,
+  &--scale-hover &__item:hover &__node {
+    transform: scale(1.2);
+    transform-origin: center center;
   }
 
-  &--down &__track {
-    animation: wr-marquee-y var(--wr-marquee-duration, 20s) linear infinite reverse;
+  &--scale-hover &__node {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  &--pause-on-hover:hover &__track {
-    animation-play-state: paused;
-  }
-}
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: opacity 0.2s ease;
 
-@keyframes wr-marquee-x {
-  to {
-    transform: translateX(calc(-50% - var(--wr-marquee-half-gap, 0px)));
-  }
-}
+    &:hover {
+      opacity: 0.8;
+    }
 
-@keyframes wr-marquee-y {
-  to {
-    transform: translateY(calc(-50% - var(--wr-marquee-half-gap, 0px)));
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .wr-marquee__track {
-    animation: none !important;
+  &--fade::before,
+  &--fade::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: clamp(24px, 8%, 120px);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  &--fade::before {
+    left: 0;
+    background: linear-gradient(
+      to right,
+      var(--wr-marquee-fade-color, var(--wr-marquee-fade-color-auto)) 0%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+  &--fade::after {
+    right: 0;
+    background: linear-gradient(
+      to left,
+      var(--wr-marquee-fade-color, var(--wr-marquee-fade-color-auto)) 0%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wr-marquee__track {
+      transform: translate3d(0, 0, 0) !important;
+    }
+
+    .wr-marquee__item img,
+    .wr-marquee__node {
+      transition: none !important;
+    }
   }
 }

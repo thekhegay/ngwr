@@ -19,7 +19,6 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Spotlight', url: ['/animations', 'spotlight'] },
       { title: 'Tilt', url: ['/animations', 'tilt'] },
       { title: 'Spotlight Card', url: ['/animations', 'spotlight-card'] },
-      { title: 'Logo Loop', url: ['/animations', 'logo-loop'] },
       { title: 'Click Spark', url: ['/animations', 'click-spark'] },
       { title: 'Split Text', url: ['/animations', 'split-text'] },
       { title: 'Blur Text', url: ['/animations', 'blur-text'] },
