@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Animated Text"
-  description="In-house character-by-character text reveal."
+  description="In-house character-by-character text reveal — typewriter, scramble, or split-letter modes."
   [keywords]="['animated-text', 'wr-animated-text']"
   [labels]="['Animation']"
 >
@@ -8,11 +8,24 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic">
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-animated-text text="Hello, ngwr!" />
-    </ngwr-doc-snippet>
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground
+      [code]="snippet()"
+      [controls]="controls"
+      [showReplay]="true"
+      (replay)="replay()"
+    >
+      @for (k of [replayKey()]; track k) {
+        <wr-animated-text
+          [text]="text()"
+          [mode]="mode()"
+          [speed]="speed()"
+          [startDelay]="startDelay()"
+          [loop]="loop()"
+          style="font-size: 1.5rem; font-weight: 600; color: var(--wr-color-dark)"
+        />
+      }
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
