@@ -103,80 +103,38 @@
     white-space: nowrap;
   }
 
+  // ── ngwr form components inline ──────────────────────────────────
+  // The chip frames the control; the wr-* components style themselves.
+  // We just nudge sizing + alignment so they fit neatly in the row.
+
   &__select,
-  &__text {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding: 0.25rem 0.5rem;
-    border: 0;
-    border-radius: 0.375rem;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    text-align: right;
-    cursor: pointer;
-
-    &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
-    }
-  }
-
-  &__select {
-    appearance: none;
-    padding-right: 1.25rem;
-    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
-      linear-gradient(135deg, currentColor 50%, transparent 50%);
-    background-position:
-      calc(100% - 0.625rem) 50%,
-      calc(100% - 0.3125rem) 50%;
-    background-size:
-      0.3125rem 0.3125rem,
-      0.3125rem 0.3125rem;
-    background-repeat: no-repeat;
-
-    option {
-      color: var(--wr-color-dark);
-    }
-  }
-
-  &__text {
-    cursor: text;
-  }
-
-  // ── Slider ───────────────────────────────────────────────────────
+  &__text,
   &__slider {
     flex: 1 1 auto;
     min-width: 0;
-    height: 0.25rem;
-    appearance: none;
-    background: rgba(var(--wr-color-dark-rgb), 0.15);
-    border-radius: 999px;
-    cursor: pointer;
+  }
 
-    &::-webkit-slider-thumb {
-      appearance: none;
-      width: 0.875rem;
-      height: 0.875rem;
-      border-radius: 50%;
-      background: var(--wr-color-dark);
-      border: 0;
-      cursor: pointer;
-    }
+  &__select {
+    --wr-select-height-md: 1.75rem;
+    --wr-select-padding-x: 0.5rem;
+  }
 
-    &::-moz-range-thumb {
-      width: 0.875rem;
-      height: 0.875rem;
-      border-radius: 50%;
-      background: var(--wr-color-dark);
-      border: 0;
-      cursor: pointer;
-    }
+  &__text {
+    height: 1.75rem;
+    padding: 0 0.5rem;
+    text-align: right;
 
-    &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 4px;
+    &.wr-input {
+      // wrInput directive applies its own styling; we only tighten the
+      // height + alignment for the inline chip layout.
+      height: 1.75rem;
     }
+  }
+
+  &__slider {
+    // wr-slider defaults to filling its container; keep the thumb
+    // vertically centred inside the chip.
+    --wr-slider-thumb-size: 0.875rem;
   }
 
   &__value {
@@ -187,42 +145,8 @@
     font-variant-numeric: tabular-nums;
   }
 
-  // ── Toggle ───────────────────────────────────────────────────────
   &__toggle {
     margin-left: auto;
-    position: relative;
-    width: 2.25rem;
-    height: 1.25rem;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: rgba(var(--wr-color-dark-rgb), 0.2);
-    cursor: pointer;
-    transition: background 0.15s ease;
-
-    &--on {
-      background: var(--wr-color-primary);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
-      outline-offset: 2px;
-    }
-  }
-
-  &__toggle-thumb {
-    position: absolute;
-    top: 0.125rem;
-    left: 0.125rem;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    background: var(--wr-color-white);
-    transition: transform 0.15s ease;
-
-    .chip__toggle--on & {
-      transform: translateX(1rem);
-    }
   }
 
   // ── Color picker trigger ─────────────────────────────────────────

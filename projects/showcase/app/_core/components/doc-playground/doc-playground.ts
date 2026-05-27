@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { WrColorPickerTrigger } from 'ngwr/color-picker';
+import { WrInput } from 'ngwr/input';
+import { WrOption, WrSelect } from 'ngwr/select';
+import { WrSlider } from 'ngwr/slider';
+import { WrSwitch } from 'ngwr/switch';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
@@ -50,7 +55,16 @@ import type { DocControl, DocSliderControl } from './types';
   templateUrl: './doc-playground.html',
   styleUrl: './doc-playground.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DocCodeComponent, WrColorPickerTrigger],
+  imports: [
+    DocCodeComponent,
+    FormsModule,
+    WrColorPickerTrigger,
+    WrInput,
+    WrOption,
+    WrSelect,
+    WrSlider,
+    WrSwitch,
+  ],
 })
 export class DocPlaygroundComponent {
   /** Single source snippet shown beneath the preview. Pass `''` to omit. */

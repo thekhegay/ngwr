@@ -30,45 +30,41 @@
 
         @switch (ctrl.kind) {
           @case ('select') {
-            <select
+            <wr-select
               class="chip__select"
-              [value]="ctrl.signal()"
-              (change)="setStr(ctrl, $any($event.target).value)"
+              [ngModel]="ctrl.signal()"
+              (ngModelChange)="setStr(ctrl, $event)"
             >
               @for (opt of ctrl.options; track opt) {
-                <option [value]="opt">{{ opt }}</option>
+                <wr-option [value]="opt">{{ opt }}</wr-option>
               }
-            </select>
+            </wr-select>
           }
 
           @case ('slider') {
-            <input
-              type="range"
+            <wr-slider
               class="chip__slider"
-              [value]="ctrl.signal()"
+              [ngModel]="ctrl.signal()"
+              (ngModelChange)="setNum(ctrl, $event)"
               [min]="ctrl.min"
               [max]="ctrl.max"
               [step]="ctrl.step ?? (ctrl.precision ? 0.1 : 1)"
-              (input)="setNum(ctrl, $any($event.target).valueAsNumber)"
+              [showLabel]="false"
             />
             <span class="chip__value">{{ display(ctrl) }}</span>
           }
 
           @case ('toggle') {
-            <button
-              type="button"
+            <wr-switch
               class="chip__toggle"
-              [class.chip__toggle--on]="ctrl.signal()"
-              (click)="toggle(ctrl)"
-              role="switch"
-              [attr.aria-checked]="ctrl.signal()"
-            >
-              <span class="chip__toggle-thumb"></span>
-            </button>
+              [ngModel]="ctrl.signal()"
+              (ngModelChange)="ctrl.signal.set($event)"
+            />
           }
 
           @case ('text') {
             <input
+              wrInput
               type="text"
               class="chip__text"
               [value]="ctrl.signal()"
