@@ -114,6 +114,9 @@
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
     },
+    "./circular-text": {
+      "sass": "./circular-text/styles/_index.scss"
+    },
     "./click-spark": {
       "sass": "./click-spark/styles/_index.scss"
     },

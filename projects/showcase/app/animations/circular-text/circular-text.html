@@ -1,0 +1,52 @@
+<ngwr-doc-page
+  title="Circular Text"
+  description="Text laid out around a circle, with the whole circle spinning on a keyframe. Hover behaviour swaps the spin rate (or pauses) without resetting the rotation angle. Pure CSS port — no JS animation loop."
+  [keywords]="['circular-text', 'wr-circular-text', 'text animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="circular-text" category="text-animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Default — speed up on hover">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; justify-content: center; padding: 1rem">
+        <wr-circular-text text="HELLO * NGWR * " style="font-size: 1.25rem; color: var(--wr-color-dark)" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Pause on hover">
+    <ngwr-doc-code [code]="snippets.pause" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; justify-content: center; padding: 1rem">
+        <wr-circular-text
+          text="PAUSE ON HOVER * "
+          onHover="pause"
+          style="font-size: 1.125rem; color: var(--wr-color-primary)"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Go bonkers on hover">
+    <ngwr-doc-code [code]="snippets.bonkers" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; justify-content: center; padding: 1rem">
+        <wr-circular-text
+          text="GO BONKERS * "
+          onHover="goBonkers"
+          [spinDuration]="14"
+          style="font-size: 1.25rem; color: var(--wr-color-dark)"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
