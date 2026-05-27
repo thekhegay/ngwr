@@ -78,6 +78,7 @@
     "./counter": {
       "sass": "./counter/styles/_index.scss"
     },
+    "./count-up-text": {},
     "./autocomplete": {
       "sass": "./autocomplete/styles/_index.scss"
     },
