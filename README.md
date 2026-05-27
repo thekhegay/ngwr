@@ -145,7 +145,7 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 ### Services
 
-[theme](https://ngwr.dev/services/theme), [scroll](https://ngwr.dev/services/scroll), [hotkey](https://ngwr.dev/services/hotkey), [media](https://ngwr.dev/services/media), [platform](https://ngwr.dev/services/platform), [meta](https://ngwr.dev/services/meta).
+[theme](https://ngwr.dev/services/theme), [scroll](https://ngwr.dev/services/scroll), [hotkey](https://ngwr.dev/services/hotkey), [media](https://ngwr.dev/services/media), [platform](https://ngwr.dev/services/platform), [meta](https://ngwr.dev/services/meta), [storage](https://ngwr.dev/services/storage).
 
 ### Utils — `ngwr/utils`
 

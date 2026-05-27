@@ -71,7 +71,7 @@ export class DocCodeComponent {
         lang: params.lang,
         themes: {
           light: 'github-light',
-          dark: 'github-light',
+          dark: 'github-dark',
         },
         defaultColor: false,
       });

@@ -303,6 +303,7 @@
     "./statistic": {
       "sass": "./statistic/styles/_index.scss"
     },
+    "./storage": {},
     "./stepper": {
       "sass": "./stepper/styles/_index.scss"
     },

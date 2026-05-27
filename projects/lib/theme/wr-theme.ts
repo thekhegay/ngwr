@@ -9,8 +9,15 @@ import { DOCUMENT } from '@angular/common';
 import { Injectable, type Signal, computed, effect, inject, signal } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
+import { WrStorage } from 'ngwr/storage';
 
 import { WR_THEME_CONFIG, type WrResolvedTheme, type WrThemeMode } from './wr-theme-config';
+
+const VALID_MODES: readonly WrThemeMode[] = ['light', 'dark', 'auto'];
+
+function isThemeMode(v: unknown): v is WrThemeMode {
+  return typeof v === 'string' && (VALID_MODES as readonly string[]).includes(v);
+}
 
 /**
  * Light / dark theme manager.
@@ -19,7 +26,8 @@ import { WR_THEME_CONFIG, type WrResolvedTheme, type WrThemeMode } from './wr-th
  * - `resolved` is what's actually applied — `auto` resolves through
  *   {@link WrPlatform.prefersDark}.
  * - Writes `[data-theme]` (or your configured attribute) on `<html>`.
- * - Persists the selected mode to `localStorage` (configurable).
+ * - Persists the selected mode via {@link WrStorage} (defaults to
+ *   `localStorage`; swap the storage engine globally to change where).
  *
  * @example
  * ```ts
@@ -35,6 +43,7 @@ import { WR_THEME_CONFIG, type WrResolvedTheme, type WrThemeMode } from './wr-th
 export class WrTheme {
   private readonly doc = inject(DOCUMENT);
   private readonly platform = inject(WrPlatform);
+  private readonly storage = inject(WrStorage);
   private readonly config = inject(WR_THEME_CONFIG);
 
   /** User-selected mode. */
@@ -70,22 +79,13 @@ export class WrTheme {
   // ──────── Persistence ────────
 
   private readPersisted(): WrThemeMode | null {
-    if (!this.platform.isBrowser || !this.config.storageKey) return null;
-    try {
-      const raw = this.doc.defaultView?.localStorage.getItem(this.config.storageKey);
-      if (raw === 'light' || raw === 'dark' || raw === 'auto') return raw;
-    } catch {
-      // Quota exceeded, security error, private mode — silently ignore.
-    }
-    return null;
+    if (!this.config.storageKey) return null;
+    const raw = this.storage.get<WrThemeMode>(this.config.storageKey);
+    return isThemeMode(raw) ? raw : null;
   }
 
   private persist(mode: WrThemeMode): void {
-    if (!this.platform.isBrowser || !this.config.storageKey) return;
-    try {
-      this.doc.defaultView?.localStorage.setItem(this.config.storageKey, mode);
-    } catch {
-      // Ignore.
-    }
+    if (!this.config.storageKey) return;
+    this.storage.set(this.config.storageKey, mode);
   }
 }

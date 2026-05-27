@@ -147,6 +147,7 @@ export const routes = {
     media: 'media',
     platform: 'platform',
     meta: 'meta',
+    storage: 'storage',
   },
   utils: {
     index: 'utils',

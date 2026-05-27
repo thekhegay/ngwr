@@ -20,7 +20,7 @@ let instance: Promise<HighlighterCore> | null = null;
 
 export function getHighlighter(): Promise<HighlighterCore> {
   instance ??= createHighlighterCore({
-    themes: [import('shiki/themes/github-light.mjs')],
+    themes: [import('shiki/themes/github-light.mjs'), import('shiki/themes/github-dark.mjs')],
     langs: [
       import('shiki/langs/angular-html.mjs'),
       import('shiki/langs/angular-ts.mjs'),

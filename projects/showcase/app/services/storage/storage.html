@@ -1,0 +1,46 @@
+<ngwr-doc-page
+  title="WrStorage"
+  description="Reactive key/value storage on top of any `Storage`-compatible engine. Swap the engine through DI (defaults to `localStorage` with an in-memory SSR / private-mode fallback). Built-in prefixing, TTL, and signal-based `watch()` for local + cross-tab updates."
+  [keywords]="['storage', 'localStorage', 'sessionStorage', 'persistence', 'wr-storage', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Swap the engine">
+    <ngwr-doc-code [code]="snippets.swap" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Live demo">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <p style="margin: 0">
+          <strong>Reactive read</strong> via <code>store.watch('demo:visits')</code>:
+          <strong style="font-variant-numeric: tabular-nums">{{ visits() }}</strong>
+        </p>
+        <p style="margin: 0">
+          <strong>TTL</strong> (10s) — stash a note then refresh:
+          <code>{{ note() ?? '— empty —' }}</code>
+        </p>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          <button type="button" (click)="bump()">Bump visits (persists across tabs)</button>
+          <button type="button" (click)="stash()">Stash note (10s TTL)</button>
+          <button type="button" (click)="refresh()">Refresh note</button>
+          <button type="button" (click)="reset()">Reset both</button>
+        </div>
+        <p style="margin: 0; color: rgba(0, 0, 0, 0.6); font-size: 0.875rem">
+          Open this page in two tabs and click <em>Bump visits</em> in one — the other updates via the <code>storage</code> event.
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

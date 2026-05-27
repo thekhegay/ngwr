@@ -12,4 +12,5 @@ export default [
   { path: services.media, loadComponent: () => import('./media/media') },
   { path: services.platform, loadComponent: () => import('./platform/platform') },
   { path: services.meta, loadComponent: () => import('./meta/meta') },
+  { path: services.storage, loadComponent: () => import('./storage/storage') },
 ] satisfies Routes;
