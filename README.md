@@ -25,6 +25,8 @@ for overlay, portal, and a11y primitives.
 | `@angular/cdk` | `>= 21.0.0` |
 | `@angular/platform-browser` | `>= 21.0.0` |
 | `rxjs` | `^7.0.0` |
+| `date-fns` *(optional)* | `^3.0.0 \|\| ^4.0.0` |
+| `luxon` *(optional)* | `^3.0.0` |
 
 Node ≥ 22.12 for development.
 
@@ -77,7 +79,7 @@ import { AppComponent } from './app/app.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideWrOverlay(),                 // isolated overlay container
+    provideWrOverlay(),                   // isolated overlay container
     provideWrIcons([plus, trash, check]), // tree-shaken icon set
   ],
 });
@@ -86,63 +88,84 @@ bootstrapApplication(AppComponent, {
 ```ts
 // app.component.ts
 import { Component, signal } from '@angular/core';
-import { WrButtonComponent } from 'ngwr/button';
-import { WrInputComponent } from 'ngwr/input';
+import { FormsModule } from '@angular/forms';
+import { WrButton } from 'ngwr/button';
+import { WrInput } from 'ngwr/input';
 
 @Component({
   selector: 'app-root',
-  imports: [WrButtonComponent, WrInputComponent],
+  imports: [FormsModule, WrButton, WrInput],
   template: `
-    <wr-input [(ngModel)]="name" placeholder="Your name" />
-    <wr-btn color="primary" (click)="greet()">Hello</wr-btn>
+    <input wrInput [(ngModel)]="name" placeholder="Your name" />
+    <button wr-btn color="primary" (click)="greet()">Hello</button>
   `,
 })
 export class AppComponent {
   readonly name = signal('');
-  greet() { console.log('Hi', this.name()); }
+  greet(): void { console.log('Hi', this.name()); }
 }
 ```
 
-## [Components](https://ngwr.dev/docs/components)
+## Catalog
 
-| Form | Buttons | Data |
-|---|---|---|
-| [Checkbox](https://ngwr.dev/docs/components/checkbox) | [Button](https://ngwr.dev/docs/components/button) | [Pagination](https://ngwr.dev/docs/components/pagination) |
-| [Form](https://ngwr.dev/docs/components/form) | [Button Group](https://ngwr.dev/docs/components/button-group) | [Table](https://ngwr.dev/docs/components/table) |
-| [Input](https://ngwr.dev/docs/components/input) | | |
-| [Radio](https://ngwr.dev/docs/components/radio) | | |
-| [Segmented](https://ngwr.dev/docs/components/segmented) | | |
-| [Select](https://ngwr.dev/docs/components/select) | | |
-| [Switch](https://ngwr.dev/docs/components/switch) | | |
-| [Textarea](https://ngwr.dev/docs/components/textarea) | | |
+> Browse the full catalog with live demos at [**ngwr.dev**](https://ngwr.dev).
+> Each entry below is a tree-shakable subpath — `import { … } from 'ngwr/<name>'`.
 
-| Display | Navigation | Overlay | Layout |
-|---|---|---|---|
-| [Alert](https://ngwr.dev/docs/components/alert) | [Breadcrumbs](https://ngwr.dev/docs/components/breadcrumbs) | [Dialog](https://ngwr.dev/docs/components/dialog) | [Collapse](https://ngwr.dev/docs/components/collapse) |
-| [Avatar](https://ngwr.dev/docs/components/avatar) | [Dropdown](https://ngwr.dev/docs/components/dropdown) | [Drawer](https://ngwr.dev/docs/components/drawer) | |
-| [Badge](https://ngwr.dev/docs/components/badge) | [Tabs](https://ngwr.dev/docs/components/tabs) | [Popconfirm](https://ngwr.dev/docs/components/popconfirm) | |
-| [Divider](https://ngwr.dev/docs/components/divider) | | [Popover](https://ngwr.dev/docs/components/popover) | |
-| [Icon](https://ngwr.dev/docs/components/icon) | | [Toast](https://ngwr.dev/docs/components/toast) | |
-| [Progress](https://ngwr.dev/docs/components/progress) | | [Tooltip](https://ngwr.dev/docs/components/tooltip) | |
-| [QR](https://ngwr.dev/docs/components/qr) | | | |
-| [Skeleton](https://ngwr.dev/docs/components/skeleton) | | | |
-| [Spinner](https://ngwr.dev/docs/components/spinner) | | | |
-| [Tag](https://ngwr.dev/docs/components/tag) | | | |
+### Components
 
-## Core
+**Form** — [autocomplete](https://ngwr.dev/components/autocomplete), [calendar](https://ngwr.dev/components/calendar), [checkbox](https://ngwr.dev/components/checkbox), [color-picker](https://ngwr.dev/components/color-picker), [counter](https://ngwr.dev/components/counter), [date-picker](https://ngwr.dev/components/date-picker), [date-time-picker](https://ngwr.dev/components/date-time-picker), [file-upload](https://ngwr.dev/components/file-upload), [form](https://ngwr.dev/components/form), [input](https://ngwr.dev/components/input), [input-number](https://ngwr.dev/components/input-number), [input-otp](https://ngwr.dev/components/input-otp), [knob](https://ngwr.dev/components/knob), [radio](https://ngwr.dev/components/radio), [rating](https://ngwr.dev/components/rating), [segmented](https://ngwr.dev/components/segmented), [select](https://ngwr.dev/components/select), [slider](https://ngwr.dev/components/slider), [switch](https://ngwr.dev/components/switch), [textarea](https://ngwr.dev/components/textarea), [time-picker](https://ngwr.dev/components/time-picker), [tree](https://ngwr.dev/components/tree).
 
-- [Color](https://ngwr.dev/docs/core/color) — design tokens and palette
-- [Grid](https://ngwr.dev/docs/core/grid) — opt-in 12-column layout
-- [Overlay](https://ngwr.dev/docs/core/overlay) — isolated CDK overlay container, `provideWrOverlay()`
-- [Utils](https://ngwr.dev/docs/core/utils) — small, framework-agnostic helpers
+**Buttons** — [button](https://ngwr.dev/components/button), [button-group](https://ngwr.dev/components/button-group), [speed-dial](https://ngwr.dev/components/speed-dial).
+
+**Display** — [alert](https://ngwr.dev/components/alert), [avatar](https://ngwr.dev/components/avatar), [badge](https://ngwr.dev/components/badge), [count-up](https://ngwr.dev/components/count-up), [descriptions](https://ngwr.dev/components/descriptions), [divider](https://ngwr.dev/components/divider), [empty](https://ngwr.dev/components/empty), [icon](https://ngwr.dev/components/icon), [keyboard](https://ngwr.dev/components/keyboard), [meter-group](https://ngwr.dev/components/meter-group), [progress](https://ngwr.dev/components/progress), [qrcode](https://ngwr.dev/components/qrcode), [result](https://ngwr.dev/components/result), [skeleton](https://ngwr.dev/components/skeleton), [spinner](https://ngwr.dev/components/spinner), [squircle](https://ngwr.dev/components/squircle), [statistic](https://ngwr.dev/components/statistic), [tag](https://ngwr.dev/components/tag), [typography](https://ngwr.dev/components/typography).
+
+**Navigation** — [anchor](https://ngwr.dev/components/anchor), [back-top](https://ngwr.dev/components/back-top), [dropdown](https://ngwr.dev/components/dropdown), [page-header](https://ngwr.dev/components/page-header), [pagination](https://ngwr.dev/components/pagination), [stepper](https://ngwr.dev/components/stepper), [tabs](https://ngwr.dev/components/tabs), [timeline](https://ngwr.dev/components/timeline), [toolbar](https://ngwr.dev/components/toolbar).
+
+**Overlay** — [command-palette](https://ngwr.dev/components/command-palette), [context-menu](https://ngwr.dev/components/context-menu), [dialog](https://ngwr.dev/components/dialog), [drawer](https://ngwr.dev/components/drawer), [mention](https://ngwr.dev/components/mention), [popconfirm](https://ngwr.dev/components/popconfirm), [popover](https://ngwr.dev/components/popover), [toast](https://ngwr.dev/components/toast), [tooltip](https://ngwr.dev/components/tooltip), [window](https://ngwr.dev/components/window).
+
+**Layout** — [carousel](https://ngwr.dev/components/carousel), [collapse](https://ngwr.dev/components/collapse), [compare](https://ngwr.dev/components/compare), [layout](https://ngwr.dev/components/layout), [splitter](https://ngwr.dev/components/splitter).
+
+**Data** — [charts](https://ngwr.dev/components/charts) (bar / line / donut / gauge / calendar-heatmap / sparkline), [image-cropper](https://ngwr.dev/components/image-cropper), [table](https://ngwr.dev/components/table).
+
+### Animations
+
+Animated UI effects. Mix of in-house components + ports of [reactbits.dev](https://www.reactbits.dev) — each port carries a credit chip on its docs page.
+
+[border-glow](https://ngwr.dev/animations/border-glow), [aurora](https://ngwr.dev/animations/aurora), [marquee](https://ngwr.dev/animations/marquee), [animated-text](https://ngwr.dev/animations/animated-text), [confetti](https://ngwr.dev/animations/confetti), [reveal](https://ngwr.dev/animations/reveal), [spotlight-card](https://ngwr.dev/animations/spotlight-card), [tilt-card](https://ngwr.dev/animations/tilt-card), [click-spark](https://ngwr.dev/animations/click-spark), [split-text](https://ngwr.dev/animations/split-text), [blur-text](https://ngwr.dev/animations/blur-text), [shiny-text](https://ngwr.dev/animations/shiny-text), [gradient-text](https://ngwr.dev/animations/gradient-text), [rotating-text](https://ngwr.dev/animations/rotating-text), [typewriter](https://ngwr.dev/animations/typewriter), [scramble-text](https://ngwr.dev/animations/scramble-text), [decrypt-text](https://ngwr.dev/animations/decrypt-text), [glitch-text](https://ngwr.dev/animations/glitch-text), [fuzzy-text](https://ngwr.dev/animations/fuzzy-text), [falling-text](https://ngwr.dev/animations/falling-text), [circular-text](https://ngwr.dev/animations/circular-text), [count-up-text](https://ngwr.dev/animations/count-up-text).
+
+Card packages bundle their related directives: `ngwr/spotlight-card` exports `WrSpotlight`; `ngwr/tilt-card` exports `WrTilt`; `ngwr/shiny-text` exports `WrShimmer`.
+
+### Directives — `ngwr/directives`
+
+[autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard), [reveal](https://ngwr.dev/directives/reveal).
+
+### Pipes — `ngwr/pipes`
+
+[wrNumber](https://ngwr.dev/pipes/wr-number), [wrBytes](https://ngwr.dev/pipes/wr-bytes), [wrDate](https://ngwr.dev/pipes/wr-date), [wrTruncate](https://ngwr.dev/pipes/wr-truncate), [range](https://ngwr.dev/pipes/range).
+
+### Services
+
+[theme](https://ngwr.dev/services/theme), [scroll](https://ngwr.dev/services/scroll), [hotkey](https://ngwr.dev/services/hotkey), [media](https://ngwr.dev/services/media), [platform](https://ngwr.dev/services/platform), [meta](https://ngwr.dev/services/meta).
+
+### Utils — `ngwr/utils`
+
+Css helpers (`resolveCssSize`, `getRootFontSize`), ids (`randomId`), type guards (`isDefined`, `isNonEmptyArray`, `isObservable`), keyboard helpers (`KEYS`, `hasModifier`, `isPrintableKey`), functional primitives (`noop`, `badgeLog`, `debounce`, `throttle`), focus management (`getFocusableElements`, `trapFocus`). See [docs](https://ngwr.dev/utils) for the full list.
+
+### Core
+
+- [Color](https://ngwr.dev/getting-started/color) — design tokens and palette.
+- [Grid](https://ngwr.dev/getting-started/grid) — opt-in 12-column layout.
+- [Overlay](https://ngwr.dev/getting-started/overlay) — isolated CDK overlay container, `provideWrOverlay()`.
+- **Date adapters** — `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter(...)` to power calendar / date-picker / date-time-picker.
 
 ## Highlights
 
-- **Standalone & signals-first.** Every component is standalone, uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-friendly.
+- **Standalone & signals-first.** Every component is standalone and uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-ready.
 - **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
-- **Tree-shakable.** Each component is a separate ng-packagr entry point — import only what you use.
+- **Tree-shakable.** ~110 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are typically 5–25 KB; the largest entry (`ngwr/icon`) is ~98 KB before tree-shaking and ships only the icons you actually register.
 - **Modular SCSS.** Component styles are scoped through CSS custom properties. Theme tokens live in `ngwr/theme`; utilities (`grid`, `reset`) and the breakpoints SCSS API are opt-in.
 - **Tree-shaken icons.** `provideWrIcons([plus, trash])` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
+- **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` — no GSAP, no `motion/react`, no `matter-js`.
 
 ## Contributing
 
