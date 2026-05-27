@@ -10,52 +10,25 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Hover (default)">
-    <ngwr-doc-code [code]="snippets.hover" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-decrypt-text
-        text="Hover to decrypt!"
-        style="font-size: 1.5rem; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--wr-color-dark)"
-      />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Sequential, from center, on viewport entry">
-    <ngwr-doc-code [code]="snippets.sequentialCenter" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-decrypt-text
-        text="Sequential from center"
-        [sequential]="true"
-        revealDirection="center"
-        animateOn="view"
-        style="font-size: 1.5rem; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--wr-color-primary)"
-      />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Click to toggle">
-    <ngwr-doc-code [code]="snippets.clickToggle" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-decrypt-text
-        text="Click to toggle encrypted state"
-        animateOn="click"
-        clickMode="toggle"
-        style="font-size: 1.25rem; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--wr-color-dark); cursor: pointer"
-      />
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section title="Scramble using only original characters">
-    <ngwr-doc-code [code]="snippets.onlyOriginalChars" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <wr-decrypt-text
-        text="ONLY ORIGINAL CHARS"
-        [sequential]="true"
-        [useOriginalCharsOnly]="true"
-        animateOn="view"
-        style="font-size: 1.5rem; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--wr-color-dark)"
-      />
-    </ngwr-doc-snippet>
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground
+      [code]="snippet()"
+      [controls]="controls"
+      [showReplay]="true"
+      (replay)="replay()"
+    >
+      @for (k of [replayKey()]; track k) {
+        <wr-decrypt-text
+          [text]="text()"
+          [speed]="speed()"
+          [sequential]="sequential()"
+          [revealDirection]="revealDirection()"
+          [animateOn]="animateOn()"
+          [useOriginalCharsOnly]="useOriginalCharsOnly()"
+          style="font-size: 1.5rem; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--wr-color-dark)"
+        />
+      }
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

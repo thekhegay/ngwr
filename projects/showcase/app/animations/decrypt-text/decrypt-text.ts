@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrDecryptText } from 'ngwr/decrypt-text';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,33 +21,50 @@ import {
     WrDecryptText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class DecryptTextPage {
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly text = signal('Hover to decrypt!');
+  protected readonly speed = signal(50);
+  protected readonly sequential = signal(false);
+  protected readonly revealDirection = signal<'start' | 'end' | 'center'>('start');
+  protected readonly animateOn = signal<'hover' | 'click' | 'view' | 'inViewHover'>('hover');
+  protected readonly useOriginalCharsOnly = signal(false);
+
+  protected readonly replayKey = signal(0);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-decrypt-text
+  text="${this.text()}"
+  [speed]="${this.speed()}"
+  [sequential]="${this.sequential()}"
+  revealDirection="${this.revealDirection()}"
+  animateOn="${this.animateOn()}"
+  [useOriginalCharsOnly]="${this.useOriginalCharsOnly()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'select', label: 'Animate On', signal: this.animateOn, options: ['hover', 'click', 'view', 'inViewHover'] as const },
+    { kind: 'slider', label: 'Speed (ms)', signal: this.speed, min: 10, max: 200, step: 5, unit: 'ms' },
+    { kind: 'toggle', label: 'Sequential', signal: this.sequential },
+    { kind: 'select', label: 'Reveal Direction', signal: this.revealDirection, options: ['start', 'end', 'center'] as const },
+    { kind: 'toggle', label: 'Original Chars Only', signal: this.useOriginalCharsOnly },
+    { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
+  ];
+
+  protected replay(): void {
+    this.replayKey.update(n => n + 1);
+  }
+
   protected readonly snippets = {
     install: `import { WrDecryptText } from 'ngwr/decrypt-text';`,
-    hover: `<wr-decrypt-text text="Hover to decrypt!" />`,
-    sequentialCenter: `<wr-decrypt-text
-  text="Sequential from center"
-  [sequential]="true"
-  revealDirection="center"
-  animateOn="view"
-/>`,
-    clickToggle: `<wr-decrypt-text
-  text="Click to toggle encrypted state"
-  animateOn="click"
-  clickMode="toggle"
-/>`,
-    onlyOriginalChars: `<wr-decrypt-text
-  text="ONLY ORIGINAL CHARS"
-  [sequential]="true"
-  [useOriginalCharsOnly]="true"
-  animateOn="view"
-/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
