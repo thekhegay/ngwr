@@ -30,6 +30,31 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Directive variant ([wrSpotlight])">
+    <ngwr-doc-code [code]="snippets.directive" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div
+        wrSpotlight
+        style="
+          padding: 2rem;
+          background:
+            radial-gradient(
+              400px circle at var(--wr-spotlight-x, 50%) var(--wr-spotlight-y, 50%),
+              rgba(var(--wr-color-primary-rgb), 0.18),
+              transparent 60%
+            ),
+            var(--wr-color-dark);
+          color: var(--wr-color-white);
+          border-radius: 0.75rem;
+          font-weight: 600;
+          text-align: center;
+        "
+      >
+        Hover me — [wrSpotlight] writes CSS vars; the gradient does the rest.
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

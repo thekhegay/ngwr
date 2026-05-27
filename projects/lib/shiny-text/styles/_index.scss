@@ -52,3 +52,27 @@
     background-position: -50% center;
   }
 }
+
+// ── [wrShimmer] directive ────────────────────────────────────────────
+// Same package as <wr-shiny-text>. Lightweight host-class directive —
+// gradient sweep across text via `background-clip: text`.
+@keyframes wr-shimmer {
+  100% {
+    background-position-x: -200%;
+  }
+}
+
+.wr-shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--wr-color-dark) 30%,
+    rgba(var(--wr-color-primary-rgb), 0.9) 50%,
+    var(--wr-color-dark) 70%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: wr-shimmer 2.5s linear infinite;
+}

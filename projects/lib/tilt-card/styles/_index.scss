@@ -1,0 +1,30 @@
+// 3D mouse-tilt card. The transform is set imperatively by `[wrTilt]`,
+// so this stylesheet just covers the card chrome + the optional glare
+// overlay that the directive appends when `[glare]="true"`.
+
+.wr-tilt-card {
+  display: block;
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--wr-color-dark);
+  color: var(--wr-color-white);
+  // Card itself doesn't need overflow:hidden by default — the directive
+  // toggles overflow when glare is enabled. Authors can opt in.
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+}
+
+// ── Glare overlay (appended by `[wrTilt]` when `[glare]="true"`) ─────
+// Lives in this package so the visual lives with the card chrome.
+.wr-tilt-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--wr-tilt-glare-x, 50%) var(--wr-tilt-glare-y, 50%),
+    rgba(255, 255, 255, 0.25),
+    transparent 60%
+  );
+  mix-blend-mode: overlay;
+}

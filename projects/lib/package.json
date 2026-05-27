@@ -318,6 +318,9 @@
     "./tag": {
       "sass": "./tag/styles/_index.scss"
     },
+    "./tilt-card": {
+      "sass": "./tilt-card/styles/_index.scss"
+    },
     "./textarea": {
       "sass": "./textarea/styles/_index.scss"
     },

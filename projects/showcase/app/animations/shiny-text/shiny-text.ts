@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { WrShinyText } from 'ngwr/shiny-text';
+import { WrShimmer, WrShinyText } from 'ngwr/shiny-text';
 
 import {
   DocApiComponent,
@@ -18,6 +18,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrShinyText,
+    WrShimmer,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -43,6 +44,9 @@ export default class ShinyTextPage {
   [yoyo]="true"
   [pauseOnHover]="true"
 />`,
+    shimmer: `import { WrShimmer } from 'ngwr/shiny-text';
+
+<h1 wrShimmer>Premium</h1>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -56,5 +60,11 @@ export default class ShinyTextPage {
     { name: 'pauseOnHover', description: 'Pause the animation while hovered.', type: 'boolean', default: 'false' },
     { name: 'direction', description: 'Sweep direction.', type: "'left' | 'right'", default: "'left'" },
     { name: 'delay', description: 'Pause between sweeps in seconds.', type: 'number', default: '0' },
+    {
+      name: '[wrShimmer]',
+      description: 'Lightweight directive variant — adds the `.wr-shimmer` host class for a continuous sweep over any element. Same package.',
+      type: 'directive',
+      default: '—',
+    },
   ];
 }

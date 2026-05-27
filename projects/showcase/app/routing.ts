@@ -113,11 +113,9 @@ export const routes = {
     animatedText: 'animated-text',
     confetti: 'confetti',
     reveal: 'reveal',
-    shimmer: 'shimmer',
-    spotlight: 'spotlight',
-    tilt: 'tilt',
     // Reactbits ports (built in follow-up commits)
     spotlightCard: 'spotlight-card',
+    tiltCard: 'tilt-card',
     clickSpark: 'click-spark',
     splitText: 'split-text',
     blurText: 'blur-text',

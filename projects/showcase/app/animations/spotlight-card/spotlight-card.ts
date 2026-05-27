@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { WrSpotlightCard } from 'ngwr/spotlight-card';
+import { WrSpotlight, WrSpotlightCard } from 'ngwr/spotlight-card';
 
 import {
   DocApiComponent,
@@ -18,6 +18,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrSpotlightCard,
+    WrSpotlight,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -37,14 +38,37 @@ export default class SpotlightCardPage {
   <h3>Blue spotlight</h3>
   <p>Pass any CSS colour.</p>
 </wr-spotlight-card>`,
+    directive: `// Directive variant — same package, drops on any element.
+import { WrSpotlight } from 'ngwr/spotlight-card';
+
+<div wrSpotlight class="card">…</div>
+
+// Then in your CSS:
+// background: radial-gradient(
+//   400px circle at var(--wr-spotlight-x, 50%) var(--wr-spotlight-y, 50%),
+//   rgba(var(--wr-color-primary-rgb), 0.15),
+//   transparent 60%
+// );`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'spotlightColor',
-      description: 'Highlight colour. Any CSS colour string (rgba, hsl, named, …).',
+      description: 'Highlight colour on `<wr-spotlight-card>`. Any CSS colour string.',
       type: 'string',
       default: "'rgba(255, 255, 255, 0.25)'",
+    },
+    {
+      name: '[wrSpotlight]',
+      description: 'Directive variant — writes `--wr-spotlight-x/y` (in `%`) to any host based on pointer position. Pair with a radial-gradient/mask in your CSS.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrSpotlight].resetX / .resetY',
+      description: 'Default coordinates when no pointer is over the host.',
+      type: 'string',
+      default: "'50%'",
     },
   ];
 }
