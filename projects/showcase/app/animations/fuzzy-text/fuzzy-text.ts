@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 import { WrFuzzyText } from 'ngwr/fuzzy-text';
 
@@ -6,9 +6,10 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocControl,
   DocPageComponent,
+  DocPlaygroundComponent,
   DocSectionComponent,
-  DocSnippetComponent,
   ReactbitsCredit,
 } from '#core/components';
 
@@ -20,35 +21,44 @@ import {
     WrFuzzyText,
     DocPageComponent,
     DocSectionComponent,
-    DocSnippetComponent,
+    DocPlaygroundComponent,
     DocCodeComponent,
     DocApiComponent,
     ReactbitsCredit,
   ],
 })
 export default class FuzzyTextPage {
+  // ── Live demo state ─────────────────────────────────────────────
+  protected readonly text = signal('404');
+  protected readonly fuzzRange = signal(30);
+  protected readonly baseIntensity = signal(0.18);
+  protected readonly hoverIntensity = signal(0.5);
+  protected readonly direction = signal<'horizontal' | 'vertical' | 'both'>('horizontal');
+  protected readonly glitchMode = signal(false);
+
+  protected readonly snippet = computed(
+    () =>
+      `<wr-fuzzy-text
+  text="${this.text()}"
+  [fuzzRange]="${this.fuzzRange()}"
+  [baseIntensity]="${this.baseIntensity()}"
+  [hoverIntensity]="${this.hoverIntensity()}"
+  direction="${this.direction()}"
+  [glitchMode]="${this.glitchMode()}"
+/>`,
+  );
+
+  protected readonly controls: readonly DocControl[] = [
+    { kind: 'slider', label: 'Fuzz Range (px)', signal: this.fuzzRange, min: 5, max: 80, step: 1, unit: 'px' },
+    { kind: 'slider', label: 'Base Intensity', signal: this.baseIntensity, min: 0, max: 1, step: 0.05, precision: 2 },
+    { kind: 'slider', label: 'Hover Intensity', signal: this.hoverIntensity, min: 0, max: 1, step: 0.05, precision: 2 },
+    { kind: 'select', label: 'Direction', signal: this.direction, options: ['horizontal', 'vertical', 'both'] as const },
+    { kind: 'toggle', label: 'Glitch Mode', signal: this.glitchMode },
+    { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
+  ];
+
   protected readonly snippets = {
     install: `import { WrFuzzyText } from 'ngwr/fuzzy-text';`,
-    basic: `<wr-fuzzy-text text="404" />`,
-    tuned: `<wr-fuzzy-text
-  text="HELLO"
-  color="#0ea5e9"
-  [fuzzRange]="60"
-  [hoverIntensity]="0.9"
-  fontSize="6rem"
-/>`,
-    glitch: `<wr-fuzzy-text
-  text="GLITCH"
-  [glitchMode]="true"
-  [glitchInterval]="1500"
-  [glitchDuration]="250"
-  [clickEffect]="true"
-/>`,
-    gradient: `<wr-fuzzy-text
-  text="SUNSET"
-  [gradient]="['#f97316', '#dc2626', '#7c3aed']"
-  direction="both"
-/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
