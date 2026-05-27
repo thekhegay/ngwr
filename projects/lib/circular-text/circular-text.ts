@@ -71,9 +71,10 @@ export class WrCircularText {
     if (len === 0) return [];
     return letters.map((ch, i) => {
       const rotation = (360 / len) * i;
-      // Slight outward push so longer strings naturally spread out.
-      const offset = (Math.PI / len) * i;
-      const transform = `rotateZ(${rotation}deg) translate3d(${offset}px, ${offset}px, 0)`;
+      // Rotate around the host's centre, then push each char outward by
+      // the orbit radius (set via CSS var). All chars end up on a circle
+      // of constant radius — not a diagonal line.
+      const transform = `rotate(${rotation}deg) translateY(calc(-1 * var(--wr-circular-text-radius)))`;
       return { ch, transform };
     });
   });

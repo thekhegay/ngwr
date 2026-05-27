@@ -1,15 +1,18 @@
 // Circular text (reactbits port). Each char is absolutely positioned at
-// the centre of the host; per-char transform rotates it around the centre
-// and pushes it slightly outwards. The host itself spins via a keyframe;
-// hover modes tweak the duration / pause / scale of that spin.
+// the host's centre, then transformed `rotate() translateY(-radius)` so
+// it lands on the perimeter of a circle of constant radius. The host
+// itself spins via a keyframe; hover modes tweak the duration / pause /
+// scale of that spin.
 
 .wr-circular-text {
   --wr-circular-text-duration: 20s;
+  --wr-circular-text-size: 12rem;
+  --wr-circular-text-radius: calc(var(--wr-circular-text-size) / 2);
 
   position: relative;
   display: inline-block;
-  width: 12rem;
-  height: 12rem;
+  width: var(--wr-circular-text-size);
+  height: var(--wr-circular-text-size);
   border-radius: 50%;
   font-weight: 700;
   text-align: center;
@@ -22,7 +25,11 @@
     top: 50%;
     left: 50%;
     display: inline-block;
-    transform-origin: 0 0;
+    // Pre-shift by -50% so the char's centre sits at the host centre
+    // before the per-char `rotate translateY(-radius)` runs.
+    margin-left: -0.5em;
+    margin-top: -0.5em;
+    line-height: 1;
   }
 
   // Speed up on hover — shorter duration.
