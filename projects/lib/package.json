@@ -100,6 +100,9 @@
     "./border-glow": {
       "sass": "./border-glow/styles/_index.scss"
     },
+    "./breadcrumb": {
+      "sass": "./breadcrumb/styles/_index.scss"
+    },
     "./button": {
       "sass": "./button/styles/_index.scss"
     },

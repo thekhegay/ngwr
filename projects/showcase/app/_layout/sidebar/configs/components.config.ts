@@ -92,6 +92,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
     children: [
       { title: 'Anchor', url: ['/components', 'anchor'] },
       { title: 'Back to Top', url: ['/components', 'back-top'] },
+      { title: 'Breadcrumb', url: ['/components', 'breadcrumb'] },
       { title: 'Carousel', url: ['/components', 'carousel'] },
       { title: 'Dropdown', url: ['/components', 'dropdown'] },
       { title: 'Speed Dial', url: ['/components', 'speed-dial'] },
