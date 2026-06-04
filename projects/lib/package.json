@@ -124,6 +124,7 @@
     "./cascader": {
       "sass": "./cascader/styles/_index.scss"
     },
+    "./clipboard": {},
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
     },
@@ -149,6 +150,7 @@
     "./compare": {
       "sass": "./compare/styles/_index.scss"
     },
+    "./cookie": {},
     "./context-menu": {
       "sass": "./context-menu/styles/_index.scss"
     },

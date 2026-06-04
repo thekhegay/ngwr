@@ -27,6 +27,10 @@ export default [
     loadComponent: () => import('./wr-truncate/wr-truncate'),
   },
   {
+    path: pipes.wrMark,
+    loadComponent: () => import('./wr-mark/wr-mark'),
+  },
+  {
     path: pipes.range,
     loadComponent: () => import('./range/range'),
   },

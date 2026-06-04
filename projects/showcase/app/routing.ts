@@ -152,6 +152,7 @@ export const routes = {
     wrBytes: 'wr-bytes',
     wrDate: 'wr-date',
     wrTruncate: 'wr-truncate',
+    wrMark: 'wr-mark',
     range: 'range',
   },
   services: {
@@ -165,6 +166,8 @@ export const routes = {
     storage: 'storage',
     i18n: 'i18n',
     density: 'density',
+    clipboard: 'clipboard',
+    cookie: 'cookie',
   },
   utils: {
     index: 'utils',

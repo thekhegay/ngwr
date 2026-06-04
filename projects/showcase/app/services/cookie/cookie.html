@@ -1,0 +1,48 @@
+<ngwr-doc-page
+  title="WrCookie"
+  description="Thin, SSR-safe `document.cookie` wrapper modelled after `WrStorage`. Read, write, delete, and list cookies — with typed options for expiry, path, domain, secure, and SameSite."
+  [keywords]="['cookie', 'document.cookie', 'session', 'wr-cookie', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Pick a key + value, save, and watch the cookie list update. Saved cookies use a 1-hour Max-Age."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; min-width: 22rem">
+        <input wrInput [(ngModel)]="key" placeholder="key" />
+        <input wrInput [(ngModel)]="value" placeholder="value" />
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          <button wr-btn type="button" color="primary" (click)="save()">Save</button>
+          <button wr-btn type="button" (click)="refresh()">Read</button>
+          <button wr-btn type="button" (click)="remove()">Remove</button>
+          <button wr-btn type="button" (click)="wipe()">Clear all</button>
+        </div>
+        @if (read(); as v) {
+          <p style="margin: 0; font-size: 0.875rem">
+            Read: <code>{{ v }}</code>
+          </p>
+        }
+        <p style="margin: 0; font-size: 0.875rem">
+          Keys visible: <code>{{ all().length ? all().join(', ') : '—' }}</code>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Expiration">
+    <ngwr-doc-code [code]="snippets.expires" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="List + clear">
+    <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

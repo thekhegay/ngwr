@@ -15,4 +15,6 @@ export default [
   { path: services.storage, loadComponent: () => import('./storage/storage') },
   { path: services.i18n, loadComponent: () => import('./i18n/i18n') },
   { path: services.density, loadComponent: () => import('./density/density') },
+  { path: services.clipboard, loadComponent: () => import('./clipboard/clipboard') },
+  { path: services.cookie, loadComponent: () => import('./cookie/cookie') },
 ] satisfies Routes;

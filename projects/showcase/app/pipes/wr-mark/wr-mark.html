@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="wrMark"
+  description="Wrap every occurrence of a query in `<mark>` tags — useful for highlighting search-term matches in autocomplete results, lists, and table cells."
+  [keywords]="['mark', 'highlight', 'search', 'autocomplete', 'wrMark']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Type a query — every match in the paragraph and list lights up. Input is HTML-escaped before the wrap, so the pipe is safe to feed user-supplied values."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; min-width: 22rem">
+        <input wrInput [(ngModel)]="query" placeholder="Search query…" />
+        <p style="margin: 0; line-height: 1.5" [innerHTML]="text | wrMark: query()"></p>
+        <ul style="margin: 0; padding-left: 1rem">
+          @for (item of items; track item) {
+            <li [innerHTML]="item | wrMark: query()"></li>
+          }
+        </ul>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Styling"
+    description="The pipe outputs plain `<mark>` elements. Style them globally — every match shares the same class so themes can target them."
+  >
+    <ngwr-doc-code [code]="snippets.style" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

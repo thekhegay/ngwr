@@ -1,0 +1,54 @@
+<ngwr-doc-page
+  title="WrClipboard"
+  description="Programmatic clipboard read and write. Uses `navigator.clipboard.writeText` when available, with a hidden-textarea + `execCommand` fallback for non-secure contexts."
+  [keywords]="['clipboard', 'copy', 'paste', 'wr-clipboard', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Type something, copy it, then click Paste to read it back. Permissions probe shows what the browser will allow."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; min-width: 22rem">
+        <input wrInput [(ngModel)]="draft" placeholder="Anything…" />
+        <div style="display: flex; gap: 0.5rem">
+          <button wr-btn type="button" color="primary" (click)="copy()">Copy</button>
+          <button wr-btn type="button" (click)="paste()">Paste</button>
+          <button wr-btn type="button" (click)="probe()">Probe permissions</button>
+        </div>
+        <p style="margin: 0; font-size: 0.875rem">
+          available: <code>{{ available }}</code>
+          @if (status() !== 'idle') {
+            · status: <code>{{ status() }}</code>
+          }
+        </p>
+        @if (lastRead(); as text) {
+          <p style="margin: 0; font-size: 0.875rem">
+            pasted: <code>{{ text }}</code>
+          </p>
+        }
+        @if (writePerm() || readPerm()) {
+          <p style="margin: 0; font-size: 0.875rem">
+            write: <code>{{ writePerm() }}</code> · read: <code>{{ readPerm() }}</code>
+          </p>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Read text">
+    <ngwr-doc-code [code]="snippets.read" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Check permissions">
+    <ngwr-doc-code [code]="snippets.perm" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -9,5 +9,6 @@ export const PIPES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'wrBytes', url: ['/pipes', 'wr-bytes'] },
   { title: 'wrDate', url: ['/pipes', 'wr-date'] },
   { title: 'wrTruncate', url: ['/pipes', 'wr-truncate'] },
+  { title: 'wrMark', url: ['/pipes', 'wr-mark'] },
   { title: 'wrRange', url: ['/pipes', 'range'] },
 ];
