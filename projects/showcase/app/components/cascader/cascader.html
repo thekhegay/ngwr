@@ -1,0 +1,37 @@
+<ngwr-doc-page
+  title="Cascader"
+  description="Multi-level select. Drills through hierarchical categories one column at a time; picking a leaf commits the full path. Implements `ControlValueAccessor` — model is `readonly T[]`."
+  [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
+        <wr-cascader [options]="locations" [(ngModel)]="picked" placeholder="Pick a location" />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem"> Value: {{ picked() | json }} </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="changeOnSelect"
+    description="Commit a path on every click, including parent nodes. Useful for filters where any level is meaningful."
+  >
+    <ngwr-doc-code [code]="snippets.changeOnSelect" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
+        <wr-cascader [options]="locations" [(ngModel)]="pickedAny" changeOnSelect placeholder="Pick any level" />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem"> Value: {{ pickedAny() | json }} </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

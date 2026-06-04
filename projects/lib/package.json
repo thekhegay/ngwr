@@ -118,6 +118,9 @@
     "./carousel": {
       "sass": "./carousel/styles/_index.scss"
     },
+    "./cascader": {
+      "sass": "./cascader/styles/_index.scss"
+    },
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
     },

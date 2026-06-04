@@ -1,0 +1,60 @@
+<button
+  type="button"
+  class="wr-cascader__trigger"
+  role="combobox"
+  [disabled]="isDisabled()"
+  [attr.aria-haspopup]="'menu'"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="panelId"
+  (click)="onTriggerClick()"
+  (blur)="onTouched()"
+>
+  @if (displayLabel(); as label) {
+    <span class="wr-cascader__value">{{ label }}</span>
+  } @else {
+    <span class="wr-cascader__placeholder">{{ placeholder() }}</span>
+  }
+
+  @if (clearable() && hasSelection() && !isDisabled()) {
+    <span
+      class="wr-cascader__clear"
+      role="button"
+      aria-label="Clear selection"
+      tabindex="-1"
+      (click)="clearSelection($event)"
+      (keydown.enter)="clearSelection($event)"
+      (keydown.space)="clearSelection($event)"
+    >
+      <wr-icon name="close" />
+    </span>
+  }
+
+  <wr-icon class="wr-cascader__chevron" name="chevron-down" />
+</button>
+
+<ng-template #panelTpl>
+  <div class="wr-cascader-panel" role="menu" [attr.id]="panelId">
+    @for (col of columns(); track $index; let colIndex = $index) {
+      <ul class="wr-cascader__col" role="menu">
+        @for (opt of col; track opt.value) {
+          <li
+            class="wr-cascader__opt"
+            role="menuitem"
+            [class.wr-cascader__opt--active]="isActiveAt(colIndex, opt.value)"
+            [class.wr-cascader__opt--disabled]="opt.disabled"
+            [attr.tabindex]="opt.disabled ? -1 : 0"
+            [attr.aria-disabled]="opt.disabled ? true : null"
+            (click)="onOptionClick(colIndex, opt, $event)"
+            (keydown.enter)="onOptionClick(colIndex, opt, $event)"
+            (keydown.space)="onOptionClick(colIndex, opt, $event)"
+          >
+            <span class="wr-cascader__opt-label">{{ opt.label }}</span>
+            @if (opt.children?.length) {
+              <wr-icon class="wr-cascader__opt-arrow" name="chevron-down" />
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</ng-template>

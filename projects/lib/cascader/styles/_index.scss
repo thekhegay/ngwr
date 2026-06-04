@@ -1,0 +1,179 @@
+// Cascader. The trigger reuses the wr-select look-and-feel; the panel
+// is a horizontal row of columns where each column lists the children
+// of the previously-active node. Picking a leaf commits the path.
+
+.wr-cascader {
+  --wr-cascader-color: var(--wr-color-dark);
+  --wr-cascader-bg: var(--wr-color-white);
+  --wr-cascader-border: var(--wr-color-light);
+  --wr-cascader-radius: var(--wr-border-radius-base);
+  --wr-cascader-padding-y: 0.4375rem;
+  --wr-cascader-padding-x: 0.75rem;
+  --wr-cascader-font-size: 0.875rem;
+  --wr-cascader-line-height: 1.25rem;
+  --wr-cascader-col-width: 12rem;
+  --wr-cascader-max-height: 16rem;
+
+  display: inline-flex;
+  vertical-align: middle;
+
+  &--disabled {
+    --wr-cascader-color: var(--wr-color-medium);
+    --wr-cascader-bg: rgba(var(--wr-color-light-rgb), 0.35);
+  }
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 12rem;
+    appearance: none;
+    background: var(--wr-cascader-bg);
+    color: var(--wr-cascader-color);
+    border: 1px solid var(--wr-cascader-border);
+    border-radius: var(--wr-cascader-radius);
+    padding: var(--wr-cascader-padding-y) var(--wr-cascader-padding-x);
+    font-family: var(--wr-font-family-base);
+    font-size: var(--wr-cascader-font-size);
+    line-height: var(--wr-cascader-line-height);
+    cursor: pointer;
+    text-align: left;
+    transition:
+      border-color var(--wr-transition-base),
+      box-shadow var(--wr-transition-base);
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--wr-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &--open &__trigger {
+    border-color: var(--wr-color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+  }
+
+  &__value,
+  &__placeholder {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__placeholder {
+    color: rgba(var(--wr-color-medium-rgb), 0.85);
+  }
+
+  &__chevron {
+    --wr-icon-size: 1rem;
+    flex: 0 0 auto;
+    color: var(--wr-color-medium);
+    transition: transform var(--wr-transition-base);
+  }
+
+  &--open &__chevron {
+    transform: rotate(180deg);
+  }
+
+  &__clear {
+    --wr-icon-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 999px;
+    color: var(--wr-color-medium);
+    cursor: pointer;
+    transition:
+      background 0.12s ease,
+      color 0.12s ease;
+
+    &:hover {
+      background: rgba(var(--wr-color-dark-rgb), 0.06);
+      color: var(--wr-color-dark);
+    }
+  }
+}
+
+.wr-cascader-overlay {
+  padding-top: 0.25rem;
+}
+
+.wr-cascader-panel {
+  display: flex;
+  background: var(--wr-color-white);
+  border: 1px solid var(--wr-color-light);
+  border-radius: var(--wr-border-radius-base);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.875rem;
+  overflow: hidden;
+
+  .wr-cascader__col {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+    width: var(--wr-cascader-col-width, 12rem);
+    max-height: var(--wr-cascader-max-height, 16rem);
+    overflow-y: auto;
+
+    + .wr-cascader__col {
+      border-left: 1px solid var(--wr-color-light);
+    }
+  }
+
+  .wr-cascader__opt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--wr-color-dark);
+    cursor: pointer;
+    transition: background 0.12s ease;
+
+    &:hover {
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+    }
+
+    &--active {
+      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      color: var(--wr-color-primary);
+    }
+
+    &--disabled {
+      color: var(--wr-color-medium);
+      cursor: not-allowed;
+      opacity: 0.55;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+
+  .wr-cascader__opt-label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Repurpose `chevron-down` rotated -90° as a right-pointing arrow
+  // (a dedicated `chevron-right` icon hasn't been added yet).
+  .wr-cascader__opt-arrow {
+    --wr-icon-size: 0.875rem;
+    flex: 0 0 auto;
+    color: var(--wr-color-medium);
+    transform: rotate(-90deg);
+  }
+}

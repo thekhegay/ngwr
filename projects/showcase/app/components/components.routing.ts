@@ -63,6 +63,10 @@ export default [
     loadComponent: () => import('./squircle/squircle'),
   },
   {
+    path: components.cascader,
+    loadComponent: () => import('./cascader/cascader'),
+  },
+  {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox'),
   },
