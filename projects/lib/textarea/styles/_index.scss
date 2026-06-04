@@ -21,7 +21,9 @@
   border: 1px solid var(--wr-textarea-border);
   border-radius: var(--wr-textarea-radius);
   box-shadow: 0 0 0 3px var(--wr-textarea-ring);
-  transition: border-color var(--wr-transition-base), box-shadow var(--wr-transition-base),
+  transition:
+    border-color var(--wr-transition-base),
+    box-shadow var(--wr-transition-base),
     background var(--wr-transition-base);
 
   &--focused {

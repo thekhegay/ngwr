@@ -51,9 +51,4 @@ export interface DocColorControl extends ControlBase {
 }
 
 /** Union of all control descriptors a `<ngwr-doc-playground>` can render. */
-export type DocControl =
-  | DocSelectControl
-  | DocSliderControl
-  | DocToggleControl
-  | DocTextControl
-  | DocColorControl;
+export type DocControl = DocSelectControl | DocSliderControl | DocToggleControl | DocTextControl | DocColorControl;

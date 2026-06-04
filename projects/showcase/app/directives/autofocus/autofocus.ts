@@ -15,14 +15,7 @@ import {
   selector: 'ngwr-autofocus-page',
   templateUrl: './autofocus.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    WrAutofocus,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrAutofocus, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AutofocusPage {
   protected readonly autofocusOn = signal(true);

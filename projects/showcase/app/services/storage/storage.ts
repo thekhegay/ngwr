@@ -75,15 +75,60 @@ effect(() => console.log('theme is', theme()));`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'get(key, fallback?)', description: 'Read a value. Returns `fallback` (default `null`) when absent or expired.', type: '<T>(k: string, f?: T) => T | null', default: '—' },
-    { name: 'set(key, value, opts?)', description: 'Write a value. Per-call `ttl` (ms) overrides config default.', type: '<T>(k: string, v: T, opts?: { ttl?: number }) => void', default: '—' },
+    {
+      name: 'get(key, fallback?)',
+      description: 'Read a value. Returns `fallback` (default `null`) when absent or expired.',
+      type: '<T>(k: string, f?: T) => T | null',
+      default: '—',
+    },
+    {
+      name: 'set(key, value, opts?)',
+      description: 'Write a value. Per-call `ttl` (ms) overrides config default.',
+      type: '<T>(k: string, v: T, opts?: { ttl?: number }) => void',
+      default: '—',
+    },
     { name: 'remove(key)', description: 'Remove the value at `key`.', type: '(k: string) => void', default: '—' },
-    { name: 'clear()', description: 'Clear all keys under our prefix (or everything when prefix is empty).', type: '() => void', default: '—' },
-    { name: 'has(key)', description: 'Whether the key is present (ignoring expiry).', type: '(k: string) => boolean', default: '—' },
-    { name: 'keys()', description: 'All known keys with the prefix stripped.', type: '() => readonly string[]', default: '—' },
-    { name: 'watch(key, fallback?)', description: 'Reactive read. Updates on local writes and cross-tab `storage` events.', type: '<T>(k: string, f?: T) => Signal<T | null>', default: '—' },
-    { name: 'provideWrStorage(opts?)', description: 'Configure prefix, json, ttl, and swap the engine.', type: '(opts?) => EnvironmentProviders', default: '—' },
-    { name: 'WR_STORAGE_ENGINE', description: 'InjectionToken for the active `Storage` engine — override at any level to swap.', type: 'InjectionToken<Storage>', default: 'localStorage / memory fallback' },
-    { name: 'createMemoryStorage()', description: 'Map-backed `Storage` shim. Useful for tests.', type: '() => Storage', default: '—' },
+    {
+      name: 'clear()',
+      description: 'Clear all keys under our prefix (or everything when prefix is empty).',
+      type: '() => void',
+      default: '—',
+    },
+    {
+      name: 'has(key)',
+      description: 'Whether the key is present (ignoring expiry).',
+      type: '(k: string) => boolean',
+      default: '—',
+    },
+    {
+      name: 'keys()',
+      description: 'All known keys with the prefix stripped.',
+      type: '() => readonly string[]',
+      default: '—',
+    },
+    {
+      name: 'watch(key, fallback?)',
+      description: 'Reactive read. Updates on local writes and cross-tab `storage` events.',
+      type: '<T>(k: string, f?: T) => Signal<T | null>',
+      default: '—',
+    },
+    {
+      name: 'provideWrStorage(opts?)',
+      description: 'Configure prefix, json, ttl, and swap the engine.',
+      type: '(opts?) => EnvironmentProviders',
+      default: '—',
+    },
+    {
+      name: 'WR_STORAGE_ENGINE',
+      description: 'InjectionToken for the active `Storage` engine — override at any level to swap.',
+      type: 'InjectionToken<Storage>',
+      default: 'localStorage / memory fallback',
+    },
+    {
+      name: 'createMemoryStorage()',
+      description: 'Map-backed `Storage` shim. Useful for tests.',
+      type: '() => Storage',
+      default: '—',
+    },
   ];
 }

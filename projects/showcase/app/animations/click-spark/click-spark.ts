@@ -47,7 +47,7 @@ export default class ClickSparkPage {
   easing="${this.easing()}"
 >
   <div>Click me</div>
-</wr-click-spark>`,
+</wr-click-spark>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -55,7 +55,12 @@ export default class ClickSparkPage {
     { kind: 'slider', label: 'Spark Radius (px)', signal: this.sparkRadius, min: 5, max: 60, step: 1, unit: 'px' },
     { kind: 'slider', label: 'Spark Size (px)', signal: this.sparkSize, min: 2, max: 30, step: 1, unit: 'px' },
     { kind: 'slider', label: 'Duration (ms)', signal: this.duration, min: 100, max: 1500, step: 50, unit: 'ms' },
-    { kind: 'select', label: 'Easing', signal: this.easing, options: ['linear', 'ease-in', 'ease-out', 'ease-in-out'] as const },
+    {
+      kind: 'select',
+      label: 'Easing',
+      signal: this.easing,
+      options: ['linear', 'ease-in', 'ease-out', 'ease-in-out'] as const,
+    },
     { kind: 'color', label: 'Color', signal: this.sparkColor },
   ];
 
@@ -65,11 +70,36 @@ export default class ClickSparkPage {
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'sparkColor', description: 'Spark stroke colour.', type: 'string', default: "'#fff'" },
-    { name: 'sparkSize', description: 'Length of each spark line in px at start; tapers to 0 over the duration.', type: 'number', default: '10' },
-    { name: 'sparkRadius', description: 'Distance each spark travels from the origin in px.', type: 'number', default: '15' },
-    { name: 'sparkCount', description: 'Number of sparks per click, evenly distributed around the circle.', type: 'number', default: '8' },
+    {
+      name: 'sparkSize',
+      description: 'Length of each spark line in px at start; tapers to 0 over the duration.',
+      type: 'number',
+      default: '10',
+    },
+    {
+      name: 'sparkRadius',
+      description: 'Distance each spark travels from the origin in px.',
+      type: 'number',
+      default: '15',
+    },
+    {
+      name: 'sparkCount',
+      description: 'Number of sparks per click, evenly distributed around the circle.',
+      type: 'number',
+      default: '8',
+    },
     { name: 'duration', description: 'Animation duration in ms.', type: 'number', default: '400' },
-    { name: 'easing', description: 'Easing applied to travel distance.', type: "'linear' | 'ease-in' | 'ease-in-out' | 'ease-out'", default: "'ease-out'" },
-    { name: 'extraScale', description: 'Multiplier on travel distance — bumps the radius without changing sparkRadius.', type: 'number', default: '1' },
+    {
+      name: 'easing',
+      description: 'Easing applied to travel distance.',
+      type: "'linear' | 'ease-in' | 'ease-in-out' | 'ease-out'",
+      default: "'ease-out'",
+    },
+    {
+      name: 'extraScale',
+      description: 'Multiplier on travel distance — bumps the radius without changing sparkRadius.',
+      type: 'number',
+      default: '1',
+    },
   ];
 }

@@ -11,12 +11,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Playground">
-    <ngwr-doc-playground
-      [code]="snippet()"
-      [controls]="controls"
-      [showReplay]="true"
-      (replay)="replay()"
-    >
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls" [showReplay]="true" (replay)="replay()">
       @for (k of [replayKey()]; track k) {
         <wr-falling-text
           [text]="text()"

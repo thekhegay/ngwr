@@ -63,7 +63,9 @@ $alert-colors: (
     color: var(--wr-alert-close);
     cursor: pointer;
     border-radius: var(--wr-border-radius-sm);
-    transition: color var(--wr-transition-base), background var(--wr-transition-base);
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
 
     --wr-icon-size: 1rem;
 

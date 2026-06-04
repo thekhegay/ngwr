@@ -163,7 +163,7 @@ export class WrSplitText {
             }
           }
         },
-        { threshold: this.threshold(), rootMargin: this.rootMargin() },
+        { threshold: this.threshold(), rootMargin: this.rootMargin() }
       );
       io.observe(host);
       this.destroyRef.onDestroy(() => io.disconnect());
@@ -200,7 +200,7 @@ export class WrSplitText {
           { opacity: fromStyle.opacity, transform: fromStyle.transform },
           { opacity: toStyle.opacity, transform: toStyle.transform },
         ],
-        { duration: durationMs, delay: i * stagger, easing, fill: 'forwards' },
+        { duration: durationMs, delay: i * stagger, easing, fill: 'forwards' }
       );
       animation.onfinish = (): void => {
         // Commit final styles + clean up the WAAPI tween.

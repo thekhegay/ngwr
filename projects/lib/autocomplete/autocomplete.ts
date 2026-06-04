@@ -31,8 +31,8 @@ import { type Observable, debounceTime, finalize, from, isObservable, of, switch
 
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY } from 'ngwr/overlay';
-import { WrVirtualScroll } from 'ngwr/virtual-scroll';
 import { noop, randomId } from 'ngwr/utils';
+import { WrVirtualScroll } from 'ngwr/virtual-scroll';
 
 /** Function signature for async option loaders. */
 type WrAutocompleteAsyncLoader<T> = (query: string) => Observable<readonly T[]> | Promise<readonly T[]> | readonly T[];

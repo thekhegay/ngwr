@@ -47,14 +47,24 @@ export default class DecryptTextPage {
   revealDirection="${this.revealDirection()}"
   animateOn="${this.animateOn()}"
   [useOriginalCharsOnly]="${this.useOriginalCharsOnly()}"
-/>`,
+/>`
   );
 
   protected readonly controls: readonly DocControl[] = [
-    { kind: 'select', label: 'Animate On', signal: this.animateOn, options: ['hover', 'click', 'view', 'inViewHover'] as const },
+    {
+      kind: 'select',
+      label: 'Animate On',
+      signal: this.animateOn,
+      options: ['hover', 'click', 'view', 'inViewHover'] as const,
+    },
     { kind: 'slider', label: 'Speed (ms)', signal: this.speed, min: 10, max: 200, step: 5, unit: 'ms' },
     { kind: 'toggle', label: 'Sequential', signal: this.sequential },
-    { kind: 'select', label: 'Reveal Direction', signal: this.revealDirection, options: ['start', 'end', 'center'] as const },
+    {
+      kind: 'select',
+      label: 'Reveal Direction',
+      signal: this.revealDirection,
+      options: ['start', 'end', 'center'] as const,
+    },
     { kind: 'toggle', label: 'Original Chars Only', signal: this.useOriginalCharsOnly },
     { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text' },
   ];
@@ -70,12 +80,42 @@ export default class DecryptTextPage {
   protected readonly api: readonly DocApiRow[] = [
     { name: 'text', description: 'Text to reveal.', type: 'string', default: '— (required)', required: true },
     { name: 'speed', description: 'Tick interval in ms.', type: 'number', default: '50' },
-    { name: 'maxIterations', description: 'Non-sequential mode only — total scramble ticks before snapping to plain.', type: 'number', default: '10' },
-    { name: 'sequential', description: 'Reveal one char per tick instead of scrambling all of them.', type: 'boolean', default: 'false' },
-    { name: 'revealDirection', description: 'Order in which chars are revealed in sequential mode.', type: "'start' | 'end' | 'center'", default: "'start'" },
-    { name: 'useOriginalCharsOnly', description: 'Scramble using only glyphs present in `text` (minus spaces).', type: 'boolean', default: 'false' },
+    {
+      name: 'maxIterations',
+      description: 'Non-sequential mode only — total scramble ticks before snapping to plain.',
+      type: 'number',
+      default: '10',
+    },
+    {
+      name: 'sequential',
+      description: 'Reveal one char per tick instead of scrambling all of them.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'revealDirection',
+      description: 'Order in which chars are revealed in sequential mode.',
+      type: "'start' | 'end' | 'center'",
+      default: "'start'",
+    },
+    {
+      name: 'useOriginalCharsOnly',
+      description: 'Scramble using only glyphs present in `text` (minus spaces).',
+      type: 'boolean',
+      default: 'false',
+    },
     { name: 'characters', description: 'Pool of glyphs to scramble through.', type: 'string', default: "'ABC…!@#$…'" },
-    { name: 'animateOn', description: 'When to start the animation.', type: "'hover' | 'click' | 'view' | 'inViewHover'", default: "'hover'" },
-    { name: 'clickMode', description: "Click behaviour: `'once'` decrypts then stops; `'toggle'` flips state on each click.", type: "'once' | 'toggle'", default: "'once'" },
+    {
+      name: 'animateOn',
+      description: 'When to start the animation.',
+      type: "'hover' | 'click' | 'view' | 'inViewHover'",
+      default: "'hover'",
+    },
+    {
+      name: 'clickMode',
+      description: "Click behaviour: `'once'` decrypts then stops; `'toggle'` flips state on each click.",
+      type: "'once' | 'toggle'",
+      default: "'once'",
+    },
   ];
 }

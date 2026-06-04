@@ -32,7 +32,8 @@ if (isPrintableKey(e)) buffer.push(e.key);`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isPrintableKey(event)',
-      description: 'True when the key is a single printable character with no modifiers. Use for type-to-search and inline-edit flows.',
+      description:
+        'True when the key is a single printable character with no modifiers. Use for type-to-search and inline-edit flows.',
       type: '(e: KeyboardEvent) => boolean',
       default: '—',
     },

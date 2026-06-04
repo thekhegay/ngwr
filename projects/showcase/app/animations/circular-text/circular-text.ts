@@ -39,12 +39,17 @@ export default class CircularTextPage {
   text="${this.text()}"
   [spinDuration]="${this.spinDuration()}"
   onHover="${this.onHover()}"
-/>`,
+/>`
   );
 
   protected readonly controls: readonly DocControl[] = [
     { kind: 'slider', label: 'Spin Duration (s)', signal: this.spinDuration, min: 2, max: 60, step: 1, unit: 's' },
-    { kind: 'select', label: 'On Hover', signal: this.onHover, options: ['speedUp', 'slowDown', 'pause', 'goBonkers'] as const },
+    {
+      kind: 'select',
+      label: 'On Hover',
+      signal: this.onHover,
+      options: ['speedUp', 'slowDown', 'pause', 'goBonkers'] as const,
+    },
     { kind: 'text', label: 'Text', signal: this.text, placeholder: 'TEXT * ' },
   ];
 
@@ -53,8 +58,19 @@ export default class CircularTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'text', description: 'Text to lay out around the circle.', type: 'string', default: '— (required)', required: true },
+    {
+      name: 'text',
+      description: 'Text to lay out around the circle.',
+      type: 'string',
+      default: '— (required)',
+      required: true,
+    },
     { name: 'spinDuration', description: 'Seconds per full revolution at rest.', type: 'number', default: '20' },
-    { name: 'onHover', description: 'Hover behaviour. `null` disables hover reactivity.', type: "'speedUp' | 'slowDown' | 'pause' | 'goBonkers' | null", default: "'speedUp'" },
+    {
+      name: 'onHover',
+      description: 'Hover behaviour. `null` disables hover reactivity.',
+      type: "'speedUp' | 'slowDown' | 'pause' | 'goBonkers' | null",
+      default: "'speedUp'",
+    },
   ];
 }

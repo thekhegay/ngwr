@@ -40,7 +40,8 @@ destroyRef.onDestroy(() => onResize.cancel());`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'debounce(fn, waitMs)',
-      description: 'Returns a wrapper that fires `fn` only once `waitMs` has elapsed without further calls. The wrapper exposes a `.cancel()` method for cleanup.',
+      description:
+        'Returns a wrapper that fires `fn` only once `waitMs` has elapsed without further calls. The wrapper exposes a `.cancel()` method for cleanup.',
       type: '(fn, ms) => WrDebouncedFn',
       default: '—',
     },

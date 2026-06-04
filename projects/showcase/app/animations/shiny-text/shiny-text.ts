@@ -48,7 +48,7 @@ export default class ShinyTextPage {
   direction="${this.direction()}"
   [yoyo]="${this.yoyo()}"
   [pauseOnHover]="${this.pauseOnHover()}"
-/>`,
+/>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -70,8 +70,18 @@ export default class ShinyTextPage {
   protected readonly api: readonly DocApiRow[] = [
     { name: 'text', description: 'Text to render.', type: 'string', default: '— (required)', required: true },
     { name: 'disabled', description: 'Pause the animation.', type: 'boolean', default: 'false' },
-    { name: 'speed', description: 'Time for the bright stripe to traverse the text, in seconds.', type: 'number', default: '2' },
-    { name: 'color', description: 'Base text colour (outside the bright stripe).', type: 'string', default: "'#b5b5b5'" },
+    {
+      name: 'speed',
+      description: 'Time for the bright stripe to traverse the text, in seconds.',
+      type: 'number',
+      default: '2',
+    },
+    {
+      name: 'color',
+      description: 'Base text colour (outside the bright stripe).',
+      type: 'string',
+      default: "'#b5b5b5'",
+    },
     { name: 'shineColor', description: 'Bright stripe colour.', type: 'string', default: "'#ffffff'" },
     { name: 'spread', description: 'Gradient angle in degrees.', type: 'number', default: '120' },
     { name: 'yoyo', description: 'Bounce back-and-forth instead of restarting.', type: 'boolean', default: 'false' },
@@ -80,7 +90,8 @@ export default class ShinyTextPage {
     { name: 'delay', description: 'Pause between sweeps in seconds.', type: 'number', default: '0' },
     {
       name: '[wrShimmer]',
-      description: 'Lightweight directive variant — adds the `.wr-shimmer` host class for a continuous sweep over any element. Same package.',
+      description:
+        'Lightweight directive variant — adds the `.wr-shimmer` host class for a continuous sweep over any element. Same package.',
       type: 'directive',
       default: '—',
     },

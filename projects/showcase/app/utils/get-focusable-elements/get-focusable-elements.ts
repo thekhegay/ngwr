@@ -33,7 +33,8 @@ const els = getFocusableElements(root);`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'getFocusableElements(root)',
-      description: 'Returns every focusable descendant of `root` in DOM order, filtered for visibility and `tabindex`-disabled elements.',
+      description:
+        'Returns every focusable descendant of `root` in DOM order, filtered for visibility and `tabindex`-disabled elements.',
       type: '(root: HTMLElement) => readonly HTMLElement[]',
       default: '—',
     },

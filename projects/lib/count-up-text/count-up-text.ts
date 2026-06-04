@@ -130,7 +130,7 @@ export class WrCountUpText {
           }
         }
       },
-      { threshold: 0, rootMargin: '0px' },
+      { threshold: 0, rootMargin: '0px' }
     );
     io.observe(this.host.nativeElement);
     this.destroyRef.onDestroy(() => io.disconnect());

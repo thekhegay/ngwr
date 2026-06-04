@@ -124,7 +124,7 @@ export class WrBlurText {
           }
         }
       },
-      { threshold: this.threshold(), rootMargin: this.rootMargin() },
+      { threshold: this.threshold(), rootMargin: this.rootMargin() }
     );
     io.observe(host);
     this.destroyRef.onDestroy(() => io.disconnect());

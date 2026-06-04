@@ -54,7 +54,7 @@ export function provideWrStorage(options: ProvideWrStorageOptions = {}): Environ
     providers.push(
       typeof engine === 'function'
         ? { provide: WR_STORAGE_ENGINE, useFactory: engine }
-        : { provide: WR_STORAGE_ENGINE, useValue: engine },
+        : { provide: WR_STORAGE_ENGINE, useValue: engine }
     );
   }
 

@@ -98,7 +98,9 @@
   display: inline-flex;
   --wr-icon-size: 0.875rem;
   color: var(--wr-color-medium);
-  transition: transform var(--wr-transition-base), color var(--wr-transition-base);
+  transition:
+    transform var(--wr-transition-base),
+    color var(--wr-transition-base);
   opacity: 0.5;
 
   &--asc {

@@ -40,7 +40,9 @@
     line-height: var(--wr-select-line-height);
     cursor: pointer;
     text-align: left;
-    transition: border-color var(--wr-transition-base), box-shadow var(--wr-transition-base);
+    transition:
+      border-color var(--wr-transition-base),
+      box-shadow var(--wr-transition-base);
 
     &:focus-visible {
       outline: none;

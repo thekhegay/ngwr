@@ -36,7 +36,8 @@ if (event.key === KEYS.SPACE) toggle();`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'KEYS',
-      description: 'Canonical `KeyboardEvent.key` constants — `ENTER`, `ESCAPE`, `ARROW_UP`, `ARROW_DOWN`, `TAB`, `SPACE`, …',
+      description:
+        'Canonical `KeyboardEvent.key` constants — `ENTER`, `ESCAPE`, `ARROW_UP`, `ARROW_DOWN`, `TAB`, `SPACE`, …',
       type: 'const record',
       default: '—',
     },

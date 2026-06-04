@@ -36,8 +36,7 @@
     cursor: crosshair;
     touch-action: none;
     background:
-      linear-gradient(to top, #000, transparent),
-      linear-gradient(to right, #fff, transparent),
+      linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent),
       var(--wr-color-picker-hue);
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   }
@@ -106,8 +105,7 @@
     height: var(--wr-preview-size);
     border-radius: var(--wr-color-picker-radius);
     background-image:
-      linear-gradient(currentColor, currentColor),
-      conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
+      linear-gradient(currentColor, currentColor), conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
     background-size:
       auto,
       8px 8px;

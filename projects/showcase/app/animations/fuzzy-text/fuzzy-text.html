@@ -12,7 +12,17 @@
 
   <ngwr-doc-section title="Playground">
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
-      <div style="padding: 2rem; background: var(--wr-color-dark); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; width: 100%">
+      <div
+        style="
+          padding: 2rem;
+          background: var(--wr-color-dark);
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+        "
+      >
         <wr-fuzzy-text
           [text]="text()"
           [fuzzRange]="fuzzRange()"

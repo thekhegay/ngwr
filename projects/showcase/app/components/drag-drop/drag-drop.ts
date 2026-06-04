@@ -39,7 +39,7 @@ export default class DragDropPage {
     { id: 5, label: 'Bump the version' },
   ]);
 
-  protected lastReorder = signal<string>('—');
+  protected readonly lastReorder = signal<string>('—');
 
   protected onReorder(e: WrSortableReorderEvent<Task>): void {
     this.lastReorder.set(`moved "${e.item.label}" from #${e.previousIndex + 1} to #${e.currentIndex + 1}`);
@@ -63,12 +63,38 @@ export default class DragDropPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'items', description: 'Two-way bound items array. Emits the reordered array after drop.', type: 'T[]', default: '— (required)', required: true },
-    { name: 'orientation', description: "Layout direction. Drives CDK's `cdkDropListOrientation`.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
+    {
+      name: 'items',
+      description: 'Two-way bound items array. Emits the reordered array after drop.',
+      type: 'T[]',
+      default: '— (required)',
+      required: true,
+    },
+    {
+      name: 'orientation',
+      description: "Layout direction. Drives CDK's `cdkDropListOrientation`.",
+      type: "'vertical' | 'horizontal'",
+      default: "'vertical'",
+    },
     { name: 'disabled', description: 'Disable dragging.', type: 'boolean', default: 'false' },
     { name: 'lockAxis', description: 'Restrict drag movement to one axis.', type: "'x' | 'y'", default: '—' },
-    { name: 'trackBy', description: '`trackBy` for the inner `@for`.', type: '(i, item) => unknown', default: 'identity' },
-    { name: '(reorder)', description: 'Fires after a successful reorder with the new array + indices.', type: 'EventEmitter<WrSortableReorderEvent<T>>', default: '—' },
-    { name: '[wrDragHandle]', description: 'Restrict drag start to a handle element. Composes CDK\'s `cdkDragHandle`.', type: 'directive', default: '—' },
+    {
+      name: 'trackBy',
+      description: '`trackBy` for the inner `@for`.',
+      type: '(i, item) => unknown',
+      default: 'identity',
+    },
+    {
+      name: '(reorder)',
+      description: 'Fires after a successful reorder with the new array + indices.',
+      type: 'EventEmitter<WrSortableReorderEvent<T>>',
+      default: '—',
+    },
+    {
+      name: '[wrDragHandle]',
+      description: "Restrict drag start to a handle element. Composes CDK's `cdkDragHandle`.",
+      type: 'directive',
+      default: '—',
+    },
   ];
 }

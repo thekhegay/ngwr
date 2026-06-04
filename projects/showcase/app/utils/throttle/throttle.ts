@@ -40,7 +40,8 @@ destroyRef.onDestroy(() => onScroll.cancel());`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'throttle(fn, waitMs)',
-      description: 'Returns a wrapper that fires `fn` at most every `waitMs` (leading and trailing edge). Exposes `.cancel()` for teardown.',
+      description:
+        'Returns a wrapper that fires `fn` at most every `waitMs` (leading and trailing edge). Exposes `.cancel()` for teardown.',
       type: '(fn, ms) => WrThrottledFn',
       default: '—',
     },

@@ -45,13 +45,22 @@ export default class SplitTextPage {
   splitType="${this.splitType()}"
   [delay]="${this.delay()}"
   [duration]="${this.duration()}"
-/>`,
+/>`
   );
 
   protected readonly controls: readonly DocControl[] = [
     { kind: 'select', label: 'Split Type', signal: this.splitType, options: ['chars', 'words'] as const },
     { kind: 'slider', label: 'Stagger Delay (ms)', signal: this.delay, min: 0, max: 200, step: 5 },
-    { kind: 'slider', label: 'Duration (s)', signal: this.duration, min: 0.2, max: 3, step: 0.1, precision: 1, unit: 's' },
+    {
+      kind: 'slider',
+      label: 'Duration (s)',
+      signal: this.duration,
+      min: 0.2,
+      max: 3,
+      step: 0.1,
+      precision: 1,
+      unit: 's',
+    },
     { kind: 'text', label: 'Text', signal: this.text, placeholder: 'Text to animate' },
   ];
 
@@ -68,12 +77,37 @@ export default class SplitTextPage {
     { name: 'splitType', description: 'Split granularity.', type: "'chars' | 'words'", default: "'chars'" },
     { name: 'delay', description: 'Stagger delay between pieces in ms.', type: 'number', default: '50' },
     { name: 'duration', description: 'Animation duration in seconds.', type: 'number', default: '1.25' },
-    { name: 'easing', description: 'CSS easing function.', type: 'string', default: "'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out)" },
-    { name: 'from', description: 'Start state for each piece. Properties: `opacity`, `x`, `y` (px), `scale`, `rotate` (deg).', type: 'WrSplitTextMotion', default: '{ opacity: 0, y: 40 }' },
-    { name: 'to', description: 'End state for each piece. Same shape as `from`.', type: 'WrSplitTextMotion', default: '{ opacity: 1, y: 0 }' },
+    {
+      name: 'easing',
+      description: 'CSS easing function.',
+      type: 'string',
+      default: "'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out)",
+    },
+    {
+      name: 'from',
+      description: 'Start state for each piece. Properties: `opacity`, `x`, `y` (px), `scale`, `rotate` (deg).',
+      type: 'WrSplitTextMotion',
+      default: '{ opacity: 0, y: 40 }',
+    },
+    {
+      name: 'to',
+      description: 'End state for each piece. Same shape as `from`.',
+      type: 'WrSplitTextMotion',
+      default: '{ opacity: 1, y: 0 }',
+    },
     { name: 'threshold', description: 'IntersectionObserver threshold (0..1).', type: 'number', default: '0.1' },
     { name: 'rootMargin', description: 'IntersectionObserver rootMargin.', type: 'string', default: "'-100px'" },
-    { name: 'textAlign', description: 'Text alignment on the host.', type: "'left' | 'center' | 'right' | 'justify'", default: "'center'" },
-    { name: '(animationComplete)', description: 'Emitted once all pieces finish animating.', type: 'EventEmitter<void>', default: '—' },
+    {
+      name: 'textAlign',
+      description: 'Text alignment on the host.',
+      type: "'left' | 'center' | 'right' | 'justify'",
+      default: "'center'",
+    },
+    {
+      name: '(animationComplete)',
+      description: 'Emitted once all pieces finish animating.',
+      type: 'EventEmitter<void>',
+      default: '—',
+    },
   ];
 }

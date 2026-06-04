@@ -111,14 +111,62 @@
     position: absolute;
     z-index: 1;
 
-    &--t  { top: -2px;    left: 0;       right: 0;    height: var(--wr-window-handle-size); cursor: ns-resize; }
-    &--b  { bottom: -2px; left: 0;       right: 0;    height: var(--wr-window-handle-size); cursor: ns-resize; }
-    &--l  { top: 0;       bottom: 0;     left: -2px;  width:  var(--wr-window-handle-size); cursor: ew-resize; }
-    &--r  { top: 0;       bottom: 0;     right: -2px; width:  var(--wr-window-handle-size); cursor: ew-resize; }
+    &--t {
+      top: -2px;
+      left: 0;
+      right: 0;
+      height: var(--wr-window-handle-size);
+      cursor: ns-resize;
+    }
+    &--b {
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: var(--wr-window-handle-size);
+      cursor: ns-resize;
+    }
+    &--l {
+      top: 0;
+      bottom: 0;
+      left: -2px;
+      width: var(--wr-window-handle-size);
+      cursor: ew-resize;
+    }
+    &--r {
+      top: 0;
+      bottom: 0;
+      right: -2px;
+      width: var(--wr-window-handle-size);
+      cursor: ew-resize;
+    }
 
-    &--tl { top: -2px;    left: -2px;    width: 14px; height: 14px; cursor: nwse-resize; }
-    &--tr { top: -2px;    right: -2px;   width: 14px; height: 14px; cursor: nesw-resize; }
-    &--bl { bottom: -2px; left: -2px;    width: 14px; height: 14px; cursor: nesw-resize; }
-    &--br { bottom: -2px; right: -2px;   width: 14px; height: 14px; cursor: nwse-resize; }
+    &--tl {
+      top: -2px;
+      left: -2px;
+      width: 14px;
+      height: 14px;
+      cursor: nwse-resize;
+    }
+    &--tr {
+      top: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
+      cursor: nesw-resize;
+    }
+    &--bl {
+      bottom: -2px;
+      left: -2px;
+      width: 14px;
+      height: 14px;
+      cursor: nesw-resize;
+    }
+    &--br {
+      bottom: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
+      cursor: nwse-resize;
+    }
   }
 }

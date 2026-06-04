@@ -55,16 +55,7 @@ import type { DocControl, DocSliderControl } from './types';
   templateUrl: './doc-playground.html',
   styleUrl: './doc-playground.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DocCodeComponent,
-    FormsModule,
-    WrColorPickerTrigger,
-    WrInput,
-    WrOption,
-    WrSelect,
-    WrSlider,
-    WrSwitch,
-  ],
+  imports: [DocCodeComponent, FormsModule, WrColorPickerTrigger, WrInput, WrOption, WrSelect, WrSlider, WrSwitch],
 })
 export class DocPlaygroundComponent {
   /** Single source snippet shown beneath the preview. Pass `''` to omit. */

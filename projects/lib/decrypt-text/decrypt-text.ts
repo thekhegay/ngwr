@@ -32,8 +32,7 @@ export type WrDecryptTextAnimateOn = 'hover' | 'click' | 'view' | 'inViewHover';
 export type WrDecryptTextRevealDirection = 'start' | 'end' | 'center';
 export type WrDecryptTextClickMode = 'once' | 'toggle';
 
-const DEFAULT_CHARS =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
+const DEFAULT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
 
 const num =
   (fallback: number) =>
@@ -203,7 +202,7 @@ export class WrDecryptText {
           }
         }
       },
-      { threshold: 0.1, rootMargin: '0px' },
+      { threshold: 0.1, rootMargin: '0px' }
     );
     io.observe(this.host.nativeElement);
     this.destroyRef.onDestroy(() => io.disconnect());

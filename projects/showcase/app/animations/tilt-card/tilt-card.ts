@@ -45,7 +45,7 @@ export default class TiltCardPage {
 >
   <h3>Hover me</h3>
   <p>Move the cursor across me.</p>
-</wr-tilt-card>`,
+</wr-tilt-card>`
   );
 
   protected readonly controls: readonly DocControl[] = [

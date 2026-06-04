@@ -38,7 +38,7 @@ onWin(): void {
     velocity: ${this.velocity()},
     gravity: ${this.gravity()},
   });
-}`,
+}`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -64,7 +64,8 @@ onWin(): void {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'WrConfetti.fire(opts?)',
-      description: 'Fires a confetti burst. Options: `count`, `spread`, `velocity`, `gravity`, `drag`, `origin`, `colors`, `size`, `ttl`.',
+      description:
+        'Fires a confetti burst. Options: `count`, `spread`, `velocity`, `gravity`, `drag`, `origin`, `colors`, `size`, `ttl`.',
       type: 'service method',
       default: '—',
     },

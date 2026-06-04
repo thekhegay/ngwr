@@ -34,7 +34,8 @@ if (isObservable(input)) input.subscribe(render);`;
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'isObservable(v)',
-      description: 'Detects an rxjs Observable. Use to write APIs that transparently accept either a plain value or a stream.',
+      description:
+        'Detects an rxjs Observable. Use to write APIs that transparently accept either a plain value or a stream.',
       type: '(v: unknown) => v is Observable<unknown>',
       default: '—',
     },

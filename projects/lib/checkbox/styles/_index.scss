@@ -58,7 +58,9 @@
     height: 100%;
     transform: scale(0.7);
     opacity: 0;
-    transition: transform var(--wr-transition-base), opacity var(--wr-transition-base);
+    transition:
+      transform var(--wr-transition-base),
+      opacity var(--wr-transition-base);
   }
 
   &__icon {

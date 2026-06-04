@@ -57,7 +57,7 @@ export default class BorderGlowPage {
   [animated]="${this.animated()}"
 >
   …
-</wr-border-glow>`,
+</wr-border-glow>`
   );
 
   protected readonly controls: readonly DocControl[] = [

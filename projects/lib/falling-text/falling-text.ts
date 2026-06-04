@@ -140,7 +140,7 @@ export class WrFallingText {
               }
             }
           },
-          { threshold: 0.1 },
+          { threshold: 0.1 }
         );
         io.observe(this.host.nativeElement);
         this.destroyRef.onDestroy(() => io.disconnect());
@@ -210,7 +210,12 @@ export class WrFallingText {
       // Pick the topmost (last) body whose AABB contains the pointer.
       for (let i = bodies.length - 1; i >= 0; i--) {
         const b = bodies[i];
-        if (local.x >= b.x - b.w / 2 && local.x <= b.x + b.w / 2 && local.y >= b.y - b.h / 2 && local.y <= b.y + b.h / 2) {
+        if (
+          local.x >= b.x - b.w / 2 &&
+          local.x <= b.x + b.w / 2 &&
+          local.y >= b.y - b.h / 2 &&
+          local.y <= b.y + b.h / 2
+        ) {
           drag = { body: b, offX: local.x - b.x, offY: local.y - b.y };
           hostEl.setPointerCapture(e.pointerId);
           break;

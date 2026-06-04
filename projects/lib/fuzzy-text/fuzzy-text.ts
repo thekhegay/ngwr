@@ -163,9 +163,7 @@ export class WrFuzzyText {
     if (!ctx) return;
 
     const fontFamily =
-      this.fontFamily() === 'inherit'
-        ? window.getComputedStyle(canvas).fontFamily || 'sans-serif'
-        : this.fontFamily();
+      this.fontFamily() === 'inherit' ? window.getComputedStyle(canvas).fontFamily || 'sans-serif' : this.fontFamily();
     const fontSize = this.fontSize();
     const fontSizeStr = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
     const fontWeight = this.fontWeight();
@@ -292,7 +290,7 @@ export class WrFuzzyText {
         -fuzzRange - 20,
         -fuzzRange - 10,
         offscreenWidth + 2 * (fuzzRange + 20),
-        tightHeight + 2 * (fuzzRange + 10),
+        tightHeight + 2 * (fuzzRange + 10)
       );
 
       if (isClicking) targetIntensity = 1;
@@ -333,7 +331,7 @@ export class WrFuzzyText {
           -fuzzRange - 20,
           -fuzzRange - 10,
           offscreenWidth + 2 * (fuzzRange + 20),
-          tightHeight + 2 * (fuzzRange + 10),
+          tightHeight + 2 * (fuzzRange + 10)
         );
         ctx.putImageData(data, 0, 0);
         for (let i = 0; i < w; i++) {

@@ -147,7 +147,7 @@ export class WrButton {
    * used, falling back to `rounded`.
    */
   protected readonly effectiveShape = computed<WrButtonShape>(() =>
-    this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded'),
+    this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded')
   );
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);

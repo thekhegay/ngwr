@@ -19,7 +19,9 @@
   &__item {
     cursor: grab;
     user-select: none;
-    transition: box-shadow 0.18s ease, transform 0.18s ease;
+    transition:
+      box-shadow 0.18s ease,
+      transform 0.18s ease;
 
     &.cdk-drag-disabled {
       cursor: default;

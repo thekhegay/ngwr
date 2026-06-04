@@ -36,7 +36,7 @@ export default class RevealPage {
   [once]="${this.once()}"
 >
   Animates in once visible
-</div>`,
+</div>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -62,6 +62,11 @@ export default class RevealPage {
     },
     { name: 'threshold', description: 'IntersectionObserver threshold (0..1).', type: 'number', default: '0.1' },
     { name: 'rootMargin', description: 'IntersectionObserver rootMargin.', type: 'string', default: "'0px'" },
-    { name: 'once', description: 'If `false`, re-runs every time the host enters the viewport.', type: 'boolean', default: 'true' },
+    {
+      name: 'once',
+      description: 'If `false`, re-runs every time the host enters the viewport.',
+      type: 'boolean',
+      default: 'true',
+    },
   ];
 }

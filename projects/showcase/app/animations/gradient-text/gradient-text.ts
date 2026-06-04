@@ -46,12 +46,26 @@ export default class GradientTextPage {
   [showBorder]="${this.showBorder()}"
 >
   ${this.text()}
-</wr-gradient-text>`,
+</wr-gradient-text>`
   );
 
   protected readonly controls: readonly DocControl[] = [
-    { kind: 'slider', label: 'Speed (s)', signal: this.animationSpeed, min: 1, max: 20, step: 0.5, precision: 1, unit: 's' },
-    { kind: 'select', label: 'Direction', signal: this.direction, options: ['horizontal', 'vertical', 'diagonal'] as const },
+    {
+      kind: 'slider',
+      label: 'Speed (s)',
+      signal: this.animationSpeed,
+      min: 1,
+      max: 20,
+      step: 0.5,
+      precision: 1,
+      unit: 's',
+    },
+    {
+      kind: 'select',
+      label: 'Direction',
+      signal: this.direction,
+      options: ['horizontal', 'vertical', 'diagonal'] as const,
+    },
     { kind: 'toggle', label: 'Yoyo', signal: this.yoyo },
     { kind: 'toggle', label: 'Pause on Hover', signal: this.pauseOnHover },
     { kind: 'toggle', label: 'Border', signal: this.showBorder },
@@ -63,10 +77,30 @@ export default class GradientTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'colors', description: 'Gradient stops (any CSS colours).', type: 'readonly string[]', default: "['#5227FF', '#FF9FFC', '#B497CF']" },
-    { name: 'animationSpeed', description: 'Seconds per full sweep (or per half if `yoyo` is on).', type: 'number', default: '8' },
-    { name: 'showBorder', description: 'Wrap the text in a dark pill with the gradient as a border.', type: 'boolean', default: 'false' },
-    { name: 'direction', description: 'Gradient slide direction.', type: "'horizontal' | 'vertical' | 'diagonal'", default: "'horizontal'" },
+    {
+      name: 'colors',
+      description: 'Gradient stops (any CSS colours).',
+      type: 'readonly string[]',
+      default: "['#5227FF', '#FF9FFC', '#B497CF']",
+    },
+    {
+      name: 'animationSpeed',
+      description: 'Seconds per full sweep (or per half if `yoyo` is on).',
+      type: 'number',
+      default: '8',
+    },
+    {
+      name: 'showBorder',
+      description: 'Wrap the text in a dark pill with the gradient as a border.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'direction',
+      description: 'Gradient slide direction.',
+      type: "'horizontal' | 'vertical' | 'diagonal'",
+      default: "'horizontal'",
+    },
     { name: 'pauseOnHover', description: 'Pause the animation while hovered.', type: 'boolean', default: 'false' },
     { name: 'yoyo', description: 'Bounce back-and-forth instead of restarting.', type: 'boolean', default: 'true' },
   ];

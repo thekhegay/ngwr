@@ -5,15 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { NgTemplateOutlet } from '@angular/common';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  CdkDrag,
-  type CdkDragDrop,
-  CdkDragHandle,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
+import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -103,4 +97,3 @@ export class WrSortableList<T = unknown> {
     });
   }
 }
-

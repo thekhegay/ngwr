@@ -93,6 +93,6 @@ export class WrShinyText {
 
   protected readonly gradient = computed(
     () =>
-      `linear-gradient(${this.spread()}deg, ${this.color()} 0%, ${this.color()} 35%, ${this.shineColor()} 50%, ${this.color()} 65%, ${this.color()} 100%)`,
+      `linear-gradient(${this.spread()}deg, ${this.color()} 0%, ${this.color()} 35%, ${this.shineColor()} 50%, ${this.color()} 65%, ${this.color()} 100%)`
   );
 }

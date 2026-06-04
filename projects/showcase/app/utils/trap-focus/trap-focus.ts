@@ -45,7 +45,8 @@ onKey(e: KeyboardEvent) {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'trapFocus(root, event)',
-      description: 'Cycle Tab focus inside `root` — call from a keydown handler. Returns `true` when the event was a Tab that got handled.',
+      description:
+        'Cycle Tab focus inside `root` — call from a keydown handler. Returns `true` when the event was a Tab that got handled.',
       type: '(root: HTMLElement, e: KeyboardEvent) => boolean',
       default: '—',
     },

@@ -43,7 +43,7 @@ export default class FallingTextPage {
   trigger="${this.trigger()}"
   [gravity]="${this.gravity()}"
   fontSize="${this.fontSize()}"
-/>`,
+/>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -62,9 +62,25 @@ export default class FallingTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'text', description: 'Text to render. Words are separated by spaces.', type: 'string', default: '— (required)', required: true },
-    { name: 'highlightWords', description: 'Prefix-match keywords. Matching words get the `wr-falling-text__word--hl` class.', type: 'readonly string[]', default: '[]' },
-    { name: 'trigger', description: 'When to release the words into the simulator.', type: "'auto' | 'scroll' | 'hover' | 'click'", default: "'auto'" },
+    {
+      name: 'text',
+      description: 'Text to render. Words are separated by spaces.',
+      type: 'string',
+      default: '— (required)',
+      required: true,
+    },
+    {
+      name: 'highlightWords',
+      description: 'Prefix-match keywords. Matching words get the `wr-falling-text__word--hl` class.',
+      type: 'readonly string[]',
+      default: '[]',
+    },
+    {
+      name: 'trigger',
+      description: 'When to release the words into the simulator.',
+      type: "'auto' | 'scroll' | 'hover' | 'click'",
+      default: "'auto'",
+    },
     { name: 'gravity', description: 'Gravity in pixels/sec².', type: 'number', default: '980' },
     { name: 'fontSize', description: 'Font size as a CSS length.', type: 'string', default: "'1rem'" },
   ];

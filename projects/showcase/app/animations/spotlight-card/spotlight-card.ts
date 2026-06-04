@@ -39,7 +39,7 @@ export default class SpotlightCardPage {
       `<wr-spotlight-card spotlightColor="${this.spotlightColor()}">
   <h3>Cursor-tracked spotlight</h3>
   <p>Move the pointer across this card.</p>
-</wr-spotlight-card>`,
+</wr-spotlight-card>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -70,7 +70,8 @@ import { WrSpotlight } from 'ngwr/spotlight-card';
     },
     {
       name: '[wrSpotlight]',
-      description: 'Directive variant — writes `--wr-spotlight-x/y` (in `%`) to any host based on pointer position. Pair with a radial-gradient/mask in your CSS.',
+      description:
+        'Directive variant — writes `--wr-spotlight-x/y` (in `%`) to any host based on pointer position. Pair with a radial-gradient/mask in your CSS.',
       type: 'directive',
       default: '—',
     },

@@ -43,7 +43,7 @@ export default class AnimatedTextPage {
   [speed]="${this.speed()}"
   [startDelay]="${this.startDelay()}"
   [loop]="${this.loop()}"
-/>`,
+/>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -64,7 +64,12 @@ export default class AnimatedTextPage {
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'text', description: 'Target text.', type: 'string', default: "''" },
-    { name: 'mode', description: 'Animation style.', type: "'typewriter' | 'scramble' | 'split'", default: "'typewriter'" },
+    {
+      name: 'mode',
+      description: 'Animation style.',
+      type: "'typewriter' | 'scramble' | 'split'",
+      default: "'typewriter'",
+    },
     { name: 'speed', description: 'Per-character delay (ms).', type: 'number', default: '60' },
     { name: 'startDelay', description: 'Initial delay before animation starts (ms).', type: 'number', default: '0' },
     { name: 'loop', description: 'Loop the animation forever.', type: 'boolean', default: 'false' },

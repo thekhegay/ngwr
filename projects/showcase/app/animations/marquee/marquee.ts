@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, type TemplateRef, computed, signal, viewChild } from '@angular/core';
 
 import {
   WrIcon,
@@ -38,20 +38,26 @@ import {
     DocApiComponent,
     ReactbitsCredit,
   ],
-  providers: [
-    provideWrIcons([logoAngular, logoChrome, logoFirebase, logoGithub, logoGitlab, logoNpm, logoTelegram]),
-  ],
+  providers: [provideWrIcons([logoAngular, logoChrome, logoFirebase, logoGithub, logoGitlab, logoNpm, logoTelegram])],
 })
 export default class MarqueePage {
-  @ViewChild('angularLogo', { static: true }) private readonly angularLogo!: TemplateRef<unknown>;
-  @ViewChild('chromeLogo', { static: true }) private readonly chromeLogo!: TemplateRef<unknown>;
-  @ViewChild('firebaseLogo', { static: true }) private readonly firebaseLogo!: TemplateRef<unknown>;
-  @ViewChild('githubLogo', { static: true }) private readonly githubLogo!: TemplateRef<unknown>;
-  @ViewChild('gitlabLogo', { static: true }) private readonly gitlabLogo!: TemplateRef<unknown>;
-  @ViewChild('npmLogo', { static: true }) private readonly npmLogo!: TemplateRef<unknown>;
-  @ViewChild('telegramLogo', { static: true }) private readonly telegramLogo!: TemplateRef<unknown>;
+  private readonly angularLogo = viewChild.required<TemplateRef<unknown>>('angularLogo');
+  private readonly chromeLogo = viewChild.required<TemplateRef<unknown>>('chromeLogo');
+  private readonly firebaseLogo = viewChild.required<TemplateRef<unknown>>('firebaseLogo');
+  private readonly githubLogo = viewChild.required<TemplateRef<unknown>>('githubLogo');
+  private readonly gitlabLogo = viewChild.required<TemplateRef<unknown>>('gitlabLogo');
+  private readonly npmLogo = viewChild.required<TemplateRef<unknown>>('npmLogo');
+  private readonly telegramLogo = viewChild.required<TemplateRef<unknown>>('telegramLogo');
 
-  protected readonly items = signal<readonly WrMarqueeItem[]>([]);
+  protected readonly items = computed<readonly WrMarqueeItem[]>(() => [
+    { node: this.angularLogo(), ariaLabel: 'Angular' },
+    { node: this.chromeLogo(), ariaLabel: 'Chrome' },
+    { node: this.firebaseLogo(), ariaLabel: 'Firebase' },
+    { node: this.githubLogo(), ariaLabel: 'GitHub' },
+    { node: this.gitlabLogo(), ariaLabel: 'GitLab' },
+    { node: this.npmLogo(), ariaLabel: 'npm' },
+    { node: this.telegramLogo(), ariaLabel: 'Telegram' },
+  ]);
 
   // ── Live demo state ─────────────────────────────────────────────
   protected readonly speed = signal(120);
@@ -71,7 +77,7 @@ export default class MarqueePage {
   direction="${this.direction()}"
   [pauseOnHover]="${this.pauseOnHover()}"
   [fadeOut]="${this.fadeOut()}"
-/>`,
+/>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -83,33 +89,47 @@ export default class MarqueePage {
     { kind: 'toggle', label: 'Fade Out', signal: this.fadeOut },
   ];
 
-  ngAfterViewInit(): void {
-    this.items.set([
-      { node: this.angularLogo, ariaLabel: 'Angular' },
-      { node: this.chromeLogo, ariaLabel: 'Chrome' },
-      { node: this.firebaseLogo, ariaLabel: 'Firebase' },
-      { node: this.githubLogo, ariaLabel: 'GitHub' },
-      { node: this.gitlabLogo, ariaLabel: 'GitLab' },
-      { node: this.npmLogo, ariaLabel: 'npm' },
-      { node: this.telegramLogo, ariaLabel: 'Telegram' },
-    ]);
-  }
-
   protected readonly snippets = {
     install: `import { WrMarquee } from 'ngwr/marquee';`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'items', description: 'Items to display (images or template nodes).', type: 'WrMarqueeItem[]', default: '— (required)', required: true },
-    { name: 'speed', description: 'Scroll speed in px/s. Negative reverses direction.', type: 'number', default: '120' },
+    {
+      name: 'items',
+      description: 'Items to display (images or template nodes).',
+      type: 'WrMarqueeItem[]',
+      default: '— (required)',
+      required: true,
+    },
+    {
+      name: 'speed',
+      description: 'Scroll speed in px/s. Negative reverses direction.',
+      type: 'number',
+      default: '120',
+    },
     { name: 'direction', description: 'Track direction.', type: "'left' | 'right'", default: "'left'" },
     { name: 'itemHeight', description: 'Item height in px.', type: 'number', default: '28' },
     { name: 'gap', description: 'Gap between items in px.', type: 'number', default: '32' },
     { name: 'pauseOnHover', description: 'Pause the loop on hover.', type: 'boolean', default: 'false' },
-    { name: 'hoverSpeed', description: 'Custom speed when hovered. Overrides `pauseOnHover`.', type: 'number', default: '—' },
+    {
+      name: 'hoverSpeed',
+      description: 'Custom speed when hovered. Overrides `pauseOnHover`.',
+      type: 'number',
+      default: '—',
+    },
     { name: 'fadeOut', description: 'Apply edge fade-out gradients.', type: 'boolean', default: 'false' },
-    { name: 'fadeOutColor', description: 'Fade-out gradient colour. Defaults to the lib surface colour (`--wr-color-white`).', type: 'string', default: '—' },
+    {
+      name: 'fadeOutColor',
+      description: 'Fade-out gradient colour. Defaults to the lib surface colour (`--wr-color-white`).',
+      type: 'string',
+      default: '—',
+    },
     { name: 'scaleOnHover', description: 'Scale individual items up on hover.', type: 'boolean', default: 'false' },
-    { name: 'ariaLabel', description: 'Accessible label for the carousel region.', type: 'string', default: "'Marquee'" },
+    {
+      name: 'ariaLabel',
+      description: 'Accessible label for the carousel region.',
+      type: 'string',
+      default: "'Marquee'",
+    },
   ];
 }

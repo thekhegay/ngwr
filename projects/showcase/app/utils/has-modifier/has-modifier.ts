@@ -37,7 +37,8 @@ export default class HasModifierPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'hasModifier(event)',
-      description: 'True when Ctrl / Cmd / Alt / Shift / Meta is currently held. Use to bypass plain-key shortcuts during chorded shortcuts.',
+      description:
+        'True when Ctrl / Cmd / Alt / Shift / Meta is currently held. Use to bypass plain-key shortcuts during chorded shortcuts.',
       type: '(e: KeyboardEvent) => boolean',
       default: '—',
     },

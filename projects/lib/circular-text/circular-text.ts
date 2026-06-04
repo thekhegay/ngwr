@@ -23,15 +23,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
+  type ElementRef,
   PLATFORM_ID,
-  ViewChild,
   ViewEncapsulation,
   afterNextRender,
   computed,
   effect,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
 
 export type WrCircularTextHover = 'speedUp' | 'slowDown' | 'pause' | 'goBonkers' | null;
@@ -94,7 +94,7 @@ export class WrCircularText {
     });
   });
 
-  @ViewChild('spin', { static: true }) private readonly spinEl!: ElementRef<HTMLElement>;
+  private readonly spinEl = viewChild.required<ElementRef<HTMLElement>>('spin');
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -125,7 +125,7 @@ export class WrCircularText {
     afterNextRender(() => {
       this.startOrSwap();
 
-      const host = this.spinEl.nativeElement.parentElement!;
+      const host = this.spinEl().nativeElement.parentElement!;
       const onEnter = (): void => {
         this.hovered = true;
         this.startOrSwap();
@@ -156,7 +156,7 @@ export class WrCircularText {
    * current angle. If the new mode is `pause`, just pause the animation.
    */
   private startOrSwap(): void {
-    if (!this.spinEl) return;
+    if (!this.spinEl()) return;
     const target = this.effectiveDuration();
 
     if (target === 'pause') {
@@ -168,9 +168,9 @@ export class WrCircularText {
 
     // First start — no previous animation to preserve.
     if (!this.rotation) {
-      this.rotation = this.spinEl.nativeElement.animate(
+      this.rotation = this.spinEl().nativeElement.animate(
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-        { duration: newDurMs, iterations: Infinity, easing: 'linear' },
+        { duration: newDurMs, iterations: Infinity, easing: 'linear' }
       );
       return;
     }
@@ -179,14 +179,14 @@ export class WrCircularText {
     // timing, then restart with the new duration seeked to the same
     // angle — keeps the visual continuous across speed changes.
     const oldEffect = this.rotation.effect as KeyframeEffect | null;
-    const oldDurMs = ((oldEffect?.getTiming().duration as number) || newDurMs) || newDurMs;
+    const oldDurMs = (oldEffect?.getTiming().duration as number) || newDurMs || newDurMs;
     const oldTime = (this.rotation.currentTime as number) ?? 0;
-    const ratio = ((oldTime % oldDurMs) + oldDurMs) % oldDurMs / oldDurMs;
+    const ratio = (((oldTime % oldDurMs) + oldDurMs) % oldDurMs) / oldDurMs;
 
     this.rotation.cancel();
-    this.rotation = this.spinEl.nativeElement.animate(
+    this.rotation = this.spinEl().nativeElement.animate(
       [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-      { duration: newDurMs, iterations: Infinity, easing: 'linear' },
+      { duration: newDurMs, iterations: Infinity, easing: 'linear' }
     );
     this.rotation.currentTime = ratio * newDurMs;
   }

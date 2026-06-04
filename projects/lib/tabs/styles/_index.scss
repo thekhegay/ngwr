@@ -33,7 +33,9 @@
     border-bottom: 2px solid transparent;
     cursor: pointer;
     white-space: nowrap;
-    transition: color var(--wr-transition-base), border-color var(--wr-transition-base);
+    transition:
+      color var(--wr-transition-base),
+      border-color var(--wr-transition-base);
 
     &:hover:not(.wr-tabs__tab--active):not(.wr-tabs__tab--disabled):not(:disabled) {
       color: var(--wr-tabs-color-hover);

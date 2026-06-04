@@ -17,7 +17,6 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "baseUrl": "./",
     "paths": {
       "ngwr/*": ["./projects/lib/*"],
       "#root": ["./projects/showcase/app/_root/root"],

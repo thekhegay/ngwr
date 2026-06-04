@@ -193,7 +193,7 @@ export class WrRotatingText {
           { opacity: 0, transform: 'translate3d(0, 100%, 0)' },
           { opacity: 1, transform: 'translate3d(0, 0, 0)' },
         ],
-        { duration: DEFAULT_DURATION_MS, delay, easing: DEFAULT_EASING, fill: 'forwards' },
+        { duration: DEFAULT_DURATION_MS, delay, easing: DEFAULT_EASING, fill: 'forwards' }
       );
       anim.onfinish = (): void => {
         el.style.opacity = '1';
@@ -219,7 +219,7 @@ export class WrRotatingText {
           { opacity: 1, transform: 'translate3d(0, 0, 0)' },
           { opacity: 0, transform: 'translate3d(0, -120%, 0)' },
         ],
-        { duration: DEFAULT_DURATION_MS, delay, easing: DEFAULT_EASING, fill: 'forwards' },
+        { duration: DEFAULT_DURATION_MS, delay, easing: DEFAULT_EASING, fill: 'forwards' }
       );
       promises.push(
         new Promise<void>(resolve => {
@@ -231,7 +231,7 @@ export class WrRotatingText {
             }
             resolve();
           };
-        }),
+        })
       );
     });
     return Promise.all(promises).then(() => undefined);

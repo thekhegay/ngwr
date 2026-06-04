@@ -14,10 +14,10 @@ import { WrSkeleton } from 'ngwr/skeleton';
 import { WrTag } from 'ngwr/tag';
 import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
+import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
-import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 /** Fisher–Yates shuffle. Returns a new array. */
 function shuffle<T>(input: readonly T[]): T[] {

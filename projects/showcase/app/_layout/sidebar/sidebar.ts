@@ -33,9 +33,9 @@ export class Sidebar {
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
       map(e => e.urlAfterRedirects),
-      startWith(this.router.url),
+      startWith(this.router.url)
     ),
-    { initialValue: this.router.url },
+    { initialValue: this.router.url }
   );
 
   /** Resolve `data.sidebar` from the deepest activated route on every navigation. */

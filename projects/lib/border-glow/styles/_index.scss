@@ -96,8 +96,7 @@
       var(--gradient-base, linear-gradient(#c299ff 0 100%)) padding-box;
 
     mask-image:
-      linear-gradient(to bottom, black, black),
-      radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
+      linear-gradient(to bottom, black, black), radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
       radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%),
       radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%),
       radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%),

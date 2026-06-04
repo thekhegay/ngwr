@@ -33,10 +33,10 @@
   // The library only declares system-font fallback chains. Apps that ship
   // their own typeface should override these on `:root` after loading the
   // theme — e.g. `:root { --wr-font-family-base: 'Inter', ...; }`.
-  --wr-font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
-  --wr-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-    monospace;
+  --wr-font-family-base:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --wr-font-family-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
   // Font size scale (1rem = 16px)
   --wr-text-xs: 0.75rem;

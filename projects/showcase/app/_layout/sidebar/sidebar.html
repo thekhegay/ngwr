@@ -2,11 +2,7 @@
   @for (group of groups(); track group.title) {
     <!-- Direct-link group: single page, no expand toggle. -->
     @if (group.url) {
-      <a
-        class="ngwr-sidebar__group-link"
-        routerLinkActive="ngwr-sidebar__group-link--active"
-        [routerLink]="group.url"
-      >
+      <a class="ngwr-sidebar__group-link" routerLinkActive="ngwr-sidebar__group-link--active" [routerLink]="group.url">
         <span class="ngwr-sidebar__group-title">{{ group.title }}</span>
       </a>
     } @else {

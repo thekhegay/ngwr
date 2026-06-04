@@ -168,7 +168,7 @@ export class WrTypewriter {
             }
           }
         },
-        { threshold: 0.1 },
+        { threshold: 0.1 }
       );
       io.observe(this.host.nativeElement);
       this.destroyRef.onDestroy(() => io.disconnect());
