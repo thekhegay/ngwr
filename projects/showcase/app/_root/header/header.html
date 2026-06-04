@@ -18,22 +18,28 @@
   </a>
 
   <nav class="ngwr-header__nav" aria-label="Primary">
-    @for (link of nav; track $index) {
+    @for (link of nav; track link.key) {
       <a class="ngwr-header__nav-link" [routerLink]="link.url" routerLinkActive="ngwr-header__nav-link--active">
-        {{ link.label }}
+        {{ link.key | wrT }}
       </a>
     }
   </nav>
 
   <div class="ngwr-header__actions">
-    <!--    <button-->
-    <!--      type="button"-->
-    <!--      class="ngwr-header__action ngwr-header__action&#45;&#45;theme"-->
-    <!--      [attr.aria-label]="theme.resolved() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"-->
-    <!--      (click)="onToggleTheme()"-->
-    <!--    >-->
-    <!--      <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />-->
-    <!--    </button>-->
+    <div class="ngwr-header__locale" role="group" aria-label="Language">
+      @for (lc of availableLocales; track lc) {
+        <button
+          type="button"
+          class="ngwr-header__locale-btn"
+          [class.ngwr-header__locale-btn--active]="currentLocale() === lc"
+          [attr.aria-pressed]="currentLocale() === lc"
+          (click)="setLocale(lc)"
+        >
+          {{ lc }}
+        </button>
+      }
+    </div>
+
     @for (action of actions; track action.url) {
       <a
         class="ngwr-header__action ngwr-header__action--{{ action.modifier }}"

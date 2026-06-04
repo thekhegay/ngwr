@@ -23,7 +23,7 @@
           [attr.aria-controls]="listboxId"
           [attr.aria-expanded]="true"
           [attr.aria-activedescendant]="activeOptionId() || null"
-          [placeholder]="placeholder()"
+          [placeholder]="resolvedPlaceholder()"
           [value]="query()"
           (input)="onQueryInput($event)"
         />
@@ -32,7 +32,7 @@
 
       <div class="wr-command-palette__body" role="listbox" [attr.id]="listboxId">
         @if (filtered().length === 0) {
-          <div class="wr-command-palette__empty">{{ emptyText() }}</div>
+          <div class="wr-command-palette__empty">{{ resolvedEmpty() }}</div>
         } @else {
           @for (bucket of buckets(); track bucket.title) {
             <div class="wr-command-palette__group">

@@ -103,6 +103,45 @@
     margin-left: auto;
   }
 
+  &__locale {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem;
+    border: 1px solid var(--wr-color-light);
+    border-radius: 0.375rem;
+    background: transparent;
+  }
+
+  &__locale-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--wr-color-medium);
+    padding: 0.25rem 0.5rem;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: var(--wr-transition-base);
+
+    &:hover {
+      color: var(--wr-color-dark);
+    }
+
+    &--active {
+      background: var(--wr-color-light);
+      color: var(--wr-color-dark);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
+    }
+  }
+
   &__action {
     --ngwr-header-action-border-color: var(--wr-color-light-lighter);
     --ngwr-header-action-icon-color: var(--wr-color-dark);

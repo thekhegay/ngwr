@@ -1,7 +1,7 @@
 @if (icon()) {
   <wr-icon class="wr-empty__icon" [name]="$any(icon())" size="48" />
 }
-<div class="wr-empty__title">{{ title() }}</div>
+<div class="wr-empty__title">{{ resolvedTitle() }}</div>
 <div class="wr-empty__description">
   <ng-content />
 </div>

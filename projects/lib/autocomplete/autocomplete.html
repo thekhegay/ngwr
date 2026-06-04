@@ -24,7 +24,7 @@
     wrInputSuffix
     class="wr-autocomplete__trigger"
     tabindex="-1"
-    aria-label="Toggle suggestions"
+    [attr.aria-label]="resolvedToggle()"
     [disabled]="effectiveDisabled()"
     (click)="toggleOverlay()"
   >
@@ -37,9 +37,9 @@
 <ng-template #panelTpl>
   <div class="wr-autocomplete__panel" role="listbox" [id]="listboxId" [style.width.px]="panelWidth()">
     @if (loading()) {
-      <div class="wr-autocomplete__loading" aria-busy="true">{{ loadingText() }}</div>
+      <div class="wr-autocomplete__loading" aria-busy="true">{{ resolvedLoading() }}</div>
     } @else if (filtered().length === 0) {
-      <div class="wr-autocomplete__empty">{{ noResultsText() }}</div>
+      <div class="wr-autocomplete__empty">{{ resolvedNoResults() }}</div>
     } @else if (virtualScroll()) {
       <wr-virtual-scroll
         class="wr-autocomplete__viewport"

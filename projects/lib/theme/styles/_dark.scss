@@ -1,22 +1,53 @@
 // Dark theme overrides — opt-in via `[data-theme="dark"]` on <html>.
-// Drive the toggle from `WrThemeService` (provided automatically with
+// Drive the toggle from `WrTheme` (provided automatically with
 // `provideWrTheme(...)`).
 //
 // Only semantic tokens flip — palette hues stay so brand-coloured
 // elements look the same regardless of theme.
 
 [data-theme='dark'] {
-  --wr-color-white: #0f172a;
-  --wr-color-white-rgb: 15, 23, 42;
+  // ── Canvas (was `--wr-color-white` in light mode) ──────────────
+  // Deeper than slate-900 so an elevated surface in slate-800 reads
+  // as a real layer rather than vanishing into the background.
+  --wr-color-white: #0b1120;
+  --wr-color-white-rgb: 11, 17, 32;
 
-  --wr-color-dark: #f1f5f9;
-  --wr-color-dark-rgb: 241, 245, 249;
+  // ── Text ──────────────────────────────────────────────────────
+  // Softer than pure-white — easier on the eyes for long reading.
+  --wr-color-dark: #e6ebf3;
+  --wr-color-dark-rgb: 230, 235, 243;
 
-  --wr-color-light: #334155;
-  --wr-color-light-rgb: 51, 65, 85;
+  // ── Borders / tints (was `--wr-color-light`) ───────────────────
+  // Slate-700 was too contrasty on slate-900 fields. This is closer
+  // to slate-800, soft enough that 1px borders don't shout.
+  --wr-color-light: #1f2a3d;
+  --wr-color-light-rgb: 31, 42, 61;
 
-  --wr-color-medium: #94a3b8;
-  --wr-color-medium-rgb: 148, 163, 184;
+  // ── Secondary text (was `--wr-color-medium`) ───────────────────
+  // Lifted from slate-400 → slate-300-ish for better legibility on
+  // the deeper canvas.
+  --wr-color-medium: #9aa6b8;
+  --wr-color-medium-rgb: 154, 166, 184;
+
+  // ── Brand-color retune ────────────────────────────────────────
+  // The default primary (#3969e2) reads a touch dim on the deep
+  // canvas. Bump the base + shade derivations so hover / focus rings
+  // stay visible against slate-900.
+  --wr-color-primary: #5b85ff;
+  --wr-color-primary-rgb: 91, 133, 255;
+  --wr-color-primary-light: #7a9eff;
+  --wr-color-primary-dark: #2f56c9;
+  --wr-color-primary-lighter: #99b6ff;
+  --wr-color-primary-darker: #1f3a99;
+
+  --wr-color-success: #34c759;
+  --wr-color-success-rgb: 52, 199, 89;
+
+  --wr-color-warning: #ffcc33;
+  --wr-color-warning-rgb: 255, 204, 51;
+
+  --wr-color-danger: #ff5c5c;
+  --wr-color-danger-rgb: 255, 92, 92;
 
   color-scheme: dark;
 }

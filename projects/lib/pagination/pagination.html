@@ -8,7 +8,7 @@
       size="sm"
       outlined
       icon="arrow-back"
-      aria-label="Previous page"
+      [attr.aria-label]="resolvedPrev()"
       [disabled]="disabled() || currentPage() === 1"
       (click)="goTo(currentPage() - 1)"
     />
@@ -35,7 +35,7 @@
       size="sm"
       outlined
       icon="arrow-forward"
-      aria-label="Next page"
+      [attr.aria-label]="resolvedNext()"
       [disabled]="disabled() || currentPage() === totalPages()"
       (click)="goTo(currentPage() + 1)"
     />
@@ -44,7 +44,7 @@
   @if (showSizeChanger()) {
     <wr-select
       class="wr-pagination__size"
-      aria-label="Items per page"
+      [attr.aria-label]="resolvedItemsPerPage()"
       [disabled]="disabled()"
       [ngModel]="pageSize()"
       (ngModelChange)="onSizeChange($event)"

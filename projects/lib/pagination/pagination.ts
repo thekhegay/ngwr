@@ -10,6 +10,7 @@ import { Component, ViewEncapsulation, computed, input, model } from '@angular/c
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
+import { useI18nText } from 'ngwr/i18n';
 import { provideWrIcons, arrowBack, arrowForward } from 'ngwr/icon';
 import { WrOption, WrSelect } from 'ngwr/select';
 
@@ -74,8 +75,27 @@ export class WrPagination {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Localised text between range and total ("X–Y of Z"). @default 'of' */
-  readonly ofLabel = input<string>('of');
+  /** Localised text between range and total ("X–Y of Z"). Falls back to `pagination.of` then `'of'`. */
+  readonly ofLabel = input<string | null>(null);
+
+  /** Previous-page button aria-label. Falls back to `pagination.prev`. */
+  readonly prevLabel = input<string | null>(null);
+
+  /** Next-page button aria-label. Falls back to `pagination.next`. */
+  readonly nextLabel = input<string | null>(null);
+
+  /** "Items per page" label. Falls back to `pagination.itemsPerPage`. */
+  readonly itemsPerPageLabel = input<string | null>(null);
+
+  /** Resolved labels. */
+  protected readonly resolvedOf = useI18nText(this.ofLabel, 'pagination.of', 'of');
+  protected readonly resolvedPrev = useI18nText(this.prevLabel, 'pagination.prev', 'Previous page');
+  protected readonly resolvedNext = useI18nText(this.nextLabel, 'pagination.next', 'Next page');
+  protected readonly resolvedItemsPerPage = useI18nText(
+    this.itemsPerPageLabel,
+    'pagination.itemsPerPage',
+    'Items per page'
+  );
 
   /** Internal: total page count. */
   protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
@@ -84,7 +104,7 @@ export class WrPagination {
   protected readonly rangeLabel = computed(() => {
     const start = this.total() === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1;
     const end = Math.min(this.currentPage() * this.pageSize(), this.total());
-    return `${start}-${end} ${this.ofLabel()} ${this.total()}`;
+    return `${start}-${end} ${this.resolvedOf()} ${this.total()}`;
   });
 
   /**

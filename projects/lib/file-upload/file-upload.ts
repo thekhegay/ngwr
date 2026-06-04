@@ -19,6 +19,7 @@ import {
 } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrSquircle } from 'ngwr/squircle';
 import { noop } from 'ngwr/utils';
 
@@ -105,11 +106,26 @@ export class WrFileUpload implements ControlValueAccessor {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Primary call-to-action label (e.g. "Click to browse"). */
-  readonly pickLabel = input<string>('Click to browse');
+  /** Primary call-to-action label. Falls back to `fileUpload.browse`. */
+  readonly pickLabel = input<string | null>(null);
 
-  /** Secondary instruction below the CTA. */
-  readonly dropLabel = input<string>('or drop files here');
+  /** Secondary instruction below the CTA. Falls back to `fileUpload.dropZone`. */
+  readonly dropLabel = input<string | null>(null);
+
+  /** Drop-zone host aria-label. Falls back to `fileUpload.dropZoneLabel`. */
+  readonly dropZoneLabel = input<string | null>(null);
+
+  /** Remove-file button aria-label. Falls back to `fileUpload.removeFile`. */
+  readonly removeFileLabel = input<string | null>(null);
+
+  protected readonly resolvedPick = useI18nText(this.pickLabel, 'fileUpload.browse', 'Click to browse');
+  protected readonly resolvedDrop = useI18nText(this.dropLabel, 'fileUpload.dropZone', 'or drop files here');
+  protected readonly resolvedDropZone = useI18nText(
+    this.dropZoneLabel,
+    'fileUpload.dropZoneLabel',
+    'File upload drop zone — click or drop files'
+  );
+  protected readonly resolvedRemove = useI18nText(this.removeFileLabel, 'fileUpload.removeFile', 'Remove file');
 
   /** Optional helper text shown below the labels (e.g. accepted formats). */
   readonly helperText = input<string>('');

@@ -26,6 +26,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { useI18nText } from 'ngwr/i18n';
 import { provideWrIcons, WrIcon, chevronDown, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
@@ -92,8 +93,14 @@ interface SelectedChip {
   ],
 })
 export class WrSelect implements ControlValueAccessor, WrSelectContext {
-  /** Placeholder shown when no option is selected. @default '' */
-  readonly placeholder = input<string>('');
+  /** Placeholder shown when no option is selected. Falls back to `select.placeholder`. */
+  readonly placeholder = input<string | null>(null);
+
+  /** Clear-selection (×) button aria-label. Falls back to `select.clearSelection`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedPlaceholder = useI18nText(this.placeholder, 'select.placeholder', '');
+  protected readonly resolvedClear = useI18nText(this.clearLabel, 'select.clearSelection', 'Clear selection');
 
   /** Disable the select. Also set by Angular forms via `setDisabledState`. */
   readonly disabled = input(false, { transform: coerceBooleanProperty });

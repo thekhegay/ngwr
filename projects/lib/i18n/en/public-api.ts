@@ -34,24 +34,123 @@ export const wrEn: WrI18nCatalog = {
     today: 'Today',
     yesterday: 'Yesterday',
     tomorrow: 'Tomorrow',
+    of: 'of',
   },
   pagination: {
-    prev: 'Previous',
-    next: 'Next',
+    prev: 'Previous page',
+    next: 'Next page',
+    itemsPerPage: 'Items per page',
     pageOf: 'Page {{current}} of {{total}}',
+    of: 'of',
   },
   table: {
     empty: 'No data',
     loading: 'Loading…',
+    sort: 'Sort column',
+    filter: 'Filter column',
   },
   select: {
     placeholder: 'Select…',
     empty: 'No options',
+    clearSelection: 'Clear selection',
+    removeItem: 'Remove {{label}}',
+  },
+  treeSelect: {
+    placeholder: 'Select…',
+    empty: 'No options',
+    clearSelection: 'Clear selection',
+    removeItem: 'Remove {{label}}',
+  },
+  autocomplete: {
+    noResults: 'No results',
+    loading: 'Loading…',
+    toggle: 'Toggle suggestions',
+  },
+  commandPalette: {
+    placeholder: 'Type a command or search…',
+    noResults: 'No results',
+  },
+  empty: {
+    noData: 'No data',
+  },
+  fileUpload: {
+    browse: 'Click to browse',
+    dropZone: 'or drop files here',
+    dropZoneLabel: 'File upload drop zone — click or drop files',
+    removeFile: 'Remove file',
+    invalid: 'Unsupported file type',
+    tooBig: 'File too large',
   },
   upload: {
     drop: 'Drop files here or click to browse',
     invalid: 'Unsupported file type',
     tooBig: 'File too large',
+  },
+  chipsInput: {
+    remove: 'Remove {{label}}',
+  },
+  popconfirm: {
+    confirm: 'Confirm',
+    cancel: 'Cancel',
+  },
+  toast: {
+    close: 'Close',
+    copy: 'Copy',
+    copied: 'Copied',
+    closeAll: 'Close all',
+  },
+  input: {
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
+  },
+  inputNumber: {
+    increment: 'Increment',
+    decrement: 'Decrement',
+  },
+  backTop: {
+    label: 'Back to top',
+  },
+  calendar: {
+    prevMonth: 'Previous month',
+    nextMonth: 'Next month',
+    prevYear: 'Previous year',
+    nextYear: 'Next year',
+  },
+  carousel: {
+    prev: 'Previous slide',
+    next: 'Next slide',
+    pagination: 'Carousel pagination',
+  },
+  alert: {
+    close: 'Close alert',
+  },
+  image: {
+    open: 'Open preview',
+    close: 'Close preview',
+  },
+  window: {
+    close: 'Close',
+  },
+  datePicker: {
+    open: 'Open calendar',
+  },
+  dateTimePicker: {
+    open: 'Open date and time picker',
+  },
+  spinner: {
+    label: 'Loading',
+  },
+  rating: {
+    label: 'Rating',
+  },
+  result: {
+    notFound: 'Sorry, the page you visited does not exist.',
+    forbidden: 'Sorry, you are not authorized to access this page.',
+    serverError: 'Sorry, something went wrong.',
+  },
+  tree: {
+    expand: 'Expand',
+    collapse: 'Collapse',
   },
   date: {
     months: {

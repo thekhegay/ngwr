@@ -23,3 +23,4 @@ export {
   provideWrI18nHttpLoader,
   type ProvideWrI18nOptions,
 } from './provide-wr-i18n';
+export { useI18nText, readI18nText } from './util';

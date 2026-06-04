@@ -2,7 +2,7 @@
   class="wr-file-upload__zone"
   role="button"
   tabindex="0"
-  aria-label="File upload drop zone — click or drop files"
+  [attr.aria-label]="resolvedDropZone()"
   wrSquircle
   [enabled]="squircle()"
   [radius]="14"
@@ -25,8 +25,8 @@
     />
   </svg>
   <div class="wr-file-upload__hint">
-    <strong>{{ pickLabel() }}</strong>
-    <span>{{ dropLabel() }}</span>
+    <strong>{{ resolvedPick() }}</strong>
+    <span>{{ resolvedDrop() }}</span>
     @if (helperText()) {
       <small>{{ helperText() }}</small>
     }
@@ -51,7 +51,7 @@
         <button
           type="button"
           class="wr-file-upload__remove"
-          aria-label="Remove file"
+          [attr.aria-label]="resolvedRemove()"
           [disabled]="effectiveDisabled()"
           (click)="removeAt(i)"
         >

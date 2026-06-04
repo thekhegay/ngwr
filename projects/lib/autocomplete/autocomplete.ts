@@ -28,6 +28,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop, randomId } from 'ngwr/utils';
@@ -114,11 +115,18 @@ export class WrAutocomplete<T = string> implements ControlValueAccessor {
   /** Allow values not present in the options list. @default false */
   readonly freeText = input(false, { transform: coerceBooleanProperty });
 
-  /** Text shown when no options match the query. @default 'No results' */
-  readonly noResultsText = input<string>('No results');
+  /** Text shown when no options match the query. Falls back to `autocomplete.noResults`. */
+  readonly noResultsText = input<string | null>(null);
 
-  /** Text shown while async results are loading. @default 'Loading…' */
-  readonly loadingText = input<string>('Loading…');
+  /** Text shown while async results are loading. Falls back to `autocomplete.loading`. */
+  readonly loadingText = input<string | null>(null);
+
+  /** Toggle-suggestions button aria-label. Falls back to `autocomplete.toggle`. */
+  readonly toggleLabel = input<string | null>(null);
+
+  protected readonly resolvedNoResults = useI18nText(this.noResultsText, 'autocomplete.noResults', 'No results');
+  protected readonly resolvedLoading = useI18nText(this.loadingText, 'autocomplete.loading', 'Loading…');
+  protected readonly resolvedToggle = useI18nText(this.toggleLabel, 'autocomplete.toggle', 'Toggle suggestions');
 
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });

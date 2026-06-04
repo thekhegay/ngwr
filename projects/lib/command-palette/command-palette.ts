@@ -26,6 +26,7 @@ import {
 } from '@angular/core';
 
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
+import { useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 
 import type { WrCommandItem } from './types';
@@ -90,11 +91,18 @@ export class WrCommandPalette {
   /** Global hotkey that opens the palette. `null` disables auto-binding. @default 'mod+k' */
   readonly trigger = input<WrHotkeySpec | null>('mod+k');
 
-  /** Search input placeholder. @default 'Type a command or search…' */
-  readonly placeholder = input<string>('Type a command or search…');
+  /** Search input placeholder. Falls back to `commandPalette.placeholder`. */
+  readonly placeholder = input<string | null>(null);
 
-  /** Text shown when no items match. @default 'No results' */
-  readonly emptyText = input<string>('No results');
+  /** Text shown when no items match. Falls back to `commandPalette.noResults`. */
+  readonly emptyText = input<string | null>(null);
+
+  protected readonly resolvedPlaceholder = useI18nText(
+    this.placeholder,
+    'commandPalette.placeholder',
+    'Type a command or search…'
+  );
+  protected readonly resolvedEmpty = useI18nText(this.emptyText, 'commandPalette.noResults', 'No results');
 
   /** Auto-close on `(picked)`. Set false to keep open. @default true */
   readonly closeOnPick = input(true, { transform: coerceBooleanProperty });
