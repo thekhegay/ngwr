@@ -67,6 +67,10 @@ export default [
     loadComponent: () => import('./checkbox/checkbox'),
   },
   {
+    path: components.chipsInput,
+    loadComponent: () => import('./chips-input/chips-input'),
+  },
+  {
     path: components.collapse,
     loadComponent: () => import('./collapse/collapse'),
   },

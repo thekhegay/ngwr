@@ -39,6 +39,7 @@ export const routes = {
     carousel: 'carousel',
     checkbox: 'checkbox',
     checkboxGroup: 'checkbox-group',
+    chipsInput: 'chips-input',
     collapse: 'collapse',
     colorPicker: 'color-picker',
     compare: 'compare',

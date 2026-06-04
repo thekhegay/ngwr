@@ -1,0 +1,103 @@
+// Chips input — input field that gathers typed values into pill-shaped
+// chips. Layout is a wrapping flex row of chip spans + a growing input
+// at the end. Visually mirrors `wr-input`'s outlined look so it blends
+// into forms.
+
+.wr-chips-input {
+  --wr-chips-input-border: var(--wr-color-light);
+  --wr-chips-input-border-focus: var(--wr-color-primary);
+  --wr-chips-input-bg: var(--wr-color-white);
+  --wr-chips-input-chip-bg: rgba(var(--wr-color-primary-rgb), 0.1);
+  --wr-chips-input-chip-color: var(--wr-color-primary);
+  --wr-chips-input-padding-y: 0.375rem;
+  --wr-chips-input-padding-x: 0.5rem;
+  --wr-chips-input-gap: 0.375rem;
+  --wr-chips-input-radius: var(--wr-border-radius-base);
+
+  display: block;
+  width: 100%;
+  padding: var(--wr-chips-input-padding-y) var(--wr-chips-input-padding-x);
+  border: 1px solid var(--wr-chips-input-border);
+  border-radius: var(--wr-chips-input-radius);
+  background: var(--wr-chips-input-bg);
+  color: var(--wr-color-dark);
+  font-family: var(--wr-font-family-base);
+  font-size: 0.9375rem;
+  cursor: text;
+  transition: border-color 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--wr-chips-input-border-focus);
+  }
+
+  &--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(var(--wr-color-light-rgb), 0.4);
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--wr-chips-input-gap);
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.25rem 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: var(--wr-chips-input-chip-bg);
+    color: var(--wr-chips-input-chip-color);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    user-select: none;
+  }
+
+  &__chip-label {
+    white-space: nowrap;
+  }
+
+  &__chip-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 0.875rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.12s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(var(--wr-color-primary-rgb), 0.2);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &__input {
+    flex: 1 1 auto;
+    min-width: 4rem;
+    padding: 0.125rem 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}

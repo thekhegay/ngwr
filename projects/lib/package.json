@@ -121,6 +121,9 @@
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
     },
+    "./chips-input": {
+      "sass": "./chips-input/styles/_index.scss"
+    },
     "./circular-text": {
       "sass": "./circular-text/styles/_index.scss"
     },
