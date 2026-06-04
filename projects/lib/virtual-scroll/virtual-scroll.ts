@@ -5,9 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { NgTemplateOutlet } from '@angular/common';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -79,7 +79,7 @@ export class WrVirtualScroll<T = unknown> {
    * `trackBy` function for the inner `*cdkVirtualFor`. Defaults to
    * identity (recreates rows when the item reference changes).
    */
-  readonly trackBy = input<TrackByFunction<T>>((_, item) => item as unknown as object);
+  readonly trackBy = input<TrackByFunction<T>>((_, item) => item);
 
   protected readonly rowTemplate = contentChild.required(TemplateRef<{ $implicit: T; index: number }>);
 

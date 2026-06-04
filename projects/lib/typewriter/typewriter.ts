@@ -12,8 +12,8 @@
  * pure-CSS keyframes for the cursor blink.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,11 +28,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-
-export interface WrTypewriterVariableSpeed {
-  readonly min: number;
-  readonly max: number;
-}
 
 const num =
   (fallback: number) =>
@@ -239,4 +234,9 @@ export class WrTypewriter {
     this.phase.set('deleting');
     this.scheduleNext(this.pauseDuration());
   }
+}
+
+export interface WrTypewriterVariableSpeed {
+  readonly min: number;
+  readonly max: number;
 }

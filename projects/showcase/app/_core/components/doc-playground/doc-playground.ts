@@ -10,8 +10,9 @@ import { WrSwitch } from 'ngwr/switch';
 import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
 
-import type { ShikiLang } from '#core/shiki';
 import type { DocControl, DocSliderControl } from './types';
+
+import type { ShikiLang } from '#core/shiki';
 
 /**
  * Interactive demo card. Like `<ngwr-doc-snippet>` but with:
@@ -69,7 +70,7 @@ export class DocPlaygroundComponent {
 
   protected readonly hasCode = computed(() => {
     const fs = this.files();
-    if (fs && fs.some(f => f.code.trim().length > 0)) return true;
+    if (fs?.some(f => f.code.trim().length > 0)) return true;
     return this.code().trim().length > 0;
   });
 

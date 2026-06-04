@@ -46,6 +46,8 @@ import type { WrButtonShape } from './types';
     '[class]': 'hostClasses()',
     role: 'group',
   },
+  // forwardRef required: WrButtonGroup is self-referenced before its declaration ends.
+  // eslint-disable-next-line @angular-eslint/no-forward-ref
   providers: [{ provide: WR_BUTTON_GROUP, useExisting: forwardRef(() => WrButtonGroup) }],
 })
 export class WrButtonGroup implements WrButtonGroupContext {

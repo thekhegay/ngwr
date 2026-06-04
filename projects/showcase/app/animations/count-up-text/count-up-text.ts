@@ -97,6 +97,6 @@ export default class CountUpTextPage {
     },
     { name: 'startWhen', description: 'Start the animation only when `true`.', type: 'boolean', default: 'true' },
     { name: '(started)', description: 'Emits when the animation begins.', type: 'EventEmitter<void>', default: '—' },
-    { name: '(ended)', description: 'Emits when the animation settles.', type: 'EventEmitter<void>', default: '—' },
+    { name: '(completed)', description: 'Emits when the animation settles.', type: 'EventEmitter<void>', default: '—' },
   ];
 }

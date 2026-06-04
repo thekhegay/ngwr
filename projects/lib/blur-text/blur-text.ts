@@ -12,8 +12,8 @@
  * three-keyframe blur-and-fade-in, triggered by `IntersectionObserver`.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -37,6 +37,18 @@ const num =
   (fallback: number) =>
   (v: unknown): number =>
     coerceNumberProperty(v, fallback);
+
+function splitPieces(text: string, unit: Unit): readonly Piece[] {
+  if (!text) return [];
+  if (unit === 'words') {
+    return text.split(/(\s+)/).flatMap<Piece>(seg => {
+      if (seg.length === 0) return [];
+      if (/^\s+$/.test(seg)) return [{ kind: 'space', text: seg }];
+      return [{ kind: 'piece', text: seg }];
+    });
+  }
+  return [...text].map<Piece>(ch => (/\s/.test(ch) ? { kind: 'space', text: ch } : { kind: 'piece', text: ch }));
+}
 
 /**
  * Reveals text by splitting it into chars or words and animating each
@@ -183,16 +195,4 @@ export class WrBlurText {
       };
     });
   }
-}
-
-function splitPieces(text: string, unit: Unit): readonly Piece[] {
-  if (!text) return [];
-  if (unit === 'words') {
-    return text.split(/(\s+)/).flatMap<Piece>(seg => {
-      if (seg.length === 0) return [];
-      if (/^\s+$/.test(seg)) return [{ kind: 'space', text: seg }];
-      return [{ kind: 'piece', text: seg }];
-    });
-  }
-  return [...text].map<Piece>(ch => (/\s/.test(ch) ? { kind: 'space', text: ch } : { kind: 'piece', text: ch }));
 }

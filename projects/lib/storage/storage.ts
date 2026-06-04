@@ -18,7 +18,7 @@ interface Envelope<T> {
 }
 
 function isEnvelope(x: unknown): x is Envelope<unknown> {
-  return x !== null && typeof x === 'object' && 'v' in (x as object);
+  return x !== null && typeof x === 'object' && 'v' in x;
 }
 
 /**
@@ -111,6 +111,7 @@ export class WrStorage {
       try {
         serialized = JSON.stringify(env);
       } catch (err) {
+        // eslint-disable-next-line no-console -- intentional diagnostic for unserialisable values
         console.warn('[ngwr/storage] value not JSON-serializable', err);
         return;
       }
@@ -122,6 +123,7 @@ export class WrStorage {
       this.engine.setItem(fk, serialized);
     } catch (err) {
       // Quota exceeded / disabled / cleared mid-write — log + carry on.
+      // eslint-disable-next-line no-console -- intentional diagnostic on storage write failure
       console.warn('[ngwr/storage] setItem failed', err);
       return;
     }
@@ -166,7 +168,7 @@ export class WrStorage {
     let sig = this.watchers.get(key) as WritableSignal<T | null> | undefined;
     if (!sig) {
       sig = signal<T | null>(this.get<T>(key, fallback));
-      this.watchers.set(key, sig as WritableSignal<unknown>);
+      this.watchers.set(key, sig);
       this.installCrossTabListener();
     }
     return sig.asReadonly();

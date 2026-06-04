@@ -34,8 +34,6 @@ import {
   viewChild,
 } from '@angular/core';
 
-export type WrCircularTextHover = 'speedUp' | 'slowDown' | 'pause' | 'goBonkers' | null;
-
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -191,3 +189,5 @@ export class WrCircularText {
     this.rotation.currentTime = ratio * newDurMs;
   }
 }
+
+export type WrCircularTextHover = 'speedUp' | 'slowDown' | 'pause' | 'goBonkers' | null;

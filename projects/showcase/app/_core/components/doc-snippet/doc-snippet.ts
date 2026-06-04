@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
+import type { DocCodeFile } from '../doc-code/types';
 
 import type { ShikiLang } from '#core/shiki';
-import type { DocCodeFile } from '../doc-code/types';
 
 /**
  * Live demo paired with its source code.
@@ -39,7 +39,7 @@ export class DocSnippetComponent {
   /** Drives the border between demo + code (hidden when nothing to show). */
   protected readonly hasCode = computed(() => {
     const fs = this.files();
-    if (fs && fs.some(f => f.code.trim().length > 0)) return true;
+    if (fs?.some(f => f.code.trim().length > 0)) return true;
     return this.code().trim().length > 0;
   });
 }

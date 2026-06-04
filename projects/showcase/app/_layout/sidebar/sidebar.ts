@@ -81,10 +81,10 @@ export class Sidebar {
   private deepestData<T>(key: string): T | undefined {
     let r = this.route.root;
     let value: T | undefined;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
     while (r) {
-      const v = r.snapshot.data?.[key];
-      if (v !== undefined) value = v as T;
+      const v: T | undefined = (r.snapshot.data as Record<string, T> | undefined)?.[key];
+      if (v !== undefined) value = v;
       if (!r.firstChild) break;
       r = r.firstChild;
     }

@@ -11,16 +11,15 @@
  * supports image + template items, optional fade/scale/pause-on-hover.
  */
 
-import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
+import type { TemplateRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
   PLATFORM_ID,
-  TemplateRef,
-  ViewChild,
   ViewEncapsulation,
   afterNextRender,
   computed,
@@ -28,33 +27,12 @@ import {
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 
 const SMOOTH_TAU = 0.25;
 const MIN_COPIES = 2;
 const COPY_HEADROOM = 2;
-
-/** Image-driven marquee entry. */
-export interface WrMarqueeImage {
-  readonly src: string;
-  readonly alt?: string;
-  readonly href?: string;
-  readonly title?: string;
-  readonly width?: number;
-  readonly height?: number;
-  readonly srcSet?: string;
-  readonly sizes?: string;
-}
-
-/** Template-driven marquee entry — `node` is rendered via `*ngTemplateOutlet`. */
-export interface WrMarqueeNode {
-  readonly node: TemplateRef<unknown>;
-  readonly href?: string;
-  readonly ariaLabel?: string;
-  readonly title?: string;
-}
-
-export type WrMarqueeItem = WrMarqueeImage | WrMarqueeNode;
 
 function isNode(item: WrMarqueeItem): item is WrMarqueeNode {
   return 'node' in item;
@@ -140,7 +118,7 @@ export class WrMarquee {
   /** Accessible label for the carousel region. @default 'Marquee' */
   readonly ariaLabel = input('Marquee');
 
-  @ViewChild('track', { static: true }) private readonly trackEl!: ElementRef<HTMLElement>;
+  private readonly trackEl = viewChild.required<ElementRef<HTMLElement>>('track');
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -244,14 +222,14 @@ export class WrMarquee {
   }
 
   private startLoop(): void {
-    const track = this.trackEl.nativeElement;
+    const track = this.trackEl().nativeElement;
     let raf = 0;
     let lastTs: number | null = null;
     let offset = 0;
     let velocity = 0;
 
     const tick = (ts: number): void => {
-      if (lastTs === null) lastTs = ts;
+      lastTs ??= ts;
       const dt = Math.max(0, ts - lastTs) / 1000;
       lastTs = ts;
 
@@ -271,3 +249,25 @@ export class WrMarquee {
     this.destroyRef.onDestroy(() => cancelAnimationFrame(raf));
   }
 }
+
+/** Image-driven marquee entry. */
+export interface WrMarqueeImage {
+  readonly src: string;
+  readonly alt?: string;
+  readonly href?: string;
+  readonly title?: string;
+  readonly width?: number;
+  readonly height?: number;
+  readonly srcSet?: string;
+  readonly sizes?: string;
+}
+
+/** Template-driven marquee entry — `node` is rendered via `*ngTemplateOutlet`. */
+export interface WrMarqueeNode {
+  readonly node: TemplateRef<unknown>;
+  readonly href?: string;
+  readonly ariaLabel?: string;
+  readonly title?: string;
+}
+
+export type WrMarqueeItem = WrMarqueeImage | WrMarqueeNode;

@@ -17,8 +17,6 @@ import { squirclePath, type WrSquircleCorners } from './compute-squircle-path';
  * the other two at 90°. Useful for tab-/segment-style controls where
  * only outer corners need smoothing.
  */
-export type WrSquircleCornerMask = 'all' | 'left' | 'right' | 'top' | 'bottom' | 'none';
-
 function maskToRadii(mask: WrSquircleCornerMask, r: number): WrSquircleCorners {
   switch (mask) {
     case 'left':
@@ -194,3 +192,11 @@ export class WrSquircle {
     host.style.removeProperty('--wr-squircle-border-color');
   }
 }
+
+/**
+ * Which corners to squircle. `'all'` = standard four-corner squircle;
+ * the side-named values squircle the two corners on that side and leave
+ * the other two at 90°. Useful for tab-/segment-style controls where
+ * only outer corners need smoothing.
+ */
+export type WrSquircleCornerMask = 'all' | 'left' | 'right' | 'top' | 'bottom' | 'none';

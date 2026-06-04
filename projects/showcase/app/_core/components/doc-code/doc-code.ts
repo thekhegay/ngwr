@@ -11,10 +11,10 @@ import {
 } from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 
+import type { DocCodeFile } from './types';
+
 import { getHighlighter, type ShikiLang } from '#core/shiki';
 import { copyToClipboard, stripIndent } from '#core/utils';
-
-import type { DocCodeFile } from './types';
 
 /**
  * Syntax-highlighted code block with a copy button. Supports one of two

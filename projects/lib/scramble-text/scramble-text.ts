@@ -12,8 +12,8 @@
  * per-char `setInterval` loop, restores on settle.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -34,6 +34,17 @@ const num =
 interface ActiveScramble {
   swapId: ReturnType<typeof setInterval>;
   settleId: ReturnType<typeof setTimeout>;
+}
+
+function pickRandom(pool: string, exclude: string): string {
+  if (pool.length === 0) return exclude;
+  if (pool.length === 1) return pool;
+  // Avoid landing on the original mid-scramble — looks like nothing happened.
+  let pick = pool.charAt(Math.floor(Math.random() * pool.length));
+  for (let tries = 0; tries < 3 && pick === exclude; tries++) {
+    pick = pool.charAt(Math.floor(Math.random() * pool.length));
+  }
+  return pick;
 }
 
 /**
@@ -170,15 +181,4 @@ export class WrScrambleText {
     }
     this.active.clear();
   }
-}
-
-function pickRandom(pool: string, exclude: string): string {
-  if (pool.length === 0) return exclude;
-  if (pool.length === 1) return pool;
-  // Avoid landing on the original mid-scramble — looks like nothing happened.
-  let pick = pool.charAt(Math.floor(Math.random() * pool.length));
-  for (let tries = 0; tries < 3 && pick === exclude; tries++) {
-    pick = pool.charAt(Math.floor(Math.random() * pool.length));
-  }
-  return pick;
 }

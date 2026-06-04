@@ -77,7 +77,7 @@ export class WrSortableList<T = unknown> {
   readonly lockAxis = input<'x' | 'y' | undefined>(undefined);
 
   /** `trackBy` for the inner `@for`. Defaults to identity. */
-  readonly trackBy = input<(index: number, item: T) => unknown>((_, item) => item as unknown as object);
+  readonly trackBy = input<(index: number, item: T) => unknown>((_, item) => item);
 
   /** Fired after a successful reorder with the new array + indices. */
   readonly reorder = output<WrSortableReorderEvent<T>>();

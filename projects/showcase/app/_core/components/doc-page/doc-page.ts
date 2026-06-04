@@ -3,6 +3,18 @@ import { Router } from '@angular/router';
 
 import { MetaService } from '#core/services';
 
+const FALLBACK_CATEGORY = 'Docs';
+
+const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
+  components: 'Components',
+  animations: 'Animations',
+  directives: 'Directives',
+  pipes: 'Pipes',
+  services: 'Services',
+  utils: 'Utils',
+  'getting-started': 'Getting Started',
+};
+
 /**
  * Top-level documentation page shell.
  *
@@ -78,15 +90,3 @@ export class DocPageComponent {
     return CATEGORY_BY_SEGMENT[segment] ?? FALLBACK_CATEGORY;
   }
 }
-
-const FALLBACK_CATEGORY = 'Docs';
-
-const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
-  components: 'Components',
-  animations: 'Animations',
-  directives: 'Directives',
-  pipes: 'Pipes',
-  services: 'Services',
-  utils: 'Utils',
-  'getting-started': 'Getting Started',
-};

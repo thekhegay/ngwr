@@ -63,7 +63,7 @@ export class Header {
     const platformId = inject(PLATFORM_ID);
     if (!isPlatformBrowser(platformId)) return;
 
-    const host = inject(ElementRef<HTMLElement>).nativeElement;
+    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
     const root = document.documentElement;
 
     const publish = (): void => {

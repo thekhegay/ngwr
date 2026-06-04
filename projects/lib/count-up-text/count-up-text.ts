@@ -12,8 +12,8 @@
  * so there's no runtime dependency.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -30,12 +30,18 @@ import {
   signal,
 } from '@angular/core';
 
-export type WrCountUpTextDirection = 'up' | 'down';
-
 const num =
   (fallback: number) =>
   (v: unknown): number =>
     coerceNumberProperty(v, fallback);
+
+function decimalPlaces(n: number): number {
+  const str = String(n);
+  if (!str.includes('.')) return 0;
+  const decimals = str.split('.')[1];
+  if (Number.parseInt(decimals, 10) === 0) return 0;
+  return decimals.length;
+}
 
 /**
  * Animates a number from `[from]` to `[to]` (or in reverse with
@@ -85,7 +91,7 @@ export class WrCountUpText {
   readonly started = output<void>();
 
   /** Emits when the animation settles. */
-  readonly ended = output<void>();
+  readonly completed = output<void>();
 
   protected readonly value = signal(0);
 
@@ -146,7 +152,7 @@ export class WrCountUpText {
       this.tween(start, target, duration);
       // Reactbits emits onEnd after delay + duration regardless of settle —
       // mirror that here so the contract matches.
-      setTimeout(() => this.ended.emit(), duration * 1000);
+      setTimeout(() => this.completed.emit(), duration * 1000);
     }, this.delay() * 1000);
   }
 
@@ -196,10 +202,4 @@ export class WrCountUpText {
   }
 }
 
-function decimalPlaces(n: number): number {
-  const str = String(n);
-  if (!str.includes('.')) return 0;
-  const decimals = str.split('.')[1];
-  if (Number.parseInt(decimals, 10) === 0) return 0;
-  return decimals.length;
-}
+export type WrCountUpTextDirection = 'up' | 'down';

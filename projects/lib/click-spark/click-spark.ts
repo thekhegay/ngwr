@@ -8,22 +8,20 @@
  * Original: https://www.reactbits.dev/animations/click-spark
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
   PLATFORM_ID,
-  ViewChild,
   ViewEncapsulation,
   afterNextRender,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
-
-export type WrClickSparkEasing = 'linear' | 'ease-in' | 'ease-in-out' | 'ease-out';
 
 interface Spark {
   readonly x: number;
@@ -93,7 +91,7 @@ export class WrClickSpark {
   /** Multiplier on the travel distance — bumps the radius without changing `sparkRadius`. @default 1 */
   readonly extraScale = input(1, { transform: num(1) });
 
-  @ViewChild('canvas', { static: true }) private readonly canvasRef!: ElementRef<HTMLCanvasElement>;
+  private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -111,7 +109,7 @@ export class WrClickSpark {
   }
 
   protected onClick(event: MouseEvent): void {
-    const canvas = this.canvasRef.nativeElement;
+    const canvas = this.canvasRef().nativeElement;
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -125,7 +123,7 @@ export class WrClickSpark {
   // ───────── Internals ─────────
 
   private syncCanvasSize(): void {
-    const canvas = this.canvasRef.nativeElement;
+    const canvas = this.canvasRef().nativeElement;
     const host = this.host.nativeElement;
     const { width, height } = host.getBoundingClientRect();
     if (canvas.width !== Math.round(width)) canvas.width = Math.round(width);
@@ -147,7 +145,7 @@ export class WrClickSpark {
   }
 
   private startLoop(): void {
-    const canvas = this.canvasRef.nativeElement;
+    const canvas = this.canvasRef().nativeElement;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -191,3 +189,5 @@ export class WrClickSpark {
     this.destroyRef.onDestroy(() => cancelAnimationFrame(raf));
   }
 }
+
+export type WrClickSparkEasing = 'linear' | 'ease-in' | 'ease-in-out' | 'ease-out';

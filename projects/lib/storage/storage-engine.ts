@@ -8,6 +8,22 @@
 import { InjectionToken } from '@angular/core';
 
 /**
+ * Probe a `Storage` candidate to confirm it's writable. Safari private
+ * mode, disabled cookies, and storage-blocked iframes all throw on
+ * `setItem` — fall back to memory in those cases.
+ */
+function probe(engine: WrStorageEngine): boolean {
+  try {
+    const k = '__wr_storage_probe__';
+    engine.setItem(k, '1');
+    engine.removeItem(k);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Storage backend. Anything implementing the native `Storage` interface
  * works — `localStorage`, `sessionStorage`, a Map-backed shim, an
  * IndexedDB sync wrapper, an encrypted wrapper, a worker bridge, …
@@ -40,22 +56,6 @@ export function createMemoryStorage(): WrStorageEngine {
       map.set(key, value);
     },
   };
-}
-
-/**
- * Probe a `Storage` candidate to confirm it's writable. Safari private
- * mode, disabled cookies, and storage-blocked iframes all throw on
- * `setItem` — fall back to memory in those cases.
- */
-function probe(engine: WrStorageEngine): boolean {
-  try {
-    const k = '__wr_storage_probe__';
-    engine.setItem(k, '1');
-    engine.removeItem(k);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 /**

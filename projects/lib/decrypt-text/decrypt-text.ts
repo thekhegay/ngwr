@@ -11,8 +11,8 @@
  * is dependency-free — vanilla signals + `setInterval` for the tick loop.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,16 +28,52 @@ import {
   signal,
 } from '@angular/core';
 
-export type WrDecryptTextAnimateOn = 'hover' | 'click' | 'view' | 'inViewHover';
-export type WrDecryptTextRevealDirection = 'start' | 'end' | 'center';
-export type WrDecryptTextClickMode = 'once' | 'toggle';
-
 const DEFAULT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
 
 const num =
   (fallback: number) =>
   (v: unknown): number =>
     coerceNumberProperty(v, fallback);
+
+function computeOrder(len: number, dir: WrDecryptTextRevealDirection): readonly number[] {
+  const order: number[] = [];
+  if (len <= 0) return order;
+  if (dir === 'start') {
+    for (let i = 0; i < len; i++) order.push(i);
+    return order;
+  }
+  if (dir === 'end') {
+    for (let i = len - 1; i >= 0; i--) order.push(i);
+    return order;
+  }
+  const middle = Math.floor(len / 2);
+  let off = 0;
+  while (order.length < len) {
+    if (off % 2 === 0) {
+      const idx = middle + off / 2;
+      if (idx >= 0 && idx < len) order.push(idx);
+    } else {
+      const idx = middle - Math.ceil(off / 2);
+      if (idx >= 0 && idx < len) order.push(idx);
+    }
+    off++;
+  }
+  return order.slice(0, len);
+}
+
+function fillAllIndices(len: number): Set<number> {
+  const s = new Set<number>();
+  for (let i = 0; i < len; i++) s.add(i);
+  return s;
+}
+
+function removeRandomIndices(set: ReadonlySet<number>, count: number): Set<number> {
+  const arr = Array.from(set);
+  for (let i = 0; i < count && arr.length > 0; i++) {
+    arr.splice(Math.floor(Math.random() * arr.length), 1);
+  }
+  return new Set(arr);
+}
 
 /**
  * Reveals a string by scrambling characters and progressively replacing
@@ -370,42 +406,6 @@ export class WrDecryptText {
   }
 }
 
-function computeOrder(len: number, dir: WrDecryptTextRevealDirection): readonly number[] {
-  const order: number[] = [];
-  if (len <= 0) return order;
-  if (dir === 'start') {
-    for (let i = 0; i < len; i++) order.push(i);
-    return order;
-  }
-  if (dir === 'end') {
-    for (let i = len - 1; i >= 0; i--) order.push(i);
-    return order;
-  }
-  const middle = Math.floor(len / 2);
-  let off = 0;
-  while (order.length < len) {
-    if (off % 2 === 0) {
-      const idx = middle + off / 2;
-      if (idx >= 0 && idx < len) order.push(idx);
-    } else {
-      const idx = middle - Math.ceil(off / 2);
-      if (idx >= 0 && idx < len) order.push(idx);
-    }
-    off++;
-  }
-  return order.slice(0, len);
-}
-
-function fillAllIndices(len: number): Set<number> {
-  const s = new Set<number>();
-  for (let i = 0; i < len; i++) s.add(i);
-  return s;
-}
-
-function removeRandomIndices(set: ReadonlySet<number>, count: number): Set<number> {
-  const arr = Array.from(set);
-  for (let i = 0; i < count && arr.length > 0; i++) {
-    arr.splice(Math.floor(Math.random() * arr.length), 1);
-  }
-  return new Set(arr);
-}
+export type WrDecryptTextAnimateOn = 'hover' | 'click' | 'view' | 'inViewHover';
+export type WrDecryptTextRevealDirection = 'start' | 'end' | 'center';
+export type WrDecryptTextClickMode = 'once' | 'toggle';

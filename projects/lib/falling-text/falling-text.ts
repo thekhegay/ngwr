@@ -13,23 +13,21 @@
  * no runtime dependency.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
   PLATFORM_ID,
-  ViewChild,
   ViewEncapsulation,
   afterNextRender,
   computed,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
-
-export type WrFallingTextTrigger = 'auto' | 'scroll' | 'hover' | 'click';
 
 const num =
   (fallback: number) =>
@@ -52,6 +50,46 @@ const RESTITUTION = 0.55;
 const AIR_DRAG = 0.005;
 const FRICTION = 0.4; // tangential damping on wall/floor hits
 const DRAG_STIFFNESS = 0.6;
+
+/** Resolve AABB-vs-AABB collision between two bodies via min-overlap axis. */
+function resolveCollision(a: Body, b: Body): void {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const overlapX = a.w / 2 + b.w / 2 - Math.abs(dx);
+  const overlapY = a.h / 2 + b.h / 2 - Math.abs(dy);
+  if (overlapX <= 0 || overlapY <= 0) return;
+
+  if (overlapX < overlapY) {
+    // Resolve along x.
+    const push = overlapX / 2;
+    if (dx > 0) {
+      a.x -= push;
+      b.x += push;
+    } else {
+      a.x += push;
+      b.x -= push;
+    }
+    const avg = (a.vx + b.vx) / 2;
+    a.vx = avg * RESTITUTION - (a.vx - avg) * RESTITUTION;
+    b.vx = avg * RESTITUTION - (b.vx - avg) * RESTITUTION;
+  } else {
+    const push = overlapY / 2;
+    if (dy > 0) {
+      a.y -= push;
+      b.y += push;
+    } else {
+      a.y += push;
+      b.y -= push;
+    }
+    const avg = (a.vy + b.vy) / 2;
+    a.vy = avg * RESTITUTION - (a.vy - avg) * RESTITUTION;
+    b.vy = avg * RESTITUTION - (b.vy - avg) * RESTITUTION;
+  }
+
+  // Tiny torque so stacked bodies wiggle naturally.
+  a.angVel += (Math.random() - 0.5) * 0.2;
+  b.angVel += (Math.random() - 0.5) * 0.2;
+}
 
 /**
  * Words fall like physical bodies — gravity, wall/floor collision, and
@@ -103,7 +141,7 @@ export class WrFallingText {
   /** Font size as a CSS length. @default '1rem' */
   readonly fontSize = input('1rem');
 
-  @ViewChild('wordsContainer', { static: true }) private readonly wordsRef!: ElementRef<HTMLDivElement>;
+  private readonly wordsRef = viewChild.required<ElementRef<HTMLDivElement>>('wordsContainer');
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -166,7 +204,7 @@ export class WrFallingText {
     this.started = true;
 
     const hostEl = this.host.nativeElement;
-    const wordsContainer = this.wordsRef.nativeElement;
+    const wordsContainer = this.wordsRef().nativeElement;
     const containerRect = hostEl.getBoundingClientRect();
     const width = containerRect.width;
     const height = containerRect.height;
@@ -314,42 +352,4 @@ export class WrFallingText {
   }
 }
 
-/** Resolve AABB-vs-AABB collision between two bodies via min-overlap axis. */
-function resolveCollision(a: Body, b: Body): void {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const overlapX = a.w / 2 + b.w / 2 - Math.abs(dx);
-  const overlapY = a.h / 2 + b.h / 2 - Math.abs(dy);
-  if (overlapX <= 0 || overlapY <= 0) return;
-
-  if (overlapX < overlapY) {
-    // Resolve along x.
-    const push = overlapX / 2;
-    if (dx > 0) {
-      a.x -= push;
-      b.x += push;
-    } else {
-      a.x += push;
-      b.x -= push;
-    }
-    const avg = (a.vx + b.vx) / 2;
-    a.vx = avg * RESTITUTION - (a.vx - avg) * RESTITUTION;
-    b.vx = avg * RESTITUTION - (b.vx - avg) * RESTITUTION;
-  } else {
-    const push = overlapY / 2;
-    if (dy > 0) {
-      a.y -= push;
-      b.y += push;
-    } else {
-      a.y += push;
-      b.y -= push;
-    }
-    const avg = (a.vy + b.vy) / 2;
-    a.vy = avg * RESTITUTION - (a.vy - avg) * RESTITUTION;
-    b.vy = avg * RESTITUTION - (b.vy - avg) * RESTITUTION;
-  }
-
-  // Tiny torque so stacked bodies wiggle naturally.
-  a.angVel += (Math.random() - 0.5) * 0.2;
-  b.angVel += (Math.random() - 0.5) * 0.2;
-}
+export type WrFallingTextTrigger = 'auto' | 'scroll' | 'hover' | 'click';

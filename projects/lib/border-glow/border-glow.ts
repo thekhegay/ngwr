@@ -9,8 +9,8 @@
  * with an outer halo and optional auto-sweep on mount.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,7 +38,7 @@ interface ParsedHsl {
 }
 
 function parseHsl(input: string): ParsedHsl {
-  const match = input.match(/([\d.]+)\s*([\d.]+)%?\s*([\d.]+)%?/);
+  const match = /([\d.]+)\s*([\d.]+)%?\s*([\d.]+)%?/.exec(input);
   if (!match) return { h: 40, s: 80, l: 80 };
   return { h: Number.parseFloat(match[1]), s: Number.parseFloat(match[2]), l: Number.parseFloat(match[3]) };
 }
@@ -59,6 +59,65 @@ const GRADIENT_VAR_NAMES = [
 const GRADIENT_COLOR_INDEX = [0, 1, 2, 0, 1, 2, 1] as const;
 
 const DEFAULT_COLORS: readonly string[] = ['#c084fc', '#f472b6', '#38bdf8'];
+
+function buildGlowVars(glowColor: string, intensity: number): Record<string, string> {
+  const { h, s, l } = parseHsl(glowColor);
+  const base = `${h}deg ${s}% ${l}%`;
+  const out: Record<string, string> = {};
+  for (let i = 0; i < GLOW_OPACITY_STEPS.length; i++) {
+    const alpha = Math.min(GLOW_OPACITY_STEPS[i] * intensity, 100);
+    out[`--glow-color${GLOW_VAR_SUFFIXES[i]}`] = `hsl(${base} / ${alpha}%)`;
+  }
+  return out;
+}
+
+function buildGradientVars(colors: readonly string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  const palette = colors.length > 0 ? colors : DEFAULT_COLORS;
+  for (let i = 0; i < GRADIENT_VAR_NAMES.length; i++) {
+    const colour = palette[Math.min(GRADIENT_COLOR_INDEX[i], palette.length - 1)];
+    out[GRADIENT_VAR_NAMES[i]] = `radial-gradient(at ${GRADIENT_POSITIONS[i]}, ${colour} 0px, transparent 50%)`;
+  }
+  out['--gradient-base'] = `linear-gradient(${palette[0]} 0 100%)`;
+  return out;
+}
+
+interface AnimateOptions {
+  readonly start?: number;
+  readonly end?: number;
+  readonly duration?: number;
+  readonly delay?: number;
+  readonly ease?: (t: number) => number;
+  readonly onUpdate: (v: number) => void;
+  readonly onEnd?: () => void;
+}
+
+/** Tiny rAF-driven tweener. Returns a cancel function so callers can clean up on destroy. */
+function animateValue(opts: AnimateOptions): () => void {
+  const { start = 0, end = 100, duration = 1000, delay = 0, ease = (t: number): number => t, onUpdate, onEnd } = opts;
+  let raf = 0;
+  let cancelled = false;
+
+  const startAt = performance.now() + delay;
+  const tick = (): void => {
+    if (cancelled) return;
+    const elapsed = performance.now() - startAt;
+    const t = Math.min(Math.max(elapsed / duration, 0), 1);
+    onUpdate(start + (end - start) * ease(t));
+    if (t < 1) raf = requestAnimationFrame(tick);
+    else if (onEnd) onEnd();
+  };
+
+  const timer = setTimeout(() => {
+    raf = requestAnimationFrame(tick);
+  }, delay);
+
+  return () => {
+    cancelled = true;
+    clearTimeout(timer);
+    cancelAnimationFrame(raf);
+  };
+}
 
 /**
  * Cursor-tracked glowing border card. A cone of light follows the pointer
@@ -240,63 +299,4 @@ export class WrBorderGlow {
       host.classList.remove('wr-border-glow--sweeping');
     });
   }
-}
-
-function buildGlowVars(glowColor: string, intensity: number): Record<string, string> {
-  const { h, s, l } = parseHsl(glowColor);
-  const base = `${h}deg ${s}% ${l}%`;
-  const out: Record<string, string> = {};
-  for (let i = 0; i < GLOW_OPACITY_STEPS.length; i++) {
-    const alpha = Math.min(GLOW_OPACITY_STEPS[i] * intensity, 100);
-    out[`--glow-color${GLOW_VAR_SUFFIXES[i]}`] = `hsl(${base} / ${alpha}%)`;
-  }
-  return out;
-}
-
-function buildGradientVars(colors: readonly string[]): Record<string, string> {
-  const out: Record<string, string> = {};
-  const palette = colors.length > 0 ? colors : DEFAULT_COLORS;
-  for (let i = 0; i < GRADIENT_VAR_NAMES.length; i++) {
-    const colour = palette[Math.min(GRADIENT_COLOR_INDEX[i], palette.length - 1)];
-    out[GRADIENT_VAR_NAMES[i]] = `radial-gradient(at ${GRADIENT_POSITIONS[i]}, ${colour} 0px, transparent 50%)`;
-  }
-  out['--gradient-base'] = `linear-gradient(${palette[0]} 0 100%)`;
-  return out;
-}
-
-interface AnimateOptions {
-  readonly start?: number;
-  readonly end?: number;
-  readonly duration?: number;
-  readonly delay?: number;
-  readonly ease?: (t: number) => number;
-  readonly onUpdate: (v: number) => void;
-  readonly onEnd?: () => void;
-}
-
-/** Tiny rAF-driven tweener. Returns a cancel function so callers can clean up on destroy. */
-function animateValue(opts: AnimateOptions): () => void {
-  const { start = 0, end = 100, duration = 1000, delay = 0, ease = (t: number): number => t, onUpdate, onEnd } = opts;
-  let raf = 0;
-  let cancelled = false;
-
-  const startAt = performance.now() + delay;
-  const tick = (): void => {
-    if (cancelled) return;
-    const elapsed = performance.now() - startAt;
-    const t = Math.min(Math.max(elapsed / duration, 0), 1);
-    onUpdate(start + (end - start) * ease(t));
-    if (t < 1) raf = requestAnimationFrame(tick);
-    else if (onEnd) onEnd();
-  };
-
-  const timer = setTimeout(() => {
-    raf = requestAnimationFrame(tick);
-  }, delay);
-
-  return () => {
-    cancelled = true;
-    clearTimeout(timer);
-    cancelAnimationFrame(raf);
-  };
 }

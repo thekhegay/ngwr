@@ -15,8 +15,6 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-export type WrGradientTextDirection = 'horizontal' | 'vertical' | 'diagonal';
-
 const DEFAULT_COLORS: readonly string[] = ['#5227FF', '#FF9FFC', '#B497CF'];
 
 const num =
@@ -113,3 +111,5 @@ export class WrGradientText {
     }
   }
 }
+
+export type WrGradientTextDirection = 'horizontal' | 'vertical' | 'diagonal';

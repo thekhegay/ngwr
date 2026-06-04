@@ -12,23 +12,21 @@
  * vertical offsets. Intensity reacts to hover / click / glitch state.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
+import type { ElementRef } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
   PLATFORM_ID,
-  ViewChild,
   ViewEncapsulation,
   afterNextRender,
   effect,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
-
-export type WrFuzzyTextDirection = 'horizontal' | 'vertical' | 'both';
 
 const num =
   (fallback: number) =>
@@ -117,7 +115,7 @@ export class WrFuzzyText {
   /** Extra pixels between glyphs. @default 0 */
   readonly letterSpacing = input(0, { transform: num(0) });
 
-  @ViewChild('canvas', { static: true }) private readonly canvasRef!: ElementRef<HTMLCanvasElement>;
+  private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -127,7 +125,9 @@ export class WrFuzzyText {
   constructor() {
     if (!this.isBrowser) return;
 
-    afterNextRender(() => this.init());
+    afterNextRender(() => {
+      void this.init();
+    });
 
     // Re-init whenever any input that affects the offscreen rendering changes.
     effect(() => {
@@ -148,7 +148,9 @@ export class WrFuzzyText {
       if (!this.teardown) return;
       this.teardown();
       this.teardown = undefined;
-      queueMicrotask(() => this.init());
+      queueMicrotask(() => {
+        void this.init();
+      });
     });
 
     this.destroyRef.onDestroy(() => this.teardown?.());
@@ -157,8 +159,7 @@ export class WrFuzzyText {
   // ───────── Init / loop ─────────
 
   private async init(): Promise<void> {
-    const canvas = this.canvasRef?.nativeElement;
-    if (!canvas) return;
+    const canvas = this.canvasRef().nativeElement;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -397,3 +398,5 @@ export class WrFuzzyText {
     };
   }
 }
+
+export type WrFuzzyTextDirection = 'horizontal' | 'vertical' | 'both';

@@ -12,8 +12,8 @@
  * API, triggers on viewport entry via `IntersectionObserver`.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -29,26 +29,27 @@ import {
   output,
 } from '@angular/core';
 
-/** Granularity of the split. `lines` is not yet supported in this port. */
-export type WrSplitTextUnit = 'chars' | 'words';
-
-/**
- * One end of the animation. Properties not listed default to the steady
- * state (opacity 1, no transform). `x` / `y` are pixels, `scale` is a
- * unitless factor, `rotate` is degrees.
- */
-export interface WrSplitTextMotion {
-  readonly opacity?: number;
-  readonly x?: number;
-  readonly y?: number;
-  readonly scale?: number;
-  readonly rotate?: number;
-}
-
 const num =
   (fallback: number) =>
   (v: unknown): number =>
     coerceNumberProperty(v, fallback);
+
+type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
+
+/** Split `text` into render pieces, preserving whitespace as `kind: 'space'`. */
+function splitPieces(text: string, unit: WrSplitTextUnit): readonly Piece[] {
+  if (!text) return [];
+  if (unit === 'words') {
+    // Split on whitespace, keeping spaces as separate pieces.
+    return text.split(/(\s+)/).flatMap<Piece>(seg => {
+      if (seg.length === 0) return [];
+      if (/^\s+$/.test(seg)) return [{ kind: 'space', text: seg } as const];
+      return [{ kind: 'piece', text: seg } as const];
+    });
+  }
+  // chars: each character is its own piece; whitespace becomes 'space'.
+  return [...text].map<Piece>(ch => (/\s/.test(ch) ? { kind: 'space', text: ch } : { kind: 'piece', text: ch }));
+}
 
 function motionToStyle(m: WrSplitTextMotion): { opacity: number; transform: string } {
   const opacity = m.opacity ?? 1;
@@ -169,7 +170,7 @@ export class WrSplitText {
       this.destroyRef.onDestroy(() => io.disconnect());
     };
 
-    ready.then(observe);
+    void ready.then(observe);
   }
 
   private animate(): void {
@@ -218,19 +219,18 @@ export class WrSplitText {
   }
 }
 
-/** Split `text` into render pieces, preserving whitespace as `kind: 'space'`. */
-function splitPieces(text: string, unit: WrSplitTextUnit): readonly Piece[] {
-  if (!text) return [];
-  if (unit === 'words') {
-    // Split on whitespace, keeping spaces as separate pieces.
-    return text.split(/(\s+)/).flatMap<Piece>(seg => {
-      if (seg.length === 0) return [];
-      if (/^\s+$/.test(seg)) return [{ kind: 'space', text: seg } as const];
-      return [{ kind: 'piece', text: seg } as const];
-    });
-  }
-  // chars: each character is its own piece; whitespace becomes 'space'.
-  return [...text].map<Piece>(ch => (/\s/.test(ch) ? { kind: 'space', text: ch } : { kind: 'piece', text: ch }));
-}
+/** Granularity of the split. `lines` is not yet supported in this port. */
+export type WrSplitTextUnit = 'chars' | 'words';
 
-type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
+/**
+ * One end of the animation. Properties not listed default to the steady
+ * state (opacity 1, no transform). `x` / `y` are pixels, `scale` is a
+ * unitless factor, `rotate` is degrees.
+ */
+export interface WrSplitTextMotion {
+  readonly opacity?: number;
+  readonly x?: number;
+  readonly y?: number;
+  readonly scale?: number;
+  readonly rotate?: number;
+}

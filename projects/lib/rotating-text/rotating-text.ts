@@ -12,8 +12,8 @@
  * the enter/exit transitions.
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -30,9 +30,6 @@ import {
   signal,
 } from '@angular/core';
 
-export type WrRotatingTextSplit = 'characters' | 'words' | 'lines';
-export type WrRotatingTextStaggerFrom = 'first' | 'last' | 'center';
-
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -44,6 +41,29 @@ const DEFAULT_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 interface Word {
   readonly characters: readonly string[];
   readonly needsSpace: boolean;
+}
+
+function graphemes(text: string): readonly string[] {
+  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+    const seg = new Intl.Segmenter('en', { granularity: 'grapheme' });
+    return Array.from(seg.segment(text), s => s.segment);
+  }
+  return Array.from(text);
+}
+
+function splitWords(text: string, by: WrRotatingTextSplit): readonly Word[] {
+  if (!text) return [];
+  if (by === 'lines') {
+    const lines = text.split('\n');
+    return lines.map((line, i) => ({ characters: [line], needsSpace: i !== lines.length - 1 }));
+  }
+  if (by === 'words') {
+    const words = text.split(' ');
+    return words.map((w, i) => ({ characters: [w], needsSpace: i !== words.length - 1 }));
+  }
+  // characters: split each word into graphemes, keep word boundaries for spacing.
+  const words = text.split(' ');
+  return words.map((w, i) => ({ characters: graphemes(w), needsSpace: i !== words.length - 1 }));
 }
 
 /**
@@ -135,7 +155,7 @@ export class WrRotatingText {
     const cur = this.index();
     const last = arr.length - 1;
     const target = cur === last ? (this.loop() ? 0 : cur) : cur + 1;
-    if (target !== cur) this.transitionTo(target);
+    if (target !== cur) void this.transitionTo(target);
   }
 
   previous(): void {
@@ -144,18 +164,18 @@ export class WrRotatingText {
     const cur = this.index();
     const last = arr.length - 1;
     const target = cur === 0 ? (this.loop() ? last : cur) : cur - 1;
-    if (target !== cur) this.transitionTo(target);
+    if (target !== cur) void this.transitionTo(target);
   }
 
   jumpTo(target: number): void {
     const arr = this.texts();
     if (arr.length === 0) return;
     const clamped = Math.max(0, Math.min(target, arr.length - 1));
-    if (clamped !== this.index()) this.transitionTo(clamped);
+    if (clamped !== this.index()) void this.transitionTo(clamped);
   }
 
   reset(): void {
-    if (this.index() !== 0) this.transitionTo(0);
+    if (this.index() !== 0) void this.transitionTo(0);
   }
 
   // ───────── Internals ─────────
@@ -253,25 +273,5 @@ export class WrRotatingText {
   }
 }
 
-function splitWords(text: string, by: WrRotatingTextSplit): readonly Word[] {
-  if (!text) return [];
-  if (by === 'lines') {
-    const lines = text.split('\n');
-    return lines.map((line, i) => ({ characters: [line], needsSpace: i !== lines.length - 1 }));
-  }
-  if (by === 'words') {
-    const words = text.split(' ');
-    return words.map((w, i) => ({ characters: [w], needsSpace: i !== words.length - 1 }));
-  }
-  // characters: split each word into graphemes, keep word boundaries for spacing.
-  const words = text.split(' ');
-  return words.map((w, i) => ({ characters: graphemes(w), needsSpace: i !== words.length - 1 }));
-}
-
-function graphemes(text: string): readonly string[] {
-  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
-    const seg = new Intl.Segmenter('en', { granularity: 'grapheme' });
-    return Array.from(seg.segment(text), s => s.segment);
-  }
-  return Array.from(text);
-}
+export type WrRotatingTextSplit = 'characters' | 'words' | 'lines';
+export type WrRotatingTextStaggerFrom = 'first' | 'last' | 'center';
