@@ -11,7 +11,11 @@
     "build:showcase": "ng build showcase",
     "generate:icons": "tsx scripts/generate-icons.ts",
     "release:prepare": "tsx scripts/release-prepare.ts",
-    "release:body": "tsx scripts/release-body.ts"
+    "release:body": "tsx scripts/release-body.ts",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "npx --no-install commitlint --edit $1"
   },
   "engines": {
     "node": "^24.15.0 || >=26.0.0",
@@ -36,6 +40,8 @@
     "@angular/build": "^22.0.0",
     "@angular/cli": "^22.0.0",
     "@angular/compiler-cli": "^22.0.0",
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "@eslint/js": "^10.0.1",
     "@types/conventional-changelog": "^6.0.1",
     "@types/luxon": "^3.7.1",
@@ -53,6 +59,7 @@
     "ng-packagr": "^22.0.0",
     "prettier": "^3.8.3",
     "semver": "^7.8.1",
+    "simple-git-hooks": "^2.13.1",
     "svgo": "^4.0.1",
     "tsx": "^4.22.4",
     "typescript": "~6.0.3",

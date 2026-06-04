@@ -3,6 +3,7 @@ allowBuilds:
   esbuild: true
   lmdb: true
   msgpackr-extract: true
+  simple-git-hooks: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - '@angular-devkit/architect@0.2200.0'
