@@ -62,7 +62,10 @@
   }
 }
 
-pre {
+// Pierce view-encapsulation so the Shiki-rendered `<pre>` (inserted via
+// `[innerHTML]` — not subject to the component's `_ngcontent` attr)
+// picks up our padding / font sizing, same as the `.fallback` pre.
+:host ::ng-deep pre {
   margin: 0;
   padding: var(--ngwr-doc-code-padding);
   overflow-x: auto;
@@ -70,12 +73,10 @@ pre {
   line-height: var(--ngwr-doc-code-line-height);
 }
 
-.html {
-  ::ng-deep .shiki,
-  ::ng-deep .shiki span {
-    color: var(--shiki-light);
-    background-color: transparent;
-  }
+:host ::ng-deep .shiki,
+:host ::ng-deep .shiki span {
+  color: var(--shiki-light);
+  background-color: transparent;
 }
 
 .copy {
