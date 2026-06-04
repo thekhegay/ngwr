@@ -87,6 +87,10 @@ export default [
     loadComponent: () => import('./color-picker/color-picker'),
   },
   {
+    path: components.commandPalette,
+    loadComponent: () => import('./command-palette/command-palette'),
+  },
+  {
     path: components.compare,
     loadComponent: () => import('./compare/compare'),
   },
@@ -97,6 +101,10 @@ export default [
   {
     path: components.counter,
     loadComponent: () => import('./counter/counter'),
+  },
+  {
+    path: components.countUp,
+    loadComponent: () => import('./count-up/count-up'),
   },
   {
     path: components.empty,
@@ -229,6 +237,10 @@ export default [
   {
     path: components.select,
     loadComponent: () => import('./select/select'),
+  },
+  {
+    path: components.sidebar,
+    loadComponent: () => import('./sidebar/sidebar'),
   },
   {
     path: components.skeleton,

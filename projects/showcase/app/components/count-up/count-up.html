@@ -1,0 +1,58 @@
+<ngwr-doc-page
+  title="Count Up"
+  description="Animated number tick — eases from `from` to `to` over `duration`, formatted via `Intl.NumberFormat`. Re-runs every time the bound `to` changes."
+  [keywords]="['count-up', 'odometer', 'counter', 'animated number', 'wr-count-up']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic usage" description="Click the button — the value tweens to the new target.">
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <div style="display: flex; gap: 1rem; align-items: center">
+        <strong style="font-size: 1.5rem; font-variant-numeric: tabular-nums">
+          <wr-count-up [to]="visitors()" />
+        </strong>
+        <button wr-btn type="button" (click)="bumpVisitors()">Bump visitors</button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Decimals + prefix" description="Format currency by combining `[decimals]` and `prefix`.">
+    <ngwr-doc-snippet [code]="snippets.decimals">
+      <div style="display: flex; gap: 1rem; align-items: center">
+        <strong style="font-size: 1.5rem; font-variant-numeric: tabular-nums">
+          <wr-count-up [to]="revenue()" [decimals]="2" prefix="$" />
+        </strong>
+        <button wr-btn type="button" (click)="addRevenue()">Add revenue</button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Suffix + custom duration"
+    description="`suffix` appends, `[duration]` overrides the default 1200ms."
+  >
+    <ngwr-doc-snippet [code]="snippets.suffix">
+      <div style="display: flex; gap: 1rem; align-items: center">
+        <strong style="font-size: 1.5rem; font-variant-numeric: tabular-nums">
+          <wr-count-up [to]="progress()" suffix="%" [duration]="800" />
+        </strong>
+        <button wr-btn type="button" (click)="addProgress()">+ 8%</button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Without grouping separators">
+    <ngwr-doc-snippet [code]="snippets.grouping">
+      <strong style="font-size: 1.5rem; font-variant-numeric: tabular-nums">
+        <wr-count-up [to]="1234567" [grouping]="false" />
+      </strong>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

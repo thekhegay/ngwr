@@ -1,0 +1,25 @@
+<ngwr-doc-page
+  title="Sidebar"
+  description="Data-driven nav with flat links and expandable groups. Active route auto-expands its containing group. Icons, trailing badges, and disabled state all opt-in per entry."
+  [keywords]="['sidebar', 'navigation', 'nav', 'wr-sidebar']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Pass `[entries]` — either `WrSidebarItem` (direct link) or `WrSidebarGroup` (expand to reveal children). Badges accept any string."
+  >
+    <ngwr-doc-snippet [code]="snippets.template">
+      <div class="demo-sidebar">
+        <wr-sidebar [entries]="entries" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

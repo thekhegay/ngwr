@@ -32,6 +32,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Compare', url: ['/components', 'compare'] },
       { title: 'Context Menu', url: ['/components', 'context-menu'] },
       { title: 'Counter', url: ['/components', 'counter'] },
+      { title: 'Count Up', url: ['/components', 'count-up'] },
       { title: 'Descriptions', url: ['/components', 'descriptions'] },
       { title: 'Empty', url: ['/components', 'empty'] },
       { title: 'Keyboard', url: ['/components', 'keyboard'] },
@@ -100,6 +101,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Breadcrumb', url: ['/components', 'breadcrumb'] },
       { title: 'Carousel', url: ['/components', 'carousel'] },
       { title: 'Dropdown', url: ['/components', 'dropdown'] },
+      { title: 'Sidebar', url: ['/components', 'sidebar'] },
       { title: 'Speed Dial', url: ['/components', 'speed-dial'] },
       { title: 'Tabs', url: ['/components', 'tabs'] },
     ],
@@ -108,6 +110,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
     title: 'Popups',
     children: [
       { title: 'Bottom Sheet', url: ['/components', 'bottom-sheet'] },
+      { title: 'Command Palette', url: ['/components', 'command-palette'] },
       { title: 'Dialog', url: ['/components', 'dialog'] },
       { title: 'Drawer', url: ['/components', 'drawer'] },
       { title: 'Popconfirm', url: ['/components', 'popconfirm'] },

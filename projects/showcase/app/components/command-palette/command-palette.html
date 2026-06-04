@@ -1,0 +1,47 @@
+<ngwr-doc-page
+  title="Command Palette"
+  description="⌘K-style centred modal with a search input and filtered list of actions. Items group automatically, support icons, descriptions, and shortcut hints. Bind a global hotkey (default `mod+k`) or open it programmatically."
+  [keywords]="['command palette', 'cmd-k', 'spotlight', 'wr-command-palette']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Drop a single palette at your app shell. The default hotkey `mod+k` (⌘K on macOS, Ctrl+K elsewhere) opens it. The `(picked)` output fires after the item's own `action()` callback if it has one."
+  >
+    <ngwr-doc-code [code]="snippets.template" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Click the button or press ⌘K / Ctrl+K. Type to filter. ↑/↓ to move, Enter to pick, Esc to close."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
+        <button wr-btn type="button" color="primary" (click)="open.set(true)">Open palette</button>
+        <p style="margin: 0; color: var(--wr-color-medium); font-size: 0.875rem">
+          @if (last(); as picked) {
+            Last picked: <code>{{ picked }}</code>
+          } @else {
+            Nothing picked yet.
+          }
+        </p>
+      </div>
+      <wr-command-palette [items]="items" [(open)]="open" trigger="mod+k" (picked)="onPicked($event)" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Programmatic control"
+    description="Set `[(open)]` and pass `[trigger]` of `null` to disable the auto-bound hotkey when you want to open it from your own UI."
+  >
+    <ngwr-doc-code [code]="snippets.controlled" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
