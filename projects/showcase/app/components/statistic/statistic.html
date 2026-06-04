@@ -13,4 +13,26 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Countdown"
+    description="`<wr-statistic-countdown>` ticks down to a target date. Format tokens: `D/H/m/s` (doubled for zero-padded width 2), plus `SSS` for milliseconds."
+  >
+    <ngwr-doc-code [code]="countdownSnippet" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2.5rem; flex-wrap: wrap">
+        <wr-statistic-countdown label="Launch in" [target]="launchDate()" format="D days HH:mm:ss" />
+        <wr-statistic-countdown
+          label="Soon (fires in ~30s)"
+          [target]="soonDate()"
+          format="mm:ss"
+          endText="Live!"
+          (countdownEnd)="onLive()"
+        />
+        @if (fired()) {
+          <wr-statistic label="(countdownEnd) fired" value="✓" />
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 </ngwr-doc-page>
