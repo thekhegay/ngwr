@@ -307,6 +307,10 @@ export default [
     loadComponent: () => import('./tree/tree'),
   },
   {
+    path: components.treeSelect,
+    loadComponent: () => import('./tree-select/tree-select'),
+  },
+  {
     path: components.window,
     loadComponent: () => import('./window/window'),
   },

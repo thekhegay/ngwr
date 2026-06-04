@@ -93,6 +93,7 @@ export const routes = {
     toast: 'toast',
     tooltip: 'tooltip',
     tree: 'tree',
+    treeSelect: 'tree-select',
     select: 'select',
     dropdown: 'dropdown',
     fileUpload: 'file-upload',

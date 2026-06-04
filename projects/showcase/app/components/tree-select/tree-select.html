@@ -1,0 +1,44 @@
+<ngwr-doc-page
+  title="Tree Select"
+  description="Picker built on top of `<wr-tree>` — opens an overlay containing the tree and forwards selection through `ControlValueAccessor`. Single mode commits + closes on pick; multi keeps the panel open so the user can keep toggling."
+  [keywords]="['tree-select', 'wr-tree-select', 'tree', 'select']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Single selection">
+    <ngwr-doc-code [code]="snippets.single" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-tree-select [nodes]="folders" [(ngModel)]="picked" placeholder="Pick a folder" defaultExpandAll />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem"> Value: {{ picked() | json }} </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Multi selection"
+    description="Switch `selectionMode` to `'multi'` — model becomes `TId[]` and the trigger renders chips."
+  >
+    <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-tree-select
+          [nodes]="folders"
+          selectionMode="multi"
+          [(ngModel)]="pickedMany"
+          [maxTagCount]="3"
+          placeholder="Pick folders"
+          defaultExpandAll
+        />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem"> Value: {{ pickedMany() | json }} </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

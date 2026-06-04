@@ -1,0 +1,74 @@
+<button
+  type="button"
+  class="wr-tree-select__trigger"
+  role="combobox"
+  [disabled]="isDisabled()"
+  [attr.aria-haspopup]="'tree'"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="panelId"
+  [attr.aria-multiselectable]="selectionMode() === 'multi' ? 'true' : null"
+  (click)="onTriggerClick()"
+  (blur)="onTouched()"
+>
+  @if (selectionMode() === 'multi') {
+    @if (hasSelection()) {
+      <span class="wr-tree-select__chips">
+        @for (chip of visibleChips(); track chip.id) {
+          <span class="wr-tree-select__chip">
+            <span class="wr-tree-select__chip-label">{{ chip.label }}</span>
+            <span
+              class="wr-tree-select__chip-remove"
+              role="button"
+              [attr.aria-label]="'Remove ' + chip.label"
+              tabindex="-1"
+              (click)="removeChip(chip.id, $event)"
+              (keydown.enter)="removeChip(chip.id, $event)"
+              (keydown.space)="removeChip(chip.id, $event)"
+            >
+              <wr-icon name="close" />
+            </span>
+          </span>
+        }
+        @if (hiddenChipCount(); as extra) {
+          <span class="wr-tree-select__chip wr-tree-select__chip--more">+{{ extra }} more</span>
+        }
+      </span>
+    } @else {
+      <span class="wr-tree-select__placeholder">{{ placeholder() }}</span>
+    }
+  } @else {
+    @if (singleLabel(); as label) {
+      <span class="wr-tree-select__value">{{ label }}</span>
+    } @else {
+      <span class="wr-tree-select__placeholder">{{ placeholder() }}</span>
+    }
+  }
+
+  @if (clearable() && hasSelection() && !isDisabled()) {
+    <span
+      class="wr-tree-select__clear"
+      role="button"
+      aria-label="Clear selection"
+      tabindex="-1"
+      (click)="clearSelection($event)"
+      (keydown.enter)="clearSelection($event)"
+      (keydown.space)="clearSelection($event)"
+    >
+      <wr-icon name="close" />
+    </span>
+  }
+
+  <wr-icon class="wr-tree-select__chevron" name="chevron-down" />
+</button>
+
+<ng-template #panelTpl>
+  <div class="wr-tree-select-panel" [attr.id]="panelId">
+    <wr-tree
+      [nodes]="nodes()"
+      [selectionMode]="selectionMode()"
+      [(selected)]="selected"
+      [(expanded)]="expanded"
+      (selectedChange)="onSelectedChange($event)"
+    />
+  </div>
+</ng-template>
