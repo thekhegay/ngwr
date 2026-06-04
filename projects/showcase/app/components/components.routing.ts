@@ -35,10 +35,6 @@ export default [
     loadComponent: () => import('./badge/badge'),
   },
   {
-    path: components.bottomSheet,
-    loadComponent: () => import('./bottom-sheet/bottom-sheet'),
-  },
-  {
     path: components.breadcrumb,
     loadComponent: () => import('./breadcrumb/breadcrumb'),
   },

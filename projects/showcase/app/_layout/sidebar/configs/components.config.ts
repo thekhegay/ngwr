@@ -111,7 +111,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Popups',
     children: [
-      { title: 'Bottom Sheet', url: ['/components', 'bottom-sheet'] },
       { title: 'Command Palette', url: ['/components', 'command-palette'] },
       { title: 'Dialog', url: ['/components', 'dialog'] },
       { title: 'Drawer', url: ['/components', 'drawer'] },

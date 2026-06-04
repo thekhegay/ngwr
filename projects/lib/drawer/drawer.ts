@@ -68,6 +68,32 @@ export class WrDrawer {
   /** Height when position is top/bottom. Any CSS length. @default '16rem' */
   readonly height = input<string>('16rem');
 
+  /**
+   * Upper cap on height (top/bottom positions). Useful for bottom sheets
+   * that should grow with content up to a viewport-relative max.
+   * Any CSS length. @default null (no cap)
+   */
+  readonly maxHeight = input<string | null>(null);
+
+  /**
+   * Round the leading corners — the edge facing the viewport interior.
+   * Common bottom-sheet styling. @default false
+   */
+  readonly rounded = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Render a grab handle at the leading edge. Visual affordance for
+   * "swipe to dismiss" patterns. Cosmetic — no swipe logic attached.
+   * @default false
+   */
+  readonly showHandle = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Pad the trailing edge with `env(safe-area-inset-*)` so content
+   * doesn't sit under the iOS home indicator. @default false
+   */
+  readonly safeArea = input(false, { transform: coerceBooleanProperty });
+
   /** Show the dimming backdrop. @default true */
   readonly hasBackdrop = input(true, { transform: coerceBooleanProperty });
 
@@ -80,8 +106,10 @@ export class WrDrawer {
   protected readonly panelTpl = viewChild.required(TemplateRef);
 
   protected panelClass(): string {
-    const pos = this.position();
-    return `wr-drawer__panel--${pos}`;
+    const parts = ['wr-drawer__panel', `wr-drawer__panel--${this.position()}`];
+    if (this.rounded()) parts.push('wr-drawer__panel--rounded');
+    if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
+    return parts.join(' ');
   }
 
   private readonly overlay = inject(WR_OVERLAY);
@@ -120,6 +148,8 @@ export class WrDrawer {
     else if (pos === 'bottom') positionStrategy.bottom();
     else positionStrategy.centerVertically();
 
+    const cap = this.maxHeight();
+
     this.overlayRef = this.overlay.create({
       positionStrategy,
       hasBackdrop: this.hasBackdrop(),
@@ -128,6 +158,7 @@ export class WrDrawer {
       scrollStrategy: this.overlay.scrollStrategies.block(),
       width: isHorizontal ? this.width() : '100vw',
       height: isHorizontal ? '100vh' : this.height(),
+      maxHeight: isHorizontal ? undefined : (cap ?? undefined),
     });
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);

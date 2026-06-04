@@ -1,5 +1,10 @@
 <ng-template>
-  <div class="wr-drawer__panel" [class]="panelClass()">
+  <div [class]="panelClass()">
+    @if (showHandle()) {
+      <div class="wr-drawer__handle" aria-hidden="true">
+        <span class="wr-drawer__grabber"></span>
+      </div>
+    }
     <ng-content />
   </div>
 </ng-template>

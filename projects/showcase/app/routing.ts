@@ -35,7 +35,6 @@ export const routes = {
     squircle: 'squircle',
     backTop: 'back-top',
     badge: 'badge',
-    bottomSheet: 'bottom-sheet',
     breadcrumb: 'breadcrumb',
     button: 'button',
     buttonGroup: 'button-group',
