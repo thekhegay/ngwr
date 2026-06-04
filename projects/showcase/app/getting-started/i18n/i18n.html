@@ -1,0 +1,89 @@
+<ngwr-doc-page
+  title="i18n"
+  description="Step-by-step tutorial — wire up `WrI18n`, ship a starter catalog, render translations in templates, switch locales at runtime, and split per-feature scopes once your app grows."
+  [keywords]="['i18n', 'translation', 'locale', 'wrT', 'tutorial']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section title="1. Install" description="Already have ngwr installed? Skip ahead. Otherwise:">
+    <ngwr-doc-code [code]="snippets.install" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="2. Provide WrI18n"
+    description="Add the provider to your bootstrap. The static loader is the simplest way to start — your catalogs live in code, no HTTP calls. Spread `wrEn` / `wrRu` from the base subpaths so ngwr's built-in component strings already resolve."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="3. Use it in templates"
+    description="Two equivalent forms — pipe and directive. Both are reactive: locale changes and lazy catalog loads propagate without a manual refresh."
+  >
+    <ngwr-doc-code [code]="snippets.pipe" language="html" />
+    <ngwr-doc-code [code]="snippets.directive" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="4. Use it in code"
+    description="The service exposes both eager (`t()`) and reactive (`translate()`) lookups, plus `use()` to switch locales."
+  >
+    <ngwr-doc-code [code]="snippets.service" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="5. Build a locale switcher"
+    description="A tiny standalone component that lists every available locale and switches on click."
+  >
+    <ngwr-doc-code [code]="snippets.switcher" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          @for (lc of available; track lc) {
+            <button wr-btn type="button" [color]="locale() === lc ? 'primary' : null" (click)="use(lc)">
+              {{ lc }}
+            </button>
+          }
+        </div>
+        <p style="margin: 0">
+          <strong>Pipe:</strong> {{ 'app.title' | wrT }} — {{ 'app.hello' | wrT: { name: name() } }}
+        </p>
+        <p style="margin: 0">
+          <strong>Directive:</strong>
+          <span [wrT]="'app.hello'" [wrTParams]="{ name: name() }"></span>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="6. Catalog shape"
+    description="Catalogs are JSON-shaped — nested or flat. Dotted keys walk the tree. Double-brace `name` placeholders interpolate at render time."
+  >
+    <ngwr-doc-code [code]="snippets.catalog" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="7. Switch to the HTTP loader (when your catalogs grow)"
+    description="The static loader is great for small apps. When catalogs balloon, fetch them as JSON instead — same templates, same service, different provider."
+  >
+    <ngwr-doc-code [code]="snippets.http" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="8. Split per-feature scopes"
+    description="A scope is a sub-catalog that loads lazily — register it from a feature module / route. Scoped keys look up the scope first, then fall back to the root catalog."
+  >
+    <ngwr-doc-code [code]="snippets.scopes" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="9. Custom missing-key handler"
+    description="By default a missing key returns the key itself — typos surface immediately. In production, log them or swap in a localized fallback."
+  >
+    <ngwr-doc-code [code]="snippets.missing" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API reference">
+    <p style="margin: 0">Full API on the <a routerLink="/services/i18n">WrI18n service page</a>.</p>
+  </ngwr-doc-section>
+</ngwr-doc-page>

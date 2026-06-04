@@ -11,7 +11,9 @@ import type { SidebarGroup } from '../sidebar.types';
  */
 export const GETTING_STARTED_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Installation', url: ['/getting-started', 'installation'] },
+  { title: 'Theming', url: ['/getting-started', 'theming'] },
   { title: 'Color', url: ['/getting-started', 'color'] },
   { title: 'Grid', url: ['/getting-started', 'grid'] },
   { title: 'Overlay', url: ['/getting-started', 'overlay'] },
+  { title: 'i18n', url: ['/getting-started', 'i18n'] },
 ];

@@ -16,9 +16,11 @@ export const routes = {
   gettingStarted: {
     index: 'getting-started',
     installation: 'installation',
+    theming: 'theming',
     color: 'color',
     grid: 'grid',
     overlay: 'overlay',
+    i18n: 'i18n',
   },
   components: {
     index: 'components',
