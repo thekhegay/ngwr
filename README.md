@@ -5,8 +5,6 @@
 [![angular peer](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
 [![ci](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/ci.yml?branch=main&label=ci)](https://github.com/thekhegay/ngwr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
-[![FOSSA security](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr.svg?type=shield&issueType=security)](https://app.fossa.com/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr?ref=badge_shield&issueType=security)
-[![FOSSA license](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fthekhegay%2Fngwr?ref=badge_shield&issueType=license)
 
 **NGWR** is a modern Angular UI library — standalone components, signals-first,
 zoneless-ready, modular SCSS, fully tree-shakable. Built on top of `@angular/cdk`
