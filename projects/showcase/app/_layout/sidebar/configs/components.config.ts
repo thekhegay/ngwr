@@ -82,6 +82,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
     children: [
       { title: 'Collapse', url: ['/components', 'collapse'] },
       { title: 'Layout', url: ['/components', 'layout'] },
+      { title: 'List', url: ['/components', 'list'] },
       { title: 'Page Header', url: ['/components', 'page-header'] },
       { title: 'Splitter', url: ['/components', 'splitter'] },
       { title: 'Toolbar', url: ['/components', 'toolbar'] },

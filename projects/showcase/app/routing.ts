@@ -56,6 +56,7 @@ export const routes = {
     input: 'input',
     inputNumber: 'input-number',
     layout: 'layout',
+    list: 'list',
     inputOtp: 'input-otp',
     keyboard: 'keyboard',
     knob: 'knob',

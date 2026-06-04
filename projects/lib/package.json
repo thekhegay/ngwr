@@ -224,6 +224,9 @@
     "./line-chart": {
       "sass": "./line-chart/styles/_index.scss"
     },
+    "./list": {
+      "sass": "./list/styles/_index.scss"
+    },
     "./media": {},
     "./mention": {
       "sass": "./mention/styles/_index.scss"

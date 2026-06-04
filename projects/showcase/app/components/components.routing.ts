@@ -147,6 +147,10 @@ export default [
     loadComponent: () => import('./layout/layout'),
   },
   {
+    path: components.list,
+    loadComponent: () => import('./list/list'),
+  },
+  {
     path: components.inputNumber,
     loadComponent: () => import('./input-number/input-number'),
   },

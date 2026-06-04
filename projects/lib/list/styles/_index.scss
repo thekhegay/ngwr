@@ -1,0 +1,98 @@
+// Generic list. The container holds `<ul>`; rows are flex layouts with
+// three slots (leading / body / trailing). Modifiers cascade from the
+// container via the `&--bordered` / `&--dividers` / `&--dense` parent
+// classes.
+
+.wr-list {
+  --wr-list-item-padding-y: 0.625rem;
+  --wr-list-item-padding-x: 1rem;
+  --wr-list-item-gap: 0.75rem;
+  --wr-list-divider-color: var(--wr-color-light);
+  --wr-list-bg: transparent;
+  --wr-list-hover-bg: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-list-active-bg: rgba(var(--wr-color-primary-rgb), 0.08);
+
+  display: block;
+  font-family: var(--wr-font-family-base);
+  font-size: 0.9375rem;
+  color: var(--wr-color-dark);
+  background: var(--wr-list-bg);
+
+  &__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  // ── Container modifiers ────────────────────────────────────────────
+
+  &--bordered {
+    border: 1px solid var(--wr-list-divider-color);
+    border-radius: var(--wr-border-radius-base);
+    overflow: hidden;
+  }
+
+  &--dividers .wr-list__item:not(:last-child) {
+    border-bottom: 1px solid var(--wr-list-divider-color);
+  }
+
+  &--dense {
+    --wr-list-item-padding-y: 0.375rem;
+  }
+
+  // ── Item layout ────────────────────────────────────────────────────
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--wr-list-item-gap);
+    padding: var(--wr-list-item-padding-y) var(--wr-list-item-padding-x);
+    color: inherit;
+    transition: background 0.12s ease;
+
+    &--interactive {
+      cursor: pointer;
+
+      &:hover {
+        background: var(--wr-list-hover-bg);
+      }
+
+      &:active {
+        background: var(--wr-list-active-bg);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--wr-color-primary);
+        outline-offset: -2px;
+      }
+    }
+
+    &--disabled {
+      opacity: 0.55;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+  }
+
+  &__leading,
+  &__trailing {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    color: rgba(var(--wr-color-dark-rgb), 0.65);
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    // Allow long single-line labels to truncate cleanly.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

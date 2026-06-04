@@ -1,0 +1,38 @@
+<ngwr-doc-page
+  title="List"
+  description="Generic list with leading / body / trailing slots. Bordered or flat, with optional dividers + dense padding. Items can be plain or interactive (hover + Enter/Space activation)."
+  [keywords]="['list', 'wr-list', 'wr-list-item']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-list
+        [bordered]="bordered()"
+        [dividers]="dividers()"
+        [dense]="dense()"
+        style="width: 100%; max-width: 26rem"
+      >
+        @for (row of rows; track row.label) {
+          <wr-list-item [interactive]="interactive()">
+            <span ngProjectAs="[wrListItemLeading]" style="font-size: 1.125rem">📁</span>
+            {{ row.label }}
+            <span ngProjectAs="[wrListItemTrailing]" style="font-variant-numeric: tabular-nums">{{ row.meta }}</span>
+          </wr-list-item>
+        }
+        <wr-list-item disabled>
+          <span ngProjectAs="[wrListItemLeading]">🔒</span>
+          Archived
+          <span ngProjectAs="[wrListItemTrailing]">—</span>
+        </wr-list-item>
+      </wr-list>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
