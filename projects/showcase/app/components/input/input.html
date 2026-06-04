@@ -62,10 +62,49 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="With ngx-mask"
-    description="Because `[wrInput]` is just a directive on the real `<input>`, ngx-mask (or any other input directive) plugs in on the same element."
+    title="Input masking — with ngx-mask"
+    description="ngwr does not ship a mask directive of its own. `ngx-mask` is the de-facto standard in the Angular ecosystem — battle-tested, signal-compatible, ~50 KB gz, MIT. Because `[wrInput]` is just a directive on the real `<input>`, the mask plugs in on the same element with zero ceremony."
   >
-    <ngwr-doc-code [code]="snippets.mask" language="angular-html" />
+    <h4 style="margin: 0.5rem 0">Setup</h4>
+    <ngwr-doc-code [code]="snippets.maskSetup" language="angular-ts" />
+
+    <h4 style="margin: 1.5rem 0 0.5rem">Common masks</h4>
+    <ngwr-doc-snippet [code]="snippets.maskUsage">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem">
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Phone
+          <input wrInput mask="(000) 000-0000" placeholder="(555) 555-5555" [(ngModel)]="phone" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Credit card
+          <input wrInput mask="0000 0000 0000 0000" placeholder="4242 4242 4242 4242" [(ngModel)]="card" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Expiry (MM/YY)
+          <input wrInput mask="00/00" placeholder="12/29" [(ngModel)]="expiry" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          CVC
+          <input wrInput mask="000" placeholder="123" [(ngModel)]="cvc" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Date (DD/MM/YYYY)
+          <input wrInput mask="00/00/0000" placeholder="31/12/2026" [(ngModel)]="date" />
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          Money
+          <wr-input-group>
+            <span wrInputPrefix>$</span>
+            <input wrInput mask="separator.2" placeholder="1,234.56" [(ngModel)]="money" />
+          </wr-input-group>
+        </label>
+      </div>
+    </ngwr-doc-snippet>
+
+    <p style="margin: 1rem 0 0; color: var(--wr-color-medium); font-size: 0.875rem">
+      Full token reference (custom patterns, dynamic masks, locale config) — see
+      <a href="https://jsdaddy.github.io/ngx-mask" target="_blank" rel="noopener">the ngx-mask docs</a>.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled">

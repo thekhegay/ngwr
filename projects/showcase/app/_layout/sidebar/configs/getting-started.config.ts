@@ -16,5 +16,4 @@ export const GETTING_STARTED_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Grid', url: ['/getting-started', 'grid'] },
   { title: 'Overlay', url: ['/getting-started', 'overlay'] },
   { title: 'i18n', url: ['/getting-started', 'i18n'] },
-  { title: 'Input mask (ngx-mask)', url: ['/getting-started', 'mask'] },
 ];
