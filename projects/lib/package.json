@@ -165,6 +165,9 @@
     "./decrypt-text": {
       "sass": "./decrypt-text/styles/_index.scss"
     },
+    "./density": {
+      "sass": "./density/styles/_index.scss"
+    },
     "./dialog": {
       "sass": "./dialog/styles/_index.scss"
     },

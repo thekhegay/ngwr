@@ -46,7 +46,7 @@
     display: flex;
     align-items: center;
     gap: var(--wr-list-item-gap);
-    padding: var(--wr-list-item-padding-y) var(--wr-list-item-padding-x);
+    padding: calc(var(--wr-list-item-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-list-item-padding-x) * var(--wr-density-x, 1));
     color: inherit;
     transition: background 0.12s ease;
 

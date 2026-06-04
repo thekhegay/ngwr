@@ -1,0 +1,77 @@
+<ngwr-doc-page
+  title="WrDensity"
+  description="Density scale — `compact` / `default` / `comfortable` — applied as CSS-variable multipliers on per-component paddings. Persisted via WrStorage and overrideable per-subtree with the `[wrDensity]` directive."
+  [keywords]="['density', 'compact', 'comfortable', 'spacing', 'wr-density', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo — global"
+    description="Pick a density. Every densified component on this page updates in place."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 1rem; align-items: flex-start">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          @for (m of modes; track m) {
+            <button wr-btn type="button" [color]="current() === m ? 'primary' : null" (click)="set(m)">
+              {{ m }}
+            </button>
+          }
+        </div>
+        <p style="margin: 0">
+          Active density: <code>{{ current() }}</code>
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center">
+          <input wrInput placeholder="Type here" />
+          <wr-select [formControl]="demoSelect" style="min-width: 8rem">
+            <wr-option value="xs">xs</wr-option>
+            <wr-option value="sm">sm</wr-option>
+            <wr-option value="md">md</wr-option>
+            <wr-option value="lg">lg</wr-option>
+          </wr-select>
+          <button wr-btn type="button" color="primary">Save</button>
+          <wr-tag>ngwr</wr-tag>
+          <wr-tag color="primary">density</wr-tag>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Per-subtree override"
+    description="Drop `[wrDensity]` on any element to scope an override. The toolbar below stays compact regardless of the page's global density."
+  >
+    <ngwr-doc-snippet [code]="snippets.directive">
+      <div
+        wrDensity="compact"
+        style="
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+          padding: 0.5rem;
+          border: 1px dashed var(--wr-color-light);
+          border-radius: 0.5rem;
+        "
+      >
+        <input wrInput placeholder="Compact-only field" />
+        <button wr-btn type="button">Action</button>
+        <wr-tag>scoped</wr-tag>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Override the multipliers"
+    description="Each level resolves to `--wr-density-y`, `--wr-density-x`, `--wr-density-text`, and `--wr-density-gap`. Components multiply their static paddings by these. Override on `:root` or `[data-wr-density='…']` to retune."
+  >
+    <ngwr-doc-code [code]="snippets.tokens" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

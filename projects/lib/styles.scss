@@ -13,6 +13,7 @@
 //   @use 'ngwr/badge';  // includes theme automatically, dedup-safe.
 
 @forward './theme/styles';
+@forward './density/styles';
 @forward './styles/breakpoints';
 
 @forward './affix/styles';

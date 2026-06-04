@@ -25,7 +25,7 @@
   background: var(--wr-tag-bg);
   border: 1px solid var(--wr-tag-border);
   border-radius: var(--wr-tag-radius);
-  padding: var(--wr-tag-padding-y) var(--wr-tag-padding-x);
+  padding: calc(var(--wr-tag-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-tag-padding-x) * var(--wr-density-x, 1));
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-tag-font-size);
   font-weight: var(--wr-tag-font-weight);

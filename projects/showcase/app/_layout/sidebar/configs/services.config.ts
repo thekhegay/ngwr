@@ -10,4 +10,5 @@ export const SERVICES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'WrMeta', url: ['/services', 'meta'] },
   { title: 'WrStorage', url: ['/services', 'storage'] },
   { title: 'WrI18n', url: ['/services', 'i18n'] },
+  { title: 'WrDensity', url: ['/services', 'density'] },
 ];

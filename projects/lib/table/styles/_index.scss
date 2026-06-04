@@ -28,7 +28,7 @@
 
   &__th,
   &__td {
-    padding: 0.625rem 0.875rem;
+    padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
     text-align: left;
     vertical-align: middle;
     border-bottom: 1px solid var(--wr-table-border);

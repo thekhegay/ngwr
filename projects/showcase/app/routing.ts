@@ -160,6 +160,7 @@ export const routes = {
     meta: 'meta',
     storage: 'storage',
     i18n: 'i18n',
+    density: 'density',
   },
   utils: {
     index: 'utils',

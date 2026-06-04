@@ -14,4 +14,5 @@ export default [
   { path: services.meta, loadComponent: () => import('./meta/meta') },
   { path: services.storage, loadComponent: () => import('./storage/storage') },
   { path: services.i18n, loadComponent: () => import('./i18n/i18n') },
+  { path: services.density, loadComponent: () => import('./density/density') },
 ] satisfies Routes;

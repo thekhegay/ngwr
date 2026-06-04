@@ -3,6 +3,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { provideWrDensity } from 'ngwr/density';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -22,6 +23,7 @@ void bootstrapApplication(RootComponent, {
     provideWrOverlay(),
     provideWrDateAdapter(),
     provideWrTheme(),
+    provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
     provideWrI18nStaticLoader({
       en: { ...wrEn, app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' } },

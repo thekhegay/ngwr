@@ -1,0 +1,37 @@
+// Density multipliers. Components multiply their paddings (and the
+// occasional height / line-height) by these scalars via `calc()`.
+//
+// `default` resolves to `1` everywhere — touching `data-wr-density` is
+// pure opt-in. Components without density-aware paddings just keep
+// their static values.
+//
+// Override on `:root`, `[data-wr-density='…']`, or any subtree with the
+// `[wrDensity]` directive.
+
+:root {
+  --wr-density-y: 1;
+  --wr-density-x: 1;
+  --wr-density-text: 1;
+  --wr-density-gap: 1;
+}
+
+[data-wr-density='compact'] {
+  --wr-density-y: 0.55;
+  --wr-density-x: 0.85;
+  --wr-density-text: 0.95;
+  --wr-density-gap: 0.8;
+}
+
+[data-wr-density='default'] {
+  --wr-density-y: 1;
+  --wr-density-x: 1;
+  --wr-density-text: 1;
+  --wr-density-gap: 1;
+}
+
+[data-wr-density='comfortable'] {
+  --wr-density-y: 1.35;
+  --wr-density-x: 1.15;
+  --wr-density-text: 1.05;
+  --wr-density-gap: 1.15;
+}
