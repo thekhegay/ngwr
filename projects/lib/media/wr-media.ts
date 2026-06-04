@@ -6,7 +6,7 @@
  */
 
 import { isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Injectable, PLATFORM_ID, type Signal, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Service, PLATFORM_ID, type Signal, computed, inject, signal } from '@angular/core';
 
 import { WR_BREAKPOINTS, type WrBreakpoint } from './wr-breakpoints';
 
@@ -26,7 +26,7 @@ import { WR_BREAKPOINTS, type WrBreakpoint } from './wr-breakpoints';
  *
  * @see https://ngwr.dev/docs/core/services
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrMedia {
   private readonly breakpoints = inject(WR_BREAKPOINTS);
   private readonly destroyRef = inject(DestroyRef);

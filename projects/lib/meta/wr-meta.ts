@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Service, computed, inject, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
 import { WR_META_DEFAULTS } from './tokens';
@@ -45,7 +45,7 @@ function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {
  *
  * @see https://ngwr.dev/docs/core/services
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrMeta {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);

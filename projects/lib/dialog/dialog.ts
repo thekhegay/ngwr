@@ -9,7 +9,7 @@ import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
-import { EnvironmentInjector, Injectable, Injector, PLATFORM_ID, inject } from '@angular/core';
+import { EnvironmentInjector, Service, Injector, PLATFORM_ID, inject } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
@@ -42,7 +42,7 @@ const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
  *
  * @see https://ngwr.dev/docs/components/dialog
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrDialog {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);

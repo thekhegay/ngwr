@@ -6,7 +6,7 @@
  */
 
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 
 /**
  * Custom CDK `OverlayContainer` subclass that tags its DOM element with
@@ -24,7 +24,7 @@ import { Injectable } from '@angular/core';
  * It does **not** isolate two libraries that both subclass OverlayContainer
  * — the last provider wins. It does give NGWR overlays a stable CSS hook.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrOverlayContainer extends OverlayContainer {
   protected override _createContainer(): void {
     super._createContainer();

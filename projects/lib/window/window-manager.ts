@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 
 /**
  * Tracks open `<wr-window>` instances so a freshly-focused window can be
@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
  * - `nextStartOffset()` cascades new windows by ~30px so two windows opened
  *   at the same default position don't perfectly overlap.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrWindowManager {
   private readonly baseZ = 1000;
   private topZ = this.baseZ;

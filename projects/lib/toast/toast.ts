@@ -7,7 +7,7 @@
 
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { type ComponentRef, Injectable, inject } from '@angular/core';
+import { type ComponentRef, Service, inject } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
@@ -48,7 +48,7 @@ type ActiveEntry = WrToastOptions & {
  *
  * @see https://ngwr.dev/docs/components/toast
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrToast {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly config = inject(WR_TOAST_CONFIG);

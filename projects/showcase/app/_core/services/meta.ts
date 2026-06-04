@@ -1,9 +1,7 @@
-import { DOCUMENT, effect, inject, Injectable, signal } from '@angular/core';
+import { DOCUMENT, effect, inject, Service, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class MetaService {
   private readonly doc = inject(DOCUMENT);
   private readonly title = inject(Title);

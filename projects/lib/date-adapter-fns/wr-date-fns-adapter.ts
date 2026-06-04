@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 
 import {
   addDays as dfAddDays,
@@ -58,7 +58,7 @@ function isNamedFormat(value: string): value is WrDateFormat {
  *
  * Peer dep: `date-fns@^3` (or `^4`).
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrDateFnsAdapter extends WrDateAdapter<Date> {
   private readonly locale = inject(WR_DATE_LOCALE);
 

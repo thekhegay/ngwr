@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Injectable, type Signal, computed, effect, inject, signal } from '@angular/core';
+import { Service, type Signal, computed, effect, inject, signal } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 import { WrStorage } from 'ngwr/storage';
@@ -39,7 +39,7 @@ function isThemeMode(v: unknown): v is WrThemeMode {
  *
  * @see https://ngwr.dev/docs/core/services
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrTheme {
   private readonly doc = inject(DOCUMENT);
   private readonly platform = inject(WrPlatform);

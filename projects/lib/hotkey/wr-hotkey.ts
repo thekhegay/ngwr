@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Injectable, NgZone, inject } from '@angular/core';
+import { Service, NgZone, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
@@ -55,7 +55,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
  *
  * @see https://ngwr.dev/docs/core/services
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrHotkey {
   private readonly doc = inject(DOCUMENT);
   private readonly zone = inject(NgZone);

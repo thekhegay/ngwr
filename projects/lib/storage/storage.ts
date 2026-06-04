@@ -6,7 +6,7 @@
  */
 
 import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
+import { Service, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
 
 import { WR_STORAGE_CONFIG } from './storage-config';
 import { WR_STORAGE_ENGINE } from './storage-engine';
@@ -52,7 +52,7 @@ function isEnvelope(x: unknown): x is Envelope<unknown> {
  *
  * @see https://ngwr.dev/services/storage
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrStorage {
   private readonly engine = inject(WR_STORAGE_ENGINE);
   private readonly config = inject(WR_STORAGE_CONFIG);

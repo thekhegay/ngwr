@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 
 import { WR_DATE_LOCALE } from './tokens';
 import type { WrDateFormat } from './types';
@@ -73,7 +73,7 @@ function tokenToRegex(token: string): string {
  * most apps — swap to a `date-fns` / `luxon` adapter only when you need
  * timezone-aware math or richer parsing.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   private readonly locale = inject(WR_DATE_LOCALE);
 

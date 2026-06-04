@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Injectable, PLATFORM_ID, type Signal, inject, signal } from '@angular/core';
+import { DestroyRef, Service, PLATFORM_ID, type Signal, inject, signal } from '@angular/core';
 
 /**
  * SSR-safe environment probes. Use to gate browser-only code paths and
@@ -29,7 +29,7 @@ import { DestroyRef, Injectable, PLATFORM_ID, type Signal, inject, signal } from
  *
  * @see https://ngwr.dev/docs/core/services
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrPlatform {
   private readonly destroyRef = inject(DestroyRef);
   private readonly doc = inject(DOCUMENT);

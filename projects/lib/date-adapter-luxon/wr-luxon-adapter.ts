@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 
 import { DateTime, Info } from 'luxon';
 import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat } from 'ngwr/date-adapter';
@@ -66,7 +66,7 @@ function translatePattern(pattern: string): string {
  *
  * Peer dep: `luxon@^3`.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
   private readonly locale = inject(WR_DATE_LOCALE);
 

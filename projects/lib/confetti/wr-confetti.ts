@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
@@ -49,7 +49,7 @@ interface Particle {
  *
  * @see https://ngwr.dev/docs/core/services
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class WrConfetti {
   private readonly doc = inject(DOCUMENT);
   private readonly platform = inject(WrPlatform);
