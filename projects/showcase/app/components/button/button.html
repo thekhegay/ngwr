@@ -45,7 +45,7 @@
 
   <ngwr-doc-section
     title="Shape"
-    description="`shape` chooses the corner treatment — `rounded` (default, small radius), `pill` (fully rounded), or `squircle` (Figma-style smooth corners via `[wrSquircle]`)."
+    description="`shape` is `rounded` (default, small radius) or `pill` (fully rounded). For Figma-style smooth corners, wrap with `[wrSquircle]` — see the Squircle docs."
   >
     <ngwr-doc-snippet [code]="snippets.shape">
       <!-- Side-by-side comparison of all three shapes. -->
@@ -70,13 +70,6 @@
           <wr-btn color="primary" shape="pill">Primary</wr-btn>
           <wr-btn color="primary" outlined shape="pill">Outlined</wr-btn>
           <wr-btn shape="pill">Default</wr-btn>
-        </div>
-
-        <code style="font-size: 0.75rem; color: var(--wr-color-medium)">squircle</code>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          <wr-btn color="primary" shape="squircle">Primary</wr-btn>
-          <wr-btn color="primary" outlined shape="squircle">Outlined</wr-btn>
-          <wr-btn shape="squircle">Default</wr-btn>
         </div>
       </div>
 

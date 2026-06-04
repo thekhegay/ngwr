@@ -6,11 +6,10 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
-import { WrSquircle } from 'ngwr/squircle';
 import type { WrColor } from 'ngwr/theme';
 
 import { WR_BUTTON_GROUP } from './tokens';
@@ -26,14 +25,20 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
  * <a wr-btn color="primary" outlined>Cancel</a>
  * <wr-btn color="danger" icon="trash">Delete</wr-btn>
  * <wr-btn color="primary" shape="pill">Pill</wr-btn>
- * <wr-btn color="primary" shape="squircle">Squircle</wr-btn>
+ * ```
+ *
+ * **Squircle?** Wrap with `[wrSquircle]` — the directive is the only
+ * way ngwr ships smooth-corner clip-paths:
+ *
+ * ```html
+ * <wr-btn wrSquircle [radius]="14">Squircle</wr-btn>
  * ```
  *
  * Inside a `<wr-btn-group shape="…">`, the group's shape is enforced on
  * every child — child `[shape]` inputs are ignored so the group reads as
  * one coherent control.
  *
- * @see https://ngwr.dev/docs/components/button
+ * @see https://ngwr.dev/components/button
  */
 @Component({
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
@@ -45,33 +50,19 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
     '[attr.aria-busy]': 'loading() ? "true" : null',
   },
   imports: [WrIcon, WrSpinner],
-  hostDirectives: [
-    {
-      directive: WrSquircle,
-      inputs: ['radius: squircleRadius', 'smoothing: squircleSmoothing'],
-    },
-  ],
 })
 export class WrButton {
-  /**
-   * Color variant. Omit for the neutral default style.
-   *
-   * @default null
-   */
+  /** Color variant. Omit for the neutral default style. @default null */
   readonly color = input<WrColor | null>(null);
 
-  /**
-   * Size variant.
-   *
-   * @default 'md'
-   */
+  /** Size variant. @default 'md' */
   readonly size = input<WrButtonSize>('md');
 
   /**
-   * Corner treatment — `rounded`, `pill`, or `squircle`. `null` (default)
-   * means "fall back to `rounded`". Inside a `<wr-btn-group shape="…">`,
-   * the group's shape ALWAYS wins over this input — the group enforces
-   * a consistent corner treatment across its members.
+   * Corner treatment — `rounded` or `pill`. `null` (default) falls back
+   * to `rounded`. Inside a `<wr-btn-group shape="…">`, the group's shape
+   * ALWAYS wins over this input — the group enforces a consistent corner
+   * treatment across its members.
    *
    * @default null
    */
@@ -85,44 +76,24 @@ export class WrButton {
    */
   readonly icon = input<WrIconName | null>(null);
 
-  /**
-   * Position of the icon relative to the label.
-   *
-   * @default 'start'
-   */
+  /** Position of the icon relative to the label. @default 'start' */
   readonly iconPosition = input<WrButtonIconPosition>('start');
 
-  /**
-   * Disable the button.
-   *
-   * @default false
-   */
+  /** Disable the button. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /**
-   * Outlined variant — colored text and border on a transparent background.
-   *
-   * @default false
-   */
+  /** Outlined variant — colored text and border on a transparent background. @default false */
   readonly outlined = input(false, { transform: coerceBooleanProperty });
 
-  /**
-   * Stretch the button to fill its parent's width.
-   *
-   * @default false
-   */
+  /** Stretch the button to fill its parent's width. @default false */
   readonly block = input(false, { transform: coerceBooleanProperty });
 
-  /**
-   * Show a spinner overlaying the label. Layout is preserved.
-   *
-   * @default false
-   */
+  /** Show a spinner overlaying the label. Layout is preserved. @default false */
   readonly loading = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * When `loading` is `true` and this is also `true`, pointer events
-   * are suppressed and the button reports as disabled to assistive tech.
+   * When `loading` is `true` and this is also `true`, pointer events are
+   * suppressed and the button reports as disabled to assistive tech.
    *
    * @default true
    */
@@ -140,57 +111,6 @@ export class WrButton {
     this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded')
   );
 
-  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  constructor() {
-    // The host directive composes a `WrSquircle` instance — drive its
-    // enabled / corners / border state from this button's resolved shape.
-    const squircle = inject(WrSquircle, { self: true });
-    effect(() => {
-      const isSquircle = this.effectiveShape() === 'squircle';
-      const inGroup = !!this.group;
-
-      if (!isSquircle) {
-        squircle.enabled.set(false);
-        squircle.borderWidth.set(0);
-        return;
-      }
-
-      if (inGroup) {
-        // In a squircle group: each child squircles only its OUTER
-        // corners — first → left, last → right, middle children get no
-        // clip (rendered as plain rectangles whose borders merge via the
-        // group's `margin-left: -1px`). The host's CSS border survives
-        // because the squircle path crosses straight across the
-        // un-squircled side.
-        const host = this.el.nativeElement;
-        const isFirst = !host.previousElementSibling;
-        const isLast = !host.nextElementSibling;
-        if (isFirst && isLast) {
-          squircle.enabled.set(true);
-          squircle.corners.set('all');
-        } else if (isFirst) {
-          squircle.enabled.set(true);
-          squircle.corners.set('left');
-        } else if (isLast) {
-          squircle.enabled.set(true);
-          squircle.corners.set('right');
-        } else {
-          squircle.enabled.set(false);
-        }
-        // No ring composite for grouped buttons — children's own CSS
-        // borders form the row outline naturally.
-        squircle.borderWidth.set(0);
-        return;
-      }
-
-      // Standalone squircle: full four-corner clip + ring composite.
-      squircle.enabled.set(true);
-      squircle.corners.set('all');
-      squircle.borderWidth.set(1);
-    });
-  }
-
   protected readonly nativeDisabled = computed<'' | null>(() => {
     const off = this.disabled() || (this.loading() && this.isDisabledWhenLoading());
     return off ? '' : null;
@@ -206,14 +126,7 @@ export class WrButton {
     if (size !== 'md') parts.push(`wr-btn--${size}`);
 
     const shape = this.effectiveShape();
-    // Inside a group, the squircle is realised purely by the directive's
-    // per-corner clip on first/last children — children keep their
-    // normal CSS border so the row outline reads naturally. The
-    // `.wr-btn--squircle` class strips the border + flattens radius, so
-    // skip it for grouped buttons.
-    if (shape !== 'rounded' && !(shape === 'squircle' && this.group)) {
-      parts.push(`wr-btn--${shape}`);
-    }
+    if (shape !== 'rounded') parts.push(`wr-btn--${shape}`);
 
     if (this.outlined()) parts.push('wr-btn--outlined');
     if (this.block()) parts.push('wr-btn--block');

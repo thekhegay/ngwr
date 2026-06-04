@@ -23,19 +23,14 @@ import type { WrButtonShape } from './types';
  *   <button wr-btn>Right</button>
  * </wr-btn-group>
  *
- * <wr-btn-group shape="squircle">
+ * <wr-btn-group shape="pill">
  *   <button wr-btn>One</button>
  *   <button wr-btn>Two</button>
  *   <button wr-btn>Three</button>
  * </wr-btn-group>
  * ```
  *
- * For `shape="squircle"`, the group itself stays a plain inline-flex —
- * children handle their own squircle clip, with the first child clipping
- * only its left corners and the last child clipping only its right
- * corners (see `WrButton`).
- *
- * @see https://ngwr.dev/docs/components/button-group
+ * @see https://ngwr.dev/components/button-group
  */
 @Component({
   selector: 'wr-btn-group',

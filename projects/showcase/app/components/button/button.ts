@@ -21,7 +21,7 @@ import {
 })
 export default class ButtonComponent {
   protected readonly colors = WR_COLORS;
-  protected readonly shapes: readonly WrButtonShape[] = ['rounded', 'pill', 'squircle'];
+  protected readonly shapes: readonly WrButtonShape[] = ['rounded', 'pill'];
   protected readonly loading = signal(false);
 
   protected readonly snippets = {
@@ -38,13 +38,12 @@ export class MyComponent {}`,
     sizes: `<wr-btn size="sm">Small</wr-btn>
 <wr-btn size="md">Medium</wr-btn>
 <wr-btn size="lg">Large</wr-btn>`,
-    shape: `<!-- Same button, three shapes -->
+    shape: `<!-- Two shapes -->
 <wr-btn color="primary">Rounded (default)</wr-btn>
 <wr-btn color="primary" shape="pill">Pill</wr-btn>
-<wr-btn color="primary" shape="squircle">Squircle</wr-btn>
 
-<!-- shape composes with color, outlined, size, etc. -->
-<wr-btn color="success" outlined shape="squircle">Outlined squircle</wr-btn>`,
+<!-- Smooth corners? Wrap with [wrSquircle] — the only entry point. -->
+<wr-btn color="primary" wrSquircle [radius]="14">Squircle</wr-btn>`,
     block: `<wr-btn color="primary" block>Full width</wr-btn>`,
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
 <wr-btn icon="download" iconPosition="end" color="success">Download</wr-btn>`,
@@ -62,8 +61,8 @@ export class MyComponent {}`,
     { name: 'outlined', description: 'Outlined style.', type: 'boolean', default: 'false' },
     {
       name: 'shape',
-      description: 'Corner treatment — `rounded` (default), `pill` (fully rounded), or `squircle`.',
-      type: "'rounded' | 'pill' | 'squircle'",
+      description: 'Corner treatment. For squircle, wrap with `[wrSquircle]` instead.',
+      type: "'rounded' | 'pill'",
       default: "'rounded'",
     },
     { name: 'block', description: 'Stretch to parent width.', type: 'boolean', default: 'false' },

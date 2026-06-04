@@ -20,7 +20,6 @@ import {
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WrSquircle } from 'ngwr/squircle';
 import { noop } from 'ngwr/utils';
 
 import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './types';
@@ -71,7 +70,7 @@ function matchesAccept(file: File, accept: string): boolean {
   templateUrl: './file-upload.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrSquircle],
+  imports: [],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -82,12 +81,6 @@ function matchesAccept(file: File, accept: string): boolean {
   ],
 })
 export class WrFileUpload implements ControlValueAccessor {
-  /**
-   * Apply a Figma-style smooth-corner squircle clip-path to the drop zone.
-   * @default false
-   */
-  readonly squircle = input(false, { transform: coerceBooleanProperty });
-
   /** Allow multiple files. Single mode replaces on each add. @default false */
   readonly multiple = input(false, { transform: coerceBooleanProperty });
 

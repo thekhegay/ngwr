@@ -10,7 +10,6 @@ import { Component, ViewEncapsulation, computed, forwardRef, inject, input, sign
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { WrSquircle } from 'ngwr/squircle';
 import { noop, randomId } from 'ngwr/utils';
 
 import { WR_CHECKBOX_GROUP } from './tokens';
@@ -43,7 +42,7 @@ import { WR_CHECKBOX_GROUP } from './tokens';
   templateUrl: './checkbox.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrIcon, WrSquircle],
+  imports: [WrIcon],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -73,13 +72,6 @@ export class WrCheckbox implements ControlValueAccessor {
    * @default false
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
-
-  /**
-   * Apply a Figma-style smooth-corner squircle clip-path to the box.
-   *
-   * @default false
-   */
-  readonly squircle = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Optional icon name rendered inside the box when checked, in place of the

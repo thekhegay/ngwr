@@ -9,7 +9,6 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, afterNextRender, computed, input, model, signal } from '@angular/core';
 
 import { WrIcon } from 'ngwr/icon';
-import { WrSquircle } from 'ngwr/squircle';
 
 import type { WrSegmentedOption } from './types';
 
@@ -37,12 +36,6 @@ import type { WrSegmentedOption } from './types';
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', '[style]': 'thumbStyle()', role: 'group' },
   imports: [WrIcon],
-  hostDirectives: [
-    {
-      directive: WrSquircle,
-      inputs: ['enabled: squircle', 'radius: squircleRadius', 'smoothing: squircleSmoothing'],
-    },
-  ],
 })
 export class WrSegmented<T = unknown> {
   /** The segments to render. */
@@ -53,12 +46,6 @@ export class WrSegmented<T = unknown> {
 
   /** Disable the whole control. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
-
-  /**
-   * Apply a Figma-style smooth-corner squircle clip-path to the control.
-   * @default false
-   */
-  readonly squircle = input(false, { transform: coerceBooleanProperty });
 
   /** Index of the selected option, or `-1` when nothing is selected. */
   protected readonly selectedIndex = computed(() => {

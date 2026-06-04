@@ -96,42 +96,9 @@
   }
 
   // Shape — `rounded` (default) inherits --wr-btn-radius from the base
-  // declaration above. Pill = fully rounded ends. Squircle leaves the
-  // CSS radius alone and lets [wrSquircle] clip-path do the work.
+  // declaration above. Pill = fully rounded ends.
   &--pill {
     --wr-btn-radius: var(--wr-border-radius-pill);
-  }
-
-  &--squircle {
-    --wr-btn-radius: 0; // clip-path overrides; flatten to keep visual clean
-    border: 0; // the squircle clip would crop a CSS border anyway
-
-    // The CSS border is clipped, so the squircle directive's ::before
-    // composite paints the ring. Drive its colours from the existing
-    // button vars so every colour / hover / active cascade keeps working
-    // unchanged.
-    //
-    // Ring colour = --wr-btn-border (matches the rounded/pill border).
-    // Inner = --wr-btn-bg for filled buttons — solid colour over solid
-    //   ring composites cleanly as a filled squircle.
-    //
-    // Outlined squircle is the special case: `--wr-btn-bg: transparent`
-    // would let the translucent ring colour show through the whole shape
-    // and look like a solid translucent fill. So outlined forces the
-    // inner to opaque white. Hover/active collapse back to --wr-btn-bg
-    // (which is the solid hover colour) for the standard fill-on-hover
-    // behaviour. For dark themes, override --wr-squircle-content-bg.
-    --wr-squircle-border-color: var(--wr-btn-border);
-    --wr-squircle-content-bg: var(--wr-btn-bg);
-
-    &.wr-btn--outlined {
-      --wr-squircle-content-bg: var(--wr-color-white);
-
-      &:hover,
-      &:active {
-        --wr-squircle-content-bg: var(--wr-btn-bg);
-      }
-    }
   }
 
   // Layout
@@ -216,12 +183,4 @@
       z-index: 1;
     }
   }
-
-  // Squircle group: the squircle ring is painted on the wrapper (via the
-  // WrSquircle directive's bordered mode). Children drop their own
-  // borders and use a single 1px left divider between segments.
-  // shape="squircle" on the group needs no wrapper styling — each
-  // child's WrSquircle clips only its outer corners (first → left,
-  // last → right), and the standard merged-border row layout above
-  // forms the outline naturally.
 }

@@ -60,16 +60,10 @@ export class MyComponent {}`,
   <button wr-btn>Three</button>
 </wr-btn-group>
 
-<wr-btn-group shape="squircle">
-  <button wr-btn>One</button>
-  <button wr-btn>Two</button>
-  <button wr-btn>Three</button>
-</wr-btn-group>
-
 <!-- Group shape wins over child [shape] -->
 <wr-btn-group shape="pill">
   <button wr-btn>Forced</button>
-  <button wr-btn shape="squircle">Pill anyway</button>
+  <button wr-btn shape="rounded">Pill anyway</button>
 </wr-btn-group>`,
   };
 
@@ -78,7 +72,7 @@ export class MyComponent {}`,
       name: 'shape',
       description:
         'Enforced corner treatment for every child `<wr-btn>`. Child `[shape]` is ignored when set on the group. `null` (default) leaves children alone.',
-      type: "'rounded' | 'pill' | 'squircle' | null",
+      type: "'rounded' | 'pill' | null",
       default: 'null',
     },
   ];
