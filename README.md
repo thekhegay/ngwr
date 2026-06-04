@@ -20,15 +20,15 @@ for overlay, portal, and a11y primitives.
 
 | Peer | Range |
 |---|---|
-| `@angular/core` | `>= 21.0.0` |
-| `@angular/common` | `>= 21.0.0` |
-| `@angular/cdk` | `>= 21.0.0` |
-| `@angular/platform-browser` | `>= 21.0.0` |
+| `@angular/core` | `>= 22.0.0` |
+| `@angular/common` | `>= 22.0.0` |
+| `@angular/cdk` | `>= 22.0.0` |
+| `@angular/platform-browser` | `>= 22.0.0` |
 | `rxjs` | `^7.0.0` |
 | `date-fns` *(optional)* | `^3.0.0 \|\| ^4.0.0` |
 | `luxon` *(optional)* | `^3.0.0` |
 
-Node ≥ 22.12 for development.
+Node ≥ 22.22.3, 24.15.0, or 26+. TypeScript ≥ 6.0.
 
 ## Install
 
