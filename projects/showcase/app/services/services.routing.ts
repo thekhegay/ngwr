@@ -17,4 +17,5 @@ export default [
   { path: services.density, loadComponent: () => import('./density/density') },
   { path: services.clipboard, loadComponent: () => import('./clipboard/clipboard') },
   { path: services.cookie, loadComponent: () => import('./cookie/cookie') },
+  { path: services.loadingBar, loadComponent: () => import('./loading-bar/loading-bar') },
 ] satisfies Routes;

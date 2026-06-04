@@ -9,6 +9,7 @@ import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { provideWrTheme } from 'ngwr/theme';
+import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 import { RootComponent } from '#root';
 import { routing } from '#routing';
@@ -29,5 +30,7 @@ void bootstrapApplication(RootComponent, {
       en: { ...wrEn, app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' } },
       ru: { ...wrRu, app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' } },
     }),
+    // third-party — for the integration guide
+    provideEnvironmentNgxMask(),
   ],
 });

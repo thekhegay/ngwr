@@ -1,0 +1,54 @@
+<ngwr-doc-page
+  title="Form Field"
+  description="Layout primitive that wraps label + control + hint + validation errors. Reads the projected control's `NgControl` so errors only render after touched / dirty."
+  [keywords]="['form field', 'label', 'hint', 'error', 'wr-form-field']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Each `<wr-form-error>` is gated on the matching validator key. Errors appear once the control is touched or dirty — submit to see them all at once."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        style="display: flex; flex-direction: column; gap: 1rem; max-width: 24rem"
+      >
+        <wr-form-field label="Email" hint="We'll never share it." required>
+          <input wrInput formControlName="email" type="email" placeholder="ada@example.com" />
+          <wr-form-error key="required">Email is required.</wr-form-error>
+          <wr-form-error key="email">That isn't a valid email.</wr-form-error>
+        </wr-form-field>
+
+        <wr-form-field label="Display name" required>
+          <input wrInput formControlName="name" placeholder="Ada Lovelace" />
+          <wr-form-error key="required">Display name is required.</wr-form-error>
+        </wr-form-field>
+
+        <button wr-btn type="submit" color="primary" style="align-self: flex-start">Submit</button>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Optional marker" description="Use `optional` for the inverse — fields users can skip.">
+    <ngwr-doc-snippet [code]="snippets.optional">
+      <form [formGroup]="form" style="max-width: 24rem">
+        <wr-form-field label="Bio" optional hint="Up to 140 characters.">
+          <input wrInput formControlName="bio" placeholder="A short tagline" />
+        </wr-form-field>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Behavior notes">
+    <ngwr-doc-code [code]="snippets.notes" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

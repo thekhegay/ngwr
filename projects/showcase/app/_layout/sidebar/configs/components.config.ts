@@ -66,6 +66,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Date Time Picker', url: ['/components', 'date-time-picker'] },
       { title: 'File Upload', url: ['/components', 'file-upload'] },
       { title: 'Form', url: ['/components', 'form'] },
+      { title: 'Form Field', url: ['/components', 'form-field'] },
       { title: 'Input', url: ['/components', 'input'] },
       { title: 'Input Number', url: ['/components', 'input-number'] },
       { title: 'Input OTP', url: ['/components', 'input-otp'] },

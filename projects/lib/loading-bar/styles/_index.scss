@@ -1,0 +1,29 @@
+.wr-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  pointer-events: none;
+
+  &__track {
+    width: 100%;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &--active {
+    opacity: 1;
+  }
+
+  &__fill {
+    width: 0;
+    height: 2px;
+    background: var(--wr-color-primary);
+    box-shadow: 0 0 8px rgb(var(--wr-color-primary-rgb) / 60%);
+    transition:
+      width 0.15s ease-out,
+      opacity 0.2s ease;
+  }
+}

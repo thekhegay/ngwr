@@ -1,0 +1,44 @@
+<ngwr-doc-page
+  title="WrLoadingBar"
+  description="Top-of-page progress bar driven by router navigations out of the box, plus a manual `start()` / `complete()` slot API for HTTP interceptors or any long-running task."
+  [keywords]="['loading bar', 'progress', 'nprogress', 'wr-loading-bar', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Click below — the bar at the top of this page ticks. Every navigation in the docs also drives it, so it's already in flight when you change page."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          <button wr-btn type="button" color="primary" (click)="fake()">Fake 1.5s task</button>
+          <button wr-btn type="button" (click)="start()">Open slot</button>
+          <button wr-btn type="button" (click)="complete()">Close slot</button>
+        </div>
+        <p style="margin: 0; font-size: 0.875rem">
+          progress: <code>{{ bar.progress() | number: '1.0-2' }}</code> · state:
+          <code>{{ bar.state() }}</code>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="HTTP interceptor"
+    description="Slot-counted — multiple concurrent requests stack, bar stays running until the last finishes."
+  >
+    <ngwr-doc-code [code]="snippets.intercept" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Styling">
+    <ngwr-doc-code [code]="snippets.style" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

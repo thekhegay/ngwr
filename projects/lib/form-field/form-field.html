@@ -1,0 +1,20 @@
+@if (label()) {
+  <label class="wr-form-field__label" [attr.for]="controlId()">
+    {{ label() }}
+    @if (required()) {
+      <span class="wr-form-field__required" aria-hidden="true">*</span>
+    } @else if (optional()) {
+      <span class="wr-form-field__optional">(optional)</span>
+    }
+  </label>
+}
+
+<div class="wr-form-field__control"><ng-content /></div>
+
+@if (hasError()) {
+  <div class="wr-form-field__errors">
+    <ng-content select="wr-form-error" />
+  </div>
+} @else if (hint()) {
+  <small class="wr-form-field__hint">{{ hint() }}</small>
+}

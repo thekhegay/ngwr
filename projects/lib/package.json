@@ -203,6 +203,9 @@
     "./form": {
       "sass": "./form/styles/_index.scss"
     },
+    "./form-field": {
+      "sass": "./form-field/styles/_index.scss"
+    },
     "./fuzzy-text": {},
     "./gauge": {
       "sass": "./gauge/styles/_index.scss"
@@ -249,6 +252,9 @@
     },
     "./list": {
       "sass": "./list/styles/_index.scss"
+    },
+    "./loading-bar": {
+      "sass": "./loading-bar/styles/_index.scss"
     },
     "./media": {},
     "./mention": {

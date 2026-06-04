@@ -13,4 +13,5 @@ export const SERVICES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'WrDensity', url: ['/services', 'density'] },
   { title: 'WrClipboard', url: ['/services', 'clipboard'] },
   { title: 'WrCookie', url: ['/services', 'cookie'] },
+  { title: 'WrLoadingBar', url: ['/services', 'loading-bar'] },
 ];

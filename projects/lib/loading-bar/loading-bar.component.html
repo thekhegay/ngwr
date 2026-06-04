@@ -1,0 +1,8 @@
+<div class="wr-loading-bar__track" [class.wr-loading-bar--active]="active()">
+  <div
+    class="wr-loading-bar__fill"
+    [style.width.%]="bar.progress() * 100"
+    [style.background]="color()"
+    [style.height]="height()"
+  ></div>
+</div>

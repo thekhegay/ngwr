@@ -21,6 +21,7 @@ export const routes = {
     grid: 'grid',
     overlay: 'overlay',
     i18n: 'i18n',
+    mask: 'mask',
   },
   components: {
     index: 'components',
@@ -59,6 +60,7 @@ export const routes = {
     drawer: 'drawer',
     empty: 'empty',
     form: 'form',
+    formField: 'form-field',
     icon: 'icon',
     image: 'image',
     imageCropper: 'image-cropper',
@@ -169,6 +171,7 @@ export const routes = {
     density: 'density',
     clipboard: 'clipboard',
     cookie: 'cookie',
+    loadingBar: 'loading-bar',
   },
   utils: {
     index: 'utils',

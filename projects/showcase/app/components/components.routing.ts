@@ -155,6 +155,10 @@ export default [
     loadComponent: () => import('./form/form'),
   },
   {
+    path: components.formField,
+    loadComponent: () => import('./form-field/form-field'),
+  },
+  {
     path: components.icon,
     loadComponent: () => import('./icon/icon'),
   },
