@@ -145,7 +145,6 @@ export const routes = {
     fuzzyText: 'fuzzy-text',
     fallingText: 'falling-text',
     circularText: 'circular-text',
-    countUpText: 'count-up-text',
   },
   pipes: {
     index: 'pipes',

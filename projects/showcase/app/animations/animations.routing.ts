@@ -31,5 +31,4 @@ export default [
   { path: a.fuzzyText, loadComponent: () => import('./fuzzy-text/fuzzy-text') },
   { path: a.fallingText, loadComponent: () => import('./falling-text/falling-text') },
   { path: a.circularText, loadComponent: () => import('./circular-text/circular-text') },
-  { path: a.countUpText, loadComponent: () => import('./count-up-text/count-up-text') },
 ] satisfies Routes;

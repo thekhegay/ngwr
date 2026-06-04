@@ -52,6 +52,36 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Spring physics"
+    description="Switch the curve to spring. Duration units flip to seconds and tune the spring stiffness."
+  >
+    <ngwr-doc-snippet [code]="snippets.spring">
+      <strong style="font-size: 1.5rem; font-variant-numeric: tabular-nums">
+        <wr-count-up [to]="100" easing="spring" [duration]="2" />
+      </strong>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Viewport trigger"
+    description="The `visible` trigger defers the animation until the host scrolls into view. Great for hero numbers below the fold."
+  >
+    <ngwr-doc-snippet [code]="snippets.visible">
+      <strong style="font-size: 1.5rem; font-variant-numeric: tabular-nums">
+        <wr-count-up [to]="9999" trigger="visible" easing="spring" [delay]="200" />
+      </strong>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Count down" description="The `down` direction swaps `from` and `to`. Useful for timers.">
+    <ngwr-doc-snippet [code]="snippets.countdown">
+      <strong style="font-size: 1.5rem; font-variant-numeric: tabular-nums">
+        <wr-count-up [from]="0" [to]="60" direction="down" suffix="s" />
+      </strong>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
