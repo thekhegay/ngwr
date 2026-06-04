@@ -215,6 +215,9 @@
     "./image-cropper": {
       "sass": "./image-cropper/styles/_index.scss"
     },
+    "./i18n": {},
+    "./i18n/en": {},
+    "./i18n/ru": {},
     "./input": {
       "sass": "./input/styles/_index.scss"
     },

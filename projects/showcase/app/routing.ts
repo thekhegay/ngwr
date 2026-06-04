@@ -158,6 +158,7 @@ export const routes = {
     platform: 'platform',
     meta: 'meta',
     storage: 'storage',
+    i18n: 'i18n',
   },
   utils: {
     index: 'utils',

@@ -1,0 +1,75 @@
+<ngwr-doc-page
+  title="WrI18n"
+  description="Reactive i18n service. Active locale lives on a signal, catalogs load lazily through a swappable loader (HTTP or static), and double-brace placeholders interpolate at render time. Scopes let feature modules ship and load their own catalogs."
+  [keywords]="['i18n', 'translation', 'locale', 'transloco', 'wr-i18n', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section
+    title="Install"
+    description="Pick a loader. The static loader takes catalogs you already have in memory; the HTTP loader fetches them."
+  >
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="HTTP loader + scopes"
+    description="For larger apps — ship the root catalog plus per-feature scopes that load on demand."
+  >
+    <ngwr-doc-code [code]="snippets.http" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In templates — pipe"
+    description="Pipe form. Impure — re-evaluates on every CD cycle so locale and catalog updates propagate automatically."
+  >
+    <ngwr-doc-code [code]="snippets.pipe" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In templates — directive"
+    description="Directive form. Writes `textContent` of the host element; tidier when the entire element is a translation."
+  >
+    <ngwr-doc-code [code]="snippets.directive" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In code — service"
+    description="Imperative API for `t()` / reactive `translate()` / `use()` / `registerScope()`."
+  >
+    <ngwr-doc-code [code]="snippets.service" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Switch the active locale — every binding on the page updates without a re-render."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <p style="margin: 0">
+          <strong>Active locale:</strong> <code>{{ locale() }}</code>
+        </p>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          @for (lc of available; track lc) {
+            <button type="button" (click)="use(lc)">{{ lc }}</button>
+          }
+        </div>
+        <p style="margin: 0">
+          <strong>Pipe:</strong> {{ 'app.title' | wrT }} — {{ 'app.hello' | wrT: { name: name() } }}
+        </p>
+        <p style="margin: 0">
+          <strong>Directive:</strong>
+          <span [wrT]="'app.hello'" [wrTParams]="{ name: name() }"></span>
+        </p>
+        <p style="margin: 0">
+          <strong>Common keys:</strong>
+          <code>{{ 'common.save' | wrT }}</code> / <code>{{ 'common.cancel' | wrT }}</code> /
+          <code>{{ 'common.loading' | wrT }}</code>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

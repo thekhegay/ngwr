@@ -13,4 +13,5 @@ export default [
   { path: services.platform, loadComponent: () => import('./platform/platform') },
   { path: services.meta, loadComponent: () => import('./meta/meta') },
   { path: services.storage, loadComponent: () => import('./storage/storage') },
+  { path: services.i18n, loadComponent: () => import('./i18n/i18n') },
 ] satisfies Routes;
