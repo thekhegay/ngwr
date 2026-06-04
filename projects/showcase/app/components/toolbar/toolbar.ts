@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrToolbar } from 'ngwr/toolbar';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-toolbar-page',
   templateUrl: './toolbar.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrToolbar, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class ToolbarPageComponent {

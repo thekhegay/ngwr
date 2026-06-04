@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { WrIcon, provideWrIcons, arrowTop } from 'ngwr/icon';
 
@@ -20,7 +20,6 @@ import type { WrTableSortDirection } from './types';
 @Component({
   selector: 'wr-table-sort',
   template: '<wr-icon class="wr-table-sort__icon" name="arrow-top" />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrIcon],

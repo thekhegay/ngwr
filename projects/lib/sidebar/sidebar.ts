@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, effect, inject, input, signal } from '@angular/core';
+import { Component, ViewEncapsulation, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -45,7 +45,6 @@ function isGroup(entry: WrSidebarEntry): entry is WrSidebarGroup {
 @Component({
   selector: 'wr-sidebar',
   templateUrl: './sidebar.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-sidebar', role: 'navigation' },
   imports: [RouterLink, RouterLinkActive, WrIcon],

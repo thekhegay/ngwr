@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, WrPasswordToggle } from 'ngwr/input';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-input-page',
   templateUrl: './input.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrInput,
@@ -42,7 +41,7 @@ export default class InputComponent {
   WrInputGroup,
   WrInputPrefix,
   WrInputSuffix,
-  WrPasswordToggle,
+  WrPasswordToggle
 } from 'ngwr/input';
 import { FormsModule } from '@angular/forms';
 

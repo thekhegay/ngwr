@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrSplitter } from 'ngwr/splitter';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-splitter-page',
   templateUrl: './splitter.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrSplitter, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class SplitterPageComponent {

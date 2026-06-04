@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrShimmer, WrShinyText } from 'ngwr/shiny-text';
 
@@ -17,7 +17,6 @@ import {
 @Component({
   selector: 'ngwr-shiny-text-page',
   templateUrl: './shiny-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrShinyText,
     WrShimmer,

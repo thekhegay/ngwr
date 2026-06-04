@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /** Built-in status — picks the default icon + accent colour. */
 export type WrResultStatus = 'success' | 'warning' | 'error' | 'info' | 'empty';
@@ -30,7 +30,6 @@ export type WrResultStatus = 'success' | 'warning' | 'error' | 'info' | 'empty';
 @Component({
   selector: 'wr-result',
   templateUrl: './result.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

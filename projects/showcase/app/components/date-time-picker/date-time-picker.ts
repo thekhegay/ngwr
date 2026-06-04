@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrDateTimePicker } from 'ngwr/date-time-picker';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-date-time-picker-page',
   templateUrl: './date-time-picker.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrDateTimePicker,

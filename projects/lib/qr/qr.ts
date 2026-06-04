@@ -8,16 +8,7 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import type { ElementRef } from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  PLATFORM_ID,
-  ViewEncapsulation,
-  effect,
-  inject,
-  input,
-  viewChild,
-} from '@angular/core';
+import { Component, PLATFORM_ID, ViewEncapsulation, effect, inject, input, viewChild } from '@angular/core';
 
 import { drawQrCode } from './generator';
 import type { WrQrErrorLevel } from './types';
@@ -41,7 +32,6 @@ const numAttr =
 @Component({
   selector: 'wr-qr',
   templateUrl: './qr.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-qr', '[style.background]': 'bgColor()' },
 })

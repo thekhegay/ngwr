@@ -6,16 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
@@ -47,7 +38,6 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
 @Component({
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',
   templateUrl: './button.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

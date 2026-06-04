@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /** Built-in dot colours. */
 export type WrTimelineColor = 'primary' | 'success' | 'warning' | 'danger' | 'medium';
@@ -17,7 +17,6 @@ export type WrTimelineColor = 'primary' | 'success' | 'warning' | 'danger' | 'me
 @Component({
   selector: 'wr-timeline-item',
   templateUrl: './timeline-item.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

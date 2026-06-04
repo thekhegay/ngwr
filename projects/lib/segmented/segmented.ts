@@ -6,16 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  afterNextRender,
-  computed,
-  input,
-  model,
-  signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, afterNextRender, computed, input, model, signal } from '@angular/core';
 
 import { WrIcon } from 'ngwr/icon';
 import { WrSquircle } from 'ngwr/squircle';
@@ -43,7 +34,6 @@ import type { WrSegmentedOption } from './types';
 @Component({
   selector: 'wr-segmented',
   templateUrl: './segmented.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', '[style]': 'thumbStyle()', role: 'group' },
   imports: [WrIcon],

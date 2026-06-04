@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrTypewriter } from 'ngwr/typewriter';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-typewriter-page',
   templateUrl: './typewriter.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrTypewriter,
     DocPageComponent,

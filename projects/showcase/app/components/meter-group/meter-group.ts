@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrMeterGroup } from 'ngwr/meter-group';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-meter-group-page',
   templateUrl: './meter-group.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrMeterGroup,
     DocPageComponent,

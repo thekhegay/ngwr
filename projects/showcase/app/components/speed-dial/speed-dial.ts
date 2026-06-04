@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { add, cog, provideWrIcons, search } from 'ngwr/icon';
 import { WrSpeedDial } from 'ngwr/speed-dial';
@@ -8,7 +8,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-speed-dial-page',
   templateUrl: './speed-dial.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrSpeedDial, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
   providers: [provideWrIcons([add, cog, search])],
 })

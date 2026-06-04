@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrKnob } from 'ngwr/knob';
@@ -8,7 +8,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-knob-page',
   templateUrl: './knob.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, WrKnob, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class KnobPageComponent {

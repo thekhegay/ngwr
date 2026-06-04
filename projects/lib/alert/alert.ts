@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
 import { provideWrIcons, WrIcon, close } from 'ngwr/icon';
 
@@ -26,7 +26,6 @@ import type { WrAlertType } from './types';
 @Component({
   selector: 'wr-alert',
   templateUrl: './alert.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

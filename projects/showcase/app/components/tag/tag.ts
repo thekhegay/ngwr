@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { provideWrIcons, checkmark, close, flash, warning } from 'ngwr/icon';
 import { WrTag } from 'ngwr/tag';
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-tag-page',
   templateUrl: './tag.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrTag, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
   providers: [provideWrIcons([checkmark, close, flash, warning])],
 })

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 import { WrTilt } from './tilt';
 
@@ -35,7 +35,6 @@ import { WrTilt } from './tilt';
   selector: 'wr-tilt-card',
   template: '<ng-content />',
   styleUrl: './tilt-card.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   hostDirectives: [
     {

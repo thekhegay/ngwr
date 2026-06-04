@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { Footer } from './footer/footer';
@@ -8,7 +8,6 @@ import { Sidebar } from './sidebar/sidebar';
   selector: 'ngwr-layout',
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, Sidebar, Footer],
 })
 export default class Layout {}

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrAlert, type WrAlertType } from 'ngwr/alert';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-alert-page',
   templateUrl: './alert.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrAlert, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AlertComponent {

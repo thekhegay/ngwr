@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@angular/core';
+import { Component, ViewEncapsulation, input } from '@angular/core';
 
 /**
  * Internal floating label rendered by `WrTooltip` inside a CDK
@@ -16,7 +16,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@a
 @Component({
   selector: 'wr-tooltip',
   template: '{{ text() }}',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-tooltip', role: 'tooltip' },
 })

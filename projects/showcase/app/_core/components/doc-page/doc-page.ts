@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MetaService } from '#core/services';
@@ -43,7 +43,6 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocPageComponent {
   /** Page title. Used as the H1 and in the document title. */

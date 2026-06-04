@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /**
  * Container for `<input wrInput>` + `[wrInputPrefix]` / `[wrInputSuffix]` /
@@ -31,7 +31,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
 @Component({
   selector: 'wr-input-group',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

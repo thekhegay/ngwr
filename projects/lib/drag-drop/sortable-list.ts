@@ -8,16 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  TemplateRef,
-  ViewEncapsulation,
-  contentChild,
-  input,
-  model,
-  output,
-} from '@angular/core';
+import { Component, TemplateRef, ViewEncapsulation, contentChild, input, model, output } from '@angular/core';
 
 /** Payload emitted whenever the user finishes a reorder. */
 export interface WrSortableReorderEvent<T> {
@@ -58,7 +49,6 @@ export interface WrSortableReorderEvent<T> {
   selector: 'wr-sortable-list',
   templateUrl: './sortable-list.html',
   styleUrl: './sortable-list.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   imports: [CdkDropList, CdkDrag, NgTemplateOutlet],
   host: { class: 'wr-sortable-list' },

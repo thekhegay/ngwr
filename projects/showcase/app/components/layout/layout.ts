@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrLayout, WrLayoutContent, WrLayoutFooter, WrLayoutHeader, WrLayoutSider } from 'ngwr/layout';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-layout-page',
   templateUrl: './layout.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrLayout,
     WrLayoutHeader,
@@ -41,7 +40,7 @@ export default class LayoutPageComponent {
   WrLayoutHeader,
   WrLayoutSider,
   WrLayoutContent,
-  WrLayoutFooter,
+  WrLayoutFooter
 } from 'ngwr/layout';`,
 
     basic: `<wr-layout>

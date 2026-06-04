@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrBarChart } from 'ngwr/bar-chart';
 import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/calendar-heatmap';
@@ -23,7 +23,6 @@ function makeHeatmap(): readonly WrHeatmapDatum[] {
 @Component({
   selector: 'ngwr-charts-page',
   templateUrl: './charts.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrSparkline,
     WrGauge,

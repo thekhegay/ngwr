@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /** One bar's worth of data. */
 export interface WrBarChartDatum {
@@ -33,7 +33,6 @@ export interface WrBarChartDatum {
 @Component({
   selector: 'wr-bar-chart',
   templateUrl: './bar-chart.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-bar-chart' },
 })

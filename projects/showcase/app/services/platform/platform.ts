@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-svc-platform-page',
   templateUrl: './platform.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class PlatformServicePageComponent {

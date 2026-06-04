@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, input, output } from '@angular/core';
+import { Component, ViewEncapsulation, input, output } from '@angular/core';
 
 import type { WrMentionItem } from './types';
 
@@ -16,7 +16,6 @@ import type { WrMentionItem } from './types';
 @Component({
   selector: 'wr-mention-panel',
   templateUrl: './mention-panel.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-mention-panel' },
 })

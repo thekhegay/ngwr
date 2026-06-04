@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrProgress } from 'ngwr/progress';
 import { WR_COLORS } from 'ngwr/theme';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-progress-page',
   templateUrl: './progress.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrProgress, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ProgressComponent {

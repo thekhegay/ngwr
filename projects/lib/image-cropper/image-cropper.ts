@@ -7,7 +7,6 @@
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   type ElementRef,
@@ -56,7 +55,6 @@ function clamp(v: number, min: number, max: number): number {
 @Component({
   selector: 'wr-image-cropper',
   templateUrl: './image-cropper.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-image-cropper' },
 })

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { type Observable, delay, of } from 'rxjs';
@@ -23,7 +23,6 @@ interface User {
 @Component({
   selector: 'ngwr-autocomplete-page',
   templateUrl: './autocomplete.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrAutocomplete,

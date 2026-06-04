@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { WrIcon, checkmark, filter as filterIcon, provideWrIcons } from 'ngwr/icon';
@@ -20,7 +20,6 @@ import type { WrTableFilterItem } from './types';
 @Component({
   selector: 'wr-table-filter',
   templateUrl: './table-filter.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrIcon, WrDropdown, WrDropdownMenu],

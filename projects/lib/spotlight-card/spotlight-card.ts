@@ -8,7 +8,7 @@
  * Original: https://www.reactbits.dev/components/spotlight-card
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, ElementRef, inject, input } from '@angular/core';
+import { Component, ViewEncapsulation, ElementRef, inject, input } from '@angular/core';
 
 /**
  * Cursor-tracked spotlight card. A soft radial highlight follows the
@@ -31,7 +31,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, ElementRef, inje
   selector: 'wr-spotlight-card',
   template: '<ng-content />',
   styleUrl: './spotlight-card.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-spotlight-card',

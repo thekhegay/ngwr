@@ -11,7 +11,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -62,7 +61,6 @@ const EASINGS: Readonly<Record<WrClickSparkEasing, (t: number) => number>> = {
   selector: 'wr-click-spark',
   templateUrl: './click-spark.html',
   styleUrl: './click-spark.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-click-spark',

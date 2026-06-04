@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrSlider } from 'ngwr/slider';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-slider-page',
   templateUrl: './slider.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrSlider,

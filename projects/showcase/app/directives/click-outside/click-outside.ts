@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrClickOutside } from 'ngwr/directives';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-click-outside-page',
   templateUrl: './click-outside.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrClickOutside,
     DocPageComponent,

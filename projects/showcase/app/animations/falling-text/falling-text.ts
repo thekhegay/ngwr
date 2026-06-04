@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrFallingText } from 'ngwr/falling-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-falling-text-page',
   templateUrl: './falling-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrFallingText,
     DocPageComponent,

@@ -7,7 +7,6 @@
 
 import { NgTemplateOutlet } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   type ElementRef,
   ViewEncapsulation,
@@ -54,7 +53,6 @@ import { WR_TABS, type WrTabsContext } from './tokens';
 @Component({
   selector: 'wr-tabs',
   templateUrl: './tabs.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-tabs' },
   imports: [NgTemplateOutlet, RouterLink, RouterLinkActive],

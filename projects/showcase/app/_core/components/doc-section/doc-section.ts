@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 /**
  * A titled documentation section.
@@ -11,7 +11,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'ngwr-doc-section',
   templateUrl: './doc-section.html',
   styleUrl: './doc-section.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocSectionComponent {
   readonly title = input.required<string>();

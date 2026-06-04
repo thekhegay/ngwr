@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrCounter } from 'ngwr/counter';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-counter-page',
   templateUrl: './counter.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrCounter,
     WrButton,

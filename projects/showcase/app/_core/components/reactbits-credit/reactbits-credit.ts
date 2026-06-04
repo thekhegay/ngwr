@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 /**
  * Inline credit chip linking back to the reactbits.dev source for a port.
@@ -14,7 +14,6 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   selector: 'ngwr-reactbits-credit',
   templateUrl: './reactbits-credit.html',
   styleUrl: './reactbits-credit.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReactbitsCredit {
   /** Reactbits URL slug (last segment of the docs URL). */

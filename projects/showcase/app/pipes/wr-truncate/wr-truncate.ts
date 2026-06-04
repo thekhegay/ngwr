@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrTruncate } from 'ngwr/pipes';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-pipe-wr-truncate-page',
   templateUrl: './wr-truncate.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrTruncate, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class WrTruncatePipePage {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrImageCropper } from 'ngwr/image-cropper';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-image-cropper-page',
   templateUrl: './image-cropper.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrImageCropper,
     DocPageComponent,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrColorPickerTrigger } from 'ngwr/color-picker';
@@ -55,7 +55,6 @@ import type { ShikiLang } from '#core/shiki';
   selector: 'ngwr-doc-playground',
   templateUrl: './doc-playground.html',
   styleUrl: './doc-playground.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocCodeComponent, FormsModule, WrColorPickerTrigger, WrInput, WrOption, WrSelect, WrSlider, WrSwitch],
 })
 export class DocPlaygroundComponent {

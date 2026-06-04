@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { provideWrIcons, sun, moon, cog } from 'ngwr/icon';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-segmented-page',
   templateUrl: './segmented.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrSegmented, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
   providers: [provideWrIcons([sun, moon, cog])],
 })

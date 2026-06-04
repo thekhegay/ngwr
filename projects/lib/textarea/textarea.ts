@@ -9,7 +9,6 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { isPlatformBrowser } from '@angular/common';
 import type { ElementRef } from '@angular/core';
 import {
-  ChangeDetectionStrategy,
   Component,
   PLATFORM_ID,
   ViewEncapsulation,
@@ -42,7 +41,6 @@ import { noop } from 'ngwr/utils';
 @Component({
   selector: 'wr-textarea',
   templateUrl: './textarea.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   providers: [

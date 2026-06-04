@@ -1,14 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  resource,
-  signal,
-  untracked,
-} from '@angular/core';
+import { Component, computed, effect, inject, input, resource, signal, untracked } from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 
 import type { DocCodeFile } from './types';
@@ -36,7 +26,6 @@ import { copyToClipboard, stripIndent } from '#core/utils';
   selector: 'ngwr-doc-code',
   templateUrl: './doc-code.html',
   styleUrl: './doc-code.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-empty]': 'tabs().length === 0 ? "" : null',
   },

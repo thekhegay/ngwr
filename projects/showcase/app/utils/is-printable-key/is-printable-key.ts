@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import {
   DocApiComponent,
@@ -11,7 +11,6 @@ import {
 @Component({
   selector: 'ngwr-utl-is-printable-key-page',
   templateUrl: './is-printable-key.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })
 export default class IsPrintableKeyPage {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrSquircle, WrSquircleHost } from 'ngwr/squircle';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-squircle-page',
   templateUrl: './squircle.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrSquircle, WrSquircleHost, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class SquirclePageComponent {

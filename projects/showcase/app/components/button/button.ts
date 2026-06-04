@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrButton, type WrButtonShape } from 'ngwr/button';
 import { provideWrIcons, add, checkmark, copyOutline, download, trash, warning } from 'ngwr/icon';
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-button-page',
   templateUrl: './button.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
   providers: [provideWrIcons([add, checkmark, copyOutline, download, trash, warning])],
 })

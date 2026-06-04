@@ -7,16 +7,7 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import type { ElementRef } from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  input,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, input, signal, viewChild } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { noop } from 'ngwr/utils';
@@ -53,7 +44,6 @@ function round(v: number): number {
 @Component({
   selector: 'wr-slider',
   templateUrl: './slider.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   providers: [

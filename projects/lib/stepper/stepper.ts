@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   ViewEncapsulation,
   computed,
@@ -43,7 +42,6 @@ import { WR_STEPPER, type WrStepperContext } from './tokens';
 @Component({
   selector: 'wr-stepper',
   templateUrl: './stepper.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   providers: [

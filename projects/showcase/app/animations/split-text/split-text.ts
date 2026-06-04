@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrSplitText } from 'ngwr/split-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-split-text-page',
   templateUrl: './split-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrSplitText,
     DocPageComponent,

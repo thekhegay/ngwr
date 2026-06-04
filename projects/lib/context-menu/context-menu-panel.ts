@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, viewChild } from '@angular/core';
+import { Component, TemplateRef, ViewEncapsulation, viewChild } from '@angular/core';
 
 /**
  * Container for the rows shown when a {@link WrContextMenu} opens.
@@ -25,7 +25,6 @@ import { ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, vie
   selector: 'wr-context-menu',
   template: '<ng-template><div class="wr-context-menu" role="menu"><ng-content /></div></ng-template>',
   exportAs: 'wrContextMenu',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { style: 'display:none' },
 })

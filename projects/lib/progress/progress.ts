@@ -6,7 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
 
@@ -24,7 +24,6 @@ import type { WrColor } from 'ngwr/theme';
 @Component({
   selector: 'wr-progress',
   template: `<div class="wr-progress__bar" [style.width.%]="clamped()"></div>`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'progressbar',

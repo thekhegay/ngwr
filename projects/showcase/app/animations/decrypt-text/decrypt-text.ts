@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrDecryptText } from 'ngwr/decrypt-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-decrypt-text-page',
   templateUrl: './decrypt-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrDecryptText,
     DocPageComponent,

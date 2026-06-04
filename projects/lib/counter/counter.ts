@@ -8,7 +8,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   LOCALE_ID,
@@ -52,7 +51,6 @@ type Cell = { readonly kind: 'digit'; readonly fraction: number } | { readonly k
 @Component({
   selector: 'wr-counter',
   templateUrl: './counter.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-counter' },
 })

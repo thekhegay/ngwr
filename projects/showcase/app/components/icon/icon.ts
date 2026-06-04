@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { provideWrIcons, WrIcon, type WrBuiltInIconName, wrIconSet } from 'ngwr/icon';
 
@@ -39,7 +39,6 @@ function buildRow(name: WrBuiltInIconName): IconRow {
   selector: 'ngwr-icon-page',
   templateUrl: './icon.html',
   styleUrl: './icon.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrIcon, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
   providers: [provideWrIcons(wrIconSet)],
 })

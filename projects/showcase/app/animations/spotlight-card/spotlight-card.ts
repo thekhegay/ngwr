@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrSpotlight, WrSpotlightCard } from 'ngwr/spotlight-card';
 
@@ -17,7 +17,6 @@ import {
 @Component({
   selector: 'ngwr-spotlight-card-page',
   templateUrl: './spotlight-card.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrSpotlightCard,
     WrSpotlight,

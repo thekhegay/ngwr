@@ -15,7 +15,6 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -56,7 +55,6 @@ const num =
   selector: 'wr-typewriter',
   templateUrl: './typewriter.html',
   styleUrl: './typewriter.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-typewriter',

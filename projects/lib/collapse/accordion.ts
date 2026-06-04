@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, forwardRef, signal } from '@angular/core';
+import { Component, ViewEncapsulation, forwardRef, signal } from '@angular/core';
 
 import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext } from './tokens';
 
@@ -35,7 +35,6 @@ interface Member {
 @Component({
   selector: 'wr-accordion',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-collapse-group wr-collapse-group--accordion' },
   providers: [

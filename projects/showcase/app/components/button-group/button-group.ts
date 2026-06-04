@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrButton, WrButtonGroup } from 'ngwr/button';
 
@@ -16,7 +16,6 @@ type Align = 'left' | 'center' | 'right';
 @Component({
   selector: 'ngwr-button-group-page',
   templateUrl: './button-group.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrButton,
     WrButtonGroup,

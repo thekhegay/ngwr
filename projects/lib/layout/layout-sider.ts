@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
 
 /**
  * Collapsible side panel. Lives inside a row `<wr-layout>` next to a
@@ -25,7 +25,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input,
 @Component({
   selector: 'wr-layout-sider',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

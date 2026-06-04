@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrBadge } from 'ngwr/badge';
 import { WR_COLORS } from 'ngwr/theme';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-badge-page',
   templateUrl: './badge.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrBadge, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class BadgeComponent {

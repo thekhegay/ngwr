@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { WrMeta } from 'ngwr/meta';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-svc-meta-page',
   templateUrl: './meta.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class MetaServicePageComponent {

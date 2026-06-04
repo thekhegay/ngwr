@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrPopconfirm } from 'ngwr/popconfirm';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-popconfirm-page',
   templateUrl: './popconfirm.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrButton,
     WrPopconfirm,

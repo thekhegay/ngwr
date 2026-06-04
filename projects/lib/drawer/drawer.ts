@@ -11,7 +11,6 @@ import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   PLATFORM_ID,
@@ -53,7 +52,6 @@ import type { WrDrawerPosition } from './types';
 @Component({
   selector: 'wr-drawer',
   templateUrl: './drawer.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { style: 'display:none' },
 })

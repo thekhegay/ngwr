@@ -6,17 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-} from '@angular/core';
+import { Component, DestroyRef, ElementRef, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
 
 import { WR_SELECT } from './tokens';
 
@@ -37,7 +27,6 @@ let uid = 0;
 @Component({
   selector: 'wr-option',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'option',

@@ -5,17 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  isDevMode,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, isDevMode } from '@angular/core';
 
 import { WR_ICONS } from './tokens';
 import type { WrIconDef, WrIconName } from './types';
@@ -36,7 +26,6 @@ import type { WrIconDef, WrIconName } from './types';
 @Component({
   selector: 'wr-icon',
   template: '',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-icon',

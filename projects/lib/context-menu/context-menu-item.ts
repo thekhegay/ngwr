@@ -6,15 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
@@ -31,7 +23,6 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
 @Component({
   selector: 'wr-context-menu-item',
   templateUrl: './context-menu-item.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'menuitem',

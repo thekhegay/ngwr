@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrFuzzyText } from 'ngwr/fuzzy-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-fuzzy-text-page',
   templateUrl: './fuzzy-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrFuzzyText,
     DocPageComponent,

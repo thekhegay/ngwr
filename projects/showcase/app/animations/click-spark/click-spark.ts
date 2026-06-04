@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrClickSpark } from 'ngwr/click-spark';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-click-spark-page',
   templateUrl: './click-spark.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrClickSpark,
     DocPageComponent,

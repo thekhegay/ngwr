@@ -6,17 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  model,
-  signal,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input, model, signal } from '@angular/core';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './types';
 
@@ -47,7 +37,6 @@ interface FlatNode<TId> {
 @Component({
   selector: 'wr-tree',
   templateUrl: './tree.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

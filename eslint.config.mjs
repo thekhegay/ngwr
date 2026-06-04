@@ -41,7 +41,12 @@ export default tsEslint.config(
       '@angular-eslint/no-lifecycle-call': 'error',
       '@angular-eslint/no-pipe-impure': 'error',
       '@angular-eslint/no-queries-metadata-property': 'error',
-      '@angular-eslint/prefer-on-push-component-change-detection': 'error',
+      // Angular 22 makes `OnPush` the default when `changeDetection` is
+      // unset, so the historical "must opt into OnPush" rule is now
+      // counterproductive — leaving the field empty is the new ideal.
+      // Re-enable (or invert to ban Eager / renamed Default) if/when
+      // angular-eslint ships a v22-aware version.
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
       '@angular-eslint/prefer-output-readonly': 'error',
       '@angular-eslint/prefer-standalone': 'error',
       '@angular-eslint/relative-url-prefix': 'error',

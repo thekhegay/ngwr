@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrTableCell, WrTable, type WrTableColumns, type WrTableFilterChange, type WrTableSortState } from 'ngwr/table';
 import { WrTag } from 'ngwr/tag';
@@ -29,7 +29,6 @@ const RAW_ROWS: readonly Row[] = [
 @Component({
   selector: 'ngwr-table-page',
   templateUrl: './table.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrTable,
     WrTableCell,

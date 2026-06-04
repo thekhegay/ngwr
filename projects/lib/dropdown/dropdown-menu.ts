@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewEncapsulation, signal, viewChild } from '@angular/core';
+import { Component, TemplateRef, ViewEncapsulation, signal, viewChild } from '@angular/core';
 
 let uid = 0;
 
@@ -31,7 +31,6 @@ let uid = 0;
   template:
     '<ng-template><div class="wr-dropdown-menu" role="menu" [attr.id]="menuId()" [attr.aria-labelledby]="triggerId() || null"><ng-content /></div></ng-template>',
   exportAs: 'wrDropdownMenu',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { style: 'display:none' },
 })

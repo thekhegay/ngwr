@@ -7,15 +7,7 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -49,7 +41,6 @@ function clamp(v: number, min: number, max: number): number {
 @Component({
   selector: 'wr-color-picker',
   templateUrl: './color-picker.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

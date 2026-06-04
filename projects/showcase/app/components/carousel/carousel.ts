@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrCarousel, WrCarouselSlide } from 'ngwr/carousel';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-carousel-page',
   templateUrl: './carousel.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrCarousel, WrCarouselSlide, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class CarouselPageComponent {

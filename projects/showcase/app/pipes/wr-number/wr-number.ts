@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrNumber } from 'ngwr/pipes';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-pipe-wr-number-page',
   templateUrl: './wr-number.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrNumber, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class WrNumberPipePage {

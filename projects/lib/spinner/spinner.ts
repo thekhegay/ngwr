@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrSpinnerSize } from './types';
 
@@ -25,7 +25,6 @@ import type { WrSpinnerSize } from './types';
 @Component({
   selector: 'wr-spinner',
   templateUrl: './spinner.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'status',

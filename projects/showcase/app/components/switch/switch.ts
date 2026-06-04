@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrSwitch } from 'ngwr/switch';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-switch-page',
   templateUrl: './switch.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrSwitch,

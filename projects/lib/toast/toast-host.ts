@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
 import { WrToastItem } from './toast-item';
 import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './types';
@@ -25,7 +25,6 @@ type ActiveToast = WrToastOptions & {
 @Component({
   selector: 'wr-toast-host',
   templateUrl: './toast-host.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

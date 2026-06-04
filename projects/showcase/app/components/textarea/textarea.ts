@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrTextarea } from 'ngwr/textarea';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-textarea-page',
   templateUrl: './textarea.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrTextarea,

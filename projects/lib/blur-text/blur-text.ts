@@ -15,7 +15,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -72,7 +71,6 @@ function splitPieces(text: string, unit: Unit): readonly Piece[] {
   selector: 'wr-blur-text',
   templateUrl: './blur-text.html',
   styleUrl: './blur-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-blur-text' },
 })

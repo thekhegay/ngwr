@@ -16,7 +16,6 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { isPlatformBrowser } from '@angular/common';
 import type { ElementRef } from '@angular/core';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   PLATFORM_ID,
@@ -56,7 +55,6 @@ const num =
 @Component({
   selector: 'wr-fuzzy-text',
   template: '<canvas #canvas></canvas>',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-fuzzy-text' },
 })

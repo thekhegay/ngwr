@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 
 import { WrStep, WrStepper } from 'ngwr/stepper';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-stepper-page',
   templateUrl: './stepper.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrStepper,
     WrStep,

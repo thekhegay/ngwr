@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import { WrConfetti } from 'ngwr/confetti';
 
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-confetti-page',
   templateUrl: './confetti.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ConfettiPage {

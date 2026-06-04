@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 interface WrDonutSegment {
   readonly label: string;
@@ -40,7 +40,6 @@ const FALLBACK_COLORS = [
 @Component({
   selector: 'wr-donut-chart',
   templateUrl: './donut-chart.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-donut-chart' },
 })

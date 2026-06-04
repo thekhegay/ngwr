@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrFileUpload, type WrFileUploadRejection } from 'ngwr/file-upload';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-file-upload-page',
   templateUrl: './file-upload.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrFileUpload,

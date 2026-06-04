@@ -6,17 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  LOCALE_ID,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, LOCALE_ID, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix } from 'ngwr/input';
@@ -61,7 +51,6 @@ function resolveSeparators(locale: string): { decimal: string; group: string } {
 @Component({
   selector: 'wr-input-number',
   templateUrl: './input-number.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix],

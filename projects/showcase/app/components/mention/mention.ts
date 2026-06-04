@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrMention, type WrMentionItem } from 'ngwr/mention';
@@ -20,7 +20,6 @@ type User = WrMentionItem & {
 @Component({
   selector: 'ngwr-mention-page',
   templateUrl: './mention.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrMention,

@@ -16,7 +16,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -121,7 +120,6 @@ function resolveCollision(a: Body, b: Body): void {
   selector: 'wr-falling-text',
   templateUrl: './falling-text.html',
   styleUrl: './falling-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-falling-text' },
 })

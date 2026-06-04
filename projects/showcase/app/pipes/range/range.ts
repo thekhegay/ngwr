@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrRange } from 'ngwr/pipes';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-pipe-range-page',
   templateUrl: './range.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrRange, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class RangePipePageComponent {

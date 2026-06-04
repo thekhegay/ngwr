@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import {
   DocApiComponent,
@@ -11,7 +11,6 @@ import {
 @Component({
   selector: 'ngwr-utl-throttle-page',
   templateUrl: './throttle.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ThrottlePage {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrDialog } from 'ngwr/dialog';
@@ -17,7 +17,6 @@ import {
 @Component({
   selector: 'ngwr-dialog-page',
   templateUrl: './dialog.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class DialogPageComponent {

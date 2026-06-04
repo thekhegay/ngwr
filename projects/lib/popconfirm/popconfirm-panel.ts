@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, input, output } from '@angular/core';
+import { Component, ViewEncapsulation, input, output } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import type { WrColor } from 'ngwr/theme';
@@ -19,7 +19,6 @@ import type { WrColor } from 'ngwr/theme';
 @Component({
   selector: 'wr-popconfirm',
   templateUrl: './popconfirm-panel.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-popconfirm' },
   imports: [WrButton],

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrSpinner } from 'ngwr/spinner';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-spinner-page',
   templateUrl: './spinner.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrSpinner, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class SpinnerComponent {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrRadio, WrRadioGroup } from 'ngwr/radio';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-radio-page',
   templateUrl: './radio.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrRadio,

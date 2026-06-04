@@ -6,15 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { noop, randomId } from 'ngwr/utils';
@@ -41,7 +33,6 @@ import { WR_RADIO_GROUP, type WrRadioGroupContext } from './tokens';
 @Component({
   selector: 'wr-radio-group',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-radio-group', role: 'radiogroup' },
   providers: [

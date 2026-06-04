@@ -15,7 +15,6 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -61,7 +60,6 @@ function decimalPlaces(n: number): number {
 @Component({
   selector: 'wr-count-up-text',
   template: '{{ display() }}',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-count-up-text' },
 })

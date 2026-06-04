@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrCollapse, WrCollapseGroup } from 'ngwr/collapse';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-collapse-page',
   templateUrl: './collapse.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrCollapse,
     WrCollapseGroup,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrTilt, WrTiltCard } from 'ngwr/tilt-card';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-tilt-card-page',
   templateUrl: './tilt-card.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrTiltCard,
     WrTilt,

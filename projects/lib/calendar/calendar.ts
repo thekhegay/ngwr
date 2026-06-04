@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   ElementRef,
   ViewEncapsulation,
@@ -47,7 +46,6 @@ const COLS = 7;
 @Component({
   selector: 'wr-calendar',
   templateUrl: './calendar.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

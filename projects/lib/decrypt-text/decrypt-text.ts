@@ -14,7 +14,6 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -98,7 +97,6 @@ function removeRandomIndices(set: ReadonlySet<number>, count: number): Set<numbe
   selector: 'wr-decrypt-text',
   templateUrl: './decrypt-text.html',
   styleUrl: './decrypt-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-decrypt-text',

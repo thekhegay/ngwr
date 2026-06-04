@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrTree, type WrTreeNode } from 'ngwr/tree';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-tree-page',
   templateUrl: './tree.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrTree, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class TreePageComponent {

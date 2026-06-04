@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrOption, WrOptionGroup, WrSelect } from 'ngwr/select';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-select-page',
   templateUrl: './select.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrSelect,

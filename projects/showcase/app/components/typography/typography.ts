@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-typography-page',
   templateUrl: './typography.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrTypography,
     DocPageComponent,

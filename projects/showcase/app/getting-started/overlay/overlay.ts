@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-overlay-page',
   templateUrl: './overlay.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class OverlayPageComponent {

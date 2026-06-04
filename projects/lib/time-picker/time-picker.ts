@@ -6,16 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date-adapter';
@@ -67,7 +58,6 @@ function isLocaleHour12(locale: string): boolean {
 @Component({
   selector: 'wr-time-picker',
   templateUrl: './time-picker.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   providers: [

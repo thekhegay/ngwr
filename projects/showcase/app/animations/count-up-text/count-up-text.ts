@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrCountUpText } from 'ngwr/count-up-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-count-up-text-page',
   templateUrl: './count-up-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrCountUpText,
     DocPageComponent,

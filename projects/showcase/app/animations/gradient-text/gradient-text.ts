@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrGradientText } from 'ngwr/gradient-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-gradient-text-page',
   templateUrl: './gradient-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrGradientText,
     DocPageComponent,

@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ViewEncapsulation,
@@ -40,7 +39,6 @@ import { WrCarouselSlide } from './carousel-slide';
 @Component({
   selector: 'wr-carousel',
   templateUrl: './carousel.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-carousel' },
 })

@@ -15,7 +15,6 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import type { TemplateRef } from '@angular/core';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -68,7 +67,6 @@ const num =
   selector: 'wr-marquee',
   templateUrl: './marquee.html',
   styleUrl: './marquee.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   imports: [NgTemplateOutlet],
   host: {

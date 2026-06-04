@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-dropdown-page',
   templateUrl: './dropdown.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrButton,
     WrDropdown,

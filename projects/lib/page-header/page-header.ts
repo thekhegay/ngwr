@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@angular/core';
+import { Component, ViewEncapsulation, input } from '@angular/core';
 
 /**
  * Top-of-page heading block. Three named slots via attribute selectors:
@@ -33,7 +33,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@a
 @Component({
   selector: 'wr-page-header',
   templateUrl: './page-header.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-page-header' },
 })

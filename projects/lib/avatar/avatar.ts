@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
 
 import { WrSpinner } from 'ngwr/spinner';
 import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
@@ -31,7 +31,6 @@ const DEFAULT_SIZE: WrAvatarSize = '6rem';
 @Component({
   selector: 'wr-avatar',
   templateUrl: './avatar.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

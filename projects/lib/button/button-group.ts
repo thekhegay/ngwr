@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, forwardRef, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, input } from '@angular/core';
 
 import { WR_BUTTON_GROUP, type WrButtonGroupContext } from './tokens';
 import type { WrButtonShape } from './types';
@@ -40,7 +40,6 @@ import type { WrButtonShape } from './types';
 @Component({
   selector: 'wr-btn-group',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'hostClasses()',

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrAnimatedText } from 'ngwr/animated-text';
 
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-animated-text-page',
   templateUrl: './animated-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrAnimatedText,
     DocPageComponent,

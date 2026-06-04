@@ -9,7 +9,6 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -74,7 +73,6 @@ function defaultFilter<T>(query: string, item: T, displayWith: (item: T) => stri
 @Component({
   selector: 'wr-autocomplete',
   templateUrl: './autocomplete.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputSuffix, WrVirtualScroll],

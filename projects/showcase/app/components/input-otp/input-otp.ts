@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrInputOtp } from 'ngwr/input-otp';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-input-otp-page',
   templateUrl: './input-otp.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrInputOtp,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { WrStorage } from 'ngwr/storage';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-svc-storage-page',
   templateUrl: './storage.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class StorageServicePage {

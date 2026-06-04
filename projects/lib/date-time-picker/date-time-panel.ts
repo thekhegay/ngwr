@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, input, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrCalendar } from 'ngwr/calendar';
@@ -22,7 +22,6 @@ import { WrTimePicker } from 'ngwr/time-picker';
 @Component({
   selector: 'wr-date-time-panel',
   templateUrl: './date-time-panel.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-date-time-panel' },
   imports: [FormsModule, WrCalendar, WrTimePicker],

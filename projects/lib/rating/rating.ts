@@ -6,15 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { noop } from 'ngwr/utils';
@@ -43,7 +35,6 @@ function clamp(v: number, min: number, max: number): number {
 @Component({
   selector: 'wr-rating',
   templateUrl: './rating.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   providers: [

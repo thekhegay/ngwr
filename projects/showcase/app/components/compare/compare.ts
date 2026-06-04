@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrCompare } from 'ngwr/compare';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-compare-page',
   templateUrl: './compare.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrCompare, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ComparePageComponent {

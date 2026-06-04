@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 
 import { WrHotkey } from 'ngwr/hotkey';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-svc-hotkey-page',
   templateUrl: './hotkey.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class HotkeyServicePageComponent {

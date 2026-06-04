@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /**
  * Read-only labeled key / value list. Project `<wr-description-item>`
@@ -27,7 +27,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
 @Component({
   selector: 'wr-descriptions',
   templateUrl: './descriptions.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrSkeleton } from 'ngwr/skeleton';
 import { WR_COLORS } from 'ngwr/theme';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-skeleton-page',
   templateUrl: './skeleton.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrSkeleton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class SkeletonComponent {

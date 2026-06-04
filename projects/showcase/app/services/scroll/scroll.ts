@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { WrScroll } from 'ngwr/scroll';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-svc-scroll-page',
   templateUrl: './scroll.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ScrollServicePageComponent {

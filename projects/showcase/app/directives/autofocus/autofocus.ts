@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrAutofocus } from 'ngwr/directives';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-autofocus-page',
   templateUrl: './autofocus.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrAutofocus, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AutofocusPage {

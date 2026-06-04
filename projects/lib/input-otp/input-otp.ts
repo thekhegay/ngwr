@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   type ElementRef,
   ViewEncapsulation,
@@ -44,7 +43,6 @@ import type { WrInputOtpMode } from './types';
 @Component({
   selector: 'wr-input-otp',
   templateUrl: './input-otp.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', role: 'group', 'aria-label': 'Verification code' },
   providers: [

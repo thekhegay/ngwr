@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WR_COLORS, type WrColor } from 'ngwr/theme';
 
@@ -13,7 +13,6 @@ interface Variant {
   selector: 'ngwr-color-page',
   templateUrl: './color.html',
   styleUrl: './color.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class ColorPageComponent {

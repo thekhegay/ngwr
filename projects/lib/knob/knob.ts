@@ -6,17 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { noop } from 'ngwr/utils';
@@ -44,7 +34,6 @@ const ARC_SWEEP = ARC_END - ARC_START;
 @Component({
   selector: 'wr-knob',
   templateUrl: './knob.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   providers: [

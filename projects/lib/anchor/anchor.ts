@@ -6,17 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  NgZone,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, DestroyRef, NgZone, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
@@ -54,7 +44,6 @@ export interface WrAnchorLink {
 @Component({
   selector: 'wr-anchor',
   templateUrl: './anchor.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-anchor', role: 'navigation', 'aria-label': 'Table of contents' },
 })

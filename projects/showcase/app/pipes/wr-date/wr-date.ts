@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrDate } from 'ngwr/pipes';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-pipe-wr-date-page',
   templateUrl: './wr-date.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrDate, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class WrDatePipePage {

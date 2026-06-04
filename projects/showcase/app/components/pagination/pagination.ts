@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrPagination } from 'ngwr/pagination';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-pagination-page',
   templateUrl: './pagination.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrPagination,
     DocPageComponent,

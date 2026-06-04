@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrGlitchText } from 'ngwr/glitch-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-glitch-text-page',
   templateUrl: './glitch-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrGlitchText,
     DocPageComponent,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
@@ -6,7 +6,6 @@ import { NGWR_VERSION_TOKEN } from 'ngwr/version';
   selector: 'ngwr-footer',
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Footer {
   protected readonly version = inject(NGWR_VERSION_TOKEN);

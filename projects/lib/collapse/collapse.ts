@@ -6,17 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-} from '@angular/core';
+import { Component, DestroyRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
 import { provideWrIcons, WrIcon, chevronDown } from 'ngwr/icon';
 import { randomId } from 'ngwr/utils';
@@ -45,7 +35,6 @@ import { WR_COLLAPSE_GROUP } from './tokens';
 @Component({
   selector: 'wr-collapse',
   templateUrl: './collapse.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrIcon],

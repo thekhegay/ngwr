@@ -6,17 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  NgZone,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, DestroyRef, NgZone, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
@@ -39,7 +29,6 @@ import { WrScroll } from 'ngwr/scroll';
 @Component({
   selector: 'wr-back-top',
   templateUrl: './back-top.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',

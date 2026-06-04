@@ -20,7 +20,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   type ElementRef,
@@ -61,7 +60,6 @@ interface Char {
   selector: 'wr-circular-text',
   templateUrl: './circular-text.html',
   styleUrl: './circular-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-circular-text',

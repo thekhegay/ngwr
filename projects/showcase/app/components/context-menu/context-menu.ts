@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrContextMenu, WrContextMenuPanel, WrContextMenuItem } from 'ngwr/context-menu';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-context-menu-page',
   templateUrl: './context-menu.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrContextMenu,
     WrContextMenuPanel,

@@ -9,7 +9,6 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -56,7 +55,6 @@ import { WrDateTimePanel } from './date-time-panel';
 @Component({
   selector: 'wr-date-time-picker',
   templateUrl: './date-time-picker.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputSuffix],

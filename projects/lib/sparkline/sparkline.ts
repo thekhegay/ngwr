@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /**
  * Tiny inline trend line. SVG path drawn from `[data]: number[]` — no
@@ -23,7 +23,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
 @Component({
   selector: 'wr-sparkline',
   templateUrl: './sparkline.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-sparkline' },
 })

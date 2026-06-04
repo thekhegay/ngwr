@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-toast-page',
   templateUrl: './toast.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrButton,
     WrSegmented,

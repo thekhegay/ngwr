@@ -6,16 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',
@@ -51,7 +42,6 @@ export interface WrLineSeries {
 @Component({
   selector: 'wr-line-chart',
   templateUrl: './line-chart.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-line-chart' },
 })

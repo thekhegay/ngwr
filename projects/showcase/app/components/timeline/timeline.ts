@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrTimeline, WrTimelineItem } from 'ngwr/timeline';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-timeline-page',
   templateUrl: './timeline.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrTimeline, WrTimelineItem, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class TimelinePageComponent {

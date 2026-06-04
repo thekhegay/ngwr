@@ -15,7 +15,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -86,7 +85,6 @@ function motionToStyle(m: WrSplitTextMotion): { opacity: number; transform: stri
   selector: 'wr-split-text',
   templateUrl: './split-text.html',
   styleUrl: './split-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-split-text', '[style.text-align]': 'textAlign()' },
 })

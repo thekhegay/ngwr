@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-calendar-page',
   templateUrl: './calendar.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrCalendar,

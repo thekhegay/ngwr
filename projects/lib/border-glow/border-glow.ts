@@ -12,7 +12,6 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -143,7 +142,6 @@ function animateValue(opts: AnimateOptions): () => void {
   selector: 'wr-border-glow',
   templateUrl: './border-glow.html',
   styleUrl: './border-glow.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-border-glow',

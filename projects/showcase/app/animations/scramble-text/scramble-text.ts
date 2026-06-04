@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrScrambleText } from 'ngwr/scramble-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-scramble-text-page',
   templateUrl: './scramble-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrScrambleText,
     DocPageComponent,

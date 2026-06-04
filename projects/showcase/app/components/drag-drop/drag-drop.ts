@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrDragHandle, WrSortableList, type WrSortableReorderEvent } from 'ngwr/drag-drop';
 
@@ -19,7 +19,6 @@ interface Task {
 @Component({
   selector: 'ngwr-drag-drop-page',
   templateUrl: './drag-drop.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrSortableList,
     WrDragHandle,

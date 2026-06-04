@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrReveal } from 'ngwr/directives';
 
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-reveal-page',
   templateUrl: './reveal.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrReveal, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
 })
 export default class RevealPage {

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
 
 import { WrIcon, eye, eyeOff, provideWrIcons } from 'ngwr/icon';
 
@@ -25,7 +25,6 @@ import { WrIcon, eye, eyeOff, provideWrIcons } from 'ngwr/icon';
 @Component({
   selector: 'wr-password-toggle',
   templateUrl: './password-toggle.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   imports: [WrIcon],
   providers: [provideWrIcons([eye, eyeOff])],

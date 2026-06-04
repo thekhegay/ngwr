@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrEmpty } from 'ngwr/empty';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-empty-page',
   templateUrl: './empty.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrEmpty,
     WrButton,

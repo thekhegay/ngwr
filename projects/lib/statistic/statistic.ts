@@ -6,7 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /**
  * KPI card — label + big number + optional prefix/suffix + delta. Pair
@@ -23,7 +23,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
 @Component({
   selector: 'wr-statistic',
   templateUrl: './statistic.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-statistic' },
 })

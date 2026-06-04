@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, contentChildren } from '@angular/core';
+import { Component, ViewEncapsulation, computed, contentChildren } from '@angular/core';
 
 import { WrLayoutSider } from './layout-sider';
 
@@ -32,7 +32,6 @@ import { WrLayoutSider } from './layout-sider';
 @Component({
   selector: 'wr-layout',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrKbd } from 'ngwr/keyboard';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-keyboard-page',
   templateUrl: './keyboard.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrKbd, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class KeyboardPageComponent {

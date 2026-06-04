@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrStatistic } from 'ngwr/statistic';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-statistic-page',
   templateUrl: './statistic.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrStatistic, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class StatisticPageComponent {

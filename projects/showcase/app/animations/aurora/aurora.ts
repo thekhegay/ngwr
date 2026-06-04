@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrAurora } from 'ngwr/aurora';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-aurora-page',
   templateUrl: './aurora.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrAurora, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AuroraPage {

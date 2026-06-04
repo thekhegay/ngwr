@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 import { WrSquircle } from './wr-squircle';
 
@@ -25,7 +25,6 @@ import { WrSquircle } from './wr-squircle';
 @Component({
   selector: 'wr-squircle',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-squircle' },
   hostDirectives: [{ directive: WrSquircle, inputs: ['radius', 'smoothing', 'borderWidth', 'borderColor'] }],

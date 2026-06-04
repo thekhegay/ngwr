@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, model } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
@@ -44,7 +44,6 @@ const numAttr =
 @Component({
   selector: 'wr-pagination',
   templateUrl: './pagination.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', role: 'navigation', 'aria-label': 'Pagination' },
   imports: [FormsModule, WrButton, WrSelect, WrOption],

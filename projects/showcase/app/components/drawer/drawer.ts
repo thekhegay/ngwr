@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrDrawerClose, WrDrawer, WrDrawerContent, WrDrawerFooter, WrDrawerTitle } from 'ngwr/drawer';
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-drawer-page',
   templateUrl: './drawer.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrButton,
     WrSegmented,
@@ -49,7 +48,7 @@ export default class DrawerPageComponent {
   WrDrawerTitle,
   WrDrawerContent,
   WrDrawerFooter,
-  WrDrawerClose,
+  WrDrawerClose
 } from 'ngwr/drawer';`,
     basic: `<wr-btn (click)="open.set(true)">Open</wr-btn>
 

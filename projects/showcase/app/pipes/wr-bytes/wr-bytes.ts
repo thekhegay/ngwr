@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrBytes } from 'ngwr/pipes';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-pipe-wr-bytes-page',
   templateUrl: './wr-bytes.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrBytes, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class WrBytesPipePage {

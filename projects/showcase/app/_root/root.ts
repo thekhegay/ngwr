@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { Header } from './header/header';
@@ -7,7 +7,6 @@ import { Header } from './header/header';
   selector: 'ngwr-root',
   templateUrl: './root.html',
   styleUrl: './root.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, Header],
 })
 export class RootComponent {}

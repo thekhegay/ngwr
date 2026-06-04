@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, forwardRef, input } from '@angular/core';
+import { Component, ViewEncapsulation, forwardRef, input } from '@angular/core';
 
 import { WR_COLLAPSE_GROUP, type WrCollapseGroupContext } from './tokens';
 
@@ -24,7 +24,6 @@ interface Member {
 @Component({
   selector: 'wr-collapse-group',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-collapse-group' },
   providers: [

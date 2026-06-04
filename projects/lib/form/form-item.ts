@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 /**
  * Wraps a label + control + error message into a single field row.
@@ -28,7 +28,6 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input 
 @Component({
   selector: 'wr-form-item',
   template: '<ng-content />',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

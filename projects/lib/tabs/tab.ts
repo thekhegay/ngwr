@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   TemplateRef,
@@ -34,7 +33,6 @@ import { WR_TABS } from './tokens';
 @Component({
   selector: 'wr-tab',
   template: `<ng-template><ng-content /></ng-template>`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { style: 'display:none' },
 })

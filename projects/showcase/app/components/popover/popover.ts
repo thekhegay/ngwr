@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrPopover } from 'ngwr/popover';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-popover-page',
   templateUrl: './popover.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrButton,
     WrPopover,

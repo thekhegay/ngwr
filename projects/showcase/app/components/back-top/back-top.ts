@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrBackTop } from 'ngwr/back-top';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/c
 @Component({
   selector: 'ngwr-back-top-page',
   templateUrl: './back-top.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrBackTop, DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class BackTopPageComponent {

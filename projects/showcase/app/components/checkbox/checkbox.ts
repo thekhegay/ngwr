@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-checkbox-page',
   templateUrl: './checkbox.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrCheckbox,

@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, PLATFORM_ID, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { provideWrIcons, WrIcon, type WrBuiltInIconName, logoGithub, logoNpm, moon, sun } from 'ngwr/icon';
@@ -23,7 +23,6 @@ interface ActionLink {
   selector: 'ngwr-header',
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, RouterLinkActive, WrIcon],
   providers: [provideWrIcons([logoGithub, logoNpm, moon, sun])],
 })

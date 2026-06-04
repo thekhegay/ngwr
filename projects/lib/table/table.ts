@@ -8,16 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { KeyValuePipe, NgTemplateOutlet } from '@angular/common';
 import type { TemplateRef } from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  contentChildren,
-  input,
-  model,
-  output,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, contentChildren, input, model, output } from '@angular/core';
 
 import { WrSpinner } from 'ngwr/spinner';
 
@@ -59,7 +50,6 @@ import type {
 @Component({
   selector: 'wr-table',
   templateUrl: './table.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-table' },
   imports: [NgTemplateOutlet, KeyValuePipe, WrSpinner, WrTableSort, WrTableFilter],

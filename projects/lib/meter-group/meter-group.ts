@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrMeterSegment } from './types';
 
@@ -39,7 +39,6 @@ const FALLBACK_COLORS = [
 @Component({
   selector: 'wr-meter-group',
   templateUrl: './meter-group.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-meter-group' },
 })

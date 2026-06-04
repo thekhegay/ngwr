@@ -15,7 +15,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -70,7 +69,6 @@ function pickRandom(pool: string, exclude: string): string {
   selector: 'wr-scramble-text',
   template: '<span class="wr-scramble-text__inner" #inner><ng-content /></span>',
   styleUrl: './scramble-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-scramble-text',

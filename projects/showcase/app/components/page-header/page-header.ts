@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrPageHeader } from 'ngwr/page-header';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-page-header-page',
   templateUrl: './page-header.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrPageHeader, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class PageHeaderPageComponent {

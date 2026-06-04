@@ -7,17 +7,7 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  PLATFORM_ID,
-  ViewEncapsulation,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, DestroyRef, PLATFORM_ID, ViewEncapsulation, effect, inject, input, signal } from '@angular/core';
 
 /** Animation style. */
 type WrAnimatedTextMode = 'typewriter' | 'scramble' | 'split';
@@ -40,7 +30,6 @@ const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#________';
 @Component({
   selector: 'wr-animated-text, [wr-animated-text]',
   template: `<ng-container>{{ display() }}</ng-container>`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

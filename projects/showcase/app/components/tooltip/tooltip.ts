@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { WrTooltip } from 'ngwr/tooltip';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-tooltip-page',
   templateUrl: './tooltip.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrButton,
     WrTooltip,

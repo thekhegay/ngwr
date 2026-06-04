@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { WrAlert } from 'ngwr/alert';
@@ -40,7 +40,6 @@ interface WhyTile {
   selector: 'ngwr-home',
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     RouterLink,

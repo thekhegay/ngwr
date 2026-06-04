@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrDescriptionItem, WrDescriptions } from 'ngwr/descriptions';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-descriptions-page',
   templateUrl: './descriptions.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrDescriptions,
     WrDescriptionItem,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrInputNumber } from 'ngwr/input-number';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-input-number-page',
   templateUrl: './input-number.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrInputNumber,

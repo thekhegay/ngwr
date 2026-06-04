@@ -15,7 +15,6 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
@@ -87,7 +86,6 @@ function splitWords(text: string, by: WrRotatingTextSplit): readonly Word[] {
   selector: 'wr-rotating-text',
   templateUrl: './rotating-text.html',
   styleUrl: './rotating-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-rotating-text' },
 })

@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   ViewEncapsulation,
   afterNextRender,
@@ -72,7 +71,6 @@ function viewportHeight(): number {
 @Component({
   selector: 'wr-window',
   templateUrl: './window.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'dialog',

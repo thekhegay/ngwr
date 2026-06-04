@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
-  ChangeDetectionStrategy,
   Component,
   type ElementRef,
   ViewEncapsulation,
@@ -69,7 +68,6 @@ function matchesAccept(file: File, accept: string): boolean {
 @Component({
   selector: 'wr-file-upload',
   templateUrl: './file-upload.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrSquircle],

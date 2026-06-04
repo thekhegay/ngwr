@@ -6,16 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  inject,
-  input,
-  model,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input, model } from '@angular/core';
 
 function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
@@ -44,7 +35,6 @@ function clamp(v: number, min: number, max: number): number {
 @Component({
   selector: 'wr-splitter',
   templateUrl: './splitter.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })

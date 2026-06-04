@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrCopyToClipboard } from 'ngwr/directives';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-copy-to-clipboard-page',
   templateUrl: './copy-to-clipboard.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrCopyToClipboard,
     DocPageComponent,

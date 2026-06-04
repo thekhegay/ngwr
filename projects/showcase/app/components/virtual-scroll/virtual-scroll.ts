@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrVirtualScroll } from 'ngwr/virtual-scroll';
 
@@ -20,7 +20,6 @@ interface Row {
 @Component({
   selector: 'ngwr-virtual-scroll-page',
   templateUrl: './virtual-scroll.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrVirtualScroll,
     DocPageComponent,

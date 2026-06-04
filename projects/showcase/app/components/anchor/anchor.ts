@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrAnchor, type WrAnchorLink } from 'ngwr/anchor';
 
@@ -7,7 +7,6 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-anchor-page',
   templateUrl: './anchor.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrAnchor, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class AnchorPageComponent {

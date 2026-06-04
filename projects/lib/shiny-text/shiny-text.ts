@@ -14,7 +14,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 const num =
   (fallback: number) =>
@@ -45,7 +45,6 @@ const num =
   selector: 'wr-shiny-text',
   template: '{{ text() }}',
   styleUrl: './shiny-text.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-shiny-text',

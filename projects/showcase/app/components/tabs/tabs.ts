@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { WrTab, WrTabs } from 'ngwr/tabs';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-tabs-page',
   templateUrl: './tabs.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrTabs,
     WrTab,

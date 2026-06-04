@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrDivider } from 'ngwr/divider';
 import { WR_COLORS } from 'ngwr/theme';
@@ -15,7 +15,6 @@ import {
 @Component({
   selector: 'ngwr-divider-page',
   templateUrl: './divider.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrDivider, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class DividerComponent {

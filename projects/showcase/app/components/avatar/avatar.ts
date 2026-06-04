@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { WrAvatar } from 'ngwr/avatar';
 
@@ -16,7 +16,6 @@ const SAMPLE_URL = 'https://avatars.githubusercontent.com/u/9893827?v=4';
 @Component({
   selector: 'ngwr-avatar-page',
   templateUrl: './avatar.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrAvatar, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class AvatarComponent {

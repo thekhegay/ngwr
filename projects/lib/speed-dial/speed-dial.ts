@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
@@ -41,7 +41,6 @@ export type WrSpeedDialDirection = 'up' | 'down' | 'left' | 'right';
 @Component({
   selector: 'wr-speed-dial',
   templateUrl: './speed-dial.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrIcon],

@@ -6,16 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
@@ -50,7 +41,6 @@ import { WR_CHECKBOX_GROUP } from './tokens';
 @Component({
   selector: 'wr-checkbox',
   templateUrl: './checkbox.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrIcon, WrSquircle],

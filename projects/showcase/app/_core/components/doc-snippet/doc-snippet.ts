@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
@@ -28,7 +28,6 @@ import type { ShikiLang } from '#core/shiki';
   selector: 'ngwr-doc-snippet',
   templateUrl: './doc-snippet.html',
   styleUrl: './doc-snippet.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocCodeComponent],
 })
 export class DocSnippetComponent {

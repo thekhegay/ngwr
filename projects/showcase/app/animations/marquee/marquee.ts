@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, type TemplateRef, computed, signal, viewChild } from '@angular/core';
+import { Component, type TemplateRef, computed, signal, viewChild } from '@angular/core';
 
 import {
   WrIcon,
@@ -27,7 +27,6 @@ import {
 @Component({
   selector: 'ngwr-marquee-page',
   templateUrl: './marquee.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrMarquee,
     WrIcon,

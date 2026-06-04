@@ -9,7 +9,6 @@ import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angul
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   type ElementRef,
@@ -78,7 +77,6 @@ function matches(item: WrCommandItem, query: string): boolean {
 @Component({
   selector: 'wr-command-palette',
   templateUrl: './command-palette.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   imports: [WrIcon],
 })

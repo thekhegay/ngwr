@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
@@ -17,7 +17,6 @@ import {
 @Component({
   selector: 'ngwr-form-page',
   templateUrl: './form.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     WrInput,

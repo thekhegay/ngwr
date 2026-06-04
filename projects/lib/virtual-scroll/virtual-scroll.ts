@@ -9,7 +9,6 @@ import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { NgTemplateOutlet } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   TemplateRef,
   type TrackByFunction,
@@ -42,7 +41,6 @@ import {
   selector: 'wr-virtual-scroll',
   templateUrl: './virtual-scroll.html',
   styleUrl: './virtual-scroll.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   imports: [ScrollingModule, NgTemplateOutlet],
   host: { class: 'wr-virtual-scroll' },

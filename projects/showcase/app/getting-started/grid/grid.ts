@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
@@ -12,7 +12,6 @@ interface Breakpoint {
   selector: 'ngwr-grid-page',
   templateUrl: './grid.html',
   styleUrl: './grid.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent],
 })
 export default class GridPageComponent {

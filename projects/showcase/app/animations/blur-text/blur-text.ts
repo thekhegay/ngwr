@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrBlurText } from 'ngwr/blur-text';
 
@@ -16,7 +16,6 @@ import {
 @Component({
   selector: 'ngwr-blur-text-page',
   templateUrl: './blur-text.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrBlurText,
     DocPageComponent,

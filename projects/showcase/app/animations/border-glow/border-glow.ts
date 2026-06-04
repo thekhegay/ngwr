@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrBorderGlow } from 'ngwr/border-glow';
 import { parseHex, rgbToHsl } from 'ngwr/color-picker';
@@ -17,7 +17,6 @@ import {
 @Component({
   selector: 'ngwr-border-glow-page',
   templateUrl: './border-glow.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     WrBorderGlow,
     DocPageComponent,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
 import { WrMedia } from 'ngwr/media';
 
@@ -14,7 +14,6 @@ import {
 @Component({
   selector: 'ngwr-svc-media-page',
   templateUrl: './media.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class MediaServicePageComponent {
