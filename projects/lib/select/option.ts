@@ -50,8 +50,17 @@ export class WrOption {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly parent = inject(WR_SELECT, { optional: true });
 
-  /** @internal — true when this option matches the parent's current value. */
-  protected readonly selected = computed(() => this.parent?.value() === this.value());
+  /**
+   * @internal — true when this option is currently selected. Works for
+   * both single and multi-select parents via `WrSelectContext.isSelected`.
+   */
+  protected readonly selected = computed(() => {
+    const parent = this.parent;
+    if (!parent) return false;
+    // Re-read parent's value signal so the computed recomputes on change.
+    parent.value();
+    return parent.isSelected(this.value());
+  });
 
   /** @internal — true when this option is the keyboard cursor target. */
   protected readonly active = computed(() => this.parent?.activeOptionId() === this.id);
@@ -83,7 +92,6 @@ export class WrOption {
 
   protected onClick(): void {
     if (this.disabled() || !this.parent) return;
-    const label = this.host.nativeElement.textContent?.trim() ?? '';
-    this.parent.selectOption(this.value(), label);
+    this.parent.selectOption(this.value());
   }
 }

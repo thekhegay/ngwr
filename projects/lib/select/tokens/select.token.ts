@@ -25,14 +25,26 @@ export interface WrSelectOptionRegistration {
  * @internal
  */
 export interface WrSelectContext {
-  /** Currently selected value. */
+  /**
+   * Currently selected value. Single mode: `T | null`. Multi mode:
+   * `readonly T[]`. Options consult {@link isSelected} instead of
+   * reading this directly so the same option code works in both modes.
+   */
   readonly value: Signal<unknown>;
+  /** Whether the select is in multi-selection mode. */
+  readonly multi: Signal<boolean>;
   /** Whether the select is disabled. */
   readonly isDisabled: Signal<boolean>;
   /** Id of the option currently highlighted by keyboard navigation. */
   readonly activeOptionId: Signal<string | null>;
-  /** Called when a child option is clicked. */
-  selectOption(value: unknown, label: string): void;
+  /** Is the given option value currently selected? Handles both single and multi. */
+  isSelected(value: unknown): boolean;
+  /**
+   * Called when a child option is clicked. The label is read lazily
+   * via {@link WrSelectOptionRegistration.getLabel}, so callers don't
+   * need to thread it through.
+   */
+  selectOption(value: unknown): void;
   /** Register an option; returns an unregister function. */
   registerOption(reg: WrSelectOptionRegistration): () => void;
 }

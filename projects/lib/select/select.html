@@ -6,22 +6,70 @@
   [attr.aria-haspopup]="'listbox'"
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="listboxId"
+  [attr.aria-multiselectable]="multi() ? 'true' : null"
   [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
   (click)="onTriggerClick()"
   (keydown)="onTriggerKey($event)"
   (blur)="onTouched()"
 >
-  @if (selectedLabel(); as label) {
-    <span class="wr-select__value">{{ label }}</span>
+  @if (multi()) {
+    @if (hasSelection()) {
+      <span class="wr-select__chips">
+        @for (chip of visibleChips(); track $index) {
+          <span class="wr-select__chip">
+            <span class="wr-select__chip-label">{{ chip.label }}</span>
+            <span
+              class="wr-select__chip-remove"
+              role="button"
+              [attr.aria-label]="'Remove ' + chip.label"
+              tabindex="-1"
+              (click)="removeChip(chip.value, $event)"
+              (keydown.enter)="removeChip(chip.value, $event)"
+              (keydown.space)="removeChip(chip.value, $event)"
+            >
+              <wr-icon name="close" />
+            </span>
+          </span>
+        }
+        @if (hiddenChipCount(); as extra) {
+          <span class="wr-select__chip wr-select__chip--more">+{{ extra }} more</span>
+        }
+      </span>
+    } @else {
+      <span class="wr-select__placeholder">{{ placeholder() }}</span>
+    }
   } @else {
-    <span class="wr-select__placeholder">{{ placeholder() }}</span>
+    @if (selectedLabel(); as label) {
+      <span class="wr-select__value">{{ label }}</span>
+    } @else {
+      <span class="wr-select__placeholder">{{ placeholder() }}</span>
+    }
+  }
+
+  @if (multi() && clearable() && hasSelection() && !isDisabled()) {
+    <span
+      class="wr-select__clear"
+      role="button"
+      aria-label="Clear selection"
+      tabindex="-1"
+      (click)="clearAll($event)"
+      (keydown.enter)="clearAll($event)"
+      (keydown.space)="clearAll($event)"
+    >
+      <wr-icon name="close" />
+    </span>
   }
 
   <wr-icon class="wr-select__chevron" name="chevron-down" />
 </button>
 
 <ng-template #panelTpl>
-  <div class="wr-select-panel" role="listbox" [attr.id]="listboxId">
+  <div
+    class="wr-select-panel"
+    role="listbox"
+    [attr.id]="listboxId"
+    [attr.aria-multiselectable]="multi() ? 'true' : null"
+  >
     <ng-content />
   </div>
 </ng-template>

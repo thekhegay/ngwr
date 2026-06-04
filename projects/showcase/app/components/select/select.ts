@@ -1,3 +1,4 @@
+import { JsonPipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -17,6 +18,7 @@ import {
   templateUrl: './select.html',
   imports: [
     FormsModule,
+    JsonPipe,
     WrSelect,
     WrOption,
     WrOptionGroup,
@@ -30,6 +32,8 @@ import {
 export default class SelectComponent {
   protected readonly size = signal<string | null>(null);
   protected readonly framework = signal<string | null>('angular');
+  protected readonly tags = signal<readonly string[]>(['typescript', 'angular']);
+  protected readonly manyTags = signal<readonly string[]>(['typescript', 'angular', 'rxjs', 'signals']);
 
   protected readonly snippets = {
     install: `import { WrSelect, WrOption } from 'ngwr/select';
@@ -54,12 +58,50 @@ export class MyComponent {}`,
   </wr-option-group>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
+    multi: `<wr-select multi placeholder="Pick tags" [(ngModel)]="tags">
+  <wr-option value="typescript">TypeScript</wr-option>
+  <wr-option value="angular">Angular</wr-option>
+  <wr-option value="rxjs">RxJS</wr-option>
+  <wr-option value="signals">Signals</wr-option>
+</wr-select>`,
+    multiOverflow: `<wr-select multi [maxTagCount]="2" [maxItems]="6" [(ngModel)]="manyTags">
+  <wr-option value="typescript">TypeScript</wr-option>
+  <wr-option value="angular">Angular</wr-option>
+  <wr-option value="rxjs">RxJS</wr-option>
+  <wr-option value="signals">Signals</wr-option>
+  <wr-option value="cdk">CDK</wr-option>
+  <wr-option value="ssr">SSR</wr-option>
+</wr-select>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'placeholder', description: 'Shown when no option is chosen.', type: 'string', default: "''" },
     { name: 'disabled', description: 'Disable the select.', type: 'boolean', default: 'false' },
     { name: 'rounded', description: 'Pill-shaped trigger.', type: 'boolean', default: 'false' },
+    {
+      name: 'multi',
+      description: 'Multi-selection mode. Model becomes `T[]`; trigger renders chips; clicks toggle without closing.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'clearable',
+      description: 'Show a clear-all (×) button on the trigger (multi mode only).',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'maxItems',
+      description: 'Cap on the number of selected items (multi mode). `0` = unlimited.',
+      type: 'number',
+      default: '0',
+    },
+    {
+      name: 'maxTagCount',
+      description: 'Cap on chips rendered before collapsing the rest into `+N more`. `0` = render all.',
+      type: 'number',
+      default: '0',
+    },
   ];
 
   protected readonly optionApi: readonly DocApiRow[] = [

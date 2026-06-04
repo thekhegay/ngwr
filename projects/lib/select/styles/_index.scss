@@ -82,6 +82,88 @@
   &--open &__chevron {
     transform: rotate(180deg);
   }
+
+  // ── Multi-mode trigger chrome ────────────────────────────────────
+  // Chips fill the trigger's flex row; the trigger grows vertically as
+  // needed. A clear-all (×) button appears at the row's tail.
+
+  &--multi &__trigger {
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    min-height: calc(var(--wr-select-line-height) + var(--wr-select-padding-y) * 2);
+  }
+
+  &__chips {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    max-width: 100%;
+    padding: 0.125rem 0.25rem 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    color: var(--wr-color-primary);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    user-select: none;
+  }
+
+  &__chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__chip-remove {
+    --wr-icon-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+
+    &:hover {
+      background: rgba(var(--wr-color-primary-rgb), 0.2);
+    }
+  }
+
+  &__chip--more {
+    background: rgba(var(--wr-color-dark-rgb), 0.08);
+    color: rgba(var(--wr-color-dark-rgb), 0.7);
+  }
+
+  &__clear {
+    --wr-icon-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: -0.25rem;
+    border-radius: 999px;
+    color: var(--wr-color-medium);
+    cursor: pointer;
+    transition:
+      background 0.12s ease,
+      color 0.12s ease;
+
+    &:hover {
+      background: rgba(var(--wr-color-dark-rgb), 0.06);
+      color: var(--wr-color-dark);
+    }
+  }
 }
 
 .wr-select-overlay {
