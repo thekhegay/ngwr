@@ -8,7 +8,7 @@ export default [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: components.icon,
+    redirectTo: components.button,
   },
   {
     path: components.alert,
