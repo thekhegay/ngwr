@@ -98,7 +98,18 @@ export default tsEslint.config(
       // ───── Imports ─────
       'import-x/no-empty-named-blocks': 'error',
       'import-x/no-duplicates': 'error',
-      'import-x/no-unused-modules': 'error',
+      // ESLint 10 removed the FileEnumerator API the rule depends on, so
+      // it's a no-op upstream until eslint-plugin-import-x implements an
+      // alternative. Keep the rule listed (it'll start working again) and
+      // silence the boot-time warning in the meantime.
+      'import-x/no-unused-modules': [
+        'error',
+        {
+          unusedExports: true,
+          missingExports: false,
+          suppressMissingFileEnumeratorAPIWarning: true,
+        },
+      ],
       'import-x/no-unassigned-import': 'error',
       'import-x/exports-last': 'error',
       'import-x/first': 'error',

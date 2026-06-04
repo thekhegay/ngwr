@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "experimentalDecorators": false,
+    "lib": ["ES2023"]
+  },
+  "include": ["**/*.ts"]
+}
