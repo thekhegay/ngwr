@@ -48,4 +48,8 @@ export const UTILS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'trapFocus', url: ['/utils', 'trap-focus'] },
     ],
   },
+  {
+    title: 'Form',
+    children: [{ title: 'WrValidators', url: ['/utils', 'validators'] }],
+  },
 ];

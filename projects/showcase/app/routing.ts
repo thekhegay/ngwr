@@ -178,6 +178,8 @@ export const routes = {
     // Focus
     getFocusableElements: 'get-focusable-elements',
     trapFocus: 'trap-focus',
+    // Form
+    validators: 'validators',
   },
 };
 

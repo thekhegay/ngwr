@@ -145,6 +145,10 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 [theme](https://ngwr.dev/services/theme), [scroll](https://ngwr.dev/services/scroll), [hotkey](https://ngwr.dev/services/hotkey), [media](https://ngwr.dev/services/media), [platform](https://ngwr.dev/services/platform), [meta](https://ngwr.dev/services/meta), [storage](https://ngwr.dev/services/storage).
 
+### Validators — `ngwr/validators`
+
+Bundled `ValidatorFn`s composing cleanly with Angular's built-in `Validators`: `email`, `noWhitespace`, `hexColor`, `url`, `cardNumber` (Luhn), `cvc`, `iban` (mod-97), `match` (sibling control), `oneOf`, `minDate`, `maxDate`. See [docs](https://ngwr.dev/utils/validators).
+
 ### Utils — `ngwr/utils`
 
 Css helpers (`resolveCssSize`, `getRootFontSize`), ids (`randomId`), type guards (`isDefined`, `isNonEmptyArray`, `isObservable`), keyboard helpers (`KEYS`, `hasModifier`, `isPrintableKey`), functional primitives (`noop`, `badgeLog`, `debounce`, `throttle`), focus management (`getFocusableElements`, `trapFocus`). See [docs](https://ngwr.dev/utils) for the full list.

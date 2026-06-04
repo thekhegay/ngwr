@@ -361,6 +361,7 @@
     "./typewriter": {
       "sass": "./typewriter/styles/_index.scss"
     },
+    "./validators": {},
     "./virtual-scroll": {
       "sass": "./virtual-scroll/styles/_index.scss"
     },
