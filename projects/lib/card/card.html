@@ -1,0 +1,8 @@
+<ng-content select="wr-card-header" />
+<div class="wr-card__body"><ng-content /></div>
+<ng-content select="wr-card-footer" />
+@if (loading()) {
+  <div class="wr-card__loading" aria-hidden="true">
+    <span class="wr-card__spinner"></span>
+  </div>
+}

@@ -40,6 +40,7 @@ export const routes = {
     button: 'button',
     buttonGroup: 'button-group',
     calendar: 'calendar',
+    card: 'card',
     carousel: 'carousel',
     cascader: 'cascader',
     checkbox: 'checkbox',

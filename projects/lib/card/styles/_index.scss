@@ -1,0 +1,96 @@
+@use '../../theme/styles' as theme;
+
+.wr-card {
+  --wr-card-bg: var(--wr-color-white);
+  --wr-card-color: var(--wr-color-dark);
+  --wr-card-border: var(--wr-color-light);
+  --wr-card-radius: var(--wr-border-radius-base);
+  --wr-card-padding-y: 1rem;
+  --wr-card-padding-x: 1.25rem;
+  --wr-card-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  --wr-card-shadow-hover: 0 8px 24px rgb(0 0 0 / 8%), 0 2px 4px rgb(0 0 0 / 4%);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--wr-card-bg);
+  color: var(--wr-card-color);
+  border-radius: var(--wr-card-radius);
+  box-shadow: var(--wr-card-shadow);
+  font-family: var(--wr-font-family-base);
+  transition:
+    box-shadow var(--wr-transition-base),
+    transform var(--wr-transition-base);
+
+  &--bordered {
+    border: 1px solid var(--wr-card-border);
+  }
+
+  &--hoverable {
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: var(--wr-card-shadow-hover);
+      transform: translateY(-1px);
+    }
+  }
+
+  &--compact {
+    --wr-card-padding-y: 0.5rem;
+    --wr-card-padding-x: 0.75rem;
+  }
+
+  &--loading &__body {
+    opacity: 0.6;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: var(--wr-card-padding-y) var(--wr-card-padding-x);
+    border-bottom: 1px solid var(--wr-card-border);
+    font-weight: 500;
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    padding: var(--wr-card-padding-y) var(--wr-card-padding-x);
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: var(--wr-card-padding-y) var(--wr-card-padding-x);
+    border-top: 1px solid var(--wr-card-border);
+  }
+
+  &__loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--wr-card-radius);
+    background: rgb(255 255 255 / 50%);
+    pointer-events: none;
+  }
+
+  &__spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid rgb(var(--wr-color-medium-rgb) / 30%);
+    border-top-color: var(--wr-color-primary);
+    border-radius: 50%;
+    animation: wr-card-spin 0.7s linear infinite;
+  }
+}
+
+@keyframes wr-card-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

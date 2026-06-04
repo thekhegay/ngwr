@@ -55,6 +55,10 @@ export default [
     loadComponent: () => import('./calendar/calendar'),
   },
   {
+    path: components.card,
+    loadComponent: () => import('./card/card'),
+  },
+  {
     path: components.carousel,
     loadComponent: () => import('./carousel/carousel'),
   },

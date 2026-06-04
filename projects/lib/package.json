@@ -118,6 +118,9 @@
     "./calendar-heatmap": {
       "sass": "./calendar-heatmap/styles/_index.scss"
     },
+    "./card": {
+      "sass": "./card/styles/_index.scss"
+    },
     "./carousel": {
       "sass": "./carousel/styles/_index.scss"
     },

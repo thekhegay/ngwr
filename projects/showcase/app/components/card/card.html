@@ -1,0 +1,65 @@
+<ngwr-doc-page
+  title="Card"
+  description="Surface container with optional header / footer slots. Bordered by default; toggle hoverable for clickable lists and loading for in-place data refresh."
+  [keywords]="['card', 'panel', 'surface', 'wr-card']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Compose with `<wr-card-header>`, body content, and `<wr-card-footer>`. Both slots are optional."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-card style="max-width: 22rem">
+        <wr-card-header>
+          <h3 style="margin: 0; font-size: 1rem">Settings</h3>
+        </wr-card-header>
+        <p style="margin: 0">Manage account preferences and notification rules.</p>
+        <wr-card-footer>
+          <button wr-btn type="button">Cancel</button>
+          <button wr-btn type="button" color="primary">Save</button>
+        </wr-card-footer>
+      </wr-card>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Without header / footer" description="Drop the slots to get a plain padded surface.">
+    <ngwr-doc-snippet [code]="snippets.bare">
+      <wr-card style="max-width: 22rem">
+        <p style="margin: 0">Just a surface around content.</p>
+      </wr-card>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Variants"
+    description="Hoverable for clickable cards, no-border for embedded layouts, compact for dense tables. Loading overlays a spinner without unmounting the body."
+  >
+    <ngwr-doc-snippet [code]="snippets.variants">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem">
+        <wr-card hoverable>
+          <p style="margin: 0">Hoverable</p>
+        </wr-card>
+        <wr-card [bordered]="false">
+          <p style="margin: 0">No border</p>
+        </wr-card>
+        <wr-card compact>
+          <p style="margin: 0">Compact</p>
+        </wr-card>
+        <wr-card [loading]="loading()">
+          <p style="margin: 0">
+            Loading overlay
+            <button wr-btn type="button" size="sm" (click)="reload()" style="margin-left: 0.5rem">Reload</button>
+          </p>
+        </wr-card>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
