@@ -6,18 +6,11 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import {
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  forwardRef,
-  input,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import { Component, ViewEncapsulation, computed, forwardRef, input, output, signal, viewChild } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { noop } from 'ngwr/utils';
 
 /** Validator predicate. Return `true` to accept, `false` to silently reject. */
 export type WrChipsValidator = (value: string, existing: readonly string[]) => boolean;
@@ -109,8 +102,8 @@ export class WrChipsInput implements ControlValueAccessor {
     return max > 0 && this.chips().length >= max;
   });
 
-  private onChange: (v: readonly string[]) => void = () => {};
-  protected onTouched: () => void = () => {};
+  private onChange: (v: readonly string[]) => void = noop;
+  protected onTouched: () => void = noop;
 
   // ──────── Template handlers ────────
 

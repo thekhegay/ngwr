@@ -10,12 +10,7 @@
 
   <ngwr-doc-section title="Playground">
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
-      <wr-list
-        [bordered]="bordered()"
-        [dividers]="dividers()"
-        [dense]="dense()"
-        style="width: 100%; max-width: 26rem"
-      >
+      <wr-list [bordered]="bordered()" [dividers]="dividers()" [dense]="dense()" style="width: 100%; max-width: 26rem">
         @for (row of rows; track row.label) {
           <wr-list-item [interactive]="interactive()">
             <span ngProjectAs="[wrListItemLeading]" style="font-size: 1.125rem">📁</span>

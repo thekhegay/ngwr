@@ -41,7 +41,8 @@ header.wr-affix--active {
     },
     {
       name: '[wrAffixOffsetTop]',
-      description: 'Pixels from the top of the scroll container when stuck. Drives both `style.top` and the observer threshold.',
+      description:
+        'Pixels from the top of the scroll container when stuck. Drives both `style.top` and the observer threshold.',
       type: 'number',
       default: '0',
     },

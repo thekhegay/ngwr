@@ -51,7 +51,7 @@ export default class ListPage {
     Reports
     <span ngProjectAs="[wrListItemTrailing]">12</span>
   </wr-list-item>
-</wr-list>`,
+</wr-list>`
   );
 
   protected readonly controls: readonly DocControl[] = [
@@ -66,17 +66,52 @@ export default class ListPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: '<wr-list>', description: 'Container — renders `<ul role="list">` inside.', type: 'component', default: '—' },
+    {
+      name: '<wr-list>',
+      description: 'Container — renders `<ul role="list">` inside.',
+      type: 'component',
+      default: '—',
+    },
     { name: '└ bordered', description: 'Wrap in a card-style border + radius.', type: 'boolean', default: 'false' },
     { name: '└ dividers', description: 'Thin border between consecutive items.', type: 'boolean', default: 'false' },
     { name: '└ dense', description: 'Compact vertical padding.', type: 'boolean', default: 'false' },
     { name: '└ ariaLabel', description: 'Optional accessible label for the list.', type: 'string', default: "''" },
-    { name: '<wr-list-item>', description: 'Row with three projection slots: `[wrListItemLeading]`, default body, `[wrListItemTrailing]`.', type: 'component', default: '—' },
-    { name: '└ interactive', description: 'Hover + cursor pointer + Enter/Space activation + listitem role.', type: 'boolean', default: 'false' },
+    {
+      name: '<wr-list-item>',
+      description: 'Row with three projection slots: `[wrListItemLeading]`, default body, `[wrListItemTrailing]`.',
+      type: 'component',
+      default: '—',
+    },
+    {
+      name: '└ interactive',
+      description: 'Hover + cursor pointer + Enter/Space activation + listitem role.',
+      type: 'boolean',
+      default: 'false',
+    },
     { name: '└ disabled', description: 'Visual disabled + suppresses interaction.', type: 'boolean', default: 'false' },
-    { name: 'CSS — --wr-list-item-padding-y / -x', description: 'Per-row padding.', type: 'length', default: '0.625rem / 1rem' },
-    { name: 'CSS — --wr-list-item-gap', description: 'Gap between leading / body / trailing slots.', type: 'length', default: '0.75rem' },
-    { name: 'CSS — --wr-list-divider-color', description: 'Divider line colour.', type: 'color', default: 'var(--wr-color-light)' },
-    { name: 'CSS — --wr-list-hover-bg', description: 'Hover background on interactive rows.', type: 'color', default: 'rgba(light, 0.4)' },
+    {
+      name: 'CSS — --wr-list-item-padding-y / -x',
+      description: 'Per-row padding.',
+      type: 'length',
+      default: '0.625rem / 1rem',
+    },
+    {
+      name: 'CSS — --wr-list-item-gap',
+      description: 'Gap between leading / body / trailing slots.',
+      type: 'length',
+      default: '0.75rem',
+    },
+    {
+      name: 'CSS — --wr-list-divider-color',
+      description: 'Divider line colour.',
+      type: 'color',
+      default: 'var(--wr-color-light)',
+    },
+    {
+      name: 'CSS — --wr-list-hover-bg',
+      description: 'Hover background on interactive rows.',
+      type: 'color',
+      default: 'rgba(light, 0.4)',
+    },
   ];
 }

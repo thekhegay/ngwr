@@ -5,8 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { isPlatformBrowser } from '@angular/common';
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject, input, output } from '@angular/core';
 
 /**
@@ -52,6 +52,7 @@ export class WrAffix {
   });
 
   /** Emits `true` when the element becomes affixed, `false` when it unsticks. */
+  // eslint-disable-next-line @angular-eslint/no-output-rename -- keep wr-prefixed binding to match `[wrAffix]`
   readonly affixChange = output<boolean>({ alias: 'wrAffixChange' });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -85,7 +86,7 @@ export class WrAffix {
           // Trigger when the sentinel's top crosses the offset line.
           rootMargin: `-${this.offsetTop()}px 0px 0px 0px`,
           threshold: [0],
-        },
+        }
       );
       observer.observe(sentinel);
 

@@ -153,7 +153,7 @@ $toast-colors: (
     color: var(--wr-toast-message);
     font-size: 0.8125rem;
     line-height: 1.125rem;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   &__actions {

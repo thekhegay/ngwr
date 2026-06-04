@@ -49,18 +49,44 @@ export default class ChipsInputPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'placeholder', description: 'Input placeholder. Shown only when the chip list is empty.', type: 'string', default: "''" },
+    {
+      name: 'placeholder',
+      description: 'Input placeholder. Shown only when the chip list is empty.',
+      type: 'string',
+      default: "''",
+    },
     { name: 'disabled', description: 'Disable the entire control.', type: 'boolean', default: 'false' },
     {
       name: 'separators',
-      description: 'Keys / characters that commit the draft. `Enter` is the key name; everything else is a literal character watched in keypresses and pastes.',
+      description:
+        'Keys / characters that commit the draft. `Enter` is the key name; everything else is a literal character watched in keypresses and pastes.',
       type: 'readonly string[]',
       default: "['Enter', ',']",
     },
     { name: 'maxItems', description: 'Maximum chips. `0` = unlimited.', type: 'number', default: '0' },
-    { name: 'allowDuplicates', description: 'Allow the same value to appear more than once.', type: 'boolean', default: 'false' },
-    { name: 'validate', description: 'Custom predicate `(value, existing) => boolean`. Return `false` to silently reject.', type: 'WrChipsValidator', default: 'null' },
-    { name: '(chipsChange)', description: 'Emits the new chip array on add / remove.', type: 'EventEmitter<readonly string[]>', default: '—' },
-    { name: 'ControlValueAccessor', description: 'Implements CVA — bind with `[(ngModel)]` or `[formControl]`. Value type: `readonly string[]`.', type: 'CVA', default: '—' },
+    {
+      name: 'allowDuplicates',
+      description: 'Allow the same value to appear more than once.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'validate',
+      description: 'Custom predicate `(value, existing) => boolean`. Return `false` to silently reject.',
+      type: 'WrChipsValidator',
+      default: 'null',
+    },
+    {
+      name: '(chipsChange)',
+      description: 'Emits the new chip array on add / remove.',
+      type: 'EventEmitter<readonly string[]>',
+      default: '—',
+    },
+    {
+      name: 'ControlValueAccessor',
+      description: 'Implements CVA — bind with `[(ngModel)]` or `[formControl]`. Value type: `readonly string[]`.',
+      type: 'CVA',
+      default: '—',
+    },
   ];
 }

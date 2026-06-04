@@ -13,7 +13,7 @@
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
         <wr-chips-input [(ngModel)]="tags" placeholder="Add a tag" />
-        <p style="margin: 0; color: rgba(0,0,0,0.6); font-size: 0.875rem">
+        <p style="margin: 0; color: rgba(0, 0, 0, 0.6); font-size: 0.875rem">
           Value: <code>{{ tags() | json }}</code>
         </p>
       </div>
@@ -30,7 +30,7 @@
           [validate]="isEmail"
           [maxItems]="5"
         />
-        <p style="margin: 0; color: rgba(0,0,0,0.6); font-size: 0.875rem">
+        <p style="margin: 0; color: rgba(0, 0, 0, 0.6); font-size: 0.875rem">
           Only valid emails are accepted. Try pasting <code>a&#64;x.dev, b&#64;x.dev, notanemail, c&#64;x.dev</code>.
         </p>
       </div>

@@ -2,7 +2,7 @@
   display: inline-block;
   overflow: hidden;
   white-space: normal;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   will-change: transform, opacity;
 
   &__piece {
