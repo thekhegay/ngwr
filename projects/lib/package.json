@@ -103,6 +103,9 @@
     "./border-glow": {
       "sass": "./border-glow/styles/_index.scss"
     },
+    "./bottom-sheet": {
+      "sass": "./bottom-sheet/styles/_index.scss"
+    },
     "./breadcrumb": {
       "sass": "./breadcrumb/styles/_index.scss"
     },

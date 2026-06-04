@@ -1,0 +1,19 @@
+<ng-template>
+  <div
+    class="wr-bottom-sheet"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="ariaLabel()"
+    [style.height]="height()"
+    [style.max-height]="maxHeight()"
+  >
+    @if (showHandle()) {
+      <div class="wr-bottom-sheet__handle" aria-hidden="true">
+        <span class="wr-bottom-sheet__grabber"></span>
+      </div>
+    }
+    <div class="wr-bottom-sheet__body">
+      <ng-content />
+    </div>
+  </div>
+</ng-template>

@@ -106,6 +106,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Popups',
     children: [
+      { title: 'Bottom Sheet', url: ['/components', 'bottom-sheet'] },
       { title: 'Dialog', url: ['/components', 'dialog'] },
       { title: 'Drawer', url: ['/components', 'drawer'] },
       { title: 'Popconfirm', url: ['/components', 'popconfirm'] },

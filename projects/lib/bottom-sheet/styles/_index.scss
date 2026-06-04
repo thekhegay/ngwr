@@ -1,0 +1,74 @@
+// Bottom sheet. CDK overlay sets `width: 100%` + pins to viewport bottom;
+// this stylesheet handles the sheet chrome (rounded top corners, drag
+// handle indicator, body padding) and the slide-up entry animation.
+
+.wr-bottom-sheet-overlay {
+  pointer-events: none;
+}
+
+.wr-bottom-sheet-backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  animation: wr-bottom-sheet-backdrop-in 0.15s ease;
+}
+
+@keyframes wr-bottom-sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.wr-bottom-sheet {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--wr-color-white);
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  box-shadow:
+    0 -8px 32px rgba(0, 0, 0, 0.15),
+    0 -2px 4px rgba(0, 0, 0, 0.06);
+  animation: wr-bottom-sheet-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+  outline: none;
+
+  &__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+    flex: 0 0 auto;
+    cursor: grab;
+    user-select: none;
+  }
+
+  &__grabber {
+    display: block;
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background: rgba(var(--wr-color-dark-rgb), 0.18);
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    padding: 0.75rem 1.5rem 1.5rem;
+    overflow-y: auto;
+    font-family: var(--wr-font-family-base);
+    color: var(--wr-color-dark);
+
+    // Respect iOS safe-area at the bottom.
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+@keyframes wr-bottom-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
