@@ -2,6 +2,7 @@ import type { SidebarGroup } from '../sidebar.types';
 
 /** Flat sidebar for `/directives/*` — one direct-link row per directive. */
 export const DIRECTIVES_SIDEBAR: readonly SidebarGroup[] = [
+  { title: 'wrAffix', url: ['/directives', 'affix'] },
   { title: 'wrAutofocus', url: ['/directives', 'autofocus'] },
   { title: 'wrAutosize', url: ['/directives', 'autosize'] },
   { title: 'wrClickOutside', url: ['/directives', 'click-outside'] },

@@ -135,7 +135,7 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 ### Directives — `ngwr/directives`
 
-[autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard), [reveal](https://ngwr.dev/directives/reveal).
+[affix](https://ngwr.dev/directives/affix), [autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard), [reveal](https://ngwr.dev/directives/reveal).
 
 ### Pipes — `ngwr/pipes`
 

@@ -1,0 +1,56 @@
+<ngwr-doc-page
+  title="wrAffix"
+  description="Stick-on-scroll directive. Combines native CSS `position: sticky` with an `IntersectionObserver` sentinel that toggles a `wr-affix--active` class while pinned — so you can style the stuck state (shadow, background, shrink) without a scroll listener."
+  [keywords]="['wrAffix', 'affix', 'sticky', 'directive', 'scroll']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.scss" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Demo (scroll inside the box)">
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          width: 100%;
+          height: 18rem;
+          overflow: auto;
+          border: 1px solid var(--wr-color-light);
+          border-radius: 0.5rem;
+          background: var(--wr-color-white);
+        "
+      >
+        <div style="height: 4rem"></div>
+        <div
+          wrAffix
+          [wrAffixOffsetTop]="0"
+          (wrAffixChange)="affixed.set($event)"
+          style="
+            padding: 0.75rem 1rem;
+            background: var(--wr-color-white);
+            border-bottom: 1px solid var(--wr-color-light);
+            font-weight: 600;
+            transition: box-shadow 0.2s ease;
+          "
+          [style.box-shadow]="affixed() ? '0 2px 8px rgba(0,0,0,0.08)' : 'none'"
+        >
+          Sticky header — affixed: {{ affixed() }}
+        </div>
+        @for (i of [].constructor(40); track $index) {
+          <div style="padding: 0.5rem 1rem; border-bottom: 1px dashed rgba(0,0,0,0.05)">
+            Scroll content row #{{ $index + 1 }}
+          </div>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -101,6 +101,7 @@ export const routes = {
   },
   directives: {
     index: 'directives',
+    affix: 'affix',
     autofocus: 'autofocus',
     autosize: 'autosize',
     clickOutside: 'click-outside',

@@ -1,0 +1,12 @@
+// Minimal styles — the directive does most of the work inline. We just
+// expose a class hook so consumers can style the "stuck" state.
+//
+// The directive sets `position: sticky; top: <offset>px` on the host and
+// toggles `wr-affix--active` via an IntersectionObserver sentinel.
+
+.wr-affix {
+  // No baseline styles intentionally — the host is the consumer's
+  // element. We only own the `position: sticky` (set inline) and the
+  // optional active modifier.
+  z-index: 10;
+}

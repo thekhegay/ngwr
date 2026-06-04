@@ -5,7 +5,8 @@ import { routes } from '#routing';
 const directives = routes.directives;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: directives.autofocus },
+  { path: '', pathMatch: 'full', redirectTo: directives.affix },
+  { path: directives.affix, loadComponent: () => import('./affix/affix') },
   { path: directives.autofocus, loadComponent: () => import('./autofocus/autofocus') },
   { path: directives.autosize, loadComponent: () => import('./autosize/autosize') },
   { path: directives.clickOutside, loadComponent: () => import('./click-outside/click-outside') },

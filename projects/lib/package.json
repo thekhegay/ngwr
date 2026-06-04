@@ -62,6 +62,9 @@
       "sass": "./styles/_animations.scss"
     },
     "./scroll": {},
+    "./affix": {
+      "sass": "./affix/styles/_index.scss"
+    },
     "./alert": {
       "sass": "./alert/styles/_index.scss"
     },
