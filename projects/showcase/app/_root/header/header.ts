@@ -3,7 +3,7 @@ import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject } from '@angular
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { WrI18n, WrTPipe } from 'ngwr/i18n';
-import { provideWrIcons, WrIcon, type WrBuiltInIconName, logoGithub, logoNpm, moon, sun } from 'ngwr/icon';
+import { provideWrIcons, WrIcon, type WrBuiltInIconName, globe, logoGithub, logoNpm, moon, sun } from 'ngwr/icon';
 import { WrTheme } from 'ngwr/theme';
 
 import { routes } from '#routing';
@@ -28,7 +28,7 @@ interface ActionLink {
   templateUrl: './header.html',
   styleUrl: './header.scss',
   imports: [RouterLink, RouterLinkActive, WrIcon, WrTPipe],
-  providers: [provideWrIcons([logoGithub, logoNpm, moon, sun])],
+  providers: [provideWrIcons([globe, logoGithub, logoNpm, moon, sun])],
 })
 export class Header {
   protected readonly theme = inject(WrTheme);

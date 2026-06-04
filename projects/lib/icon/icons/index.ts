@@ -18,8 +18,10 @@ import { arrowForward } from './arrow-forward';
 import { arrowForwardCircle } from './arrow-forward-circle';
 import { arrowTop } from './arrow-top';
 import { arrowTopCircle } from './arrow-top-circle';
+import { bell } from './bell';
 import { bug } from './bug';
 import { bugOutline } from './bug-outline';
+import { calendar } from './calendar';
 import { caretBack } from './caret-back';
 import { caretBackCircle } from './caret-back-circle';
 import { caretForward } from './caret-forward';
@@ -28,6 +30,8 @@ import { checkmark } from './checkmark';
 import { checkmarkCircle } from './checkmark-circle';
 import { checkmarkCircleOutline } from './checkmark-circle-outline';
 import { chevronDown } from './chevron-down';
+import { chevronLeft } from './chevron-left';
+import { chevronRight } from './chevron-right';
 import { chevronUp } from './chevron-up';
 import { close } from './close';
 import { closeCircle } from './close-circle';
@@ -40,6 +44,7 @@ import { document } from './document';
 import { dotsHorizontal } from './dots-horizontal';
 import { dotsVertical } from './dots-vertical';
 import { download } from './download';
+import { edit } from './edit';
 import { externalOutline } from './external-outline';
 import { eye } from './eye';
 import { eyeOff } from './eye-off';
@@ -52,9 +57,12 @@ import { filter } from './filter';
 import { filterOutline } from './filter-outline';
 import { flash } from './flash';
 import { folder } from './folder';
+import { globe } from './globe';
+import { heart } from './heart';
 import { help } from './help';
 import { home } from './home';
 import { infoCircleOutline } from './info-circle-outline';
+import { link } from './link';
 import { lock } from './lock';
 import { lockOpened } from './lock-opened';
 import { logoAndroid } from './logo-android';
@@ -86,6 +94,8 @@ import { logoVk } from './logo-vk';
 import { logoWhatsapp } from './logo-whatsapp';
 import { logoYandexCloud } from './logo-yandex-cloud';
 import { logoYandexTracker } from './logo-yandex-tracker';
+import { mail } from './mail';
+import { menu } from './menu';
 import { modules } from './modules';
 import { moon } from './moon';
 import { play } from './play';
@@ -94,13 +104,17 @@ import { playCircle } from './play-circle';
 import { playForward } from './play-forward';
 import { plusCircle } from './plus-circle';
 import { reader } from './reader';
+import { refresh } from './refresh';
 import { repeat } from './repeat';
 import { search } from './search';
+import { share } from './share';
 import { shield } from './shield';
 import { shieldCheckmark } from './shield-checkmark';
 import { shieldCheckmarkOutline } from './shield-checkmark-outline';
 import { shieldOutline } from './shield-outline';
 import { shuffle } from './shuffle';
+import { star } from './star';
+import { starOutline } from './star-outline';
 import { stop } from './stop';
 import { stopCircle } from './stop-circle';
 import { sun } from './sun';
@@ -128,8 +142,10 @@ export { arrowForward } from './arrow-forward';
 export { arrowForwardCircle } from './arrow-forward-circle';
 export { arrowTop } from './arrow-top';
 export { arrowTopCircle } from './arrow-top-circle';
+export { bell } from './bell';
 export { bug } from './bug';
 export { bugOutline } from './bug-outline';
+export { calendar } from './calendar';
 export { caretBack } from './caret-back';
 export { caretBackCircle } from './caret-back-circle';
 export { caretForward } from './caret-forward';
@@ -138,6 +154,8 @@ export { checkmark } from './checkmark';
 export { checkmarkCircle } from './checkmark-circle';
 export { checkmarkCircleOutline } from './checkmark-circle-outline';
 export { chevronDown } from './chevron-down';
+export { chevronLeft } from './chevron-left';
+export { chevronRight } from './chevron-right';
 export { chevronUp } from './chevron-up';
 export { close } from './close';
 export { closeCircle } from './close-circle';
@@ -150,6 +168,7 @@ export { document } from './document';
 export { dotsHorizontal } from './dots-horizontal';
 export { dotsVertical } from './dots-vertical';
 export { download } from './download';
+export { edit } from './edit';
 export { externalOutline } from './external-outline';
 export { eye } from './eye';
 export { eyeOff } from './eye-off';
@@ -162,9 +181,12 @@ export { filter } from './filter';
 export { filterOutline } from './filter-outline';
 export { flash } from './flash';
 export { folder } from './folder';
+export { globe } from './globe';
+export { heart } from './heart';
 export { help } from './help';
 export { home } from './home';
 export { infoCircleOutline } from './info-circle-outline';
+export { link } from './link';
 export { lock } from './lock';
 export { lockOpened } from './lock-opened';
 export { logoAndroid } from './logo-android';
@@ -196,6 +218,8 @@ export { logoVk } from './logo-vk';
 export { logoWhatsapp } from './logo-whatsapp';
 export { logoYandexCloud } from './logo-yandex-cloud';
 export { logoYandexTracker } from './logo-yandex-tracker';
+export { mail } from './mail';
+export { menu } from './menu';
 export { modules } from './modules';
 export { moon } from './moon';
 export { play } from './play';
@@ -204,13 +228,17 @@ export { playCircle } from './play-circle';
 export { playForward } from './play-forward';
 export { plusCircle } from './plus-circle';
 export { reader } from './reader';
+export { refresh } from './refresh';
 export { repeat } from './repeat';
 export { search } from './search';
+export { share } from './share';
 export { shield } from './shield';
 export { shieldCheckmark } from './shield-checkmark';
 export { shieldCheckmarkOutline } from './shield-checkmark-outline';
 export { shieldOutline } from './shield-outline';
 export { shuffle } from './shuffle';
+export { star } from './star';
+export { starOutline } from './star-outline';
 export { stop } from './stop';
 export { stopCircle } from './stop-circle';
 export { sun } from './sun';
@@ -246,8 +274,10 @@ export const wrIconSet: WrIconDef[] = [
   arrowForwardCircle,
   arrowTop,
   arrowTopCircle,
+  bell,
   bug,
   bugOutline,
+  calendar,
   caretBack,
   caretBackCircle,
   caretForward,
@@ -256,6 +286,8 @@ export const wrIconSet: WrIconDef[] = [
   checkmarkCircle,
   checkmarkCircleOutline,
   chevronDown,
+  chevronLeft,
+  chevronRight,
   chevronUp,
   close,
   closeCircle,
@@ -268,6 +300,7 @@ export const wrIconSet: WrIconDef[] = [
   dotsHorizontal,
   dotsVertical,
   download,
+  edit,
   externalOutline,
   eye,
   eyeOff,
@@ -280,9 +313,12 @@ export const wrIconSet: WrIconDef[] = [
   filterOutline,
   flash,
   folder,
+  globe,
+  heart,
   help,
   home,
   infoCircleOutline,
+  link,
   lock,
   lockOpened,
   logoAndroid,
@@ -314,6 +350,8 @@ export const wrIconSet: WrIconDef[] = [
   logoWhatsapp,
   logoYandexCloud,
   logoYandexTracker,
+  mail,
+  menu,
   modules,
   moon,
   play,
@@ -322,13 +360,17 @@ export const wrIconSet: WrIconDef[] = [
   playForward,
   plusCircle,
   reader,
+  refresh,
   repeat,
   search,
+  share,
   shield,
   shieldCheckmark,
   shieldCheckmarkOutline,
   shieldOutline,
   shuffle,
+  star,
+  starOutline,
   stop,
   stopCircle,
   sun,

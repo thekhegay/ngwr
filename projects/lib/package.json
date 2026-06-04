@@ -30,8 +30,12 @@
     "luxon": "^3.0.0"
   },
   "peerDependenciesMeta": {
-    "date-fns": { "optional": true },
-    "luxon": { "optional": true }
+    "date-fns": {
+      "optional": true
+    },
+    "luxon": {
+      "optional": true
+    }
   },
   "dependencies": {
     "tslib": "^2.8.1"

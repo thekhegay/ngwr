@@ -34,7 +34,8 @@
     color: var(--wr-select-color);
     border: 1px solid var(--wr-select-border);
     border-radius: var(--wr-select-radius);
-    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
+    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
     font-family: var(--wr-font-family-base);
     font-size: var(--wr-select-font-size);
     line-height: var(--wr-select-line-height);

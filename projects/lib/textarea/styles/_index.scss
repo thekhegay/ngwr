@@ -53,7 +53,8 @@
     font-family: var(--wr-font-family-base);
     font-size: var(--wr-textarea-font-size);
     line-height: var(--wr-textarea-line-height);
-    padding: calc(var(--wr-textarea-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-textarea-padding-x) * var(--wr-density-x, 1));
+    padding: calc(var(--wr-textarea-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-textarea-padding-x) * var(--wr-density-x, 1));
     resize: vertical;
 
     &::placeholder {

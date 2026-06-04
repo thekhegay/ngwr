@@ -13,7 +13,7 @@
  * Outputs:
  *   - projects/lib/icon/icons/*.ts                              — pure icon data (lib bundle)
  *   - projects/lib/icon/types/icon-name.ts                      — name union (lib bundle)
- *   - projects/showcase/app/docs/components/icon/_data/icon-tags.generated.ts
+ *   - projects/showcase/app/components/icon/_data/icon-tags.generated.ts
  *                                                               — search tags (showcase only)
  */
 
@@ -30,7 +30,7 @@ const SVG_DIR = join(ROOT, 'projects/lib/icon/_svg');
 const TAGS_FILE = join(SVG_DIR, '_tags.json');
 const ICONS_DIR = join(ROOT, 'projects/lib/icon/icons');
 const TYPES_DIR = join(ROOT, 'projects/lib/icon/types');
-const SHOWCASE_DATA_DIR = join(ROOT, 'projects/showcase/app/docs/components/icon/_data');
+const SHOWCASE_DATA_DIR = join(ROOT, 'projects/showcase/app/components/icon/_data');
 const SHOWCASE_TAGS_FILE = join(SHOWCASE_DATA_DIR, 'icon-tags.generated.ts');
 
 const LICENSE = `/**
@@ -127,8 +127,8 @@ export type WrIconName = WrBuiltInIconName | (string & {});
 
 function writeIconFile(icon: Icon): void {
   const content =
-    `${LICENSE}\nimport type { WrIcon } from '../types';\n\n` +
-    `export const ${icon.camel}: WrIcon = {\n` +
+    `${LICENSE}\nimport type { WrIconDef } from '../types';\n\n` +
+    `export const ${icon.camel}: WrIconDef = {\n` +
     `  name: '${icon.kebab}',\n` +
     `  data: '${icon.svg.replace(/'/g, "\\'")}',\n` +
     `};\n`;
@@ -201,7 +201,7 @@ function writeIconsIndex(icons: Icon[]): void {
 
   const content =
     `${AUTOGEN}\n` +
-    `import type { WrIcon } from '../types';\n\n` +
+    `import type { WrIconDef } from '../types';\n\n` +
     `${imports}\n\n` +
     `${exports}\n\n` +
     `/**\n` +
@@ -211,7 +211,7 @@ function writeIconsIndex(icons: Icon[]): void {
     ` * individual icons by name for tree-shaking. Use \`wrIconSet\` only for\n` +
     ` * icon pickers, documentation pages, or similar exhaustive listings.\n` +
     ` */\n` +
-    `export const wrIconSet: WrIcon[] = [\n${setMembers}\n];\n`;
+    `export const wrIconSet: WrIconDef[] = [\n${setMembers}\n];\n`;
 
   writeFileSync(join(ICONS_DIR, 'index.ts'), content, 'utf-8');
 }

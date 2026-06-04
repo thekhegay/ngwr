@@ -26,7 +26,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { provideWrIcons, WrIcon, chevronDown, close } from 'ngwr/icon';
+import { provideWrIcons, WrIcon, chevronDown, chevronRight, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
@@ -81,7 +81,7 @@ export interface WrCascaderOption<T = string> {
   host: { '[class]': 'classes()' },
   imports: [WrIcon],
   providers: [
-    provideWrIcons([chevronDown, close]),
+    provideWrIcons([chevronDown, chevronRight, close]),
     {
       provide: NG_VALUE_ACCESSOR,
       // eslint-disable-next-line @angular-eslint/no-forward-ref

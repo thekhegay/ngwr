@@ -168,12 +168,9 @@
     white-space: nowrap;
   }
 
-  // Repurpose `chevron-down` rotated -90° as a right-pointing arrow
-  // (a dedicated `chevron-right` icon hasn't been added yet).
   .wr-cascader__opt-arrow {
     --wr-icon-size: 0.875rem;
     flex: 0 0 auto;
     color: var(--wr-color-medium);
-    transform: rotate(-90deg);
   }
 }

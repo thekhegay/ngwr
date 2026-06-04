@@ -28,7 +28,8 @@
   box-shadow: 0 0 0 3px var(--wr-input-ring);
   outline: 0;
   margin: 0;
-  padding: calc(var(--wr-input-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-input-padding-x) * var(--wr-density-x, 1));
+  padding: calc(var(--wr-input-padding-y) * var(--wr-density-y, 1))
+    calc(var(--wr-input-padding-x) * var(--wr-density-x, 1));
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-input-font-size);
   line-height: var(--wr-input-line-height);
