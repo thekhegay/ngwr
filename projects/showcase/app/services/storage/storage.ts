@@ -8,13 +8,22 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-svc-storage-page',
   templateUrl: './storage.html',
-  imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class StorageServicePage {
   private readonly store = inject(WrStorage);
@@ -128,6 +137,22 @@ effect(() => console.log('theme is', theme()));`,
       description: 'Map-backed `Storage` shim. Useful for tests.',
       type: '() => Storage',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Service',
+      title: 'WrCookie',
+      url: ['/services', 'cookie'],
+      description:
+        'Same shape for `document.cookie`. Reach for cookies when you need expiry attributes / cross-subdomain reads.',
+    },
+    {
+      kind: 'Service',
+      title: 'WrTheme',
+      url: ['/services', 'theme'],
+      description: 'Built on top of WrStorage — your theme mode persists through whatever engine you swap in.',
     },
   ];
 }

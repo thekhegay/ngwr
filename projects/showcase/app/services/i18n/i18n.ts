@@ -8,6 +8,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -22,6 +24,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class I18nServicePage {
@@ -116,6 +119,21 @@ effect(() => console.log(title()));`,
       description: 'Available locales — pass-through from config.',
       type: '() => readonly string[]',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'i18n tutorial',
+      url: ['/getting-started', 'i18n'],
+      description: 'Step-by-step walkthrough — provider wiring, locale switcher, scopes, custom missing-key handler.',
+    },
+    {
+      kind: 'Service',
+      title: 'WrStorage',
+      url: ['/services', 'storage'],
+      description: 'Used to persist the active locale across reloads. Swap the engine to change where.',
     },
   ];
 }

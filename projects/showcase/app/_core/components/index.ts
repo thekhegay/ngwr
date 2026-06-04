@@ -14,4 +14,6 @@ export type {
   DocTextControl,
   DocToggleControl,
 } from './doc-playground/types';
+export { DocSeeAlsoComponent } from './doc-see-also/doc-see-also';
+export type { DocSeeAlsoKind, DocSeeAlsoLink } from './doc-see-also/types';
 export { ReactbitsCredit } from './reactbits-credit/reactbits-credit';

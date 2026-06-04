@@ -12,6 +12,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -29,6 +31,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class FormFieldPage {
@@ -97,6 +100,28 @@ export class MyComponent {}`,
         'One message per validator key. Renders only when the control is touched / dirty and has that error.',
       type: 'component',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Directive',
+      title: 'wrInput',
+      url: ['/components', 'input'],
+      description: 'The most common control to wrap. Add `wrInput` to a native `<input>` and drop it inside.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-select',
+      url: ['/components', 'select'],
+      description: 'Pairs cleanly — the form-field surfaces select errors too.',
+    },
+    {
+      kind: 'Validator',
+      title: 'WrValidators',
+      url: ['/validators', 'email'],
+      description:
+        'The error-key contract — every `WrValidators.*` member has a stable key for `<wr-form-error key="…">`.',
     },
   ];
 }

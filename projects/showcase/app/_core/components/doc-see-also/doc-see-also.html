@@ -1,0 +1,16 @@
+<section class="see-also" aria-label="See also">
+  <h2 class="see-also__title">{{ title() }}</h2>
+  <ul class="see-also__grid">
+    @for (link of links(); track link.url.join('/')) {
+      <li>
+        <a class="see-also__card" [routerLink]="link.url">
+          <span class="see-also__kind" [attr.data-kind]="link.kind">{{ link.kind }}</span>
+          <span class="see-also__name">{{ link.title }}</span>
+          @if (link.description) {
+            <span class="see-also__desc">{{ link.description }}</span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</section>

@@ -11,6 +11,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class ClipboardServicePage {
@@ -100,6 +103,15 @@ const state = await this.clip.permission('write');
       description: 'Probe the Permissions API for `clipboard-read` or `clipboard-write`.',
       type: "(name: 'read' | 'write') => Promise<WrClipboardPermission>",
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Directive',
+      title: '[wrCopyToClipboard]',
+      url: ['/directives', 'copy-to-clipboard'],
+      description: 'Host-click directive — drop-in copy button without writing the imperative call.',
     },
   ];
 }

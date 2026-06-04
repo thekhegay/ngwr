@@ -8,6 +8,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -21,6 +23,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class CopyToClipboardPage {
@@ -42,6 +45,15 @@ export default class CopyToClipboardPage {
       description: 'Copies the bound string on host click. `(copied)` / `(copyFailed)` outputs.',
       type: 'string',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Service',
+      title: 'WrClipboard',
+      url: ['/services', 'clipboard'],
+      description: "Programmatic read + write API — what to reach for when you don't want a host-click directive.",
     },
   ];
 }

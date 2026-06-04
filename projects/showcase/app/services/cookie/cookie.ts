@@ -11,6 +11,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class CookieServicePage {
@@ -117,5 +120,14 @@ cookies.clear();   // remove them all (path: '/')`,
       default: '—',
     },
     { name: 'clear()', description: "Remove every cookie. Uses `path: '/'`.", type: '() => void', default: '—' },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Service',
+      title: 'WrStorage',
+      url: ['/services', 'storage'],
+      description: 'Sibling API for localStorage / sessionStorage / custom engines — same shape, no expiry headers.',
+    },
   ];
 }

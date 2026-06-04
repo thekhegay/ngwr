@@ -13,6 +13,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -32,6 +34,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class DensityServicePage {
@@ -101,6 +104,21 @@ density.cycle();`,
         '`--wr-density-y`, `--wr-density-x`, `--wr-density-text`, `--wr-density-gap` — multipliers components apply to their paddings via `calc()`.',
       type: 'CSS custom property',
       default: '1',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Theming',
+      url: ['/getting-started', 'theming'],
+      description: 'How density fits alongside palette, dark mode, and design-token overrides.',
+    },
+    {
+      kind: 'Service',
+      title: 'WrTheme',
+      url: ['/services', 'theme'],
+      description: 'Sibling — light / dark / auto. Pair both for a full appearance API.',
     },
   ];
 }

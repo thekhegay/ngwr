@@ -1,0 +1,104 @@
+:host {
+  display: block;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--wr-color-light);
+}
+
+.see-also {
+  &__title {
+    margin: 0 0 1rem;
+    color: var(--wr-color-dark);
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+    letter-spacing: -0.25px;
+  }
+
+  &__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 0.75rem;
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+    background: var(--wr-color-white);
+    color: var(--wr-color-dark);
+    text-decoration: none;
+    transition:
+      border-color var(--wr-transition-base),
+      box-shadow var(--wr-transition-base),
+      transform var(--wr-transition-base);
+
+    &:hover {
+      border-color: var(--wr-color-primary);
+      box-shadow: 0 4px 12px rgb(var(--wr-color-primary-rgb) / 8%);
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__kind {
+    align-self: flex-start;
+    padding: 0.0625rem 0.5rem;
+    border-radius: var(--wr-border-radius-pill);
+    background: rgb(var(--wr-color-medium-rgb) / 10%);
+    color: var(--wr-color-medium);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+
+    // Kind-specific tints — purely cosmetic, fall through to the neutral default.
+    &[data-kind='Service'] {
+      background: rgb(var(--wr-color-primary-rgb) / 12%);
+      color: var(--wr-color-primary);
+    }
+
+    &[data-kind='Component'] {
+      background: rgb(var(--wr-color-success-rgb) / 12%);
+      color: var(--wr-color-success);
+    }
+
+    &[data-kind='Directive'] {
+      background: rgb(var(--wr-color-warning-rgb) / 16%);
+      color: var(--wr-color-warning);
+    }
+
+    &[data-kind='Pipe'] {
+      background: rgb(var(--wr-color-secondary-rgb) / 12%);
+      color: var(--wr-color-secondary);
+    }
+
+    &[data-kind='Validator'] {
+      background: rgb(var(--wr-color-danger-rgb) / 12%);
+      color: var(--wr-color-danger);
+    }
+  }
+
+  &__name {
+    color: var(--wr-color-dark);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-family: var(--wr-font-family-mono);
+  }
+
+  &__desc {
+    color: var(--wr-color-medium);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+}

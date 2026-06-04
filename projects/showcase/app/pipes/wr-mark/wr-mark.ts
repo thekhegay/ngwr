@@ -10,6 +10,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -25,6 +27,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class WrMarkPipePage {
@@ -88,6 +91,21 @@ mark {
         'SafeHtml — bind with `[innerHTML]`. Input is HTML-escaped first so user-supplied values cannot inject markup.',
       type: 'SafeHtml',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-autocomplete',
+      url: ['/components', 'autocomplete'],
+      description: 'Most common host — highlight the typed query inside each suggestion.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-command-palette',
+      url: ['/components', 'command-palette'],
+      description: 'Same pattern — visually link the query to the matching item label.',
     },
   ];
 }
