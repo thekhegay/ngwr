@@ -1,0 +1,142 @@
+// Image with click-to-zoom lightbox. The host wraps the `<img>` and is
+// sized by the consumer (CSS / inline styles on `<wr-image>`).
+
+.wr-image {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--wr-image-radius, var(--wr-border-radius-base));
+  cursor: zoom-in;
+  background: rgba(var(--wr-color-light-rgb), 0.4);
+
+  &--loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.45) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: wr-image-shimmer 1.4s linear infinite;
+    pointer-events: none;
+  }
+
+  &__trigger {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__thumb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+}
+
+@keyframes wr-image-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.wr-image-backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.wr-image-overlay {
+  pointer-events: auto;
+}
+
+.wr-image-viewer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 95vw;
+  max-height: 95vh;
+  padding: 1rem;
+  animation: wr-image-viewer-in 0.18s ease;
+  outline: none;
+
+  &__close {
+    --wr-icon-size: 1.25rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.9);
+      outline-offset: 2px;
+    }
+  }
+
+  &__full {
+    display: block;
+    max-width: 100%;
+    max-height: calc(95vh - 4rem);
+    object-fit: contain;
+    cursor: zoom-out;
+    border-radius: 0.5rem;
+  }
+
+  &__caption {
+    color: rgba(255, 255, 255, 0.85);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.9375rem;
+    text-align: center;
+    max-width: 60ch;
+  }
+}
+
+@keyframes wr-image-viewer-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

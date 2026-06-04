@@ -1,0 +1,1 @@
+export { WrImage } from './image';

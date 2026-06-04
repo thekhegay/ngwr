@@ -55,6 +55,7 @@ export const routes = {
     empty: 'empty',
     form: 'form',
     icon: 'icon',
+    image: 'image',
     imageCropper: 'image-cropper',
     input: 'input',
     inputNumber: 'input-number',

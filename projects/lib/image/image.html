@@ -1,0 +1,40 @@
+@if (disablePreview()) {
+  <img
+    class="wr-image__thumb"
+    [src]="preview() || src()"
+    [alt]="alt()"
+    (load)="onLoad()"
+    loading="lazy"
+    decoding="async"
+  />
+} @else {
+  <button type="button" class="wr-image__trigger" [attr.aria-label]="alt() || 'Open preview'" (click)="onClick()">
+    <img
+      class="wr-image__thumb"
+      [src]="preview() || src()"
+      [alt]="alt()"
+      (load)="onLoad()"
+      loading="lazy"
+      decoding="async"
+    />
+  </button>
+}
+
+<ng-template>
+  <div class="wr-image-viewer" role="dialog" aria-modal="true" [attr.aria-label]="alt() || 'Image preview'">
+    <button
+      type="button"
+      class="wr-image-viewer__close"
+      aria-label="Close preview"
+      (click)="onClose()"
+      (keydown.enter)="onClose()"
+      (keydown.space)="onClose()"
+    >
+      <wr-icon name="close" />
+    </button>
+    <img class="wr-image-viewer__full" [src]="src()" [alt]="alt()" />
+    @if (caption()) {
+      <div class="wr-image-viewer__caption">{{ caption() }}</div>
+    }
+  </div>
+</ng-template>

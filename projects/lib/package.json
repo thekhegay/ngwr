@@ -209,6 +209,9 @@
     "./icon": {
       "sass": "./icon/styles/_index.scss"
     },
+    "./image": {
+      "sass": "./image/styles/_index.scss"
+    },
     "./image-cropper": {
       "sass": "./image-cropper/styles/_index.scss"
     },

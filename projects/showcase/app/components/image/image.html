@@ -1,0 +1,53 @@
+<ngwr-doc-page
+  title="Image"
+  description="Image with click-to-zoom lightbox. Renders a thumbnail; clicking opens a full-size overlay viewer with backdrop, ESC + click-out to close."
+  [keywords]="['image', 'lightbox', 'preview', 'zoom', 'wr-image']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Click the image to open the lightbox. Use ESC, backdrop click, or the × button to close."
+  >
+    <ngwr-doc-snippet [code]="snippets.basic">
+      <wr-image [src]="landscape" alt="Mountain lake" style="max-width: 18rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Separate thumbnail"
+    description="Provide a small `preview` URL for the thumbnail and a high-res `src` for the lightbox."
+  >
+    <ngwr-doc-snippet [code]="snippets.preview">
+      <wr-image [src]="portrait" [preview]="portraitThumb" alt="Forest" style="max-width: 12rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Caption" description="Optional caption rendered below the full image.">
+    <ngwr-doc-snippet [code]="snippets.caption">
+      <wr-image
+        [src]="landscape"
+        [preview]="landscapeThumb"
+        alt="Geiranger"
+        caption="Geiranger, Norway — 2023"
+        style="max-width: 18rem"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Disable preview"
+    description="Setting `disablePreview` turns off the click-to-zoom behaviour — the image renders as a plain thumbnail."
+  >
+    <ngwr-doc-snippet [code]="snippets.disabled">
+      <wr-image [src]="portrait" [preview]="portraitThumb" alt="No zoom" disablePreview style="max-width: 12rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

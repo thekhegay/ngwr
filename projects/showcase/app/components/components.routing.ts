@@ -147,6 +147,10 @@ export default [
     loadComponent: () => import('./icon/icon'),
   },
   {
+    path: components.image,
+    loadComponent: () => import('./image/image'),
+  },
+  {
     path: components.imageCropper,
     loadComponent: () => import('./image-cropper/image-cropper'),
   },

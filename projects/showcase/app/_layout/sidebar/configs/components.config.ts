@@ -37,6 +37,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Keyboard', url: ['/components', 'keyboard'] },
       { title: 'Divider', url: ['/components', 'divider'] },
       { title: 'Icon', url: ['/components', 'icon'] },
+      { title: 'Image', url: ['/components', 'image'] },
       { title: 'Image Cropper', url: ['/components', 'image-cropper'] },
       { title: 'Meter Group', url: ['/components', 'meter-group'] },
       { title: 'Progress', url: ['/components', 'progress'] },
