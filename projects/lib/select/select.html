@@ -6,13 +6,13 @@
   [attr.aria-haspopup]="'listbox'"
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="listboxId"
-  [attr.aria-multiselectable]="multi() ? 'true' : null"
+  [attr.aria-multiselectable]="isMulti() ? 'true' : null"
   [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
   (click)="onTriggerClick()"
   (keydown)="onTriggerKey($event)"
   (blur)="onTouched()"
 >
-  @if (multi()) {
+  @if (isMulti()) {
     @if (hasSelection()) {
       <span class="wr-select__chips">
         @for (chip of visibleChips(); track $index) {
@@ -46,7 +46,7 @@
     }
   }
 
-  @if (multi() && clearable() && hasSelection() && !isDisabled()) {
+  @if (isMulti() && clearable() && hasSelection() && !isDisabled()) {
     <span
       class="wr-select__clear"
       role="button"
@@ -68,7 +68,7 @@
     class="wr-select-panel"
     role="listbox"
     [attr.id]="listboxId"
-    [attr.aria-multiselectable]="multi() ? 'true' : null"
+    [attr.aria-multiselectable]="isMulti() ? 'true' : null"
   >
     <ng-content />
   </div>

@@ -47,12 +47,12 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Multi-selection"
-    description="Set `[multi]` to switch the model to `T[]`. Each pick renders as a chip with a remove button; the panel stays open while you keep picking. Backspace on the closed trigger removes the last chip. A clear-all (×) appears once at least one chip is selected."
+    title="Multi mode"
+    description="Set the `mode` input to `'multi'` to switch the model to `T[]`. Each pick renders as a chip with a remove button; the panel stays open while you keep picking. Backspace on the closed trigger removes the last chip. A clear-all (×) appears once at least one chip is selected."
   >
     <ngwr-doc-snippet [code]="snippets.multi">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select multi placeholder="Pick tags" [(ngModel)]="tags">
+        <wr-select mode="multi" placeholder="Pick tags" [(ngModel)]="tags">
           <wr-option value="typescript">TypeScript</wr-option>
           <wr-option value="angular">Angular</wr-option>
           <wr-option value="rxjs">RxJS</wr-option>
@@ -69,7 +69,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.multiOverflow">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select multi [maxTagCount]="2" [maxItems]="6" [(ngModel)]="manyTags">
+        <wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(ngModel)]="manyTags">
           <wr-option value="typescript">TypeScript</wr-option>
           <wr-option value="angular">Angular</wr-option>
           <wr-option value="rxjs">RxJS</wr-option>

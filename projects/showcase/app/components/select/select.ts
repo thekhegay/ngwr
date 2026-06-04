@@ -58,13 +58,13 @@ export class MyComponent {}`,
   </wr-option-group>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
-    multi: `<wr-select multi placeholder="Pick tags" [(ngModel)]="tags">
+    multi: `<wr-select mode="multi" placeholder="Pick tags" [(ngModel)]="tags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
   <wr-option value="signals">Signals</wr-option>
 </wr-select>`,
-    multiOverflow: `<wr-select multi [maxTagCount]="2" [maxItems]="6" [(ngModel)]="manyTags">
+    multiOverflow: `<wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(ngModel)]="manyTags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
@@ -79,8 +79,15 @@ export class MyComponent {}`,
     { name: 'disabled', description: 'Disable the select.', type: 'boolean', default: 'false' },
     { name: 'rounded', description: 'Pill-shaped trigger.', type: 'boolean', default: 'false' },
     {
+      name: 'mode',
+      description:
+        'Behavior mode. `single` (default), `multi` (chips + array value). `search` and `tag` modes are reserved for future releases (will replace `<wr-autocomplete>` and `<wr-chips-input>`).',
+      type: "'single' | 'multi' | 'search' | 'tag'",
+      default: "'single'",
+    },
+    {
       name: 'multi',
-      description: 'Multi-selection mode. Model becomes `T[]`; trigger renders chips; clicks toggle without closing.',
+      description: '**Deprecated** — alias for `[mode]="multi"`. Use `mode` instead.',
       type: 'boolean',
       default: 'false',
     },

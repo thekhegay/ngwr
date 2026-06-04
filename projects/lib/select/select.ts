@@ -32,6 +32,7 @@ import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
 import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
+import type { WrSelectMode } from './types';
 
 let listboxUid = 0;
 
@@ -41,35 +42,42 @@ interface SelectedChip {
 }
 
 /**
- * Native-like select.
+ * Combobox primitive. Renders a button that opens a CDK overlay
+ * containing the projected `<wr-option>` (and optionally
+ * `<wr-option-group>`) children. Every shape is the same component
+ * with a different `[mode]`:
  *
- * Renders a button that opens a CDK overlay containing the projected
- * `<wr-option>` (and optionally `<wr-option-group>`) children. The
- * selected option's label is shown in the button.
- *
- * Set `[multi]="true"` to switch to multi-select: the trigger renders
- * each selection as a chip with a remove (×) button, clicking an option
- * toggles it without closing the panel, Backspace removes the last
- * chip, and the model value becomes `T[]`.
+ * - `'single'` (default) — one value, no input. Classic dropdown.
+ * - `'multi'` — array value, chips on the trigger; clicking an option
+ *   toggles instead of closing, Backspace removes the last chip.
+ * - `'search'` *(planned)* — type-ahead with sync filter or async loader.
+ *   Will replace the standalone `<wr-autocomplete>`.
+ * - `'tag'` *(planned)* — free-text + chips with optional `allowCreate`.
+ *   Will replace `<wr-chips-input>`.
  *
  * Implements `ControlValueAccessor` — usable with `[(ngModel)]`,
  * `formControl`, or `formControlName`.
  *
  * @example
  * ```html
+ * <!-- Single -->
  * <wr-select placeholder="Pick a size" [(ngModel)]="size">
  *   <wr-option value="sm">Small</wr-option>
  *   <wr-option value="md">Medium</wr-option>
  *   <wr-option value="lg">Large</wr-option>
  * </wr-select>
  *
- * <wr-select multi placeholder="Pick tags" [(ngModel)]="tags">
+ * <!-- Multi -->
+ * <wr-select mode="multi" placeholder="Pick tags" [(ngModel)]="tags">
  *   <wr-option value="ts">TypeScript</wr-option>
  *   <wr-option value="ng">Angular</wr-option>
  * </wr-select>
  * ```
  *
- * @see https://ngwr.dev/docs/components/select
+ * The legacy `[multi]="true"` boolean is still accepted but is now an
+ * alias for `[mode]="'multi'"` — prefer the explicit mode.
+ *
+ * @see https://ngwr.dev/components/select
  */
 @Component({
   selector: 'wr-select',
@@ -109,12 +117,34 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Allow multiple selections. When enabled the model becomes `T[]`,
-   * the trigger renders chips for each selection, and clicking an
-   * option toggles instead of closing the panel.
-   * @default false
+   * Behavior mode. `<wr-select>` is the unified combobox primitive —
+   * pick the shape via `[mode]`:
+   *
+   * - `'single'` (default) — one value, no input. Classic dropdown.
+   * - `'multi'` — array value, chips on the trigger.
+   * - `'search'` *(planned)* — type-ahead with sync filter or async loader.
+   * - `'tag'` *(planned)* — free-text + chips with optional `allowCreate`.
+   *
+   * The `[multi]` boolean below is a deprecated alias kept for backward
+   * compatibility — prefer `[mode]="'multi'"`.
+   */
+  readonly mode = input<WrSelectMode | null>(null);
+
+  /**
+   * @deprecated Use `[mode]="'multi'"` instead. Boolean kept for backward
+   * compatibility — if both are set, `[mode]` wins.
    */
   readonly multi = input(false, { transform: coerceBooleanProperty });
+
+  /** Resolved mode. Honours `[mode]` first, then falls back to the legacy `[multi]` boolean. */
+  protected readonly effectiveMode = computed<WrSelectMode>(() => {
+    const m = this.mode();
+    if (m) return m;
+    return this.multi() ? 'multi' : 'single';
+  });
+
+  /** Convenience — `effectiveMode() === 'multi'`. Most internal code reads this. */
+  protected readonly isMulti = computed(() => this.effectiveMode() === 'multi');
 
   /**
    * Show a clear-all (×) button at the end of the chip row when at
@@ -167,7 +197,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
   /** Selected chips (multi mode). Derived from the value array + option labels. */
   protected readonly selectedChips = computed<readonly SelectedChip[]>(() => {
-    if (!this.multi()) return [];
+    if (!this.isMulti()) return [];
     const arr = this.asArray(this.value());
     const list = this.options();
     return arr.map<SelectedChip>(v => {
@@ -189,7 +219,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   });
 
   protected readonly hasSelection = computed(() => {
-    if (this.multi()) return this.selectedChips().length > 0;
+    if (this.isMulti()) return this.selectedChips().length > 0;
     return this.value() != null;
   });
 
@@ -202,7 +232,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     const parts = ['wr-select'];
     if (this.open()) parts.push('wr-select--open');
     if (this.rounded()) parts.push('wr-select--rounded');
-    if (this.multi()) parts.push('wr-select--multi');
+    if (this.isMulti()) parts.push('wr-select--multi');
     if (this.isDisabled()) parts.push('wr-select--disabled');
     return parts.join(' ');
   });
@@ -234,7 +264,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     effect(() => {
       const v = this.value();
       const list = this.options();
-      if (this.multi()) {
+      if (this.isMulti()) {
         this.selectedLabel.set(null);
         return;
       }
@@ -246,12 +276,12 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   // ──────── WrSelectContext ────────
 
   isSelected(value: unknown): boolean {
-    if (this.multi()) return this.asArray(this.value()).includes(value);
+    if (this.isMulti()) return this.asArray(this.value()).includes(value);
     return this.value() === value;
   }
 
   selectOption(value: unknown): void {
-    if (this.multi()) {
+    if (this.isMulti()) {
       const current = this.asArray(this.value());
       const idx = current.indexOf(value);
       let next: readonly unknown[];
@@ -284,7 +314,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Remove one selection from a multi-select (chip × button). */
   protected removeChip(value: unknown, event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled() || !this.multi()) return;
+    if (this.isDisabled() || !this.isMulti()) return;
     const next = this.asArray(this.value()).filter(v => v !== value);
     this.value.set(next);
     this.onChange(next);
@@ -294,7 +324,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Clear every selection (multi-mode clear-all button). */
   protected clearAll(event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled() || !this.multi()) return;
+    if (this.isDisabled() || !this.isMulti()) return;
     this.value.set([]);
     this.onChange([]);
     this.onTouched();
@@ -303,7 +333,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   // ──────── ControlValueAccessor ────────
 
   writeValue(value: unknown): void {
-    if (this.multi()) {
+    if (this.isMulti()) {
       this.value.set(Array.isArray(value) ? (value as readonly unknown[]) : []);
     } else {
       this.value.set(value);
@@ -342,7 +372,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
       }
       // Multi mode: Backspace on closed trigger removes last chip — same
       // behaviour as the chips-input directive.
-      if (event.key === 'Backspace' && this.multi() && this.hasSelection()) {
+      if (event.key === 'Backspace' && this.isMulti() && this.hasSelection()) {
         event.preventDefault();
         const chips = this.selectedChips();
         const last = chips[chips.length - 1];
@@ -389,7 +419,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   private seedActiveIndex(): void {
     const list = this.options();
     let selectedIdx = -1;
-    if (this.multi()) {
+    if (this.isMulti()) {
       const arr = this.asArray(this.value());
       if (arr.length > 0) selectedIdx = list.findIndex(o => o.value === arr[0]);
     } else {
