@@ -27,34 +27,8 @@ void bootstrapApplication(RootComponent, {
     provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
     provideWrI18nStaticLoader({
-      en: {
-        ...wrEn,
-        app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' },
-        nav: {
-          gettingStarted: 'Getting Started',
-          components: 'Components',
-          animations: 'Animations',
-          directives: 'Directives',
-          pipes: 'Pipes',
-          services: 'Services',
-          utils: 'Utils',
-          validators: 'Validators',
-        },
-      },
-      ru: {
-        ...wrRu,
-        app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' },
-        nav: {
-          gettingStarted: 'Начало работы',
-          components: 'Компоненты',
-          animations: 'Анимации',
-          directives: 'Директивы',
-          pipes: 'Пайпы',
-          services: 'Сервисы',
-          utils: 'Утилиты',
-          validators: 'Валидаторы',
-        },
-      },
+      en: { ...wrEn, app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' } },
+      ru: { ...wrRu, app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' } },
     }),
     // third-party — for the integration guide
     provideEnvironmentNgxMask(),

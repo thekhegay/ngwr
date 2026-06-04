@@ -18,29 +18,14 @@
   </a>
 
   <nav class="ngwr-header__nav" aria-label="Primary">
-    @for (link of nav; track link.key) {
+    @for (link of nav; track $index) {
       <a class="ngwr-header__nav-link" [routerLink]="link.url" routerLinkActive="ngwr-header__nav-link--active">
-        {{ link.key | wrT }}
+        {{ link.label }}
       </a>
     }
   </nav>
 
   <div class="ngwr-header__actions">
-    <div class="ngwr-header__locale" role="group" aria-label="Language">
-      <wr-icon class="ngwr-header__locale-icon" name="globe" />
-      @for (lc of availableLocales; track lc) {
-        <button
-          type="button"
-          class="ngwr-header__locale-btn"
-          [class.ngwr-header__locale-btn--active]="currentLocale() === lc"
-          [attr.aria-pressed]="currentLocale() === lc"
-          (click)="setLocale(lc)"
-        >
-          {{ lc }}
-        </button>
-      }
-    </div>
-
     @for (action of actions; track action.url) {
       <a
         class="ngwr-header__action ngwr-header__action--{{ action.modifier }}"

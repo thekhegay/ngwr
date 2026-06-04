@@ -2,18 +2,14 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { WrI18n, WrTPipe } from 'ngwr/i18n';
-import { provideWrIcons, WrIcon, type WrBuiltInIconName, globe, logoGithub, logoNpm, moon, sun } from 'ngwr/icon';
+import { provideWrIcons, WrIcon, type WrBuiltInIconName, logoGithub, logoNpm, moon, sun } from 'ngwr/icon';
 import { WrTheme } from 'ngwr/theme';
 
 import { routes } from '#routing';
 
 interface NavLink {
   readonly url: string[];
-  /** Translation key (e.g. `'nav.components'`). */
-  readonly key: string;
-  /** English fallback when no i18n catalog is loaded. */
-  readonly fallback: string;
+  readonly label: string;
 }
 
 interface ActionLink {
@@ -27,26 +23,22 @@ interface ActionLink {
   selector: 'ngwr-header',
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  imports: [RouterLink, RouterLinkActive, WrIcon, WrTPipe],
-  providers: [provideWrIcons([globe, logoGithub, logoNpm, moon, sun])],
+  imports: [RouterLink, RouterLinkActive, WrIcon],
+  providers: [provideWrIcons([logoGithub, logoNpm, moon, sun])],
 })
 export class Header {
   protected readonly theme = inject(WrTheme);
-  protected readonly i18n = inject(WrI18n);
-
-  protected readonly currentLocale = this.i18n.locale;
-  protected readonly availableLocales = this.i18n.available();
 
   protected readonly routes = routes;
   protected readonly nav: readonly NavLink[] = [
-    { url: [routes.index, routes.gettingStarted.index], key: 'nav.gettingStarted', fallback: 'Getting Started' },
-    { url: [routes.index, routes.components.index], key: 'nav.components', fallback: 'Components' },
-    { url: [routes.index, routes.animations.index], key: 'nav.animations', fallback: 'Animations' },
-    { url: [routes.index, routes.directives.index], key: 'nav.directives', fallback: 'Directives' },
-    { url: [routes.index, routes.pipes.index], key: 'nav.pipes', fallback: 'Pipes' },
-    { url: [routes.index, routes.services.index], key: 'nav.services', fallback: 'Services' },
-    { url: [routes.index, routes.utils.index], key: 'nav.utils', fallback: 'Utils' },
-    { url: [routes.index, routes.validators.index], key: 'nav.validators', fallback: 'Validators' },
+    { url: [routes.index, routes.gettingStarted.index], label: 'Getting Started' },
+    { url: [routes.index, routes.components.index], label: 'Components' },
+    { url: [routes.index, routes.animations.index], label: 'Animations' },
+    { url: [routes.index, routes.directives.index], label: 'Directives' },
+    { url: [routes.index, routes.pipes.index], label: 'Pipes' },
+    { url: [routes.index, routes.services.index], label: 'Services' },
+    { url: [routes.index, routes.utils.index], label: 'Utils' },
+    { url: [routes.index, routes.validators.index], label: 'Validators' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'logo-github', modifier: 'github', label: 'GitHub' },
@@ -55,10 +47,6 @@ export class Header {
 
   protected onToggleTheme(): void {
     this.theme.toggle();
-  }
-
-  protected setLocale(locale: string): void {
-    this.i18n.use(locale);
   }
 
   /**
