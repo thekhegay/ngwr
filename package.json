@@ -54,7 +54,7 @@
     "prettier": "^3.8.3",
     "semver": "^7.8.0",
     "svgo": "^4.0.1",
-    "tsx": "^4.22.3",
+    "tsx": "^4.22.4",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.4"
   }
