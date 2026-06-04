@@ -10,41 +10,30 @@ import { type Observable, of } from 'rxjs';
 import { type WrI18nCatalog } from '../i18n-config';
 import { type WrI18nLoader } from '../i18n-loader';
 
-/** Map of `scope -> catalog`. The `root` slot is the unscoped catalog. */
-export type WrI18nScopedCatalogs = Readonly<Record<string, WrI18nCatalog>>;
+/** Root catalogs keyed by locale: `{ en: catalog, ru: catalog, … }`. */
+export type WrI18nStaticCatalogs = Readonly<Record<string, WrI18nCatalog>>;
 
-/** Catalogs keyed by locale, optionally namespaced by scope. */
-export type WrI18nStaticCatalogs = Readonly<Record<string, WrI18nCatalog | WrI18nScopedCatalogs>>;
+/** Per-scope catalogs: `{ checkout: { en: catalog, ru: catalog }, … }`. */
+export type WrI18nStaticScopedCatalogs = Readonly<Record<string, WrI18nStaticCatalogs>>;
 
 /**
  * Loader for catalogs already in memory (imported from JSON or generated).
- * Falls back to an empty catalog when the locale or scope is missing.
+ *
+ * - Pass `catalogs` for the root catalog of every locale.
+ * - Pass `scopes` if you ship per-feature catalogs the loader should serve
+ *   to `WrI18n.registerScope(name)` calls.
+ *
+ * Missing locale or scope resolves to `{}` — the missing-key handler then
+ * decides what to render.
  */
 export class WrI18nStaticLoader implements WrI18nLoader {
-  constructor(private readonly catalogs: WrI18nStaticCatalogs) {}
+  constructor(
+    private readonly catalogs: WrI18nStaticCatalogs,
+    private readonly scopes: WrI18nStaticScopedCatalogs = {}
+  ) {}
 
   load(locale: string, scope: string | null): Observable<WrI18nCatalog> {
-    const bucket = this.catalogs[locale];
-    if (!bucket) return of({});
-
-    if (scope === null) {
-      // Root catalog: if the bucket is a plain catalog, return as-is;
-      // if it's a scope map, return its `root` slot (or {}).
-      if (this.looksScoped(bucket)) {
-        return of(bucket['root'] ?? {});
-      }
-      return of(bucket);
-    }
-
-    if (!this.looksScoped(bucket)) return of({});
-    return of(bucket[scope] ?? {});
-  }
-
-  private looksScoped(bucket: WrI18nCatalog | WrI18nScopedCatalogs): bucket is WrI18nScopedCatalogs {
-    // Heuristic: a scope map's values are objects; a flat catalog's may be strings.
-    for (const v of Object.values(bucket)) {
-      if (typeof v === 'string') return false;
-    }
-    return true;
+    if (scope === null) return of(this.catalogs[locale] ?? {});
+    return of(this.scopes[scope]?.[locale] ?? {});
   }
 }

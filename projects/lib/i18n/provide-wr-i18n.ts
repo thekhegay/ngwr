@@ -10,7 +10,11 @@ import { type EnvironmentProviders, type Provider, makeEnvironmentProviders } fr
 import { DEFAULT_WR_I18N_CONFIG, WR_I18N_CONFIG, type WrI18nConfig, type WrI18nConfigResolved } from './i18n-config';
 import { WR_I18N_LOADER, type WrI18nLoader } from './i18n-loader';
 import { WrI18nHttpLoader, type WrI18nHttpLoaderConfig } from './loaders/http-loader';
-import { WrI18nStaticLoader, type WrI18nStaticCatalogs } from './loaders/static-loader';
+import {
+  WrI18nStaticLoader,
+  type WrI18nStaticCatalogs,
+  type WrI18nStaticScopedCatalogs,
+} from './loaders/static-loader';
 
 /**
  * Configure {@link WrI18n}. Either pass a `loader` directly, or use the
@@ -31,9 +35,17 @@ export function provideWrI18n(options: ProvideWrI18nOptions = {}): EnvironmentPr
   return makeEnvironmentProviders(providers);
 }
 
-/** Provide a static loader — catalogs already in memory. */
-export function provideWrI18nStaticLoader(catalogs: WrI18nStaticCatalogs): Provider {
-  return { provide: WR_I18N_LOADER, useValue: new WrI18nStaticLoader(catalogs) };
+/**
+ * Provide a static loader — catalogs already in memory.
+ *
+ * @param catalogs Root catalogs keyed by locale.
+ * @param scopes Optional per-scope catalogs served to `registerScope(name)`.
+ */
+export function provideWrI18nStaticLoader(
+  catalogs: WrI18nStaticCatalogs,
+  scopes?: WrI18nStaticScopedCatalogs
+): Provider {
+  return { provide: WR_I18N_LOADER, useValue: new WrI18nStaticLoader(catalogs, scopes) };
 }
 
 /** Provide an HTTP loader — catalogs fetched from URLs. Requires `provideHttpClient`. */

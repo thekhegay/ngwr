@@ -11,7 +11,11 @@ export {
   type WrI18nMissingHandler,
 } from './i18n-config';
 export { WR_I18N_LOADER, type WrI18nLoader } from './i18n-loader';
-export { WrI18nStaticLoader, type WrI18nStaticCatalogs, type WrI18nScopedCatalogs } from './loaders/static-loader';
+export {
+  WrI18nStaticLoader,
+  type WrI18nStaticCatalogs,
+  type WrI18nStaticScopedCatalogs,
+} from './loaders/static-loader';
 export { WrI18nHttpLoader, type WrI18nHttpLoaderConfig } from './loaders/http-loader';
 export {
   provideWrI18n,
