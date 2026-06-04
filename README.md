@@ -147,7 +147,7 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 ### Validators — `ngwr/validators`
 
-Bundled `ValidatorFn`s composing cleanly with Angular's built-in `Validators`: `email`, `noWhitespace`, `hexColor`, `url`, `cardNumber` (Luhn), `cvc`, `iban` (mod-97), `match` (sibling control), `oneOf`, `minDate`, `maxDate`. See [docs](https://ngwr.dev/utils/validators).
+Bundled `ValidatorFn`s composing cleanly with Angular's built-in `Validators`: `email`, `noWhitespace`, `hexColor`, `url`, `cardNumber` (Luhn), `cvc`, `iban` (mod-97), `match` (sibling control), `oneOf`, `minDate`, `maxDate`. See [docs](https://ngwr.dev/validators).
 
 ### Utils — `ngwr/utils`
 

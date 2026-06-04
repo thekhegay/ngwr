@@ -1,0 +1,32 @@
+<ngwr-doc-page
+  title="WrValidators.cvc"
+  description="N digits — typically 3 (Visa/MC/Discover) or 4 (Amex). Empty values pass."
+  [keywords]="['cvc', 'cvv', 'card', 'payment', 'validator', 'wr-validators']"
+  [labels]="['Validator']"
+>
+  <ngwr-doc-section title="Live demo — 3 digits (Visa / MC)">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 14rem">
+        <input wrInput [formControl]="visa" placeholder="123" />
+        <code style="font-size: 0.8125rem">errors: {{ visa.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Live demo — 4 digits (Amex)">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 14rem">
+        <input wrInput [formControl]="amex" placeholder="1234" />
+        <code style="font-size: 0.8125rem">errors: {{ amex.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

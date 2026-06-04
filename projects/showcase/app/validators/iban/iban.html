@@ -1,0 +1,23 @@
+<ngwr-doc-page
+  title="WrValidators.iban"
+  description="IBAN structure + ISO 13616 mod-97 checksum. Country-length table NOT enforced — pair with a length check if you need it. Empty values pass."
+  [keywords]="['iban', 'bank', 'mod97', 'validator', 'wr-validators']"
+  [labels]="['Validator']"
+>
+  <ngwr-doc-section title="Live demo" description="Try `GB82 WEST 1234 5698 7654 32` (a textbook valid IBAN).">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 24rem">
+        <input wrInput [formControl]="control" placeholder="GB82 WEST 1234 5698 7654 32" />
+        <code style="font-size: 0.8125rem">errors: {{ control.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

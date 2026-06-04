@@ -1,0 +1,32 @@
+<ngwr-doc-page
+  title="WrValidators.url"
+  description="Parse with `new URL()` and optionally restrict by scheme. Empty values pass."
+  [keywords]="['url', 'link', 'validator', 'wr-validators']"
+  [labels]="['Validator']"
+>
+  <ngwr-doc-section title="Live demo — any scheme">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 18rem">
+        <input wrInput [formControl]="any" placeholder="https://ngwr.dev" />
+        <code style="font-size: 0.8125rem">errors: {{ any.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Live demo — HTTPS only">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 18rem">
+        <input wrInput [formControl]="httpsOnly" placeholder="https://ngwr.dev" />
+        <code style="font-size: 0.8125rem">errors: {{ httpsOnly.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

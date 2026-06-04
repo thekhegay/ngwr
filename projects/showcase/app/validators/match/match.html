@@ -1,0 +1,27 @@
+<ngwr-doc-page
+  title="WrValidators.match"
+  description="Value must equal a sibling control. The classic 'confirm password' validator — pass the sibling's name."
+  [keywords]="['match', 'confirm', 'password', 'validator', 'wr-validators']"
+  [labels]="['Validator']"
+>
+  <ngwr-doc-section title="Live demo">
+    <ngwr-doc-snippet code="">
+      <div
+        [formGroup]="form"
+        style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 20rem"
+      >
+        <input wrInput formControlName="password" placeholder="password" type="password" />
+        <input wrInput formControlName="confirm" placeholder="confirm" type="password" />
+        <code style="font-size: 0.8125rem">confirm.errors: {{ form.controls.confirm.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

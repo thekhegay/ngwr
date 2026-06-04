@@ -8,6 +8,7 @@ import {
   PIPES_SIDEBAR,
   SERVICES_SIDEBAR,
   UTILS_SIDEBAR,
+  VALIDATORS_SIDEBAR,
 } from './_layout/sidebar/configs';
 
 export const routes = {
@@ -183,8 +184,20 @@ export const routes = {
     // Focus
     getFocusableElements: 'get-focusable-elements',
     trapFocus: 'trap-focus',
-    // Form
-    validators: 'validators',
+  },
+  validators: {
+    index: 'validators',
+    email: 'email',
+    noWhitespace: 'no-whitespace',
+    hexColor: 'hex-color',
+    url: 'url',
+    cardNumber: 'card-number',
+    cvc: 'cvc',
+    iban: 'iban',
+    match: 'match',
+    oneOf: 'one-of',
+    minDate: 'min-date',
+    maxDate: 'max-date',
   },
 };
 
@@ -231,6 +244,11 @@ export const routing: Routes = [
         path: routes.utils.index,
         data: { sidebar: UTILS_SIDEBAR },
         loadChildren: () => import('./utils/utils.routing'),
+      },
+      {
+        path: routes.validators.index,
+        data: { sidebar: VALIDATORS_SIDEBAR },
+        loadChildren: () => import('./validators/validators.routing'),
       },
     ],
   },

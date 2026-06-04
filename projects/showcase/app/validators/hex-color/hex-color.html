@@ -1,0 +1,23 @@
+<ngwr-doc-page
+  title="WrValidators.hexColor"
+  description="3, 4, 6, or 8-digit hex colour with a leading `#`. Case-insensitive. Empty values pass."
+  [keywords]="['hexColor', 'colour', 'validator', 'wr-validators']"
+  [labels]="['Validator']"
+>
+  <ngwr-doc-section title="Live demo">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 18rem">
+        <input wrInput [formControl]="control" placeholder="#1a2b3c" />
+        <code style="font-size: 0.8125rem">errors: {{ control.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

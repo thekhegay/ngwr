@@ -21,5 +21,4 @@ export default [
   { path: utils.throttle, loadComponent: () => import('./throttle/throttle') },
   { path: utils.getFocusableElements, loadComponent: () => import('./get-focusable-elements/get-focusable-elements') },
   { path: utils.trapFocus, loadComponent: () => import('./trap-focus/trap-focus') },
-  { path: utils.validators, loadComponent: () => import('./validators/validators') },
 ] satisfies Routes;
