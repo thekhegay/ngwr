@@ -21,6 +21,8 @@ export const routes = {
     grid: 'grid',
     overlay: 'overlay',
     i18n: 'i18n',
+    configuration: 'configuration',
+    schematics: 'schematics',
   },
   components: {
     index: 'components',

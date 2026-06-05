@@ -12,4 +12,6 @@ export default [
   { path: gettingStarted.grid, loadComponent: () => import('./grid/grid') },
   { path: gettingStarted.overlay, loadComponent: () => import('./overlay/overlay') },
   { path: gettingStarted.i18n, loadComponent: () => import('./i18n/i18n') },
+  { path: gettingStarted.configuration, loadComponent: () => import('./configuration/configuration') },
+  { path: gettingStarted.schematics, loadComponent: () => import('./schematics/schematics') },
 ] satisfies Routes;

@@ -4,7 +4,17 @@
   [keywords]="['install', 'setup', 'getting started']"
   [labels]="['Getting started']"
 >
-  <ngwr-doc-section title="Install">
+  <ngwr-doc-section
+    title="Quick start"
+    description="`ng add` runs the schematic that installs peer deps, wires `@use 'ngwr';` into your global styles, and prints a tailored bootstrap snippet based on the prompts you answer."
+  >
+    <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Manual install"
+    description="If you'd rather wire things yourself, install the package + the CDK peer."
+  >
     <ngwr-doc-code [code]="snippets.install" language="bash" />
   </ngwr-doc-section>
 

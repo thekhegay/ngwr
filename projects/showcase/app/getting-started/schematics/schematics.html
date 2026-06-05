@@ -1,0 +1,76 @@
+<ngwr-doc-page
+  title="Schematics"
+  description="Angular CLI tooling shipped with ngwr — `ng add`, six generators, and a v6→v7 migration."
+  [keywords]="['schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
+  [labels]="['Getting started', 'CLI']"
+>
+  <ngwr-doc-section
+    title="ng add ngwr"
+    description="One-shot install. Installs `@angular/cdk`, optionally a date adapter (date-fns or Luxon), appends `@use 'ngwr';` to the global stylesheet, and prints a tailored bootstrap snippet with the providers you picked."
+  >
+    <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Interactive prompts" description="What the prompts look like:">
+    <ngwr-doc-code [code]="snippets.ngAddPrompts" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Non-interactive flags">
+    <ngwr-doc-code [code]="snippets.ngAddFlags" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:icon-set"
+    description="Scaffold a tree-shaken icon barrel file. Pick a curated set (basic / navigation / forms / feedback) or pass an explicit list. Combine both for a custom mix."
+  >
+    <ngwr-doc-code [code]="snippets.iconSet" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="What it writes">
+    <ngwr-doc-code [code]="snippets.iconSetOutput" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:use"
+    description="Add an `import { WrFoo }` line and splice `WrFoo` into the `@Component({ imports: [...] })` array of an existing component file. 338 public symbols are recognized — the full catalog."
+  >
+    <ngwr-doc-code [code]="snippets.use" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Before / after">
+    <ngwr-doc-code [code]="snippets.useBefore" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.useAfter" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:provider"
+    description="Splice a `provideWr*()` call into your bootstrap providers array. Useful for adding a single subsystem after the initial `ng add`."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:component-style"
+    description="Append `@use 'ngwr/<name>';` to the project's global stylesheet. Pairs with the `--styles=none` choice on `ng add` — opt into ngwr styles per component instead of pulling the whole bundle."
+  >
+    <ngwr-doc-code [code]="snippets.componentStyle" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng g ngwr:page"
+    description="Scaffold a starter page wired up with ngwr components. Three presets — form (form-field + input + button), table (table + pagination), dashboard (card grid + statistic + count-up)."
+  >
+    <ngwr-doc-code [code]="snippets.page" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="ng update ngwr@7"
+    description="Auto-rewrites the 8 entry-points that v7 consolidated. Touches every `.html`, `.ts`, and `.scss` file in the workspace (excluding `node_modules`, `dist`, etc). Regex-based — verify with `git diff` afterwards."
+  >
+    <ngwr-doc-code [code]="snippets.update" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="What gets rewritten">
+    <ngwr-doc-code [code]="snippets.updateMap" language="bash" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

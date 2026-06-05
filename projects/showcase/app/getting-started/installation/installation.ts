@@ -9,9 +9,16 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/c
 })
 export default class InstallationPageComponent {
   protected readonly snippets = {
+    ngAdd: `# Recommended — runs the schematic that wires everything up for you.
+ng add ngwr
+
+# The prompts cover: styles mode, date adapter, density preset, theme.
+# See the Schematics page for the full list of flags.`,
     install: `pnpm add ngwr @angular/cdk
 # or
-npm install ngwr @angular/cdk`,
+npm install ngwr @angular/cdk
+# or
+yarn add ngwr @angular/cdk`,
     appConfig: `import { provideZonelessChangeDetection, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
