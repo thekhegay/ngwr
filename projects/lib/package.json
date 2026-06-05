@@ -27,13 +27,17 @@
     "@angular/platform-browser": ">=22.0.0",
     "rxjs": "^7.0.0",
     "date-fns": "^3.0.0 || ^4.0.0",
-    "luxon": "^3.0.0"
+    "luxon": "^3.0.0",
+    "lucide": ">=1.0.0"
   },
   "peerDependenciesMeta": {
     "date-fns": {
       "optional": true
     },
     "luxon": {
+      "optional": true
+    },
+    "lucide": {
       "optional": true
     }
   },
