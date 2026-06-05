@@ -1,6 +1,6 @@
 import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
 import { provideWrDensity } from 'ngwr/density';
@@ -19,7 +19,9 @@ void bootstrapApplication(RootComponent, {
     // angular
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routing),
+    // Reset to top on every forward navigation; back / forward restores
+    // the previous position. `anchorScrolling` makes `#fragment` links work.
+    provideRouter(routing, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
     // ngwr
     provideWrOverlay(),
     provideWrDateAdapter(),
