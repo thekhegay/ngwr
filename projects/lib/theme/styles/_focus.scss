@@ -36,8 +36,7 @@
   @include focus-ring;
 }
 
-// Mention / autocomplete option rows
-.wr-autocomplete__option:focus-visible,
+// Mention option rows
 .wr-mention__option:focus-visible {
   @include focus-ring;
 }

@@ -16,15 +16,15 @@ for overlay, portal, and a11y primitives.
 
 ## Requirements
 
-| Peer | Range |
-|---|---|
-| `@angular/core` | `>= 22.0.0` |
-| `@angular/common` | `>= 22.0.0` |
-| `@angular/cdk` | `>= 22.0.0` |
-| `@angular/platform-browser` | `>= 22.0.0` |
-| `rxjs` | `^7.0.0` |
-| `date-fns` *(optional)* | `^3.0.0 \|\| ^4.0.0` |
-| `luxon` *(optional)* | `^3.0.0` |
+| Peer                        | Range                |
+| --------------------------- | -------------------- |
+| `@angular/core`             | `>= 22.0.0`          |
+| `@angular/common`           | `>= 22.0.0`          |
+| `@angular/cdk`              | `>= 22.0.0`          |
+| `@angular/platform-browser` | `>= 22.0.0`          |
+| `rxjs`                      | `^7.0.0`             |
+| `date-fns` _(optional)_     | `^3.0.0 \|\| ^4.0.0` |
+| `luxon` _(optional)_        | `^3.0.0`             |
 
 Node ≥ 24.15.0 (or 26+). pnpm ≥ 11.5. TypeScript ≥ 6.0.
 
@@ -51,7 +51,7 @@ Prefer to opt in per-component? Each component has its own SCSS entry that pulls
 in the theme automatically:
 
 ```scss
-@use 'ngwr/theme';     // CSS custom properties (--wr-color-*, --wr-font-*, etc.)
+@use 'ngwr/theme'; // CSS custom properties (--wr-color-*, --wr-font-*, etc.)
 @use 'ngwr/button';
 @use 'ngwr/input';
 @use 'ngwr/checkbox';
@@ -60,9 +60,9 @@ in the theme automatically:
 Opt-in utilities (not part of `@use 'ngwr'`):
 
 ```scss
-@use 'ngwr/reset';   // box-sizing, body margin, sane defaults
-@use 'ngwr/grid';    // .grid, .container, .col-*
-@use 'ngwr/breakpoints' as bp;  // SCSS mixins only, no CSS output
+@use 'ngwr/reset'; // box-sizing, body margin, sane defaults
+@use 'ngwr/grid'; // .grid, .container, .col-*
+@use 'ngwr/breakpoints' as bp; // SCSS mixins only, no CSS output
 ```
 
 ## Quick start
@@ -77,7 +77,7 @@ import { AppComponent } from './app/app.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideWrOverlay(),                   // isolated overlay container
+    provideWrOverlay(), // isolated overlay container
     provideWrIcons([plus, trash, check]), // tree-shaken icon set
   ],
 });
@@ -100,7 +100,9 @@ import { WrInput } from 'ngwr/input';
 })
 export class AppComponent {
   readonly name = signal('');
-  greet(): void { console.log('Hi', this.name()); }
+  greet(): void {
+    console.log('Hi', this.name());
+  }
 }
 ```
 
@@ -111,7 +113,7 @@ export class AppComponent {
 
 ### Components
 
-**Form** — [autocomplete](https://ngwr.dev/components/autocomplete), [calendar](https://ngwr.dev/components/calendar), [cascader](https://ngwr.dev/components/cascader), [checkbox](https://ngwr.dev/components/checkbox), [chips-input](https://ngwr.dev/components/chips-input), [color-picker](https://ngwr.dev/components/color-picker), [counter](https://ngwr.dev/components/counter), [date-picker](https://ngwr.dev/components/date-picker), [date-time-picker](https://ngwr.dev/components/date-time-picker), [file-upload](https://ngwr.dev/components/file-upload), [form](https://ngwr.dev/components/form), [input](https://ngwr.dev/components/input), [input-number](https://ngwr.dev/components/input-number), [input-otp](https://ngwr.dev/components/input-otp), [knob](https://ngwr.dev/components/knob), [radio](https://ngwr.dev/components/radio), [rating](https://ngwr.dev/components/rating), [segmented](https://ngwr.dev/components/segmented), [select](https://ngwr.dev/components/select), [slider](https://ngwr.dev/components/slider), [switch](https://ngwr.dev/components/switch), [textarea](https://ngwr.dev/components/textarea), [time-picker](https://ngwr.dev/components/time-picker), [tree](https://ngwr.dev/components/tree), [tree-select](https://ngwr.dev/components/tree-select).
+**Form** — [calendar](https://ngwr.dev/components/calendar), [cascader](https://ngwr.dev/components/cascader), [checkbox](https://ngwr.dev/components/checkbox), [color-picker](https://ngwr.dev/components/color-picker), [counter](https://ngwr.dev/components/counter), [date-picker](https://ngwr.dev/components/date-picker), [date-time-picker](https://ngwr.dev/components/date-time-picker), [file-upload](https://ngwr.dev/components/file-upload), [form](https://ngwr.dev/components/form), [input](https://ngwr.dev/components/input), [input-number](https://ngwr.dev/components/input-number), [input-otp](https://ngwr.dev/components/input-otp), [knob](https://ngwr.dev/components/knob), [radio](https://ngwr.dev/components/radio), [rating](https://ngwr.dev/components/rating), [segmented](https://ngwr.dev/components/segmented), [select](https://ngwr.dev/components/select), [slider](https://ngwr.dev/components/slider), [switch](https://ngwr.dev/components/switch), [textarea](https://ngwr.dev/components/textarea), [time-picker](https://ngwr.dev/components/time-picker), [tree](https://ngwr.dev/components/tree), [tree-select](https://ngwr.dev/components/tree-select).
 
 **Buttons** — [button](https://ngwr.dev/components/button), [button-group](https://ngwr.dev/components/button-group), [speed-dial](https://ngwr.dev/components/speed-dial).
 

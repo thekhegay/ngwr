@@ -1,1 +1,0 @@
-export { WrAutocomplete } from './autocomplete';

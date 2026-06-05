@@ -85,9 +85,6 @@
     "./counter": {
       "sass": "./counter/styles/_index.scss"
     },
-    "./autocomplete": {
-      "sass": "./autocomplete/styles/_index.scss"
-    },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss"
     },
@@ -130,9 +127,6 @@
     "./clipboard": {},
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
-    },
-    "./chips-input": {
-      "sass": "./chips-input/styles/_index.scss"
     },
     "./circular-text": {
       "sass": "./circular-text/styles/_index.scss"

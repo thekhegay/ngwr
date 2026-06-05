@@ -19,10 +19,6 @@ export default [
     loadComponent: () => import('./anchor/anchor'),
   },
   {
-    path: components.autocomplete,
-    loadComponent: () => import('./autocomplete/autocomplete'),
-  },
-  {
     path: components.avatar,
     loadComponent: () => import('./avatar/avatar'),
   },
@@ -73,10 +69,6 @@ export default [
   {
     path: components.checkbox,
     loadComponent: () => import('./checkbox/checkbox'),
-  },
-  {
-    path: components.chipsInput,
-    loadComponent: () => import('./chips-input/chips-input'),
   },
   {
     path: components.collapse,

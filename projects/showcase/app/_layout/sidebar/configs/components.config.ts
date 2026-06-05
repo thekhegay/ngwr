@@ -56,11 +56,9 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Form',
     children: [
-      { title: 'Autocomplete', url: ['/components', 'autocomplete'] },
       { title: 'Calendar', url: ['/components', 'calendar'] },
       { title: 'Cascader', url: ['/components', 'cascader'] },
       { title: 'Checkbox', url: ['/components', 'checkbox'] },
-      { title: 'Chips Input', url: ['/components', 'chips-input'] },
       { title: 'Color Picker', url: ['/components', 'color-picker'] },
       { title: 'Date Picker', url: ['/components', 'date-picker'] },
       { title: 'Date Time Picker', url: ['/components', 'date-time-picker'] },
