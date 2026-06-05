@@ -23,16 +23,19 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
 
 import { useI18nText } from 'ngwr/i18n';
 import { provideWrIcons, WrIcon, chevronDown, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
+import { WrOption } from './option';
 import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
-import type { WrSelectMode, WrSelectTagValidator } from './types';
+import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator } from './types';
 
 let listboxUid = 0;
 
@@ -50,10 +53,10 @@ interface SelectedChip {
  * - `'single'` (default) — one value, no input. Classic dropdown.
  * - `'multi'` — array value, chips on the trigger; clicking an option
  *   toggles instead of closing, Backspace removes the last chip.
- * - `'search'` *(planned)* — type-ahead with sync filter or async loader.
- *   Will replace the standalone `<wr-autocomplete>`.
- * - `'tag'` *(planned)* — free-text + chips with optional `allowCreate`.
- *   Will replace `<wr-chips-input>`.
+ * - `'search'` — type-ahead with sync `[options]` filter or async
+ *   `[loader]`. Replaces the standalone `<wr-autocomplete>`.
+ * - `'tag'` — free-text + chips with `[separators]` / `[validate]` /
+ *   `[allowDuplicates]`. Replaces `<wr-chips-input>`.
  *
  * Implements `ControlValueAccessor` — usable with `[(ngModel)]`,
  * `formControl`, or `formControlName`.
@@ -84,7 +87,7 @@ interface SelectedChip {
   templateUrl: './select.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrIcon],
+  imports: [WrIcon, WrOption],
   providers: [
     provideWrIcons([chevronDown, close]),
     {
@@ -164,6 +167,53 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
    */
   readonly searchQuery = signal('');
 
+  // ── Search-mode-only inputs (ignored in other modes) ─────────
+
+  /**
+   * Search mode: dynamic option array. Each item is rendered as a
+   * `<wr-option>` whose label comes from `[displayWith]`. Works
+   * alongside projected `<wr-option>` children — both lists are
+   * filtered by the search query.
+   */
+  readonly options = input<readonly unknown[]>([]);
+
+  /** Search mode: map a dynamic option item to its display label. @default String */
+  readonly displayWith = input<(item: unknown) => string>((item: unknown) => String(item));
+
+  /**
+   * Search mode: async loader. When set, the loader is called on every
+   * (debounced) keystroke and its result replaces `[options]`. Supports
+   * Observables, Promises, and plain arrays.
+   */
+  readonly loader = input<WrSelectSearchLoader<unknown> | null>(null);
+
+  /** Search mode: debounce (ms) applied to the loader. @default 250 */
+  readonly debounceMs = input(250, { transform: (v: unknown): number => Math.max(0, Number(v) || 0) });
+
+  /** Search mode: minimum query length before the panel opens / loader fires. @default 0 */
+  readonly minChars = input(0, { transform: (v: unknown): number => Math.max(0, Number(v) || 0) });
+
+  /**
+   * Search mode: allow values not in the options list. Enter on an
+   * unmatched query commits the raw text as the form value. @default false
+   */
+  readonly freeText = input(false, { transform: coerceBooleanProperty });
+
+  /** Search mode: text shown when the filter / loader returns nothing. Falls back to `autocomplete.noResults`. */
+  readonly noResultsText = input<string | null>(null);
+
+  /** Search mode: text shown while the async loader is in flight. Falls back to `autocomplete.loading`. */
+  readonly loadingText = input<string | null>(null);
+
+  protected readonly resolvedNoResults = useI18nText(this.noResultsText, 'autocomplete.noResults', 'No results');
+  protected readonly resolvedLoading = useI18nText(this.loadingText, 'autocomplete.loading', 'Loading…');
+
+  /** Search mode: results returned by the async loader. @internal */
+  protected readonly loadedOptions = signal<readonly unknown[]>([]);
+
+  /** Search mode: true while the loader is in flight. @internal */
+  protected readonly loading = signal(false);
+
   // ── Tag-mode-only inputs (ignored in other modes) ────────────
 
   /**
@@ -218,8 +268,8 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Listbox id used by the trigger's `aria-controls`. */
   protected readonly listboxId = `wr-select-listbox-${++listboxUid}`;
 
-  /** Registered options (insertion order). */
-  private readonly options = signal<readonly WrSelectOptionRegistration[]>([]);
+  /** Registered options (insertion order). Internal — distinct from the public `[options]` input. */
+  private readonly registry = signal<readonly WrSelectOptionRegistration[]>([]);
 
   /** Keyboard cursor index into `options`. -1 = none. */
   private readonly activeIndex = signal(-1);
@@ -227,7 +277,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Id of the active option (for `aria-activedescendant`). */
   readonly activeOptionId = computed<string | null>(() => {
     const idx = this.activeIndex();
-    const list = this.options();
+    const list = this.registry();
     return idx >= 0 && idx < list.length ? list[idx].id : null;
   });
 
@@ -245,7 +295,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     if (this.isTag()) {
       return arr.map<SelectedChip>(v => ({ value: v, label: String(v) }));
     }
-    const list = this.options();
+    const list = this.registry();
     return arr.map<SelectedChip>(v => {
       const found = list.find(o => o.value === v);
       return { value: v, label: found?.getLabel() ?? String(v) };
@@ -280,9 +330,50 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     if (this.rounded()) parts.push('wr-select--rounded');
     if (this.isMulti()) parts.push('wr-select--multi');
     if (this.isTag()) parts.push('wr-select--tag');
+    if (this.isSearch()) parts.push('wr-select--search');
     if (this.isDisabled()) parts.push('wr-select--disabled');
     return parts.join(' ');
   });
+
+  /**
+   * Search-mode dynamic options. Loader results win when the loader is
+   * set; otherwise the static `[options]` array. Each item is rendered
+   * as an internal `<wr-option>` in the panel.
+   */
+  protected readonly dynamicOptions = computed<readonly unknown[]>(() =>
+    this.loader() ? this.loadedOptions() : this.options()
+  );
+
+  /**
+   * Count of registered options that pass the current search filter.
+   * Hides the noResults state when the panel has at least one visible row.
+   */
+  protected readonly visibleCount = computed(() => {
+    const list = this.registry();
+    if (!this.isSearch()) return list.length;
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return list.length;
+    let count = 0;
+    for (const o of list) {
+      if (o.getLabel().toLowerCase().includes(q)) count++;
+    }
+    return count;
+  });
+
+  /** Search mode: show "no results" when the panel has nothing to offer. */
+  protected readonly hasNoResults = computed(() => {
+    if (!this.isSearch() || !this.open() || this.loading()) return false;
+    if (this.searchQuery().trim().length < this.minChars()) return false;
+    return this.visibleCount() === 0;
+  });
+
+  /** Search mode: is this option hidden by the current query? @internal */
+  private isOptionHidden(label: string): boolean {
+    if (!this.isSearch()) return false;
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return false;
+    return !label.toLowerCase().includes(q);
+  }
 
   protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
 
@@ -318,7 +409,25 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   }
 
   protected onSearchKey(event: KeyboardEvent): void {
-    // Routes through the same keyboard plumbing as the button trigger.
+    // freeText: Enter on an unmatched query commits the typed string
+    // as the value. Skips when an active option is highlighted (the
+    // normal Enter-selects behaviour wins).
+    if (event.key === 'Enter' && this.freeText() && this.open()) {
+      const q = this.searchQuery().trim();
+      const idx = this.activeIndex();
+      const list = this.registry();
+      const hasActive =
+        idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel());
+      if (!hasActive && q) {
+        event.preventDefault();
+        this.value.set(q);
+        this.onChange(q);
+        this.onTouched();
+        this.open.set(false);
+        return;
+      }
+    }
+    // Otherwise route through the same keyboard plumbing as the button trigger.
     this.onTriggerKey(event);
   }
 
@@ -354,12 +463,32 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
       }
     });
 
+    // Async loader pipeline (search mode only). `switchMap` cancels
+    // in-flight requests when a new keystroke arrives.
+    toObservable(this.searchQuery)
+      .pipe(
+        debounceTime(this.debounceMs()),
+        switchMap(query => {
+          const loader = this.loader();
+          if (!loader || !this.isSearch() || query.length < this.minChars()) {
+            this.loading.set(false);
+            return of<readonly unknown[]>([]);
+          }
+          this.loading.set(true);
+          const result = loader(query);
+          const source: Observable<readonly unknown[]> = isObservable(result) ? result : from(Promise.resolve(result));
+          return source.pipe(finalize(() => this.loading.set(false)));
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(items => this.loadedOptions.set(items));
+
     // Resolve the single-mode trigger label whenever the value or
     // options change. Multi mode reads `selectedChips` instead and
     // doesn't need this.
     effect(() => {
       const v = this.value();
-      const list = this.options();
+      const list = this.registry();
       if (this.isMulti()) {
         this.selectedLabel.set(null);
         return;
@@ -401,8 +530,8 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   }
 
   registerOption(reg: WrSelectOptionRegistration): () => void {
-    this.options.update(list => [...list, reg]);
-    return () => this.options.update(list => list.filter(o => o.id !== reg.id));
+    this.registry.update(list => [...list, reg]);
+    return () => this.registry.update(list => list.filter(o => o.id !== reg.id));
   }
 
   // ──────── Chip handlers (multi + tag) ────────
@@ -584,7 +713,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
       case ' ': {
         event.preventDefault();
         const idx = this.activeIndex();
-        const list = this.options();
+        const list = this.registry();
         if (idx >= 0 && idx < list.length && !list[idx].disabled) {
           const id = list[idx].id;
           const el = this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
@@ -598,7 +727,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   }
 
   private seedActiveIndex(): void {
-    const list = this.options();
+    const list = this.registry();
     let selectedIdx = -1;
     if (this.isMulti()) {
       const arr = this.asArray(this.value());
@@ -610,13 +739,14 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   }
 
   private moveActive(delta: number): void {
-    const list = this.options();
+    const list = this.registry();
     if (list.length === 0) return;
     let i = this.activeIndex();
     let attempts = list.length;
     while (attempts-- > 0) {
       i = (i + delta + list.length) % list.length;
-      if (!list[i].disabled) {
+      const o = list[i];
+      if (!o.disabled && !this.isOptionHidden(o.getLabel())) {
         this.activeIndex.set(i);
         return;
       }
@@ -624,14 +754,14 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   }
 
   private firstEnabled(): number {
-    return this.options().findIndex(o => !o.disabled);
+    return this.registry().findIndex(o => !o.disabled && !this.isOptionHidden(o.getLabel()));
   }
 
   private lastEnabled(): number {
-    const list = this.options();
+    const list = this.registry();
     let found = -1;
     list.forEach((o, i) => {
-      if (!o.disabled) found = i;
+      if (!o.disabled && !this.isOptionHidden(o.getLabel())) found = i;
     });
     return found;
   }

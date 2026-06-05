@@ -252,6 +252,14 @@
   max-height: var(--wr-select-panel-max-height);
   overflow-y: auto;
   font-family: var(--wr-font-family-base);
+
+  &__loading,
+  &__empty {
+    padding: 0.625rem 0.75rem;
+    color: var(--wr-color-medium);
+    font-size: 0.875rem;
+    text-align: center;
+  }
 }
 
 .wr-option {

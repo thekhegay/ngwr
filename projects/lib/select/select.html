@@ -170,6 +170,22 @@
     [attr.id]="listboxId"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"
   >
+    @if (loading()) {
+      <div class="wr-select-panel__loading" aria-busy="true">{{ resolvedLoading() }}</div>
+    }
+
+    <!-- Dynamic options from [options] or async [loader] (search mode).
+         Rendered as wr-option so the standard registration / filter
+         pipeline applies uniformly. -->
+    @for (item of dynamicOptions(); track $index) {
+      <wr-option [value]="item">{{ displayWith()(item) }}</wr-option>
+    }
+
+    <!-- Projected static options. -->
     <ng-content />
+
+    @if (hasNoResults()) {
+      <div class="wr-select-panel__empty">{{ resolvedNoResults() }}</div>
+    }
   </div>
 </ng-template>
