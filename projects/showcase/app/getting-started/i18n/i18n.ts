@@ -32,8 +32,6 @@ export default class I18nTutorialPage {
   }
 
   protected readonly snippets = {
-    install: `pnpm add ngwr`,
-
     provider: `import { bootstrapApplication } from '@angular/platform-browser';
 import { provideHttpClient } from '@angular/common/http';
 import {
