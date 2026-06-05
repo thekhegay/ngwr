@@ -9,14 +9,14 @@ import type { WrIconDef } from 'ngwr/icon';
 
 /**
  * Shape of a `lucide` icon export — an array of `[tag, attrs]` tuples
- * representing the inner SVG children. The outer `<svg>` wrapper is added
- * by the adapter when converting to a {@link WrIconDef}.
+ * representing the inner SVG children. The outer `<svg>` wrapper is
+ * added by the adapter when converting to a {@link WrIconDef}.
  */
 type LucideIconNode = readonly (readonly [string, Record<string, string | number | undefined>])[];
 
 /**
- * Default SVG attributes Lucide applies to every icon. Kept identical to
- * the ones the `lucide` package's `createElement` would emit so visual
+ * Default SVG attributes Lucide applies to every icon. Kept identical
+ * to what the `lucide` package's `createElement` would emit so visual
  * parity with upstream is preserved.
  */
 const SVG_ATTRS = [
@@ -33,15 +33,14 @@ const SVG_ATTRS = [
 ].join(' ');
 
 /**
- * Wrap a Lucide IconNode in the {@link WrIconDef} envelope expected by
- * the ngwr icon registry. Used by the auto-generated per-icon exports
- * in `public-api.ts`, and re-exported for consumers who want to wrap a
- * one-off Lucide icon (e.g. from a custom build).
+ * Wrap a single Lucide icon in the {@link WrIconDef} envelope. Use this
+ * when you need fine-grained control over the registered name, or when
+ * the bulk {@link lucideIcons} helper isn't a good fit.
  *
  * @example
  * ```ts
- * import { lucide } from 'ngwr/icon/adapters/lucide';
  * import { Plus } from 'lucide';
+ * import { lucide } from 'ngwr/icon/adapters/lucide';
  *
  * provideWrIcons([lucide('plus', Plus)]);
  * ```
@@ -49,6 +48,31 @@ const SVG_ATTRS = [
 function lucide(name: string, children: LucideIconNode): WrIconDef {
   const inner = children.map(renderChild).join('');
   return { name, data: `<svg ${SVG_ATTRS}>${inner}</svg>` };
+}
+
+/**
+ * Wrap a bag of Lucide icons in one shot. Keys become the registered
+ * names (camelCase → kebab-case), values are the upstream IconNode
+ * tuples. The shape mirrors how you'd write `provideWrIcons` anyway.
+ *
+ * Tree-shaking: every `Plus`, `Trash`, … import lives in *your* file
+ * — ngwr ships only this wrapper, not the icon data. Unused icons in
+ * `lucide` itself get dropped by the bundler.
+ *
+ * @example
+ * ```ts
+ * import { Plus, Trash, ChevronDown } from 'lucide';
+ * import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+ *
+ * bootstrapApplication(AppComponent, {
+ *   providers: [
+ *     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, chevronDown: ChevronDown })),
+ *   ],
+ * });
+ * ```
+ */
+function lucideIcons(icons: Record<string, LucideIconNode>): WrIconDef[] {
+  return Object.entries(icons).map(([name, node]) => lucide(camelToKebab(name), node));
 }
 
 function renderChild([tag, attrs]: readonly [string, Record<string, string | number | undefined>]): string {
@@ -59,4 +83,8 @@ function renderChild([tag, attrs]: readonly [string, Record<string, string | num
   return `<${tag} ${rendered}/>`;
 }
 
-export { lucide, type LucideIconNode };
+function camelToKebab(value: string): string {
+  return value.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+export { lucide, lucideIcons, type LucideIconNode };

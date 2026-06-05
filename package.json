@@ -11,7 +11,6 @@
     "build:lib": "ng build lib && tsx scripts/copy-dist-assets.ts && tsx scripts/build-schematics.ts",
     "build:showcase": "ng build showcase",
     "generate:icons": "tsx scripts/generate-icons.ts",
-    "icons:build": "tsx scripts/build-icon-adapters.ts",
     "release:prepare": "tsx scripts/release-prepare.ts",
     "release:body": "tsx scripts/release-body.ts",
     "prepare": "simple-git-hooks"
