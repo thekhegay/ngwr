@@ -88,11 +88,43 @@
   // Chips fill the trigger's flex row; the trigger grows vertically as
   // needed. A clear-all (×) button appears at the row's tail.
 
-  &--multi &__trigger {
+  &--multi &__trigger,
+  &--tag &__trigger {
     flex-wrap: wrap;
     align-items: center;
     padding: 0.25rem 0.5rem;
     min-height: calc(var(--wr-select-line-height) + var(--wr-select-padding-y) * 2);
+  }
+
+  // ── Tag-mode trigger: focusable div hosting chips + inline input. ──
+  &__trigger--tag {
+    cursor: text;
+
+    &:focus-within {
+      border-color: var(--wr-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+    }
+  }
+
+  &__tag-input {
+    flex: 1 0 6rem;
+    min-width: 4rem;
+    border: 0;
+    outline: 0;
+    padding: 0.125rem 0.25rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.4;
+
+    &::placeholder {
+      color: rgba(var(--wr-color-medium-rgb), 0.85);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 
   &__chips {

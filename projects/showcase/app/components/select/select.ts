@@ -34,6 +34,10 @@ export default class SelectComponent {
   protected readonly framework = signal<string | null>('angular');
   protected readonly tags = signal<readonly string[]>(['typescript', 'angular']);
   protected readonly manyTags = signal<readonly string[]>(['typescript', 'angular', 'rxjs', 'signals']);
+  protected readonly recipients = signal<readonly string[]>(['ada@ngwr.dev']);
+
+  /** Tag-mode validator demo: reasonable email check. */
+  protected readonly isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
   protected readonly snippets = {
     install: `import { WrSelect, WrOption } from 'ngwr/select';
@@ -72,6 +76,17 @@ export class MyComponent {}`,
   <wr-option value="cdk">CDK</wr-option>
   <wr-option value="ssr">SSR</wr-option>
 </wr-select>`,
+    tag: `<wr-select mode="tag" placeholder="Add a tag" [(ngModel)]="tags" />
+
+<!-- With separators + validator + caps -->
+<wr-select
+  mode="tag"
+  placeholder="Add email and press Enter or ,"
+  [(ngModel)]="recipients"
+  [separators]="['Enter', ',', ' ']"
+  [validate]="isEmail"
+  [maxItems]="5"
+/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -108,6 +123,24 @@ export class MyComponent {}`,
       description: 'Cap on chips rendered before collapsing the rest into `+N more`. `0` = render all.',
       type: 'number',
       default: '0',
+    },
+    {
+      name: 'separators',
+      description: 'Tag mode only — keys/characters that commit the draft into a chip.',
+      type: 'readonly string[]',
+      default: "['Enter', ',']",
+    },
+    {
+      name: 'allowDuplicates',
+      description: 'Tag mode only — allow the same value to appear more than once.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'validate',
+      description: 'Tag mode only — `(value, existing) => boolean`. Return `false` to silently reject.',
+      type: 'WrSelectTagValidator | null',
+      default: 'null',
     },
   ];
 

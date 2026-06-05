@@ -24,3 +24,9 @@
  *   `createValidator` for typed lists (replaces `<wr-chips-input>`).
  */
 export type WrSelectMode = 'single' | 'multi' | 'search' | 'tag';
+
+/**
+ * Tag-mode validator. Return `true` to accept the value, `false` to
+ * silently reject (e.g. shape check, dedupe against a custom set).
+ */
+export type WrSelectTagValidator = (value: string, existing: readonly string[]) => boolean;

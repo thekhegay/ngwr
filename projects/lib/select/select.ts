@@ -32,7 +32,7 @@ import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
 import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
-import type { WrSelectMode } from './types';
+import type { WrSelectMode, WrSelectTagValidator } from './types';
 
 let listboxUid = 0;
 
@@ -143,8 +143,38 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     return this.multi() ? 'multi' : 'single';
   });
 
-  /** Convenience — `effectiveMode() === 'multi'`. Most internal code reads this. */
+  /** Convenience — `effectiveMode() === 'multi'`. */
   protected readonly isMulti = computed(() => this.effectiveMode() === 'multi');
+
+  /** Convenience — `effectiveMode() === 'tag'`. */
+  protected readonly isTag = computed(() => this.effectiveMode() === 'tag');
+
+  /** Both multi and tag render chips on the trigger. */
+  protected readonly hasChips = computed(() => {
+    const m = this.effectiveMode();
+    return m === 'multi' || m === 'tag';
+  });
+
+  // ── Tag-mode-only inputs (ignored in other modes) ────────────
+
+  /**
+   * Tag mode: keys / characters that commit the current draft into a chip.
+   * `'Enter'` is the key name; everything else is a literal character watched
+   * in keypresses and pastes. @default ['Enter', ',']
+   */
+  readonly separators = input<readonly string[]>(['Enter', ',']);
+
+  /** Tag mode: allow the same value to appear more than once. @default false */
+  readonly allowDuplicates = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Tag mode: custom validator — return `true` to accept the value, `false`
+   * to silently reject. Receives the trimmed draft + the existing chips.
+   */
+  readonly validate = input<WrSelectTagValidator | null>(null);
+
+  /** Tag-mode draft (text currently typed in the inline input). @internal */
+  protected readonly draft = signal('');
 
   /**
    * Show a clear-all (×) button at the end of the chip row when at
@@ -195,10 +225,17 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   protected readonly open = signal(false);
   protected readonly selectedLabel = signal<string | null>(null);
 
-  /** Selected chips (multi mode). Derived from the value array + option labels. */
+  /**
+   * Selected chips (multi + tag modes). Multi reads labels from the
+   * registered `<wr-option>` children; tag uses each raw string as
+   * both value and label.
+   */
   protected readonly selectedChips = computed<readonly SelectedChip[]>(() => {
-    if (!this.isMulti()) return [];
+    if (!this.hasChips()) return [];
     const arr = this.asArray(this.value());
+    if (this.isTag()) {
+      return arr.map<SelectedChip>(v => ({ value: v, label: String(v) }));
+    }
     const list = this.options();
     return arr.map<SelectedChip>(v => {
       const found = list.find(o => o.value === v);
@@ -219,7 +256,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   });
 
   protected readonly hasSelection = computed(() => {
-    if (this.isMulti()) return this.selectedChips().length > 0;
+    if (this.hasChips()) return this.selectedChips().length > 0;
     return this.value() != null;
   });
 
@@ -233,11 +270,19 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     if (this.open()) parts.push('wr-select--open');
     if (this.rounded()) parts.push('wr-select--rounded');
     if (this.isMulti()) parts.push('wr-select--multi');
+    if (this.isTag()) parts.push('wr-select--tag');
     if (this.isDisabled()) parts.push('wr-select--disabled');
     return parts.join(' ');
   });
 
   protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
+
+  /** Tag-mode inline input. Present only when `mode="tag"`. @internal */
+  protected readonly tagInputEl = viewChild<ElementRef<HTMLInputElement>>('tagInput');
+
+  protected focusTagInput(): void {
+    this.tagInputEl()?.nativeElement.focus();
+  }
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
@@ -309,31 +354,105 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     return () => this.options.update(list => list.filter(o => o.id !== reg.id));
   }
 
-  // ──────── Multi-mode chip handlers ────────
+  // ──────── Chip handlers (multi + tag) ────────
 
-  /** Remove one selection from a multi-select (chip × button). */
+  /** Remove one selection (chip × button). Works for multi and tag modes. */
   protected removeChip(value: unknown, event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled() || !this.isMulti()) return;
+    if (this.isDisabled() || !this.hasChips()) return;
     const next = this.asArray(this.value()).filter(v => v !== value);
     this.value.set(next);
     this.onChange(next);
     this.onTouched();
   }
 
-  /** Clear every selection (multi-mode clear-all button). */
+  /** Clear every selection (clear-all button). Works for multi and tag modes. */
   protected clearAll(event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled() || !this.isMulti()) return;
+    if (this.isDisabled() || !this.hasChips()) return;
     this.value.set([]);
     this.onChange([]);
+    this.onTouched();
+  }
+
+  // ──────── Tag-mode draft handlers ────────
+
+  /** Capacity check used by tag mode to refuse the next add. */
+  protected readonly atCapacity = computed(() => {
+    const cap = this.maxItems();
+    return cap > 0 && this.asArray(this.value()).length >= cap;
+  });
+
+  protected onTagInput(event: Event): void {
+    if (this.isDisabled()) return;
+    this.draft.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onTagKeydown(event: KeyboardEvent): void {
+    if (this.isDisabled()) return;
+    const seps = this.separators();
+
+    if (seps.includes(event.key)) {
+      event.preventDefault();
+      this.commitDraft();
+      return;
+    }
+
+    if (event.key === 'Backspace' && this.draft() === '') {
+      const chips = this.selectedChips();
+      if (chips.length > 0) {
+        event.preventDefault();
+        this.removeChip(chips[chips.length - 1].value, event);
+      }
+    }
+  }
+
+  protected onTagPaste(event: ClipboardEvent): void {
+    if (this.isDisabled()) return;
+    const text = event.clipboardData?.getData('text') ?? '';
+    if (!text) return;
+
+    const seps = this.separators().filter(s => s !== 'Enter');
+    if (seps.length === 0) return;
+
+    event.preventDefault();
+    const escaped = seps.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('');
+    const splitRegex = new RegExp(`[${escaped}\\n]+`);
+    for (const part of text.split(splitRegex)) this.tryAddTag(part);
+  }
+
+  protected onTagBlur(): void {
+    if (this.draft().trim()) this.commitDraft();
+    this.onTouched();
+  }
+
+  private commitDraft(): void {
+    const v = this.draft().trim();
+    this.draft.set('');
+    if (v) this.tryAddTag(v);
+  }
+
+  private tryAddTag(raw: string): void {
+    if (!this.isTag() || this.atCapacity()) return;
+    const value = raw.trim();
+    if (!value) return;
+
+    const existing = this.asArray(this.value()).map(String);
+    if (!this.allowDuplicates() && existing.includes(value)) return;
+
+    const validator = this.validate();
+    if (validator && !validator(value, existing)) return;
+
+    const next = [...existing, value];
+    this.value.set(next);
+    this.onChange(next);
     this.onTouched();
   }
 
   // ──────── ControlValueAccessor ────────
 
   writeValue(value: unknown): void {
-    if (this.isMulti()) {
+    if (this.hasChips()) {
       this.value.set(Array.isArray(value) ? (value as readonly unknown[]) : []);
     } else {
       this.value.set(value);
@@ -357,6 +476,9 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
   protected onTriggerClick(): void {
     if (this.isDisabled()) return;
+    // Tag mode has no panel — clicks should land on the inline input,
+    // not toggle an overlay that's never created.
+    if (this.isTag()) return;
     this.open.update(v => !v);
   }
 
@@ -370,8 +492,8 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
         this.open.set(true);
         return;
       }
-      // Multi mode: Backspace on closed trigger removes last chip — same
-      // behaviour as the chips-input directive.
+      // Multi mode: Backspace on closed trigger removes last chip. Tag
+      // mode has its own input handler — never reaches this branch.
       if (event.key === 'Backspace' && this.isMulti() && this.hasSelection()) {
         event.preventDefault();
         const chips = this.selectedChips();

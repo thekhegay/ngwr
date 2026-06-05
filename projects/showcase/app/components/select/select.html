@@ -82,6 +82,30 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Tag mode"
+    description="The `tag` mode turns the trigger into a chip area with an inline input. Press one of `[separators]` (default: Enter or comma) to commit the draft. Backspace on an empty input removes the last chip. Replaces the now-deprecated `wr-chips-input`."
+  >
+    <ngwr-doc-snippet [code]="snippets.tag">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
+        <wr-select mode="tag" placeholder="Add a tag" [(ngModel)]="tags" />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ tags() | json }}</span>
+
+        <wr-select
+          mode="tag"
+          placeholder="Add an email and press Enter or ,"
+          [(ngModel)]="recipients"
+          [separators]="['Enter', ',', ' ']"
+          [validate]="isEmail"
+          [maxItems]="5"
+        />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">
+          Emails: {{ recipients() | json }} (validated; max 5)
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Select API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

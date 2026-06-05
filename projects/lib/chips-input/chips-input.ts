@@ -24,6 +24,16 @@ export type WrChipsValidator = (value: string, existing: readonly string[]) => b
  * Implements `ControlValueAccessor` — the value type is `readonly
  * string[]`. Bind with `[(ngModel)]` or `[formControl]`.
  *
+ * @deprecated Prefer `<wr-select mode="tag">` — the unified combobox
+ * primitive ships the same feature surface (separators, allowDuplicates,
+ * validate, maxItems, Backspace-removes-last). This component will be
+ * removed in v8.
+ *
+ *     // Before
+ *     <wr-chips-input [(ngModel)]="tags" [separators]="[' ', ',']" />
+ *     // After
+ *     <wr-select mode="tag" [(ngModel)]="tags" [separators]="[' ', ',']" />
+ *
  * @example
  * ```html
  * <wr-chips-input
@@ -34,7 +44,7 @@ export type WrChipsValidator = (value: string, existing: readonly string[]) => b
  * />
  * ```
  *
- * @see https://ngwr.dev/components/chips-input
+ * @see https://ngwr.dev/components/select
  */
 @Component({
   selector: 'wr-chips-input',
