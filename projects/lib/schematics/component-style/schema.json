@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ngwr-component-style",
+  "title": "ngwr component-style",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Subpath under `ngwr/` — e.g. `button`, `select`, `theme`. Matches the dir name in the lib's `exports` block.",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Which subpath? (e.g. button, select, theme)"
+    },
+    "project": {
+      "type": "string",
+      "description": "Target Angular project. Defaults to the workspace default.",
+      "$default": { "$source": "projectName" }
+    }
+  },
+  "required": ["name"]
+}

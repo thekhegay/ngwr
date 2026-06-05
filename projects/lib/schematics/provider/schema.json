@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ngwr-provider",
+  "title": "ngwr provider",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "enum": [
+        "overlay",
+        "icons",
+        "toast",
+        "i18n",
+        "date-adapter",
+        "density",
+        "loading-bar",
+        "cookie",
+        "storage",
+        "theme"
+      ],
+      "description": "Provider to add.",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": {
+        "message": "Which provider?",
+        "type": "list",
+        "items": [
+          { "value": "overlay", "label": "overlay — required for every overlay-backed component" },
+          { "value": "icons", "label": "icons — register a tree-shaken icon set" },
+          { "value": "toast", "label": "toast — global toast service" },
+          { "value": "i18n", "label": "i18n — Transloco-class translation core" },
+          { "value": "date-adapter", "label": "date-adapter — calendar / date-picker plumbing" },
+          { "value": "density", "label": "density — comfortable / compact preset" },
+          { "value": "loading-bar", "label": "loading-bar — router-aware progress bar" },
+          { "value": "cookie", "label": "cookie — wr cookie service" },
+          { "value": "storage", "label": "storage — swappable engine + TTL" },
+          { "value": "theme", "label": "theme — light/dark/auto mode" }
+        ]
+      }
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "Main entry file to patch. Defaults to the first match in `src/main.ts`."
+    },
+    "project": {
+      "type": "string",
+      "description": "Target Angular project.",
+      "$default": { "$source": "projectName" }
+    }
+  },
+  "required": ["name"]
+}

@@ -16,6 +16,22 @@
       "description": "Add an `import { WrFoo } from 'ngwr/<subpath>';` line and splice WrFoo into the @Component imports array of a component file.",
       "factory": "./use/index#default",
       "schema": "./use/schema.json"
+    },
+    "provider": {
+      "description": "Add a `provideWr*()` call to your bootstrap providers (overlay / icons / toast / i18n / date-adapter / density / loading-bar / cookie / storage / theme).",
+      "factory": "./provider/index#default",
+      "schema": "./provider/schema.json"
+    },
+    "component-style": {
+      "description": "Append `@use 'ngwr/<name>';` to the project's global stylesheet — for opt-in per-component styles.",
+      "factory": "./component-style/index#default",
+      "schema": "./component-style/schema.json",
+      "aliases": ["style"]
+    },
+    "page": {
+      "description": "Scaffold a starter page (form / table / dashboard) wired up with ngwr components.",
+      "factory": "./page/index#default",
+      "schema": "./page/schema.json"
     }
   }
 }

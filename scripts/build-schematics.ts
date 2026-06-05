@@ -45,6 +45,9 @@ const ASSETS = [
   ['ng-add/schema.json', 'ng-add/schema.json'],
   ['icon-set/schema.json', 'icon-set/schema.json'],
   ['use/schema.json', 'use/schema.json'],
+  ['provider/schema.json', 'provider/schema.json'],
+  ['component-style/schema.json', 'component-style/schema.json'],
+  ['page/schema.json', 'page/schema.json'],
 ] as const;
 
 if (!existsSync(DIST_LIB_PATH)) {
