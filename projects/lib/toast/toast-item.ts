@@ -7,8 +7,6 @@
 
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
-import { provideWrIcons, WrIcon, checkmark, close, copy } from 'ngwr/icon';
-
 import type { WrToastConfig, WrToastType } from './types';
 
 /**
@@ -29,8 +27,6 @@ import type { WrToastConfig, WrToastType } from './types';
     '(mouseenter)': 'pauseRequested.emit()',
     '(mouseleave)': 'resumeRequested.emit()',
   },
-  imports: [WrIcon],
-  providers: [provideWrIcons([checkmark, close, copy])],
 })
 export class WrToastItem {
   readonly type = input<WrToastType>('info');

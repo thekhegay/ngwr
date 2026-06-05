@@ -1,16 +1,8 @@
 import { Component, type TemplateRef, computed, signal, viewChild } from '@angular/core';
 
-import {
-  WrIcon,
-  logoAngular,
-  logoChrome,
-  logoFirebase,
-  logoGithub,
-  logoGitlab,
-  logoNpm,
-  logoTelegram,
-  provideWrIcons,
-} from 'ngwr/icon';
+import { Atom, Code, Flame, GitBranch, Globe, Package, Send } from 'lucide';
+import { WrIcon, provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrMarquee, type WrMarqueeItem } from 'ngwr/marquee';
 
 import {
@@ -37,7 +29,19 @@ import {
     DocApiComponent,
     ReactbitsCredit,
   ],
-  providers: [provideWrIcons([logoAngular, logoChrome, logoFirebase, logoGithub, logoGitlab, logoNpm, logoTelegram])],
+  providers: [
+    provideWrIcons(
+      lucideIcons({
+        'logo-angular': Atom,
+        'logo-chrome': Globe,
+        'logo-firebase': Flame,
+        'logo-github': Code,
+        'logo-gitlab': GitBranch,
+        'logo-npm': Package,
+        'logo-telegram': Send,
+      })
+    ),
+  ],
 })
 export default class MarqueePage {
   private readonly angularLogo = viewChild.required<TemplateRef<unknown>>('angularLogo');

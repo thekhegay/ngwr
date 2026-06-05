@@ -8,7 +8,6 @@
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
-import { WrIcon, checkmark, filter as filterIcon, provideWrIcons } from 'ngwr/icon';
 
 import type { WrTableFilterItem } from './types';
 
@@ -22,8 +21,7 @@ import type { WrTableFilterItem } from './types';
   templateUrl: './table-filter.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrIcon, WrDropdown, WrDropdownMenu],
-  providers: [provideWrIcons([checkmark, filterIcon])],
+  imports: [WrDropdown, WrDropdownMenu],
 })
 export class WrTableFilter {
   /** Available filter options. */

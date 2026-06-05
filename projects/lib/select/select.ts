@@ -29,7 +29,6 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { provideWrIcons, WrIcon, chevronDown, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
@@ -87,9 +86,8 @@ interface SelectedChip {
   templateUrl: './select.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrIcon, WrOption],
+  imports: [WrOption],
   providers: [
-    provideWrIcons([chevronDown, close]),
     {
       provide: NG_VALUE_ACCESSOR,
       // eslint-disable-next-line @angular-eslint/no-forward-ref

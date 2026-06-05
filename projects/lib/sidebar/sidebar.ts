@@ -12,7 +12,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 
 import { filter, map, startWith } from 'rxjs';
 
-import { WrIcon, caretForward, chevronDown, folder, provideWrIcons } from 'ngwr/icon';
+import { WrIcon } from 'ngwr/icon';
 
 import type { WrSidebarEntry, WrSidebarGroup, WrSidebarItem } from './types';
 
@@ -48,7 +48,6 @@ function isGroup(entry: WrSidebarEntry): entry is WrSidebarGroup {
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-sidebar', role: 'navigation' },
   imports: [RouterLink, RouterLinkActive, WrIcon],
-  providers: [provideWrIcons([folder, chevronDown, caretForward])],
 })
 export class WrSidebar {
   readonly entries = input<readonly WrSidebarEntry[]>([]);

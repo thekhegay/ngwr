@@ -23,7 +23,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { provideWrIcons, WrIcon, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
 /**
@@ -49,8 +48,6 @@ import { WR_OVERLAY } from 'ngwr/overlay';
   styleUrl: './image.scss',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrIcon],
-  providers: [provideWrIcons([close])],
 })
 export class WrImage {
   /** Image source. */

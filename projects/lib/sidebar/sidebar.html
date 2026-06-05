@@ -7,7 +7,9 @@
         [routerLink]="asItem(entry).url"
         [class.wr-sidebar__entry--disabled]="asItem(entry).disabled"
       >
-        <wr-icon class="wr-sidebar__icon" [name]="$any(asItem(entry).icon ?? defaultGroupIcon())" size="16" />
+        @if (asItem(entry).icon; as name) {
+          <wr-icon class="wr-sidebar__icon" [name]="name" />
+        }
         <span class="wr-sidebar__title">{{ entry.title }}</span>
         @if (asItem(entry).badge) {
           <small class="wr-sidebar__badge">{{ asItem(entry).badge }}</small>
@@ -22,9 +24,26 @@
           [attr.aria-controls]="groupBodyId(entry.title)"
           (click)="toggleGroup(entry.title)"
         >
-          <wr-icon class="wr-sidebar__icon" [name]="$any(asGroup(entry).icon ?? defaultGroupIcon())" size="16" />
+          @if (asGroup(entry).icon; as name) {
+            <wr-icon class="wr-sidebar__icon" [name]="name" />
+          }
           <span class="wr-sidebar__title">{{ entry.title }}</span>
-          <wr-icon class="wr-sidebar__chevron" name="chevron-down" size="14" />
+          <!-- Inline chrome chevron — not user-customizable. -->
+          <svg
+            class="wr-icon__svg wr-sidebar__chevron"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            aria-hidden="true"
+          >
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="square"
+              stroke-miterlimit="10"
+              stroke-width="48"
+              d="m112 184 144 144 144-144"
+            />
+          </svg>
         </button>
         <div
           class="wr-sidebar__group-wrap"
@@ -37,7 +56,9 @@
                 <li>
                   @if (child.disabled || !child.url.length) {
                     <span class="wr-sidebar__item wr-sidebar__item--disabled">
-                      <wr-icon class="wr-sidebar__icon" [name]="$any(child.icon ?? defaultItemIcon())" size="14" />
+                      @if (child.icon; as name) {
+                        <wr-icon class="wr-sidebar__icon" [name]="name" />
+                      }
                       <span class="wr-sidebar__item-title">{{ child.title }}</span>
                       @if (child.badge) {
                         <small class="wr-sidebar__badge">{{ child.badge }}</small>
@@ -45,7 +66,9 @@
                     </span>
                   } @else {
                     <a class="wr-sidebar__item" routerLinkActive="wr-sidebar__item--active" [routerLink]="child.url">
-                      <wr-icon class="wr-sidebar__icon" [name]="$any(child.icon ?? defaultItemIcon())" size="14" />
+                      @if (child.icon; as name) {
+                        <wr-icon class="wr-sidebar__icon" [name]="name" />
+                      }
                       <span class="wr-sidebar__item-title">{{ child.title }}</span>
                       @if (child.badge) {
                         <small class="wr-sidebar__badge">{{ child.badge }}</small>

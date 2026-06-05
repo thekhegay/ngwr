@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="a" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <path d="m24,8.12c8.82,0,16,7.18,16,16s-7.18,16-16,16-16-7.18-16-16S15.18,8.12,24,8.12m0-4C12.95,4.12,4,13.08,4,24.12s8.95,20,20,20,20-8.95,20-20S35.05,4.12,24,4.12h0Z"/>
-  <circle cx="24" cy="33" r="2"/>
-  <line x1="24" y1="27" x2="24" y2="15" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
-</svg>

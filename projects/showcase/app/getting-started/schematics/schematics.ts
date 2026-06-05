@@ -47,9 +47,18 @@ ng g ngwr:icon-set --icons=plus,trash,checkmark     # explicit list
 ng g ngwr:icon-set --set=navigation --icons=star,heart   # combine both`,
 
     iconSetOutput: `// src/app/icons.ts (generated)
-import { checkmark, close, add, edit, trash, search, copy } from 'ngwr/icon';
+import { Check, Copy, Pencil, Plus, Search, Trash2, X } from 'lucide';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
-export const APP_ICONS = [checkmark, close, add, edit, trash, search, copy] as const;
+export const APP_ICONS = lucideIcons({
+  checkmark: Check,
+  close: X,
+  add: Plus,
+  edit: Pencil,
+  trash: Trash2,
+  search: Search,
+  copy: Copy,
+});
 
 // Then wire into bootstrap:
 import { provideWrIcons } from 'ngwr/icon';

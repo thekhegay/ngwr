@@ -13,8 +13,11 @@ export default class ConfigurationPage {
 import { provideRouter } from '@angular/router';
 import { provideZonelessChangeDetection } from '@angular/core';
 
+import { Plus, Trash2 } from 'lucide';
+
 import { provideWrOverlay } from 'ngwr/overlay';
-import { provideWrIcons, plus, trash } from 'ngwr/icon';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { provideWrToast } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
@@ -32,7 +35,7 @@ bootstrapApplication(AppComponent, {
 
     // ngwr ---------------------------------------------------------------
     provideWrOverlay(),
-    provideWrIcons([plus, trash]),
+    provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
     provideWrToast(),
     provideWrTheme({ defaultMode: 'auto' }),
     provideWrDensity({ preset: 'comfortable' }),
@@ -51,11 +54,14 @@ bootstrapApplication(AppComponent, {
 // don't leak into the app root.
 providers: [provideWrOverlay()],`,
 
-    icons: `import { provideWrIcons, plus, trash, check } from 'ngwr/icon';
+    icons: `import { Check, Plus, Trash2 } from 'lucide';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
-// Register a tree-shaken icon set. Only the icons you list are bundled.
-// Run \`ng g ngwr:icon-set\` to scaffold a separate icons barrel file.
-providers: [provideWrIcons([plus, trash, check])],`,
+// Register a tree-shaken icon set. Only the icons you list are bundled —
+// the Lucide adapter takes the imported icon data and wraps it as
+// \`WrIconDef\` at runtime, so unused Lucide icons get dropped by the bundler.
+providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2, check: Check }))],`,
 
     toast: `import { provideWrToast } from 'ngwr/toast';
 

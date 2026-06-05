@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
 
+import { Check, Copy, Download, Plus, Trash2, TriangleAlert } from 'lucide';
 import { WrButton, type WrButtonShape } from 'ngwr/button';
-import { provideWrIcons, add, checkmark, copyOutline, download, trash, warning } from 'ngwr/icon';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WR_COLORS } from 'ngwr/theme';
 
 import {
@@ -17,7 +19,18 @@ import {
   selector: 'ngwr-button-page',
   templateUrl: './button.html',
   imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
-  providers: [provideWrIcons([add, checkmark, copyOutline, download, trash, warning])],
+  providers: [
+    provideWrIcons(
+      lucideIcons({
+        add: Plus,
+        checkmark: Check,
+        'copy-outline': Copy,
+        download: Download,
+        trash: Trash2,
+        warning: TriangleAlert,
+      })
+    ),
+  ],
 })
 export default class ButtonComponent {
   protected readonly colors = WR_COLORS;

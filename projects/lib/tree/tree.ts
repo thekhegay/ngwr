@@ -29,7 +29,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
-import { provideWrIcons, WrIcon, chevronDown, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
@@ -87,9 +86,8 @@ let panelUid = 0;
   templateUrl: './tree.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [NgTemplateOutlet, WrIcon],
+  imports: [NgTemplateOutlet],
   providers: [
-    provideWrIcons([chevronDown, close]),
     {
       provide: NG_VALUE_ACCESSOR,
       // eslint-disable-next-line @angular-eslint/no-forward-ref

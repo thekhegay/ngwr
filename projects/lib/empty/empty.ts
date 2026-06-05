@@ -8,7 +8,7 @@
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { provideWrIcons, WrIcon, type WrIconName, folder } from 'ngwr/icon';
+import { type WrIconName } from 'ngwr/icon';
 
 /**
  * Empty-state placeholder. Drop into any container where the underlying
@@ -40,8 +40,6 @@ import { provideWrIcons, WrIcon, type WrIconName, folder } from 'ngwr/icon';
   templateUrl: './empty.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-empty', role: 'status' },
-  imports: [WrIcon],
-  providers: [provideWrIcons([folder])],
 })
 export class WrEmpty {
   /** Icon name shown above the title. @default 'folder' */

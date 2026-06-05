@@ -45,14 +45,16 @@ bootstrapApplication(AppComponent, {
 @use 'ngwr/dialog';
 @use 'ngwr/icon';`,
     usage: `import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Check } from 'lucide';
 import { WrButton } from 'ngwr/button';
-import { provideWrIcons, WrIcon, checkmark } from 'ngwr/icon';
+import { provideWrIcons, WrIcon } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [WrButton, WrIcon],
-  providers: [provideWrIcons([checkmark])],
+  providers: [provideWrIcons(lucideIcons({ checkmark: Check }))],
   template: \`
     <wr-btn color="primary" icon="checkmark">Save</wr-btn>
   \`,

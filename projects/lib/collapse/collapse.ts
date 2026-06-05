@@ -8,7 +8,6 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, DestroyRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
-import { provideWrIcons, WrIcon, chevronDown } from 'ngwr/icon';
 import { randomId } from 'ngwr/utils';
 
 import { WR_COLLAPSE_GROUP } from './tokens';
@@ -37,8 +36,6 @@ import { WR_COLLAPSE_GROUP } from './tokens';
   templateUrl: './collapse.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrIcon],
-  providers: [provideWrIcons([chevronDown])],
 })
 export class WrCollapse {
   /** Header text. */

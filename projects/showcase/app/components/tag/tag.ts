@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 
-import { provideWrIcons, checkmark, close, flash, warning } from 'ngwr/icon';
+import { Check, TriangleAlert, X, Zap } from 'lucide';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrTag } from 'ngwr/tag';
 import { WR_COLORS } from 'ngwr/theme';
 
@@ -17,7 +19,7 @@ import {
   selector: 'ngwr-tag-page',
   templateUrl: './tag.html',
   imports: [WrTag, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
-  providers: [provideWrIcons([checkmark, close, flash, warning])],
+  providers: [provideWrIcons(lucideIcons({ checkmark: Check, close: X, flash: Zap, warning: TriangleAlert }))],
 })
 export default class TagComponent {
   protected readonly colors = WR_COLORS;

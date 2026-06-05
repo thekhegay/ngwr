@@ -2,11 +2,13 @@ import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import * as LucideAll from 'lucide';
 import { WrAlert } from 'ngwr/alert';
 import { WrAvatar } from 'ngwr/avatar';
 import { WrButton } from 'ngwr/button';
 import { WrCopyToClipboard } from 'ngwr/directives';
-import { provideWrIcons, type WrIconDef, WrIcon, wrIconSet } from 'ngwr/icon';
+import { provideWrIcons, type WrIconDef, WrIcon } from 'ngwr/icon';
+import { lucide } from 'ngwr/icon/adapters/lucide';
 import { WrInput, WrInputGroup, WrInputPrefix, WrPasswordToggle } from 'ngwr/input';
 import { WrProgress } from 'ngwr/progress';
 import { WrQr } from 'ngwr/qr';
@@ -28,6 +30,22 @@ function shuffle<T>(input: readonly T[]): T[] {
   }
   return out;
 }
+
+/** Build a hero icon strip from the lucide set, picking 30 random icons. */
+function buildHeroIcons(): WrIconDef[] {
+  const mod = LucideAll as unknown as Record<string, unknown>;
+  const out: WrIconDef[] = [];
+  for (const key of Object.keys(mod)) {
+    if (!/^[A-Z]/.test(key)) continue;
+    const value = mod[key];
+    if (!Array.isArray(value)) continue;
+    const name = key.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+    out.push(lucide(name, value as Parameters<typeof lucide>[1]));
+  }
+  return shuffle(out).slice(0, 30);
+}
+
+const HERO_ICONS = buildHeroIcons();
 
 interface WhyTile {
   readonly icon: string;
@@ -58,11 +76,11 @@ interface WhyTile {
     WrTypography,
     WrCopyToClipboard,
   ],
-  providers: [provideWrIcons(wrIconSet)],
+  providers: [provideWrIcons(HERO_ICONS)],
 })
 export default class HomeComponent {
   protected readonly currentDate = new Date();
-  protected readonly icons: readonly WrIconDef[] = shuffle(wrIconSet).slice(0, 30);
+  protected readonly icons: readonly WrIconDef[] = HERO_ICONS;
   protected readonly routes = routes;
   protected readonly version = inject(NGWR_VERSION_TOKEN);
 

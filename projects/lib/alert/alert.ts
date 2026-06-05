@@ -8,8 +8,6 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
-import { provideWrIcons, WrIcon, close } from 'ngwr/icon';
-
 import type { WrAlertType } from './types';
 
 /**
@@ -32,8 +30,6 @@ import type { WrAlertType } from './types';
     '[attr.role]': 'liveRole()',
     '[attr.aria-live]': 'liveLevel()',
   },
-  imports: [WrIcon],
-  providers: [provideWrIcons([close])],
 })
 export class WrAlert {
   /** Required headline shown at the top of the alert. */

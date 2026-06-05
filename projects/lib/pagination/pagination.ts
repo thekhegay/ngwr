@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
-import { provideWrIcons, arrowBack, arrowForward } from 'ngwr/icon';
 import { WrOption, WrSelect } from 'ngwr/select';
 
 import type { WrPaginationAlign } from './types';
@@ -48,7 +47,6 @@ const numAttr =
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', role: 'navigation', 'aria-label': 'Pagination' },
   imports: [FormsModule, WrButton, WrSelect, WrOption],
-  providers: [provideWrIcons([arrowBack, arrowForward])],
 })
 export class WrPagination {
   /** Currently displayed page (1-based). Two-way bindable. */

@@ -7,8 +7,6 @@
 
 import { Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
 
-import { WrIcon, eye, eyeOff, provideWrIcons } from 'ngwr/icon';
-
 /**
  * Self-contained eye-toggle button. Flips the linked `<input>`'s `type`
  * attribute between `password` and `text`. Drop it inside an
@@ -26,8 +24,6 @@ import { WrIcon, eye, eyeOff, provideWrIcons } from 'ngwr/icon';
   selector: 'wr-password-toggle',
   templateUrl: './password-toggle.html',
   encapsulation: ViewEncapsulation.None,
-  imports: [WrIcon],
-  providers: [provideWrIcons([eye, eyeOff])],
 })
 export class WrPasswordToggle {
   /** Reference to the linked password input. */

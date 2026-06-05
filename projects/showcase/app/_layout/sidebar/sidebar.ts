@@ -4,7 +4,9 @@ import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive } f
 
 import { filter, map, startWith } from 'rxjs';
 
-import { WrIcon, chevronDown, provideWrIcons } from 'ngwr/icon';
+import { ChevronDown } from 'lucide';
+import { WrIcon, provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 import type { SidebarGroup } from './sidebar.types';
 
@@ -21,7 +23,7 @@ import type { SidebarGroup } from './sidebar.types';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   imports: [RouterLink, RouterLinkActive, WrIcon],
-  providers: [provideWrIcons([chevronDown])],
+  providers: [provideWrIcons(lucideIcons({ 'chevron-down': ChevronDown }))],
 })
 export class Sidebar {
   private readonly router = inject(Router);

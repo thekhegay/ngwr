@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 
+import { Copy, Download, ExternalLink, Settings, Trash2 } from 'lucide';
 import { WrButton } from 'ngwr/button';
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
-import { provideWrIcons, copyOutline, download, trash, cog, externalOutline } from 'ngwr/icon';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 import {
   DocApiComponent,
@@ -27,7 +29,17 @@ import {
     DocCodeComponent,
     DocApiComponent,
   ],
-  providers: [provideWrIcons([copyOutline, download, trash, cog, externalOutline])],
+  providers: [
+    provideWrIcons(
+      lucideIcons({
+        'copy-outline': Copy,
+        download: Download,
+        trash: Trash2,
+        cog: Settings,
+        'external-outline': ExternalLink,
+      })
+    ),
+  ],
 })
 export default class DropdownComponent {
   protected readonly snippets = {

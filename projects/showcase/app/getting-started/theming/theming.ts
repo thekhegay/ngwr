@@ -126,7 +126,9 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
 <wr-tag style="--wr-tag-bg: #fef3c7; --wr-tag-color: #92400e">soon</wr-tag>`,
 
     iconRegister: `import { Component } from '@angular/core';
-import { WrIcon, provideWrIcons, check, close, info } from 'ngwr/icon';
+import { Check, Info, X } from 'lucide';
+import { WrIcon, provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 @Component({
   selector: 'app-toolbar',
@@ -135,7 +137,7 @@ import { WrIcon, provideWrIcons, check, close, info } from 'ngwr/icon';
     <wr-icon name="close" />
   \`,
   imports: [WrIcon],
-  providers: [provideWrIcons([check, close, info])],
+  providers: [provideWrIcons(lucideIcons({ check: Check, close: X, info: Info }))],
 })
 export class Toolbar {}`,
 
