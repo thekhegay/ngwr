@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Tree"
-  description="Hierarchical list with expand / collapse, selection (single or multi), and full keyboard navigation. Data-driven — pass an array of `WrTreeNode<TId>` with optional `children`."
-  [keywords]="['tree', 'wr-tree', 'hierarchy', 'folders']"
+  description='Hierarchical list with expand / collapse, selection (single or multi), and full keyboard navigation. Renders inline (display widget) or as a `wr-select`-style combobox via `openOn="overlay"` (form-bound picker — replaces the standalone `wr-tree-select`).'
+  [keywords]="['tree', 'tree-select', 'wr-tree', 'hierarchy', 'folders']"
   [labels]="['Composite']"
 >
   <ngwr-doc-section title="Installation">
@@ -30,6 +30,46 @@
       <wr-tree [nodes]="folders" [(selected)]="multiSelected" selectionMode="multi" />
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
         Selected: {{ multiSelected().join(', ') || '(none)' }}
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Combobox mode — single"
+    description='`openOn="overlay"` turns the tree into a `<wr-select>`-style trigger that opens a popover. Form-bound via `[(ngModel)]` / `[formControl]`. Replaces the standalone `wr-tree-select`.'
+  >
+    <ngwr-doc-code [code]="snippets.overlaySingle" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-tree
+        openOn="overlay"
+        [nodes]="folders"
+        selectionMode="single"
+        placeholder="Pick a folder"
+        [(ngModel)]="comboSingle"
+      />
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+        Picked: {{ comboSingle() || '(none)' }}
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Combobox mode — multi + chips"
+    description="`maxTagCount` caps visible chips before collapsing into `+N more`. `defaultExpandAll` auto-expands every parent on first open."
+  >
+    <ngwr-doc-code [code]="snippets.overlayMulti" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-tree
+        openOn="overlay"
+        [nodes]="folders"
+        selectionMode="multi"
+        [maxTagCount]="2"
+        [defaultExpandAll]="true"
+        placeholder="Pick folders"
+        [(ngModel)]="comboMulti"
+      />
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+        Picked: {{ comboMulti().join(', ') || '(none)' }}
       </small>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

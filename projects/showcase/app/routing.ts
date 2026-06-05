@@ -95,7 +95,6 @@ export const routes = {
     textarea: 'textarea',
     toast: 'toast',
     tree: 'tree',
-    treeSelect: 'tree-select',
     select: 'select',
     sidebar: 'sidebar',
     dropdown: 'dropdown',

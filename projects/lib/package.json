@@ -369,9 +369,6 @@
     "./tree": {
       "sass": "./tree/styles/_index.scss"
     },
-    "./tree-select": {
-      "sass": "./tree-select/styles/_index.scss"
-    },
     "./typewriter": {
       "sass": "./typewriter/styles/_index.scss"
     },

@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { WrTree, type WrTreeNode } from 'ngwr/tree';
 
@@ -14,7 +15,15 @@ import {
 @Component({
   selector: 'ngwr-tree-page',
   templateUrl: './tree.html',
-  imports: [WrTree, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    FormsModule,
+    WrTree,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class TreePageComponent {
   protected readonly folders: readonly WrTreeNode[] = [
@@ -57,6 +66,9 @@ export default class TreePageComponent {
   protected readonly multiSelected = signal<readonly string[]>([]);
   protected readonly expanded = signal<readonly string[]>(['src', 'src/app']);
 
+  protected readonly comboSingle = signal<string | null>(null);
+  protected readonly comboMulti = signal<readonly string[]>([]);
+
   protected readonly snippets = {
     install: `import { WrTree, type WrTreeNode } from 'ngwr/tree';
 
@@ -81,6 +93,26 @@ export class MyComponent {
 />
 
 <!-- Cmd / Ctrl + click toggles individual selections. -->`,
+
+    overlaySingle: `<!-- Combobox shape — opens an overlay containing the tree.
+     Form-bound via ControlValueAccessor. Replaces wr-tree-select. -->
+<wr-tree
+  openOn="overlay"
+  [nodes]="folders"
+  selectionMode="single"
+  placeholder="Pick a folder"
+  [(ngModel)]="picked"
+/>`,
+
+    overlayMulti: `<wr-tree
+  openOn="overlay"
+  [nodes]="folders"
+  selectionMode="multi"
+  [maxTagCount]="2"
+  [defaultExpandAll]="true"
+  placeholder="Pick folders"
+  [(ngModel)]="picked"
+/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -99,6 +131,37 @@ export class MyComponent {
       default: "'single'",
     },
     { name: 'disabled', description: 'Disable the whole tree.', type: 'boolean', default: 'false' },
+    {
+      name: 'openOn',
+      description:
+        '`inline` (default) renders the tree in place. `overlay` renders a combobox-style trigger that opens a popover containing the tree, with ControlValueAccessor. Replaces the standalone `wr-tree-select`.',
+      type: "'inline' | 'overlay'",
+      default: "'inline'",
+    },
+    {
+      name: 'placeholder',
+      description: 'Overlay mode — placeholder shown on the trigger.',
+      type: 'string',
+      default: "''",
+    },
+    {
+      name: 'clearable',
+      description: 'Overlay mode — show a clear-all (×) button when a node is selected.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'maxTagCount',
+      description: 'Overlay + multi mode — cap chips rendered before collapsing into `+N more`. `0` = render all.',
+      type: 'number',
+      default: '0',
+    },
+    {
+      name: 'defaultExpandAll',
+      description: 'Overlay mode — auto-expand every parent on first open.',
+      type: 'boolean',
+      default: 'false',
+    },
     {
       name: 'WrTreeNode',
       description: '{ id, label, children?, disabled? }',

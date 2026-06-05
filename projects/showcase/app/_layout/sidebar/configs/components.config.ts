@@ -73,7 +73,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Rating', url: ['/components', 'rating'] },
       { title: 'Segmented', url: ['/components', 'segmented'] },
       { title: 'Select', url: ['/components', 'select'] },
-      { title: 'Tree Select', url: ['/components', 'tree-select'] },
       { title: 'Slider', url: ['/components', 'slider'] },
       { title: 'Switch', url: ['/components', 'switch'] },
       { title: 'Textarea', url: ['/components', 'textarea'] },
