@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ngwr-ng-add",
+  "title": "ngwr ng-add",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Target Angular project name. Defaults to the workspace default project.",
+      "$default": { "$source": "projectName" }
+    },
+    "skipStyles": {
+      "type": "boolean",
+      "default": false,
+      "description": "Skip appending `@use 'ngwr';` to the project's global stylesheet."
+    },
+    "skipPeerInstall": {
+      "type": "boolean",
+      "default": false,
+      "description": "Skip installing peer deps (@angular/cdk) — useful in monorepos where you manage them yourself."
+    }
+  },
+  "required": []
+}

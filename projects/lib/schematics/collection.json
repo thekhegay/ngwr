@@ -1,0 +1,10 @@
+{
+  "$schema": "../../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "ng-add": {
+      "description": "Wire ngwr into the workspace — install peer deps, append `@use 'ngwr';` to global styles, and print next-steps for bootstrap providers.",
+      "factory": "./ng-add/index#default",
+      "schema": "./ng-add/schema.json"
+    }
+  }
+}
