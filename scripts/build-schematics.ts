@@ -24,10 +24,11 @@
  */
 
 import { execSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { exit } from 'node:process';
 
+import { buildSymbolMap } from './lib/build-symbol-map';
 import { err } from './lib/log/err';
 import { info } from './lib/log/info';
 import { DIST_LIB_PATH } from './lib/paths/dist-lib';
@@ -43,6 +44,7 @@ const ASSETS = [
   ['migrations.json', 'migrations.json'],
   ['ng-add/schema.json', 'ng-add/schema.json'],
   ['icon-set/schema.json', 'icon-set/schema.json'],
+  ['use/schema.json', 'use/schema.json'],
 ] as const;
 
 if (!existsSync(DIST_LIB_PATH)) {
@@ -60,5 +62,12 @@ for (const [src, dst] of ASSETS) {
   copyFileSync(from, to);
   info(`✓ Copied ${src} → ${to}`);
 }
+
+// Auto-generated symbol → subpath map for `ng g ngwr:use`.
+const symbolMap = buildSymbolMap();
+const symbolMapPath = resolve(DST, 'use/symbol-map.json');
+mkdirSync(dirname(symbolMapPath), { recursive: true });
+writeFileSync(symbolMapPath, `${JSON.stringify(symbolMap, null, 2)}\n`);
+info(`✓ Generated use/symbol-map.json (${Object.keys(symbolMap).length} symbols)`);
 
 info('✓ Schematics ready under dist/lib/schematics');

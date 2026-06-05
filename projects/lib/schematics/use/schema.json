@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ngwr-use",
+  "title": "ngwr use",
+  "type": "object",
+  "properties": {
+    "symbol": {
+      "type": "string",
+      "description": "Class name to import — e.g. `WrButton`, `WrSelect`, `WrFormField`.",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Class name to import (e.g. WrButton)?"
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "Component file to edit. When omitted, uses the file passed via argv[1] or prompts."
+    },
+    "project": {
+      "type": "string",
+      "description": "Target Angular project. Defaults to the workspace default.",
+      "$default": { "$source": "projectName" }
+    }
+  },
+  "required": ["symbol"]
+}

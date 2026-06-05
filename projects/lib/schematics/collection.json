@@ -11,6 +11,11 @@
       "factory": "./icon-set/index#default",
       "schema": "./icon-set/schema.json",
       "aliases": ["icons"]
+    },
+    "use": {
+      "description": "Add an `import { WrFoo } from 'ngwr/<subpath>';` line and splice WrFoo into the @Component imports array of a component file.",
+      "factory": "./use/index#default",
+      "schema": "./use/schema.json"
     }
   }
 }
