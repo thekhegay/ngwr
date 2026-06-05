@@ -1,0 +1,28 @@
+<div class="ngwr-icon-grid">
+  <div class="ngwr-icon-grid__search">
+    <input wrInput type="search" placeholder="Search by name…" [(ngModel)]="query" autocomplete="off" />
+    <span class="ngwr-icon-grid__count">{{ filtered().length }} / {{ totalCount() }}</span>
+  </div>
+
+  @if (visible().length === 0) {
+    <p class="ngwr-icon-grid__empty">No matches.</p>
+  } @else {
+    <div class="ngwr-icon-grid__list">
+      @for (icon of visible(); track icon.name) {
+        <button
+          type="button"
+          class="ngwr-icon-grid__tile"
+          [attr.aria-label]="'Copy import snippet for ' + icon.name"
+          (click)="copy(icon)"
+        >
+          <span class="ngwr-icon-grid__svg" [innerHTML]="svgFor(icon)"></span>
+          <span class="ngwr-icon-grid__name">{{ icon.name }}</span>
+        </button>
+      }
+    </div>
+
+    @if (hiddenCount() > 0) {
+      <p class="ngwr-icon-grid__hidden">+{{ hiddenCount() }} more matches — narrow the search to see them.</p>
+    }
+  }
+</div>

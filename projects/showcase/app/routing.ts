@@ -5,6 +5,7 @@ import {
   COMPONENTS_SIDEBAR,
   DIRECTIVES_SIDEBAR,
   GETTING_STARTED_SIDEBAR,
+  ICONS_SIDEBAR,
   PIPES_SIDEBAR,
   SERVICES_SIDEBAR,
   UTILS_SIDEBAR,
@@ -13,6 +14,18 @@ import {
 
 export const routes = {
   index: '/',
+  icons: {
+    index: 'icons',
+    overview: 'overview',
+    lucide: 'lucide',
+    feather: 'feather',
+    tabler: 'tabler',
+    phosphor: 'phosphor',
+    heroicons: 'heroicons',
+    iconoir: 'iconoir',
+    radix: 'radix',
+    bootstrap: 'bootstrap',
+  },
   gettingStarted: {
     index: 'getting-started',
     installation: 'installation',
@@ -224,6 +237,11 @@ export const routing: Routes = [
         path: routes.components.index,
         data: { sidebar: COMPONENTS_SIDEBAR },
         loadChildren: () => import('./components/components.routing'),
+      },
+      {
+        path: routes.icons.index,
+        data: { sidebar: ICONS_SIDEBAR },
+        loadChildren: () => import('./icons/icons.routing'),
       },
       {
         path: routes.directives.index,
