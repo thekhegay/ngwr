@@ -115,10 +115,6 @@ export default [
     loadComponent: () => import('./descriptions/descriptions'),
   },
   {
-    path: components.dateTimePicker,
-    loadComponent: () => import('./date-time-picker/date-time-picker'),
-  },
-  {
     path: components.dialog,
     loadComponent: () => import('./dialog/dialog'),
   },
@@ -297,10 +293,6 @@ export default [
   {
     path: components.textarea,
     loadComponent: () => import('./textarea/textarea'),
-  },
-  {
-    path: components.timePicker,
-    loadComponent: () => import('./time-picker/time-picker'),
   },
   {
     path: components.timeline,

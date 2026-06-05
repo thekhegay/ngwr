@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import {
@@ -29,25 +29,44 @@ import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
+import { WrDateTimePanel } from './internal/date-time-panel';
+import { WrTimePanel } from './internal/time-panel';
+
 /**
- * Single-date picker. `<input>` + calendar icon + popover-anchored
- * `<wr-calendar>` inside an isolated CDK overlay.
+ * Unified date / time / date-time picker. Same `<input>` + popover skeleton
+ * for every mode — the overlay content swaps based on `[mode]`:
+ *
+ * - `'date'` (default) — popover renders a calendar. Picking a date closes
+ *   the overlay.
+ * - `'time'` — popover renders an `HH:MM[:SS]` stepper with optional AM/PM.
+ *   Stays open while editing; close with outside-click or Escape.
+ * - `'datetime'` — popover stacks calendar + time stepper. Picking a date
+ *   does NOT close (the user typically wants to set the time next).
  *
  * Implements `ControlValueAccessor` — bind via `[(ngModel)]`, `[formControl]`,
- * or `formControlName`. The value type is `Date | null`.
+ * or `formControlName`. Value type is `Date | null` for every mode.
  *
- * Parses on every keystroke (silently — only emits when valid) and re-formats
- * to the canonical form on blur. Format is driven by {@link WrDateAdapter},
- * which understands both named keys (`'shortDate'`, `'mediumDate'`, …) and
- * raw token strings (`'dd.MM.yyyy'`).
+ * Parses the input on every keystroke (silently — only emits when valid) and
+ * re-formats canonical on blur. Format is driven by {@link WrDateAdapter}: it
+ * accepts both named keys (`'shortDate'`, `'mediumDateTime'`, …) and raw
+ * token strings (`'dd.MM.yyyy'`, `'HH:mm'`). When `format` is left at the
+ * default (`null`), the picker derives the right named key from `mode`:
+ * `'date'` → `'shortDate'`, `'time'` → `'shortTime'`, `'datetime'` →
+ * `'shortDateTime'`.
  *
  * @example
  * ```html
- * <wr-date-picker [(ngModel)]="picked" format="shortDate" />
+ * <!-- Date only -->
  * <wr-date-picker [(ngModel)]="picked" format="dd.MM.yyyy" [min]="minDate" />
+ *
+ * <!-- Time only -->
+ * <wr-date-picker mode="time" [(ngModel)]="picked" timeFormat="24h" />
+ *
+ * <!-- Date + time -->
+ * <wr-date-picker mode="datetime" [(ngModel)]="when" [showSeconds]="true" [step]="5" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/date-picker
+ * @see https://ngwr.dev/components/date-picker
  */
 @Component({
   selector: 'wr-date-picker',
@@ -65,25 +84,41 @@ import { noop } from 'ngwr/utils';
   ],
 })
 export class WrDatePicker implements ControlValueAccessor {
-  /** Format used for both display and parsing. @default 'shortDate' */
-  readonly format = input<WrDateFormat | (string & {})>('shortDate');
+  /** Picker behavior — see class doc. @default 'date' */
+  readonly mode = input<'date' | 'time' | 'datetime'>('date');
+
+  /**
+   * Format used for both display and parsing. When `null` (default), the
+   * format is derived from `mode` (`shortDate` / `shortTime` /
+   * `shortDateTime`). Pass a named key or raw token string to override.
+   */
+  readonly format = input<WrDateFormat | (string & {}) | null>(null);
 
   /** Placeholder shown when the input is empty. */
   readonly placeholder = input<string>('');
 
-  /** Min selectable date (forwarded to the calendar). */
+  /** Min selectable date (forwarded to the calendar). Ignored in `time` mode. */
   readonly min = input<Date | null>(null);
 
-  /** Max selectable date (forwarded to the calendar). */
+  /** Max selectable date (forwarded to the calendar). Ignored in `time` mode. */
   readonly max = input<Date | null>(null);
 
-  /** Predicate to disable specific dates (forwarded to the calendar). */
+  /** Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
+
+  /** Time-panel 12 / 24-hour format. Applies in `time` + `datetime` modes. @default 'auto' */
+  readonly timeFormat = input<'auto' | '12h' | '24h'>('auto');
+
+  /** Render the seconds column. Applies in `time` + `datetime` modes. @default false */
+  readonly showSeconds = input(false, { transform: coerceBooleanProperty });
+
+  /** Minute / second step for the time panel. @default 1 */
+  readonly step = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
 
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Read-only — input not typeable, but the icon still opens the calendar. @default false */
+  /** Read-only — input not typeable, but the trigger icon still opens the overlay. @default false */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
@@ -103,11 +138,31 @@ export class WrDatePicker implements ControlValueAccessor {
 
   protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
-  /** Whether the calendar overlay is currently open. */
+  /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
 
+  /** Resolved format — falls back to a mode-appropriate default. */
+  protected readonly resolvedFormat = computed<string>(() => {
+    const explicit = this.format();
+    if (explicit) return explicit;
+    const m = this.mode();
+    if (m === 'datetime') return 'shortDateTime';
+    if (m === 'time') return 'shortTime';
+    return 'shortDate';
+  });
+
+  protected readonly isTime = computed(() => this.mode() === 'time');
+  protected readonly isDateTime = computed(() => this.mode() === 'datetime');
+
+  protected readonly triggerLabel = computed(() => {
+    const m = this.mode();
+    if (m === 'time') return 'Open time picker';
+    if (m === 'datetime') return 'Open date and time picker';
+    return 'Open calendar';
+  });
+
   protected readonly classes = computed(() => {
-    const parts = ['wr-date-picker'];
+    const parts = ['wr-date-picker', `wr-date-picker--${this.mode()}`];
     if (this.effectiveDisabled()) parts.push('wr-date-picker--disabled');
     return parts.join(' ');
   });
@@ -125,7 +180,7 @@ export class WrDatePicker implements ControlValueAccessor {
 
   writeValue(value: Date | null): void {
     this.value.set(value);
-    this.text.set(value && this.adapter.isValid(value) ? this.adapter.format(value, this.format()) : '');
+    this.text.set(value && this.adapter.isValid(value) ? this.adapter.format(value, this.resolvedFormat()) : '');
   }
 
   registerOnChange(fn: (value: Date | null) => void): void {
@@ -150,7 +205,7 @@ export class WrDatePicker implements ControlValueAccessor {
       this.onChange(null);
       return;
     }
-    const parsed = this.adapter.parse(raw, this.format());
+    const parsed = this.adapter.parse(raw, this.resolvedFormat());
     if (parsed && this.adapter.isValid(parsed) && !this.isOutOfBounds(parsed)) {
       this.value.set(parsed);
       this.onChange(parsed);
@@ -162,7 +217,7 @@ export class WrDatePicker implements ControlValueAccessor {
     // Reformat to canonical on blur (cleans up `1/5/25` → `1/5/2025`).
     const v = this.value();
     if (v && this.adapter.isValid(v)) {
-      this.text.set(this.adapter.format(v, this.format()));
+      this.text.set(this.adapter.format(v, this.resolvedFormat()));
     } else if (!this.text()) {
       this.value.set(null);
       this.onChange(null);
@@ -207,20 +262,11 @@ export class WrDatePicker implements ControlValueAccessor {
     });
     this.overlayOpen.set(true);
 
-    const portal = new ComponentPortal(WrCalendar);
-    const ref = this.overlayRef.attach(portal);
-    ref.setInput('date', this.value());
-    ref.setInput('min', this.min());
-    ref.setInput('max', this.max());
-    ref.setInput('dateFilter', this.dateFilter());
-
-    ref.instance.date.subscribe(next => {
-      if (!next) return;
-      this.value.set(next);
-      this.text.set(this.adapter.format(next, this.format()));
-      this.onChange(next);
-      this.closeOverlay();
-    });
+    // Dispatch by mode — pick the panel + wire its emissions.
+    const m = this.mode();
+    if (m === 'time') this.attachTime();
+    else if (m === 'datetime') this.attachDateTime();
+    else this.attachDate();
 
     this.overlayRef
       .outsidePointerEvents()
@@ -242,6 +288,55 @@ export class WrDatePicker implements ControlValueAccessor {
       });
   }
 
+  private attachDate(): void {
+    if (!this.overlayRef) return;
+    const ref = this.overlayRef.attach(new ComponentPortal(WrCalendar));
+    ref.setInput('date', this.value());
+    ref.setInput('min', this.min());
+    ref.setInput('max', this.max());
+    ref.setInput('dateFilter', this.dateFilter());
+    ref.instance.date.subscribe(next => {
+      if (!next) return;
+      this.commit(next);
+      this.closeOverlay();
+    });
+  }
+
+  private attachTime(): void {
+    if (!this.overlayRef) return;
+    const ref = this.overlayRef.attach(new ComponentPortal(WrTimePanel));
+    ref.setInput('format', this.timeFormat());
+    ref.setInput('showSeconds', this.showSeconds());
+    ref.setInput('step', this.step());
+    ref.instance.writeValue(this.value() ?? this.adapter.today());
+    ref.instance.registerOnChange((next: Date | null) => {
+      if (!next) return;
+      this.commit(next);
+    });
+  }
+
+  private attachDateTime(): void {
+    if (!this.overlayRef) return;
+    const ref = this.overlayRef.attach(new ComponentPortal(WrDateTimePanel));
+    ref.setInput('value', this.value());
+    ref.setInput('min', this.min());
+    ref.setInput('max', this.max());
+    ref.setInput('dateFilter', this.dateFilter());
+    ref.setInput('timeFormat', this.timeFormat());
+    ref.setInput('showSeconds', this.showSeconds());
+    ref.setInput('step', this.step());
+    ref.instance.changed.subscribe(next => {
+      this.commit(next);
+      ref.setInput('value', next);
+    });
+  }
+
+  private commit(next: Date): void {
+    this.value.set(next);
+    this.text.set(this.adapter.format(next, this.resolvedFormat()));
+    this.onChange(next);
+  }
+
   private closeOverlay(): void {
     this.dispose();
   }
@@ -257,6 +352,7 @@ export class WrDatePicker implements ControlValueAccessor {
   // ──────── Helpers ────────
 
   private isOutOfBounds(date: Date): boolean {
+    if (this.mode() === 'time') return false;
     const min = this.min();
     if (min && this.adapter.compareDate(date, min) < 0) return true;
     const max = this.max();

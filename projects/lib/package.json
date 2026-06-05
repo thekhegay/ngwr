@@ -158,9 +158,6 @@
     "./date-picker": {
       "sass": "./date-picker/styles/_index.scss"
     },
-    "./date-time-picker": {
-      "sass": "./date-time-picker/styles/_index.scss"
-    },
     "./decrypt-text": {
       "sass": "./decrypt-text/styles/_index.scss"
     },
@@ -359,9 +356,6 @@
     },
     "./textarea": {
       "sass": "./textarea/styles/_index.scss"
-    },
-    "./time-picker": {
-      "sass": "./time-picker/styles/_index.scss"
     },
     "./timeline": {
       "sass": "./timeline/styles/_index.scss"

@@ -61,7 +61,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Checkbox', url: ['/components', 'checkbox'] },
       { title: 'Color Picker', url: ['/components', 'color-picker'] },
       { title: 'Date Picker', url: ['/components', 'date-picker'] },
-      { title: 'Date Time Picker', url: ['/components', 'date-time-picker'] },
       { title: 'File Upload', url: ['/components', 'file-upload'] },
       { title: 'Form', url: ['/components', 'form'] },
       { title: 'Form Field', url: ['/components', 'form-field'] },
@@ -78,7 +77,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Slider', url: ['/components', 'slider'] },
       { title: 'Switch', url: ['/components', 'switch'] },
       { title: 'Textarea', url: ['/components', 'textarea'] },
-      { title: 'Time Picker', url: ['/components', 'time-picker'] },
     ],
   },
   {

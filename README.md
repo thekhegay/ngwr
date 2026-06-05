@@ -113,7 +113,7 @@ export class AppComponent {
 
 ### Components
 
-**Form** — [calendar](https://ngwr.dev/components/calendar), [cascader](https://ngwr.dev/components/cascader), [checkbox](https://ngwr.dev/components/checkbox), [color-picker](https://ngwr.dev/components/color-picker), [counter](https://ngwr.dev/components/counter), [date-picker](https://ngwr.dev/components/date-picker), [date-time-picker](https://ngwr.dev/components/date-time-picker), [file-upload](https://ngwr.dev/components/file-upload), [form](https://ngwr.dev/components/form), [input](https://ngwr.dev/components/input), [input-number](https://ngwr.dev/components/input-number), [input-otp](https://ngwr.dev/components/input-otp), [knob](https://ngwr.dev/components/knob), [radio](https://ngwr.dev/components/radio), [rating](https://ngwr.dev/components/rating), [segmented](https://ngwr.dev/components/segmented), [select](https://ngwr.dev/components/select), [slider](https://ngwr.dev/components/slider), [switch](https://ngwr.dev/components/switch), [textarea](https://ngwr.dev/components/textarea), [time-picker](https://ngwr.dev/components/time-picker), [tree](https://ngwr.dev/components/tree), [tree-select](https://ngwr.dev/components/tree-select).
+**Form** — [calendar](https://ngwr.dev/components/calendar), [cascader](https://ngwr.dev/components/cascader), [checkbox](https://ngwr.dev/components/checkbox), [color-picker](https://ngwr.dev/components/color-picker), [counter](https://ngwr.dev/components/counter), [date-picker](https://ngwr.dev/components/date-picker), [file-upload](https://ngwr.dev/components/file-upload), [form](https://ngwr.dev/components/form), [input](https://ngwr.dev/components/input), [input-number](https://ngwr.dev/components/input-number), [input-otp](https://ngwr.dev/components/input-otp), [knob](https://ngwr.dev/components/knob), [radio](https://ngwr.dev/components/radio), [rating](https://ngwr.dev/components/rating), [segmented](https://ngwr.dev/components/segmented), [select](https://ngwr.dev/components/select), [slider](https://ngwr.dev/components/slider), [switch](https://ngwr.dev/components/switch), [textarea](https://ngwr.dev/components/textarea), [tree](https://ngwr.dev/components/tree), [tree-select](https://ngwr.dev/components/tree-select).
 
 **Buttons** — [button](https://ngwr.dev/components/button), [button-group](https://ngwr.dev/components/button-group), [speed-dial](https://ngwr.dev/components/speed-dial).
 
@@ -160,7 +160,7 @@ Css helpers (`resolveCssSize`, `getRootFontSize`), ids (`randomId`), type guards
 - [Color](https://ngwr.dev/getting-started/color) — design tokens and palette.
 - [Grid](https://ngwr.dev/getting-started/grid) — opt-in 12-column layout.
 - [Overlay](https://ngwr.dev/getting-started/overlay) — isolated CDK overlay container, `provideWrOverlay()`.
-- **Date adapters** — `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter(...)` to power calendar / date-picker / date-time-picker.
+- **Date adapters** — `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter(...)` to power calendar + every mode of date-picker.
 
 ## Highlights
 

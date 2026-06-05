@@ -27,7 +27,161 @@
   }
 }
 
-// Overlay pane — z-index isolation only; <wr-calendar> brings its own chrome.
+// Overlay pane — z-index isolation only. <wr-calendar> + the time panel
+// bring their own chrome.
 .wr-date-picker-overlay {
   z-index: 1050;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Internal panels rendered inside the date-picker overlay.
+// (Were previously the standalone wr-time-picker / wr-date-time-picker
+// entry-points; now folded in via [mode]="time|datetime".)
+// ─────────────────────────────────────────────────────────────────────
+
+.wr-time-picker {
+  --wr-time-picker-col-width: 3rem;
+  --wr-time-picker-bg: var(--wr-color-white);
+  --wr-time-picker-border: var(--wr-color-light);
+  --wr-time-picker-color: var(--wr-color-dark);
+  --wr-time-picker-muted: var(--wr-color-medium);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--wr-font-family-base);
+
+  // Each stepper column = ▲ button + input + ▼ button stacked vertically.
+  &__col {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: var(--wr-time-picker-col-width);
+    gap: 0.125rem;
+  }
+
+  &__step {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    height: 1.25rem;
+    color: var(--wr-time-picker-muted);
+    font-size: 0.625rem;
+    line-height: 1;
+    border-radius: var(--wr-border-radius-sm);
+    cursor: pointer;
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      color: var(--wr-color-primary);
+      background: rgba(var(--wr-color-light-rgb), 0.5);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(var(--wr-color-primary-rgb), 0.3);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.3125rem 0.25rem;
+    appearance: none;
+    -moz-appearance: textfield;
+    background: var(--wr-time-picker-bg);
+    border: 1px solid var(--wr-time-picker-border);
+    border-radius: var(--wr-border-radius-sm);
+    color: var(--wr-time-picker-color);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.9375rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    outline: 0;
+    transition:
+      border-color var(--wr-transition-base),
+      box-shadow var(--wr-transition-base);
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+
+    &:focus {
+      border-color: var(--wr-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+    }
+
+    &:disabled {
+      background: rgba(var(--wr-color-light-rgb), 0.35);
+      color: var(--wr-time-picker-muted);
+      cursor: not-allowed;
+    }
+  }
+
+  // AM / PM column shows a static label instead of an input.
+  &__col--ampm &__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 2rem;
+    background: var(--wr-time-picker-bg);
+    border: 1px solid var(--wr-time-picker-border);
+    border-radius: var(--wr-border-radius-sm);
+    color: var(--wr-time-picker-color);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  &__sep {
+    color: var(--wr-time-picker-muted);
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1;
+    user-select: none;
+    align-self: center;
+    padding-top: 0.5rem;
+  }
+
+  &--disabled {
+    opacity: 0.7;
+  }
+}
+
+// Stacks calendar + time picker as one continuous surface inside the
+// date-picker overlay for [mode]="datetime".
+.wr-date-time-panel {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0;
+
+  // Flatten the calendar's bottom corners + bottom border so the time row
+  // joins it visually as one panel.
+  > .wr-calendar {
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  &__time {
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem;
+    background: var(--wr-color-white);
+    border: 1px solid var(--wr-color-light);
+    border-top: 0;
+    border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
+  }
 }

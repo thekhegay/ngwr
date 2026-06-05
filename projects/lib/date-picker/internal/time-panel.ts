@@ -35,41 +35,27 @@ function isLocaleHour12(locale: string): boolean {
 }
 
 /**
- * Numeric time picker — `HH:MM` (or `HH:MM:SS`) with optional AM/PM column.
- * Each field is a stepper: ▲ / typeable input / ▼. AM/PM works the same
- * — both arrows toggle.
+ * Internal time stepper panel rendered by `<wr-date-picker mode="time">`
+ * (standalone) and `mode="datetime"` (composed with the calendar). Not part
+ * of the public API — use `<wr-date-picker mode="time">` instead.
  *
- * Implements `ControlValueAccessor` — value is `Date | null` (only the hours,
- * minutes and seconds matter; the date portion is preserved). When typing
- * into an empty picker, today's date is used for the date portion.
- *
- * 12 / 24-hour mode is locale-aware by default — `format="auto"` (the default)
- * picks 12h for `en-US` and similar, 24h for most other locales. Override
- * explicitly with `format="12h"` / `format="24h"`.
- *
- * @example
- * ```html
- * <wr-time-picker [(ngModel)]="picked" />
- * <wr-time-picker [(ngModel)]="picked" format="24h" [showSeconds]="true" [step]="5" />
- * ```
- *
- * @see https://ngwr.dev/docs/components/time-picker
+ * @internal
  */
 @Component({
   selector: 'wr-time-picker',
-  templateUrl: './time-picker.html',
+  templateUrl: './time-panel.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrTimePicker),
+      useExisting: forwardRef(() => WrTimePanel),
       multi: true,
     },
   ],
 })
-export class WrTimePicker implements ControlValueAccessor {
+export class WrTimePanel implements ControlValueAccessor {
   /** 12 / 24-hour mode. @default 'auto' (derived from the locale) */
   readonly format = input<'auto' | '12h' | '24h'>('auto');
 
@@ -121,7 +107,6 @@ export class WrTimePicker implements ControlValueAccessor {
 
   protected readonly amPmLabel = computed(() => (this.isPm() ? 'PM' : 'AM'));
 
-  // Padded values for the input display.
   protected readonly hoursDisplay = computed(() => pad(this.displayHours()));
   protected readonly minutesDisplay = computed(() => pad(this.minutes()));
   protected readonly secondsDisplay = computed(() => pad(this.seconds()));
@@ -219,7 +204,7 @@ export class WrTimePicker implements ControlValueAccessor {
 
   protected toggleAmPm(): void {
     if (!this.interactive()) return;
-    // ±12 hours flips AM ↔ PM; using +12 is enough because wrap handles overflow.
+    // ±12 hours flips AM ↔ PM; wrap handles overflow.
     this.hours.set(wrap(this.hours() + 12, 24));
     this.emit();
   }

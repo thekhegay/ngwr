@@ -10,12 +10,13 @@ import { FormsModule } from '@angular/forms';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date-adapter';
-import { WrTimePicker } from 'ngwr/time-picker';
+
+import { WrTimePanel } from './time-panel';
 
 /**
  * Internal panel that stacks a `<wr-calendar>` and a `<wr-time-picker>`,
  * combining their selections into a single `Date`. Owned by
- * {@link WrDateTimePicker} — not part of the public API.
+ * `<wr-date-picker mode="datetime">` — not part of the public API.
  *
  * @internal
  */
@@ -24,7 +25,7 @@ import { WrTimePicker } from 'ngwr/time-picker';
   templateUrl: './date-time-panel.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-date-time-panel' },
-  imports: [FormsModule, WrCalendar, WrTimePicker],
+  imports: [FormsModule, WrCalendar, WrTimePanel],
 })
 export class WrDateTimePanel {
   readonly value = input<Date | null>(null);

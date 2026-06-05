@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Date Picker"
-  description="Input + calendar popover. Parses on every keystroke (silently — only emits when valid), re-formats canonical on blur. Format driven by `WrDateAdapter` — both named keys (`shortDate`, `mediumDate`, `longDate`) and raw tokens (`dd.MM.yyyy`) work."
-  [keywords]="['date', 'picker', 'wr-date-picker']"
+  description="Unified date / time / date-time picker. `<input>` + popover for every mode — overlay content swaps based on `[mode]`. Parses on every keystroke (silently — only emits when valid), reformats canonical on blur. Format driven by `WrDateAdapter`."
+  [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
   [labels]="['ControlValueAccessor', 'CDK Overlay']"
 >
   <ngwr-doc-section title="Installation">
@@ -32,6 +32,54 @@
     <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-date-picker [(ngModel)]="bounded" [min]="today" [max]="nextMonth" [dateFilter]="isWeekday" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Time mode"
+    description='`mode="time"` replaces the calendar with an HH:MM[:SS] stepper. AM/PM column appears in 12-hour mode. Value is `Date | null` — the date portion is preserved across edits.'
+  >
+    <ngwr-doc-code [code]="snippets.time" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker mode="time" [(ngModel)]="time" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Time — 24-hour" description="`timeFormat='24h'` forces the locale-independent 24h layout.">
+    <ngwr-doc-code [code]="snippets.time24" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker mode="time" timeFormat="24h" [(ngModel)]="time24" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Time — seconds + step" description="`step` applies to both minutes and seconds.">
+    <ngwr-doc-code [code]="snippets.timeSeconds" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker mode="time" timeFormat="24h" [showSeconds]="true" [step]="5" [(ngModel)]="timeSeconds" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Date + Time mode"
+    description='`mode="datetime"` stacks the calendar above the time stepper. Picking a date does NOT close the overlay — the user usually wants to set the time next.'
+  >
+    <ngwr-doc-code [code]="snippets.datetime" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker mode="datetime" [(ngModel)]="datetime" placeholder="Pick date & time" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Date + Time — custom format, seconds, step">
+    <ngwr-doc-code [code]="snippets.datetimeSeconds" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-date-picker
+        mode="datetime"
+        format="dd.MM.yyyy HH:mm:ss"
+        timeFormat="24h"
+        [showSeconds]="true"
+        [step]="5"
+        [(ngModel)]="datetimeSeconds"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
