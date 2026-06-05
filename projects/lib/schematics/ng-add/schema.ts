@@ -5,14 +5,23 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** Inputs accepted by `ng add ngwr`. Mirrors `schema.json`. */
+/** Choices the user can pick during `ng add ngwr`. Mirrors `schema.json`. */
 export interface Schema {
   /** Target Angular project. Defaults to the workspace default. */
   project?: string;
 
-  /** Skip appending `@use 'ngwr';` to the global styles file. */
-  skipStyles?: boolean;
+  /** How to wire styles. `all` = `@use 'ngwr';`, `none` = skip. */
+  styles?: 'all' | 'none';
 
-  /** Skip installing peer deps via NodePackageInstallTask. */
+  /** Date adapter wired via `provideWrDateAdapter`. */
+  dateAdapter?: 'none' | 'native' | 'date-fns' | 'luxon';
+
+  /** Density preset wired via `provideWrDensity`. */
+  density?: 'none' | 'comfortable' | 'compact';
+
+  /** Theme starter applied to `<html data-wr-theme="...">`. */
+  theme?: 'none' | 'light' | 'dark' | 'system';
+
+  /** Skip the NodePackageInstallTask (peers won't be installed). */
   skipPeerInstall?: boolean;
 }

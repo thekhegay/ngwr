@@ -12,76 +12,85 @@ import { getWorkspace } from '@schematics/angular/utility/workspace';
 
 import type { Schema } from './schema';
 
-/** Peer ranges kept loose so this schematic doesn't pin minor versions. */
-const PEER_DEPS: readonly (readonly [string, string])[] = [['@angular/cdk', '>=22.0.0']];
+/** Base peers, regardless of prompt answers. */
+const BASE_PEERS: readonly (readonly [string, string])[] = [['@angular/cdk', '>=22.0.0']];
 
-/** `@use 'ngwr';` import line appended to the user's global styles. */
+/** Extra peers contributed by the `dateAdapter` choice. */
+const DATE_ADAPTER_PEERS: Record<NonNullable<Schema['dateAdapter']>, readonly (readonly [string, string])[]> = {
+  none: [],
+  native: [],
+  'date-fns': [['date-fns', '>=3.0.0 || >=4.0.0']],
+  luxon: [['luxon', '>=3.0.0']],
+};
+
+/** Adapter classes named in the next-steps snippet for each choice. */
+const DATE_ADAPTER_PROVIDER: Record<NonNullable<Schema['dateAdapter']>, string | null> = {
+  none: null,
+  native: 'provideWrDateAdapter()',
+  'date-fns': 'provideWrDateAdapter({ adapter: WrDateFnsAdapter })',
+  luxon: 'provideWrDateAdapter({ adapter: WrLuxonAdapter })',
+};
+
+/** Density preset → `provideWrDensity(...)` call. */
+const DENSITY_PROVIDER: Record<NonNullable<Schema['density']>, string | null> = {
+  none: null,
+  comfortable: "provideWrDensity({ preset: 'comfortable' })",
+  compact: "provideWrDensity({ preset: 'compact' })",
+};
+
+/** Theme preset → `provideWrTheme(...)` call. */
+const THEME_PROVIDER: Record<NonNullable<Schema['theme']>, string | null> = {
+  none: null,
+  light: "provideWrTheme({ defaultMode: 'light' })",
+  dark: "provideWrTheme({ defaultMode: 'dark' })",
+  system: "provideWrTheme({ defaultMode: 'auto' })",
+};
+
 const STYLES_DIRECTIVE_SCSS = "@use 'ngwr';";
 const STYLES_DIRECTIVE_CSS = "@import 'ngwr';";
 
-/** Snippet printed to the terminal once the schematic finishes. */
-const NEXT_STEPS = `
-ngwr installed.
-
-Add the providers to your bootstrap (typically src/main.ts):
-
-  import { provideWrOverlay } from 'ngwr/overlay';
-  import { plus, trash, provideWrIcons } from 'ngwr/icon';
-
-  bootstrapApplication(AppComponent, {
-    providers: [
-      provideWrOverlay(),
-      provideWrIcons([plus, trash]),   // tree-shaken icon set
-    ],
-  });
-
-Optional — date components need an adapter:
-
-  import { provideWrDateAdapter } from 'ngwr/date-adapter';
-  // ...providers: [provideWrDateAdapter()]
-
-Browse the full catalog at https://ngwr.dev.
-`;
-
 function ngAdd(options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {
-    return chain([installPeerDeps(options, context), registerStyles(options), printNextSteps(context)])(tree, context);
+    return chain([installPeerDeps(options, context), registerStyles(options), printNextSteps(options, context)])(
+      tree,
+      context
+    );
   };
 }
 
 /**
- * Adds `@angular/cdk` as a peer dep on the consumer's package.json and
- * schedules an install (unless `--skipPeerInstall` was passed).
+ * Adds peer deps for the user's choices and schedules a single install
+ * task (unless `--skipPeerInstall` was passed).
  */
 function installPeerDeps(options: Schema, context: SchematicContext): Rule {
   if (options.skipPeerInstall) return (tree: Tree) => tree;
 
   return (tree: Tree) => {
-    let added = false;
-    for (const [name, version] of PEER_DEPS) {
+    const deps = [...BASE_PEERS, ...DATE_ADAPTER_PEERS[options.dateAdapter ?? 'none']];
+    if (!deps.length) return tree;
+
+    for (const [name, version] of deps) {
       addPackageJsonDependency(tree, {
         type: NodeDependencyType.Default,
         name,
         version,
         overwrite: false,
       });
-      added = true;
     }
-    if (added) context.addTask(new NodePackageInstallTask());
+    context.addTask(new NodePackageInstallTask());
     return tree;
   };
 }
 
 /**
- * Appends `@use 'ngwr';` to the project's first global stylesheet.
- *
- * - Looks the file up via `angular.json` → `architect.build.options.styles[0]`.
- * - SCSS / Sass files get `@use 'ngwr';`. CSS / Less files get `@import 'ngwr';`.
- * - No-op when the directive is already present (idempotent).
- * - No-op when `--skipStyles` is passed, or when no styles file is wired.
+ * Appends `@use 'ngwr';` to the project's first global stylesheet when
+ * `styles === 'all'`. Skipped entirely when `styles === 'none'` — the
+ * user is expected to opt in per component via `ng g ngwr:component-style`.
  */
 function registerStyles(options: Schema): Rule {
-  if (options.skipStyles) return (tree: Tree) => tree;
+  if ((options.styles ?? 'all') === 'none') {
+    return (tree: Tree) => tree;
+  }
 
   return async (tree: Tree, context: SchematicContext) => {
     const workspace = await getWorkspace(tree);
@@ -125,11 +134,79 @@ function registerStyles(options: Schema): Rule {
   };
 }
 
-function printNextSteps(context: SchematicContext): Rule {
+/**
+ * Renders a tailored next-steps message — imports + provider list shaped
+ * by the prompt answers. We deliberately don't AST-edit `main.ts`; a
+ * clear copy-pasteable snippet is more robust across project shapes
+ * (standalone bootstrap, NgModule bootstrap, server entry, etc.).
+ */
+function printNextSteps(options: Schema, context: SchematicContext): Rule {
   return (tree: Tree) => {
-    context.logger.info(NEXT_STEPS);
+    const adapter = options.dateAdapter ?? 'none';
+    const density = options.density ?? 'none';
+    const theme = options.theme ?? 'none';
+
+    const imports: string[] = [
+      "import { provideWrOverlay } from 'ngwr/overlay';",
+      "import { provideWrIcons, plus, trash } from 'ngwr/icon';",
+    ];
+    const providers: string[] = ['provideWrOverlay()', 'provideWrIcons([plus, trash])'];
+
+    const adapterCall = DATE_ADAPTER_PROVIDER[adapter];
+    if (adapterCall) {
+      imports.push("import { provideWrDateAdapter } from 'ngwr/date-adapter';");
+      if (adapter === 'date-fns') {
+        imports.push("import { WrDateFnsAdapter } from 'ngwr/date-adapter-fns';");
+      } else if (adapter === 'luxon') {
+        imports.push("import { WrLuxonAdapter } from 'ngwr/date-adapter-luxon';");
+      }
+      providers.push(adapterCall);
+    }
+
+    const densityCall = DENSITY_PROVIDER[density];
+    if (densityCall) {
+      imports.push("import { provideWrDensity } from 'ngwr/density';");
+      providers.push(densityCall);
+    }
+
+    const themeCall = THEME_PROVIDER[theme];
+    if (themeCall) {
+      imports.push("import { provideWrTheme } from 'ngwr/theme';");
+      providers.push(themeCall);
+    }
+
+    const importBlock = imports.join('\n');
+    const providerBlock = providers.map(p => `      ${p},`).join('\n');
+
+    const message = `
+ngwr installed.
+
+Add the providers to your bootstrap (typically src/main.ts):
+
+${importBlock}
+
+  bootstrapApplication(AppComponent, {
+    providers: [
+${providerBlock}
+    ],
+  });
+
+${snapshotSummary(options)}
+Browse the full catalog at https://ngwr.dev.
+`;
+
+    context.logger.info(message);
     return tree;
   };
+}
+
+function snapshotSummary(options: Schema): string {
+  const lines: string[] = ['Selected:'];
+  lines.push(`  • styles      = ${options.styles ?? 'all'}`);
+  lines.push(`  • dateAdapter = ${options.dateAdapter ?? 'none'}`);
+  lines.push(`  • density     = ${options.density ?? 'none'}`);
+  lines.push(`  • theme       = ${options.theme ?? 'none'}`);
+  return `${lines.join('\n')}\n\n`;
 }
 
 export default ngAdd;
