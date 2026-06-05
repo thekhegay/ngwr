@@ -42,17 +42,17 @@ export const wrRu: WrI18nCatalog = {
     empty: 'Нет вариантов',
     clearSelection: 'Очистить выбор',
     removeItem: 'Удалить {{label}}',
-  },
-  treeSelect: {
-    placeholder: 'Выберите…',
-    empty: 'Нет вариантов',
-    clearSelection: 'Очистить выбор',
-    removeItem: 'Удалить {{label}}',
-  },
-  autocomplete: {
     noResults: 'Ничего не найдено',
     loading: 'Загрузка…',
-    toggle: 'Переключить подсказки',
+  },
+  // `tree` covers both inline display and combobox-mode pickers
+  // (replaces the dropped `treeSelect` namespace).
+  tree: {
+    expand: 'Развернуть',
+    collapse: 'Свернуть',
+    placeholder: 'Выберите…',
+    clearSelection: 'Очистить выбор',
+    removeItem: 'Удалить {{label}}',
   },
   commandPalette: {
     placeholder: 'Введите команду или поиск…',
@@ -73,9 +73,6 @@ export const wrRu: WrI18nCatalog = {
     drop: 'Перетащите файлы или нажмите для выбора',
     invalid: 'Неподдерживаемый тип файла',
     tooBig: 'Файл слишком большой',
-  },
-  chipsInput: {
-    remove: 'Удалить {{label}}',
   },
   popconfirm: {
     confirm: 'Подтвердить',
@@ -121,9 +118,8 @@ export const wrRu: WrI18nCatalog = {
   },
   datePicker: {
     open: 'Открыть календарь',
-  },
-  dateTimePicker: {
-    open: 'Открыть выбор даты и времени',
+    openTime: 'Открыть выбор времени',
+    openDateTime: 'Открыть выбор даты и времени',
   },
   spinner: {
     label: 'Загрузка',
@@ -135,10 +131,6 @@ export const wrRu: WrI18nCatalog = {
     notFound: 'Извините, страница не найдена.',
     forbidden: 'Извините, доступ к этой странице ограничен.',
     serverError: 'Извините, что-то пошло не так.',
-  },
-  tree: {
-    expand: 'Развернуть',
-    collapse: 'Свернуть',
   },
   date: {
     months: {

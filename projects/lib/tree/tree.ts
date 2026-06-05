@@ -28,6 +28,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { provideWrIcons, WrIcon, chevronDown, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
@@ -146,6 +147,12 @@ export class WrTree<TId = string> implements ControlValueAccessor {
 
   /** Currently focused row's index in the flattened visible list. */
   protected readonly focusedIndex = signal(0);
+
+  /** Resolved ARIA labels — pick up live locale changes via re-render. */
+  protected readonly clearLabel = readI18nText('tree.clearSelection', 'Clear selection');
+  protected readonly expandLabel = readI18nText('tree.expand', 'Expand');
+  protected readonly collapseLabel = readI18nText('tree.collapse', 'Collapse');
+  protected readonly chipRemoveLabel = useI18nFormatter('tree.removeItem', 'Remove {{label}}');
 
   /** Flattened list of currently visible nodes — what the template renders. */
   protected readonly flat = computed<readonly FlatNode<TId>[]>(() => {

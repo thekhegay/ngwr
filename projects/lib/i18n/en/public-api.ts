@@ -54,17 +54,17 @@ export const wrEn: WrI18nCatalog = {
     empty: 'No options',
     clearSelection: 'Clear selection',
     removeItem: 'Remove {{label}}',
-  },
-  treeSelect: {
-    placeholder: 'Select…',
-    empty: 'No options',
-    clearSelection: 'Clear selection',
-    removeItem: 'Remove {{label}}',
-  },
-  autocomplete: {
     noResults: 'No results',
     loading: 'Loading…',
-    toggle: 'Toggle suggestions',
+  },
+  // `tree` covers both inline display and combobox-mode pickers
+  // (replaces the dropped `treeSelect` namespace).
+  tree: {
+    expand: 'Expand',
+    collapse: 'Collapse',
+    placeholder: 'Select…',
+    clearSelection: 'Clear selection',
+    removeItem: 'Remove {{label}}',
   },
   commandPalette: {
     placeholder: 'Type a command or search…',
@@ -85,9 +85,6 @@ export const wrEn: WrI18nCatalog = {
     drop: 'Drop files here or click to browse',
     invalid: 'Unsupported file type',
     tooBig: 'File too large',
-  },
-  chipsInput: {
-    remove: 'Remove {{label}}',
   },
   popconfirm: {
     confirm: 'Confirm',
@@ -133,9 +130,8 @@ export const wrEn: WrI18nCatalog = {
   },
   datePicker: {
     open: 'Open calendar',
-  },
-  dateTimePicker: {
-    open: 'Open date and time picker',
+    openTime: 'Open time picker',
+    openDateTime: 'Open date and time picker',
   },
   spinner: {
     label: 'Loading',
@@ -147,10 +143,6 @@ export const wrEn: WrI18nCatalog = {
     notFound: 'Sorry, the page you visited does not exist.',
     forbidden: 'Sorry, you are not authorized to access this page.',
     serverError: 'Sorry, something went wrong.',
-  },
-  tree: {
-    expand: 'Expand',
-    collapse: 'Collapse',
   },
   date: {
     months: {

@@ -25,6 +25,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date-adapter';
+import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
@@ -154,11 +155,17 @@ export class WrDatePicker implements ControlValueAccessor {
   protected readonly isTime = computed(() => this.mode() === 'time');
   protected readonly isDateTime = computed(() => this.mode() === 'datetime');
 
+  // Resolved at injection time — i18n catalog reads pick up live locale
+  // changes via re-render of the host attribute binding.
+  private readonly labelDate = readI18nText('datePicker.open', 'Open calendar');
+  private readonly labelTime = readI18nText('datePicker.openTime', 'Open time picker');
+  private readonly labelDateTime = readI18nText('datePicker.openDateTime', 'Open date and time picker');
+
   protected readonly triggerLabel = computed(() => {
     const m = this.mode();
-    if (m === 'time') return 'Open time picker';
-    if (m === 'datetime') return 'Open date and time picker';
-    return 'Open calendar';
+    if (m === 'time') return this.labelTime;
+    if (m === 'datetime') return this.labelDateTime;
+    return this.labelDate;
   });
 
   protected readonly classes = computed(() => {

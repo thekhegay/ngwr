@@ -55,7 +55,7 @@
           <span
             class="wr-select__chip-remove"
             role="button"
-            [attr.aria-label]="'Remove ' + chip.label"
+            [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
             tabindex="-1"
             (click)="removeChip(chip.value, $event)"
             (keydown.enter)="removeChip(chip.value, $event)"
@@ -120,7 +120,7 @@
               <span
                 class="wr-select__chip-remove"
                 role="button"
-                [attr.aria-label]="'Remove ' + chip.label"
+                [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
                 tabindex="-1"
                 (click)="removeChip(chip.value, $event)"
                 (keydown.enter)="removeChip(chip.value, $event)"

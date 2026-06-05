@@ -30,8 +30,14 @@ function walk(cat: WrI18nCatalog | null, key: string): string | null {
   return typeof node === 'string' ? node : null;
 }
 
-/** `{{name}}` interpolation. Missing params resolve to `''`. @internal */
-function interpolate(template: string, params: WrI18nParams | undefined): string {
+/**
+ * `{{name}}` interpolation. Missing params resolve to `''`. Exported so
+ * helpers in `util.ts` can interpolate the fallback template when no
+ * `WrI18n` provider is wired up.
+ *
+ * @internal
+ */
+export function wrInterpolate(template: string, params: WrI18nParams | undefined): string {
   if (!params) return template;
   return template.replace(/\{\{\s*([\w.-]+)\s*\}\}/g, (_match, name: string) => {
     const v = params[name];
@@ -148,7 +154,7 @@ export class WrI18n {
       void this.loadCatalog(lc, scope ?? null);
       return this.config.missingHandler(key, lc);
     }
-    return interpolate(hit, params);
+    return wrInterpolate(hit, params);
   }
 
   /** Reactive translate — re-evaluates on locale or catalog updates. */

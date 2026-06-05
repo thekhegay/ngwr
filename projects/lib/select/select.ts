@@ -28,7 +28,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
 
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { provideWrIcons, WrIcon, chevronDown, close } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
@@ -112,6 +112,9 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
   protected readonly resolvedPlaceholder = useI18nText(this.placeholder, 'select.placeholder', '');
   protected readonly resolvedClear = useI18nText(this.clearLabel, 'select.clearSelection', 'Clear selection');
+
+  /** Per-chip ARIA label — interpolates `{{label}}`. @internal */
+  protected readonly chipRemoveLabel = useI18nFormatter('select.removeItem', 'Remove {{label}}');
 
   /** Disable the select. Also set by Angular forms via `setDisabledState`. */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
@@ -199,14 +202,14 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
    */
   readonly freeText = input(false, { transform: coerceBooleanProperty });
 
-  /** Search mode: text shown when the filter / loader returns nothing. Falls back to `autocomplete.noResults`. */
+  /** Search mode: text shown when the filter / loader returns nothing. Falls back to `select.noResults`. */
   readonly noResultsText = input<string | null>(null);
 
-  /** Search mode: text shown while the async loader is in flight. Falls back to `autocomplete.loading`. */
+  /** Search mode: text shown while the async loader is in flight. Falls back to `select.loading`. */
   readonly loadingText = input<string | null>(null);
 
-  protected readonly resolvedNoResults = useI18nText(this.noResultsText, 'autocomplete.noResults', 'No results');
-  protected readonly resolvedLoading = useI18nText(this.loadingText, 'autocomplete.loading', 'Loading…');
+  protected readonly resolvedNoResults = useI18nText(this.noResultsText, 'select.noResults', 'No results');
+  protected readonly resolvedLoading = useI18nText(this.loadingText, 'select.loading', 'Loading…');
 
   /** Search mode: results returned by the async loader. @internal */
   protected readonly loadedOptions = signal<readonly unknown[]>([]);
