@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ngwr-icon-set",
+  "title": "ngwr icon-set generator",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "default": "icons",
+      "description": "Output file name (without extension).",
+      "$default": { "$source": "argv", "index": 0 }
+    },
+    "project": {
+      "type": "string",
+      "description": "Target Angular project. Defaults to the workspace default project.",
+      "$default": { "$source": "projectName" }
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "Path the file is written to. Defaults to `<project>/<sourceRoot>/app`."
+    },
+    "set": {
+      "type": "string",
+      "enum": ["basic", "navigation", "forms", "feedback"],
+      "description": "Curated icon set. Combined with `icons` if both are passed."
+    },
+    "icons": {
+      "type": "string",
+      "description": "Comma-separated list of ngwr icon names (e.g. `plus,trash,checkmark`). Unknown names are flagged but not blocked."
+    },
+    "exportName": {
+      "type": "string",
+      "default": "APP_ICONS",
+      "description": "Identifier exported as the icon array."
+    }
+  },
+  "required": []
+}

@@ -41,6 +41,7 @@ const DST = resolve(DIST_LIB_PATH, 'schematics');
 const ASSETS = [
   ['collection.json', 'collection.json'],
   ['ng-add/schema.json', 'ng-add/schema.json'],
+  ['icon-set/schema.json', 'icon-set/schema.json'],
 ] as const;
 
 if (!existsSync(DIST_LIB_PATH)) {
