@@ -6,13 +6,13 @@
  */
 
 /**
- * Generates per-icon barrels for every `ngwr/icons/<set>` adapter by
- * walking the upstream packages at build time. The generator runs
+ * Generates per-icon barrels for every `ngwr/icon/adapters/<set>` adapter
+ * by walking the upstream packages at build time. The generator runs
  * once on demand (`pnpm icons:build`) — the result is committed so
  * ng-packagr can build each adapter without re-running the generator
  * every time.
  *
- * Output: `projects/lib/icons/<set>/public-api.ts` (overwritten).
+ * Output: `projects/lib/icon/adapters/<set>/public-api.ts` (overwritten).
  *
  * Add a new adapter by writing a small entry below: peerDep package
  * name, the set's `<adapter>` function from `adapter.ts`, and any
@@ -28,7 +28,7 @@ import { ROOT_PATH } from './lib/paths/root';
 interface Generator {
   /** Display name used in log lines. */
   readonly name: string;
-  /** Lib subdir under `projects/lib/icons/`. */
+  /** Lib subdir under `projects/lib/icon/adapters/`. */
   readonly dir: string;
   /** Upstream package — dynamically imported at build time. */
   readonly pkg: string;
@@ -55,7 +55,7 @@ const GENERATORS: readonly Generator[] = [
 async function run(): Promise<void> {
   for (const gen of GENERATORS) {
     const result = await build(gen);
-    info(`✓ ${gen.name}: generated ${result.count} icons → projects/lib/icons/${gen.dir}/public-api.ts`);
+    info(`✓ ${gen.name}: generated ${result.count} icons → projects/lib/icon/adapters/${gen.dir}/public-api.ts`);
   }
 }
 
@@ -91,7 +91,7 @@ import { ${gen.adapter} } from './adapter';
 ${exportLines}
 `;
 
-  const outPath = resolve(ROOT_PATH, `projects/lib/icons/${gen.dir}/public-api.ts`);
+  const outPath = resolve(ROOT_PATH, `projects/lib/icon/adapters/${gen.dir}/public-api.ts`);
   writeFileSync(outPath, content);
   return { count: entries.length };
 }

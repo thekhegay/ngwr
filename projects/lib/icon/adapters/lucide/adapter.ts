@@ -40,7 +40,7 @@ const SVG_ATTRS = [
  *
  * @example
  * ```ts
- * import { lucide } from 'ngwr/icons/lucide';
+ * import { lucide } from 'ngwr/icon/adapters/lucide';
  * import { Plus } from 'lucide';
  *
  * provideWrIcons([lucide('plus', Plus)]);
