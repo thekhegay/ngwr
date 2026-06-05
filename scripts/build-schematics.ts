@@ -40,6 +40,7 @@ const DST = resolve(DIST_LIB_PATH, 'schematics');
 /** JSON assets that must ship next to the compiled JS. */
 const ASSETS = [
   ['collection.json', 'collection.json'],
+  ['migrations.json', 'migrations.json'],
   ['ng-add/schema.json', 'ng-add/schema.json'],
   ['icon-set/schema.json', 'icon-set/schema.json'],
 ] as const;

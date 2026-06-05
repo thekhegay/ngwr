@@ -1,0 +1,10 @@
+{
+  "$schema": "../../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "migration-v7": {
+      "version": "7.0.0",
+      "description": "Rewrite the v6 entry-points consolidated in v7: wr-autocomplete/chips-input → wr-select; wr-time-picker/date-time-picker → wr-date-picker; wr-tooltip → wr-popover; wr-tree-select → wr-tree; wr-bottom-sheet → wr-drawer; wr-count-up-text → wr-count-up. Touches .html, .ts, and .scss files.",
+      "factory": "./migrations/v7/index#default"
+    }
+  }
+}

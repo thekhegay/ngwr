@@ -44,6 +44,9 @@
   "ng-add": {
     "save": "dependencies"
   },
+  "ng-update": {
+    "migrations": "./schematics/migrations.json"
+  },
   "exports": {
     ".": {
       "sass": "./styles.scss"
