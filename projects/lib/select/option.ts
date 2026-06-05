@@ -65,11 +65,27 @@ export class WrOption {
   /** @internal — true when this option is the keyboard cursor target. */
   protected readonly active = computed(() => this.parent?.activeOptionId() === this.id);
 
+  /**
+   * @internal — search mode only. True when the parent has a query that
+   * the option's text content does not match (case-insensitive substring).
+   * Hidden options stay in the DOM so registration order survives but
+   * collapse via CSS.
+   */
+  protected readonly hidden = computed(() => {
+    const parent = this.parent;
+    if (!parent?.isSearch()) return false;
+    const q = parent.searchQuery().trim().toLowerCase();
+    if (!q) return false;
+    const label = (this.host.nativeElement.textContent ?? '').trim().toLowerCase();
+    return !label.includes(q);
+  });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-option'];
     if (this.selected()) parts.push('wr-option--selected');
     if (this.active()) parts.push('wr-option--active');
     if (this.disabled()) parts.push('wr-option--disabled');
+    if (this.hidden()) parts.push('wr-option--hidden');
     return parts.join(' ');
   });
 

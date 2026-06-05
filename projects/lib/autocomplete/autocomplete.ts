@@ -54,6 +54,21 @@ function defaultFilter<T>(query: string, item: T, displayWith: (item: T) => stri
  * map items to a display string, and `filterWith` to override the default
  * case-insensitive `includes` match.
  *
+ * @deprecated Prefer `<wr-select mode="search">` — the unified combobox
+ * primitive handles the common sync-filter case with the standard
+ * `<wr-option>` projection model. Async loaders, virtual scroll, and
+ * `freeText` will move to `<wr-select>` in a follow-up release; keep
+ * using `<wr-autocomplete>` until then if you depend on those. This
+ * component will be removed in v8.
+ *
+ *     // Before
+ *     <wr-autocomplete [options]="['Apple','Banana']" [(ngModel)]="fruit" />
+ *     // After
+ *     <wr-select mode="search" [(ngModel)]="fruit">
+ *       <wr-option value="Apple">Apple</wr-option>
+ *       <wr-option value="Banana">Banana</wr-option>
+ *     </wr-select>
+ *
  * @example
  * ```html
  * <wr-autocomplete
@@ -61,15 +76,9 @@ function defaultFilter<T>(query: string, item: T, displayWith: (item: T) => stri
  *   [(ngModel)]="picked"
  *   placeholder="Search countries"
  * />
- *
- * <wr-autocomplete
- *   [options]="users"
- *   [displayWith]="userLabel"
- *   [(ngModel)]="user"
- * />
  * ```
  *
- * @see https://ngwr.dev/docs/components/autocomplete
+ * @see https://ngwr.dev/components/select
  */
 @Component({
   selector: 'wr-autocomplete',

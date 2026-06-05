@@ -37,6 +37,13 @@ export interface WrSelectContext {
   readonly isDisabled: Signal<boolean>;
   /** Id of the option currently highlighted by keyboard navigation. */
   readonly activeOptionId: Signal<string | null>;
+  /**
+   * Active search query (search mode only). Empty string when there is
+   * no filter applied — options treat that as "show me".
+   */
+  readonly searchQuery: Signal<string>;
+  /** True only when `mode="search"`. Options gate filtering on this. */
+  readonly isSearch: Signal<boolean>;
   /** Is the given option value currently selected? Handles both single and multi. */
   isSelected(value: unknown): boolean;
   /**

@@ -87,7 +87,41 @@ export class MyComponent {}`,
   [validate]="isEmail"
   [maxItems]="5"
 />`,
+    search: `<wr-select mode="search" placeholder="Search a country" [(ngModel)]="country">
+  @for (c of countries; track c) {
+    <wr-option [value]="c">{{ c }}</wr-option>
+  }
+</wr-select>`,
   };
+
+  protected readonly countries = [
+    'Australia',
+    'Brazil',
+    'Canada',
+    'Denmark',
+    'Estonia',
+    'France',
+    'Germany',
+    'India',
+    'Italy',
+    'Japan',
+    'Kazakhstan',
+    'Mexico',
+    'Netherlands',
+    'Norway',
+    'Poland',
+    'Portugal',
+    'Russia',
+    'Spain',
+    'Sweden',
+    'Switzerland',
+    'Turkey',
+    'United Kingdom',
+    'United States',
+    'Vietnam',
+  ];
+
+  protected readonly country = signal<string | null>(null);
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'placeholder', description: 'Shown when no option is chosen.', type: 'string', default: "''" },
@@ -96,7 +130,7 @@ export class MyComponent {}`,
     {
       name: 'mode',
       description:
-        'Behavior mode. `single` (default), `multi` (chips + array value). `search` and `tag` modes are reserved for future releases (will replace `<wr-autocomplete>` and `<wr-chips-input>`).',
+        'Behavior mode. `single` (default), `multi` (chips + array value), `search` (typeahead filter — replaces `wr-autocomplete`), `tag` (free-text chips — replaces `wr-chips-input`).',
       type: "'single' | 'multi' | 'search' | 'tag'",
       default: "'single'",
     },

@@ -1,4 +1,43 @@
-@if (isTag()) {
+@if (isSearch()) {
+  <!-- Search mode: a real text input drives a filtered overlay panel.
+       The wrapper isn't itself focusable — the input is the tabstop. -->
+  <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+  <div class="wr-select__trigger wr-select__trigger--search" (click)="focusSearchInput()">
+    <input
+      #searchInput
+      type="text"
+      role="combobox"
+      class="wr-select__search-input"
+      autocomplete="off"
+      spellcheck="false"
+      [disabled]="isDisabled()"
+      [attr.aria-haspopup]="'listbox'"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="listboxId"
+      [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
+      [placeholder]="resolvedPlaceholder()"
+      [value]="searchDisplay()"
+      (input)="onSearchInput($event)"
+      (focus)="onSearchFocus()"
+      (keydown)="onSearchKey($event)"
+      (blur)="onTouched()"
+    />
+    @if (clearable() && hasSelection() && !isDisabled()) {
+      <span
+        class="wr-select__clear"
+        role="button"
+        [attr.aria-label]="resolvedClear()"
+        tabindex="-1"
+        (click)="clearAll($event)"
+        (keydown.enter)="clearAll($event)"
+        (keydown.space)="clearAll($event)"
+      >
+        <wr-icon name="close" />
+      </span>
+    }
+    <wr-icon class="wr-select__chevron" name="chevron-down" />
+  </div>
+} @else if (isTag()) {
   <!-- Tag mode: a focusable input lives inside, so the wrapper itself
        only exists to host chips and forward whitespace clicks to the
        input. Keyboard users tab straight into the input — no need for a

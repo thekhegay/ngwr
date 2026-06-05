@@ -96,6 +96,38 @@
     min-height: calc(var(--wr-select-line-height) + var(--wr-select-padding-y) * 2);
   }
 
+  // ── Search-mode trigger: inline text input + chevron + clear ──
+  &__trigger--search {
+    cursor: text;
+    padding: 0;
+
+    &:focus-within {
+      border-color: var(--wr-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+    }
+  }
+
+  &__search-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: var(--wr-select-padding-y) var(--wr-select-padding-x);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--wr-select-font-size);
+    line-height: var(--wr-select-line-height);
+
+    &::placeholder {
+      color: rgba(var(--wr-color-medium-rgb), 0.85);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
   // ── Tag-mode trigger: focusable div hosting chips + inline input. ──
   &__trigger--tag {
     cursor: text;
@@ -252,6 +284,12 @@
     &:hover {
       background: transparent;
     }
+  }
+
+  // Search-mode filter — out-of-match options collapse but stay in the
+  // DOM so registration order survives the panel re-open.
+  &--hidden {
+    display: none;
   }
 }
 

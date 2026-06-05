@@ -149,11 +149,20 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Convenience — `effectiveMode() === 'tag'`. */
   protected readonly isTag = computed(() => this.effectiveMode() === 'tag');
 
+  /** Convenience — `effectiveMode() === 'search'`. Exposed via context for options. */
+  readonly isSearch = computed(() => this.effectiveMode() === 'search');
+
   /** Both multi and tag render chips on the trigger. */
   protected readonly hasChips = computed(() => {
     const m = this.effectiveMode();
     return m === 'multi' || m === 'tag';
   });
+
+  /**
+   * Search-mode query. Empty string = no filter. Exposed via context so
+   * each `<wr-option>` can self-hide non-matching rows.
+   */
+  readonly searchQuery = signal('');
 
   // ── Tag-mode-only inputs (ignored in other modes) ────────────
 
@@ -280,9 +289,48 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Tag-mode inline input. Present only when `mode="tag"`. @internal */
   protected readonly tagInputEl = viewChild<ElementRef<HTMLInputElement>>('tagInput');
 
+  /** Search-mode inline input. Present only when `mode="search"`. @internal */
+  protected readonly searchInputEl = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
   protected focusTagInput(): void {
     this.tagInputEl()?.nativeElement.focus();
   }
+
+  protected focusSearchInput(): void {
+    this.searchInputEl()?.nativeElement.focus();
+  }
+
+  // ──────── Search-mode handlers ────────
+
+  protected onSearchInput(event: Event): void {
+    if (this.isDisabled()) return;
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery.set(value);
+    if (!this.open()) this.open.set(true);
+  }
+
+  protected onSearchFocus(): void {
+    if (this.isDisabled()) return;
+    if (!this.open()) {
+      this.seedActiveIndex();
+      this.open.set(true);
+    }
+  }
+
+  protected onSearchKey(event: KeyboardEvent): void {
+    // Routes through the same keyboard plumbing as the button trigger.
+    this.onTriggerKey(event);
+  }
+
+  /**
+   * Display text for the search input. Shows the selected option's
+   * label when collapsed, or the live query while typing / panel open.
+   * @internal
+   */
+  protected readonly searchDisplay = computed(() => {
+    if (this.open()) return this.searchQuery();
+    return this.selectedLabel() ?? '';
+  });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
@@ -300,6 +348,9 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
         this.openOverlay();
       } else {
         this.closeOverlay();
+        // Reset the search query when the panel closes so a re-open
+        // doesn't carry a stale filter.
+        if (this.isSearch()) this.searchQuery.set('');
       }
     });
 
@@ -366,12 +417,20 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     this.onTouched();
   }
 
-  /** Clear every selection (clear-all button). Works for multi and tag modes. */
+  /** Clear every selection (× button). Multi/tag → empty array; search → null. */
   protected clearAll(event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled() || !this.hasChips()) return;
-    this.value.set([]);
-    this.onChange([]);
+    if (this.isDisabled()) return;
+    if (this.hasChips()) {
+      this.value.set([]);
+      this.onChange([]);
+    } else if (this.isSearch()) {
+      this.value.set(null);
+      this.onChange(null);
+      this.searchQuery.set('');
+    } else {
+      return;
+    }
     this.onTouched();
   }
 
