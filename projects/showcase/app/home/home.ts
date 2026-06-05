@@ -2,13 +2,14 @@ import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { AlertCircle, ArrowRight, Clock, Compass, Eye, Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
 import * as LucideAll from 'lucide';
 import { WrAlert } from 'ngwr/alert';
 import { WrAvatar } from 'ngwr/avatar';
 import { WrButton } from 'ngwr/button';
 import { WrCopyToClipboard } from 'ngwr/directives';
 import { provideWrIcons, type WrIconDef, WrIcon } from 'ngwr/icon';
-import { lucide } from 'ngwr/icon/adapters/lucide';
+import { lucide, lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrInput, WrInputGroup, WrInputPrefix, WrPasswordToggle } from 'ngwr/input';
 import { WrProgress } from 'ngwr/progress';
 import { WrQr } from 'ngwr/qr';
@@ -18,6 +19,7 @@ import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
+import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
 
@@ -76,7 +78,24 @@ interface WhyTile {
     WrTypography,
     WrCopyToClipboard,
   ],
-  providers: [provideWrIcons(HERO_ICONS)],
+  providers: [
+    provideWrIcons([
+      ...HERO_ICONS,
+      ...BRAND_ICONS,
+      ...lucideIcons({
+        'alert-circle-outline': AlertCircle,
+        'arrow-forward': ArrowRight,
+        discover: Compass,
+        time: Clock,
+        eye: Eye,
+        folder: Folder,
+        moon: Moon,
+        flash: Zap,
+        terminal: Terminal,
+        'shield-checkmark': ShieldCheck,
+      }),
+    ]),
+  ],
 })
 export default class HomeComponent {
   protected readonly currentDate = new Date();

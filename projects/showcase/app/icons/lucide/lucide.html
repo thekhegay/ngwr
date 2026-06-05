@@ -4,5 +4,18 @@
   [keywords]="['icons', 'lucide']"
   [labels]="['Adapter', 'ISC']"
 >
-  <ngwr-icon-grid [icons]="icons()" [snippetFor]="snippetFor" />
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="install" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Wire icons"
+    description="Use the `lucide` / `lucideIcons` adapter from `ngwr/icon/adapters/lucide`. Tree-shakes per icon — only what you import ships."
+  >
+    <ngwr-doc-code [code]="usage" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Browse the catalog">
+    <ngwr-icon-grid [icons]="icons()" [snippetFor]="snippetFor" />
+  </ngwr-doc-section>
 </ngwr-doc-page>

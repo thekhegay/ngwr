@@ -7,6 +7,9 @@ RELEASE_BODY.md
 .sass-cache
 _old
 
+# Generated icon-set catalogs (rebuilt via `pnpm icons:sets`)
+projects/showcase/app/icons/_generated
+
 # Node.js
 node_modules
 

@@ -5,7 +5,7 @@ import { lucide } from 'ngwr/icon/adapters/lucide';
 
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
-import { DocPageComponent } from '#core/components';
+import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 
 let cached: readonly IconEntry[] | null = null;
 
@@ -49,7 +49,7 @@ function kebabToPascal(value: string): string {
 @Component({
   selector: 'ngwr-icons-lucide',
   templateUrl: './lucide.html',
-  imports: [DocPageComponent, IconGridComponent],
+  imports: [DocCodeComponent, DocPageComponent, DocSectionComponent, IconGridComponent],
 })
 export default class LucideBrowser {
   /**
@@ -57,6 +57,23 @@ export default class LucideBrowser {
    * happens once on first render (Lucide ships ~1700 IconNode tuples).
    */
   protected readonly icons = computed<readonly IconEntry[]>(() => buildLucideEntries());
+
+  protected readonly install = 'pnpm add lucide';
+
+  protected readonly usage = `import { Plus, Trash2 } from 'lucide';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideWrIcons(lucideIcons({
+      add: Plus,
+      trash: Trash2,
+    })),
+  ],
+});
+
+// Then in any template: <wr-icon name="add" />`;
 
   protected readonly snippetFor = (entry: IconEntry): string =>
     `import { ${kebabToPascal(entry.name)} } from 'lucide';\nimport { lucideIcons } from 'ngwr/icon/adapters/lucide';\n\nprovideWrIcons(lucideIcons({ ${kebabToCamel(entry.name)}: ${kebabToPascal(entry.name)} }));`;

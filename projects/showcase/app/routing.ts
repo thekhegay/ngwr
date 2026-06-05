@@ -23,7 +23,6 @@ export const routes = {
     phosphor: 'phosphor',
     heroicons: 'heroicons',
     iconoir: 'iconoir',
-    radix: 'radix',
     bootstrap: 'bootstrap',
   },
   gettingStarted: {

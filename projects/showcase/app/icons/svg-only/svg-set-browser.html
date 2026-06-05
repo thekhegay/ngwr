@@ -1,0 +1,16 @@
+<ngwr-doc-page [title]="spec().title" [description]="spec().description" [keywords]="keywords()" [labels]="labels()">
+  <ngwr-doc-section title="Install">
+    <ngwr-doc-code [code]="spec().install" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Wire icons"
+    description="Pull individual `.svg` files via your bundler's raw import (`?raw` for Vite, `raw-loader` for Webpack, `--loader:.svg=text` for esbuild). Pass each SVG string through `svgIcon()`."
+  >
+    <ngwr-doc-code [code]="spec().usage" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Browse the catalog">
+    <ngwr-icon-grid [icons]="icons()" [snippetFor]="snippet()" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

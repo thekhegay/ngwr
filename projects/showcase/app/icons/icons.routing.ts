@@ -13,6 +13,5 @@ export default [
   { path: i.phosphor, loadComponent: () => import('./svg-only/phosphor') },
   { path: i.heroicons, loadComponent: () => import('./svg-only/heroicons') },
   { path: i.iconoir, loadComponent: () => import('./svg-only/iconoir') },
-  { path: i.radix, loadComponent: () => import('./svg-only/radix') },
   { path: i.bootstrap, loadComponent: () => import('./svg-only/bootstrap') },
 ] satisfies Routes;

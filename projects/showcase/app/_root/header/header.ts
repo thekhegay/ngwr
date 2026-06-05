@@ -2,11 +2,12 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { Code, Moon, Package, Sun } from 'lucide';
+import { Moon, Sun } from 'lucide';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrTheme } from 'ngwr/theme';
 
+import { BRAND_ICONS } from '#core/icons';
 import { routes } from '#routing';
 
 interface NavLink {
@@ -26,7 +27,7 @@ interface ActionLink {
   templateUrl: './header.html',
   styleUrl: './header.scss',
   imports: [RouterLink, RouterLinkActive, WrIcon],
-  providers: [provideWrIcons(lucideIcons({ github: Code, moon: Moon, package: Package, sun: Sun }))],
+  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ moon: Moon, sun: Sun })])],
 })
 export class Header {
   protected readonly theme = inject(WrTheme);
@@ -45,7 +46,7 @@ export class Header {
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },
-    { url: 'https://www.npmjs.com/package/ngwr', icon: 'package', modifier: 'npm', label: 'npm' },
+    { url: 'https://www.npmjs.com/package/ngwr', icon: 'npm', modifier: 'npm', label: 'npm' },
   ];
 
   protected onToggleTheme(): void {
