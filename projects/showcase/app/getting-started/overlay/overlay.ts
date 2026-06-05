@@ -25,8 +25,7 @@ bootstrapApplication(AppComponent, {
 import { WrDialog }      from 'ngwr/dialog';
 import { WrToast }       from 'ngwr/toast';
 import { WrDrawer }    from 'ngwr/drawer';
-import { WrTooltip }   from 'ngwr/tooltip';
-import { WrPopover }   from 'ngwr/popover';
+import { WrPopover }   from 'ngwr/popover';  // also covers tooltip via mode="tooltip"
 import { WrPopconfirm } from 'ngwr/popconfirm';
 import { WrDropdown }  from 'ngwr/dropdown';
 import { WrSelect }    from 'ngwr/select';`,

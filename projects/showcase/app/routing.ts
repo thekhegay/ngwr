@@ -94,7 +94,6 @@ export const routes = {
     typography: 'typography',
     textarea: 'textarea',
     toast: 'toast',
-    tooltip: 'tooltip',
     tree: 'tree',
     treeSelect: 'tree-select',
     select: 'select',

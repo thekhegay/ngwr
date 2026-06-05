@@ -307,10 +307,6 @@ export default [
     loadComponent: () => import('./toolbar/toolbar'),
   },
   {
-    path: components.tooltip,
-    loadComponent: () => import('./tooltip/tooltip'),
-  },
-  {
     path: components.tree,
     loadComponent: () => import('./tree/tree'),
   },

@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Popover"
-  description="Anchored content panel. Project any template; click or hover to open. Built on CDK Overlay."
-  [keywords]="['popover', 'wr-popover', 'overlay']"
+  description='Anchored content panel. Project a template (popover) or pass a plain string (tooltip — use `mode="tooltip"`). Click, hover, or focus to open. Built on CDK Overlay.'
+  [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
   [labels]="['Directive', 'CDK Overlay']"
 >
   <ngwr-doc-section title="Installation">
@@ -44,6 +44,23 @@
       <ng-template #hint>
         <div style="padding: 0.625rem 0.875rem; font-size: 0.8125rem">CDK auto-flips if there's no room.</div>
       </ng-template>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tooltip mode"
+    description='Pass a string + `mode="tooltip"` for a small dark hint panel. Opens on hover / focus, dismisses on blur, pointer-leave, or Escape. Uses `aria-describedby` instead of `aria-haspopup`.'
+  >
+    <ngwr-doc-snippet [code]="snippets.tooltip">
+      <wr-btn color="primary" [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>
+      <wr-btn [wrPopover]="'Remove permanently'" mode="tooltip" position="bottom">Delete</wr-btn>
+      <wr-btn [wrPopover]="'Open in a new window'" mode="tooltip" position="right">Open</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tooltip — custom delays">
+    <ngwr-doc-snippet [code]="snippets.tooltipDelays">
+      <wr-btn [wrPopover]="'Slow to appear'" mode="tooltip" [showDelay]="500" [hideDelay]="100">Hover</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

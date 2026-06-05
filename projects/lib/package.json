@@ -366,9 +366,6 @@
     "./toast": {
       "sass": "./toast/styles/_index.scss"
     },
-    "./tooltip": {
-      "sass": "./tooltip/styles/_index.scss"
-    },
     "./tree": {
       "sass": "./tree/styles/_index.scss"
     },

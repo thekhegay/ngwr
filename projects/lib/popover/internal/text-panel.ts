@@ -8,17 +8,18 @@
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
 /**
- * Internal floating label rendered by `WrTooltip` inside a CDK
- * overlay. Not part of the public template API.
+ * Internal floating label rendered when `<… [wrPopover]="'…'" mode="tooltip">`
+ * receives a string instead of a template. Not part of the public template
+ * API — use the `WrPopover` directive in tooltip mode instead.
  *
  * @internal
  */
 @Component({
-  selector: 'wr-tooltip',
+  selector: 'wr-popover-text',
   template: '{{ text() }}',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-tooltip', role: 'tooltip' },
 })
-export class WrTooltipPanel {
+export class WrPopoverTextPanel {
   readonly text = input.required<string>();
 }

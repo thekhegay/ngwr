@@ -113,7 +113,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Popconfirm', url: ['/components', 'popconfirm'] },
       { title: 'Popover', url: ['/components', 'popover'] },
       { title: 'Toast', url: ['/components', 'toast'] },
-      { title: 'Tooltip', url: ['/components', 'tooltip'] },
       { title: 'Window', url: ['/components', 'window'] },
     ],
   },
