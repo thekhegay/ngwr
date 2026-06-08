@@ -100,6 +100,15 @@ export class WrContextMenuItem {
   private closeTimer: ReturnType<typeof setTimeout> | null = null;
   protected submenuOpen = false;
 
+  /**
+   * Global registry of open submenus keyed by the host element of the
+   * item that owns them. Used to cascade-close descendants when a
+   * parent submenu is disposed — Angular's onDestroy on detached
+   * portals doesn't always tear down the deepest grand-children's
+   * overlays in the right order, leaving orphaned floating panes.
+   */
+  private static readonly openSubmenus = new Map<HTMLElement, WrContextMenuItem>();
+
   constructor() {
     this.destroyRef.onDestroy(() => this.disposeSubmenu(true));
   }
@@ -225,6 +234,7 @@ export class WrContextMenuItem {
     pane.addEventListener('mouseleave', this.onSubmenuLeave);
 
     this.submenuOpen = true;
+    WrContextMenuItem.openSubmenus.set(this.host.nativeElement, this);
   }
 
   /** Bound handlers (= preserves identity for removeEventListener). */
@@ -257,10 +267,20 @@ export class WrContextMenuItem {
     if (!ref) return;
     this.submenuRef = null;
     this.submenuOpen = false;
+    WrContextMenuItem.openSubmenus.delete(this.host.nativeElement);
 
     const pane = ref.overlayElement;
     pane.removeEventListener('mouseenter', this.onSubmenuEnter);
     pane.removeEventListener('mouseleave', this.onSubmenuLeave);
+
+    // Cascade-close any descendant submenus whose owner-item lives inside
+    // the pane we're about to dispose. Without this, when a parent submenu
+    // closes (via hover-out grace timer), a grandchild submenu whose owner
+    // is rendered inside the parent's portal is orphaned — its OverlayRef
+    // stays alive in the DOM with no parent to reach it from.
+    for (const [ownerEl, owner] of WrContextMenuItem.openSubmenus) {
+      if (pane.contains(ownerEl)) owner.disposeSubmenu(immediate);
+    }
 
     if (immediate) {
       ref.dispose();
