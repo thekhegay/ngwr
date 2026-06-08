@@ -8,6 +8,13 @@
 /// CSS spec (Chrome 145+) when the browser supports it, otherwise
 /// falls back to a plain `border-radius`.
 ///
+/// **Experimental.** `corner-shape` is a draft CSS specification; the
+/// property name, value space, and metrics may change before it
+/// stabilises. Components are free to swap this mixin out for plain
+/// `border-radius` at any time. For a deterministic squircle that
+/// works across browsers, prefer the `[wrSquircle]` directive — it
+/// uses a `clip-path` superellipse instead of relying on `corner-shape`.
+///
 /// `corner-shape: squircle` renders a continuous-curvature corner (iOS /
 /// macOS style) instead of a circular arc. The squircle reads as
 /// "less rounded" at the same numeric radius, so we bump the radius by
