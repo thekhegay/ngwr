@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { Plus, Search, Settings } from 'lucide';
+import { Plus, Settings } from 'lucide';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrSpeedDial } from 'ngwr/speed-dial';
@@ -11,7 +11,7 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
   selector: 'ngwr-speed-dial-page',
   templateUrl: './speed-dial.html',
   imports: [WrSpeedDial, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
-  providers: [provideWrIcons(lucideIcons({ add: Plus, cog: Settings, search: Search }))],
+  providers: [provideWrIcons(lucideIcons({ add: Plus, cog: Settings }))],
 })
 export default class SpeedDialPageComponent {
   protected readonly lastPick = signal<string>('');

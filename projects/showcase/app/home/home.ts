@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { AlertCircle, ArrowRight, Clock, Compass, Eye, Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
+import { AlertCircle, Compass, Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
 import * as LucideAll from 'lucide';
 import { WrAlert } from 'ngwr/alert';
 import { WrAvatar } from 'ngwr/avatar';
@@ -84,10 +84,7 @@ interface WhyTile {
       ...BRAND_ICONS,
       ...lucideIcons({
         'alert-circle-outline': AlertCircle,
-        'arrow-forward': ArrowRight,
         discover: Compass,
-        time: Clock,
-        eye: Eye,
         folder: Folder,
         moon: Moon,
         flash: Zap,

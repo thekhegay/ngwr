@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { Check, Copy, Download, Plus, Trash2, TriangleAlert } from 'lucide';
+import { Copy, Download, Plus, Trash2, TriangleAlert } from 'lucide';
 import { WrButton, type WrButtonShape } from 'ngwr/button';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
@@ -23,7 +23,6 @@ import {
     provideWrIcons(
       lucideIcons({
         add: Plus,
-        checkmark: Check,
         'copy-outline': Copy,
         download: Download,
         trash: Trash2,
