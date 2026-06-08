@@ -36,7 +36,6 @@ export default tsEslint.config(
       '@angular-eslint/component-max-inline-declarations': ['error', { template: 1, styles: 1, animations: 1 }],
       '@angular-eslint/consistent-component-styles': 'error',
       '@angular-eslint/contextual-decorator': 'error',
-      '@angular-eslint/no-conflicting-lifecycle': 'error',
       '@angular-eslint/no-forward-ref': 'error',
       '@angular-eslint/no-lifecycle-call': 'error',
       '@angular-eslint/no-pipe-impure': 'error',
