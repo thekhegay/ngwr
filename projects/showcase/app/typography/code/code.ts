@@ -14,7 +14,14 @@ import {
 @Component({
   selector: 'ngwr-typography-code-page',
   templateUrl: './code.html',
-  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class TypographyCodePage {
   protected readonly snippets = {

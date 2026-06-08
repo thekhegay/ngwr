@@ -11,7 +11,13 @@
         @for (l of available; track l) {
           <button
             type="button"
-            style="padding: 0.25rem 0.625rem; border: 1px solid var(--wr-color-light); border-radius: var(--wr-border-radius-pill); background: transparent; cursor: pointer"
+            style="
+              padding: 0.25rem 0.625rem;
+              border: 1px solid var(--wr-color-light);
+              border-radius: var(--wr-border-radius-pill);
+              background: transparent;
+              cursor: pointer;
+            "
             [style.background]="locale() === l ? 'var(--wr-color-primary)' : 'transparent'"
             [style.color]="locale() === l ? 'var(--wr-color-primary-contrast)' : 'inherit'"
             (click)="use(l)"

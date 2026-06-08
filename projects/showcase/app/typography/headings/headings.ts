@@ -14,7 +14,14 @@ import {
 @Component({
   selector: 'ngwr-typography-headings-page',
   templateUrl: './headings.html',
-  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class TypographyHeadingsPage {
   protected readonly snippets = {
@@ -37,7 +44,8 @@ export default class TypographyHeadingsPage {
       name: 'variant',
       type: `'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'`,
       default: '—',
-      description: 'Heading-scale variant. `display` is the oversized hero size; h1–h6 follow the standard semantic ladder.',
+      description:
+        'Heading-scale variant. `display` is the oversized hero size; h1–h6 follow the standard semantic ladder.',
     },
     { name: 'tone', type: 'WrTypographyTone', default: "'dark'", description: 'Color tone.' },
     { name: 'align', type: 'WrTypographyAlign | null', default: 'null', description: 'Horizontal alignment.' },

@@ -4,12 +4,7 @@ import { WrI18n, WrTPipe } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
 import { WrTypography } from 'ngwr/typography';
 
-import {
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-translate-interpolation-page',

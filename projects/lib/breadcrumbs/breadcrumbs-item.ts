@@ -46,7 +46,5 @@ export class WrBreadcrumbsItem {
   protected readonly isLink = computed(() => this.href() != null || this.routerLink() != null);
   protected readonly isRouter = computed(() => this.routerLink() != null);
 
-  protected readonly rootClass = computed(() =>
-    this.isLink() ? 'wr-breadcrumbs__link' : 'wr-breadcrumbs__current'
-  );
+  protected readonly rootClass = computed(() => (this.isLink() ? 'wr-breadcrumbs__link' : 'wr-breadcrumbs__current'));
 }

@@ -14,7 +14,14 @@ import {
 @Component({
   selector: 'ngwr-typography-text-page',
   templateUrl: './text.html',
-  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class TypographyTextPage {
   protected readonly snippets = {

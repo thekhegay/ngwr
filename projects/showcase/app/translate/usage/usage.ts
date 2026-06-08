@@ -3,17 +3,20 @@ import { Component, inject, signal } from '@angular/core';
 import { WrI18n, WrTDirective, WrTPipe } from 'ngwr/i18n';
 import { WrTypography } from 'ngwr/typography';
 
-import {
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-translate-usage-page',
   templateUrl: './usage.html',
-  imports: [WrTPipe, WrTDirective, WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [
+    WrTPipe,
+    WrTDirective,
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+  ],
 })
 export default class TranslateUsagePage {
   private readonly i18n = inject(WrI18n);
