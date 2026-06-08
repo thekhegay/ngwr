@@ -51,12 +51,13 @@ export class WrContextMenu {
   private closingTimer: ReturnType<typeof setTimeout> | null = null;
 
   /**
-   * Open/close animation duration in ms. Matches the SCSS transition on
-   * `.wr-context-menu-overlay`. The directive holds the overlay alive
-   * for this long during close so the exit animation can play before
-   * the pane is removed from the DOM.
+   * Open/close animation duration in ms. Matches the longest SCSS
+   * transition on `.wr-context-menu-overlay` (the spring-scale curve).
+   * The directive holds the overlay alive for this long during close
+   * so the exit animation can play before the pane is removed from
+   * the DOM.
    */
-  private static readonly TRANSITION_MS = 120;
+  private static readonly TRANSITION_MS = 220;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.closeOverlay());

@@ -16,15 +16,15 @@
   // back to default on close — the directive holds the overlay alive
   // for the transition duration before disposing.
   opacity: 0;
-  transform: scale(0.92);
+  transform: scale(0.9) translateY(-4px);
   transform-origin: top left;
   transition:
-    opacity 0.12s var(--wr-ease-out, ease-out),
-    transform 0.12s var(--wr-ease-spring, ease-out);
+    opacity 0.18s var(--wr-ease-out, ease-out),
+    transform 0.22s var(--wr-ease-spring, ease-out);
 
   &--open {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateY(0);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -35,10 +35,13 @@
 
 .wr-context-menu {
   min-width: 10rem;
-  padding: 0.25rem;
+  padding: 0.3125rem;
   background: var(--wr-color-white, #fff);
   border: 1px solid var(--wr-color-light);
-  border-radius: var(--wr-border-radius-md);
+  // Soft rounded corners — smooth-br opts into native `corner-shape:
+  // squircle` where supported (Chrome 145+) and falls back to plain
+  // border-radius elsewhere.
+  @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow:
     0 12px 24px -8px rgba(0, 0, 0, 0.16),
     0 2px 4px rgba(0, 0, 0, 0.08);
@@ -50,7 +53,7 @@
   gap: 0.5rem;
   width: 100%;
   padding: 0.4375rem 0.625rem;
-  border-radius: var(--wr-border-radius-sm);
+  @include theme.smooth-br(var(--wr-border-radius-sm));
   color: var(--wr-color-dark);
   font-size: var(--wr-text-sm);
   cursor: pointer;
@@ -74,6 +77,9 @@
 
   &__icon {
     flex: 0 0 auto;
+    // Menu rows are compact (small font-size + tight padding) — drop
+    // the icon below the default 1.5rem so it doesn't dominate.
+    --wr-icon-size: 1rem;
     color: currentColor;
   }
 
