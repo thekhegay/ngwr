@@ -5,7 +5,7 @@
         class="wr-anchor__link"
         [class.wr-anchor__link--active]="activeId() === link.id"
         [attr.aria-current]="activeId() === link.id ? 'location' : null"
-        [href]="'#' + link.id"
+        [href]="`#${link.id}`"
         (click)="onClick(link.id, $event)"
       >
         {{ link.label }}
@@ -18,7 +18,7 @@
                 class="wr-anchor__link"
                 [class.wr-anchor__link--active]="activeId() === child.id"
                 [attr.aria-current]="activeId() === child.id ? 'location' : null"
-                [href]="'#' + child.id"
+                [href]="`#${child.id}`"
                 (click)="onClick(child.id, $event)"
               >
                 {{ child.label }}

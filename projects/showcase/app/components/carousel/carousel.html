@@ -11,7 +11,7 @@
         autoplay
         style="width: 100%; max-width: 36rem; aspect-ratio: 16 / 9; border-radius: 0.5rem; overflow: hidden"
       >
-        @for (color of slides; track $index; let i = $index) {
+        @for (color of slides; track $index) {
           <wr-carousel-slide>
             <div
               [style.background]="color"
@@ -26,7 +26,7 @@
                 font-weight: 600;
               "
             >
-              Slide {{ i + 1 }}
+              Slide {{ $index + 1 }}
             </div>
           </wr-carousel-slide>
         }

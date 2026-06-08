@@ -69,17 +69,17 @@
 
   @case ('month') {
     <div class="wr-calendar__months" role="grid">
-      @for (name of monthsView(); track name; let i = $index) {
+      @for (name of monthsView(); track name) {
         <button
           type="button"
           class="wr-calendar__chip"
           role="gridcell"
-          [class.wr-calendar__chip--current]="isMonthCurrent(i)"
-          [class.wr-calendar__chip--selected]="isMonthSelected(i)"
-          [disabled]="isMonthDisabled(i)"
-          [attr.aria-selected]="isMonthSelected(i)"
-          [attr.aria-disabled]="isMonthDisabled(i)"
-          (click)="onMonthSelect(i)"
+          [class.wr-calendar__chip--current]="isMonthCurrent($index)"
+          [class.wr-calendar__chip--selected]="isMonthSelected($index)"
+          [disabled]="isMonthDisabled($index)"
+          [attr.aria-selected]="isMonthSelected($index)"
+          [attr.aria-disabled]="isMonthDisabled($index)"
+          (click)="onMonthSelect($index)"
         >
           {{ name }}
         </button>

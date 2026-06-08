@@ -35,27 +35,25 @@
 
     <tbody>
       @if (items(); as rows) {
-        @if (rows.length === 0) {
+        @for (row of rows; track $index) {
+          <tr class="wr-table__tr">
+            @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
+              <td class="wr-table__td">
+                @if (templateFor(entry.key); as tpl) {
+                  <ng-container
+                    [ngTemplateOutlet]="tpl"
+                    [ngTemplateOutletContext]="cellContext(row, $any(entry.key), entry.value)"
+                  />
+                } @else {
+                  {{ getValue(row, entry.key) }}
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
           <tr>
             <td class="wr-table__empty" [attr.colspan]="(columns() | keyvalue).length">No data</td>
           </tr>
-        } @else {
-          @for (row of rows; track $index) {
-            <tr class="wr-table__tr">
-              @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
-                <td class="wr-table__td">
-                  @if (templateFor(entry.key); as tpl) {
-                    <ng-container
-                      [ngTemplateOutlet]="tpl"
-                      [ngTemplateOutletContext]="cellContext(row, $any(entry.key), entry.value)"
-                    />
-                  } @else {
-                    {{ getValue(row, entry.key) }}
-                  }
-                </td>
-              }
-            </tr>
-          }
         }
       }
     </tbody>

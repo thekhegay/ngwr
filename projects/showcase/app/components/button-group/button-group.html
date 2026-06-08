@@ -11,9 +11,9 @@
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-btn-group>
-        <button wr-btn>Left</button>
-        <button wr-btn>Middle</button>
-        <button wr-btn>Right</button>
+        <button type="button" wr-btn>Left</button>
+        <button type="button" wr-btn>Middle</button>
+        <button type="button" wr-btn>Right</button>
       </wr-btn-group>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -21,12 +21,12 @@
   <ngwr-doc-section title="Colored">
     <ngwr-doc-snippet [code]="snippets.colors">
       <wr-btn-group>
-        <button wr-btn color="primary">Save</button>
-        <button wr-btn color="primary">Save & Continue</button>
+        <button type="button" wr-btn color="primary">Save</button>
+        <button type="button" wr-btn color="primary">Save & Continue</button>
       </wr-btn-group>
       <wr-btn-group>
-        <button wr-btn color="success" outlined>Approve</button>
-        <button wr-btn color="success" outlined>Approve all</button>
+        <button type="button" wr-btn color="success" outlined>Approve</button>
+        <button type="button" wr-btn color="success" outlined>Approve all</button>
       </wr-btn-group>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -34,9 +34,9 @@
   <ngwr-doc-section title="Segmented control" description="Use color to highlight the active option.">
     <ngwr-doc-snippet [code]="snippets.toggle">
       <wr-btn-group>
-        <button wr-btn [color]="colorFor('left')" (click)="setAlign('left')">Left</button>
-        <button wr-btn [color]="colorFor('center')" (click)="setAlign('center')">Center</button>
-        <button wr-btn [color]="colorFor('right')" (click)="setAlign('right')">Right</button>
+        <button type="button" wr-btn [color]="colorFor('left')" (click)="setAlign('left')">Left</button>
+        <button type="button" wr-btn [color]="colorFor('center')" (click)="setAlign('center')">Center</button>
+        <button type="button" wr-btn [color]="colorFor('right')" (click)="setAlign('right')">Right</button>
       </wr-btn-group>
       <span style="color: var(--wr-color-medium); font-size: 0.875rem">Selected: {{ align() }}</span>
     </ngwr-doc-snippet>
@@ -48,18 +48,18 @@
   >
     <ngwr-doc-snippet [code]="snippets.shape">
       <wr-btn-group shape="rounded">
-        <button wr-btn>One</button>
-        <button wr-btn>Two</button>
-        <button wr-btn>Three</button>
+        <button type="button" wr-btn>One</button>
+        <button type="button" wr-btn>Two</button>
+        <button type="button" wr-btn>Three</button>
       </wr-btn-group>
       <wr-btn-group shape="pill">
-        <button wr-btn>One</button>
-        <button wr-btn>Two</button>
-        <button wr-btn>Three</button>
+        <button type="button" wr-btn>One</button>
+        <button type="button" wr-btn>Two</button>
+        <button type="button" wr-btn>Three</button>
       </wr-btn-group>
       <wr-btn-group shape="pill">
-        <button wr-btn>Forced</button>
-        <button wr-btn shape="rounded">Pill anyway</button>
+        <button type="button" wr-btn>Forced</button>
+        <button type="button" wr-btn shape="rounded">Pill anyway</button>
       </wr-btn-group>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

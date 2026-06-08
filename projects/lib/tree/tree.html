@@ -117,7 +117,7 @@
        to its currently-focused row. -->
   <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
   <ul class="wr-tree__list" role="tree" (keydown)="onKeydown($event)">
-    @for (entry of flat(); track entry.node.id; let i = $index) {
+    @for (entry of flat(); track entry.node.id) {
       <!-- Click handler lives on focusable rows; keyboard handling is owned
            by the parent <ul> via the roving-tabindex pattern. -->
       <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
@@ -130,8 +130,8 @@
         [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"
         [attr.aria-selected]="selectionMode() === 'none' ? null : selectedSet().has(entry.node.id)"
         [attr.aria-disabled]="entry.node.disabled || isDisabled() || null"
-        [attr.data-tree-index]="i"
-        [attr.tabindex]="i === focusedIndex() ? 0 : -1"
+        [attr.data-tree-index]="$index"
+        [attr.tabindex]="$index === focusedIndex() ? 0 : -1"
         [style.--wr-tree-depth]="entry.depth"
         (click)="onRowClick(entry, $event)"
       >

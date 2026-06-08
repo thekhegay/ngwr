@@ -13,10 +13,10 @@
               target="_blank"
               rel="noreferrer noopener"
             >
-              <ng-container *ngTemplateOutlet="content; context: { $implicit: item }"></ng-container>
+              <ng-container *ngTemplateOutlet="content; context: { $implicit: item }" />
             </a>
           } @else {
-            <ng-container *ngTemplateOutlet="content; context: { $implicit: item }"></ng-container>
+            <ng-container *ngTemplateOutlet="content; context: { $implicit: item }" />
           }
         </li>
       }
@@ -27,7 +27,7 @@
 <ng-template #content let-item>
   @if (isNodeItem(item)) {
     <span class="wr-marquee__node" [attr.aria-hidden]="!!item.href && !item.ariaLabel">
-      <ng-container *ngTemplateOutlet="item.node"></ng-container>
+      <ng-container *ngTemplateOutlet="item.node" />
     </span>
   } @else {
     <img

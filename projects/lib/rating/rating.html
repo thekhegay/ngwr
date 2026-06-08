@@ -11,16 +11,16 @@
   (keydown)="onKeydown($event)"
   (mouseleave)="onLeave()"
 >
-  @for (slot of slots(); track $index; let i = $index) {
+  @for (slot of slots(); track $index) {
     <!-- The parent row owns keyboard focus + handlers; slots are pointer-only
          click targets, so the a11y rules below are intentionally suppressed. -->
     <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
     <span
       class="wr-rating__slot"
       [class.wr-rating__slot--interactive]="interactive()"
-      [style.--wr-rating-fill]="fillFor(i)"
-      (mousemove)="onSlotMove($event, i)"
-      (click)="onSlotClick($event, i)"
+      [style.--wr-rating-fill]="fillFor($index)"
+      (mousemove)="onSlotMove($event, $index)"
+      (click)="onSlotClick($event, $index)"
     >
       <!-- Outline (always visible) -->
       <svg class="wr-rating__icon wr-rating__icon--bg" viewBox="0 0 24 24" aria-hidden="true">

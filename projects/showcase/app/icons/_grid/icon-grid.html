@@ -12,7 +12,7 @@
         <button
           type="button"
           class="ngwr-icon-grid__tile"
-          [attr.aria-label]="'Copy import snippet for ' + icon.name"
+          [attr.aria-label]="`Copy import snippet for ${icon.name}`"
           (click)="copy(icon)"
         >
           <span class="ngwr-icon-grid__svg" [innerHTML]="svgFor(icon)"></span>

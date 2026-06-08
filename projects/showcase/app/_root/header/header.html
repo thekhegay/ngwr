@@ -28,7 +28,7 @@
   <div class="ngwr-header__actions">
     @for (action of actions; track action.url) {
       <a
-        class="ngwr-header__action ngwr-header__action--{{ action.modifier }}"
+        [class]="`ngwr-header__action ngwr-header__action--${action.modifier}`"
         [href]="action.url"
         [attr.aria-label]="action.label"
         target="_blank"

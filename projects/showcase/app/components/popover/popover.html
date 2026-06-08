@@ -52,15 +52,15 @@
     description='Pass a string + `mode="tooltip"` for a small dark hint panel. Opens on hover / focus, dismisses on blur, pointer-leave, or Escape. Uses `aria-describedby` instead of `aria-haspopup`.'
   >
     <ngwr-doc-snippet [code]="snippets.tooltip">
-      <wr-btn color="primary" [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>
-      <wr-btn [wrPopover]="'Remove permanently'" mode="tooltip" position="bottom">Delete</wr-btn>
-      <wr-btn [wrPopover]="'Open in a new window'" mode="tooltip" position="right">Open</wr-btn>
+      <wr-btn color="primary" wrPopover="Save changes" mode="tooltip" position="top">Save</wr-btn>
+      <wr-btn wrPopover="Remove permanently" mode="tooltip" position="bottom">Delete</wr-btn>
+      <wr-btn wrPopover="Open in a new window" mode="tooltip" position="right">Open</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Tooltip — custom delays">
     <ngwr-doc-snippet [code]="snippets.tooltipDelays">
-      <wr-btn [wrPopover]="'Slow to appear'" mode="tooltip" [showDelay]="500" [hideDelay]="100">Hover</wr-btn>
+      <wr-btn wrPopover="Slow to appear" mode="tooltip" [showDelay]="500" [hideDelay]="100">Hover</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

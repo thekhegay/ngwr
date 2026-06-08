@@ -11,7 +11,7 @@
   }
 </div>
 @if (hasDelta()) {
-  <div class="wr-statistic__delta wr-statistic__delta--{{ deltaDirection() }}">
+  <div [class]="`wr-statistic__delta wr-statistic__delta--${deltaDirection()}`">
     @if (deltaDirection() === 'up') {
       <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
         <path d="M5 1 L9 8 L1 8 Z" fill="currentColor" />

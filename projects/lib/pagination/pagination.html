@@ -36,7 +36,7 @@
           [outlined]="!isCurrent(page)"
           [color]="isCurrent(page) ? 'primary' : null"
           [attr.aria-current]="isCurrent(page) ? 'page' : null"
-          [attr.aria-label]="'Go to page ' + page"
+          [attr.aria-label]="`Go to page ${page}`"
           [disabled]="disabled()"
           (click)="goTo(page)"
         >

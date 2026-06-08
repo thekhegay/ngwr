@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Internationalization (i18n)"
-  description="Catalog-driven translations with `{{ '{{ name }}' }}` interpolation, scopes, and a reactive locale switch. For the basic `provideWrI18n` wiring see [Configuration](/getting-started/configuration); this page is the primer for the i18n subsystem itself."
+  description="Catalog-driven translations with double-brace interpolation, scopes, and a reactive locale switch. For the basic `provideWrI18n` wiring see [Configuration](/getting-started/configuration); this page is the primer for the i18n subsystem itself."
   [keywords]="['i18n', 'translation', 'locale', 'wrT', 'tutorial']"
   [labels]="['Core']"
 >
@@ -45,7 +45,7 @@
         </p>
         <p style="margin: 0">
           <strong>Directive:</strong>
-          <span [wrT]="'app.hello'" [wrTParams]="{ name: name() }"></span>
+          <span wrT="app.hello" [wrTParams]="{ name: name() }"></span>
         </p>
       </div>
     </ngwr-doc-snippet>

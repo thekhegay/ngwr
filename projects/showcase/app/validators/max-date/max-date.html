@@ -4,7 +4,7 @@
   [keywords]="['maxDate', 'date', 'validator', 'wr-validators']"
   [labels]="['Validator']"
 >
-  <ngwr-doc-section title="Live demo" description="Maximum is {{ max }} — later dates fail.">
+  <ngwr-doc-section title="Live demo" [description]="`Maximum is ${max} — later dates fail.`">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 18rem">
         <input wrInput type="date" [formControl]="control" />

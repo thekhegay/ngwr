@@ -1,14 +1,14 @@
 @if (tabs().length > 0) {
   @if (tabs().length > 1) {
     <div class="tabs" role="tablist">
-      @for (t of tabs(); track t.label; let i = $index) {
+      @for (t of tabs(); track t.label) {
         <button
           type="button"
           class="tabs__btn"
           role="tab"
-          [class.tabs__btn--active]="i === activeIndex()"
-          [attr.aria-selected]="i === activeIndex()"
-          (click)="select(i)"
+          [class.tabs__btn--active]="$index === activeIndex()"
+          [attr.aria-selected]="$index === activeIndex()"
+          (click)="select($index)"
         >
           {{ t.label }}
         </button>

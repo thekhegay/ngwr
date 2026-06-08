@@ -41,7 +41,7 @@
 
 @if (showList() && files().length > 0) {
   <ul class="wr-file-upload__list">
-    @for (file of files(); track $index; let i = $index) {
+    @for (file of files(); track $index) {
       <li class="wr-file-upload__item">
         <span class="wr-file-upload__name" [title]="file.name">{{ file.name }}</span>
         <span class="wr-file-upload__size">{{ formatBytes(file.size) }}</span>
@@ -50,7 +50,7 @@
           class="wr-file-upload__remove"
           [attr.aria-label]="resolvedRemove()"
           [disabled]="effectiveDisabled()"
-          (click)="removeAt(i)"
+          (click)="removeAt($index)"
         >
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
             <path

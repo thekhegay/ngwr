@@ -1,21 +1,21 @@
 <ol class="wr-stepper__headers" role="list">
-  @for (step of steps(); track $index; let i = $index; let last = $last) {
+  @for (step of steps(); track $index) {
     <li
       class="wr-stepper__header"
-      [class.wr-stepper__header--active]="i === active()"
-      [class.wr-stepper__header--completed]="isCompleted(i)"
-      [class.wr-stepper__header--reachable]="isReachable(i)"
+      [class.wr-stepper__header--active]="$index === active()"
+      [class.wr-stepper__header--completed]="isCompleted($index)"
+      [class.wr-stepper__header--reachable]="isReachable($index)"
       [class.wr-stepper__header--disabled]="step.disabled()"
     >
       <button
         type="button"
         class="wr-stepper__header-button"
-        [disabled]="!isReachable(i) || step.disabled()"
-        [attr.aria-current]="i === active() ? 'step' : null"
-        (click)="onHeaderClick(i)"
+        [disabled]="!isReachable($index) || step.disabled()"
+        [attr.aria-current]="$index === active() ? 'step' : null"
+        (click)="onHeaderClick($index)"
       >
         <span class="wr-stepper__indicator" aria-hidden="true">
-          @if (isCompleted(i)) {
+          @if (isCompleted($index)) {
             <svg width="14" height="14" viewBox="0 0 14 14">
               <path
                 d="M3 7.5 L6 10.5 L11 4.5"
@@ -27,7 +27,7 @@
               />
             </svg>
           } @else {
-            {{ i + 1 }}
+            {{ $index + 1 }}
           }
         </span>
         <span class="wr-stepper__label">
@@ -40,7 +40,7 @@
           }
         </span>
       </button>
-      @if (!last) {
+      @if (!$last) {
         <span class="wr-stepper__connector" aria-hidden="true"></span>
       }
     </li>

@@ -10,8 +10,8 @@
 </button>
 
 <ul class="wr-speed-dial__actions" role="menu">
-  @for (action of actions(); track action.id; let i = $index) {
-    <li class="wr-speed-dial__action-wrap" [style.--wr-speed-dial-i]="i + 1">
+  @for (action of actions(); track action.id) {
+    <li class="wr-speed-dial__action-wrap" [style.--wr-speed-dial-i]="$index + 1">
       <button
         type="button"
         class="wr-speed-dial__action"

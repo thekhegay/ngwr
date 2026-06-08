@@ -42,7 +42,7 @@
       @for (span of cols; track span) {
         <div class="grid grid-demo__row">
           @for (i of [].constructor(colSpan(span)); track $index) {
-            <div class="grid-demo__cell" [class]="'col-' + span">.col-{{ span }}</div>
+            <div [class]="`grid-demo__cell col-${span}`">.col-{{ span }}</div>
           }
         </div>
       }

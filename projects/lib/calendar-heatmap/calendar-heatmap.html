@@ -20,7 +20,7 @@
         [style.opacity]="opacityFor(cell.intensity)"
         [style.grid-column]="cell.week + 1"
         [style.grid-row]="cell.day + 1"
-        [title]="cell.iso + ': ' + cell.value"
+        [title]="`${cell.iso}: ${cell.value}`"
       ></span>
     }
   </div>

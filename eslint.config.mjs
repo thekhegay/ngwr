@@ -36,19 +36,24 @@ export default tsEslint.config(
       '@angular-eslint/component-max-inline-declarations': ['error', { template: 1, styles: 1, animations: 1 }],
       '@angular-eslint/consistent-component-styles': 'error',
       '@angular-eslint/contextual-decorator': 'error',
+      '@angular-eslint/no-duplicates-in-metadata-arrays': 'error',
       '@angular-eslint/no-forward-ref': 'error',
       '@angular-eslint/no-lifecycle-call': 'error',
       '@angular-eslint/no-pipe-impure': 'error',
       '@angular-eslint/no-queries-metadata-property': 'error',
-      // Angular 22 makes `OnPush` the default when `changeDetection` is
-      // unset, so the historical "must opt into OnPush" rule is now
-      // counterproductive — leaving the field empty is the new ideal.
-      // Re-enable (or invert to ban Eager / renamed Default) if/when
-      // angular-eslint ships a v22-aware version.
-      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
+      // Angular 22 narrowed this rule to only flag components that
+      // explicitly opt out of OnPush via `ChangeDetectionStrategy.Eager`
+      // or the deprecated `Default`. Omitting `changeDetection` is now
+      // the recommended path (defaults to OnPush) and the rule passes
+      // it cleanly. Safe to leave on as the recommended default does.
+      // `warn` until the legacy `@HostListener` usages in mention/spotlight/
+      // tilt/autosize/copy-to-clipboard are migrated to host metadata. Flip
+      // to `'error'` after that cleanup pass.
+      '@angular-eslint/prefer-host-metadata-property': 'warn',
       '@angular-eslint/prefer-output-readonly': 'error',
       '@angular-eslint/prefer-standalone': 'error',
       '@angular-eslint/relative-url-prefix': 'error',
+      '@angular-eslint/require-lifecycle-on-prototype': 'error',
       '@angular-eslint/use-lifecycle-interface': 'error',
       '@angular-eslint/use-pipe-transform-interface': 'error',
 
@@ -58,8 +63,21 @@ export default tsEslint.config(
       '@angular-eslint/directive-class-suffix': 'off',
       '@angular-eslint/pipe-prefix': 'off',
 
-      // Signals-first preferences.
+      // Signals-first preferences. `prefer-signals` flags `@Input`/
+      // `@ViewChild`/`@Output` decorators; `prefer-signal-model` nudges
+      // two-way bindings toward `model()`; `prefer-output-emitter-ref`
+      // pushes `EventEmitter` → `output()`; `no-uncalled-signals` catches
+      // `mySignal` references that forgot the `()`; `computed-must-return`
+      // catches `computed(() => { foo(); })` where the callback drops
+      // its value.
       '@angular-eslint/prefer-signals': 'error',
+      '@angular-eslint/prefer-signal-model': 'error',
+      '@angular-eslint/prefer-output-emitter-ref': 'error',
+      '@angular-eslint/no-uncalled-signals': 'error',
+      '@angular-eslint/computed-must-return': 'error',
+      // Catches Observables that aren't piped through `takeUntilDestroyed`
+      // (or another teardown). Major source of subscription leaks.
+      '@angular-eslint/no-implicit-take-until-destroyed': 'error',
 
       // ───── TypeScript (Google TS style guide) ─────
       // Google: prefer interfaces over type aliases for object shapes.
@@ -173,6 +191,41 @@ export default tsEslint.config(
     extends: [...ngEslint.configs.templateRecommended, ...ngEslint.configs.templateAccessibility, prettierRecommended],
     rules: {
       'prettier/prettier': ['error', { parser: 'angular' }],
+      // ───── Template — bug prevention & v22 control-flow ─────
+      // Prevent accidental form submits on `<button>` without `type="..."`.
+      '@angular-eslint/template/button-has-type': 'error',
+      // `$any()` casts disable type-checking inside the template. `warn`
+      // until the color-picker / time-panel / image-cropper / context-menu
+      // templates are retyped — flip to `'error'` afterwards.
+      '@angular-eslint/template/no-any': 'warn',
+      // Duplicate attributes silently drop one of the values.
+      '@angular-eslint/template/no-duplicate-attributes': 'error',
+      // `@if (cond) {}` / `@for (… ) {}` with empty bodies are dead code.
+      '@angular-eslint/template/no-empty-control-flow': 'error',
+      // `attr="{{x}}"` runs an interpolation as a string attr — use `[attr]="x"`.
+      '@angular-eslint/template/no-interpolation-in-attributes': 'error',
+      // Invalid HTML nesting (e.g., `<a>` inside `<a>`, block tags in `<p>`).
+      '@angular-eslint/template/no-nested-tags': 'error',
+      // Non-null assertion (`foo!`) inside templates hides nullability
+      // bugs. `warn` until the line-chart + image-cropper sites are
+      // re-narrowed — flip to `'error'` afterwards.
+      '@angular-eslint/template/no-non-null-assertion': 'warn',
+      // a11y: `tabindex > 0` breaks keyboard tab order.
+      '@angular-eslint/template/no-positive-tabindex': 'error',
+      // v22 control-flow ergonomics — prefer `@else if` and `@empty`.
+      '@angular-eslint/template/prefer-at-else': 'error',
+      '@angular-eslint/template/prefer-at-empty': 'error',
+      // `[class.foo]="cond"` reads tighter than `[ngClass]="{ foo: cond }"`.
+      '@angular-eslint/template/prefer-class-binding': 'error',
+      // `@for (item of list; track item.id) { @let x = …; }` — flags loop
+      // variables that should be bound via `@let` for clarity.
+      '@angular-eslint/template/prefer-contextual-for-variables': 'error',
+      // Void / no-content elements should self-close (`<wr-icon />`).
+      '@angular-eslint/template/prefer-self-closing-tags': 'error',
+      // `[prop]="'literal'"` → `prop="literal"`. Static-only attribute form.
+      '@angular-eslint/template/prefer-static-string-properties': 'error',
+      // `'a' + b + 'c'` → `` `a${b}c` ``.
+      '@angular-eslint/template/prefer-template-literal': 'error',
     },
   }
 );

@@ -1,7 +1,7 @@
 <div class="wr-donut-chart__surface" [style.width.px]="size()">
   <svg viewBox="0 0 100 100" aria-hidden="true">
     @for (slice of slices(); track $index) {
-      <path [attr.d]="slice.path" [attr.fill]="slice.color"></path>
+      <path [attr.d]="slice.path" [attr.fill]="slice.color" />
     }
   </svg>
   @if (centerValue() || centerLabel()) {

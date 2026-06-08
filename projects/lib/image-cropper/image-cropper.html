@@ -6,29 +6,7 @@
       <!-- Semi-transparent backdrop with a cut-out for the crop window. -->
       <div
         class="wr-image-cropper__backdrop"
-        [style.clip-path]="
-          'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 ' +
-          cropDisplay().y +
-          'px, ' +
-          cropDisplay().x +
-          'px ' +
-          cropDisplay().y +
-          'px, ' +
-          cropDisplay().x +
-          'px ' +
-          (cropDisplay().y + cropDisplay().h) +
-          'px, ' +
-          (cropDisplay().x + cropDisplay().w) +
-          'px ' +
-          (cropDisplay().y + cropDisplay().h) +
-          'px, ' +
-          (cropDisplay().x + cropDisplay().w) +
-          'px ' +
-          cropDisplay().y +
-          'px, 0 ' +
-          cropDisplay().y +
-          'px)'
-        "
+        [style.clip-path]="`polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 ${cropDisplay().y}px, ${cropDisplay().x}px ${cropDisplay().y}px, ${cropDisplay().x}px ${cropDisplay().y + cropDisplay().h}px, ${cropDisplay().x + cropDisplay().w}px ${cropDisplay().y + cropDisplay().h}px, ${cropDisplay().x + cropDisplay().w}px ${cropDisplay().y}px, 0 ${cropDisplay().y}px)`"
       ></div>
 
       <!-- Crop window — drag to move, with eight resize handles. -->
@@ -45,7 +23,7 @@
       >
         @for (h of ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']; track h) {
           <span
-            class="wr-image-cropper__handle wr-image-cropper__handle--{{ h }}"
+            [class]="`wr-image-cropper__handle wr-image-cropper__handle--${h}`"
             (pointerdown)="onPointerDown($any(h), $event)"
             (pointermove)="onPointerMove($event)"
             (pointerup)="onPointerUp($event)"
