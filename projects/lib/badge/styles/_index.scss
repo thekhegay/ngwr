@@ -39,9 +39,11 @@
     --wr-badge-line-height: 1.25rem;
   }
 
-  // Shape
+  // Shape — default `rounded` keeps the small radius from the defaults
+  // above; `pill` rounds the ends fully and adds horizontal breathing
+  // room so counts/labels don't kiss the edges.
 
-  &--rounded {
+  &--pill {
     --wr-badge-border-radius: var(--wr-border-radius-pill);
     --wr-badge-padding-x: 0.75rem;
   }

@@ -30,10 +30,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Rounded">
-    <ngwr-doc-snippet [code]="snippets.rounded">
+  <ngwr-doc-section title="Shape" description="`rounded` (default) keeps the small form-radius; `pill` rounds the ends fully.">
+    <ngwr-doc-snippet [code]="snippets.shape">
       @for (c of colors; track c) {
-        <wr-badge [color]="c" rounded>{{ c }}</wr-badge>
+        <wr-badge [color]="c" shape="pill">{{ c }}</wr-badge>
       }
     </ngwr-doc-snippet>
   </ngwr-doc-section>

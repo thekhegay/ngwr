@@ -5,12 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrBadgeSize } from './types';
+import type { WrBadgeShape, WrBadgeSize } from './types';
 
 /**
  * Small status indicator with color variants.
@@ -21,7 +20,7 @@ import type { WrBadgeSize } from './types';
  * ```html
  * <wr-badge color="success">Active</wr-badge>
  * <wr-badge color="danger" size="sm">3</wr-badge>
- * <wr-badge color="primary" rounded>New</wr-badge>
+ * <wr-badge color="primary" shape="pill">New</wr-badge>
  * ```
  *
  * @see https://ngwr.dev/docs/components/badge
@@ -50,11 +49,12 @@ export class WrBadge {
   readonly size = input<WrBadgeSize>('md');
 
   /**
-   * Render with pill-shaped corners.
+   * Corner treatment. Mirrors `<wr-btn>` — `rounded` (default) uses the
+   * small form-radius; `pill` rounds the ends fully.
    *
-   * @default false
+   * @default 'rounded'
    */
-  readonly rounded = input(false, { transform: coerceBooleanProperty });
+  readonly shape = input<WrBadgeShape>('rounded');
 
   protected readonly classes = computed(() => {
     const parts = ['wr-badge', `wr-badge--${this.color()}`];
@@ -62,8 +62,9 @@ export class WrBadge {
     if (size !== 'md') {
       parts.push(`wr-badge--${size}`);
     }
-    if (this.rounded()) {
-      parts.push('wr-badge--rounded');
+    const shape = this.shape();
+    if (shape !== 'rounded') {
+      parts.push(`wr-badge--${shape}`);
     }
     return parts.join(' ');
   });

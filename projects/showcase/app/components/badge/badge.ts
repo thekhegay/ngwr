@@ -31,12 +31,12 @@ export class MyComponent {}`,
     sizes: `<wr-badge size="sm">12</wr-badge>
 <wr-badge size="md">12</wr-badge>
 <wr-badge size="lg">12</wr-badge>`,
-    rounded: `<wr-badge color="primary" rounded>Beta</wr-badge>`,
+    shape: `<wr-badge color="primary" shape="pill">Beta</wr-badge>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'color', description: 'Color variant.', type: 'WrColor', default: "'primary'" },
     { name: 'size', description: 'Size variant.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+    { name: 'shape', description: 'Corner treatment.', type: "'rounded' | 'pill'", default: "'rounded'" },
   ];
 }
