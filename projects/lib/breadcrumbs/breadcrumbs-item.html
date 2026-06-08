@@ -1,0 +1,15 @@
+<a
+  [class]="rootClass()"
+  [routerLink]="routerLink()"
+  [attr.href]="!isRouter() ? href() : null"
+  [attr.aria-current]="isLink() ? null : 'page'"
+  [attr.role]="isLink() ? null : 'text'"
+  [attr.tabindex]="isLink() ? null : -1"
+  [attr.target]="external() && !isRouter() ? '_blank' : null"
+  [attr.rel]="external() && !isRouter() ? 'noreferrer noopener' : null"
+>
+  @if (icon(); as i) {
+    <wr-icon class="wr-breadcrumbs__icon" [name]="i" />
+  }
+  <ng-content />
+</a>

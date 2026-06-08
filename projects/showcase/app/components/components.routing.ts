@@ -31,8 +31,8 @@ export default [
     loadComponent: () => import('./badge/badge'),
   },
   {
-    path: components.breadcrumb,
-    loadComponent: () => import('./breadcrumb/breadcrumb'),
+    path: components.breadcrumbs,
+    loadComponent: () => import('./breadcrumbs/breadcrumbs'),
   },
   {
     path: components.button,

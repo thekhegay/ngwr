@@ -49,7 +49,7 @@ export const routes = {
     squircle: 'squircle',
     backTop: 'back-top',
     badge: 'badge',
-    breadcrumb: 'breadcrumb',
+    breadcrumbs: 'breadcrumbs',
     button: 'button',
     buttonGroup: 'button-group',
     calendar: 'calendar',
