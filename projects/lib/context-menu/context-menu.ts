@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
+import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
 
 /**
@@ -230,6 +231,11 @@ export class WrContextMenu {
     if (!this.overlayRef) return;
     this.cancelLeaveTimer();
     if (WrContextMenu.activeRoot === this) WrContextMenu.activeRoot = null;
+    // Submenu panes live in the CDK overlay container, not inside the
+    // root pane's view — destroyRef cascade through portal detach
+    // doesn't reach them. Close them all explicitly first so they
+    // don't float when the root is dismissed (outside-click, Esc, etc).
+    WrContextMenuItem.disposeAll(false);
     const ref = this.overlayRef;
     const pane = ref.overlayElement;
     // Detach immediately would skip the exit animation. Remove the open

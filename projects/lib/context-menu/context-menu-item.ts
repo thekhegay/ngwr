@@ -110,6 +110,18 @@ export class WrContextMenuItem {
    */
   private static readonly openSubmenus = new Map<HTMLElement, WrContextMenuItem>();
 
+  /**
+   * Dispose every open submenu pane on the page. Called by the root
+   * `WrContextMenu` when its own overlay closes — destroyRef cascade
+   * isn't reliable across separate overlay panes (each pane lives in
+   * the CDK overlay container, not inside the parent pane's view).
+   */
+  static disposeAll(immediate: boolean): void {
+    for (const [, owner] of [...WrContextMenuItem.openSubmenus]) {
+      owner.disposeSubmenu(immediate);
+    }
+  }
+
   constructor() {
     this.destroyRef.onDestroy(() => this.disposeSubmenu(true));
   }
