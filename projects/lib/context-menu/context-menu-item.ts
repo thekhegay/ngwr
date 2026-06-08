@@ -22,6 +22,7 @@ import {
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
+import { WrContextMenu } from './context-menu';
 import type { WrContextMenuPanel } from './context-menu-panel';
 
 /** Hover delay (ms) before a submenu opens. */
@@ -150,10 +151,12 @@ export class WrContextMenuItem {
   protected onMouseLeave(event: MouseEvent): void {
     if (!this.submenu()) return;
     this.cancelOpen();
-    // Don't close if the cursor is moving into the submenu pane itself —
-    // the gap between the item and the submenu often clips through one
-    // or two pixels of "outside", and we'd dismiss prematurely.
-    if (this.relatedTargetIsInsideMenuOverlay(event)) return;
+    // Only skip the close when the cursor is moving into MY OWN submenu
+    // (the user is drilling further down). Moving elsewhere — sibling
+    // item, ancestor menu, or completely off the chain — should close
+    // this item's submenu and let the cascade-on-dispose tear down any
+    // descendants.
+    if (this.relatedTargetIsInsideOwnSubmenu(event)) return;
     this.scheduleClose(SUBMENU_CLOSE_DELAY);
   }
 
@@ -240,24 +243,66 @@ export class WrContextMenuItem {
   /** Bound handlers (= preserves identity for removeEventListener). */
   private readonly onSubmenuEnter = (): void => {
     this.cancelClose();
+    // Cursor is inside our pane — keep the whole chain (root + every
+    // ancestor submenu) alive.
+    WrContextMenu.keepChainAlive();
   };
   private readonly onSubmenuLeave = (event: MouseEvent): void => {
-    // The mouse exits this submenu pane to enter a DEEPER submenu pane
-    // (the user is drilling further down). Stay open — the deeper menu
-    // is "inside" us from a UX standpoint.
-    if (this.relatedTargetIsInsideMenuOverlay(event)) return;
+    // Only stay open if the cursor is moving into a DESCENDANT submenu
+    // of ours (an item inside our pane opening its own submenu). Moving
+    // back up to an ancestor menu, sideways to a sibling, or completely
+    // off-chain should dismiss this submenu (cascade-on-dispose then
+    // tears down any deeper levels we own).
+    if (this.relatedTargetIsInsideDescendantSubmenu(event)) return;
     this.scheduleClose(SUBMENU_CLOSE_DELAY);
+    // If the cursor left ALL menu panes (root + every submenu), tear
+    // down the whole chain. Otherwise just close this pane and let the
+    // user continue navigating ancestors.
+    if (!this.relatedTargetIsInsideAnyMenu(event)) {
+      WrContextMenu.scheduleChainClose();
+    }
   };
 
-  /**
-   * `true` when the mouse moved into another `.wr-context-menu-overlay`
-   * (root menu, sibling submenu, grandchild submenu). Used to keep
-   * parent menus open while the user navigates into nested submenus.
-   */
-  private relatedTargetIsInsideMenuOverlay(event: MouseEvent): boolean {
+  private relatedTargetIsInsideAnyMenu(event: MouseEvent): boolean {
     const related = event.relatedTarget;
     if (!(related instanceof Element)) return false;
     return !!related.closest('.wr-context-menu-overlay');
+  }
+
+  /**
+   * `true` when the cursor moved from this item directly into the pane
+   * of its own (just-opening) submenu — drilling down. Sibling items
+   * and ancestor menus do NOT count.
+   */
+  private relatedTargetIsInsideOwnSubmenu(event: MouseEvent): boolean {
+    const related = event.relatedTarget;
+    if (!(related instanceof Element) || !this.submenuRef) return false;
+    return this.submenuRef.overlayElement.contains(related);
+  }
+
+  /**
+   * `true` when the cursor moved from our submenu pane into another
+   * submenu pane whose owner-item lives INSIDE ours — the user is
+   * drilling further down the chain (e.g., from the Share submenu into
+   * the Export-as submenu). Moving back up the chain returns false so
+   * we close.
+   */
+  private relatedTargetIsInsideDescendantSubmenu(event: MouseEvent): boolean {
+    const related = event.relatedTarget;
+    if (!(related instanceof Element) || !this.submenuRef) return false;
+    const targetPane = related.closest('.wr-context-menu-overlay');
+    if (!targetPane) return false;
+    const myPane = this.submenuRef.overlayElement;
+    if (targetPane === myPane) return true;
+    // Find the owner-item of the pane the cursor is heading into. If
+    // that owner-item is inside our own pane, the destination is a
+    // descendant submenu.
+    for (const [ownerEl, owner] of WrContextMenuItem.openSubmenus) {
+      if (owner.submenuRef?.overlayElement === targetPane) {
+        return myPane.contains(ownerEl);
+      }
+    }
+    return false;
   }
 
   private disposeSubmenu(immediate: boolean): void {

@@ -49,6 +49,28 @@ export class WrContextMenu {
 
   private overlayRef: OverlayRef | null = null;
   private closingTimer: ReturnType<typeof setTimeout> | null = null;
+  private leaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Single open root menu at a time. Submenu items use this to signal
+   * chain-level hover state: when the cursor enters ANY pane in the
+   * chain (root or submenu) `keepChainAlive()` cancels the close timer;
+   * when the cursor leaves ALL panes `scheduleChainClose()` starts it.
+   * The whole chain (root → submenus) tears down through the root's
+   * close (submenus react to their owner-item destroyRef + the static
+   * registry in `WrContextMenuItem`).
+   */
+  private static activeRoot: WrContextMenu | null = null;
+
+  /** Called from a submenu pane's mouseenter — keep the whole chain alive. */
+  static keepChainAlive(): void {
+    WrContextMenu.activeRoot?.cancelLeaveTimer();
+  }
+
+  /** Called from a submenu pane's mouseleave when the cursor left ALL menus. */
+  static scheduleChainClose(): void {
+    WrContextMenu.activeRoot?.scheduleLeave();
+  }
 
   /**
    * Open/close animation duration in ms. Matches the longest SCSS
@@ -58,6 +80,13 @@ export class WrContextMenu {
    * the DOM.
    */
   private static readonly TRANSITION_MS = 220;
+  /**
+   * Grace window after the cursor leaves the root pane. Long enough
+   * for the user to dip momentarily into the gap between the root and
+   * a submenu (or back from a submenu), short enough to feel snappy
+   * on a deliberate hover-out.
+   */
+  private static readonly LEAVE_DELAY = 240;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.closeOverlay());
@@ -127,6 +156,29 @@ export class WrContextMenu {
     // synchronously with attach would skip the initial 0→1 frame and
     // the menu would just appear without animating.
     requestAnimationFrame(() => pane.classList.add('wr-context-menu-overlay--open'));
+
+    // Hover-out closes the menu after a grace window, unless the
+    // cursor moved INTO a descendant submenu (any other
+    // `.wr-context-menu-overlay`). Re-entering the root cancels the
+    // scheduled close so the user can dip out and back without losing
+    // the menu.
+    const onPaneLeave = (event: MouseEvent): void => {
+      const related = event.relatedTarget;
+      // Moving into ANY other menu pane (a submenu) keeps the chain
+      // alive — the submenu's own mouseenter will cancel any pending
+      // chain-close. Only schedule when the cursor genuinely left the
+      // chain.
+      if (related instanceof Element && related.closest('.wr-context-menu-overlay')) return;
+      this.scheduleLeave();
+    };
+    const onPaneEnter = (): void => this.cancelLeaveTimer();
+    pane.addEventListener('mouseleave', onPaneLeave);
+    pane.addEventListener('mouseenter', onPaneEnter);
+    WrContextMenu.activeRoot = this;
+    this.overlayRef.detachments().subscribe(() => {
+      pane.removeEventListener('mouseleave', onPaneLeave);
+      pane.removeEventListener('mouseenter', onPaneEnter);
+    });
     // Capture-phase listener on document catches scroll events from ANY
     // ancestor (window, html, body, custom scroll containers), so the
     // menu stays anchored to the click position even inside scrollable
@@ -176,6 +228,8 @@ export class WrContextMenu {
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
+    this.cancelLeaveTimer();
+    if (WrContextMenu.activeRoot === this) WrContextMenu.activeRoot = null;
     const ref = this.overlayRef;
     const pane = ref.overlayElement;
     // Detach immediately would skip the exit animation. Remove the open
@@ -190,5 +244,20 @@ export class WrContextMenu {
     // Mark immediately so a subsequent right-click opens a fresh menu
     // rather than landing on the disposing one.
     this.overlayRef = null;
+  }
+
+  private cancelLeaveTimer(): void {
+    if (this.leaveTimer !== null) {
+      clearTimeout(this.leaveTimer);
+      this.leaveTimer = null;
+    }
+  }
+
+  private scheduleLeave(): void {
+    this.cancelLeaveTimer();
+    this.leaveTimer = setTimeout(() => {
+      this.leaveTimer = null;
+      this.closeOverlay();
+    }, WrContextMenu.LEAVE_DELAY);
   }
 }
