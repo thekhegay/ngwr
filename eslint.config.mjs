@@ -227,5 +227,15 @@ export default tsEslint.config(
       // `'a' + b + 'c'` → `` `a${b}c` ``.
       '@angular-eslint/template/prefer-template-literal': 'error',
     },
+  },
+  // Bootstrap `index.html` files contain the app-root tag and run
+  // through Angular's CLI HTML parser, not the Angular template parser
+  // — that parser is HTML5-strict and rejects self-closing custom
+  // elements (`<ngwr-root />`). Exempt them.
+  {
+    files: ['**/index.html'],
+    rules: {
+      '@angular-eslint/template/prefer-self-closing-tags': 'off',
+    },
   }
 );
