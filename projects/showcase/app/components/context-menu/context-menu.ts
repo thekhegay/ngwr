@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 
+import { FileText, Settings, Trash2 } from 'lucide';
 import { WrContextMenu, WrContextMenuPanel, WrContextMenuItem } from 'ngwr/context-menu';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 import {
   DocApiComponent,
@@ -24,6 +27,7 @@ import {
     DocCodeComponent,
     DocApiComponent,
   ],
+  providers: [provideWrIcons(lucideIcons({ document: FileText, trash: Trash2, cog: Settings }))],
 })
 export default class ContextMenuPageComponent {
   protected last = '';
