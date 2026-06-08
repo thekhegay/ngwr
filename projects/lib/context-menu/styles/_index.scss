@@ -86,4 +86,27 @@
   &__label {
     flex: 1 1 auto;
   }
+
+  // Trailing chevron, shown only on items that own a `[submenu]`.
+  // `wr-icon__svg` styles the SVG to 1em (≈ font-size of the row).
+  &__chevron {
+    flex: 0 0 auto;
+    width: 0.8125rem;
+    height: 0.8125rem;
+    color: var(--wr-color-medium);
+    margin-left: 0.25rem;
+  }
+
+  &--has-submenu:hover &__chevron,
+  &--has-submenu:focus-visible &__chevron {
+    color: var(--wr-color-primary);
+  }
+}
+
+// Horizontal separator between groups of items.
+.wr-context-menu-divider {
+  display: block;
+  height: 1px;
+  margin: 0.25rem 0;
+  background: var(--wr-color-light);
 }
