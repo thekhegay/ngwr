@@ -81,10 +81,18 @@ export class WrContextMenu {
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
-    this.overlayRef
-      .outsidePointerEvents()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.closeOverlay());
+    // The mouseup that completes the right-click is itself an "outside"
+    // pointer event (the cursor is on the host, not the overlay). If we
+    // subscribe immediately it fires synchronously and the menu closes
+    // before the user lifts their finger. Defer until the next macrotask
+    // so the original mouseup is already past.
+    const ref = this.overlayRef;
+    setTimeout(() => {
+      ref
+        .outsidePointerEvents()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.closeOverlay());
+    });
 
     this.overlayRef
       .keydownEvents()

@@ -175,9 +175,15 @@ export class WrCounter {
     const place = Math.pow(10, placePower);
     const absLive = Math.abs(live);
     const raw = absLive / place;
-    // Modulo 10 gives the digit at this column with fractional rollover.
+    // Modulo 10 gives the digit at this column with fractional rollover —
+    // mid-animation this looks like a real wheel rolling between digits.
     const mod = raw - Math.floor(raw / 10) * 10;
-    // Snap when we're at the target to avoid sub-pixel ghosting.
+    // At rest (live === target) every wheel must rest on an exact integer
+    // — otherwise upper digits show as partial (e.g. tens reads "5.6"
+    // for value 123456, visibly clipping between 5 and 6 in the
+    // overflow:hidden window). The continuous-mechanical look is only
+    // wanted DURING the tween, not after it settles.
+    if (live === target) return Math.floor(mod + 1e-9);
     return mod;
   }
 }

@@ -84,6 +84,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    // The divider is 2px on the cross-axis. Without `flex-shrink: 0`,
+    // the inline-flex handle gets squeezed to the parent's 2px width
+    // (or height in vertical mode), producing a 16×32 / 32×16 oval
+    // instead of the intended 2rem circle.
+    flex: 0 0 auto;
     width: 2rem;
     height: 2rem;
     background: var(--wr-color-white);

@@ -20,3 +20,16 @@
     height: 100%;
   }
 }
+
+// Inline SVG icons that live OUTSIDE a `<wr-icon>` host (used by
+// chrome bits like pagination chevrons, alert close, sidebar caret,
+// password toggle eye, tree expand, etc.). These get a sensible
+// default sizing so they're never collapsed to 0×0 inside flex
+// parents. Override by adding a second class with a custom size.
+.wr-icon__svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  flex: 0 0 auto;
+}
