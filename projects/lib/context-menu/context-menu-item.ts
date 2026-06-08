@@ -61,7 +61,7 @@ const SUBMENU_TRANSITION_MS = 220;
     '[attr.aria-haspopup]': 'submenu() ? "menu" : null',
     '[attr.aria-expanded]': 'submenu() ? (submenuOpen ? "true" : "false") : null',
     '(mouseenter)': 'onMouseEnter()',
-    '(mouseleave)': 'onMouseLeave()',
+    '(mouseleave)': 'onMouseLeave($event)',
     '(keydown.enter)': 'activate($event)',
     '(keydown.space)': 'activate($event)',
     '(keydown.arrowRight)': 'onArrowRight($event)',
@@ -138,9 +138,13 @@ export class WrContextMenuItem {
   }
 
   /** @internal Hover-out schedules a close with a grace window. */
-  protected onMouseLeave(): void {
+  protected onMouseLeave(event: MouseEvent): void {
     if (!this.submenu()) return;
     this.cancelOpen();
+    // Don't close if the cursor is moving into the submenu pane itself —
+    // the gap between the item and the submenu often clips through one
+    // or two pixels of "outside", and we'd dismiss prematurely.
+    if (this.relatedTargetIsInsideMenuOverlay(event)) return;
     this.scheduleClose(SUBMENU_CLOSE_DELAY);
   }
 
@@ -227,9 +231,24 @@ export class WrContextMenuItem {
   private readonly onSubmenuEnter = (): void => {
     this.cancelClose();
   };
-  private readonly onSubmenuLeave = (): void => {
+  private readonly onSubmenuLeave = (event: MouseEvent): void => {
+    // The mouse exits this submenu pane to enter a DEEPER submenu pane
+    // (the user is drilling further down). Stay open — the deeper menu
+    // is "inside" us from a UX standpoint.
+    if (this.relatedTargetIsInsideMenuOverlay(event)) return;
     this.scheduleClose(SUBMENU_CLOSE_DELAY);
   };
+
+  /**
+   * `true` when the mouse moved into another `.wr-context-menu-overlay`
+   * (root menu, sibling submenu, grandchild submenu). Used to keep
+   * parent menus open while the user navigates into nested submenus.
+   */
+  private relatedTargetIsInsideMenuOverlay(event: MouseEvent): boolean {
+    const related = event.relatedTarget;
+    if (!(related instanceof Element)) return false;
+    return !!related.closest('.wr-context-menu-overlay');
+  }
 
   private disposeSubmenu(immediate: boolean): void {
     this.cancelOpen();
