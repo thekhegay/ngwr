@@ -19,6 +19,23 @@
 /// (`50%`) and pills (`999px` / `--wr-border-radius-pill`) — those are
 /// already maximally curved, no smoothing to do.
 ///
+/// **Gotcha — shape="pill" variants.** If a component applies
+/// `smooth-br($radius-var)` and a child rule overrides that var to a
+/// pill value, the squircle math doesn't degenerate to a pill shape —
+/// it draws a different (slightly inset) curve at huge radii. Reset
+/// the corner type explicitly on the pill rule:
+///
+/// ```scss
+/// .wr-btn {
+///   --wr-btn-radius: var(--wr-border-radius-base);
+///   @include smooth-br(var(--wr-btn-radius));
+/// }
+/// .wr-btn--pill {
+///   --wr-btn-radius: var(--wr-border-radius-pill);
+///   corner-shape: round; // browsers without the prop ignore it
+/// }
+/// ```
+///
 /// @example scss
 ///   .thing {
 ///     @include smooth-br(0.625rem);

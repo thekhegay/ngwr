@@ -16,6 +16,7 @@
   &--rounded {
     --wr-select-radius: var(--wr-border-radius-pill);
     --wr-select-padding-x: 1rem;
+    corner-shape: round; // override squircle from smooth-br for pills
   }
 
   &--disabled {

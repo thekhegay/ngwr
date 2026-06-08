@@ -97,8 +97,15 @@
 
   // Shape — `rounded` (default) inherits --wr-btn-radius from the base
   // declaration above. Pill = fully rounded ends.
+  //
+  // `corner-shape: round` overrides the squircle from `smooth-br` —
+  // squircle math doesn't degenerate to a pill at huge radii (it draws
+  // a different shape), so we explicitly opt back to the round arc here.
+  // Browsers without `corner-shape` support harmlessly ignore the
+  // property.
   &--pill {
     --wr-btn-radius: var(--wr-border-radius-pill);
+    corner-shape: round;
   }
 
   // Layout
