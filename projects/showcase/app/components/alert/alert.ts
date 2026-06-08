@@ -30,12 +30,19 @@ export class MyComponent {}`,
 <wr-alert title="Warning" type="warning" />
 <wr-alert title="Danger" type="danger" />`,
     closeable: `<wr-alert title="Saved" type="success" closeable (closed)="onClose()" />`,
+    noIcon: `<wr-alert title="Plain" message="No leading icon." [icon]="false" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'title', description: 'Headline.', type: 'string', required: true },
     { name: 'type', description: 'Visual variant.', type: 'WrAlertType', default: "'info'" },
     { name: 'message', description: 'Optional secondary message.', type: 'string | null', default: 'null' },
+    {
+      name: 'icon',
+      description: 'Show a leading status icon matching the `type`. Pass `false` to hide.',
+      type: 'boolean',
+      default: 'true',
+    },
     { name: 'closeable', description: 'Show a close button.', type: 'boolean', default: 'false' },
     {
       name: '(closed)',

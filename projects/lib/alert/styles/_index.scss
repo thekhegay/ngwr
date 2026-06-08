@@ -29,6 +29,14 @@ $alert-colors: (
     display: none;
   }
 
+  &__icon {
+    flex: 0 0 auto;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.125rem;
+    color: var(--wr-alert-title);
+  }
+
   &__body {
     flex: 1 1 auto;
     display: flex;

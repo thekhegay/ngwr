@@ -34,6 +34,17 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Without icon"
+    description="Pass `[icon]=&quot;false&quot;` to suppress the leading status icon."
+  >
+    <ngwr-doc-snippet [code]="snippets.noIcon">
+      <div style="width: 100%">
+        <wr-alert title="Plain" message="No leading icon." [icon]="false" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

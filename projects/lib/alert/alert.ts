@@ -50,6 +50,14 @@ export class WrAlert {
   readonly message = input<string | null>(null);
 
   /**
+   * When `true`, renders a leading status icon matching the `type`
+   * (info / success / warning / danger). Pass `false` to hide.
+   *
+   * @default true
+   */
+  readonly icon = input(true, { transform: coerceBooleanProperty });
+
+  /**
    * When `true`, renders a close button.
    *
    * @default false
