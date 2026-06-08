@@ -30,8 +30,11 @@ export class MyComponent {}`,
     sizes: `<wr-avatar url="/me.png" alt="Roman" [size]="32" />
 <wr-avatar url="/me.png" alt="Roman" size="4rem" />
 <wr-avatar url="/me.png" alt="Roman" size="6rem" />`,
-    rounded: `<wr-avatar url="/me.png" alt="Roman" rounded />`,
-    initials: `<wr-avatar [size]="48" rounded>RK</wr-avatar>`,
+    shape: `<wr-avatar url="/me.png" alt="Roman" shape="square" />
+<wr-avatar url="/me.png" alt="Roman" shape="rounded" />
+<wr-avatar url="/me.png" alt="Roman" shape="circle" />
+<wr-avatar url="/me.png" alt="Roman" shape="squircle" />`,
+    initials: `<wr-avatar [size]="48" shape="circle">RK</wr-avatar>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -48,6 +51,11 @@ export class MyComponent {}`,
       type: 'WrAvatarSize',
       default: "'6rem'",
     },
-    { name: 'rounded', description: 'Render as a circle.', type: 'boolean', default: 'false' },
+    {
+      name: 'shape',
+      description: 'Corner treatment.',
+      type: "'rounded' | 'square' | 'circle' | 'squircle'",
+      default: "'rounded'",
+    },
   ];
 }

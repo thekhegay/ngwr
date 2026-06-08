@@ -5,24 +5,23 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
 
 import { WrSpinner } from 'ngwr/spinner';
 import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
 
-import type { WrAvatarSize } from './types';
+import type { WrAvatarShape, WrAvatarSize } from './types';
 
 const DEFAULT_SIZE: WrAvatarSize = '6rem';
 
 /**
- * Image avatar with a fixed square or rounded shape.
+ * Image avatar with configurable corner treatment.
  *
  * A spinner is shown while the image loads, then crossfades in.
  *
  * @example
  * ```html
- * <wr-avatar url="/me.png" alt="Roman" size="3rem" rounded />
+ * <wr-avatar url="/me.png" alt="Roman" size="3rem" shape="circle" />
  * <wr-avatar url="/me.png" alt="Roman" [size]="48" />
  * ```
  *
@@ -55,11 +54,12 @@ export class WrAvatar {
   readonly alt = input<string>('Avatar');
 
   /**
-   * Render as a circle instead of a rounded square.
+   * Corner treatment. `rounded` (default) is a soft rounded square,
+   * `circle` is the classic profile avatar, `squircle` is the iOS look.
    *
-   * @default false
+   * @default 'rounded'
    */
-  readonly rounded = input(false, { transform: coerceBooleanProperty });
+  readonly shape = input<WrAvatarShape>('rounded');
 
   /**
    * Box size. See {@link WrAvatarSize} for accepted values.
@@ -83,7 +83,8 @@ export class WrAvatar {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-avatar'];
-    if (this.rounded()) parts.push('wr-avatar--rounded');
+    const shape = this.shape();
+    if (shape !== 'rounded') parts.push(`wr-avatar--${shape}`);
     if (this.loaded()) parts.push('wr-avatar--loaded');
     return parts.join(' ');
   });

@@ -1,7 +1,9 @@
 @use '../../theme/styles' as theme;
 
 .wr-avatar {
-  // Defaults
+  // Defaults — `shape="rounded"` (the default) gets the soft rounded
+  // square look. Variant modifiers below override the radius / corner
+  // treatment.
   --wr-avatar-radius: 10%;
   --wr-avatar-img-opacity: 0;
   --wr-avatar-ring: rgba(var(--wr-color-light-rgb), 0.5);
@@ -14,8 +16,19 @@
   border-radius: var(--wr-avatar-radius);
   box-shadow: inset 0 0 0 1px var(--wr-avatar-ring);
 
-  &--rounded {
+  &--square {
+    --wr-avatar-radius: 0;
+  }
+
+  &--circle {
     --wr-avatar-radius: 50%;
+  }
+
+  &--squircle {
+    // iOS-style smooth corners. `corner-shape: squircle` is supported
+    // in Chrome 145+; browsers without it fall back to the same 10%
+    // radius as `shape="rounded"`, which is the closest visual match.
+    @include theme.smooth-br(18%);
   }
 
   &--loaded {

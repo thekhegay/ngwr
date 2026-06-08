@@ -25,10 +25,15 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Rounded">
-    <ngwr-doc-snippet [code]="snippets.rounded">
-      <wr-avatar [url]="sampleUrl" alt="" size="4rem" rounded />
-      <wr-avatar [url]="sampleUrl" alt="" size="6rem" rounded />
+  <ngwr-doc-section
+    title="Shape"
+    description="`rounded` (default) is a soft rounded square. `circle` replaces the old `[rounded]` boolean. `squircle` uses `corner-shape: squircle` where supported."
+  >
+    <ngwr-doc-snippet [code]="snippets.shape">
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" shape="square" />
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" shape="rounded" />
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" shape="circle" />
+      <wr-avatar [url]="sampleUrl" alt="" size="4rem" shape="squircle" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -37,7 +42,7 @@
     description="When the avatar has no image, projected content fills the box. Use a flex layout to center it."
   >
     <ngwr-doc-snippet [code]="snippets.initials">
-      <wr-avatar [size]="48" rounded>
+      <wr-avatar [size]="48" shape="circle">
         <span style="font-size: 0.875rem; font-weight: 600; color: var(--wr-color-medium)">RK</span>
       </wr-avatar>
       <wr-avatar [size]="64" style="background: rgba(var(--wr-color-primary-rgb), 0.15)">
