@@ -117,8 +117,15 @@ export class WrContextMenu {
     // menu stays anchored to the click position even inside scrollable
     // layouts.
     document.addEventListener('scroll', sync, { capture: true, passive: true });
+    // On resize the page layout reflows — the original pageX/pageY no
+    // longer points at whatever the user right-clicked. Dismiss the menu
+    // rather than dragging it across a now-stale coordinate (matches
+    // PrimeNG / native behavior).
+    const onResize = (): void => this.closeOverlay();
+    window.addEventListener('resize', onResize, { passive: true });
     this.overlayRef.detachments().subscribe(() => {
       document.removeEventListener('scroll', sync, { capture: true });
+      window.removeEventListener('resize', onResize);
     });
 
     // The right-click that opens the menu still has `mouseup` + `auxclick`
