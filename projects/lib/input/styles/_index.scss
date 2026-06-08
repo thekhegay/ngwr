@@ -24,7 +24,7 @@
   background: var(--wr-input-bg);
   color: var(--wr-input-color);
   border: 1px solid var(--wr-input-border);
-  border-radius: var(--wr-input-radius);
+  @include theme.smooth-br(var(--wr-input-radius));
   box-shadow: 0 0 0 3px var(--wr-input-ring);
   outline: 0;
   margin: 0;
@@ -81,7 +81,7 @@
   vertical-align: middle;
   background: var(--wr-input-group-bg);
   border: 1px solid var(--wr-input-group-border);
-  border-radius: var(--wr-input-group-radius);
+  @include theme.smooth-br(var(--wr-input-group-radius));
   box-shadow: 0 0 0 3px var(--wr-input-group-ring);
   transition:
     border-color var(--wr-transition-base),

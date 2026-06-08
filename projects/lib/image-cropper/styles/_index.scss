@@ -109,6 +109,6 @@
     color: var(--wr-color-medium);
     background: rgba(var(--wr-color-light-rgb), 0.4);
     border: 1px dashed var(--wr-color-light);
-    border-radius: var(--wr-border-radius-base);
+    @include theme.smooth-br(var(--wr-border-radius-base));
   }
 }

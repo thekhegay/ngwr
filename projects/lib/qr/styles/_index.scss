@@ -3,7 +3,7 @@
 .wr-qr {
   display: inline-block;
   line-height: 0;
-  border-radius: var(--wr-border-radius-base);
+  @include theme.smooth-br(var(--wr-border-radius-base));
   overflow: hidden;
 
   > canvas {

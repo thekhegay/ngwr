@@ -1,0 +1,33 @@
+// Shared SCSS mixins.
+//
+// Available via:
+//   @use 'ngwr/theme/mixins' as wr;
+//   .thing { @include wr.smooth-br(0.625rem); }
+
+/// Smooth border-radius — opts into the native `corner-shape: squircle`
+/// CSS spec (Chrome 145+) when the browser supports it, otherwise
+/// falls back to a plain `border-radius`.
+///
+/// `corner-shape: squircle` renders a continuous-curvature corner (iOS /
+/// macOS style) instead of a circular arc. The squircle reads as
+/// "less rounded" at the same numeric radius, so we bump the radius by
+/// 1.85× under `@supports` to keep the perceived roundness consistent
+/// across browsers — that ratio is the rough empirical match.
+///
+/// Use this anywhere a soft rounded look matters (buttons, cards,
+/// inputs, dialogs, dropdowns, tiles). Skip it for full circles
+/// (`50%`) and pills (`999px` / `--wr-border-radius-pill`) — those are
+/// already maximally curved, no smoothing to do.
+///
+/// @example scss
+///   .thing {
+///     @include smooth-br(0.625rem);
+///   }
+@mixin smooth-br($br) {
+  border-radius: $br;
+
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    border-radius: calc(#{$br} * 1.85);
+  }
+}

@@ -10,7 +10,7 @@
   max-width: 20rem;
   background: var(--wr-color-white);
   border: 1px solid var(--wr-color-light);
-  border-radius: var(--wr-border-radius-base);
+  @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   font-family: var(--wr-font-family-base);
   font-size: 0.875rem;

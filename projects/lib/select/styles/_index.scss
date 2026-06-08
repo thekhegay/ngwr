@@ -33,7 +33,7 @@
     background: var(--wr-select-bg);
     color: var(--wr-select-color);
     border: 1px solid var(--wr-select-border);
-    border-radius: var(--wr-select-radius);
+    @include theme.smooth-br(var(--wr-select-radius));
     padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1))
       calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
     font-family: var(--wr-font-family-base);
@@ -246,7 +246,7 @@
   flex-direction: column;
   background: var(--wr-select-panel-bg);
   border: 1px solid var(--wr-select-panel-border);
-  border-radius: var(--wr-select-panel-radius);
+  @include theme.smooth-br(var(--wr-select-panel-radius));
   box-shadow: var(--wr-select-panel-shadow);
   padding: 0.25rem;
   max-height: var(--wr-select-panel-max-height);

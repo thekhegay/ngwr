@@ -24,7 +24,7 @@
     color: var(--wr-input-otp-color);
     background: var(--wr-input-otp-bg);
     border: 1px solid var(--wr-input-otp-border);
-    border-radius: var(--wr-border-radius-base);
+    @include theme.smooth-br(var(--wr-border-radius-base));
     appearance: none;
     transition:
       border-color var(--wr-transition-base),

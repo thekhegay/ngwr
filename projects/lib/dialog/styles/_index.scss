@@ -65,7 +65,7 @@
   max-height: calc(100vh - 2rem);
 
   background: var(--wr-dialog-bg);
-  border-radius: var(--wr-dialog-radius);
+  @include theme.smooth-br(var(--wr-dialog-radius));
   box-shadow: var(--wr-dialog-shadow);
   overflow: hidden;
   font-family: var(--wr-font-family-base);

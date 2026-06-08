@@ -25,7 +25,7 @@
   padding: var(--wr-dropdown-padding);
   background: var(--wr-dropdown-bg);
   border: 1px solid var(--wr-dropdown-border);
-  border-radius: var(--wr-dropdown-radius);
+  @include theme.smooth-br(var(--wr-dropdown-radius));
   box-shadow: var(--wr-dropdown-shadow);
   font-family: var(--wr-font-family-base);
 }

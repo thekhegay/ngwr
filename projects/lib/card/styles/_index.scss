@@ -15,7 +15,7 @@
   flex-direction: column;
   background: var(--wr-card-bg);
   color: var(--wr-card-color);
-  border-radius: var(--wr-card-radius);
+  @include theme.smooth-br(var(--wr-card-radius));
   box-shadow: var(--wr-card-shadow);
   font-family: var(--wr-font-family-base);
   transition:
@@ -74,7 +74,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--wr-card-radius);
+    @include theme.smooth-br(var(--wr-card-radius));
     background: rgb(255 255 255 / 50%);
     pointer-events: none;
   }

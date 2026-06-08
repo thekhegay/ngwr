@@ -22,7 +22,7 @@
   padding: var(--wr-color-picker-padding);
   background: var(--wr-color-picker-bg);
   border: 1px solid var(--wr-color-picker-border);
-  border-radius: var(--wr-color-picker-radius);
+  @include theme.smooth-br(var(--wr-color-picker-radius));
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   font-family: var(--wr-font-family-base);
   user-select: none;
@@ -32,7 +32,7 @@
     position: relative;
     width: 100%;
     height: var(--wr-color-picker-sv-height);
-    border-radius: var(--wr-color-picker-radius);
+    @include theme.smooth-br(var(--wr-color-picker-radius));
     cursor: crosshair;
     touch-action: none;
     background:
@@ -103,7 +103,7 @@
     display: inline-block;
     width: var(--wr-preview-size);
     height: var(--wr-preview-size);
-    border-radius: var(--wr-color-picker-radius);
+    @include theme.smooth-br(var(--wr-color-picker-radius));
     background-image:
       linear-gradient(currentColor, currentColor), conic-gradient(#cdd2dd 25%, #fff 0 50%, #cdd2dd 0 75%, #fff 0);
     background-size:

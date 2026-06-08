@@ -20,7 +20,7 @@
   padding: 0.75rem;
   background: var(--wr-calendar-bg);
   border: 1px solid var(--wr-calendar-border);
-  border-radius: var(--wr-calendar-radius);
+  @include theme.smooth-br(var(--wr-calendar-radius));
   color: var(--wr-calendar-color);
   font-family: var(--wr-font-family-base);
   outline: none;

@@ -1,11 +1,13 @@
 // Image with click-to-zoom lightbox. The host wraps the `<img>` and is
 // sized by the consumer (CSS / inline styles on `<wr-image>`).
 
+@use '../../theme/styles' as theme;
+
 .wr-image {
   display: inline-block;
   position: relative;
   overflow: hidden;
-  border-radius: var(--wr-image-radius, var(--wr-border-radius-base));
+  @include theme.smooth-br(var(--wr-image-radius, var(--wr-border-radius-base)));
   cursor: zoom-in;
   background: rgba(var(--wr-color-light-rgb), 0.4);
 
@@ -118,7 +120,7 @@
     max-height: calc(95vh - 4rem);
     object-fit: contain;
     cursor: zoom-out;
-    border-radius: 0.5rem;
+    @include theme.smooth-br(0.5rem);
   }
 
   &__caption {

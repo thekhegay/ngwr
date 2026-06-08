@@ -32,7 +32,7 @@
   color: var(--wr-btn-color);
   background: var(--wr-btn-bg);
   border: 1px solid var(--wr-btn-border);
-  border-radius: var(--wr-btn-radius);
+  @include theme.smooth-br(var(--wr-btn-radius));
   padding: calc(var(--wr-btn-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-btn-padding-x) * var(--wr-density-x, 1));
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-btn-font-size);

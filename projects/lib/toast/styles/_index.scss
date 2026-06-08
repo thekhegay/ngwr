@@ -127,7 +127,7 @@ $toast-colors: (
   background: var(--wr-toast-bg);
   border: 1px solid var(--wr-toast-border);
   border-left: 3px solid var(--wr-toast-accent);
-  border-radius: var(--wr-border-radius-base);
+  @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.12),
     0 2px 4px rgba(0, 0, 0, 0.06);

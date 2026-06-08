@@ -18,7 +18,7 @@
   align-items: stretch;
   background: var(--wr-segmented-bg);
   padding: var(--wr-segmented-padding);
-  border-radius: var(--wr-segmented-radius);
+  @include theme.smooth-br(var(--wr-segmented-radius));
   font-family: var(--wr-font-family-base);
   font-size: 0.8125rem;
   line-height: 1.25rem;
@@ -31,7 +31,7 @@
     width: calc((100% - 2 * var(--wr-segmented-padding)) / var(--wr-segmented-thumb-count));
     transform: translateX(calc(100% * var(--wr-segmented-thumb-index)));
     background: var(--wr-segmented-selected-bg);
-    border-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));
+    @include theme.smooth-br(calc(var(--wr-segmented-radius) - var(--wr-segmented-padding)));
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     pointer-events: none;
     // Animate slides, but only after first paint — see `&--mounted` below.
@@ -57,7 +57,7 @@
     background: transparent;
     border: 0;
     padding: 0.3125rem 0.75rem;
-    border-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));
+    @include theme.smooth-br(calc(var(--wr-segmented-radius) - var(--wr-segmented-padding)));
     color: var(--wr-segmented-color);
     font: inherit;
     cursor: pointer;

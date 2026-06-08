@@ -22,7 +22,7 @@ $alert-colors: (
 
   background: var(--wr-alert-bg);
   border-left: 3px solid var(--wr-alert-border);
-  border-radius: var(--wr-border-radius-base);
+  @include theme.smooth-br(var(--wr-border-radius-base));
   padding: 0.75rem 1rem;
 
   &--dismissed {

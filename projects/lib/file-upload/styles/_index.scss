@@ -14,7 +14,7 @@
     padding: 1.5rem;
     background: var(--wr-color-white);
     border: 1.5px dashed var(--wr-color-light);
-    border-radius: var(--wr-border-radius-base);
+    @include theme.smooth-br(var(--wr-border-radius-base));
     color: var(--wr-color-dark);
     text-align: center;
     cursor: pointer;
@@ -105,7 +105,7 @@
     padding: 0.4375rem 0.625rem 0.4375rem 0.75rem;
     background: var(--wr-color-white);
     border: 1px solid var(--wr-color-light);
-    border-radius: var(--wr-border-radius-base);
+    @include theme.smooth-br(var(--wr-border-radius-base));
     font-size: 0.875rem;
     line-height: 1.25rem;
   }

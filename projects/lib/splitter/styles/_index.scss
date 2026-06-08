@@ -65,13 +65,13 @@
   &--horizontal &__handle {
     width: 0.875rem;
     height: 2rem;
-    border-radius: 4px;
+    @include theme.smooth-br(4px);
   }
 
   &--vertical &__handle {
     width: 2rem;
     height: 0.875rem;
-    border-radius: 4px;
+    @include theme.smooth-br(4px);
   }
 
   &--disabled &__divider {

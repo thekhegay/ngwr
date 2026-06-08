@@ -7,7 +7,7 @@
     max-width: 22rem;
     background: var(--wr-color-white);
     border: 1px solid var(--wr-color-light);
-    border-radius: var(--wr-border-radius-base);
+    @include theme.smooth-br(var(--wr-border-radius-base));
     box-shadow:
       0 8px 24px rgba(0, 0, 0, 0.12),
       0 2px 4px rgba(0, 0, 0, 0.06);

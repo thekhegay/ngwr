@@ -19,7 +19,7 @@
   background: var(--wr-textarea-bg);
   color: var(--wr-textarea-color);
   border: 1px solid var(--wr-textarea-border);
-  border-radius: var(--wr-textarea-radius);
+  @include theme.smooth-br(var(--wr-textarea-radius));
   box-shadow: 0 0 0 3px var(--wr-textarea-ring);
   transition:
     border-color var(--wr-transition-base),

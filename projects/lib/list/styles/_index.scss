@@ -3,6 +3,8 @@
 // container via the `&--bordered` / `&--dividers` / `&--dense` parent
 // classes.
 
+@use '../../theme/styles' as theme;
+
 .wr-list {
   --wr-list-item-padding-y: 0.625rem;
   --wr-list-item-padding-x: 1rem;
@@ -28,7 +30,7 @@
 
   &--bordered {
     border: 1px solid var(--wr-list-divider-color);
-    border-radius: var(--wr-border-radius-base);
+    @include theme.smooth-br(var(--wr-border-radius-base));
     overflow: hidden;
   }
 

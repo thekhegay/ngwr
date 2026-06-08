@@ -9,7 +9,7 @@
   position: relative;
   width: 100%;
   border: 1px solid var(--wr-table-border);
-  border-radius: var(--wr-border-radius-base);
+  @include theme.smooth-br(var(--wr-border-radius-base));
   overflow: hidden;
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-dark);
