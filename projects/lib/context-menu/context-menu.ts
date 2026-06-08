@@ -70,20 +70,31 @@ export class WrContextMenu {
   // ──────── Overlay ────────
 
   private openOverlay(x: number, y: number): void {
-    const positionStrategy = this.overlay.position().global().left(`${x}px`).top(`${y}px`);
-
+    // GlobalPositionStrategy uses margins, which led to flaky positioning
+    // (`position: static` inline overridden by our `!important`, etc.).
+    // Use it just to create the overlay, then write the coords directly to
+    // the pane element via `top`/`left` so the menu sits exactly where the
+    // user clicked and never moves until we close it.
     this.overlayRef = this.overlay.create({
-      positionStrategy,
-      // `noop` keeps the menu at the original pointer coords as the user
-      // scrolls — matches native OS / IDE context menus. Was `close()`
-      // before, which dismissed the overlay on any scroll (including the
-      // small scroll-jolt some trackpads produce just after a right-click).
+      positionStrategy: this.overlay.position().global(),
+      // `noop` so scroll doesn't dismiss the menu. With absolute coords
+      // pinned to viewport (`position: fixed` in the panel CSS), the menu
+      // visually stays put as the page scrolls underneath.
       scrollStrategy: this.scrollStrategies.noop(),
       panelClass: ['wr-context-menu-overlay'],
     });
 
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
+
+    // Write coords straight onto the pane. `position: fixed !important` in
+    // the panel CSS pins to the viewport so scroll doesn't move the menu.
+    const pane = this.overlayRef.overlayElement;
+    pane.style.top = `${y}px`;
+    pane.style.left = `${x}px`;
+    pane.style.right = 'auto';
+    pane.style.bottom = 'auto';
+    pane.style.margin = '0';
 
     // The right-click that opens the menu still has `mouseup` + `auxclick`
     // events pending. CDK's `outsidePointerEvents()` listens to pointerdown
