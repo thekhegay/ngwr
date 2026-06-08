@@ -10,22 +10,25 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrDividerType } from './types';
+import type { WrDividerAlign, WrDividerType } from './types';
 
 /**
- * Horizontal separator line.
+ * Horizontal separator line. Projected content renders as a label
+ * inline with the line (split into two halves on either side).
  *
  * @example
  * ```html
  * <wr-divider />
  * <wr-divider type="dashed" color="primary" [width]="2" />
+ * <wr-divider>OR</wr-divider>
+ * <wr-divider align="start">Section</wr-divider>
  * ```
  *
  * @see https://ngwr.dev/docs/components/divider
  */
 @Component({
   selector: 'wr-divider',
-  template: '',
+  template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
   host: {
     role: 'separator',
@@ -55,10 +58,21 @@ export class WrDivider {
    */
   readonly width = input(1, { transform: (v: unknown): number => coerceNumberProperty(v, 1) });
 
+  /**
+   * Label position. Only meaningful when the divider has projected
+   * content — otherwise the line is symmetric and alignment has no
+   * visible effect.
+   *
+   * @default 'center'
+   */
+  readonly align = input<WrDividerAlign>('center');
+
   protected readonly classes = computed(() => {
     const parts = ['wr-divider', `wr-divider--${this.type()}`];
     const color = this.color();
     if (color) parts.push(`wr-divider--${color}`);
+    const align = this.align();
+    if (align !== 'center') parts.push(`wr-divider--${align}`);
     return parts.join(' ');
   });
 }

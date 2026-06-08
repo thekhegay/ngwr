@@ -1,26 +1,52 @@
 @use '../../theme/styles' as theme;
 
 .wr-divider {
-  display: block;
-  width: 100%;
-  user-select: none;
-  pointer-events: none;
-
-  // Defaults — color modifiers override
+  // Defaults — line color/style/width drive the ::before and ::after
+  // pseudo-element lines on either side of the optional projected
+  // label.
   --wr-divider-width: 1px;
   --wr-divider-color: var(--wr-color-light);
+  --wr-divider-style: solid;
+  --wr-divider-gap: 0.75rem;
+  --wr-divider-aside: 1rem;
 
-  border-bottom-width: var(--wr-divider-width);
-  border-bottom-color: var(--wr-divider-color);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  user-select: none;
+  color: var(--wr-color-medium);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
 
-  &--solid {
-    border-bottom-style: solid;
+  &::before,
+  &::after {
+    content: '';
+    flex: 1 1 auto;
+    min-width: 0;
+    border-top: var(--wr-divider-width) var(--wr-divider-style) var(--wr-divider-color);
   }
+
+  // With a projected label, leave room around it. Without one,
+  // `:empty` keeps the two halves flush so the line stays continuous.
+  &:not(:empty) {
+    gap: var(--wr-divider-gap);
+  }
+
+  // Line style — solid is the default token; dashed/dotted override.
   &--dashed {
-    border-bottom-style: dashed;
+    --wr-divider-style: dashed;
   }
   &--dotted {
-    border-bottom-style: dotted;
+    --wr-divider-style: dotted;
+  }
+
+  // Label alignment — shrink one of the lines to a short stub so the
+  // label can sit at the edge instead of dead center.
+  &--start::before {
+    flex: 0 0 var(--wr-divider-aside);
+  }
+  &--end::after {
+    flex: 0 0 var(--wr-divider-aside);
   }
 
   @each $name in theme.$colors {

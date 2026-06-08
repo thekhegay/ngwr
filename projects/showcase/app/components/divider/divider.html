@@ -44,6 +44,30 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="With label"
+    description="Project content between the tags to render a label inline with the line. Use `align` to push it to the start or end."
+  >
+    <ngwr-doc-snippet [code]="snippets.label">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem">
+        <wr-divider>OR</wr-divider>
+        <wr-divider align="start">Section</wr-divider>
+        <wr-divider align="end" type="dashed">Footnotes</wr-divider>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Long label"
+    description="Long labels wrap naturally without breaking the line halves. Useful for inline section descriptions."
+  >
+    <ngwr-doc-snippet [code]="snippets.longText">
+      <div style="width: 100%">
+        <wr-divider>Continued from the previous chapter — see appendix B for derivations</wr-divider>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
