@@ -42,6 +42,7 @@ export class Header {
     { url: [routes.index, routes.directives.index], label: 'Directives' },
     { url: [routes.index, routes.pipes.index], label: 'Pipes' },
     { url: [routes.index, routes.services.index], label: 'Services' },
+    { url: [routes.index, routes.services.index, routes.services.i18n], label: 'Translate' },
     { url: [routes.index, routes.utils.index], label: 'Utils' },
     { url: [routes.index, routes.validators.index], label: 'Validators' },
   ];
