@@ -74,7 +74,11 @@ export class WrContextMenu {
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: this.scrollStrategies.close(),
+      // `noop` keeps the menu at the original pointer coords as the user
+      // scrolls — matches native OS / IDE context menus. Was `close()`
+      // before, which dismissed the overlay on any scroll (including the
+      // small scroll-jolt some trackpads produce just after a right-click).
+      scrollStrategy: this.scrollStrategies.noop(),
       panelClass: ['wr-context-menu-overlay'],
     });
 
