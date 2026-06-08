@@ -81,18 +81,24 @@ export class WrContextMenu {
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
-    // The mouseup that completes the right-click is itself an "outside"
-    // pointer event (the cursor is on the host, not the overlay). If we
-    // subscribe immediately it fires synchronously and the menu closes
-    // before the user lifts their finger. Defer until the next macrotask
-    // so the original mouseup is already past.
+    // The right-click that opens the menu still has `mouseup` + `auxclick`
+    // events pending. CDK's `outsidePointerEvents()` listens to pointerdown
+    // / auxclick and would fire on those — closing the menu the instant
+    // the user lifts their finger. Two-part guard:
+    //   1. Track the open timestamp.
+    //   2. Ignore any outside events that arrive within a short window
+    //      after the open (long enough to cover the original mouseup +
+    //      auxclick, short enough that a deliberate second click is
+    //      still respected).
+    const openedAt = performance.now();
     const ref = this.overlayRef;
-    setTimeout(() => {
-      ref
-        .outsidePointerEvents()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.closeOverlay());
-    });
+    ref
+      .outsidePointerEvents()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (performance.now() - openedAt < 200) return;
+        this.closeOverlay();
+      });
 
     this.overlayRef
       .keydownEvents()
