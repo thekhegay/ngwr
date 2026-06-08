@@ -2,11 +2,13 @@
 
 .wr-context-menu-overlay {
   z-index: var(--wr-z-overlay, 1000);
-  // The CDK overlay container is positioned `absolute` at the document
-  // root by default, so panes inside scroll with the page. The context
-  // menu lives at viewport coords (clientX/clientY) and should stay put
-  // even as the user scrolls — pin the pane to the viewport explicitly.
-  position: fixed;
+  // CDK's GlobalPositionStrategy sets `position: static` as an inline
+  // style and uses margins for placement, so the pane scrolls with the
+  // page even when our `noop` scroll strategy says "don't reposition".
+  // The directive opens at clientX/clientY (viewport coords) — pin the
+  // pane to the viewport with `!important` so the inline style loses,
+  // and the menu stays put while the page scrolls underneath.
+  position: fixed !important;
 }
 
 .wr-context-menu {
