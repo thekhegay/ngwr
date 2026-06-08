@@ -1,0 +1,63 @@
+<ngwr-doc-page
+  title="Body text"
+  description="Lead, body, small, caption, and overline — the running-text vocabulary. Pair with tone, alignment, and the truncate modifier."
+  [keywords]="['typography', 'body', 'lead', 'caption', 'overline']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Variants">
+    <ngwr-doc-code [code]="snippets.variants" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 32rem">
+        <p wrTypography variant="lead">Lead paragraph — calmer subhead under a headline.</p>
+        <p wrTypography>Body copy in the default variant.</p>
+        <p wrTypography variant="small">Small print.</p>
+        <p wrTypography variant="caption">Captions and helper text.</p>
+        <p wrTypography variant="overline">Section label</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tones"
+    description="The same `--wr-color-*` tokens used by every other ngwr component."
+  >
+    <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.25rem">
+        <p wrTypography tone="dark">Dark (default)</p>
+        <p wrTypography tone="medium">Muted</p>
+        <p wrTypography tone="primary">Primary</p>
+        <p wrTypography tone="success">Success</p>
+        <p wrTypography tone="warning">Warning</p>
+        <p wrTypography tone="danger">Danger</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Alignment">
+    <ngwr-doc-code [code]="snippets.align" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <p wrTypography align="start">Start (default)</p>
+        <p wrTypography align="center">Centered</p>
+        <p wrTypography align="end">End</p>
+        <p wrTypography align="justify">
+          Justified text fills the line width by adjusting word spacing — readable for long-form copy.
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Truncation">
+    <ngwr-doc-code [code]="snippets.truncate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography [truncate]="true" style="max-width: 18rem; display: inline-block">
+        A long line that gets ellipsized when it overflows the container.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -36,13 +36,13 @@ export class Header {
   protected readonly nav: readonly NavLink[] = [
     { url: [routes.index, routes.gettingStarted.index], label: 'Getting Started' },
     { url: [routes.index, routes.components.index], label: 'Components' },
-    { url: [routes.index, routes.components.index, routes.components.typography], label: 'Typography' },
+    { url: [routes.index, routes.typography.index], label: 'Typography' },
     { url: [routes.index, routes.icons.index], label: 'Icons' },
     { url: [routes.index, routes.animations.index], label: 'Animations' },
     { url: [routes.index, routes.directives.index], label: 'Directives' },
     { url: [routes.index, routes.pipes.index], label: 'Pipes' },
     { url: [routes.index, routes.services.index], label: 'Services' },
-    { url: [routes.index, routes.services.index, routes.services.i18n], label: 'Translate' },
+    { url: [routes.index, routes.translate.index], label: 'Translate' },
     { url: [routes.index, routes.utils.index], label: 'Utils' },
     { url: [routes.index, routes.validators.index], label: 'Validators' },
   ];

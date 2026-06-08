@@ -8,6 +8,8 @@ import {
   ICONS_SIDEBAR,
   PIPES_SIDEBAR,
   SERVICES_SIDEBAR,
+  TRANSLATE_SIDEBAR,
+  TYPOGRAPHY_SIDEBAR,
   UTILS_SIDEBAR,
   VALIDATORS_SIDEBAR,
 } from './_layout/sidebar/configs';
@@ -203,6 +205,23 @@ export const routes = {
     getFocusableElements: 'get-focusable-elements',
     trapFocus: 'trap-focus',
   },
+  typography: {
+    index: 'typography',
+    overview: 'overview',
+    headings: 'headings',
+    text: 'text',
+    code: 'code',
+    keyboard: 'keyboard',
+  },
+  translate: {
+    index: 'translate',
+    overview: 'overview',
+    setup: 'setup',
+    usage: 'usage',
+    scopes: 'scopes',
+    interpolation: 'interpolation',
+    api: 'api',
+  },
   validators: {
     index: 'validators',
     email: 'email',
@@ -267,6 +286,16 @@ export const routing: Routes = [
         path: routes.utils.index,
         data: { sidebar: UTILS_SIDEBAR },
         loadChildren: () => import('./utils/utils.routing'),
+      },
+      {
+        path: routes.typography.index,
+        data: { sidebar: TYPOGRAPHY_SIDEBAR },
+        loadChildren: () => import('./typography/typography.routing'),
+      },
+      {
+        path: routes.translate.index,
+        data: { sidebar: TRANSLATE_SIDEBAR },
+        loadChildren: () => import('./translate/translate.routing'),
       },
       {
         path: routes.validators.index,

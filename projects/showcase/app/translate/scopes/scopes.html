@@ -1,0 +1,27 @@
+<ngwr-doc-page
+  title="Scopes"
+  description="Feature-scoped catalogs let large apps ship the root vocabulary upfront and lazy-load the rest. The scope name is the path key — same on every loader, every locale."
+  [keywords]="['i18n', 'translate', 'scope', 'lazy', 'feature']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section
+    title="Register a scope"
+    description="Call once per feature, typically from a route resolver or the feature's bootstrap. The scope's catalog auto-reloads on every locale change."
+  >
+    <ngwr-doc-code [code]="snippets.register" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Consume in templates"
+    description="The pipe and directive both accept a scope; the service takes it as a third arg."
+  >
+    <ngwr-doc-code [code]="snippets.consume" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="HTTP layout"
+    description="The HTTP loader interpolates `{scope}` and `{locale}` into its path template. `rootPath` is optional — defaults to `path` with an empty `{scope}`."
+  >
+    <ngwr-doc-code [code]="snippets.httpLayout" language="typescript" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

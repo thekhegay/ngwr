@@ -1,0 +1,42 @@
+<ngwr-doc-page
+  title="Translate"
+  description="Reactive i18n for ngwr apps. The active locale lives on a signal, catalogs load lazily through a swappable loader, and double-brace placeholders interpolate at render time. Scopes let feature modules ship and load their own catalogs."
+  [keywords]="['i18n', 'translate', 'locale', 'wr-i18n', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="At a glance">
+    <div class="ngwr-translate-overview__hero">
+      <p wrTypography variant="overline" tone="primary">ngwr/i18n</p>
+      <p wrTypography variant="display">{{ 'common.save' | wrT }} . {{ 'common.cancel' | wrT }}</p>
+      <p wrTypography variant="lead" tone="medium">
+        One service, one signal — pipe / directive / inject. Switch locales without re-bootstrapping.
+      </p>
+      <div class="ngwr-translate-overview__switcher">
+        <p wrTypography tone="medium">Active locale:</p>
+        @for (l of available; track l) {
+          <button
+            type="button"
+            class="ngwr-translate-overview__chip"
+            [class.ngwr-translate-overview__chip--active]="locale() === l"
+            (click)="use(l)"
+          >
+            {{ l }}
+          </button>
+        }
+      </div>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sections">
+    <ul class="ngwr-translate-overview__grid">
+      @for (card of cards; track card.title) {
+        <li>
+          <a class="ngwr-translate-overview__card" [routerLink]="card.url">
+            <p wrTypography variant="h4">{{ card.title }}</p>
+            <p wrTypography tone="medium">{{ card.body }}</p>
+          </a>
+        </li>
+      }
+    </ul>
+  </ngwr-doc-section>
+</ngwr-doc-page>

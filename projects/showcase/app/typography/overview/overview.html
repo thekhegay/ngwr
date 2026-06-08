@@ -1,0 +1,30 @@
+<ngwr-doc-page
+  title="Typography"
+  description="A complete type system for ngwr apps. Semantic variants, color tones, alignment, truncation, and monospace — all driven by the shared `--wr-text-*` / `--wr-font-weight-*` / `--wr-leading-*` tokens so a single theme override re-skins everything."
+  [keywords]="['typography', 'wr-typography', 'fonts', 'headings', 'body']"
+  [labels]="['Section']"
+>
+  <ngwr-doc-section title="At a glance">
+    <div class="ngwr-typography-overview__hero">
+      <p wrTypography variant="overline" tone="primary">ngwr/typography</p>
+      <p wrTypography variant="display">Build interfaces</p>
+      <p wrTypography variant="display" tone="primary">that read beautifully.</p>
+      <p wrTypography variant="lead" tone="medium">
+        A single `[wrTypography]` directive covers every text role. Pick a variant, optional tone, and you’re done.
+      </p>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sections">
+    <ul class="ngwr-typography-overview__grid">
+      @for (card of cards; track card.title) {
+        <li>
+          <a class="ngwr-typography-overview__card" [routerLink]="card.url">
+            <p wrTypography variant="h4">{{ card.title }}</p>
+            <p wrTypography tone="medium">{{ card.body }}</p>
+          </a>
+        </li>
+      }
+    </ul>
+  </ngwr-doc-section>
+</ngwr-doc-page>

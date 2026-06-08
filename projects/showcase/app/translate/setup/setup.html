@@ -1,0 +1,27 @@
+<ngwr-doc-page
+  title="Setup & loaders"
+  description="Provide `WrI18n` plus one of the two catalog loaders — static (inline objects) or HTTP (fetched JSON). The active locale persists in `WrStorage` between reloads."
+  [keywords]="['i18n', 'translate', 'setup', 'provider', 'loader']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section
+    title="Static loader"
+    description="Inline the catalogs at bootstrap. Best for small apps or when SSR-rendered translations are critical."
+  >
+    <ngwr-doc-code [code]="snippets.static" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="HTTP loader"
+    description="Fetch catalogs on demand. The `{locale}` token is interpolated; pair with `registerScope` to lazy-load feature catalogs."
+  >
+    <ngwr-doc-code [code]="snippets.http" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Missing-key handler"
+    description="Override the default (returns the key) to surface gaps in the catalog during development."
+  >
+    <ngwr-doc-code [code]="snippets.missing" language="angular-ts" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

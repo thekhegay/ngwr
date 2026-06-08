@@ -1,0 +1,55 @@
+<ngwr-doc-page
+  title="Usage in templates"
+  description="Three ways to read a translation — `| wrT` pipe, `[wrT]` directive, or `inject(WrI18n)` for code. All three react to locale changes automatically."
+  [keywords]="['i18n', 'translate', 'pipe', 'directive', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Locale switcher" description="Flip the active locale to watch every demo below re-render.">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
+        <p wrTypography tone="medium">Active locale:</p>
+        @for (l of available; track l) {
+          <button
+            type="button"
+            style="padding: 0.25rem 0.625rem; border: 1px solid var(--wr-color-light); border-radius: var(--wr-border-radius-pill); background: transparent; cursor: pointer"
+            [style.background]="locale() === l ? 'var(--wr-color-primary)' : 'transparent'"
+            [style.color]="locale() === l ? 'var(--wr-color-primary-contrast)' : 'inherit'"
+            (click)="use(l)"
+          >
+            {{ l }}
+          </button>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Pipe"
+    description="`| wrT` — impure, re-evaluates on every CD cycle so locale + catalog changes propagate."
+  >
+    <ngwr-doc-code [code]="snippets.pipe" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <p wrTypography variant="h3">{{ 'common.save' | wrT }}</p>
+        <p wrTypography>{{ 'common.cancel' | wrT }}</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Directive"
+    description="`[wrT]` writes `textContent` of the host. Tidier when the entire element is a translation."
+  >
+    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography [wrT]="'common.save'"></p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Service"
+    description="`inject(WrI18n)` — `t()` for eager string lookup, `translate()` for reactive signal lookup."
+  >
+    <ngwr-doc-code [code]="snippets.service" language="typescript" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
