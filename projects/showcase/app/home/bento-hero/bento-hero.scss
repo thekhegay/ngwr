@@ -83,11 +83,16 @@
   flex-direction: column;
   gap: 0.625rem;
   padding: 1rem;
-  background: rgba(var(--wr-color-white-rgb, 255, 255, 255), 0.04);
-  border: 1px solid rgba(var(--wr-color-white-rgb, 255, 255, 255), 0.08);
+  // Theme-aware surface — `--wr-color-light` flips between #cbd5e1 in the
+  // light theme and #1f2a3d in dark, so a single rgba reads correctly in
+  // both modes. Tile background = mid-alpha neutral, border = brighter
+  // neutral so the card has a clean edge against any hero backdrop.
+  background: rgba(var(--wr-color-light-rgb, 203, 213, 225), 0.6);
+  border: 1px solid rgba(var(--wr-color-medium-rgb, 133, 148, 164), 0.2);
+  box-shadow: 0 8px 24px -12px rgba(var(--wr-color-black-rgb, 0, 0, 0), 0.15);
   border-radius: 0.875rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   pointer-events: none; // animation looks better with no hover/focus thrash
 
   // Variant tweaks — most tiles need centered content, a few want different layout.
@@ -161,7 +166,7 @@
     width: 1.75rem;
     height: 1.75rem;
     border-radius: 999px;
-    border: 1px solid rgba(var(--wr-color-white-rgb, 255, 255, 255), 0.12);
+    border: 1px solid rgba(var(--wr-color-medium-rgb, 133, 148, 164), 0.3);
   }
 
   &__kbd-combo {
@@ -181,8 +186,8 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(var(--wr-color-white-rgb, 255, 255, 255), 0.06);
-    border-bottom: 1px solid rgba(var(--wr-color-white-rgb, 255, 255, 255), 0.08);
+    background: rgba(var(--wr-color-medium-rgb, 133, 148, 164), 0.15);
+    border-bottom: 1px solid rgba(var(--wr-color-medium-rgb, 133, 148, 164), 0.2);
   }
 
   &__dot {
