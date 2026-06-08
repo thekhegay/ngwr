@@ -58,8 +58,11 @@ export class WrContextMenu {
     event.preventDefault();
     event.stopPropagation();
     // Re-open at the new position even if it was already open.
+    // Use page coords (document-relative) so the menu anchors to the
+    // zone it was opened over — scrolling the page carries the menu
+    // along with the content, matching native + PrimeNG behavior.
     this.closeOverlay();
-    this.openOverlay(event.clientX, event.clientY);
+    this.openOverlay(event.pageX, event.pageY);
   }
 
   /** Close the menu. */
@@ -87,14 +90,36 @@ export class WrContextMenu {
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
-    // Write coords straight onto the pane. `position: fixed !important` in
-    // the panel CSS pins to the viewport so scroll doesn't move the menu.
+    // Position model: the pane uses `position: fixed` (panel CSS) but we
+    // want the menu to anchor to the DOCUMENT — when the user scrolls,
+    // the menu should travel with the content it was opened over (native
+    // browser + PrimeNG behavior). Strategy:
+    //
+    //   - Record the page coords (pageX/pageY = document-relative).
+    //   - Each frame the user scrolls, set top/left to (pageX/Y minus the
+    //     current scroll offset). At scroll 0 this matches clientX/Y; as
+    //     scroll grows the menu shifts up/left visually, which is exactly
+    //     what `position: absolute` inside an un-fixed container would do
+    //     naturally — we just have to emulate it manually because CDK's
+    //     overlay container is `position: fixed`.
     const pane = this.overlayRef.overlayElement;
-    pane.style.top = `${y}px`;
-    pane.style.left = `${x}px`;
     pane.style.right = 'auto';
     pane.style.bottom = 'auto';
     pane.style.margin = '0';
+
+    const sync = (): void => {
+      pane.style.top = `${y - window.scrollY}px`;
+      pane.style.left = `${x - window.scrollX}px`;
+    };
+    sync();
+    // Capture-phase listener on document catches scroll events from ANY
+    // ancestor (window, html, body, custom scroll containers), so the
+    // menu stays anchored to the click position even inside scrollable
+    // layouts.
+    document.addEventListener('scroll', sync, { capture: true, passive: true });
+    this.overlayRef.detachments().subscribe(() => {
+      document.removeEventListener('scroll', sync, { capture: true });
+    });
 
     // The right-click that opens the menu still has `mouseup` + `auxclick`
     // events pending. CDK's `outsidePointerEvents()` listens to pointerdown

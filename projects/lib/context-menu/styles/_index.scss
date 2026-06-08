@@ -3,11 +3,11 @@
 .wr-context-menu-overlay {
   z-index: var(--wr-z-overlay, 1000);
   // CDK's GlobalPositionStrategy sets `position: static` as an inline
-  // style and uses margins for placement, so the pane scrolls with the
-  // page even when our `noop` scroll strategy says "don't reposition".
-  // The directive opens at clientX/clientY (viewport coords) — pin the
-  // pane to the viewport with `!important` so the inline style loses,
-  // and the menu stays put while the page scrolls underneath.
+  // style. We override it so the directive can write top/left directly
+  // to the pane. The menu is anchored to the DOCUMENT — the directive's
+  // scroll listener keeps the visible position in sync as the user
+  // scrolls (top/left = pageX/pageY - currentScroll), so the menu moves
+  // along with the content it was opened over (native + PrimeNG style).
   position: fixed !important;
 }
 
