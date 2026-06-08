@@ -48,6 +48,15 @@ export class WrContextMenu {
   private readonly destroyRef = inject(DestroyRef);
 
   private overlayRef: OverlayRef | null = null;
+  private closingTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Open/close animation duration in ms. Matches the SCSS transition on
+   * `.wr-context-menu-overlay`. The directive holds the overlay alive
+   * for this long during close so the exit animation can play before
+   * the pane is removed from the DOM.
+   */
+  private static readonly TRANSITION_MS = 120;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.closeOverlay());
@@ -112,6 +121,11 @@ export class WrContextMenu {
       pane.style.left = `${x - window.scrollX}px`;
     };
     sync();
+
+    // Trigger the open transition on the next frame — adding the class
+    // synchronously with attach would skip the initial 0→1 frame and
+    // the menu would just appear without animating.
+    requestAnimationFrame(() => pane.classList.add('wr-context-menu-overlay--open'));
     // Capture-phase listener on document catches scroll events from ANY
     // ancestor (window, html, body, custom scroll containers), so the
     // menu stays anchored to the click position even inside scrollable
@@ -161,7 +175,19 @@ export class WrContextMenu {
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
-    this.overlayRef.dispose();
+    const ref = this.overlayRef;
+    const pane = ref.overlayElement;
+    // Detach immediately would skip the exit animation. Remove the open
+    // class first so the SCSS transition runs back to the default
+    // (faded + scaled-down) state, then dispose after the transition.
+    pane.classList.remove('wr-context-menu-overlay--open');
+    if (this.closingTimer !== null) clearTimeout(this.closingTimer);
+    this.closingTimer = setTimeout(() => {
+      ref.dispose();
+      this.closingTimer = null;
+    }, WrContextMenu.TRANSITION_MS);
+    // Mark immediately so a subsequent right-click opens a fresh menu
+    // rather than landing on the disposing one.
     this.overlayRef = null;
   }
 }

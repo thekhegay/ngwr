@@ -9,6 +9,28 @@
   // scrolls (top/left = pageX/pageY - currentScroll), so the menu moves
   // along with the content it was opened over (native + PrimeNG style).
   position: fixed !important;
+
+  // Open / close animation. The directive toggles `--open` after the
+  // pane is in the DOM (next frame) so the transition runs from the
+  // default state below into the visible state, and again from visible
+  // back to default on close — the directive holds the overlay alive
+  // for the transition duration before disposing.
+  opacity: 0;
+  transform: scale(0.92);
+  transform-origin: top left;
+  transition:
+    opacity 0.12s var(--wr-ease-out, ease-out),
+    transform 0.12s var(--wr-ease-spring, ease-out);
+
+  &--open {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    transform: none;
+  }
 }
 
 .wr-context-menu {
