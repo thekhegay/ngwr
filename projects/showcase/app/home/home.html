@@ -56,92 +56,9 @@
           </div>
         </div>
 
-        <!-- ───── Right: showcase collage ───── -->
+        <!-- ───── Right: tilted bento wall of live components ───── -->
         <div class="col-12 col-md-7">
-          <div class="ngwr-home-showcase">
-            <div class="grid">
-              <div class="col-12 col-md-8 ngwr-home-showcase__column">
-                <div class="ngwr-home-showcase-card">
-                  <div class="ngwr-home-showcase-card-date">
-                    <wr-icon class="ngwr-home-showcase-card-date__icon" name="time" />
-                    <span class="ngwr-home-showcase-card-date__date">{{ currentDate | date: 'longDate' }}</span>
-                  </div>
-
-                  <wr-qr color="#fff" bgColor="transparent" [padding]="0" [size]="75" value="https://ngwr.dev" />
-
-                  <wr-progress color="primary" [value]="60" />
-
-                  <h4 class="ngwr-home-showcase-card__title">
-                    Easy-to-customize components for your business applications
-                  </h4>
-
-                  <div class="ngwr-home-showcase-card-quote">
-                    <wr-avatar
-                      class="ngwr-home-showcase-card-quote__avatar"
-                      rounded
-                      url="images/image_1.webp"
-                      size="2.5rem"
-                      alt="NGWR avatar example"
-                    />
-                    <div class="ngwr-home-showcase-card-quote-author">
-                      <span class="ngwr-home-showcase-card-quote-author__title">Emelia Ferguson</span>
-                      <span class="ngwr-home-showcase-card-quote-author__subtitle">NGWR Team</span>
-                    </div>
-                  </div>
-                </div>
-
-                <wr-alert type="info" title="Bring your own design system" closeable />
-
-                <div class="ngwr-home-showcase__panel ngwr-home-showcase__icons">
-                  @for (icon of icons; track icon.name) {
-                    <div class="ngwr-home-showcase-icon">
-                      <wr-icon class="ngwr-home-showcase-icon__icon" [name]="icon.name" />
-                    </div>
-                  }
-                </div>
-              </div>
-
-              <div class="col-12 col-md-4 ngwr-home-showcase__column">
-                <div class="ngwr-home-showcase__panel ngwr-home-showcase__tags">
-                  <wr-tag color="danger" outlined>Angular</wr-tag>
-                  <wr-tag color="primary" outlined>TypeScript</wr-tag>
-                  <wr-tag color="secondary" outlined>SCSS</wr-tag>
-                </div>
-
-                <div class="ngwr-home-showcase__panel ngwr-home-showcase__skeleton">
-                  <div class="ngwr-home-showcase__skeleton-row">
-                    <wr-skeleton class="ngwr-home-showcase__skeleton-avatar" />
-                    <div class="ngwr-home-showcase__skeleton-lines">
-                      <wr-skeleton class="ngwr-home-showcase__skeleton-line ngwr-home-showcase__skeleton-line--sm" />
-                      <wr-skeleton class="ngwr-home-showcase__skeleton-line" />
-                    </div>
-                  </div>
-                  <wr-skeleton class="ngwr-home-showcase__skeleton-line" />
-                  <wr-skeleton class="ngwr-home-showcase__skeleton-line" />
-                  <wr-skeleton class="ngwr-home-showcase__skeleton-line ngwr-home-showcase__skeleton-line--md" />
-                </div>
-
-                <div class="ngwr-home-showcase__panel ngwr-home-showcase__buttons">
-                  <wr-btn color="primary" block>Easy to start</wr-btn>
-                  <wr-btn color="secondary" outlined block icon="discover">Easy to customize</wr-btn>
-                  <wr-btn color="success" outlined loading block>Button with long title</wr-btn>
-                </div>
-
-                <wr-input-group>
-                  <span wrInputPrefix>Also</span>
-                  <input wrInput placeholder="Awesome inputs" />
-                </wr-input-group>
-                <input wrInput placeholder="Fully customized" />
-                <wr-input-group>
-                  <input wrInput type="password" placeholder="Super strong password" #homePw />
-                  <wr-password-toggle [for]="homePw" />
-                </wr-input-group>
-
-                <wr-btn color="primary" icon="arrow-forward" iconPosition="end">Start</wr-btn>
-                <wr-btn color="danger" icon="alert-circle-outline" iconPosition="end" outlined>Forms included</wr-btn>
-              </div>
-            </div>
-          </div>
+          <ngwr-bento-hero />
         </div>
       </div>
     </div>

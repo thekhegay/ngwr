@@ -1,53 +1,20 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { AlertCircle, Compass, Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
-import * as LucideAll from 'lucide';
-import { WrAlert } from 'ngwr/alert';
-import { WrAvatar } from 'ngwr/avatar';
+import { Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
 import { WrButton } from 'ngwr/button';
 import { WrCopyToClipboard } from 'ngwr/directives';
-import { provideWrIcons, type WrIconDef, WrIcon } from 'ngwr/icon';
-import { lucide, lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrInput, WrInputGroup, WrInputPrefix, WrPasswordToggle } from 'ngwr/input';
-import { WrProgress } from 'ngwr/progress';
-import { WrQr } from 'ngwr/qr';
-import { WrSkeleton } from 'ngwr/skeleton';
-import { WrTag } from 'ngwr/tag';
+import { provideWrIcons, WrIcon } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
+import { BentoHero } from './bento-hero/bento-hero';
+
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
-
-/** Fisher–Yates shuffle. Returns a new array. */
-function shuffle<T>(input: readonly T[]): T[] {
-  const out = [...input];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
-
-/** Build a hero icon strip from the lucide set, picking 30 random icons. */
-function buildHeroIcons(): WrIconDef[] {
-  const mod = LucideAll as unknown as Record<string, unknown>;
-  const out: WrIconDef[] = [];
-  for (const key of Object.keys(mod)) {
-    if (!/^[A-Z]/.test(key)) continue;
-    const value = mod[key];
-    if (!Array.isArray(value)) continue;
-    const name = key.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
-    out.push(lucide(name, value as Parameters<typeof lucide>[1]));
-  }
-  return shuffle(out).slice(0, 30);
-}
-
-const HERO_ICONS = buildHeroIcons();
 
 interface WhyTile {
   readonly icon: string;
@@ -60,31 +27,11 @@ interface WhyTile {
   selector: 'ngwr-home',
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  imports: [
-    DatePipe,
-    RouterLink,
-    WrIcon,
-    WrQr,
-    WrProgress,
-    WrAvatar,
-    WrAlert,
-    WrTag,
-    WrSkeleton,
-    WrButton,
-    WrInput,
-    WrInputGroup,
-    WrInputPrefix,
-    WrPasswordToggle,
-    WrTypography,
-    WrCopyToClipboard,
-  ],
+  imports: [RouterLink, WrIcon, WrButton, WrTypography, WrCopyToClipboard, BentoHero],
   providers: [
     provideWrIcons([
-      ...HERO_ICONS,
       ...BRAND_ICONS,
       ...lucideIcons({
-        'alert-circle-outline': AlertCircle,
-        discover: Compass,
         folder: Folder,
         moon: Moon,
         flash: Zap,
@@ -95,8 +42,6 @@ interface WhyTile {
   ],
 })
 export default class HomeComponent {
-  protected readonly currentDate = new Date();
-  protected readonly icons: readonly WrIconDef[] = HERO_ICONS;
   protected readonly routes = routes;
   protected readonly version = inject(NGWR_VERSION_TOKEN);
 
