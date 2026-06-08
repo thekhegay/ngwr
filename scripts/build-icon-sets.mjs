@@ -26,6 +26,9 @@ const SETS = [
   { name: 'heroicons', dir: 'node_modules/heroicons/24/outline' },
   { name: 'iconoir', dir: 'node_modules/iconoir/icons/regular' },
   { name: 'bootstrap', dir: 'node_modules/bootstrap-icons/icons' },
+  // Radix Icons don't ship as raw SVGs on npm (`@radix-ui/react-icons`
+  // is React-only). Vendored from radix-ui/icons on github.
+  { name: 'radix', dir: 'projects/showcase/app/icons/svg-only/_radix-svgs' },
 ];
 
 function stripExt(file) {

@@ -13,5 +13,6 @@ export const ICONS_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Phosphor', url: ['/icons', 'phosphor'] },
   { title: 'Heroicons', url: ['/icons', 'heroicons'] },
   { title: 'Iconoir', url: ['/icons', 'iconoir'] },
+  { title: 'Radix', url: ['/icons', 'radix'] },
   { title: 'Bootstrap', url: ['/icons', 'bootstrap'] },
 ];
