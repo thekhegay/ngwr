@@ -83,6 +83,10 @@
   <ng-content />
 </div>
 
+@if (snapTarget(); as target) {
+  <div class="wr-window__snap-hint" [attr.data-target]="target" aria-hidden="true"></div>
+}
+
 @if (resizable() && state() === 'normal') {
   <span class="wr-window__handle wr-window__handle--t" (pointerdown)="resizeT($event)"></span>
   <span class="wr-window__handle wr-window__handle--r" (pointerdown)="resizeR($event)"></span>

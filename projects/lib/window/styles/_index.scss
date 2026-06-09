@@ -273,6 +273,40 @@
   }
 }
 
+// ── Snap hint — translucent rectangle showing the target region the
+//                 window will jump into when the pointer is released.
+.wr-window__snap-hint {
+  position: fixed;
+  pointer-events: none;
+  z-index: var(--wr-z-overlay, 1100);
+  background: rgba(var(--wr-color-primary-rgb), 0.18);
+  border: 2px solid var(--wr-color-primary);
+  border-radius: var(--wr-border-radius-base);
+  transition: all 0.12s ease;
+
+  &[data-target='top'] {
+    inset: 0;
+  }
+  &[data-target='left'] {
+    inset: 0 50% 0 0;
+  }
+  &[data-target='right'] {
+    inset: 0 0 0 50%;
+  }
+  &[data-target='top-left'] {
+    inset: 0 50% 50% 0;
+  }
+  &[data-target='top-right'] {
+    inset: 0 0 50% 50%;
+  }
+  &[data-target='bottom-left'] {
+    inset: 50% 50% 0 0;
+  }
+  &[data-target='bottom-right'] {
+    inset: 50% 0 0 50%;
+  }
+}
+
 // ── Window taskbar — strip of restore tabs for minimized windows.
 .wr-window-taskbar {
   position: fixed;

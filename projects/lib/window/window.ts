@@ -19,7 +19,7 @@ import {
   signal,
 } from '@angular/core';
 
-import type { WrWindowChromeSize, WrWindowOs, WrWindowSize, WrWindowState } from './types';
+import type { WrWindowChromeSize, WrWindowOs, WrWindowSize, WrWindowSnap, WrWindowSnapTarget, WrWindowState } from './types';
 import { WrWindowManager } from './window-manager';
 
 const SIZE_PRESETS: Readonly<Record<WrWindowSize, { width: number; height: number }>> = {
@@ -156,6 +156,9 @@ export class WrWindow {
   readonly resizable = input(true, { transform: coerceBooleanProperty });
   readonly keepInViewport = input(true, { transform: coerceBooleanProperty });
 
+  /** Drag-to-edge snap behaviour. @default 'none' */
+  readonly snap = input<WrWindowSnap>('none');
+
   readonly showMinimize = input(true, { transform: coerceBooleanProperty });
   readonly showMaximize = input(true, { transform: coerceBooleanProperty });
   readonly showClose = input(true, { transform: coerceBooleanProperty });
@@ -207,6 +210,9 @@ export class WrWindow {
   );
 
   protected readonly minimizedHeight = signal(40); // header-only height
+
+  /** Visible during drag when a snap target is engaged — drives the SCSS hint. */
+  protected readonly snapTarget = signal<WrWindowSnapTarget | null>(null);
 
   constructor() {
     afterNextRender(() => this.seedInitialGeometry());
@@ -300,16 +306,73 @@ export class WrWindow {
       this.x_.set(startX + (e.clientX - originX));
       this.y_.set(startY + (e.clientY - originY));
       this.clampToViewport();
+      this.snapTarget.set(this.detectSnapTarget(e.clientX, e.clientY));
     };
     const up = (e: PointerEvent): void => {
       target.releasePointerCapture(e.pointerId);
       target.removeEventListener('pointermove', move);
       target.removeEventListener('pointerup', up);
+      const snap = this.snapTarget();
+      this.snapTarget.set(null);
+      if (snap) {
+        this.applySnap(snap);
+      }
       this.moved.emit({ x: this.x_(), y: this.y_() });
     };
 
     target.addEventListener('pointermove', move);
     target.addEventListener('pointerup', up);
+  }
+
+  /** Map a cursor position to a snap target, honouring `[snap]`. */
+  private detectSnapTarget(clientX: number, clientY: number): WrWindowSnapTarget | null {
+    const mode = this.snap();
+    if (mode === 'none') return null;
+    const HOT = 12;
+    const vw = viewportWidth();
+    const vh = viewportHeight();
+    const nearLeft = clientX <= HOT;
+    const nearRight = clientX >= vw - HOT;
+    const nearTop = clientY <= HOT;
+    const nearBottom = clientY >= vh - HOT;
+    if (mode === 'all') {
+      if (nearTop && nearLeft) return 'top-left';
+      if (nearTop && nearRight) return 'top-right';
+      if (nearBottom && nearLeft) return 'bottom-left';
+      if (nearBottom && nearRight) return 'bottom-right';
+    }
+    if (nearTop) return 'top'; // top edge → maximise
+    if (nearLeft) return 'left';
+    if (nearRight) return 'right';
+    return null;
+  }
+
+  /** Move + resize the window into the requested snap region. */
+  private applySnap(target: WrWindowSnapTarget): void {
+    const vw = viewportWidth();
+    const vh = viewportHeight();
+    const halfW = Math.floor(vw / 2);
+    const halfH = Math.floor(vh / 2);
+    switch (target) {
+      case 'top':
+        // Maximise — share state so the chrome reflects it.
+        this.restoreGeometry = { x: this.x_(), y: this.y_(), width: this.width_(), height: this.height_() };
+        this.state.set('maximized');
+        return;
+      case 'left':
+        this.x_.set(0); this.y_.set(0); this.width_.set(halfW); this.height_.set(vh); break;
+      case 'right':
+        this.x_.set(halfW); this.y_.set(0); this.width_.set(vw - halfW); this.height_.set(vh); break;
+      case 'top-left':
+        this.x_.set(0); this.y_.set(0); this.width_.set(halfW); this.height_.set(halfH); break;
+      case 'top-right':
+        this.x_.set(halfW); this.y_.set(0); this.width_.set(vw - halfW); this.height_.set(halfH); break;
+      case 'bottom-left':
+        this.x_.set(0); this.y_.set(halfH); this.width_.set(halfW); this.height_.set(vh - halfH); break;
+      case 'bottom-right':
+        this.x_.set(halfW); this.y_.set(halfH); this.width_.set(vw - halfW); this.height_.set(vh - halfH); break;
+    }
+    this.resized.emit({ width: this.width_(), height: this.height_() });
   }
 
   protected startResize(event: PointerEvent, edges: Edges): void {
