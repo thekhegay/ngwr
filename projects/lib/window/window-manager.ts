@@ -74,8 +74,10 @@ export class WrWindowManager {
   /** All currently-open programmatic windows. */
   readonly windows: Signal<readonly WrWindowRef<unknown, unknown>[]> = this._windows.asReadonly();
 
-  /** Programmatic windows whose state is `minimized` — drives `<wr-window-taskbar>`. */
-  readonly minimized = computed(() => this._windows().filter(w => w.state() === 'minimized'));
+  /** Programmatic windows that are minimized AND opted into the taskbar. */
+  readonly minimized = computed(() =>
+    this._windows().filter(w => w.taskbarVisible && w.state() === 'minimized'),
+  );
 
   /** Reserve the next z-index. Strictly increasing across the app's lifetime. */
   bringToFront(): number {
@@ -111,6 +113,7 @@ export class WrWindowManager {
 
     const id = config.id ?? `wr-window-${++uid}`;
     const ref = new WrWindowRef<C, R>(id, overlayRef);
+    ref.taskbarVisible = config.taskbar !== false;
 
     // Remember the prior focus owner so modal windows can restore it.
     if (this.isBrowser) {

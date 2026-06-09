@@ -273,6 +273,92 @@
   }
 }
 
+// ── Window taskbar — strip of restore tabs for minimized windows.
+.wr-window-taskbar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--wr-z-overlay, 1100);
+  display: block;
+  pointer-events: none;
+  font-family: var(--wr-font-family-base);
+
+  &--bottom {
+    bottom: 0.75rem;
+  }
+  &--top {
+    top: 0.75rem;
+  }
+
+  &__rail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: var(--wr-color-white);
+    border: 1px solid var(--wr-color-light);
+    @include theme.smooth-br(var(--wr-border-radius-base));
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.18),
+      0 2px 6px rgba(0, 0, 0, 0.08);
+    pointer-events: auto;
+  }
+
+  &__tab {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+    border-radius: var(--wr-border-radius-sm);
+    color: var(--wr-color-dark);
+    font-family: inherit;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    cursor: pointer;
+    max-width: 12rem;
+    transition:
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    &:hover {
+      background: rgba(var(--wr-color-light-rgb), 0.6);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__tab-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__tab-close {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--wr-border-radius-sm);
+    color: var(--wr-color-medium);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--wr-color-white);
+      background: var(--wr-color-danger);
+    }
+  }
+}
+
 @keyframes wr-window-in {
   from {
     opacity: 0;

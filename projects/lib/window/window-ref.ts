@@ -54,6 +54,9 @@ export class WrWindowRef<C, R = unknown> {
   /** @internal — set by the manager for focus restoration on close. */
   previouslyFocused: HTMLElement | null = null;
 
+  /** @internal — whether this window opts into the taskbar list. */
+  taskbarVisible = true;
+
   // ── Live geometry signals (writable internally, exposed read-only) ──
   /** @internal */ readonly _state: WritableSignal<WrWindowState> = signal('normal');
   /** @internal */ readonly _x = signal(0);

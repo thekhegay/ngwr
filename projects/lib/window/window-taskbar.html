@@ -1,0 +1,26 @@
+@if (items().length > 0) {
+  <div class="wr-window-taskbar__rail">
+    @for (ref of items(); track ref.id) {
+      <button
+        type="button"
+        class="wr-window-taskbar__tab"
+        [attr.aria-label]="'Restore ' + (ref.title() || 'Untitled')"
+        (click)="restore(ref)"
+      >
+        <span class="wr-window-taskbar__tab-title">{{ ref.title() || 'Untitled' }}</span>
+        <span
+          class="wr-window-taskbar__tab-close"
+          role="button"
+          tabindex="0"
+          aria-label="Close window"
+          (click)="close(ref, $event)"
+          (keydown.enter)="close(ref, $event)"
+        >
+          <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </span>
+      </button>
+    }
+  </div>
+}
