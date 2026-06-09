@@ -77,10 +77,19 @@
   line-height: var(--ngwr-doc-code-line-height);
 }
 
+// Shiki ships both `github-light` and `github-dark` palettes as CSS vars
+// (`--shiki-light` / `--shiki-dark`) per token. Toggle which one wins
+// against the active theme so syntax highlighting tracks the rest of
+// the UI instead of staying stuck on light colors over the dark canvas.
 :host ::ng-deep .shiki,
 :host ::ng-deep .shiki span {
   color: var(--shiki-light);
   background-color: transparent;
+}
+
+:host-context([data-theme='dark']) ::ng-deep .shiki,
+:host-context([data-theme='dark']) ::ng-deep .shiki span {
+  color: var(--shiki-dark);
 }
 
 .copy {
