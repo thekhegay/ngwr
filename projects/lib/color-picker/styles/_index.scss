@@ -207,7 +207,10 @@
   &__swatch {
     appearance: none;
     aspect-ratio: 1 / 1;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    // Use the dark token so the hairline tracks theme — fixed black at
+    // 8% disappears against the dark-mode canvas, leaving swatches
+    // bleeding into each other.
+    border: 1px solid rgba(var(--wr-color-dark-rgb), 0.12);
     border-radius: var(--wr-border-radius-sm);
     cursor: pointer;
     padding: 0;
