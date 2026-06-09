@@ -13,6 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 
+import { WrPopconfirmPanel } from './popconfirm-panel';
 import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './types';
 
 /**
@@ -95,7 +96,7 @@ export class WrPopconfirm {
       panelClass: ['wr-popconfirm-overlay', `wr-popconfirm-overlay--${this.position()}`],
     });
 
-    const portal = new ComponentPortal(WrPopconfirm, this.vcr);
+    const portal = new ComponentPortal(WrPopconfirmPanel, this.vcr);
     const ref = this.overlayRef.attach(portal);
     ref.setInput('message', this.message());
     ref.setInput('confirmText', this.confirmText());
