@@ -23,4 +23,10 @@ export interface DocApiRow {
   default?: string;
   /** Marks the property as required. */
   required?: boolean;
+  /**
+   * Render as a sub-row of the previous primary row — indented + visually
+   * connected via a tree-style line. Use for inputs/outputs nested under
+   * a parent component selector entry.
+   */
+  sub?: boolean;
 }

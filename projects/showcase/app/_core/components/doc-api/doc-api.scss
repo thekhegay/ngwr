@@ -62,3 +62,22 @@
 .none {
   color: var(--wr-color-medium);
 }
+
+// Sub-row of a primary row — indented + visually connected by a corner
+// glyph drawn in CSS so it renders identically on every font.
+.sub td:first-child {
+  padding-left: 2.25rem;
+  position: relative;
+}
+
+.branch {
+  position: absolute;
+  left: 1rem;
+  top: 0.625rem;
+  width: 0.75rem;
+  height: 0.625rem;
+  // L-bend: left vertical + bottom horizontal stroke.
+  border-left: 1px solid rgba(var(--wr-color-medium-rgb), 0.4);
+  border-bottom: 1px solid rgba(var(--wr-color-medium-rgb), 0.4);
+  border-bottom-left-radius: 0.25rem;
+}

@@ -10,8 +10,11 @@
     </thead>
     <tbody>
       @for (row of rows(); track row.name) {
-        <tr>
+        <tr [class.sub]="row.sub">
           <td>
+            @if (row.sub) {
+              <span class="branch" aria-hidden="true"></span>
+            }
             <code>{{ row.name }}</code>
             @if (row.required) {
               <span class="required">required</span>
