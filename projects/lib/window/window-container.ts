@@ -18,7 +18,6 @@ import {
   effect,
   inject,
   runInInjectionContext,
-  untracked,
 } from '@angular/core';
 
 import { WrStorage } from 'ngwr/storage';
@@ -105,13 +104,16 @@ export class WrWindowContainer<C> {
 
     // 3. Sync the live geometry/state into the ref's signals so
     //    consumers can read them reactively without poking at <wr-window>.
+    //    `allowSignalWrites` is required because Angular's effect()
+    //    defaults to disallowing writes — without it these are silent
+    //    no-ops and `ref.x()` etc. stay stuck at their initial values.
     runInInjectionContext(this.hostInjector, () => {
-      effect(() => this.ref._state.set(w.state()));
-      effect(() => this.ref._x.set(w.x()));
-      effect(() => this.ref._y.set(w.y()));
-      effect(() => this.ref._width.set(w.width()));
-      effect(() => this.ref._height.set(w.height()));
-      effect(() => this.ref._z.set(w.z()));
+      effect(() => this.ref._state.set(w.state()), { allowSignalWrites: true });
+      effect(() => this.ref._x.set(w.x()), { allowSignalWrites: true });
+      effect(() => this.ref._y.set(w.y()), { allowSignalWrites: true });
+      effect(() => this.ref._width.set(w.width()), { allowSignalWrites: true });
+      effect(() => this.ref._height.set(w.height()), { allowSignalWrites: true });
+      effect(() => this.ref._z.set(w.z()), { allowSignalWrites: true });
     });
 
     // 4. Seed the title signal from config.
@@ -149,18 +151,18 @@ export class WrWindowContainer<C> {
     const key = storageKey(cfg);
 
     runInInjectionContext(this.hostInjector, () => {
-      effect(() => {
-        // Read every signal we want to watch; ignore minimized/maximized
-        // overlay values — we only persist the user's chosen geometry.
-        const x = w.x_();
-        const y = w.y_();
-        const width = w.width_();
-        const height = w.height_();
+      effect(
+        () => {
+          // Read every signal we want to watch; ignore minimized/maximized
+          // overlay values — we only persist the user's chosen geometry.
+          const x = w.x_();
+          const y = w.y_();
+          const width = w.width_();
+          const height = w.height_();
 
-        if (this.persistTimer !== null) clearTimeout(this.persistTimer);
-        this.persistTimer = setTimeout(() => {
-          this.persistTimer = null;
-          untracked(() => {
+          if (this.persistTimer !== null) clearTimeout(this.persistTimer);
+          this.persistTimer = setTimeout(() => {
+            this.persistTimer = null;
             const payload: PersistedGeometry = {};
             if (persist !== 'size') {
               (payload as { x?: number; y?: number }).x = x;
@@ -171,9 +173,10 @@ export class WrWindowContainer<C> {
               (payload as { width?: number; height?: number }).height = height;
             }
             this.storage.set(key, payload);
-          });
-        }, PERSIST_DEBOUNCE_MS);
-      });
+          }, PERSIST_DEBOUNCE_MS);
+        },
+        { allowSignalWrites: true },
+      );
     });
   }
 }
