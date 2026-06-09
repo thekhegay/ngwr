@@ -141,54 +141,53 @@
   // ── OS preset: macOS — traffic-light dots, LEFT-aligned, colored
   //                   (close = red, minimize = yellow, maximize = green).
   //
-  // Chrome layout reverses so the cluster sits flush left + title centers.
+  // Native macOS hides the glyphs (×, −, +) until the cursor enters the
+  // cluster. Mirror that.
   &--os-macos {
     .wr-window__chrome {
       flex-direction: row-reverse;
     }
     .wr-window__title {
       text-align: center;
-      padding-right: 4.25rem; // counterbalance the cluster on the left
+      padding-right: 5rem; // counterbalance the cluster on the left
     }
     .wr-window__chrome-actions {
       gap: 0.5rem;
       padding-left: 0.5rem;
     }
     .wr-window__chrome-action {
-      width: 0.75rem;
-      height: 0.75rem;
+      width: 0.875rem; // 14px — bigger than the prior 12px to match native
+      height: 0.875rem;
       border-radius: 50%;
-      background: var(--wr-color-medium);
+      color: rgba(0, 0, 0, 0.55); // glyph color (revealed on hover)
 
-      &--close {
+      &--close,
+      &--close:hover {
         background: #ff5f57;
       }
-      &--minimize {
+      &--minimize,
+      &--minimize:hover {
         background: #febc2e;
       }
-      &--maximize {
+      &--maximize,
+      &--maximize:hover {
         background: #28c840;
       }
 
       &:hover {
-        // Saturate slightly + drop the universal greyscale hover.
         filter: brightness(0.92);
-        background: var(--wr-window-traffic, currentColor);
       }
-      // Preserve the dot color on hover (the universal hover above
-      // re-colors text on every button).
-      &--close:hover {
-        background: #ff5f57;
-        color: transparent;
-      }
-      &--minimize:hover {
-        background: #febc2e;
-        color: transparent;
-      }
-      &--maximize:hover {
-        background: #28c840;
-        color: transparent;
-      }
+    }
+    // Glyphs are invisible by default and fade in as soon as the cursor
+    // enters the cluster — native macOS behaviour.
+    .wr-window__chrome-action-glyph {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+    .wr-window__chrome-actions:hover .wr-window__chrome-action-glyph {
+      opacity: 1;
     }
   }
 

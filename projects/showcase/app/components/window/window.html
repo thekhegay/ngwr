@@ -28,13 +28,14 @@
 
   <ngwr-doc-section
     title="OS chrome presets"
-    description="`os` swaps the action cluster style — `macos` (traffic-light dots, left), `windows` (glyph buttons, right, default), `linux` (close-only on the right)."
+    description="`os` swaps the action cluster style. `'auto'` (the default) reads `navigator.userAgentData.platform` / `navigator.platform` and picks the right one for the visiting user — SSR-safe, unknown platforms fall back to `windows`."
   >
     <ngwr-doc-code [code]="snippets.os" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-btn (click)="openOs('macos')">macOS</wr-btn>
-      <wr-btn (click)="openOs('windows')">Windows</wr-btn>
-      <wr-btn (click)="openOs('linux')">Linux</wr-btn>
+      <wr-btn (click)="openOs('auto')">Auto (detect)</wr-btn>
+      <wr-btn outlined (click)="openOs('macos')">macOS</wr-btn>
+      <wr-btn outlined (click)="openOs('windows')">Windows</wr-btn>
+      <wr-btn outlined (click)="openOs('linux')">Linux</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

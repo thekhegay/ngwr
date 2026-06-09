@@ -5,15 +5,25 @@
   </div>
 
   <div class="wr-window__chrome-actions">
-    @if (os() === 'macos') {
-      <!-- macOS-style traffic-light cluster: close → minimize → maximize, dots only -->
+    @if (resolvedOs() === 'macos') {
+      <!-- macOS-style traffic-light cluster: close → minimize → maximize.
+           Glyphs (×, −, +) appear on cluster hover. -->
       @if (showClose()) {
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--close"
           aria-label="Close"
           (click)="close()"
-        ></button>
+        >
+          <svg class="wr-window__chrome-action-glyph" viewBox="0 0 10 10" aria-hidden="true">
+            <path
+              d="M2.2 2.2 L7.8 7.8 M7.8 2.2 L2.2 7.8"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
       }
       @if (showMinimize()) {
         <button
@@ -21,7 +31,11 @@
           class="wr-window__chrome-action wr-window__chrome-action--minimize"
           [attr.aria-label]="state() === 'minimized' ? 'Restore' : 'Minimize'"
           (click)="minimize()"
-        ></button>
+        >
+          <svg class="wr-window__chrome-action-glyph" viewBox="0 0 10 10" aria-hidden="true">
+            <line x1="2" y1="5" x2="8" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
       }
       @if (showMaximize()) {
         <button
@@ -29,11 +43,25 @@
           class="wr-window__chrome-action wr-window__chrome-action--maximize"
           [attr.aria-label]="state() === 'maximized' ? 'Restore down' : 'Maximize'"
           (click)="maximize()"
-        ></button>
+        >
+          <svg class="wr-window__chrome-action-glyph" viewBox="0 0 10 10" aria-hidden="true">
+            @if (state() === 'maximized') {
+              <path
+                d="M3 1 L1 1 L1 3 M7 1 L9 1 L9 3 M1 7 L1 9 L3 9 M9 7 L9 9 L7 9"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+                fill="none"
+              />
+            } @else {
+              <path d="M2 5 L8 5 M5 2 L5 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+            }
+          </svg>
+        </button>
       }
     } @else {
       <!-- Windows / Linux glyph buttons -->
-      @if (os() !== 'linux' && showMinimize()) {
+      @if (resolvedOs() !== 'linux' && showMinimize()) {
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--minimize"
@@ -46,7 +74,7 @@
         </button>
       }
 
-      @if (os() !== 'linux' && showMaximize()) {
+      @if (resolvedOs() !== 'linux' && showMaximize()) {
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--maximize"

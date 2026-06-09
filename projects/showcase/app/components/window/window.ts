@@ -60,12 +60,17 @@ export default class WindowPageComponent {
     });
   }
 
-  protected openOs(os: 'macos' | 'windows' | 'linux'): void {
+  protected openOs(os: 'auto' | 'macos' | 'windows' | 'linux'): void {
     this.manager.open(WindowDemoBodyComponent, {
-      title: `${os}-style chrome`,
+      title: os === 'auto' ? 'Auto (detected)' : `${os}-style chrome`,
       size: 'md',
       os,
-      data: { message: `Rendered with the ${os} chrome preset.` },
+      data: {
+        message:
+          os === 'auto'
+            ? "config.os: 'auto' reads your browser to pick macos / windows / linux."
+            : `Rendered with the ${os} chrome preset.`,
+      },
     });
   }
 
@@ -122,9 +127,10 @@ export class AppRoot {
 
 const result = await ref.afterClosed();`,
 
-    os: `manager.open(EditorComponent, { os: 'macos',   title: 'macOS-style' });
-manager.open(EditorComponent, { os: 'windows', title: 'Windows-style' });
-manager.open(EditorComponent, { os: 'linux',   title: 'Linux-style' });`,
+    os: `manager.open(EditorComponent);                            // os: 'auto' (default)
+manager.open(EditorComponent, { os: 'macos' });
+manager.open(EditorComponent, { os: 'windows' });
+manager.open(EditorComponent, { os: 'linux' });`,
 
     persist: `manager.open(EditorComponent, {
   id: 'editor',                              // stable id used by workspace save
@@ -187,9 +193,10 @@ ref.close(savedDocId);`,
     {
       name: 'os',
       sub: true,
-      description: 'OS chrome preset — side, glyphs, button look of the action cluster.',
-      type: "'macos' | 'windows' | 'linux'",
-      default: "'windows'",
+      description:
+        "OS chrome preset. `'auto'` reads the user's platform from the browser and picks the right one (SSR-safe).",
+      type: "'auto' | 'macos' | 'windows' | 'linux'",
+      default: "'auto'",
     },
     {
       name: 'size',

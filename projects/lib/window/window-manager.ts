@@ -8,7 +8,16 @@
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
-import { EnvironmentInjector, Injector, PLATFORM_ID, Service, type Signal, computed, inject, signal } from '@angular/core';
+import {
+  EnvironmentInjector,
+  Injector,
+  PLATFORM_ID,
+  Service,
+  type Signal,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';

@@ -22,12 +22,39 @@ import {
 import type {
   WrWindowChromeSize,
   WrWindowOs,
+  WrWindowResolvedOs,
   WrWindowSize,
   WrWindowSnap,
   WrWindowSnapTarget,
   WrWindowState,
 } from './types';
 import { WrWindowManager } from './window-manager';
+
+/**
+ * Best-effort OS detection — runs once at module load. Looks at the
+ * new `navigator.userAgentData.platform` first (Chromium, no UA
+ * sniffing required), falls back to `navigator.platform` /
+ * `navigator.userAgent`. SSR-safe — returns `'windows'` when there's
+ * no `window`.
+ */
+function detectOs(): WrWindowResolvedOs {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return 'windows';
+
+  const uaData = (navigator as unknown as { userAgentData?: { platform?: string } }).userAgentData;
+  const platform = (uaData?.platform || navigator.platform || navigator.userAgent || '').toLowerCase();
+  if (
+    platform.includes('mac') ||
+    platform.includes('darwin') ||
+    platform.includes('iphone') ||
+    platform.includes('ipad')
+  ) {
+    return 'macos';
+  }
+  if (platform.includes('linux') || platform.includes('x11') || platform.includes('cros')) return 'linux';
+  return 'windows';
+}
+
+const DETECTED_OS = detectOs();
 
 const SIZE_PRESETS: Readonly<Record<WrWindowSize, { width: number; height: number }>> = {
   sm: { width: 320, height: 200 },
@@ -121,10 +148,18 @@ export class WrWindow {
   });
 
   /**
-   * OS chrome style — picks the side, glyphs, and button look of the
-   * minimize / maximize / close cluster. @default 'windows'
+   * OS chrome style. `'auto'` reads `navigator.userAgentData.platform`
+   * / `navigator.platform` and picks the matching preset (SSR-safe;
+   * unknown platforms fall back to `windows`).
+   * @default 'auto'
    */
-  readonly os = input<WrWindowOs>('windows');
+  readonly os = input<WrWindowOs>('auto');
+
+  /** Resolved OS — `auto` → detected platform. */
+  readonly resolvedOs = computed<WrWindowResolvedOs>(() => {
+    const o = this.os();
+    return o === 'auto' ? DETECTED_OS : o;
+  });
 
   /** Title-bar density. @default 'normal' */
   readonly chromeSize = input<WrWindowChromeSize>('normal');
@@ -188,7 +223,7 @@ export class WrWindow {
     const parts = [
       'wr-window',
       `wr-window--${this.state()}`,
-      `wr-window--os-${this.os()}`,
+      `wr-window--os-${this.resolvedOs()}`,
       `wr-window--chrome-${this.chromeSize()}`,
     ];
     if (!this.open()) parts.push('wr-window--closed');
