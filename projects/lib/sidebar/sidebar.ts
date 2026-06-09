@@ -80,36 +80,30 @@ export class WrSidebar {
 
   constructor() {
     // Seed defaultOpen groups.
-    effect(
-      () => {
-        const seeded = new Set<string>();
-        for (const entry of this.entries()) {
-          if (isGroup(entry) && entry.defaultOpen) seeded.add(entry.title);
-        }
-        if (seeded.size > 0) {
-          this.opened.update(prev => new Set([...prev, ...seeded]));
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const seeded = new Set<string>();
+      for (const entry of this.entries()) {
+        if (isGroup(entry) && entry.defaultOpen) seeded.add(entry.title);
+      }
+      if (seeded.size > 0) {
+        this.opened.update(prev => new Set([...prev, ...seeded]));
+      }
+    });
 
     // Auto-expand the group containing the current URL.
-    effect(
-      () => {
-        if (!this.autoExpand()) return;
-        const url = this.currentUrl();
-        if (url === this.lastAutoUrl) return;
-        this.lastAutoUrl = url;
-        const match = this.findGroupForUrl(url);
-        if (!match || this.opened().has(match)) return;
-        this.opened.update(prev => {
-          const next = new Set(prev);
-          next.add(match);
-          return next;
-        });
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      if (!this.autoExpand()) return;
+      const url = this.currentUrl();
+      if (url === this.lastAutoUrl) return;
+      this.lastAutoUrl = url;
+      const match = this.findGroupForUrl(url);
+      if (!match || this.opened().has(match)) return;
+      this.opened.update(prev => {
+        const next = new Set(prev);
+        next.add(match);
+        return next;
+      });
+    });
   }
 
   protected isOpen(title: string): boolean {
