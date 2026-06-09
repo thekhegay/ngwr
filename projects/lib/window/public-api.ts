@@ -1,3 +1,15 @@
+export { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
 export { WrWindow } from './window';
 export { WrWindowManager } from './window-manager';
-export type { WrWindowOs, WrWindowSize, WrWindowState } from './types';
+export { type WrWindowBeforeCloseHook, WrWindowRef } from './window-ref';
+export type {
+  WrWindowChromeSize,
+  WrWindowConfig,
+  WrWindowOs,
+  WrWindowPersistMode,
+  WrWindowSize,
+  WrWindowSnap,
+  WrWindowState,
+  WrWindowStorageConfig,
+  WrWindowStorageEngine,
+} from './types';
