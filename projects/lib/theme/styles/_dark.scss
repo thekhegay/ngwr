@@ -16,6 +16,13 @@
   // Softer than pure-white — easier on the eyes for long reading.
   --wr-color-dark: #e6ebf3;
   --wr-color-dark-rgb: 230, 235, 243;
+  // `*-contrast` values are baked at SCSS compile time from the light
+  // palette, so they don't auto-flip when `--wr-color-dark` /
+  // `--wr-color-white` are reassigned for dark mode. Tooltip-style
+  // surfaces (`bg: dark; color: dark-contrast`) would render
+  // white-on-white without this override; re-pair them by hand here.
+  --wr-color-dark-contrast: #0b1120;
+  --wr-color-white-contrast: #e6ebf3;
 
   // ── Borders / tints (was `--wr-color-light`) ───────────────────
   // Used for two jobs at once: 1-px borders and translucent surface

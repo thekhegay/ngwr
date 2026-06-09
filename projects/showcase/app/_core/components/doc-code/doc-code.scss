@@ -2,7 +2,11 @@
   --ngwr-doc-code-padding: 1rem;
   --ngwr-doc-code-radius: var(--wr-border-radius-base);
   --ngwr-doc-code-bg: rgba(var(--wr-color-light-rgb), 0.2);
-  --ngwr-doc-code-fg: var(--wr-color-dark-contrast);
+  // `--wr-color-dark` IS the primary text token (near-black in light
+  // mode, near-white in dark). `--wr-color-dark-contrast` would be the
+  // paired color (white in light, near-black in dark) — invisible on
+  // the matching surface.
+  --ngwr-doc-code-fg: var(--wr-color-dark);
   --ngwr-doc-code-font-size: 0.8125rem;
   --ngwr-doc-code-line-height: 1.5;
 
