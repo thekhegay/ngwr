@@ -74,11 +74,6 @@ export interface WrWindowConfig<D = unknown> {
   readonly showMaximize?: boolean;
   readonly showClose?: boolean;
 
-  // ── Modal ──
-  /** Render with a backdrop, trap focus, restore focus on close. @default false */
-  readonly modal?: boolean;
-  readonly closeOnBackdrop?: boolean;
-
   // ── Taskbar ──
   /** Show in `<wr-window-taskbar>` when minimized. @default true */
   readonly taskbar?: boolean;

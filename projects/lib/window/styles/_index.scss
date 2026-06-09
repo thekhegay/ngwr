@@ -1,11 +1,5 @@
 @use '../../theme/styles' as theme;
 
-// Modal backdrop — wraps the overlay pane for `manager.open(_, { modal: true })`.
-.wr-window-backdrop {
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-}
-
 .wr-window {
   --wr-window-bg: var(--wr-color-white);
   --wr-window-border: var(--wr-color-light);
@@ -33,18 +27,15 @@
   user-select: none;
   // Enter animation — popover-style fade + scale-up. Disabled by
   // .wr-window--no-anim and prefers-reduced-motion below.
+  //
+  // Notably absent: a `transition` on left / top / width / height.
+  // The drag + resize handlers write those signals on every pointer
+  // move; animating each tick makes the window lag behind the cursor.
   animation: wr-window-in var(--wr-window-anim-duration) var(--wr-ease-out, ease-out);
   transform-origin: top left;
-  // Smoothly transition position / size when toggled minimized /
-  // maximized programmatically. The drag/resize handlers don't read
-  // this — they write x_/y_/w_/h_ directly.
-  transition:
-    left var(--wr-window-anim-duration) ease,
-    top var(--wr-window-anim-duration) ease,
-    width var(--wr-window-anim-duration) ease,
-    height var(--wr-window-anim-duration) ease;
 
-  &--closed {
+  &--closed,
+  &--minimized {
     display: none;
   }
 

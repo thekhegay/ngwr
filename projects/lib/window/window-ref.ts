@@ -51,9 +51,6 @@ export class WrWindowRef<C, R = unknown> {
   /** @internal — set by the container right after attach. */
   componentRef: ComponentRef<C> | null = null;
 
-  /** @internal — set by the manager for focus restoration on close. */
-  previouslyFocused: HTMLElement | null = null;
-
   /** @internal — whether this window opts into the taskbar list. */
   taskbarVisible = true;
 

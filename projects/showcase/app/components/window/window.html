@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Window"
-  description="Free-floating OS-style window opened programmatically via `WrWindowManager`. Drag the header to move, drag any edge or corner to resize, click the chrome buttons to minimize / maximize / close. There is no declarative `<wr-window>` component — the manager is the only entry point so the API stays single-track."
+  description="Free-floating OS-style window opened programmatically via `WrWindowManager`. Drag the header to move, drag any edge or corner to resize, minimize to the taskbar. There is no declarative `<wr-window>` component — the manager is the only entry point so the API stays single-track. Need a backdrop + focus trap? That's `WrDialog`, not this."
   [keywords]="['window', 'floating', 'panel', 'wr-window']"
   [labels]="['Service', 'a11y']"
 >
@@ -23,16 +23,6 @@
           afterClosed() resolved with: <code>{{ result }}</code>
         </small>
       }
-    </ngwr-doc-snippet>
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Modal mode"
-    description="`modal: true` adds a dimmed backdrop, traps focus, restores prior focus on close, and stamps `aria-modal`. Click the backdrop or press ESC to dismiss."
-  >
-    <ngwr-doc-code [code]="snippets.modal" language="angular-ts" />
-    <ngwr-doc-snippet code="">
-      <wr-btn outlined (click)="openModal()">Open modal</wr-btn>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

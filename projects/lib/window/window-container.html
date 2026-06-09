@@ -22,6 +22,11 @@
   [showMaximize]="config.showMaximize ?? true"
   [showClose]="config.showClose ?? true"
   (closed)="ref.close()"
+  #window
 >
   <ng-container #content />
 </wr-window>
+
+@if (window.snapTarget(); as target) {
+  <div class="wr-window__snap-hint" [attr.data-target]="target" aria-hidden="true"></div>
+}

@@ -213,8 +213,13 @@ export class WrWindow {
 
   protected readonly minimizedHeight = signal(40); // header-only height
 
-  /** Visible during drag when a snap target is engaged — drives the SCSS hint. */
-  protected readonly snapTarget = signal<WrWindowSnapTarget | null>(null);
+  /**
+   * Visible during drag when a snap target is engaged — drives the
+   * SCSS hint rendered by `WrWindowContainer` (NOT here — `.wr-window`
+   * has `overflow: hidden` which clips position-fixed descendants
+   * during the open animation while a transform is applied).
+   */
+  readonly snapTarget = signal<WrWindowSnapTarget | null>(null);
 
   constructor() {
     afterNextRender(() => this.seedInitialGeometry());

@@ -42,15 +42,6 @@ export default class WindowPageComponent {
     this.lastProgrammaticResult.set(result ?? 'closed');
   }
 
-  protected openModal(): void {
-    this.manager.open(WindowDemoBodyComponent, {
-      title: 'Confirm action',
-      size: 'md',
-      modal: true,
-      data: { message: 'Press ESC, click the backdrop, or use the button below.' },
-    });
-  }
-
   protected openSnap(): void {
     this.manager.open(WindowDemoBodyComponent, {
       title: 'Snappy',
@@ -130,12 +121,6 @@ export class AppRoot {
 });
 
 const result = await ref.afterClosed();`,
-
-    modal: `manager.open(ConfirmComponent, {
-  title: 'Confirm delete',
-  modal: true,             // backdrop + focus trap + ESC close
-  data: { count: selectedIds.length },
-});`,
 
     os: `manager.open(EditorComponent, { os: 'macos',   title: 'macOS-style' });
 manager.open(EditorComponent, { os: 'windows', title: 'Windows-style' });
@@ -252,20 +237,6 @@ ref.close(savedDocId);`,
       name: 'showMinimize / showMaximize / showClose',
       sub: true,
       description: 'Render the corresponding chrome action.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'modal',
-      sub: true,
-      description: 'Render with a backdrop + focus trap + ESC close. Restores prior focus on close.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'closeOnBackdrop',
-      sub: true,
-      description: 'Close when the backdrop is clicked (modal mode only).',
       type: 'boolean',
       default: 'true',
     },
