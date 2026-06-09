@@ -26,6 +26,15 @@
   </nav>
 
   <div class="ngwr-header__actions">
+    <button
+      type="button"
+      class="ngwr-header__action ngwr-header__action--theme"
+      [attr.aria-label]="theme.resolved() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      (click)="onToggleTheme()"
+    >
+      <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />
+    </button>
+
     @for (action of actions; track action.url) {
       <a
         [class]="`ngwr-header__action ngwr-header__action--${action.modifier}`"

@@ -26,14 +26,13 @@
 
   // ── Borders / tints (was `--wr-color-light`) ───────────────────
   // Used for two jobs at once: 1-px borders and translucent surface
-  // tints (`rgba(light-rgb, 0.4)` etc.). The previous slate-800
-  // (#1f2a3d) was so close to the canvas that 1-px borders rendered
-  // at ~1.4:1 contrast — effectively invisible on cards / inputs /
-  // toolbars. Slate-700-ish lifts borders to ~3.5:1 (above WCAG's
-  // 3:1 floor for non-text UI), and the bump only makes translucent
-  // tints a touch more present, which reads as intentional layering.
-  --wr-color-light: #334155;
-  --wr-color-light-rgb: 51, 65, 85;
+  // tints (`rgba(light-rgb, 0.4)` etc.). Sits between the original
+  // slate-800 (#1f2a3d, invisible) and a brighter slate-700 (#334155,
+  // looks like glowing pencil lines). This value reads as a real
+  // divider on cards / inputs without shouting — matches what Vercel
+  // and shadcn ship for the same job.
+  --wr-color-light: #262f44;
+  --wr-color-light-rgb: 38, 47, 68;
 
   // ── Secondary text (was `--wr-color-medium`) ───────────────────
   // Lifted from slate-400 → slate-300-ish for better legibility on

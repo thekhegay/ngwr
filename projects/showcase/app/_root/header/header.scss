@@ -151,6 +151,26 @@
         --ngwr-header-action-icon-bg: #cb0201;
       }
     }
+
+    &--theme {
+      // Strip the default <button> chrome so it matches the anchor
+      // siblings (GitHub / npm).
+      appearance: none;
+      cursor: pointer;
+      font: inherit;
+
+      --ngwr-header-action-icon-color: var(--wr-color-medium);
+
+      &:hover {
+        --ngwr-header-action-icon-color: var(--wr-color-dark);
+        --ngwr-header-action-icon-bg: rgba(var(--wr-color-light-rgb), 0.4);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--wr-color-primary);
+        outline-offset: 2px;
+      }
+    }
   }
 
   //
