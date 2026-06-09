@@ -227,18 +227,22 @@ $toast-colors: (
 }
 
 .wr-toast-host__close-all {
-  align-self: flex-end;
+  // Full bleed to match toast width so the cursor never leaves a hit
+  // region between toasts and button (was a source of expand/collapse
+  // flicker in stack mode).
+  align-self: stretch;
   pointer-events: auto;
   appearance: none;
   background: var(--wr-color-white);
   border: 1px solid var(--wr-color-light);
-  border-radius: var(--wr-border-radius-pill);
-  padding: 0.1875rem 0.625rem;
+  @include theme.smooth-br(var(--wr-border-radius-base));
+  padding: 0.375rem 0.75rem;
   color: var(--wr-color-medium);
   font-family: var(--wr-font-family-base);
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1rem;
+  text-align: center;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition:
@@ -257,5 +261,5 @@ $toast-colors: (
 .wr-toast-host--bottom-start .wr-toast-host__close-all,
 .wr-toast-host--bottom-end .wr-toast-host__close-all {
   order: 99;
-  align-self: flex-end;
+  align-self: stretch;
 }
