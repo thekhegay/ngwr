@@ -55,7 +55,21 @@
     min-width: 0;
   }
 
-  // Size variants — tune the minimum cell width to match the button size.
+  // Size variants. `xs` and `xl` extend the button scale by overriding
+  // its CSS custom properties on the strip — the button itself still
+  // gets the closest built-in size (sm or lg) via [size] so its other
+  // tokens stay consistent.
+  &--xs {
+    --wr-pagination-cell: 1.5rem;
+
+    .wr-btn {
+      --wr-btn-padding-y: 0.1875rem;
+      --wr-btn-padding-x: 0.375rem;
+      --wr-btn-font-size: 0.6875rem;
+      --wr-btn-line-height: 0.875rem;
+      --wr-btn-icon-size: 0.75rem;
+    }
+  }
   &--sm {
     --wr-pagination-cell: 1.75rem;
   }
@@ -64,6 +78,17 @@
   }
   &--lg {
     --wr-pagination-cell: 2.5rem;
+  }
+  &--xl {
+    --wr-pagination-cell: 3rem;
+
+    .wr-btn {
+      --wr-btn-padding-y: 0.875rem;
+      --wr-btn-padding-x: 2rem;
+      --wr-btn-font-size: 1.125rem;
+      --wr-btn-line-height: 1.75rem;
+      --wr-btn-icon-size: 1.25rem;
+    }
   }
 
   // Shape variants. `rounded` is the default the buttons already render.

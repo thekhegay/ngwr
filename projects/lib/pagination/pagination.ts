@@ -9,7 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrButton } from 'ngwr/button';
+import { WrButton, type WrButtonSize } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
 
@@ -72,6 +72,14 @@ export class WrPagination {
 
   /** Size variant — cascades to every internal button. @default 'md' */
   readonly size = input<WrPaginationSize>('md');
+
+  /** Resolved button size — clamps xs/xl to the closest button size. @internal */
+  protected readonly buttonSize = computed<WrButtonSize>(() => {
+    const s = this.size();
+    if (s === 'xs') return 'sm';
+    if (s === 'xl') return 'lg';
+    return s;
+  });
 
   /** Cell corner treatment. @default 'rounded' */
   readonly shape = input<WrPaginationShape>('rounded');

@@ -5,7 +5,7 @@
 
   <div class="wr-pagination__nav">
     <wr-btn
-      [size]="size()"
+      [size]="buttonSize()"
       outlined
       [attr.aria-label]="resolvedPrev()"
       [disabled]="disabled() || currentPage() === 1"
@@ -32,7 +32,7 @@
         <span class="wr-pagination__ellipsis">{{ ellipsis }}</span>
       } @else {
         <wr-btn
-          [size]="size()"
+          [size]="buttonSize()"
           [outlined]="!isCurrent(page)"
           [color]="isCurrent(page) ? 'primary' : null"
           [attr.aria-current]="isCurrent(page) ? 'page' : null"
@@ -46,7 +46,7 @@
     }
 
     <wr-btn
-      [size]="size()"
+      [size]="buttonSize()"
       outlined
       [attr.aria-label]="resolvedNext()"
       [disabled]="disabled() || currentPage() === totalPages()"

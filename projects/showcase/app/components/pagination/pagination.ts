@@ -33,9 +33,11 @@ export default class PaginationComponent {
 @Component({ imports: [WrPagination] })
 export class MyComponent {}`,
     basic: `<wr-pagination [total]="120" [(currentPage)]="page" />`,
-    sizes: `<wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
+    sizes: `<wr-pagination [total]="120" [(currentPage)]="page" size="xs" />
+<wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
 <wr-pagination [total]="120" [(currentPage)]="page" size="md" />
-<wr-pagination [total]="120" [(currentPage)]="page" size="lg" />`,
+<wr-pagination [total]="120" [(currentPage)]="page" size="lg" />
+<wr-pagination [total]="120" [(currentPage)]="page" size="xl" />`,
     shapes: `<wr-pagination [total]="120" [(currentPage)]="page" shape="rounded" />
 <wr-pagination [total]="120" [(currentPage)]="page" shape="square" />`,
     full: `<wr-pagination
@@ -68,8 +70,8 @@ export class MyComponent {}`,
     },
     {
       name: 'size',
-      description: 'Size variant — cascades to every internal button.',
-      type: "'sm' | 'md' | 'lg'",
+      description: 'Size variant. `xs` and `xl` extend the button scale via padding/font overrides.',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
       default: "'md'",
     },
     {
