@@ -33,6 +33,11 @@ export default class PaginationComponent {
 @Component({ imports: [WrPagination] })
 export class MyComponent {}`,
     basic: `<wr-pagination [total]="120" [(currentPage)]="page" />`,
+    sizes: `<wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
+<wr-pagination [total]="120" [(currentPage)]="page" size="md" />
+<wr-pagination [total]="120" [(currentPage)]="page" size="lg" />`,
+    shapes: `<wr-pagination [total]="120" [(currentPage)]="page" shape="rounded" />
+<wr-pagination [total]="120" [(currentPage)]="page" shape="square" />`,
     full: `<wr-pagination
   [total]="120"
   [(currentPage)]="page"
@@ -60,6 +65,18 @@ export class MyComponent {}`,
       description: 'Horizontal alignment.',
       type: "'start' | 'center' | 'end'",
       default: "'start'",
+    },
+    {
+      name: 'size',
+      description: 'Size variant — cascades to every internal button.',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+    },
+    {
+      name: 'shape',
+      description: 'Cell corner treatment. `square` flattens corners for a numeric grid look.',
+      type: "'rounded' | 'square'",
+      default: "'rounded'",
     },
     { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
     { name: 'ofLabel', description: 'Localised "of" word.', type: 'string', default: "'of'" },

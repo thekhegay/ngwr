@@ -13,7 +13,7 @@ import { WrButton } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
 
-import type { WrPaginationAlign } from './types';
+import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './types';
 
 const ELLIPSIS = '…' as const;
 type PageEntry = number | typeof ELLIPSIS;
@@ -69,6 +69,12 @@ export class WrPagination {
 
   /** Horizontal alignment. @default 'start' */
   readonly align = input<WrPaginationAlign>('start');
+
+  /** Size variant — cascades to every internal button. @default 'md' */
+  readonly size = input<WrPaginationSize>('md');
+
+  /** Cell corner treatment. @default 'rounded' */
+  readonly shape = input<WrPaginationShape>('rounded');
 
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
@@ -144,7 +150,12 @@ export class WrPagination {
   protected readonly ellipsis = ELLIPSIS;
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-pagination', `wr-pagination--${this.align()}`];
+    const parts = [
+      'wr-pagination',
+      `wr-pagination--${this.align()}`,
+      `wr-pagination--${this.size()}`,
+      `wr-pagination--${this.shape()}`,
+    ];
     if (this.disabled()) parts.push('wr-pagination--disabled');
     return parts.join(' ');
   });

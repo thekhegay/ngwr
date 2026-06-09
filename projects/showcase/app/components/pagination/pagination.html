@@ -16,6 +16,28 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Sizes" description="`sm` / `md` / `lg` cascade the button size and the cell minimum width.">
+    <ngwr-doc-snippet [code]="snippets.sizes">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
+        <wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
+        <wr-pagination [total]="120" [(currentPage)]="page" size="md" />
+        <wr-pagination [total]="120" [(currentPage)]="page" size="lg" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Shape"
+    description="`square` flattens cell corners for a tighter numeric grid (e.g. inside a data table)."
+  >
+    <ngwr-doc-snippet [code]="snippets.shapes">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 1rem">
+        <wr-pagination [total]="120" [(currentPage)]="page" shape="rounded" />
+        <wr-pagination [total]="120" [(currentPage)]="page" shape="square" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="With total + size changer"
     description="Combine showTotal and showSizeChanger for full controls. align='end' pushes to the right."

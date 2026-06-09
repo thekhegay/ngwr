@@ -37,7 +37,7 @@
     gap: 0.25rem;
 
     .wr-btn {
-      min-width: 2rem;
+      min-width: var(--wr-pagination-cell, 2rem);
       padding-left: 0.5rem;
       padding-right: 0.5rem;
     }
@@ -45,7 +45,7 @@
 
   &__ellipsis {
     display: inline-flex;
-    min-width: 2rem;
+    min-width: var(--wr-pagination-cell, 2rem);
     justify-content: center;
     color: var(--wr-color-medium);
     user-select: none;
@@ -53,5 +53,34 @@
 
   &__size {
     min-width: 0;
+  }
+
+  // Size variants — tune the minimum cell width to match the button size.
+  &--sm {
+    --wr-pagination-cell: 1.75rem;
+  }
+  &--md {
+    --wr-pagination-cell: 2rem;
+  }
+  &--lg {
+    --wr-pagination-cell: 2.5rem;
+  }
+
+  // Shape variants. `rounded` is the default the buttons already render.
+  // `square` flattens every cell for a tighter numeric grid — useful
+  // when the pagination sits inside a data table. End caps keep a small
+  // radius so the strip still reads as a single grouped control.
+  &--square &__nav .wr-btn {
+    --wr-btn-radius: 0;
+    corner-shape: round;
+    border-radius: 0;
+  }
+  &--square &__nav .wr-btn:first-child {
+    border-top-left-radius: var(--wr-border-radius-sm);
+    border-bottom-left-radius: var(--wr-border-radius-sm);
+  }
+  &--square &__nav .wr-btn:last-child {
+    border-top-right-radius: var(--wr-border-radius-sm);
+    border-bottom-right-radius: var(--wr-border-radius-sm);
   }
 }
