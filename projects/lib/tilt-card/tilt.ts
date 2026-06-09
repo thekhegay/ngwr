@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { DestroyRef, Directive, ElementRef, HostListener, NgZone, inject, input } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, NgZone, inject, input } from '@angular/core';
 
 /**
  * 3D mouse-tilt on hover. Adds `perspective(…) rotateX(…) rotateY(…)` to
@@ -18,7 +18,10 @@ import { DestroyRef, Directive, ElementRef, HostListener, NgZone, inject, input 
  * <div class="card" wrTilt maxTilt="20" [glare]="true">…</div>
  * ```
  */
-@Directive({ selector: '[wrTilt]' })
+@Directive({
+  selector: '[wrTilt]',
+  host: { '(pointermove)': 'onMove($event)', '(pointerleave)': 'onLeave()' },
+})
 export class WrTilt {
   /** Maximum tilt in degrees. @default 12 */
   readonly maxTilt = input(12, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 12)) });
@@ -48,7 +51,7 @@ export class WrTilt {
     });
   }
 
-  @HostListener('pointermove', ['$event'])
+  /** @internal */
   protected onMove(event: PointerEvent): void {
     this.zone.runOutsideAngular(() => {
       const host = this.el.nativeElement;
@@ -65,7 +68,7 @@ export class WrTilt {
     });
   }
 
-  @HostListener('pointerleave')
+  /** @internal */
   protected onLeave(): void {
     this.el.nativeElement.style.transform = '';
   }

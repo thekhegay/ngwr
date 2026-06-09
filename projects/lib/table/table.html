@@ -24,8 +24,10 @@
                 </button>
               }
 
-              @if (entry.value.filterItems?.length) {
-                <wr-table-filter [items]="entry.value.filterItems!" (selectionChange)="onFilter(entry.key, $event)" />
+              @if (entry.value.filterItems; as filterItems) {
+                @if (filterItems.length) {
+                  <wr-table-filter [items]="filterItems" (selectionChange)="onFilter(entry.key, $event)" />
+                }
               }
             </div>
           </th>

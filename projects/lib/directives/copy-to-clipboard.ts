@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Directive, HostListener, inject, input, output } from '@angular/core';
+import { Directive, inject, input, output } from '@angular/core';
 
 /**
  * Copy `wrCopyToClipboard` to the system clipboard on host click.
@@ -20,7 +20,7 @@ import { Directive, HostListener, inject, input, output } from '@angular/core';
  * <button [wrCopyToClipboard]="value" (copied)="toast('Copied!')">Copy</button>
  * ```
  */
-@Directive({ selector: '[wrCopyToClipboard]' })
+@Directive({ selector: '[wrCopyToClipboard]', host: { '(click)': 'onClick()' } })
 export class WrCopyToClipboard {
   /** The text to copy. */
   readonly wrCopyToClipboard = input.required<string>();
@@ -33,7 +33,7 @@ export class WrCopyToClipboard {
 
   private readonly doc = inject(DOCUMENT);
 
-  @HostListener('click')
+  /** @internal */
   protected async onClick(): Promise<void> {
     const text = this.wrCopyToClipboard();
     try {

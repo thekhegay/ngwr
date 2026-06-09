@@ -1,3 +1,4 @@
+@let hovered = hoveredIndex();
 @if (showLegend() && resolvedSeries().length > 0) {
   <ul class="wr-line-chart__legend">
     @for (s of resolvedSeries(); track s.label) {
@@ -57,10 +58,10 @@
       }
     }
 
-    @if (hoveredIndex() !== null && hoverPoints().length > 0) {
+    @if (hovered !== null && hoverPoints().length > 0) {
       <line
-        [attr.x1]="pointX(hoveredIndex()!)"
-        [attr.x2]="pointX(hoveredIndex()!)"
+        [attr.x1]="pointX(hovered)"
+        [attr.x2]="pointX(hovered)"
         [attr.y1]="padding.top"
         [attr.y2]="vbH - padding.bottom"
         stroke="var(--wr-color-medium)"
@@ -81,10 +82,10 @@
     }
   </svg>
 
-  @if (hoveredIndex() !== null && hoverPoints().length > 0) {
+  @if (hovered !== null && hoverPoints().length > 0) {
     <div
       class="wr-line-chart__tooltip"
-      [style.left.%]="(pointX(hoveredIndex()!) / vbW) * 100"
+      [style.left.%]="(pointX(hovered) / vbW) * 100"
       [style.top.px]="padding.top"
     >
       <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>

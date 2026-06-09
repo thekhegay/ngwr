@@ -46,10 +46,7 @@ export default tsEslint.config(
       // or the deprecated `Default`. Omitting `changeDetection` is now
       // the recommended path (defaults to OnPush) and the rule passes
       // it cleanly. Safe to leave on as the recommended default does.
-      // `warn` until the legacy `@HostListener` usages in mention/spotlight/
-      // tilt/autosize/copy-to-clipboard are migrated to host metadata. Flip
-      // to `'error'` after that cleanup pass.
-      '@angular-eslint/prefer-host-metadata-property': 'warn',
+      '@angular-eslint/prefer-host-metadata-property': 'error',
       '@angular-eslint/prefer-output-readonly': 'error',
       '@angular-eslint/prefer-standalone': 'error',
       '@angular-eslint/relative-url-prefix': 'error',
@@ -209,7 +206,7 @@ export default tsEslint.config(
       // Non-null assertion (`foo!`) inside templates hides nullability
       // bugs. `warn` until the line-chart + image-cropper sites are
       // re-narrowed — flip to `'error'` afterwards.
-      '@angular-eslint/template/no-non-null-assertion': 'warn',
+      '@angular-eslint/template/no-non-null-assertion': 'error',
       // a11y: `tabindex > 0` breaks keyboard tab order.
       '@angular-eslint/template/no-positive-tabindex': 'error',
       // v22 control-flow ergonomics — prefer `@else if` and `@empty`.

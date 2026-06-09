@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { DestroyRef, Directive, ElementRef, HostListener, NgZone, inject, input } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, NgZone, inject, input } from '@angular/core';
 
 /**
  * Cursor-follow radial spotlight. Sets the `--wr-spotlight-x` and
@@ -28,7 +28,10 @@ import { DestroyRef, Directive, ElementRef, HostListener, NgZone, inject, input 
  * }
  * ```
  */
-@Directive({ selector: '[wrSpotlight]' })
+@Directive({
+  selector: '[wrSpotlight]',
+  host: { '(pointermove)': 'onMove($event)', '(pointerleave)': 'onLeave()' },
+})
 export class WrSpotlight {
   /** Optional default coordinates when no pointer is over the host. */
   readonly resetX = input<string>('50%');
@@ -48,7 +51,7 @@ export class WrSpotlight {
     });
   }
 
-  @HostListener('pointermove', ['$event'])
+  /** @internal */
   protected onMove(event: PointerEvent): void {
     this.zone.runOutsideAngular(() => {
       const host = this.el.nativeElement;
@@ -60,7 +63,7 @@ export class WrSpotlight {
     });
   }
 
-  @HostListener('pointerleave')
+  /** @internal */
   protected onLeave(): void {
     const host = this.el.nativeElement;
     host.style.setProperty('--wr-spotlight-x', this.resetX());

@@ -8,17 +8,7 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import {
-  type ComponentRef,
-  DestroyRef,
-  Directive,
-  ElementRef,
-  HostListener,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { type ComponentRef, DestroyRef, Directive, ElementRef, inject, input, output, signal } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
@@ -51,7 +41,16 @@ interface ActiveState {
  *
  * @see https://ngwr.dev/docs/components/mention
  */
-@Directive({ selector: '[wrMention]' })
+@Directive({
+  selector: '[wrMention]',
+  host: {
+    '(input)': 'onInput()',
+    '(click)': 'onClick()',
+    '(keyup)': 'onCaretMove($event)',
+    '(keydown)': 'onKeydown($event)',
+    '(blur)': 'onBlur()',
+  },
+})
 export class WrMention<T extends WrMentionItem = WrMentionItem> {
   /** Items to filter against the typed query. */
   readonly wrMentionItems = input<readonly T[]>([]);
@@ -94,23 +93,23 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   // ──────── Host listeners ────────
 
-  @HostListener('input')
+  /** @internal */
   protected onInput(): void {
     this.detect();
   }
 
-  @HostListener('click')
+  /** @internal */
   protected onClick(): void {
     this.detect();
   }
 
-  @HostListener('keyup', ['$event'])
+  /** @internal */
   protected onCaretMove(event: KeyboardEvent): void {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter' || event.key === 'Tab') return;
     this.detect();
   }
 
-  @HostListener('keydown', ['$event'])
+  /** @internal */
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.state) return;
     const list = this.filteredItems();
@@ -141,7 +140,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     }
   }
 
-  @HostListener('blur')
+  /** @internal */
   protected onBlur(): void {
     // Defer so option mousedown lands first.
     setTimeout(() => this.close(), 120);

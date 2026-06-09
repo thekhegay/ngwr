@@ -6,7 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { Directive, ElementRef, HostListener, afterNextRender, effect, inject, input } from '@angular/core';
+import { Directive, ElementRef, afterNextRender, effect, inject, input } from '@angular/core';
 
 /**
  * Auto-grow a `<textarea>` to fit its content. Optional `minRows` /
@@ -19,7 +19,7 @@ import { Directive, ElementRef, HostListener, afterNextRender, effect, inject, i
  */
 @Directive({
   selector: 'textarea[wrAutosize]',
-  host: { style: 'overflow: hidden; resize: none;' },
+  host: { style: 'overflow: hidden; resize: none;', '(input)': 'onInput()' },
 })
 export class WrAutosize {
   readonly minRows = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
@@ -37,7 +37,7 @@ export class WrAutosize {
     });
   }
 
-  @HostListener('input')
+  /** @internal */
   protected onInput(): void {
     this.resize();
   }
