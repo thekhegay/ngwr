@@ -9,16 +9,35 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-badge-page',
   templateUrl: './badge.html',
-  imports: [WrBadge, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrBadge,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class BadgeComponent {
   protected readonly colors = WR_COLORS;
+
+  protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
+    {
+      title: 'Tag',
+      kind: 'Component',
+      url: ['/components', 'tag'],
+      description: 'Richer label — icons, loading, outlined / transparent. Use when a badge feels under-powered.',
+    },
+  ];
 
   protected readonly snippets = {
     install: `import { WrBadge } from 'ngwr/badge';

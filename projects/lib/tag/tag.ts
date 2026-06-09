@@ -15,8 +15,9 @@ import type { WrColor } from 'ngwr/theme';
 import type { WrTagIconPosition } from './types';
 
 /**
- * Small inline label. Supports icons, loading state, and three visual
- * styles (solid / outlined / transparent).
+ * Rich inline label — icons, loading state, three visual styles
+ * (solid / outlined / transparent). Reach for `<wr-badge>` when all
+ * you need is a colored text chip.
  *
  * @example
  * ```html

@@ -12,9 +12,9 @@ import type { WrColor } from 'ngwr/theme';
 import type { WrBadgeShape, WrBadgeSize } from './types';
 
 /**
- * Small status indicator with color variants.
- *
- * Content is projected:
+ * Lean status chip — color, size, rounded/pill. Use for short labels
+ * and counts (e.g. "ONLINE", "3 unread", "v2.1"). Reach for `<wr-tag>`
+ * when you need icons, loading state, or outlined / transparent styles.
  *
  * @example
  * ```html

@@ -12,17 +12,36 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-tag-page',
   templateUrl: './tag.html',
-  imports: [WrTag, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrTag,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocSeeAlsoComponent,
+  ],
   providers: [provideWrIcons(lucideIcons({ flash: Zap, warning: TriangleAlert }))],
 })
 export default class TagComponent {
   protected readonly colors = WR_COLORS;
+
+  protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
+    {
+      title: 'Badge',
+      kind: 'Component',
+      url: ['/components', 'badge'],
+      description: 'Leaner status chip — color + size + rounded/pill. Reach for it for short labels and counts.',
+    },
+  ];
 
   protected readonly snippets = {
     install: `import { WrTag } from 'ngwr/tag';
