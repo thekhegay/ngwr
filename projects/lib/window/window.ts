@@ -19,7 +19,7 @@ import {
   signal,
 } from '@angular/core';
 
-import type { WrWindowOs, WrWindowSize, WrWindowState } from './types';
+import type { WrWindowChromeSize, WrWindowOs, WrWindowSize, WrWindowState } from './types';
 import { WrWindowManager } from './window-manager';
 
 const SIZE_PRESETS: Readonly<Record<WrWindowSize, { width: number; height: number }>> = {
@@ -133,6 +133,16 @@ export class WrWindow {
    */
   readonly os = input<WrWindowOs>('windows');
 
+  /** Title-bar density. @default 'normal' */
+  readonly chromeSize = input<WrWindowChromeSize>('normal');
+
+  /**
+   * Enter / leave animations. Set to `false` to disable the open-fade
+   * and the minimize / maximize transitions. Honoured automatically
+   * when `prefers-reduced-motion: reduce`. @default true
+   */
+  readonly animations = input(true, { transform: coerceBooleanProperty });
+
   readonly minWidth = input<number>(220, { transform: (v: unknown): number => coerceNumberProperty(v, 220) });
   readonly minHeight = input<number>(140, { transform: (v: unknown): number => coerceNumberProperty(v, 140) });
   readonly maxWidth = input<number>(Number.POSITIVE_INFINITY, {
@@ -170,9 +180,15 @@ export class WrWindow {
   readonly z = signal(this.manager.bringToFront());
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-window', `wr-window--${this.state()}`, `wr-window--os-${this.os()}`];
+    const parts = [
+      'wr-window',
+      `wr-window--${this.state()}`,
+      `wr-window--os-${this.os()}`,
+      `wr-window--chrome-${this.chromeSize()}`,
+    ];
     if (!this.open()) parts.push('wr-window--closed');
     if (this.resizable() && this.state() === 'normal') parts.push('wr-window--resizable');
+    if (!this.animations()) parts.push('wr-window--no-anim');
     return parts.join(' ');
   });
 

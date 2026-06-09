@@ -7,6 +7,10 @@
   --wr-window-chrome-color: var(--wr-color-dark);
   --wr-window-radius: var(--wr-border-radius-base);
   --wr-window-handle-size: 8px;
+  --wr-window-chrome-height: 2.25rem;
+  --wr-window-title-size: 0.8125rem;
+  --wr-window-action-size: 1.5rem;
+  --wr-window-anim-duration: 0.18s;
 
   position: fixed;
   display: flex;
@@ -21,6 +25,18 @@
   color: var(--wr-color-dark);
   overflow: hidden;
   user-select: none;
+  // Enter animation — popover-style fade + scale-up. Disabled by
+  // .wr-window--no-anim and prefers-reduced-motion below.
+  animation: wr-window-in var(--wr-window-anim-duration) var(--wr-ease-out, ease-out);
+  transform-origin: top left;
+  // Smoothly transition position / size when toggled minimized /
+  // maximized programmatically. The drag/resize handlers don't read
+  // this — they write x_/y_/w_/h_ directly.
+  transition:
+    left var(--wr-window-anim-duration) ease,
+    top var(--wr-window-anim-duration) ease,
+    width var(--wr-window-anim-duration) ease,
+    height var(--wr-window-anim-duration) ease;
 
   &--closed {
     display: none;
@@ -30,12 +46,31 @@
     border-radius: 0;
   }
 
+  // Compact title bar — useful for utility / docked panels where every
+  // pixel of vertical space matters.
+  &--chrome-compact {
+    --wr-window-chrome-height: 1.625rem;
+    --wr-window-title-size: 0.75rem;
+    --wr-window-action-size: 1.125rem;
+  }
+
+  &--no-anim,
+  &--no-anim * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    transition: none;
+  }
+
   // Chrome (title bar)
   &__chrome {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    height: 2.25rem;
+    height: var(--wr-window-chrome-height);
     padding: 0 0.25rem 0 0.75rem;
     background: var(--wr-window-chrome-bg);
     color: var(--wr-window-chrome-color);
@@ -50,7 +85,7 @@
 
   &__title {
     flex: 1 1 auto;
-    font-size: 0.8125rem;
+    font-size: var(--wr-window-title-size);
     font-weight: 600;
     line-height: 1.25rem;
     white-space: nowrap;
@@ -70,8 +105,8 @@
     background: transparent;
     border: 0;
     padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: var(--wr-window-action-size);
+    height: var(--wr-window-action-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -235,5 +270,16 @@
       height: 14px;
       cursor: nwse-resize;
     }
+  }
+}
+
+@keyframes wr-window-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
