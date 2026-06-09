@@ -1,0 +1,24 @@
+<ngwr-doc-page
+  title="Donut Chart"
+  description='Ring chart with optional center label / value. Set `thickness="0"` for a solid pie.'
+  [keywords]="['donut-chart', 'pie', 'wr-donut-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With center label">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-donut-chart [segments]="segments" centerLabel="Disk" centerValue="60%" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Solid pie">
+    <ngwr-doc-code [code]="snippets.solid" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-donut-chart [segments]="segments" thickness="0" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

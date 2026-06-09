@@ -1,0 +1,19 @@
+<ngwr-doc-page
+  title="Line Chart"
+  description="Multi-series line chart with a hover tooltip that snaps to the nearest x-axis tick."
+  [keywords]="['line-chart', 'wr-line-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Multi-series">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="max-width: 36rem">
+        <wr-line-chart [series]="series" [xLabels]="xLabels" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

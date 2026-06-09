@@ -1,0 +1,24 @@
+<ngwr-doc-page
+  title="Sparkline"
+  description="Tiny inline trend line — no axes, no labels. Drop it next to a number to give context at a glance."
+  [keywords]="['sparkline', 'trend', 'wr-sparkline']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-sparkline [data]="data" width="10rem" height="2.5rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Filled area" description="Set `[showArea]` to fill under the line.">
+    <ngwr-doc-code [code]="snippets.area" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" width="10rem" height="2.5rem" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

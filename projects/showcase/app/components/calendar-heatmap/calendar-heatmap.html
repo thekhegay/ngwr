@@ -1,0 +1,17 @@
+<ngwr-doc-page
+  title="Calendar Heatmap"
+  description="Year-grid heatmap — the classic GitHub contributions layout."
+  [keywords]="['calendar-heatmap', 'github', 'wr-calendar-heatmap']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-calendar-heatmap [data]="data" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

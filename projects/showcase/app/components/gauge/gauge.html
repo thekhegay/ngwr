@@ -1,0 +1,24 @@
+<ngwr-doc-page
+  title="Gauge"
+  description="Semicircle progress display — read-only, perfect for utilisation and score widgets."
+  [keywords]="['gauge', 'progress', 'wr-gauge']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-gauge [value]="72" suffix="%" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom range + color">
+    <ngwr-doc-code [code]="snippets.colored" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-color-warning)" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

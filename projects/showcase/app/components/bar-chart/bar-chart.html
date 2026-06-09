@@ -1,0 +1,19 @@
+<ngwr-doc-page
+  title="Bar Chart"
+  description="Vertical bars, one series. Per-bar color overrides via the `color` field."
+  [keywords]="['bar-chart', 'wr-bar-chart']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Basic">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="max-width: 28rem">
+        <wr-bar-chart [data]="bars" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

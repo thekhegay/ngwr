@@ -56,7 +56,32 @@ export default [
   },
   {
     path: components.charts,
-    loadComponent: () => import('./charts/charts'),
+    pathMatch: 'full',
+    redirectTo: components.sparkline,
+  },
+  {
+    path: components.sparkline,
+    loadComponent: () => import('./sparkline/sparkline'),
+  },
+  {
+    path: components.gauge,
+    loadComponent: () => import('./gauge/gauge'),
+  },
+  {
+    path: components.barChart,
+    loadComponent: () => import('./bar-chart/bar-chart'),
+  },
+  {
+    path: components.donutChart,
+    loadComponent: () => import('./donut-chart/donut-chart'),
+  },
+  {
+    path: components.lineChart,
+    loadComponent: () => import('./line-chart/line-chart'),
+  },
+  {
+    path: components.calendarHeatmap,
+    loadComponent: () => import('./calendar-heatmap/calendar-heatmap'),
   },
   {
     path: components.squircle,

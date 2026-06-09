@@ -115,6 +115,16 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Window', url: ['/components', 'window'] },
     ],
   },
-  { title: 'Charts', url: ['/components', 'charts'] },
+  {
+    title: 'Charts',
+    children: [
+      { title: 'Bar Chart', url: ['/components', 'bar-chart'] },
+      { title: 'Calendar Heatmap', url: ['/components', 'calendar-heatmap'] },
+      { title: 'Donut Chart', url: ['/components', 'donut-chart'] },
+      { title: 'Gauge', url: ['/components', 'gauge'] },
+      { title: 'Line Chart', url: ['/components', 'line-chart'] },
+      { title: 'Sparkline', url: ['/components', 'sparkline'] },
+    ],
+  },
   { title: 'Squircle', url: ['/components', 'squircle'] },
 ];

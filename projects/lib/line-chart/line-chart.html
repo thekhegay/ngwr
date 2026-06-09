@@ -83,11 +83,7 @@
   </svg>
 
   @if (hovered !== null && hoverPoints().length > 0) {
-    <div
-      class="wr-line-chart__tooltip"
-      [style.left.%]="(pointX(hovered) / vbW) * 100"
-      [style.top.px]="padding.top"
-    >
+    <div class="wr-line-chart__tooltip" [style.left.%]="(pointX(hovered) / vbW) * 100" [style.top.px]="padding.top">
       <div class="wr-line-chart__tooltip-label">{{ hoverLabel() }}</div>
       @for (p of hoverPoints(); track p.label) {
         <div class="wr-line-chart__tooltip-row">
