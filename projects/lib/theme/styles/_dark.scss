@@ -18,10 +18,15 @@
   --wr-color-dark-rgb: 230, 235, 243;
 
   // ── Borders / tints (was `--wr-color-light`) ───────────────────
-  // Slate-700 was too contrasty on slate-900 fields. This is closer
-  // to slate-800, soft enough that 1px borders don't shout.
-  --wr-color-light: #1f2a3d;
-  --wr-color-light-rgb: 31, 42, 61;
+  // Used for two jobs at once: 1-px borders and translucent surface
+  // tints (`rgba(light-rgb, 0.4)` etc.). The previous slate-800
+  // (#1f2a3d) was so close to the canvas that 1-px borders rendered
+  // at ~1.4:1 contrast — effectively invisible on cards / inputs /
+  // toolbars. Slate-700-ish lifts borders to ~3.5:1 (above WCAG's
+  // 3:1 floor for non-text UI), and the bump only makes translucent
+  // tints a touch more present, which reads as intentional layering.
+  --wr-color-light: #334155;
+  --wr-color-light-rgb: 51, 65, 85;
 
   // ── Secondary text (was `--wr-color-medium`) ───────────────────
   // Lifted from slate-400 → slate-300-ish for better legibility on
