@@ -1,0 +1,23 @@
+<wr-window
+  [open]="true"
+  [title]="ref.title()"
+  [os]="config.os ?? 'windows'"
+  [size]="config.size ?? 'md'"
+  [initialX]="config.x ?? null"
+  [initialY]="config.y ?? null"
+  [initialWidth]="config.width ?? null"
+  [initialHeight]="config.height ?? null"
+  [minWidth]="config.minWidth ?? 220"
+  [minHeight]="config.minHeight ?? 140"
+  [maxWidth]="config.maxWidth ?? 1000000"
+  [maxHeight]="config.maxHeight ?? 1000000"
+  [movable]="config.movable ?? true"
+  [resizable]="config.resizable ?? true"
+  [keepInViewport]="config.keepInViewport ?? true"
+  [showMinimize]="config.showMinimize ?? true"
+  [showMaximize]="config.showMaximize ?? true"
+  [showClose]="config.showClose ?? true"
+  (closed)="ref.close()"
+>
+  <ng-container #content />
+</wr-window>

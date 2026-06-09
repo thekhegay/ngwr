@@ -158,15 +158,16 @@ export class WrWindow {
 
   // Position / size signals are the source of truth at runtime.
   // Inputs (x/y/initialWidth/initialHeight) seed them in afterNextRender.
-  protected readonly x_ = signal(0);
-  protected readonly y_ = signal(0);
-  protected readonly width_ = signal(0);
-  protected readonly height_ = signal(0);
+  /** Live X (top-left). @internal */ readonly x_ = signal(0);
+  /** Live Y (top-left). @internal */ readonly y_ = signal(0);
+  /** Live width. @internal */ readonly width_ = signal(0);
+  /** Live height. @internal */ readonly height_ = signal(0);
 
   // Saved geometry to restore from `maximized`.
   private restoreGeometry: { x: number; y: number; width: number; height: number } | null = null;
 
-  protected readonly z = signal(this.manager.bringToFront());
+  /** Stack z-index — pulled from the manager on focus. @internal */
+  readonly z = signal(this.manager.bringToFront());
 
   protected readonly classes = computed(() => {
     const parts = ['wr-window', `wr-window--${this.state()}`, `wr-window--os-${this.os()}`];
@@ -175,12 +176,13 @@ export class WrWindow {
     return parts.join(' ');
   });
 
-  // Effective geometry inputs to the host bindings: when maximized we ignore
-  // the live x_/y_/width_/height_ and fill the viewport instead.
-  protected readonly x = computed(() => (this.state() === 'maximized' ? 0 : this.x_()));
-  protected readonly y = computed(() => (this.state() === 'maximized' ? 0 : this.y_()));
-  protected readonly width = computed(() => (this.state() === 'maximized' ? viewportWidth() : this.width_()));
-  protected readonly height = computed(() =>
+  // Effective geometry exposed to the host bindings AND to programmatic
+  // consumers (`WrWindowRef`). When maximized we ignore the live
+  // x_/y_/width_/height_ and fill the viewport instead.
+  readonly x = computed(() => (this.state() === 'maximized' ? 0 : this.x_()));
+  readonly y = computed(() => (this.state() === 'maximized' ? 0 : this.y_()));
+  readonly width = computed(() => (this.state() === 'maximized' ? viewportWidth() : this.width_()));
+  readonly height = computed(() =>
     this.state() === 'maximized'
       ? viewportHeight()
       : this.state() === 'minimized'
@@ -213,24 +215,57 @@ export class WrWindow {
 
   maximize(): void {
     if (this.state() === 'maximized') {
-      this.state.set('normal');
-      if (this.restoreGeometry) {
-        this.x_.set(this.restoreGeometry.x);
-        this.y_.set(this.restoreGeometry.y);
-        this.width_.set(this.restoreGeometry.width);
-        this.height_.set(this.restoreGeometry.height);
-        this.restoreGeometry = null;
-      }
+      this.restore();
     } else {
       this.restoreGeometry = { x: this.x_(), y: this.y_(), width: this.width_(), height: this.height_() };
       this.state.set('maximized');
     }
   }
 
+  /** Force back to `normal` from minimized / maximized. */
+  restore(): void {
+    if (this.state() === 'maximized' && this.restoreGeometry) {
+      this.x_.set(this.restoreGeometry.x);
+      this.y_.set(this.restoreGeometry.y);
+      this.width_.set(this.restoreGeometry.width);
+      this.height_.set(this.restoreGeometry.height);
+      this.restoreGeometry = null;
+    }
+    this.state.set('normal');
+  }
+
+  /** Programmatic move — clamped to the viewport when `keepInViewport`. */
+  moveTo(x: number, y: number): void {
+    this.x_.set(x);
+    this.y_.set(y);
+    this.clampToViewport();
+  }
+
+  /** Programmatic resize — clamped to min/max bounds. */
+  resizeTo(width: number, height: number): void {
+    this.width_.set(clamp(width, this.minWidth(), this.maxWidth()));
+    this.height_.set(clamp(height, this.minHeight(), this.maxHeight()));
+    this.clampToViewport();
+  }
+
+  /** Re-position centered against the current viewport. */
+  center(): void {
+    const w = this.width_();
+    const h = this.height_();
+    this.x_.set(Math.max(0, (viewportWidth() - w) / 2));
+    this.y_.set(Math.max(0, (viewportHeight() - h) / 2));
+  }
+
+  /** Bring this window to the top of the stack. */
+  focus(): void {
+    this.z.set(this.manager.bringToFront());
+  }
+
   // ──────── Host handlers ────────
 
+  /** @internal — alias kept for the host `(pointerdown)` binding. */
   protected focusWindow(): void {
-    this.z.set(this.manager.bringToFront());
+    this.focus();
   }
 
   protected startMove(event: PointerEvent): void {

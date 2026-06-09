@@ -5,23 +5,70 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Service } from '@angular/core';
+import { type OverlayRef } from '@angular/cdk/overlay';
+import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  EnvironmentInjector,
+  Injector,
+  PLATFORM_ID,
+  Service,
+  type Signal,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+
+import { WR_OVERLAY } from 'ngwr/overlay';
+
+import { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
+import type { WrWindowConfig } from './types';
+import { WrWindowContainer } from './window-container';
+import { WrWindowRef } from './window-ref';
+
+let uid = 0;
 
 /**
- * Tracks open `<wr-window>` instances so a freshly-focused window can be
- * brought to the top of the stack without consumers having to manage
- * z-indexes themselves.
+ * Owns the open `<wr-window>` stack, hands out z-indexes, cascades the
+ * default spawn position, and opens programmatic windows that wrap a
+ * consumer component.
  *
- * - `bringToFront()` returns a strictly increasing z-index. Each window
- *   keeps the result in a signal and rebinds it on pointerdown.
- * - `nextStartOffset()` cascades new windows by ~30px so two windows opened
- *   at the same default position don't perfectly overlap.
+ * Inject the singleton and call `open(component, config)` for a
+ * dialog-style flow:
+ *
+ * ```ts
+ * const manager = inject(WrWindowManager);
+ *
+ * const ref = manager.open(EditorComponent, {
+ *   title: 'Untitled.md',
+ *   size: 'lg',
+ *   storage: { key: 'editor', prefix: 'my-app' },
+ * });
+ *
+ * const saved = await ref.afterClosed();
+ * ```
+ *
+ * Declarative `<wr-window [(open)]="...">` instances also register with
+ * the manager on focus, so both styles share the same stack ordering.
  */
 @Service()
 export class WrWindowManager {
+  private readonly overlay = inject(WR_OVERLAY);
+  private readonly parentInjector = inject(EnvironmentInjector);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   private readonly baseZ = 1000;
   private topZ = this.baseZ;
   private openCount = 0;
+
+  /** All open windows opened via `open()` — declarative `<wr-window>` is not tracked here. */
+  private readonly _windows = signal<readonly WrWindowRef<unknown, unknown>[]>([]);
+
+  /** All currently-open programmatic windows. */
+  readonly windows: Signal<readonly WrWindowRef<unknown, unknown>[]> = this._windows.asReadonly();
+
+  /** Programmatic windows whose state is `minimized` — drives `<wr-window-taskbar>`. */
+  readonly minimized = computed(() => this._windows().filter(w => w.state() === 'minimized'));
 
   /** Reserve the next z-index. Strictly increasing across the app's lifetime. */
   bringToFront(): number {
@@ -34,5 +81,75 @@ export class WrWindowManager {
     const offset = (this.openCount % 10) * 30;
     this.openCount += 1;
     return { x: 50 + offset, y: 50 + offset };
+  }
+
+  /**
+   * Open a window with `component` rendered as its body. Returns a ref
+   * the caller can use to drive the window programmatically and await
+   * its result.
+   */
+  open<C, R = unknown, D = unknown>(
+    component: ComponentType<C>,
+    config: WrWindowConfig<D> = {},
+  ): WrWindowRef<C, R> {
+    // Each window gets its own CDK overlay pane positioned `static` —
+    // <wr-window> itself uses `position: fixed`, so the pane is only a
+    // mount point. Disable scroll-block / backdrop here; modal mode
+    // attaches its own backdrop in a later phase.
+    const overlayRef: OverlayRef = this.overlay.create({
+      positionStrategy: this.overlay.position().global(),
+      panelClass: 'wr-window-overlay',
+      hasBackdrop: false,
+    });
+
+    const id = config.id ?? `wr-window-${++uid}`;
+    const ref = new WrWindowRef<C, R>(id, overlayRef);
+
+    // Remember the prior focus owner so modal windows can restore it.
+    if (this.isBrowser) {
+      const active = document.activeElement;
+      ref.previouslyFocused = active instanceof HTMLElement ? active : null;
+    }
+
+    // Provide WR_WINDOW_REF + WR_WINDOW_DATA inside the projected
+    // component's subtree so it can `inject(WR_WINDOW_REF)` etc.
+    const childInjector = Injector.create({
+      parent: this.parentInjector,
+      providers: [
+        { provide: WR_WINDOW_REF, useValue: ref },
+        { provide: WR_WINDOW_DATA, useValue: config.data ?? null },
+      ],
+    });
+
+    const portal = new ComponentPortal<WrWindowContainer<C>>(WrWindowContainer);
+    const containerRef = overlayRef.attach(portal);
+    const container = containerRef.instance;
+    container.config = config as WrWindowConfig;
+    container.ref = ref as WrWindowRef<C, unknown>;
+    container.componentType = component;
+    container.childInjector = childInjector;
+
+    // Wire close → disposal + completion of the result subject. The
+    // ref's `close()` already runs the beforeClose hook before reaching
+    // this bridge.
+    ref._doClose = (result) => {
+      overlayRef.dispose();
+      ref._closed.next(result);
+      ref._closed.complete();
+      this._windows.update(list => list.filter(r => r !== (ref as unknown as WrWindowRef<unknown, unknown>)));
+      const restore = ref.previouslyFocused;
+      ref.previouslyFocused = null;
+      if (restore && typeof restore.focus === 'function') restore.focus();
+    };
+
+    this._windows.update(list => [...list, ref as unknown as WrWindowRef<unknown, unknown>]);
+    return ref;
+  }
+
+  /** Close every programmatically-opened window. */
+  closeAll(): void {
+    for (const ref of [...this._windows()]) {
+      void ref.close();
+    }
   }
 }
