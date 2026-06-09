@@ -19,7 +19,14 @@ import {
   signal,
 } from '@angular/core';
 
-import type { WrWindowChromeSize, WrWindowOs, WrWindowSize, WrWindowSnap, WrWindowSnapTarget, WrWindowState } from './types';
+import type {
+  WrWindowChromeSize,
+  WrWindowOs,
+  WrWindowSize,
+  WrWindowSnap,
+  WrWindowSnapTarget,
+  WrWindowState,
+} from './types';
 import { WrWindowManager } from './window-manager';
 
 const SIZE_PRESETS: Readonly<Record<WrWindowSize, { width: number; height: number }>> = {
@@ -372,17 +379,41 @@ export class WrWindow {
         this.state.set('maximized');
         return;
       case 'left':
-        this.x_.set(0); this.y_.set(0); this.width_.set(halfW); this.height_.set(vh); break;
+        this.x_.set(0);
+        this.y_.set(0);
+        this.width_.set(halfW);
+        this.height_.set(vh);
+        break;
       case 'right':
-        this.x_.set(halfW); this.y_.set(0); this.width_.set(vw - halfW); this.height_.set(vh); break;
+        this.x_.set(halfW);
+        this.y_.set(0);
+        this.width_.set(vw - halfW);
+        this.height_.set(vh);
+        break;
       case 'top-left':
-        this.x_.set(0); this.y_.set(0); this.width_.set(halfW); this.height_.set(halfH); break;
+        this.x_.set(0);
+        this.y_.set(0);
+        this.width_.set(halfW);
+        this.height_.set(halfH);
+        break;
       case 'top-right':
-        this.x_.set(halfW); this.y_.set(0); this.width_.set(vw - halfW); this.height_.set(halfH); break;
+        this.x_.set(halfW);
+        this.y_.set(0);
+        this.width_.set(vw - halfW);
+        this.height_.set(halfH);
+        break;
       case 'bottom-left':
-        this.x_.set(0); this.y_.set(halfH); this.width_.set(halfW); this.height_.set(vh - halfH); break;
+        this.x_.set(0);
+        this.y_.set(halfH);
+        this.width_.set(halfW);
+        this.height_.set(vh - halfH);
+        break;
       case 'bottom-right':
-        this.x_.set(halfW); this.y_.set(halfH); this.width_.set(vw - halfW); this.height_.set(vh - halfH); break;
+        this.x_.set(halfW);
+        this.y_.set(halfH);
+        this.width_.set(vw - halfW);
+        this.height_.set(vh - halfH);
+        break;
     }
     this.resized.emit({ width: this.width_(), height: this.height_() });
   }

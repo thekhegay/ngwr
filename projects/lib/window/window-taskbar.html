@@ -4,7 +4,7 @@
       <button
         type="button"
         class="wr-window-taskbar__tab"
-        [attr.aria-label]="'Restore ' + (ref.title() || 'Untitled')"
+        [attr.aria-label]="`Restore ${ref.title() || 'Untitled'}`"
         (click)="restore(ref)"
       >
         <span class="wr-window-taskbar__tab-title">{{ ref.title() || 'Untitled' }}</span>

@@ -101,7 +101,7 @@ export class WrWindowContainer<C> {
     this.ref._doMoveTo = (x, y) => w.moveTo(x, y);
     this.ref._doResizeTo = (width, height) => w.resizeTo(width, height);
     this.ref._doCenter = () => w.center();
-    this.ref._doSetTitle = (title) => this.ref._title.set(title);
+    this.ref._doSetTitle = title => this.ref._title.set(title);
 
     // 3. Sync the live geometry/state into the ref's signals so
     //    consumers can read them reactively without poking at <wr-window>.

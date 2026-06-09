@@ -155,10 +155,78 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Programmatic open"
+    description="`manager.open(Component, config)` portals any component as the window body. Returns a `WrWindowRef` you can drive imperatively and await its result."
+  >
+    <ngwr-doc-code [code]="snippets.programmatic" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openProgrammatic()">Open programmatic window</wr-btn>
+      <wr-btn outlined (click)="openProgrammatic({ modal: true })">Open modal</wr-btn>
+      @if (lastProgrammaticResult(); as result) {
+        <small style="display: block; margin-top: 0.75rem; color: var(--wr-color-medium)">
+          afterClosed() resolved with: <code>{{ result }}</code>
+        </small>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Persisted position"
+    description="`storage: { key, prefix }` keeps geometry in WrStorage — drag the window, refresh the page, it reopens where you left it."
+  >
+    <ngwr-doc-code [code]="snippets.persist" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Snap regions"
+    description="`snap: 'edges'` snaps to halves; `'all'` adds the four corners. A translucent hint appears during the drag."
+  >
+    <ngwr-doc-code [code]="snippets.snap" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openProgrammatic({ snap: 'all' })">Open with snap</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Taskbar"
+    description="`<wr-window-taskbar />` lists every minimized programmatic window. Click a tab to restore it. Opt windows out via `config.taskbar = false`."
+  >
+    <ngwr-doc-code [code]="snippets.taskbar" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="openTaskbarDemo('Inbox')">Open inbox</wr-btn>
+      <wr-btn (click)="openTaskbarDemo('Editor')">Open editor</wr-btn>
+      <wr-btn (click)="openTaskbarDemo('Logs')">Open logs</wr-btn>
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)"
+        >Click minimize on any of them — they land in the strip at the bottom of the page.</small
+      >
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Workspace save / restore"
+    description="`saveLayout(name)` snapshots every open window. `restoreLayout(name)` re-applies it once you've re-opened the matching components."
+  >
+    <ngwr-doc-code [code]="snippets.workspace" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="saveLayout()">Save layout</wr-btn>
+      <wr-btn outlined (click)="restoreLayout()">Restore layout</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="WrWindowManager"
-    description="Singleton that co-ordinates stacking + initial position across every `<wr-window>` in the app. Consumers rarely touch it directly — windows wire themselves up — but it is injectable when you need to spawn or arrange windows imperatively."
+    description="Singleton that owns the window stack. Inject and call `open()`; it also exposes the z-cascade + workspace helpers."
   >
     <ngwr-doc-code [code]="snippets.manager" language="angular-ts" />
     <ngwr-doc-api [rows]="managerApi" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrWindowRef"
+    description="Handle returned by `manager.open()`. Drive every open window via its signals + methods."
+  >
+    <ngwr-doc-api [rows]="refApi" />
+  </ngwr-doc-section>
+
+  <wr-window-taskbar />
 </ngwr-doc-page>

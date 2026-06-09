@@ -95,7 +95,10 @@ export class WrWindowRef<C, R = unknown> {
   /** @internal */ _doCenter: (() => void) | null = null;
   /** @internal */ _doSetTitle: ((title: string) => void) | null = null;
 
-  constructor(id: string, readonly _overlayRef: OverlayRef) {
+  constructor(
+    id: string,
+    readonly _overlayRef: OverlayRef
+  ) {
     this.id = id;
   }
 

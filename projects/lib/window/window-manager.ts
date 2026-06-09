@@ -23,13 +23,13 @@ import {
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
 
-const MODAL_BACKDROP_CLASS = 'wr-window-backdrop';
-const MODAL_PANEL_CLASS = 'wr-window-overlay--modal';
-
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
 import type { WrWindowConfig, WrWindowStorageConfig } from './types';
 import { WrWindowContainer } from './window-container';
 import { WrWindowRef } from './window-ref';
+
+const MODAL_BACKDROP_CLASS = 'wr-window-backdrop';
+const MODAL_PANEL_CLASS = 'wr-window-overlay--modal';
 
 function storageKey(cfg: WrWindowStorageConfig): string {
   const prefix = cfg.prefix ? `${cfg.prefix}:` : '';
@@ -80,9 +80,7 @@ export class WrWindowManager {
   readonly windows: Signal<readonly WrWindowRef<unknown, unknown>[]> = this._windows.asReadonly();
 
   /** Programmatic windows that are minimized AND opted into the taskbar. */
-  readonly minimized = computed(() =>
-    this._windows().filter(w => w.taskbarVisible && w.state() === 'minimized'),
-  );
+  readonly minimized = computed(() => this._windows().filter(w => w.taskbarVisible && w.state() === 'minimized'));
 
   /** Reserve the next z-index. Strictly increasing across the app's lifetime. */
   bringToFront(): number {
@@ -102,10 +100,7 @@ export class WrWindowManager {
    * the caller can use to drive the window programmatically and await
    * its result.
    */
-  open<C, R = unknown, D = unknown>(
-    component: ComponentType<C>,
-    config: WrWindowConfig<D> = {},
-  ): WrWindowRef<C, R> {
+  open<C, R = unknown, D = unknown>(component: ComponentType<C>, config: WrWindowConfig<D> = {}): WrWindowRef<C, R> {
     // Each window gets its own CDK overlay pane positioned `static` —
     // <wr-window> itself uses `position: fixed`, so the pane is only a
     // mount point. Modal mode adds a backdrop and traps focus.
@@ -143,7 +138,7 @@ export class WrWindowManager {
     const portal = new ComponentPortal<WrWindowContainer<C>>(WrWindowContainer);
     const containerRef = overlayRef.attach(portal);
     const container = containerRef.instance;
-    container.config = config as WrWindowConfig;
+    container.config = config;
     container.ref = ref as WrWindowRef<C, unknown>;
     container.componentType = component;
     container.childInjector = childInjector;
@@ -176,7 +171,7 @@ export class WrWindowManager {
     // Wire close → disposal + completion of the result subject. The
     // ref's `close()` already runs the beforeClose hook before reaching
     // this bridge.
-    ref._doClose = (result) => {
+    ref._doClose = result => {
       overlayRef.dispose();
       ref._closed.next(result);
       ref._closed.complete();
@@ -237,15 +232,17 @@ export class WrWindowManager {
   }
 
   /** Read a saved workspace. Returns `null` when no snapshot is found. */
-  readLayout(name: string): ReadonlyArray<{
-    readonly id: string;
-    readonly state: import('./types').WrWindowState;
-    readonly x: number;
-    readonly y: number;
-    readonly width: number;
-    readonly height: number;
-    readonly title: string;
-  }> | null {
+  readLayout(name: string):
+    | readonly {
+        readonly id: string;
+        readonly state: import('./types').WrWindowState;
+        readonly x: number;
+        readonly y: number;
+        readonly width: number;
+        readonly height: number;
+        readonly title: string;
+      }[]
+    | null {
     return this.storage.get(this.layoutKey(name));
   }
 

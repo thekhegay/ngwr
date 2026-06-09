@@ -16,11 +16,4 @@
 export type WrWindowSnap = 'none' | 'edges' | 'all';
 
 /** Internal snap target — resolved by the drag handler. */
-export type WrWindowSnapTarget =
-  | 'left'
-  | 'right'
-  | 'top'
-  | 'top-left'
-  | 'top-right'
-  | 'bottom-left'
-  | 'bottom-right';
+export type WrWindowSnapTarget = 'left' | 'right' | 'top' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
