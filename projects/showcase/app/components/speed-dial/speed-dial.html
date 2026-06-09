@@ -6,7 +6,7 @@
   <ngwr-doc-section title="Up direction" description="Click the FAB to expand the fan.">
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="padding-top: 8rem; padding-bottom: 0.5rem; display: flex; justify-content: center">
+      <div style="padding-top: 16rem; padding-bottom: 1rem; display: flex; justify-content: center">
         <wr-speed-dial [actions]="actions" direction="up" (pick)="onPick($event)" />
       </div>
       @if (lastPick()) {

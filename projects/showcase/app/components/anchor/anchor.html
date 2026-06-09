@@ -3,26 +3,30 @@
   description="Scroll-spy in-page navigation. Click a link to smooth-scroll; the closest visible heading auto-highlights."
   [keywords]="['anchor', 'scroll-spy', 'wr-anchor']"
 >
-  <ngwr-doc-section title="Demo" description="The anchor below tracks the headings on this page.">
+  <ngwr-doc-section
+    title="Demo"
+    description="The anchor below tracks the headings as you scroll the showcase page. Spacers between sections give the scroll-spy something to react to."
+  >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 2rem">
-        <div style="flex: 0 0 12rem">
+        <div style="flex: 0 0 12rem; position: sticky; top: 5rem; align-self: flex-start">
           <wr-anchor [links]="links" [offset]="80" />
         </div>
         <div style="flex: 1 1 auto; min-width: 0">
           <h3 id="anchor-intro" style="margin-top: 0">Introduction</h3>
           <p>Anchor watches the page scroll and highlights the closest section.</p>
-          <div style="height: 8rem"></div>
+          <div style="height: 22rem"></div>
           <h3 id="anchor-usage">Usage</h3>
           <h4 id="anchor-basic">Basic</h4>
           <p>Pass an array of <code>&#123; id, label &#125;</code> and the component does the rest.</p>
-          <div style="height: 8rem"></div>
+          <div style="height: 22rem"></div>
           <h4 id="anchor-advanced">Advanced</h4>
           <p>Children render one level of nested links.</p>
-          <div style="height: 8rem"></div>
+          <div style="height: 22rem"></div>
           <h3 id="anchor-api">API</h3>
           <p>See the component reference below.</p>
+          <div style="height: 8rem"></div>
         </div>
       </div>
     </ngwr-doc-snippet>

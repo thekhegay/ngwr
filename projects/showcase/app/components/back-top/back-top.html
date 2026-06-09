@@ -3,8 +3,31 @@
   description="Pinned floating button that appears once the user has scrolled past `visibilityThreshold` and scrolls to the top on click."
   [keywords]="['back-top', 'scroll', 'wr-back-top']"
 >
-  <ngwr-doc-section title="Demo" description="Scroll down past 400px to reveal the button in the bottom-right corner.">
+  <ngwr-doc-section
+    title="Demo"
+    description="Scroll down past 400px to reveal the button in the bottom-right corner. The sandbox below provides the scroll runway."
+  >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          height: 36rem;
+          padding: 1rem;
+          border: 1px dashed var(--wr-color-light);
+          border-radius: var(--wr-border-radius-base);
+          background: rgba(var(--wr-color-light-rgb), 0.15);
+          color: var(--wr-color-medium);
+          line-height: 1.6;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        "
+      >
+        <span>Top of sandbox — scroll the page to push past the 400px threshold.</span>
+        <span>Mid-section — by now the back-to-top button should be pinned in the bottom-right.</span>
+        <span>Bottom of sandbox — click the floating button to scroll back up.</span>
+      </div>
+    </ngwr-doc-snippet>
     <wr-back-top visibilityThreshold="400" [offset]="80" />
   </ngwr-doc-section>
 </ngwr-doc-page>
