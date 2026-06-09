@@ -7,6 +7,10 @@
 
   display: flex;
   flex-direction: column;
+  // Claim the full row even when nested in a flex-row demo wrapper.
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
   gap: 1rem;
   font-family: var(--wr-font-family-base);
 

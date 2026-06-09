@@ -3,6 +3,10 @@
 .wr-carousel {
   position: relative;
   display: block;
+  // Always claim the full row even when nested in a flex-row demo wrapper.
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
   font-family: var(--wr-font-family-base);
 

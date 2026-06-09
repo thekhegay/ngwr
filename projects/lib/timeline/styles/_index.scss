@@ -2,6 +2,10 @@
 
 .wr-timeline {
   display: flex;
+  // Claim the full row even when nested in a flex-row demo wrapper.
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-dark);
 

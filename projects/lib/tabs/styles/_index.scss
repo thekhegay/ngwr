@@ -8,6 +8,10 @@
   --wr-tabs-indicator: var(--wr-color-primary);
 
   display: block;
+  // Claim the full row even when nested in a flex-row demo wrapper.
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
   font-family: var(--wr-font-family-base);
 
   &__strip {
