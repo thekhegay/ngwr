@@ -33,6 +33,16 @@ function storageKey(cfg: WrWindowStorageConfig): string {
   return `wr:window:${prefix}${cfg.key}`;
 }
 
+interface RestoreSnapshot {
+  readonly id: string;
+  readonly state: import('./types').WrWindowState;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly title: string;
+}
+
 /**
  * Owns the open `<wr-window>` stack, hands out z-indexes, cascades the
  * default spawn position, and opens programmatic windows that wrap a
@@ -69,6 +79,15 @@ export class WrWindowManager {
 
   /** All open windows opened via `open()` — declarative `<wr-window>` is not tracked here. */
   private readonly _windows = signal<readonly WrWindowRef<unknown, unknown>[]>([]);
+
+  /**
+   * Filled by `restoreLayout` right before it invokes the consumer's
+   * opener callback. The next `open()` call with a matching `config.id`
+   * pops the entry and uses it as the initial geometry (so the seed
+   * lands at the saved coords instead of the cascade default) and
+   * applies any non-`normal` state after the bridges are wired.
+   */
+  private readonly pendingRestores = new Map<string, RestoreSnapshot>();
 
   /** All currently-open programmatic windows. */
   readonly windows: Signal<readonly WrWindowRef<unknown, unknown>[]> = this._windows.asReadonly();
@@ -108,6 +127,22 @@ export class WrWindowManager {
         existing.focus();
         return existing as WrWindowRef<C, R>;
       }
+    }
+
+    // Honour a pending restore — `restoreLayout` populates this Map
+    // right before invoking the consumer's opener so the new window
+    // seeds at the saved geometry instead of the cascade default.
+    const pending = config.id ? this.pendingRestores.get(config.id) : undefined;
+    if (pending) {
+      this.pendingRestores.delete(config.id!);
+      config = {
+        ...config,
+        x: pending.x,
+        y: pending.y,
+        width: pending.width,
+        height: pending.height,
+        title: pending.title || config.title,
+      };
     }
 
     // Each window gets its own CDK overlay pane positioned `static` —
@@ -166,6 +201,17 @@ export class WrWindowManager {
     };
 
     this._windows.update(list => [...list, ref as unknown as WrWindowRef<unknown, unknown>]);
+
+    // If the pending restore had a non-`normal` state, apply it once
+    // the container's bridges are wired (afterNextRender runs on the
+    // next tick).
+    if (pending && pending.state !== 'normal') {
+      queueMicrotask(() => {
+        if (pending.state === 'minimized') ref.minimize();
+        else if (pending.state === 'maximized') ref.maximize();
+      });
+    }
+
     return ref;
   }
 
@@ -221,45 +267,60 @@ export class WrWindowManager {
   }
 
   /** Read a saved workspace. Returns `null` when no snapshot is found. */
-  readLayout(name: string):
-    | readonly {
-        readonly id: string;
-        readonly state: import('./types').WrWindowState;
-        readonly x: number;
-        readonly y: number;
-        readonly width: number;
-        readonly height: number;
-        readonly title: string;
-      }[]
-    | null {
+  readLayout(name: string): readonly RestoreSnapshot[] | null {
     return this.storage.get(this.layoutKey(name));
   }
 
   /**
-   * Apply a saved workspace to the currently-open windows — windows
-   * whose `id` matches a snapshot get their geometry + state restored.
-   * Open the windows yourself first (the manager can't reconstruct the
-   * component type from disk).
+   * Apply a saved workspace.
    *
-   * The state transitions go through `restore()` first so the
-   * subsequent `minimize()` / `maximize()` calls don't toggle off
-   * (both are toggles on the underlying component).
+   * Each saved entry is matched to a currently-open window by `id`. For
+   * matches, the geometry / state / title is re-applied immediately.
+   * For misses, the optional `open` callback is invoked so the consumer
+   * can re-open the right component for that id — the freshly-opened
+   * window then seeds straight to the saved geometry (no cascade flicker)
+   * and the saved state lands once the bridges are wired.
+   *
+   * ```ts
+   * manager.restoreLayout('default', (id, snap) => {
+   *   if (id.startsWith('editor:')) {
+   *     manager.open(EditorComponent, { id, title: snap.title, data: ... });
+   *   }
+   * });
+   * ```
    */
-  restoreLayout(name: string): void {
+  restoreLayout(name: string, open?: (id: string, snapshot: { readonly title: string }) => void): void {
     const snapshot = this.readLayout(name);
     if (!snapshot) return;
-    const byId = new Map(snapshot.map(s => [s.id, s]));
-    for (const ref of this._windows()) {
-      const snap = byId.get(ref.id);
-      if (!snap) continue;
-      // Force back to a known 'normal' baseline before applying state.
-      ref.restore();
-      if (snap.title) ref.setTitle(snap.title);
-      ref.moveTo(snap.x, snap.y);
-      ref.resizeTo(snap.width, snap.height);
-      if (snap.state === 'minimized') ref.minimize();
-      else if (snap.state === 'maximized') ref.maximize();
+
+    for (const snap of snapshot) {
+      const existing = this.findById(snap.id);
+      if (existing) {
+        this.applyRestore(existing, snap);
+        continue;
+      }
+      if (!open) continue;
+      // Stash the geometry so the next `open()` call with this id
+      // consumes it as the seed instead of cascading.
+      this.pendingRestores.set(snap.id, snap);
+      open(snap.id, { title: snap.title });
+      // Belt + braces: if the opener didn't actually open a window (or
+      // opened with a different id), drop the stale pending entry so it
+      // doesn't ambush a future open.
+      if (!this.findById(snap.id)) this.pendingRestores.delete(snap.id);
     }
+  }
+
+  private applyRestore(ref: WrWindowRef<unknown, unknown>, snap: RestoreSnapshot): void {
+    // Force back to a known 'normal' baseline before applying state —
+    // ref.minimize() / maximize() are toggles, so this prevents a
+    // saved 'minimized' from un-minimizing an already-minimized window.
+    ref.restore();
+    if (snap.title) ref.setTitle(snap.title);
+    ref.moveTo(snap.x, snap.y);
+    ref.resizeTo(snap.width, snap.height);
+    if (snap.state === 'minimized') ref.minimize();
+    else if (snap.state === 'maximized') ref.maximize();
   }
 
   /** Drop a saved workspace. */

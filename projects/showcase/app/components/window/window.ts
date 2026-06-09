@@ -98,7 +98,14 @@ export default class WindowPageComponent {
   }
 
   protected restoreLayout(): void {
-    this.manager.restoreLayout('demo');
+    // Provide an opener so windows that aren't currently mounted get
+    // re-created. Match the same id scheme the taskbar demo uses.
+    this.manager.restoreLayout('demo', (id, snap) => {
+      if (id.startsWith('docs.taskbar.')) {
+        const title = snap.title || id.replace('docs.taskbar.', '');
+        this.openTaskbarDemo(title);
+      }
+    });
   }
 
   protected closeAll(): void {
@@ -155,8 +162,16 @@ manager.clearPersistedPosition({ key: 'editor', prefix: 'my-app' });`,
     workspace: `// snapshot every open window's geometry + state
 manager.saveLayout('default');
 
-// later — re-open the same set of components, then:
-manager.restoreLayout('default');
+// later — for windows still open, geometry is re-applied in place. For
+// windows that were closed, the opener callback re-creates them and the
+// saved geometry is used as the seed instead of the cascade default.
+manager.restoreLayout('default', (id, snap) => {
+  if (id.startsWith('editor:')) {
+    manager.open(EditorComponent, { id, title: snap.title });
+  } else if (id === 'settings') {
+    manager.open(SettingsComponent, { id, title: snap.title });
+  }
+});
 
 // drop a snapshot
 manager.clearLayout('default');`,
@@ -350,10 +365,11 @@ ref.close(savedDocId);`,
       default: '—',
     },
     {
-      name: 'restoreLayout(name)',
+      name: 'restoreLayout(name, open?)',
       sub: true,
-      description: 'Apply a saved workspace to currently-open windows (match by `id`). Re-open the windows first.',
-      type: '(name: string) => void',
+      description:
+        'Apply a saved workspace by `id`. Matching open windows get geometry re-applied in place. For missing windows, the optional `open` callback is invoked to re-create them — they seed at the saved coords (no cascade flicker).',
+      type: '(name, open?: (id, snap) => void) => void',
       default: '—',
     },
     {

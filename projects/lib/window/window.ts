@@ -19,6 +19,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { randomId } from 'ngwr/utils';
+
 import type {
   WrWindowChromeSize,
   WrWindowOs,
@@ -28,8 +30,6 @@ import type {
   WrWindowSnapTarget,
   WrWindowState,
 } from './types';
-import { randomId } from 'ngwr/utils';
-
 import { WrWindowManager } from './window-manager';
 
 /**
