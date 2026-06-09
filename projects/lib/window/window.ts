@@ -28,6 +28,8 @@ import type {
   WrWindowSnapTarget,
   WrWindowState,
 } from './types';
+import { randomId } from 'ngwr/utils';
+
 import { WrWindowManager } from './window-manager';
 
 /**
@@ -70,7 +72,6 @@ interface Edges {
 }
 
 const MIN_ON_VIEWPORT = 24; // keep at least this many px of the window inside the viewport
-let titleUid = 0;
 
 function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
@@ -122,7 +123,7 @@ export class WrWindow {
   readonly title = input<string>('');
 
   /** Auto-generated id for the title element, referenced by `aria-labelledby`. */
-  protected readonly titleId = `wr-window-title-${++titleUid}`;
+  protected readonly titleId = randomId('wr-window-title');
 
   /** Initial position. `null` = auto-cascade from the manager. */
   readonly initialX = input<number | null>(null, {

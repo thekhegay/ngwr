@@ -21,6 +21,7 @@ import {
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
+import { randomId } from 'ngwr/utils';
 
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
 import type { WrWindowConfig, WrWindowStorageConfig } from './types';
@@ -31,8 +32,6 @@ function storageKey(cfg: WrWindowStorageConfig): string {
   const prefix = cfg.prefix ? `${cfg.prefix}:` : '';
   return `wr:window:${prefix}${cfg.key}`;
 }
-
-let uid = 0;
 
 /**
  * Owns the open `<wr-window>` stack, hands out z-indexes, cascades the
@@ -121,7 +120,7 @@ export class WrWindowManager {
       hasBackdrop: false,
     });
 
-    const id = config.id ?? `wr-window-${++uid}`;
+    const id = config.id ?? randomId('wr-window');
     const ref = new WrWindowRef<C, R>(id, overlayRef);
     ref.taskbarVisible = config.taskbar !== false;
 
