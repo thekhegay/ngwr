@@ -28,6 +28,12 @@
   --wr-transition-base: var(--wr-duration-base) var(--wr-ease-linear);
   --wr-transition-long: var(--wr-duration-slow) var(--wr-ease-out);
 
+  // Shared open-animation timing for every overlay panel
+  // (dropdown / context-menu / popover / popconfirm / tooltip). Components
+  // reference these so global timing tweaks land everywhere in one place.
+  --wr-overlay-duration: var(--wr-duration-base);
+  --wr-overlay-ease: var(--wr-ease-out);
+
   // Typography
   //
   // The library only declares system-font fallback chains. Apps that ship
@@ -73,4 +79,19 @@
   --wr-tracking-wide: 0.025em;
   --wr-tracking-wider: 0.05em;
   --wr-tracking-widest: 0.1em;
+}
+
+// Shared open animation for overlay panels. Every overlay component
+// references this keyframe + the `--wr-overlay-*` tokens above so the
+// open feel is consistent across dropdown / context-menu / popover /
+// popconfirm / tooltip.
+@keyframes wr-overlay-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

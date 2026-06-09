@@ -28,6 +28,9 @@
   @include theme.smooth-br(var(--wr-dropdown-radius));
   box-shadow: var(--wr-dropdown-shadow);
   font-family: var(--wr-font-family-base);
+  // Match popover / popconfirm / context-menu open feel.
+  animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+  transform-origin: top left;
 }
 
 .wr-dropdown-overlay {

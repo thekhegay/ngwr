@@ -14,17 +14,19 @@
   // pane is in the DOM (next frame) so the transition runs from the
   // default state below into the visible state, and again from visible
   // back to default on close — the directive holds the overlay alive
-  // for the transition duration before disposing.
+  // for the transition duration before disposing. Timing mirrors the
+  // shared `wr-overlay-in` keyframe used by popover / popconfirm so the
+  // open feel is consistent across all overlay families.
   opacity: 0;
-  transform: scale(0.9) translateY(-4px);
+  transform: scale(0.96);
   transform-origin: top left;
   transition:
-    opacity 0.18s var(--wr-ease-out, ease-out),
-    transform 0.22s var(--wr-ease-spring, ease-out);
+    opacity var(--wr-overlay-duration) var(--wr-overlay-ease),
+    transform var(--wr-overlay-duration) var(--wr-overlay-ease);
 
   &--open {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1);
   }
 
   @media (prefers-reduced-motion: reduce) {

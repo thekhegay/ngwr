@@ -13,18 +13,8 @@
       0 2px 4px rgba(0, 0, 0, 0.06);
     font-family: var(--wr-font-family-base);
     color: var(--wr-color-dark);
-    animation: wr-popover-fade 0.12s ease-out;
-  }
-}
-
-@keyframes wr-popover-fade {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+    animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+    transform-origin: top left;
   }
 }
 
@@ -50,7 +40,8 @@
   font-size: 0.75rem;
   line-height: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  animation: wr-tooltip-fade 0.1s ease-out;
+  animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+  transform-origin: top left;
 
   // Arrow ─────────────────────────────────────────────
   &::after {
@@ -87,16 +78,6 @@
   margin-top: -3px;
 }
 
-@keyframes wr-tooltip-fade {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .wr-tooltip {
