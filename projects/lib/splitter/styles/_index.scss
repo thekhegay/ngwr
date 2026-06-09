@@ -60,6 +60,7 @@
     border: 1px solid var(--wr-color-light);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     display: inline-block;
+    flex: 0 0 auto;
   }
 
   &--horizontal &__handle {

@@ -4,6 +4,13 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  // Make sure the toolbar always claims the full available row, both when
+  // its parent is a block and when it's a flex row item (doc snippets,
+  // grid cells). Without this the host shrinks to its content width and
+  // the start/center/end zones collapse against each other.
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
   min-height: 3rem;
   padding: 0.5rem 0.875rem;
   background: var(--wr-color-white);
