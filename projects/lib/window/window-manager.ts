@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
@@ -21,6 +22,9 @@ import {
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
+
+const MODAL_BACKDROP_CLASS = 'wr-window-backdrop';
+const MODAL_PANEL_CLASS = 'wr-window-overlay--modal';
 
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
 import type { WrWindowConfig, WrWindowStorageConfig } from './types';
@@ -62,6 +66,7 @@ export class WrWindowManager {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly storage = inject(WrStorage);
+  private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly baseZ = 1000;
@@ -103,12 +108,16 @@ export class WrWindowManager {
   ): WrWindowRef<C, R> {
     // Each window gets its own CDK overlay pane positioned `static` —
     // <wr-window> itself uses `position: fixed`, so the pane is only a
-    // mount point. Disable scroll-block / backdrop here; modal mode
-    // attaches its own backdrop in a later phase.
+    // mount point. Modal mode adds a backdrop and traps focus.
+    const isModal = config.modal === true;
+    const panelClasses: string[] = ['wr-window-overlay'];
+    if (isModal) panelClasses.push(MODAL_PANEL_CLASS);
+
     const overlayRef: OverlayRef = this.overlay.create({
       positionStrategy: this.overlay.position().global(),
-      panelClass: 'wr-window-overlay',
-      hasBackdrop: false,
+      panelClass: panelClasses,
+      hasBackdrop: isModal,
+      backdropClass: MODAL_BACKDROP_CLASS,
     });
 
     const id = config.id ?? `wr-window-${++uid}`;
@@ -138,6 +147,31 @@ export class WrWindowManager {
     container.ref = ref as WrWindowRef<C, unknown>;
     container.componentType = component;
     container.childInjector = childInjector;
+
+    if (this.isBrowser) {
+      const host = overlayRef.overlayElement;
+      host.setAttribute('role', 'dialog');
+      if (isModal) host.setAttribute('aria-modal', 'true');
+
+      if (isModal) {
+        const trap = this.focusTrapFactory.create(host);
+        void trap.focusInitialElementWhenReady();
+        // Tear the trap down when the overlay disposes.
+        overlayRef.detachments().subscribe(() => trap.destroy());
+      }
+    }
+
+    if (config.modal && config.closeOnBackdrop !== false) {
+      overlayRef.backdropClick().subscribe(() => void ref.close());
+    }
+    if (config.closeOnEscape !== false) {
+      overlayRef.keydownEvents().subscribe(event => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          void ref.close();
+        }
+      });
+    }
 
     // Wire close → disposal + completion of the result subject. The
     // ref's `close()` already runs the beforeClose hook before reaching

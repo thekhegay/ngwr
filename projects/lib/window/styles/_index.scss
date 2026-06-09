@@ -1,5 +1,11 @@
 @use '../../theme/styles' as theme;
 
+// Modal backdrop — wraps the overlay pane for `manager.open(_, { modal: true })`.
+.wr-window-backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+}
+
 .wr-window {
   --wr-window-bg: var(--wr-color-white);
   --wr-window-border: var(--wr-color-light);
