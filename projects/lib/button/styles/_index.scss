@@ -108,6 +108,14 @@
     corner-shape: round;
   }
 
+  // Squircle — bumps the base radius so the iOS-style smooth corners
+  // read more clearly. `smooth-br` from the host already opts into
+  // `corner-shape: squircle` where supported; the modifier just picks a
+  // larger anchor radius.
+  &--squircle {
+    --wr-btn-radius: var(--wr-border-radius-base);
+  }
+
   // Layout
   &--block {
     display: flex;

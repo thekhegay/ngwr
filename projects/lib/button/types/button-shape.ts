@@ -10,8 +10,10 @@
  *
  * - `rounded` (default) — small radius, matches the rest of the form vocabulary.
  * - `pill` — fully rounded ends; ideal for solitary CTAs.
- *
- * Need Figma-style smooth corners? Wrap the button in `[wrSquircle]` —
- * the directive is the only way ngwr ships squircle clip-paths.
+ * - `squircle` — iOS-style continuous-curvature corners via the
+ *   `corner-shape: squircle` CSS spec (Chrome 145+, falls back to a
+ *   plain rounded corner elsewhere). For a deterministic
+ *   clip-path-based squircle that works across browsers, wrap the
+ *   button in `[wrSquircle]` instead.
  */
-export type WrButtonShape = 'rounded' | 'pill';
+export type WrButtonShape = 'rounded' | 'pill' | 'squircle';
