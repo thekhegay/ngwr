@@ -35,6 +35,7 @@ export default class ListPage {
   protected readonly dividers = signal(true);
   protected readonly dense = signal(false);
   protected readonly interactive = signal(true);
+  protected readonly lastPick = signal<string | null>(null);
 
   protected readonly rows: readonly Row[] = [
     { label: 'Reports', meta: '12' },
@@ -42,6 +43,11 @@ export default class ListPage {
     { label: 'Customers', meta: '128' },
     { label: 'Settings', meta: '—' },
   ];
+
+  protected pick(label: string): void {
+    if (!this.interactive()) return;
+    this.lastPick.set(label);
+  }
 
   protected readonly snippet = computed(
     () =>

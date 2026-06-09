@@ -12,7 +12,7 @@
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
       <wr-list [bordered]="bordered()" [dividers]="dividers()" [dense]="dense()" style="width: 100%; max-width: 26rem">
         @for (row of rows; track row.label) {
-          <wr-list-item [interactive]="interactive()">
+          <wr-list-item [interactive]="interactive()" (click)="pick(row.label)">
             <span ngProjectAs="[wrListItemLeading]" style="font-size: 1.125rem">📁</span>
             {{ row.label }}
             <span ngProjectAs="[wrListItemTrailing]" style="font-variant-numeric: tabular-nums">{{ row.meta }}</span>
@@ -24,6 +24,11 @@
           <span ngProjectAs="[wrListItemTrailing]">—</span>
         </wr-list-item>
       </wr-list>
+      @if (lastPick()) {
+        <small style="display: block; margin-top: 0.75rem; color: var(--wr-color-medium)"
+          >Picked: {{ lastPick() }}</small
+        >
+      }
     </ngwr-doc-playground>
   </ngwr-doc-section>
 
