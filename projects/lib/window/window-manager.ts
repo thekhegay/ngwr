@@ -204,4 +204,75 @@ export class WrWindowManager {
   clearPersistedPosition(cfg: WrWindowStorageConfig): void {
     this.storage.remove(storageKey(cfg));
   }
+
+  // ── Workspace save/restore ─────────────────────────────────────────
+  //
+  // A workspace is a snapshot of every open window's id + state +
+  // geometry. Reopening is the consumer's job (component identities
+  // aren't serialisable), so `restoreLayout` returns the captured
+  // snapshots and a helper that re-applies geometry once the windows
+  // have been opened again.
+
+  /** Snapshot of one window — what `saveLayout` writes / `restoreLayout` returns. */
+  private layoutKey(name: string): string {
+    return `wr:window-layout:${name}`;
+  }
+
+  /**
+   * Persist the geometry + state of every open programmatic window
+   * under `name`. Pair with `restoreLayout(name)` after re-opening the
+   * matching components.
+   */
+  saveLayout(name: string): void {
+    const snapshot = this._windows().map(ref => ({
+      id: ref.id,
+      state: ref.state(),
+      x: ref.x(),
+      y: ref.y(),
+      width: ref.width(),
+      height: ref.height(),
+      title: ref.title(),
+    }));
+    this.storage.set(this.layoutKey(name), snapshot);
+  }
+
+  /** Read a saved workspace. Returns `null` when no snapshot is found. */
+  readLayout(name: string): ReadonlyArray<{
+    readonly id: string;
+    readonly state: import('./types').WrWindowState;
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+    readonly title: string;
+  }> | null {
+    return this.storage.get(this.layoutKey(name));
+  }
+
+  /**
+   * Apply a saved workspace to the currently-open windows — windows
+   * whose `id` matches a snapshot get their geometry + state restored.
+   * Open the windows yourself first (the manager can't reconstruct the
+   * component type from disk).
+   */
+  restoreLayout(name: string): void {
+    const snapshot = this.readLayout(name);
+    if (!snapshot) return;
+    const byId = new Map(snapshot.map(s => [s.id, s]));
+    for (const ref of this._windows()) {
+      const snap = byId.get(ref.id);
+      if (!snap) continue;
+      ref.moveTo(snap.x, snap.y);
+      ref.resizeTo(snap.width, snap.height);
+      if (snap.title) ref.setTitle(snap.title);
+      if (snap.state === 'minimized') ref.minimize();
+      else if (snap.state === 'maximized') ref.maximize();
+      else ref.restore();
+    }
+  }
+
+  /** Drop a saved workspace. */
+  clearLayout(name: string): void {
+    this.storage.remove(this.layoutKey(name));
+  }
 }
