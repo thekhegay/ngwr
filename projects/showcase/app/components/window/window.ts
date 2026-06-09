@@ -123,6 +123,7 @@ export class AppRoot {
     basic: `const ref = manager.open(EditorComponent, {
   title: 'Untitled.md',
   size: 'md',
+  id: 'editor',                       // singleton: same id → same window
 });
 
 const result = await ref.afterClosed();`,
@@ -311,6 +312,13 @@ ref.close(savedDocId);`,
       sub: true,
       description: 'Close every currently-open window.',
       type: '() => void',
+      default: '—',
+    },
+    {
+      name: 'findById(id)',
+      sub: true,
+      description: 'Look up an open window by its `config.id` — `null` when no match.',
+      type: '(id: string) => WrWindowRef | null',
       default: '—',
     },
     {

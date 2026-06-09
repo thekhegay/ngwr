@@ -94,8 +94,23 @@ export class WrWindowManager {
    * Open a window with `component` rendered as its body. Returns a ref
    * the caller can use to drive the window programmatically and await
    * its result.
+   *
+   * **Singleton by id** — if `config.id` is set and a window with that
+   * id is already open, the existing ref is restored (if minimized),
+   * brought to the front, and returned. No duplicate window is
+   * created. Use this to coalesce repeated open() calls (e.g. a
+   * "Settings" menu item that should always re-focus the same window).
    */
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, config: WrWindowConfig<D> = {}): WrWindowRef<C, R> {
+    if (config.id) {
+      const existing = this.findById(config.id);
+      if (existing) {
+        existing.restore();
+        existing.focus();
+        return existing as WrWindowRef<C, R>;
+      }
+    }
+
     // Each window gets its own CDK overlay pane positioned `static` —
     // <wr-window> itself uses `position: fixed`, so the pane is only a
     // mount point. Windows are never modal — reach for `WrDialog` when
@@ -160,6 +175,11 @@ export class WrWindowManager {
     for (const ref of [...this._windows()]) {
       void ref.close();
     }
+  }
+
+  /** Look up an open window by its `config.id`. Returns `null` when no match. */
+  findById(id: string): WrWindowRef<unknown, unknown> | null {
+    return this._windows().find(r => r.id === id) ?? null;
   }
 
   /**
