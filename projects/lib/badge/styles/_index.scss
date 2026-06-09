@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--wr-badge-padding-y) var(--wr-badge-padding-x);
-  border-radius: var(--wr-badge-border-radius);
+  border-radius: var(--wr-badge-radius);
   font-size: var(--wr-badge-font-size);
   font-weight: var(--wr-badge-font-weight);
   line-height: var(--wr-badge-line-height);
@@ -18,7 +18,7 @@
   // Defaults — sized modifiers override these
   --wr-badge-padding-y: 0.25rem;
   --wr-badge-padding-x: 0.5rem;
-  --wr-badge-border-radius: var(--wr-border-radius-sm);
+  --wr-badge-radius: var(--wr-border-radius-sm);
   --wr-badge-font-size: 0.75rem;
   --wr-badge-line-height: 1rem;
   --wr-badge-font-weight: 600;
@@ -44,7 +44,7 @@
   // room so counts/labels don't kiss the edges.
 
   &--pill {
-    --wr-badge-border-radius: var(--wr-border-radius-pill);
+    --wr-badge-radius: var(--wr-border-radius-pill);
     --wr-badge-padding-x: 0.75rem;
   }
 
@@ -52,7 +52,7 @@
   // `corner-shape: squircle` mixin so supporting browsers (Chrome 145+)
   // render iOS-style continuous-curvature corners.
   &--squircle {
-    @include theme.smooth-br(var(--wr-badge-border-radius));
+    @include theme.smooth-br(var(--wr-badge-radius));
   }
 
   // Colors
