@@ -99,6 +99,19 @@
     text-overflow: ellipsis;
   }
 
+  &__title-extra {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding-right: 0.375rem;
+    font-size: 0.75rem;
+
+    &:empty {
+      display: none;
+    }
+  }
+
   &__chrome-actions {
     flex: 0 0 auto;
     display: inline-flex;
@@ -211,6 +224,26 @@
   }
 
   &--minimized &__body {
+    display: none;
+  }
+
+  &__status-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-top: 1px solid var(--wr-window-border);
+    background: rgba(var(--wr-color-light-rgb), 0.25);
+    font-size: 0.75rem;
+    color: var(--wr-color-medium);
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &--minimized &__status-bar {
     display: none;
   }
 

@@ -159,6 +159,15 @@ export class WrWindow {
   /** Drag-to-edge snap behaviour. @default 'none' */
   readonly snap = input<WrWindowSnap>('none');
 
+  /**
+   * CSS selector inside the projected body that restricts the move
+   * grab — pointer-downs outside this selector won't start a drag.
+   * Use to keep interactive body content (sliders, inputs) from
+   * hijacking the title-bar drag. `null` (default) means the whole
+   * title bar is grabbable.
+   */
+  readonly dragHandle = input<string | null>(null);
+
   readonly showMinimize = input(true, { transform: coerceBooleanProperty });
   readonly showMaximize = input(true, { transform: coerceBooleanProperty });
   readonly showClose = input(true, { transform: coerceBooleanProperty });
@@ -292,7 +301,10 @@ export class WrWindow {
 
   protected startMove(event: PointerEvent): void {
     if (!this.movable() || this.state() !== 'normal') return;
-    if ((event.target as HTMLElement).closest('.wr-window__chrome-action')) return;
+    const targetEl = event.target as HTMLElement;
+    if (targetEl.closest('.wr-window__chrome-action')) return;
+    const handle = this.dragHandle();
+    if (handle && !targetEl.closest(handle)) return;
     event.preventDefault();
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);

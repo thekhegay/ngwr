@@ -1,5 +1,8 @@
 <div class="wr-window__chrome" (pointerdown)="startMove($event)" (dblclick)="showMaximize() && maximize()">
   <div class="wr-window__title" [attr.id]="titleId">{{ title() }}</div>
+  <div class="wr-window__title-extra">
+    <ng-content select="[wrWindowTitleExtra]" />
+  </div>
 
   <div class="wr-window__chrome-actions">
     @if (os() === 'macos') {
@@ -81,6 +84,10 @@
 
 <div class="wr-window__body">
   <ng-content />
+</div>
+
+<div class="wr-window__status-bar">
+  <ng-content select="[wrWindowStatusBar]" />
 </div>
 
 @if (snapTarget(); as target) {
