@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrWindow, WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
+import { WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
 
 import WindowDemoBodyComponent from './window-demo-body';
 
@@ -19,7 +19,6 @@ import {
   templateUrl: './window.html',
   imports: [
     WrButton,
-    WrWindow,
     WrWindowTaskbar,
     DocPageComponent,
     DocSectionComponent,
@@ -29,40 +28,72 @@ import {
   ],
 })
 export default class WindowPageComponent {
-  protected readonly basicOpen = signal(false);
-  protected readonly fixedOpen = signal(false);
-  protected readonly osMacOpen = signal(false);
-  protected readonly osLinuxOpen = signal(false);
-  protected readonly sizeSmOpen = signal(false);
-  protected readonly sizeLgOpen = signal(false);
-  protected readonly compactOpen = signal(false);
-  protected readonly persistedOpen = signal(false);
-  protected readonly stackedOpen = signal<readonly boolean[]>([false, false, false]);
   protected readonly lastProgrammaticResult = signal<string | null>(null);
 
   private readonly manager = inject(WrWindowManager);
 
-  protected async openProgrammatic(opts?: { modal?: boolean; snap?: 'edges' | 'all' }): Promise<void> {
+  protected async openBasic(): Promise<void> {
     const ref = this.manager.open<WindowDemoBodyComponent, string, { message: string }>(WindowDemoBodyComponent, {
-      title: opts?.modal ? 'Confirm action' : 'Programmatic window',
+      title: 'Programmatic window',
       size: 'md',
-      modal: opts?.modal,
-      snap: opts?.snap,
-      data: {
-        message: opts?.modal
-          ? 'Press ESC, click the backdrop, or use the button below.'
-          : 'I was opened via WrWindowManager.open().',
-      },
+      data: { message: 'I was opened via WrWindowManager.open().' },
     });
     const result = await ref.afterClosed();
     this.lastProgrammaticResult.set(result ?? 'closed');
   }
 
+  protected openModal(): void {
+    this.manager.open(WindowDemoBodyComponent, {
+      title: 'Confirm action',
+      size: 'md',
+      modal: true,
+      data: { message: 'Press ESC, click the backdrop, or use the button below.' },
+    });
+  }
+
+  protected openSnap(): void {
+    this.manager.open(WindowDemoBodyComponent, {
+      title: 'Snappy',
+      size: 'md',
+      snap: 'all',
+      data: { message: 'Drag me to any viewport edge or corner to snap.' },
+    });
+  }
+
+  protected openCompact(): void {
+    this.manager.open(WindowDemoBodyComponent, {
+      title: 'Compact',
+      size: 'sm',
+      chromeSize: 'compact',
+      data: { message: 'Tight title bar — good for utility panels.' },
+    });
+  }
+
+  protected openOs(os: 'macos' | 'windows' | 'linux'): void {
+    this.manager.open(WindowDemoBodyComponent, {
+      title: `${os}-style chrome`,
+      size: 'md',
+      os,
+      data: { message: `Rendered with the ${os} chrome preset.` },
+    });
+  }
+
+  protected openPersisted(): void {
+    this.manager.open(WindowDemoBodyComponent, {
+      title: 'Sticky position',
+      id: 'docs.persisted',
+      size: 'md',
+      storage: { key: 'docs.persisted', prefix: 'ngwr-showcase', persist: 'all' },
+      data: { message: 'Move/resize me, close, open again — same geometry.' },
+    });
+  }
+
   protected openTaskbarDemo(title: string): void {
     this.manager.open(WindowDemoBodyComponent, {
       title,
+      id: `docs.taskbar.${title}`,
       size: 'sm',
-      data: { message: 'Minimize me and I will land in the taskbar below.' },
+      data: { message: 'Minimize me and I will land in the taskbar at the bottom of the page.' },
     });
   }
 
@@ -74,181 +105,211 @@ export default class WindowPageComponent {
     this.manager.restoreLayout('demo');
   }
 
-  protected readonly snippets = {
-    install: `import { WrWindow } from 'ngwr/window';
+  protected closeAll(): void {
+    this.manager.closeAll();
+  }
 
-@Component({ imports: [WrWindow] })
-export class MyComponent {
-  protected open = signal(false);
+  protected readonly snippets = {
+    install: `import { WrWindowManager, WrWindowTaskbar } from 'ngwr/window';
+
+@Component({
+  imports: [WrWindowTaskbar],
+  template: '<wr-window-taskbar />',
+})
+export class AppRoot {
+  private readonly windows = inject(WrWindowManager);
+
+  open(): void {
+    this.windows.open(EditorComponent, { title: 'Editor' });
+  }
 }`,
 
-    basic: `<wr-window [(open)]="open" title="Settings">
-  <p>Anything you want inside…</p>
-</wr-window>`,
-
-    fixed: `<wr-window
-  [(open)]="open"
-  title="Help"
-  [initialX]="100"
-  [initialY]="100"
-  [initialWidth]="320"
-  [initialHeight]="220"
-  [resizable]="false"
-  [showMaximize]="false"
-/>`,
-
-    os: `<wr-window [(open)]="open" os="macos" title="Settings" />
-<wr-window [(open)]="open" os="windows" title="Settings" />
-<wr-window [(open)]="open" os="linux" title="Settings" />`,
-
-    sizes: `<wr-window [(open)]="open" size="sm" title="Compact" />
-<wr-window [(open)]="open" size="md" title="Default" />
-<wr-window [(open)]="open" size="lg" title="Spacious" />`,
-
-    manager: `import { inject } from '@angular/core';
-import { WrWindowManager } from 'ngwr/window';
-
-const manager = inject(WrWindowManager);
-
-// Open a window with any component as its body.
-const ref = manager.open(EditorComponent, {
+    basic: `const ref = manager.open(EditorComponent, {
   title: 'Untitled.md',
-  size: 'lg',
-  storage: { key: 'editor', prefix: 'my-app' },
+  size: 'md',
 });
 
-const saved = await ref.afterClosed(); // resolves with whatever close(value) passed`,
+const result = await ref.afterClosed();`,
 
-    programmatic: `manager.open(EditorComponent, {
-  title: 'Editor',
-  size: 'md',
+    modal: `manager.open(ConfirmComponent, {
+  title: 'Confirm delete',
   modal: true,             // backdrop + focus trap + ESC close
-  data: { docId: 42 },     // available via inject(WR_WINDOW_DATA)
+  data: { count: selectedIds.length },
 });`,
+
+    os: `manager.open(EditorComponent, { os: 'macos',   title: 'macOS-style' });
+manager.open(EditorComponent, { os: 'windows', title: 'Windows-style' });
+manager.open(EditorComponent, { os: 'linux',   title: 'Linux-style' });`,
 
     persist: `manager.open(EditorComponent, {
-  title: 'Sticky position',
+  id: 'editor',                              // stable id used by workspace save
   storage: {
-    key: 'editor',          // wr:window:my-app:editor
+    key: 'editor',                           // wr:window:my-app:editor
     prefix: 'my-app',
-    persist: 'all',         // 'position' | 'size' | 'all'
+    persist: 'all',                          // 'position' | 'size' | 'all'
   },
-});`,
+});
 
-    taskbar: `<wr-window-taskbar />          <!-- bottom -->
-<wr-window-taskbar position="top" />`,
+// Drop the persisted state when you need a fresh open:
+manager.clearPersistedPosition({ key: 'editor', prefix: 'my-app' });`,
 
     snap: `manager.open(EditorComponent, {
-  title: 'Snappy',
-  snap: 'all',  // drag to an edge to snap halves, corners for quarters
+  snap: 'all',  // drag to any edge to snap halves; corners give quarters
 });`,
+
+    taskbar: `<wr-window-taskbar />          <!-- bottom (default) -->
+<wr-window-taskbar position="top" />`,
 
     workspace: `// snapshot every open window's geometry + state
 manager.saveLayout('default');
 
-// later — open the same set of windows yourself, then:
-manager.restoreLayout('default');`,
+// later — re-open the same set of components, then:
+manager.restoreLayout('default');
+
+// drop a snapshot
+manager.clearLayout('default');`,
+
+    refInside: `// Inside the projected component
+const ref = inject<WrWindowRef<MyComponent, MyResult>>(WR_WINDOW_REF);
+const data = inject<MyData>(WR_WINDOW_DATA);
+
+ref.beforeClose(async () => {
+  if (!isDirty) return true;
+  return await confirmDiscard();
+});
+
+ref.setTitle(\`\${docName} — \${isDirty ? 'unsaved' : 'saved'}\`);
+
+await save();
+ref.close(savedDocId);`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'open', description: 'Two-way bindable visibility.', type: 'boolean', default: 'true' },
+  protected readonly configApi: readonly DocApiRow[] = [
     {
-      name: 'state',
-      description: 'Two-way bindable visual state.',
-      type: "'normal' | 'minimized' | 'maximized'",
-      default: "'normal'",
-    },
-    { name: 'title', description: 'Header title text.', type: 'string', default: "''" },
-    {
-      name: 'initialX',
-      description: 'Initial X in px. `null` cascades from the window manager.',
-      type: 'number | null',
-      default: 'null',
+      name: 'WrWindowConfig',
+      description: 'Options for `WrWindowManager.open(component, config)`.',
+      type: 'interface',
+      default: '—',
     },
     {
-      name: 'initialY',
-      description: 'Initial Y in px. `null` cascades from the window manager.',
-      type: 'number | null',
-      default: 'null',
+      name: 'id',
+      sub: true,
+      description: 'Stable identifier — used by the taskbar and workspace save. Auto-generated when omitted.',
+      type: 'string',
+      default: 'auto',
     },
-    {
-      name: 'size',
-      description: 'Size preset — seeds initial width / height when no explicit px values are passed.',
-      type: "'sm' | 'md' | 'lg' | null",
-      default: "'md'",
-    },
-    {
-      name: 'initialWidth',
-      description: 'Initial width in px. Wins over the `size` preset.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'initialHeight',
-      description: 'Initial height in px. Wins over the `size` preset.',
-      type: 'number | null',
-      default: 'null',
-    },
+    { name: 'title', sub: true, description: 'Chrome title text.', type: 'string', default: "''" },
     {
       name: 'os',
-      description: 'Chrome style — picks the side, glyphs, and button look of the action cluster.',
+      sub: true,
+      description: 'OS chrome preset — side, glyphs, button look of the action cluster.',
       type: "'macos' | 'windows' | 'linux'",
       default: "'windows'",
     },
     {
+      name: 'size',
+      sub: true,
+      description: 'Initial size preset. Overridden by `width` / `height` when provided.',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+    },
+    {
       name: 'chromeSize',
-      description: 'Title bar density. `compact` shrinks the bar + action dots for utility / docked panels.',
+      sub: true,
+      description: 'Title-bar density. `compact` shrinks the bar + action dots for utility panels.',
       type: "'normal' | 'compact'",
       default: "'normal'",
     },
     {
+      name: 'x / y / width / height',
+      sub: true,
+      description: 'Explicit initial geometry in px.',
+      type: 'number',
+      default: 'cascade',
+    },
+    {
+      name: 'minWidth / minHeight / maxWidth / maxHeight',
+      sub: true,
+      description: 'Resize bounds.',
+      type: 'number',
+      default: '220 / 140 / ∞ / ∞',
+    },
+    {
+      name: 'movable / resizable / keepInViewport',
+      sub: true,
+      description: 'Drag, resize, viewport-clamp toggles.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
       name: 'snap',
-      description: 'Drag-to-edge snap regions — `edges` (halves + maximise) or `all` (also corners).',
+      sub: true,
+      description: 'Drag-to-edge snap — `edges` (halves + maximise) or `all` (also corners).',
       type: "'none' | 'edges' | 'all'",
       default: "'none'",
     },
     {
+      name: 'showMinimize / showMaximize / showClose',
+      sub: true,
+      description: 'Render the corresponding chrome action.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'modal',
+      sub: true,
+      description: 'Render with a backdrop + focus trap + ESC close. Restores prior focus on close.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'closeOnBackdrop',
+      sub: true,
+      description: 'Close when the backdrop is clicked (modal mode only).',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'closeOnEscape',
+      sub: true,
+      description: 'Close when the ESC key is pressed.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'taskbar',
+      sub: true,
+      description: 'Show in `<wr-window-taskbar>` when minimized.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
       name: 'animations',
-      description: 'Open-fade + minimize/maximize transitions. Auto-disabled by `prefers-reduced-motion`.',
+      sub: true,
+      description: 'Open-fade + state transitions. Auto-disabled by `prefers-reduced-motion`.',
       type: 'boolean',
       default: 'true',
     },
     {
       name: 'dragHandle',
-      description: 'CSS selector restricting the move-grab area inside the title bar.',
+      sub: true,
+      description: 'CSS selector inside the projected content that restricts the move-grab area.',
       type: 'string | null',
       default: 'null',
     },
-    { name: 'minWidth', description: 'Minimum width when resizing.', type: 'number', default: '220' },
-    { name: 'minHeight', description: 'Minimum height when resizing.', type: 'number', default: '140' },
-    { name: 'maxWidth', description: 'Maximum width when resizing.', type: 'number', default: 'Infinity' },
-    { name: 'maxHeight', description: 'Maximum height when resizing.', type: 'number', default: 'Infinity' },
-    { name: 'movable', description: 'Allow dragging the header.', type: 'boolean', default: 'true' },
-    { name: 'resizable', description: 'Render 8 resize handles.', type: 'boolean', default: 'true' },
     {
-      name: 'keepInViewport',
-      description: 'Clamp position so the window can’t be dragged fully off-screen.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'showMinimize', description: 'Render the minimize chrome button.', type: 'boolean', default: 'true' },
-    { name: 'showMaximize', description: 'Render the maximize chrome button.', type: 'boolean', default: 'true' },
-    { name: 'showClose', description: 'Render the close chrome button.', type: 'boolean', default: 'true' },
-  ];
-
-  protected readonly events: readonly DocApiRow[] = [
-    { name: 'closed', description: 'Fires when the user clicks the close button.', type: '() => void', default: '—' },
-    {
-      name: 'moved',
-      description: 'Fires after a drag, with the new position.',
-      type: '({ x, y }) => void',
+      name: 'storage',
+      sub: true,
+      description: '`{ key, prefix?, persist? }` — auto-save geometry to `WrStorage`, hydrate on next open.',
+      type: 'WrWindowStorageConfig',
       default: '—',
     },
     {
-      name: 'resized',
-      description: 'Fires after a resize, with the new size.',
-      type: '({ width, height }) => void',
-      default: '—',
+      name: 'data',
+      sub: true,
+      description: 'Arbitrary payload — read it inside the projected component via `inject(WR_WINDOW_DATA)`.',
+      type: 'D',
+      default: 'null',
     },
   ];
 
@@ -256,7 +317,7 @@ manager.restoreLayout('default');`,
     {
       name: 'WrWindowManager',
       description:
-        'Singleton service — opens windows, owns the z-index stack, tracks minimized windows, saves layouts.',
+        'Singleton service — the only entry point for `<wr-window>`. Owns the stack, taskbar list, and workspace save.',
       type: 'service',
       default: '—',
     },
@@ -270,14 +331,14 @@ manager.restoreLayout('default');`,
     {
       name: 'closeAll()',
       sub: true,
-      description: 'Close every programmatically-opened window.',
+      description: 'Close every currently-open window.',
       type: '() => void',
       default: '—',
     },
     {
       name: 'windows',
       sub: true,
-      description: 'Signal of every currently-open programmatic window.',
+      description: 'Signal of every currently-open window.',
       type: 'Signal<readonly WrWindowRef[]>',
       default: '—',
     },
@@ -286,20 +347,6 @@ manager.restoreLayout('default');`,
       sub: true,
       description: 'Signal of minimized windows opted into the taskbar — drives `<wr-window-taskbar>`.',
       type: 'Signal<readonly WrWindowRef[]>',
-      default: '—',
-    },
-    {
-      name: 'bringToFront()',
-      sub: true,
-      description: 'Reserve the next strictly-increasing z-index. Windows call this on focus.',
-      type: '() => number',
-      default: '—',
-    },
-    {
-      name: 'nextStartOffset()',
-      sub: true,
-      description: 'Cascade `{x, y}` for the next window so consecutive opens at the default position do not overlap.',
-      type: '() => { x: number; y: number }',
       default: '—',
     },
     {
@@ -397,10 +444,4 @@ manager.restoreLayout('default');`,
       default: '—',
     },
   ];
-
-  protected toggleStacked(i: number): void {
-    const next = [...this.stackedOpen()];
-    next[i] = !next[i];
-    this.stackedOpen.set(next);
-  }
 }

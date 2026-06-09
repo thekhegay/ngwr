@@ -58,28 +58,14 @@ function viewportHeight(): number {
 }
 
 /**
- * Free-floating OS-style window. Drag the header to move, drag any edge or
- * corner to resize, click the chrome buttons to minimize / maximize / close.
- * Multiple windows stack via {@link WrWindowManager}; clicking a background
- * one brings it to the front.
+ * Internal rendering primitive for a single floating window.
  *
- * Two-way binds `open` and `state`. Body content goes through `<ng-content>`.
+ * Not part of the public API — windows are opened through
+ * `WrWindowManager.open(Component, config)`, which portals this
+ * component for each call. Inputs map 1:1 to `WrWindowConfig`
+ * fields so the container can wire them up declaratively.
  *
- * @example
- * ```html
- * <wr-window
- *   [(open)]="settingsOpen"
- *   title="Settings"
- *   [x]="80"
- *   [y]="80"
- *   width="28rem"
- *   height="20rem"
- * >
- *   <p>Anything you want inside…</p>
- * </wr-window>
- * ```
- *
- * @see https://ngwr.dev/docs/components/window
+ * @internal
  */
 @Component({
   selector: 'wr-window',

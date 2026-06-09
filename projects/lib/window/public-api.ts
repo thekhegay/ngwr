@@ -1,5 +1,7 @@
+// `WrWindow` itself is NOT exported. Windows are opened through
+// `WrWindowManager.open(Component, config)` — one canonical path keeps
+// the API surface small and predictable.
 export { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
-export { WrWindow } from './window';
 export { WrWindowManager } from './window-manager';
 export { type WrWindowBeforeCloseHook, WrWindowRef } from './window-ref';
 export { WrWindowTaskbar } from './window-taskbar';
