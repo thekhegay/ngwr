@@ -202,14 +202,12 @@ export class WrWindowManager {
 
     this._windows.update(list => [...list, ref as unknown as WrWindowRef<unknown, unknown>]);
 
-    // If the pending restore had a non-`normal` state, apply it once
-    // the container's bridges are wired (afterNextRender runs on the
-    // next tick).
+    // If the pending restore had a non-`normal` state, hand it to the
+    // container so it can apply it right after wiring the bridges.
+    // queueMicrotask would fire before afterNextRender — the bridges
+    // wouldn't be set yet and ref.minimize() / maximize() would no-op.
     if (pending && pending.state !== 'normal') {
-      queueMicrotask(() => {
-        if (pending.state === 'minimized') ref.minimize();
-        else if (pending.state === 'maximized') ref.maximize();
-      });
+      ref.pendingStateOnMount = pending.state;
     }
 
     return ref;

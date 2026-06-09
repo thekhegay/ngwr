@@ -54,6 +54,13 @@ export class WrWindowRef<C, R = unknown> {
   /** @internal — whether this window opts into the taskbar list. */
   taskbarVisible = true;
 
+  /**
+   * @internal — non-`normal` state to apply right after the container
+   * wires its bridges (so `restoreLayout` can land a window straight
+   * into `minimized` / `maximized` even though it just opened).
+   */
+  pendingStateOnMount: WrWindowState | null = null;
+
   // ── Live geometry signals (writable internally, exposed read-only) ──
   /** @internal */ readonly _state: WritableSignal<WrWindowState> = signal('normal');
   /** @internal */ readonly _x = signal(0);

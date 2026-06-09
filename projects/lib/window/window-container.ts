@@ -123,6 +123,15 @@ export class WrWindowContainer<C> {
       this.hydrateFromStorage(w);
       this.installAutosave(w);
     }
+
+    // 6. Apply any state the manager pinned for restore — bridges are
+    //    now wired so `ref.minimize()` / `maximize()` actually fire.
+    const pending = this.ref.pendingStateOnMount;
+    if (pending) {
+      this.ref.pendingStateOnMount = null;
+      if (pending === 'minimized') this.ref.minimize();
+      else if (pending === 'maximized') this.ref.maximize();
+    }
   }
 
   /** Apply persisted geometry on top of config defaults, before the user sees the window. */
