@@ -20,11 +20,17 @@ import {
 } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
+import { WrStorage } from 'ngwr/storage';
 
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
-import type { WrWindowConfig } from './types';
+import type { WrWindowConfig, WrWindowStorageConfig } from './types';
 import { WrWindowContainer } from './window-container';
 import { WrWindowRef } from './window-ref';
+
+function storageKey(cfg: WrWindowStorageConfig): string {
+  const prefix = cfg.prefix ? `${cfg.prefix}:` : '';
+  return `wr:window:${prefix}${cfg.key}`;
+}
 
 let uid = 0;
 
@@ -55,6 +61,7 @@ let uid = 0;
 export class WrWindowManager {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly parentInjector = inject(EnvironmentInjector);
+  private readonly storage = inject(WrStorage);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly baseZ = 1000;
@@ -151,5 +158,13 @@ export class WrWindowManager {
     for (const ref of [...this._windows()]) {
       void ref.close();
     }
+  }
+
+  /**
+   * Drop the persisted geometry for a window so the next open uses the
+   * config defaults again. Matches `WrWindowConfig.storage` exactly.
+   */
+  clearPersistedPosition(cfg: WrWindowStorageConfig): void {
+    this.storage.remove(storageKey(cfg));
   }
 }

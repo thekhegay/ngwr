@@ -11,5 +11,4 @@ export type {
   WrWindowSnap,
   WrWindowState,
   WrWindowStorageConfig,
-  WrWindowStorageEngine,
 } from './types';

@@ -10,13 +10,17 @@ import type { WrWindowOs } from './window-os';
 import type { WrWindowSize } from './window-size';
 import type { WrWindowSnap } from './window-snap';
 
-/** Which engine `WrStorage` should target for window persistence. */
-export type WrWindowStorageEngine = 'session' | 'local';
-
 /** What slice of geometry the storage layer should keep in sync. */
 export type WrWindowPersistMode = 'position' | 'size' | 'all';
 
-/** Persistence configuration — drop into `WrWindowConfig.storage`. */
+/**
+ * Persistence configuration — drop into `WrWindowConfig.storage`.
+ *
+ * Reads and writes happen through the consumer's `WrStorage` instance.
+ * Override the underlying engine at any injector level with
+ * `provideWrStorage({ engine: window.sessionStorage })` when you want
+ * session-scoped persistence instead of the default `localStorage`.
+ */
 export interface WrWindowStorageConfig {
   /**
    * Storage key for this window. Combined with `prefix` (if any) and a
@@ -27,8 +31,6 @@ export interface WrWindowStorageConfig {
   readonly prefix?: string;
   /** What to persist. @default 'all' */
   readonly persist?: WrWindowPersistMode;
-  /** Which storage engine. @default 'local' */
-  readonly engine?: WrWindowStorageEngine;
 }
 
 /**
