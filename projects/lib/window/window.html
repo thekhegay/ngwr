@@ -2,50 +2,79 @@
   <div class="wr-window__title" [attr.id]="titleId">{{ title() }}</div>
 
   <div class="wr-window__chrome-actions">
-    @if (showMinimize()) {
-      <button
-        type="button"
-        class="wr-window__chrome-action wr-window__chrome-action--minimize"
-        [attr.aria-label]="state() === 'minimized' ? 'Restore' : 'Minimize'"
-        (click)="minimize()"
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-          <line x1="1" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-      </button>
-    }
-
-    @if (showMaximize()) {
-      <button
-        type="button"
-        class="wr-window__chrome-action wr-window__chrome-action--maximize"
-        [attr.aria-label]="state() === 'maximized' ? 'Restore down' : 'Maximize'"
-        (click)="maximize()"
-      >
-        @if (state() === 'maximized') {
+    @if (os() === 'macos') {
+      <!-- macOS-style traffic-light cluster: close → minimize → maximize, dots only -->
+      @if (showClose()) {
+        <button
+          type="button"
+          class="wr-window__chrome-action wr-window__chrome-action--close"
+          aria-label="Close"
+          (click)="close()"
+        ></button>
+      }
+      @if (showMinimize()) {
+        <button
+          type="button"
+          class="wr-window__chrome-action wr-window__chrome-action--minimize"
+          [attr.aria-label]="state() === 'minimized' ? 'Restore' : 'Minimize'"
+          (click)="minimize()"
+        ></button>
+      }
+      @if (showMaximize()) {
+        <button
+          type="button"
+          class="wr-window__chrome-action wr-window__chrome-action--maximize"
+          [attr.aria-label]="state() === 'maximized' ? 'Restore down' : 'Maximize'"
+          (click)="maximize()"
+        ></button>
+      }
+    } @else {
+      <!-- Windows / Linux glyph buttons -->
+      @if (os() !== 'linux' && showMinimize()) {
+        <button
+          type="button"
+          class="wr-window__chrome-action wr-window__chrome-action--minimize"
+          [attr.aria-label]="state() === 'minimized' ? 'Restore' : 'Minimize'"
+          (click)="minimize()"
+        >
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-            <rect x="1.5" y="2.5" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.2" />
-            <rect x="3" y="1" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.2" />
+            <line x1="1" y1="8" x2="9" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           </svg>
-        } @else {
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-            <rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2" />
-          </svg>
-        }
-      </button>
-    }
+        </button>
+      }
 
-    @if (showClose()) {
-      <button
-        type="button"
-        class="wr-window__chrome-action wr-window__chrome-action--close"
-        aria-label="Close"
-        (click)="close()"
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-          <path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-      </button>
+      @if (os() !== 'linux' && showMaximize()) {
+        <button
+          type="button"
+          class="wr-window__chrome-action wr-window__chrome-action--maximize"
+          [attr.aria-label]="state() === 'maximized' ? 'Restore down' : 'Maximize'"
+          (click)="maximize()"
+        >
+          @if (state() === 'maximized') {
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+              <rect x="1.5" y="2.5" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.2" />
+              <rect x="3" y="1" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.2" />
+            </svg>
+          } @else {
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+              <rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2" />
+            </svg>
+          }
+        </button>
+      }
+
+      @if (showClose()) {
+        <button
+          type="button"
+          class="wr-window__chrome-action wr-window__chrome-action--close"
+          aria-label="Close"
+          (click)="close()"
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </button>
+      }
     }
   </div>
 </div>

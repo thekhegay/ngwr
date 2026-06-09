@@ -53,6 +53,55 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="OS chrome presets"
+    description="`[os]` swaps the action cluster style — `macos` (traffic-light dots, left), `windows` (glyph buttons, right, default), `linux` (close-only on the right)."
+  >
+    <ngwr-doc-code [code]="snippets.os" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="osMacOpen.set(true)">Open macOS window</wr-btn>
+      <wr-btn (click)="osLinuxOpen.set(true)">Open Linux window</wr-btn>
+
+      <wr-window [(open)]="osMacOpen" os="macos" title="macOS" [initialX]="80" [initialY]="80">
+        <p style="margin: 0; font-size: 0.875rem; line-height: 1.4">
+          Traffic-light dots, flush left. Title centers between them and the right edge.
+        </p>
+      </wr-window>
+
+      <wr-window
+        [(open)]="osLinuxOpen"
+        os="linux"
+        title="Linux"
+        [initialX]="160"
+        [initialY]="160"
+        [showMinimize]="false"
+        [showMaximize]="false"
+      >
+        <p style="margin: 0; font-size: 0.875rem; line-height: 1.4">
+          Close-only chrome — minimize / maximize are hidden by default.
+        </p>
+      </wr-window>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Size presets"
+    description="`[size]` seeds initial width / height. `sm` = 320 × 200, `md` = 480 × 320 (default), `lg` = 720 × 480. Explicit `[initialWidth]` / `[initialHeight]` still win."
+  >
+    <ngwr-doc-code [code]="snippets.sizes" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-btn (click)="sizeSmOpen.set(true)">Open sm</wr-btn>
+      <wr-btn (click)="sizeLgOpen.set(true)">Open lg</wr-btn>
+
+      <wr-window [(open)]="sizeSmOpen" size="sm" title="Compact" [initialX]="60" [initialY]="60">
+        <p style="margin: 0; font-size: 0.875rem; line-height: 1.4">320 × 200</p>
+      </wr-window>
+      <wr-window [(open)]="sizeLgOpen" size="lg" title="Spacious" [initialX]="120" [initialY]="120">
+        <p style="margin: 0; font-size: 0.875rem; line-height: 1.4">720 × 480</p>
+      </wr-window>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Stacking"
     description="Each window owns its own z-index via the manager. Open all three, then click any one — it jumps to the top."
   >
@@ -103,5 +152,13 @@
 
   <ngwr-doc-section title="Events">
     <ngwr-doc-api [rows]="events" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrWindowManager"
+    description="Singleton that co-ordinates stacking + initial position across every `<wr-window>` in the app. Consumers rarely touch it directly — windows wire themselves up — but it is injectable when you need to spawn or arrange windows imperatively."
+  >
+    <ngwr-doc-code [code]="snippets.manager" language="angular-ts" />
+    <ngwr-doc-api [rows]="managerApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

@@ -19,8 +19,14 @@ import {
   signal,
 } from '@angular/core';
 
-import type { WrWindowState } from './types';
+import type { WrWindowOs, WrWindowSize, WrWindowState } from './types';
 import { WrWindowManager } from './window-manager';
+
+const SIZE_PRESETS: Readonly<Record<WrWindowSize, { width: number; height: number }>> = {
+  sm: { width: 320, height: 200 },
+  md: { width: 480, height: 320 },
+  lg: { width: 720, height: 480 },
+};
 
 interface Edges {
   readonly t?: boolean;
@@ -106,9 +112,26 @@ export class WrWindow {
     transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 0)),
   });
 
-  /** Initial / forced size in pixels. */
-  readonly initialWidth = input<number>(400, { transform: (v: unknown): number => coerceNumberProperty(v, 400) });
-  readonly initialHeight = input<number>(280, { transform: (v: unknown): number => coerceNumberProperty(v, 280) });
+  /**
+   * Size preset — seeds initial width / height when `[initialWidth]` /
+   * `[initialHeight]` are not provided. `null` keeps the explicit
+   * pixel inputs in charge. @default 'md'
+   */
+  readonly size = input<WrWindowSize | null>('md');
+
+  /** Initial / forced size in pixels. Wins over `[size]` when set. */
+  readonly initialWidth = input<number | null>(null, {
+    transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 480)),
+  });
+  readonly initialHeight = input<number | null>(null, {
+    transform: (v: unknown): number | null => (v == null ? null : coerceNumberProperty(v, 320)),
+  });
+
+  /**
+   * OS chrome style — picks the side, glyphs, and button look of the
+   * minimize / maximize / close cluster. @default 'windows'
+   */
+  readonly os = input<WrWindowOs>('windows');
 
   readonly minWidth = input<number>(220, { transform: (v: unknown): number => coerceNumberProperty(v, 220) });
   readonly minHeight = input<number>(140, { transform: (v: unknown): number => coerceNumberProperty(v, 140) });
@@ -146,7 +169,7 @@ export class WrWindow {
   protected readonly z = signal(this.manager.bringToFront());
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-window', `wr-window--${this.state()}`];
+    const parts = ['wr-window', `wr-window--${this.state()}`, `wr-window--os-${this.os()}`];
     if (!this.open()) parts.push('wr-window--closed');
     if (this.resizable() && this.state() === 'normal') parts.push('wr-window--resizable');
     return parts.join(' ');
@@ -309,8 +332,12 @@ export class WrWindow {
   // ──────── Internals ────────
 
   private seedInitialGeometry(): void {
-    const w = clamp(this.initialWidth(), this.minWidth(), this.maxWidth());
-    const h = clamp(this.initialHeight(), this.minHeight(), this.maxHeight());
+    const sizePreset = this.size();
+    const preset = sizePreset ? SIZE_PRESETS[sizePreset] : SIZE_PRESETS.md;
+    const explicitW = this.initialWidth();
+    const explicitH = this.initialHeight();
+    const w = clamp(explicitW ?? preset.width, this.minWidth(), this.maxWidth());
+    const h = clamp(explicitH ?? preset.height, this.minHeight(), this.maxHeight());
     this.width_.set(w);
     this.height_.set(h);
 

@@ -28,6 +28,10 @@ import {
 export default class WindowPageComponent {
   protected readonly basicOpen = signal(false);
   protected readonly fixedOpen = signal(false);
+  protected readonly osMacOpen = signal(false);
+  protected readonly osLinuxOpen = signal(false);
+  protected readonly sizeSmOpen = signal(false);
+  protected readonly sizeLgOpen = signal(false);
   protected readonly stackedOpen = signal<readonly boolean[]>([false, false, false]);
 
   protected readonly snippets = {
@@ -52,6 +56,25 @@ export class MyComponent {
   [resizable]="false"
   [showMaximize]="false"
 />`,
+
+    os: `<wr-window [(open)]="open" os="macos" title="Settings" />
+<wr-window [(open)]="open" os="windows" title="Settings" />
+<wr-window [(open)]="open" os="linux" title="Settings" />`,
+
+    sizes: `<wr-window [(open)]="open" size="sm" title="Compact" />
+<wr-window [(open)]="open" size="md" title="Default" />
+<wr-window [(open)]="open" size="lg" title="Spacious" />`,
+
+    manager: `import { inject } from '@angular/core';
+import { WrWindowManager } from 'ngwr/window';
+
+const manager = inject(WrWindowManager);
+
+// Strictly increasing z-index — call when a window gains focus.
+const z = manager.bringToFront();
+
+// Cascade offset for the next window so two opens don't overlap.
+const { x, y } = manager.nextStartOffset();`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -75,8 +98,30 @@ export class MyComponent {
       type: 'number | null',
       default: 'null',
     },
-    { name: 'initialWidth', description: 'Initial width in px.', type: 'number', default: '400' },
-    { name: 'initialHeight', description: 'Initial height in px.', type: 'number', default: '280' },
+    {
+      name: 'size',
+      description: 'Size preset — seeds initial width / height when no explicit px values are passed.',
+      type: "'sm' | 'md' | 'lg' | null",
+      default: "'md'",
+    },
+    {
+      name: 'initialWidth',
+      description: 'Initial width in px. Wins over the `size` preset.',
+      type: 'number | null',
+      default: 'null',
+    },
+    {
+      name: 'initialHeight',
+      description: 'Initial height in px. Wins over the `size` preset.',
+      type: 'number | null',
+      default: 'null',
+    },
+    {
+      name: 'os',
+      description: 'Chrome style — picks the side, glyphs, and button look of the action cluster.',
+      type: "'macos' | 'windows' | 'linux'",
+      default: "'windows'",
+    },
     { name: 'minWidth', description: 'Minimum width when resizing.', type: 'number', default: '220' },
     { name: 'minHeight', description: 'Minimum height when resizing.', type: 'number', default: '140' },
     { name: 'maxWidth', description: 'Maximum width when resizing.', type: 'number', default: 'Infinity' },
@@ -106,6 +151,29 @@ export class MyComponent {
       name: 'resized',
       description: 'Fires after a resize, with the new size.',
       type: '({ width, height }) => void',
+      default: '—',
+    },
+  ];
+
+  protected readonly managerApi: readonly DocApiRow[] = [
+    {
+      name: 'WrWindowManager',
+      description: 'Singleton (`providedIn: "root"`). Co-ordinates z-index + cascade across every `<wr-window>`.',
+      type: 'service',
+      default: '—',
+    },
+    {
+      name: 'bringToFront()',
+      sub: true,
+      description: 'Returns a strictly-increasing z-index. Windows call this on focus to jump on top of the stack.',
+      type: '() => number',
+      default: '—',
+    },
+    {
+      name: 'nextStartOffset()',
+      sub: true,
+      description: 'Cascade `{x, y}` for the next window so consecutive opens at the default position do not overlap.',
+      type: '() => { x: number; y: number }',
       default: '—',
     },
   ];
