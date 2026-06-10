@@ -2,7 +2,9 @@
 
 .ngwr-footer {
   display: block;
-  border-top: 1px solid var(--wr-color-light);
+  // Match the sidebar's right border so the two divider lines
+  // visually connect when the docs layout shows both at once.
+  border-top: 1px solid var(--wr-color-light-lighter);
   background: var(--wr-color-white);
 
   &__inner {

@@ -1,8 +1,14 @@
 <div class="ngwr-layout">
-  <ngwr-sidebar />
+  <div class="ngwr-layout__main">
+    <ngwr-sidebar />
 
-  <main class="ngwr-layout__content">
-    <router-outlet />
-    <ngwr-footer compact />
-  </main>
+    <main class="ngwr-layout__content">
+      <router-outlet />
+    </main>
+  </div>
+
+  <!-- Footer sits outside the grid so its top border spans the whole
+       viewport (under the sidebar too) instead of being clipped to the
+       content column. -->
+  <ngwr-footer compact />
 </div>
