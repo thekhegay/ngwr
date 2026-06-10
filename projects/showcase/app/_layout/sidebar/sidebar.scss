@@ -11,9 +11,8 @@
   align-self: start;
   width: var(--ngwr-sidebar-width);
 
-  // Border lives on `.ngwr-layout__main::before` so it fills the full
-  // grid row (sticky sidebar is only viewport-tall, so its own border
-  // would stop where the sidebar ends and leave a gap above the footer).
+  border-right: 1px solid var(--wr-color-light-lighter);
+
   padding: 1.5rem 0.75rem 2rem;
 }
 

@@ -2,57 +2,21 @@
 
 :host {
   // Fill the remaining vertical space inside the root flex column so
-  // the footer (a direct child of `.ngwr-layout`) reliably anchors to
-  // the viewport bottom on short pages.
+  // the footer (inside __content) reliably anchors to the viewport
+  // bottom on short pages.
   display: block;
   flex: 1 1 auto;
   min-height: 0;
 }
 
 .ngwr-layout {
-  // Flex column so the footer (the second child) sits at the bottom
-  // edge-to-edge, with the sidebar+content grid filling the rest.
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: stretch;
   min-height: 100%;
 
-  > ngwr-footer {
-    margin-top: auto;
-  }
-
-  // ─── Inner grid: sidebar | content ───────────────────────────────
-  &__main {
-    --ngwr-sidebar-width: 14rem;
-
-    position: relative;
-    display: grid;
-    grid-template-columns: var(--ngwr-sidebar-width) 1fr;
-    align-items: stretch;
-    flex: 1 1 auto;
-    min-height: 0;
-
-    // The column divider lives here (not on the sidebar) so the hairline
-    // fills the full grid-row height down to the footer. The sidebar is
-    // `position: sticky` + viewport-tall, so its own border would stop
-    // partway down and leave a gap above the footer.
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: var(--ngwr-sidebar-width);
-      width: 1px;
-      background: var(--wr-color-light-lighter);
-      pointer-events: none;
-    }
-
-    @include bp.media-down(md) {
-      grid-template-columns: 1fr;
-
-      &::before {
-        display: none;
-      }
-    }
+  @include bp.media-down(md) {
+    grid-template-columns: 1fr;
   }
 
   &__content {
@@ -60,6 +24,12 @@
     padding: 0;
     display: flex;
     flex-direction: column;
+    // Footer is the last child — `margin-top: auto` on the footer host
+    // (`ngwr-footer`) pushes it to the bottom of this flex column when
+    // the routed content above is shorter than the viewport.
+    > ngwr-footer {
+      margin-top: auto;
+    }
 
     @include bp.media-down(md) {
       grid-column: 1;
