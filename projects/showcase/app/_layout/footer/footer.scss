@@ -6,9 +6,10 @@
   background: var(--wr-color-white);
 
   &__inner {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 3rem 1.5rem 1.5rem;
+    // No `max-width` — footer spans the viewport like the header. Padding
+    // (matching the header's `--wr-grid-gutter`) is the only horizontal
+    // breathing room, so chrome reads as one continuous strip.
+    padding: 3rem var(--wr-grid-gutter) 1.5rem;
     color: var(--wr-color-medium);
     font-size: 0.875rem;
     line-height: 1.5;
@@ -119,7 +120,7 @@
   // the homepage where a real sitemap makes sense.
   &--compact {
     .ngwr-footer__inner {
-      padding: 0.875rem 1.5rem;
+      padding: 0.875rem var(--wr-grid-gutter);
     }
 
     .ngwr-footer__bottom {
