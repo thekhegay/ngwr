@@ -120,12 +120,17 @@
     vertical-align: baseline;
   }
 
+  // Keep the Angular logo glued to the word "Angular" — without nowrap
+  // a line break can land between them, leaving the icon orphaned at
+  // the end of the previous line.
+  &__title-angular {
+    white-space: nowrap;
+  }
+
   &__title-accent {
-    // Hand the gradient component the font sizing — it inherits but the
-    // host needs to be inline so it sits on the heading baseline.
-    display: inline;
-    font-weight: inherit;
-    line-height: inherit;
+    // Flat primary tint — the gradient effect lived here previously but
+    // it competed with the cycling word's animation.
+    color: var(--wr-color-primary);
   }
 
   &__description {

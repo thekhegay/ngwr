@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { DestroyRef, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
@@ -7,7 +7,6 @@ import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrDecryptText } from 'ngwr/decrypt-text';
 import { WrGlitchText } from 'ngwr/glitch-text';
-import { WrGradientText } from 'ngwr/gradient-text';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrRotatingText } from 'ngwr/rotating-text';
@@ -44,7 +43,6 @@ interface WhyTile {
     WrTypography,
     // Motion kit
     WrRotatingText,
-    WrGradientText,
     WrBlurText,
     WrSplitText,
     WrShinyText,
@@ -70,6 +68,11 @@ interface WhyTile {
 })
 export default class HomeComponent {
   protected readonly routes = routes;
+
+  /** Three adjectives the hero cycles through via `<wr-split-text>`. */
+  private readonly cyclingWords: readonly string[] = ['stylish', 'accessible', 'themeable'];
+  private cyclingIndex = 0;
+  protected readonly cyclingWord = signal<string>(this.cyclingWords[0]);
 
   /** Sample sign-up card shown in the DX section — goes through Shiki. */
   protected readonly snippet = `import { Component, signal } from '@angular/core';
@@ -147,8 +150,17 @@ export class SignupCard {
   ];
 
   private readonly toast = inject(WrToast);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    // Rotate the hero adjective every 2.4s — `<wr-split-text>` watches
+    // its `[text]` input and re-runs the per-char animation on change.
+    const timer = setInterval(() => {
+      this.cyclingIndex = (this.cyclingIndex + 1) % this.cyclingWords.length;
+      this.cyclingWord.set(this.cyclingWords[this.cyclingIndex]);
+    }, 2400);
+    this.destroyRef.onDestroy(() => clearInterval(timer));
+
     const meta = inject(MetaService);
     meta.setCanonicalURL();
     meta.setTitle(null);

@@ -7,15 +7,15 @@
           The best way to make
           <wr-split-text
             class="ngwr-home-hero__title-split"
-            text="stylish"
+            [text]="cyclingWord()"
             splitType="chars"
             [delay]="55"
-            [duration]="1.1"
+            [duration]="0.9"
             [from]="{ opacity: 0, y: 36 }"
             [to]="{ opacity: 1, y: 0 }"
           />
-          <wr-icon name="logo-angular" />Angular
-          <wr-gradient-text class="ngwr-home-hero__title-accent" [animationSpeed]="9">applications.</wr-gradient-text>
+          <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span>
+          <span class="ngwr-home-hero__title-accent">applications.</span>
         </h1>
 
         <div class="ngwr-home-hero__cta">
