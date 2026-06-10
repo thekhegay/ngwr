@@ -19,6 +19,7 @@ interface FooterColumn {
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
   imports: [RouterLink],
+  host: { class: 'ngwr-footer' },
 })
 export class Footer {
   protected readonly version = inject(NGWR_VERSION_TOKEN);
