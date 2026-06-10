@@ -70,7 +70,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.125rem;
+    gap: 0.5rem;
 
     &-link {
       --ngwr-header-nav-link-color: var(--wr-color-dark);
@@ -93,15 +93,15 @@
         --ngwr-header-nav-link-bg: rgba(var(--wr-color-primary-rgb), 0.1);
       }
 
-      // Active route — neutral gray pill (light token tinted). Stays
-      // calm so it reads as a quiet "you are here" marker instead of
-      // competing with the primary CTAs. `routerLinkActive` toggles this
-      // class via partial-match (default), so `/components/button` also
-      // lights up "Components" in the nav.
+      // Active route — soft neutral pill (light token at low opacity)
+      // with medium-tone text. Stays calm so it reads as a quiet
+      // "you are here" marker instead of competing with the primary CTAs.
+      // `routerLinkActive` toggles this class via partial-match (default),
+      // so `/components/button` also lights up "Components" in the nav.
       &--active,
       &--active:hover {
-        --ngwr-header-nav-link-color: var(--wr-color-dark);
-        --ngwr-header-nav-link-bg: rgba(var(--wr-color-light-rgb), 0.6);
+        --ngwr-header-nav-link-color: var(--wr-color-medium);
+        --ngwr-header-nav-link-bg: rgba(var(--wr-color-light-rgb), 0.3);
       }
     }
   }
