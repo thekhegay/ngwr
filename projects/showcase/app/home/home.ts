@@ -14,6 +14,7 @@ import { WrRotatingText } from 'ngwr/rotating-text';
 import { WrShinyText } from 'ngwr/shiny-text';
 import { WrSplitText } from 'ngwr/split-text';
 import { WrToast } from 'ngwr/toast';
+import { WrTypewriter } from 'ngwr/typewriter';
 import { WrTypography } from 'ngwr/typography';
 
 import { ComponentsBento } from './components-bento/components-bento';
@@ -50,6 +51,7 @@ interface WhyTile {
     WrShinyText,
     WrGlitchText,
     WrDecryptText,
+    WrTypewriter,
     // Sections
     ComponentsBento,
     DocCodeComponent,
@@ -71,13 +73,13 @@ interface WhyTile {
 export default class HomeComponent {
   protected readonly routes = routes;
 
-  /** Words that cycle through the hero's `<wr-rotating-text>` slot. */
-  protected readonly rotatingWords: readonly string[] = [
+  /** Words that the hero `<wr-typewriter>` types, deletes, and cycles. */
+  protected readonly typewriterWords: readonly string[] = [
     'stylish',
-    'standalone',
-    'themeable',
     'accessible',
-    'signals-first',
+    'themeable',
+    'production-grade',
+    'delightful',
   ];
 
   /** Sample sign-up card shown in the DX section — goes through Shiki. */

@@ -5,13 +5,12 @@
       <div class="ngwr-home-hero ngwr-home-hero--center">
         <h1 class="ngwr-home-hero__title">
           The best way to make
-          <wr-rotating-text
-            class="ngwr-home-hero__title-rotate"
-            [texts]="rotatingWords"
-            splitBy="characters"
-            [rotationInterval]="2400"
-            [staggerDuration]="40"
-            staggerFrom="first"
+          <wr-typewriter
+            class="ngwr-home-hero__title-type"
+            [texts]="typewriterWords"
+            [typingSpeed]="70"
+            [deletingSpeed]="35"
+            [pauseDuration]="1800"
           />
           <wr-icon name="logo-angular" />Angular
           <wr-gradient-text class="ngwr-home-hero__title-accent" [animationSpeed]="9">applications.</wr-gradient-text>

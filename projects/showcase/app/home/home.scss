@@ -104,22 +104,14 @@
     }
   }
 
-  // ─── Rotating word slot inside the title ─────────────────────────────
-  // The rotating component renders a custom element — pull it into the
-  // baseline of the surrounding heading by giving it inline-flex and a
-  // pill background so the cycling word reads as a deliberate accent
-  // rather than a different layer.
-  &__title-rotate {
-    display: inline-flex;
-    align-items: center;
-    padding: 0 0.75rem;
-    margin: 0 0.25rem;
-    background: rgba(var(--wr-color-primary-rgb), 0.12);
+  // ─── Typewriter word slot inside the title ───────────────────────────
+  // Inline with the heading text — primary color so the cycling word
+  // stands out without competing with the gradient accent. No pill or
+  // background; the typewriter cursor itself signals "this is alive".
+  &__title-type {
+    display: inline;
     color: var(--wr-color-primary);
-    border-radius: 999px;
-    vertical-align: middle;
-    line-height: 1;
-    overflow: hidden;
+    font-weight: inherit;
   }
 
   &__title-accent {
