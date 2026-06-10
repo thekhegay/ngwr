@@ -2,10 +2,17 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
+import { WrBlurText } from 'ngwr/blur-text';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
+import { WrDecryptText } from 'ngwr/decrypt-text';
+import { WrGlitchText } from 'ngwr/glitch-text';
+import { WrGradientText } from 'ngwr/gradient-text';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { WrRotatingText } from 'ngwr/rotating-text';
+import { WrShinyText } from 'ngwr/shiny-text';
+import { WrSplitText } from 'ngwr/split-text';
 import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 
@@ -29,7 +36,25 @@ interface WhyTile {
   selector: 'ngwr-home',
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  imports: [RouterLink, WrIcon, WrButton, WrTag, WrTypography, ComponentsBento, DocCodeComponent, Footer],
+  imports: [
+    RouterLink,
+    WrIcon,
+    WrButton,
+    WrTag,
+    WrTypography,
+    // Motion kit
+    WrRotatingText,
+    WrGradientText,
+    WrBlurText,
+    WrSplitText,
+    WrShinyText,
+    WrGlitchText,
+    WrDecryptText,
+    // Sections
+    ComponentsBento,
+    DocCodeComponent,
+    Footer,
+  ],
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
@@ -46,8 +71,16 @@ interface WhyTile {
 export default class HomeComponent {
   protected readonly routes = routes;
 
-  /** Real-world signup snippet shown in the DX section. Goes through
-   *  Shiki via `<ngwr-doc-code>` so the colouring matches the docs. */
+  /** Words that cycle through the hero's `<wr-rotating-text>` slot. */
+  protected readonly rotatingWords: readonly string[] = [
+    'stylish',
+    'standalone',
+    'themeable',
+    'accessible',
+    'signals-first',
+  ];
+
+  /** Sample sign-up card shown in the DX section — goes through Shiki. */
   protected readonly snippet = `import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 

@@ -1,11 +1,20 @@
 <main class="ngwr-home">
-  <!-- ───── Hero: title + CTA only ───── -->
+  <!-- ───── Hero ───── -->
   <section class="ngwr-home-hero-wrap">
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
         <h1 class="ngwr-home-hero__title">
-          The best way to make stylish <wr-icon name="logo-angular" />Angular
-          <span class="ngwr-home-hero__title-accent">applications.</span>
+          The best way to make
+          <wr-rotating-text
+            class="ngwr-home-hero__title-rotate"
+            [texts]="rotatingWords"
+            splitBy="characters"
+            [rotationInterval]="2400"
+            [staggerDuration]="40"
+            staggerFrom="first"
+          />
+          <wr-icon name="logo-angular" />Angular
+          <wr-gradient-text class="ngwr-home-hero__title-accent" [animationSpeed]="9">applications.</wr-gradient-text>
         </h1>
 
         <div class="ngwr-home-hero__cta">
@@ -33,9 +42,8 @@
     <div class="container ngwr-dx">
       <div class="ngwr-dx__copy">
         <wr-tag color="primary" outlined>Developer experience</wr-tag>
-        <p wrTypography variant="h1">
-          Standalone. Signals.<br />
-          Strict mode.
+        <p wrTypography variant="h1" class="ngwr-dx__heading">
+          <wr-blur-text text="Standalone. Signals. Strict mode." animateBy="words" [stepDuration]="0.45" />
         </p>
         <p wrTypography variant="lead">
           ngwr is what we wish the Angular standard library was. Every primitive is a standalone import, every input is
@@ -60,9 +68,8 @@
       <div class="ngwr-section__head ngwr-section__head--why">
         <div>
           <wr-tag color="primary" outlined>Why ngwr</wr-tag>
-          <p wrTypography variant="h1">
-            Made for shipping.<br />
-            Not for showing off.
+          <p wrTypography variant="h1" class="ngwr-why__heading">
+            <wr-blur-text text="Made for shipping. Not for showing off." animateBy="words" [stepDuration]="0.4" />
           </p>
         </div>
         <p wrTypography variant="lead" class="ngwr-section__head-aside">
@@ -81,6 +88,97 @@
             <p wrTypography variant="small" tone="medium">{{ tile.description }}</p>
           </article>
         }
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── Motion gallery (animation kit showcase) ───── -->
+  <section class="ngwr-section">
+    <div class="container">
+      <div class="ngwr-section__head">
+        <div>
+          <wr-tag color="primary" outlined>Animations</wr-tag>
+          <p wrTypography variant="h1" class="ngwr-motion__heading">
+            <wr-split-text text="Motion you can ship." splitType="chars" [delay]="40" [duration]="1.05" />
+          </p>
+        </div>
+        <p wrTypography variant="lead" class="ngwr-section__head-aside">
+          Beyond the primitives — a kit of motion components for hero copy, hovers, and the bits of personality that
+          set a real product apart.
+        </p>
+      </div>
+
+      <div class="ngwr-motion-grid">
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-shiny-text text="Premium" [speed]="4" [spread]="160" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Shiny text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-shiny-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-gradient-text [animationSpeed]="6">Brand presence</wr-gradient-text>
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Gradient text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-gradient-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-glitch-text text="System online" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Glitch text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-glitch-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-rotating-text
+              [texts]="['Fast', 'Themeable', 'Live']"
+              splitBy="characters"
+              [rotationInterval]="1800"
+              [staggerDuration]="30"
+            />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Rotating text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-rotating-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-decrypt-text text="Decrypting…" [maxIterations]="14" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Decrypt text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-decrypt-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-blur-text text="Reveal on view" animateBy="words" [stepDuration]="0.4" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Blur text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-blur-text /&gt;</code></p>
+          </div>
+        </article>
+      </div>
+
+      <div class="ngwr-motion-footer">
+        <a wr-btn outlined size="lg" [routerLink]="['/animations', 'border-glow']" icon="arrow-forward" iconPosition="end">
+          Browse the kit
+        </a>
       </div>
     </div>
   </section>

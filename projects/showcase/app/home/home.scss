@@ -104,8 +104,30 @@
     }
   }
 
+  // ─── Rotating word slot inside the title ─────────────────────────────
+  // The rotating component renders a custom element — pull it into the
+  // baseline of the surrounding heading by giving it inline-flex and a
+  // pill background so the cycling word reads as a deliberate accent
+  // rather than a different layer.
+  &__title-rotate {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    margin: 0 0.25rem;
+    background: rgba(var(--wr-color-primary-rgb), 0.12);
+    color: var(--wr-color-primary);
+    border-radius: 999px;
+    vertical-align: middle;
+    line-height: 1;
+    overflow: hidden;
+  }
+
   &__title-accent {
-    color: var(--hero-accent);
+    // Hand the gradient component the font sizing — it inherits but the
+    // host needs to be inline so it sits on the heading baseline.
+    display: inline;
+    font-weight: inherit;
+    line-height: inherit;
   }
 
   &__description {
@@ -577,4 +599,76 @@
       color: var(--wr-color-primary);
     }
   }
+}
+
+/* ───── Motion gallery ───────────────────────────────────────────── */
+.ngwr-motion {
+  &__heading {
+    display: block;
+  }
+}
+
+.ngwr-motion-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-top: 2rem;
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.ngwr-motion-tile {
+  display: flex;
+  flex-direction: column;
+  background: var(--wr-color-white);
+  border: 1px solid var(--wr-color-light);
+  border-radius: var(--wr-border-radius-lg);
+  overflow: hidden;
+
+  &__stage {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 9rem;
+    padding: 2rem 1.25rem;
+    font-size: 1.625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    background:
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(var(--wr-color-primary-rgb), 0.08),
+        transparent 70%
+      ),
+      rgba(var(--wr-color-light-rgb), 0.2);
+    color: var(--wr-color-dark);
+    text-align: center;
+  }
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.875rem 1.125rem;
+    border-top: 1px solid var(--wr-color-light);
+
+    code {
+      font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+      font-size: 0.6875rem;
+    }
+  }
+}
+
+.ngwr-motion-footer {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
 }
