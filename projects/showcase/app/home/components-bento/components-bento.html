@@ -10,24 +10,32 @@
     </header>
 
     <div class="ngwr-cbento__grid">
-      <!-- ─── Tile 1 — Sign in form ─────────────────────────────────────── -->
+      <!-- ─── Tile 1 — Create account (dense form) ─────────────────────── -->
       <a class="ngwr-cbento__tile" [routerLink]="['/components', 'form-field']">
         <header class="ngwr-cbento__tile-head">
-          <p wrTypography variant="h5">Sign in</p>
-          <p wrTypography variant="caption" tone="medium">Form composition</p>
+          <p wrTypography variant="h5">Create account</p>
+          <p wrTypography variant="caption" tone="medium">Form field + input + button</p>
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__signin">
-          <wr-form-field label="Email">
+          <wr-form-field label="Full name" required>
+            <input wrInput value="Alice Kim" readonly />
+          </wr-form-field>
+          <wr-form-field label="Work email" required>
             <input wrInput type="email" value="alice@ngwr.dev" readonly />
           </wr-form-field>
-          <wr-form-field label="Password">
-            <input wrInput type="password" value="••••••••" readonly />
+          <wr-form-field label="Password" hint="At least 12 characters." required>
+            <input wrInput type="password" value="••••••••••••" readonly />
+          </wr-form-field>
+          <wr-form-field label="Confirm password" required>
+            <input wrInput type="password" value="••••••••••••" readonly />
           </wr-form-field>
           <div class="ngwr-cbento__signin-row">
-            <wr-checkbox [ngModel]="remember()">Remember me</wr-checkbox>
-            <a wrTypography variant="small" tone="primary" class="ngwr-cbento__link">Forgot?</a>
+            <wr-checkbox [ngModel]="remember()">I agree to the terms</wr-checkbox>
           </div>
-          <wr-btn color="primary" block>Sign in</wr-btn>
+          <div class="ngwr-cbento__signin-actions">
+            <wr-btn color="primary" block>Create account</wr-btn>
+            <wr-btn block>Sign in instead</wr-btn>
+          </div>
         </div>
       </a>
 
@@ -234,6 +242,78 @@
             <span class="ngwr-cbento__swatch" style="background: var(--wr-color-warning)" aria-label="warning"></span>
             <span class="ngwr-cbento__swatch" style="background: var(--wr-color-danger)" aria-label="danger"></span>
           </div>
+        </div>
+      </a>
+
+      <!-- ─── Tile 13 — Command palette hint ───────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'command-palette']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Search</p>
+          <p wrTypography variant="caption" tone="medium">Input + kbd shortcut</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__cmd">
+          <wr-input-group>
+            <input wrInput placeholder="Search components, docs, …" readonly />
+            <span class="ngwr-cbento__cmd-hint">
+              <span class="ngwr-cbento__kbd">⌘</span><span class="ngwr-cbento__kbd">K</span>
+            </span>
+          </wr-input-group>
+          <p wrTypography variant="caption" tone="medium">Press ⌘K from anywhere on the docs.</p>
+        </div>
+      </a>
+
+      <!-- ─── Tile 14 — Loading skeleton card ──────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'skeleton']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Loading</p>
+          <p wrTypography variant="caption" tone="medium">Skeleton placeholders</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__skeleton">
+          <div class="ngwr-cbento__sk-row">
+            <div class="ngwr-cbento__sk-avatar"></div>
+            <div class="ngwr-cbento__sk-lines">
+              <div class="ngwr-cbento__sk-line ngwr-cbento__sk-line--sm"></div>
+              <div class="ngwr-cbento__sk-line ngwr-cbento__sk-line--xs"></div>
+            </div>
+          </div>
+          <div class="ngwr-cbento__sk-line"></div>
+          <div class="ngwr-cbento__sk-line"></div>
+          <div class="ngwr-cbento__sk-line ngwr-cbento__sk-line--md"></div>
+        </div>
+      </a>
+
+      <!-- ─── Tile 15 — Profile card ───────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'avatar']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Profile</p>
+          <p wrTypography variant="caption" tone="medium">Avatar + meta + tags</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__profile">
+          <div class="ngwr-cbento__profile-head">
+            <wr-avatar url="images/image_1.webp" size="3rem" alt="" />
+            <div>
+              <p wrTypography variant="small">Roman Kim</p>
+              <p wrTypography variant="caption" tone="medium">Founding engineer</p>
+            </div>
+          </div>
+          <div class="ngwr-cbento__profile-tags">
+            <wr-tag color="primary" outlined>Angular</wr-tag>
+            <wr-tag color="success" outlined>Lead</wr-tag>
+            <wr-tag color="medium" outlined>Asia/Tashkent</wr-tag>
+          </div>
+          <wr-btn block icon="checkmark" iconPosition="start">Follow</wr-btn>
+        </div>
+      </a>
+
+      <!-- ─── Tile 16 — Code snippet card ──────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/getting-started', 'installation']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Install</p>
+          <p wrTypography variant="caption" tone="medium">Drop-in component</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__code">
+          <pre class="ngwr-cbento__code-block"><code>{{ codeSnippet }}</code></pre>
+          <p wrTypography variant="caption" tone="medium">Each entry point is its own ng-packagr build.</p>
         </div>
       </a>
     </div>

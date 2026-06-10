@@ -95,4 +95,12 @@ export class ComponentsBento {
 
   // Tabs demo state
   protected readonly activeTab = signal<string>('overview');
+
+  protected readonly codeSnippet = `import { WrBtn } from 'ngwr/button';
+
+@Component({
+  imports: [WrBtn],
+  template: \`<wr-btn color="primary">Save</wr-btn>\`,
+})
+export class Demo {}`;
 }
