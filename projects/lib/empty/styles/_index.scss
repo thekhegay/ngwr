@@ -7,6 +7,11 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 2rem 1rem;
+  // Claim the parent's box so the empty state reads as "this whole area
+  // has nothing" rather than a tiny pill floating top-left. Consumers
+  // that want a compact inline empty can override `width`/`min-height`.
+  width: 100%;
+  min-height: 100%;
   color: var(--wr-color-medium);
   text-align: center;
 

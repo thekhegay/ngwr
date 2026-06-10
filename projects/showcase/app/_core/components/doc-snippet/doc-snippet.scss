@@ -1,6 +1,9 @@
 :host {
   display: block;
-  overflow: hidden;
+  // No `overflow: hidden` here — it breaks `position: sticky` for any
+  // descendants (sticky needs an unclipped chain to the scroll root,
+  // which is what the anchor + back-top demos rely on). Border-radius
+  // clipping is handled at `.demo` / `.code` instead.
   border: 1px solid var(--wr-color-light);
   border-radius: var(--wr-border-radius-base);
 }

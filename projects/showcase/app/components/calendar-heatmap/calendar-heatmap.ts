@@ -24,10 +24,18 @@ export default class CalendarHeatmapPageComponent {
   protected readonly data = makeHeatmap();
 
   protected readonly snippets = {
-    install: `import { WrCalendarHeatmap } from 'ngwr/calendar-heatmap';
+    install: `import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/calendar-heatmap';
 
 @Component({ imports: [WrCalendarHeatmap] })
-export class MyComponent {}`,
+export class MyComponent {
+  // Each cell: { date, value }. Higher value → darker shade.
+  protected readonly contributions: WrHeatmapDatum[] = [
+    { date: new Date('2026-01-15'), value: 3 },
+    { date: new Date('2026-02-04'), value: 8 },
+    { date: new Date('2026-03-22'), value: 5 },
+    // ... one entry per active day
+  ];
+}`,
     basic: `<wr-calendar-heatmap [data]="contributions" />`,
   };
 }

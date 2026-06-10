@@ -4,8 +4,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   padding: 2.5rem 1.5rem;
+  // Match `<wr-empty>` — claim the parent's box so the result reads as
+  // a full-area state, not a compact tile floating top-left.
+  width: 100%;
+  min-height: 100%;
   text-align: center;
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-dark);
