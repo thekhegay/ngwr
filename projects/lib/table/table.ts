@@ -5,11 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { KeyValuePipe, NgTemplateOutlet } from '@angular/common';
 import type { TemplateRef } from '@angular/core';
 import { Component, ViewEncapsulation, computed, contentChildren, input, model, output } from '@angular/core';
 
+import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 
 import { WrTableCell } from './table-cell';
@@ -52,7 +53,7 @@ import type {
   templateUrl: './table.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-table' },
-  imports: [NgTemplateOutlet, KeyValuePipe, WrSpinner, WrTableSort, WrTableFilter],
+  imports: [NgTemplateOutlet, KeyValuePipe, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
 })
 export class WrTable {
   /** Column definitions, keyed by row property name. */
@@ -69,6 +70,45 @@ export class WrTable {
 
   /** Fires whenever a column's filter selection changes. */
   readonly filterChange = output<WrTableFilterChange>();
+
+  /**
+   * Rows per page. Set to `0` (default) to disable client-side pagination
+   * and render every row at once.
+   */
+  readonly pageSize = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
+
+  /** Two-way bindable 1-based current page. */
+  readonly page = model<number>(1);
+
+  /**
+   * Total row count for server-side pagination — when set, the table
+   * shows the pager but does NOT slice `items` (you provide the current
+   * page's slice yourself and react to `(page)` changes).
+   */
+  readonly totalItems = input<number | null>(null);
+
+  /** Total row count derived for the pager (server-mode wins). */
+  protected readonly resolvedTotal = computed<number>(() => {
+    const server = this.totalItems();
+    if (server !== null) return server;
+    return this.items()?.length ?? 0;
+  });
+
+  /** Items visible on the current page (client mode slices; server mode passes through). */
+  protected readonly visibleItems = computed<readonly Record<string, unknown>[] | null | undefined>(() => {
+    const items = this.items();
+    if (!items) return items;
+    const size = this.pageSize();
+    if (size <= 0 || this.totalItems() !== null) return items;
+    const start = (this.page() - 1) * size;
+    return items.slice(start, start + size);
+  });
+
+  /** Show the pager footer only when paging is enabled and rows overflow. */
+  protected readonly showPager = computed<boolean>(() => {
+    const size = this.pageSize();
+    return size > 0 && this.resolvedTotal() > size;
+  });
 
   private readonly cellTemplates = contentChildren(WrTableCell);
 

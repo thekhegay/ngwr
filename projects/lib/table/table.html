@@ -36,7 +36,7 @@
     </thead>
 
     <tbody>
-      @if (items(); as rows) {
+      @if (visibleItems(); as rows) {
         @for (row of rows; track $index) {
           <tr class="wr-table__tr">
             @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
@@ -61,3 +61,9 @@
     </tbody>
   </table>
 </div>
+
+@if (showPager()) {
+  <div class="wr-table__pager">
+    <wr-pagination [(currentPage)]="page" [pageSize]="pageSize()" [total]="resolvedTotal()" />
+  </div>
+}

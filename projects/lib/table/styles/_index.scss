@@ -82,6 +82,14 @@
     padding: 1.5rem;
   }
 
+  &__pager {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.625rem 0.75rem;
+    border-top: 1px solid var(--wr-table-border);
+    background: var(--wr-table-head-bg);
+  }
+
   &__loading {
     position: absolute;
     inset: 0;
