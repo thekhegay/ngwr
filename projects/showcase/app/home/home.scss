@@ -109,9 +109,15 @@
   // entry, stagger 55ms — inline with the heading copy + primary color
   // so the animated word reads as the deliberate accent.
   &__title-split {
-    display: inline-block;
     color: var(--wr-color-primary);
     font-weight: inherit;
+    // Override the lib's `overflow: hidden` on the host. With it, the
+    // inline-block's baseline shifts to its bottom edge and the word
+    // visually floats above the surrounding text. `visible` plus a
+    // matching line-height restores the baseline.
+    overflow: visible;
+    line-height: inherit;
+    vertical-align: baseline;
   }
 
   &__title-accent {
