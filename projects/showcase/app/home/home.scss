@@ -104,12 +104,12 @@
     }
   }
 
-  // ─── Typewriter word slot inside the title ───────────────────────────
-  // Inline with the heading text — primary color so the cycling word
-  // stands out without competing with the gradient accent. No pill or
-  // background; the typewriter cursor itself signals "this is alive".
-  &__title-type {
-    display: inline;
+  // ─── Split-text word slot inside the title ───────────────────────────
+  // Each character rises into place from a 36px Y offset on viewport
+  // entry, stagger 55ms — inline with the heading copy + primary color
+  // so the animated word reads as the deliberate accent.
+  &__title-split {
+    display: inline-block;
     color: var(--wr-color-primary);
     font-weight: inherit;
   }
