@@ -91,6 +91,16 @@
         --ngwr-header-nav-link-color: var(--wr-color-primary);
         --ngwr-header-nav-link-bg: rgba(var(--wr-color-primary-rgb), 0.1);
       }
+
+      // Active route — primary text on a tinted pill. Stronger than hover
+      // so the user can tell which section they're inside. `routerLinkActive`
+      // toggles this class via partial-match (default), so `/components/button`
+      // also lights up "Components" in the nav.
+      &--active,
+      &--active:hover {
+        --ngwr-header-nav-link-color: var(--wr-color-primary);
+        --ngwr-header-nav-link-bg: rgba(var(--wr-color-primary-rgb), 0.12);
+      }
     }
   }
 
