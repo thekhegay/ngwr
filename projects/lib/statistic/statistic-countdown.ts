@@ -38,16 +38,35 @@ function formatRemaining(ms: number, fmt: string): string {
   const minutes = Math.floor((ms % 3_600_000) / 60_000);
   const seconds = Math.floor((ms % 60_000) / 1000);
   const millis = ms % 1000;
-  return fmt
-    .replace(/DD/g, pad(days, 2))
-    .replace(/D/g, String(days))
-    .replace(/HH/g, pad(hours, 2))
-    .replace(/H/g, String(hours))
-    .replace(/mm/g, pad(minutes, 2))
-    .replace(/m/g, String(minutes))
-    .replace(/ss/g, pad(seconds, 2))
-    .replace(/s/g, String(seconds))
-    .replace(/SSS/g, pad(millis, 3));
+  // Single-pass tokenizer so we never re-scan output for tokens. The
+  // previous sequential `.replace()` chain leaked: e.g. `D days HH:mm:ss`
+  // → `1 day42 11:59:42` because the `/s/g` step at the end re-matched
+  // the literal `s` inside `days`. Longest-token-first ordering inside
+  // the alternation handles `DD`>`D`, `HH`>`H`, `mm`>`m`, `SSS`>`ss`>`s`.
+  return fmt.replace(/SSS|DD|HH|mm|ss|D|H|m|s/g, token => {
+    switch (token) {
+      case 'DD':
+        return pad(days, 2);
+      case 'D':
+        return String(days);
+      case 'HH':
+        return pad(hours, 2);
+      case 'H':
+        return String(hours);
+      case 'mm':
+        return pad(minutes, 2);
+      case 'm':
+        return String(minutes);
+      case 'ss':
+        return pad(seconds, 2);
+      case 's':
+        return String(seconds);
+      case 'SSS':
+        return pad(millis, 3);
+      default:
+        return token;
+    }
+  });
 }
 
 /**

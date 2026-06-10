@@ -11,8 +11,12 @@
   --wr-progress-track: rgba(var(--wr-color-light-rgb), 0.35);
   --wr-progress-bar: var(--wr-color-primary);
 
-  // Claim the full row even when nested in a flex-row demo wrapper.
-  flex: 1 1 100%;
+  // `flex: 1 1 100%` here would claim 100% basis on the flex MAIN axis —
+  // fine in a row wrapper (=full width), broken in a column wrapper
+  // (8 bars each demanding 100% of the column height → each shrinks to
+  // 1/8). Use `flex: 0 1 auto` so the explicit `height` wins regardless,
+  // and consumers who need it row-stretched set `flex: 1` on the wrapper.
+  flex: 0 1 auto;
   width: 100%;
   min-width: 0;
   height: var(--wr-progress-height);

@@ -136,9 +136,16 @@ export class WrCounter {
       const dur = this.duration();
       const tick = (now: number): void => {
         const t = Math.min(1, (now - startTs) / dur);
-        const v = start + (target - start) * easeOutCubic(t);
+        // Snap exactly to target on the final frame. Without this,
+        // `start + (target - start) * 1` carries FP rounding (e.g.
+        // 0.1 + (0.3 - 0.1) * 1 = 0.30000000000000004), so
+        // `digitFractionAt`'s `live === target` rest-state check
+        // fails — wheels visibly stop on a fractional position and
+        // never settle to the clean integer glyph.
+        const v = t >= 1 ? target : start + (target - start) * easeOutCubic(t);
         this.current.set(v);
         if (t < 1) this.rafId = requestAnimationFrame(tick);
+        else this.rafId = null;
       };
       this.rafId = requestAnimationFrame(tick);
     });

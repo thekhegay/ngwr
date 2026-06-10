@@ -56,6 +56,7 @@ export class WrToast {
   private overlayRef: OverlayRef | null = null;
   private hostRef: ComponentRef<WrToastHost> | null = null;
   private currentPosition: WrToastPosition = this.config.position;
+  private currentMode: 'stack' | 'list' = this.config.mode;
   private nextId = 1;
   private active: ActiveEntry[] = [];
 
@@ -106,8 +107,9 @@ export class WrToast {
     if (this.hostRef) this.hostRef.setInput('position', position);
   }
 
-  /** Switch the layout mode at runtime. Affects the live host. */
+  /** Switch the layout mode at runtime. Persists across host re-creation. */
   setMode(mode: 'stack' | 'list'): void {
+    this.currentMode = mode;
     if (this.hostRef) this.hostRef.setInput('mode', mode);
   }
 
@@ -148,7 +150,7 @@ export class WrToast {
     const portal = new ComponentPortal(WrToastHost);
     this.hostRef = this.overlayRef.attach(portal);
     this.hostRef.setInput('position', position);
-    this.hostRef.setInput('mode', this.config.mode);
+    this.hostRef.setInput('mode', this.currentMode);
     this.hostRef.setInput('config', this.config);
 
     const inst = this.hostRef.instance;

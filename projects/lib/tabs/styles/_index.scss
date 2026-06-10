@@ -19,7 +19,12 @@
     align-items: stretch;
     gap: 0.25rem;
     border-bottom: 1px solid var(--wr-tabs-border);
+    // `overflow-x: auto` alone reserves space for a vertical scrollbar in
+    // browsers that don't use overlay scrollbars (Firefox/some Safari) —
+    // showing a stray vertical bar on the right of the strip. Force-hide
+    // the y-axis since the strip is always a single row.
     overflow-x: auto;
+    overflow-y: hidden;
   }
 
   &__tab {
