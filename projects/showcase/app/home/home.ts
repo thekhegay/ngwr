@@ -69,8 +69,9 @@ interface WhyTile {
 export default class HomeComponent {
   protected readonly routes = routes;
 
-  /** Three adjectives the hero cycles through via `<wr-split-text>`. */
-  private readonly cyclingWords: readonly string[] = ['stylish', 'accessible', 'themeable'];
+  /** Three adjectives the hero cycles through via `<wr-split-text>`. Keep each
+   * ≤ 7 chars so the title doesn't wrap to a third line when the word swaps. */
+  private readonly cyclingWords: readonly string[] = ['stylish', 'modern', 'snappy'];
   private cyclingIndex = 0;
   protected readonly cyclingWord = signal<string>(this.cyclingWords[0]);
 

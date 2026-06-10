@@ -127,12 +127,6 @@
     white-space: nowrap;
   }
 
-  &__title-accent {
-    // Flat primary tint — the gradient effect lived here previously but
-    // it competed with the cycling word's animation.
-    color: var(--wr-color-primary);
-  }
-
   &__description {
     color: var(--wr-color-medium);
     font-size: 1rem;
