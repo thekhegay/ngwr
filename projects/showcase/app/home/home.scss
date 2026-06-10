@@ -11,37 +11,10 @@
   --hero-accent: rgb(99, 102, 241);
 }
 
-/* ───── Hero wrapper (dot-grid bg + soft glow) ───────────────────── */
+/* ───── Hero wrapper (plain — backgrounds removed) ───────────────── */
 .ngwr-home-hero-wrap {
   position: relative;
   padding: 4rem 0 2rem;
-  overflow: hidden;
-  isolation: isolate;
-
-  &__grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(to right, rgba(var(--wr-color-light-rgb), 0.5) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(var(--wr-color-light-rgb), 0.5) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse at 25% 35%, rgba(0, 0, 0, 0.75) 0%, transparent 65%);
-    -webkit-mask-image: radial-gradient(ellipse at 25% 35%, rgba(0, 0, 0, 0.75) 0%, transparent 65%);
-    z-index: -2;
-    opacity: 0.5;
-  }
-
-  &__glow {
-    position: absolute;
-    left: -6rem;
-    top: -4rem;
-    width: 36rem;
-    height: 24rem;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(99, 102, 241, 0.18), transparent 70%);
-    z-index: -1;
-    pointer-events: none;
-  }
 }
 
 /* ───── Left pitch column ─────────────────────────────────────────── */

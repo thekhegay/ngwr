@@ -1,21 +1,125 @@
+@use 'lib/styles/breakpoints' as bp;
+
 .ngwr-footer {
   display: block;
   border-top: 1px solid var(--wr-color-light);
   background: var(--wr-color-white);
 
   &__inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 1.5rem;
+    color: var(--wr-color-medium);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  // ─── Top row: brand + link columns ───────────────────────────────────
+  &__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+
+    @include bp.media-up(md) {
+      grid-template-columns: 1.25fr 2fr;
+      gap: 3rem;
+    }
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 22rem;
+  }
+
+  &__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--wr-color-primary);
+    font-family: var(--wr-font-family-base);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    width: max-content;
+
+    > span {
+      color: var(--wr-color-dark);
+    }
+  }
+
+  &__tagline {
+    margin: 0;
+    color: var(--wr-color-medium);
+    font-size: 0.875rem;
+  }
+
+  &__columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+
+    @include bp.media-down(sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+
+    &-title {
+      margin: 0 0 0.25rem;
+      color: var(--wr-color-dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    &-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      a {
+        color: var(--wr-color-medium);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color var(--wr-transition-base);
+
+        &:hover {
+          color: var(--wr-color-primary);
+        }
+      }
+    }
+  }
+
+  // ─── Bottom row: copyright + version ─────────────────────────────────
+  &__bottom {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--wr-color-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.875rem 1.5rem;
-    color: var(--wr-color-medium);
     font-size: 0.75rem;
-    line-height: 1rem;
+  }
+
+  &__copyright {
+    color: var(--wr-color-medium);
   }
 
   &__version {
     color: var(--wr-color-medium);
+    text-decoration: none;
     transition: color var(--wr-transition-base);
 
     &:hover {

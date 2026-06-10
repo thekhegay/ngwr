@@ -1,20 +1,12 @@
 <main class="ngwr-home">
-  <!-- ───── Hero: centered pitch (bento moved to its own section below) ───── -->
+  <!-- ───── Hero: title + CTA only (background, install bar, attrs all dropped) ───── -->
   <section class="ngwr-home-hero-wrap">
-    <div class="ngwr-home-hero-wrap__grid" aria-hidden="true"></div>
-    <div class="ngwr-home-hero-wrap__glow" aria-hidden="true"></div>
-
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
         <h1 class="ngwr-home-hero__title">
-          The best way to make stylish <wr-icon name="logo-angular" />Angular applications that feel
-          <span class="ngwr-home-hero__title-accent">alive.</span>
+          The best way to make stylish <wr-icon name="logo-angular" />Angular
+          <span class="ngwr-home-hero__title-accent">applications.</span>
         </h1>
-
-        <p class="ngwr-home-hero__description">
-          NGWR offers a suite of open-source components for building modern Angular applications. Standalone,
-          signals-first, and easy to dress up with your own design tokens.
-        </p>
 
         <div class="ngwr-home-hero__cta">
           <a
@@ -28,28 +20,7 @@
           >
             Get Started
           </a>
-
-          <div class="ngwr-home-hero__install">
-            <span class="ngwr-home-hero__install-prompt">&gt;_</span>
-            <code class="ngwr-home-hero__install-cmd">{{ installCmd }}</code>
-            <button
-              type="button"
-              class="ngwr-home-hero__install-copy"
-              [wrCopyToClipboard]="installCmd"
-              (copied)="onCopied()"
-              aria-label="Copy install command"
-            >
-              COPY
-            </button>
-          </div>
         </div>
-
-        <ul class="ngwr-home-hero__attrs" aria-label="Project attributes">
-          <li>Open source</li>
-          <li>MIT Licensed</li>
-          <li>TypeScript ready</li>
-          <li>Angular 21+</li>
-        </ul>
       </div>
     </div>
   </section>
@@ -129,4 +100,6 @@
       </div>
     </div>
   </section>
+
+  <ngwr-footer />
 </main>

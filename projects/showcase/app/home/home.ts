@@ -8,9 +8,11 @@ import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
-import { NGWR_VERSION_TOKEN } from 'ngwr/version';
+
 
 import { ComponentsBento } from './components-bento/components-bento';
+
+import { Footer } from '../_layout/footer/footer';
 
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -27,7 +29,7 @@ interface WhyTile {
   selector: 'ngwr-home',
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  imports: [RouterLink, WrIcon, WrButton, WrTypography, WrCopyToClipboard, ComponentsBento],
+  imports: [RouterLink, WrIcon, WrButton, WrTypography, WrCopyToClipboard, ComponentsBento, Footer],
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
@@ -43,10 +45,6 @@ interface WhyTile {
 })
 export default class HomeComponent {
   protected readonly routes = routes;
-  protected readonly version = inject(NGWR_VERSION_TOKEN);
-
-  /** Install command for the hero terminal field. */
-  protected readonly installCmd = 'pnpm add ngwr';
 
   /** Snippet shown in the "Zero config" code card. */
   protected readonly snippet = `import { Component } from '@angular/core';
