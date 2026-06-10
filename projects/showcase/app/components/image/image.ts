@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrImage } from 'ngwr/image';
+import { WrLightbox } from 'ngwr/image';
 
 import {
   DocApiComponent,
@@ -19,7 +19,7 @@ const PORTRAIT_THUMB = 'https://images.unsplash.com/photo-1500530855697-b586d89b
 @Component({
   selector: 'ngwr-image-page',
   templateUrl: './image.html',
-  imports: [WrImage, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrLightbox, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ImagePage {
   protected readonly landscape = LANDSCAPE;
@@ -28,22 +28,22 @@ export default class ImagePage {
   protected readonly portraitThumb = PORTRAIT_THUMB;
 
   protected readonly snippets = {
-    install: `import { WrImage } from 'ngwr/image';
+    install: `import { WrLightbox } from 'ngwr/image';
 
-@Component({ imports: [WrImage] })
+@Component({ imports: [WrLightbox] })
 export class MyComponent {}`,
-    basic: `<wr-image src="/photo.jpg" alt="Mountain lake" />`,
-    preview: `<wr-image
+    basic: `<wr-lightbox src="/photo.jpg" alt="Mountain lake" />`,
+    preview: `<wr-lightbox
   src="/photo-full.jpg"
   preview="/photo-thumb.jpg"
   alt="Mountain lake"
 />`,
-    caption: `<wr-image
+    caption: `<wr-lightbox
   src="/photo.jpg"
   alt="Mountain lake"
   caption="Geiranger, Norway — 2023"
 />`,
-    disabled: `<wr-image src="/photo.jpg" alt="No-zoom thumbnail" disablePreview />`,
+    disabled: `<wr-lightbox src="/photo.jpg" alt="No-zoom thumbnail" disablePreview />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

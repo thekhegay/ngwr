@@ -43,7 +43,11 @@ import { WR_OVERLAY } from 'ngwr/overlay';
  * @see https://ngwr.dev/components/image
  */
 @Component({
-  selector: 'wr-image',
+  // `wr-lightbox` is the canonical selector going forward; `wr-image` is
+  // kept as an alias for back-compat until v9. The lib exports
+  // `WrLightbox` (alias for `WrImage`) so consumers can also rename the
+  // class symbol — both selectors render the same component.
+  selector: 'wr-image, wr-lightbox',
   templateUrl: './image.html',
   styleUrl: './image.scss',
   encapsulation: ViewEncapsulation.None,
