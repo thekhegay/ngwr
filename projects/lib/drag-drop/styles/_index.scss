@@ -65,9 +65,12 @@
   box-sizing: border-box;
   border-radius: var(--wr-border-radius-base);
   background: var(--wr-color-white);
+  // Drop shadow uses the always-black backdrop token — `--wr-color-dark-rgb`
+  // flips to light in dark mode, which turns the lift-off shadow into a
+  // glow that breaks the "this is being dragged" affordance.
   box-shadow:
-    0 8px 20px rgba(var(--wr-color-dark-rgb), 0.14),
-    0 2px 4px rgba(var(--wr-color-dark-rgb), 0.06);
+    0 8px 20px rgba(var(--wr-color-backdrop-rgb), 0.28),
+    0 2px 4px rgba(var(--wr-color-backdrop-rgb), 0.18);
   color: var(--wr-color-dark);
   font-family: var(--wr-font-family-base);
   // CDK sets pointer-events to none on the preview; we keep visuals only.

@@ -5,7 +5,10 @@
   --wr-kbd-border-bottom: rgba(var(--wr-color-dark-rgb), 0.32);
   --wr-kbd-color: var(--wr-color-dark);
   --wr-kbd-radius: 4px;
-  --wr-kbd-shadow: 0 1px 0 rgba(var(--wr-color-dark-rgb), 0.12);
+  // Shadow uses the always-black backdrop token, not `--wr-color-dark-rgb`
+  // — the dark RGB flips to light in dark mode, which would turn the
+  // 1px drop-shadow into a top highlight.
+  --wr-kbd-shadow: 0 1px 0 rgba(var(--wr-color-backdrop-rgb), 0.25);
 
   display: inline-flex;
   align-items: center;
