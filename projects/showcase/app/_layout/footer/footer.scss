@@ -8,10 +8,9 @@
   background: var(--wr-color-white);
 
   &__inner {
-    // No `max-width` — footer spans the viewport like the header. Padding
-    // (matching the header's `--wr-grid-gutter`) is the only horizontal
-    // breathing room, so chrome reads as one continuous strip.
-    padding: 3rem var(--wr-grid-gutter) 1.5rem;
+    // No padding here — rows (`__top`, `__bottom`) carry their own
+    // padding so each can have a different rhythm without an outer
+    // container squeezing them.
     color: var(--wr-color-medium);
     font-size: 0.875rem;
     line-height: 1.5;
@@ -19,6 +18,7 @@
 
   // ─── Top row: brand + link columns ───────────────────────────────────
   &__top {
+    padding: 3rem var(--wr-grid-gutter) 1.5rem;
     display: grid;
     grid-template-columns: 1fr;
     gap: 2.5rem;
@@ -106,9 +106,8 @@
 
   // ─── Bottom row: copyright + version ─────────────────────────────────
   &__bottom {
-    margin-top: 2.5rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--wr-color-light);
+    padding: 1.25rem var(--wr-grid-gutter) 1.5rem;
+    border-top: 1px solid var(--wr-color-light-lighter);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -120,16 +119,9 @@
   // Used on docs / sidebar pages so the page footer is just a thin
   // copyright/version strip. The brand + link columns are reserved for
   // the homepage where a real sitemap makes sense.
-  &--compact {
-    .ngwr-footer__inner {
-      padding: 0.875rem var(--wr-grid-gutter);
-    }
-
-    .ngwr-footer__bottom {
-      margin-top: 0;
-      padding-top: 0;
-      border-top: 0;
-    }
+  &--compact .ngwr-footer__bottom {
+    padding: 0.875rem var(--wr-grid-gutter);
+    border-top: 0;
   }
 
   &__copyright {
