@@ -26,14 +26,14 @@
                 margin-bottom: 0.5rem;
               "
             >
-              <span style="color: rgba(0, 0, 0, 0.4); font-variant-numeric: tabular-nums; min-width: 1.5rem"
+              <span style="color: var(--wr-color-medium); font-variant-numeric: tabular-nums; min-width: 1.5rem"
                 >#{{ i + 1 }}</span
               >
               <span>{{ task.label }}</span>
             </div>
           </ng-template>
         </wr-sortable-list>
-        <p style="margin: 0; color: rgba(0, 0, 0, 0.6); font-size: 0.875rem">Last reorder: {{ lastReorder() }}</p>
+        <p style="margin: 0; color: var(--wr-color-medium); font-size: 0.875rem">Last reorder: {{ lastReorder() }}</p>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -62,7 +62,7 @@
             </div>
           </ng-template>
         </wr-sortable-list>
-        <p style="margin: 0; color: rgba(0, 0, 0, 0.6); font-size: 0.875rem">
+        <p style="margin: 0; color: var(--wr-color-medium); font-size: 0.875rem">
           Only the ≡ handle starts a drag — clicking the row text does nothing.
         </p>
       </div>
