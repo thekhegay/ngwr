@@ -1,14 +1,12 @@
 /**
- * Components bento — zardui-style 4-column responsive grid of mini-UI
- * tiles, each showing a small composed scene built from real ngwr
- * components (not just a single primitive). Sits between the hero and the
- * "Zero config" section as the homepage's main "see what you can build"
- * surface.
+ * Components bento — zardui-style masonry of mini-UI tiles, each a live
+ * composed scene built from real ngwr components. Every field is
+ * editable, every toggle responds, the theme segmented actually drives
+ * `WrTheme`, and the tabs / pagination switch state.
  */
 
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { Check, CreditCard, Folder, House, Settings } from 'lucide';
 
@@ -26,9 +24,9 @@ import { WrPagination } from 'ngwr/pagination';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrSwitch } from 'ngwr/switch';
 import { WrTab, WrTabs } from 'ngwr/tabs';
+import { WrTheme, type WrThemeMode } from 'ngwr/theme';
+import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
-
-import { routes } from '#routing';
 
 @Component({
   selector: 'ngwr-components-bento',
@@ -37,7 +35,6 @@ import { routes } from '#routing';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    RouterLink,
     WrAvatar,
     WrBadge,
     WrButton,
@@ -71,31 +68,48 @@ import { routes } from '#routing';
   host: { class: 'ngwr-cbento' },
 })
 export class ComponentsBento {
-  protected readonly routes = routes;
-  protected readonly today = new Date();
+  private readonly toast = inject(WrToast);
+  protected readonly theme = inject(WrTheme);
 
-  // Decorative state — wired via [ngModel] so components render in their
-  // engaged variants instead of the empty defaults.
-  protected readonly themeOptions: readonly WrSegmentedOption<string>[] = [
+  // ─── Sign-up form (tile 1) ────────────────────────────────────────────
+  protected readonly fullName = signal('Alice Kim');
+  protected readonly signupEmail = signal('alice@ngwr.dev');
+  protected readonly signupPassword = signal('correct-horse-battery');
+  protected readonly signupConfirm = signal('correct-horse-battery');
+  protected readonly agreeTerms = signal(true);
+
+  // ─── Payment (tile 3) ─────────────────────────────────────────────────
+  protected readonly payAmount = signal('129.99');
+  protected readonly payHolder = signal('Roman K.');
+
+  // ─── Notifications (tile 4) ───────────────────────────────────────────
+  protected readonly notifPush = signal(true);
+  protected readonly notifDigest = signal(false);
+  protected readonly notifBeta = signal(true);
+
+  // ─── Tabs (tile 9) ────────────────────────────────────────────────────
+  protected readonly activeTab = signal<string>('overview');
+
+  // ─── Pagination (tile 10) ─────────────────────────────────────────────
+  protected readonly currentPage = signal(2);
+
+  // ─── Profile validation (tile 11) ─────────────────────────────────────
+  protected readonly username = signal('alice_kim');
+  protected readonly workspace = signal('acme-team');
+
+  // ─── Theme switcher (tile 12) ─────────────────────────────────────────
+  protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [
     { label: 'Light', value: 'light' },
     { label: 'Dark', value: 'dark' },
     { label: 'Auto', value: 'auto' },
   ];
-  protected readonly themeValue = signal<string>('dark');
 
-  protected readonly notifSwitch = signal(true);
-  protected readonly digestSwitch = signal(false);
-  protected readonly betaSwitch = signal(true);
+  // ─── Search (tile 13) ─────────────────────────────────────────────────
+  protected readonly searchQuery = signal('');
 
-  protected readonly remember = signal(true);
-  protected readonly currentPage = signal(2);
-
+  // ─── Static content ───────────────────────────────────────────────────
   protected readonly emptyTitle = 'No projects yet';
   protected readonly emptyHint = 'Create your first project to get started.';
-
-  // Tabs demo state
-  protected readonly activeTab = signal<string>('overview');
-
   protected readonly codeSnippet = `import { WrBtn } from 'ngwr/button';
 
 @Component({
@@ -103,4 +117,33 @@ export class ComponentsBento {
   template: \`<wr-btn color="primary">Save</wr-btn>\`,
 })
 export class Demo {}`;
+
+  // ─── Action handlers ──────────────────────────────────────────────────
+  protected onCreateAccount(): void {
+    this.toast.show({
+      type: 'success',
+      title: 'Welcome to ngwr!',
+      message: `Account ready for ${this.fullName() || 'you'}.`,
+    });
+  }
+
+  protected onPay(): void {
+    this.toast.show({
+      type: 'success',
+      title: 'Payment received',
+      message: `$${this.payAmount()} from ${this.payHolder() || 'card'}.`,
+    });
+  }
+
+  protected onNewProject(): void {
+    this.toast.show({ type: 'info', message: 'Project wizard would open here.' });
+  }
+
+  protected onFollow(): void {
+    this.toast.show({ type: 'success', message: 'Now following Roman Kim.' });
+  }
+
+  protected onThemeChange(mode: WrThemeMode): void {
+    this.theme.set(mode);
+  }
 }
