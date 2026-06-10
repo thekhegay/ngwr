@@ -10,7 +10,7 @@ import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
-import { BentoHero } from './bento-hero/bento-hero';
+import { ComponentsBento } from './components-bento/components-bento';
 
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
@@ -27,7 +27,7 @@ interface WhyTile {
   selector: 'ngwr-home',
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  imports: [RouterLink, WrIcon, WrButton, WrTypography, WrCopyToClipboard, BentoHero],
+  imports: [RouterLink, WrIcon, WrButton, WrTypography, WrCopyToClipboard, ComponentsBento],
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,

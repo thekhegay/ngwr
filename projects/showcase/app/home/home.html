@@ -1,68 +1,61 @@
 <main class="ngwr-home">
-  <!-- ───── Hero: pitch on the left, live showcase collage on the right ───── -->
+  <!-- ───── Hero: centered pitch (bento moved to its own section below) ───── -->
   <section class="ngwr-home-hero-wrap">
     <div class="ngwr-home-hero-wrap__grid" aria-hidden="true"></div>
     <div class="ngwr-home-hero-wrap__glow" aria-hidden="true"></div>
 
     <div class="container">
-      <div class="grid">
-        <!-- ───── Left: pitch ───── -->
-        <div class="col-12 col-md-5">
-          <div class="ngwr-home-hero">
-            <h1 class="ngwr-home-hero__title">
-              The best way to make stylish <wr-icon name="logo-angular" />Angular applications that feel
-              <span class="ngwr-home-hero__title-accent">alive.</span>
-            </h1>
+      <div class="ngwr-home-hero ngwr-home-hero--center">
+        <h1 class="ngwr-home-hero__title">
+          The best way to make stylish <wr-icon name="logo-angular" />Angular applications that feel
+          <span class="ngwr-home-hero__title-accent">alive.</span>
+        </h1>
 
-            <p class="ngwr-home-hero__description">
-              NGWR offers a suite of open-source components for building modern Angular applications. Standalone,
-              signals-first, and easy to dress up with your own design tokens.
-            </p>
+        <p class="ngwr-home-hero__description">
+          NGWR offers a suite of open-source components for building modern Angular applications. Standalone,
+          signals-first, and easy to dress up with your own design tokens.
+        </p>
 
-            <div class="ngwr-home-hero__cta">
-              <a
-                class="ngwr-home-hero__btn"
-                wr-btn
-                color="primary"
-                size="lg"
-                [routerLink]="routes.gettingStarted.index"
-                icon="arrow-forward"
-                iconPosition="end"
-              >
-                Get Started
-              </a>
+        <div class="ngwr-home-hero__cta">
+          <a
+            class="ngwr-home-hero__btn"
+            wr-btn
+            color="primary"
+            size="lg"
+            [routerLink]="routes.gettingStarted.index"
+            icon="arrow-forward"
+            iconPosition="end"
+          >
+            Get Started
+          </a>
 
-              <div class="ngwr-home-hero__install">
-                <span class="ngwr-home-hero__install-prompt">&gt;_</span>
-                <code class="ngwr-home-hero__install-cmd">{{ installCmd }}</code>
-                <button
-                  type="button"
-                  class="ngwr-home-hero__install-copy"
-                  [wrCopyToClipboard]="installCmd"
-                  (copied)="onCopied()"
-                  aria-label="Copy install command"
-                >
-                  COPY
-                </button>
-              </div>
-            </div>
-
-            <ul class="ngwr-home-hero__attrs" aria-label="Project attributes">
-              <li>Open source</li>
-              <li>MIT Licensed</li>
-              <li>TypeScript ready</li>
-              <li>Angular 21+</li>
-            </ul>
+          <div class="ngwr-home-hero__install">
+            <span class="ngwr-home-hero__install-prompt">&gt;_</span>
+            <code class="ngwr-home-hero__install-cmd">{{ installCmd }}</code>
+            <button
+              type="button"
+              class="ngwr-home-hero__install-copy"
+              [wrCopyToClipboard]="installCmd"
+              (copied)="onCopied()"
+              aria-label="Copy install command"
+            >
+              COPY
+            </button>
           </div>
         </div>
 
-        <!-- ───── Right: tilted bento wall of live components ───── -->
-        <div class="col-12 col-md-7">
-          <ngwr-bento-hero />
-        </div>
+        <ul class="ngwr-home-hero__attrs" aria-label="Project attributes">
+          <li>Open source</li>
+          <li>MIT Licensed</li>
+          <li>TypeScript ready</li>
+          <li>Angular 21+</li>
+        </ul>
       </div>
     </div>
   </section>
+
+  <!-- ───── Components bento: zardui-style mini-UI tiles ───── -->
+  <ngwr-components-bento />
 
   <!-- ───── DX section: zero config + code card ───── -->
   <section class="ngwr-section">

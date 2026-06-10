@@ -1,0 +1,247 @@
+<section class="ngwr-cbento__section">
+  <div class="container">
+    <header class="ngwr-cbento__head">
+      <p wrTypography variant="overline" tone="primary">/ Components</p>
+      <p wrTypography variant="h1">A toolkit for real product UI.</p>
+      <p wrTypography variant="lead">
+        Forms, navigation, feedback, data, layout — every primitive composed in context. Click any tile to jump to the
+        full reference.
+      </p>
+    </header>
+
+    <div class="ngwr-cbento__grid">
+      <!-- ─── Tile 1 — Sign in form ─────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'form-field']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Sign in</p>
+          <p wrTypography variant="caption" tone="medium">Form composition</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__signin">
+          <wr-form-field label="Email">
+            <input wrInput type="email" value="alice@ngwr.dev" readonly />
+          </wr-form-field>
+          <wr-form-field label="Password">
+            <input wrInput type="password" value="••••••••" readonly />
+          </wr-form-field>
+          <div class="ngwr-cbento__signin-row">
+            <wr-checkbox [ngModel]="remember()">Remember me</wr-checkbox>
+            <a wrTypography variant="small" tone="primary" class="ngwr-cbento__link">Forgot?</a>
+          </div>
+          <wr-btn color="primary" block>Sign in</wr-btn>
+        </div>
+      </a>
+
+      <!-- ─── Tile 2 — Stats counter ─────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'counter']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Active users</p>
+          <p wrTypography variant="caption" tone="medium">Counter + delta chip</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__stat">
+          <div class="ngwr-cbento__stat-value">
+            <wr-counter [value]="42.1" mode="odometer" [decimals]="1" />
+            <span class="ngwr-cbento__stat-suffix">K</span>
+          </div>
+          <span class="ngwr-cbento__stat-delta">▲ 12.4%</span>
+          <p wrTypography variant="caption" tone="medium">+5.2K this week</p>
+        </div>
+      </a>
+
+      <!-- ─── Tile 3 — Payment ──────────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'input']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Amount</p>
+          <p wrTypography variant="caption" tone="medium">Input group + prefix</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__payment">
+          <wr-input-group>
+            <span wrInputPrefix>$</span>
+            <input wrInput type="text" value="129.99" readonly />
+          </wr-input-group>
+          <wr-form-field>
+            <input wrInput placeholder="Card holder" value="Roman K." readonly />
+          </wr-form-field>
+          <wr-btn color="primary" block icon="credit-card" iconPosition="start">Pay now</wr-btn>
+        </div>
+      </a>
+
+      <!-- ─── Tile 4 — Settings switches ────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'switch']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Notifications</p>
+          <p wrTypography variant="caption" tone="medium">Switch stack</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__settings">
+          <div class="ngwr-cbento__setting">
+            <div>
+              <p wrTypography variant="small">Push notifications</p>
+              <p wrTypography variant="caption" tone="medium">Real-time activity</p>
+            </div>
+            <wr-switch [ngModel]="notifSwitch()" />
+          </div>
+          <div class="ngwr-cbento__setting">
+            <div>
+              <p wrTypography variant="small">Daily digest</p>
+              <p wrTypography variant="caption" tone="medium">8:00 AM summary</p>
+            </div>
+            <wr-switch [ngModel]="digestSwitch()" />
+          </div>
+          <div class="ngwr-cbento__setting">
+            <div>
+              <p wrTypography variant="small">Beta features</p>
+              <p wrTypography variant="caption" tone="medium">Early access</p>
+            </div>
+            <wr-switch [ngModel]="betaSwitch()" />
+          </div>
+        </div>
+      </a>
+
+      <!-- ─── Tile 5 — Toast preview ────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'toast']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Notification</p>
+          <p wrTypography variant="caption" tone="medium">Toast surface</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__toasts">
+          <div class="ngwr-cbento__toast ngwr-cbento__toast--success">
+            <wr-icon name="checkmark" />
+            <div>
+              <p wrTypography variant="small">Payment received</p>
+              <p wrTypography variant="caption" tone="medium">$129.99 from Roman</p>
+            </div>
+          </div>
+          <div class="ngwr-cbento__toast">
+            <div>
+              <p wrTypography variant="small">2 new comments</p>
+              <p wrTypography variant="caption" tone="medium">View thread</p>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- ─── Tile 6 — Empty state ──────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'empty']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Empty state</p>
+          <p wrTypography variant="caption" tone="medium">Empty primitive</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__empty">
+          <wr-empty icon="folder" [title]="emptyTitle">
+            {{ emptyHint }}
+            <wr-btn wrEmptyActions size="sm" color="primary">New project</wr-btn>
+          </wr-empty>
+        </div>
+      </a>
+
+      <!-- ─── Tile 7 — Avatar stack + verified ──────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'avatar']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Team</p>
+          <p wrTypography variant="caption" tone="medium">Avatar stack + badge</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__avatars">
+          <div class="ngwr-cbento__avatar-stack">
+            <wr-avatar url="images/image_1.webp" alt="" />
+            <wr-avatar alt="Jamie M">JM</wr-avatar>
+            <wr-avatar alt="Alex K">AK</wr-avatar>
+            <wr-avatar alt="Riley T">RT</wr-avatar>
+            <span class="ngwr-cbento__avatar-more" aria-label="4 more">+4</span>
+          </div>
+          <div class="ngwr-cbento__avatars-meta">
+            <p wrTypography variant="small">8 collaborators</p>
+            <wr-badge color="success">Synced</wr-badge>
+          </div>
+        </div>
+      </a>
+
+      <!-- ─── Tile 8 — Tags cluster ─────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'badge']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Topics</p>
+          <p wrTypography variant="caption" tone="medium">Tag cluster</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__tags">
+          <wr-tag color="primary" outlined>Angular</wr-tag>
+          <wr-tag color="success" outlined>Standalone</wr-tag>
+          <wr-tag color="warning" outlined>Signals</wr-tag>
+          <wr-tag color="secondary" outlined>SSR</wr-tag>
+          <wr-tag color="danger" outlined>Zoneless</wr-tag>
+          <wr-tag color="dark" outlined>A11y</wr-tag>
+        </div>
+      </a>
+
+      <!-- ─── Tile 9 — Tabs ─────────────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'tabs']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Tabbed view</p>
+          <p wrTypography variant="caption" tone="medium">Tabs + content</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__tabs">
+          <wr-tabs [(active)]="activeTab">
+            <wr-tab key="overview" title="Overview">
+              <p wrTypography variant="small" tone="medium">Latest release ships 142 components.</p>
+            </wr-tab>
+            <wr-tab key="changes" title="Changes">
+              <p wrTypography variant="small" tone="medium">v7.0 — entry-point consolidation.</p>
+            </wr-tab>
+          </wr-tabs>
+        </div>
+      </a>
+
+      <!-- ─── Tile 10 — Pagination ─────────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'pagination']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Page</p>
+          <p wrTypography variant="caption" tone="medium">Pagination</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__pager">
+          <wr-pagination [(currentPage)]="currentPage" [pageSize]="10" [total]="80" />
+        </div>
+      </a>
+
+      <!-- ─── Tile 11 — Form fields with hint ─────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/components', 'form-field']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Profile</p>
+          <p wrTypography variant="caption" tone="medium">Form field + hint</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__validation">
+          <wr-form-field label="Username" hint="3–20 chars, no spaces." required>
+            <input wrInput value="alice_kim" readonly />
+          </wr-form-field>
+          <wr-form-field label="Workspace" hint="Public, lowercase." optional>
+            <input wrInput value="acme-team" readonly />
+          </wr-form-field>
+        </div>
+      </a>
+
+      <!-- ─── Tile 12 — Theme switcher ──────────────────────────────────── -->
+      <a class="ngwr-cbento__tile" [routerLink]="['/getting-started', 'theming']">
+        <header class="ngwr-cbento__tile-head">
+          <p wrTypography variant="h5">Theming</p>
+          <p wrTypography variant="caption" tone="medium">Segmented + tokens</p>
+        </header>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__theme">
+          <wr-segmented [options]="themeOptions" [ngModel]="themeValue()" />
+          <div class="ngwr-cbento__swatches">
+            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-primary)" aria-label="primary"></span>
+            <span
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-secondary)"
+              aria-label="secondary"
+            ></span>
+            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-success)" aria-label="success"></span>
+            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-warning)" aria-label="warning"></span>
+            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-danger)" aria-label="danger"></span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <footer class="ngwr-cbento__foot">
+      <wr-btn color="primary" outlined size="lg" [routerLink]="['/components', 'button']" icon="arrow-forward" iconPosition="end">
+        Browse all components
+      </wr-btn>
+    </footer>
+  </div>
+</section>

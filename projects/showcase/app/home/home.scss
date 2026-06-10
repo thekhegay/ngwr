@@ -53,6 +53,34 @@
   gap: 1.25rem;
   height: 100%;
 
+  // Centered single-column variant — used since the bento was extracted
+  // to its own section below the hero. The hero now reads as a focused
+  // pitch + CTA tower, with mini-UI examples in the bento underneath.
+  &--center {
+    align-items: center;
+    text-align: center;
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 4rem 0 5rem;
+
+    .ngwr-home-hero__title {
+      max-width: 42rem;
+    }
+
+    .ngwr-home-hero__description {
+      max-width: 36rem;
+    }
+
+    .ngwr-home-hero__cta {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .ngwr-home-hero__attrs {
+      justify-content: center;
+    }
+  }
+
   @include bp.media-down(md) {
     padding-top: 2rem;
     padding-bottom: 2rem;

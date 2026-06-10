@@ -1,0 +1,309 @@
+// Components bento — zardui-style 4-column grid of mini-UI tiles, each
+// linking to its component's docs page.
+
+.ngwr-cbento {
+  display: block;
+
+  &__section {
+    padding: 4rem 0 5rem;
+  }
+
+  &__head {
+    max-width: 48rem;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  // ─── The grid itself ─────────────────────────────────────────────────
+  // Matches zardui's responsive rhythm: 1 / 2 / 3 / 4 columns at
+  // sm / md / lg / xl. Gap grows at xl so the grid breathes on wide
+  // monitors.
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+
+    @media (min-width: 48rem) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 64rem) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 80rem) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  // ─── Tile shell ──────────────────────────────────────────────────────
+  // Each tile is an anchor so the whole card is one big click target.
+  // Hover lifts subtly, mirroring shadcn/zardui's "card hover" feel.
+  &__tile {
+    --wr-cbento-bg: var(--wr-color-white);
+    --wr-cbento-border: var(--wr-color-light);
+    --wr-cbento-shadow: 0 1px 2px rgba(var(--wr-color-backdrop-rgb), 0.04);
+    --wr-cbento-shadow-hover: 0 8px 24px rgba(var(--wr-color-backdrop-rgb), 0.08);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    min-height: 18rem;
+    background: var(--wr-cbento-bg);
+    border: 1px solid var(--wr-cbento-border);
+    border-radius: var(--wr-border-radius-lg);
+    box-shadow: var(--wr-cbento-shadow);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    transition:
+      border-color var(--wr-transition-base),
+      box-shadow var(--wr-transition-base),
+      transform var(--wr-transition-base);
+
+    &:hover {
+      border-color: rgba(var(--wr-color-primary-rgb), 0.4);
+      box-shadow: var(--wr-cbento-shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__tile-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__tile-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  &__foot {
+    margin-top: 2.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  // ─── Per-tile micro-layouts ──────────────────────────────────────────
+
+  &__signin {
+    &-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0.25rem 0;
+    }
+  }
+
+  &__link {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  &__stat {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1 1 auto;
+
+    &-value {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.125rem;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--wr-color-dark);
+      font-variant-numeric: tabular-nums;
+    }
+
+    &-suffix {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--wr-color-medium);
+    }
+
+    &-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(var(--wr-color-success-rgb), 0.12);
+      color: var(--wr-color-success);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+
+  &__payment {
+    gap: 0.625rem;
+  }
+
+  &__settings {
+    gap: 0.75rem;
+  }
+
+  &__setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+    }
+  }
+
+  &__toasts {
+    gap: 0.5rem;
+  }
+
+  &__toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    background: rgba(var(--wr-color-light-rgb), 0.4);
+    border: 1px solid var(--wr-color-light);
+    border-radius: var(--wr-border-radius-base);
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      min-width: 0;
+    }
+
+    --wr-icon-size: 1rem;
+
+    &--success {
+      border-left: 3px solid var(--wr-color-success);
+
+      wr-icon {
+        color: var(--wr-color-success);
+        margin-top: 0.125rem;
+      }
+    }
+  }
+
+  &__empty {
+    align-items: stretch;
+    justify-content: center;
+    text-align: center;
+
+    wr-empty {
+      // Override the lib's `width: 100%; min-height: 100%` claim — inside
+      // a fixed-height tile, the empty primitive should sit compact in
+      // the centre rather than stretch the tile to absurd heights.
+      min-height: auto;
+      padding: 0.5rem;
+    }
+  }
+
+  &__avatars {
+    justify-content: space-between;
+
+    &-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+  }
+
+  &__avatar-stack {
+    display: flex;
+    align-items: center;
+
+    wr-avatar {
+      // Overlap each avatar slightly with the next; ring lifts via white
+      // outline so the stack reads as a single cluster.
+      box-shadow: 0 0 0 2px var(--wr-color-white);
+      margin-left: -0.5rem;
+
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+  }
+
+  &__avatar-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-left: -0.5rem;
+    border-radius: 50%;
+    background: rgba(var(--wr-color-light-rgb), 0.6);
+    color: var(--wr-color-medium);
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 0 0 2px var(--wr-color-white);
+  }
+
+  &__tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 0.375rem;
+  }
+
+  &__tabs {
+    // Tabs inside a tile — give the content panel a bit of breathing room
+    // and let the strip claim the natural width without scrolling.
+    --wr-tabs-color: var(--wr-color-medium);
+  }
+
+  &__pager {
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+  }
+
+  &__validation {
+    gap: 0.625rem;
+  }
+
+  &__theme {
+    gap: 1rem;
+
+    wr-segmented {
+      width: 100%;
+    }
+  }
+
+  &__swatches {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.375rem;
+  }
+
+  &__swatch {
+    flex: 1 1 0;
+    height: 1.75rem;
+    border-radius: var(--wr-border-radius-sm);
+    border: 1px solid rgba(var(--wr-color-backdrop-rgb), 0.06);
+  }
+}
