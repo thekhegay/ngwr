@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { WrLightbox } from 'ngwr/image';
+import { WrLightbox } from 'ngwr/lightbox';
 
 import {
   DocApiComponent,
@@ -17,18 +17,18 @@ const PORTRAIT = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w
 const PORTRAIT_THUMB = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=240&q=70';
 
 @Component({
-  selector: 'ngwr-image-page',
-  templateUrl: './image.html',
+  selector: 'ngwr-lightbox-page',
+  templateUrl: './lightbox.html',
   imports: [WrLightbox, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
-export default class ImagePage {
+export default class LightboxPage {
   protected readonly landscape = LANDSCAPE;
   protected readonly landscapeThumb = LANDSCAPE_THUMB;
   protected readonly portrait = PORTRAIT;
   protected readonly portraitThumb = PORTRAIT_THUMB;
 
   protected readonly snippets = {
-    install: `import { WrLightbox } from 'ngwr/image';
+    install: `import { WrLightbox } from 'ngwr/lightbox';
 
 @Component({ imports: [WrLightbox] })
 export class MyComponent {}`,

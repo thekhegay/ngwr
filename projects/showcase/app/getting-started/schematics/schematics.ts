@@ -138,7 +138,9 @@ ng update ngwr@7`,
 'ngwr/tooltip'          →  'ngwr/popover'        (WrTooltip         → WrPopover)
 'ngwr/tree-select'      →  'ngwr/tree'           (WrTreeSelect      → WrTree)
 'ngwr/bottom-sheet'     →  'ngwr/drawer'         (WrBottomSheet     → WrDrawer)
-'ngwr/count-up-text'    →  'ngwr/count-up'       (WrCountUpText     → WrCountUp)
+'ngwr/count-up-text'    →  'ngwr/counter'        (WrCountUpText     → WrCountUp)
+'ngwr/count-up'         →  'ngwr/counter'        (entry merged; symbol unchanged)
+'ngwr/tag'              →  'ngwr/badge'          (entry merged; symbol unchanged)
 
 // Stylesheets: @use / @import / @forward
 @use 'ngwr/autocomplete';   →  @use 'ngwr/select';

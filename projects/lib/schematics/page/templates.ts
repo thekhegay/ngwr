@@ -152,7 +152,7 @@ function renderDashboard(dashName: string, pascalName: string): Rendered {
 
 import { WrCard } from 'ngwr/card';
 import { WrStatistic } from 'ngwr/statistic';
-import { WrCountUp } from 'ngwr/count-up';
+import { WrCountUp } from 'ngwr/counter';
 
 @Component({
   selector: 'app-${dashName}',

@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 
-import { WrBadge } from 'ngwr/badge';
+import { Check } from 'lucide';
+import { WrBadge, WrTag } from 'ngwr/badge';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WR_COLORS } from 'ngwr/theme';
 
 import {
@@ -9,8 +12,6 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
-  DocSeeAlsoComponent,
-  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
@@ -19,30 +20,22 @@ import {
   templateUrl: './badge.html',
   imports: [
     WrBadge,
+    WrTag,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
-    DocSeeAlsoComponent,
   ],
+  providers: [provideWrIcons(lucideIcons({ checkmark: Check }))],
 })
 export default class BadgeComponent {
   protected readonly colors = WR_COLORS;
 
-  protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
-    {
-      title: 'Tag',
-      kind: 'Component',
-      url: ['/components', 'tag'],
-      description: 'Richer label — icons, loading, outlined / transparent. Use when a badge feels under-powered.',
-    },
-  ];
-
   protected readonly snippets = {
-    install: `import { WrBadge } from 'ngwr/badge';
+    install: `import { WrBadge, WrTag } from 'ngwr/badge';
 
-@Component({ imports: [WrBadge] })
+@Component({ imports: [WrBadge, WrTag] })
 export class MyComponent {}`,
     basic: `<wr-badge>New</wr-badge>`,
     colors: `<wr-badge color="primary">Primary</wr-badge>
@@ -51,6 +44,9 @@ export class MyComponent {}`,
 <wr-badge size="md">12</wr-badge>
 <wr-badge size="lg">12</wr-badge>`,
     shape: `<wr-badge color="primary" shape="pill">Beta</wr-badge>`,
+    tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
+<wr-tag color="primary" outlined rounded>Beta</wr-tag>
+<wr-tag color="warning" loading>Saving</wr-tag>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

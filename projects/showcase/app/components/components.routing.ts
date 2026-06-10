@@ -120,10 +120,6 @@ export default [
     loadComponent: () => import('./counter/counter'),
   },
   {
-    path: components.countUp,
-    loadComponent: () => import('./count-up/count-up'),
-  },
-  {
     path: components.empty,
     loadComponent: () => import('./empty/empty'),
   },
@@ -172,8 +168,8 @@ export default [
     loadComponent: () => import('./icon/icon'),
   },
   {
-    path: components.image,
-    loadComponent: () => import('./image/image'),
+    path: components.lightbox,
+    loadComponent: () => import('./lightbox/lightbox'),
   },
   {
     path: components.imageCropper,
@@ -306,10 +302,6 @@ export default [
   {
     path: components.tabs,
     loadComponent: () => import('./tabs/tabs'),
-  },
-  {
-    path: components.tag,
-    loadComponent: () => import('./tag/tag'),
   },
   {
     path: components.typography,

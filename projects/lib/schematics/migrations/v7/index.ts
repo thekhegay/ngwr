@@ -8,7 +8,7 @@
 import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 
 /**
- * v6 → v7 migration. Replaces the 8 entry-points that were folded into
+ * v6 → v7 migration. Replaces the 10 entry-points that were folded into
  * consolidator components:
  *
  *   wr-autocomplete       → <wr-select mode="search">
@@ -19,7 +19,9 @@ import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
  *                          → <wr-popover mode="tooltip"> + [wrPopover]
  *   wr-tree-select        → <wr-tree openOn="overlay">
  *   wr-bottom-sheet       → <wr-drawer position="bottom">
- *   wr-count-up-text      → <wr-count-up>
+ *   wr-count-up-text      → <wr-count-up> (entry: ngwr/counter)
+ *   ngwr/count-up         → ngwr/counter (entry merged; tag unchanged)
+ *   ngwr/tag              → ngwr/badge   (entry merged; tag unchanged)
  *
  * Touches every `.html`, `.ts`, and `.scss` file in the workspace
  * (excluding `node_modules`, `dist`, `.git`, `coverage`).
@@ -69,6 +71,10 @@ const HTML_TRANSFORMS: readonly Transform[] = [
   // wr-count-up-text → wr-count-up (just a rename — same surface)
   { pattern: /<wr-count-up-text(\s|>|\/)/g, replacement: '<wr-count-up$1' },
   { pattern: /<\/wr-count-up-text>/g, replacement: '</wr-count-up>' },
+
+  // wr-image → wr-lightbox (rename — same surface)
+  { pattern: /<wr-image(\s|>|\/)/g, replacement: '<wr-lightbox$1' },
+  { pattern: /<\/wr-image>/g, replacement: '</wr-lightbox>' },
 ];
 
 /** TS imports: module-path rewrites + symbol renames. */
@@ -80,7 +86,10 @@ const MODULE_RENAMES: ReadonlyMap<string, string> = new Map([
   ['ngwr/tooltip', 'ngwr/popover'],
   ['ngwr/tree-select', 'ngwr/tree'],
   ['ngwr/bottom-sheet', 'ngwr/drawer'],
-  ['ngwr/count-up-text', 'ngwr/count-up'],
+  ['ngwr/count-up-text', 'ngwr/counter'],
+  ['ngwr/count-up', 'ngwr/counter'],
+  ['ngwr/tag', 'ngwr/badge'],
+  ['ngwr/image', 'ngwr/lightbox'],
 ]);
 
 const SYMBOL_RENAMES: ReadonlyMap<string, string> = new Map([
@@ -92,6 +101,7 @@ const SYMBOL_RENAMES: ReadonlyMap<string, string> = new Map([
   ['WrTreeSelect', 'WrTree'],
   ['WrBottomSheet', 'WrDrawer'],
   ['WrCountUpText', 'WrCountUp'],
+  ['WrImage', 'WrLightbox'],
 ]);
 
 /** SCSS subpath imports — `@use 'ngwr/X';` and `@import 'ngwr/X';` forms. */

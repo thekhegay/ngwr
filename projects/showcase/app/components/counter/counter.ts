@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrCounter } from 'ngwr/counter';
+import { WrCounter, WrCountUp } from 'ngwr/counter';
 
 import {
   DocApiComponent,
@@ -17,6 +17,7 @@ import {
   templateUrl: './counter.html',
   imports: [
     WrCounter,
+    WrCountUp,
     WrButton,
     DocPageComponent,
     DocSectionComponent,
@@ -40,13 +41,15 @@ export default class CounterPageComponent {
   }
 
   protected readonly snippets = {
-    install: `import { WrCounter } from 'ngwr/counter';
+    install: `import { WrCounter, WrCountUp } from 'ngwr/counter';
 
-@Component({ imports: [WrCounter] })
+@Component({ imports: [WrCounter, WrCountUp] })
 export class MyComponent {}`,
     odometer: `<wr-counter [value]="123456" mode="odometer" />`,
     tween: `<wr-counter [value]="9.99" mode="tween" [decimals]="2" prefix="$" />`,
     minDigits: `<wr-counter [value]="42" [minIntegerDigits]="6" mode="odometer" />`,
+    countUp: `<wr-count-up [to]="1000" easing="spring" trigger="visible" />`,
+    countDown: `<wr-count-up [from]="60" [to]="0" direction="down" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

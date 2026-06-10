@@ -36,6 +36,17 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Pagination"
+    description="Set `[pageSize]` for client-side pagination — the table slices rows automatically and renders a `<wr-pagination>` footer. Pass `[totalItems]` to switch to server-side mode (you handle slicing)."
+  >
+    <ngwr-doc-snippet [code]="snippets.paginated">
+      <div style="width: 100%">
+        <wr-table [columns]="columns" [items]="paginatedRows" [pageSize]="5" [(page)]="page" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

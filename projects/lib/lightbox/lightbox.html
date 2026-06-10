@@ -1,6 +1,6 @@
 @if (disablePreview()) {
   <img
-    class="wr-image__thumb"
+    class="wr-lightbox__thumb"
     [src]="preview() || src()"
     [alt]="alt()"
     (load)="onLoad()"
@@ -8,9 +8,9 @@
     decoding="async"
   />
 } @else {
-  <button type="button" class="wr-image__trigger" [attr.aria-label]="alt() || 'Open preview'" (click)="onClick()">
+  <button type="button" class="wr-lightbox__trigger" [attr.aria-label]="alt() || 'Open preview'" (click)="onClick()">
     <img
-      class="wr-image__thumb"
+      class="wr-lightbox__thumb"
       [src]="preview() || src()"
       [alt]="alt()"
       (load)="onLoad()"
@@ -21,10 +21,10 @@
 }
 
 <ng-template>
-  <div class="wr-image-viewer" role="dialog" aria-modal="true" [attr.aria-label]="alt() || 'Image preview'">
+  <div class="wr-lightbox-viewer" role="dialog" aria-modal="true" [attr.aria-label]="alt() || 'Image preview'">
     <button
       type="button"
-      class="wr-image-viewer__close"
+      class="wr-lightbox-viewer__close"
       aria-label="Close preview"
       (click)="onClose()"
       (keydown.enter)="onClose()"
@@ -45,9 +45,9 @@
         <path d="m6 6 12 12" />
       </svg>
     </button>
-    <img class="wr-image-viewer__full" [src]="src()" [alt]="alt()" />
+    <img class="wr-lightbox-viewer__full" [src]="src()" [alt]="alt()" />
     @if (caption()) {
-      <div class="wr-image-viewer__caption">{{ caption() }}</div>
+      <div class="wr-lightbox-viewer__caption">{{ caption() }}</div>
     }
   </div>
 </ng-template>

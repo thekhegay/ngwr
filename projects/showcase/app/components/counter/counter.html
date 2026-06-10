@@ -38,6 +38,27 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Count up — spring + viewport trigger"
+    description="`<wr-count-up>` is the spring-physics sibling. Use it when you want viewport-triggered animation, started/completed outputs, or count-down."
+  >
+    <ngwr-doc-code [code]="snippets.countUp" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+        <wr-count-up [to]="1000" easing="spring" trigger="visible" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Count down" description="Swap direction without rewriting `from` / `to`.">
+    <ngwr-doc-code [code]="snippets.countDown" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 2rem; font-size: 3rem; font-weight: 600">
+        <wr-count-up [from]="60" [to]="0" direction="down" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

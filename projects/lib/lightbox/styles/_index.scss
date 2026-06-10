@@ -1,13 +1,13 @@
 // Image with click-to-zoom lightbox. The host wraps the `<img>` and is
-// sized by the consumer (CSS / inline styles on `<wr-image>`).
+// sized by the consumer (CSS / inline styles on `<wr-lightbox>`).
 
 @use '../../theme/styles' as theme;
 
-.wr-image {
+.wr-lightbox {
   display: inline-block;
   position: relative;
   overflow: hidden;
-  @include theme.smooth-br(var(--wr-image-radius, var(--wr-border-radius-base)));
+  @include theme.smooth-br(var(--wr-lightbox-radius, var(--wr-border-radius-base)));
   cursor: zoom-in;
   background: rgba(var(--wr-color-light-rgb), 0.4);
 
@@ -22,7 +22,7 @@
       rgba(255, 255, 255, 0) 100%
     );
     background-size: 200% 100%;
-    animation: wr-image-shimmer 1.4s linear infinite;
+    animation: wr-lightbox-shimmer 1.4s linear infinite;
     pointer-events: none;
   }
 
@@ -52,7 +52,7 @@
   }
 }
 
-@keyframes wr-image-shimmer {
+@keyframes wr-lightbox-shimmer {
   from {
     background-position: 200% 0;
   }
@@ -61,15 +61,15 @@
   }
 }
 
-.wr-image-backdrop {
+.wr-lightbox-backdrop {
   background: rgba(var(--wr-color-backdrop-rgb), 0.85);
 }
 
-.wr-image-overlay {
+.wr-lightbox-overlay {
   pointer-events: auto;
 }
 
-.wr-image-viewer {
+.wr-lightbox-viewer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -77,7 +77,7 @@
   max-width: 95vw;
   max-height: 95vh;
   padding: 1rem;
-  animation: wr-image-viewer-in 0.18s ease;
+  animation: wr-lightbox-viewer-in 0.18s ease;
   outline: none;
 
   &__close {
@@ -132,7 +132,7 @@
   }
 }
 
-@keyframes wr-image-viewer-in {
+@keyframes wr-lightbox-viewer-in {
   from {
     opacity: 0;
     transform: scale(0.96);

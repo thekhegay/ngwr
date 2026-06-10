@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Badge"
-  description="Small status indicator with color variants and optional pill shape."
-  [keywords]="['badge', 'status', 'wr-badge']"
+  description="Small status indicator with color variants and optional pill shape. Reach for `<wr-tag>` (in the same entry) when you need a richer label — icons, loading state, outlined / transparent styles."
+  [keywords]="['badge', 'tag', 'status', 'wr-badge', 'wr-tag']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section title="Installation">
@@ -41,9 +41,21 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Tag — icons + loading"
+    description="`<wr-tag>` is the richer sibling. Same entry (`ngwr/badge`), but supports icons, loading state, and outlined / transparent variants."
+  >
+    <ngwr-doc-code [code]="snippets.tag" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+        <wr-tag color="success" icon="checkmark">Done</wr-tag>
+        <wr-tag color="primary" outlined rounded>Beta</wr-tag>
+        <wr-tag color="warning" loading>Saving</wr-tag>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
-
-  <ngwr-doc-see-also [links]="seeAlso" />
 </ngwr-doc-page>

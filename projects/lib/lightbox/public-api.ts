@@ -1,0 +1,1 @@
+export { WrLightbox } from './lightbox';

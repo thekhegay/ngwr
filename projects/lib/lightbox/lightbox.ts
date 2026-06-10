@@ -33,27 +33,23 @@ import { WR_OVERLAY } from 'ngwr/overlay';
  *
  * @example
  * ```html
- * <wr-image
+ * <wr-lightbox
  *   src="/photo.jpg"
  *   alt="Mountain"
  *   style="width: 16rem; height: 10rem; object-fit: cover"
  * />
  * ```
  *
- * @see https://ngwr.dev/components/image
+ * @see https://ngwr.dev/components/lightbox
  */
 @Component({
-  // `wr-lightbox` is the canonical selector going forward; `wr-image` is
-  // kept as an alias for back-compat until v9. The lib exports
-  // `WrLightbox` (alias for `WrImage`) so consumers can also rename the
-  // class symbol — both selectors render the same component.
-  selector: 'wr-image, wr-lightbox',
-  templateUrl: './image.html',
-  styleUrl: './image.scss',
+  selector: 'wr-lightbox',
+  templateUrl: './lightbox.html',
+  styleUrl: './lightbox.scss',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })
-export class WrImage {
+export class WrLightbox {
   /** Image source. */
   readonly src = input.required<string>();
 
@@ -73,9 +69,9 @@ export class WrImage {
   protected readonly loaded = signal(false);
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-image'];
-    if (this.open()) parts.push('wr-image--open');
-    if (!this.loaded()) parts.push('wr-image--loading');
+    const parts = ['wr-lightbox'];
+    if (this.open()) parts.push('wr-lightbox--open');
+    if (!this.loaded()) parts.push('wr-lightbox--loading');
     return parts.join(' ');
   });
 
@@ -113,10 +109,10 @@ export class WrImage {
 
     this.overlayRef = this.overlay.create({
       hasBackdrop: true,
-      backdropClass: 'wr-image-backdrop',
+      backdropClass: 'wr-lightbox-backdrop',
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
       scrollStrategy: this.overlay.scrollStrategies.block(),
-      panelClass: 'wr-image-overlay',
+      panelClass: 'wr-lightbox-overlay',
     });
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);

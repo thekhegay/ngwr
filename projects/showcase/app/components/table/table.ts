@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 
 import { WrTableCell, WrTable, type WrTableColumns, type WrTableFilterChange, type WrTableSortState } from 'ngwr/table';
-import { WrTag } from 'ngwr/tag';
+import { WrTag } from 'ngwr/badge';
 
 import {
   DocApiComponent,
@@ -25,6 +25,13 @@ const RAW_ROWS: readonly Row[] = [
   { name: 'Cara', email: 'cara@example.com', role: 'editor' },
   { name: 'Diego', email: 'diego@example.com', role: 'viewer' },
 ];
+
+// Wider dataset for the paginated demo so >1 page is actually visible.
+const PAGINATED_ROWS: readonly Row[] = Array.from({ length: 23 }, (_, i) => ({
+  name: `User ${String(i + 1).padStart(2, '0')}`,
+  email: `user${i + 1}@example.com`,
+  role: i % 7 === 0 ? 'admin' : i % 3 === 0 ? 'editor' : 'viewer',
+}));
 
 @Component({
   selector: 'ngwr-table-page',
@@ -76,6 +83,9 @@ export default class TablePageComponent {
     });
   });
 
+  protected readonly paginatedRows = PAGINATED_ROWS;
+  protected readonly page = signal(1);
+
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
@@ -87,6 +97,7 @@ export class MyComponent {}`,
     <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
   </ng-template>
 </wr-table>`,
+    paginated: `<wr-table [columns]="columns" [items]="rows" [pageSize]="5" [(page)]="page" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -109,6 +120,19 @@ export class MyComponent {}`,
       description: 'Fires when a column filter changes.',
       type: 'EventEmitter<WrTableFilterChange>',
       default: '—',
+    },
+    {
+      name: 'pageSize',
+      description: 'Rows per page. `0` disables client-side pagination.',
+      type: 'number',
+      default: '0',
+    },
+    { name: 'page', description: 'Two-way bindable 1-based current page.', type: 'number', default: '1' },
+    {
+      name: 'totalItems',
+      description: 'Server-side total. When set, the table renders the pager but does NOT slice `items` (you handle paging).',
+      type: 'number | null',
+      default: 'null',
     },
   ];
 

@@ -33,7 +33,7 @@ import { WrSlider } from 'ngwr/slider';
 import { WrSpinner } from 'ngwr/spinner';
 import { WrStatistic } from 'ngwr/statistic';
 import { WrSwitch } from 'ngwr/switch';
-import { WrTag } from 'ngwr/tag';
+import { WrTag } from 'ngwr/badge';
 import { WrTypography } from 'ngwr/typography';
 
 @Component({
