@@ -58,6 +58,13 @@ $contrast-light: #ffffff !default;
   --wr-color-black: #000000;
   --wr-color-black-rgb: 0, 0, 0;
 
+  // Overlay dim — used by dialog / drawer / image preview / command
+  // palette / image cropper for the behind-the-panel scrim. Always
+  // black so the dim reads as "covered" regardless of theme. Don't
+  // wire to `--wr-color-dark-rgb` — that flips to light in dark mode
+  // and turns the backdrop into a white wash.
+  --wr-color-backdrop-rgb: 0, 0, 0;
+
   @each $name, $base in $base-colors {
     --wr-color-#{$name}: #{$base};
     --wr-color-#{$name}-rgb: #{_rgb-channels($base)};

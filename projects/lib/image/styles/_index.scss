@@ -62,7 +62,7 @@
 }
 
 .wr-image-backdrop {
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(var(--wr-color-backdrop-rgb), 0.85);
 }
 
 .wr-image-overlay {

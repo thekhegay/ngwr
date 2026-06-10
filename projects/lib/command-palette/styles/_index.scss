@@ -14,7 +14,7 @@
   &__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(var(--wr-color-backdrop-rgb), 0.45);
     backdrop-filter: blur(4px);
     pointer-events: auto;
     animation: wr-cmd-fade var(--wr-duration-base) var(--wr-ease-out);
