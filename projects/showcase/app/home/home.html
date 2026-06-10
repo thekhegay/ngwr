@@ -1,5 +1,5 @@
 <main class="ngwr-home">
-  <!-- ───── Hero: title + CTA only (background, install bar, attrs all dropped) ───── -->
+  <!-- ───── Hero: title + CTA only ───── -->
   <section class="ngwr-home-hero-wrap">
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
@@ -25,49 +25,32 @@
     </div>
   </section>
 
-  <!-- ───── Components bento: zardui-style mini-UI tiles ───── -->
+  <!-- ───── Components bento ───── -->
   <ngwr-components-bento />
 
-  <!-- ───── DX section: zero config + code card ───── -->
+  <!-- ───── DX section ───── -->
   <section class="ngwr-section">
     <div class="container ngwr-dx">
       <div class="ngwr-dx__copy">
-        <p wrTypography variant="overline" tone="primary">/ Developer experience</p>
+        <wr-tag color="primary" outlined>Developer experience</wr-tag>
         <p wrTypography variant="h1">
-          Zero config.<br />
-          TypeScript native.
+          Standalone. Signals.<br />
+          Strict mode.
         </p>
         <p wrTypography variant="lead">
-          Import what you need. Tree-shake the rest. ngwr ships as standalone Angular components styled with CSS
-          variables and fully typed, zero-runtime primitives.
+          ngwr is what we wish the Angular standard library was. Every primitive is a standalone import, every input is
+          a signal, every visual is a CSS variable. No NgModules, no global registries, no magic strings.
         </p>
 
         <ul class="ngwr-checks">
-          <li><span aria-hidden="true">✓</span> Framework-agnostic: works with SSR, Vite, and zoneless Angular</li>
-          <li><span aria-hidden="true">✓</span> 100% ownership — fork any component, the source is yours</li>
-          <li><span aria-hidden="true">✓</span> CSS variables for effortless theming</li>
-          <li><span aria-hidden="true">✓</span> A11y-first — tested against ARIA + VoiceOver</li>
+          <li><span aria-hidden="true">✓</span> Each component is its own ng-packagr entry — only what you import ships</li>
+          <li><span aria-hidden="true">✓</span> Inputs and outputs are signals — no async-pipe gymnastics for state</li>
+          <li><span aria-hidden="true">✓</span> Strict TypeScript — every input typed, every event typed, no <code>any</code></li>
+          <li><span aria-hidden="true">✓</span> Keyboard nav + ARIA wired in the lib, verified with axe and VoiceOver</li>
         </ul>
       </div>
 
-      <div class="ngwr-codecard">
-        <div class="ngwr-codecard__chrome">
-          <span class="ngwr-codecard__dot ngwr-codecard__dot--r"></span>
-          <span class="ngwr-codecard__dot ngwr-codecard__dot--y"></span>
-          <span class="ngwr-codecard__dot ngwr-codecard__dot--g"></span>
-          <span class="ngwr-codecard__file">signup-card.ts</span>
-          <button
-            type="button"
-            class="ngwr-codecard__copy"
-            [wrCopyToClipboard]="snippet"
-            (copied)="onCopied()"
-            aria-label="Copy snippet"
-          >
-            Copy
-          </button>
-        </div>
-        <pre class="ngwr-codecard__code"><code>{{ snippet }}</code></pre>
-      </div>
+      <ngwr-doc-code class="ngwr-dx__code" [code]="snippet" language="angular-ts" />
     </div>
   </section>
 
@@ -76,14 +59,15 @@
     <div class="container">
       <div class="ngwr-section__head ngwr-section__head--why">
         <div>
-          <p wrTypography variant="overline" tone="primary">/ Why ngwr</p>
+          <wr-tag color="primary" outlined>Why ngwr</wr-tag>
           <p wrTypography variant="h1">
-            Everything you'd build.<br />
-            None of the boilerplate.
+            Made for shipping.<br />
+            Not for showing off.
           </p>
         </div>
         <p wrTypography variant="lead" class="ngwr-section__head-aside">
-          Obsessively crafted primitives so you can focus on what actually makes your product memorable.
+          Each primitive comes with the bookkeeping handled — focus traps, virtual scroll, controlled state, density
+          tokens — so the day goes into what the user actually sees.
         </p>
       </div>
 
@@ -101,5 +85,5 @@
     </div>
   </section>
 
-  <ngwr-footer />
+  <ngwr-footer contained />
 </main>

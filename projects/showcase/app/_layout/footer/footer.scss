@@ -124,6 +124,19 @@
     border-top: 0;
   }
 
+  // ─── Contained variant — rows align with the page container ──────────
+  // Mirrors the homepage's `.container` rhythm so the brand block + link
+  // columns + bottom row line up with the hero, bento, and sections
+  // above. Docs pages don't need this (the sidebar provides the rhythm).
+  &--contained {
+    .ngwr-footer__top,
+    .ngwr-footer__bottom {
+      max-width: 80rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
   &__copyright {
     color: var(--wr-color-medium);
   }

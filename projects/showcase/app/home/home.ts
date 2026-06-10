@@ -2,18 +2,18 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
+import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
-import { WrCopyToClipboard } from 'ngwr/directives';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 
-
 import { ComponentsBento } from './components-bento/components-bento';
 
 import { Footer } from '../_layout/footer/footer';
 
+import { DocCodeComponent } from '#core/components';
 import { BRAND_ICONS } from '#core/icons';
 import { MetaService } from '#core/services';
 import { routes } from '#routing';
@@ -29,7 +29,7 @@ interface WhyTile {
   selector: 'ngwr-home',
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  imports: [RouterLink, WrIcon, WrButton, WrTypography, WrCopyToClipboard, ComponentsBento, Footer],
+  imports: [RouterLink, WrIcon, WrButton, WrTag, WrTypography, ComponentsBento, DocCodeComponent, Footer],
   providers: [
     provideWrIcons([
       ...BRAND_ICONS,
@@ -46,57 +46,78 @@ interface WhyTile {
 export default class HomeComponent {
   protected readonly routes = routes;
 
-  /** Snippet shown in the "Zero config" code card. */
-  protected readonly snippet = `import { Component } from '@angular/core';
-import { WrButton } from 'ngwr/button';
+  /** Real-world signup snippet shown in the DX section. Goes through
+   *  Shiki via `<ngwr-doc-code>` so the colouring matches the docs. */
+  protected readonly snippet = `import { Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+import { WrBtn } from 'ngwr/button';
+import { WrFormField } from 'ngwr/form-field';
 import { WrInput } from 'ngwr/input';
 
 @Component({
   selector: 'signup-card',
-  imports: [WrInput, WrButton],
+  imports: [FormsModule, WrFormField, WrInput, WrBtn],
   template: \`
-    <input wrInput placeholder="you@company.dev" />
-    <wr-btn color="primary">Reserve your spot →</wr-btn>
+    <wr-form-field label="Work email" required>
+      <input wrInput type="email" [(ngModel)]="email" />
+    </wr-form-field>
+
+    <wr-btn color="primary" block (click)="reserve()">
+      Reserve your spot
+    </wr-btn>
   \`,
 })
-export class SignupCard {}`;
+export class SignupCard {
+  protected readonly email = signal('');
+
+  protected reserve(): void {
+    // 1 input, 1 button, 1 signal. No NgModule, no ControlValueAccessor.
+  }
+}`;
 
   /** "Why ngwr" tiles. */
   protected readonly whyTiles: readonly WhyTile[] = [
     {
       icon: 'shield-checkmark',
-      title: 'Accessible',
-      description: 'WCAG 2.1 AA. Keyboard nav, focus rings, ARIA, screen-reader labels baked in.',
+      title: 'A11y in the lib',
+      description:
+        'Focus traps, ARIA, keyboard nav, screen-reader labels — tested with axe + VoiceOver, not inferred from a doc page.',
       accent: 'info',
     },
     {
       icon: 'eye',
-      title: 'Themeable',
-      description: 'CSS variables + token-driven colors. Re-skin the whole library from one root file.',
+      title: 'Every visual is a token',
+      description:
+        'Every color, radius, spacing, and duration is a `--wr-*` variable. Re-skin one component or all of them.',
       accent: 'secondary',
     },
     {
       icon: 'terminal',
-      title: 'Framework-agnostic',
-      description: 'Standalone components, signals, SSR-ready. No bundler magic, no zone.js needed.',
+      title: 'Standalone, zoneless',
+      description:
+        'Every component is a standalone import. Works the same in CLI, Vite, SSR with hydration, and zoneless apps.',
       accent: 'primary',
     },
     {
       icon: 'folder',
-      title: 'Tree-shakeable',
-      description: 'Each component is its own ng-packagr entry. Average button under 2kb gzip.',
+      title: 'Pay for what you import',
+      description:
+        "Each component is its own ng-packagr entry. What you don't import never lands in your bundle.",
       accent: 'success',
     },
     {
       icon: 'moon',
-      title: 'Dark-mode first',
-      description: 'Designed in the dark, polished in the light. Auto-switch via [data-theme] or OS.',
+      title: 'Dark mode is first-class',
+      description:
+        '`[data-theme]` flips at the root or any subtree. `prefers-color-scheme` is one provider option, not a hardcoded check.',
       accent: 'warning',
     },
     {
       icon: 'flash',
-      title: 'Smooth animations',
-      description: 'Hand-crafted easings for hover, press, enter, scroll. Reduced-motion respected.',
+      title: 'Motion you can trust',
+      description:
+        "One easing curve shared by overlays, hovers, presses, route changes. `prefers-reduced-motion` short-circuits the lot.",
       accent: 'danger',
     },
   ];
@@ -108,12 +129,8 @@ export class SignupCard {}`;
     meta.setCanonicalURL();
     meta.setTitle(null);
     meta.setDescription(
-      'NGWR — open source Angular 21 components. Standalone, signals-first, bring-your-own design system.'
+      'ngwr — standalone, signals-first Angular components. Token-driven theming, a11y in the lib, dark mode first.'
     );
-    meta.setKeywords(['home', 'landing', 'angular components', 'ngwr']);
-  }
-
-  protected onCopied(): void {
-    this.toast.show({ type: 'success', message: 'Copied install command' });
+    meta.setKeywords(['home', 'landing', 'angular components', 'ngwr', 'signals', 'standalone']);
   }
 }
