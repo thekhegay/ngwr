@@ -340,9 +340,13 @@
     display: flex;
     align-items: center;
 
-    wr-avatar {
-      // Overlap each avatar slightly with the next; ring lifts via white
-      // outline so the stack reads as a single cluster.
+    > wr-avatar,
+    > .ngwr-cbento__avatar-more {
+      // Each tile overlaps the next by 0.5rem; the white ring lifts the
+      // stack so they read as a cluster rather than touching.
+      // `box-shadow` overrides the lib's default 1px inset ring at
+      // higher specificity (via the bento scope) so we can paint the
+      // outline outward instead of inward.
       box-shadow: 0 0 0 2px var(--wr-color-white);
       margin-left: -0.5rem;
 
@@ -350,21 +354,31 @@
         margin-left: 0;
       }
     }
+
+    // Text-only avatars: lib defaults leave the projected initials with
+    // no background. Paint a token-tracked surface so they read as
+    // proper avatars next to the loaded image one.
+    .ngwr-cbento__avatar-text {
+      background: rgba(var(--wr-color-primary-rgb), 0.12);
+      color: var(--wr-color-primary);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
   }
 
   &__avatar-more {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    margin-left: -0.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 50%;
-    background: rgba(var(--wr-color-light-rgb), 0.6);
+    background: rgba(var(--wr-color-light-rgb), 0.7);
     color: var(--wr-color-medium);
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 600;
-    box-shadow: 0 0 0 2px var(--wr-color-white);
+    letter-spacing: 0.02em;
   }
 
   &__tags {
