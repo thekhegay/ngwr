@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 
+import { Folder, House, Settings } from 'lucide';
+import { provideWrIcons } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrSidebar, type WrSidebarEntry } from 'ngwr/sidebar';
 
 import {
@@ -16,6 +19,7 @@ import {
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   imports: [WrSidebar, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  providers: [provideWrIcons(lucideIcons({ home: House, folder: Folder, cog: Settings }))],
 })
 export default class SidebarPage {
   protected readonly entries: readonly WrSidebarEntry[] = [
