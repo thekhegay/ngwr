@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { NGWR_VERSION_TOKEN } from 'ngwr/version';
@@ -19,9 +20,18 @@ interface FooterColumn {
   templateUrl: './footer.html',
   styleUrl: './footer.scss',
   imports: [RouterLink],
-  host: { class: 'ngwr-footer' },
+  host: {
+    '[class]': "compact() ? 'ngwr-footer ngwr-footer--compact' : 'ngwr-footer'",
+  },
 })
 export class Footer {
+  /**
+   * Drop the brand + link-columns block, render only the copyright/version
+   * row. Set to `true` on docs/sidebar pages so the chrome stays light.
+   * The homepage leaves it `false` for the full sitemap-style footer.
+   */
+  readonly compact = input(false, { transform: coerceBooleanProperty });
+
   protected readonly version = inject(NGWR_VERSION_TOKEN);
   protected readonly copyright = `2022 – ${new Date().getFullYear()} © Roman Khegay`;
   protected readonly npmLink = 'https://www.npmjs.com/package/ngwr';

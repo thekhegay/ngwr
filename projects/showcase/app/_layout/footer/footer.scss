@@ -113,6 +113,22 @@
     font-size: 0.75rem;
   }
 
+  // ─── Compact variant — bottom row only, no big chrome ────────────────
+  // Used on docs / sidebar pages so the page footer is just a thin
+  // copyright/version strip. The brand + link columns are reserved for
+  // the homepage where a real sitemap makes sense.
+  &--compact {
+    .ngwr-footer__inner {
+      padding: 0.875rem 1.5rem;
+    }
+
+    .ngwr-footer__bottom {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+  }
+
   &__copyright {
     color: var(--wr-color-medium);
   }
