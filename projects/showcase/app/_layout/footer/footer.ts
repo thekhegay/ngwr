@@ -51,7 +51,6 @@ export class Footer {
         { label: 'GitHub', url: 'https://github.com/thekhegay/ngwr', external: true },
         { label: 'npm', url: 'https://www.npmjs.com/package/ngwr', external: true },
         { label: 'License (MIT)', url: 'https://github.com/thekhegay/ngwr/blob/main/LICENSE', external: true },
-        { label: 'Roadmap', url: 'https://github.com/thekhegay/ngwr/issues', external: true },
       ],
     },
   ];
