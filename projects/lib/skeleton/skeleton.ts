@@ -39,9 +39,14 @@ export class WrSkeleton {
   /**
    * Color tint for the placeholder.
    *
-   * @default 'dark'
+   * Default is `'light'` because it's theme-stable — the `light` token is
+   * slate-300 in light mode (subtle gray on white) and slate-800 in dark
+   * mode (subtle lift on near-black). The `'dark'` value flips to a near-
+   * white wash in dark mode and breaks the placeholder affordance.
+   *
+   * @default 'light'
    */
-  readonly color = input<WrColor>('dark');
+  readonly color = input<WrColor>('light');
 
   /**
    * Whether the shimmer animation runs.

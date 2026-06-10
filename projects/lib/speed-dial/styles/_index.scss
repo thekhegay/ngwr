@@ -134,12 +134,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 0;
+    // Hairline silhouette so the button reads as a distinct surface even
+    // when its `--wr-color-white` bg matches the canvas (dark mode) or
+    // sits on a same-tone page bg (light mode).
+    border: 1px solid var(--wr-color-light);
     border-radius: 50%;
     background: var(--wr-color-white);
     color: var(--wr-color-dark);
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(var(--wr-color-backdrop-rgb), 0.18);
     transition:
       transform var(--wr-transition-base),
       background var(--wr-transition-base);
