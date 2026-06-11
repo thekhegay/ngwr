@@ -28,19 +28,23 @@ import {
 })
 export default class AuroraPage {
   // ── Live demo state ─────────────────────────────────────────────
-  protected readonly stopA = signal('#5227ff');
-  protected readonly stopB = signal('#7cff67');
-  protected readonly stopC = signal('#5227ff');
+  // Empty = theme-aware defaults; picking all three switches to custom.
+  protected readonly stopA = signal('');
+  protected readonly stopB = signal('');
+  protected readonly stopC = signal('');
   protected readonly amplitude = signal(1);
   protected readonly blend = signal(0.5);
   protected readonly speed = signal(1);
 
-  protected readonly colorStops = computed(() => [this.stopA(), this.stopB(), this.stopC()]);
+  protected readonly colorStops = computed<readonly string[] | null>(() =>
+    this.stopA() && this.stopB() && this.stopC() ? [this.stopA(), this.stopB(), this.stopC()] : null
+  );
 
   protected readonly snippet = computed(
     () =>
-      `<wr-aurora
-  [colorStops]="['${this.stopA()}', '${this.stopB()}', '${this.stopC()}']"
+      `<wr-aurora${
+        this.colorStops() ? `\n  [colorStops]="['${this.stopA()}', '${this.stopB()}', '${this.stopC()}']"` : ''
+      }
   [amplitude]="${this.amplitude()}"
   [blend]="${this.blend()}"
   [speed]="${this.speed()}"
@@ -65,7 +69,7 @@ export default class AuroraPage {
       name: 'colorStops',
       description: 'Exactly three colour stops, ramped left → right.',
       type: 'readonly string[]',
-      default: "['#5227ff', '#7cff67', '#5227ff']",
+      default: 'theme-aware (deep violet/emerald on light, neon on dark)',
     },
     { name: 'amplitude', description: 'Wave height multiplier.', type: 'number', default: '1' },
     { name: 'blend', description: "Softness of the aurora's lower edge, 0..1.", type: 'number', default: '0.5' },

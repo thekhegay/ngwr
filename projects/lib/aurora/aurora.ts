@@ -175,8 +175,12 @@ function hexToRgb01(hex: string): [number, number, number] {
   host: { class: 'wr-aurora' },
 })
 export class WrAurora {
-  /** Exactly three colour stops, ramped left → right. */
-  readonly colorStops = input<readonly string[]>(['#5227ff', '#7cff67', '#5227ff']);
+  /**
+   * Exactly three colour stops, ramped left → right. When unset, the
+   * theme decides: deep violet/emerald on light, the neon reactbits
+   * palette on dark.
+   */
+  readonly colorStops = input<readonly string[] | null>(null);
 
   /** Wave height multiplier. @default 1 */
   readonly amplitude = input(1, { transform: num(1) });
@@ -277,6 +281,7 @@ export class WrAurora {
     } else {
       const loop = (t: number): void => {
         this.rafId = requestAnimationFrame(loop);
+        this.pushUniforms();
         this.draw(t * 0.01 * this.speed() * 0.1);
       };
       this.rafId = requestAnimationFrame(loop);
@@ -292,7 +297,7 @@ export class WrAurora {
   private pushUniforms(): void {
     const gl = this.gl;
     if (!gl) return;
-    const stops = this.colorStops();
+    const stops = this.resolveStops();
     const flat = new Float32Array(9);
     for (let i = 0; i < 3; i++) {
       const [r, g, b] = hexToRgb01(stops[Math.min(i, stops.length - 1)] ?? '#5227ff');
@@ -303,6 +308,18 @@ export class WrAurora {
     gl.uniform3fv(this.uniforms['uColorStops'], flat);
     gl.uniform1f(this.uniforms['uAmplitude'], this.amplitude());
     gl.uniform1f(this.uniforms['uBlend'], this.blend());
+  }
+
+  /** Explicit input wins; otherwise the theme's `--wr-aurora-stop-*` vars. */
+  private resolveStops(): readonly string[] {
+    const explicit = this.colorStops();
+    if (explicit !== null) return explicit;
+    const style = getComputedStyle(this.host.nativeElement);
+    return [
+      style.getPropertyValue('--wr-aurora-stop-1').trim() || '#5227ff',
+      style.getPropertyValue('--wr-aurora-stop-2').trim() || '#7cff67',
+      style.getPropertyValue('--wr-aurora-stop-3').trim() || '#5227ff',
+    ];
   }
 
   private draw(time: number): void {

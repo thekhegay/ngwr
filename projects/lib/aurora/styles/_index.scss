@@ -2,6 +2,13 @@
 // positioned ancestor; all the visuals live in the fragment shader.
 
 .wr-aurora {
+  // Theme-default colour stops (overridden by `[colorStops]`): deep
+  // violet → emerald on light surfaces; dark restores the neon
+  // reactbits palette below.
+  --wr-aurora-stop-1: #4f46e5;
+  --wr-aurora-stop-2: #059669;
+  --wr-aurora-stop-3: #4f46e5;
+
   position: absolute;
   inset: 0;
   display: block;
@@ -14,4 +21,10 @@
     width: 100%;
     height: 100%;
   }
+}
+
+[data-theme='dark'] .wr-aurora {
+  --wr-aurora-stop-1: #5227ff;
+  --wr-aurora-stop-2: #7cff67;
+  --wr-aurora-stop-3: #5227ff;
 }
