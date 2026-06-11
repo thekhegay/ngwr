@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, ElementRef, afterNextRender, computed, signal, viewChild } from '@angular/core';
 
 import { WrAurora } from 'ngwr/aurora';
 
@@ -28,10 +28,24 @@ import {
 })
 export default class AuroraPage {
   // ── Live demo state ─────────────────────────────────────────────
-  // Empty = theme-aware defaults; picking all three switches to custom.
+  // Prefilled from the theme's resolved `--wr-aurora-stop-*` defaults
+  // after first render, so the pickers show working colours right away.
   protected readonly stopA = signal('');
   protected readonly stopB = signal('');
   protected readonly stopC = signal('');
+
+  private readonly auroraRef = viewChild(WrAurora, { read: ElementRef });
+
+  constructor() {
+    afterNextRender(() => {
+      const el = this.auroraRef()?.nativeElement as HTMLElement | undefined;
+      if (!el) return;
+      const style = getComputedStyle(el);
+      this.stopA.set(style.getPropertyValue('--wr-aurora-stop-1').trim() || '#5227ff');
+      this.stopB.set(style.getPropertyValue('--wr-aurora-stop-2').trim() || '#7cff67');
+      this.stopC.set(style.getPropertyValue('--wr-aurora-stop-3').trim() || '#5227ff');
+    });
+  }
   protected readonly amplitude = signal(1);
   protected readonly blend = signal(0.5);
   protected readonly speed = signal(1);
