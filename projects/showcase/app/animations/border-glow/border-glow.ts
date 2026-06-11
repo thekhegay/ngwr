@@ -30,7 +30,8 @@ import {
 export default class BorderGlowPage {
   // ── Live demo state ─────────────────────────────────────────────
   /** Hex form drives the color picker; an `hslColor` computed feeds wr-border-glow. */
-  protected readonly glowColorHex = signal('#ebcc66');
+  // Empty = theme-aware default; the picker writes a concrete colour.
+  protected readonly glowColorHex = signal('');
   protected readonly borderRadius = signal(28);
   protected readonly glowRadius = signal(40);
   protected readonly coneSpread = signal(25);
@@ -38,17 +39,17 @@ export default class BorderGlowPage {
   protected readonly animated = signal(false);
 
   /** Hex → "H S L" string in the format `wr-border-glow` expects. */
-  protected readonly glowColorHsl = computed(() => {
+  protected readonly glowColorHsl = computed<string | null>(() => {
+    if (!this.glowColorHex()) return null;
     const rgb = parseHex(this.glowColorHex());
-    if (!rgb) return '40 80 80';
+    if (!rgb) return null;
     const { h, s, l } = rgbToHsl(rgb);
     return `${Math.round(h)} ${Math.round(s * 100)} ${Math.round(l * 100)}`;
   });
 
   protected readonly snippet = computed(
     () =>
-      `<wr-border-glow
-  glowColor="${this.glowColorHsl()}"
+      `<wr-border-glow${this.glowColorHsl() ? `\n  glowColor="${this.glowColorHsl()}"` : ''}
   [borderRadius]="${this.borderRadius()}"
   [glowRadius]="${this.glowRadius()}"
   [coneSpread]="${this.coneSpread()}"

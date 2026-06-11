@@ -179,8 +179,11 @@ export class WrBorderGlow {
    */
   readonly glowColor = input<string | null>(null);
 
-  /** Mesh-gradient palette for the colored border slice. @default purple / pink / cyan */
-  readonly colors = input<readonly string[]>(DEFAULT_COLORS);
+  /**
+   * Mesh-gradient palette for the colored border slice. When unset, the
+   * theme decides: deep tones on light, pastels on dark.
+   */
+  readonly colors = input<readonly string[] | null>(null);
 
   /** Play a one-shot perimeter sweep on mount, then fade out. @default false */
   readonly animated = input(false, { transform: coerceBooleanProperty });
@@ -198,8 +201,9 @@ export class WrBorderGlow {
       '--cone-spread': String(this.coneSpread()),
       '--edge-sensitivity': String(this.edgeSensitivity()),
       '--fill-opacity': String(this.fillOpacity()),
-      ...buildGradientVars(this.colors()),
     };
+    const colors = this.colors();
+    if (colors !== null) Object.assign(vars, buildGradientVars(colors));
     // Colour vars are written only when set — otherwise the stylesheet's
     // per-theme defaults (light vs dark) take over.
     const bg = this.backgroundColor();
