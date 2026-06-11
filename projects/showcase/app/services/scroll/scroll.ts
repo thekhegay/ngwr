@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrScroll } from 'ngwr/scroll';
 
 import {
@@ -14,13 +16,32 @@ import {
 @Component({
   selector: 'ngwr-svc-scroll-page',
   templateUrl: './scroll.html',
-  imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ScrollServicePageComponent {
   private readonly scroll = inject(WrScroll);
+  private readonly scrollBox = viewChild.required<ElementRef<HTMLElement>>('scrollBox');
+
+  protected readonly sections = [
+    {
+      id: 'one',
+      title: 'Section one',
+      body: 'Jump between sections with the buttons above — the service scrolls this box, not the page.',
+    },
+    { id: 'two', title: 'Section two', body: 'Each jump uses scroll.to() with the box as the container.' },
+    {
+      id: 'three',
+      title: 'Section three',
+      body: 'The page-top button scrolls the window instead, with an 80px offset.',
+    },
+  ] as const;
 
   protected scrollToTop(): void {
     this.scroll.toTop({ offset: 80 });
+  }
+
+  protected scrollToSection(id: string): void {
+    this.scroll.to(`#scroll-demo-${id}`, { container: this.scrollBox().nativeElement, smooth: true });
   }
 
   protected readonly snippets = {

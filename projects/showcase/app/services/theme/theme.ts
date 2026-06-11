@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
+import { WrSegmented } from 'ngwr/segmented';
 import { WrTheme } from 'ngwr/theme';
 
 import {
@@ -14,10 +16,24 @@ import {
 @Component({
   selector: 'ngwr-svc-theme-page',
   templateUrl: './theme.html',
-  imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    FormsModule,
+    WrSegmented,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class ThemeServicePageComponent {
   protected readonly themeService = inject(WrTheme);
+
+  protected readonly modeOptions = [
+    { label: 'light', value: 'light' },
+    { label: 'dark', value: 'dark' },
+    { label: 'auto', value: 'auto' },
+  ] as const;
 
   protected setTheme(mode: 'light' | 'dark' | 'auto'): void {
     this.themeService.set(mode);

@@ -1,6 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 
 import { WrHotkey } from 'ngwr/hotkey';
+import { WrKbd } from 'ngwr/keyboard';
 
 import {
   DocApiComponent,
@@ -14,7 +15,7 @@ import {
 @Component({
   selector: 'ngwr-svc-hotkey-page',
   templateUrl: './hotkey.html',
-  imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrKbd, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class HotkeyServicePageComponent {
   private readonly hotkeys = inject(WrHotkey);

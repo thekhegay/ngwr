@@ -14,7 +14,7 @@
       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
         <button
           type="button"
-          (click)="toggleAutofocus()"
+          (click)="focusInput()"
           style="
             padding: 0.4rem 0.875rem;
             border: 1px solid var(--wr-color-light);
@@ -23,7 +23,7 @@
             cursor: pointer;
           "
         >
-          Toggle focus
+          Focus input
         </button>
         <input
           [wrAutofocus]="autofocusOn()"

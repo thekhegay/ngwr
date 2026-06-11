@@ -19,8 +19,11 @@ import {
 export default class AutofocusPage {
   protected readonly autofocusOn = signal(true);
 
-  protected toggleAutofocus(): void {
-    this.autofocusOn.update(v => !v);
+  /** Re-trigger even when focus was lost by clicking elsewhere — a plain
+   * boolean toggle would need two clicks to come back around to `true`. */
+  protected focusInput(): void {
+    this.autofocusOn.set(false);
+    queueMicrotask(() => this.autofocusOn.set(true));
   }
 
   protected readonly snippets = {

@@ -7,19 +7,31 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <button
-        type="button"
-        style="
-          padding: 0.4rem 0.875rem;
-          border-radius: 0.375rem;
-          border: 1px solid var(--wr-color-light);
-          background: var(--wr-color-white);
-          cursor: pointer;
-        "
-        (click)="scrollToTop()"
-      >
-        Scroll page to top (offset 80)
-      </button>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          <button wr-btn size="sm" outlined type="button" (click)="scrollToSection('one')">Section one</button>
+          <button wr-btn size="sm" outlined type="button" (click)="scrollToSection('two')">Section two</button>
+          <button wr-btn size="sm" outlined type="button" (click)="scrollToSection('three')">Section three</button>
+          <button wr-btn size="sm" outlined type="button" (click)="scrollToTop()">Page top (offset 80)</button>
+        </div>
+        <div
+          #scrollBox
+          style="
+            height: 18rem;
+            overflow-y: auto;
+            border: 1px solid var(--wr-color-light);
+            border-radius: 0.5rem;
+            padding: 1rem;
+          "
+        >
+          @for (section of sections; track section.id) {
+            <div [id]="`scroll-demo-${section.id}`" style="min-height: 16rem">
+              <p style="margin: 0 0 0.5rem; font-weight: 600">{{ section.title }}</p>
+              <p style="margin: 0; color: var(--wr-color-medium); font-size: 0.875rem">{{ section.body }}</p>
+            </div>
+          }
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

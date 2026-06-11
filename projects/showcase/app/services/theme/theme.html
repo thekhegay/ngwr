@@ -16,11 +16,12 @@
           Mode: <strong>{{ themeService.mode() }}</strong> · Resolved:
           <strong>{{ themeService.resolved() }}</strong>
         </div>
-        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem">
-          <button type="button" (click)="setTheme('light')">light</button>
-          <button type="button" (click)="setTheme('dark')">dark</button>
-          <button type="button" (click)="setTheme('auto')">auto</button>
-        </div>
+        <wr-segmented
+          style="margin-top: 0.5rem"
+          [options]="modeOptions"
+          [ngModel]="themeService.mode()"
+          (ngModelChange)="setTheme($event)"
+        />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
