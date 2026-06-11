@@ -27,6 +27,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -117,6 +119,7 @@ export class WrFuzzyText {
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private teardown: (() => void) | undefined;
 
@@ -252,6 +255,15 @@ export class WrFuzzyText {
     const interactiveTop = verticalMargin;
     const interactiveRight = interactiveLeft + textBoundingWidth;
     const interactiveBottom = interactiveTop + tightHeight;
+
+    // Reduced motion: paint the text once, clean — no fuzz loop, no
+    // glitch bursts, no pointer reactivity. Teardown must still be set
+    // so the re-init effect keeps redrawing on input changes.
+    if (this.platform.prefersReducedMotion()) {
+      ctx.drawImage(offscreen, 0, 0);
+      this.teardown = (): void => undefined;
+      return;
+    }
 
     let isHovering = false;
     let isClicking = false;

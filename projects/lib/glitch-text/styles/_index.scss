@@ -63,6 +63,18 @@
   }
 }
 
+// Reduced motion: drop the glitch clones entirely — a frozen glitch frame
+// reads as broken double-vision text, so plain text is the right fallback.
+// `!important` outweighs the higher-specificity `:hover` re-enable rules.
+@media (prefers-reduced-motion: reduce) {
+  .wr-glitch-text::before,
+  .wr-glitch-text::after {
+    content: '' !important;
+    opacity: 0 !important;
+    animation: none !important;
+  }
+}
+
 @keyframes wr-glitch-text-tear {
   0% {
     clip-path: inset(20% 0 50% 0);

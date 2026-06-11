@@ -27,6 +27,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const DEFAULT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
 
 const num =
@@ -161,6 +163,7 @@ export class WrDecryptText {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   constructor() {
     if (!this.isBrowser) {
@@ -289,6 +292,13 @@ export class WrDecryptText {
   }
 
   private startInterval(): void {
+    // Reduced motion: every trigger funnels through here — skip the
+    // scramble loop and jump straight to the plain, decrypted text.
+    if (this.platform.prefersReducedMotion()) {
+      this.resetToPlain();
+      return;
+    }
+
     this.stopInterval();
     this.isAnimating.set(true);
     this.iterationCount = 0;

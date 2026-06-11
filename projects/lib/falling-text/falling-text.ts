@@ -28,6 +28,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -144,6 +146,7 @@ export class WrFallingText {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private started = false;
   private teardownLoop: (() => void) | undefined;
@@ -199,6 +202,9 @@ export class WrFallingText {
 
   private start(): void {
     if (this.started) return;
+    // Reduced motion: tumbling words are pure decoration — leave the
+    // text standing in its normal layout no matter the trigger.
+    if (this.platform.prefersReducedMotion()) return;
     this.started = true;
 
     const hostEl = this.host.nativeElement;

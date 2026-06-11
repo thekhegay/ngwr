@@ -29,6 +29,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -126,6 +128,7 @@ export class WrRotatingText {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private timerId: ReturnType<typeof setInterval> | undefined;
   private isAnimating = false;
@@ -201,6 +204,17 @@ export class WrRotatingText {
   private animateIn(): void {
     const targets = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-rotating-text__char');
     if (targets.length === 0) return;
+
+    // Reduced motion: the word swap itself is content and keeps cycling,
+    // but each swap is instant — no per-char rise/fall tween.
+    if (this.platform.prefersReducedMotion()) {
+      targets.forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'translate3d(0, 0, 0)';
+      });
+      return;
+    }
+
     const stagger = this.staggerDuration() * 1000;
     targets.forEach((el, i) => {
       const delay = this.delayFor(i, targets.length, stagger);
@@ -228,6 +242,7 @@ export class WrRotatingText {
   private animateOut(): Promise<void> {
     const targets = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-rotating-text__char');
     if (targets.length === 0) return Promise.resolve();
+    if (this.platform.prefersReducedMotion()) return Promise.resolve();
     const stagger = this.staggerDuration() * 1000;
     const promises: Promise<void>[] = [];
     targets.forEach((el, i) => {

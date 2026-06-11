@@ -53,6 +53,14 @@
   }
 }
 
+// Reduced motion: freeze the sweep at its rest position — the gradient's
+// base color fills the text, so it stays readable with zero movement.
+@media (prefers-reduced-motion: reduce) {
+  .wr-shiny-text {
+    animation: none !important;
+  }
+}
+
 // ── [wrShimmer] directive ────────────────────────────────────────────
 // Same package as <wr-shiny-text>. Lightweight host-class directive —
 // gradient sweep across text via `background-clip: text`.
@@ -75,4 +83,8 @@
   -webkit-text-fill-color: transparent;
   color: transparent;
   animation: wr-shimmer 2.5s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }

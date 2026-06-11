@@ -28,6 +28,8 @@ import {
   output,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 type Unit = 'chars' | 'words';
 type Direction = 'top' | 'bottom';
 type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
@@ -107,6 +109,7 @@ export class WrBlurText {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private hasAnimated = false;
 
@@ -143,6 +146,13 @@ export class WrBlurText {
   private animate(): void {
     if (this.hasAnimated) return;
     this.hasAnimated = true;
+
+    // Reduced motion: pieces already render clear and in place — skip
+    // the blur tween and report completion right away.
+    if (this.platform.prefersReducedMotion()) {
+      this.animationComplete.emit();
+      return;
+    }
 
     const targets = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-blur-text__piece');
     if (targets.length === 0) {

@@ -22,6 +22,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 interface Spark {
   readonly x: number;
   readonly y: number;
@@ -94,6 +96,7 @@ export class WrClickSpark {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private sparks: Spark[] = [];
 
@@ -107,6 +110,8 @@ export class WrClickSpark {
   }
 
   protected onClick(event: MouseEvent): void {
+    // Reduced motion: no spark bursts — same policy as wr-confetti.
+    if (this.platform.prefersReducedMotion()) return;
     const canvas = this.canvasRef().nativeElement;
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;

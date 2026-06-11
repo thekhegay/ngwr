@@ -23,3 +23,11 @@
     opacity: 0;
   }
 }
+
+// Reduced motion: solid cursor — the blink is decorative.
+@media (prefers-reduced-motion: reduce) {
+  .wr-typewriter__cursor {
+    animation: none;
+    opacity: 1;
+  }
+}

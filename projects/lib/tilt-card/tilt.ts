@@ -8,6 +8,8 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { DestroyRef, Directive, ElementRef, NgZone, inject, input } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 /**
  * 3D mouse-tilt on hover. Adds `perspective(…) rotateX(…) rotateY(…)` to
  * the host's transform tracking the cursor's position over it.
@@ -40,6 +42,7 @@ export class WrTilt {
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platform = inject(WrPlatform);
 
   constructor() {
     const host = this.el.nativeElement;
@@ -53,6 +56,8 @@ export class WrTilt {
 
   /** @internal */
   protected onMove(event: PointerEvent): void {
+    // Reduced motion: no pointer-tracking tilt — the card stays flat.
+    if (this.platform.prefersReducedMotion()) return;
     this.zone.runOutsideAngular(() => {
       const host = this.el.nativeElement;
       const rect = host.getBoundingClientRect();

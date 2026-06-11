@@ -101,3 +101,12 @@
     background-position: 50% 100%;
   }
 }
+
+// Reduced motion: hold the gradient still — text keeps its gradient fill
+// (and the border variant its ring), only the slide stops.
+@media (prefers-reduced-motion: reduce) {
+  .wr-gradient-text__text,
+  .wr-gradient-text__border {
+    animation: none !important;
+  }
+}

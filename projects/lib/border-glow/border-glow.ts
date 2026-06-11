@@ -23,6 +23,8 @@ import {
   input,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -180,6 +182,7 @@ export class WrBorderGlow {
   readonly animated = input(false, { transform: coerceBooleanProperty });
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly platform = inject(WrPlatform);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -247,6 +250,9 @@ export class WrBorderGlow {
 
   /** One-shot perimeter sweep: in → around → out, mirroring the reactbits behaviour. */
   private runAutoSweep(): void {
+    // Reduced motion: skip the decorative mount sweep. The pointer-driven
+    // glow stays — it maps 1:1 to the cursor with no autonomous motion.
+    if (this.platform.prefersReducedMotion()) return;
     const host = this.el.nativeElement;
     const ANGLE_START = 110;
     const ANGLE_END = 465;

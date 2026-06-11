@@ -25,6 +25,8 @@ import {
   input,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -91,6 +93,7 @@ export class WrScrambleText {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   /** One entry per active scramble, keyed by char span. */
   private readonly active = new Map<HTMLElement, ActiveScramble>();
@@ -106,6 +109,8 @@ export class WrScrambleText {
 
   protected onPointerMove(event: PointerEvent): void {
     if (this.chars.length === 0) return;
+    // Reduced motion: pointer proximity stops scrambling — text stays put.
+    if (this.platform.prefersReducedMotion()) return;
     const radius = this.radius();
     const duration = this.duration() * 1000;
     const swapInterval = Math.max(16, this.speed() * 1000);

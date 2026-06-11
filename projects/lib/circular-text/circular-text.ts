@@ -33,6 +33,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -94,6 +96,7 @@ export class WrCircularText {
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
   private rotation: Animation | null = null;
   private hovered = false;
 
@@ -139,10 +142,12 @@ export class WrCircularText {
       });
     });
 
-    // React to input changes (spinDuration, onHover) without losing angle.
+    // React to input changes (spinDuration, onHover) — and the OS
+    // reduced-motion setting — without losing angle.
     effect(() => {
       this.spinDuration();
       this.onHover();
+      this.platform.prefersReducedMotion();
       queueMicrotask(() => this.startOrSwap());
     });
   }
@@ -153,6 +158,14 @@ export class WrCircularText {
    */
   private startOrSwap(): void {
     if (!this.spinEl()) return;
+
+    // Reduced motion: hold the ring still — the circular layout is the
+    // point of the component; only the revolution is decorative.
+    if (this.platform.prefersReducedMotion()) {
+      this.rotation?.pause();
+      return;
+    }
+
     const target = this.effectiveDuration();
 
     if (target === 'pause') {

@@ -28,6 +28,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -138,6 +140,7 @@ export class WrTypewriter {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private timer: ReturnType<typeof setTimeout> | undefined;
   private isVisible = false;
@@ -185,6 +188,21 @@ export class WrTypewriter {
     const raw = arr[idx];
     const target = this.reverseMode() ? raw.split('').reverse().join('') : raw;
     const displayed = this.displayed();
+
+    // Reduced motion: show each sentence whole — no per-char typing or
+    // deleting. Multi-text setups still advance on the pause cadence,
+    // since the sentence swap itself is content, not decoration.
+    if (this.platform.prefersReducedMotion()) {
+      if (displayed !== target) {
+        this.displayed.set(target);
+        this.phase.set('idle');
+        this.sentenceComplete.emit({ text: raw, index: idx });
+      }
+      if (arr.length === 1 || (!this.loop() && idx === arr.length - 1)) return;
+      this.currentTextIndex.set((idx + 1) % arr.length);
+      this.scheduleNext(this.pauseDuration());
+      return;
+    }
 
     if (this.phase() === 'deleting') {
       if (displayed.length === 0) {

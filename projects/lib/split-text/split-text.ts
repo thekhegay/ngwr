@@ -28,6 +28,8 @@ import {
   output,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 const num =
   (fallback: number) =>
   (v: unknown): number =>
@@ -128,6 +130,7 @@ export class WrSplitText {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private hasAnimated = false;
 
@@ -174,6 +177,13 @@ export class WrSplitText {
   private animate(): void {
     if (this.hasAnimated) return;
     this.hasAnimated = true;
+
+    // Reduced motion: pieces already render at their natural (final)
+    // state — skip the tween and report completion right away.
+    if (this.platform.prefersReducedMotion()) {
+      this.animationComplete.emit();
+      return;
+    }
 
     const host = this.host.nativeElement;
     const targets = host.querySelectorAll<HTMLElement>('.wr-split-text__piece');
