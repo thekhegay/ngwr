@@ -92,7 +92,7 @@ export default class HomeComponent {
 import { FormsModule } from '@angular/forms';
 
 import { WrBtn } from 'ngwr/button';
-import { WrFormField } from 'ngwr/form-field';
+import { WrFormField } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
 
 @Component({

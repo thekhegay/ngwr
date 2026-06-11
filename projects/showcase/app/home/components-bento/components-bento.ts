@@ -15,7 +15,7 @@ import { WrButton } from 'ngwr/button';
 import { WrCheckbox } from 'ngwr/checkbox';
 import { WrCounter } from 'ngwr/counter';
 import { WrEmpty } from 'ngwr/empty';
-import { WrFormField } from 'ngwr/form-field';
+import { WrFormField } from 'ngwr/form';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrInput, WrInputGroup, WrInputPrefix } from 'ngwr/input';

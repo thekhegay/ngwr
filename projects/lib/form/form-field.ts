@@ -35,7 +35,6 @@ let uid = 0;
 @Component({
   selector: 'wr-form-field',
   templateUrl: './form-field.html',
-  styleUrl: './form-field.scss',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
 })
@@ -93,12 +92,16 @@ export class WrFormField {
   template: `<ng-content />`,
   encapsulation: ViewEncapsulation.None,
   host: {
-    class: 'wr-form-field__error',
+    class: 'wr-form-error wr-form-field__error',
     role: 'alert',
-    '[attr.data-key]': 'key()',
+    '[attr.data-key]': 'key() ?? null',
   },
 })
 export class WrFormError {
-  /** Validator key this message corresponds to (e.g. `'required'`, `'email'`). */
-  readonly key = input.required<string>();
+  /**
+   * Validator key this message corresponds to (e.g. `'required'`).
+   * Optional — without a key the message always renders, which is the
+   * plain inline-error usage inside `<wr-form-item>`.
+   */
+  readonly key = input<string>();
 }

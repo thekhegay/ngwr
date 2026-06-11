@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { WrFormError, WrFormField } from 'ngwr/form-field';
+import { WrFormError, WrFormField } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
 
 import {
@@ -49,7 +49,7 @@ export default class FormFieldPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrFormField, WrFormError } from 'ngwr/form-field';
+    install: `import { WrFormField, WrFormError } from 'ngwr/form';
 
 @Component({
   imports: [WrFormField, WrFormError, /* … */],

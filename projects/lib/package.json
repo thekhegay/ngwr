@@ -202,9 +202,6 @@
     "./form": {
       "sass": "./form/styles/_index.scss"
     },
-    "./form-field": {
-      "sass": "./form-field/styles/_index.scss"
-    },
     "./fuzzy-text": {},
     "./gauge": {
       "sass": "./gauge/styles/_index.scss"
@@ -218,9 +215,6 @@
     "./hotkey": {},
     "./icon": {
       "sass": "./icon/styles/_index.scss"
-    },
-    "./image": {
-      "sass": "./image/styles/_index.scss"
     },
     "./image-cropper": {
       "sass": "./image-cropper/styles/_index.scss"
@@ -361,9 +355,6 @@
     },
     "./tabs": {
       "sass": "./tabs/styles/_index.scss"
-    },
-    "./tag": {
-      "sass": "./tag/styles/_index.scss"
     },
     "./tilt-card": {
       "sass": "./tilt-card/styles/_index.scss"

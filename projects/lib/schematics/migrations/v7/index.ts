@@ -121,6 +121,7 @@ const MODULE_RENAMES: ReadonlyMap<string, string> = new Map([
   ['ngwr/count-up', 'ngwr/counter'],
   ['ngwr/tag', 'ngwr/badge'],
   ['ngwr/image', 'ngwr/lightbox'],
+  ['ngwr/form-field', 'ngwr/form'],
   // Best-effort: typewriter was animated-text's default mode. Scramble /
   // split users need ngwr/decrypt-text / ngwr/split-text instead — the
   // HTML transform above already points the template at the right tag.

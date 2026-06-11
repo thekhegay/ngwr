@@ -33,3 +33,63 @@
   font-size: 0.75rem;
   line-height: 1rem;
 }
+
+.wr-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-family: var(--wr-font-family-base);
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--wr-color-dark);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+  }
+
+  &__required {
+    color: var(--wr-color-danger);
+  }
+
+  &__optional {
+    color: var(--wr-color-medium);
+    font-weight: 400;
+    font-size: 0.8125rem;
+  }
+
+  &__control {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__hint {
+    color: var(--wr-color-medium);
+    font-size: 0.8125rem;
+    line-height: 1.25;
+  }
+
+  &__errors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__error {
+    color: var(--wr-color-danger);
+    font-size: 0.8125rem;
+    line-height: 1.25;
+  }
+
+  // Visual states — invalid stripes the projected control too.
+  &--invalid &__control input,
+  &--invalid &__control textarea,
+  &--invalid &__control select,
+  &--invalid &__control .wr-input,
+  &--invalid &__control .wr-textarea,
+  &--invalid &__control .wr-select__trigger {
+    border-color: var(--wr-color-danger);
+  }
+}

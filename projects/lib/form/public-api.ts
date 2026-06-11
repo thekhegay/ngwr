@@ -1,2 +1,2 @@
 export { WrFormItem } from './form-item';
-export { WrFormError } from './form-error';
+export { WrFormField, WrFormError } from './form-field';

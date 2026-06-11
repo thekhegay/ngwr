@@ -30,7 +30,7 @@ function renderForm(dashName: string, pascalName: string): Rendered {
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { WrFormField, WrLabel, WrErrorMessage } from 'ngwr/form-field';
+import { WrFormField, WrLabel, WrErrorMessage } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
 
 @Component({
