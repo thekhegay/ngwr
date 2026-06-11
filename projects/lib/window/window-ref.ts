@@ -101,7 +101,7 @@ export class WrWindowRef<C, R = unknown> {
 
   constructor(
     id: string,
-    readonly _overlayRef: OverlayRef
+    public readonly _overlayRef: OverlayRef
   ) {
     this.id = id;
   }

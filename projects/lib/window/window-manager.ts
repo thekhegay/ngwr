@@ -24,7 +24,7 @@ import { WrStorage } from 'ngwr/storage';
 import { randomId } from 'ngwr/utils';
 
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
-import type { WrWindowConfig, WrWindowStorageConfig } from './types';
+import type { WrWindowConfig, WrWindowState, WrWindowStorageConfig } from './types';
 import { WrWindowContainer } from './window-container';
 import { WrWindowRef } from './window-ref';
 
@@ -35,7 +35,7 @@ function storageKey(cfg: WrWindowStorageConfig): string {
 
 interface RestoreSnapshot {
   readonly id: string;
-  readonly state: import('./types').WrWindowState;
+  readonly state: WrWindowState;
   readonly x: number;
   readonly y: number;
   readonly width: number;

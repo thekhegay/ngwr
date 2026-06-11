@@ -11,13 +11,13 @@ import {
   Component,
   DestroyRef,
   Injector,
-  ViewChild,
   ViewContainerRef,
   ViewEncapsulation,
   afterNextRender,
   effect,
   inject,
   runInInjectionContext,
+  viewChild,
 } from '@angular/core';
 
 import { WrStorage } from 'ngwr/storage';
@@ -71,11 +71,8 @@ export class WrWindowContainer<C> {
   private readonly destroyRef = inject(DestroyRef);
   private persistTimer: ReturnType<typeof setTimeout> | null = null;
 
-  @ViewChild('content', { read: ViewContainerRef, static: true })
-  private readonly contentVcr!: ViewContainerRef;
-
-  @ViewChild(WrWindow, { static: true })
-  private readonly wrWindow!: WrWindow;
+  private readonly contentVcr = viewChild.required('content', { read: ViewContainerRef });
+  private readonly wrWindow = viewChild.required(WrWindow);
 
   constructor() {
     afterNextRender(() => this.attach());
@@ -86,13 +83,13 @@ export class WrWindowContainer<C> {
 
   private attach(): void {
     // 1. Create the consumer's component inside the body slot.
-    const componentRef = this.contentVcr.createComponent(this.componentType, {
+    const componentRef = this.contentVcr().createComponent(this.componentType, {
       injector: this.childInjector,
     });
     this.ref.componentRef = componentRef;
 
     // 2. Bridge imperative actions to the underlying <wr-window>.
-    const w = this.wrWindow;
+    const w = this.wrWindow();
     this.ref._doMinimize = () => w.minimize();
     this.ref._doMaximize = () => w.maximize();
     this.ref._doRestore = () => w.restore();

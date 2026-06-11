@@ -43,7 +43,10 @@ function detectOs(): WrWindowResolvedOs {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') return 'windows';
 
   const uaData = (navigator as unknown as { userAgentData?: { platform?: string } }).userAgentData;
-  const platform = (uaData?.platform || navigator.platform || navigator.userAgent || '').toLowerCase();
+  // First non-empty source — `??` alone would keep an empty platform
+  // string and skip the user-agent fallback.
+  const candidates = [uaData?.platform, navigator.platform, navigator.userAgent];
+  const platform = (candidates.find(v => !!v) ?? '').toLowerCase();
   if (
     platform.includes('mac') ||
     platform.includes('darwin') ||

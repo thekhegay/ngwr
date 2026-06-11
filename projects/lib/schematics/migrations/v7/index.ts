@@ -98,9 +98,7 @@ const HTML_TRANSFORMS: readonly Transform[] = [
           .replace(/(\s)startDelay=/, '$1initialDelay=')
           .replace(/(\s)\[startDelay\]=/, '$1[initialDelay]=');
       } else {
-        rest = rest
-          .replace(/\s*\[?loop\]?(=\s*"[^"]*")?(?=\s|$)/, '')
-          .replace(/\s*\[?startDelay\]?\s*=\s*"[^"]*"/, '');
+        rest = rest.replace(/\s*\[?loop\]?(=\s*"[^"]*")?(?=\s|$)/, '').replace(/\s*\[?startDelay\]?\s*=\s*"[^"]*"/, '');
         if (tag === 'wr-split-text') {
           rest = rest.replace(/(\s)speed=/, '$1delay=').replace(/(\s)\[speed\]=/, '$1[delay]=');
         }

@@ -21,7 +21,7 @@ interface FooterColumn {
   styleUrl: './footer.scss',
   imports: [RouterLink],
   host: {
-    '[class]': "hostClass()",
+    '[class]': 'hostClass()',
   },
 })
 export class Footer {

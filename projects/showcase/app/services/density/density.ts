@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
+import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrDensity, WrDensityDirective, type WrDensityValue } from 'ngwr/density';
 import { WrInput } from 'ngwr/input';
 import { WrSelect, WrOption } from 'ngwr/select';
-import { WrTag } from 'ngwr/badge';
 
 import {
   DocApiComponent,

@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrTableCell, WrTable, type WrTableColumns, type WrTableFilterChange, type WrTableSortState } from 'ngwr/table';
 import { WrTag } from 'ngwr/badge';
+import { WrTableCell, WrTable, type WrTableColumns, type WrTableFilterChange, type WrTableSortState } from 'ngwr/table';
 
 import {
   DocApiComponent,
@@ -130,7 +130,8 @@ export class MyComponent {}`,
     { name: 'page', description: 'Two-way bindable 1-based current page.', type: 'number', default: '1' },
     {
       name: 'totalItems',
-      description: 'Server-side total. When set, the table renders the pager but does NOT slice `items` (you handle paging).',
+      description:
+        'Server-side total. When set, the table renders the pager but does NOT slice `items` (you handle paging).',
       type: 'number | null',
       default: 'null',
     },
