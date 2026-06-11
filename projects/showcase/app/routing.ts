@@ -146,6 +146,7 @@ export const routes = {
     spotlightCard: 'spotlight-card',
     tiltCard: 'tilt-card',
     clickSpark: 'click-spark',
+    waves: 'waves',
     splitText: 'split-text',
     blurText: 'blur-text',
     shinyText: 'shiny-text',

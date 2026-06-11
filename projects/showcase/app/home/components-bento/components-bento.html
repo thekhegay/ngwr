@@ -69,16 +69,9 @@
             <input wrInput [ngModel]="payAmount()" (ngModelChange)="payAmount.set($event)" />
           </wr-input-group>
           <wr-form-field>
-            <input
-              wrInput
-              placeholder="Card holder"
-              [ngModel]="payHolder()"
-              (ngModelChange)="payHolder.set($event)"
-            />
+            <input wrInput placeholder="Card holder" [ngModel]="payHolder()" (ngModelChange)="payHolder.set($event)" />
           </wr-form-field>
-          <wr-btn color="primary" block icon="credit-card" iconPosition="start" (click)="onPay()">
-            Pay now
-          </wr-btn>
+          <wr-btn color="primary" block icon="credit-card" iconPosition="start" (click)="onPay()"> Pay now </wr-btn>
         </div>
       </article>
 
@@ -240,11 +233,7 @@
           <p wrTypography variant="caption" tone="medium">Segmented drives the page theme</p>
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__theme">
-          <wr-segmented
-            [options]="themeOptions"
-            [ngModel]="theme.mode()"
-            (ngModelChange)="onThemeChange($event)"
-          />
+          <wr-segmented [options]="themeOptions" [ngModel]="theme.mode()" (ngModelChange)="onThemeChange($event)" />
           <div class="ngwr-cbento__swatches">
             <span class="ngwr-cbento__swatch" style="background: var(--wr-color-primary)" aria-label="primary"></span>
             <span

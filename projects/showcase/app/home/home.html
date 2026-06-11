@@ -1,6 +1,7 @@
 <main class="ngwr-home">
   <!-- ───── Hero ───── -->
   <section class="ngwr-home-hero-wrap">
+    <wr-waves class="ngwr-home-hero-wrap__waves" [waveAmpX]="24" [waveAmpY]="12" [xGap]="14" [yGap]="36" />
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
         <h1 class="ngwr-home-hero__title">
@@ -14,7 +15,8 @@
             [from]="{ opacity: 0, y: 36 }"
             [to]="{ opacity: 1, y: 0 }"
           />
-          <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span>&nbsp;applications.
+          <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span
+          >&nbsp;applications.
         </h1>
 
         <div class="ngwr-home-hero__cta">
@@ -51,10 +53,17 @@
         </p>
 
         <ul class="ngwr-checks">
-          <li><span aria-hidden="true">✓</span> Each component is its own ng-packagr entry — only what you import ships</li>
+          <li>
+            <span aria-hidden="true">✓</span> Each component is its own ng-packagr entry — only what you import ships
+          </li>
           <li><span aria-hidden="true">✓</span> Inputs and outputs are signals — no async-pipe gymnastics for state</li>
-          <li><span aria-hidden="true">✓</span> Strict TypeScript — every input typed, every event typed, no <code>any</code></li>
-          <li><span aria-hidden="true">✓</span> Keyboard nav + ARIA wired in the lib, verified with axe and VoiceOver</li>
+          <li>
+            <span aria-hidden="true">✓</span> Strict TypeScript — every input typed, every event typed, no
+            <code>any</code>
+          </li>
+          <li>
+            <span aria-hidden="true">✓</span> Keyboard nav + ARIA wired in the lib, verified with axe and VoiceOver
+          </li>
         </ul>
       </div>
 
@@ -103,8 +112,8 @@
           </p>
         </div>
         <p wrTypography variant="lead" class="ngwr-section__head-aside">
-          Beyond the primitives — a kit of motion components for hero copy, hovers, and the bits of personality that
-          set a real product apart.
+          Beyond the primitives — a kit of motion components for hero copy, hovers, and the bits of personality that set
+          a real product apart.
         </p>
       </div>
 
@@ -166,7 +175,14 @@
       </div>
 
       <div class="ngwr-motion-footer">
-        <a wr-btn outlined size="lg" [routerLink]="['/animations', 'border-glow']" icon="arrow-forward" iconPosition="end">
+        <a
+          wr-btn
+          outlined
+          size="lg"
+          [routerLink]="['/animations', 'border-glow']"
+          icon="arrow-forward"
+          iconPosition="end"
+        >
           Browse the kit
         </a>
       </div>

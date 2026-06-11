@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="Waves"
+  description="Wave-field background — a grid of lines drifting on perlin noise, nudged by the pointer. Line colour follows the theme out of the box. Use behind hero copy or section content."
+  [keywords]="['waves', 'wr-waves', 'background', 'animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="waves" category="backgrounds" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div style="position: relative; width: 100%; height: 16rem; border-radius: 0.75rem; overflow: hidden">
+        <wr-waves [waveAmpX]="waveAmpX()" [waveAmpY]="waveAmpY()" [xGap]="xGap()" [yGap]="yGap()" />
+        <div
+          style="
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            pointer-events: none;
+          "
+        >
+          <p wrTypography variant="h3" style="margin: 0">Content above the waves</p>
+        </div>
+      </div>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

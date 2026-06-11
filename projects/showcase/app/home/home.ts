@@ -2,8 +2,8 @@ import { DestroyRef, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
-import { WrBlurText } from 'ngwr/blur-text';
 import { WrTag } from 'ngwr/badge';
+import { WrBlurText } from 'ngwr/blur-text';
 import { WrButton } from 'ngwr/button';
 import { WrDecryptText } from 'ngwr/decrypt-text';
 import { WrGlitchText } from 'ngwr/glitch-text';
@@ -14,10 +14,11 @@ import { WrShinyText } from 'ngwr/shiny-text';
 import { WrSplitText } from 'ngwr/split-text';
 import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
-
-import { ComponentsBento } from './components-bento/components-bento';
+import { WrWaves } from 'ngwr/waves';
 
 import { Footer } from '../_layout/footer/footer';
+
+import { ComponentsBento } from './components-bento/components-bento';
 
 import { DocCodeComponent } from '#core/components';
 import { BRAND_ICONS } from '#core/icons';
@@ -48,6 +49,7 @@ interface WhyTile {
     WrShinyText,
     WrGlitchText,
     WrDecryptText,
+    WrWaves,
     // Sections
     ComponentsBento,
     DocCodeComponent,
@@ -130,8 +132,7 @@ export class SignupCard {
     {
       icon: 'folder',
       title: 'Pay for what you import',
-      description:
-        "Each component is its own ng-packagr entry. What you don't import never lands in your bundle.",
+      description: "Each component is its own ng-packagr entry. What you don't import never lands in your bundle.",
       accent: 'success',
     },
     {
@@ -145,7 +146,7 @@ export class SignupCard {
       icon: 'flash',
       title: 'Motion you can trust',
       description:
-        "One easing curve shared by overlays, hovers, presses, route changes. `prefers-reduced-motion` short-circuits the lot.",
+        'One easing curve shared by overlays, hovers, presses, route changes. `prefers-reduced-motion` short-circuits the lot.',
       accent: 'danger',
     },
   ];

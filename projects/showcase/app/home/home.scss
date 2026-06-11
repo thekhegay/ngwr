@@ -15,6 +15,19 @@
 .ngwr-home-hero-wrap {
   position: relative;
   padding: 4rem 0 2rem;
+  overflow: hidden;
+
+  // Wave field sits behind the hero copy. The mask fades the lines out
+  // toward the bottom so they hand off cleanly to the bento below.
+  &__waves {
+    z-index: 0;
+    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+  }
+
+  > .container {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 /* ───── Left pitch column ─────────────────────────────────────────── */

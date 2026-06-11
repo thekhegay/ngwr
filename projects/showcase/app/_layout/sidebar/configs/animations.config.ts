@@ -45,6 +45,9 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
   },
   {
     title: 'Backgrounds',
-    children: [{ title: 'Aurora', url: ['/animations', 'aurora'] }],
+    children: [
+      { title: 'Aurora', url: ['/animations', 'aurora'] },
+      { title: 'Waves', url: ['/animations', 'waves'] },
+    ],
   },
 ];

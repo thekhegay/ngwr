@@ -20,7 +20,7 @@ export class ReactbitsCredit {
   readonly slug = input.required<string>();
 
   /** Reactbits taxonomy folder — `'components'`, `'animations'`, `'text-animations'`, … */
-  readonly category = input<'components' | 'animations' | 'text-animations'>('animations');
+  readonly category = input<'components' | 'animations' | 'text-animations' | 'backgrounds'>('animations');
 
   protected readonly url = computed(() => `https://www.reactbits.dev/${this.category()}/${this.slug()}`);
 }

@@ -384,6 +384,9 @@
     "./virtual-scroll": {
       "sass": "./virtual-scroll/styles/_index.scss"
     },
+    "./waves": {
+      "sass": "./waves/styles/_index.scss"
+    },
     "./window": {
       "sass": "./window/styles/_index.scss"
     }

@@ -18,6 +18,7 @@ export default [
   { path: a.spotlightCard, loadComponent: () => import('./spotlight-card/spotlight-card') },
   { path: a.tiltCard, loadComponent: () => import('./tilt-card/tilt-card') },
   { path: a.clickSpark, loadComponent: () => import('./click-spark/click-spark') },
+  { path: a.waves, loadComponent: () => import('./waves/waves') },
   { path: a.splitText, loadComponent: () => import('./split-text/split-text') },
   { path: a.blurText, loadComponent: () => import('./blur-text/blur-text') },
   { path: a.shinyText, loadComponent: () => import('./shiny-text/shiny-text') },

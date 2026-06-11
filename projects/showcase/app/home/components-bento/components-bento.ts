@@ -9,7 +9,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 
 import { Check, CreditCard, Folder, House, Settings } from 'lucide';
-
 import { WrAvatar } from 'ngwr/avatar';
 import { WrBadge, WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
