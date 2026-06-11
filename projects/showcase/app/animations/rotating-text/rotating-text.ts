@@ -32,6 +32,10 @@ export default class RotatingTextPage {
   // ── Live demo state ─────────────────────────────────────────────
   protected readonly rotationInterval = signal(2000);
   protected readonly splitBy = signal<'characters' | 'words' | 'lines'>('characters');
+  protected readonly duration = signal(0.6);
+  protected readonly easing = signal<'cubic-bezier(0.16, 1, 0.3, 1)' | 'ease-out' | 'ease-in-out' | 'linear'>(
+    'cubic-bezier(0.16, 1, 0.3, 1)'
+  );
   protected readonly staggerDuration = signal(0);
   protected readonly staggerFrom = signal<'first' | 'last' | 'center'>('first');
   protected readonly loop = signal(true);
@@ -42,6 +46,8 @@ export default class RotatingTextPage {
   [texts]="['design', 'ship', 'iterate']"
   [rotationInterval]="${this.rotationInterval()}"
   splitBy="${this.splitBy()}"
+  [duration]="${this.duration()}"
+  easing="${this.easing()}"
   [staggerDuration]="${this.staggerDuration()}"
   staggerFrom="${this.staggerFrom()}"
   [loop]="${this.loop()}"
@@ -59,6 +65,22 @@ export default class RotatingTextPage {
       unit: 'ms',
     },
     { kind: 'select', label: 'Split By', signal: this.splitBy, options: ['characters', 'words', 'lines'] as const },
+    {
+      kind: 'slider',
+      label: 'Duration (s)',
+      signal: this.duration,
+      min: 0.1,
+      max: 2,
+      step: 0.05,
+      precision: 2,
+      unit: 's',
+    },
+    {
+      kind: 'select',
+      label: 'Easing',
+      signal: this.easing,
+      options: ['cubic-bezier(0.16, 1, 0.3, 1)', 'ease-out', 'ease-in-out', 'linear'] as const,
+    },
     {
       kind: 'slider',
       label: 'Stagger (s)',
@@ -94,6 +116,13 @@ export default class RotatingTextPage {
     },
     { name: 'auto', description: 'Auto-advance on a timer.', type: 'boolean', default: 'true' },
     { name: 'loop', description: 'Loop back to the first string after the last.', type: 'boolean', default: 'true' },
+    { name: 'duration', description: 'Per-swap tween duration in seconds.', type: 'number', default: '0.6' },
+    {
+      name: 'easing',
+      description: 'CSS easing of the per-piece tween.',
+      type: 'string',
+      default: "'cubic-bezier(0.16, 1, 0.3, 1)'",
+    },
     { name: 'staggerDuration', description: 'Per-piece stagger in seconds.', type: 'number', default: '0' },
     { name: 'staggerFrom', description: 'Stagger origin.', type: "'first' | 'last' | 'center'", default: "'first'" },
     {

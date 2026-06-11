@@ -36,7 +36,6 @@ const num =
   (v: unknown): number =>
     coerceNumberProperty(v, fallback);
 
-const DEFAULT_DURATION_MS = 600;
 const DEFAULT_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 interface Word {
@@ -106,6 +105,12 @@ export class WrRotatingText {
 
   /** Loop back to the first string after the last. @default true */
   readonly loop = input(true, { transform: coerceBooleanProperty });
+
+  /** Per-swap tween duration in seconds. @default 0.6 */
+  readonly duration = input(0.6, { transform: num(0.6) });
+
+  /** CSS easing of the per-piece tween. @default 'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out) */
+  readonly easing = input(DEFAULT_EASING);
 
   /** Per-piece stagger in seconds. @default 0 */
   readonly staggerDuration = input(0, { transform: num(0) });
@@ -225,7 +230,7 @@ export class WrRotatingText {
           { opacity: 0, transform: 'translate3d(0, 100%, 0)' },
           { opacity: 1, transform: 'translate3d(0, 0, 0)' },
         ],
-        { duration: DEFAULT_DURATION_MS, delay, easing: DEFAULT_EASING, fill: 'forwards' }
+        { duration: this.duration() * 1000, delay, easing: this.easing(), fill: 'forwards' }
       );
       anim.onfinish = (): void => {
         el.style.opacity = '1';
@@ -252,7 +257,7 @@ export class WrRotatingText {
           { opacity: 1, transform: 'translate3d(0, 0, 0)' },
           { opacity: 0, transform: 'translate3d(0, -120%, 0)' },
         ],
-        { duration: DEFAULT_DURATION_MS, delay, easing: DEFAULT_EASING, fill: 'forwards' }
+        { duration: this.duration() * 1000, delay, easing: this.easing(), fill: 'forwards' }
       );
       promises.push(
         new Promise<void>(resolve => {
