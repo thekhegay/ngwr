@@ -1,8 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrSplashCursor } from 'ngwr/splash-cursor';
-import { WrSwitch } from 'ngwr/switch';
 
 import {
   DocApiComponent,
@@ -19,9 +17,7 @@ import {
   selector: 'ngwr-splash-cursor-page',
   templateUrl: './splash-cursor.html',
   imports: [
-    FormsModule,
     WrSplashCursor,
-    WrSwitch,
     DocPageComponent,
     DocSectionComponent,
     DocPlaygroundComponent,
