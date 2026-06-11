@@ -40,6 +40,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
     title: 'Effects',
     children: [
       { title: 'Click Spark', url: ['/animations', 'click-spark'] },
+      { title: 'Splash Cursor', url: ['/animations', 'splash-cursor'] },
       { title: 'Confetti', url: ['/animations', 'confetti'] },
       { title: 'Reveal', url: ['/animations', 'reveal'] },
     ],

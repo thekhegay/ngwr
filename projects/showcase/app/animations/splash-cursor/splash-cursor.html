@@ -1,0 +1,31 @@
+<ngwr-doc-page
+  title="Splash Cursor"
+  description="WebGL fluid simulation that splashes colourful dye wherever the pointer moves or clicks. Fixed, full-viewport, click-through overlay — move your mouse to try it. Renders nothing under prefers-reduced-motion or without WebGL."
+  [keywords]="['splash-cursor', 'wr-splash-cursor', 'fluid', 'webgl', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="splash-cursor" category="animations" />
+
+  @if (enabled()) {
+    <wr-splash-cursor [rainbow]="rainbow()" [splatRadius]="splatRadius()" [curl]="curl()" />
+  }
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Playground"
+    description="The simulation overlays the whole viewport while mounted — every pointer move on this page splashes dye."
+  >
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-switch [ngModel]="enabled()" (ngModelChange)="enabled.set($event)">
+        Fluid overlay {{ enabled() ? 'on — move your mouse!' : 'off' }}
+      </wr-switch>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

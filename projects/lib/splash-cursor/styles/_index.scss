@@ -1,0 +1,16 @@
+// Splash cursor (reactbits port). Fixed full-viewport overlay that never
+// captures pointer events — the WebGL canvas just paints over the page.
+
+.wr-splash-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: block;
+  pointer-events: none;
+
+  &__canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+  }
+}

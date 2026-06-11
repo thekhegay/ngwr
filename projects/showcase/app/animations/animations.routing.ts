@@ -20,6 +20,7 @@ export default [
   { path: a.clickSpark, loadComponent: () => import('./click-spark/click-spark') },
   { path: a.waves, loadComponent: () => import('./waves/waves') },
   { path: a.starBorder, loadComponent: () => import('./star-border/star-border') },
+  { path: a.splashCursor, loadComponent: () => import('./splash-cursor/splash-cursor') },
   { path: a.splitText, loadComponent: () => import('./split-text/split-text') },
   { path: a.blurText, loadComponent: () => import('./blur-text/blur-text') },
   { path: a.shinyText, loadComponent: () => import('./shiny-text/shiny-text') },

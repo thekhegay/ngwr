@@ -148,6 +148,7 @@ export const routes = {
     clickSpark: 'click-spark',
     waves: 'waves',
     starBorder: 'star-border',
+    splashCursor: 'splash-cursor',
     splitText: 'split-text',
     blurText: 'blur-text',
     shinyText: 'shiny-text',

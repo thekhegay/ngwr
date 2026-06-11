@@ -343,6 +343,9 @@
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"
     },
+    "./splash-cursor": {
+      "sass": "./splash-cursor/styles/_index.scss"
+    },
     "./statistic": {
       "sass": "./statistic/styles/_index.scss"
     },
