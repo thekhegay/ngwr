@@ -117,7 +117,7 @@ export class AppComponent {
 
 **Buttons** — [button](https://ngwr.dev/components/button), [button-group](https://ngwr.dev/components/button-group), [speed-dial](https://ngwr.dev/components/speed-dial).
 
-**Display** — [alert](https://ngwr.dev/components/alert), [avatar](https://ngwr.dev/components/avatar), [badge](https://ngwr.dev/components/badge), [count-up](https://ngwr.dev/components/count-up), [descriptions](https://ngwr.dev/components/descriptions), [divider](https://ngwr.dev/components/divider), [empty](https://ngwr.dev/components/empty), [icon](https://ngwr.dev/components/icon), [image](https://ngwr.dev/components/image), [keyboard](https://ngwr.dev/components/keyboard), [list](https://ngwr.dev/components/list), [meter-group](https://ngwr.dev/components/meter-group), [progress](https://ngwr.dev/components/progress), [qrcode](https://ngwr.dev/components/qrcode), [result](https://ngwr.dev/components/result), [skeleton](https://ngwr.dev/components/skeleton), [spinner](https://ngwr.dev/components/spinner), [squircle](https://ngwr.dev/components/squircle), [statistic](https://ngwr.dev/components/statistic), [tag](https://ngwr.dev/components/tag), [typography](https://ngwr.dev/components/typography).
+**Display** — [alert](https://ngwr.dev/components/alert), [avatar](https://ngwr.dev/components/avatar), [badge](https://ngwr.dev/components/badge) (incl. `wr-tag`), [descriptions](https://ngwr.dev/components/descriptions), [divider](https://ngwr.dev/components/divider), [empty](https://ngwr.dev/components/empty), [icon](https://ngwr.dev/components/icon), [keyboard](https://ngwr.dev/components/keyboard), [lightbox](https://ngwr.dev/components/lightbox), [list](https://ngwr.dev/components/list), [meter-group](https://ngwr.dev/components/meter-group), [progress](https://ngwr.dev/components/progress), [qrcode](https://ngwr.dev/components/qrcode), [result](https://ngwr.dev/components/result), [skeleton](https://ngwr.dev/components/skeleton), [spinner](https://ngwr.dev/components/spinner), [squircle](https://ngwr.dev/components/squircle), [statistic](https://ngwr.dev/components/statistic), [typography](https://ngwr.dev/components/typography).
 
 **Navigation** — [anchor](https://ngwr.dev/components/anchor), [back-top](https://ngwr.dev/components/back-top), [breadcrumbs](https://ngwr.dev/components/breadcrumbs), [dropdown](https://ngwr.dev/components/dropdown), [page-header](https://ngwr.dev/components/page-header), [pagination](https://ngwr.dev/components/pagination), [stepper](https://ngwr.dev/components/stepper), [tabs](https://ngwr.dev/components/tabs), [timeline](https://ngwr.dev/components/timeline), [toolbar](https://ngwr.dev/components/toolbar).
 
@@ -129,7 +129,7 @@ export class AppComponent {
 
 ### Animations
 
-Animated UI effects. Mix of in-house components + ports of [reactbits.dev](https://www.reactbits.dev) — each port carries a credit chip on its docs page.
+Animated UI effects. Mix of in-house components + ports of [reactbits.dev](https://www.reactbits.dev) — each port carries a credit chip on its docs page. Defaults are theme-aware (light + dark), and every component honors `prefers-reduced-motion`.
 
 [border-glow](https://ngwr.dev/animations/border-glow), [aurora](https://ngwr.dev/animations/aurora), [marquee](https://ngwr.dev/animations/marquee), [confetti](https://ngwr.dev/animations/confetti), [reveal](https://ngwr.dev/animations/reveal), [spotlight-card](https://ngwr.dev/animations/spotlight-card), [tilt-card](https://ngwr.dev/animations/tilt-card), [click-spark](https://ngwr.dev/animations/click-spark), [split-text](https://ngwr.dev/animations/split-text), [blur-text](https://ngwr.dev/animations/blur-text), [shiny-text](https://ngwr.dev/animations/shiny-text), [gradient-text](https://ngwr.dev/animations/gradient-text), [rotating-text](https://ngwr.dev/animations/rotating-text), [typewriter](https://ngwr.dev/animations/typewriter), [scramble-text](https://ngwr.dev/animations/scramble-text), [decrypt-text](https://ngwr.dev/animations/decrypt-text), [glitch-text](https://ngwr.dev/animations/glitch-text), [fuzzy-text](https://ngwr.dev/animations/fuzzy-text), [falling-text](https://ngwr.dev/animations/falling-text), [circular-text](https://ngwr.dev/animations/circular-text), [waves](https://ngwr.dev/animations/waves), [star-border](https://ngwr.dev/animations/star-border), [splash-cursor](https://ngwr.dev/animations/splash-cursor).
 
@@ -137,15 +137,15 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 ### Directives — `ngwr/directives`
 
-[affix](https://ngwr.dev/directives/affix), [autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard), [reveal](https://ngwr.dev/directives/reveal).
+[autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard), [reveal](https://ngwr.dev/directives/reveal). [affix](https://ngwr.dev/directives/affix) ships as its own entry (`ngwr/affix`).
 
 ### Pipes — `ngwr/pipes`
 
-[wrNumber](https://ngwr.dev/pipes/wr-number), [wrBytes](https://ngwr.dev/pipes/wr-bytes), [wrDate](https://ngwr.dev/pipes/wr-date), [wrTruncate](https://ngwr.dev/pipes/wr-truncate), [range](https://ngwr.dev/pipes/range).
+[wrNumber](https://ngwr.dev/pipes/wr-number), [wrBytes](https://ngwr.dev/pipes/wr-bytes), [wrDate](https://ngwr.dev/pipes/wr-date), [wrTruncate](https://ngwr.dev/pipes/wr-truncate), [wrMark](https://ngwr.dev/pipes/wr-mark), [wrRange](https://ngwr.dev/pipes/wr-range).
 
 ### Services
 
-[theme](https://ngwr.dev/services/theme), [scroll](https://ngwr.dev/services/scroll), [hotkey](https://ngwr.dev/services/hotkey), [media](https://ngwr.dev/services/media), [platform](https://ngwr.dev/services/platform), [meta](https://ngwr.dev/services/meta), [storage](https://ngwr.dev/services/storage), [i18n](https://ngwr.dev/services/i18n), [density](https://ngwr.dev/services/density).
+[theme](https://ngwr.dev/services/theme), [scroll](https://ngwr.dev/services/scroll), [hotkey](https://ngwr.dev/services/hotkey), [media](https://ngwr.dev/services/media), [platform](https://ngwr.dev/services/platform), [meta](https://ngwr.dev/services/meta), [storage](https://ngwr.dev/services/storage), [clipboard](https://ngwr.dev/services/clipboard), [cookie](https://ngwr.dev/services/cookie), [loading-bar](https://ngwr.dev/services/loading-bar), [density](https://ngwr.dev/services/density), [translate](https://ngwr.dev/translate) (i18n).
 
 ### Validators — `ngwr/validators`
 
@@ -166,10 +166,11 @@ Css helpers (`resolveCssSize`, `getRootFontSize`), ids (`randomId`), type guards
 
 - **Standalone & signals-first.** Every component is standalone and uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-ready.
 - **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
-- **Tree-shakable.** ~110 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are typically 5–25 KB; the largest entry (`ngwr/icon`) is ~98 KB before tree-shaking and ships only the icons you actually register.
+- **Tree-shakable.** ~125 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are typically 5–25 KB; the largest entry (`ngwr/icon`) is ~98 KB before tree-shaking and ships only the icons you actually register.
 - **Modular SCSS.** Component styles are scoped through CSS custom properties. Theme tokens live in `ngwr/theme`; utilities (`grid`, `reset`) and the breakpoints SCSS API are opt-in.
 - **Tree-shaken icons.** `provideWrIcons([plus, trash])` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
-- **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` — no GSAP, no `motion/react`, no `matter-js`.
+- **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` / raw WebGL — no GSAP, no `motion/react`, no `matter-js`, no `ogl`.
+- **Motion respects the OS.** Every animation component short-circuits to its final state under `prefers-reduced-motion`.
 
 ## Contributing
 
