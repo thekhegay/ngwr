@@ -39,8 +39,11 @@ import { Component, ViewEncapsulation, ElementRef, inject, input } from '@angula
   },
 })
 export class WrSpotlightCard {
-  /** Highlight colour (any CSS colour). @default 'rgba(255, 255, 255, 0.25)' */
-  readonly spotlightColor = input('rgba(255, 255, 255, 0.25)');
+  /**
+   * Highlight colour (any CSS colour). When unset, the theme decides:
+   * a soft dark tint on light surfaces, white-alpha on dark.
+   */
+  readonly spotlightColor = input<string | null>(null);
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
 

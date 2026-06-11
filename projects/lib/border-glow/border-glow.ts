@@ -151,8 +151,8 @@ function animateValue(opts: AnimateOptions): () => void {
   },
 })
 export class WrBorderGlow {
-  /** Card background fill. @default '#120F17' */
-  readonly backgroundColor = input('#120F17');
+  /** Card background fill. When unset, uses the theme surface token. */
+  readonly backgroundColor = input<string | null>(null);
 
   /** Corner radius in pixels. @default 28 */
   readonly borderRadius = input(28, { transform: num(28) });
@@ -172,8 +172,12 @@ export class WrBorderGlow {
   /** Strength of the soft-light interior fill near edges. @default 0.5 */
   readonly fillOpacity = input(0.5, { transform: num(0.5) });
 
-  /** Halo colour as `'H S L'` (HSL parts, no commas). @default '40 80 80' */
-  readonly glowColor = input('40 80 80');
+  /**
+   * Halo colour as `'H S L'` (HSL parts, no commas). When unset, the theme
+   * decides: a deep amber on light surfaces, pale amber on dark. Note
+   * `glowIntensity` only applies alongside an explicit `glowColor`.
+   */
+  readonly glowColor = input<string | null>(null);
 
   /** Mesh-gradient palette for the colored border slice. @default purple / pink / cyan */
   readonly colors = input<readonly string[]>(DEFAULT_COLORS);
@@ -187,16 +191,23 @@ export class WrBorderGlow {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** Inline CSS variable bag — recomputed when colour / radius / sensitivity inputs change. */
-  protected readonly cssVars = computed<Record<string, string>>(() => ({
-    '--card-bg': this.backgroundColor(),
-    '--border-radius': `${this.borderRadius()}px`,
-    '--glow-padding': `${this.glowRadius()}px`,
-    '--cone-spread': String(this.coneSpread()),
-    '--edge-sensitivity': String(this.edgeSensitivity()),
-    '--fill-opacity': String(this.fillOpacity()),
-    ...buildGlowVars(this.glowColor(), this.glowIntensity()),
-    ...buildGradientVars(this.colors()),
-  }));
+  protected readonly cssVars = computed<Record<string, string>>(() => {
+    const vars: Record<string, string> = {
+      '--border-radius': `${this.borderRadius()}px`,
+      '--glow-padding': `${this.glowRadius()}px`,
+      '--cone-spread': String(this.coneSpread()),
+      '--edge-sensitivity': String(this.edgeSensitivity()),
+      '--fill-opacity': String(this.fillOpacity()),
+      ...buildGradientVars(this.colors()),
+    };
+    // Colour vars are written only when set — otherwise the stylesheet's
+    // per-theme defaults (light vs dark) take over.
+    const bg = this.backgroundColor();
+    if (bg !== null) vars['--card-bg'] = bg;
+    const glow = this.glowColor();
+    if (glow !== null) Object.assign(vars, buildGlowVars(glow, this.glowIntensity()));
+    return vars;
+  });
 
   constructor() {
     // Apply the variable bag to the host on every input change. Bind in an

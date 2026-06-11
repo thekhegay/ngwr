@@ -53,7 +53,8 @@
       position: absolute;
       inset: 1px;
       border-radius: inherit;
-      background-color: #120f17;
+      // Surface token — flips with the theme so the ring reads on both.
+      background-color: var(--wr-color-white, #120f17);
       z-index: 1;
     }
   }

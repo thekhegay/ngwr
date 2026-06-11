@@ -31,11 +31,12 @@ import {
 })
 export default class SpotlightCardPage {
   // ── Live demo state ─────────────────────────────────────────────
-  protected readonly spotlightColor = signal('#ffffff40');
+  // Empty = theme-aware default; the picker writes a concrete colour.
+  protected readonly spotlightColor = signal('');
 
   protected readonly snippet = computed(
     () =>
-      `<wr-spotlight-card spotlightColor="${this.spotlightColor()}">
+      `<wr-spotlight-card${this.spotlightColor() ? ` spotlightColor="${this.spotlightColor()}"` : ''}>
   <h3>Cursor-tracked spotlight</h3>
   <p>Move the pointer across this card.</p>
 </wr-spotlight-card>`
@@ -65,7 +66,7 @@ import { WrSpotlight } from 'ngwr/spotlight-card';
       name: 'spotlightColor',
       description: 'Highlight colour on `<wr-spotlight-card>`. Any CSS colour string.',
       type: 'string',
-      default: "'rgba(255, 255, 255, 0.25)'",
+      default: 'theme-aware (dark tint on light, white-alpha on dark)',
     },
     {
       name: '[wrSpotlight]',

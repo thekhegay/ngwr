@@ -1,20 +1,22 @@
 // Cursor-tracked spotlight card (reactbits port). The `--wr-spotlight-x/y`
 // vars come from the host's mousemove handler; `--wr-spotlight-color` is
-// set inline from the `[spotlightColor]` input.
+// set inline from the `[spotlightColor]` input when provided — otherwise
+// the theme picks a default: a soft dark tint on light surfaces, the
+// classic white-alpha beam on dark.
 
 .wr-spotlight-card {
   --wr-spotlight-x: 50%;
   --wr-spotlight-y: 50%;
-  --wr-spotlight-color: rgb(255 255 255 / 25%);
+  --wr-spotlight-color: rgba(var(--wr-color-dark-rgb), 0.08);
 
   position: relative;
   display: block;
   border-radius: 1.5rem;
-  border: 1px solid #222;
-  background-color: #111;
+  border: 1px solid var(--wr-color-light);
+  background-color: var(--wr-color-white);
   padding: 2rem;
   overflow: hidden;
-  color: var(--wr-color-white);
+  color: var(--wr-color-dark);
 
   &::before {
     content: '';
@@ -34,4 +36,8 @@
   &:focus-within::before {
     opacity: 0.6;
   }
+}
+
+[data-theme='dark'] .wr-spotlight-card {
+  --wr-spotlight-color: rgb(255 255 255 / 25%);
 }

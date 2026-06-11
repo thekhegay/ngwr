@@ -73,7 +73,7 @@ export default class BorderGlowPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'backgroundColor', description: 'Card background fill.', type: 'string', default: "'#120F17'" },
+    { name: 'backgroundColor', description: 'Card background fill.', type: 'string', default: 'theme surface token' },
     { name: 'borderRadius', description: 'Corner radius in pixels.', type: 'number', default: '28' },
     {
       name: 'glowRadius',
@@ -109,7 +109,7 @@ export default class BorderGlowPage {
       name: 'glowColor',
       description: 'Halo colour as `"H S L"` (HSL parts, no commas).',
       type: 'string',
-      default: "'40 80 80'",
+      default: 'theme-aware (deep amber on light, pale on dark)',
     },
     {
       name: 'colors',
