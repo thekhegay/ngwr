@@ -2,13 +2,12 @@
 // positioned ancestor; all the visuals live in the fragment shader.
 
 .wr-aurora {
-  // Theme defaults (overridden by `[colorStops]`). The aurora is emissive
-  // — opaque ribbons glow on dark pages but read as an ink slab on white,
-  // so light surfaces get brighter stops washed down by canvas opacity.
-  --wr-aurora-stop-1: #818cf8;
-  --wr-aurora-stop-2: #34d399;
-  --wr-aurora-stop-3: #818cf8;
-  --wr-aurora-opacity: 0.55;
+  // Theme-default colour stops (overridden by `[colorStops]`): vivid
+  // indigo → emerald on light surfaces; dark restores the neon
+  // reactbits palette below.
+  --wr-aurora-stop-1: #6366f1;
+  --wr-aurora-stop-2: #10b981;
+  --wr-aurora-stop-3: #6366f1;
 
   position: absolute;
   inset: 0;
@@ -21,7 +20,6 @@
     display: block;
     width: 100%;
     height: 100%;
-    opacity: var(--wr-aurora-opacity, 1);
   }
 }
 
@@ -29,5 +27,4 @@
   --wr-aurora-stop-1: #5227ff;
   --wr-aurora-stop-2: #7cff67;
   --wr-aurora-stop-3: #5227ff;
-  --wr-aurora-opacity: 1;
 }

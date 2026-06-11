@@ -134,7 +134,11 @@ void main() {
   float midPoint = 0.20;
   float auroraAlpha = smoothstep(midPoint - uBlend * 0.5, midPoint + uBlend * 0.5, intensity);
 
-  vec3 auroraColor = intensity * rampColor;
+  // Clamp the brightness floor: the upstream shader multiplies colour by
+  // raw intensity, which fades the ribbon to BLACK while still opaque —
+  // invisible on dark pages, a dirty gray halo on light ones. Keeping the
+  // hue saturated and letting alpha alone do the fading works on both.
+  vec3 auroraColor = rampColor * max(intensity, 0.85);
 
   fragColor = vec4(auroraColor * auroraAlpha, auroraAlpha);
 }
