@@ -46,7 +46,9 @@ export class WrAutosize {
   private resize(): void {
     const node = this.el.nativeElement;
     const styles = getComputedStyle(node);
-    const lineHeight = parseFloat(styles.lineHeight) || 20;
+    // `line-height: normal` computes to the literal string — derive the
+    // row height from the font size instead of guessing a fixed 20px.
+    const lineHeight = parseFloat(styles.lineHeight) || parseFloat(styles.fontSize) * 1.25 || 20;
     const paddingY = parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
     const border = (parseFloat(styles.borderTopWidth) || 0) + (parseFloat(styles.borderBottomWidth) || 0);
 
