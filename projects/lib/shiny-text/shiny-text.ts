@@ -67,10 +67,12 @@ export class WrShinyText {
   readonly speed = input(2, { transform: num(2) });
 
   /** Base text colour (outside the bright stripe). @default '#b5b5b5' */
-  readonly color = input('#b5b5b5');
+  /** Base text colour. When unset, the theme decides. */
+  readonly color = input<string | null>(null);
 
   /** Bright stripe colour. @default '#ffffff' */
-  readonly shineColor = input('#ffffff');
+  /** Sweep highlight colour. When unset, the theme decides. */
+  readonly shineColor = input<string | null>(null);
 
   /** Gradient angle in degrees. @default 120 */
   readonly spread = input(120, { transform: num(120) });
@@ -90,8 +92,9 @@ export class WrShinyText {
   /** Total animation cycle (speed + delay) in seconds. */
   protected readonly totalDuration = computed(() => this.speed() + this.delay());
 
-  protected readonly gradient = computed(
-    () =>
-      `linear-gradient(${this.spread()}deg, ${this.color()} 0%, ${this.color()} 35%, ${this.shineColor()} 50%, ${this.color()} 65%, ${this.color()} 100%)`
-  );
+  protected readonly gradient = computed(() => {
+    const base = this.color() ?? 'var(--wr-shiny-text-base)';
+    const shine = this.shineColor() ?? 'var(--wr-shiny-text-shine)';
+    return `linear-gradient(${this.spread()}deg, ${base} 0%, ${base} 35%, ${shine} 50%, ${base} 65%, ${base} 100%)`;
+  });
 }

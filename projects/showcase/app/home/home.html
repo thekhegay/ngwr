@@ -104,7 +104,7 @@
   <!-- ───── Motion gallery (animation kit showcase) ───── -->
   <section class="ngwr-section">
     <div class="container">
-      <div class="ngwr-section__head">
+      <div class="ngwr-section__head ngwr-section__head--why">
         <div>
           <wr-tag color="primary" outlined>Animations</wr-tag>
           <p wrTypography variant="h1" class="ngwr-motion__heading">
@@ -144,7 +144,7 @@
               [texts]="['Fast', 'Themeable', 'Live']"
               splitBy="characters"
               [rotationInterval]="1800"
-              [staggerDuration]="30"
+              [staggerDuration]="0.03"
             />
           </div>
           <div class="ngwr-motion-tile__label">
@@ -170,6 +170,46 @@
           <div class="ngwr-motion-tile__label">
             <p wrTypography variant="small">Blur text</p>
             <p wrTypography variant="caption" tone="medium"><code>&lt;wr-blur-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-split-text text="Split by character" splitType="chars" [delay]="45" [duration]="1" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Split text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-split-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-typewriter [texts]="['Typing words…', 'Deleting words…']" [typingSpeed]="65" [pauseDuration]="1400" />
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Typewriter</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-typewriter /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-gradient-text>Gradient flow</wr-gradient-text>
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Gradient text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-gradient-text /&gt;</code></p>
+          </div>
+        </article>
+
+        <article class="ngwr-motion-tile">
+          <div class="ngwr-motion-tile__stage">
+            <wr-scramble-text>Hover the letters</wr-scramble-text>
+          </div>
+          <div class="ngwr-motion-tile__label">
+            <p wrTypography variant="small">Scramble text</p>
+            <p wrTypography variant="caption" tone="medium"><code>&lt;wr-scramble-text /&gt;</code></p>
           </div>
         </article>
       </div>

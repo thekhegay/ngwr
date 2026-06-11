@@ -7,12 +7,15 @@ import { WrBlurText } from 'ngwr/blur-text';
 import { WrButton } from 'ngwr/button';
 import { WrDecryptText } from 'ngwr/decrypt-text';
 import { WrGlitchText } from 'ngwr/glitch-text';
+import { WrGradientText } from 'ngwr/gradient-text';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrRotatingText } from 'ngwr/rotating-text';
+import { WrScrambleText } from 'ngwr/scramble-text';
 import { WrShinyText } from 'ngwr/shiny-text';
 import { WrSplitText } from 'ngwr/split-text';
 import { WrToast } from 'ngwr/toast';
+import { WrTypewriter } from 'ngwr/typewriter';
 import { WrTypography } from 'ngwr/typography';
 import { WrWaves } from 'ngwr/waves';
 
@@ -49,6 +52,9 @@ interface WhyTile {
     WrShinyText,
     WrGlitchText,
     WrDecryptText,
+    WrTypewriter,
+    WrGradientText,
+    WrScrambleText,
     WrWaves,
     // Sections
     ComponentsBento,

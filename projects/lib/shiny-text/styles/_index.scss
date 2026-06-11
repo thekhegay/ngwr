@@ -7,6 +7,12 @@
 // `speed` of motion + `delay` of pause — without needing two animations.
 
 .wr-shiny-text {
+  // Theme-default sweep (overridden by `[color]` / `[shineColor]`):
+  // gray base with a dark shine on light surfaces; dark theme restores
+  // the reactbits gray-with-white-flash below.
+  --wr-shiny-text-base: var(--wr-color-medium, #b5b5b5);
+  --wr-shiny-text-shine: var(--wr-color-dark, #ffffff);
+
   display: inline-block;
   background-size: 200% auto;
   background-position: 150% center;
@@ -87,4 +93,9 @@
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
+}
+
+[data-theme='dark'] .wr-shiny-text {
+  --wr-shiny-text-base: #b5b5b5;
+  --wr-shiny-text-shine: #ffffff;
 }
