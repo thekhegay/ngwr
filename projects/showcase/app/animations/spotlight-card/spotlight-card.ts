@@ -14,6 +14,19 @@ import {
   ReactbitsCredit,
 } from '#core/components';
 
+/** `rgb(a)` computed colour → #rrggbbaa for the playground picker. */
+function rgbaToHex(value: string): string | null {
+  const m = /rgba?\(\s*(\d+)\s*,?\s*(\d+)\s*,?\s*(\d+)\s*(?:[,/]\s*([\d.]+%?))?\s*\)/.exec(value);
+  if (!m) return null;
+  const to2 = (n: number): string => n.toString(16).padStart(2, '0');
+  let alpha = 255;
+  if (m[4] !== undefined) {
+    const raw = m[4].endsWith('%') ? Number.parseFloat(m[4]) / 100 : Number.parseFloat(m[4]);
+    alpha = Math.round(raw * 255);
+  }
+  return `#${to2(+m[1])}${to2(+m[2])}${to2(+m[3])}${to2(alpha)}`;
+}
+
 @Component({
   selector: 'ngwr-spotlight-card-page',
   templateUrl: './spotlight-card.html',
@@ -104,15 +117,3 @@ import { WrSpotlight } from 'ngwr/spotlight-card';
   ];
 }
 
-/** `rgb(a)` computed colour → #rrggbbaa for the playground picker. */
-function rgbaToHex(value: string): string | null {
-  const m = /rgba?\(\s*(\d+)\s*,?\s*(\d+)\s*,?\s*(\d+)\s*(?:[,/]\s*([\d.]+%?))?\s*\)/.exec(value);
-  if (!m) return null;
-  const to2 = (n: number): string => n.toString(16).padStart(2, '0');
-  let alpha = 255;
-  if (m[4] !== undefined) {
-    const raw = m[4].endsWith('%') ? Number.parseFloat(m[4]) / 100 : Number.parseFloat(m[4]);
-    alpha = Math.round(raw * 255);
-  }
-  return `#${to2(+m[1])}${to2(+m[2])}${to2(+m[3])}${to2(alpha)}`;
-}
