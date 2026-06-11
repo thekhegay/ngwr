@@ -8,6 +8,7 @@
  * Original: https://www.reactbits.dev/components/spotlight-card
  */
 
+import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, ElementRef, inject, input } from '@angular/core';
 
 /**
@@ -35,6 +36,7 @@ import { Component, ViewEncapsulation, ElementRef, inject, input } from '@angula
   host: {
     class: 'wr-spotlight-card',
     '[style.--wr-spotlight-color]': 'spotlightColor()',
+    '[style.--wr-spotlight-radius]': 'radius() + "%"',
     '(mousemove)': 'onMouseMove($event)',
   },
 })
@@ -44,6 +46,9 @@ export class WrSpotlightCard {
    * a soft dark tint on light surfaces, white-alpha on dark.
    */
   readonly spotlightColor = input<string | null>(null);
+
+  /** Where the spotlight fades out, as a percentage of the gradient. @default 80 */
+  readonly radius = input(80, { transform: (v: unknown): number => coerceNumberProperty(v, 80) });
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
 

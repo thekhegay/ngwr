@@ -33,6 +33,7 @@ export default class SpotlightCardPage {
   // ── Live demo state ─────────────────────────────────────────────
   // Empty = theme-aware default; the picker writes a concrete colour.
   protected readonly spotlightColor = signal('');
+  protected readonly radius = signal(80);
 
   protected readonly snippet = computed(
     () =>
@@ -44,6 +45,7 @@ export default class SpotlightCardPage {
 
   protected readonly controls: readonly DocControl[] = [
     { kind: 'color', label: 'Spotlight Color', signal: this.spotlightColor },
+    { kind: 'slider', label: 'Radius (%)', signal: this.radius, min: 30, max: 100, step: 5, unit: '%' },
   ];
 
   protected readonly snippets = {
@@ -62,6 +64,12 @@ import { WrSpotlight } from 'ngwr/spotlight-card';
   };
 
   protected readonly api: readonly DocApiRow[] = [
+    {
+      name: 'radius',
+      description: 'Where the spotlight fades out (% of the gradient).',
+      type: 'number',
+      default: '80',
+    },
     {
       name: 'spotlightColor',
       description: 'Highlight colour on `<wr-spotlight-card>`. Any CSS colour string.',
