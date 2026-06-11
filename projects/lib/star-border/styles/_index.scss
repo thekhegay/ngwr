@@ -4,10 +4,14 @@
 
 .wr-star-border {
   // Light surfaces get a primary comet; dark theme flips to the classic
-  // white (see block below). `[color]` overrides both inline.
+  // white (see block below). `[color]` overrides both inline. The light
+  // comet gets a wider core + full opacity — a thin 10% tail washes out
+  // to gray on white surfaces.
   --wr-star-border-color: var(--wr-color-primary);
   --wr-star-border-speed: 6s;
   --wr-star-border-radius: 20px;
+  --wr-star-border-stop: 16%;
+  --wr-star-border-opacity: 1;
 
   display: inline-block;
   position: relative;
@@ -22,9 +26,9 @@
     display: block;
     width: 300%;
     height: 50%;
-    opacity: 0.7;
+    opacity: var(--wr-star-border-opacity);
     border-radius: 50%;
-    background: radial-gradient(circle, var(--wr-star-border-color), transparent 10%);
+    background: radial-gradient(circle, var(--wr-star-border-color), transparent var(--wr-star-border-stop));
     animation: wr-star-border-bottom var(--wr-star-border-speed) linear infinite alternate;
     z-index: 0;
 
@@ -45,16 +49,21 @@
     display: none;
   }
 
-  // Hover-only variant — rays sit hidden + paused until the pointer is in.
+  // Hover-only variant — rays sit hidden until the pointer is in. The
+  // idle state must drop the animation entirely (not pause it): a paused
+  // animation pins `opacity` at its 0% keyframe value, which beats the
+  // cascade and leaves a frozen comet visible.
   &--hover &__ray {
     opacity: 0;
-    animation-play-state: paused;
-    transition: opacity 0.4s ease;
+    animation: none;
   }
 
   &--hover:hover &__ray {
-    opacity: 0.7;
-    animation-play-state: running;
+    animation: wr-star-border-bottom var(--wr-star-border-speed) linear infinite alternate;
+  }
+
+  &--hover:hover &__ray--top {
+    animation-name: wr-star-border-top;
   }
 
   &__inner {
@@ -73,6 +82,8 @@
 
 [data-theme='dark'] .wr-star-border {
   --wr-star-border-color: #ffffff;
+  --wr-star-border-stop: 10%;
+  --wr-star-border-opacity: 0.7;
 }
 
 @keyframes wr-star-border-bottom {
