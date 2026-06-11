@@ -116,4 +116,3 @@ import { WrSpotlight } from 'ngwr/spotlight-card';
     },
   ];
 }
-
