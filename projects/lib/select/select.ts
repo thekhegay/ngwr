@@ -144,6 +144,9 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Convenience — `effectiveMode() === 'search'`. Exposed via context for options. */
   readonly isSearch = computed(() => this.effectiveMode() === 'search');
 
+  /** WrSelectContext — resolved multi-selection flag for child options. */
+  readonly multi = computed(() => this.effectiveMode() === 'multi' || this.effectiveMode() === 'tag');
+
   /** Both multi and tag render chips on the trigger. */
   protected readonly hasChips = computed(() => {
     const m = this.effectiveMode();
