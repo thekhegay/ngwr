@@ -7,8 +7,6 @@
 
 import { type AbstractControl, type ValidationErrors, type ValidatorFn } from '@angular/forms';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 function stringValue(control: AbstractControl): string {
   const v: unknown = control.value;
   if (v == null) return '';
@@ -68,27 +66,23 @@ function toMs(value: unknown): number {
  *
  * new FormControl('', [
  *   Validators.required,
- *   WrValidators.email,
+ *   WrValidators.cardNumber,
  *   WrValidators.cvc(3),
  *   WrValidators.match('password'),
  *   WrValidators.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
  * ]);
  * ```
  *
- * Each error is keyed under the validator name (e.g. `email`,
- * `cardNumber`, `cvc`) so consumers can branch in templates.
+ * Each error is keyed under the validator name (e.g. `cardNumber`,
+ * `cvc`, `iban`) so consumers can branch in templates.
+ *
+ * Anything Angular already ships (`required`, `email`, `min`, `max`,
+ * `pattern`, …) is deliberately NOT duplicated here.
  *
  * @see https://ngwr.dev/utils/validators
  */
 export const WrValidators = {
   // ───── String shape ───────────────────────────────────────────────
-
-  /** RFC-5322-ish email check. Empty values pass (combine with `Validators.required`). */
-  email: (control: AbstractControl): ValidationErrors | null => {
-    const v = stringValue(control);
-    if (v === '') return null;
-    return EMAIL_RE.test(v) ? null : { email: true };
-  },
 
   /** No whitespace anywhere in the value. */
   noWhitespace: (control: AbstractControl): ValidationErrors | null => {

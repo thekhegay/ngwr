@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, ElementRef, afterNextRender, computed, signal, viewChild } from '@angular/core';
 
 import { WrSpotlight, WrSpotlightCard } from 'ngwr/spotlight-card';
 
@@ -30,10 +30,22 @@ import {
   ],
 })
 export default class SpotlightCardPage {
-  // ── Live demo state ─────────────────────────────────────────────
-  // Empty = theme-aware default; the picker writes a concrete colour.
+  // Prefilled from the theme's resolved spotlight colour after first
+  // render, so the picker shows a working value right away.
   protected readonly spotlightColor = signal('');
   protected readonly radius = signal(80);
+
+  private readonly cardRef = viewChild(WrSpotlightCard, { read: ElementRef });
+
+  constructor() {
+    afterNextRender(() => {
+      const el = this.cardRef()?.nativeElement as HTMLElement | undefined;
+      if (!el) return;
+      const resolved = getComputedStyle(el).getPropertyValue('--wr-spotlight-color').trim();
+      const hex = rgbaToHex(resolved);
+      if (hex) this.spotlightColor.set(hex);
+    });
+  }
 
   protected readonly snippet = computed(
     () =>
@@ -90,4 +102,17 @@ import { WrSpotlight } from 'ngwr/spotlight-card';
       default: "'50%'",
     },
   ];
+}
+
+/** `rgb(a)` computed colour → #rrggbbaa for the playground picker. */
+function rgbaToHex(value: string): string | null {
+  const m = /rgba?\(\s*(\d+)\s*,?\s*(\d+)\s*,?\s*(\d+)\s*(?:[,/]\s*([\d.]+%?))?\s*\)/.exec(value);
+  if (!m) return null;
+  const to2 = (n: number): string => n.toString(16).padStart(2, '0');
+  let alpha = 255;
+  if (m[4] !== undefined) {
+    const raw = m[4].endsWith('%') ? Number.parseFloat(m[4]) / 100 : Number.parseFloat(m[4]);
+    alpha = Math.round(raw * 255);
+  }
+  return `#${to2(+m[1])}${to2(+m[2])}${to2(+m[3])}${to2(alpha)}`;
 }

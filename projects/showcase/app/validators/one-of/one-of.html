@@ -1,5 +1,5 @@
 <ngwr-doc-page
-  title="WrValidators.oneOf"
+  title="oneOf"
   description="Value must strict-equal one of the whitelisted options. Empty values pass."
   [keywords]="['oneOf', 'enum', 'whitelist', 'validator', 'wr-validators']"
   [labels]="['Validator']"
@@ -16,6 +16,11 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Whitelist checks via `Validators.pattern` mean escaping every alternative into a regex. This takes the allowed values as plain data."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

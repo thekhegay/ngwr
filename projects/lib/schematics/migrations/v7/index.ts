@@ -192,6 +192,10 @@ function applyHtml(content: string): string {
 function applyTs(content: string): string {
   let next = content;
 
+  // WrValidators.email was removed — Angular's own Validators.email is the
+  // replacement. The @angular/forms import is left to the consumer.
+  next = next.replace(/\bWrValidators\.email\b/g, 'Validators.email');
+
   // Module path strings — handle both single and double quoted.
   for (const [from, to] of MODULE_RENAMES) {
     next = next

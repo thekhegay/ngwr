@@ -1,5 +1,5 @@
 <ngwr-doc-page
-  title="WrValidators.url"
+  title="url"
   description="Parse with `new URL()` and optionally restrict by scheme. Empty values pass."
   [keywords]="['url', 'link', 'validator', 'wr-validators']"
   [labels]="['Validator']"
@@ -25,6 +25,11 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Hand-rolled URL regexes via `Validators.pattern` are notoriously wrong. This defers to the platform `URL` parser — the same check the browser performs — and can restrict protocols."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

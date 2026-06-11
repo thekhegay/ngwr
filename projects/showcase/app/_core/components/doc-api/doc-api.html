@@ -20,7 +20,7 @@
               <span class="required">required</span>
             }
           </td>
-          <td>{{ row.description }}</td>
+          <td [innerHTML]="row.description | wrDocRich"></td>
           <td>
             <code>{{ row.type }}</code>
           </td>

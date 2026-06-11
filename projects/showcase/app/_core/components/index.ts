@@ -16,4 +16,5 @@ export type {
 } from './doc-playground/types';
 export { DocSeeAlsoComponent } from './doc-see-also/doc-see-also';
 export type { DocSeeAlsoKind, DocSeeAlsoLink } from './doc-see-also/types';
+export { DocRichPipe } from './doc-rich/doc-rich';
 export { ReactbitsCredit } from './reactbits-credit/reactbits-credit';

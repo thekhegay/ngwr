@@ -1,6 +1,8 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { DocRichPipe } from '../doc-rich/doc-rich';
+
 import { MetaService } from '#core/services';
 
 const FALLBACK_CATEGORY = 'Docs';
@@ -40,6 +42,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  * ```
  */
 @Component({
+  imports: [DocRichPipe],
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',

@@ -5,7 +5,6 @@ export const VALIDATORS_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'String shape',
     children: [
-      { title: 'email', url: ['/validators', 'email'] },
       { title: 'noWhitespace', url: ['/validators', 'no-whitespace'] },
       { title: 'hexColor', url: ['/validators', 'hex-color'] },
     ],

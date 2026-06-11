@@ -1,5 +1,5 @@
 <ngwr-doc-page
-  title="WrValidators.cvc"
+  title="cvc"
   description="N digits — typically 3 (Visa/MC/Discover) or 4 (Amex). Empty values pass."
   [keywords]="['cvc', 'cvv', 'card', 'payment', 'validator', 'wr-validators']"
   [labels]="['Validator']"
@@ -25,6 +25,11 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Pairs with `cardNumber` — length-aware (3 digits, or 4 for Amex) instead of a brittle `pattern`."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

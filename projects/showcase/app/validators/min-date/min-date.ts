@@ -2,7 +2,7 @@ import { JsonPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
-import { WrInput } from 'ngwr/input';
+import { WrDatePicker } from 'ngwr/date-picker';
 import { WrValidators } from 'ngwr/validators';
 
 import {
@@ -22,7 +22,7 @@ const MIN = '2026-01-01';
   imports: [
     JsonPipe,
     ReactiveFormsModule,
-    WrInput,
+    WrDatePicker,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -32,8 +32,7 @@ const MIN = '2026-01-01';
 })
 export default class MinDateValidatorPage {
   protected readonly min = MIN;
-  protected readonly control = new FormControl('', {
-    nonNullable: true,
+  protected readonly control = new FormControl<Date | null>(null, {
     validators: [WrValidators.minDate(MIN)],
   });
 

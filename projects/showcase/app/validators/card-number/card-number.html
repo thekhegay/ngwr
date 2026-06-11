@@ -1,5 +1,5 @@
 <ngwr-doc-page
-  title="WrValidators.cardNumber"
+  title="cardNumber"
   description="13–19 digit credit card number with Luhn checksum. Spaces and dashes are stripped before checking. Empty values pass."
   [keywords]="['cardNumber', 'luhn', 'payment', 'validator', 'wr-validators']"
   [labels]="['Validator']"
@@ -16,6 +16,11 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="A Luhn checksum catches mistyped card numbers client-side, before a failed payment round-trip. Angular ships nothing for payments and pulling a payments SDK for one check is overkill."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

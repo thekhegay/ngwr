@@ -1,5 +1,7 @@
 import { Component, input } from '@angular/core';
 
+import { DocRichPipe } from '../doc-rich/doc-rich';
+
 /**
  * A titled documentation section.
  *
@@ -8,6 +10,7 @@ import { Component, input } from '@angular/core';
  * and place a paragraph as the first projected child.
  */
 @Component({
+  imports: [DocRichPipe],
   selector: 'ngwr-doc-section',
   templateUrl: './doc-section.html',
   styleUrl: './doc-section.scss',

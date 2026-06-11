@@ -1,5 +1,5 @@
 <ngwr-doc-page
-  title="WrValidators.match"
+  title="match"
   description="Value must equal a sibling control. The classic 'confirm password' validator — pass the sibling's name."
   [keywords]="['match', 'confirm', 'password', 'validator', 'wr-validators']"
   [labels]="['Validator']"
@@ -20,6 +20,11 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Cross-field equality (password confirmation) is awkward with built-ins — every project ends up hand-writing the same group-level validator. This one reads the sibling control by name."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

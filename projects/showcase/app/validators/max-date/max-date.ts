@@ -2,7 +2,7 @@ import { JsonPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
-import { WrInput } from 'ngwr/input';
+import { WrDatePicker } from 'ngwr/date-picker';
 import { WrValidators } from 'ngwr/validators';
 
 import {
@@ -22,7 +22,7 @@ const MAX = '2026-12-31';
   imports: [
     JsonPipe,
     ReactiveFormsModule,
-    WrInput,
+    WrDatePicker,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -32,8 +32,7 @@ const MAX = '2026-12-31';
 })
 export default class MaxDateValidatorPage {
   protected readonly max = MAX;
-  protected readonly control = new FormControl('', {
-    nonNullable: true,
+  protected readonly control = new FormControl<Date | null>(null, {
     validators: [WrValidators.maxDate(MAX)],
   });
 

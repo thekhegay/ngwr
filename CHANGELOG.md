@@ -1,55 +1,5 @@
 # Changelog
 
-## 7.0.0 (2026-05-26)
-
-### ⚠ BREAKING CHANGES
-
-Aligned the library with the current
-[Angular style guide](https://angular.dev/style-guide) and Google's
-TypeScript style guide. The two visible changes for consumers:
-
-* **Class names drop the `*Component` / `*Directive` / `*Pipe` / `*Service` suffix.**
-  `WrButtonComponent` → `WrButton`, `WrToastService` → `WrToast`, `WrBytesPipe` → `WrBytes`, …
-* **File names drop the matching infix.** `button.component.ts` → `button.ts`,
-  `toast.service.ts` → `toast.ts`, etc.
-
-Selectors are **unchanged** (`<wr-btn>`, `<wr-toast>`, `[wrSquircle]`, …) so
-templates keep working as-is.
-
-Seven packages had two classes that would collide on the bare name; the
-internal class was given a descriptive label:
-
-| v6                       | v7                  |
-| ------------------------ | ------------------- |
-| `WrTooltipComponent`     | `WrTooltipPanel`    |
-| `WrPopconfirmComponent`  | `WrPopconfirmPanel` |
-| `WrToastComponent`       | `WrToastItem`       |
-| `WrContextMenuComponent` | `WrContextMenuPanel`|
-| `WrSquircleComponent`    | `WrSquircleHost`    |
-| `WrMetaDirective`        | `WrMetaBinding`     |
-| `WrHotkeyDirective`      | `WrHotkeyBinding`   |
-
-Two data types were renamed to avoid colliding with classes:
-
-* `WrIcon` (data type) → `WrIconDef`
-* `WrTableSort` (data type) → `WrTableSortState`
-
-### Migration
-
-Run the bundled codemod against your `src`:
-
-```bash
-pnpm tsx node_modules/ngwr/scripts/migrate-v2.ts --path ./src
-```
-
-See [`MIGRATION.md`](./MIGRATION.md) for the full guide.
-
-### Internal
-
-* ESLint config rewritten for the new style guide — `prefer-signals`,
-  `consistent-type-definitions: interface`, no `#private`, no `any`,
-  Google's import ordering, and the class-suffix rules disabled.
-
 ## 6.1.1 (2025-11-16)
 
 ## 6.1.0 (2025-11-16)

@@ -1,5 +1,7 @@
 import { Component, input } from '@angular/core';
 
+import { DocRichPipe } from '../doc-rich/doc-rich';
+
 import type { DocApiRow } from './types';
 
 /**
@@ -14,6 +16,7 @@ import type { DocApiRow } from './types';
  * ```
  */
 @Component({
+  imports: [DocRichPipe],
   selector: 'ngwr-doc-api',
   templateUrl: './doc-api.html',
   styleUrl: './doc-api.scss',

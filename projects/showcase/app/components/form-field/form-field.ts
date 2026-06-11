@@ -4,7 +4,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { WrButton } from 'ngwr/button';
 import { WrFormError, WrFormField } from 'ngwr/form-field';
 import { WrInput } from 'ngwr/input';
-import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
@@ -37,9 +36,10 @@ import {
 export default class FormFieldPage {
   // Wrap `Validators.required` so the lint rule's unbound-method check stays satisfied.
   private readonly required = Validators.required.bind(Validators);
+  private readonly emailValidator = Validators.email.bind(Validators);
 
   protected readonly form = new FormGroup({
-    email: new FormControl('', { nonNullable: true, validators: [this.required, WrValidators.email] }),
+    email: new FormControl('', { nonNullable: true, validators: [this.required, this.emailValidator] }),
     name: new FormControl('', { nonNullable: true, validators: [this.required] }),
     bio: new FormControl('', { nonNullable: true }),
   });

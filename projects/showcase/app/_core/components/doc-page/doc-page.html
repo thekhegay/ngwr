@@ -10,7 +10,7 @@
   <h1 class="title">{{ title() }}</h1>
 
   @if (description(); as d) {
-    <p class="description">{{ d }}</p>
+    <p class="description" [innerHTML]="d | wrDocRich"></p>
   }
 </header>
 

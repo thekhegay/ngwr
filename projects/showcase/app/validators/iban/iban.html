@@ -1,5 +1,5 @@
 <ngwr-doc-page
-  title="WrValidators.iban"
+  title="iban"
   description="IBAN structure + ISO 13616 mod-97 checksum. Country-length table NOT enforced — pair with a length check if you need it. Empty values pass."
   [keywords]="['iban', 'bank', 'mod97', 'validator', 'wr-validators']"
   [labels]="['Validator']"
@@ -16,6 +16,11 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippet" language="angular-ts" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="A real ISO 13616 mod-97 checksum, not a length check — and implemented without `BigInt`, so it runs everywhere Angular does."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
