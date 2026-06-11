@@ -31,7 +31,7 @@ export interface WrMetaTwitter {
  */
 export interface WrMetaConfig {
   readonly title?: string;
-  /** Template applied to `title` when set — `%s` is replaced with the title. */
+  /** Template applied to `title` when set — `{{ title }}` (or `%s`) is replaced with the page title. */
   readonly titleTemplate?: string;
   readonly description?: string;
   readonly keywords?: readonly string[];

@@ -31,6 +31,10 @@ export default [
     loadComponent: () => import('./wr-mark/wr-mark'),
   },
   {
+    path: pipes.wrPlural,
+    loadComponent: () => import('./wr-plural/wr-plural'),
+  },
+  {
     path: pipes.range,
     loadComponent: () => import('./range/range'),
   },

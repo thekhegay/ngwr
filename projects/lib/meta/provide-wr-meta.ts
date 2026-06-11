@@ -21,7 +21,7 @@ import type { WrMetaConfig } from './types';
  * bootstrapApplication(AppComponent, {
  *   providers: [
  *     provideWrMeta({
- *       titleTemplate: '%s · NGWR',
+ *       titleTemplate: '{{ title }} · NGWR',
  *       description: 'Angular UI components library',
  *       og: { siteName: 'NGWR', type: 'website' },
  *       twitter: { card: 'summary_large_image', creator: '@thekhegay' },

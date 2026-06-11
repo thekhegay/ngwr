@@ -1,0 +1,33 @@
+<ngwr-doc-page
+  title="wrPlural"
+  description="Locale-aware pluralization via `Intl.PluralRules` — picks the right word form for a count, including languages with more than two forms (Russian, Polish, Arabic, …)."
+  [keywords]="['wrPlural', 'plural', 'pluralization', 'i18n', 'pipe']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Live demo" description="Drag the count — English two-form vs Russian three-form.">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 18rem">
+        <wr-slider [min]="0" [max]="25" [ngModel]="count()" (ngModelChange)="count.set($event)" />
+        <code style="font-size: 0.875rem">{{ count() | wrPlural: en }}</code>
+        <code style="font-size: 0.875rem">{{ count() | wrPlural: ru : { locale: 'ru' } }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Hand-rolled `n % 10` pluralization breaks the moment a second language shows up, and Angular's `i18n-plural` requires the full i18n extraction pipeline. This pipe defers to `Intl.PluralRules` — correct for every CLDR locale, zero setup, works with plain strings from any source."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

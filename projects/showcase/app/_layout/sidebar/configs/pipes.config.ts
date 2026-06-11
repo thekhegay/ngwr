@@ -10,5 +10,6 @@ export const PIPES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'wrDate', url: ['/pipes', 'wr-date'] },
   { title: 'wrTruncate', url: ['/pipes', 'wr-truncate'] },
   { title: 'wrMark', url: ['/pipes', 'wr-mark'] },
+  { title: 'wrPlural', url: ['/pipes', 'wr-plural'] },
   { title: 'wrRange', url: ['/pipes', 'range'] },
 ];

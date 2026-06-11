@@ -122,7 +122,10 @@ export class WrMeta {
   private diffTitle(next: WrMetaConfig): void {
     if (next.title === this.applied.title && next.titleTemplate === this.applied.titleTemplate) return;
     if (next.title) {
-      const formatted = next.titleTemplate ? next.titleTemplate.replace('%s', next.title) : next.title;
+      // `{{ title }}` reads like Angular; `%s` stays for printf fans.
+      const formatted = next.titleTemplate
+        ? next.titleTemplate.replace(/\{\{\s*title\s*\}\}/g, next.title).replace('%s', next.title)
+        : next.title;
       this.title.setTitle(formatted);
     } else if (this.applied.title) {
       this.title.setTitle('');

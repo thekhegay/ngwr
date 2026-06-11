@@ -1,0 +1,19 @@
+<ngwr-doc-page
+  title="types"
+  description="Shared type aliases exported from `ngwr/utils` — `Maybe<T>` for optional values and `SafeAny` for explicit interop escapes."
+  [keywords]="['types', 'Maybe', 'SafeAny', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Inline `T | null | undefined` unions repeat everywhere a value can be absent; `Maybe<T>` names the pattern once and keeps public signatures short. `SafeAny` exists because a bare `any` is invisible in review and impossible to grep — the alias marks every deliberate type-system escape so they can be found and burned down later."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

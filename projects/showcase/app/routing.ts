@@ -169,6 +169,7 @@ export const routes = {
     wrDate: 'wr-date',
     wrTruncate: 'wr-truncate',
     wrMark: 'wr-mark',
+    wrPlural: 'wr-plural',
     range: 'range',
   },
   services: {
@@ -188,6 +189,7 @@ export const routes = {
   },
   utils: {
     index: 'utils',
+    types: 'types',
     // Css helpers
     resolveCssSize: 'resolve-css-size',
     getRootFontSize: 'get-root-font-size',

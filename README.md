@@ -141,7 +141,7 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 ### Pipes — `ngwr/pipes`
 
-[wrNumber](https://ngwr.dev/pipes/wr-number), [wrBytes](https://ngwr.dev/pipes/wr-bytes), [wrDate](https://ngwr.dev/pipes/wr-date), [wrTruncate](https://ngwr.dev/pipes/wr-truncate), [wrMark](https://ngwr.dev/pipes/wr-mark), [wrRange](https://ngwr.dev/pipes/wr-range).
+[wrNumber](https://ngwr.dev/pipes/wr-number), [wrBytes](https://ngwr.dev/pipes/wr-bytes), [wrDate](https://ngwr.dev/pipes/wr-date), [wrTruncate](https://ngwr.dev/pipes/wr-truncate), [wrMark](https://ngwr.dev/pipes/wr-mark), [wrPlural](https://ngwr.dev/pipes/wr-plural), [wrRange](https://ngwr.dev/pipes/range).
 
 ### Services
 
