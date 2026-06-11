@@ -12,7 +12,6 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Border Glow', url: ['/animations', 'border-glow'] },
       { title: 'Aurora', url: ['/animations', 'aurora'] },
       { title: 'Marquee', url: ['/animations', 'marquee'] },
-      { title: 'Animated Text', url: ['/animations', 'animated-text'] },
       { title: 'Confetti', url: ['/animations', 'confetti'] },
       { title: 'Reveal', url: ['/animations', 'reveal'] },
       { title: 'Spotlight Card', url: ['/animations', 'spotlight-card'] },

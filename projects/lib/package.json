@@ -86,9 +86,6 @@
     "./anchor": {
       "sass": "./anchor/styles/_index.scss"
     },
-    "./animated-text": {
-      "sass": "./animated-text/styles/_index.scss"
-    },
     "./aurora": {
       "sass": "./aurora/styles/_index.scss"
     },

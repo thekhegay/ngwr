@@ -22,6 +22,9 @@ import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
  *   wr-count-up-text      → <wr-count-up> (entry: ngwr/counter)
  *   ngwr/count-up         → ngwr/counter (entry merged; tag unchanged)
  *   ngwr/tag              → ngwr/badge   (entry merged; tag unchanged)
+ *   wr-animated-text      → per mode: <wr-typewriter> (typewriter),
+ *                            <wr-decrypt-text> (scramble),
+ *                            <wr-split-text> (split)
  *
  * Touches every `.html`, `.ts`, and `.scss` file in the workspace
  * (excluding `node_modules`, `dist`, `.git`, `coverage`).
@@ -75,6 +78,36 @@ const HTML_TRANSFORMS: readonly Transform[] = [
   // wr-image → wr-lightbox (rename — same surface)
   { pattern: /<wr-image(\s|>|\/)/g, replacement: '<wr-lightbox$1' },
   { pattern: /<\/wr-image>/g, replacement: '</wr-lightbox>' },
+
+  // wr-animated-text → mode-specific target. Handles the self-closing and
+  // empty-pair element forms (the component never projected content). The
+  // attribute form (`<h1 wr-animated-text …>`) has no 1:1 target and is
+  // left for manual migration; a bound `[mode]` falls back to typewriter.
+  {
+    pattern: /<wr-animated-text\b([^>]*?)\s*(\/>|>\s*<\/wr-animated-text>)/g,
+    replacement: (_match: string, attrs: string): string => {
+      const mode = /\bmode\s*=\s*"(\w+)"/.exec(attrs)?.[1] ?? 'typewriter';
+      const tag = mode === 'split' ? 'wr-split-text' : mode === 'scramble' ? 'wr-decrypt-text' : 'wr-typewriter';
+      let rest = attrs.replace(/\s*\[?mode\]?\s*=\s*"[^"]*"/, '');
+      // Inputs that changed names downstream — `loop` carries over only
+      // to the typewriter; elsewhere it had no equivalent and is dropped.
+      if (tag === 'wr-typewriter') {
+        rest = rest
+          .replace(/(\s)speed=/, '$1typingSpeed=')
+          .replace(/(\s)\[speed\]=/, '$1[typingSpeed]=')
+          .replace(/(\s)startDelay=/, '$1initialDelay=')
+          .replace(/(\s)\[startDelay\]=/, '$1[initialDelay]=');
+      } else {
+        rest = rest
+          .replace(/\s*\[?loop\]?(=\s*"[^"]*")?(?=\s|$)/, '')
+          .replace(/\s*\[?startDelay\]?\s*=\s*"[^"]*"/, '');
+        if (tag === 'wr-split-text') {
+          rest = rest.replace(/(\s)speed=/, '$1delay=').replace(/(\s)\[speed\]=/, '$1[delay]=');
+        }
+      }
+      return `<${tag}${rest.replace(/\s+$/, '')} />`;
+    },
+  },
 ];
 
 /** TS imports: module-path rewrites + symbol renames. */
@@ -90,6 +123,10 @@ const MODULE_RENAMES: ReadonlyMap<string, string> = new Map([
   ['ngwr/count-up', 'ngwr/counter'],
   ['ngwr/tag', 'ngwr/badge'],
   ['ngwr/image', 'ngwr/lightbox'],
+  // Best-effort: typewriter was animated-text's default mode. Scramble /
+  // split users need ngwr/decrypt-text / ngwr/split-text instead — the
+  // HTML transform above already points the template at the right tag.
+  ['ngwr/animated-text', 'ngwr/typewriter'],
 ]);
 
 const SYMBOL_RENAMES: ReadonlyMap<string, string> = new Map([
@@ -102,6 +139,7 @@ const SYMBOL_RENAMES: ReadonlyMap<string, string> = new Map([
   ['WrBottomSheet', 'WrDrawer'],
   ['WrCountUpText', 'WrCountUp'],
   ['WrImage', 'WrLightbox'],
+  ['WrAnimatedText', 'WrTypewriter'],
 ]);
 
 /** SCSS subpath imports — `@use 'ngwr/X';` and `@import 'ngwr/X';` forms. */

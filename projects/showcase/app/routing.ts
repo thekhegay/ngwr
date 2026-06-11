@@ -43,7 +43,6 @@ export const routes = {
     index: 'components',
     alert: 'alert',
     anchor: 'anchor',
-    animatedText: 'animated-text',
     aurora: 'aurora',
     avatar: 'avatar',
     charts: 'charts',
@@ -141,7 +140,6 @@ export const routes = {
     borderGlow: 'border-glow',
     aurora: 'aurora',
     marquee: 'marquee',
-    animatedText: 'animated-text',
     confetti: 'confetti',
     reveal: 'reveal',
     // Reactbits ports (built in follow-up commits)

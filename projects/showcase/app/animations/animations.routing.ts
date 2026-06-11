@@ -11,7 +11,6 @@ export default [
   { path: a.borderGlow, loadComponent: () => import('./border-glow/border-glow') },
   { path: a.aurora, loadComponent: () => import('./aurora/aurora') },
   { path: a.marquee, loadComponent: () => import('./marquee/marquee') },
-  { path: a.animatedText, loadComponent: () => import('./animated-text/animated-text') },
   { path: a.confetti, loadComponent: () => import('./confetti/confetti') },
   { path: a.reveal, loadComponent: () => import('./reveal/reveal') },
 
