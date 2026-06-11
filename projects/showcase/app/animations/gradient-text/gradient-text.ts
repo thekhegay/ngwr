@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class GradientTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('Hello, ngwr!');
   protected readonly animationSpeed = signal(8);
   protected readonly direction = signal<'horizontal' | 'vertical' | 'diagonal'>('horizontal');

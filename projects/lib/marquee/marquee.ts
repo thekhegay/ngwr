@@ -169,7 +169,7 @@ export class WrMarquee {
   }
   protected isNodeItem = isNode;
 
-  // ───────── Internals ─────────
+  // Internals
 
   /** Read first sequence width + decide how many copies cover the viewport. */
   private measure(): void {

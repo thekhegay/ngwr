@@ -110,7 +110,7 @@ export class WrTextarea implements ControlValueAccessor {
     });
   }
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(value: string | null): void {
     this.value.set(value ?? '');
@@ -128,7 +128,7 @@ export class WrTextarea implements ControlValueAccessor {
     this.disabledFromCva.set(isDisabled);
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onInput(event: Event): void {
     const next = (event.target as HTMLTextAreaElement).value;

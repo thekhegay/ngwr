@@ -180,7 +180,7 @@ export class WrDatePicker implements ControlValueAccessor {
     this.destroyRef.onDestroy(() => this.dispose());
   }
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: Date | null) => void = noop;
   private onTouched: () => void = noop;
@@ -202,7 +202,7 @@ export class WrDatePicker implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onInput(event: Event): void {
     const raw = (event.target as HTMLInputElement).value;
@@ -246,7 +246,7 @@ export class WrDatePicker implements ControlValueAccessor {
     }
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private openOverlay(): void {
     if (this.overlayRef) return;
@@ -356,7 +356,7 @@ export class WrDatePicker implements ControlValueAccessor {
     this.overlayOpen.set(false);
   }
 
-  // ──────── Helpers ────────
+  // Helpers
 
   private isOutOfBounds(date: Date): boolean {
     if (this.mode() === 'time') return false;

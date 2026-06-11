@@ -172,7 +172,7 @@ export class WrContextMenuItem {
     this.scheduleClose(SUBMENU_CLOSE_DELAY);
   }
 
-  // ──────── Submenu lifecycle ────────
+  // Submenu lifecycle
 
   private scheduleOpen(delay: number): void {
     if (this.submenuRef) return;

@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class SplitTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('Hello, ngwr!');
   protected readonly splitType = signal<'chars' | 'words'>('chars');
   protected readonly delay = signal(40);

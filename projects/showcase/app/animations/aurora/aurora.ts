@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class AuroraPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   // Prefilled from the theme's resolved `--wr-aurora-stop-*` defaults
   // after first render, so the pickers show working colours right away.
   protected readonly stopA = signal('');

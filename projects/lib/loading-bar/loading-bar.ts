@@ -97,7 +97,7 @@ export class WrLoadingBar {
     this._progress.set(0);
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private beginTrickle(): void {
     this.stopTrickle();

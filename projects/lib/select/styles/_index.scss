@@ -85,7 +85,7 @@
     transform: rotate(180deg);
   }
 
-  // ── Multi-mode trigger chrome ────────────────────────────────────
+  // Multi-mode trigger chrome
   // Chips fill the trigger's flex row; the trigger grows vertically as
   // needed. A clear-all (×) button appears at the row's tail.
 
@@ -97,7 +97,7 @@
     min-height: calc(var(--wr-select-line-height) + var(--wr-select-padding-y) * 2);
   }
 
-  // ── Search-mode trigger: inline text input + chevron + clear ──
+  // Search-mode trigger: inline text input + chevron + clear
   &__trigger--search {
     cursor: text;
     padding: 0;
@@ -129,7 +129,7 @@
     }
   }
 
-  // ── Tag-mode trigger: focusable div hosting chips + inline input. ──
+  // Tag-mode trigger: focusable div hosting chips + inline input.
   &__trigger--tag {
     cursor: text;
 

@@ -20,7 +20,7 @@ import {
 export default class ConfettiPage {
   private readonly confetti = inject(WrConfetti);
 
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly count = signal(80);
   protected readonly spread = signal(60);
   protected readonly velocity = signal(12);

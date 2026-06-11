@@ -70,7 +70,7 @@ export class WrConfetti {
     this.rafId ??= requestAnimationFrame(() => this.tick());
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private ensureCanvas(): void {
     if (this.canvas) return;

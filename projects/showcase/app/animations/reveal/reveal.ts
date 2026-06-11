@@ -18,7 +18,7 @@ import {
   imports: [WrReveal, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
 })
 export default class RevealPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly threshold = signal(0.1);
   protected readonly rootMargin = signal('0px');
   protected readonly once = signal(true);

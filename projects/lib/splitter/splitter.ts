@@ -71,7 +71,7 @@ export class WrSplitter {
   protected readonly startStyle = computed(() => `${this.position()}%`);
   protected readonly endStyle = computed(() => `${100 - this.position()}%`);
 
-  // ──────── Drag ────────
+  // Drag
 
   protected onPointerDown(event: PointerEvent): void {
     if (this.disabled()) return;

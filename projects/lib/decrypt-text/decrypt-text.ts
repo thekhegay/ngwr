@@ -196,7 +196,7 @@ export class WrDecryptText {
     this.destroyRef.onDestroy(() => this.stopInterval());
   }
 
-  // ───────── Trigger handlers ─────────
+  // Trigger handlers
 
   protected onMouseEnter(): void {
     const mode = this.animateOn();
@@ -225,7 +225,7 @@ export class WrDecryptText {
     }
   }
 
-  // ───────── Internals ─────────
+  // Internals
 
   private setupIntersectionObserver(): void {
     const io = new IntersectionObserver(

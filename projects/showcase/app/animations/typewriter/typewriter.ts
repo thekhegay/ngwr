@@ -29,7 +29,7 @@ import {
 export default class TypewriterPage {
   protected readonly texts = signal<readonly string[]>(['design.', 'ship.', 'iterate.']);
 
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly typingSpeed = signal(50);
   protected readonly deletingSpeed = signal(30);
   protected readonly pauseDuration = signal(2000);

@@ -198,7 +198,7 @@ export class WrFallingText {
     this.destroyRef.onDestroy(() => this.teardownLoop?.());
   }
 
-  // ───────── Physics ─────────
+  // Physics
 
   private start(): void {
     if (this.started) return;

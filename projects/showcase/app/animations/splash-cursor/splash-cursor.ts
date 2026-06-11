@@ -30,7 +30,7 @@ export default class SplashCursorPage {
   /** Opt-in full-viewport overlay (the reactbits default behaviour). */
   protected readonly fullscreen = signal(false);
 
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly rainbow = signal(true);
   protected readonly color = signal('#5227ff');
   protected readonly splatRadius = signal(0.2);

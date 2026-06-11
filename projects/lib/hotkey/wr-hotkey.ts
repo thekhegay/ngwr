@@ -92,7 +92,7 @@ export class WrHotkey {
     };
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private readonly listeners = new Map<EventTarget, EventListener>();
 

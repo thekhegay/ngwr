@@ -42,7 +42,10 @@
     <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Why ngwr provides this" description="Cookie strings are easy to get wrong (encoding, expiry math, SameSite). A tiny typed reader/writer beats re-deriving `document.cookie` parsing per project — and it no-ops cleanly in SSR." />
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Cookie strings are easy to get wrong (encoding, expiry math, SameSite). A tiny typed reader/writer beats re-deriving `document.cookie` parsing per project — and it no-ops cleanly in SSR."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

@@ -168,7 +168,7 @@ export class WrPopover {
     this.isOpen.update(v => !v);
   }
 
-  // ──────── Host listeners ────────
+  // Host listeners
 
   /** @internal */
   protected onClick(event: MouseEvent): void {
@@ -218,7 +218,7 @@ export class WrPopover {
     this.isOpen.set(false);
   }
 
-  // ──────── Tooltip timers ────────
+  // Tooltip timers
 
   private scheduleShow(): void {
     if (this.isOpen()) {
@@ -247,7 +247,7 @@ export class WrPopover {
     }
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private openOverlay(): void {
     if (this.overlayRef) return;

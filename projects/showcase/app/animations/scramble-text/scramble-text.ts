@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class ScrambleTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly radius = signal(100);
   protected readonly duration = signal(1.2);
   protected readonly speed = signal(0.05);

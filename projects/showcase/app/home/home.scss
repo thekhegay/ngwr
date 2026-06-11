@@ -1,17 +1,17 @@
 @use 'lib/styles/breakpoints' as bp;
 
-/* ─────────────────────────────────────────────────────────────────────
+/*
    Landing page. Original two-column hero with the live showcase
    collage on the right, zyraui-style chrome woven into the pitch
    column on the left. DX + Why sections below.
-   ───────────────────────────────────────────────────────────────────── */
+ */
 
 .ngwr-home {
   display: block;
   --hero-accent: rgb(99, 102, 241);
 }
 
-/* ───── Hero wrapper (plain — backgrounds removed) ───────────────── */
+/* Hero wrapper (plain — backgrounds removed) */
 .ngwr-home-hero-wrap {
   position: relative;
   padding: 4rem 0 2rem;
@@ -30,7 +30,7 @@
   }
 }
 
-/* ───── Left pitch column ─────────────────────────────────────────── */
+/* Left pitch column */
 .ngwr-home-hero {
   display: flex;
   flex-direction: column;
@@ -117,7 +117,7 @@
     }
   }
 
-  // ─── Split-text word slot inside the title ───────────────────────────
+  // Split-text word slot inside the title
   // Each character rises into place from a 36px Y offset on viewport
   // entry, stagger 55ms — inline with the heading copy + primary color
   // so the animated word reads as the deliberate accent.
@@ -224,7 +224,7 @@
   }
 }
 
-/* ───── Right: original showcase collage (preserved) ─────────────── */
+/* Right: original showcase collage (preserved) */
 .ngwr-home-showcase {
   background-color: rgba(var(--wr-color-primary-rgb), 0.125);
   border-radius: var(--wr-border-radius-base);
@@ -388,7 +388,7 @@
   }
 }
 
-/* ───── Generic section scaffold (DX + Why) ──────────────────────── */
+/* Generic section scaffold (DX + Why) */
 .ngwr-section {
   padding: 5rem 0;
 
@@ -426,7 +426,7 @@
   }
 }
 
-/* ───── DX section ────────────────────────────────────────────────── */
+/* DX section */
 .ngwr-dx {
   display: grid;
   grid-template-columns: 1fr 1.1fr;
@@ -548,7 +548,7 @@
   }
 }
 
-/* ───── Why grid ──────────────────────────────────────────────────── */
+/* Why grid */
 .ngwr-why-grid {
   display: grid;
   gap: 1rem;
@@ -618,7 +618,7 @@
   }
 }
 
-/* ───── Motion gallery ───────────────────────────────────────────── */
+/* Motion gallery */
 .ngwr-motion {
   &__heading {
     display: block;

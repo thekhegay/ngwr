@@ -23,7 +23,7 @@
     }
   }
 
-  // ─── The grid itself ─────────────────────────────────────────────────
+  // The grid itself
   // CSS multi-column gives us masonry / Pinterest-style packing: each
   // tile takes its natural content height and the next tile flows into
   // the gap below. That's what makes zardui's bento read as "dense
@@ -47,7 +47,7 @@
     }
   }
 
-  // ─── Tile shell ──────────────────────────────────────────────────────
+  // Tile shell
   // Each tile is a passive container for live components — clicks land on
   // the inner inputs / buttons / toggles, not the tile itself. Tiles take
   // their natural height (no min-height); CSS-columns layout packs them
@@ -86,7 +86,7 @@
     min-width: 0;
   }
 
-  // ─── Per-tile micro-layouts ──────────────────────────────────────────
+  // Per-tile micro-layouts
 
   &__signin {
     &-row {
@@ -104,7 +104,7 @@
     }
   }
 
-  // ─── Command palette tile ────────────────────────────────────────────
+  // Command palette tile
   &__cmd {
     gap: 0.5rem;
 
@@ -133,7 +133,7 @@
     line-height: 1;
   }
 
-  // ─── Skeleton-loader tile ────────────────────────────────────────────
+  // Skeleton-loader tile
   &__skeleton {
     gap: 0.625rem;
   }
@@ -180,7 +180,7 @@
     }
   }
 
-  // ─── Profile card tile ───────────────────────────────────────────────
+  // Profile card tile
   &__profile {
     gap: 0.75rem;
 
@@ -204,7 +204,7 @@
     }
   }
 
-  // ─── Code snippet tile ───────────────────────────────────────────────
+  // Code snippet tile
   &__code {
     gap: 0.5rem;
 

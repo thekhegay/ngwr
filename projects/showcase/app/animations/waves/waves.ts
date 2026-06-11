@@ -29,7 +29,7 @@ import {
   ],
 })
 export default class WavesPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly waveAmpX = signal(32);
   protected readonly waveAmpY = signal(16);
   protected readonly xGap = signal(10);

@@ -43,7 +43,7 @@ export interface WrWindowConfig<D = unknown> {
   /** Stable identifier — used by the taskbar, workspace save, and DI. */
   readonly id?: string;
 
-  // ── Chrome ──
+  // Chrome
   readonly title?: string;
   readonly os?: WrWindowOs;
   /** Initial size preset. Ignored when `width` / `height` are passed. */
@@ -51,7 +51,7 @@ export interface WrWindowConfig<D = unknown> {
   /** Title-bar density. @default 'normal' */
   readonly chromeSize?: WrWindowChromeSize;
 
-  // ── Initial geometry (pixels) ──
+  // Initial geometry (pixels)
   readonly x?: number;
   readonly y?: number;
   readonly width?: number;
@@ -61,7 +61,7 @@ export interface WrWindowConfig<D = unknown> {
   readonly maxWidth?: number;
   readonly maxHeight?: number;
 
-  // ── Behaviour ──
+  // Behaviour
   readonly movable?: boolean;
   readonly resizable?: boolean;
   readonly keepInViewport?: boolean;
@@ -69,25 +69,25 @@ export interface WrWindowConfig<D = unknown> {
   /** Snap-on-drag mode. @default 'none' */
   readonly snap?: WrWindowSnap;
 
-  // ── Chrome actions ──
+  // Chrome actions
   readonly showMinimize?: boolean;
   readonly showMaximize?: boolean;
   readonly showClose?: boolean;
 
-  // ── Taskbar ──
+  // Taskbar
   /** Show in `<wr-window-taskbar>` when minimized. @default true */
   readonly taskbar?: boolean;
 
-  // ── Animations ──
+  // Animations
   readonly animations?: boolean;
 
-  // ── Drag scope ──
+  // Drag scope
   /** CSS selector inside the projected content that restricts the move-grab area. */
   readonly dragHandle?: string;
 
-  // ── Persistence ──
+  // Persistence
   readonly storage?: WrWindowStorageConfig;
 
-  // ── Payload for the projected component (`WR_WINDOW_DATA` token) ──
+  // Payload for the projected component (`WR_WINDOW_DATA` token)
   readonly data?: D;
 }

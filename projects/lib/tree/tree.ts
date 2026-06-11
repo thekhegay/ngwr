@@ -112,7 +112,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
   /** Disable the whole tree. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  // ──────── Overlay-mode inputs (ignored when openOn='inline') ────────
+  // Overlay-mode inputs (ignored when openOn='inline')
 
   /** Render shape. @default 'inline' */
   readonly openOn = input<'inline' | 'overlay'>('inline');
@@ -135,7 +135,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
   /** Auto-expand every node that has children on first open of the overlay. @default false */
   readonly defaultExpandAll = input(false, { transform: coerceBooleanProperty });
 
-  // ──────── Internals ────────
+  // Internals
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
@@ -236,7 +236,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
 
   private overlayRef: OverlayRef | null = null;
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: TId | readonly TId[] | null) => void = noop;
   /** @internal exposed so the trigger can fire on blur. */
@@ -282,7 +282,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
     if (isDisabled) this.open.set(false);
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onRowClick(flat: FlatNode<TId>, event: MouseEvent): void {
     if (this.isDisabled() || flat.node.disabled) return;
@@ -355,7 +355,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
     }
   }
 
-  // ──────── Overlay-mode trigger handlers ────────
+  // Overlay-mode trigger handlers
 
   protected onTriggerClick(): void {
     if (this.isDisabled()) return;
@@ -382,7 +382,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
     this.onTouched();
   }
 
-  // ──────── Selection / expansion plumbing ────────
+  // Selection / expansion plumbing
 
   private toggleExpanded(id: TId): void {
     const set = new Set(this.expanded());
@@ -440,7 +440,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
     });
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private collectExpandableIds(list: readonly WrTreeNode<TId>[]): readonly TId[] {
     const out: TId[] = [];

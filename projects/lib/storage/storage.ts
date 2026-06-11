@@ -62,7 +62,7 @@ export class WrStorage {
   private readonly watchers = new Map<string, WritableSignal<unknown>>();
   private listenerInstalled = false;
 
-  // ──────── Public API ────────
+  // Public API
 
   /** Is `key` present (regardless of value / expiry)? */
   has(key: string): boolean {
@@ -174,7 +174,7 @@ export class WrStorage {
     return sig.asReadonly();
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private fullKey(key: string): string {
     return this.config.prefix + key;

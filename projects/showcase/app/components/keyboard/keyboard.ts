@@ -32,7 +32,7 @@ export class MyComponent {}`,
 <wr-kbd>⌃</wr-kbd> <wr-kbd>⌥</wr-kbd> <wr-kbd>⌘</wr-kbd> <wr-kbd>Space</wr-kbd>`,
   };
 
-  // ── A full 60% keyboard layout, row by row. Wide caps get a custom
+  // A full 60% keyboard layout, row by row. Wide caps get a custom
   //    width via the `w` field so Tab / Backspace / Enter / Shift /
   //    Space all read at native proportions.
   protected readonly rows: readonly (readonly { readonly cap: string; readonly w?: number }[])[] = [

@@ -65,7 +65,7 @@ export class WrCheckboxGroup implements ControlValueAccessor, WrCheckboxGroupCon
   private onChange: (value: unknown[]) => void = noop;
   private onTouched: () => void = noop;
 
-  // ──────── WrCheckboxGroupContext ────────
+  // WrCheckboxGroupContext
 
   isSelected(value: unknown): boolean {
     return this.selected().includes(value);
@@ -80,7 +80,7 @@ export class WrCheckboxGroup implements ControlValueAccessor, WrCheckboxGroupCon
     this.onTouched();
   }
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(value: unknown): void {
     this.selected.set(Array.isArray(value) ? [...(value as unknown[])] : []);

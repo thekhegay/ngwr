@@ -127,7 +127,7 @@ export class WrKnob implements ControlValueAccessor {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: number | null) => void = noop;
   private onTouched: () => void = noop;
@@ -148,7 +148,7 @@ export class WrKnob implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Pointer / keyboard ────────
+  // Pointer / keyboard
 
   protected onPointerDown(event: PointerEvent): void {
     if (!this.interactive()) return;
@@ -196,7 +196,7 @@ export class WrKnob implements ControlValueAccessor {
     this.commit(clamp(next, this.min(), this.max()));
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private updateFromPointer(event: PointerEvent): void {
     const rect = this.host.nativeElement.getBoundingClientRect();
@@ -220,7 +220,7 @@ export class WrKnob implements ControlValueAccessor {
     this.onChange(next);
   }
 
-  // ──────── Arc helper ────────
+  // Arc helper
 
   private arcPath(startDeg: number, endDeg: number): string {
     const r = this.radius();

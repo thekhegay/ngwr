@@ -33,11 +33,11 @@
   z-index: 1050;
 }
 
-// ─────────────────────────────────────────────────────────────────────
+//
 // Internal panels rendered inside the date-picker overlay.
 // (Were previously the standalone wr-time-picker / wr-date-time-picker
 // entry-points; now folded in via [mode]="time|datetime".)
-// ─────────────────────────────────────────────────────────────────────
+//
 
 .wr-time-picker {
   --wr-time-picker-col-width: 3rem;

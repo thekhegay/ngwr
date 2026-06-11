@@ -109,7 +109,7 @@ export class WrMeta {
     this.apply();
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private apply(): void {
     const next = this.resolved();

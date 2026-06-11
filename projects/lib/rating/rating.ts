@@ -93,7 +93,7 @@ export class WrRating implements ControlValueAccessor {
     return clamp(this.displayValue() - i, 0, 1);
   }
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: number | null) => void = noop;
   private onTouched: () => void = noop;
@@ -114,7 +114,7 @@ export class WrRating implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onSlotMove(event: MouseEvent, index: number): void {
     if (!this.interactive()) return;
@@ -165,7 +165,7 @@ export class WrRating implements ControlValueAccessor {
     this.commit(next);
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   /** Convert a mouse position over slot `index` to a snapped value. */
   private computeValue(event: MouseEvent, index: number): number {

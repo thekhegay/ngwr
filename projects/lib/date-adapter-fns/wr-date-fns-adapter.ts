@@ -62,7 +62,7 @@ function isNamedFormat(value: string): value is WrDateFormat {
 export class WrDateFnsAdapter extends WrDateAdapter<Date> {
   private readonly locale = inject(WR_DATE_LOCALE);
 
-  // ──────── Construction & identity ────────
+  // Construction & identity
 
   today(): Date {
     return new Date();
@@ -82,7 +82,7 @@ export class WrDateFnsAdapter extends WrDateAdapter<Date> {
     return isValid(date);
   }
 
-  // ──────── Accessors ────────
+  // Accessors
 
   getYear(date: Date): number {
     return getYear(date);
@@ -109,7 +109,7 @@ export class WrDateFnsAdapter extends WrDateAdapter<Date> {
     return getSeconds(date);
   }
 
-  // ──────── Immutable math ────────
+  // Immutable math
 
   addYears(date: Date, amount: number): Date {
     return dfAddYears(date, amount);
@@ -124,7 +124,7 @@ export class WrDateFnsAdapter extends WrDateAdapter<Date> {
     return dfSet(date, { hours, minutes, seconds, milliseconds: 0 });
   }
 
-  // ──────── Comparison ────────
+  // Comparison
 
   isSameDay(a: Date, b: Date): boolean {
     return isSameDay(a, b);
@@ -136,7 +136,7 @@ export class WrDateFnsAdapter extends WrDateAdapter<Date> {
     return compareAsc(startOfDay(a), startOfDay(b));
   }
 
-  // ──────── Formatting / parsing ────────
+  // Formatting / parsing
 
   format(date: Date, formatKeyOrString: WrDateFormat | (string & {})): string {
     const pattern = isNamedFormat(formatKeyOrString) ? NAMED_PATTERNS[formatKeyOrString] : formatKeyOrString;
@@ -151,7 +151,7 @@ export class WrDateFnsAdapter extends WrDateAdapter<Date> {
     return isValid(result) ? result : null;
   }
 
-  // ──────── Locale info ────────
+  // Locale info
 
   getFirstDayOfWeek(): number {
     try {

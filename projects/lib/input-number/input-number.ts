@@ -129,7 +129,7 @@ export class WrInputNumber implements ControlValueAccessor {
     return parts.join(' ');
   });
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: number | null) => void = noop;
   private onTouched: () => void = noop;
@@ -157,7 +157,7 @@ export class WrInputNumber implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onInput(event: Event): void {
     const raw = (event.target as HTMLInputElement).value;
@@ -198,7 +198,7 @@ export class WrInputNumber implements ControlValueAccessor {
     this.bump(direction);
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private bump(units: number): void {
     const stepSize = this.step() || 1;

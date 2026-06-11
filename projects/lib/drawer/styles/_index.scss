@@ -36,7 +36,7 @@
     animation: wr-drawer-slide-bottom 0.22s ease-out;
   }
 
-  // ── Rounded leading corners ───────────────────────────────────
+  // Rounded leading corners
   // The edge facing the viewport interior. Common bottom-sheet styling.
   &--rounded.wr-drawer__panel--bottom {
     border-top-left-radius: 1rem;
@@ -55,7 +55,7 @@
     border-bottom-left-radius: 1rem;
   }
 
-  // ── Safe-area padding on the trailing edge ────────────────────
+  // Safe-area padding on the trailing edge
   &--safe-area.wr-drawer__panel--bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -71,7 +71,7 @@
 }
 
 .wr-drawer {
-  // ── Grab handle (visual swipe-to-dismiss affordance) ──────────
+  // Grab handle (visual swipe-to-dismiss affordance)
   &__handle {
     display: flex;
     align-items: center;

@@ -70,7 +70,7 @@
   display: block;
 }
 
-// ── Customize panel ─────────────────────────────────────────────────
+// Customize panel
 
 .customize-title {
   margin: 1.5rem 0 0.75rem;
@@ -103,7 +103,7 @@
     white-space: nowrap;
   }
 
-  // ── ngwr form components inline ──────────────────────────────────
+  // ngwr form components inline
   // The chip frames the control; the wr-* components style themselves.
   // We just nudge sizing + alignment so they fit neatly in the row.
 
@@ -149,7 +149,7 @@
     margin-left: auto;
   }
 
-  // ── Color picker trigger ─────────────────────────────────────────
+  // Color picker trigger
   &__color {
     margin-left: auto;
     display: inline-flex;

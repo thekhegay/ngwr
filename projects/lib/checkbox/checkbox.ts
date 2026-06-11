@@ -106,7 +106,7 @@ export class WrCheckbox implements ControlValueAccessor {
   private onChange: (value: boolean) => void = noop;
   private onTouched: () => void = noop;
 
-  // ──────── ControlValueAccessor (standalone mode) ────────
+  // ControlValueAccessor (standalone mode)
 
   writeValue(value: boolean | null): void {
     this.standaloneChecked.set(!!value);
@@ -124,7 +124,7 @@ export class WrCheckbox implements ControlValueAccessor {
     this.standaloneDisabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onInputChange(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;

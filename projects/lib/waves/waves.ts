@@ -35,7 +35,7 @@ const num =
   (v: unknown): number =>
     coerceNumberProperty(v, fallback);
 
-// ──────── Perlin noise (Stefan Gustavson's reference permutation) ────────
+// Perlin noise (Stefan Gustavson's reference permutation)
 /* eslint-disable no-bitwise -- permutation-table hashing is inherently bitwise */
 
 class Grad {
@@ -119,7 +119,7 @@ class Noise {
 }
 
 /* eslint-enable no-bitwise */
-// ──────── Component ────────
+// Component
 
 interface WavePoint {
   x: number;
@@ -220,7 +220,7 @@ export class WrWaves {
     });
   }
 
-  // ──────── Setup ────────
+  // Setup
 
   private boot(): void {
     const canvas = this.canvasRef().nativeElement;
@@ -299,7 +299,7 @@ export class WrWaves {
     }
   }
 
-  // ──────── Frame loop ────────
+  // Frame loop
 
   private tick(time: number): void {
     const mouse = this.mouse;

@@ -144,7 +144,7 @@ export class WrFileUpload implements ControlValueAccessor {
 
   protected readonly formatBytes = formatBytes;
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: File | readonly File[] | null) => void = noop;
   private onTouched: () => void = noop;
@@ -169,7 +169,7 @@ export class WrFileUpload implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected openPicker(): void {
     if (this.effectiveDisabled()) return;
@@ -222,7 +222,7 @@ export class WrFileUpload implements ControlValueAccessor {
     this.emit();
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private acceptFiles(incoming: readonly File[]): void {
     const accept = this.accept();

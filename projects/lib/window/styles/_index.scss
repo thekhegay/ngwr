@@ -138,7 +138,7 @@
     }
   }
 
-  // ── OS preset: macOS — traffic-light dots, LEFT-aligned, colored
+  // OS preset: macOS — traffic-light dots, LEFT-aligned, colored
   //                   (close = red, minimize = yellow, maximize = green).
   //
   // Native macOS hides the glyphs (×, −, +) until the cursor enters the
@@ -191,7 +191,7 @@
     }
   }
 
-  // ── OS preset: Linux (GNOME-style) — chrome-action retains the windows
+  // OS preset: Linux (GNOME-style) — chrome-action retains the windows
   //                   look but the chrome bar is slightly taller and the
   //                   title stays left-aligned (close-only is enforced by
   //                   the template).
@@ -302,7 +302,7 @@
   }
 }
 
-// ── Snap hint — translucent rectangle showing the target region the
+// Snap hint — translucent rectangle showing the target region the
 //                 window will jump into when the pointer is released.
 .wr-window__snap-hint {
   position: fixed;
@@ -336,7 +336,7 @@
   }
 }
 
-// ── Window taskbar — strip of restore tabs for minimized windows.
+// Window taskbar — strip of restore tabs for minimized windows.
 .wr-window-taskbar {
   position: fixed;
   left: 50%;

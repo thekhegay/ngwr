@@ -70,7 +70,7 @@ export class WrColorPicker implements ControlValueAccessor {
   /** Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. @default [] */
   readonly swatches = input<readonly string[]>([]);
 
-  // ──────── Source of truth: HSV + alpha ────────
+  // Source of truth: HSV + alpha
 
   protected readonly h = signal(0);
   protected readonly s = signal(0);
@@ -81,7 +81,7 @@ export class WrColorPicker implements ControlValueAccessor {
 
   protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
-  // ──────── Derived values ────────
+  // Derived values
 
   /** RGB view of the current colour, computed lazily. */
   protected readonly rgb = computed<WrRgb>(() => hsvToRgb({ h: this.h(), s: this.s(), v: this.v(), a: this.a() }));
@@ -129,7 +129,7 @@ export class WrColorPicker implements ControlValueAccessor {
     return parts.join(' ');
   });
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: string) => void = noop;
   private onTouched: () => void = noop;
@@ -156,7 +156,7 @@ export class WrColorPicker implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Drag handlers ────────
+  // Drag handlers
 
   protected onPointerDown(event: PointerEvent, surface: Edges): void {
     if (this.effectiveDisabled()) return;
@@ -193,7 +193,7 @@ export class WrColorPicker implements ControlValueAccessor {
     this.emit();
   }
 
-  // ──────── Hex input handlers ────────
+  // Hex input handlers
 
   protected onHexInput(event: Event): void {
     const raw = (event.target as HTMLInputElement).value;
@@ -214,7 +214,7 @@ export class WrColorPicker implements ControlValueAccessor {
     this.onTouched();
   }
 
-  // ──────── Emission ────────
+  // Emission
 
   private emit(): void {
     this.emitWithoutHexSync();
@@ -225,7 +225,7 @@ export class WrColorPicker implements ControlValueAccessor {
     this.onChange(this.hex());
   }
 
-  // ──────── Tab + channel handlers ────────
+  // Tab + channel handlers
 
   protected onTabChange(tab: Tab | null): void {
     if (tab) this.activeTab.set(tab);

@@ -61,7 +61,7 @@ export class WrWindowRef<C, R = unknown> {
    */
   pendingStateOnMount: WrWindowState | null = null;
 
-  // ── Live geometry signals (writable internally, exposed read-only) ──
+  // Live geometry signals (writable internally, exposed read-only)
   /** @internal */ readonly _state: WritableSignal<WrWindowState> = signal('normal');
   /** @internal */ readonly _x = signal(0);
   /** @internal */ readonly _y = signal(0);
@@ -85,10 +85,10 @@ export class WrWindowRef<C, R = unknown> {
   /** Live title. */
   readonly title: Signal<string> = this._title.asReadonly();
 
-  // ── Hooks ──
+  // Hooks
   private _beforeCloseHook: WrWindowBeforeCloseHook<R> | null = null;
 
-  // ── Imperative bridges — wired by the manager / container after attach ──
+  // Imperative bridges — wired by the manager / container after attach
   /** @internal */ _doClose: ((result: R | undefined) => void) | null = null;
   /** @internal */ _doMinimize: (() => void) | null = null;
   /** @internal */ _doMaximize: (() => void) | null = null;
@@ -114,7 +114,7 @@ export class WrWindowRef<C, R = unknown> {
     return this.componentRef.instance;
   }
 
-  // ── Lifecycle ──
+  // Lifecycle
 
   /**
    * Close the window, optionally returning a result. If a `beforeClose`
@@ -149,7 +149,7 @@ export class WrWindowRef<C, R = unknown> {
     this._doFocus?.();
   }
 
-  // ── Programmatic geometry ──
+  // Programmatic geometry
 
   moveTo(x: number, y: number): void {
     this._doMoveTo?.(x, y);
@@ -168,7 +168,7 @@ export class WrWindowRef<C, R = unknown> {
     this._doSetTitle?.(title);
   }
 
-  // ── Hooks ──
+  // Hooks
 
   /**
    * Register a guard that runs before `close()`. Return `false` (or a

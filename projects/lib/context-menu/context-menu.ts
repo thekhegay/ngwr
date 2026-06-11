@@ -110,7 +110,7 @@ export class WrContextMenu {
     this.closeOverlay();
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private openOverlay(x: number, y: number): void {
     // GlobalPositionStrategy uses margins, which led to flaky positioning

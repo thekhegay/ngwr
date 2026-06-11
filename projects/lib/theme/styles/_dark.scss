@@ -6,13 +6,13 @@
 // elements look the same regardless of theme.
 
 [data-theme='dark'] {
-  // ── Canvas (was `--wr-color-white` in light mode) ──────────────
+  // Canvas (was `--wr-color-white` in light mode)
   // Deeper than slate-900 so an elevated surface in slate-800 reads
   // as a real layer rather than vanishing into the background.
   --wr-color-white: #0b1120;
   --wr-color-white-rgb: 11, 17, 32;
 
-  // ── Text ──────────────────────────────────────────────────────
+  // Text
   // Softer than pure-white — easier on the eyes for long reading.
   --wr-color-dark: #e6ebf3;
   --wr-color-dark-rgb: 230, 235, 243;
@@ -24,7 +24,7 @@
   --wr-color-dark-contrast: #0b1120;
   --wr-color-white-contrast: #e6ebf3;
 
-  // ── Borders / tints (was `--wr-color-light`) ───────────────────
+  // Borders / tints (was `--wr-color-light`)
   // Used for two jobs at once: 1-px borders and translucent surface
   // tints (`rgba(light-rgb, 0.4)` etc.). Sits between the original
   // slate-800 (#1f2a3d, invisible) and a brighter slate-700 (#334155,
@@ -43,13 +43,13 @@
   --wr-color-light-lighter: #1a2236;
   --wr-color-light-darker: #3a4661;
 
-  // ── Secondary text (was `--wr-color-medium`) ───────────────────
+  // Secondary text (was `--wr-color-medium`)
   // Lifted from slate-400 → slate-300-ish for better legibility on
   // the deeper canvas.
   --wr-color-medium: #9aa6b8;
   --wr-color-medium-rgb: 154, 166, 184;
 
-  // ── Brand-color retune ────────────────────────────────────────
+  // Brand-color retune
   // The default primary (#3969e2) reads a touch dim on the deep
   // canvas. Bump the base + shade derivations so hover / focus rings
   // stay visible against slate-900.

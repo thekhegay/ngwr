@@ -113,7 +113,7 @@ export class WrDropdown {
     this.isOpen.update(v => !v);
   }
 
-  // ──────── Host listeners ────────
+  // Host listeners
 
   /** @internal */
   protected onClick(event: MouseEvent): void {
@@ -136,7 +136,7 @@ export class WrDropdown {
     this.isOpen.set(false);
   }
 
-  // ──────── Overlay management ────────
+  // Overlay management
 
   private openOverlay(): void {
     if (this.overlayRef) return;
@@ -194,7 +194,7 @@ export class WrDropdown {
     this.closed.emit();
   }
 
-  // ──────── Keyboard handling ────────
+  // Keyboard handling
 
   /** @internal Trigger keydown — ArrowDown/Up/Enter/Space open the menu. */
   protected onKeydown(event: KeyboardEvent): void {

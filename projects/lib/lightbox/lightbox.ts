@@ -102,7 +102,7 @@ export class WrLightbox {
     this.loaded.set(true);
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private openOverlay(): void {
     if (this.overlayRef) return;

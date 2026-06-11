@@ -90,11 +90,11 @@
     pointer-events: none;
   }
 
-  // ─────────────────────────────────────────────────────────────────────
+  //
   // Combobox-mode chrome — trigger button + chips + chevron.
   // Activated by [openOn]="overlay" (replaces the deprecated
   // standalone wr-tree-select entry-point).
-  // ─────────────────────────────────────────────────────────────────────
+  //
 
   &--combobox {
     --wr-tree-trigger-color: var(--wr-color-dark);

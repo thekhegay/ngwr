@@ -75,7 +75,7 @@ export class WrScroll {
     this.to({ top: 0 }, options);
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private resolveSelector(value: string): Element | null {
     if (value.startsWith('#')) {

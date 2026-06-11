@@ -80,7 +80,7 @@ export class WrCompare {
     return `inset(${p}% 0 0 0)`;
   });
 
-  // ──────── Pointer handlers ────────
+  // Pointer handlers
 
   protected onPointerDown(event: PointerEvent): void {
     if (this.disabled()) return;

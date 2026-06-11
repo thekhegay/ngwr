@@ -62,7 +62,7 @@ export default class MarqueePage {
     { node: this.telegramLogo(), ariaLabel: 'Telegram' },
   ]);
 
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly speed = signal(120);
   protected readonly gap = signal(48);
   protected readonly itemHeight = signal(36);

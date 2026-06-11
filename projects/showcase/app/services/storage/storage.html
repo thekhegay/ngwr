@@ -41,7 +41,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Why ngwr provides this" description="Direct `localStorage` access throws in SSR and private-mode Safari, and stringly-typed keys drift. This wraps web storage with JSON (de)serialization, SSR no-ops, and typed reads." />
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Direct `localStorage` access throws in SSR and private-mode Safari, and stringly-typed keys drift. This wraps web storage with JSON (de)serialization, SSR no-ops, and typed reads."
+  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

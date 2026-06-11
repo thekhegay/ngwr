@@ -108,7 +108,7 @@ export class WrI18n {
     });
   }
 
-  // ──────── Locale ────────
+  // Locale
 
   /** Switch active locale. Ignored when not whitelisted. */
   use(locale: string): void {
@@ -122,7 +122,7 @@ export class WrI18n {
     return this.config.availableLocales;
   }
 
-  // ──────── Scopes ────────
+  // Scopes
 
   /**
    * Register a scope so its catalog loads alongside the root one. Idempotent.
@@ -134,7 +134,7 @@ export class WrI18n {
     return this.loadCatalog(this._locale(), scope);
   }
 
-  // ──────── Translate ────────
+  // Translate
 
   /**
    * Eager translate — returns the current value or the missing-handler
@@ -162,7 +162,7 @@ export class WrI18n {
     return computed(() => this.t(key, params, scope));
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private initialLocale(): string {
     if (this.config.storageKey) {

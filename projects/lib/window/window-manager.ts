@@ -233,7 +233,7 @@ export class WrWindowManager {
     this.storage.remove(storageKey(cfg));
   }
 
-  // ── Workspace save/restore ─────────────────────────────────────────
+  // Workspace save/restore
   //
   // A workspace is a snapshot of every open window's id + state +
   // geometry. Reopening is the consumer's job (component identities

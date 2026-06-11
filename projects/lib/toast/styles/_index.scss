@@ -29,7 +29,7 @@ $toast-colors: (
     pointer-events: auto;
   }
 
-  // ───── Sonner-style stack ─────────────────────────────────────────────
+  // Sonner-style stack
   // Collapsed: every toast except the front one collapses behind it with a
   // scale-down + tiny offset. Hovering the host expands them into the
   // normal vertical list.

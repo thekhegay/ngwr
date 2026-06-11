@@ -153,7 +153,7 @@ export class WrRotatingText {
     this.destroyRef.onDestroy(() => clearInterval(this.timerId));
   }
 
-  // ───────── Public imperative API ─────────
+  // Public imperative API
 
   next(): void {
     const arr = this.texts();
@@ -184,7 +184,7 @@ export class WrRotatingText {
     if (this.index() !== 0) void this.transitionTo(0);
   }
 
-  // ───────── Internals ─────────
+  // Internals
 
   private restartTimer(): void {
     clearInterval(this.timerId);

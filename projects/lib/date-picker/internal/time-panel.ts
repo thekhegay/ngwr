@@ -119,7 +119,7 @@ export class WrTimePanel implements ControlValueAccessor {
     return parts.join(' ');
   });
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   private onChange: (value: Date | null) => void = noop;
   private onTouched: () => void = noop;
@@ -150,7 +150,7 @@ export class WrTimePanel implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Typed-input handlers ────────
+  // Typed-input handlers
 
   protected onHoursInput(raw: string): void {
     const n = Number(raw);
@@ -182,7 +182,7 @@ export class WrTimePanel implements ControlValueAccessor {
     this.onTouched();
   }
 
-  // ──────── Stepper handlers (▲ / ▼ buttons) ────────
+  // Stepper handlers (▲ / ▼ buttons)
 
   protected stepHours(direction: 1 | -1): void {
     if (!this.interactive()) return;
@@ -209,7 +209,7 @@ export class WrTimePanel implements ControlValueAccessor {
     this.emit();
   }
 
-  // ──────── Emission ────────
+  // Emission
 
   private emit(): void {
     const next = this.adapter.setTime(this.basis(), this.hours(), this.minutes(), this.seconds());

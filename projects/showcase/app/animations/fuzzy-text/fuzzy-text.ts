@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class FuzzyTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('404');
   protected readonly fuzzRange = signal(30);
   protected readonly baseIntensity = signal(0.18);

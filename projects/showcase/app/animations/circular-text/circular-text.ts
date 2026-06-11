@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class CircularTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('HELLO * NGWR * ');
   protected readonly spinDuration = signal(20);
   protected readonly onHover = signal<'speedUp' | 'slowDown' | 'pause' | 'goBonkers'>('speedUp');

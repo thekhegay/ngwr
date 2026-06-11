@@ -168,7 +168,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
    */
   readonly searchQuery = signal('');
 
-  // ── Search-mode-only inputs (ignored in other modes) ─────────
+  // Search-mode-only inputs (ignored in other modes)
 
   /**
    * Search mode: dynamic option array. Each item is rendered as a
@@ -215,7 +215,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Search mode: true while the loader is in flight. @internal */
   protected readonly loading = signal(false);
 
-  // ── Tag-mode-only inputs (ignored in other modes) ────────────
+  // Tag-mode-only inputs (ignored in other modes)
 
   /**
    * Tag mode: keys / characters that commit the current draft into a chip.
@@ -392,7 +392,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     this.searchInputEl()?.nativeElement.focus();
   }
 
-  // ──────── Search-mode handlers ────────
+  // Search-mode handlers
 
   protected onSearchInput(event: Event): void {
     if (this.isDisabled()) return;
@@ -499,7 +499,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     });
   }
 
-  // ──────── WrSelectContext ────────
+  // WrSelectContext
 
   isSelected(value: unknown): boolean {
     if (this.isMulti()) return this.asArray(this.value()).includes(value);
@@ -535,7 +535,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     return () => this.registry.update(list => list.filter(o => o.id !== reg.id));
   }
 
-  // ──────── Chip handlers (multi + tag) ────────
+  // Chip handlers (multi + tag)
 
   /** Remove one selection (chip × button). Works for multi and tag modes. */
   protected removeChip(value: unknown, event: Event): void {
@@ -564,7 +564,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     this.onTouched();
   }
 
-  // ──────── Tag-mode draft handlers ────────
+  // Tag-mode draft handlers
 
   /** Capacity check used by tag mode to refuse the next add. */
   protected readonly atCapacity = computed(() => {
@@ -638,7 +638,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     this.onTouched();
   }
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(value: unknown): void {
     if (this.hasChips()) {
@@ -661,7 +661,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     if (isDisabled) this.open.set(false);
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onTriggerClick(): void {
     if (this.isDisabled()) return;
@@ -774,7 +774,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     return [value];
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private openOverlay(): void {
     if (this.overlayRef) return;

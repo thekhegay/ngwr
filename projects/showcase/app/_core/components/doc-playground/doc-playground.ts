@@ -84,7 +84,7 @@ export class DocPlaygroundComponent {
 
   protected readonly hasControls = computed(() => this.controls().length > 0);
 
-  // ── Chip handlers ─────────────────────────────────────────────────
+  // Chip handlers
   // Signals are non-narrow here on purpose — the template's @switch
   // discriminates by kind, and each branch only touches the right shape.
 

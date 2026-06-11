@@ -16,7 +16,7 @@
     line-height: 1.5;
   }
 
-  // ─── Top row: brand + link columns ───────────────────────────────────
+  // Top row: brand + link columns
   &__top {
     padding: 3rem var(--wr-grid-gutter) 1.5rem;
     display: grid;
@@ -104,7 +104,7 @@
     }
   }
 
-  // ─── Bottom row: copyright + version ─────────────────────────────────
+  // Bottom row: copyright + version
   &__bottom {
     padding: 1.25rem var(--wr-grid-gutter) 1.5rem;
     border-top: 1px solid var(--wr-color-light-lighter);
@@ -115,7 +115,7 @@
     font-size: 0.75rem;
   }
 
-  // ─── Compact variant — bottom row only, no big chrome ────────────────
+  // Compact variant — bottom row only, no big chrome
   // Used on docs / sidebar pages so the page footer is just a thin
   // copyright/version strip. The brand + link columns are reserved for
   // the homepage where a real sitemap makes sense.
@@ -124,7 +124,7 @@
     border-top: 0;
   }
 
-  // ─── Contained variant — rows align with the page container ──────────
+  // Contained variant — rows align with the page container
   // Mirrors the homepage's `.container` rhythm so the brand block + link
   // columns + bottom row line up with the hero, bento, and sections
   // above. Docs pages don't need this (the sidebar provides the rhythm).

@@ -150,7 +150,7 @@ export class WrImageCropper {
     });
   }
 
-  // ──────── Image load ────────
+  // Image load
 
   protected onImageLoad(): void {
     const img = this.imgEl().nativeElement;
@@ -185,7 +185,7 @@ export class WrImageCropper {
     };
   }
 
-  // ──────── Drag handlers ────────
+  // Drag handlers
 
   protected onPointerDown(handle: WrCropHandle, event: PointerEvent): void {
     event.preventDefault();
@@ -277,7 +277,7 @@ export class WrImageCropper {
     this.cropDisplay.set({ x, y, w, h });
   }
 
-  // ──────── Public API ────────
+  // Public API
 
   /** Render the current crop as a Blob. */
   async toBlob(type: WrImageOutputType = this.outputType(), quality: number = this.outputQuality()): Promise<Blob> {
@@ -304,7 +304,7 @@ export class WrImageCropper {
     await this.emitCropped();
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private toCanvas(): HTMLCanvasElement {
     const img = this.imgEl().nativeElement;

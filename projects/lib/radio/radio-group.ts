@@ -73,7 +73,7 @@ export class WrRadioGroup implements ControlValueAccessor, WrRadioGroupContext {
   private onChange: (value: unknown) => void = noop;
   private onTouched: () => void = noop;
 
-  // ──────── WrRadioGroupContext ────────
+  // WrRadioGroupContext
 
   select(value: unknown): void {
     if (this.isDisabled()) return;
@@ -85,7 +85,7 @@ export class WrRadioGroup implements ControlValueAccessor, WrRadioGroupContext {
     this.onTouched();
   }
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(value: unknown): void {
     this.value.set(value);

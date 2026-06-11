@@ -82,7 +82,7 @@ function toMs(value: unknown): number {
  * @see https://ngwr.dev/utils/validators
  */
 export const WrValidators = {
-  // ───── String shape ───────────────────────────────────────────────
+  // String shape
 
   /** No whitespace anywhere in the value. */
   noWhitespace: (control: AbstractControl): ValidationErrors | null => {
@@ -98,7 +98,7 @@ export const WrValidators = {
     return /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(v) ? null : { hexColor: true };
   },
 
-  // ───── Network / payments ─────────────────────────────────────────
+  // Network / payments
 
   /**
    * Valid URL. Accepts any scheme by default; pass `{ protocols: ['https'] }`
@@ -151,7 +151,7 @@ export const WrValidators = {
     return mod97(raw) === 1 ? null : { iban: true };
   },
 
-  // ───── Cross-field ────────────────────────────────────────────────
+  // Cross-field
 
   /**
    * Value must equal a sibling control's value (e.g. confirm-password).
@@ -166,7 +166,7 @@ export const WrValidators = {
     };
   },
 
-  // ───── Choice ─────────────────────────────────────────────────────
+  // Choice
 
   /** Value must be one of the allowed entries (strict equality). */
   oneOf: <T>(allowed: readonly T[]): ValidatorFn => {
@@ -177,7 +177,7 @@ export const WrValidators = {
     };
   },
 
-  // ───── Date bounds ────────────────────────────────────────────────
+  // Date bounds
 
   /** Value (Date | parseable) must be ≥ `min`. */
   minDate: (min: Date | string | number): ValidatorFn => {

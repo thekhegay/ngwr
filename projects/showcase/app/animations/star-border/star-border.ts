@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class StarBorderPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly mode = signal<'infinite' | 'hover'>('infinite');
   protected readonly rays = signal<'mirror' | 'single'>('mirror');
   protected readonly speed = signal(6);

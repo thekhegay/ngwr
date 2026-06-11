@@ -111,7 +111,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     color: { r: 0, g: 0, b: 0 },
   };
 
-  // ──────── Shader plumbing ────────
+  // Shader plumbing
 
   function compile(type: number, source: string, keywords?: readonly string[]): WebGLShader {
     const prefixed = keywords ? keywords.map(k => `#define ${k}\n`).join('') + source : source;
@@ -190,7 +190,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     }
   }
 
-  // ──────── Shaders ────────
+  // Shaders
 
   const baseVertexShader = compile(
     gl.VERTEX_SHADER,
@@ -480,7 +480,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   `
   );
 
-  // ──────── Fullscreen blit ────────
+  // Fullscreen blit
 
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, -1, 1, 1, 1, 1, -1]), gl.STATIC_DRAW);
@@ -504,7 +504,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
   }
 
-  // ──────── Framebuffers ────────
+  // Framebuffers
 
   function createFBO(w: number, h: number, internalFormat: number, format: number, type: number, param: number): FBO {
     gl.activeTexture(gl.TEXTURE0);
@@ -607,7 +607,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     return target;
   }
 
-  // ──────── Programs + state ────────
+  // Programs + state
 
   const copyProgram = new ShaderProgram(baseVertexShader, copyShader);
   const clearProgram = new ShaderProgram(baseVertexShader, clearShader);
@@ -654,7 +654,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   let lastUpdateTime = Date.now();
   let colorUpdateTimer = 0;
 
-  // ──────── Frame loop ────────
+  // Frame loop
 
   function updateFrame(): void {
     if (!active) return;
@@ -777,7 +777,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     blit(null);
   }
 
-  // ──────── Splats ────────
+  // Splats
 
   function splatPointer(): void {
     const dx = pointer.deltaX * config.splatForce;
@@ -816,7 +816,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     return aspectRatio > 1 ? radius * aspectRatio : radius;
   }
 
-  // ──────── Pointer ────────
+  // Pointer
 
   function pointerDown(posX: number, posY: number): void {
     pointer.moved = false;
@@ -850,7 +850,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     return aspectRatio > 1 ? delta / aspectRatio : delta;
   }
 
-  // ──────── Colours ────────
+  // Colours
 
   function hexToRGB(hex: string): RGB {
     let val = hex.replace('#', '');
@@ -920,7 +920,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     return hash;
   }
 
-  // ──────── Events + boot ────────
+  // Events + boot
 
   let firstMoveHandled = false;
 
@@ -978,7 +978,7 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
   };
 }
 
-// ──────── WebGL context bootstrap ────────
+// WebGL context bootstrap
 
 function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL; ext: GlExt } | null {
   const params: WebGLContextAttributes = {

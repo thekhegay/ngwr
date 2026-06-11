@@ -105,7 +105,7 @@ export class WrInputOtp implements ControlValueAccessor {
   private onChange: (value: string) => void = noop;
   private onTouched: () => void = noop;
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(v: string | null): void {
     const raw = (v ?? '').slice(0, this.length());
@@ -125,7 +125,7 @@ export class WrInputOtp implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onInput(event: Event, index: number): void {
     const target = event.target as HTMLInputElement;
@@ -187,7 +187,7 @@ export class WrInputOtp implements ControlValueAccessor {
     return index;
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private update(index: number, char: string): void {
     if (index < 0 || index >= this.length()) return;

@@ -113,7 +113,7 @@ export class WrToast {
     if (this.hostRef) this.hostRef.setInput('mode', mode);
   }
 
-  // ──────── Timer ────────
+  // Timer
 
   private startTimer(entry: ActiveEntry): void {
     if (entry.remaining <= 0) return;
@@ -130,7 +130,7 @@ export class WrToast {
     }
   }
 
-  // ──────── Host plumbing ────────
+  // Host plumbing
 
   private ensureHost(position: WrToastPosition): void {
     if (this.overlayRef) {

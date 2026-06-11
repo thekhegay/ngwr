@@ -84,7 +84,7 @@ export class WrTabs implements WrTabsContext {
     return tabs.find(t => t.key() === key) ?? tabs[0];
   });
 
-  // ──────── WrTabsContext ────────
+  // WrTabsContext
 
   activate(key: string): void {
     this.active.set(key);
@@ -98,7 +98,7 @@ export class WrTabs implements WrTabsContext {
     // No-op: contentChildren handles removal.
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected readonly stripRef = viewChild<ElementRef<HTMLElement>>('strip');
 

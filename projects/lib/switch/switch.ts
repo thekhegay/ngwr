@@ -61,7 +61,7 @@ export class WrSwitch implements ControlValueAccessor {
   private onChange: (value: boolean) => void = noop;
   private onTouched: () => void = noop;
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(value: boolean | null): void {
     this.checked.set(!!value);
@@ -79,7 +79,7 @@ export class WrSwitch implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onInputChange(event: Event): void {
     const next = (event.target as HTMLInputElement).checked;

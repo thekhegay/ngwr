@@ -76,7 +76,7 @@ export class WrTheme {
     this.mode.set(this.resolved() === 'dark' ? 'light' : 'dark');
   }
 
-  // ──────── Persistence ────────
+  // Persistence
 
   private readPersisted(): WrThemeMode | null {
     if (!this.config.storageKey) return null;

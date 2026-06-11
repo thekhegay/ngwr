@@ -91,7 +91,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     this.destroyRef.onDestroy(() => this.close());
   }
 
-  // ──────── Host listeners ────────
+  // Host listeners
 
   /** @internal */
   protected onInput(): void {
@@ -146,7 +146,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     setTimeout(() => this.close(), 120);
   }
 
-  // ──────── Detection ────────
+  // Detection
 
   private detect(): void {
     const el = this.host.nativeElement;
@@ -201,7 +201,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     this.panelRef?.setInput('activeIndex', i);
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private open(): void {
     const el = this.host.nativeElement;

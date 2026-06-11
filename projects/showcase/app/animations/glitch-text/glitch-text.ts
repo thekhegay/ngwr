@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class GlitchTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('ERROR');
   protected readonly speed = signal(1);
   protected readonly enableShadows = signal(true);

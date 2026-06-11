@@ -95,7 +95,7 @@ export class WrCarousel {
     this.paused.set(false);
   }
 
-  // ──────── Imperative ────────
+  // Imperative
 
   goTo(index: number): void {
     const max = this.count() - 1;

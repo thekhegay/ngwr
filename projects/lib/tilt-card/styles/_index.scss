@@ -17,7 +17,7 @@
   transition: transform 0.15s ease-out;
 }
 
-// ── Glare overlay (appended by `[wrTilt]` when `[glare]="true"`) ─────
+// Glare overlay (appended by `[wrTilt]` when `[glare]="true"`)
 // Lives in this package so the visual lives with the card chrome.
 .wr-tilt-glare {
   position: absolute;

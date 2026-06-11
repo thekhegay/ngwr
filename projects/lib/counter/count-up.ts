@@ -177,7 +177,7 @@ export class WrCountUp {
     this.destroyRef.onDestroy(() => this.cancel());
   }
 
-  // ──────── Scheduling ────────
+  // Scheduling
 
   private setupViewportTrigger(): void {
     this.observer = new IntersectionObserver(
@@ -214,7 +214,7 @@ export class WrCountUp {
     else this.tweenEaseOut(start, end);
   }
 
-  // ──────── Tweens ────────
+  // Tweens
 
   private tweenEaseOut(start: number, target: number): void {
     const duration = Math.max(100, this.duration());
@@ -271,7 +271,7 @@ export class WrCountUp {
     this.rafId = requestAnimationFrame(step);
   }
 
-  // ──────── Cleanup ────────
+  // Cleanup
 
   private cancel(): void {
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);

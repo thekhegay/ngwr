@@ -70,43 +70,43 @@ export class ComponentsBento {
   private readonly toast = inject(WrToast);
   protected readonly theme = inject(WrTheme);
 
-  // ─── Sign-up form (tile 1) ────────────────────────────────────────────
+  // Sign-up form (tile 1)
   protected readonly fullName = signal('Alice Kim');
   protected readonly signupEmail = signal('alice@ngwr.dev');
   protected readonly signupPassword = signal('correct-horse-battery');
   protected readonly signupConfirm = signal('correct-horse-battery');
   protected readonly agreeTerms = signal(true);
 
-  // ─── Payment (tile 3) ─────────────────────────────────────────────────
+  // Payment (tile 3)
   protected readonly payAmount = signal('129.99');
   protected readonly payHolder = signal('Roman K.');
 
-  // ─── Notifications (tile 4) ───────────────────────────────────────────
+  // Notifications (tile 4)
   protected readonly notifPush = signal(true);
   protected readonly notifDigest = signal(false);
   protected readonly notifBeta = signal(true);
 
-  // ─── Tabs (tile 9) ────────────────────────────────────────────────────
+  // Tabs (tile 9)
   protected readonly activeTab = signal<string>('overview');
 
-  // ─── Pagination (tile 10) ─────────────────────────────────────────────
+  // Pagination (tile 10)
   protected readonly currentPage = signal(2);
 
-  // ─── Profile validation (tile 11) ─────────────────────────────────────
+  // Profile validation (tile 11)
   protected readonly username = signal('alice_kim');
   protected readonly workspace = signal('acme-team');
 
-  // ─── Theme switcher (tile 12) ─────────────────────────────────────────
+  // Theme switcher (tile 12)
   protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [
     { label: 'Light', value: 'light' },
     { label: 'Dark', value: 'dark' },
     { label: 'Auto', value: 'auto' },
   ];
 
-  // ─── Search (tile 13) ─────────────────────────────────────────────────
+  // Search (tile 13)
   protected readonly searchQuery = signal('');
 
-  // ─── Static content ───────────────────────────────────────────────────
+  // Static content
   protected readonly emptyTitle = 'No projects yet';
   protected readonly emptyHint = 'Create your first project to get started.';
   protected readonly codeSnippet = `import { WrBtn } from 'ngwr/button';
@@ -117,7 +117,7 @@ export class ComponentsBento {
 })
 export class Demo {}`;
 
-  // ─── Action handlers ──────────────────────────────────────────────────
+  // Action handlers
   protected onCreateAccount(): void {
     this.toast.show({
       type: 'success',

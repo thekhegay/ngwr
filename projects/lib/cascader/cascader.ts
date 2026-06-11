@@ -190,7 +190,7 @@ export class WrCascader<T = string> implements ControlValueAccessor {
     });
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onTriggerClick(): void {
     if (this.isDisabled()) return;
@@ -234,7 +234,7 @@ export class WrCascader<T = string> implements ControlValueAccessor {
     return this.activePath()[colIndex] === value;
   }
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(value: unknown): void {
     if (Array.isArray(value)) {
@@ -259,7 +259,7 @@ export class WrCascader<T = string> implements ControlValueAccessor {
     if (isDisabled) this.open.set(false);
   }
 
-  // ──────── Overlay ────────
+  // Overlay
 
   private openOverlay(): void {
     if (this.overlayRef) return;

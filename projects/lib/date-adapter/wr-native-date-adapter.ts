@@ -77,7 +77,7 @@ function tokenToRegex(token: string): string {
 export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   private readonly locale = inject(WR_DATE_LOCALE);
 
-  // ──────── Construction & identity ────────
+  // Construction & identity
 
   today(): Date {
     return new Date();
@@ -98,7 +98,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return date instanceof Date && !Number.isNaN(date.getTime());
   }
 
-  // ──────── Accessors ────────
+  // Accessors
 
   getYear(date: Date): number {
     return date.getFullYear();
@@ -132,7 +132,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return date.getSeconds();
   }
 
-  // ──────── Immutable math ────────
+  // Immutable math
 
   addYears(date: Date, amount: number): Date {
     const d = this.clone(date);
@@ -160,7 +160,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return d;
   }
 
-  // ──────── Comparison ────────
+  // Comparison
 
   isSameDay(a: Date, b: Date): boolean {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -180,7 +180,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return a.getDate() - b.getDate();
   }
 
-  // ──────── Formatting / parsing ────────
+  // Formatting / parsing
 
   // `(string & {})` keeps autocomplete for the WrDateFormat literals
   // while still accepting any other string as a raw token pattern.
@@ -204,7 +204,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return this.parseWithTokens(raw, formatKeyOrString);
   }
 
-  // ──────── Locale info ────────
+  // Locale info
 
   getFirstDayOfWeek(): number {
     // `Intl.Locale.prototype.getWeekInfo` is Stage 3 — not in TS lib types yet,
@@ -245,7 +245,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return out;
   }
 
-  // ──────── Internals: token-based format / parse ────────
+  // Internals: token-based format / parse
 
   private formatWithTokens(date: Date, pattern: string): string {
     const year = date.getFullYear();

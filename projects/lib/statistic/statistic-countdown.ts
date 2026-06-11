@@ -20,7 +20,7 @@ import {
   signal,
 } from '@angular/core';
 
-// ──────────────── Helpers ─────────────────────────────────────────────
+// Helpers
 
 function toMs(value: Date | string | number): number {
   if (value instanceof Date) return value.getTime();

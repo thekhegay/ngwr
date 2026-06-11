@@ -94,7 +94,7 @@ export class WrClipboard {
     }
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   /** Hidden-textarea + `execCommand('copy')` write. Synchronous, no permissions. */
   private legacyWrite(text: string): boolean {

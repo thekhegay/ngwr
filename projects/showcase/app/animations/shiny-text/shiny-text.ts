@@ -30,7 +30,7 @@ import {
   ],
 })
 export default class ShinyTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('Premium');
   protected readonly speed = signal(2);
   protected readonly spread = signal(120);

@@ -28,7 +28,7 @@ import {
   ],
 })
 export default class BorderGlowPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   /** Hex form drives the color picker; an `hslColor` computed feeds wr-border-glow. */
   // Empty = theme-aware default; the picker writes a concrete colour.
   protected readonly glowColorHex = signal('');

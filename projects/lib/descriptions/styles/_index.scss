@@ -41,7 +41,7 @@
     color: var(--wr-color-dark);
   }
 
-  // ───────── Inline ─────────
+  // Inline
   &--inline &__list {
     display: grid;
     grid-template-columns: minmax(8rem, max-content) 1fr;
@@ -60,7 +60,7 @@
     font-size: var(--wr-text-sm);
   }
 
-  // ───────── Bordered ─────────
+  // Bordered
   &--bordered &__list {
     gap: 0;
     border: 1px solid var(--wr-color-light);

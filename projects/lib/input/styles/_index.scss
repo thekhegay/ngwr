@@ -1,10 +1,10 @@
 @use '../../theme/styles' as theme;
 
-// ─────────────────────────────────────────────────────────────────────
+//
 // Native input styled by `[wrInput]` directive.
 // Used standalone OR wrapped in `<wr-input-group>` (group strips this
 // border so the visuals belong to the group instead).
-// ─────────────────────────────────────────────────────────────────────
+//
 .wr-input {
   --wr-input-color: var(--wr-color-dark);
   --wr-input-placeholder: rgba(var(--wr-color-medium-rgb), 0.7);
@@ -64,11 +64,11 @@
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────
+//
 // Group wrapper — owns the border and focus ring when present, so the
 // inner `[wrInput]` can drop its own border and visually merge with
 // `[wrInputPrefix]` / `[wrInputSuffix]` / `<wr-password-toggle>` siblings.
-// ─────────────────────────────────────────────────────────────────────
+//
 .wr-input-group {
   --wr-input-group-radius: var(--wr-border-radius-base);
   --wr-input-group-bg: var(--wr-color-white);

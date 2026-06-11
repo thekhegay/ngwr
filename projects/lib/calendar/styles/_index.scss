@@ -26,7 +26,7 @@
   outline: none;
   user-select: none;
 
-  // ──────── Header ────────
+  // Header
   &__header {
     display: flex;
     align-items: center;
@@ -96,7 +96,7 @@
     }
   }
 
-  // ──────── Weekday header row ────────
+  // Weekday header row
   &__weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -113,7 +113,7 @@
     letter-spacing: 0.04em;
   }
 
-  // ──────── Day grid ────────
+  // Day grid
   &__grid {
     display: flex;
     flex-direction: column;
@@ -187,7 +187,7 @@
     }
   }
 
-  // ──────── Month + year quick-pick views ────────
+  // Month + year quick-pick views
   &__months {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

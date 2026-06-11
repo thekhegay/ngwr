@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class DecryptTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('Hover to decrypt!');
   protected readonly speed = signal(50);
   protected readonly sequential = signal(false);

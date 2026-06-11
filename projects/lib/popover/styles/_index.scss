@@ -18,11 +18,11 @@
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────
+//
 // Tooltip mode — small dark text panel rendered inside the overlay.
 // (Folded in from the deprecated wr-tooltip entry-point; use
 // `<… [wrPopover]="'text'" mode="tooltip">` instead.)
-// ─────────────────────────────────────────────────────────────────────
+//
 
 .wr-tooltip-overlay {
   pointer-events: none;
@@ -43,7 +43,7 @@
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   transform-origin: top left;
 
-  // Arrow ─────────────────────────────────────────────
+  // Arrow
   &::after {
     content: '';
     position: absolute;

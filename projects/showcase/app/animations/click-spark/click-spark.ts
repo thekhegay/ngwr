@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class ClickSparkPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly sparkColor = signal('#ffffff');
   protected readonly sparkCount = signal(8);
   protected readonly sparkRadius = signal(15);

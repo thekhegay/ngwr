@@ -29,7 +29,7 @@ import {
 export default class RotatingTextPage {
   protected readonly texts = signal<readonly string[]>(['design', 'ship', 'iterate']);
 
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly rotationInterval = signal(2000);
   protected readonly splitBy = signal<'characters' | 'words' | 'lines'>('characters');
   protected readonly duration = signal(0.6);

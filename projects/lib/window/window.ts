@@ -270,7 +270,7 @@ export class WrWindow {
     });
   }
 
-  // ──────── Public API ────────
+  // Public API
 
   close(): void {
     this.open.set(false);
@@ -329,7 +329,7 @@ export class WrWindow {
     this.z.set(this.manager.bringToFront());
   }
 
-  // ──────── Host handlers ────────
+  // Host handlers
 
   /** @internal — alias kept for the host `(pointerdown)` binding. */
   protected focusWindow(): void {
@@ -516,7 +516,7 @@ export class WrWindow {
   protected resizeBL = (e: PointerEvent): void => this.startResize(e, { b: true, l: true });
   protected resizeL = (e: PointerEvent): void => this.startResize(e, { l: true });
 
-  // ──────── Internals ────────
+  // Internals
 
   private seedInitialGeometry(): void {
     const sizePreset = this.size();

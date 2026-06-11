@@ -28,7 +28,7 @@ import {
   ],
 })
 export default class TiltCardPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly maxTilt = signal(12);
   protected readonly perspective = signal(800);
   protected readonly scale = signal(1.03);

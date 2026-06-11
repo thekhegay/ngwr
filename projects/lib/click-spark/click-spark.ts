@@ -123,7 +123,7 @@ export class WrClickSpark {
     }
   }
 
-  // ───────── Internals ─────────
+  // Internals
 
   private syncCanvasSize(): void {
     const canvas = this.canvasRef().nativeElement;

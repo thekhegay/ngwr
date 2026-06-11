@@ -202,7 +202,7 @@ export class WrCommandPalette {
     this.destroyRef.onDestroy(() => this.bindingHandle?.unbind());
   }
 
-  // ──────── Template handlers ────────
+  // Template handlers
 
   protected onQueryInput(event: Event): void {
     this.query.set((event.target as HTMLInputElement).value);
@@ -262,7 +262,7 @@ export class WrCommandPalette {
     return this.filtered().indexOf(item);
   }
 
-  // ──────── Public API ────────
+  // Public API
 
   /** Open the palette. */
   show(): void {
@@ -274,7 +274,7 @@ export class WrCommandPalette {
     this.open.set(false);
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private commit(item: WrCommandItem): void {
     item.action?.();

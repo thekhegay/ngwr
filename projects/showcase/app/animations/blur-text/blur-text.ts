@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class BlurTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('Welcome to ngwr');
   protected readonly animateBy = signal<'chars' | 'words'>('words');
   protected readonly direction = signal<'top' | 'bottom'>('top');

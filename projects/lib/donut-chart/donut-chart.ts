@@ -92,7 +92,7 @@ export class WrDonutChart {
     });
   });
 
-  // ──────── Helpers ────────
+  // Helpers
 
   /** SVG path for one donut slice using outer and inner arcs. */
   private arcPath(start: number, end: number): string {

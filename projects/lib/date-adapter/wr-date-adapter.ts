@@ -23,7 +23,7 @@ import type { WrDateFormat } from './types';
  * adapters never mutate in place so consumers can pass dates around safely.
  */
 export abstract class WrDateAdapter<TDate = Date> {
-  // ──────── Construction & identity ────────
+  // Construction & identity
 
   /** Current moment. */
   abstract today(): TDate;
@@ -37,7 +37,7 @@ export abstract class WrDateAdapter<TDate = Date> {
   /** `false` for `NaN` / invalid input. */
   abstract isValid(date: TDate): boolean;
 
-  // ──────── Accessors ────────
+  // Accessors
 
   abstract getYear(date: TDate): number;
   /** `0` (January) – `11` (December). */
@@ -51,7 +51,7 @@ export abstract class WrDateAdapter<TDate = Date> {
   abstract getMinutes(date: TDate): number;
   abstract getSeconds(date: TDate): number;
 
-  // ──────── Immutable math ────────
+  // Immutable math
 
   abstract addYears(date: TDate, amount: number): TDate;
   abstract addMonths(date: TDate, amount: number): TDate;
@@ -59,7 +59,7 @@ export abstract class WrDateAdapter<TDate = Date> {
   /** Returns a new date with the time portion replaced. */
   abstract setTime(date: TDate, hours: number, minutes: number, seconds: number): TDate;
 
-  // ──────── Comparison ────────
+  // Comparison
 
   abstract isSameDay(a: TDate, b: TDate): boolean;
   abstract isSameMonth(a: TDate, b: TDate): boolean;
@@ -75,7 +75,7 @@ export abstract class WrDateAdapter<TDate = Date> {
     return this.compareDate(date, start) >= 0 && this.compareDate(date, end) <= 0;
   }
 
-  // ──────── Formatting / parsing ────────
+  // Formatting / parsing
 
   /**
    * Format a date. Accepts either a named {@link WrDateFormat} key (which the
@@ -92,7 +92,7 @@ export abstract class WrDateAdapter<TDate = Date> {
    */
   abstract parse(value: string, formatKeyOrString: WrDateFormat | (string & {})): TDate | null;
 
-  // ──────── Locale info ────────
+  // Locale info
 
   /** `0` Sunday, `1` Monday — locale-dependent. */
   abstract getFirstDayOfWeek(): number;

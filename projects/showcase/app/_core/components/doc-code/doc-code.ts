@@ -31,11 +31,11 @@ import { copyToClipboard, stripIndent } from '#core/utils';
   },
 })
 export class DocCodeComponent {
-  // ── Single-file API (legacy) ─────────────────────────────────────
+  // Single-file API (legacy)
   readonly code = input<string>('');
   readonly language = input<ShikiLang>('html');
 
-  // ── Multi-file API (tabs) ────────────────────────────────────────
+  // Multi-file API (tabs)
   readonly files = input<readonly DocCodeFile[] | null>(null);
 
   protected readonly tabs = computed<readonly DocCodeFile[]>(() => {

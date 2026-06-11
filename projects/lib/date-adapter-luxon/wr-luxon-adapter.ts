@@ -70,7 +70,7 @@ function translatePattern(pattern: string): string {
 export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
   private readonly locale = inject(WR_DATE_LOCALE);
 
-  // ──────── Construction & identity ────────
+  // Construction & identity
 
   today(): DateTime {
     return DateTime.now().setLocale(this.locale);
@@ -89,7 +89,7 @@ export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
     return date.isValid;
   }
 
-  // ──────── Accessors ────────
+  // Accessors
 
   getYear(date: DateTime): number {
     return date.year;
@@ -117,7 +117,7 @@ export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
     return date.second;
   }
 
-  // ──────── Immutable math ────────
+  // Immutable math
 
   addYears(date: DateTime, amount: number): DateTime {
     return date.plus({ years: amount });
@@ -132,7 +132,7 @@ export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
     return date.set({ hour: hours, minute: minutes, second: seconds, millisecond: 0 });
   }
 
-  // ──────── Comparison ────────
+  // Comparison
 
   isSameDay(a: DateTime, b: DateTime): boolean {
     return a.hasSame(b, 'day');
@@ -144,7 +144,7 @@ export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
     return a.startOf('day').toMillis() - b.startOf('day').toMillis();
   }
 
-  // ──────── Formatting / parsing ────────
+  // Formatting / parsing
 
   format(date: DateTime, formatKeyOrString: WrDateFormat | (string & {})): string {
     if (isNamedFormat(formatKeyOrString)) {
@@ -163,7 +163,7 @@ export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
     return parsed.isValid ? parsed : null;
   }
 
-  // ──────── Locale info ────────
+  // Locale info
 
   getFirstDayOfWeek(): number {
     try {

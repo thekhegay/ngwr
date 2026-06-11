@@ -157,7 +157,7 @@ export class WrFuzzyText {
     this.destroyRef.onDestroy(() => this.teardown?.());
   }
 
-  // ───────── Init / loop ─────────
+  // Init / loop
 
   private async init(): Promise<void> {
     const canvas = this.canvasRef().nativeElement;

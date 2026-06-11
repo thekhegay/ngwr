@@ -99,7 +99,7 @@ export class WrStepper implements WrStepperContext {
     if (this.isReachable(index)) this.goTo(index);
   }
 
-  // ──────── Imperative API ────────
+  // Imperative API
 
   goTo(index: number): void {
     const last = this.steps().length - 1;

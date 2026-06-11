@@ -27,7 +27,7 @@
   font-family: var(--wr-font-family-base);
   user-select: none;
 
-  // ──────── SV (saturation + value) canvas ────────
+  // SV (saturation + value) canvas
   &__sv {
     position: relative;
     width: 100%;
@@ -41,7 +41,7 @@
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
   }
 
-  // ──────── Hue + alpha sliders ────────
+  // Hue + alpha sliders
   &__slider {
     position: relative;
     width: 100%;
@@ -74,7 +74,7 @@
       8px 8px;
   }
 
-  // ──────── Thumb ────────
+  // Thumb
   &__thumb {
     position: absolute;
     width: var(--wr-color-picker-thumb-size);
@@ -96,7 +96,7 @@
     top: 50%;
   }
 
-  // ──────── Preview tile ────────
+  // Preview tile
   &__preview {
     --wr-preview-size: 1.75rem;
     flex: 0 0 auto;
@@ -113,7 +113,7 @@
     color: transparent; // background-image already set inline via [style.background]
   }
 
-  // ──────── Chrome: preview tile + format tabs ────────
+  // Chrome: preview tile + format tabs
   &__chrome {
     display: inline-flex;
     align-items: center;
@@ -125,7 +125,7 @@
     font-size: 0.75rem;
   }
 
-  // ──────── Per-tab numeric inputs ────────
+  // Per-tab numeric inputs
   &__inputs {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -197,7 +197,7 @@
     user-select: none;
   }
 
-  // ──────── Swatches row ────────
+  // Swatches row
   &__swatches {
     display: grid;
     grid-template-columns: repeat(8, 1fr);

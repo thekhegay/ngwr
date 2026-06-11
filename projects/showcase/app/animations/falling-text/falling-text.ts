@@ -27,7 +27,7 @@ import {
   ],
 })
 export default class FallingTextPage {
-  // ── Live demo state ─────────────────────────────────────────────
+  // Live demo state
   protected readonly text = signal('Hover this block. Each word falls and you can drag them around.');
   protected readonly trigger = signal<'auto' | 'scroll' | 'hover' | 'click'>('hover');
   protected readonly gravity = signal(980);

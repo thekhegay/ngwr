@@ -8,7 +8,7 @@
 // `--wr-leading-*` / `--wr-tracking-*` tokens, so overriding the tokens
 // at `:root` re-themes every utility class in one place.
 
-// ── Size ─────────────────────────────────────────────────────────────
+// Size
 .wr-text-xs {
   font-size: var(--wr-text-xs);
 }
@@ -37,7 +37,7 @@
   font-size: var(--wr-text-5xl);
 }
 
-// ── Weight ───────────────────────────────────────────────────────────
+// Weight
 .wr-font-thin {
   font-weight: var(--wr-font-weight-thin);
 }
@@ -60,7 +60,7 @@
   font-weight: var(--wr-font-weight-extrabold);
 }
 
-// ── Leading ──────────────────────────────────────────────────────────
+// Leading
 .wr-leading-none {
   line-height: var(--wr-leading-none);
 }
@@ -80,7 +80,7 @@
   line-height: var(--wr-leading-loose);
 }
 
-// ── Tracking ─────────────────────────────────────────────────────────
+// Tracking
 .wr-tracking-tighter {
   letter-spacing: var(--wr-tracking-tighter);
 }
@@ -100,7 +100,7 @@
   letter-spacing: var(--wr-tracking-widest);
 }
 
-// ── Family ───────────────────────────────────────────────────────────
+// Family
 .wr-font-base {
   font-family: var(--wr-font-family-base);
 }
@@ -108,7 +108,7 @@
   font-family: var(--wr-font-family-mono);
 }
 
-// ── Misc ─────────────────────────────────────────────────────────────
+// Misc
 .wr-text-balance {
   text-wrap: balance;
 }

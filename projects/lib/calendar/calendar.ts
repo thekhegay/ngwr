@@ -164,7 +164,7 @@ export class WrCalendar {
     });
   }
 
-  // ──────── Navigation ────────
+  // Navigation
 
   /** Header `‹` button — steps by month / year / decade based on the active view. */
   protected prev(): void {
@@ -212,7 +212,7 @@ export class WrCalendar {
     }
   }
 
-  // ──────── Cell state predicates (used by template) ────────
+  // Cell state predicates (used by template)
 
   protected isToday(date: Date): boolean {
     return this.adapter.isSameDay(date, this.today());
@@ -266,7 +266,7 @@ export class WrCalendar {
     return false;
   }
 
-  // ──────── Month / year view predicates ────────
+  // Month / year view predicates
 
   protected isMonthCurrent(monthIdx: number): boolean {
     return this.adapter.getMonth(this.viewDate()) === monthIdx;
@@ -308,7 +308,7 @@ export class WrCalendar {
     return false;
   }
 
-  // ──────── Interaction ────────
+  // Interaction
 
   protected onCellClick(date: Date): void {
     if (this.isDisabled(date)) return;
@@ -345,7 +345,7 @@ export class WrCalendar {
     this.hoverDate.set(null);
   }
 
-  // ──────── Keyboard ────────
+  // Keyboard
 
   protected onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;

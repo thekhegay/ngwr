@@ -97,7 +97,7 @@ export class WrSlider implements ControlValueAccessor {
   private onChange: (v: WrSliderValue) => void = noop;
   private onTouched: () => void = noop;
 
-  // ──────── ControlValueAccessor ────────
+  // ControlValueAccessor
 
   writeValue(v: WrSliderValue | null): void {
     if (Array.isArray(v)) {
@@ -123,7 +123,7 @@ export class WrSlider implements ControlValueAccessor {
     this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
   }
 
-  // ──────── Interaction ────────
+  // Interaction
 
   protected onPointerDown(event: PointerEvent, thumb: 'low' | 'high'): void {
     if (this.effectiveDisabled()) return;
@@ -185,7 +185,7 @@ export class WrSlider implements ControlValueAccessor {
     this.onTouched();
   }
 
-  // ──────── Internals ────────
+  // Internals
 
   private updateFromEvent(event: PointerEvent, thumb: 'low' | 'high'): void {
     const rect = this.track().nativeElement.getBoundingClientRect();

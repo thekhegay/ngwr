@@ -9,7 +9,7 @@
 // Respects `prefers-reduced-motion` — all animations collapse to a
 // single frame so users who opt out don't see motion.
 
-// ── Keyframes ────────────────────────────────────────────────────────
+// Keyframes
 @keyframes wr-fade-in {
   from {
     opacity: 0;
@@ -118,7 +118,7 @@
   }
 }
 
-// ── Utility classes ──────────────────────────────────────────────────
+// Utility classes
 .wr-animate-fade-in {
   animation: wr-fade-in var(--wr-duration-base) var(--wr-ease-out) both;
 }
@@ -153,7 +153,7 @@
   animation: wr-bounce 1s infinite;
 }
 
-// ── Reveal-on-scroll integration ─────────────────────────────────────
+// Reveal-on-scroll integration
 // Initial state — set by `[wrReveal]` on the host element via the
 // `wr-reveal` host class. The directive flips `wr-reveal--visible`
 // once the element enters the viewport.
@@ -170,7 +170,7 @@
   }
 }
 
-// ── prefers-reduced-motion ───────────────────────────────────────────
+// prefers-reduced-motion
 @media (prefers-reduced-motion: reduce) {
   .wr-animate-fade-in,
   .wr-animate-fade-out,

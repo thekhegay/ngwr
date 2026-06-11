@@ -71,7 +71,7 @@ export class WrDensity {
     this._current.set(order[(i + 1) % order.length]);
   }
 
-  // ──────── Persistence ────────
+  // Persistence
 
   private readPersisted(): WrDensityValue | null {
     if (!this.config.storageKey) return null;
