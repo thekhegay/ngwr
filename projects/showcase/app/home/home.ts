@@ -14,6 +14,7 @@ import { WrRotatingText } from 'ngwr/rotating-text';
 import { WrScrambleText } from 'ngwr/scramble-text';
 import { WrShinyText } from 'ngwr/shiny-text';
 import { WrSplitText } from 'ngwr/split-text';
+import { WrSpotlightCard } from 'ngwr/spotlight-card';
 import { WrToast } from 'ngwr/toast';
 import { WrTypewriter } from 'ngwr/typewriter';
 import { WrTypography } from 'ngwr/typography';
@@ -33,6 +34,8 @@ interface WhyTile {
   readonly title: string;
   readonly description: string;
   readonly accent: 'primary' | 'success' | 'warning' | 'info' | 'danger' | 'secondary';
+  /** Hover-spotlight tint — tracks the icon accent. */
+  readonly spotlight: string;
 }
 
 @Component({
@@ -57,6 +60,7 @@ interface WhyTile {
     WrScrambleText,
     WrWaves,
     // Sections
+    WrSpotlightCard,
     ComponentsBento,
     DocCodeComponent,
     Footer,
@@ -120,6 +124,7 @@ export class SignupCard {
       description:
         'Focus traps, ARIA, keyboard nav, screen-reader labels — tested with axe + VoiceOver, not inferred from a doc page.',
       accent: 'info',
+      spotlight: 'rgba(var(--wr-color-primary-rgb), 0.14)',
     },
     {
       icon: 'eye',
@@ -127,6 +132,7 @@ export class SignupCard {
       description:
         'Every color, radius, spacing, and duration is a `--wr-*` variable. Re-skin one component or all of them.',
       accent: 'secondary',
+      spotlight: 'rgba(var(--wr-color-medium-rgb, 113, 128, 150), 0.14)',
     },
     {
       icon: 'terminal',
@@ -134,12 +140,14 @@ export class SignupCard {
       description:
         'Every component is a standalone import. Works the same in CLI, Vite, SSR with hydration, and zoneless apps.',
       accent: 'primary',
+      spotlight: 'rgba(var(--wr-color-primary-rgb), 0.14)',
     },
     {
       icon: 'folder',
       title: 'Pay for what you import',
       description: "Each component is its own ng-packagr entry. What you don't import never lands in your bundle.",
       accent: 'success',
+      spotlight: 'rgba(var(--wr-color-success-rgb), 0.14)',
     },
     {
       icon: 'moon',
@@ -147,6 +155,7 @@ export class SignupCard {
       description:
         '`[data-theme]` flips at the root or any subtree. `prefers-color-scheme` is one provider option, not a hardcoded check.',
       accent: 'warning',
+      spotlight: 'rgba(var(--wr-color-warning-rgb), 0.16)',
     },
     {
       icon: 'flash',
@@ -154,6 +163,7 @@ export class SignupCard {
       description:
         'One easing curve shared by overlays, hovers, presses, route changes. `prefers-reduced-motion` short-circuits the lot.',
       accent: 'danger',
+      spotlight: 'rgba(var(--wr-color-danger-rgb), 0.14)',
     },
   ];
 

@@ -420,6 +420,9 @@
   &__head-aside {
     max-width: 22rem;
     margin-left: auto;
+    // Quieter than the heading column — supporting copy, not a lead.
+    color: var(--wr-color-medium);
+    line-height: 1.6;
   }
 }
 
@@ -560,13 +563,17 @@
 }
 
 .ngwr-why {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.5rem 1.25rem 1.625rem;
-  border: 1px solid var(--wr-color-light);
-  border-radius: 1rem;
-  transition: border-color var(--wr-transition-base);
+  // Spotlight-card shell, restyled to the original quiet tile look — the
+  // per-accent hover glow comes from `[spotlightColor]` on each card.
+  // (Nested so `&__icon` below still compiles to `.ngwr-why__icon`.)
+  &.wr-spotlight-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem 1.25rem 1.625rem;
+    border-radius: 1rem;
+    transition: border-color var(--wr-transition-base);
+  }
 
   &:hover {
     border-color: rgba(99, 102, 241, 0.4);

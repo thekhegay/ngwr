@@ -81,7 +81,7 @@
             <wr-blur-text text="Made for shipping. Not for showing off." animateBy="words" [stepDuration]="0.4" />
           </p>
         </div>
-        <p wrTypography variant="lead" class="ngwr-section__head-aside">
+        <p wrTypography variant="small" tone="medium" class="ngwr-section__head-aside">
           Each primitive comes with the bookkeeping handled — focus traps, virtual scroll, controlled state, density
           tokens — so the day goes into what the user actually sees.
         </p>
@@ -89,13 +89,13 @@
 
       <div class="ngwr-why-grid">
         @for (tile of whyTiles; track tile.title) {
-          <article class="ngwr-why">
+          <wr-spotlight-card class="ngwr-why" [spotlightColor]="tile.spotlight" [radius]="70">
             <div class="ngwr-why__icon" [attr.data-accent]="tile.accent">
               <wr-icon [name]="$any(tile.icon)" size="20" />
             </div>
             <p wrTypography variant="h5">{{ tile.title }}</p>
             <p wrTypography variant="small" tone="medium">{{ tile.description }}</p>
-          </article>
+          </wr-spotlight-card>
         }
       </div>
     </div>
@@ -111,7 +111,7 @@
             <wr-split-text text="Motion you can ship." splitType="chars" [delay]="40" [duration]="1.05" />
           </p>
         </div>
-        <p wrTypography variant="lead" class="ngwr-section__head-aside">
+        <p wrTypography variant="small" tone="medium" class="ngwr-section__head-aside">
           Beyond the primitives — a kit of motion components for hero copy, hovers, and the bits of personality that set
           a real product apart.
         </p>
