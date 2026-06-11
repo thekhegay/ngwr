@@ -1,14 +1,10 @@
 <ngwr-doc-page
   title="Splash Cursor"
-  description="WebGL fluid simulation that splashes colourful dye wherever the pointer moves or clicks. Fixed, full-viewport, click-through overlay — move your mouse to try it. Renders nothing under prefers-reduced-motion or without WebGL."
+  description="WebGL fluid simulation that splashes colourful dye wherever the pointer moves or clicks. Fullscreen click-through overlay by default, or contained in any positioned box — where the dye collides with the walls. Renders nothing under prefers-reduced-motion or without WebGL."
   [keywords]="['splash-cursor', 'wr-splash-cursor', 'fluid', 'webgl', 'reactbits']"
   [labels]="['Animation']"
 >
   <ngwr-reactbits-credit slug="splash-cursor" category="animations" />
-
-  @if (enabled()) {
-    <wr-splash-cursor [rainbow]="rainbow()" [splatRadius]="splatRadius()" [curl]="curl()" />
-  }
 
   <ngwr-doc-section title="Import">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
@@ -16,12 +12,41 @@
 
   <ngwr-doc-section
     title="Playground"
-    description="The simulation overlays the whole viewport while mounted — every pointer move on this page splashes dye."
+    description="Move the pointer through the box — the dye swirls and bounces off the walls. Flip the fullscreen toggle to let it follow you across the whole page instead."
   >
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
-      <wr-switch [ngModel]="enabled()" (ngModelChange)="enabled.set($event)">
-        Fluid overlay {{ enabled() ? 'on — move your mouse!' : 'off' }}
-      </wr-switch>
+      <div
+        style="
+          position: relative;
+          width: 100%;
+          height: 22rem;
+          border-radius: 0.75rem;
+          overflow: hidden;
+          background: #0b1120;
+        "
+      >
+        <wr-splash-cursor
+          [fullscreen]="fullscreen()"
+          [rainbow]="rainbow()"
+          [color]="color()"
+          [splatRadius]="splatRadius()"
+          [curl]="curl()"
+        />
+        <p
+          style="
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            margin: 0;
+            color: rgb(255 255 255 / 55%);
+            pointer-events: none;
+          "
+        >
+          Move your mouse in here
+        </p>
+      </div>
     </ngwr-doc-playground>
   </ngwr-doc-section>
 

@@ -1,5 +1,6 @@
-// Splash cursor (reactbits port). Fixed full-viewport overlay that never
-// captures pointer events — the WebGL canvas just paints over the page.
+// Splash cursor (reactbits port). Default: fixed full-viewport overlay
+// that never captures pointer events. `--contained` fills the nearest
+// positioned ancestor instead — the dye collides with the box walls.
 
 .wr-splash-cursor {
   position: fixed;
@@ -12,5 +13,15 @@
     display: block;
     width: 100vw;
     height: 100vh;
+  }
+
+  &--contained {
+    position: absolute;
+    z-index: 0;
+  }
+
+  &--contained &__canvas {
+    width: 100%;
+    height: 100%;
   }
 }

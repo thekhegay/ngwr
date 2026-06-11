@@ -924,27 +924,39 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
 
   let firstMoveHandled = false;
 
+  // Coordinates are taken relative to the canvas box: identical to the
+  // raw client position for the fullscreen overlay, and it makes a
+  // contained canvas track the pointer correctly too.
+  const toLocal = (clientX: number, clientY: number): { x: number; y: number } => {
+    const rect = canvas.getBoundingClientRect();
+    return { x: scaleByPixelRatio(clientX - rect.left), y: scaleByPixelRatio(clientY - rect.top) };
+  };
+
   const onMouseDown = (e: MouseEvent): void => {
-    pointerDown(scaleByPixelRatio(e.clientX), scaleByPixelRatio(e.clientY));
+    const pos = toLocal(e.clientX, e.clientY);
+    pointerDown(pos.x, pos.y);
     clickSplat();
   };
 
   const onMouseMove = (e: MouseEvent): void => {
-    const posX = scaleByPixelRatio(e.clientX);
-    const posY = scaleByPixelRatio(e.clientY);
+    const pos = toLocal(e.clientX, e.clientY);
     const color = firstMoveHandled ? pointer.color : generateColor();
     firstMoveHandled = true;
-    pointerMove(posX, posY, color);
+    pointerMove(pos.x, pos.y, color);
   };
 
   const onTouchStart = (e: TouchEvent): void => {
     const t = e.targetTouches[0];
-    if (t) pointerDown(scaleByPixelRatio(t.clientX), scaleByPixelRatio(t.clientY));
+    if (!t) return;
+    const pos = toLocal(t.clientX, t.clientY);
+    pointerDown(pos.x, pos.y);
   };
 
   const onTouchMove = (e: TouchEvent): void => {
     const t = e.targetTouches[0];
-    if (t) pointerMove(scaleByPixelRatio(t.clientX), scaleByPixelRatio(t.clientY), pointer.color);
+    if (!t) return;
+    const pos = toLocal(t.clientX, t.clientY);
+    pointerMove(pos.x, pos.y, pointer.color);
   };
 
   window.addEventListener('mousedown', onMouseDown);
@@ -961,7 +973,8 @@ function createFluidSimulation(canvas: HTMLCanvasElement, config: WrFluidConfig)
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('touchstart', onTouchStart);
     window.removeEventListener('touchmove', onTouchMove);
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    // The context is NOT lost here on purpose — input changes reboot the
+    // sim on the same canvas, and a lost context can't be re-acquired.
   };
 }
 

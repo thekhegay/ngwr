@@ -31,21 +31,24 @@ import {
   ],
 })
 export default class SplashCursorPage {
-  /** The overlay covers the whole viewport — give visitors an off switch. */
-  protected readonly enabled = signal(true);
+  /** Opt-in full-viewport overlay (the reactbits default behaviour). */
+  protected readonly fullscreen = signal(false);
 
   // ── Live demo state ─────────────────────────────────────────────
   protected readonly rainbow = signal(true);
+  protected readonly color = signal('#5227ff');
   protected readonly splatRadius = signal(0.2);
   protected readonly curl = signal(3);
 
-  protected readonly snippet = computed(
-    () =>
-      `<wr-splash-cursor [rainbow]="${this.rainbow()}" [splatRadius]="${this.splatRadius()}" [curl]="${this.curl()}" />`
+  protected readonly snippet = computed(() =>
+    this.rainbow()
+      ? `<wr-splash-cursor [fullscreen]="${this.fullscreen()}" [splatRadius]="${this.splatRadius()}" [curl]="${this.curl()}" />`
+      : `<wr-splash-cursor [fullscreen]="${this.fullscreen()}" [rainbow]="false" color="${this.color()}" [splatRadius]="${this.splatRadius()}" [curl]="${this.curl()}" />`
   );
 
   protected readonly controls: readonly DocControl[] = [
     { kind: 'toggle', label: 'Rainbow', signal: this.rainbow },
+    { kind: 'color', label: 'Color', signal: this.color, alpha: false },
     {
       kind: 'slider',
       label: 'Splat Radius',
@@ -56,6 +59,7 @@ export default class SplashCursorPage {
       precision: 2,
     },
     { kind: 'slider', label: 'Curl', signal: this.curl, min: 0, max: 30, step: 1 },
+    { kind: 'toggle', label: 'Fullscreen overlay', signal: this.fullscreen },
   ];
 
   protected readonly snippets = {
@@ -63,6 +67,12 @@ export default class SplashCursorPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
+    {
+      name: 'fullscreen',
+      description: 'Viewport overlay, or fill the nearest positioned ancestor.',
+      type: 'boolean',
+      default: 'true',
+    },
     { name: 'simResolution', description: 'Velocity / pressure grid resolution.', type: 'number', default: '128' },
     { name: 'dyeResolution', description: 'Dye texture resolution (visible detail).', type: 'number', default: '1440' },
     {

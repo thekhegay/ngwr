@@ -44,9 +44,19 @@ const num =
   template: '<canvas #canvas class="wr-splash-cursor__canvas"></canvas>',
   styleUrl: './splash-cursor.scss',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-splash-cursor' },
+  host: {
+    class: 'wr-splash-cursor',
+    '[class.wr-splash-cursor--contained]': '!fullscreen()',
+  },
 })
 export class WrSplashCursor {
+  /**
+   * `true` overlays the whole viewport (reactbits behaviour); `false`
+   * fills the nearest positioned ancestor instead — handy for demo boxes,
+   * and the dye collides with the box walls. @default true
+   */
+  readonly fullscreen = input(true, { transform: coerceBooleanProperty });
+
   /** Velocity / pressure grid resolution. @default 128 */
   readonly simResolution = input(128, { transform: num(128) });
 
