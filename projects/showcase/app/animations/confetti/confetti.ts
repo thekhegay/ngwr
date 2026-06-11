@@ -56,6 +56,29 @@ onWin(): void {
     });
   }
 
+  /** Edge / corner presets — origin as viewport ratios + inward angle. */
+  protected readonly placements = [
+    { label: 'Top', origin: { x: 0.5, y: 0 }, angle: 270 },
+    { label: 'Bottom', origin: { x: 0.5, y: 1 }, angle: 90 },
+    { label: 'Left', origin: { x: 0, y: 0.5 }, angle: 0 },
+    { label: 'Right', origin: { x: 1, y: 0.5 }, angle: 180 },
+    { label: 'Top left', origin: { x: 0, y: 0 }, angle: 315 },
+    { label: 'Top right', origin: { x: 1, y: 0 }, angle: 225 },
+    { label: 'Bottom left', origin: { x: 0, y: 1 }, angle: 45 },
+    { label: 'Bottom right', origin: { x: 1, y: 1 }, angle: 135 },
+  ] as const;
+
+  protected fireFrom(placement: (typeof this.placements)[number]): void {
+    this.confetti.fire({
+      count: this.count(),
+      spread: this.spread(),
+      velocity: this.velocity(),
+      gravity: this.gravity(),
+      origin: placement.origin,
+      angle: placement.angle,
+    });
+  }
+
   protected readonly snippets = {
     install: `import { WrConfetti } from 'ngwr/confetti';`,
   };
@@ -64,7 +87,7 @@ onWin(): void {
     {
       name: 'WrConfetti.fire(opts?)',
       description:
-        'Fires a confetti burst. Options: `count`, `spread`, `velocity`, `gravity`, `drag`, `origin`, `colors`, `size`, `ttl`.',
+        'Fires a confetti burst. Options: `count`, `spread`, `angle` (90 = up, 0 = right), `velocity`, `gravity`, `drag`, `origin`, `colors`, `size`, `ttl`.',
       type: 'service method',
       default: '—',
     },

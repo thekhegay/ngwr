@@ -15,6 +15,7 @@ import type { WrConfettiOptions } from './types';
 const DEFAULTS: Required<WrConfettiOptions> = {
   count: 80,
   spread: 60,
+  angle: 90,
   velocity: 12,
   gravity: 0.35,
   drag: 0.92,
@@ -107,8 +108,10 @@ export class WrConfetti {
     const cy = opts.origin.y * win.innerHeight;
     const halfSpread = (opts.spread / 2) * (Math.PI / 180);
     for (let i = 0; i < opts.count; i++) {
-      // Aim upward by default — angle measured from straight up.
-      const angle = -Math.PI / 2 + (Math.random() - 0.5) * 2 * halfSpread;
+      // Launch direction: 90° = up (default), 0° = right — same convention
+      // as canvas-confetti. Jitter spreads the cone around it.
+      const base = (-opts.angle * Math.PI) / 180;
+      const angle = base + (Math.random() - 0.5) * 2 * halfSpread;
       const speed = opts.velocity * (0.6 + Math.random() * 0.8);
       this.particles.push({
         x: cx,

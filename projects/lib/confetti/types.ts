@@ -11,6 +11,8 @@ export interface WrConfettiOptions {
   readonly count?: number;
   /** Spread cone in degrees. @default 60 */
   readonly spread?: number;
+  /** Launch direction in degrees — 90 is straight up, 0 fires right. @default 90 */
+  readonly angle?: number;
   /** Initial particle speed (px/frame). @default 12 */
   readonly velocity?: number;
   /** Particle gravity (px/frame²). @default 0.35 */
