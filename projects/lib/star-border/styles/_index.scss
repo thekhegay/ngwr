@@ -1,0 +1,107 @@
+// Star border (reactbits port). Two oversized radial-gradient "comets"
+// sweep along the top and bottom edges of the rounded container; the
+// projected content sits on a token-themed inner panel above them.
+
+.wr-star-border {
+  // Light surfaces get a primary comet; dark theme flips to the classic
+  // white (see block below). `[color]` overrides both inline.
+  --wr-star-border-color: var(--wr-color-primary);
+  --wr-star-border-speed: 6s;
+  --wr-star-border-radius: 20px;
+
+  display: inline-block;
+  position: relative;
+  border: 0;
+  background: transparent;
+  border-radius: var(--wr-star-border-radius);
+  overflow: hidden;
+  cursor: inherit;
+
+  &__ray {
+    position: absolute;
+    display: block;
+    width: 300%;
+    height: 50%;
+    opacity: 0.7;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--wr-star-border-color), transparent 10%);
+    animation: wr-star-border-bottom var(--wr-star-border-speed) linear infinite alternate;
+    z-index: 0;
+
+    &--bottom {
+      bottom: -12px;
+      right: -250%;
+    }
+
+    &--top {
+      top: -12px;
+      left: -250%;
+      animation-name: wr-star-border-top;
+    }
+  }
+
+  // Single-ray variant — drop the top comet.
+  &--single &__ray--top {
+    display: none;
+  }
+
+  // Hover-only variant — rays sit hidden + paused until the pointer is in.
+  &--hover &__ray {
+    opacity: 0;
+    animation-play-state: paused;
+    transition: opacity 0.4s ease;
+  }
+
+  &--hover:hover &__ray {
+    opacity: 0.7;
+    animation-play-state: running;
+  }
+
+  &__inner {
+    position: relative;
+    display: block;
+    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-white);
+    color: var(--wr-color-dark);
+    font-size: 1rem;
+    text-align: center;
+    padding: 1rem 1.625rem;
+    border-radius: var(--wr-star-border-radius);
+    z-index: 1;
+  }
+}
+
+[data-theme='dark'] .wr-star-border {
+  --wr-star-border-color: #ffffff;
+}
+
+@keyframes wr-star-border-bottom {
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-100%, 0%);
+    opacity: 0;
+  }
+}
+
+@keyframes wr-star-border-top {
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(100%, 0%);
+    opacity: 0;
+  }
+}
+
+// Reduced motion: no sweeping comets — a frozen ray reads as a smudge,
+// so hide them and keep the panel border as the resting look.
+@media (prefers-reduced-motion: reduce) {
+  .wr-star-border__ray {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}

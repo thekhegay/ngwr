@@ -1,0 +1,31 @@
+<ngwr-doc-page
+  title="Star Border"
+  description="Radial comet rays sweeping along the edges of a rounded container. Run them forever or only on hover, mirrored on both edges or as a single ray."
+  [keywords]="['star-border', 'wr-star-border', 'border animation', 'reactbits']"
+  [labels]="['Animation']"
+>
+  <ngwr-reactbits-credit slug="star-border" category="animations" />
+
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <wr-star-border [mode]="mode()" [rays]="rays()" [speed]="speed()">Star border</wr-star-border>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="As a button"
+    description="The selector also works as an attribute — handy for buttons and links."
+  >
+    <ngwr-doc-playground [code]="snippets.button">
+      <button wr-star-border mode="hover" rays="single" type="button" style="cursor: pointer">Hover me</button>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

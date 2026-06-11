@@ -337,6 +337,9 @@
     "./squircle": {
       "sass": "./squircle/styles/_index.scss"
     },
+    "./star-border": {
+      "sass": "./star-border/styles/_index.scss"
+    },
     "./spinner": {
       "sass": "./spinner/styles/_index.scss"
     },

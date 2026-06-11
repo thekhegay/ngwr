@@ -147,6 +147,7 @@ export const routes = {
     tiltCard: 'tilt-card',
     clickSpark: 'click-spark',
     waves: 'waves',
+    starBorder: 'star-border',
     splitText: 'split-text',
     blurText: 'blur-text',
     shinyText: 'shiny-text',

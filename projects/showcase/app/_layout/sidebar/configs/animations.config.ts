@@ -32,6 +32,7 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Border Glow', url: ['/animations', 'border-glow'] },
       { title: 'Spotlight Card', url: ['/animations', 'spotlight-card'] },
       { title: 'Tilt Card', url: ['/animations', 'tilt-card'] },
+      { title: 'Star Border', url: ['/animations', 'star-border'] },
       { title: 'Marquee', url: ['/animations', 'marquee'] },
     ],
   },
