@@ -75,6 +75,11 @@ const HTML_TRANSFORMS: readonly Transform[] = [
   { pattern: /<wr-count-up-text(\s|>|\/)/g, replacement: '<wr-count-up$1' },
   { pattern: /<\/wr-count-up-text>/g, replacement: '</wr-count-up>' },
 
+  // wr-select's deprecated [multi] alias → mode="multi"
+  { pattern: /(<wr-select\b[^>]*?)\s\[multi\]="true"/g, replacement: '$1 mode="multi"' },
+  { pattern: /(<wr-select\b[^>]*?)\s\[multi\]="false"/g, replacement: '$1' },
+  { pattern: /(<wr-select\b[^>]*?)\smulti(?=[\s>/])/g, replacement: '$1 mode="multi"' },
+
   // wr-image → wr-lightbox (rename — same surface)
   { pattern: /<wr-image(\s|>|\/)/g, replacement: '<wr-lightbox$1' },
   { pattern: /<\/wr-image>/g, replacement: '</wr-lightbox>' },

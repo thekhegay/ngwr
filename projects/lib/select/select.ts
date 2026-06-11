@@ -129,23 +129,11 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
    * - `'search'` *(planned)* — type-ahead with sync filter or async loader.
    * - `'tag'` *(planned)* — free-text + chips with optional `allowCreate`.
    *
-   * The `[multi]` boolean below is a deprecated alias kept for backward
-   * compatibility — prefer `[mode]="'multi'"`.
    */
   readonly mode = input<WrSelectMode | null>(null);
 
-  /**
-   * @deprecated Use `[mode]="'multi'"` instead. Boolean kept for backward
-   * compatibility — if both are set, `[mode]` wins.
-   */
-  readonly multi = input(false, { transform: coerceBooleanProperty });
-
-  /** Resolved mode. Honours `[mode]` first, then falls back to the legacy `[multi]` boolean. */
-  protected readonly effectiveMode = computed<WrSelectMode>(() => {
-    const m = this.mode();
-    if (m) return m;
-    return this.multi() ? 'multi' : 'single';
-  });
+  /** Resolved mode — `'single'` unless `[mode]` says otherwise. */
+  protected readonly effectiveMode = computed<WrSelectMode>(() => this.mode() ?? 'single');
 
   /** Convenience — `effectiveMode() === 'multi'`. */
   protected readonly isMulti = computed(() => this.effectiveMode() === 'multi');
