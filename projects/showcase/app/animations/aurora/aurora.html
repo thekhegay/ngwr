@@ -1,17 +1,28 @@
 <ngwr-doc-page
   title="Aurora"
-  description="Animated aurora-style gradient backdrop. Use as a hero / section background."
-  [keywords]="['aurora', 'wr-aurora', 'background', 'animation']"
+  description="Flowing northern-lights ribbons rendered with a WebGL2 simplex-noise shader, ramped across three colour stops. Use as a hero / section background."
+  [keywords]="['aurora', 'wr-aurora', 'background', 'animation', 'reactbits', 'webgl']"
   [labels]="['Animation']"
 >
+  <ngwr-reactbits-credit slug="aurora" category="backgrounds" />
+
   <ngwr-doc-section title="Import">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Playground">
-    <ngwr-doc-playground [code]="snippet">
-      <div style="position: relative; width: 100%; height: 12rem; border-radius: 0.75rem; overflow: hidden">
-        <wr-aurora />
+    <ngwr-doc-playground [code]="snippet()" [controls]="controls">
+      <div
+        style="
+          position: relative;
+          width: 100%;
+          height: 18rem;
+          border-radius: 0.75rem;
+          overflow: hidden;
+          background: #0b1120;
+        "
+      >
+        <wr-aurora [colorStops]="colorStops()" [amplitude]="amplitude()" [blend]="blend()" [speed]="speed()" />
       </div>
     </ngwr-doc-playground>
   </ngwr-doc-section>
