@@ -3,40 +3,28 @@
 :host {
   --ngwr-sidebar-width: 14rem;
 
-  position: sticky;
+  // Below `md` the host renders inside the layout's wr-drawer and just
+  // fills the panel; the sticky-column chrome is desktop-only.
+  display: block;
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
-  height: calc(100vh - var(--ngwr-header-height, 4rem));
-  top: var(--ngwr-header-height, 4rem);
-
-  align-self: start;
-  width: var(--ngwr-sidebar-width);
-
-  border-right: 1px solid var(--wr-color-light-lighter);
 
   padding: 1.5rem 0.75rem 2rem;
+
+  @include bp.media-up(md) {
+    position: sticky;
+    height: calc(100vh - var(--ngwr-header-height, 4rem));
+    top: var(--ngwr-header-height, 4rem);
+
+    align-self: start;
+    width: var(--ngwr-sidebar-width);
+
+    border-right: 1px solid var(--wr-color-light-lighter);
+  }
 }
 
 .ngwr-sidebar {
-  @include bp.media-down(md) {
-    position: fixed;
-    top: var(--ngwr-header-height, 4rem);
-    left: 0;
-    z-index: 15;
-    width: min(20rem, 100vw);
-    max-width: 100vw;
-    height: calc(100vh - var(--ngwr-header-height, 4rem));
-    background: var(--wr-color-white);
-    border-right: 1px solid var(--wr-color-light);
-    transform: translateX(-100%);
-    transition: transform var(--wr-transition-base);
-  }
-
-  &--opened {
-    @include bp.media-down(md) {
-      transform: translateX(0);
-    }
-  }
-
   &__inner {
     display: flex;
     flex-direction: column;

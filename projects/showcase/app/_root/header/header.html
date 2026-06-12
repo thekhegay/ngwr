@@ -46,5 +46,39 @@
         <wr-icon [name]="action.icon" />
       </a>
     }
+
+    <button
+      type="button"
+      class="ngwr-header__action ngwr-header__action--burger"
+      aria-label="Open navigation"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="menuOpen.set(true)"
+    >
+      <wr-icon name="menu" />
+    </button>
   </div>
 </header>
+
+<wr-drawer [(open)]="menuOpen" position="right" width="min(17rem, 85vw)">
+  <nav class="ngwr-header__sheet" aria-label="Primary, mobile">
+    @for (link of nav; track $index) {
+      <a
+        class="ngwr-header__sheet-link"
+        [routerLink]="link.url"
+        routerLinkActive="ngwr-header__sheet-link--active"
+        (click)="menuOpen.set(false)"
+      >
+        {{ link.label }}
+      </a>
+    }
+
+    <div class="ngwr-header__sheet-divider" role="presentation"></div>
+
+    @for (action of actions; track action.url) {
+      <a class="ngwr-header__sheet-link" [href]="action.url" target="_blank" rel="noopener noreferrer">
+        <wr-icon [name]="action.icon" />
+        {{ action.label }}
+      </a>
+    }
+  </nav>
+</wr-drawer>

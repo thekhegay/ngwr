@@ -72,6 +72,11 @@
     justify-content: flex-start;
     gap: 0.5rem;
 
+    // Twelve links don't fit under ~1200px — the burger sheet takes over.
+    @include bp.media-down(xl) {
+      display: none;
+    }
+
     &-link {
       --ngwr-header-nav-link-color: var(--wr-color-dark);
       --ngwr-header-nav-link-bg: transparent;
@@ -191,7 +196,8 @@
       }
     }
 
-    &--theme {
+    &--theme,
+    &--burger {
       // Strip the default <button> chrome so it matches the anchor
       // siblings (GitHub / npm).
       appearance: none;
@@ -209,6 +215,57 @@
         outline: 2px solid var(--wr-color-primary);
         outline-offset: 2px;
       }
+    }
+
+    &--burger {
+      display: none;
+
+      @include bp.media-down(xl) {
+        display: inline-flex;
+      }
+    }
+  }
+
+  // Mobile nav sheet (inside the burger drawer).
+  &__sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 1rem 0.75rem;
+
+    &-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      color: var(--wr-color-dark);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      line-height: 1.25rem;
+
+      border-radius: 0.375rem;
+      padding: 0.625rem 0.75rem;
+
+      transition: var(--wr-transition-base);
+
+      --wr-icon-size: 1rem;
+
+      &:hover {
+        color: var(--wr-color-primary);
+        background: rgba(var(--wr-color-primary-rgb), 0.1);
+      }
+
+      &--active,
+      &--active:hover {
+        color: var(--wr-color-medium);
+        background: rgba(var(--wr-color-light-rgb), 0.3);
+      }
+    }
+
+    &-divider {
+      height: 1px;
+      margin: 0.5rem 0.75rem;
+      background: var(--wr-color-light-lighter);
     }
   }
 
