@@ -15,4 +15,4 @@
  * Distinct from `Version` exported by `@angular/core`, which reports the
  * loaded Angular runtime version (e.g. `'21.2.13'`), not ngwr's.
  */
-export const NGWR_VERSION = '6.1.1';
+export const NGWR_VERSION = '7.0.0';
