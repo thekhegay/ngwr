@@ -149,9 +149,8 @@
     &-avatar {
       flex: 0 0 auto;
       width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
-      background: rgba(var(--wr-color-light-rgb), 0.6);
+      --wr-skeleton-height: 2.5rem;
+      --wr-skeleton-radius: 50%;
     }
 
     &-lines {
@@ -162,9 +161,8 @@
     }
 
     &-line {
-      height: 0.5rem;
-      border-radius: 999px;
-      background: rgba(var(--wr-color-light-rgb), 0.6);
+      --wr-skeleton-height: 0.5rem;
+      --wr-skeleton-radius: 999px;
 
       &--xs {
         width: 35%;

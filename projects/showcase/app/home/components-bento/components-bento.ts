@@ -21,6 +21,7 @@ import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrInput, WrInputGroup, WrInputPrefix } from 'ngwr/input';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+import { WrSkeleton } from 'ngwr/skeleton';
 import { WrSwitch } from 'ngwr/switch';
 import { WrTab, WrTabs } from 'ngwr/tabs';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
@@ -39,6 +40,7 @@ import { WrTypography } from 'ngwr/typography';
     WrButton,
     WrCheckbox,
     WrCounter,
+    WrSkeleton,
     WrEmpty,
     WrFormField,
     WrIcon,
