@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
-import { WrLoadingBar } from './loading-bar';
+import { WrLoadingBar } from './services/loading-bar';
 
 /**
  * Thin progress bar fixed to the top of the viewport.

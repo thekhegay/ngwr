@@ -7,7 +7,7 @@
 
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
-import { WrWindowManager } from './window-manager';
+import { WrWindowManager } from './services/window-manager';
 import type { WrWindowRef } from './window-ref';
 
 /**

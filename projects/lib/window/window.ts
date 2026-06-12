@@ -30,7 +30,7 @@ import type {
   WrWindowSnapTarget,
   WrWindowState,
 } from './interfaces';
-import { WrWindowManager } from './window-manager';
+import { WrWindowManager } from './services/window-manager';
 
 /**
  * Best-effort OS detection — runs once at module load. Looks at the

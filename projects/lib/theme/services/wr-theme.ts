@@ -11,7 +11,7 @@ import { Service, type Signal, computed, effect, inject, signal } from '@angular
 import { WrPlatform } from 'ngwr/platform';
 import { WrStorage } from 'ngwr/storage';
 
-import { WR_THEME_CONFIG, type WrResolvedTheme, type WrThemeMode } from './wr-theme-config';
+import { WR_THEME_CONFIG, type WrResolvedTheme, type WrThemeMode } from '../wr-theme-config';
 
 const VALID_MODES: readonly WrThemeMode[] = ['light', 'dark', 'auto'];
 

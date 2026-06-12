@@ -11,10 +11,10 @@ import { type ComponentRef, Service, inject } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
-import type { WrToastOptions, WrToastPosition } from './interfaces';
-import { WrToastHost } from './toast-host';
-import { WrToastRef } from './toast-ref';
-import { WR_TOAST_CONFIG } from './tokens';
+import type { WrToastOptions, WrToastPosition } from '../interfaces';
+import { WrToastHost } from '../toast-host';
+import { WrToastRef } from '../toast-ref';
+import { WR_TOAST_CONFIG } from '../tokens';
 
 type ActiveEntry = WrToastOptions & {
   readonly id: number;

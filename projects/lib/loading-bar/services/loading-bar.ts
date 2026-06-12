@@ -11,7 +11,7 @@ import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Rout
 
 import { filter } from 'rxjs';
 
-import type { WrLoadingState } from './interfaces';
+import type { WrLoadingState } from '../interfaces';
 
 /**
  * Singleton state machine for a top-of-page progress indicator. Driven
@@ -126,4 +126,4 @@ export class WrLoadingBar {
   }
 }
 
-export type { WrLoadingState } from './interfaces';
+export type { WrLoadingState } from '../interfaces';
