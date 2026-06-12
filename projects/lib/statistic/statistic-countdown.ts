@@ -43,7 +43,7 @@ function formatRemaining(ms: number, fmt: string): string {
   // → `1 day42 11:59:42` because the `/s/g` step at the end re-matched
   // the literal `s` inside `days`. Longest-token-first ordering inside
   // the alternation handles `DD`>`D`, `HH`>`H`, `mm`>`m`, `SSS`>`ss`>`s`.
-  return fmt.replace(/SSS|DD|HH|mm|ss|D|H|m|s/g, token => {
+  return fmt.replace(/(?<![A-Za-z])(?:SSS|DD|HH|mm|ss|D|H|m|s)(?![A-Za-z])/g, token => {
     switch (token) {
       case 'DD':
         return pad(days, 2);
