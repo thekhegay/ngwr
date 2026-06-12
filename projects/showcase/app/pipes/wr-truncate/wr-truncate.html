@@ -8,11 +8,24 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Usage">
-    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+  <ngwr-doc-section title="Basic usage" description="Strings shorter than the limit pass through untouched.">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div>{{ longText() | wrTruncate: 20 }}</div>
+      <div>{{ longText() | wrTruncate: 24 }}</div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom ellipsis" description="Third argument replaces the default `…`.">
+    <ngwr-doc-code [code]="snippets.ellipsis" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ longText() | wrTruncate: 24 : ' [more]' }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ text() | wrTruncate: length() : ellipsis() }}</p>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

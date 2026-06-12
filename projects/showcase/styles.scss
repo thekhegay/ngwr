@@ -55,3 +55,28 @@ button {
     text-decoration-color: var(--wr-color-primary);
   }
 }
+
+// Pipe demo helpers — big result line in playgrounds and the named-key
+// table on the wrDate page.
+.ngwr-pipe-output {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--wr-color-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.ngwr-pipe-table {
+  border-collapse: collapse;
+
+  td {
+    padding: 0.375rem 1.5rem 0.375rem 0;
+    border-bottom: 1px solid rgba(var(--wr-color-light-rgb), 0.6);
+    color: var(--wr-color-dark);
+    font-size: 0.875rem;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+}

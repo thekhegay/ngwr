@@ -8,14 +8,29 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Usage">
-    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+  <ngwr-doc-section title="Basic usage">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div>{{ bytes() | wrBytes }}</div>
+      <div>{{ 532 | wrBytes }} · {{ 123456 | wrBytes }} · {{ 1234567890 | wrBytes }}</div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Decimals" description="Second argument controls the fraction digits.">
+    <ngwr-doc-code [code]="snippets.decimals" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ 1234567 | wrBytes: 0 }} · {{ 1234567 | wrBytes: 2 }} · {{ 1234567 | wrBytes: 3 }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ bytes() | wrBytes: decimals() }}</p>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

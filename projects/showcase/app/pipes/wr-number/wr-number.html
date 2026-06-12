@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="wrNumber"
-  description="Locale-aware number formatting via Intl.NumberFormat. Uses Angular's LOCALE_ID. Accepts a style shortcut ('decimal' | 'percent' | 'currency') with optional currency code, or a full Intl.NumberFormatOptions object."
+  description="Locale-aware number formatting via `Intl.NumberFormat`. Uses Angular's `LOCALE_ID`. Accepts a style shortcut (`'decimal' | 'percent' | 'currency'`) with optional currency code, or a full `Intl.NumberFormatOptions` object."
   [keywords]="['pipe', 'wrNumber', 'number', 'format', 'intl']"
   [labels]="['Pipe']"
 >
@@ -8,14 +8,44 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Usage">
-    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+  <ngwr-doc-section title="Decimal" description="Default style — grouped digits in the active locale.">
+    <ngwr-doc-code [code]="snippets.decimal" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ 1234.5 | wrNumber }} · {{ 9876543.21 | wrNumber }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Percent" description="Multiplies by 100 and appends the locale's percent sign.">
+    <ngwr-doc-code [code]="snippets.percent" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ 0.875 | wrNumber: 'percent' }} · {{ 0.041 | wrNumber: 'percent' }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Currency" description="Pass the ISO 4217 code as the second argument.">
+    <ngwr-doc-code [code]="snippets.currency" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div>
-        {{ amount() | wrNumber }} · {{ 0.875 | wrNumber: 'percent' }} ·
-        {{ amount() | wrNumber: 'currency' : 'USD' }}
+        {{ 19.99 | wrNumber: 'currency' : 'USD' }} · {{ 19.99 | wrNumber: 'currency' : 'EUR' }} ·
+        {{ 250000 | wrNumber: 'currency' : 'UZS' }}
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom options"
+    description="Anything `Intl.NumberFormat` understands — pass the options object directly."
+  >
+    <ngwr-doc-code [code]="snippets.options" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>{{ 19.9 | wrNumber: { minimumFractionDigits: 2 } }} · {{ 1234567 | wrNumber: { notation: 'compact' } }}</div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ amount() | wrNumber: style() : currency() }}</p>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="wrDate"
-  description="Uses WrDateAdapter when provideWrDateAdapter() is wired up; otherwise falls back to Intl.DateTimeFormat with the same named format keys."
+  description="Uses `WrDateAdapter` when `provideWrDateAdapter()` is wired up; otherwise falls back to `Intl.DateTimeFormat` with the same named format keys."
   [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
   [labels]="['Pipe']"
 >
@@ -8,14 +8,46 @@
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Usage">
-    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+  <ngwr-doc-section
+    title="Named keys"
+    description="Six locale-aware presets work with or without an adapter — they map to `Intl` date/time styles."
+  >
+    <ngwr-doc-code [code]="snippets.named" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div>{{ now() | wrDate }} · {{ now() | wrDate: 'mediumDateTime' }} · {{ now() | wrDate: 'dd.MM.yyyy' }}</div>
+      <table class="ngwr-pipe-table">
+        @for (key of namedKeys; track key) {
+          <tr>
+            <td>
+              <code>{{ key }}</code>
+            </td>
+            <td>{{ now() | wrDate: key }}</td>
+          </tr>
+        }
+      </table>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Token strings"
+    description="With an adapter provided, any raw format string the adapter understands passes straight through."
+  >
+    <ngwr-doc-code [code]="snippets.tokens" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div>
+        {{ now() | wrDate: 'dd.MM.yyyy' }} · {{ now() | wrDate: 'EEEE, d MMMM' }} · {{ now() | wrDate: 'HH:mm:ss' }}
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ now() | wrDate: format() }}</p>
+    </ngwr-doc-playground>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>
