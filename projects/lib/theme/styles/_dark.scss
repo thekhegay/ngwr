@@ -33,6 +33,9 @@
   // and shadcn ship for the same job.
   --wr-color-light: #262f44;
   --wr-color-light-rgb: 38, 47, 68;
+  // The baked contrast pairs with the LIGHT value (#cbd5e1 → dark text);
+  // the dark surface above needs light text instead.
+  --wr-color-light-contrast: #e6ebf3;
   // `*-lighter` / `*-darker` are baked at SCSS compile time from the
   // LIGHT palette (slate-300 ± 10% lightness ≈ #e8eef5), so without
   // these overrides the showcase header / sidebar would draw a
