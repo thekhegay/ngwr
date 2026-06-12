@@ -9,14 +9,14 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-utl-types-page',
-  templateUrl: './types.html',
+  selector: 'ngwr-types-common-page',
+  templateUrl: './common.html',
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })
-export default class TypesPage {
-  protected readonly snippet = `import type { Maybe, SafeAny } from 'ngwr/utils';
-
-function findUser(id: string): Maybe<User> {
+export default class CommonTypesPage {
+  protected readonly snippets = {
+    install: `import type { Maybe, SafeAny } from 'ngwr/utils';`,
+    usage: `function findUser(id: string): Maybe<User> {
   return db.get(id) ?? null;
 }
 
@@ -24,7 +24,8 @@ function findUser(id: string): Maybe<User> {
 // unlike \`any\`, the intent is explicit and greppable.
 function fromLegacyBridge(payload: SafeAny): void {
   // narrow before use
-}`;
+}`,
+  };
 
   protected readonly api: readonly DocApiRow[] = [
     {

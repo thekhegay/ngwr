@@ -18,6 +18,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   pipes: 'Pipes',
   services: 'Services',
   translate: 'Translate',
+  types: 'Types',
   typography: 'Typography',
   utils: 'Utils',
   validators: 'Validators',

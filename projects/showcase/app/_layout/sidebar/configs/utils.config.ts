@@ -20,7 +20,6 @@ export const UTILS_SIDEBAR: readonly SidebarGroup[] = [
     title: 'Type guards',
     children: [
       { title: 'isDefined', url: ['/utils', 'is-defined'] },
-      { title: 'types', url: ['/utils', 'types'] },
       { title: 'isNonEmptyArray', url: ['/utils', 'is-non-empty-array'] },
       { title: 'isObservable', url: ['/utils', 'is-observable'] },
     ],

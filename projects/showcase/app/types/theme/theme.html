@@ -1,0 +1,28 @@
+<ngwr-doc-page
+  title="Theme types"
+  description="Unions exported from `ngwr/theme` — the palette names every colored component accepts, and the mode values `WrTheme` works with."
+  [keywords]="['types', 'WrColor', 'WrThemeMode', 'theme']"
+  [labels]="['Type']"
+>
+  <ngwr-doc-section title="Import">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrColor"
+    description="The palette union behind every `[color]` input. Values map 1:1 to the `--wr-color-*` custom properties, so a custom palette automatically flows into components."
+  >
+    <ngwr-doc-code [code]="snippets.color" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      @for (c of colors; track c) {
+        <wr-badge [color]="c">{{ c }}</wr-badge>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="Catalog"
+  description="Every public type ngwr ships, grouped by area. Each links to the page that documents its fields."
+  [keywords]="['types', 'catalog', 'interfaces']"
+  [labels]="['Type']"
+>
+  @for (group of groups; track group.title) {
+    <ngwr-doc-section [title]="group.title">
+      <ul class="ngwr-type-list">
+        @for (t of group.items; track t.name) {
+          <li>
+            <a [routerLink]="t.url"
+              ><code>{{ t.name }}</code></a
+            >
+            <span>{{ t.description }}</span>
+          </li>
+        }
+      </ul>
+    </ngwr-doc-section>
+  }
+</ngwr-doc-page>

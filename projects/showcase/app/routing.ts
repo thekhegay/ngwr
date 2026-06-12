@@ -10,6 +10,7 @@ import {
   SERVICES_SIDEBAR,
   TRANSLATE_SIDEBAR,
   TYPOGRAPHY_SIDEBAR,
+  TYPES_SIDEBAR,
   UTILS_SIDEBAR,
   VALIDATORS_SIDEBAR,
 } from './_layout/sidebar/configs';
@@ -229,6 +230,12 @@ export const routes = {
     interpolation: 'interpolation',
     api: 'api',
   },
+  types: {
+    index: 'types',
+    common: 'common',
+    theme: 'theme',
+    catalog: 'catalog',
+  },
   validators: {
     index: 'validators',
     email: 'email',
@@ -293,6 +300,11 @@ export const routing: Routes = [
         path: routes.utils.index,
         data: { sidebar: UTILS_SIDEBAR },
         loadChildren: () => import('./utils/utils.routing'),
+      },
+      {
+        path: routes.types.index,
+        data: { sidebar: TYPES_SIDEBAR },
+        loadChildren: () => import('./types/types.routing'),
       },
       {
         path: routes.typography.index,
