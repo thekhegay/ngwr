@@ -36,13 +36,11 @@
     text-decoration: none;
     transition:
       border-color var(--wr-transition-base),
-      box-shadow var(--wr-transition-base),
-      transform var(--wr-transition-base);
+      box-shadow var(--wr-transition-base);
 
     &:hover {
       border-color: var(--wr-color-primary);
-      box-shadow: 0 4px 12px rgb(var(--wr-color-primary-rgb) / 8%);
-      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(var(--wr-color-primary-rgb), 0.08);
     }
 
     &:focus-visible {
@@ -55,7 +53,7 @@
     align-self: flex-start;
     padding: 0.0625rem 0.5rem;
     border-radius: var(--wr-border-radius-pill);
-    background: rgb(var(--wr-color-medium-rgb) / 10%);
+    background: rgba(var(--wr-color-medium-rgb), 0.1);
     color: var(--wr-color-medium);
     font-size: 0.6875rem;
     font-weight: 600;
@@ -64,36 +62,36 @@
 
     // Kind-specific tints — purely cosmetic, fall through to the neutral default.
     &[data-kind='Service'] {
-      background: rgb(var(--wr-color-primary-rgb) / 12%);
+      background: rgba(var(--wr-color-primary-rgb), 0.12);
       color: var(--wr-color-primary);
     }
 
     &[data-kind='Component'] {
-      background: rgb(var(--wr-color-success-rgb) / 12%);
+      background: rgba(var(--wr-color-success-rgb), 0.12);
       color: var(--wr-color-success);
     }
 
     &[data-kind='Directive'] {
-      background: rgb(var(--wr-color-warning-rgb) / 16%);
+      background: rgba(var(--wr-color-warning-rgb), 0.16);
       color: var(--wr-color-warning);
     }
 
     &[data-kind='Pipe'] {
-      background: rgb(var(--wr-color-secondary-rgb) / 12%);
+      background: rgba(var(--wr-color-secondary-rgb), 0.12);
       color: var(--wr-color-secondary);
     }
 
     &[data-kind='Validator'] {
-      background: rgb(var(--wr-color-danger-rgb) / 12%);
+      background: rgba(var(--wr-color-danger-rgb), 0.12);
       color: var(--wr-color-danger);
     }
   }
 
   &__name {
     color: var(--wr-color-dark);
-    font-size: 0.9375rem;
+    font-size: 1.0625rem;
     font-weight: 600;
-    font-family: var(--wr-font-family-mono);
+    line-height: 1.5rem;
   }
 
   &__desc {
