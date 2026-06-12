@@ -8,11 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-interface WrHeatmapDatum {
-  /** ISO date string (`YYYY-MM-DD`) or `Date`. */
-  readonly date: string | Date;
-  readonly value: number;
-}
+import type { WrHeatmapDatum } from './interfaces';
 
 interface Cell {
   readonly iso: string;
@@ -156,4 +152,4 @@ export class WrCalendarHeatmap {
   }
 }
 
-export type { WrHeatmapDatum };
+export type { WrHeatmapDatum } from './interfaces';

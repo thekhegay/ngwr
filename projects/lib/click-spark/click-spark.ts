@@ -24,6 +24,8 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import type { WrClickSparkEasing } from './interfaces';
+
 interface Spark {
   readonly x: number;
   readonly y: number;
@@ -188,4 +190,4 @@ export class WrClickSpark {
   }
 }
 
-export type WrClickSparkEasing = 'linear' | 'ease-in' | 'ease-in-out' | 'ease-out';
+export type { WrClickSparkEasing } from './interfaces';

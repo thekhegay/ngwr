@@ -7,8 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-/** Built-in status — picks the default icon + accent colour. */
-export type WrResultStatus = 'success' | 'warning' | 'error' | 'info' | 'empty';
+import type { WrResultStatus } from './interfaces';
 
 /**
  * Large-illustration result / empty-state. Use after a successful action,
@@ -40,3 +39,5 @@ export class WrResult {
 
   protected readonly classes = computed(() => `wr-result wr-result--${this.status()}`);
 }
+
+export type { WrResultStatus } from './interfaces';

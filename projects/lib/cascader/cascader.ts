@@ -29,19 +29,9 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
-let panelUid = 0;
+import type { WrCascaderOption } from './interfaces';
 
-/** One node in the cascader tree. */
-export interface WrCascaderOption<T = string> {
-  /** Value contributed when this node is part of the selection path. */
-  readonly value: T;
-  /** Display label for this node. */
-  readonly label: string;
-  /** Disable interaction for this node. @default false */
-  readonly disabled?: boolean;
-  /** Children. Absence (or empty array) marks this as a leaf. */
-  readonly children?: readonly WrCascaderOption<T>[];
-}
+let panelUid = 0;
 
 /**
  * Multi-level select — drills down through hierarchical categories
@@ -307,3 +297,5 @@ export class WrCascader<T = string> implements ControlValueAccessor {
     this.overlayRef = null;
   }
 }
+
+export type { WrCascaderOption } from './interfaces';

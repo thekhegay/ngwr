@@ -31,6 +31,8 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import type { WrTypewriterVariableSpeed } from './interfaces';
+
 /**
  * Classic typewriter — types out a string char-by-char, optionally
  * deletes it, then types the next string. Cycles through `[texts]` (or
@@ -248,7 +250,4 @@ export class WrTypewriter {
   }
 }
 
-export interface WrTypewriterVariableSpeed {
-  readonly min: number;
-  readonly max: number;
-}
+export type { WrTypewriterVariableSpeed } from './interfaces';

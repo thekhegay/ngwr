@@ -11,14 +11,7 @@ import { Component, DestroyRef, NgZone, ViewEncapsulation, computed, inject, inp
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
 
-/** One entry in a {@link WrAnchor}. */
-export interface WrAnchorLink {
-  /** id of the target element (without `#`). */
-  readonly id: string;
-  readonly label: string;
-  /** Optional nested links (single level of nesting supported). */
-  readonly children?: readonly WrAnchorLink[];
-}
+import type { WrAnchorLink } from './interfaces';
 
 /**
  * Scroll-spy in-page navigation. Renders a list of links to elements on
@@ -102,3 +95,5 @@ export class WrAnchor {
     this.activeId.set(id);
   }
 }
+
+export type { WrAnchorLink } from './interfaces';

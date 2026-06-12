@@ -8,8 +8,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Service, inject } from '@angular/core';
 
-/** Outcome of a clipboard read or permission probe. */
-export type WrClipboardPermission = 'granted' | 'denied' | 'prompt' | 'unsupported';
+import type { WrClipboardPermission } from './interfaces';
 
 /**
  * Programmatic clipboard read / write.
@@ -117,3 +116,5 @@ export class WrClipboard {
     }
   }
 }
+
+export type { WrClipboardPermission } from './interfaces';

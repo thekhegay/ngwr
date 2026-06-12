@@ -17,6 +17,8 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { numAttr } from 'ngwr/utils';
 
+import type { WrGradientTextDirection } from './interfaces';
+
 const DEFAULT_COLORS: readonly string[] = ['#5227FF', '#FF9FFC', '#B497CF'];
 
 /**
@@ -108,4 +110,4 @@ export class WrGradientText {
   }
 }
 
-export type WrGradientTextDirection = 'horizontal' | 'vertical' | 'diagonal';
+export type { WrGradientTextDirection } from './interfaces';

@@ -10,17 +10,7 @@ import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angula
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, TemplateRef, ViewEncapsulation, contentChild, input, model, output } from '@angular/core';
 
-/** Payload emitted whenever the user finishes a reorder. */
-export interface WrSortableReorderEvent<T> {
-  /** The new items array after the move. */
-  readonly items: readonly T[];
-  /** Index the item was dragged from. */
-  readonly previousIndex: number;
-  /** Index the item was dropped at. */
-  readonly currentIndex: number;
-  /** Convenience handle for the dropped item. */
-  readonly item: T;
-}
+import type { WrSortableReorderEvent } from './interfaces';
 
 /**
  * Drag-to-reorder list. Wraps CDK's `cdkDropList` + `cdkDrag` with a
@@ -87,3 +77,5 @@ export class WrSortableList<T = unknown> {
     });
   }
 }
+
+export type { WrSortableReorderEvent } from './interfaces';

@@ -8,11 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-interface WrDonutSegment {
-  readonly label: string;
-  readonly value: number;
-  readonly color?: string;
-}
+import type { WrDonutSegment } from './interfaces';
 
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',
@@ -136,4 +132,4 @@ export class WrDonutChart {
   }
 }
 
-export type { WrDonutSegment };
+export type { WrDonutSegment } from './interfaces';

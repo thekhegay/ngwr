@@ -30,6 +30,8 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import type { WrFallingTextTrigger } from './interfaces';
+
 interface Body {
   el: HTMLElement;
   x: number; // centre x
@@ -351,4 +353,4 @@ export class WrFallingText {
   }
 }
 
-export type WrFallingTextTrigger = 'auto' | 'scroll' | 'hover' | 'click';
+export type { WrFallingTextTrigger } from './interfaces';

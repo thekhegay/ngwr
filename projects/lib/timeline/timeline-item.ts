@@ -7,8 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-/** Built-in dot colours. */
-export type WrTimelineColor = 'primary' | 'success' | 'warning' | 'danger' | 'medium';
+import type { WrTimelineColor } from './interfaces';
 
 /**
  * One event in a {@link WrTimeline}. Project content for the
@@ -27,3 +26,5 @@ export class WrTimelineItem {
 
   protected readonly classes = computed(() => `wr-timeline-item wr-timeline-item--${this.color()}`);
 }
+
+export type { WrTimelineColor } from './interfaces';

@@ -30,6 +30,8 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import type { WrFuzzyTextDirection } from './interfaces';
+
 /**
  * Canvas-rendered "fuzzy" text — each row/column of glyphs is offset by
  * a random amount per frame, giving the text a TV-static or motion-blur
@@ -405,4 +407,4 @@ export class WrFuzzyText {
   }
 }
 
-export type WrFuzzyTextDirection = 'horizontal' | 'vertical' | 'both';
+export type { WrFuzzyTextDirection } from './interfaces';

@@ -8,6 +8,8 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
+import type { WrLineSeries } from './interfaces';
+
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',
   'var(--wr-color-secondary)',
@@ -15,12 +17,6 @@ const FALLBACK_COLORS = [
   'var(--wr-color-warning)',
   'var(--wr-color-danger)',
 ];
-
-export interface WrLineSeries {
-  readonly label: string;
-  readonly data: readonly number[];
-  readonly color?: string;
-}
 
 /**
  * Multi-series line chart with axes, gridlines, and a hover tooltip.
@@ -180,3 +176,5 @@ export class WrLineChart {
   // Convenience accessor so the host can be referenced from the template.
   protected readonly hostEl = this.host.nativeElement;
 }
+
+export type { WrLineSeries } from './interfaces';

@@ -8,12 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-/** One bar's worth of data. */
-export interface WrBarChartDatum {
-  readonly label: string;
-  readonly value: number;
-  readonly color?: string;
-}
+import type { WrBarChartDatum } from './interfaces';
 
 /**
  * Minimal vertical bar chart. Pass `[data]` — each datum becomes a bar.
@@ -69,3 +64,5 @@ export class WrBarChart {
     }))
   );
 }
+
+export type { WrBarChartDatum } from './interfaces';

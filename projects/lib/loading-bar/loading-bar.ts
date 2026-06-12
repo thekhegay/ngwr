@@ -11,8 +11,7 @@ import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Rout
 
 import { filter } from 'rxjs';
 
-/** Public state of the loading bar. */
-export type WrLoadingState = 'idle' | 'running' | 'completing';
+import type { WrLoadingState } from './interfaces';
 
 /**
  * Singleton state machine for a top-of-page progress indicator. Driven
@@ -126,3 +125,5 @@ export class WrLoadingBar {
     }, 220);
   }
 }
+
+export type { WrLoadingState } from './interfaces';
