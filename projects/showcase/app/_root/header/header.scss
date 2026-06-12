@@ -155,15 +155,17 @@
       }
 
       // GitHub brand black (#24292e) sits ~on the dark canvas (#0b1120)
-      // → invisible. Flip the resting silhouette to the foreground
-      // token (light in dark mode), and mirror the hover surface/glyph
-      // pair the same way the light-mode rule does.
-      [data-theme='dark'] & {
-        --ngwr-header-action-icon-color: var(--wr-color-dark);
+      // → invisible. Rest the silhouette on plain white (literal — the
+      // --wr-color-white token flips to the canvas color in dark mode),
+      // and mirror the hover surface/glyph pair the light-mode rule uses.
+      // :host-context, not `[data-theme] &` — the theme attribute lives
+      // on <html>, outside this component's encapsulation scope.
+      :host-context([data-theme='dark']) & {
+        --ngwr-header-action-icon-color: #fff;
 
         &:hover {
           --ngwr-header-action-icon-color: #24292e;
-          --ngwr-header-action-icon-bg: var(--wr-color-dark);
+          --ngwr-header-action-icon-bg: #fff;
         }
       }
     }
@@ -179,7 +181,7 @@
       // npm brand red is dark enough that its chroma reads as muddy
       // against the slate-900-ish canvas. Lift the resting glyph to
       // a brighter red; hover keeps the brand-red surface.
-      [data-theme='dark'] & {
+      :host-context([data-theme='dark']) & {
         --ngwr-header-action-icon-color: #ff5050;
 
         &:hover {
