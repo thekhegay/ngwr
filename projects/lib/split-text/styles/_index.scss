@@ -1,6 +1,10 @@
 .wr-split-text {
   display: inline-block;
   overflow: hidden;
+  // The overflow mask clips descenders (y, g, p) at tight line heights —
+  // trade a little internal padding for glyph room without moving layout.
+  padding-bottom: 0.15em;
+  margin-bottom: -0.15em;
   white-space: normal;
   overflow-wrap: break-word;
   will-change: transform, opacity;
