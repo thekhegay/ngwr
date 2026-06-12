@@ -27,16 +27,19 @@
     animation: wr-skeleton-shimmer 2s infinite;
   }
 
+  // Tint strength: 12.5% reads as "nothing" on a white card — the
+  // placeholder has to be obviously present, so the base sits at 50%
+  // with the shimmer band sweeping visibly above it.
   @each $name in theme.$colors {
     &--#{$name} {
-      background: rgba(var(--wr-color-#{$name}-rgb), 0.125);
+      background: rgba(var(--wr-color-#{$name}-rgb), 0.5);
 
       &::after {
         background-image: linear-gradient(
           90deg,
           rgba(var(--wr-color-#{$name}-rgb), 0) 0,
-          rgba(var(--wr-color-#{$name}-rgb), 0.125) 20%,
-          rgba(var(--wr-color-#{$name}-rgb), 0.25) 60%,
+          rgba(var(--wr-color-#{$name}-rgb), 0.4) 20%,
+          rgba(var(--wr-color-#{$name}-rgb), 0.8) 60%,
           rgba(var(--wr-color-#{$name}-rgb), 0)
         );
       }
