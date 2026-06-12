@@ -1,6 +1,9 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { WrBadge } from 'ngwr/badge';
+import type { WrColor } from 'ngwr/theme';
+
 import { DocRichPipe } from '../doc-rich/doc-rich';
 
 import { MetaService } from '#core/services';
@@ -46,7 +49,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  * ```
  */
 @Component({
-  imports: [DocRichPipe],
+  imports: [DocRichPipe, WrBadge],
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
@@ -88,6 +91,10 @@ export class DocPageComponent {
       const keywords = this.keywords();
       if (keywords.length) this.meta.setKeywords([...keywords]);
     });
+  }
+
+  protected labelColor(label: string): WrColor {
+    return label === 'Experimental' ? 'danger' : 'light';
   }
 
   private deriveCategoryFromUrl(): string {
