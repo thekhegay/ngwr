@@ -18,7 +18,11 @@
     display: flex;
     align-items: stretch;
     gap: 0.25rem;
-    border-bottom: 1px solid var(--wr-tabs-border);
+    // The hairline is an inset shadow, not `border-bottom` — the strip
+    // clips overflow (see below), which would cut off tabs pulled down
+    // with a negative margin; the shadow lets the active indicator paint
+    // directly over the line instead.
+    box-shadow: inset 0 -1px 0 var(--wr-tabs-border);
     // `overflow-x: auto` alone reserves space for a vertical scrollbar in
     // browsers that don't use overlay scrollbars (Firefox/some Safari) —
     // showing a stray vertical bar on the right of the strip. Force-hide
@@ -33,7 +37,6 @@
     border: 0;
     text-decoration: none;
     padding: 0.625rem 1rem;
-    margin-bottom: -1px;
     color: var(--wr-tabs-color);
     font: inherit;
     font-size: 0.875rem;
