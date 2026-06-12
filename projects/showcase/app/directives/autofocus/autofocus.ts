@@ -32,10 +32,6 @@ export default class AutofocusPage {
 
   /** Re-trigger even when focus was lost by clicking elsewhere — a plain
    * boolean toggle would need two clicks to come back around to `true`. */
-  protected focusInput(): void {
-    this.autofocusOn.set(false);
-    queueMicrotask(() => this.autofocusOn.set(true));
-  }
 
   protected readonly snippets = {
     install: `import { WrButton } from 'ngwr/button';

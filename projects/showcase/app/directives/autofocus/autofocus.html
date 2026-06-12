@@ -12,8 +12,14 @@
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap">
-        <wr-btn (click)="focusInput()">Focus input</wr-btn>
-        <input wrInput [wrAutofocus]="autofocusOn()" placeholder="I focus when toggled on" style="max-width: 18rem" />
+        <wr-btn (click)="demoInput.focus()">Focus input</wr-btn>
+        <input
+          #demoInput
+          wrInput
+          [wrAutofocus]="autofocusOn()"
+          placeholder="I focus when toggled on"
+          style="max-width: 18rem"
+        />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

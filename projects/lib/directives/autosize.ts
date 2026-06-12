@@ -6,7 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { Directive, ElementRef, afterNextRender, effect, inject, input } from '@angular/core';
+import { Directive, ElementRef, afterEveryRender, effect, inject, input } from '@angular/core';
 
 /**
  * Auto-grow a `<textarea>` to fit its content. Optional `minRows` /
@@ -27,8 +27,19 @@ export class WrAutosize {
 
   private readonly el = inject<ElementRef<HTMLTextAreaElement>>(ElementRef);
 
+  private lastValue: string | null = null;
+
   constructor() {
-    afterNextRender(() => this.resize());
+    // Typing fires `input`, but `[(ngModel)]` / `setValue` write the value
+    // without one — a cheap per-render value check catches both, including
+    // the initial write that lands after the first render.
+    afterEveryRender(() => {
+      const value = this.el.nativeElement.value;
+      if (value !== this.lastValue) {
+        this.lastValue = value;
+        this.resize();
+      }
+    });
     // Resize when `minRows` / `maxRows` change.
     effect(() => {
       this.minRows();
@@ -39,6 +50,7 @@ export class WrAutosize {
 
   /** @internal */
   protected onInput(): void {
+    this.lastValue = this.el.nativeElement.value;
     this.resize();
   }
 
