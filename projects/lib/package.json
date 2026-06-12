@@ -2,7 +2,7 @@
   "name": "ngwr",
   "version": "6.1.1",
   "license": "MIT",
-  "description": "NGWR – Angular UI components library",
+  "description": "NGWR \u2013 Angular UI components library",
   "author": "Roman Khegay <rk@garuna.dev> (https://garuna.dev)",
   "keywords": [
     "ngwr",
@@ -76,7 +76,6 @@
     "./animations": {
       "sass": "./styles/_animations.scss"
     },
-    "./scroll": {},
     "./affix": {
       "sass": "./affix/styles/_index.scss"
     },
@@ -89,7 +88,6 @@
     "./aurora": {
       "sass": "./aurora/styles/_index.scss"
     },
-    "./count-up": {},
     "./counter": {
       "sass": "./counter/styles/_index.scss"
     },
@@ -132,7 +130,6 @@
     "./cascader": {
       "sass": "./cascader/styles/_index.scss"
     },
-    "./clipboard": {},
     "./checkbox": {
       "sass": "./checkbox/styles/_index.scss"
     },
@@ -148,21 +145,15 @@
     "./color-picker": {
       "sass": "./color-picker/styles/_index.scss"
     },
-    "./confetti": {},
     "./command-palette": {
       "sass": "./command-palette/styles/_index.scss"
     },
     "./compare": {
       "sass": "./compare/styles/_index.scss"
     },
-    "./cookie": {},
     "./context-menu": {
       "sass": "./context-menu/styles/_index.scss"
     },
-    "./date-adapter": {},
-    "./date-adapter-fns": {},
-    "./date-adapter-luxon": {},
-    "./directives": {},
     "./date-picker": {
       "sass": "./date-picker/styles/_index.scss"
     },
@@ -202,7 +193,6 @@
     "./form": {
       "sass": "./form/styles/_index.scss"
     },
-    "./fuzzy-text": {},
     "./gauge": {
       "sass": "./gauge/styles/_index.scss"
     },
@@ -212,16 +202,12 @@
     "./gradient-text": {
       "sass": "./gradient-text/styles/_index.scss"
     },
-    "./hotkey": {},
     "./icon": {
       "sass": "./icon/styles/_index.scss"
     },
     "./image-cropper": {
       "sass": "./image-cropper/styles/_index.scss"
     },
-    "./i18n": {},
-    "./i18n/en": {},
-    "./i18n/ru": {},
     "./input": {
       "sass": "./input/styles/_index.scss"
     },
@@ -249,7 +235,6 @@
     "./loading-bar": {
       "sass": "./loading-bar/styles/_index.scss"
     },
-    "./media": {},
     "./mention": {
       "sass": "./mention/styles/_index.scss"
     },
@@ -259,15 +244,12 @@
     "./meter-group": {
       "sass": "./meter-group/styles/_index.scss"
     },
-    "./meta": {},
-    "./overlay": {},
     "./page-header": {
       "sass": "./page-header/styles/_index.scss"
     },
     "./pagination": {
       "sass": "./pagination/styles/_index.scss"
     },
-    "./platform": {},
     "./popconfirm": {
       "sass": "./popconfirm/styles/_index.scss"
     },
@@ -343,7 +325,6 @@
     "./statistic": {
       "sass": "./statistic/styles/_index.scss"
     },
-    "./storage": {},
     "./stepper": {
       "sass": "./stepper/styles/_index.scss"
     },
@@ -377,7 +358,6 @@
     "./typewriter": {
       "sass": "./typewriter/styles/_index.scss"
     },
-    "./validators": {},
     "./virtual-scroll": {
       "sass": "./virtual-scroll/styles/_index.scss"
     },
