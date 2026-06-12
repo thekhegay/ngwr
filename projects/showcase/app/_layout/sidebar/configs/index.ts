@@ -7,6 +7,6 @@ export { PIPES_SIDEBAR } from './pipes.config';
 export { SERVICES_SIDEBAR } from './services.config';
 export { TRANSLATE_SIDEBAR } from './translate.config';
 export { TYPOGRAPHY_SIDEBAR } from './typography.config';
-export { TYPES_SIDEBAR } from './types.config';
+export { INTERFACES_SIDEBAR } from './interfaces.config';
 export { UTILS_SIDEBAR } from './utils.config';
 export { VALIDATORS_SIDEBAR } from './validators.config';

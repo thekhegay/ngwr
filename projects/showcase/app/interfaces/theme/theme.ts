@@ -15,7 +15,7 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-types-theme-page',
+  selector: 'ngwr-interfaces-theme-page',
   templateUrl: './theme.html',
   imports: [
     WrBadge,

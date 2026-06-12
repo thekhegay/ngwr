@@ -6,6 +6,14 @@ import type { SidebarGroup } from '../sidebar.types';
  */
 export const UTILS_SIDEBAR: readonly SidebarGroup[] = [
   {
+    title: 'Math',
+    children: [
+      { title: 'clamp', url: ['/utils', 'clamp'] },
+      { title: 'round', url: ['/utils', 'round'] },
+      { title: 'numAttr', url: ['/utils', 'num-attr'] },
+    ],
+  },
+  {
     title: 'CSS',
     children: [
       { title: 'resolveCssSize', url: ['/utils', 'resolve-css-size'] },

@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="numAttr"
+  description="Input-transform factory: coerces any bound value to a number with a fallback. The standard transform for numeric inputs across ngwr."
+  [keywords]="['numAttr', 'coercion', 'input transform', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Angular's own `numberAttribute` falls back to `NaN`, which then needs guarding at every read. Wrapping `coerceNumberProperty` with a declared fallback keeps templates free to pass strings, numbers, or nothing — every numeric input in the kit uses it, so it's exported for app inputs too."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

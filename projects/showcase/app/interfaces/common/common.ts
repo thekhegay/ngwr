@@ -9,7 +9,7 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-types-common-page',
+  selector: 'ngwr-interfaces-common-page',
   templateUrl: './common.html',
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })

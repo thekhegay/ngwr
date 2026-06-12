@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="round"
+  description="Rounds to a fixed number of fraction digits, compensating floating point drift."
+  [keywords]="['round', 'math', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="`Math.round((v) * 100) / 100` mis-rounds boundary values because of binary floating point — `1.005` becomes `1` instead of `1.01`. Adding `Number.EPSILON` before scaling fixes the boundary cases; the slider and input-number components rely on it for step math."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

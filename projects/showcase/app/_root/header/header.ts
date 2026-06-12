@@ -43,7 +43,7 @@ export class Header {
     { url: [routes.index, routes.pipes.index], label: 'Pipes' },
     { url: [routes.index, routes.services.index], label: 'Services' },
     { url: [routes.index, routes.translate.index], label: 'Translate' },
-    { url: [routes.index, routes.types.index], label: 'Types' },
+    { url: [routes.index, routes.interfaces.index], label: 'Interfaces' },
     { url: [routes.index, routes.utils.index], label: 'Utils' },
     { url: [routes.index, routes.validators.index], label: 'Validators' },
   ];

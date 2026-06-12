@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="clamp"
+  description="Clamps a number into an inclusive `[min, max]` range."
+  [keywords]="['clamp', 'math', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Before v7 ten components each carried their own private copy of this three-liner — sliders, knobs, croppers, windows. One shared, tested implementation beats ten identical ones, and your app code gets it for free."
+  >
+    <ngwr-doc-code [code]="whySnippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

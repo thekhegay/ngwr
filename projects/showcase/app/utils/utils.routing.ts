@@ -10,8 +10,11 @@ export default [
   { path: utils.getRootFontSize, loadComponent: () => import('./get-root-font-size/get-root-font-size') },
   { path: utils.randomId, loadComponent: () => import('./random-id/random-id') },
   { path: utils.isDefined, loadComponent: () => import('./is-defined/is-defined') },
+  { path: utils.clamp, loadComponent: () => import('./clamp/clamp') },
+  { path: utils.round, loadComponent: () => import('./round/round') },
+  { path: utils.numAttr, loadComponent: () => import('./num-attr/num-attr') },
   // Types grew into their own top-level section.
-  { path: utils.types, redirectTo: '/types/common' },
+  { path: utils.types, redirectTo: '/interfaces/common' },
   { path: utils.isNonEmptyArray, loadComponent: () => import('./is-non-empty-array/is-non-empty-array') },
   { path: utils.isObservable, loadComponent: () => import('./is-observable/is-observable') },
   { path: utils.keys, loadComponent: () => import('./keys/keys') },

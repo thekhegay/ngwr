@@ -15,7 +15,7 @@ interface TypeGroup {
 }
 
 @Component({
-  selector: 'ngwr-types-catalog-page',
+  selector: 'ngwr-interfaces-catalog-page',
   templateUrl: './catalog.html',
   imports: [RouterLink, DocPageComponent, DocSectionComponent],
 })
@@ -24,10 +24,10 @@ export default class TypesCatalogPage {
     {
       title: 'Core',
       items: [
-        { name: 'Maybe<T>', description: 'Optional value — T | null | undefined.', url: ['/types', 'common'] },
-        { name: 'SafeAny', description: 'Greppable, deliberate any.', url: ['/types', 'common'] },
-        { name: 'WrColor', description: 'Palette union behind every [color] input.', url: ['/types', 'theme'] },
-        { name: 'WrThemeMode', description: 'light / dark / auto.', url: ['/types', 'theme'] },
+        { name: 'Maybe<T>', description: 'Optional value — T | null | undefined.', url: ['/interfaces', 'common'] },
+        { name: 'SafeAny', description: 'Greppable, deliberate any.', url: ['/interfaces', 'common'] },
+        { name: 'WrColor', description: 'Palette union behind every [color] input.', url: ['/interfaces', 'theme'] },
+        { name: 'WrThemeMode', description: 'light / dark / auto.', url: ['/interfaces', 'theme'] },
         { name: 'WrIconName', description: 'Registered icon name.', url: ['/icons', 'overview'] },
       ],
     },

@@ -2,7 +2,7 @@ import type { Routes } from '@angular/router';
 
 import { routes } from '#routing';
 
-const t = routes.types;
+const t = routes.interfaces;
 
 export default [
   { path: '', pathMatch: 'full', redirectTo: t.common },

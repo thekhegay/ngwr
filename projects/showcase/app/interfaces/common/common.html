@@ -17,6 +17,11 @@
     description="Inline `T | null | undefined` unions repeat everywhere a value can be absent; `Maybe<T>` names the pattern once and keeps public signatures short. `SafeAny` exists because a bare `any` is invisible in review and impossible to grep — the alias marks every deliberate type-system escape so they can be found and burned down later."
   />
 
+  <ngwr-doc-section
+    title="Why interfaces, not types"
+    description="ngwr declares every object shape as an `interface` — errors point at the named shape instead of an expanded literal, consumers can `extends` them, and declaration merging stays available. `type` is reserved for what interfaces can't express: unions (`WrColor`, mode strings) and aliases (`Maybe<T>`). The lib folders mirror the convention — every entry keeps its shapes in `interfaces/`."
+  />
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

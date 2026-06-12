@@ -10,7 +10,7 @@ import {
   SERVICES_SIDEBAR,
   TRANSLATE_SIDEBAR,
   TYPOGRAPHY_SIDEBAR,
-  TYPES_SIDEBAR,
+  INTERFACES_SIDEBAR,
   UTILS_SIDEBAR,
   VALIDATORS_SIDEBAR,
 } from './_layout/sidebar/configs';
@@ -191,6 +191,10 @@ export const routes = {
   utils: {
     index: 'utils',
     types: 'types',
+    // Math
+    clamp: 'clamp',
+    round: 'round',
+    numAttr: 'num-attr',
     // Css helpers
     resolveCssSize: 'resolve-css-size',
     getRootFontSize: 'get-root-font-size',
@@ -230,8 +234,8 @@ export const routes = {
     interpolation: 'interpolation',
     api: 'api',
   },
-  types: {
-    index: 'types',
+  interfaces: {
+    index: 'interfaces',
     common: 'common',
     theme: 'theme',
     catalog: 'catalog',
@@ -302,10 +306,13 @@ export const routing: Routes = [
         loadChildren: () => import('./utils/utils.routing'),
       },
       {
-        path: routes.types.index,
-        data: { sidebar: TYPES_SIDEBAR },
-        loadChildren: () => import('./types/types.routing'),
+        path: routes.interfaces.index,
+        data: { sidebar: INTERFACES_SIDEBAR },
+        loadChildren: () => import('./interfaces/interfaces.routing'),
       },
+      // The section briefly shipped as /types — keep those URLs alive.
+      { path: 'types/:page', redirectTo: 'interfaces/:page' },
+      { path: 'types', redirectTo: 'interfaces' },
       {
         path: routes.typography.index,
         data: { sidebar: TYPOGRAPHY_SIDEBAR },
