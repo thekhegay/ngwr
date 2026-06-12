@@ -12,6 +12,13 @@ import { emojiForHeading } from '../emoji-for-heading';
 export function withEmojiHeadings(section: string): string {
   return section
     .split('\n')
-    .map(line => line.replace(/^###\s+(.+)$/, (_, heading: string) => `### ${emojiForHeading(heading)} ${heading}`))
+    .map(line =>
+      line.replace(/^###\s+(.+)$/, (_, heading: string) => {
+        // conventional-changelog already prefixes BREAKING CHANGES with ⚠ —
+        // strip it so the emoji isn't doubled.
+        const text = heading.replace(/^⚠️?\s*/, '');
+        return `### ${emojiForHeading(heading)} ${text}`;
+      })
+    )
     .join('\n');
 }
