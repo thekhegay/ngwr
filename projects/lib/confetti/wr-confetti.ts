@@ -10,7 +10,7 @@ import { Service, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
-import type { WrConfettiOptions } from './types';
+import type { WrConfettiOptions } from './interfaces';
 
 const DEFAULTS: Required<WrConfettiOptions> = {
   count: 80,

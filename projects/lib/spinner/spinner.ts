@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import type { WrSpinnerSize } from './types';
+import type { WrSpinnerSize } from './interfaces';
 
 /**
  * Inline loading indicator.

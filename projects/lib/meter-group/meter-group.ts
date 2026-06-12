@@ -8,7 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import type { WrMeterSegment } from './types';
+import type { WrMeterSegment } from './interfaces';
 
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',

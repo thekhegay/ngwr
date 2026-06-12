@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import type { WrTableSortDirection } from './types';
+import type { WrTableSortDirection } from './interfaces';
 
 /**
  * Sort indicator rendered in a sortable column's header.

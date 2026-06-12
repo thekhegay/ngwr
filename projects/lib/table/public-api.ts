@@ -10,4 +10,4 @@ export type {
   WrTableFilterItem,
   WrTableSortState,
   WrTableSortDirection,
-} from './types';
+} from './interfaces';

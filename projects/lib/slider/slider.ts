@@ -12,7 +12,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { clamp, noop, round } from 'ngwr/utils';
 
-import type { WrSliderValue } from './types';
+import type { WrSliderValue } from './interfaces';
 
 /** Trim float drift from step calculations. */
 

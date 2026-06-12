@@ -1,2 +1,2 @@
 export { WrScroll } from './wr-scroll';
-export type { WrScrollTarget, WrScrollOptions } from './types';
+export type { WrScrollTarget, WrScrollOptions } from './interfaces';

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrIconDef } from '../types';
+import type { WrIconDef } from '../interfaces';
 
 const VIEW_BOX_RE = /<svg\b[^>]*\bviewBox\s*=/i;
 const SVG_ROOT_RE = /<svg\b/i;

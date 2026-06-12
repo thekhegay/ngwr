@@ -13,8 +13,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 
+import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './interfaces';
 import { WrPopconfirmPanel } from './popconfirm-panel';
-import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './types';
 
 /**
  * Small "Are you sure?" panel anchored to its trigger. Fires `confirmed`

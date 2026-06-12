@@ -1,2 +1,2 @@
 export { WrSidebar } from './sidebar';
-export type { WrSidebarItem, WrSidebarGroup, WrSidebarEntry } from './types';
+export type { WrSidebarItem, WrSidebarGroup, WrSidebarEntry } from './interfaces';

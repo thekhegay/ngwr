@@ -8,8 +8,8 @@
 import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 
 import { DEFAULT_TOAST_CONFIG } from './default-toast-config';
+import type { WrToastConfig } from './interfaces';
 import { WR_TOAST_CONFIG } from './tokens';
-import type { WrToastConfig } from './types';
 
 /**
  * Registers a global {@link WrToastConfig} for {@link WrToast}. Any

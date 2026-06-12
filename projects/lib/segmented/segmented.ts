@@ -10,7 +10,7 @@ import { Component, ViewEncapsulation, afterNextRender, computed, input, model, 
 
 import { WrIcon } from 'ngwr/icon';
 
-import type { WrSegmentedOption } from './types';
+import type { WrSegmentedOption } from './interfaces';
 
 /**
  * Single-choice picker rendered as a segmented control. Two-way binds

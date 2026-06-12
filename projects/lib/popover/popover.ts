@@ -25,8 +25,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { numAttr } from 'ngwr/utils';
 
+import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './interfaces';
 import { WrPopoverTextPanel } from './internal/text-panel';
-import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './types';
 
 /**
  * Anchored content panel. The same directive covers two shapes:

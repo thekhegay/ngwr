@@ -14,7 +14,7 @@ import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { clamp, noop } from 'ngwr/utils';
 
 import { hslToRgb, hsvToRgb, parseHex, rgbToHsl, rgbToHsv, toHex, type WrHsl, type WrRgb } from './color';
-import type { WrColorFormat } from './types';
+import type { WrColorFormat } from './interfaces';
 
 type Tab = 'hex' | 'rgb' | 'hsl';
 

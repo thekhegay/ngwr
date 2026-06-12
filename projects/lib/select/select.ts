@@ -32,9 +32,9 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
+import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator } from './interfaces';
 import { WrOption } from './option';
 import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
-import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator } from './types';
 
 let listboxUid = 0;
 

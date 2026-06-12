@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
-import type { WrToastConfig, WrToastType } from './types';
+import type { WrToastConfig, WrToastType } from './interfaces';
 
 /**
  * One toast row inside the toast host. Not used directly — see

@@ -5,8 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import type { WrQrErrorLevel } from './interfaces';
 import qrcodegen from './qrcodegen';
-import type { WrQrErrorLevel } from './types';
 
 interface DrawOptionsInternal {
   readonly value: string;

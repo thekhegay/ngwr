@@ -10,7 +10,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrDividerAlign, WrDividerType } from './types';
+import type { WrDividerAlign, WrDividerType } from './interfaces';
 
 /**
  * Horizontal separator line. Projected content renders as a label

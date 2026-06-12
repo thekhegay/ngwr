@@ -14,7 +14,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
 import { numAttr } from 'ngwr/utils';
 
-import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './types';
+import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './interfaces';
 
 const ELLIPSIS = '…' as const;
 type PageEntry = number | typeof ELLIPSIS;

@@ -14,7 +14,7 @@ import { filter, map, startWith } from 'rxjs';
 
 import { WrIcon } from 'ngwr/icon';
 
-import type { WrSidebarEntry, WrSidebarGroup, WrSidebarItem } from './types';
+import type { WrSidebarEntry, WrSidebarGroup, WrSidebarItem } from './interfaces';
 
 function isGroup(entry: WrSidebarEntry): entry is WrSidebarGroup {
   return 'children' in entry;

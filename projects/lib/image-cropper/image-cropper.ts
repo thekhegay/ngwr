@@ -22,7 +22,7 @@ import {
 
 import { clamp } from 'ngwr/utils';
 
-import type { WrCropHandle, WrCropRect, WrImageOutputType } from './types';
+import type { WrCropHandle, WrCropRect, WrImageOutputType } from './interfaces';
 
 interface RectPx {
   x: number;

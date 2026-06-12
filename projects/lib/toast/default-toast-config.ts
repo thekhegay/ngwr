@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrToastConfig } from './types';
+import type { WrToastConfig } from './interfaces';
 
 /**
  * Library defaults applied when no {@link provideWrToastConfig} call is

@@ -22,7 +22,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { noop } from 'ngwr/utils';
 
-import type { WrInputOtpMode } from './types';
+import type { WrInputOtpMode } from './interfaces';
 
 /**
  * Fixed-length one-time-code input. Renders one `<input>` per character,

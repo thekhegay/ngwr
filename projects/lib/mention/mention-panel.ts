@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, input, output } from '@angular/core';
 
-import type { WrMentionItem } from './types';
+import type { WrMentionItem } from './interfaces';
 
 /**
  * Overlay panel rendered by {@link WrMention}. Not intended for

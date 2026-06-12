@@ -22,8 +22,8 @@ import {
 
 import { WrStorage } from 'ngwr/storage';
 
+import type { WrWindowConfig } from './interfaces';
 import { storageKey } from './storage-key';
-import type { WrWindowConfig } from './types';
 import { WrWindow } from './window';
 import type { WrWindowRef } from './window-ref';
 

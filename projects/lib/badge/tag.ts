@@ -12,7 +12,7 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrTagIconPosition } from './types';
+import type { WrTagIconPosition } from './interfaces';
 
 /**
  * Rich inline label — icons, loading state, three visual styles

@@ -10,7 +10,7 @@ import { Component, ViewEncapsulation, computed, input, signal } from '@angular/
 import { WrSpinner } from 'ngwr/spinner';
 import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
 
-import type { WrAvatarShape, WrAvatarSize } from './types';
+import type { WrAvatarShape, WrAvatarSize } from './interfaces';
 
 const DEFAULT_SIZE: WrAvatarSize = '6rem';
 

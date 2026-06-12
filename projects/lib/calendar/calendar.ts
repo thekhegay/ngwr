@@ -22,7 +22,7 @@ import {
 
 import { WrDateAdapter } from 'ngwr/date-adapter';
 
-import type { WrCalendarMode, WrCalendarRange } from './types';
+import type { WrCalendarMode, WrCalendarRange } from './interfaces';
 
 const ROWS = 6;
 const COLS = 7;

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { Maybe } from '../types';
+import type { Maybe } from '../interfaces';
 
 /**
  * Type guard that checks if a value is neither `null` nor `undefined`.

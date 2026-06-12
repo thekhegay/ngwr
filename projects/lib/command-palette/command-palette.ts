@@ -29,7 +29,7 @@ import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 
-import type { WrCommandItem } from './types';
+import type { WrCommandItem } from './interfaces';
 
 interface Bucket {
   readonly title: string | null;

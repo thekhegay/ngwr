@@ -1,4 +1,4 @@
 export { WrIcon } from './icon';
 export { provideWrIcons } from './providers';
 export { svgIcon } from './svg-icon';
-export type { WrIconDef, WrIconName } from './types';
+export type { WrIconDef, WrIconName } from './interfaces';

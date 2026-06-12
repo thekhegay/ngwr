@@ -22,7 +22,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { useI18nText } from 'ngwr/i18n';
 import { noop } from 'ngwr/utils';
 
-import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './types';
+import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './interfaces';
 
 /** Human-readable byte size (e.g. `1.2 MB`). */
 function formatBytes(bytes: number): string {

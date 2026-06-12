@@ -17,8 +17,8 @@ import {
   isDevMode,
 } from '@angular/core';
 
+import type { WrIconDef, WrIconName } from './interfaces';
 import { WR_ICONS } from './tokens';
-import type { WrIconDef, WrIconName } from './types';
 
 /**
  * Renders a registered SVG icon.

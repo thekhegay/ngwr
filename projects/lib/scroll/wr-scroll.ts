@@ -10,7 +10,7 @@ import { Service, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
-import type { WrScrollOptions, WrScrollTarget } from './types';
+import type { WrScrollOptions, WrScrollTarget } from './interfaces';
 
 /**
  * Smooth-scroll utility. Resolves `id` / selector / element / coords

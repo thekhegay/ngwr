@@ -10,7 +10,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
 
-import type { WrBadgeShape, WrBadgeSize } from './types';
+import type { WrBadgeShape, WrBadgeSize } from './interfaces';
 
 /**
  * Lean status chip — color, size, rounded/pill. Use for short labels

@@ -32,7 +32,7 @@ import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
-import type { WrTreeNode, WrTreeSelectionMode } from './types';
+import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 
 interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;

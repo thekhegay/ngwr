@@ -23,7 +23,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
 import type { WrDropdownMenu } from './dropdown-menu';
-import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger } from './types';
+import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger } from './interfaces';
 
 /**
  * Attach to any element to open a `<wr-dropdown-menu>` as a CDK overlay.

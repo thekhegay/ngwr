@@ -7,8 +7,8 @@
 
 import { Service, inject } from '@angular/core';
 
+import type { WrDateFormat } from './interfaces';
 import { WR_DATE_LOCALE } from './tokens';
-import type { WrDateFormat } from './types';
 import { WrDateAdapter } from './wr-date-adapter';
 
 const NAMED_KEYS = new Set<WrDateFormat>([

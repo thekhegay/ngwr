@@ -1,5 +1,5 @@
 // Types
-export type { Maybe, SafeAny } from './types';
+export type { Maybe, SafeAny } from './interfaces';
 
 // Guards
 export { isDefined, isNonEmptyArray, isObservable } from './guards';

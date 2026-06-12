@@ -8,7 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
-import type { WrAlertType } from './types';
+import type { WrAlertType } from './interfaces';
 
 /**
  * Inline status banner. Use for feedback messages — saved/failed/notice etc.

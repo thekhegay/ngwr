@@ -7,8 +7,8 @@
 
 import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
+import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './interfaces';
 import { WrToastItem } from './toast-item';
-import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './types';
 
 /** ms before a mouseleave actually collapses the stack. Buffers the cursor
  * briefly leaving the host as toasts reflow underneath it. */

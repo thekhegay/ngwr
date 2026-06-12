@@ -9,7 +9,7 @@ import { Component, ViewEncapsulation, computed, input, output, signal } from '@
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 
-import type { WrTableFilterItem } from './types';
+import type { WrTableFilterItem } from './interfaces';
 
 /**
  * Filter dropdown rendered in a filterable column's header.

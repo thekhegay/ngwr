@@ -7,8 +7,8 @@
 
 import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 
+import type { WrMetaConfig } from './interfaces';
 import { WR_META_DEFAULTS } from './tokens';
-import type { WrMetaConfig } from './types';
 
 /**
  * Register app-wide defaults for {@link WrMeta}. Use to set a

@@ -12,8 +12,8 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
 
+import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './interfaces';
 import { WR_BUTTON_GROUP } from './tokens';
-import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 /**
  * Trigger an action. Renders as a `<wr-btn>` element, or attach to a

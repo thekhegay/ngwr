@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrToastOptions } from './types';
+import type { WrToastOptions } from './interfaces';
 
 /**
  * Handle returned by `WrToast.show()`. Call `dismiss()` to remove

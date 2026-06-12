@@ -13,8 +13,8 @@ import { type ComponentRef, DestroyRef, Directive, ElementRef, inject, input, ou
 import { WR_OVERLAY } from 'ngwr/overlay';
 
 import { getCaretCoordinates } from './caret';
+import type { WrMentionCommit, WrMentionItem } from './interfaces';
 import { WrMentionPanel } from './mention-panel';
-import type { WrMentionCommit, WrMentionItem } from './types';
 
 interface ActiveState {
   trigger: string;

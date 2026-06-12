@@ -1,2 +1,2 @@
 export { WrPagination } from './pagination';
-export type { WrPaginationAlign } from './types';
+export type { WrPaginationAlign } from './interfaces';

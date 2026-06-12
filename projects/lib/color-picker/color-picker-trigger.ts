@@ -24,7 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
 import { WrColorPicker } from './color-picker';
-import type { WrColorFormat } from './types';
+import type { WrColorFormat } from './interfaces';
 
 /**
  * Opens a `<wr-color-picker>` in an overlay anchored to the host element.

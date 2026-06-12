@@ -1,2 +1,2 @@
 export { WrCalendar } from './calendar';
-export type { WrCalendarMode, WrCalendarRange } from './types';
+export type { WrCalendarMode, WrCalendarRange } from './interfaces';

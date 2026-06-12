@@ -9,8 +9,8 @@ import { DOCUMENT } from '@angular/common';
 import { Service, computed, inject, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
+import type { WrMetaConfig, WrMetaHandle } from './interfaces';
 import { WR_META_DEFAULTS } from './tokens';
-import type { WrMetaConfig, WrMetaHandle } from './types';
 
 /** Deep-merge two `WrMetaConfig` layers — later wins for scalars + nested groups. */
 function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {

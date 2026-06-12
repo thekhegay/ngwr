@@ -7,7 +7,7 @@
 
 import { InjectionToken, type Signal } from '@angular/core';
 
-import type { WrButtonShape } from '../types';
+import type { WrButtonShape } from '../interfaces';
 
 /**
  * Contract a child `<wr-btn>` reads from its enclosing `<wr-btn-group>`.

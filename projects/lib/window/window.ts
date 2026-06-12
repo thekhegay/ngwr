@@ -29,7 +29,7 @@ import type {
   WrWindowSnap,
   WrWindowSnapTarget,
   WrWindowState,
-} from './types';
+} from './interfaces';
 import { WrWindowManager } from './window-manager';
 
 /**

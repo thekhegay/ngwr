@@ -13,9 +13,6 @@ import { Component, ViewEncapsulation, computed, contentChildren, input, model, 
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 
-import { WrTableCell } from './table-cell';
-import { WrTableFilter } from './table-filter';
-import { WrTableSort } from './table-sort';
 import type {
   WrTableCellContext,
   WrTableColumns,
@@ -23,7 +20,10 @@ import type {
   WrTableFilterItem,
   WrTableSortState,
   WrTableSortDirection,
-} from './types';
+} from './interfaces';
+import { WrTableCell } from './table-cell';
+import { WrTableFilter } from './table-filter';
+import { WrTableSort } from './table-sort';
 
 /**
  * Data table with sortable / filterable headers and custom cell templates.

@@ -10,7 +10,7 @@ import { type ComponentRef, type Signal, type WritableSignal, signal } from '@an
 
 import { Subject } from 'rxjs';
 
-import type { WrWindowState } from './types';
+import type { WrWindowState } from './interfaces';
 
 /** Hook signature for `WrWindowRef.beforeClose()`. Return falsy to veto. */
 export type WrWindowBeforeCloseHook<R> = (result: R | undefined) => boolean | Promise<boolean>;

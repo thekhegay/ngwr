@@ -7,8 +7,8 @@
 
 import { Component, ViewEncapsulation, computed, forwardRef, input } from '@angular/core';
 
+import type { WrButtonShape } from './interfaces';
 import { WR_BUTTON_GROUP, type WrButtonGroupContext } from './tokens';
-import type { WrButtonShape } from './types';
 
 /**
  * Visually group buttons by merging their borders. Optionally enforce a

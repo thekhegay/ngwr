@@ -12,7 +12,7 @@ import { Component, PLATFORM_ID, ViewEncapsulation, effect, inject, input, viewC
 import { numAttr } from 'ngwr/utils';
 
 import { drawQrCode } from './generator';
-import type { WrQrErrorLevel } from './types';
+import type { WrQrErrorLevel } from './interfaces';
 
 /**
  * Renders a QR code on a `<canvas>`.

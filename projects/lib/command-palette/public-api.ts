@@ -1,2 +1,2 @@
 export { WrCommandPalette } from './command-palette';
-export type { WrCommandItem, WrCommandGroup } from './types';
+export type { WrCommandItem, WrCommandGroup } from './interfaces';

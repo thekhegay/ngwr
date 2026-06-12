@@ -27,7 +27,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
-import type { WrDrawerPosition } from './types';
+import type { WrDrawerPosition } from './interfaces';
 
 /**
  * Side panel that slides in from an edge of the viewport. Two-way binds

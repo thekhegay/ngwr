@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrDateFormat } from './types';
+import type { WrDateFormat } from './interfaces';
 
 /**
  * Abstraction over a date object so the calendar, date picker and time picker

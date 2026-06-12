@@ -8,7 +8,7 @@
 import { InjectionToken } from '@angular/core';
 
 import { DEFAULT_TOAST_CONFIG } from '../default-toast-config';
-import type { WrToastConfig } from '../types';
+import type { WrToastConfig } from '../interfaces';
 
 /**
  * Holds the global {@link WrToastConfig} used by {@link WrToast}.
