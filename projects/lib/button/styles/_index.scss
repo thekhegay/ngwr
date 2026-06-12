@@ -198,4 +198,13 @@
       z-index: 1;
     }
   }
+
+  // Solid colored segments share border and background color, so adjacent
+  // buttons fuse into one slab — draw a subtle divider on every inner
+  // edge. Outlined/default variants keep their own visible borders.
+  @each $name in theme.$colors {
+    > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:first-child) {
+      box-shadow: inset 1px 0 0 rgb(0 0 0 / 20%);
+    }
+  }
 }
