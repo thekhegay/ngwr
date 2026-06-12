@@ -94,6 +94,9 @@
   // Lists — flowbite spacing and markers; element selector picks the
   // marker so one variant covers ul / ol / dl.
   &--list {
+    // Browser default padding-inline-start doubles the indent next to
+    // `inside` markers — the variant owns its own spacing.
+    padding: 0;
     font-size: var(--wr-text-base);
     line-height: var(--wr-leading-normal);
     color: var(--wr-color-medium);
