@@ -57,12 +57,13 @@
   <ngwr-doc-section title="Alignment">
     <ngwr-doc-code [code]="snippets.align" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
         <p wrTypography align="start">Start (default)</p>
         <p wrTypography align="center">Centered</p>
         <p wrTypography align="end">End</p>
         <p wrTypography align="justify">
-          Justified text fills the line width by adjusting word spacing — readable for long-form copy.
+          Justified text fills the line width by adjusting word spacing. Use it for long-form copy where ragged right
+          edges would distract — multi-line paragraphs stretch every full line flush to both edges, like this one.
         </p>
       </div>
     </ngwr-doc-snippet>
