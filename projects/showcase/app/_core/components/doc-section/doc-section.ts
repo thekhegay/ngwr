@@ -1,5 +1,7 @@
 import { Component, input } from '@angular/core';
 
+import { WrTypography } from 'ngwr/typography';
+
 import { DocRichPipe } from '../doc-rich/doc-rich';
 
 /**
@@ -10,7 +12,7 @@ import { DocRichPipe } from '../doc-rich/doc-rich';
  * and place a paragraph as the first projected child.
  */
 @Component({
-  imports: [DocRichPipe],
+  imports: [DocRichPipe, WrTypography],
   selector: 'ngwr-doc-section',
   templateUrl: './doc-section.html',
   styleUrl: './doc-section.scss',

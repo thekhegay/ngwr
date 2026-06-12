@@ -1,7 +1,7 @@
 <header class="header">
-  <h2 class="title">{{ title() }}</h2>
+  <h2 wrTypography variant="h4" class="title">{{ title() }}</h2>
   @if (description(); as d) {
-    <p class="description" [innerHTML]="d | wrDocRich"></p>
+    <p wrTypography variant="body" tone="medium" class="description" [innerHTML]="d | wrDocRich"></p>
   }
 </header>
 <div class="content">

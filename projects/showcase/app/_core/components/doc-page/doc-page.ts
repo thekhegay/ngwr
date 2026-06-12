@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { WrBadge } from 'ngwr/badge';
 import type { WrColor } from 'ngwr/theme';
+import { WrTypography } from 'ngwr/typography';
 
 import { DocRichPipe } from '../doc-rich/doc-rich';
 
@@ -50,7 +51,7 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  * ```
  */
 @Component({
-  imports: [DocRichPipe, WrBadge],
+  imports: [DocRichPipe, WrBadge, WrTypography],
   selector: 'ngwr-doc-page',
   templateUrl: './doc-page.html',
   styleUrl: './doc-page.scss',
