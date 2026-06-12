@@ -70,11 +70,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
     color: var(--wr-color-dark);
 
-    svg {
+    // The svg arrives via [innerHTML], so it never gets Angular's scoping
+    // attribute — pierce the emulated encapsulation or the sizing below
+    // silently loses to the file's own width/height attributes.
+    ::ng-deep svg {
       width: 100%;
       height: 100%;
     }
