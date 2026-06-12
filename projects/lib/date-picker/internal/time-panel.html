@@ -6,7 +6,18 @@
     [disabled]="!interactive()"
     (click)="stepHours(1)"
   >
-    ▲
+    <svg
+      class="wr-time-picker__chevron"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m18 15-6-6-6 6" />
+    </svg>
   </button>
   <input
     class="wr-time-picker__input"
@@ -26,7 +37,18 @@
     [disabled]="!interactive()"
     (click)="stepHours(-1)"
   >
-    ▼
+    <svg
+      class="wr-time-picker__chevron"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   </button>
 </div>
 
@@ -40,7 +62,18 @@
     [disabled]="!interactive()"
     (click)="stepMinutes(1)"
   >
-    ▲
+    <svg
+      class="wr-time-picker__chevron"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m18 15-6-6-6 6" />
+    </svg>
   </button>
   <input
     class="wr-time-picker__input"
@@ -60,7 +93,18 @@
     [disabled]="!interactive()"
     (click)="stepMinutes(-1)"
   >
-    ▼
+    <svg
+      class="wr-time-picker__chevron"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   </button>
 </div>
 
@@ -75,7 +119,18 @@
       [disabled]="!interactive()"
       (click)="stepSeconds(1)"
     >
-      ▲
+      <svg
+        class="wr-time-picker__chevron"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m18 15-6-6-6 6" />
+      </svg>
     </button>
     <input
       class="wr-time-picker__input"
@@ -95,7 +150,18 @@
       [disabled]="!interactive()"
       (click)="stepSeconds(-1)"
     >
-      ▼
+      <svg
+        class="wr-time-picker__chevron"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
     </button>
   </div>
 }
@@ -109,7 +175,18 @@
       [disabled]="!interactive()"
       (click)="toggleAmPm()"
     >
-      ▲
+      <svg
+        class="wr-time-picker__chevron"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m18 15-6-6-6 6" />
+      </svg>
     </button>
     <span class="wr-time-picker__label" aria-live="polite">{{ amPmLabel() }}</span>
     <button
@@ -119,7 +196,18 @@
       [disabled]="!interactive()"
       (click)="toggleAmPm()"
     >
-      ▼
+      <svg
+        class="wr-time-picker__chevron"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
     </button>
   </div>
 }

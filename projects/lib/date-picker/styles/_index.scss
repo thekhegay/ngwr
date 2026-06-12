@@ -33,6 +33,16 @@
   z-index: 1050;
 }
 
+// Time-only mode attaches the bare stepper as the overlay content — it
+// has to bring the panel chrome the calendar otherwise provides.
+.wr-date-picker-overlay > .wr-time-picker {
+  padding: 0.5rem 0.75rem;
+  background: var(--wr-time-picker-bg);
+  border: 1px solid var(--wr-time-picker-border);
+  border-radius: var(--wr-border-radius-base);
+  box-shadow: var(--wr-shadow-overlay);
+}
+
 //
 // Internal panels rendered inside the date-picker overlay.
 // (Were previously the standalone wr-time-picker / wr-date-time-picker
@@ -62,13 +72,20 @@
 
   &__step {
     appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: 0;
     padding: 0;
     height: 1.25rem;
     color: var(--wr-time-picker-muted);
-    font-size: 0.625rem;
     line-height: 1;
+
+    svg {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
     border-radius: var(--wr-border-radius-sm);
     cursor: pointer;
     transition:
