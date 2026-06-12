@@ -17,6 +17,7 @@ import {
   input,
   model,
   signal,
+  untracked,
 } from '@angular/core';
 
 import { WrDateAdapter } from 'ngwr/date-adapter';
@@ -155,12 +156,18 @@ export class WrCalendar {
       this.viewDate.set(initial);
     });
 
-    // Keep viewDate in sync when date / range changes externally to a different month.
+    // Keep viewDate in sync when date / range changes externally to a
+    // different month. The viewDate read must stay untracked — otherwise
+    // the effect re-runs on every internal navigation (month stepping,
+    // year picking) and snaps the view back to the selected month.
     effect(() => {
       const candidate = this.mode() === 'single' ? this.date() : this.range()[0];
-      if (candidate && !this.adapter.isSameMonth(candidate, this.viewDate())) {
-        this.viewDate.set(candidate);
-      }
+      if (!candidate) return;
+      untracked(() => {
+        if (!this.adapter.isSameMonth(candidate, this.viewDate())) {
+          this.viewDate.set(candidate);
+        }
+      });
     });
   }
 
