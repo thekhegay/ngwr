@@ -28,6 +28,8 @@ import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 import { WrToast } from 'ngwr/toast';
 import { WrTypography } from 'ngwr/typography';
 
+import { DocCodeComponent } from '#core/components';
+
 @Component({
   selector: 'ngwr-components-bento',
   templateUrl: './components-bento.html',
@@ -54,6 +56,7 @@ import { WrTypography } from 'ngwr/typography';
     WrTabs,
     WrTag,
     WrTypography,
+    DocCodeComponent,
   ],
   providers: [
     provideWrIcons(

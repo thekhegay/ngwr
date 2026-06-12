@@ -1,4 +1,5 @@
-import { DestroyRef, Component, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, DestroyRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Folder, Moon, ShieldCheck, Terminal, Zap } from 'lucide';
@@ -79,6 +80,8 @@ interface WhyTile {
   ],
 })
 export default class HomeComponent {
+  protected readonly replayTick = signal(0);
+
   protected readonly routes = routes;
 
   /** Three adjectives the hero cycles through via `<wr-split-text>`. Keep each
@@ -171,6 +174,13 @@ export class SignupCard {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    // Re-mount the one-shot motion tiles every few seconds so the gallery
+    // keeps moving — split/blur/decrypt animate on mount only.
+    if (isPlatformBrowser(inject(PLATFORM_ID))) {
+      const id = setInterval(() => this.replayTick.update(v => v + 1), 7000);
+      inject(DestroyRef).onDestroy(() => clearInterval(id));
+    }
+
     // Rotate the hero adjective every 2.4s — `<wr-split-text>` watches
     // its `[text]` input and re-runs the per-char animation on change.
     const timer = setInterval(() => {

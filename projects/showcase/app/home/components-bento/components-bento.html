@@ -324,7 +324,7 @@
           <p wrTypography variant="caption" tone="medium">Drop-in component</p>
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__code">
-          <pre class="ngwr-cbento__code-block"><code>{{ codeSnippet }}</code></pre>
+          <ngwr-doc-code class="ngwr-cbento__code-block" [code]="codeSnippet" language="angular-ts" />
           <p wrTypography variant="caption" tone="medium">Each entry point is its own ng-packagr build.</p>
         </div>
       </article>

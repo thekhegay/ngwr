@@ -155,7 +155,9 @@
 
         <article class="ngwr-motion-tile">
           <div class="ngwr-motion-tile__stage">
-            <wr-decrypt-text text="Decrypting…" [maxIterations]="14" />
+            @for (tick of [replayTick()]; track tick) {
+              <wr-decrypt-text text="Decrypting…" [maxIterations]="14" />
+            }
           </div>
           <div class="ngwr-motion-tile__label">
             <p wrTypography variant="small">Decrypt text</p>
@@ -165,7 +167,9 @@
 
         <article class="ngwr-motion-tile">
           <div class="ngwr-motion-tile__stage">
-            <wr-blur-text text="Reveal on view" animateBy="words" [stepDuration]="0.4" />
+            @for (tick of [replayTick()]; track tick) {
+              <wr-blur-text text="Reveal on view" animateBy="words" [stepDuration]="0.4" />
+            }
           </div>
           <div class="ngwr-motion-tile__label">
             <p wrTypography variant="small">Blur text</p>
@@ -175,7 +179,9 @@
 
         <article class="ngwr-motion-tile">
           <div class="ngwr-motion-tile__stage">
-            <wr-split-text text="Split by character" splitType="chars" [delay]="45" [duration]="1" />
+            @for (tick of [replayTick()]; track tick) {
+              <wr-split-text text="Split by character" splitType="chars" [delay]="45" [duration]="1" />
+            }
           </div>
           <div class="ngwr-motion-tile__label">
             <p wrTypography variant="small">Split text</p>
