@@ -11,7 +11,7 @@
  * is dependency-free — vanilla signals + `setInterval` for the tick loop.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -28,13 +28,9 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
+import { numAttr } from 'ngwr/utils';
 
 const DEFAULT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
 
 function computeOrder(len: number, dir: WrDecryptTextRevealDirection): readonly number[] {
   const order: number[] = [];
@@ -112,10 +108,10 @@ export class WrDecryptText {
   readonly text = input.required<string>();
 
   /** Tick interval in ms. @default 50 */
-  readonly speed = input(50, { transform: num(50) });
+  readonly speed = input(50, { transform: numAttr(50) });
 
   /** Non-sequential mode only — total scramble ticks before snapping to plain. @default 10 */
-  readonly maxIterations = input(10, { transform: num(10) });
+  readonly maxIterations = input(10, { transform: numAttr(10) });
 
   /** Reveal one char per tick instead of scrambling all of them. @default false */
   readonly sequential = input(false, { transform: coerceBooleanProperty });

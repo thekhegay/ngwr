@@ -12,7 +12,6 @@
  * three-keyframe blur-and-fade-in, triggered by `IntersectionObserver`.
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -29,15 +28,11 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
+import { numAttr } from 'ngwr/utils';
 
 type Unit = 'chars' | 'words';
 type Direction = 'top' | 'bottom';
 type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
 
 function splitPieces(text: string, unit: Unit): readonly Piece[] {
   if (!text) return [];
@@ -87,16 +82,16 @@ export class WrBlurText {
   readonly direction = input<Direction>('top');
 
   /** Per-piece stagger in ms. @default 200 */
-  readonly delay = input(200, { transform: num(200) });
+  readonly delay = input(200, { transform: numAttr(200) });
 
   /** Duration of each keyframe step in seconds (total = 2 × stepDuration). @default 0.35 */
-  readonly stepDuration = input(0.35, { transform: num(0.35) });
+  readonly stepDuration = input(0.35, { transform: numAttr(0.35) });
 
   /** CSS easing function. @default 'linear' (matches reactbits' identity easing) */
   readonly easing = input('linear');
 
   /** `IntersectionObserver.threshold` (0..1). @default 0.1 */
-  readonly threshold = input(0.1, { transform: num(0.1) });
+  readonly threshold = input(0.1, { transform: numAttr(0.1) });
 
   /** `IntersectionObserver.rootMargin`. @default '0px' */
   readonly rootMargin = input('0px');

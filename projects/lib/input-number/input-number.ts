@@ -10,17 +10,9 @@ import { Component, LOCALE_ID, ViewEncapsulation, computed, forwardRef, inject, 
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix } from 'ngwr/input';
-import { noop } from 'ngwr/utils';
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
+import { clamp, noop, round } from 'ngwr/utils';
 
 /** Round to `decimals` places, avoiding common float artefacts (`1.005 → 1.01`). */
-function round(v: number, decimals: number): number {
-  const factor = 10 ** decimals;
-  return Math.round((v + Number.EPSILON) * factor) / factor;
-}
 
 /** Resolve the locale's decimal + grouping separators from `Intl.NumberFormat`. */
 function resolveSeparators(locale: string): { decimal: string; group: string } {

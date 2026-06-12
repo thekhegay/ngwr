@@ -20,6 +20,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { clamp } from 'ngwr/utils';
+
 import type { WrCropHandle, WrCropRect, WrImageOutputType } from './types';
 
 interface RectPx {
@@ -27,10 +29,6 @@ interface RectPx {
   y: number;
   w: number;
   h: number;
-}
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
 }
 
 /**

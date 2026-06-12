@@ -4,6 +4,12 @@ export type { Maybe, SafeAny } from './types';
 // Guards
 export { isDefined, isNonEmptyArray, isObservable } from './guards';
 
+// Math
+export { clamp, round } from './math';
+
+// Coercion
+export { numAttr } from './coercion';
+
 // CSS size
 export { resolveCssSize } from './css-size';
 export type { ResolveCssSizeOptions, ResolvedCssSize } from './css-size';

@@ -8,7 +8,7 @@
 import { Service, inject } from '@angular/core';
 
 import { DateTime, Info } from 'luxon';
-import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat } from 'ngwr/date-adapter';
+import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat, isNamedFormat } from 'ngwr/date-adapter';
 
 const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
   shortDate: 'D',
@@ -18,10 +18,6 @@ const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
   shortDateTime: 'f',
   mediumDateTime: 'ff',
 };
-
-function isNamedFormat(value: string): value is WrDateFormat {
-  return value in NAMED_PATTERNS;
-}
 
 /**
  * Token translation table — our token grammar (matches the native adapter)

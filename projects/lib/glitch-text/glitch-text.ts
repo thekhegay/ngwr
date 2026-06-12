@@ -12,13 +12,10 @@
  * random horizontal bands.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 /**
  * Glitchy text effect — colour-split horizontal-tear glitch on the
@@ -53,7 +50,7 @@ export class WrGlitchText {
   readonly text = input.required<string>();
 
   /** Time multiplier — higher = slower glitching. @default 1 */
-  readonly speed = input(1, { transform: num(1) });
+  readonly speed = input(1, { transform: numAttr(1) });
 
   /** Show the red / cyan colour-split shadows. @default true */
   readonly enableShadows = input(true, { transform: coerceBooleanProperty });

@@ -12,7 +12,7 @@
  * vertical offsets. Intensity reacts to hover / click / glitch state.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import type { ElementRef } from '@angular/core';
 import {
@@ -28,11 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 /**
  * Canvas-rendered "fuzzy" text — each row/column of glyphs is offset by
@@ -83,22 +79,22 @@ export class WrFuzzyText {
   readonly enableHover = input(true, { transform: coerceBooleanProperty });
 
   /** Base intensity (0..1) when idle. @default 0.18 */
-  readonly baseIntensity = input(0.18, { transform: num(0.18) });
+  readonly baseIntensity = input(0.18, { transform: numAttr(0.18) });
 
   /** Intensity (0..1) while the pointer hovers the text. @default 0.5 */
-  readonly hoverIntensity = input(0.5, { transform: num(0.5) });
+  readonly hoverIntensity = input(0.5, { transform: numAttr(0.5) });
 
   /** Max pixel displacement per row/column at intensity 1. @default 30 */
-  readonly fuzzRange = input(30, { transform: num(30) });
+  readonly fuzzRange = input(30, { transform: numAttr(30) });
 
   /** Frame rate cap. @default 60 */
-  readonly fps = input(60, { transform: num(60) });
+  readonly fps = input(60, { transform: numAttr(60) });
 
   /** Fuzz direction. @default 'horizontal' */
   readonly direction = input<WrFuzzyTextDirection>('horizontal');
 
   /** Ms to ease intensity toward target. `0` snaps. @default 0 */
-  readonly transitionDuration = input(0, { transform: num(0) });
+  readonly transitionDuration = input(0, { transform: numAttr(0) });
 
   /** Spike to full intensity briefly on click. @default false */
   readonly clickEffect = input(false, { transform: coerceBooleanProperty });
@@ -107,13 +103,13 @@ export class WrFuzzyText {
   readonly glitchMode = input(false, { transform: coerceBooleanProperty });
 
   /** Ms between glitch bursts. @default 2000 */
-  readonly glitchInterval = input(2000, { transform: num(2000) });
+  readonly glitchInterval = input(2000, { transform: numAttr(2000) });
 
   /** Ms a glitch burst lasts. @default 200 */
-  readonly glitchDuration = input(200, { transform: num(200) });
+  readonly glitchDuration = input(200, { transform: numAttr(200) });
 
   /** Extra pixels between glyphs. @default 0 */
-  readonly letterSpacing = input(0, { transform: num(0) });
+  readonly letterSpacing = input(0, { transform: numAttr(0) });
 
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 

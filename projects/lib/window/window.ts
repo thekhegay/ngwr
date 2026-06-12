@@ -19,7 +19,7 @@ import {
   signal,
 } from '@angular/core';
 
-import { randomId } from 'ngwr/utils';
+import { clamp, randomId } from 'ngwr/utils';
 
 import type {
   WrWindowChromeSize,
@@ -75,10 +75,6 @@ interface Edges {
 }
 
 const MIN_ON_VIEWPORT = 24; // keep at least this many px of the window inside the viewport
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
 
 function viewportWidth(): number {
   return typeof window === 'undefined' ? 1024 : window.innerWidth;

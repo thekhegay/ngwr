@@ -13,7 +13,6 @@
  * no runtime dependency.
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -29,11 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 interface Body {
   el: HTMLElement;
@@ -136,7 +131,7 @@ export class WrFallingText {
   readonly trigger = input<WrFallingTextTrigger>('auto');
 
   /** Gravity in pixels/sec². @default 980 */
-  readonly gravity = input(980, { transform: num(980) });
+  readonly gravity = input(980, { transform: numAttr(980) });
 
   /** Font size as a CSS length. @default '1rem' */
   readonly fontSize = input('1rem');

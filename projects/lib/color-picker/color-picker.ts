@@ -11,7 +11,7 @@ import { Component, ViewEncapsulation, computed, forwardRef, input, signal } fro
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
-import { noop } from 'ngwr/utils';
+import { clamp, noop } from 'ngwr/utils';
 
 import { hslToRgb, hsvToRgb, parseHex, rgbToHsl, rgbToHsv, toHex, type WrHsl, type WrRgb } from './color';
 import type { WrColorFormat } from './types';
@@ -19,10 +19,6 @@ import type { WrColorFormat } from './types';
 type Tab = 'hex' | 'rgb' | 'hsl';
 
 type Edges = 'sv' | 'hue' | 'alpha';
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
 
 /**
  * Inline colour picker — HSV canvas, hue slider, optional alpha slider, HEX

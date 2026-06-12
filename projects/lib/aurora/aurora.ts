@@ -11,7 +11,6 @@
  * to WebGL2 directly — same vertex/fragment shaders, zero dependencies.
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -28,11 +27,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -187,13 +182,13 @@ export class WrAurora {
   readonly colorStops = input<readonly string[] | null>(null);
 
   /** Wave height multiplier. @default 1 */
-  readonly amplitude = input(1, { transform: num(1) });
+  readonly amplitude = input(1, { transform: numAttr(1) });
 
   /** Softness of the aurora's lower edge, 0..1. @default 0.5 */
-  readonly blend = input(0.5, { transform: num(0.5) });
+  readonly blend = input(0.5, { transform: numAttr(0.5) });
 
   /** Time multiplier. @default 1 */
-  readonly speed = input(1, { transform: num(1) });
+  readonly speed = input(1, { transform: numAttr(1) });
 
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 

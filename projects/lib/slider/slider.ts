@@ -10,18 +10,11 @@ import type { ElementRef } from '@angular/core';
 import { Component, ViewEncapsulation, computed, forwardRef, input, signal, viewChild } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop } from 'ngwr/utils';
+import { clamp, noop, round } from 'ngwr/utils';
 
 import type { WrSliderValue } from './types';
 
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
-
 /** Trim float drift from step calculations. */
-function round(v: number): number {
-  return Math.round(v * 1e6) / 1e6;
-}
 
 /**
  * Numeric slider with optional dual-thumb range mode.
@@ -223,7 +216,7 @@ export class WrSlider implements ControlValueAccessor {
 
   private snap(value: number): number {
     const stepped = Math.round((value - this.min()) / this.step()) * this.step() + this.min();
-    return this.clampToBounds(round(stepped));
+    return this.clampToBounds(round(stepped, 6));
   }
 
   private clampToBounds(v: number): number {

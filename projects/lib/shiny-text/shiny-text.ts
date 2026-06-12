@@ -13,13 +13,10 @@
  * `[yoyo]` / `[direction]`.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 /**
  * Animated shimmer-over-text effect. A bright stripe sweeps across the
@@ -64,7 +61,7 @@ export class WrShinyText {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /** Time for the bright stripe to traverse the text, in seconds. @default 2 */
-  readonly speed = input(2, { transform: num(2) });
+  readonly speed = input(2, { transform: numAttr(2) });
 
   /** Base text colour (outside the bright stripe). @default '#b5b5b5' */
   /** Base text colour. When unset, the theme decides. */
@@ -75,7 +72,7 @@ export class WrShinyText {
   readonly shineColor = input<string | null>(null);
 
   /** Gradient angle in degrees. @default 120 */
-  readonly spread = input(120, { transform: num(120) });
+  readonly spread = input(120, { transform: numAttr(120) });
 
   /** Bounce the stripe back-and-forth instead of restarting. @default false */
   readonly yoyo = input(false, { transform: coerceBooleanProperty });
@@ -87,7 +84,7 @@ export class WrShinyText {
   readonly direction = input<'left' | 'right'>('left');
 
   /** Pause between sweeps in seconds. @default 0 */
-  readonly delay = input(0, { transform: num(0) });
+  readonly delay = input(0, { transform: numAttr(0) });
 
   /** Total animation cycle (speed + delay) in seconds. */
   protected readonly totalDuration = computed(() => this.speed() + this.delay());

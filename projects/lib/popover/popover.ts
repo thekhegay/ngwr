@@ -5,7 +5,6 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import type { TemplateRef } from '@angular/core';
@@ -24,14 +23,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
+import { numAttr } from 'ngwr/utils';
 
 import { WrPopoverTextPanel } from './internal/text-panel';
 import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './types';
-
-const numAttr =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
 
 /**
  * Anchored content panel. The same directive covers two shapes:

@@ -12,7 +12,7 @@
  * pure-CSS keyframes for the cursor blink.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -29,11 +29,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 /**
  * Classic typewriter — types out a string char-by-char, optionally
@@ -72,16 +68,16 @@ export class WrTypewriter {
   readonly texts = input<readonly string[] | undefined>(undefined);
 
   /** Per-char typing speed in ms. @default 50 */
-  readonly typingSpeed = input(50, { transform: num(50) });
+  readonly typingSpeed = input(50, { transform: numAttr(50) });
 
   /** Initial delay before typing starts, in ms. @default 0 */
-  readonly initialDelay = input(0, { transform: num(0) });
+  readonly initialDelay = input(0, { transform: numAttr(0) });
 
   /** Pause between sentences (after typing complete, before deleting), in ms. @default 2000 */
-  readonly pauseDuration = input(2000, { transform: num(2000) });
+  readonly pauseDuration = input(2000, { transform: numAttr(2000) });
 
   /** Per-char deletion speed in ms. @default 30 */
-  readonly deletingSpeed = input(30, { transform: num(30) });
+  readonly deletingSpeed = input(30, { transform: numAttr(30) });
 
   /** Loop back to the first string after the last. @default true */
   readonly loop = input(true, { transform: coerceBooleanProperty });
@@ -96,7 +92,7 @@ export class WrTypewriter {
   readonly cursorCharacter = input('|');
 
   /** Cursor blink half-cycle in seconds. @default 0.5 */
-  readonly cursorBlinkDuration = input(0.5, { transform: num(0.5) });
+  readonly cursorBlinkDuration = input(0.5, { transform: numAttr(0.5) });
 
   /** Cycle through these colours per string. */
   readonly textColors = input<readonly string[]>([]);

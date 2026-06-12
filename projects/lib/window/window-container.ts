@@ -22,7 +22,8 @@ import {
 
 import { WrStorage } from 'ngwr/storage';
 
-import type { WrWindowConfig, WrWindowStorageConfig } from './types';
+import { storageKey } from './storage-key';
+import type { WrWindowConfig } from './types';
 import { WrWindow } from './window';
 import type { WrWindowRef } from './window-ref';
 
@@ -31,11 +32,6 @@ interface PersistedGeometry {
   readonly y?: number;
   readonly width?: number;
   readonly height?: number;
-}
-
-function storageKey(cfg: WrWindowStorageConfig): string {
-  const prefix = cfg.prefix ? `${cfg.prefix}:` : '';
-  return `wr:window:${prefix}${cfg.key}`;
 }
 
 /** Coalesce live position/size writes — drag/resize fires every move. */

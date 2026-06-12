@@ -20,11 +20,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { easeOutCubic } from './easing';
 import type { WrCounterMode } from './types';
-
-function easeOutCubic(t: number): number {
-  return 1 - Math.pow(1 - t, 3);
-}
 
 /** Visual cell in odometer mode — either a 0-9 column or a static glyph. */
 type Cell = { readonly kind: 'digit'; readonly fraction: number } | { readonly kind: 'static'; readonly char: string };

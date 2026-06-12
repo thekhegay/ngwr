@@ -29,6 +29,8 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { numAttr } from 'ngwr/utils';
+
 const SMOOTH_TAU = 0.25;
 const MIN_COPIES = 2;
 const COPY_HEADROOM = 2;
@@ -36,11 +38,6 @@ const COPY_HEADROOM = 2;
 function isNode(item: WrMarqueeItem): item is WrMarqueeNode {
   return 'node' in item;
 }
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
 
 /**
  * Endless horizontal marquee. Auto-duplicates the items list until it
@@ -85,16 +82,16 @@ export class WrMarquee {
   readonly items = input.required<readonly WrMarqueeItem[]>();
 
   /** Scroll speed in pixels per second. Negative reverses direction. @default 120 */
-  readonly speed = input(120, { transform: num(120) });
+  readonly speed = input(120, { transform: numAttr(120) });
 
   /** Track direction. @default 'left' */
   readonly direction = input<'left' | 'right'>('left');
 
   /** Item height in pixels. @default 28 */
-  readonly itemHeight = input(28, { transform: num(28) });
+  readonly itemHeight = input(28, { transform: numAttr(28) });
 
   /** Gap between items in pixels. @default 32 */
-  readonly gap = input(32, { transform: num(32) });
+  readonly gap = input(32, { transform: numAttr(32) });
 
   /** Pause the loop on hover. @default false */
   readonly pauseOnHover = input(false, { transform: coerceBooleanProperty });

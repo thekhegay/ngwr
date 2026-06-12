@@ -11,13 +11,9 @@
  * `rays` (mirrored pair vs a single ray).
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 /** When the rays animate. */
 export type WrStarBorderMode = 'infinite' | 'hover';
@@ -57,10 +53,10 @@ export class WrStarBorder {
   readonly color = input<string | null>(null);
 
   /** Seconds per ray sweep. @default 6 */
-  readonly speed = input(6, { transform: num(6) });
+  readonly speed = input(6, { transform: numAttr(6) });
 
   /** Vertical bleed of the rays past the inner panel, in px. @default 1 */
-  readonly thickness = input(1, { transform: num(1) });
+  readonly thickness = input(1, { transform: numAttr(1) });
 
   /** `'infinite'` animates always; `'hover'` only while hovered. @default 'infinite' */
   readonly mode = input<WrStarBorderMode>('infinite');

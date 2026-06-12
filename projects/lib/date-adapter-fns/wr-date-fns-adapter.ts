@@ -28,7 +28,7 @@ import {
   set as dfSet,
   startOfDay,
 } from 'date-fns';
-import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat } from 'ngwr/date-adapter';
+import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat, isNamedFormat } from 'ngwr/date-adapter';
 
 const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
   shortDate: 'P',
@@ -38,10 +38,6 @@ const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
   shortDateTime: 'P p',
   mediumDateTime: 'PP p',
 };
-
-function isNamedFormat(value: string): value is WrDateFormat {
-  return value in NAMED_PATTERNS;
-}
 
 /**
  * {@link WrDateAdapter} backed by `date-fns`. Same `Date` value type as the

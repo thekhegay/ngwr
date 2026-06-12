@@ -12,7 +12,6 @@
  * (tension + friction) pulling it back to rest.
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -29,11 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 // Perlin noise (Stefan Gustavson's reference permutation)
 /* eslint-disable no-bitwise -- permutation-table hashing is inherently bitwise */
@@ -164,31 +159,31 @@ export class WrWaves {
   readonly backgroundColor = input('transparent');
 
   /** Horizontal noise drift per ms. @default 0.0125 */
-  readonly waveSpeedX = input(0.0125, { transform: num(0.0125) });
+  readonly waveSpeedX = input(0.0125, { transform: numAttr(0.0125) });
 
   /** Vertical noise drift per ms. @default 0.005 */
-  readonly waveSpeedY = input(0.005, { transform: num(0.005) });
+  readonly waveSpeedY = input(0.005, { transform: numAttr(0.005) });
 
   /** Horizontal wave amplitude in px. @default 32 */
-  readonly waveAmpX = input(32, { transform: num(32) });
+  readonly waveAmpX = input(32, { transform: numAttr(32) });
 
   /** Vertical wave amplitude in px. @default 16 */
-  readonly waveAmpY = input(16, { transform: num(16) });
+  readonly waveAmpY = input(16, { transform: numAttr(16) });
 
   /** Horizontal gap between lines in px. @default 10 */
-  readonly xGap = input(10, { transform: num(10) });
+  readonly xGap = input(10, { transform: numAttr(10) });
 
   /** Vertical gap between points on a line in px. @default 32 */
-  readonly yGap = input(32, { transform: num(32) });
+  readonly yGap = input(32, { transform: numAttr(32) });
 
   /** Velocity damping of the cursor spring, 0..1. @default 0.925 */
-  readonly friction = input(0.925, { transform: num(0.925) });
+  readonly friction = input(0.925, { transform: numAttr(0.925) });
 
   /** Pull-back strength of the cursor spring. @default 0.005 */
-  readonly tension = input(0.005, { transform: num(0.005) });
+  readonly tension = input(0.005, { transform: numAttr(0.005) });
 
   /** Max px a point can be dragged from rest. @default 100 */
-  readonly maxCursorMove = input(100, { transform: num(100) });
+  readonly maxCursorMove = input(100, { transform: numAttr(100) });
 
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 

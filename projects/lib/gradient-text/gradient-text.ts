@@ -12,15 +12,12 @@
  * `background-position`, parameterised by inputs.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-const DEFAULT_COLORS: readonly string[] = ['#5227FF', '#FF9FFC', '#B497CF'];
+import { numAttr } from 'ngwr/utils';
 
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+const DEFAULT_COLORS: readonly string[] = ['#5227FF', '#FF9FFC', '#B497CF'];
 
 /**
  * Animated multi-stop gradient text. The gradient slides across the text
@@ -64,7 +61,7 @@ export class WrGradientText {
   readonly colors = input<readonly string[]>(DEFAULT_COLORS);
 
   /** Seconds per full sweep (or per half if `[yoyo]` is on). @default 8 */
-  readonly animationSpeed = input(8, { transform: num(8) });
+  readonly animationSpeed = input(8, { transform: numAttr(8) });
 
   /** Wrap the text in a dark pill with the gradient as a border. @default false */
   readonly showBorder = input(false, { transform: coerceBooleanProperty });

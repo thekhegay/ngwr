@@ -23,15 +23,11 @@ import { WR_OVERLAY } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
 import { randomId } from 'ngwr/utils';
 
+import { storageKey } from './storage-key';
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from './tokens';
 import type { WrWindowConfig, WrWindowState, WrWindowStorageConfig } from './types';
 import { WrWindowContainer } from './window-container';
 import { WrWindowRef } from './window-ref';
-
-function storageKey(cfg: WrWindowStorageConfig): string {
-  const prefix = cfg.prefix ? `${cfg.prefix}:` : '';
-  return `wr:window:${prefix}${cfg.key}`;
-}
 
 interface RestoreSnapshot {
   readonly id: string;

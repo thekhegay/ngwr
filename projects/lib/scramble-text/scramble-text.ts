@@ -12,7 +12,6 @@
  * per-char `setInterval` loop, restores on settle.
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -26,11 +25,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 interface ActiveScramble {
   swapId: ReturnType<typeof setInterval>;
@@ -79,13 +74,13 @@ function pickRandom(pool: string, exclude: string): string {
 })
 export class WrScrambleText {
   /** Proximity radius in pixels. @default 100 */
-  readonly radius = input(100, { transform: num(100) });
+  readonly radius = input(100, { transform: numAttr(100) });
 
   /** Max scramble duration in seconds (scaled by proximity — closer = longer). @default 1.2 */
-  readonly duration = input(1.2, { transform: num(1.2) });
+  readonly duration = input(1.2, { transform: numAttr(1.2) });
 
   /** Approximate seconds between random-char swaps. Lower = faster scramble. @default 0.05 */
-  readonly speed = input(0.05, { transform: num(0.05) });
+  readonly speed = input(0.05, { transform: numAttr(0.05) });
 
   /** Pool of glyphs to scramble through. @default '.:' */
   readonly scrambleChars = input('.:');

@@ -5,23 +5,19 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrButton, type WrButtonSize } from 'ngwr/button';
 import { useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
+import { numAttr } from 'ngwr/utils';
 
 import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './types';
 
 const ELLIPSIS = '…' as const;
 type PageEntry = number | typeof ELLIPSIS;
-
-const numAttr =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
 
 /**
  * Numbered page navigator with optional total / page-size controls.

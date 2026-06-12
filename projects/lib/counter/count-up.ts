@@ -28,6 +28,10 @@ import {
   signal,
 } from '@angular/core';
 
+import { numAttr } from 'ngwr/utils';
+
+import { easeOutCubic } from './easing';
+
 /** Animation curve. */
 type WrCountUpEasingInternal = 'ease-out' | 'spring';
 
@@ -36,15 +40,6 @@ type WrCountUpTriggerInternal = 'mount' | 'visible';
 
 /** Counting direction. `'down'` swaps `from` ↔ `to`. */
 type WrCountUpDirectionInternal = 'up' | 'down';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
-
-function easeOutCubic(t: number): number {
-  return 1 - Math.pow(1 - t, 3);
-}
 
 /**
  * Animated number tick. Animates from `from` to the current `to`, formatting
@@ -76,7 +71,7 @@ function easeOutCubic(t: number): number {
 })
 export class WrCountUp {
   /** Starting value. @default 0 */
-  readonly from = input(0, { transform: num(0) });
+  readonly from = input(0, { transform: numAttr(0) });
 
   /** Target value. */
   readonly to = input.required<number>();
@@ -87,10 +82,10 @@ export class WrCountUp {
    * - `ease-out` — milliseconds (default 1200, min 100)
    * - `spring` — seconds (tunes spring stiffness; default 2)
    */
-  readonly duration = input(1200, { transform: num(1200) });
+  readonly duration = input(1200, { transform: numAttr(1200) });
 
   /** Optional delay (ms) before the animation starts. @default 0 */
-  readonly delay = input(0, { transform: num(0) });
+  readonly delay = input(0, { transform: numAttr(0) });
 
   /** Animation curve. @default 'ease-out' */
   readonly easing = input<WrCountUpEasingInternal>('ease-out');

@@ -12,7 +12,6 @@
  * API, triggers on viewport entry via `IntersectionObserver`.
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -29,11 +28,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
 
@@ -98,10 +93,10 @@ export class WrSplitText {
   readonly splitType = input<WrSplitTextUnit>('chars');
 
   /** Stagger delay between pieces in ms. @default 50 */
-  readonly delay = input(50, { transform: num(50) });
+  readonly delay = input(50, { transform: numAttr(50) });
 
   /** Animation duration in seconds (matches reactbits' API). @default 1.25 */
-  readonly duration = input(1.25, { transform: num(1.25) });
+  readonly duration = input(1.25, { transform: numAttr(1.25) });
 
   /** CSS easing function. @default 'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out) */
   readonly easing = input('cubic-bezier(0.16, 1, 0.3, 1)');
@@ -113,7 +108,7 @@ export class WrSplitText {
   readonly to = input<WrSplitTextMotion>({ opacity: 1, y: 0 });
 
   /** `IntersectionObserver.threshold` — 0..1. @default 0.1 */
-  readonly threshold = input(0.1, { transform: num(0.1) });
+  readonly threshold = input(0.1, { transform: numAttr(0.1) });
 
   /** `IntersectionObserver.rootMargin`. @default '-100px' */
   readonly rootMargin = input('-100px');

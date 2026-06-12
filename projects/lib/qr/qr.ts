@@ -5,18 +5,14 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import type { ElementRef } from '@angular/core';
 import { Component, PLATFORM_ID, ViewEncapsulation, effect, inject, input, viewChild } from '@angular/core';
 
+import { numAttr } from 'ngwr/utils';
+
 import { drawQrCode } from './generator';
 import type { WrQrErrorLevel } from './types';
-
-const numAttr =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
 
 /**
  * Renders a QR code on a `<canvas>`.

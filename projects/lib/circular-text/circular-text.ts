@@ -17,7 +17,6 @@
  * rotation lives on an inner wrapper).
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -34,11 +33,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 interface Char {
   readonly ch: string;
@@ -73,7 +68,7 @@ export class WrCircularText {
   readonly text = input.required<string>();
 
   /** Seconds per full revolution at rest. @default 20 */
-  readonly spinDuration = input(20, { transform: num(20) });
+  readonly spinDuration = input(20, { transform: numAttr(20) });
 
   /** Hover behaviour. `null` disables hover reactivity. @default 'speedUp' */
   readonly onHover = input<WrCircularTextHover>('speedUp');

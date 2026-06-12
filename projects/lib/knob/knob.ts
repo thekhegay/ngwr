@@ -9,11 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ElementRef, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop } from 'ngwr/utils';
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
+import { clamp, noop } from 'ngwr/utils';
 
 const ARC_START = -135; // 7 o'clock
 const ARC_END = 135; // 5 o'clock — 270° sweep total

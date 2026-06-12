@@ -38,6 +38,7 @@ function pad(n: number, width = 2): string {
   return String(Math.abs(n)).padStart(width, '0');
 }
 
+/** Whether `value` is one of the shared named format keys. */
 function isNamedFormat(value: string): value is WrDateFormat {
   return NAMED_KEYS.has(value as WrDateFormat);
 }
@@ -364,3 +365,5 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     return this.isValid(out) ? out : null;
   }
 }
+
+export { isNamedFormat };

@@ -9,11 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ViewEncapsulation, computed, forwardRef, input, signal } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { noop } from 'ngwr/utils';
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
+import { clamp, noop } from 'ngwr/utils';
 
 /**
  * Star rating input. Click or hover to set a value; supports half-star

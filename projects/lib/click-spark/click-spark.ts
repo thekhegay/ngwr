@@ -8,7 +8,6 @@
  * Original: https://www.reactbits.dev/animations/click-spark
  */
 
-import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -23,6 +22,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
+import { numAttr } from 'ngwr/utils';
 
 interface Spark {
   readonly x: number;
@@ -30,11 +30,6 @@ interface Spark {
   readonly angle: number;
   readonly startTime: number;
 }
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
 
 const EASINGS: Readonly<Record<WrClickSparkEasing, (t: number) => number>> = {
   linear: t => t,
@@ -74,22 +69,22 @@ export class WrClickSpark {
   readonly sparkColor = input('#fff');
 
   /** Length of each spark line in pixels (at t=0; tapers to 0 at t=1). @default 10 */
-  readonly sparkSize = input(10, { transform: num(10) });
+  readonly sparkSize = input(10, { transform: numAttr(10) });
 
   /** Distance each spark travels from origin in pixels. @default 15 */
-  readonly sparkRadius = input(15, { transform: num(15) });
+  readonly sparkRadius = input(15, { transform: numAttr(15) });
 
   /** Number of sparks per click (evenly distributed around the circle). @default 8 */
-  readonly sparkCount = input(8, { transform: num(8) });
+  readonly sparkCount = input(8, { transform: numAttr(8) });
 
   /** Animation duration in ms. @default 400 */
-  readonly duration = input(400, { transform: num(400) });
+  readonly duration = input(400, { transform: numAttr(400) });
 
   /** Easing function applied to the travel distance. @default 'ease-out' */
   readonly easing = input<WrClickSparkEasing>('ease-out');
 
   /** Multiplier on the travel distance — bumps the radius without changing `sparkRadius`. @default 1 */
-  readonly extraScale = input(1, { transform: num(1) });
+  readonly extraScale = input(1, { transform: numAttr(1) });
 
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 

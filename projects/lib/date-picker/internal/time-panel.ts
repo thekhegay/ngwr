@@ -10,11 +10,7 @@ import { Component, ViewEncapsulation, computed, forwardRef, inject, input, sign
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date-adapter';
-import { noop } from 'ngwr/utils';
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
+import { clamp, noop } from 'ngwr/utils';
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');

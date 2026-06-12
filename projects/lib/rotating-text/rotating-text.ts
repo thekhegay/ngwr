@@ -12,7 +12,7 @@
  * the enter/exit transitions.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -30,11 +30,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 const DEFAULT_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -95,7 +91,7 @@ export class WrRotatingText {
   readonly texts = input.required<readonly string[]>();
 
   /** Auto-advance interval in ms. @default 2000 */
-  readonly rotationInterval = input(2000, { transform: num(2000) });
+  readonly rotationInterval = input(2000, { transform: numAttr(2000) });
 
   /** Granularity of the split. @default 'characters' */
   readonly splitBy = input<WrRotatingTextSplit>('characters');
@@ -107,13 +103,13 @@ export class WrRotatingText {
   readonly loop = input(true, { transform: coerceBooleanProperty });
 
   /** Per-swap tween duration in seconds. @default 0.6 */
-  readonly duration = input(0.6, { transform: num(0.6) });
+  readonly duration = input(0.6, { transform: numAttr(0.6) });
 
   /** CSS easing of the per-piece tween. @default 'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out) */
   readonly easing = input(DEFAULT_EASING);
 
   /** Per-piece stagger in seconds. @default 0 */
-  readonly staggerDuration = input(0, { transform: num(0) });
+  readonly staggerDuration = input(0, { transform: numAttr(0) });
 
   /** Stagger origin. @default 'first' */
   readonly staggerFrom = input<WrRotatingTextStaggerFrom>('first');

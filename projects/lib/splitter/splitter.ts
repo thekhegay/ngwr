@@ -8,9 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, model } from '@angular/core';
 
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
+import { clamp } from 'ngwr/utils';
 
 /**
  * Resizable two-pane splitter. Project two pieces of content via

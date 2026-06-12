@@ -8,9 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
+import { clamp } from 'ngwr/utils';
 
 /**
  * Semicircle progress gauge. Display-only — for interactive use see the

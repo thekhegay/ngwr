@@ -9,7 +9,7 @@
  * with an outer halo and optional auto-sweep on mount.
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -24,11 +24,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-
-const num =
-  (fallback: number) =>
-  (v: unknown): number =>
-    coerceNumberProperty(v, fallback);
+import { numAttr } from 'ngwr/utils';
 
 const RADIANS_TO_DEG = 180 / Math.PI;
 
@@ -155,22 +151,22 @@ export class WrBorderGlow {
   readonly backgroundColor = input<string | null>(null);
 
   /** Corner radius in pixels. @default 28 */
-  readonly borderRadius = input(28, { transform: num(28) });
+  readonly borderRadius = input(28, { transform: numAttr(28) });
 
   /** Halo extent in pixels — how far the outer glow reaches past the card edge. @default 40 */
-  readonly glowRadius = input(40, { transform: num(40) });
+  readonly glowRadius = input(40, { transform: numAttr(40) });
 
   /** Halo opacity multiplier (1 = full strength). @default 1 */
-  readonly glowIntensity = input(1, { transform: num(1) });
+  readonly glowIntensity = input(1, { transform: numAttr(1) });
 
   /** Width of the lit cone as a percentage of the perimeter. @default 25 */
-  readonly coneSpread = input(25, { transform: num(25) });
+  readonly coneSpread = input(25, { transform: numAttr(25) });
 
   /** How sharply the halo fades as the cursor leaves the edge. Lower = wider falloff. @default 30 */
-  readonly edgeSensitivity = input(30, { transform: num(30) });
+  readonly edgeSensitivity = input(30, { transform: numAttr(30) });
 
   /** Strength of the soft-light interior fill near edges. @default 0.5 */
-  readonly fillOpacity = input(0.5, { transform: num(0.5) });
+  readonly fillOpacity = input(0.5, { transform: numAttr(0.5) });
 
   /**
    * Halo colour as `'H S L'` (HSL parts, no commas). When unset, the theme
