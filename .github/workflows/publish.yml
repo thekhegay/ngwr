@@ -29,7 +29,8 @@ jobs:
         run: |
           subject=$(git log -1 --pretty=%s)
           echo "Head subject: $subject"
-          if [[ "$subject" =~ ^chore\(release\):\ v([0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?)$ ]]; then
+          # Optional trailing " (#123)" — GitHub appends the PR number on squash merge.
+          if [[ "$subject" =~ ^chore\(release\):\ v([0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?)(\ \(#[0-9]+\))?$ ]]; then
             version="${BASH_REMATCH[1]}"
             tag="v$version"
             is_rc=$([[ "$version" == *-rc.* ]] && echo true || echo false)
