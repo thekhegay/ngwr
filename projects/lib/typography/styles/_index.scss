@@ -7,54 +7,53 @@
   font-family: var(--wr-font-family-base);
 
   &--display {
-    font-size: clamp(var(--wr-text-4xl), 7vw, 5.5rem);
+    // Flowbite landing heading — 4xl that grows to 6xl on wide screens.
+    font-size: clamp(var(--wr-text-4xl), 6vw, 3.75rem);
     font-weight: var(--wr-font-weight-extrabold);
     line-height: var(--wr-leading-none);
-    letter-spacing: -0.02em;
+    letter-spacing: var(--wr-tracking-tight);
   }
 
   &--h1 {
-    font-size: var(--wr-text-4xl);
+    font-size: var(--wr-text-5xl);
     font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-leading-tight);
-    letter-spacing: -0.015em;
+    line-height: var(--wr-leading-none);
+    letter-spacing: var(--wr-tracking-tight);
   }
 
   &--h2 {
-    font-size: var(--wr-text-3xl);
+    font-size: var(--wr-text-4xl);
     font-weight: var(--wr-font-weight-bold);
-    line-height: var(--wr-leading-tight);
-    letter-spacing: -0.01em;
+    line-height: 2.5rem;
+    letter-spacing: var(--wr-tracking-tight);
   }
 
   &--h3 {
-    font-size: var(--wr-text-2xl);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-snug);
+    font-size: var(--wr-text-3xl);
+    font-weight: var(--wr-font-weight-bold);
+    line-height: 2.25rem;
   }
 
   &--h4 {
-    font-size: var(--wr-text-xl);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-snug);
+    font-size: var(--wr-text-2xl);
+    font-weight: var(--wr-font-weight-bold);
+    line-height: 2rem;
   }
 
   &--h5 {
-    font-size: var(--wr-text-lg);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-snug);
+    font-size: var(--wr-text-xl);
+    font-weight: var(--wr-font-weight-bold);
+    line-height: 1.75rem;
   }
 
   &--h6 {
-    font-size: var(--wr-text-base);
-    font-weight: var(--wr-font-weight-semibold);
-    line-height: var(--wr-leading-normal);
-    text-transform: uppercase;
-    letter-spacing: var(--wr-tracking-wide);
+    font-size: var(--wr-text-lg);
+    font-weight: var(--wr-font-weight-bold);
+    line-height: 1.75rem;
   }
 
   &--lead {
-    font-size: var(--wr-text-lg);
+    font-size: var(--wr-text-xl);
     font-weight: var(--wr-font-weight-regular);
     line-height: var(--wr-leading-relaxed);
     color: var(--wr-color-medium);
@@ -90,6 +89,75 @@
     background: rgba(var(--wr-color-light-rgb), 0.6);
     border-radius: var(--wr-border-radius-sm);
     font-size: 0.875em;
+  }
+
+  // Lists — flowbite spacing and markers; element selector picks the
+  // marker so one variant covers ul / ol / dl.
+  &--list {
+    font-size: var(--wr-text-base);
+    line-height: var(--wr-leading-normal);
+    color: var(--wr-color-medium);
+
+    > li + li,
+    > li > ul,
+    > li > ol {
+      margin-top: 0.25rem;
+    }
+
+    > li > ul,
+    > li > ol {
+      padding-left: 1.25rem;
+    }
+  }
+
+  @at-root {
+    ul#{&}--list {
+      list-style: disc inside;
+    }
+
+    ol#{&}--list {
+      list-style: decimal inside;
+    }
+
+    ul#{&}--list ul {
+      list-style: circle inside;
+    }
+
+    ol#{&}--list ol,
+    ul#{&}--list ol {
+      list-style: decimal inside;
+    }
+
+    dl#{&}--list dt {
+      margin-bottom: 0.25rem;
+      color: var(--wr-color-medium);
+    }
+
+    dl#{&}--list dd {
+      font-size: var(--wr-text-lg);
+      font-weight: var(--wr-font-weight-medium);
+      color: var(--wr-color-dark);
+    }
+
+    dl#{&}--list dd + dt {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--wr-color-light);
+    }
+  }
+
+  // Links — flowbite default: medium weight, brand color, underline on
+  // hover. Add your own `underline` class for the always-underlined look.
+  &--link {
+    font-weight: var(--wr-font-weight-medium);
+    color: var(--wr-color-primary);
+    text-decoration: none;
+    text-underline-offset: 2px;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   // Tones

@@ -19,7 +19,9 @@ export type WrTypographyVariant =
   | 'small'
   | 'caption'
   | 'overline'
-  | 'code';
+  | 'code'
+  | 'list'
+  | 'link';
 
 /** Horizontal alignment. */
 export type WrTypographyAlign = 'start' | 'center' | 'end' | 'justify';

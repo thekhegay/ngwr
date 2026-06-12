@@ -38,8 +38,11 @@ export class WrTypography {
   /** Visual variant. @default 'body' */
   readonly variant = input<WrTypographyVariant>('body');
 
-  /** Color tone. @default 'dark' */
-  readonly tone = input<WrTypographyTone>('dark');
+  /**
+   * Color tone. `null` (default) keeps the variant's own color — the base
+   * dark for headings/body, medium for lead/caption, primary for links.
+   */
+  readonly tone = input<WrTypographyTone | null>(null);
 
   /** Horizontal alignment. */
   readonly align = input<WrTypographyAlign | null>(null);
@@ -51,7 +54,9 @@ export class WrTypography {
   readonly mono = input(false, { transform: coerceBooleanProperty });
 
   protected readonly classes = computed(() => {
-    const parts = ['wr-typography', `wr-typography--${this.variant()}`, `wr-typography--tone-${this.tone()}`];
+    const parts = ['wr-typography', `wr-typography--${this.variant()}`];
+    const tone = this.tone();
+    if (tone) parts.push(`wr-typography--tone-${tone}`);
     const align = this.align();
     if (align) parts.push(`wr-typography--align-${align}`);
     if (this.truncate()) parts.push('wr-typography--truncate');
