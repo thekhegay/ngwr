@@ -64,4 +64,17 @@
       color: var(--wr-color-#{$name}-contrast);
     }
   }
+
+  // Outlined — transparent fill, colored border + text. The inset ring
+  // replaces the solid background, so padding stays identical.
+  &--outlined {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px currentcolor;
+
+    @each $name in theme.$colors {
+      &.wr-badge--#{$name} {
+        color: var(--wr-color-#{$name});
+      }
+    }
+  }
 }

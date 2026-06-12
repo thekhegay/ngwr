@@ -44,6 +44,7 @@ export class MyComponent {}`,
 <wr-badge size="md">12</wr-badge>
 <wr-badge size="lg">12</wr-badge>`,
     shape: `<wr-badge color="primary" shape="pill">Beta</wr-badge>`,
+    outlined: `<wr-badge color="primary" outlined>Beta</wr-badge>`,
     tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>
 <wr-tag color="warning" loading>Saving</wr-tag>`,
@@ -52,6 +53,7 @@ export class MyComponent {}`,
   protected readonly api: readonly DocApiRow[] = [
     { name: 'color', description: 'Color variant.', type: 'WrColor', default: "'primary'" },
     { name: 'size', description: 'Size variant.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-    { name: 'shape', description: 'Corner treatment.', type: "'rounded' | 'pill'", default: "'rounded'" },
+    { name: 'shape', description: 'Corner treatment.', type: "'rounded' | 'pill' | 'squircle'", default: "'rounded'" },
+    { name: 'outlined', description: 'Transparent fill, colored ring and text.', type: 'boolean', default: 'false' },
   ];
 }

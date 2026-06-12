@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
@@ -56,6 +57,13 @@ export class WrBadge {
    */
   readonly shape = input<WrBadgeShape>('rounded');
 
+  /**
+   * Outlined style — transparent fill, colored border and text.
+   *
+   * @default false
+   */
+  readonly outlined = input(false, { transform: coerceBooleanProperty });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-badge', `wr-badge--${this.color()}`];
     const size = this.size();
@@ -65,6 +73,9 @@ export class WrBadge {
     const shape = this.shape();
     if (shape !== 'rounded') {
       parts.push(`wr-badge--${shape}`);
+    }
+    if (this.outlined()) {
+      parts.push('wr-badge--outlined');
     }
     return parts.join(' ');
   });

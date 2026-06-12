@@ -41,6 +41,14 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Outlined" description="Transparent fill with a colored ring and text.">
+    <ngwr-doc-snippet [code]="snippets.outlined">
+      @for (c of colors; track c) {
+        <wr-badge [color]="c" outlined>{{ c }}</wr-badge>
+      }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section
     title="Tag — icons + loading"
     description="`<wr-tag>` is the richer sibling. Same entry (`ngwr/badge`), but supports icons, loading state, and outlined / transparent variants."
