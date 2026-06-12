@@ -11,9 +11,13 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   components: 'Components',
   animations: 'Animations',
   directives: 'Directives',
+  icons: 'Icons',
   pipes: 'Pipes',
   services: 'Services',
+  translate: 'Translate',
+  typography: 'Typography',
   utils: 'Utils',
+  validators: 'Validators',
   'getting-started': 'Getting Started',
 };
 
