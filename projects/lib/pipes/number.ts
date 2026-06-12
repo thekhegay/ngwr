@@ -8,8 +8,7 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-/** Built-in style shortcuts — pick a sensible `Intl.NumberFormat` preset by name. */
-export type WrNumberStyle = 'decimal' | 'percent' | 'currency';
+import type { WrNumberStyle } from './interfaces';
 
 /**
  * Locale-aware number formatting via `Intl.NumberFormat`. Uses Angular's
@@ -57,3 +56,5 @@ export class WrNumber implements PipeTransform {
     }
   }
 }
+
+export type { WrNumberStyle } from './interfaces';

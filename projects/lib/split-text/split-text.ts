@@ -30,6 +30,8 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import type { WrSplitTextUnit, WrSplitTextMotion } from './interfaces';
+
 type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
 
 /** Split `text` into render pieces, preserving whitespace as `kind: 'space'`. */
@@ -222,18 +224,4 @@ export class WrSplitText {
   }
 }
 
-/** Granularity of the split. `lines` is not yet supported in this port. */
-export type WrSplitTextUnit = 'chars' | 'words';
-
-/**
- * One end of the animation. Properties not listed default to the steady
- * state (opacity 1, no transform). `x` / `y` are pixels, `scale` is a
- * unitless factor, `rotate` is degrees.
- */
-export interface WrSplitTextMotion {
-  readonly opacity?: number;
-  readonly x?: number;
-  readonly y?: number;
-  readonly scale?: number;
-  readonly rotate?: number;
-}
+export type { WrSplitTextUnit, WrSplitTextMotion } from './interfaces';

@@ -13,7 +13,6 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
-import type { TemplateRef } from '@angular/core';
 import {
   Component,
   DestroyRef,
@@ -30,6 +29,8 @@ import {
 } from '@angular/core';
 
 import { numAttr } from 'ngwr/utils';
+
+import type { WrMarqueeNode, WrMarqueeItem } from './interfaces';
 
 const SMOOTH_TAU = 0.25;
 const MIN_COPIES = 2;
@@ -245,24 +246,4 @@ export class WrMarquee {
   }
 }
 
-/** Image-driven marquee entry. */
-export interface WrMarqueeImage {
-  readonly src: string;
-  readonly alt?: string;
-  readonly href?: string;
-  readonly title?: string;
-  readonly width?: number;
-  readonly height?: number;
-  readonly srcSet?: string;
-  readonly sizes?: string;
-}
-
-/** Template-driven marquee entry — `node` is rendered via `*ngTemplateOutlet`. */
-export interface WrMarqueeNode {
-  readonly node: TemplateRef<unknown>;
-  readonly href?: string;
-  readonly ariaLabel?: string;
-  readonly title?: string;
-}
-
-export type WrMarqueeItem = WrMarqueeImage | WrMarqueeNode;
+export type { WrMarqueeImage, WrMarqueeNode, WrMarqueeItem } from './interfaces';

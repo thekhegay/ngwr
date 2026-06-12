@@ -7,6 +7,8 @@
 
 import { InjectionToken } from '@angular/core';
 
+import type { WrStorageEngine } from './interfaces';
+
 /**
  * Probe a `Storage` candidate to confirm it's writable. Safari private
  * mode, disabled cookies, and storage-blocked iframes all throw on
@@ -22,13 +24,6 @@ function probe(engine: WrStorageEngine): boolean {
     return false;
   }
 }
-
-/**
- * Storage backend. Anything implementing the native `Storage` interface
- * works — `localStorage`, `sessionStorage`, a Map-backed shim, an
- * IndexedDB sync wrapper, an encrypted wrapper, a worker bridge, …
- */
-export type WrStorageEngine = Storage;
 
 /**
  * In-memory implementation of `Storage`. Used as the SSR / private-mode
@@ -77,3 +72,5 @@ export const WR_STORAGE_ENGINE = new InjectionToken<WrStorageEngine>('WR_STORAGE
     return probe(localStorage) ? localStorage : createMemoryStorage();
   },
 });
+
+export type { WrStorageEngine } from './interfaces';

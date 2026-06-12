@@ -8,24 +8,9 @@
 import { DOCUMENT } from '@angular/common';
 import { Service, inject } from '@angular/core';
 
-/** Options for `set` / `remove`. @internal — re-exported below. */
-interface WrCookieOptionsInternal {
-  /**
-   * Expiry. `Date` is written as an `expires=` attribute; `number` is
-   * treated as seconds-from-now and converted to `Max-Age`.
-   */
-  readonly expires?: Date | number;
-  /** Cookie path. @default '/' */
-  readonly path?: string;
-  /** Cookie domain. */
-  readonly domain?: string;
-  /** `Secure` flag. */
-  readonly secure?: boolean;
-  /** `SameSite` policy. @default 'Lax' */
-  readonly sameSite?: 'Lax' | 'Strict' | 'None';
-}
+import type { WrCookieOptions } from './interfaces';
 
-const DEFAULT_OPTS: Required<Pick<WrCookieOptionsInternal, 'path' | 'sameSite'>> = {
+const DEFAULT_OPTS: Required<Pick<WrCookieOptions, 'path' | 'sameSite'>> = {
   path: '/',
   sameSite: 'Lax',
 };
@@ -79,7 +64,7 @@ export class WrCookie {
   }
 
   /** Write `key=value` with optional attributes. */
-  set(key: string, value: string, options?: WrCookieOptionsInternal): void {
+  set(key: string, value: string, options?: WrCookieOptions): void {
     const opts = { ...DEFAULT_OPTS, ...options };
     const parts: string[] = [`${encodeURIComponent(key)}=${encodeURIComponent(value)}`];
 
@@ -104,7 +89,7 @@ export class WrCookie {
   }
 
   /** Remove `key`. Path / domain must match what was used in `set()`. */
-  remove(key: string, options?: Pick<WrCookieOptionsInternal, 'path' | 'domain'>): void {
+  remove(key: string, options?: Pick<WrCookieOptions, 'path' | 'domain'>): void {
     this.set(key, '', { ...options, expires: new Date(0) });
   }
 
@@ -132,4 +117,4 @@ export class WrCookie {
   }
 }
 
-export type WrCookieOptions = WrCookieOptionsInternal;
+export type { WrCookieOptions } from './interfaces';

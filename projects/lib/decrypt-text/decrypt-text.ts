@@ -30,6 +30,8 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import type { WrDecryptTextAnimateOn, WrDecryptTextRevealDirection, WrDecryptTextClickMode } from './interfaces';
+
 const DEFAULT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+';
 
 function computeOrder(len: number, dir: WrDecryptTextRevealDirection): readonly number[] {
@@ -410,6 +412,4 @@ export class WrDecryptText {
   }
 }
 
-export type WrDecryptTextAnimateOn = 'hover' | 'click' | 'view' | 'inViewHover';
-export type WrDecryptTextRevealDirection = 'start' | 'end' | 'center';
-export type WrDecryptTextClickMode = 'once' | 'toggle';
+export type { WrDecryptTextAnimateOn, WrDecryptTextRevealDirection, WrDecryptTextClickMode } from './interfaces';

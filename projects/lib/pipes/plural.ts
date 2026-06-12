@@ -8,15 +8,7 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-/** Word forms keyed by CLDR plural category. Only `other` is required. */
-export type WrPluralForms = Partial<Record<Intl.LDMLPluralRule, string>> & { readonly other: string };
-
-export interface WrPluralOptions {
-  /** Prefix the formatted count before the word. @default true */
-  readonly includeValue?: boolean;
-  /** Locale override; defaults to Angular's `LOCALE_ID`. */
-  readonly locale?: string;
-}
+import type { WrPluralForms, WrPluralOptions } from './interfaces';
 
 /**
  * Locale-aware pluralization via `Intl.PluralRules`. Picks the right word
@@ -51,3 +43,5 @@ export class WrPlural implements PipeTransform {
     return `${new Intl.NumberFormat(locale).format(value)} ${word}`;
   }
 }
+
+export type { WrPluralForms, WrPluralOptions } from './interfaces';

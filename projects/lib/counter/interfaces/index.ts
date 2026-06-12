@@ -12,4 +12,15 @@
  * - `tween` — single eased interpolation from the previous value to the new
  *   one (matches `<wr-count-up>` behavior, formatted inline).
  */
+
+/** Animation curve. */
+type WrCountUpEasing = 'ease-out' | 'spring';
+
+/** When the counter should start animating. */
+type WrCountUpTrigger = 'mount' | 'visible';
+
+/** Counting direction. `'down'` swaps `from` ↔ `to`. */
+type WrCountUpDirection = 'up' | 'down';
+
 export type WrCounterMode = 'odometer' | 'tween';
+export type { WrCountUpEasing, WrCountUpTrigger, WrCountUpDirection };

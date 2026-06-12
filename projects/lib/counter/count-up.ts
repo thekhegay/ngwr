@@ -31,15 +31,7 @@ import {
 import { numAttr } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
-
-/** Animation curve. */
-type WrCountUpEasingInternal = 'ease-out' | 'spring';
-
-/** When the counter should start animating. */
-type WrCountUpTriggerInternal = 'mount' | 'visible';
-
-/** Counting direction. `'down'` swaps `from` ↔ `to`. */
-type WrCountUpDirectionInternal = 'up' | 'down';
+import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './interfaces';
 
 /**
  * Animated number tick. Animates from `from` to the current `to`, formatting
@@ -88,7 +80,7 @@ export class WrCountUp {
   readonly delay = input(0, { transform: numAttr(0) });
 
   /** Animation curve. @default 'ease-out' */
-  readonly easing = input<WrCountUpEasingInternal>('ease-out');
+  readonly easing = input<WrCountUpEasing>('ease-out');
 
   /**
    * When to start the animation.
@@ -98,10 +90,10 @@ export class WrCountUp {
    *   (IntersectionObserver). Useful for long pages or hero numbers
    *   below the fold.
    */
-  readonly trigger = input<WrCountUpTriggerInternal>('mount');
+  readonly trigger = input<WrCountUpTrigger>('mount');
 
   /** Counting direction. `'down'` swaps `from` ↔ `to`. @default 'up' */
-  readonly direction = input<WrCountUpDirectionInternal>('up');
+  readonly direction = input<WrCountUpDirection>('up');
 
   /** Fixed number of decimals. @default 0 */
   readonly decimals = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
@@ -278,6 +270,4 @@ export class WrCountUp {
   }
 }
 
-export type WrCountUpEasing = WrCountUpEasingInternal;
-export type WrCountUpTrigger = WrCountUpTriggerInternal;
-export type WrCountUpDirection = WrCountUpDirectionInternal;
+export type { WrCountUpEasing, WrCountUpTrigger, WrCountUpDirection } from './interfaces';

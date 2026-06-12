@@ -15,11 +15,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { numAttr } from 'ngwr/utils';
 
-/** When the rays animate. */
-export type WrStarBorderMode = 'infinite' | 'hover';
-
-/** Ray layout — both edges (reactbits default) or just the bottom one. */
-export type WrStarBorderRays = 'mirror' | 'single';
+import type { WrStarBorderMode, WrStarBorderRays } from './interfaces';
 
 /**
  * Star border — radial "comet" rays orbiting the top and bottom edges of
@@ -71,3 +67,5 @@ export class WrStarBorder {
     return parts.join(' ');
   };
 }
+
+export type { WrStarBorderMode, WrStarBorderRays } from './interfaces';

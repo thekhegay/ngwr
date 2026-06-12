@@ -32,6 +32,8 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
+import type { WrRotatingTextSplit, WrRotatingTextStaggerFrom } from './interfaces';
+
 const DEFAULT_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 interface Word {
@@ -287,5 +289,4 @@ export class WrRotatingText {
   }
 }
 
-export type WrRotatingTextSplit = 'characters' | 'words' | 'lines';
-export type WrRotatingTextStaggerFrom = 'first' | 'last' | 'center';
+export type { WrRotatingTextSplit, WrRotatingTextStaggerFrom } from './interfaces';

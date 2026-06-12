@@ -10,15 +10,7 @@ import { Component, ViewEncapsulation, computed, input, model, output } from '@a
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
-/** Per-button action shown when the dial expands. */
-export interface WrSpeedDialAction {
-  readonly id: string;
-  readonly label: string;
-  readonly icon?: WrIconName;
-}
-
-/** Direction the action buttons fan out. */
-export type WrSpeedDialDirection = 'up' | 'down' | 'left' | 'right';
+import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
 
 /**
  * Floating action button that expands into a fan of secondary actions on
@@ -81,3 +73,5 @@ export class WrSpeedDial {
     this.open.set(false);
   }
 }
+
+export type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';

@@ -7,11 +7,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-/** Named breakpoint identifiers — match the SCSS `_breakpoints.scss` keys. */
-export type WrBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
-
-/** Map of breakpoint → minimum viewport width in pixels. */
-export type WrBreakpointMap = Readonly<Record<WrBreakpoint, number>>;
+import type { WrBreakpointMap } from './interfaces';
 
 /** Defaults mirror `projects/lib/styles/_breakpoints.scss`. */
 export const DEFAULT_WR_BREAKPOINTS: WrBreakpointMap = Object.freeze({
@@ -27,3 +23,5 @@ export const DEFAULT_WR_BREAKPOINTS: WrBreakpointMap = Object.freeze({
 export const WR_BREAKPOINTS = new InjectionToken<WrBreakpointMap>('WR_BREAKPOINTS', {
   factory: () => DEFAULT_WR_BREAKPOINTS,
 });
+
+export type { WrBreakpoint, WrBreakpointMap } from './interfaces';

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import type { WrHotkeySpec } from './wr-hotkey-types';
+import type { WrHotkeySpec } from './interfaces';
 
 /** Map of user-friendly aliases to canonical `KeyboardEvent.key` strings. */
 const KEY_ALIASES: Readonly<Record<string, string>> = {

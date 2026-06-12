@@ -5,30 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type EnvironmentProviders, type Type, makeEnvironmentProviders } from '@angular/core';
+import { type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 
+import type { WrDateAdapterOptions } from './interfaces';
 import { WR_DATE_LOCALE } from './tokens';
 import { WrDateAdapter } from './wr-date-adapter';
 import { WrNativeDateAdapter } from './wr-native-date-adapter';
-
-/**
- * Options for {@link provideWrDateAdapter}.
- */
-export interface WrDateAdapterOptions {
-  /**
-   * Adapter class. Default: {@link WrNativeDateAdapter}.
-   *
-   * Pass a custom subclass to swap implementations (`WrDateFnsAdapter`,
-   * `WrLuxonAdapter`, …).
-   */
-  readonly adapter?: Type<WrDateAdapter<unknown>>;
-
-  /**
-   * BCP 47 locale tag (`'en-US'`, `'ru-RU'`, …). Default: `navigator.language`
-   * in the browser, `'en-US'` on the server.
-   */
-  readonly locale?: string;
-}
 
 /**
  * Register the date adapter and locale used by the calendar / date picker /
@@ -56,3 +38,5 @@ export function provideWrDateAdapter(options: WrDateAdapterOptions = {}): Enviro
 
   return makeEnvironmentProviders(providers);
 }
+
+export type { WrDateAdapterOptions } from './interfaces';
