@@ -14,14 +14,19 @@
   &__list {
     display: flex;
     flex-direction: column;
+    // Row spacing belongs to the list, not the row templates — margins
+    // inside a row get measured into the drag preview and read as a
+    // white rim around the floating card.
+    gap: var(--wr-sortable-list-gap, 0.5rem);
   }
 
   &__item {
     cursor: grab;
     user-select: none;
-    transition:
-      box-shadow 0.18s ease,
-      transform 0.18s ease;
+    // No transform transition here — the floating preview clones this
+    // class, and animating transform makes it chase the cursor 180ms
+    // behind. Sibling shuffle/settle transitions are scoped below.
+    transition: box-shadow 0.18s ease;
 
     &.cdk-drag-disabled {
       cursor: default;
@@ -63,16 +68,16 @@
 
 .cdk-drag-preview {
   box-sizing: border-box;
-  border-radius: var(--wr-border-radius-base);
-  background: var(--wr-color-white);
-  // Drop shadow uses the always-black backdrop token — `--wr-color-dark-rgb`
-  // flips to light in dark mode, which turns the lift-off shadow into a
-  // glow that breaks the "this is being dragged" affordance.
-  box-shadow:
-    0 8px 20px rgba(var(--wr-color-backdrop-rgb), 0.28),
-    0 2px 4px rgba(var(--wr-color-backdrop-rgb), 0.18);
   color: var(--wr-color-dark);
   font-family: var(--wr-font-family-base);
+  // The preview must track the cursor 1:1 — never animate its transform.
+  transition: none;
+  // The lift-off shadow follows the row template's rendered shape
+  // (drop-shadow, not box-shadow) so the preview box itself never shows
+  // as a white slab around the card. Backdrop token stays black in dark
+  // mode — `--wr-color-dark-rgb` would flip and glow instead.
+  filter: drop-shadow(0 8px 12px rgba(var(--wr-color-backdrop-rgb), 0.24))
+    drop-shadow(0 2px 3px rgba(var(--wr-color-backdrop-rgb), 0.16));
   // CDK sets pointer-events to none on the preview; we keep visuals only.
 }
 
