@@ -70,17 +70,24 @@ jobs:
         run: pnpm release:body --output=.release-body.md
 
       - name: Create git tag
+        # Skip when the tag already exists on origin — keeps re-runs after a
+        # failed publish step idempotent.
         run: |
-          git config user.name  'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -a "${{ needs.detect.outputs.tag }}" -m "Release ${{ needs.detect.outputs.tag }}"
-          git push origin "${{ needs.detect.outputs.tag }}"
+          tag="${{ needs.detect.outputs.tag }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists on origin — skipping"
+          else
+            git config user.name  'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git tag -a "$tag" -m "$tag"
+            git push origin "$tag"
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.detect.outputs.tag }}
-          name: Release ${{ needs.detect.outputs.tag }}
+          name: ${{ needs.detect.outputs.tag }}
           body_path: .release-body.md
           prerelease: ${{ needs.detect.outputs.is_rc == 'true' }}
           make_latest: ${{ needs.detect.outputs.is_rc == 'false' }}
@@ -91,6 +98,9 @@ jobs:
         run: npm install -g npm@latest
 
       - name: Publish to npm (Trusted Publisher)
+        # Run from the package dir — a bare `dist/lib` argument is parsed by
+        # npm as a GitHub owner/repo shorthand, not a folder.
+        working-directory: dist/lib
         run: |
           tag=$([[ "${{ needs.detect.outputs.is_rc }}" == "true" ]] && echo "next" || echo "latest")
-          npm publish dist/lib --access public --provenance --tag "$tag"
+          npm publish --access public --provenance --tag "$tag"
