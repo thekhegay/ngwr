@@ -43,7 +43,7 @@ if (event.key === KEYS.SPACE) toggle();`;
     {
       name: 'WrKey',
       description: 'Union of every value in `KEYS` — drop into function signatures for type-safe key matching.',
-      type: 'type',
+      type: 'type alias',
       default: '—',
     },
   ];

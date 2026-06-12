@@ -46,13 +46,13 @@ const { cssValue, pxValue } = resolveCssSize(raw);`;
     {
       name: 'ResolvedCssSize',
       description: 'Return shape: `{ cssValue: string; pxValue: number | null }`.',
-      type: 'type',
+      type: 'interface',
       default: '—',
     },
     {
       name: 'ResolveCssSizeOptions',
       description: '`{ defaultValue?: unknown }` — used when raw is null/undefined.',
-      type: 'type',
+      type: 'interface',
       default: '—',
     },
   ];

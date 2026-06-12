@@ -165,7 +165,7 @@ export class MyComponent {
     {
       name: 'WrTreeNode',
       description: '{ id, label, children?, disabled? }',
-      type: 'type',
+      type: 'interface',
       default: '—',
     },
   ];
