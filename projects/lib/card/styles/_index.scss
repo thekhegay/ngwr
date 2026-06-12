@@ -7,8 +7,8 @@
   --wr-card-radius: var(--wr-border-radius-base);
   --wr-card-padding-y: 1rem;
   --wr-card-padding-x: 1.25rem;
-  --wr-card-shadow: 0 1px 2px rgb(0 0 0 / 4%);
-  --wr-card-shadow-hover: 0 8px 24px rgb(0 0 0 / 8%), 0 2px 4px rgb(0 0 0 / 4%);
+  --wr-card-shadow: var(--wr-shadow-xs);
+  --wr-card-shadow-hover: var(--wr-shadow-overlay);
 
   position: relative;
   display: flex;

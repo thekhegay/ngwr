@@ -11,7 +11,7 @@
 
 .wr-drawer__panel {
   --wr-drawer-bg: var(--wr-color-white);
-  --wr-drawer-shadow: 0 20px 48px rgba(0, 0, 0, 0.18);
+  --wr-drawer-shadow: var(--wr-shadow-modal);
 
   display: flex;
   flex-direction: column;

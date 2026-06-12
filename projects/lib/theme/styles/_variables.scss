@@ -28,6 +28,27 @@
   --wr-transition-base: var(--wr-duration-base) var(--wr-ease-linear);
   --wr-transition-long: var(--wr-duration-slow) var(--wr-ease-out);
 
+  // Elevation
+  //
+  // Shared shadow recipes. Components reference these (directly, or as
+  // the default of their own `--wr-<component>-shadow` knob) so depth is
+  // consistent across the catalog and dark mode can strengthen every
+  // shadow in one place. Functional hairlines (switch knob, splitter
+  // grip, color-picker rings) stay local — they aid contrast, not depth.
+  --wr-shadow-xs: 0 1px 2px rgb(0 0 0 / 5%);
+  --wr-shadow-sm: 0 2px 8px rgb(0 0 0 / 15%);
+  --wr-shadow-overlay: 0 8px 24px rgb(0 0 0 / 12%), 0 2px 4px rgb(0 0 0 / 6%);
+  --wr-shadow-float: 0 8px 24px rgb(0 0 0 / 18%);
+  --wr-shadow-modal: 0 20px 48px rgb(0 0 0 / 25%);
+
+  // Z-index scale
+  //
+  // Overlay panels inside the CDK container inherit its stacking; these
+  // are for the lib's own fixed-position chrome.
+  --wr-z-overlay: 1000;
+  --wr-z-window: 1100;
+  --wr-z-top: 9999;
+
   // Shared open-animation timing for every overlay panel
   // (dropdown / context-menu / popover / popconfirm / tooltip). Components
   // reference these so global timing tweaks land everywhere in one place.

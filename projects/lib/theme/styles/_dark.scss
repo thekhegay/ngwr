@@ -69,5 +69,14 @@
   --wr-color-danger: #ff5c5c;
   --wr-color-danger-rgb: 255, 92, 92;
 
+  // Elevation
+  // Black shadows at light-mode alphas vanish on the deep canvas; same
+  // geometry, much stronger ink, so panels keep reading as layers.
+  --wr-shadow-xs: 0 1px 2px rgb(0 0 0 / 35%);
+  --wr-shadow-sm: 0 2px 8px rgb(0 0 0 / 45%);
+  --wr-shadow-overlay: 0 8px 24px rgb(0 0 0 / 50%), 0 2px 4px rgb(0 0 0 / 35%);
+  --wr-shadow-float: 0 8px 24px rgb(0 0 0 / 55%);
+  --wr-shadow-modal: 0 24px 56px rgb(0 0 0 / 60%);
+
   color-scheme: dark;
 }

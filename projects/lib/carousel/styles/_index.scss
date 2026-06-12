@@ -51,7 +51,7 @@
     background: rgba(var(--wr-color-white-rgb), 0.85);
     color: var(--wr-color-dark);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--wr-shadow-sm);
     backdrop-filter: blur(4px);
     transition:
       background var(--wr-transition-base),

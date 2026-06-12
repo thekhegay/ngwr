@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: var(--wr-z-top, 9999);
   pointer-events: none;
 
   &__track {

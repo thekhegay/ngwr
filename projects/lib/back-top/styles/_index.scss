@@ -29,7 +29,7 @@
     background: var(--wr-color-primary);
     color: var(--wr-color-primary-contrast, var(--wr-color-white));
     cursor: pointer;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--wr-shadow-float);
     transition:
       background var(--wr-transition-base),
       transform var(--wr-transition-base);

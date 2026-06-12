@@ -44,7 +44,7 @@
     background: var(--wr-color-white);
     border: 1px solid var(--wr-color-light);
     border-radius: var(--wr-border-radius-base);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--wr-shadow-sm);
     padding: 0.5rem 0.625rem;
     font-size: var(--wr-text-xs);
     pointer-events: none;

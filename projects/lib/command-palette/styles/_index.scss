@@ -27,7 +27,7 @@
     background: var(--wr-color-white);
     border: 1px solid var(--wr-color-light);
     @include theme.smooth-br(var(--wr-border-radius-base));
-    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--wr-shadow-modal);
     overflow: hidden;
     pointer-events: auto;
     animation: wr-cmd-pop var(--wr-duration-base) var(--wr-ease-out);

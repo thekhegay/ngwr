@@ -44,9 +44,7 @@
   // squircle` where supported (Chrome 145+) and falls back to plain
   // border-radius elsewhere.
   @include theme.smooth-br(var(--wr-border-radius-base));
-  box-shadow:
-    0 12px 24px -8px rgba(0, 0, 0, 0.16),
-    0 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--wr-shadow-overlay);
 }
 
 .wr-context-menu-item {

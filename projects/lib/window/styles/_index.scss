@@ -18,9 +18,7 @@
   background: var(--wr-window-bg);
   border: 1px solid var(--wr-window-border);
   @include theme.smooth-br(var(--wr-window-radius));
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.18),
-    0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--wr-shadow-modal);
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-dark);
   overflow: hidden;
@@ -307,7 +305,7 @@
 .wr-window__snap-hint {
   position: fixed;
   pointer-events: none;
-  z-index: var(--wr-z-overlay, 1100);
+  z-index: var(--wr-z-window, 1100);
   background: rgba(var(--wr-color-primary-rgb), 0.18);
   border: 2px solid var(--wr-color-primary);
   border-radius: var(--wr-border-radius-base);
@@ -341,7 +339,7 @@
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  z-index: var(--wr-z-overlay, 1100);
+  z-index: var(--wr-z-window, 1100);
   display: block;
   pointer-events: none;
   font-family: var(--wr-font-family-base);
@@ -361,9 +359,7 @@
     background: var(--wr-color-white);
     border: 1px solid var(--wr-color-light);
     @include theme.smooth-br(var(--wr-border-radius-base));
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.18),
-      0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--wr-shadow-overlay);
     pointer-events: auto;
   }
 

@@ -9,9 +9,7 @@
     background: var(--wr-color-white);
     border: 1px solid var(--wr-color-light);
     border-radius: var(--wr-border-radius-base);
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.12),
-      0 2px 4px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--wr-shadow-overlay);
     color: var(--wr-color-dark);
     font-family: var(--wr-font-family-base);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
