@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -28,6 +30,7 @@ const MAX = '2026-12-31';
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class MaxDateValidatorPage {
@@ -55,6 +58,27 @@ const end = new FormControl('', [
       description: 'On failure: `{ maxDate: { max: Date } }`. Empty value passes.',
       type: '{ maxDate: { max } }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-date-picker',
+      url: ['/components', 'date-picker'],
+      description: 'Calendar-popup input - pair it with maxDate for range ceilings.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-calendar',
+      url: ['/components', 'calendar'],
+      description: 'Inline month view with its own [max] guard.',
+    },
+    {
+      kind: 'Validator',
+      title: 'minDate',
+      url: ['/validators', 'min-date'],
+      description: 'The matching lower-bound rule.',
     },
   ];
 }

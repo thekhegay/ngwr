@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class NoWhitespaceValidatorPage {
@@ -46,6 +49,21 @@ username.errors; // { noWhitespace: true }`;
       description: 'On failure: `{ noWhitespace: true }`. Empty value passes.',
       type: '{ noWhitespace: true }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-input',
+      url: ['/components', 'input'],
+      description: 'Usernames / handles where stray spaces sneak in.',
+    },
+    {
+      kind: 'Validator',
+      title: 'match',
+      url: ['/validators', 'match'],
+      description: 'Another cross-field staple for signup forms.',
     },
   ];
 }

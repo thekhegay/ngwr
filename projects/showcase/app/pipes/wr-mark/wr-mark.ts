@@ -97,8 +97,8 @@ mark {
   protected readonly related: readonly DocSeeAlsoLink[] = [
     {
       kind: 'Component',
-      title: 'wr-autocomplete',
-      url: ['/components', 'autocomplete'],
+      title: 'wr-select',
+      url: ['/components', 'select'],
       description: 'Most common host — highlight the typed query inside each suggestion.',
     },
     {

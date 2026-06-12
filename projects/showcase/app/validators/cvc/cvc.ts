@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class CvcValidatorPage {
@@ -56,6 +59,21 @@ const amex = new FormControl('', [WrValidators.cvc(4)]);  // 4 digits`;
       description: 'On failure: `{ cvc: true }`. Empty value passes.',
       type: '{ cvc: true }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-input',
+      url: ['/components', 'input'],
+      description: 'Host control for the 3-4 digit code.',
+    },
+    {
+      kind: 'Validator',
+      title: 'cardNumber',
+      url: ['/validators', 'card-number'],
+      description: 'Sibling rule for the card number itself.',
     },
   ];
 }

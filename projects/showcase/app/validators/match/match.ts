@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class MatchValidatorPage {
@@ -61,6 +64,21 @@ const form = new FormGroup({
       description: "On mismatch: `{ match: { name: 'password' } }`. Empty value passes.",
       type: '{ match: { name } }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-input',
+      url: ['/components', 'input'],
+      description: 'Password + confirm fields this rule usually guards.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-form-field',
+      url: ['/components', 'form-field'],
+      description: 'Label / hint / error scaffolding for the pair.',
     },
   ];
 }

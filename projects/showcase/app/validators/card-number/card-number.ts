@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class CardNumberValidatorPage {
@@ -52,6 +55,27 @@ card.setValue('1234567890123456');    // bad checksum → { cardNumber: true }`;
       description: 'On failure: `{ cardNumber: true }`. Empty value passes.',
       type: '{ cardNumber: true }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-input',
+      url: ['/components', 'input'],
+      description: 'Host control for card entry.',
+    },
+    {
+      kind: 'Validator',
+      title: 'cvc',
+      url: ['/validators', 'cvc'],
+      description: 'Sibling rule for the security code.',
+    },
+    {
+      kind: 'Validator',
+      title: 'iban',
+      url: ['/validators', 'iban'],
+      description: 'Sibling rule for bank account numbers.',
     },
   ];
 }

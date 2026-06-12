@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -28,6 +30,7 @@ const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class OneOfValidatorPage {
@@ -62,6 +65,21 @@ const size = new FormControl('', [
       description: 'On failure: `{ oneOf: { allowed: [...] } }`. Empty value passes.',
       type: '{ oneOf: { allowed } }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-select',
+      url: ['/components', 'select'],
+      description: 'Constrained choice control - validate free input against its options.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-segmented',
+      url: ['/components', 'segmented'],
+      description: 'Inline single-choice alternative.',
     },
   ];
 }

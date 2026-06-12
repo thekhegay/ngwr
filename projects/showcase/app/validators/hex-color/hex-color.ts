@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class HexColorValidatorPage {
@@ -52,6 +55,21 @@ colour.setValue('#xyz');     // → { hexColor: true }`;
       description: 'On failure: `{ hexColor: true }`. Empty value passes.',
       type: '{ hexColor: true }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-color-picker',
+      url: ['/components', 'color-picker'],
+      description: 'Emits the hex strings this rule accepts.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-input',
+      url: ['/components', 'input'],
+      description: 'For free-typed color values.',
     },
   ];
 }

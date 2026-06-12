@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class IbanValidatorPage {
@@ -52,6 +55,21 @@ iban.setValue('GB82 WEST 1234 5698 7654 32'); // → valid (passes mod-97)`;
       description: 'On failure: `{ iban: true }`. Empty value passes.',
       type: '{ iban: true }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-input',
+      url: ['/components', 'input'],
+      description: 'Host control for account entry.',
+    },
+    {
+      kind: 'Validator',
+      title: 'cardNumber',
+      url: ['/validators', 'card-number'],
+      description: 'Sibling rule for card payments.',
     },
   ];
 }

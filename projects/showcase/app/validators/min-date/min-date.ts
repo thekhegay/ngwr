@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -28,6 +30,7 @@ const MIN = '2026-01-01';
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class MinDateValidatorPage {
@@ -58,6 +61,27 @@ start.errors; // { minDate: { min: Date(2026-01-01) } }`;
       description: 'On failure: `{ minDate: { min: Date } }`. Empty value passes.',
       type: '{ minDate: { min } }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-date-picker',
+      url: ['/components', 'date-picker'],
+      description: 'Calendar-popup input - pair it with minDate for range floors.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-calendar',
+      url: ['/components', 'calendar'],
+      description: 'Inline month view with its own [min] guard.',
+    },
+    {
+      kind: 'Validator',
+      title: 'maxDate',
+      url: ['/validators', 'max-date'],
+      description: 'The matching upper-bound rule.',
     },
   ];
 }

@@ -7,7 +7,9 @@ import { WrValidators } from 'ngwr/validators';
 
 import {
   type DocApiRow,
+  type DocSeeAlsoLink,
   DocApiComponent,
+  DocSeeAlsoComponent,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -26,6 +28,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    DocSeeAlsoComponent,
   ],
 })
 export default class UrlValidatorPage {
@@ -65,6 +68,21 @@ secure.errors; // { url: { allowed: ['https'] } }`;
         'On unparseable input: `{ url: true }`. On scheme mismatch: `{ url: { allowed: [...] } }`. Empty value passes.',
       type: '{ url: true | { allowed: string[] } }',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-input',
+      url: ['/components', 'input'],
+      description: 'Host control for link entry.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-form-field',
+      url: ['/components', 'form-field'],
+      description: 'Label / hint / error scaffolding around it.',
     },
   ];
 }
