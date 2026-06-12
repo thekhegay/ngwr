@@ -303,9 +303,10 @@ export default [
     path: components.tabs,
     loadComponent: () => import('./tabs/tabs'),
   },
+  // Typography moved to its own top-level section; keep old links alive.
   {
     path: components.typography,
-    loadComponent: () => import('./typography/typography'),
+    redirectTo: '/typography',
   },
   {
     path: components.textarea,

@@ -79,7 +79,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'QR', url: ['/components', 'qrcode'] },
       { title: 'Statistic', url: ['/components', 'statistic'] },
       { title: 'Timeline', url: ['/components', 'timeline'] },
-      { title: 'Typography', url: ['/components', 'typography'] },
     ],
   },
   {
