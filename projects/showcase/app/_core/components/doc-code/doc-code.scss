@@ -93,17 +93,21 @@
 }
 
 .copy {
+  --wr-icon-size: 0.875rem;
+
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  padding: 0.25rem 0.625rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
   border: 0;
   border-radius: var(--wr-border-radius-sm);
   background: rgba(var(--wr-color-dark-rgb), 0.25);
   color: var(--wr-color-white);
-  font-family: inherit;
-  font-size: 0.75rem;
-  line-height: 1;
   cursor: pointer;
   opacity: 0;
   transition:

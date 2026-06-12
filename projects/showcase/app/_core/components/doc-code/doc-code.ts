@@ -1,6 +1,10 @@
 import { Component, computed, effect, inject, input, resource, signal, untracked } from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 
+import { Check, Copy } from 'lucide';
+import { provideWrIcons, WrIcon } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+
 import type { DocCodeFile } from './types';
 
 import { getHighlighter, type ShikiLang } from '#core/shiki';
@@ -23,12 +27,14 @@ import { copyToClipboard, stripIndent } from '#core/utils';
  * normalized via {@link stripIndent}.
  */
 @Component({
+  imports: [WrIcon],
   selector: 'ngwr-doc-code',
   templateUrl: './doc-code.html',
   styleUrl: './doc-code.scss',
   host: {
     '[attr.data-empty]': 'tabs().length === 0 ? "" : null',
   },
+  providers: [provideWrIcons(lucideIcons({ copy: Copy, check: Check }))],
 })
 export class DocCodeComponent {
   // Single-file API (legacy)

@@ -23,6 +23,6 @@
   }
 
   <button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
-    {{ copied() ? 'Copied' : 'Copy' }}
+    <wr-icon [name]="copied() ? 'check' : 'copy'" />
   </button>
 }
