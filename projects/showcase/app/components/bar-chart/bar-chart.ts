@@ -45,6 +45,12 @@ export class MyComponent {
     basic: `<wr-bar-chart [data]="bars" />`,
   };
 
+  protected readonly typeSnippet = `interface WrBarChartDatum {
+  label: string;
+  value: number;
+  color?: string;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrBarChartDatum', description: 'One bar of data.', type: 'interface' },
     { name: 'label', description: 'Category label under the bar.', type: 'string', required: true, sub: true },

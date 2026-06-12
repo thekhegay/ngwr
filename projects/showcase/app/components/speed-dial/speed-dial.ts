@@ -34,6 +34,12 @@ export default class SpeedDialPageComponent {
 
   protected readonly snippet = `<wr-speed-dial [actions]="actions" (pick)="onPick($event)" />`;
 
+  protected readonly typeSnippet = `interface WrSpeedDialAction {
+  id: string;
+  label: string;
+  icon?: WrIconName;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrSpeedDialAction', description: 'Per-button action shown when the dial expands.', type: 'interface' },
     { name: 'id', description: 'Stable identifier, emitted via (action).', type: 'string', required: true, sub: true },

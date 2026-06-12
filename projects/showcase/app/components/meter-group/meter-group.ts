@@ -77,6 +77,12 @@ export default class MeterGroupPageComponent {
     },
   ];
 
+  protected readonly typeSnippet = `interface WrMeterSegment {
+  label: string;
+  value: number;
+  color?: string;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrMeterSegment', description: 'One segment of the bar.', type: 'interface' },
     { name: 'label', description: 'Label shown in the legend.', type: 'string', required: true, sub: true },

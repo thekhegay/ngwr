@@ -117,6 +117,11 @@ export class MyComponent {
     },
   ];
 
+  protected readonly typeSnippet = `interface WrMentionItem {
+  label: string;
+  [key: string]: unknown;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrMentionItem', description: 'A mentionable entry — extend with any extra metadata.', type: 'interface' },
     { name: 'label', description: 'Text inserted and shown in the panel.', type: 'string', required: true, sub: true },

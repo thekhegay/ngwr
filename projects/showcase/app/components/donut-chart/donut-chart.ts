@@ -45,6 +45,12 @@ export class MyComponent {
     solid: `<wr-donut-chart [segments]="segments" thickness="0" />`,
   };
 
+  protected readonly typeSnippet = `interface WrDonutSegment {
+  label: string;
+  value: number;
+  color?: string;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrDonutSegment', description: 'One slice of the ring.', type: 'interface' },
     { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },

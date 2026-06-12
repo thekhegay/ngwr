@@ -32,6 +32,12 @@ export default class AnchorPageComponent {
 
   protected readonly snippet = `<wr-anchor [links]="links" [offset]="80" />`;
 
+  protected readonly typeSnippet = `interface WrAnchorLink {
+  id: string;
+  label: string;
+  children?: readonly WrAnchorLink[];
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrAnchorLink', description: 'One entry in the rail.', type: 'interface' },
     { name: 'id', description: 'Target element id (without #).', type: 'string', required: true, sub: true },

@@ -136,6 +136,25 @@ export default class MarqueePage {
     },
   ];
 
+  protected readonly typeSnippet = `type WrMarqueeItem = WrMarqueeImage | WrMarqueeNode;
+
+interface WrMarqueeImage {
+  src: string;
+  alt?: string;
+  href?: string;
+  title?: string;
+  width?: number;
+  height?: number;
+  srcSet?: string;
+  sizes?: string;
+}
+
+interface WrMarqueeNode {
+  node: TemplateRef<unknown>;
+  href?: string;
+  ariaLabel?: string;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     {
       name: 'WrMarqueeItem',

@@ -143,6 +143,25 @@ export class MyComponent {}`,
     }
   }
 
+  protected readonly typeSnippet = `type WrTableColumns = Record<string, WrTableColumn>;
+
+interface WrTableColumn {
+  title: string;
+  sortable?: boolean;
+  filterItems?: readonly WrTableFilterItem[];
+}
+
+interface WrTableFilterItem<T = unknown> {
+  title: string;
+  value: T;
+  selected?: boolean;
+}
+
+interface WrTableSortState {
+  key: string;
+  direction: 'asc' | 'desc' | null;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     {
       name: 'WrTableColumns',

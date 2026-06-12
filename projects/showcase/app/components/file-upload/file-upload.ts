@@ -96,6 +96,13 @@ export class MyComponent {
     },
   ];
 
+  protected readonly typeSnippet = `interface WrFileUploadRejection {
+  file: File;
+  reason: WrFileUploadRejectionReason;
+}
+
+type WrFileUploadRejectionReason = 'type' | 'size' | 'count';`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrFileUploadRejection', description: 'One rejected file, emitted via (rejected).', type: 'interface' },
     { name: 'file', description: 'The rejected File object.', type: 'File', required: true, sub: true },

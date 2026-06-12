@@ -63,6 +63,13 @@ export class MyComponent {}`,
     { name: 'disabled', description: 'Disable the whole control.', type: 'boolean', default: 'false' },
   ];
 
+  protected readonly typeSnippet = `interface WrSegmentedOption<T = unknown> {
+  value: T;
+  label?: string;
+  icon?: WrIconName;
+  disabled?: boolean;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrSegmentedOption', description: 'One entry in the track.', type: 'interface' },
     { name: 'value', description: 'Model value when this segment is picked.', type: 'T', required: true, sub: true },

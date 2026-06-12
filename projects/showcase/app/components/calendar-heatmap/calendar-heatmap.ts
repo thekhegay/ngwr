@@ -53,6 +53,11 @@ export class MyComponent {
     basic: `<wr-calendar-heatmap [data]="contributions" />`,
   };
 
+  protected readonly typeSnippet = `interface WrHeatmapDatum {
+  date: string | Date;
+  value: number;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrHeatmapDatum', description: 'One contribution cell.', type: 'interface' },
     {

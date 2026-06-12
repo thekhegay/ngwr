@@ -38,6 +38,12 @@ export class MyComponent {
     basic: `<wr-line-chart [series]="series" [xLabels]="labels" />`,
   };
 
+  protected readonly typeSnippet = `interface WrLineSeries {
+  label: string;
+  data: readonly number[];
+  color?: string;
+}`;
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrLineSeries', description: 'One plotted line.', type: 'interface' },
     { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },
