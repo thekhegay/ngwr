@@ -11,23 +11,7 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <textarea
-        wrAutosize
-        minRows="2"
-        maxRows="8"
-        style="
-          width: 100%;
-          padding: 0.5rem;
-          border: 1px solid var(--wr-color-light);
-          border-radius: 0.375rem;
-          font-family: inherit;
-          font-size: 0.875rem;
-          line-height: 1.5;
-          background: var(--wr-color-white);
-          color: var(--wr-color-dark);
-        "
-        [(ngModel)]="textareaValue"
-      ></textarea>
+      <textarea wrInput wrAutosize minRows="2" maxRows="8" style="width: 100%" [(ngModel)]="textareaValue"></textarea>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

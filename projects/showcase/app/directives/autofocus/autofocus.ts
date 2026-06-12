@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrAutofocus } from 'ngwr/directives';
+import { WrInput } from 'ngwr/input';
 
 import {
   DocApiComponent,
@@ -14,7 +16,16 @@ import {
 @Component({
   selector: 'ngwr-autofocus-page',
   templateUrl: './autofocus.html',
-  imports: [WrAutofocus, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrAutofocus,
+    WrButton,
+    WrInput,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class AutofocusPage {
   protected readonly autofocusOn = signal(true);
@@ -27,7 +38,9 @@ export default class AutofocusPage {
   }
 
   protected readonly snippets = {
-    install: `import { WrAutofocus } from 'ngwr/directives';`,
+    install: `import { WrButton } from 'ngwr/button';
+import { WrAutofocus } from 'ngwr/directives';
+import { WrInput } from 'ngwr/input';`,
     usage: `<input wrAutofocus placeholder="Focused on init" />
 <input [wrAutofocus]="shouldFocus()" />`,
   };
