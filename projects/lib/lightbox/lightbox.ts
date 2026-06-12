@@ -8,10 +8,10 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
+import type { TemplateRef } from '@angular/core';
 import {
   Component,
   DestroyRef,
-  TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
   computed,
@@ -75,7 +75,9 @@ export class WrLightbox {
     return parts.join(' ');
   });
 
-  protected readonly panelTpl = viewChild.required(TemplateRef);
+  // Query by name — `@if` blocks register their own TemplateRefs, so an
+  // unqualified TemplateRef query would grab the thumbnail branch instead.
+  protected readonly panelTpl = viewChild.required<TemplateRef<unknown>>('viewerTpl');
 
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
