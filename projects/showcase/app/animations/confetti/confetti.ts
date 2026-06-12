@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrConfetti } from 'ngwr/confetti';
 
 import {
@@ -15,7 +16,7 @@ import {
 @Component({
   selector: 'ngwr-confetti-page',
   templateUrl: './confetti.html',
-  imports: [DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrButton, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ConfettiPage {
   private readonly confetti = inject(WrConfetti);

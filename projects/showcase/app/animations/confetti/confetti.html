@@ -17,32 +17,9 @@
       (replay)="fire()"
     >
       <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center">
-        <button
-          type="button"
-          (click)="fire()"
-          style="
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--wr-color-primary);
-            border-radius: 0.375rem;
-            color: var(--wr-color-primary);
-            cursor: pointer;
-          "
-        >
-          Fire confetti
-        </button>
+        <wr-btn color="primary" (click)="fire()">Fire confetti</wr-btn>
         @for (placement of placements; track placement.label) {
-          <button
-            type="button"
-            (click)="fireFrom(placement)"
-            style="
-              padding: 0.5rem 1rem;
-              border: 1px solid var(--wr-color-light);
-              border-radius: 0.375rem;
-              cursor: pointer;
-            "
-          >
-            {{ placement.label }}
-          </button>
+          <wr-btn outlined (click)="fireFrom(placement)">{{ placement.label }}</wr-btn>
         }
       </div>
     </ngwr-doc-playground>
