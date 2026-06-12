@@ -38,6 +38,7 @@ export class MyComponent {}`,
     basic: `<wr-qr value="https://ngwr.dev" />`,
     sized: `<wr-qr value="ngwr" [size]="240" level="H" color="#3969e2" />`,
     interactive: `<wr-qr [value]="text()" [size]="200" />`,
+    icon: `<wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="40" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

@@ -24,6 +24,15 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Center icon"
+    description="`iconUrl` overlays an image in the middle; pair it with `level='H'` so the covered modules stay recoverable."
+  >
+    <ngwr-doc-snippet [code]="snippets.icon">
+      <wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="40" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Interactive">
     <ngwr-doc-snippet [code]="snippets.interactive">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center">

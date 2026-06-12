@@ -41,3 +41,17 @@ a {
 button {
   font-family: inherit;
 }
+
+// Links produced by the wrDocRich pipe (doc descriptions) — without this
+// they inherit the muted description color and read as plain text.
+.ngwr-doc-link {
+  color: var(--wr-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(var(--wr-color-primary-rgb), 0.4);
+  transition: text-decoration-color var(--wr-transition-base);
+
+  &:hover {
+    text-decoration-color: var(--wr-color-primary);
+  }
+}

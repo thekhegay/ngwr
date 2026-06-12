@@ -17,7 +17,7 @@ class DocRichPipe implements PipeTransform {
     html = html.replace(
       /\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g,
       (_m, text: string, url: string) =>
-        `<a href="${url}"${url.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${text}</a>`
+        `<a class="ngwr-doc-link" href="${url}"${url.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${text}</a>`
     );
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     return this.sanitizer.bypassSecurityTrustHtml(html);
