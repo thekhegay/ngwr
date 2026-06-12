@@ -18,6 +18,25 @@
   flex-wrap: wrap;
   gap: 0.375rem;
   margin-bottom: 0.25rem;
+
+  // Soft tinted chips — the badge's solid fills and pill padding are too
+  // loud for header metadata; retune through its custom-prop knobs.
+  wr-badge {
+    --wr-badge-padding-x: 0.5rem;
+    --wr-badge-padding-y: 0.1875rem;
+    --wr-badge-font-size: 0.6875rem;
+    --wr-badge-font-weight: 500;
+  }
+
+  wr-badge.wr-badge--light {
+    background: rgba(var(--wr-color-light-rgb), 0.4);
+    color: var(--wr-color-medium);
+  }
+
+  wr-badge.wr-badge--danger {
+    background: rgba(var(--wr-color-danger-rgb), 0.12);
+    color: var(--wr-color-danger);
+  }
 }
 
 .title {
