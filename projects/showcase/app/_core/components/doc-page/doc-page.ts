@@ -94,7 +94,7 @@ export class DocPageComponent {
   }
 
   protected labelColor(label: string): WrColor {
-    return label === 'Experimental' ? 'danger' : 'light';
+    return label === 'Experimental' ? 'danger' : 'medium';
   }
 
   private deriveCategoryFromUrl(): string {

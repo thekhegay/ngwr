@@ -2,7 +2,7 @@
   @if (labels().length) {
     <div class="labels">
       @for (label of labels(); track label) {
-        <wr-badge size="sm" shape="pill" [color]="labelColor(label)">{{ label }}</wr-badge>
+        <wr-badge size="sm" shape="pill" outlined [color]="labelColor(label)">{{ label }}</wr-badge>
       }
     </div>
   }
