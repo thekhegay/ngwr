@@ -49,6 +49,19 @@
 }
 
 .description {
+  // Inline code from the wrDocRich pipe arrives via [innerHTML], so it
+  // never gets the scoping attribute — pierce the emulated encapsulation
+  // or the chips render as bare mono text.
+  ::ng-deep code {
+    display: inline-block;
+    padding: 0.0625rem 0.375rem;
+    border-radius: var(--wr-border-radius-sm);
+    background: rgba(var(--wr-color-light-rgb), 0.35);
+    color: var(--wr-color-dark);
+    font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 0.8125rem;
+  }
+
   margin: 0;
   color: var(--wr-color-medium);
   font-size: 1.125rem;
