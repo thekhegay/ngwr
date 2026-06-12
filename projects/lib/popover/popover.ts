@@ -139,6 +139,7 @@ export class WrPopover {
   );
 
   private overlayRef: OverlayRef | null = null;
+  private hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -184,6 +185,7 @@ export class WrPopover {
       return;
     }
     if (this.trigger() !== 'hover') return;
+    this.clearHoverClose();
     this.isOpen.set(true);
   }
 
@@ -196,7 +198,9 @@ export class WrPopover {
     if (this.trigger() !== 'hover') return;
     const related = event.relatedTarget as Node | null;
     if (related && this.overlayRef?.overlayElement.contains(related)) return;
-    this.isOpen.set(false);
+    // Delay so the pointer can cross the gap between trigger and panel —
+    // entering the panel cancels the close (see attach listeners).
+    this.scheduleHoverClose();
   }
 
   /** @internal */
@@ -304,6 +308,7 @@ export class WrPopover {
       });
 
     if (!tooltip && this.trigger() === 'hover') {
+      this.overlayRef.overlayElement.addEventListener('mouseenter', this.onOverlayEnter);
       this.overlayRef.overlayElement.addEventListener('mouseleave', this.onOverlayLeave);
     }
 
@@ -313,8 +318,10 @@ export class WrPopover {
   private closeOverlay(): void {
     if (!this.overlayRef) return;
     if (!this.isTooltip() && this.trigger() === 'hover') {
+      this.overlayRef.overlayElement.removeEventListener('mouseenter', this.onOverlayEnter);
       this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayLeave);
     }
+    this.clearHoverClose();
     this.overlayRef.dispose();
     this.overlayRef = null;
     this.closed.emit();
@@ -323,6 +330,22 @@ export class WrPopover {
   private readonly onOverlayLeave = (event: MouseEvent): void => {
     const related = event.relatedTarget as Node | null;
     if (related && this.host.nativeElement.contains(related)) return;
-    this.isOpen.set(false);
+    this.scheduleHoverClose();
   };
+
+  private readonly onOverlayEnter = (): void => {
+    this.clearHoverClose();
+  };
+
+  private scheduleHoverClose(): void {
+    this.clearHoverClose();
+    this.hoverCloseTimer = setTimeout(() => this.isOpen.set(false), 120);
+  }
+
+  private clearHoverClose(): void {
+    if (this.hoverCloseTimer) {
+      clearTimeout(this.hoverCloseTimer);
+      this.hoverCloseTimer = null;
+    }
+  }
 }
