@@ -660,11 +660,7 @@
     font-weight: 700;
     letter-spacing: -0.01em;
     background:
-      radial-gradient(
-        circle at 50% 0%,
-        rgba(var(--wr-color-primary-rgb), 0.08),
-        transparent 70%
-      ),
+      radial-gradient(circle at 50% 0%, rgba(var(--wr-color-primary-rgb), 0.08), transparent 70%),
       rgba(var(--wr-color-light-rgb), 0.2);
     color: var(--wr-color-dark);
     text-align: center;
