@@ -44,7 +44,7 @@
                 @if (templateFor(entry.key); as tpl) {
                   <ng-container
                     [ngTemplateOutlet]="tpl"
-                    [ngTemplateOutletContext]="cellContext(row, $any(entry.key), entry.value)"
+                    [ngTemplateOutletContext]="cellContext(row, entry.key, entry.value)"
                   />
                 } @else {
                   {{ getValue(row, entry.key) }}

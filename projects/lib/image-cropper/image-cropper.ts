@@ -187,6 +187,8 @@ export class WrImageCropper {
 
   // Drag handlers
 
+  protected readonly handles: readonly WrCropHandle[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
+
   protected onPointerDown(handle: WrCropHandle, event: PointerEvent): void {
     event.preventDefault();
     event.stopPropagation();

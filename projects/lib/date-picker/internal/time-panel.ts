@@ -152,8 +152,8 @@ export class WrTimePanel implements ControlValueAccessor {
 
   // Typed-input handlers
 
-  protected onHoursInput(raw: string): void {
-    const n = Number(raw);
+  protected onHoursInput(event: Event): void {
+    const n = Number((event.target as HTMLInputElement).value);
     if (Number.isNaN(n)) return;
     if (this.is12h()) {
       const h12 = clamp(Math.trunc(n), 1, 12) % 12;
@@ -164,15 +164,15 @@ export class WrTimePanel implements ControlValueAccessor {
     this.emit();
   }
 
-  protected onMinutesInput(raw: string): void {
-    const n = Number(raw);
+  protected onMinutesInput(event: Event): void {
+    const n = Number((event.target as HTMLInputElement).value);
     if (Number.isNaN(n)) return;
     this.minutes.set(clamp(Math.trunc(n), 0, 59));
     this.emit();
   }
 
-  protected onSecondsInput(raw: string): void {
-    const n = Number(raw);
+  protected onSecondsInput(event: Event): void {
+    const n = Number((event.target as HTMLInputElement).value);
     if (Number.isNaN(n)) return;
     this.seconds.set(clamp(Math.trunc(n), 0, 59));
     this.emit();

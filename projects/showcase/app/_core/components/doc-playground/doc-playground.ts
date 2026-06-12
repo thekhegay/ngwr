@@ -88,6 +88,10 @@ export class DocPlaygroundComponent {
   // Signals are non-narrow here on purpose — the template's @switch
   // discriminates by kind, and each branch only touches the right shape.
 
+  protected inputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
   protected setStr(c: DocControl, v: string): void {
     if (c.kind === 'select' || c.kind === 'text' || c.kind === 'color') c.signal.set(v);
   }

@@ -16,7 +16,7 @@
     [value]="hoursDisplay()"
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
-    (input)="onHoursInput($any($event.target).value)"
+    (input)="onHoursInput($event)"
     (blur)="onBlur()"
   />
   <button
@@ -50,7 +50,7 @@
     [value]="minutesDisplay()"
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
-    (input)="onMinutesInput($any($event.target).value)"
+    (input)="onMinutesInput($event)"
     (blur)="onBlur()"
   />
   <button
@@ -85,7 +85,7 @@
       [value]="secondsDisplay()"
       [disabled]="effectiveDisabled()"
       [readonly]="readonly()"
-      (input)="onSecondsInput($any($event.target).value)"
+      (input)="onSecondsInput($event)"
       (blur)="onBlur()"
     />
     <button

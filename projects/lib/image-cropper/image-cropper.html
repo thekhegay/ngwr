@@ -21,10 +21,10 @@
         (pointerup)="onPointerUp($event)"
         (pointercancel)="onPointerUp($event)"
       >
-        @for (h of ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']; track h) {
+        @for (h of handles; track h) {
           <span
             [class]="`wr-image-cropper__handle wr-image-cropper__handle--${h}`"
-            (pointerdown)="onPointerDown($any(h), $event)"
+            (pointerdown)="onPointerDown(h, $event)"
             (pointermove)="onPointerMove($event)"
             (pointerup)="onPointerUp($event)"
             (pointercancel)="onPointerUp($event)"

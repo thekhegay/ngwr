@@ -1,5 +1,5 @@
-@if (icon()) {
-  <wr-icon class="wr-context-menu-item__icon" [name]="$any(icon())" size="14" />
+@if (icon(); as name) {
+  <wr-icon class="wr-context-menu-item__icon" [name]="name" size="14" />
 }
 <span class="wr-context-menu-item__label"><ng-content /></span>
 @if (submenu()) {

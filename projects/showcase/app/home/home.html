@@ -91,7 +91,7 @@
         @for (tile of whyTiles; track tile.title) {
           <wr-spotlight-card class="ngwr-why" [spotlightColor]="tile.spotlight" [radius]="70">
             <div class="ngwr-why__icon" [attr.data-accent]="tile.accent">
-              <wr-icon [name]="$any(tile.icon)" size="20" />
+              <wr-icon [name]="tile.icon" size="20" />
             </div>
             <p wrTypography variant="h5">{{ tile.title }}</p>
             <p wrTypography variant="small" tone="medium">{{ tile.description }}</p>

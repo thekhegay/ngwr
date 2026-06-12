@@ -65,7 +65,7 @@
               class="chip__text"
               [value]="ctrl.signal()"
               [placeholder]="ctrl.placeholder ?? ''"
-              (input)="setStr(ctrl, $any($event.target).value)"
+              (input)="setStr(ctrl, inputValue($event))"
             />
           }
 

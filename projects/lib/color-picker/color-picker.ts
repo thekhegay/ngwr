@@ -231,16 +231,16 @@ export class WrColorPicker implements ControlValueAccessor {
     if (tab) this.activeTab.set(tab);
   }
 
-  protected onRgbChannel(channel: 'r' | 'g' | 'b', raw: string): void {
-    const n = clamp(Number(raw), 0, 255);
+  protected onRgbChannel(channel: 'r' | 'g' | 'b', event: Event): void {
+    const n = clamp(Number((event.target as HTMLInputElement).value), 0, 255);
     if (Number.isNaN(n)) return;
     const current = this.rgb();
     const next: WrRgb = { ...current, [channel]: n };
     this.applyRgb(next);
   }
 
-  protected onHslChannel(channel: 'h' | 's' | 'l', raw: string): void {
-    const n = Number(raw);
+  protected onHslChannel(channel: 'h' | 's' | 'l', event: Event): void {
+    const n = Number((event.target as HTMLInputElement).value);
     if (Number.isNaN(n)) return;
     const current = this.hslView();
     const next: WrHsl =
@@ -248,8 +248,8 @@ export class WrColorPicker implements ControlValueAccessor {
     this.applyRgb(hslToRgb(next));
   }
 
-  protected onAlphaPercent(raw: string): void {
-    const n = clamp(Number(raw), 0, 100);
+  protected onAlphaPercent(event: Event): void {
+    const n = clamp(Number((event.target as HTMLInputElement).value), 0, 100);
     if (Number.isNaN(n)) return;
     this.a.set(n / 100);
     this.emit();
