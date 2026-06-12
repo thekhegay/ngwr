@@ -25,31 +25,45 @@ adaptive. Foundations already exist (breakpoints SCSS API, `WrMedia`
 service, density tokens, `drawer position="bottom"`) — this theme wires
 them through the catalog.
 
-- [ ] **M1. Responsive overlay presets** (L) — on small viewports, dialog /
+- [ ] **M1. Showcase mobile adaptation** (L, do first — the storefront is
+      unusable on phones today). Audited 2026-06-13 at 375×812:
+      - header nav overflows, no hamburger; logo + theme/GitHub/npm actions
+        pushed off-screen → collapse to hamburger + sheet, keep logo +
+        theme toggle visible
+      - **docs sidebar fills the entire viewport — page content is
+        unreachable** → off-canvas drawer below `lg`, opened from the
+        header, closed on navigation
+      - homepage split-text hero overflows horizontally → `clamp()` type
+        scale + allow wrapping (mind the descender fix)
+      - doc-page gutters too wide at small widths; API tables + code blocks
+        need horizontal-scroll containers; playground controls stack under
+        the demo
+      - dogfood it: build the shell fixes with ngwr's own drawer /
+        breakpoints / WrMedia
+- [ ] **M2. Responsive overlay presets** (L) — on small viewports, dialog /
       select / dropdown / popover / command-palette collapse to
       bottom-sheet / action-sheet / full-screen presentations. One
       `provideWrResponsiveOverlays()` opt-in + per-component `responsive`
       input; built on the existing drawer plumbing.
-- [ ] **M2. Touch interaction pass** (L) — audit + retrofit the whole
+- [ ] **M3. Touch interaction pass** (L) — audit + retrofit the whole
       catalog: ≥44px touch targets via a `touch` density preset, long-press
       opens context-menu, swipe-to-close on drawer / lightbox / toast,
       swipe nav on carousel / tabs, touch-sized handles for slider / knob /
       splitter / color-picker, drag-drop touch polish.
-- [ ] **M3. Safe-area & viewport correctness** (M) — safe-area-inset tokens
+- [ ] **M4. Safe-area & viewport correctness** (M) — safe-area-inset tokens
       for toast / speed-dial / back-top / drawer / window; `dvh` for
       full-screen overlays; VisualViewport (virtual keyboard) handling for
       overlays that contain inputs (select search, command palette,
       mention, date-picker).
-- [ ] **M4. Container-query adaptive components** (M–L) — table → stacked
+- [ ] **M5. Container-query adaptive components** (M–L) — table → stacked
       cards mode, descriptions → single column, pagination → compact, tabs →
       scrollable with edge fade, toolbar / page-header wrap, statistic
       grids. Driven by container queries (not viewport) so they adapt
       inside any layout; falls back through the breakpoints API.
-- [ ] **M5. Pull-to-refresh + mobile niceties** (M) — pull-to-refresh,
+- [ ] **M6. Pull-to-refresh + mobile niceties** (M) — pull-to-refresh,
       action-sheet preset on drawer, haptics hook where supported.
-- [ ] **M6. Showcase mobile audit** (M) — docs site fully responsive,
-      per-demo phone-frame preview toggle, and A5 visual regression runs
-      mobile viewports too.
+- [ ] **M7. Mobile docs polish** (M) — per-demo phone-frame preview toggle,
+      and A5 visual regression runs mobile viewports too.
 
 ## A — Trust & hardening
 
@@ -215,8 +229,9 @@ Kept deliberately small:
 
 ## Suggested starting order
 
-1. **M1 + M2 + M3** — the mobile pass (priority 1: responsive overlays +
-   touch + viewport correctness; M4–M6 follow)
+1. **M1** — showcase mobile adaptation (the site is unusable on phones
+   today; it gates everything adoption-related), then **M2 + M3 + M4**
+   (responsive overlays + touch + viewport correctness; M5–M7 follow)
 2. **B1** — Signal Forms `FormValueControl` (stable now; first-mover window)
 3. **E2 + E3** — AI-legibility stack (cheap, compounds with everything,
    biggest lever while download count is the bottleneck)
