@@ -1,32 +1,26 @@
+# Changelog
+
 ## [7.0.0](https://github.com/thekhegay/ngwr/compare/v6.1.1...v7.0.0) (2026-06-12)
 
 ### ⚠ BREAKING CHANGES
 
-* **icon:** drop built-in icons, refactor lib internals to inline svgs
-* every `Wr*Component`, `Wr*Directive`, `Wr*Pipe`, `Wr*Service`
-becomes `Wr*`. Files lose the matching `.component`/`.directive`/`.pipe`/`.service`
-infix (`button.component.ts` → `button.ts`, etc).
-
-Collisions resolved by giving the consumer-facing class the bare name and
-suffixing the internal class with a descriptive label:
-  WrTooltip (directive) + WrTooltipPanel (internal floating element)
-  WrPopconfirm (directive) + WrPopconfirmPanel
-  WrToast (service) + WrToastItem
-  WrContextMenu (directive) + WrContextMenuPanel
-  WrSquircle (directive) + WrSquircleHost
-  WrMeta (service) + WrMetaBinding (directive)
-  WrHotkey (service) + WrHotkeyBinding (directive)
-  WrIcon (component) + WrIconDef (data type, was WrIcon)
-  WrTableSort (directive) + WrTableSortState (data type, was WrTableSort)
-
-Selectors are unchanged (`<wr-btn>`, `<wr-tooltip>`, etc) — only class
-identifiers and file names move. Consumers run `pnpm tsx scripts/migrate-v2.ts --path ./src`
-to rewrite their own imports + paths.
-* **input-number:** rename from number-input + fix stepper clicks
-* **input:** convert to wrInput directive + wr-input-group + wr-password-toggle
-* **toast:** add provideWrToastConfig, progress bar, copy, close-all
-
-* refactor!(v2): drop Component/Directive/Pipe/Service suffix from classes + files ([3ebc999](https://github.com/thekhegay/ngwr/commit/3ebc9990b17320c0b76f604da951d1d84a6290a9))
+* **Requires Angular 22.** All `@angular/*` peers now need `>= 22.0.0`.
+* **Ten entry-points were folded into bigger components.** `ng update ngwr` rewrites templates, imports, and SCSS subpaths automatically:
+  * `<wr-autocomplete>` → `<wr-select mode="search">`
+  * `<wr-chips-input>` → `<wr-select mode="tag">`
+  * `<wr-time-picker>` → `<wr-date-picker mode="time">`
+  * `<wr-date-time-picker>` → `<wr-date-picker mode="datetime">`
+  * `[wrTooltip]` / `<wr-tooltip>` → `[wrPopover]` / `<wr-popover mode="tooltip">`
+  * `<wr-tree-select>` → `<wr-tree openOn="overlay">`
+  * `<wr-bottom-sheet>` → `<wr-drawer position="bottom">`
+  * `<wr-count-up-text>` → `<wr-count-up>` (entry: `ngwr/counter`)
+  * `<wr-animated-text>` → `<wr-typewriter>` / `<wr-decrypt-text>` / `<wr-split-text>` per mode
+  * `ngwr/count-up` → `ngwr/counter`, `ngwr/tag` → `ngwr/badge`, `ngwr/image` → `ngwr/lightbox`, `ngwr/form-field` → `ngwr/form` (entries merged; selectors unchanged)
+* **Also migrated automatically:** `wr-select`'s `[multi]` alias → `mode="multi"`, and the removed `WrValidators.email` → Angular's own `Validators.email`.
+* **Manual:** `<wr-aurora>`'s `colorA` / `colorB` / `colorC` inputs were replaced by a single `colorStops` array — update bindings by hand.
+* **Class names dropped their `Component` / `Directive` / `Pipe` / `Service` suffixes** (`WrButtonComponent` → `WrButton`, file names lose the matching infix). Selectors are unchanged — update imports with a find-and-replace. Where a collision existed, the consumer-facing class keeps the bare name (`WrToast` service + `WrToastItem`, `WrMeta` + `WrMetaBinding`, `WrHotkey` + `WrHotkeyBinding`, `WrIcon` component + `WrIconDef` type).
+* **`ngwr/icon` no longer ships built-in icons.** Register exactly the icons you use through a set adapter, e.g. `provideWrIcons(lucideIcons({ check: Check }))` with `lucideIcons` from `ngwr/icon/adapters/lucide`.
+* **Visual defaults changed.** Dark mode was overhauled (new `--wr-shadow-*` / `--wr-z-*` token scales, dark-strengthened shadows); `--wr-border-radius-sm` bumped `0.25rem` → `0.375rem`; typography adopted the Flowbite scale with `tone` now opt-in; pagination defaults to `size="sm"`; toast defaults to the Sonner-style stack.
 
 ### Features
 
@@ -39,18 +33,12 @@ to rewrite their own imports + paths.
 * **animations:** flatten sidebar; add ReactbitsCredit chip on every port page ([3d58fbc](https://github.com/thekhegay/ngwr/commit/3d58fbc0ba86b0a941e15c905652ebf93fa2bb21))
 * **aurora:** rewrite as webgl2 simplex shader with reactbits color stops/amplitude/blend/speed ([489536c](https://github.com/thekhegay/ngwr/commit/489536c53c49dd03591ca1ab0f6039c97c2a37db))
 * **aurora:** theme-aware default stops — deep violet/emerald on light, neon palette on dark ([ecd7a7a](https://github.com/thekhegay/ngwr/commit/ecd7a7a2f49e28994b546a2991b36131d4d42198))
-* **auth:** add Login / Register / Forgot / Reset form components ([5e1271b](https://github.com/thekhegay/ngwr/commit/5e1271bcfdd2bfe2b080b74182a4a3e13b649625))
-* **autocomplete:** add WrAutocompleteComponent ([6d888e2](https://github.com/thekhegay/ngwr/commit/6d888e20104985bf7873e580387b0c155a6403ec))
-* **autocomplete:** opt-in virtual scroll for large option lists ([dae32d6](https://github.com/thekhegay/ngwr/commit/dae32d6c641e7d81f71f6f458b67994ca0e00aed))
-* **autocomplete:** support async option loaders with loading state ([2c800c8](https://github.com/thekhegay/ngwr/commit/2c800c8c83d443e05acd4a55b739a44ebdb1fb08))
 * **avatar:** [shape] input — square | rounded | circle | squircle ([f8e47cd](https://github.com/thekhegay/ngwr/commit/f8e47cd67ebcd33f587c5433e98ec220fbdc5a5d))
 * **badge, button:** squircle shape variant ([5703299](https://github.com/thekhegay/ngwr/commit/57032990c2382b6be1309dcfca66b2c232c00dfd))
 * **badge:** [shape] input replacing [rounded] ([1e0002c](https://github.com/thekhegay/ngwr/commit/1e0002cf76b393c7d3d42893a8f410bcc5b89dac))
 * **badge:** outlined variant ([df95816](https://github.com/thekhegay/ngwr/commit/df958161c87227e2a4f48e480b8f9aa06373de78))
-* **blocks:** add Hero / Features / Pricing / CTA / NotFound page sections ([67aa177](https://github.com/thekhegay/ngwr/commit/67aa177808a2232d6b6f1ad7583b51b0f1f3a3a4))
 * **blur-text:** port reactbits BlurText as wr-blur-text (3-keyframe blur reveal) ([642229d](https://github.com/thekhegay/ngwr/commit/642229d1a61a3c1bae56b184444c14de12fb45f6))
 * **border-glow:** rewrite as cursor-tracked component (reactbits-style); move from /directives to /components ([fd3046a](https://github.com/thekhegay/ngwr/commit/fd3046a87dfb5ff27f9519d50f3cc375ecd705c1))
-* **bottom-sheet:** wr-bottom-sheet slide-up overlay with focus trap + handle ([4f084f8](https://github.com/thekhegay/ngwr/commit/4f084f8c56b94227f9025c28a7ca2020d985ca76))
 * **breadcrumbs:** add auto mode driven by router data.breadcrumb / data.title ([1e7e250](https://github.com/thekhegay/ngwr/commit/1e7e250d231be00f5563e54bc07b14ea24d018f0))
 * **breadcrumb:** wr-breadcrumb + wr-breadcrumb-item with a11y nav landmark ([05b03b1](https://github.com/thekhegay/ngwr/commit/05b03b10b7663b01bbb6dc6e27b633639f104096))
 * **button-group:** cascade [shape] to child buttons ([4993396](https://github.com/thekhegay/ngwr/commit/499339691336e33c0face6f12b1ca30247df05be))
@@ -61,7 +49,6 @@ to rewrite their own imports + paths.
 * **card:** wr-card with header/footer slots, hoverable, loading, compact variants ([7584c38](https://github.com/thekhegay/ngwr/commit/7584c382fb78322058b1c80378ecde6dc38266d0))
 * **cascader:** wr-cascader multi-level picker with cva + clearable + changeonselect ([e8aafa2](https://github.com/thekhegay/ngwr/commit/e8aafa245645591e1678872cc51f1e95835c0717))
 * **cdk:** add css-size ([762f420](https://github.com/thekhegay/ngwr/commit/762f420196d3c12d6c02f4b29bd6a1a737dcdfb6))
-* **chips-input:** wr-chips-input with separators, paste-split, validator, ngmodel ([3b7a394](https://github.com/thekhegay/ngwr/commit/3b7a394f83cbb08cdb8a90a451a15055b483c0ca))
 * **circular-text:** port reactbits CircularText as wr-circular-text (pure CSS, 4 hover modes) ([ef6a791](https://github.com/thekhegay/ngwr/commit/ef6a7913381ce84f1c2ae037b1515f4d87276eb8))
 * **click-spark:** port reactbits ClickSpark as wr-click-spark ([9bcc96b](https://github.com/thekhegay/ngwr/commit/9bcc96b321ce6fb2c03c40335d3c459178143a79))
 * **collapse:** add dedicated <wr-accordion> component ([61da2ec](https://github.com/thekhegay/ngwr/commit/61da2ec6cbc98e4adac9238f02179038da8ae589))
@@ -78,13 +65,11 @@ to rewrite their own imports + paths.
 * **context-menu:** longer transition + smooth-br rounding + smaller item icons ([8767da6](https://github.com/thekhegay/ngwr/commit/8767da6033e98698c880bfdb34c37b25c927bc08))
 * **context-menu:** open/close transition — fade + scale from click origin ([f6bd3d5](https://github.com/thekhegay/ngwr/commit/f6bd3d50f2df8d7ff116adfdced8c43d252600ba))
 * **context-menu:** submenu via [submenu] + divider component + showcase docs ([4d5dee8](https://github.com/thekhegay/ngwr/commit/4d5dee86157b431a14d007b95c09b4c070cbca74))
-* **count-up-text:** port reactbits CountUp as wr-count-up-text (vanilla spring physics) ([0df12c3](https://github.com/thekhegay/ngwr/commit/0df12c3304e06fc616c5542d22aec2200cf09325))
 * **counter:** add <wr-counter> with odometer + tween modes ([2f90097](https://github.com/thekhegay/ngwr/commit/2f90097a6e3e0ed0eadfedd3e202c997599f2fc5))
 * **date-adapter:** add date-fns and luxon adapters ([64ec2ba](https://github.com/thekhegay/ngwr/commit/64ec2ba0900ee7a1354ca9eb62c80e99b18b9561))
 * **date-adapter:** wr-date-adapter abstraction + native implementation ([b3244ae](https://github.com/thekhegay/ngwr/commit/b3244ae2e42f44c3a4b259db50395f4dd7bbcd7a))
-* **date-picker,date-time-picker:** open overlay on input click, not just icon ([157de82](https://github.com/thekhegay/ngwr/commit/157de82d67c8877ef0c08aa42b979643c484c850))
+* **date-picker:** open overlay on input click, not just icon ([157de82](https://github.com/thekhegay/ngwr/commit/157de82d67c8877ef0c08aa42b979643c484c850))
 * **date-picker:** single-date picker with input, calendar icon, popover ([8601a19](https://github.com/thekhegay/ngwr/commit/8601a19801c0cf2f6de92fae69d8c6d69279e0e8))
-* **date-time-picker:** compound date + time picker with calendar and time inside one popover ([762dd81](https://github.com/thekhegay/ngwr/commit/762dd81b822d57cf218be000f67ba406393f449d))
 * **decrypt-text:** port reactbits DecryptedText as wr-decrypt-text (4 trigger modes, sequential / non-sequential) ([1da54a0](https://github.com/thekhegay/ngwr/commit/1da54a03e293afe8e903dd0d1853378078badfa2))
 * **density:** ngwr/density with compact/default/comfortable scale + per-subtree directive ([5878e35](https://github.com/thekhegay/ngwr/commit/5878e35653ca7e927a2a924b79b52015f5e5e7ab))
 * **directives:** add [wrBorderGlow] with rotating conic-gradient border ([8c028c8](https://github.com/thekhegay/ngwr/commit/8c028c8543c7b3087a560c788f609f4682aa9d6c))
@@ -121,8 +106,6 @@ to rewrite their own imports + paths.
 * **icons:** add ngwr/icons/lucide adapter (1958 icons, peer-dep on lucide) ([733c7c9](https://github.com/thekhegay/ngwr/commit/733c7c9a9d38a9a45b88f7602cc55aaa494ecd9f))
 * **icons:** add svgicon helper + feather adapter for raw-svg and inner-svg sources ([08123da](https://github.com/thekhegay/ngwr/commit/08123da7e702ff58bd79418f74c15138da2a5b47))
 * **image-cropper:** add WrImageCropperComponent with aspect ratio + handles ([d42e73c](https://github.com/thekhegay/ngwr/commit/d42e73c6f4386bfd5531fe0a10119452ef5e50fc))
-* **image:** alias wr-lightbox selector + wrlightbox export ([d1a54ef](https://github.com/thekhegay/ngwr/commit/d1a54efc9c25fcbb2247770d2f712695f3f16a5f))
-* **image:** wr-image click-to-zoom lightbox via cdk overlay ([14c07c0](https://github.com/thekhegay/ngwr/commit/14c07c00d8b4a6293798d485311ba98f166ffaa2))
 * **input:** convert to wrInput directive + wr-input-group + wr-password-toggle ([0ca85f4](https://github.com/thekhegay/ngwr/commit/0ca85f400562f7ff9bf0bfe17d219cb2609b579d))
 * **keyboard,empty:** add <wr-kbd> keycap and <wr-empty> placeholder ([950d941](https://github.com/thekhegay/ngwr/commit/950d941aee9931e9118d5bc6a5dfd724c7629dd5))
 * **keyboard:** physical-keycap restyle + full layout demo ([eee260f](https://github.com/thekhegay/ngwr/commit/eee260f30e29a24c8892335a7fa37874638d70a7))
@@ -158,8 +141,8 @@ to rewrite their own imports + paths.
 * **schematics:** ng add prompts for styles, date adapter, density, theme ([30f80fa](https://github.com/thekhegay/ngwr/commit/30f80fa156bba9d22af34d01f296713cd579d3f1))
 * **scramble-text:** port reactbits ScrambledText as wr-scramble-text (dep-free per-char swap loop) ([84ec708](https://github.com/thekhegay/ngwr/commit/84ec708b26a30aff624a33324bb7d3c6134f2e5d))
 * **scroll:** add WrScrollService with smooth-scroll + offset support ([9574161](https://github.com/thekhegay/ngwr/commit/9574161153a2a433aa4e5c2ce9678dcb1e3b153b))
-* **select:** add search mode (sync filter), deprecate wr-autocomplete ([a0716f7](https://github.com/thekhegay/ngwr/commit/a0716f7b7ab2dfaaf333fb131d7ccc698c588b07))
-* **select:** add tag mode (free-text chips), deprecate wr-chips-input ([72de906](https://github.com/thekhegay/ngwr/commit/72de90615f81fe11523b53bcc55ba9d7a7e90f96))
+* **select:** add search mode (sync filter), replacing the removed wr-autocomplete ([a0716f7](https://github.com/thekhegay/ngwr/commit/a0716f7b7ab2dfaaf333fb131d7ccc698c588b07))
+* **select:** add tag mode (free-text chips), replacing the removed wr-chips-input ([72de906](https://github.com/thekhegay/ngwr/commit/72de90615f81fe11523b53bcc55ba9d7a7e90f96))
 * **select:** multi mode with chips, clearable, maxtagcount, backspace remove ([fc722dc](https://github.com/thekhegay/ngwr/commit/fc722dc884ba557d7d4b094751a4de96b7171453))
 * **select:** round out search mode with loader, debounce, minchars, freetext ([a62479b](https://github.com/thekhegay/ngwr/commit/a62479b80df801755bed83b89e5572d4217d0d3b))
 * **shiny-text:** port reactbits ShinyText as wr-shiny-text (pure CSS keyframes) ([3007254](https://github.com/thekhegay/ngwr/commit/30072545629627b1121543f3736124e36e4876e9))
@@ -220,10 +203,8 @@ to rewrite their own imports + paths.
 * **theme:** elevation and z-index tokens with dark-tuned shadows ([050b0ee](https://github.com/thekhegay/ngwr/commit/050b0ee9bf7a3dbe47cd8ebe75bb357a6547c9ac))
 * **theme:** rounder sm radius for controls ([928fc06](https://github.com/thekhegay/ngwr/commit/928fc06059b6a2d911e94e9a6efe93c998daab3d))
 * **theme:** smooth-br mixin — opt into native corner-shape: squircle ([7b62572](https://github.com/thekhegay/ngwr/commit/7b62572101644f4996d24840a592fc36ff98a426))
-* **time-picker:** numeric time input with 12/24h modes and AM/PM toggle ([bc8a832](https://github.com/thekhegay/ngwr/commit/bc8a83235078503861cc7e9e6ac0fdf87d261d94))
 * **toast:** add provideWrToastConfig, progress bar, copy, close-all ([3c946c5](https://github.com/thekhegay/ngwr/commit/3c946c5d5c221d653d3f20900a68c5cb67c5f6a7))
 * **toast:** default to Sonner-style stack mode with hover-to-expand ([30a58c1](https://github.com/thekhegay/ngwr/commit/30a58c13ae263fdeff1d74592fc0b66f7c4951e4))
-* **tree-select:** wr-tree-select overlay picker around wr-tree with single + multi ([81f0aa7](https://github.com/thekhegay/ngwr/commit/81f0aa763b997754871157066f8714905320438c))
 * **tree:** add WrTreeComponent with single / multi selection + keyboard nav ([0410ac6](https://github.com/thekhegay/ngwr/commit/0410ac6725fd7001dd96c4131beb85781cf4b907))
 * **typewriter:** port reactbits TextType as wr-typewriter (dep-free typing loop, CSS cursor) ([6d022d5](https://github.com/thekhegay/ngwr/commit/6d022d53d0d52db6881de19e10c6930bc2e04ca8))
 * **typography:** add <wr-typography> with display/heading/body variants + docs ([d33fc38](https://github.com/thekhegay/ngwr/commit/d33fc386602fbf28a84b3755d1341492254cec44))
@@ -286,7 +267,6 @@ to rewrite their own imports + paths.
 * **context-menu:** pin overlay pane to viewport so it stays on scroll ([e81e639](https://github.com/thekhegay/ngwr/commit/e81e639c79d4b55b59c5dd43aa0153490cdde0fd))
 * **context-menu:** use !important to beat cdk inline position: static ([2255d9b](https://github.com/thekhegay/ngwr/commit/2255d9b44bc69eca15aa2c0b8306ad62fa8308a3))
 * **context-menu:** write top/left directly to pane — bypass cdk margin math ([94273dc](https://github.com/thekhegay/ngwr/commit/94273dc79eaabbd171da9e5a6fe3dc4f64cdfe3b))
-* **count-up-text:** drop escaped quotes from doc-page description (HTML doesn't escape) ([221a179](https://github.com/thekhegay/ngwr/commit/221a179e4914dee149b05607e21b2fd9fd2c5b98))
 * counter odometer wrap, context-menu open, tree autofocus, tooltip arrow+speed, toast close-all blink + list-mode demo ([84f4712](https://github.com/thekhegay/ngwr/commit/84f4712b37e99e2f017029f642bd671f939806d8))
 * **date-picker:** time panel chrome and lucide stepper chevrons ([937bebd](https://github.com/thekhegay/ngwr/commit/937bebd5cfaec98ba2b9c414ad488ecbbfee2a73))
 * **directives:** autosize tracks model writes, autofocus demo focuses directly ([2ad6efd](https://github.com/thekhegay/ngwr/commit/2ad6efdc2cd0db6ca04d21c1e4cd133a4d2c55f3))
@@ -374,7 +354,6 @@ to rewrite their own imports + paths.
 * **theme:** shadows use backdrop-rgb so they stay dark across themes ([99eba0a](https://github.com/thekhegay/ngwr/commit/99eba0a783ffa7abc7924f5ad4eae12a7f63c604))
 * **theme:** skeleton default + speed-dial border + mention demo readable in dark mode ([80ab40b](https://github.com/thekhegay/ngwr/commit/80ab40bb6e1be81e2932a3b28ae41f12c78619d7))
 * **theme:** subtler header border + visible github/npm icons in dark mode ([5b15aed](https://github.com/thekhegay/ngwr/commit/5b15aed21a3b31f2b3ffc0354c9af4419ed874fb))
-* **time-picker,date-time-picker:** use base font and join calendar + time visually ([e307068](https://github.com/thekhegay/ngwr/commit/e3070681add7afa65dd4baf06051c16ec43940f7))
 * **timeline:** align dot with time line, add api tables ([b66ef91](https://github.com/thekhegay/ngwr/commit/b66ef910e0f30d69e56df999613c8c8ea95a7789))
 * **toast:** close-all full bleed + debounce mouseleave collapse ([13a8553](https://github.com/thekhegay/ngwr/commit/13a85538e362c8b58400154e25065d50df71ef51))
 * **toast:** stop overlay wrapper from blocking page clicks ([21bd0e9](https://github.com/thekhegay/ngwr/commit/21bd0e9b6e643fbd64923db369004212e299065f))
@@ -392,12 +371,10 @@ to rewrite their own imports + paths.
 ### Code Refactoring
 
 * **input-number:** rename from number-input + fix stepper clicks ([4ca311c](https://github.com/thekhegay/ngwr/commit/4ca311c87ffc36b836b1b0478ca008a6a7263b74))
-# Changelog
 
 ## 6.1.1 (2025-11-16)
 
 ## 6.1.0 (2025-11-16)
-
 
 ### Bug Fixes
 
@@ -419,7 +396,6 @@ to rewrite their own imports + paths.
 
 ## 4.2.2 (2024-08-20)
 
-
 ### Bug Fixes
 
 * **input:** handle inputValue change ([3b2f6b8](https://github.com/thekhegay/ngwr/commit/3b2f6b8c1b38daa15ef2a2dbc39315f511508bf9))
@@ -440,7 +416,6 @@ to rewrite their own imports + paths.
 ## 4.1.0 (2024-07-22)
 
 ## 4.0.1 (2024-07-22)
-
 
 ### Bug Fixes
 
