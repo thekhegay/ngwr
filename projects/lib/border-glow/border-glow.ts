@@ -49,13 +49,13 @@ const GLOW_VAR_SUFFIXES = ['', '-60', '-50', '-40', '-30', '-20', '-10'] as cons
 
 const GRADIENT_POSITIONS = ['80% 55%', '69% 34%', '8% 6%', '41% 38%', '86% 85%', '82% 18%', '51% 4%'] as const;
 const GRADIENT_VAR_NAMES = [
-  '--gradient-one',
-  '--gradient-two',
-  '--gradient-three',
-  '--gradient-four',
-  '--gradient-five',
-  '--gradient-six',
-  '--gradient-seven',
+  '--wr-border-glow-gradient-one',
+  '--wr-border-glow-gradient-two',
+  '--wr-border-glow-gradient-three',
+  '--wr-border-glow-gradient-four',
+  '--wr-border-glow-gradient-five',
+  '--wr-border-glow-gradient-six',
+  '--wr-border-glow-gradient-seven',
 ] as const;
 const GRADIENT_COLOR_INDEX = [0, 1, 2, 0, 1, 2, 1] as const;
 
@@ -67,7 +67,7 @@ function buildGlowVars(glowColor: string, intensity: number): Record<string, str
   const out: Record<string, string> = {};
   for (let i = 0; i < GLOW_OPACITY_STEPS.length; i++) {
     const alpha = Math.min(GLOW_OPACITY_STEPS[i] * intensity, 100);
-    out[`--glow-color${GLOW_VAR_SUFFIXES[i]}`] = `hsl(${base} / ${alpha}%)`;
+    out[`--wr-border-glow-color${GLOW_VAR_SUFFIXES[i]}`] = `hsl(${base} / ${alpha}%)`;
   }
   return out;
 }
@@ -79,7 +79,7 @@ function buildGradientVars(colors: readonly string[]): Record<string, string> {
     const colour = palette[Math.min(GRADIENT_COLOR_INDEX[i], palette.length - 1)];
     out[GRADIENT_VAR_NAMES[i]] = `radial-gradient(at ${GRADIENT_POSITIONS[i]}, ${colour} 0px, transparent 50%)`;
   }
-  out['--gradient-base'] = `linear-gradient(${palette[0]} 0 100%)`;
+  out['--wr-border-glow-gradient-base'] = `linear-gradient(${palette[0]} 0 100%)`;
   return out;
 }
 
@@ -196,18 +196,18 @@ export class WrBorderGlow {
   /** Inline CSS variable bag — recomputed when colour / radius / sensitivity inputs change. */
   protected readonly cssVars = computed<Record<string, string>>(() => {
     const vars: Record<string, string> = {
-      '--border-radius': `${this.borderRadius()}px`,
-      '--glow-padding': `${this.glowRadius()}px`,
-      '--cone-spread': String(this.coneSpread()),
-      '--edge-sensitivity': String(this.edgeSensitivity()),
-      '--fill-opacity': String(this.fillOpacity()),
+      '--wr-border-glow-radius': `${this.borderRadius()}px`,
+      '--wr-border-glow-padding': `${this.glowRadius()}px`,
+      '--wr-border-glow-cone-spread': String(this.coneSpread()),
+      '--wr-border-glow-edge-sensitivity': String(this.edgeSensitivity()),
+      '--wr-border-glow-fill-opacity': String(this.fillOpacity()),
     };
     const colors = this.colors();
     if (colors !== null) Object.assign(vars, buildGradientVars(colors));
     // Colour vars are written only when set — otherwise the stylesheet's
     // per-theme defaults (light vs dark) take over.
     const bg = this.backgroundColor();
-    if (bg !== null) vars['--card-bg'] = bg;
+    if (bg !== null) vars['--wr-border-glow-bg'] = bg;
     const glow = this.glowColor();
     if (glow !== null) Object.assign(vars, buildGlowVars(glow, this.glowIntensity()));
     return vars;
@@ -232,7 +232,7 @@ export class WrBorderGlow {
     });
   }
 
-  /** Pointer-driven update of `--cursor-angle` + `--edge-proximity`. */
+  /** Pointer-driven update of `--wr-border-glow-angle` + `--wr-border-glow-edge-proximity`. */
   protected onPointerMove(event: PointerEvent): void {
     const host = this.el.nativeElement;
     const rect = host.getBoundingClientRect();
@@ -259,8 +259,8 @@ export class WrBorderGlow {
       if (angle < 0) angle += 360;
     }
 
-    host.style.setProperty('--edge-proximity', (edge * 100).toFixed(3));
-    host.style.setProperty('--cursor-angle', `${angle.toFixed(3)}deg`);
+    host.style.setProperty('--wr-border-glow-edge-proximity', (edge * 100).toFixed(3));
+    host.style.setProperty('--wr-border-glow-angle', `${angle.toFixed(3)}deg`);
   }
 
   /** One-shot perimeter sweep: in → around → out, mirroring the reactbits behaviour. */
@@ -272,7 +272,7 @@ export class WrBorderGlow {
     const ANGLE_START = 110;
     const ANGLE_END = 465;
     host.classList.add('wr-border-glow--sweeping');
-    host.style.setProperty('--cursor-angle', `${ANGLE_START}deg`);
+    host.style.setProperty('--wr-border-glow-angle', `${ANGLE_START}deg`);
 
     const easeOutCubic = (t: number): number => 1 - (1 - t) ** 3;
     const easeInCubic = (t: number): number => t * t * t;
@@ -281,14 +281,14 @@ export class WrBorderGlow {
     // 1. Ramp edge-proximity up to 100 quickly.
     const cancelA = animateValue({
       duration: 500,
-      onUpdate: v => host.style.setProperty('--edge-proximity', `${v}`),
+      onUpdate: v => host.style.setProperty('--wr-border-glow-edge-proximity', `${v}`),
     });
     // 2. Sweep angle first half (ease-in).
     const cancelB = animateValue({
       duration: 1500,
       end: 50,
       ease: easeInCubic,
-      onUpdate: v => host.style.setProperty('--cursor-angle', lerpAngle(v)),
+      onUpdate: v => host.style.setProperty('--wr-border-glow-angle', lerpAngle(v)),
     });
     // 3. Sweep angle second half (ease-out).
     const cancelC = animateValue({
@@ -297,7 +297,7 @@ export class WrBorderGlow {
       start: 50,
       end: 100,
       ease: easeOutCubic,
-      onUpdate: v => host.style.setProperty('--cursor-angle', lerpAngle(v)),
+      onUpdate: v => host.style.setProperty('--wr-border-glow-angle', lerpAngle(v)),
     });
     // 4. Fade proximity back to 0.
     const cancelD = animateValue({
@@ -306,7 +306,7 @@ export class WrBorderGlow {
       start: 100,
       end: 0,
       ease: easeInCubic,
-      onUpdate: v => host.style.setProperty('--edge-proximity', `${v}`),
+      onUpdate: v => host.style.setProperty('--wr-border-glow-edge-proximity', `${v}`),
       onEnd: () => host.classList.remove('wr-border-glow--sweeping'),
     });
 
