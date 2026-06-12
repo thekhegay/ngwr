@@ -72,7 +72,7 @@ export class MyComponent {}`,
       name: 'size',
       description: 'Size variant. `xs` and `xl` extend the button scale via padding/font overrides.',
       type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
-      default: "'md'",
+      default: "'sm'",
     },
     {
       name: 'shape',

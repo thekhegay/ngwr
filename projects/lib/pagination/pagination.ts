@@ -71,7 +71,7 @@ export class WrPagination {
   readonly align = input<WrPaginationAlign>('start');
 
   /** Size variant — cascades to every internal button. @default 'md' */
-  readonly size = input<WrPaginationSize>('md');
+  readonly size = input<WrPaginationSize>('sm');
 
   /** Resolved button size — clamps xs/xl to the closest button size. @internal */
   protected readonly buttonSize = computed<WrButtonSize>(() => {
