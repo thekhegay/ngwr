@@ -67,14 +67,14 @@
     "./reset": {
       "sass": "./styles/_reset.scss"
     },
+    "./animations": {
+      "sass": "./styles/_animations.scss"
+    },
     "./typography": {
       "sass": "./typography/styles/_index.scss"
     },
     "./typography-utilities": {
       "sass": "./styles/_typography.scss"
-    },
-    "./animations": {
-      "sass": "./styles/_animations.scss"
     },
     "./affix": {
       "sass": "./affix/styles/_index.scss"
@@ -87,9 +87,6 @@
     },
     "./aurora": {
       "sass": "./aurora/styles/_index.scss"
-    },
-    "./counter": {
-      "sass": "./counter/styles/_index.scss"
     },
     "./avatar": {
       "sass": "./avatar/styles/_index.scss"
@@ -153,6 +150,9 @@
     },
     "./context-menu": {
       "sass": "./context-menu/styles/_index.scss"
+    },
+    "./counter": {
+      "sass": "./counter/styles/_index.scss"
     },
     "./date-picker": {
       "sass": "./date-picker/styles/_index.scss"
@@ -235,11 +235,11 @@
     "./loading-bar": {
       "sass": "./loading-bar/styles/_index.scss"
     },
-    "./mention": {
-      "sass": "./mention/styles/_index.scss"
-    },
     "./marquee": {
       "sass": "./marquee/styles/_index.scss"
+    },
+    "./mention": {
+      "sass": "./mention/styles/_index.scss"
     },
     "./meter-group": {
       "sass": "./meter-group/styles/_index.scss"
@@ -283,6 +283,9 @@
     "./select": {
       "sass": "./select/styles/_index.scss"
     },
+    "./shiny-text": {
+      "sass": "./shiny-text/styles/_index.scss"
+    },
     "./sidebar": {
       "sass": "./sidebar/styles/_index.scss"
     },
@@ -298,29 +301,26 @@
     "./speed-dial": {
       "sass": "./speed-dial/styles/_index.scss"
     },
-    "./spotlight-card": {
-      "sass": "./spotlight-card/styles/_index.scss"
+    "./spinner": {
+      "sass": "./spinner/styles/_index.scss"
     },
-    "./splitter": {
-      "sass": "./splitter/styles/_index.scss"
+    "./splash-cursor": {
+      "sass": "./splash-cursor/styles/_index.scss"
     },
     "./split-text": {
       "sass": "./split-text/styles/_index.scss"
     },
-    "./shiny-text": {
-      "sass": "./shiny-text/styles/_index.scss"
+    "./splitter": {
+      "sass": "./splitter/styles/_index.scss"
+    },
+    "./spotlight-card": {
+      "sass": "./spotlight-card/styles/_index.scss"
     },
     "./squircle": {
       "sass": "./squircle/styles/_index.scss"
     },
     "./star-border": {
       "sass": "./star-border/styles/_index.scss"
-    },
-    "./spinner": {
-      "sass": "./spinner/styles/_index.scss"
-    },
-    "./splash-cursor": {
-      "sass": "./splash-cursor/styles/_index.scss"
     },
     "./statistic": {
       "sass": "./statistic/styles/_index.scss"
@@ -337,20 +337,20 @@
     "./tabs": {
       "sass": "./tabs/styles/_index.scss"
     },
-    "./tilt-card": {
-      "sass": "./tilt-card/styles/_index.scss"
-    },
     "./textarea": {
       "sass": "./textarea/styles/_index.scss"
+    },
+    "./tilt-card": {
+      "sass": "./tilt-card/styles/_index.scss"
     },
     "./timeline": {
       "sass": "./timeline/styles/_index.scss"
     },
-    "./toolbar": {
-      "sass": "./toolbar/styles/_index.scss"
-    },
     "./toast": {
       "sass": "./toast/styles/_index.scss"
+    },
+    "./toolbar": {
+      "sass": "./toolbar/styles/_index.scss"
     },
     "./tree": {
       "sass": "./tree/styles/_index.scss"
