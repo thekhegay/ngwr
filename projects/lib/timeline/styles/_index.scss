@@ -32,7 +32,8 @@
     flex: 0 0 auto;
     width: 0.75rem;
     height: 0.75rem;
-    margin-top: 0.3125rem;
+    // Centers the 12px dot on the 16px first text line (time or title).
+    margin-top: 0.125rem;
     border-radius: 50%;
     background: var(--wr-color-primary);
     box-shadow: 0 0 0 2px var(--wr-color-white);
@@ -62,6 +63,7 @@
 
   &__time {
     font-size: var(--wr-text-xs);
+    line-height: 1rem;
     color: var(--wr-color-medium);
     font-weight: var(--wr-font-weight-medium);
     margin-bottom: 0.125rem;

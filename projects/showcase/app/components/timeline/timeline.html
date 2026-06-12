@@ -14,4 +14,23 @@
       </wr-timeline>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section title="Horizontal">
+    <ngwr-doc-code [code]="horizontalSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-timeline orientation="horizontal">
+        <wr-timeline-item title="Plan" time="Q1">Scope agreed.</wr-timeline-item>
+        <wr-timeline-item title="Build" time="Q2" color="warning">In progress.</wr-timeline-item>
+        <wr-timeline-item title="Ship" time="Q3" color="success">Released.</wr-timeline-item>
+      </wr-timeline>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API" description="`<wr-timeline>` inputs.">
+    <ngwr-doc-api [rows]="timelineApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Item API" description="`<wr-timeline-item>` inputs.">
+    <ngwr-doc-api [rows]="itemApi" />
+  </ngwr-doc-section>
 </ngwr-doc-page>
