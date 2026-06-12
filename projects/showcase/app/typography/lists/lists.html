@@ -1,0 +1,58 @@
+<ngwr-doc-page
+  title="Lists"
+  description="Unordered, ordered, nested and description lists — `variant='list'` on the list element picks the right markers and spacing per tag."
+  [keywords]="['typography', 'list', 'ul', 'ol', 'dl']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Unordered">
+    <ngwr-doc-code [code]="snippets.ul" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ul wrTypography variant="list" style="max-width: 28rem">
+        <li>At least 10 characters (and up to 100 characters)</li>
+        <li>At least one lowercase character</li>
+        <li>Inclusion of at least one special character, e.g. ! &#64; #</li>
+      </ul>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Ordered">
+    <ngwr-doc-code [code]="snippets.ol" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ol wrTypography variant="list" style="max-width: 28rem">
+        <li>Bonnie with 240 points</li>
+        <li>Jese with 220 points</li>
+        <li>Lana with 190 points</li>
+      </ol>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Nested" description="Nested lists indent and swap markers automatically.">
+    <ngwr-doc-code [code]="snippets.nested" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <ul wrTypography variant="list" style="max-width: 28rem">
+        <li>
+          List item one
+          <ol>
+            <li>You might feel like you are being really organized</li>
+            <li>Nested navigation in UIs is a bad idea</li>
+          </ol>
+        </li>
+        <li>List item two</li>
+      </ul>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Description list">
+    <ngwr-doc-code [code]="snippets.dl" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <dl wrTypography variant="list" style="max-width: 28rem">
+        <dt>Email address</dt>
+        <dd>yourname&#64;example.com</dd>
+        <dt>Home address</dt>
+        <dd>92 Miles Drive, Newark, NJ 07103</dd>
+        <dt>Phone number</dt>
+        <dd>+424 785 425 433</dd>
+      </dl>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

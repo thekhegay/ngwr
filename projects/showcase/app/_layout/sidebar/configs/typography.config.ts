@@ -9,8 +9,10 @@ export const TYPOGRAPHY_SIDEBAR: readonly SidebarGroup[] = [
   {
     title: 'Scale',
     children: [
-      { title: 'Headings & display', url: ['/typography', 'headings'] },
-      { title: 'Body text', url: ['/typography', 'text'] },
+      { title: 'Headings', url: ['/typography', 'headings'] },
+      { title: 'Paragraphs', url: ['/typography', 'paragraphs'] },
+      { title: 'Lists', url: ['/typography', 'lists'] },
+      { title: 'Links', url: ['/typography', 'links'] },
     ],
   },
   {

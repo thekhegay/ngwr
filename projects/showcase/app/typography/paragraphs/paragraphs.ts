@@ -13,7 +13,7 @@ import {
 
 @Component({
   selector: 'ngwr-typography-text-page',
-  templateUrl: './text.html',
+  templateUrl: './paragraphs.html',
   imports: [
     WrTypography,
     DocPageComponent,
@@ -25,6 +25,8 @@ import {
 })
 export default class TypographyTextPage {
   protected readonly snippets = {
+    defaultP: `<p wrTypography variant="body">…</p>`,
+    leadP: `<p wrTypography variant="lead">…</p>`,
     variants: `<p wrTypography variant="lead">Lead paragraph — calmer subhead under a headline.</p>
 <p wrTypography>Body copy in the default variant.</p>
 <p wrTypography variant="small">Small print.</p>

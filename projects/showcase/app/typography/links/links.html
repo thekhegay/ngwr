@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Links"
+  description="`variant='link'` — medium weight in the brand color, underline on hover. Works on anchors and router links alike."
+  [keywords]="['typography', 'link', 'anchor']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Default">
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <a wrTypography variant="link" href="https://github.com/thekhegay/ngwr" target="_blank" rel="noopener">
+        ngwr on GitHub
+      </a>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inline in a paragraph"
+    description="Inherits the surrounding font size — only weight and color change."
+  >
+    <ngwr-doc-code [code]="snippets.inline" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography variant="body" style="max-width: 42rem">
+        The quickest way to get going is the
+        <a wrTypography variant="link" href="https://github.com/thekhegay/ngwr" target="_blank" rel="noopener"
+          >getting started guide</a
+        >
+        — install, wire the theme, import a component.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With icon">
+    <ngwr-doc-code [code]="snippets.icon" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <a wrTypography variant="link" href="https://github.com/thekhegay/ngwr" target="_blank" rel="noopener">
+        Read the changelog
+        <wr-icon name="arrow-forward" size="14" style="vertical-align: -2px" />
+      </a>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+</ngwr-doc-page>

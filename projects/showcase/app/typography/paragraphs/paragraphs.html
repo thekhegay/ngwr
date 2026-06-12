@@ -1,9 +1,32 @@
 <ngwr-doc-page
-  title="Body text"
+  title="Paragraphs"
   description="Lead, body, small, caption, and overline — the running-text vocabulary. Pair with tone, alignment, and the truncate modifier."
   [keywords]="['typography', 'body', 'lead', 'caption', 'overline']"
   [labels]="['Directive']"
 >
+  <ngwr-doc-section
+    title="Default paragraph"
+    description="`body` — base size on normal leading, the everyday reading style."
+  >
+    <ngwr-doc-snippet [code]="snippets.defaultP">
+      <p wrTypography variant="body" style="max-width: 48rem">
+        Track work across the entire organization with automation, integrations and dashboards built for flow. Less
+        busywork, more shipping — the tools fade into the background and the product takes the page.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Lead paragraph"
+    description="`lead` — one size up with relaxed leading; the intro under a page heading."
+  >
+    <ngwr-doc-snippet [code]="snippets.leadP">
+      <p wrTypography variant="lead" style="max-width: 48rem">
+        Deliver great experiences fast — a type system tuned for reading, driven by tokens you can re-skin in one place.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Variants">
     <ngwr-doc-code [code]="snippets.variants" language="angular-html" />
     <ngwr-doc-snippet code="">
