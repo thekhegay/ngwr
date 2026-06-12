@@ -4,11 +4,11 @@ import { WrMeterGroup } from 'ngwr/meter-group';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  type DocApiRow,
 } from '#core/components';
 
 @Component({
@@ -74,6 +74,19 @@ export default class MeterGroupPageComponent {
       type: 'string',
       default: 'auto',
       description: 'CSS color (any value). Falls through to a rotating palette of theme tokens when omitted.',
+    },
+  ];
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrMeterSegment', description: 'One segment of the bar.', type: 'interface' },
+    { name: 'label', description: 'Label shown in the legend.', type: 'string', required: true, sub: true },
+    { name: 'value', description: 'Portion of the sum of all segments.', type: 'number', required: true, sub: true },
+    {
+      name: 'color',
+      description: 'CSS color for the slice and legend swatch.',
+      type: 'string',
+      default: 'palette',
+      sub: true,
     },
   ];
 }

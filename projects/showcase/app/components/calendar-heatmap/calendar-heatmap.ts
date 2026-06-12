@@ -2,7 +2,14 @@ import { Component } from '@angular/core';
 
 import { WrCalendarHeatmap, type WrHeatmapDatum } from 'ngwr/calendar-heatmap';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+  type DocApiRow,
+} from '#core/components';
 
 function makeHeatmap(): readonly WrHeatmapDatum[] {
   const out: WrHeatmapDatum[] = [];
@@ -18,7 +25,14 @@ function makeHeatmap(): readonly WrHeatmapDatum[] {
 @Component({
   selector: 'ngwr-calendar-heatmap-page',
   templateUrl: './calendar-heatmap.html',
-  imports: [WrCalendarHeatmap, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [
+    WrCalendarHeatmap,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class CalendarHeatmapPageComponent {
   protected readonly data = makeHeatmap();
@@ -38,4 +52,22 @@ export class MyComponent {
 }`,
     basic: `<wr-calendar-heatmap [data]="contributions" />`,
   };
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrHeatmapDatum', description: 'One contribution cell.', type: 'interface' },
+    {
+      name: 'date',
+      description: 'ISO date string (YYYY-MM-DD) or Date.',
+      type: 'string | Date',
+      required: true,
+      sub: true,
+    },
+    {
+      name: 'value',
+      description: 'Magnitude — bucketed into intensity steps.',
+      type: 'number',
+      required: true,
+      sub: true,
+    },
+  ];
 }

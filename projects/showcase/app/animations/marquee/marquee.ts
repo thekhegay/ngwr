@@ -7,13 +7,13 @@ import { WrMarquee, type WrMarqueeItem } from 'ngwr/marquee';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
-  type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
   DocSectionComponent,
   ReactbitsCredit,
+  type DocApiRow,
+  type DocControl,
 } from '#core/components';
 
 @Component({
@@ -134,5 +134,29 @@ export default class MarqueePage {
       type: 'string',
       default: "'Marquee'",
     },
+  ];
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    {
+      name: 'WrMarqueeItem',
+      description: 'Union of the two entry kinds below.',
+      type: 'WrMarqueeImage | WrMarqueeNode',
+    },
+    { name: 'WrMarqueeImage', description: 'Image-driven entry.', type: 'interface' },
+    { name: 'src', description: 'Image URL.', type: 'string', required: true, sub: true },
+    { name: 'alt', description: 'Alt text.', type: 'string', sub: true },
+    { name: 'href', description: 'Wraps the image in a link.', type: 'string', sub: true },
+    { name: 'width / height', description: 'Intrinsic size hints.', type: 'number', sub: true },
+    { name: 'srcSet / sizes', description: 'Responsive image attributes.', type: 'string', sub: true },
+    { name: 'WrMarqueeNode', description: 'Template-driven entry.', type: 'interface' },
+    {
+      name: 'node',
+      description: 'Template rendered as the item.',
+      type: 'TemplateRef<unknown>',
+      required: true,
+      sub: true,
+    },
+    { name: 'href', description: 'Wraps the template in a link.', type: 'string', sub: true },
+    { name: 'ariaLabel', description: 'Accessible label for the link.', type: 'string', sub: true },
   ];
 }

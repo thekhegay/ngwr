@@ -5,11 +5,11 @@ import { WrFileUpload, type WrFileUploadRejection } from 'ngwr/file-upload';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  type DocApiRow,
 } from '#core/components';
 
 @Component({
@@ -94,5 +94,18 @@ export class MyComponent {
       type: 'readonly WrFileUploadRejection[]',
       default: '—',
     },
+  ];
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrFileUploadRejection', description: 'One rejected file, emitted via (rejected).', type: 'interface' },
+    { name: 'file', description: 'The rejected File object.', type: 'File', required: true, sub: true },
+    {
+      name: 'reason',
+      description: 'Why it was rejected.',
+      type: 'WrFileUploadRejectionReason',
+      required: true,
+      sub: true,
+    },
+    { name: 'WrFileUploadRejectionReason', description: 'Rejection cause.', type: "'type' | 'size' | 'count'" },
   ];
 }

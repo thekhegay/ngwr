@@ -2,12 +2,19 @@ import { Component } from '@angular/core';
 
 import { WrBarChart } from 'ngwr/bar-chart';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+  type DocApiRow,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-bar-chart-page',
   templateUrl: './bar-chart.html',
-  imports: [WrBarChart, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [WrBarChart, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class BarChartPageComponent {
   protected readonly bars = [
@@ -37,4 +44,11 @@ export class MyComponent {
 }`,
     basic: `<wr-bar-chart [data]="bars" />`,
   };
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrBarChartDatum', description: 'One bar of data.', type: 'interface' },
+    { name: 'label', description: 'Category label under the bar.', type: 'string', required: true, sub: true },
+    { name: 'value', description: 'Bar magnitude.', type: 'number', required: true, sub: true },
+    { name: 'color', description: 'CSS color for the bar.', type: 'string', default: 'palette', sub: true },
+  ];
 }

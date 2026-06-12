@@ -5,11 +5,11 @@ import { WrTableCell, WrTable, type WrTableColumns, type WrTableFilterChange, ty
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  type DocApiRow,
 } from '#core/components';
 
 interface Row extends Record<string, unknown> {
@@ -142,4 +142,30 @@ export class MyComponent {}`,
       this.roleFilter.set(change.items.map(i => i.value as string));
     }
   }
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    {
+      name: 'WrTableColumns',
+      description: 'Column map — keys are row property names.',
+      type: 'Record<string, WrTableColumn>',
+    },
+    { name: 'WrTableColumn', description: 'A single column definition.', type: 'interface' },
+    { name: 'title', description: 'Heading shown in the header.', type: 'string', required: true, sub: true },
+    { name: 'sortable', description: 'Show a clickable sort indicator.', type: 'boolean', default: 'false', sub: true },
+    {
+      name: 'filterItems',
+      description: 'Non-empty list shows a filter dropdown.',
+      type: 'readonly WrTableFilterItem[]',
+      sub: true,
+    },
+    { name: 'WrTableFilterItem', description: 'One entry in a column filter.', type: 'interface' },
+    { name: 'title', description: 'Visible label.', type: 'string', required: true, sub: true },
+    { name: 'value', description: 'Value matched against the cell.', type: 'T', required: true, sub: true },
+    { name: 'selected', description: 'Pre-check the entry.', type: 'boolean', default: 'false', sub: true },
+    {
+      name: 'WrTableSortState',
+      description: 'Emitted by (sortChange).',
+      type: '{ key: string; direction: WrTableSortDirection }',
+    },
+  ];
 }

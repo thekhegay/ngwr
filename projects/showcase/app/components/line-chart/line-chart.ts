@@ -2,12 +2,19 @@ import { Component } from '@angular/core';
 
 import { WrLineChart } from 'ngwr/line-chart';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+  type DocApiRow,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-line-chart-page',
   templateUrl: './line-chart.html',
-  imports: [WrLineChart, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [WrLineChart, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class LineChartPageComponent {
   protected readonly series = [
@@ -30,4 +37,17 @@ export class MyComponent {
 }`,
     basic: `<wr-line-chart [series]="series" [xLabels]="labels" />`,
   };
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrLineSeries', description: 'One plotted line.', type: 'interface' },
+    { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },
+    {
+      name: 'data',
+      description: 'Y values, evenly spaced along the x axis.',
+      type: 'readonly number[]',
+      required: true,
+      sub: true,
+    },
+    { name: 'color', description: 'CSS color for the stroke.', type: 'string', default: 'palette', sub: true },
+  ];
 }

@@ -7,11 +7,11 @@ import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  type DocApiRow,
 } from '#core/components';
 
 @Component({
@@ -61,5 +61,13 @@ export class MyComponent {}`,
     },
     { name: 'value', description: 'Selected value. Two-way bindable.', type: 'T | null', default: 'null' },
     { name: 'disabled', description: 'Disable the whole control.', type: 'boolean', default: 'false' },
+  ];
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrSegmentedOption', description: 'One entry in the track.', type: 'interface' },
+    { name: 'value', description: 'Model value when this segment is picked.', type: 'T', required: true, sub: true },
+    { name: 'label', description: 'Visible text; omit for icon-only segments.', type: 'string', sub: true },
+    { name: 'icon', description: 'Leading icon.', type: 'WrIconName', sub: true },
+    { name: 'disabled', description: 'Disable this segment.', type: 'boolean', default: 'false', sub: true },
   ];
 }

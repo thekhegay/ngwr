@@ -5,11 +5,11 @@ import { WrMention, type WrMentionItem } from 'ngwr/mention';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  type DocApiRow,
 } from '#core/components';
 
 type User = WrMentionItem & {
@@ -114,6 +114,17 @@ export class MyComponent {
       description: 'Emits `{ item, trigger, query }` on commit.',
       type: 'EventEmitter<WrMentionCommit>',
       default: '—',
+    },
+  ];
+
+  protected readonly typeRows: readonly DocApiRow[] = [
+    { name: 'WrMentionItem', description: 'A mentionable entry — extend with any extra metadata.', type: 'interface' },
+    { name: 'label', description: 'Text inserted and shown in the panel.', type: 'string', required: true, sub: true },
+    {
+      name: '[key: string]',
+      description: 'Anything else your app needs back on (selected).',
+      type: 'unknown',
+      sub: true,
     },
   ];
 }
