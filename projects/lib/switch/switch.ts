@@ -19,7 +19,7 @@ import { noop, randomId } from 'ngwr/utils';
  * <wr-switch [(ngModel)]="enabled">Notifications</wr-switch>
  * ```
  *
- * @see https://ngwr.dev/docs/components/switch
+ * @see https://ngwr.dev/components/switch
  */
 @Component({
   selector: 'wr-switch',

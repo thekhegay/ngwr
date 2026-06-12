@@ -37,7 +37,7 @@ import { WR_STEPPER, type WrStepperContext } from './tokens';
  * </wr-stepper>
  * ```
  *
- * @see https://ngwr.dev/docs/components/stepper
+ * @see https://ngwr.dev/components/stepper
  */
 @Component({
   selector: 'wr-stepper',

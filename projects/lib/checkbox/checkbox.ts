@@ -35,7 +35,7 @@ import { WR_CHECKBOX_GROUP } from './tokens';
  * </wr-checkbox-group>
  * ```
  *
- * @see https://ngwr.dev/docs/components/checkbox
+ * @see https://ngwr.dev/components/checkbox
  */
 @Component({
   selector: 'wr-checkbox',

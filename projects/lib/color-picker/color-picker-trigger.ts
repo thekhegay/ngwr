@@ -46,7 +46,7 @@ import type { WrColorFormat } from './interfaces';
  * </button>
  * ```
  *
- * @see https://ngwr.dev/docs/components/color-picker
+ * @see https://ngwr.dev/components/color-picker
  */
 @Directive({
   selector: '[wrColorPickerTrigger]',

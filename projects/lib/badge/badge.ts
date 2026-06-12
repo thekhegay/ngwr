@@ -24,7 +24,7 @@ import type { WrBadgeShape, WrBadgeSize } from './interfaces';
  * <wr-badge color="primary" shape="pill">New</wr-badge>
  * ```
  *
- * @see https://ngwr.dev/docs/components/badge
+ * @see https://ngwr.dev/components/badge
  */
 @Component({
   selector: 'wr-badge',

@@ -27,7 +27,7 @@ import { WrLayoutSider } from './layout-sider';
  * </wr-layout>
  * ```
  *
- * @see https://ngwr.dev/docs/components/layout
+ * @see https://ngwr.dev/components/layout
  */
 @Component({
   selector: 'wr-layout',

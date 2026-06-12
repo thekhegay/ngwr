@@ -46,7 +46,7 @@ type ActiveEntry = WrToastOptions & {
  * toast.show({ message: 'Permalink copied', position: 'bottom', showCopy: true });
  * ```
  *
- * @see https://ngwr.dev/docs/components/toast
+ * @see https://ngwr.dev/components/toast
  */
 @Service()
 export class WrToast {

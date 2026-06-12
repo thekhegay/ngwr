@@ -24,7 +24,7 @@ import { WR_RADIO_GROUP } from './tokens';
  * </wr-radio-group>
  * ```
  *
- * @see https://ngwr.dev/docs/components/radio
+ * @see https://ngwr.dev/components/radio
  */
 @Component({
   selector: 'wr-radio',

@@ -20,7 +20,7 @@ import { clamp } from 'ngwr/utils';
  * <wr-gauge [value]="9.5" [min]="0" [max]="10" suffix="/10" valueColor="var(--wr-color-warning)" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/gauge
+ * @see https://ngwr.dev/components/gauge
  */
 @Component({
   selector: 'wr-gauge',

@@ -63,7 +63,7 @@ function matchesAccept(file: File, accept: string): boolean {
  * <wr-file-upload [(ngModel)]="avatar" accept=".png,.jpg" [maxSize]="2 * 1024 * 1024" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/file-upload
+ * @see https://ngwr.dev/components/file-upload
  */
 @Component({
   selector: 'wr-file-upload',

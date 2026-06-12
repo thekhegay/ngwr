@@ -18,7 +18,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * <wr-sparkline [data]="prices" [showArea]="true" color="var(--wr-color-success)" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/sparkline
+ * @see https://ngwr.dev/components/sparkline
  */
 @Component({
   selector: 'wr-sparkline',

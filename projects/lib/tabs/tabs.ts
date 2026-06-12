@@ -48,7 +48,7 @@ import { WR_TABS, type WrTabsContext } from './tokens';
  * <router-outlet />
  * ```
  *
- * @see https://ngwr.dev/docs/components/tabs
+ * @see https://ngwr.dev/components/tabs
  */
 @Component({
   selector: 'wr-tabs',

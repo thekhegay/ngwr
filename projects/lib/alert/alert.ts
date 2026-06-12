@@ -19,7 +19,7 @@ import type { WrAlertType } from './interfaces';
  * <wr-alert title="Failed" type="danger" closeable (closed)="onClose()" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/alert
+ * @see https://ngwr.dev/components/alert
  */
 @Component({
   selector: 'wr-alert',

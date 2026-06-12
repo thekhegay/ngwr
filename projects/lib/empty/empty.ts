@@ -33,7 +33,7 @@ import { type WrIconName } from 'ngwr/icon';
  * </wr-empty>
  * ```
  *
- * @see https://ngwr.dev/docs/components/empty
+ * @see https://ngwr.dev/components/empty
  */
 @Component({
   selector: 'wr-empty',

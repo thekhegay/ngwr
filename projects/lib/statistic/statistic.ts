@@ -18,7 +18,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * <wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/statistic
+ * @see https://ngwr.dev/components/statistic
  */
 @Component({
   selector: 'wr-statistic',

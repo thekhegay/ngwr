@@ -25,7 +25,7 @@ const ARC_SWEEP = ARC_END - ARC_START;
  * <wr-knob [(ngModel)]="vol" suffix="%" valueColor="var(--wr-color-success)" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/knob
+ * @see https://ngwr.dev/components/knob
  */
 @Component({
   selector: 'wr-knob',

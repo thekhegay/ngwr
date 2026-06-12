@@ -28,7 +28,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * </wr-page-header>
  * ```
  *
- * @see https://ngwr.dev/docs/components/page-header
+ * @see https://ngwr.dev/components/page-header
  */
 @Component({
   selector: 'wr-page-header',

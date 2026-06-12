@@ -27,7 +27,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
  * </wr-toolbar>
  * ```
  *
- * @see https://ngwr.dev/docs/components/toolbar
+ * @see https://ngwr.dev/components/toolbar
  */
 @Component({
   selector: 'wr-toolbar',

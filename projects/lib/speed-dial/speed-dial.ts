@@ -28,7 +28,7 @@ import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
  * />
  * ```
  *
- * @see https://ngwr.dev/docs/components/speed-dial
+ * @see https://ngwr.dev/components/speed-dial
  */
 @Component({
   selector: 'wr-speed-dial',

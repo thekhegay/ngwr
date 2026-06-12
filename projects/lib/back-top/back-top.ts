@@ -24,7 +24,7 @@ import { WrScroll } from 'ngwr/scroll';
  * </wr-back-top>
  * ```
  *
- * @see https://ngwr.dev/docs/components/back-top
+ * @see https://ngwr.dev/components/back-top
  */
 @Component({
   selector: 'wr-back-top',

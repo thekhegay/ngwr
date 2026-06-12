@@ -43,7 +43,7 @@ function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {
  * <div [wrMeta]="{ title: 'Pricing' }">
  * ```
  *
- * @see https://ngwr.dev/docs/core/services
+ * @see https://ngwr.dev/services/meta
  */
 @Service()
 export class WrMeta {

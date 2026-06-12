@@ -28,7 +28,7 @@ import type { WrScrollOptions, WrScrollTarget } from './interfaces';
  * scroll.intoView(myEl, { offset: 64 });
  * ```
  *
- * @see https://ngwr.dev/docs/core/services
+ * @see https://ngwr.dev/services/scroll
  */
 @Service()
 export class WrScroll {

@@ -35,7 +35,7 @@ type PageEntry = number | typeof ELLIPSIS;
  * />
  * ```
  *
- * @see https://ngwr.dev/docs/components/pagination
+ * @see https://ngwr.dev/components/pagination
  */
 @Component({
   selector: 'wr-pagination',

@@ -29,7 +29,7 @@ import { clamp } from 'ngwr/utils';
  * </wr-compare>
  * ```
  *
- * @see https://ngwr.dev/docs/components/compare
+ * @see https://ngwr.dev/components/compare
  */
 @Component({
   selector: 'wr-compare',

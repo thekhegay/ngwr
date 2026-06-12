@@ -36,7 +36,7 @@ import { noop } from 'ngwr/utils';
  * <wr-textarea autosize [maxRows]="6" [(ngModel)]="text" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/textarea
+ * @see https://ngwr.dev/components/textarea
  */
 @Component({
   selector: 'wr-textarea',

@@ -27,7 +27,7 @@ import type { WrTagIconPosition } from './interfaces';
  * <wr-tag color="warning" loading>Saving</wr-tag>
  * ```
  *
- * @see https://ngwr.dev/docs/components/tag
+ * @see https://ngwr.dev/components/badge
  */
 @Component({
   selector: 'wr-tag',

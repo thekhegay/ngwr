@@ -28,7 +28,7 @@ import type { WrSegmentedOption } from './interfaces';
  * />
  * ```
  *
- * @see https://ngwr.dev/docs/components/segmented
+ * @see https://ngwr.dev/components/segmented
  */
 @Component({
   selector: 'wr-segmented',

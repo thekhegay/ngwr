@@ -79,7 +79,7 @@ function toMs(value: unknown): number {
  * Anything Angular already ships (`required`, `email`, `min`, `max`,
  * `pattern`, …) is deliberately NOT duplicated here.
  *
- * @see https://ngwr.dev/utils/validators
+ * @see https://ngwr.dev/validators
  */
 export const WrValidators = {
   // String shape

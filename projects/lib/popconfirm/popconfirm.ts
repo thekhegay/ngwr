@@ -31,7 +31,7 @@ import { WrPopconfirmPanel } from './popconfirm-panel';
  * >Delete</wr-btn>
  * ```
  *
- * @see https://ngwr.dev/docs/components/popconfirm
+ * @see https://ngwr.dev/components/popconfirm
  */
 @Directive({
   selector: '[wrPopconfirm]',

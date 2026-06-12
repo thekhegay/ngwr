@@ -24,7 +24,7 @@ import type { WrResultStatus } from './interfaces';
  * </wr-result>
  * ```
  *
- * @see https://ngwr.dev/docs/components/result
+ * @see https://ngwr.dev/components/result
  */
 @Component({
   selector: 'wr-result',

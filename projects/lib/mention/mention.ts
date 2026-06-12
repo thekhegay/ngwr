@@ -39,7 +39,7 @@ interface ActiveState {
  * ></textarea>
  * ```
  *
- * @see https://ngwr.dev/docs/components/mention
+ * @see https://ngwr.dev/components/mention
  */
 @Directive({
   selector: '[wrMention]',

@@ -24,7 +24,7 @@ import type { WrDividerAlign, WrDividerType } from './interfaces';
  * <wr-divider align="start">Section</wr-divider>
  * ```
  *
- * @see https://ngwr.dev/docs/components/divider
+ * @see https://ngwr.dev/components/divider
  */
 @Component({
   selector: 'wr-divider',

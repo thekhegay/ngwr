@@ -47,7 +47,7 @@ import type { WrDrawerPosition } from './interfaces';
  * </wr-drawer>
  * ```
  *
- * @see https://ngwr.dev/docs/components/drawer
+ * @see https://ngwr.dev/components/drawer
  */
 @Component({
   selector: 'wr-drawer',

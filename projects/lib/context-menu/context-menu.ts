@@ -30,7 +30,7 @@ import type { WrContextMenuPanel } from './context-menu-panel';
  * </wr-context-menu>
  * ```
  *
- * @see https://ngwr.dev/docs/components/context-menu
+ * @see https://ngwr.dev/components/context-menu
  */
 @Directive({
   selector: '[wrContextMenu]',

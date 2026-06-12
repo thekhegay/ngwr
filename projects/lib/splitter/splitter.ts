@@ -28,7 +28,7 @@ import { clamp } from 'ngwr/utils';
  * </wr-splitter>
  * ```
  *
- * @see https://ngwr.dev/docs/components/splitter
+ * @see https://ngwr.dev/components/splitter
  */
 @Component({
   selector: 'wr-splitter',

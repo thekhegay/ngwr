@@ -34,7 +34,7 @@ import { WrCarouselSlide } from './carousel-slide';
  * </wr-carousel>
  * ```
  *
- * @see https://ngwr.dev/docs/components/carousel
+ * @see https://ngwr.dev/components/carousel
  */
 @Component({
   selector: 'wr-carousel',

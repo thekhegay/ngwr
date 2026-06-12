@@ -48,7 +48,7 @@ interface Particle {
  * confetti.fire({ count: 200, origin: { x: 0.25, y: 0.5 } });
  * ```
  *
- * @see https://ngwr.dev/docs/core/services
+ * @see https://ngwr.dev/animations/confetti
  */
 @Service()
 export class WrConfetti {

@@ -27,7 +27,7 @@ import { Directive, computed, input } from '@angular/core';
  * For prefix / suffix / password-toggle layouts, wrap the input in
  * `<wr-input-group>`.
  *
- * @see https://ngwr.dev/docs/components/input
+ * @see https://ngwr.dev/components/input
  */
 @Directive({
   selector: 'input[wrInput], textarea[wrInput]',

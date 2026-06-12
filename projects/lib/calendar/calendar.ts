@@ -42,7 +42,7 @@ const COLS = 7;
  * <wr-calendar mode="range" [(range)]="[start, end]" />
  * ```
  *
- * @see https://ngwr.dev/docs/components/calendar
+ * @see https://ngwr.dev/components/calendar
  */
 @Component({
   selector: 'wr-calendar',

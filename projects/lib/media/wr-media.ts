@@ -24,7 +24,7 @@ import { WR_BREAKPOINTS, type WrBreakpoint } from './wr-breakpoints';
  * protected readonly isWide = this.media.matches('(min-width: 1200px)');
  * ```
  *
- * @see https://ngwr.dev/docs/core/services
+ * @see https://ngwr.dev/services/media
  */
 @Service()
 export class WrMedia {

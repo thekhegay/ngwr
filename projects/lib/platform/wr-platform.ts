@@ -27,7 +27,7 @@ import { DestroyRef, Service, PLATFORM_ID, type Signal, inject, signal } from '@
  * protected readonly dark = this.platform.prefersDark;
  * ```
  *
- * @see https://ngwr.dev/docs/core/services
+ * @see https://ngwr.dev/services/platform
  */
 @Service()
 export class WrPlatform {

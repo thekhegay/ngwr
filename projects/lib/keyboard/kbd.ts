@@ -20,7 +20,7 @@ import type { WrKbdSize } from './interfaces';
  * <wr-kbd size="lg">Esc</wr-kbd>
  * ```
  *
- * @see https://ngwr.dev/docs/components/keyboard
+ * @see https://ngwr.dev/components/keyboard
  */
 @Component({
   selector: 'wr-kbd',
