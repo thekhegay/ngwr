@@ -49,7 +49,7 @@
   // or the chips render as bare mono text.
   ::ng-deep code {
     display: inline-block;
-    padding: 0 0.25rem;
+    padding: 0.125rem 0.3125rem;
     border-radius: var(--wr-border-radius-sm);
     background: rgba(var(--wr-color-light-rgb), 0.35);
     color: var(--wr-color-dark);
