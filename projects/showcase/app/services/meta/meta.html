@@ -35,6 +35,31 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Reactive title (i18n)"
+    description="`bind()` runs its factory inside an effect — read `WrI18n.t()` (or any signal) and the `<head>` re-renders on every locale switch, with no manual re-`set()`."
+  >
+    <ngwr-doc-code [code]="snippets.reactive" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-wrap: wrap; gap: 0.625rem; align-items: center">
+        <wr-btn (click)="toggleReactiveTitle()">
+          {{ reactiveBound() ? 'Unbind title' : 'Bind title to i18n' }}
+        </wr-btn>
+        <wr-btn color="light" [disabled]="!reactiveBound()" (click)="toggleLocale()">
+          Switch locale (current: {{ i18n.locale() }})
+        </wr-btn>
+      </div>
+      <small style="display: block; margin-top: 0.625rem; color: var(--wr-color-medium)">
+        @if (reactiveBound()) {
+          The browser tab title now tracks <code>app.title</code> — switch the locale and watch it change between “ngwr
+          i18n demo” and “Демо ngwr i18n”.
+        } @else {
+          Bind the title, then switch locale — the document title updates without re-setting it.
+        }
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Why ngwr provides this"
     description="Angular's `Title` and `Meta` are low-level setters — every app rebuilds the same canonical-URL / OpenGraph / Twitter-card plumbing on top. `WrMeta` is that layer, with a title template and per-route overrides."
   />

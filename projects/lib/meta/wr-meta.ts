@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Service, computed, inject, signal } from '@angular/core';
+import { Injector, Service, computed, effect, inject, signal, untracked } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
 import type { WrMetaConfig, WrMetaHandle } from './interfaces';
@@ -51,6 +51,7 @@ export class WrMeta {
   private readonly meta = inject(Meta);
   private readonly doc = inject(DOCUMENT);
   private readonly defaults = inject(WR_META_DEFAULTS);
+  private readonly injector = inject(Injector);
 
   /** Stack of meta layers. Bottom = defaults, top = currently applied. */
   private readonly stack = signal<readonly WrMetaConfig[]>([this.defaults]);
@@ -87,6 +88,65 @@ export class WrMeta {
     const target = config;
     return {
       pop: () => {
+        this.stack.update(stack => {
+          const idx = stack.lastIndexOf(target);
+          if (idx <= 0) return stack;
+          return [...stack.slice(0, idx), ...stack.slice(idx + 1)];
+        });
+        this.apply();
+      },
+    };
+  }
+
+  /**
+   * Reactive layer. Runs `factory` inside an effect and re-applies the
+   * resolved metadata whenever any signal it reads changes — so a title
+   * (or any field) built from {@link WrI18n}'s `t()` updates live on
+   * locale switch, with no manual re-`set()`.
+   *
+   * Returns a handle whose `.pop()` removes the layer and stops the effect.
+   * Safe to call outside an injection context.
+   *
+   * @example Locale-aware title
+   * ```ts
+   * const meta = inject(WrMeta);
+   * const i18n = inject(WrI18n);
+   *
+   * // `i18n.t(...)` tracks the active locale, so the title re-renders
+   * // every time `i18n.use(...)` switches languages.
+   * meta.bind(() => ({
+   *   title: i18n.t('home.title'),
+   *   description: i18n.t('home.description'),
+   * }));
+   * ```
+   */
+  bind(factory: () => WrMetaConfig): WrMetaHandle {
+    let current: WrMetaConfig | null = null;
+
+    const ref = effect(
+      () => {
+        const next = factory();
+        // Recompute is reactive; the stack write + DOM apply are not, so
+        // the effect only re-runs on `factory`'s own dependencies.
+        untracked(() => {
+          this.stack.update(stack => {
+            if (current === null) return [...stack, next];
+            const idx = stack.lastIndexOf(current);
+            return idx < 0 ? [...stack, next] : [...stack.slice(0, idx), next, ...stack.slice(idx + 1)];
+          });
+          current = next;
+          this.apply();
+        });
+      },
+      { injector: this.injector }
+    );
+
+    return {
+      pop: () => {
+        ref.destroy();
+        if (current === null) return;
+        const target = current;
+        current = null;
         this.stack.update(stack => {
           const idx = stack.lastIndexOf(target);
           if (idx <= 0) return stack;
