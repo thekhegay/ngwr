@@ -47,19 +47,19 @@
       </a>
     }
 
-    <button
-      type="button"
-      class="ngwr-header__action ngwr-header__action--burger"
-      aria-label="Open navigation"
-      [attr.aria-expanded]="menuOpen()"
-      (click)="menuOpen.set(true)"
-    >
-      <wr-icon name="menu" />
-    </button>
+    <wr-burger class="ngwr-header__burger" [(open)]="menuOpen" label="Toggle navigation" />
   </div>
 </header>
 
 <wr-drawer [(open)]="menuOpen" position="right" width="min(17rem, 85vw)">
+  <!-- The close toggle lives inside the drawer so it sits in the overlay's
+       top layer, visually above the menu — the page header (and its burger)
+       are painted under it. Same `menuOpen` signal, so it morphs to a close
+       mark and shuts the menu. -->
+  <div class="ngwr-header__sheet-top">
+    <wr-burger [(open)]="menuOpen" label="Close navigation" />
+  </div>
+
   <nav class="ngwr-header__sheet" aria-label="Primary, mobile">
     @for (link of nav; track $index) {
       <a

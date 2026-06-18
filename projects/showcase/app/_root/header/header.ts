@@ -2,7 +2,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { Menu, Moon, Sun } from 'lucide';
+import { Moon, Sun } from 'lucide';
+import { WrBurger } from 'ngwr/burger';
 import { WrDrawer } from 'ngwr/drawer';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
@@ -27,8 +28,8 @@ interface ActionLink {
   selector: 'ngwr-header',
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  imports: [RouterLink, RouterLinkActive, WrDrawer, WrIcon],
-  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ menu: Menu, moon: Moon, sun: Sun })])],
+  imports: [RouterLink, RouterLinkActive, WrBurger, WrDrawer, WrIcon],
+  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ moon: Moon, sun: Sun })])],
 })
 export class Header {
   protected readonly theme = inject(WrTheme);

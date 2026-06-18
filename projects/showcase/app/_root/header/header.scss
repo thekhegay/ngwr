@@ -196,8 +196,7 @@
       }
     }
 
-    &--theme,
-    &--burger {
+    &--theme {
       // Strip the default <button> chrome so it matches the anchor
       // siblings (GitHub / npm).
       appearance: none;
@@ -216,14 +215,30 @@
         outline-offset: 2px;
       }
     }
+  }
 
-    &--burger {
-      display: none;
+  // The animated menu toggle replaces the inline nav below `xl`. It opens
+  // the drawer; the matching close toggle lives inside the drawer panel
+  // (`&__sheet-top`) so it renders in the overlay's top layer, above the
+  // menu. Both share the `menuOpen` signal.
+  &__burger {
+    --wr-burger-size: 2.25rem;
 
-      @include bp.media-down(xl) {
-        display: inline-flex;
-      }
+    display: none;
+
+    @include bp.media-down(xl) {
+      display: inline-flex;
     }
+  }
+
+  // Close toggle row, pinned to the top-right of the drawer panel so it
+  // lands roughly where the header burger was.
+  &__sheet-top {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem 0.75rem 0;
+
+    --wr-burger-size: 2.25rem;
   }
 
   // Mobile nav sheet (inside the burger drawer).
@@ -231,7 +246,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
-    padding: 1rem 0.75rem;
+    padding: 0.5rem 0.75rem 1rem;
 
     &-link {
       display: flex;
