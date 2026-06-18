@@ -75,8 +75,9 @@ export class MyComponent {}`,
     },
     {
       name: 'position',
-      description: 'Anchor side. Defaults differ by mode (`bottom` for popover, `top` for tooltip).',
-      type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right'",
+      description:
+        'Anchor side, with optional `-start`/`-end` edge alignment. Defaults differ by mode (`bottom` for popover, `top` for tooltip).',
+      type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'",
       default: 'null',
     },
     {
