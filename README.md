@@ -127,7 +127,7 @@ export class AppComponent {
 
 **Layout** — [card](https://ngwr.dev/components/card), [carousel](https://ngwr.dev/components/carousel), [collapse](https://ngwr.dev/components/collapse), [layout](https://ngwr.dev/components/layout), [list](https://ngwr.dev/components/list), [page-header](https://ngwr.dev/components/page-header), [splitter](https://ngwr.dev/components/splitter), [toolbar](https://ngwr.dev/components/toolbar).
 
-**Navigation** — [anchor](https://ngwr.dev/components/anchor), [back-top](https://ngwr.dev/components/back-top), [breadcrumbs](https://ngwr.dev/components/breadcrumbs), [dropdown](https://ngwr.dev/components/dropdown), [sidebar](https://ngwr.dev/components/sidebar), [stepper](https://ngwr.dev/components/stepper), [tabs](https://ngwr.dev/components/tabs).
+**Navigation** — [anchor](https://ngwr.dev/components/anchor), [back-top](https://ngwr.dev/components/back-top), [breadcrumbs](https://ngwr.dev/components/breadcrumbs), [burger](https://ngwr.dev/components/burger), [dropdown](https://ngwr.dev/components/dropdown), [sidebar](https://ngwr.dev/components/sidebar), [stepper](https://ngwr.dev/components/stepper), [tabs](https://ngwr.dev/components/tabs).
 
 **Overlays** — [command-palette](https://ngwr.dev/components/command-palette), [context-menu](https://ngwr.dev/components/context-menu), [dialog](https://ngwr.dev/components/dialog), [drawer](https://ngwr.dev/components/drawer), [popconfirm](https://ngwr.dev/components/popconfirm), [popover](https://ngwr.dev/components/popover), [toast](https://ngwr.dev/components/toast), [window](https://ngwr.dev/components/window).
 

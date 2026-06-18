@@ -1,0 +1,1 @@
+export { WrBurger } from './burger';

@@ -100,6 +100,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Anchor', url: ['/components', 'anchor'] },
       { title: 'Back to Top', url: ['/components', 'back-top'] },
       { title: 'Breadcrumbs', url: ['/components', 'breadcrumbs'] },
+      { title: 'Burger', url: ['/components', 'burger'] },
       { title: 'Dropdown', url: ['/components', 'dropdown'] },
       { title: 'Sidebar', url: ['/components', 'sidebar'] },
       { title: 'Stepper', url: ['/components', 'stepper'] },

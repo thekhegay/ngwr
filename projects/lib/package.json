@@ -2,7 +2,7 @@
   "name": "ngwr",
   "version": "7.0.0",
   "license": "MIT",
-  "description": "NGWR – Angular UI components library",
+  "description": "NGWR \u2013 Angular UI components library",
   "author": "Roman Khegay <rk@garuna.dev> (https://garuna.dev)",
   "keywords": [
     "ngwr",
@@ -108,6 +108,9 @@
     },
     "./breadcrumbs": {
       "sass": "./breadcrumbs/styles/_index.scss"
+    },
+    "./burger": {
+      "sass": "./burger/styles/_index.scss"
     },
     "./button": {
       "sass": "./button/styles/_index.scss"
