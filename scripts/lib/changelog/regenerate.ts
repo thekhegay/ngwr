@@ -29,6 +29,11 @@ export async function regenerateChangelog(): Promise<void> {
     section += chunk;
   }
 
+  // Insert the new section *under* the top-level "# Changelog" heading
+  // rather than above it — a blind prepend re-strands the H1 between the
+  // newest and previous release sections every time.
   const existing = readFileSync(CHANGELOG_PATH, 'utf8');
-  writeFileSync(CHANGELOG_PATH, `${section}${existing}`);
+  const body = existing.replace(/^# Changelog\s*\n+/, '');
+  const block = section.replace(/\n*$/, '\n\n');
+  writeFileSync(CHANGELOG_PATH, `# Changelog\n\n${block}${body}`);
 }
