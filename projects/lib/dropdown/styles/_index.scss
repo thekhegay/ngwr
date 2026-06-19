@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 
 // `.wr-dropdown` is the inline trigger marker; the menu and overlay live
 // in the CDK overlay portal and so are separate blocks, not elements.

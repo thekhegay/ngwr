@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
@@ -20,7 +21,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 
 import type { WrDropdownMenu } from './dropdown-menu';
 import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger } from './interfaces';
@@ -68,6 +69,16 @@ export class WrDropdown {
   /** Where the menu anchors relative to the trigger. @default 'bottom-start' */
   readonly position = input<WrDropdownPosition>('bottom-start');
 
+  /**
+   * Present the menu as a full-width bottom-sheet on small viewports instead
+   * of an anchored panel. `undefined` follows the app-wide
+   * `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.
+   * @default undefined
+   */
+  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
+    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
+  });
+
   /** Fires after the menu opens. */
   readonly opened = output<void>();
 
@@ -76,6 +87,7 @@ export class WrDropdown {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -141,17 +153,35 @@ export class WrDropdown {
   private openOverlay(): void {
     if (this.overlayRef) return;
 
-    const positionStrategy = this.overlay
-      .position()
-      .flexibleConnectedTo(this.host)
-      .withPositions(WR_DROPDOWN_POSITIONS[this.position()])
-      .withPush(true);
+    // On small viewports (when opted in) detach from the trigger and present
+    // the menu as a full-width slide-up sheet pinned to the bottom edge.
+    const asSheet = wrPresentAsSheet(this.responsive(), this.responsiveConfig);
+
+    const positionStrategy = asSheet
+      ? this.overlay.position().global().centerHorizontally().bottom('0')
+      : this.overlay
+          .position()
+          .flexibleConnectedTo(this.host)
+          .withPositions(WR_DROPDOWN_POSITIONS[this.position()])
+          .withPush(true);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: this.scrollStrategies.reposition(),
-      panelClass: ['wr-dropdown-overlay', `wr-dropdown-overlay--${this.position()}`],
+      scrollStrategy: asSheet ? this.scrollStrategies.block() : this.scrollStrategies.reposition(),
+      width: asSheet ? '100%' : undefined,
+      hasBackdrop: asSheet,
+      backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
+      panelClass: asSheet
+        ? ['wr-dropdown-overlay', 'wr-overlay-sheet']
+        : ['wr-dropdown-overlay', `wr-dropdown-overlay--${this.position()}`],
     });
+
+    if (asSheet) {
+      this.overlayRef
+        .backdropClick()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.isOpen.set(false));
+    }
 
     // Wire trigger id into menu so it can render aria-labelledby.
     this.menu().triggerId.set(this.triggerId);

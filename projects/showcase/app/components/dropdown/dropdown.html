@@ -19,6 +19,20 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Responsive (bottom-sheet)"
+    description="With `responsive` — or app-wide via `provideWrResponsiveOverlays()` — the menu detaches from the trigger and slides up as a full-width bottom-sheet with a backdrop on small viewports. Open this on a phone (or narrow the window below 640px)."
+  >
+    <ngwr-doc-snippet code='<button wr-btn [wrDropdown]="menu" responsive>Actions</button>'>
+      <button type="button" wr-btn color="primary" [wrDropdown]="responsiveMenu" responsive>Actions</button>
+      <wr-dropdown-menu #responsiveMenu>
+        <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
+        <wr-dropdown-item icon="download">Download</wr-dropdown-item>
+        <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Positions" description="Eight anchor sides; CDK auto-flips when there's not enough room.">
     <ngwr-doc-snippet [code]="snippets.positions">
       <button type="button" wr-btn [wrDropdown]="positionMenu" position="bottom-start">Bottom start</button>
