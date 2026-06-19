@@ -15,7 +15,11 @@ export type WrPopoverPosition =
   | 'bottom-start'
   | 'bottom-end'
   | 'left'
-  | 'right';
+  | 'left-start'
+  | 'left-end'
+  | 'right'
+  | 'right-start'
+  | 'right-end';
 
 /** @internal */
 export const WR_POPOVER_POSITIONS: Record<WrPopoverPosition, ConnectedPosition[]> = {
@@ -26,5 +30,9 @@ export const WR_POPOVER_POSITIONS: Record<WrPopoverPosition, ConnectedPosition[]
   'bottom-start': [{ originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 }],
   'bottom-end': [{ originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 }],
   left: [{ originX: 'start', originY: 'center', overlayX: 'end', overlayY: 'center', offsetX: -8 }],
+  'left-start': [{ originX: 'start', originY: 'top', overlayX: 'end', overlayY: 'top', offsetX: -8 }],
+  'left-end': [{ originX: 'start', originY: 'bottom', overlayX: 'end', overlayY: 'bottom', offsetX: -8 }],
   right: [{ originX: 'end', originY: 'center', overlayX: 'start', overlayY: 'center', offsetX: 8 }],
+  'right-start': [{ originX: 'end', originY: 'top', overlayX: 'start', overlayY: 'top', offsetX: 8 }],
+  'right-end': [{ originX: 'end', originY: 'bottom', overlayX: 'start', overlayY: 'bottom', offsetX: 8 }],
 };

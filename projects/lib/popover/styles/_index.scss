@@ -70,10 +70,26 @@
   right: -3px;
   margin-top: -3px;
 }
+.wr-tooltip-overlay--left-start .wr-tooltip::after {
+  top: 0.625rem;
+  right: -3px;
+}
+.wr-tooltip-overlay--left-end .wr-tooltip::after {
+  bottom: 0.625rem;
+  right: -3px;
+}
 .wr-tooltip-overlay--right .wr-tooltip::after {
   top: 50%;
   left: -3px;
   margin-top: -3px;
+}
+.wr-tooltip-overlay--right-start .wr-tooltip::after {
+  top: 0.625rem;
+  left: -3px;
+}
+.wr-tooltip-overlay--right-end .wr-tooltip::after {
+  bottom: 0.625rem;
+  left: -3px;
 }
 
 @media (prefers-reduced-motion: reduce) {

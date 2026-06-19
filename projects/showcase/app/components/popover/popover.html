@@ -39,7 +39,9 @@
     <ngwr-doc-snippet [code]="snippets.positions">
       <wr-btn [wrPopover]="hint" position="bottom-start">Bottom start</wr-btn>
       <wr-btn [wrPopover]="hint" position="top-end">Top end</wr-btn>
-      <wr-btn [wrPopover]="hint" position="right">Right</wr-btn>
+      <wr-btn [wrPopover]="hint" position="left-start">Left start</wr-btn>
+      <wr-btn [wrPopover]="hint" position="right-start">Right start</wr-btn>
+      <wr-btn [wrPopover]="hint" position="right-end">Right end</wr-btn>
 
       <ng-template #hint>
         <div style="padding: 0.625rem 0.875rem; font-size: 0.8125rem">CDK auto-flips if there's no room.</div>
