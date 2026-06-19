@@ -1,3 +1,5 @@
+@use 'lib/styles/breakpoints' as bp;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -5,6 +7,13 @@
   padding: 1.5rem;
   max-width: 64rem;
   margin: 0 auto;
+
+  // Reclaim the side gutters on phones — 1.5rem each edge is ~13% of a
+  // 375px viewport. Vertical rhythm tightens a touch to match.
+  @include bp.media-down(sm) {
+    gap: 2rem;
+    padding: 1.25rem 1rem;
+  }
 }
 
 .header {

@@ -1,8 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { Moon, Sun } from 'lucide';
+import { WrBurger } from 'ngwr/burger';
+import { WrDrawer } from 'ngwr/drawer';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrTheme } from 'ngwr/theme';
@@ -26,7 +28,7 @@ interface ActionLink {
   selector: 'ngwr-header',
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  imports: [RouterLink, RouterLinkActive, WrIcon],
+  imports: [RouterLink, RouterLinkActive, WrBurger, WrDrawer, WrIcon],
   providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ moon: Moon, sun: Sun })])],
 })
 export class Header {
@@ -51,6 +53,9 @@ export class Header {
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },
     { url: 'https://www.npmjs.com/package/ngwr', icon: 'npm', modifier: 'npm', label: 'npm' },
   ];
+
+  /** Mobile nav sheet — the inline nav collapses to a burger below `xl`. */
+  protected readonly menuOpen = signal(false);
 
   protected onToggleTheme(): void {
     this.theme.toggle();

@@ -1,7 +1,28 @@
 <div class="ngwr-layout">
-  <ngwr-sidebar />
+  @if (isDesktop()) {
+    <ngwr-sidebar />
+  }
 
   <main class="ngwr-layout__content">
+    @if (!isDesktop()) {
+      <div class="ngwr-layout__mobile-bar">
+        <button
+          type="button"
+          class="ngwr-layout__menu-btn"
+          aria-label="Open section navigation"
+          [attr.aria-expanded]="sidebarOpen()"
+          (click)="sidebarOpen.set(true)"
+        >
+          <wr-icon name="menu" size="16" />
+          <span>Menu</span>
+        </button>
+      </div>
+
+      <wr-drawer [(open)]="sidebarOpen" position="left" width="min(18rem, 85vw)">
+        <ngwr-sidebar />
+      </wr-drawer>
+    }
+
     <router-outlet />
     <ngwr-footer compact />
   </main>
