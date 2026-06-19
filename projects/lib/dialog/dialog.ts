@@ -11,7 +11,7 @@ import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Service, Injector, PLATFORM_ID, inject } from '@angular/core';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 
 import { WrDialogRef } from './dialog-ref';
 import type { WrDialogOptions } from './interfaces';
@@ -49,6 +49,7 @@ export class WrDialog {
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const panelClasses: string[] = [DEFAULT_PANEL_CLASS];
@@ -59,14 +60,20 @@ export class WrDialog {
       for (const cls of extra) panelClasses.push(cls);
     }
 
+    // On small viewports (when opted in) present as a slide-up sheet pinned
+    // to the bottom edge, full-width, instead of a centred modal.
+    const asSheet = wrPresentAsSheet(options.responsive, this.responsiveConfig);
+    if (asSheet) panelClasses.push('wr-overlay-sheet');
+
+    const position = this.overlay.position().global().centerHorizontally();
     const overlayRef: OverlayRef = this.overlay.create({
-      positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
+      positionStrategy: asSheet ? position.bottom('0') : position.centerVertically(),
       scrollStrategy: this.scrollStrategies.block(),
       hasBackdrop: true,
       backdropClass: DEFAULT_BACKDROP_CLASS,
       panelClass: panelClasses,
-      width: options.width,
-      maxWidth: options.maxWidth,
+      width: asSheet ? '100%' : options.width,
+      maxWidth: asSheet ? '100%' : options.maxWidth,
     });
 
     const dialogRef = new WrDialogRef<C, R>(overlayRef);

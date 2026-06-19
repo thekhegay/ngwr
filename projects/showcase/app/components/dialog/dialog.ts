@@ -43,6 +43,12 @@ const ok = await ref.awaitClose(); // result from <wr-btn wrDialogClose value>`,
   <wr-btn wrDialogClose>Cancel</wr-btn>
   <wr-btn color="danger" [wrDialogClose]="true">Delete</wr-btn>
 </div>`,
+    responsive: `// Per dialog — slides up as a bottom-sheet on small screens.
+dialog.open(ConfirmComponent, { responsive: true });
+
+// Or app-wide, for every overlay:
+provideWrResponsiveOverlays();          // default breakpoint 640px
+provideWrResponsiveOverlays({ breakpoint: 768 });`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -71,10 +77,11 @@ const ok = await ref.awaitClose(); // result from <wr-btn wrDialogClose value>`,
     },
   ];
 
-  protected async openConfirm(): Promise<void> {
+  protected async openConfirm(responsive = false): Promise<void> {
     const ref = this.dialog.open<ConfirmDialogComponent, boolean, ConfirmData>(ConfirmDialogComponent, {
       data: { title: 'Delete item?', message: 'This action cannot be undone.' },
       width: '24rem',
+      responsive,
     });
     const result = await ref.awaitClose();
     this.lastResult.set(result === true ? 'Confirmed' : 'Cancelled');
