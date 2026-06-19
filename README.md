@@ -26,7 +26,7 @@ for overlay, portal, and a11y primitives.
 | `date-fns` _(optional)_     | `^3.0.0 \|\| ^4.0.0` |
 | `luxon` _(optional)_        | `^3.0.0`             |
 
-Node ≥ 24.15.0 (or 26+). pnpm ≥ 11.5. TypeScript ≥ 6.0.
+Node ≥ 24.16.0 (or 26+). pnpm ≥ 11.8. TypeScript ≥ 6.0.
 
 ## Install
 
