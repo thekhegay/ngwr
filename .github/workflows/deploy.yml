@@ -27,6 +27,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Gate the deploy on lint + build — nothing ships unless both pass.
+      - run: pnpm lint
+
       - run: pnpm build:showcase
 
       - uses: easingthemes/ssh-deploy@main
