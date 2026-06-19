@@ -21,4 +21,10 @@ export interface WrDialogOptions<D = unknown> {
   readonly maxWidth?: string;
   /** Extra CSS class(es) added to the panel. */
   readonly panelClass?: string | readonly string[];
+  /**
+   * Present as a full-width bottom-sheet on small viewports instead of a
+   * centred modal. `undefined` follows the app-wide
+   * `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.
+   */
+  readonly responsive?: boolean;
 }

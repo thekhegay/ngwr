@@ -20,6 +20,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Responsive (bottom-sheet)"
+    description="With `responsive: true` — or app-wide via `provideWrResponsiveOverlays()` — the dialog slides up as a full-width bottom-sheet on small viewports and stays a centred modal on larger ones. Open this on a phone (or narrow the window) to see it dock to the bottom."
+  >
+    <ngwr-doc-code [code]="snippets.responsive" language="angular-ts" />
+    <ngwr-doc-snippet code="dialog.open(ConfirmComponent, { responsive: true })">
+      <wr-btn (click)="openConfirm(true)">Open responsive dialog</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Service API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
