@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import type { TemplateRef } from '@angular/core';
@@ -22,7 +23,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 import { numAttr } from 'ngwr/utils';
 
 import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './interfaces';
@@ -108,6 +109,16 @@ export class WrPopover {
   /** Tooltip only — delay before hiding, in ms. @default 60 */
   readonly hideDelay = input(60, { transform: numAttr(60) });
 
+  /**
+   * Popover mode only — present the panel as a full-width bottom-sheet on
+   * small viewports instead of an anchored panel. `undefined` follows the
+   * app-wide `provideWrResponsiveOverlays()` setting; `true`/`false`
+   * overrides it. Tooltips never become sheets. @default undefined
+   */
+  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
+    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
+  });
+
   /** Fires after the panel opens. */
   readonly opened = output<void>();
 
@@ -116,6 +127,7 @@ export class WrPopover {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -254,21 +266,40 @@ export class WrPopover {
     const tooltip = this.isTooltip();
     const position = this.resolvedPosition();
 
-    const positionStrategy = this.overlay
-      .position()
-      .flexibleConnectedTo(this.host)
-      .withPositions(WR_POPOVER_POSITIONS[position])
-      .withPush(true);
+    // Sheet presentation is popover-only — tooltips are transient labels and
+    // never dock to the bottom. On small viewports (when opted in) detach
+    // from the trigger and slide the panel up from the bottom edge.
+    const asSheet = !tooltip && wrPresentAsSheet(this.responsive(), this.responsiveConfig);
+
+    const positionStrategy = asSheet
+      ? this.overlay.position().global().centerHorizontally().bottom('0')
+      : this.overlay
+          .position()
+          .flexibleConnectedTo(this.host)
+          .withPositions(WR_POPOVER_POSITIONS[position])
+          .withPush(true);
 
     const overlayClass = tooltip
       ? ['wr-tooltip-overlay', `wr-tooltip-overlay--${position}`]
-      : ['wr-popover-overlay', `wr-popover-overlay--${position}`];
+      : asSheet
+        ? ['wr-popover-overlay', 'wr-overlay-sheet']
+        : ['wr-popover-overlay', `wr-popover-overlay--${position}`];
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: this.scrollStrategies.reposition(),
+      scrollStrategy: asSheet ? this.scrollStrategies.block() : this.scrollStrategies.reposition(),
+      width: asSheet ? '100%' : undefined,
+      hasBackdrop: asSheet,
+      backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
       panelClass: overlayClass,
     });
+
+    if (asSheet) {
+      this.overlayRef
+        .backdropClick()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.isOpen.set(false));
+    }
 
     const content = this.content();
 

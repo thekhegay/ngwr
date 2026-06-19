@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 
 .wr-popover-overlay {
   > * {
