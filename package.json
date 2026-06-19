@@ -20,10 +20,10 @@
     "commit-msg": "npx --no-install commitlint --edit $1"
   },
   "engines": {
-    "node": "^24.15.0 || >=26.0.0",
-    "pnpm": "^11.5.0"
+    "node": "^24.16.0 || >=26.0.0",
+    "pnpm": "^11.8.0"
   },
-  "packageManager": "pnpm@11.5.2",
+  "packageManager": "pnpm@11.8.0",
   "dependencies": {
     "@angular/cdk": "^22.0.2",
     "@angular/common": "^22.0.2",
