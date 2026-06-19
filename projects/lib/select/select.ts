@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
@@ -29,7 +29,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
 import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator } from './interfaces';
@@ -119,6 +119,16 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
   /** Pill-shaped corners on the trigger. @default false */
   readonly rounded = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Present the option panel as a full-width bottom-sheet on small
+   * viewports instead of an anchored dropdown. `undefined` follows the
+   * app-wide `provideWrResponsiveOverlays()` setting; `true`/`false`
+   * overrides it. @default undefined
+   */
+  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
+    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
+  });
 
   /**
    * Behavior mode. `<wr-select>` is the unified combobox primitive —
@@ -435,6 +445,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -770,24 +781,39 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   private openOverlay(): void {
     if (this.overlayRef) return;
 
-    const positionStrategy = this.overlay
-      .position()
-      .flexibleConnectedTo(this.host)
-      .withPositions([
-        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
-        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
-      ])
-      .withPush(true);
+    // On small viewports (when opted in) detach from the trigger and present
+    // the panel as a full-width slide-up sheet pinned to the bottom edge.
+    const asSheet = wrPresentAsSheet(this.responsive(), this.responsiveConfig);
+
+    const positionStrategy = asSheet
+      ? this.overlay.position().global().centerHorizontally().bottom('0')
+      : this.overlay
+          .position()
+          .flexibleConnectedTo(this.host)
+          .withPositions([
+            { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+            { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+          ])
+          .withPush(true);
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: this.scrollStrategies.reposition(),
-      width: this.host.nativeElement.getBoundingClientRect().width,
-      panelClass: 'wr-select-overlay',
+      scrollStrategy: asSheet ? this.scrollStrategies.block() : this.scrollStrategies.reposition(),
+      width: asSheet ? '100%' : this.host.nativeElement.getBoundingClientRect().width,
+      hasBackdrop: asSheet,
+      backdropClass: asSheet ? 'wr-select-backdrop' : undefined,
+      panelClass: asSheet ? ['wr-select-overlay', 'wr-overlay-sheet'] : 'wr-select-overlay',
     });
 
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
+
+    if (asSheet) {
+      this.overlayRef
+        .backdropClick()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.open.set(false));
+    }
 
     this.overlayRef
       .outsidePointerEvents()

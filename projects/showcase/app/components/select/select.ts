@@ -31,6 +31,7 @@ import {
 })
 export default class SelectComponent {
   protected readonly size = signal<string | null>(null);
+  protected readonly respSize = signal<string | null>(null);
   protected readonly framework = signal<string | null>('angular');
   protected readonly tags = signal<readonly string[]>(['typescript', 'angular']);
   protected readonly manyTags = signal<readonly string[]>(['typescript', 'angular', 'rxjs', 'signals']);

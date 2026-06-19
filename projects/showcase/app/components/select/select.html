@@ -21,6 +21,23 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Responsive (bottom-sheet)"
+    description="With `responsive` — or app-wide via `provideWrResponsiveOverlays()` — the option panel detaches from the trigger and slides up as a full-width bottom-sheet on small viewports, with a backdrop. Open this on a phone (or narrow the window below 640px) to see it dock to the bottom."
+  >
+    <ngwr-doc-snippet code='<wr-select responsive placeholder="Pick a size">…</wr-select>'>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-select responsive placeholder="Pick a size" [(ngModel)]="respSize">
+          <wr-option value="sm">Small</wr-option>
+          <wr-option value="md">Medium</wr-option>
+          <wr-option value="lg">Large</wr-option>
+          <wr-option value="xl">Extra large</wr-option>
+        </wr-select>
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ respSize() ?? 'none' }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Groups" description="Use <wr-option-group> to label sections of related options.">
     <ngwr-doc-snippet [code]="snippets.groups">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">

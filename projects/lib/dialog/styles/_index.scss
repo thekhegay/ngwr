@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use '../../overlay/styles'; // shared .wr-overlay-sheet for responsive mode
 
 // CDK Overlay base styles are usually loaded once by the consumer.
 // We re-emit the minimal `cdk-overlay-*` rules so a standalone `@use
@@ -123,26 +124,3 @@
   }
 }
 
-// Responsive bottom-sheet presentation. Added to a component's overlay
-// panel (alongside `wr-dialog-panel`, `wr-select-overlay`, …) when
-// `provideWrResponsiveOverlays()` / a `responsive` option pins the overlay
-// to the bottom edge on small viewports. `!important` so it wins over each
-// component's own panel sizing regardless of stylesheet order.
-.wr-overlay-sheet {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  max-height: 90vh !important;
-  border-radius: var(--wr-border-radius-lg) var(--wr-border-radius-lg) 0 0 !important;
-  padding-bottom: env(safe-area-inset-bottom);
-  animation: wr-overlay-sheet-up var(--wr-overlay-duration, 0.2s) var(--wr-overlay-ease, ease-out) !important;
-}
-
-@keyframes wr-overlay-sheet-up {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}

@@ -1,0 +1,31 @@
+// Shared presentation styles for responsive (bottom-sheet) overlays.
+// Added to a component's overlay panel (`wr-dialog-panel`,
+// `wr-select-overlay`, …) when `provideWrResponsiveOverlays()` or a
+// component's `responsive` option pins the overlay to the bottom edge on
+// small viewports. `!important` so it wins over each component's own panel
+// sizing regardless of stylesheet order.
+
+.wr-overlay-sheet {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  max-height: 90vh !important;
+  border-radius: var(--wr-border-radius-lg) var(--wr-border-radius-lg) 0 0 !important;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: wr-overlay-sheet-up var(--wr-overlay-duration, 0.2s) var(--wr-overlay-ease, ease-out) !important;
+}
+
+// Dim + blur behind a sheet — for overlays that otherwise have no backdrop.
+.wr-overlay-backdrop {
+  background: rgba(var(--wr-color-backdrop-rgb), 0.45);
+  backdrop-filter: blur(2px);
+}
+
+@keyframes wr-overlay-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
