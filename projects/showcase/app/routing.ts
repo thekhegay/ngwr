@@ -56,6 +56,7 @@ export const routes = {
     backTop: 'back-top',
     badge: 'badge',
     breadcrumbs: 'breadcrumbs',
+    burger: 'burger',
     button: 'button',
     buttonGroup: 'button-group',
     calendar: 'calendar',

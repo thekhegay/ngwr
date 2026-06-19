@@ -1,0 +1,101 @@
+@use '../../theme/styles' as theme;
+
+.wr-burger {
+  // Resting (hamburger) dash geometry. Each line is one SVG <path>; the
+  // open state below rewrites the dasharray/offset so the strokes slide
+  // into a close mark.
+  --wr-burger-size: 2.5rem;
+  --wr-burger-color: var(--wr-color-dark);
+  --wr-burger-color-opened: var(--wr-color-primary);
+  --wr-burger-stroke-width: 6px;
+  --wr-burger-duration: 0.5s;
+  --wr-burger-ease: var(--wr-ease-in-out);
+
+  --wr-burger-stroke-1: 60 207;
+  --wr-burger-offset-1: 0;
+  --wr-burger-stroke-2: 60 60;
+  --wr-burger-offset-2: 0;
+  --wr-burger-stroke-3: 60 207;
+  --wr-burger-offset-3: 0;
+
+  display: inline-flex;
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: var(--wr-burger-size);
+    height: var(--wr-burger-size);
+    padding: 0;
+
+    border: 0;
+    border-radius: var(--wr-border-radius-base);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    transition: background var(--wr-transition-base);
+
+    &:hover {
+      background: rgba(var(--wr-color-light-rgb), 0.4);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__icon {
+    display: block;
+    width: 80%;
+    height: 80%;
+  }
+
+  &__line {
+    fill: none;
+    stroke: var(--wr-burger-color);
+    stroke-width: var(--wr-burger-stroke-width);
+    transition:
+      stroke-dasharray var(--wr-burger-duration) var(--wr-burger-ease),
+      stroke-dashoffset var(--wr-burger-duration) var(--wr-burger-ease),
+      stroke var(--wr-burger-duration) var(--wr-burger-ease);
+
+    &--1 {
+      stroke-dasharray: var(--wr-burger-stroke-1);
+      stroke-dashoffset: var(--wr-burger-offset-1);
+    }
+
+    &--2 {
+      stroke-dasharray: var(--wr-burger-stroke-2);
+      stroke-dashoffset: var(--wr-burger-offset-2);
+    }
+
+    &--3 {
+      stroke-dasharray: var(--wr-burger-stroke-3);
+      stroke-dashoffset: var(--wr-burger-offset-3);
+    }
+  }
+
+  &--opened {
+    --wr-burger-color: var(--wr-burger-color-opened);
+    --wr-burger-stroke-1: 90 207;
+    --wr-burger-offset-1: -134;
+    --wr-burger-stroke-2: 1 60;
+    --wr-burger-offset-2: -30;
+    --wr-burger-stroke-3: 90 207;
+    --wr-burger-offset-3: -134;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wr-burger__line {
+      transition-duration: 1ms;
+    }
+  }
+}

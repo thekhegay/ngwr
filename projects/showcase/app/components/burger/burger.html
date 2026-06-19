@@ -1,0 +1,60 @@
+<ngwr-doc-page
+  title="Burger"
+  description="Animated menu toggle — three SVG strokes morph between a hamburger and a close mark. Two-way bindable, so it pairs naturally with a `<wr-drawer>`."
+  [keywords]="['burger', 'hamburger', 'menu-toggle', 'wr-burger']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="Click to morph between the hamburger and close marks. The `open` state is two-way bindable."
+  >
+    <ngwr-doc-snippet code="">
+      <wr-burger [(open)]="open" />
+      <span style="margin-inline-start: 1rem; color: var(--wr-color-medium); font-size: 0.875rem">
+        open: {{ open() }}
+      </span>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="basicSnippet" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="With a drawer"
+    description="The canonical pairing — bind the same signal to `<wr-burger>` and `<wr-drawer>`. The button morphs to a close mark while the menu is open, and tapping it again closes the menu."
+  >
+    <ngwr-doc-snippet code="">
+      <wr-burger [(open)]="drawerOpen" />
+      <wr-drawer [(open)]="drawerOpen" position="right" width="16rem">
+        <div style="display: flex; flex-direction: column; gap: 0.25rem; padding: 1.25rem 1rem">
+          <a style="padding: 0.625rem 0.75rem; border-radius: 0.375rem; font-weight: 600">Dashboard</a>
+          <a style="padding: 0.625rem 0.75rem; border-radius: 0.375rem; font-weight: 600">Projects</a>
+          <a style="padding: 0.625rem 0.75rem; border-radius: 0.375rem; font-weight: 600">Settings</a>
+        </div>
+      </wr-drawer>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="drawerSnippet" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Styling"
+    description="Size, colors, stroke width, and morph duration are all CSS custom properties — override them inline or in a stylesheet."
+  >
+    <ngwr-doc-snippet code="">
+      <wr-burger [(open)]="open" style="--wr-burger-size: 3rem; --wr-burger-color-opened: var(--wr-color-danger)" />
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="stylingSnippet" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled" description="A disabled toggle ignores clicks and dims.">
+    <ngwr-doc-snippet code="">
+      <wr-burger [(open)]="disabledOpen" disabled />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="CSS variables">
+    <ngwr-doc-api [rows]="tokens" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

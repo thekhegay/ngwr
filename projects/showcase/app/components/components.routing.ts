@@ -35,6 +35,10 @@ export default [
     loadComponent: () => import('./breadcrumbs/breadcrumbs'),
   },
   {
+    path: components.burger,
+    loadComponent: () => import('./burger/burger'),
+  },
+  {
     path: components.button,
     loadComponent: () => import('./button/button'),
   },
