@@ -6,7 +6,7 @@
  */
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -28,6 +28,7 @@ import {
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
+import { WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 
 import type { WrCommandItem } from './interfaces';
 
@@ -107,11 +108,25 @@ export class WrCommandPalette {
   /** Auto-close on `(picked)`. Set false to keep open. @default true */
   readonly closeOnPick = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Present the palette full-screen on small viewports instead of a centred
+   * modal. `undefined` follows the app-wide `provideWrResponsiveOverlays()`
+   * setting; `true`/`false` overrides it. The palette docks to the top (it
+   * auto-focuses its input, so the on-screen keyboard stays clear).
+   * @default undefined
+   */
+  readonly responsive = input<boolean | undefined, BooleanInput>(undefined, {
+    transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
+  });
+
   /** Fires when the user commits an item (Enter / click). */
   readonly picked = output<WrCommandItem>();
 
   protected readonly query = signal('');
   protected readonly activeIndex = signal(0);
+
+  /** Whether the current opening is presented full-screen. Decided on open. */
+  protected readonly presentAsSheet = signal(false);
   protected readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
   protected readonly panelEl = viewChild<ElementRef<HTMLElement>>('panel');
 
@@ -130,6 +145,7 @@ export class WrCommandPalette {
   });
 
   private readonly hotkeys = inject(WrHotkey);
+  private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -159,6 +175,7 @@ export class WrCommandPalette {
       if (!this.open()) return;
       this.query.set('');
       this.activeIndex.set(0);
+      this.presentAsSheet.set(wrPresentAsSheet(this.responsive(), this.responsiveConfig));
     });
 
     // Focus trap + restore.
