@@ -1,3 +1,5 @@
+# Changelog
+
 ## [7.1.0](https://github.com/thekhegay/ngwr/compare/v7.0.0...v7.1.0) (2026-06-19)
 
 ### Features
@@ -5,7 +7,6 @@
 * **burger:** animated menu-toggle component ([#357](https://github.com/thekhegay/ngwr/issues/357)) ([43941ea](https://github.com/thekhegay/ngwr/commit/43941ea47ee1035d28b15fba972e07e50fa6a7f3))
 * **meta:** reactive bind() for locale-aware title ([#359](https://github.com/thekhegay/ngwr/issues/359)) ([763c326](https://github.com/thekhegay/ngwr/commit/763c326055f773aa80b15ac786be101f8abb7d8e))
 * **popover:** add left/right start and end position variants ([#358](https://github.com/thekhegay/ngwr/issues/358)) ([6b93f7e](https://github.com/thekhegay/ngwr/commit/6b93f7ed63ce2928b10be7f5049c2c0f4c20174e))
-# Changelog
 
 ## [7.0.0](https://github.com/thekhegay/ngwr/compare/v6.1.1...v7.0.0) (2026-06-12)
 
