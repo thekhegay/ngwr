@@ -12,6 +12,13 @@
   border-bottom: 1px solid var(--wr-color-light);
   font-family: var(--wr-font-family-base);
 
+  // Opt-in (`responsive`): query the box's own width so the title + actions row
+  // stacks when the header is too narrow to sit them side by side. The host is
+  // already full-width, so containment is safe here.
+  &--responsive {
+    container: wr-page-header / inline-size;
+  }
+
   &__breadcrumbs {
     font-size: var(--wr-text-sm);
     color: var(--wr-color-medium);
@@ -74,5 +81,14 @@
     &:empty {
       display: none;
     }
+  }
+}
+
+// Responsive headers stack the title above the actions when their own box is
+// too narrow to sit them side by side (regardless of viewport).
+@container wr-page-header (max-width: 32rem) {
+  .wr-page-header--responsive .wr-page-header__main {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

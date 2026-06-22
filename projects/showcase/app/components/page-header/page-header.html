@@ -15,4 +15,20 @@
       </wr-page-header>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Narrow container (container query)"
+    description="With `responsive`, the title + actions row stacks vertically when the header's own box is too narrow — a container query on its own width, not the viewport, so it adapts inside a split pane or sidebar even on a wide page. The box below is fixed at 380px."
+  >
+    <ngwr-doc-snippet code='<div style="width: 380px"><wr-page-header responsive …>…</wr-page-header></div>'>
+      <div style="width: 380px; max-width: 100%">
+        <wr-page-header responsive title="Settings" subtitle="Manage your workspace">
+          <div wrPageHeaderActions>
+            <wr-btn>Invite</wr-btn>
+            <wr-btn color="primary">Save</wr-btn>
+          </div>
+        </wr-page-header>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 </ngwr-doc-page>
