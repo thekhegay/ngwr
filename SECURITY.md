@@ -7,8 +7,8 @@ only when the change is mechanical (no breaking surface).
 
 | Version | Supported |
 |---------|-----------|
-| 6.x     | ✅        |
-| < 6.0   | ❌        |
+| 7.x     | ✅        |
+| < 7.0   | ❌        |
 
 ## Reporting a vulnerability
 
