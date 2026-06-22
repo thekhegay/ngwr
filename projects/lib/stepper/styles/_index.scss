@@ -14,6 +14,13 @@
   gap: 1rem;
   font-family: var(--wr-font-family-base);
 
+  // Opt-in (`responsive`): query the box's own width so a horizontal stepper
+  // can drop to vertical when its column is too narrow. The host is already
+  // full-width, so containment is safe here.
+  &--responsive {
+    container: wr-stepper / inline-size;
+  }
+
   &__headers {
     list-style: none;
     margin: 0;
@@ -148,6 +155,29 @@
 
   &__body {
     min-height: 0;
+  }
+}
+
+// Responsive horizontal steppers fall back to the vertical layout when their
+// own box is too narrow for the row — mirrors the `--vertical` rules above,
+// scoped to responsive steppers that aren't already vertical.
+@container wr-stepper (max-width: 32rem) {
+  .wr-stepper--responsive:not(.wr-stepper--vertical) .wr-stepper__headers {
+    flex-direction: column;
+  }
+
+  .wr-stepper--responsive:not(.wr-stepper--vertical) .wr-stepper__header {
+    align-items: stretch;
+    flex: 0 0 auto;
+  }
+
+  .wr-stepper--responsive:not(.wr-stepper--vertical) .wr-stepper__connector {
+    width: 1.5px;
+    min-height: 1.25rem;
+    height: auto;
+    margin: 0.25rem 0 0.25rem calc(var(--wr-stepper-indicator-size) / 2);
+    align-self: stretch;
+    flex: 0 0 auto;
   }
 }
 

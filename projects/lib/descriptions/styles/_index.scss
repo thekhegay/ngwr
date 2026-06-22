@@ -5,6 +5,16 @@
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-dark);
 
+  // Opt-in (`responsive`): query the box's own width so inline layouts reflow
+  // to stacked inside a narrow card / side panel, regardless of the viewport.
+  // `inline-size` containment drops content-based sizing, so the box fills its
+  // container's width; without this it would collapse to 0 inside a
+  // shrink-to-fit parent (flex / grid / inline-block).
+  &--responsive {
+    container: wr-descriptions / inline-size;
+    width: 100%;
+  }
+
   &__title {
     font-size: var(--wr-text-base);
     font-weight: var(--wr-font-weight-semibold);
@@ -100,5 +110,54 @@
   &--bordered#{&}--inline &__label {
     background: rgba(var(--wr-color-light-rgb), 0.35);
     border-right: 1px solid var(--wr-color-light);
+  }
+}
+
+// When the descriptions box itself is narrow (not the viewport), inline modes
+// reflow back to the stacked single-column layout so label/value pairs stay
+// readable in a narrow card or side panel. Override selectors match the base
+// inline rules' specificity (0-3-0 for bordered) so the cascade picks them up.
+@container wr-descriptions (max-width: 24rem) {
+  .wr-descriptions--inline .wr-descriptions__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .wr-descriptions--inline .wr-descriptions__row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  // Bordered + inline reverts to the plain bordered stacked rows: the card
+  // border stays on the list; rows regain their padding + dividers; the label
+  // cells drop their grid background / divider.
+  .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.625rem 0.875rem;
+  }
+
+  .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row + .wr-descriptions__row {
+    border-top: 1px solid var(--wr-color-light);
+  }
+
+  .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__label,
+  .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__value {
+    padding: 0;
+    border-top: 0;
+  }
+
+  .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__label {
+    background: transparent;
+    border-right: 0;
   }
 }

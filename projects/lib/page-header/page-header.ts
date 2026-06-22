@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
 /**
@@ -34,7 +35,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   selector: 'wr-page-header',
   templateUrl: './page-header.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-page-header' },
+  host: { class: 'wr-page-header', '[class.wr-page-header--responsive]': 'responsive()' },
 })
 export class WrPageHeader {
   /** Primary title shown as an h1. */
@@ -42,4 +43,12 @@ export class WrPageHeader {
 
   /** Secondary line below the title. */
   readonly subtitle = input<string>('');
+
+  /**
+   * Stack the title and actions vertically when the header's own box is too
+   * narrow to sit them side by side (a container query on its own width, not
+   * the viewport — so it adapts inside a narrow column or split pane).
+   * @default false
+   */
+  readonly responsive = input(false, { transform: coerceBooleanProperty });
 }

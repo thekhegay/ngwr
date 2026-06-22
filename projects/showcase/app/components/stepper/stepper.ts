@@ -28,6 +28,7 @@ export default class StepperPageComponent {
   protected readonly basic = signal(0);
   protected readonly linear = signal(0);
   protected readonly vertical = signal(0);
+  protected readonly narrow = signal(0);
   protected readonly linearStepper = viewChild<WrStepper>('linearStepper');
 
   protected linearNext(): void {
@@ -78,6 +79,12 @@ export class MyComponent {
     {
       name: 'linear',
       description: 'Lock steps after the latest completed one.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'responsive',
+      description: 'Drop a horizontal stepper to vertical when its own box is too narrow (container query, not viewport).',
       type: 'boolean',
       default: 'false',
     },

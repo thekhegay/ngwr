@@ -13,4 +13,19 @@
       </wr-descriptions>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Narrow container (container query)"
+    description="With `responsive`, inline layouts query their own width, not the viewport — so the same `inline bordered` descriptions reflows to a stacked layout when placed in a narrow container, even on a wide page. The box below is fixed at 280px."
+  >
+    <ngwr-doc-snippet code='<div style="width: 280px"><wr-descriptions responsive inline bordered>…</wr-descriptions></div>'>
+      <div style="width: 280px; max-width: 100%">
+        <wr-descriptions title="Account" responsive inline bordered>
+          <wr-description-item label="Name">Ada Lovelace</wr-description-item>
+          <wr-description-item label="Email">ada@example.com</wr-description-item>
+          <wr-description-item label="Joined">2024-03-12</wr-description-item>
+        </wr-descriptions>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 </ngwr-doc-page>
