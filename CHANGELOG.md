@@ -1,5 +1,24 @@
 # Changelog
 
+## [7.2.0](https://github.com/thekhegay/ngwr/compare/v7.1.0...v7.2.0) (2026-06-22)
+
+### Features
+
+* comfortable touch targets for dense content controls ([#376](https://github.com/thekhegay/ngwr/issues/376)) ([1439c55](https://github.com/thekhegay/ngwr/commit/1439c55aa32fb2650cd1293903ccc0a89084f486))
+* **command-palette:** full-screen presentation on small viewports ([#373](https://github.com/thekhegay/ngwr/issues/373)) ([a4dade3](https://github.com/thekhegay/ngwr/commit/a4dade3dc266d1b3141e13537ddb93d64e8ecde5))
+* **dropdown:** responsive bottom-sheet menu on small viewports ([#371](https://github.com/thekhegay/ngwr/issues/371)) ([8c65504](https://github.com/thekhegay/ngwr/commit/8c65504d8c0feb09522b7026e06fd0736d7ca1a5))
+* honor safe-area insets on fixed surfaces (toast, command-palette, back-top) ([#377](https://github.com/thekhegay/ngwr/issues/377)) ([409556d](https://github.com/thekhegay/ngwr/commit/409556d0564f72ba186da16cd6f2adede122c726))
+* opt-in container-query responsive reflow (descriptions, stepper, page-header) ([#378](https://github.com/thekhegay/ngwr/issues/378)) ([a14b1d0](https://github.com/thekhegay/ngwr/commit/a14b1d0da4e2d7392bbc0e96f6ee55b61e6a554f))
+* **overlay:** responsive bottom-sheet overlays, applied to dialog ([#369](https://github.com/thekhegay/ngwr/issues/369)) ([58469a4](https://github.com/thekhegay/ngwr/commit/58469a4f9db5cd6a459475c07fbe0c764788b646))
+* **popover:** responsive bottom-sheet panel in popover mode ([#372](https://github.com/thekhegay/ngwr/issues/372)) ([05e965b](https://github.com/thekhegay/ngwr/commit/05e965b0874da61466e73b3c29fba5a7a4123a7d))
+* **select:** responsive bottom-sheet panel on small viewports ([#370](https://github.com/thekhegay/ngwr/issues/370)) ([e2089da](https://github.com/thekhegay/ngwr/commit/e2089daa24e8b7067636c3319979c6c1f273ecf4))
+* **showcase:** mobile-responsive shell ([#368](https://github.com/thekhegay/ngwr/issues/368)) ([6aa3baf](https://github.com/thekhegay/ngwr/commit/6aa3bafb1d97973fbebd3d7b229f45b6144d9043))
+* **theme:** touch-target mixin and apply to overlay close buttons ([#375](https://github.com/thekhegay/ngwr/issues/375)) ([8db4345](https://github.com/thekhegay/ngwr/commit/8db4345085a67368cd00026a29efbb48e70976e9))
+
+### Bug Fixes
+
+* **release:** insert new changelog section under the heading ([#366](https://github.com/thekhegay/ngwr/issues/366)) ([9fca643](https://github.com/thekhegay/ngwr/commit/9fca6436cb25ea1f832d284a92c078feb28f2601))
+
 ## [7.1.0](https://github.com/thekhegay/ngwr/compare/v7.0.0...v7.1.0) (2026-06-19)
 
 ### Features
