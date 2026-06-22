@@ -80,6 +80,8 @@
     flex: 0 0 auto;
     cursor: grab;
     user-select: none;
+    // Own the gesture — stop the browser turning the drag into a scroll/pan.
+    touch-action: none;
   }
 
   &__grabber {

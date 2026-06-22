@@ -82,9 +82,9 @@ export class WrDrawer {
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Render a grab handle at the leading edge. Visual affordance for
-   * "swipe to dismiss" patterns. Cosmetic — no swipe logic attached.
-   * @default false
+   * Render a grab handle at the leading edge and enable swipe-to-dismiss:
+   * drag the handle toward the drawer's edge (down for `bottom`, left for
+   * `left`, …) and release past ~30% of the panel to close. @default false
    */
   readonly showHandle = input(false, { transform: coerceBooleanProperty });
 
@@ -110,6 +110,68 @@ export class WrDrawer {
     if (this.rounded()) parts.push('wr-drawer__panel--rounded');
     if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
     return parts.join(' ');
+  }
+
+  // Swipe-to-dismiss — gated to the grab handle, so it never fights the
+  // panel's own scrolling. The panel follows the finger toward the closing
+  // edge and closes past ~30% of its size, otherwise snaps back.
+
+  private swipeStartX = 0;
+  private swipeStartY = 0;
+  private swiping = false;
+
+  protected onSwipeStart(event: TouchEvent): void {
+    const touch = event.touches[0];
+    if (!touch) return;
+    this.swipeStartX = touch.clientX;
+    this.swipeStartY = touch.clientY;
+    this.swiping = true;
+  }
+
+  protected onSwipeMove(event: TouchEvent, panel: HTMLElement): void {
+    if (!this.swiping) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    const { axis, sign } = this.closeAxis();
+    const delta = axis === 'y' ? touch.clientY - this.swipeStartY : touch.clientX - this.swipeStartX;
+    // Only follow the finger when dragging toward the closing edge.
+    if (delta * sign <= 0) {
+      panel.style.transform = '';
+      return;
+    }
+    event.preventDefault();
+    panel.style.transition = 'none';
+    panel.style.transform = axis === 'y' ? `translateY(${delta}px)` : `translateX(${delta}px)`;
+  }
+
+  protected onSwipeEnd(event: TouchEvent, panel: HTMLElement): void {
+    if (!this.swiping) return;
+    this.swiping = false;
+    const touch = event.changedTouches[0];
+    const { axis, sign } = this.closeAxis();
+    const delta = touch ? (axis === 'y' ? touch.clientY - this.swipeStartY : touch.clientX - this.swipeStartX) : 0;
+    const panelSize = axis === 'y' ? panel.offsetHeight : panel.offsetWidth;
+    if (delta * sign > panelSize * 0.3) {
+      this.open.set(false); // keep the dragged offset as the overlay disposes
+    } else {
+      panel.style.transition = '';
+      panel.style.transform = '';
+    }
+  }
+
+  /** Axis + sign of the closing direction for the current position. */
+  private closeAxis(): { axis: 'x' | 'y'; sign: number } {
+    switch (this.position()) {
+      case 'bottom':
+        return { axis: 'y', sign: 1 };
+      case 'top':
+        return { axis: 'y', sign: -1 };
+      case 'left':
+        return { axis: 'x', sign: -1 };
+      case 'right':
+      default:
+        return { axis: 'x', sign: 1 };
+    }
   }
 
   private readonly overlay = inject(WR_OVERLAY);
