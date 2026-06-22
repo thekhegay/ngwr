@@ -172,3 +172,19 @@
     color: var(--wr-color-medium);
   }
 }
+
+// Touch pointers: grow the clear button and make the column option rows ~44px
+// tall so each is a comfortable tap target. Fine pointers keep the compact
+// desktop sizing above.
+@media (pointer: coarse) {
+  .wr-cascader__clear {
+    --wr-icon-size: 1.125rem;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .wr-cascader-panel .wr-cascader__opt {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
