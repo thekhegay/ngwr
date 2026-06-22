@@ -269,3 +269,18 @@
   max-height: var(--wr-tree-panel-max-height, 18rem);
   overflow-y: auto;
 }
+
+// Touch pointers: taller rows (~44px) and a larger expand/collapse toggle so
+// both the row and its toggle are comfortable tap targets. Fine pointers keep
+// the compact desktop rows above.
+@media (pointer: coarse) {
+  .wr-tree__row {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .wr-tree__toggle {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+}

@@ -261,3 +261,28 @@ $toast-colors: (
   order: 99;
   align-self: stretch;
 }
+
+// Touch pointers: grow the per-toast action buttons (copy / dismiss) to ~32px
+// with a wider gap so the pair no longer sits 2px apart, and give the
+// dismiss-all bar a taller hit area. Fine pointers keep the compact desktop
+// sizing above.
+@media (pointer: coarse) {
+  .wr-toast__actions {
+    gap: 0.25rem;
+  }
+
+  .wr-toast__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    --wr-icon-size: 1.125rem;
+  }
+
+  .wr-toast-host__close-all {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
