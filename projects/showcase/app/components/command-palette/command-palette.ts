@@ -27,6 +27,7 @@ import {
 })
 export default class CommandPalettePage {
   protected readonly open = signal(false);
+  protected readonly respOpen = signal(false);
   protected readonly last = signal<string | null>(null);
 
   protected readonly items: readonly WrCommandItem[] = [

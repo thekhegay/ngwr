@@ -1,5 +1,11 @@
 @if (open()) {
-  <div class="wr-command-palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div
+    class="wr-command-palette"
+    [class.wr-command-palette--sheet]="presentAsSheet()"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Command palette"
+  >
     <!-- Backdrop captures clicks to close. Not focusable — keyboard users use
          Esc on the panel below. -->
 

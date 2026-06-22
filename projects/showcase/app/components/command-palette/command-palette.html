@@ -35,6 +35,16 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Responsive (full-screen)"
+    description="With `responsive` — or app-wide via `provideWrResponsiveOverlays()` — the palette fills the screen from the top edge on small viewports instead of a centred modal (it auto-focuses its input, so it stays clear of the on-screen keyboard). Open this on a phone (or narrow the window below 640px)."
+  >
+    <ngwr-doc-snippet code='<wr-command-palette responsive [items]="items" [(open)]="open" />'>
+      <button wr-btn type="button" color="primary" (click)="respOpen.set(true)">Open palette</button>
+      <wr-command-palette responsive [items]="items" [(open)]="respOpen" [trigger]="null" (picked)="onPicked($event)" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Programmatic control"
     description="Set `[(open)]` and pass `[trigger]` of `null` to disable the auto-bound hotkey when you want to open it from your own UI."
   >
