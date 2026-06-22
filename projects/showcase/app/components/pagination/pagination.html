@@ -54,6 +54,19 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Narrow container (container query)"
+    description="With `responsive`, the numbered strip collapses to a compact `‹ page / total ›` pager when the control's own box is too narrow — a container query on its own width, not the viewport. The box below is fixed at 260px."
+  >
+    <ngwr-doc-snippet
+      code='<div style="width: 260px"><wr-pagination responsive [total]="120" [(currentPage)]="page" /></div>'
+    >
+      <div style="width: 260px; max-width: 100%">
+        <wr-pagination responsive [total]="120" [(currentPage)]="page" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

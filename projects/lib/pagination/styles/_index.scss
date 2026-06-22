@@ -8,6 +8,14 @@
     pointer-events: none;
   }
 
+  // Opt-in (`responsive`): query the control's own width so it collapses to a
+  // compact pager when narrow. `inline-size` containment drops content-based
+  // sizing, so pin the box to its container's width.
+  &--responsive {
+    container: wr-pagination / inline-size;
+    width: 100%;
+  }
+
   &__inner {
     display: flex;
     align-items: center;
@@ -55,6 +63,19 @@
     justify-content: center;
     color: var(--wr-color-medium);
     user-select: none;
+  }
+
+  // Compact pager label ("3 / 10"). Hidden until responsive mode swaps it in
+  // for the numbered cells on a narrow box.
+  &__current {
+    display: none;
+    align-items: center;
+    padding: 0 0.375rem;
+    color: var(--wr-color-dark);
+    font-family: var(--wr-font-family-base);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
   &__size {
@@ -111,5 +132,18 @@
   &--square &__nav .wr-btn:last-child {
     border-top-right-radius: var(--wr-border-radius-sm);
     border-bottom-right-radius: var(--wr-border-radius-sm);
+  }
+}
+
+// Responsive pagination collapses the numbered strip to a compact
+// `‹ page / total ›` pager when its own box is too narrow.
+@container wr-pagination (max-width: 24rem) {
+  .wr-pagination--responsive .wr-pagination__page,
+  .wr-pagination--responsive .wr-pagination__ellipsis {
+    display: none;
+  }
+
+  .wr-pagination--responsive .wr-pagination__current {
+    display: inline-flex;
   }
 }

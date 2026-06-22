@@ -32,6 +32,7 @@
         <span class="wr-pagination__ellipsis">{{ ellipsis }}</span>
       } @else {
         <wr-btn
+          class="wr-pagination__page"
           [size]="buttonSize()"
           [outlined]="!isCurrent(page)"
           [color]="isCurrent(page) ? 'primary' : null"
@@ -44,6 +45,9 @@
         </wr-btn>
       }
     }
+
+    <!-- Compact pager — shown only in responsive mode on a narrow box (CSS). -->
+    <span class="wr-pagination__current" aria-hidden="true">{{ currentPage() }} / {{ totalPages() }}</span>
 
     <wr-btn
       [size]="buttonSize()"
