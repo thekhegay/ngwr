@@ -24,5 +24,6 @@ export const GETTING_STARTED_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Grid', url: ['/getting-started', 'grid'] },
   // 5. Cross-cutting subsystems users typically meet later.
   { title: 'Overlay', url: ['/getting-started', 'overlay'] },
+  { title: 'Mobile & responsive', url: ['/getting-started', 'mobile'] },
   { title: 'Internationalization (i18n)', url: ['/getting-started', 'i18n'] },
 ];

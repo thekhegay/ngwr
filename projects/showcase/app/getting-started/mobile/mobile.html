@@ -1,0 +1,46 @@
+<ngwr-doc-page
+  title="Mobile & responsive"
+  description="NGWR adapts to touch and small screens — overlays become sheets, hit areas grow on touch, content respects device safe areas, and key layouts reflow to their container. Most of it is automatic; the rest is a one-line opt-in."
+  [keywords]="['mobile', 'responsive', 'touch', 'safe-area', 'container-query']"
+  [labels]="['Guide']"
+>
+  <ngwr-doc-section
+    title="Responsive overlays"
+    description="On small viewports, dialog / select / dropdown / popover collapse from an anchored overlay to a bottom-sheet, and the command-palette goes full-screen — easier to reach with a thumb. Turn it on app-wide with `provideWrResponsiveOverlays()`, built on the existing overlay plumbing."
+  >
+    <ngwr-doc-code [code]="snippets.overlaysProvider" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Per-component opt-in"
+    description="Prefer to keep it surgical? Skip the provider and set the `responsive` input on just the overlays you want adapted. The dialog is service-opened, so it takes a `responsive` option instead."
+  >
+    <ngwr-doc-code [code]="snippets.overlaysInput" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Adaptive layout components"
+    description="`descriptions`, `stepper` and `page-header` can reflow based on their own width — a container query, not the viewport — so a two-column descriptions stacks, a horizontal stepper turns vertical, and a page-header drops its actions below the title whenever the box they live in is narrow, on any screen size. Opt in with `responsive`."
+  >
+    <ngwr-doc-code [code]="snippets.containerQuery" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Touch targets"
+    description="Small controls — close / remove buttons, tree and cascader toggles, select chips, toast actions — automatically grow to a comfortable ≥44px tap area on touch devices, gated behind `@media (pointer: coarse)`. Nothing to configure, and mouse / trackpad layouts stay untouched."
+  />
+
+  <ngwr-doc-section
+    title="Safe areas"
+    description="Fixed surfaces honor `env(safe-area-inset-*)` so content clears notches, home indicators and rounded corners. The toast host, command-palette and back-top do this automatically; the drawer opts in with `safeArea`. `env()` resolves to 0 on devices without insets, so desktop is unaffected."
+  >
+    <ngwr-doc-code [code]="snippets.safeArea" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Build your own"
+    description="For your own responsive logic, the `WrMedia` service exposes signal-based breakpoint queries (and a breakpoints SCSS API covers styles). See the Media service page for the full surface."
+  >
+    <ngwr-doc-code [code]="snippets.media" language="angular-ts" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -36,6 +36,7 @@ export const routes = {
     color: 'color',
     grid: 'grid',
     overlay: 'overlay',
+    mobile: 'mobile',
     i18n: 'i18n',
     configuration: 'configuration',
     schematics: 'schematics',
