@@ -1,10 +1,14 @@
 # Roadmap — v8
 
-> Living document. v7.0.0 shipped 2026-06-12. v8.0 targets the Angular 23
-> baseline (~Nov 2026); everything non-breaking ships in 7.x minors along the
-> way. Sizes: S / M / L / XL.
+> Living document. v7.0.0 shipped 2026-06-12, v7.1.0 on 2026-06-19. v8.0
+> targets the Angular 23 baseline (~Nov 2026); everything non-breaking ships
+> in 7.x minors along the way. Sizes: S / M / L / XL.
 >
-> Updated 2026-06-12 after a competitive sweep of Angular Material/CDK +
+> **Status (2026-06-22):** the mobile theme (M, priority 1) is underway —
+> M1 + M2 shipped in 7.x minors, M3–M5 partially shipped (per-milestone notes
+> below).
+>
+> Drafted 2026-06-12 after a competitive sweep of Angular Material/CDK +
 > Angular Aria, PrimeNG, NG-ZORRO, Taiga UI, spartan-ng, Kendo, and the
 > React/Vue leaders (shadcn, MUI X, Ant Pro, Mantine). Two facts reframe the
 > plan: **Signal Forms and `@angular/aria` are already stable in v22**, and
@@ -25,8 +29,11 @@ adaptive. Foundations already exist (breakpoints SCSS API, `WrMedia`
 service, density tokens, `drawer position="bottom"`) — this theme wires
 them through the catalog.
 
-- [ ] **M1. Showcase mobile adaptation** (L, do first — the storefront is
-      unusable on phones today). Audited 2026-06-13 at 375×812:
+- [x] **M1. Showcase mobile adaptation** (L) — **shipped (7.x).** Mobile
+      header (hamburger + sheet, drawer over the menu) and off-canvas docs
+      sidebar — the two blockers that made the site unusable on phones —
+      dogfooded on ngwr's own drawer / breakpoints. Original audit
+      (2026-06-13, 375×812):
       - header nav overflows, no hamburger; logo + theme/GitHub/npm actions
         pushed off-screen → collapse to hamburger + sheet, keep logo +
         theme toggle visible
@@ -40,26 +47,33 @@ them through the catalog.
         the demo
       - dogfood it: build the shell fixes with ngwr's own drawer /
         breakpoints / WrMedia
-- [ ] **M2. Responsive overlay presets** (L) — on small viewports, dialog /
-      select / dropdown / popover / command-palette collapse to
-      bottom-sheet / action-sheet / full-screen presentations. One
-      `provideWrResponsiveOverlays()` opt-in + per-component `responsive`
-      input; built on the existing drawer plumbing.
-- [ ] **M3. Touch interaction pass** (L) — audit + retrofit the whole
-      catalog: ≥44px touch targets via a `touch` density preset, long-press
-      opens context-menu, swipe-to-close on drawer / lightbox / toast,
-      swipe nav on carousel / tabs, touch-sized handles for slider / knob /
-      splitter / color-picker, drag-drop touch polish.
-- [ ] **M4. Safe-area & viewport correctness** (M) — safe-area-inset tokens
-      for toast / speed-dial / back-top / drawer / window; `dvh` for
-      full-screen overlays; VisualViewport (virtual keyboard) handling for
-      overlays that contain inputs (select search, command palette,
-      mention, date-picker).
-- [ ] **M5. Container-query adaptive components** (M–L) — table → stacked
-      cards mode, descriptions → single column, pagination → compact, tabs →
-      scrollable with edge fade, toolbar / page-header wrap, statistic
-      grids. Driven by container queries (not viewport) so they adapt
-      inside any layout; falls back through the breakpoints API.
+- [x] **M2. Responsive overlay presets** (L) — **shipped (7.x).** On small
+      viewports dialog / select / dropdown / popover collapse to a bottom-sheet
+      and command-palette to a full-screen sheet. `provideWrResponsiveOverlays()`
+      opt-in + per-component `responsive` input, shared `.wr-overlay-sheet`
+      styles; built on the existing overlay plumbing.
+- [ ] **M3. Touch interaction pass** (L) — **partially shipped (7.x):** 44px
+      touch targets via a `touch-target` mixin gated on `@media (pointer:
+      coarse)`, applied to overlay close buttons (alert, lightbox) and dense
+      controls (select chips, tree / cascader toggles, toast actions).
+      **Remaining:** a `touch` density preset, long-press context-menu,
+      swipe-to-close on drawer / lightbox / toast, swipe nav on carousel /
+      tabs, touch-sized handles for slider / knob / splitter / color-picker,
+      drag-drop touch polish.
+- [ ] **M4. Safe-area & viewport correctness** (M) — **partially shipped
+      (7.x):** `env(safe-area-inset-*)` on the toast host, command-palette,
+      and back-top (drawer already had its `--safe-area` opt-in).
+      **Remaining:** safe-area for speed-dial / window; `dvh` for full-screen
+      overlays; VisualViewport (virtual keyboard) handling for overlays that
+      contain inputs (select search, command palette, mention, date-picker).
+- [ ] **M5. Container-query adaptive components** (M–L) — **partially shipped
+      (7.x):** opt-in `responsive` container-query reflow on descriptions
+      (inline → single column), stepper (horizontal → vertical), and
+      page-header (title/actions → stacked), via `container-type: inline-size`
+      scoped to the modifier. **Remaining:** table → stacked-cards, pagination
+      → compact, tabs → scrollable with edge fade, statistic grids, toolbar
+      wrap. Driven by container queries (not viewport) so they adapt inside
+      any layout; falls back through the breakpoints API.
 - [ ] **M6. Pull-to-refresh + mobile niceties** (M) — pull-to-refresh,
       action-sheet preset on drawer, haptics hook where supported.
 - [ ] **M7. Mobile docs polish** (M) — per-demo phone-frame preview toggle,
@@ -229,9 +243,9 @@ Kept deliberately small:
 
 ## Suggested starting order
 
-1. **M1** — showcase mobile adaptation (the site is unusable on phones
-   today; it gates everything adoption-related), then **M2 + M3 + M4**
-   (responsive overlays + touch + viewport correctness; M5–M7 follow)
+1. **Finish theme M** — M1 + M2 shipped; complete the partial M3–M5 (touch
+   gestures + a `touch` density preset, `dvh` / virtual-keyboard handling, the
+   remaining container-query components), then M6–M7
 2. **B1** — Signal Forms `FormValueControl` (stable now; first-mover window)
 3. **E2 + E3** — AI-legibility stack (cheap, compounds with everything,
    biggest lever while download count is the bottleneck)
