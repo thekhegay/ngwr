@@ -4,9 +4,11 @@
 > targets the Angular 23 baseline (~Nov 2026); everything non-breaking ships
 > in 7.x minors along the way. Sizes: S / M / L / XL.
 >
-> **Status (2026-06-22):** the mobile theme (M, priority 1) is underway —
-> M1 + M2 shipped in 7.x minors, M3–M5 partially shipped (per-milestone notes
-> below).
+> **Status (2026-06-22):** the mobile theme (M, priority 1) lands in **7.2.0**
+> — M1 + M2 done, M3–M5 partially done (per-milestone notes below); the rest
+> of M continues in later 7.x minors. **8.0.0 is reserved for the breaking
+> baseline only** (Angular 23 peer + the Aria internals swap, B2) — most of
+> this roadmap is additive and ships as 7.x minors before then.
 >
 > Drafted 2026-06-12 after a competitive sweep of Angular Material/CDK +
 > Angular Aria, PrimeNG, NG-ZORRO, Taiga UI, spartan-ng, Kendo, and the
