@@ -62,11 +62,20 @@ export class WrStepper implements WrStepperContext {
   /** Lock steps after the latest completed one. @default false */
   readonly linear = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Drop a horizontal stepper to a vertical layout when its own box is too
+   * narrow for the row (a container query on its own width, not the
+   * viewport — so it adapts inside a narrow column or side panel). No effect
+   * when `orientation` is already `vertical`. @default false
+   */
+  readonly responsive = input(false, { transform: coerceBooleanProperty });
+
   protected readonly steps = contentChildren(WrStep);
 
   protected readonly classes = computed(() => {
     const parts = ['wr-stepper', `wr-stepper--${this.orientation()}`];
     if (this.linear()) parts.push('wr-stepper--linear');
+    if (this.responsive()) parts.push('wr-stepper--responsive');
     return parts.join(' ');
   });
 

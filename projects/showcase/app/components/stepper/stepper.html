@@ -66,6 +66,27 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Narrow container (container query)"
+    description="With `responsive`, a horizontal stepper queries its own width and drops to the vertical layout when its column is too narrow — even on a wide page. The box below is fixed at 340px."
+  >
+    <ngwr-doc-snippet code='<div style="width: 340px"><wr-stepper responsive>…</wr-stepper></div>'>
+      <div style="width: 340px; max-width: 100%">
+        <wr-stepper responsive [(active)]="narrow">
+          <wr-step label="Account">
+            <p>Tell us about your account.</p>
+          </wr-step>
+          <wr-step label="Profile" description="Optional">
+            <p>Fill in your profile details.</p>
+          </wr-step>
+          <wr-step label="Confirm">
+            <p>Review and submit.</p>
+          </wr-step>
+        </wr-stepper>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
