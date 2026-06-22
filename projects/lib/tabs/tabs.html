@@ -1,5 +1,12 @@
 <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
-<div #strip class="wr-tabs__strip" role="tablist" aria-orientation="horizontal" (keydown)="onStripKeydown($event)">
+<div
+  #strip
+  class="wr-tabs__strip"
+  role="tablist"
+  aria-orientation="horizontal"
+  (keydown)="onStripKeydown($event)"
+  (scroll)="updateFades()"
+>
   @for (tab of tabs(); track tab.key()) {
     @if (tab.routerLink(); as link) {
       <a
