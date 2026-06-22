@@ -35,3 +35,13 @@
   --wr-density-text: 1.05;
   --wr-density-gap: 1.15;
 }
+
+// `touch` — finger-friendly. Leans on vertical padding (taller controls, ~44px
+// targets) and gap (so adjacent controls don't crowd a fingertip); text stays
+// at reading size since touch is about hit area, not legibility.
+[data-wr-density='touch'] {
+  --wr-density-y: 1.7;
+  --wr-density-x: 1.25;
+  --wr-density-text: 1;
+  --wr-density-gap: 1.5;
+}

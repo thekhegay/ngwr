@@ -1,5 +1,5 @@
 /** Density scale. Components multiply their paddings by the matching multiplier. */
-type WrDensityValue = 'compact' | 'default' | 'comfortable';
+type WrDensityValue = 'compact' | 'default' | 'comfortable' | 'touch';
 
 /** Configuration for {@link WrDensityValueService}. */
 interface WrDensityConfig {

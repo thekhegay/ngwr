@@ -41,7 +41,7 @@ export default class DensityServicePage {
   private readonly density = inject(WrDensity);
 
   protected readonly current = this.density.current;
-  protected readonly modes: readonly WrDensityValue[] = ['compact', 'default', 'comfortable'];
+  protected readonly modes: readonly WrDensityValue[] = ['compact', 'default', 'comfortable', 'touch'];
 
   protected readonly demoSelect = new FormControl<string>('sm', { nonNullable: true });
 
@@ -88,7 +88,7 @@ density.cycle();`,
     },
     {
       name: 'cycle()',
-      description: 'Cycle compact → default → comfortable → compact …',
+      description: 'Cycle compact → default → comfortable → touch → compact …',
       type: '() => void',
       default: '—',
     },
