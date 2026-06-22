@@ -2,8 +2,10 @@
 
 .wr-back-top {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  // Safe-area: lift the floating button clear of the home indicator / rounded
+  // corner on mobile. env() is 0 without insets, so desktop stays 1.5rem.
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  right: calc(1.5rem + env(safe-area-inset-right));
   z-index: 50;
   opacity: 0;
   pointer-events: none;

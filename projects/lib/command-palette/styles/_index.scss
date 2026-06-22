@@ -183,6 +183,9 @@
     flex-direction: column;
     border: 0;
     border-radius: 0;
+    // Top-docked full-screen: clear the notch at the top (search bar) and the
+    // home indicator at the bottom. The panel background still fills both edges.
+    padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
   }
 
