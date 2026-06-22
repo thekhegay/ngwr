@@ -18,6 +18,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
@@ -129,6 +130,7 @@ export class WrRotatingText {
   protected readonly words = computed<readonly Word[]>(() => splitWords(this.current(), this.splitBy()));
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly platform = inject(WrPlatform);
@@ -197,11 +199,19 @@ export class WrRotatingText {
     await this.animateOut();
     this.index.set(target);
     this.nextChange.emit(target);
-    // Wait one microtask so the new spans are rendered, then animate in.
-    queueMicrotask(() => {
-      this.animateIn();
-      this.isAnimating = false;
-    });
+    // Animate in only AFTER Angular has rendered the new word's spans. A single
+    // microtask isn't enough under zoneless change detection — the re-render
+    // hasn't flushed yet, so `animateIn()` would query the OLD spans, animate
+    // them, and then the render would swap their content mid-flight (and any
+    // spans the longer word adds would never get animated). `afterNextRender`
+    // fires after the render the `index` change schedules.
+    afterNextRender(
+      () => {
+        this.animateIn();
+        this.isAnimating = false;
+      },
+      { injector: this.injector }
+    );
   }
 
   private animateIn(): void {
@@ -260,6 +270,11 @@ export class WrRotatingText {
       promises.push(
         new Promise<void>(resolve => {
           anim.onfinish = (): void => {
+            // Commit the exited (hidden, lifted) state to inline style before
+            // cancelling, so the char stays out instead of snapping back to
+            // visible-in-place between the swap and the enter animation.
+            el.style.opacity = '0';
+            el.style.transform = 'translate3d(0, -120%, 0)';
             try {
               anim.cancel();
             } catch {
