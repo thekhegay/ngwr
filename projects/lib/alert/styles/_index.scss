@@ -80,6 +80,8 @@ $alert-colors: (
 
     --wr-icon-size: 1rem;
 
+    @include theme.touch-target; // ~20px glyph -> 44px tap area on touch
+
     &:hover {
       color: var(--wr-alert-title);
       background: rgba(var(--wr-color-light-rgb), 0.4);

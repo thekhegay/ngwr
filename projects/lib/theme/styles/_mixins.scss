@@ -55,3 +55,50 @@
     border-radius: calc(#{$br} * 1.85);
   }
 }
+
+/// Expand a small control's touch hit area to a comfortable minimum on
+/// coarse (touch) pointers, without changing how it looks. Lays an
+/// invisible, centred `::after` over the control that's at least `$size`
+/// square; taps on the slack still land on the host. Fine-pointer
+/// (mouse / trackpad) layouts are left exactly as-is, so dense desktop
+/// UIs keep their tight targets.
+///
+/// Use on small icon-only controls — close (×) buttons, chip removes,
+/// tree / cascader toggles — where the visible glyph is well under the
+/// ~44px comfortable tap size. Skip controls that are already tall
+/// enough, and avoid it on tightly-packed rows where a 44px slack would
+/// overlap a neighbouring target.
+///
+/// The pseudo is absolutely positioned, so the host must be a containing
+/// block. For the common static control the mixin sets `position:
+/// relative` for you; pass `$positioned: true` when the host is already
+/// `absolute` / `fixed` / `relative` so the mixin doesn't downgrade its
+/// positioning under the media query.
+///
+/// @param {Length} $size [44px] - Minimum hit-area edge (Apple HIG).
+/// @param {Bool} $positioned [false] - Set true if the host already
+///   establishes a positioning context (skips `position: relative`).
+///
+/// @example scss
+///   .wr-alert__close {
+///     @include touch-target;
+///   }
+@mixin touch-target($size: 44px, $positioned: false) {
+  @media (pointer: coarse) {
+    @if not $positioned {
+      position: relative;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      min-width: $size;
+      min-height: $size;
+      transform: translate(-50%, -50%);
+    }
+  }
+}
