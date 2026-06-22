@@ -29,6 +29,30 @@
     // the y-axis since the strip is always a single row.
     overflow-x: auto;
     overflow-y: hidden;
+
+    // Edge fades — when the strip overflows, the side that still has tabs to
+    // scroll to fades out, cueing that there's more. `--wr-tabs-fade-*` default
+    // to 0 (no fade); the `--fade-start` / `--fade-end` modifiers below turn an
+    // edge on from the component's scroll metrics, so a non-scrolling strip is
+    // never masked.
+    --wr-tabs-fade: 1.5rem;
+    --wr-tabs-fade-start: 0px;
+    --wr-tabs-fade-end: 0px;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 var(--wr-tabs-fade-start),
+      #000 calc(100% - var(--wr-tabs-fade-end)),
+      transparent 100%
+    );
+  }
+
+  &--fade-start &__strip {
+    --wr-tabs-fade-start: var(--wr-tabs-fade);
+  }
+
+  &--fade-end &__strip {
+    --wr-tabs-fade-end: var(--wr-tabs-fade);
   }
 
   &__tab {

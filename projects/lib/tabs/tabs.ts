@@ -8,13 +8,17 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
+  DestroyRef,
   type ElementRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   contentChildren,
   forwardRef,
+  inject,
   input,
   model,
+  signal,
   viewChild,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -54,7 +58,11 @@ import { WR_TABS, type WrTabsContext } from './tokens';
   selector: 'wr-tabs',
   templateUrl: './tabs.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-tabs' },
+  host: {
+    class: 'wr-tabs',
+    '[class.wr-tabs--fade-start]': 'canScrollStart()',
+    '[class.wr-tabs--fade-end]': 'canScrollEnd()',
+  },
   imports: [NgTemplateOutlet, RouterLink, RouterLinkActive],
   providers: [
     {
@@ -101,6 +109,33 @@ export class WrTabs implements WrTabsContext {
   // Template handlers
 
   protected readonly stripRef = viewChild<ElementRef<HTMLElement>>('strip');
+
+  /** Whether the strip is scrolled away from its start / end — drives the edge fades. */
+  protected readonly canScrollStart = signal(false);
+  protected readonly canScrollEnd = signal(false);
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      this.updateFades();
+      const el = this.stripRef()?.nativeElement;
+      if (!el || typeof ResizeObserver === 'undefined') return;
+      // Re-evaluate when the strip's width changes (e.g. the container narrows
+      // and the tabs start overflowing).
+      const ro = new ResizeObserver(() => this.updateFades());
+      ro.observe(el);
+      destroyRef.onDestroy(() => ro.disconnect());
+    });
+  }
+
+  /** Recompute which edges can scroll, from the strip's scroll metrics. @internal */
+  protected updateFades(): void {
+    const el = this.stripRef()?.nativeElement;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    this.canScrollStart.set(el.scrollLeft > 1);
+    this.canScrollEnd.set(max > 1 && el.scrollLeft < max - 1);
+  }
 
   protected onTabClick(tab: WrTab): void {
     if (tab.disabled()) return;
