@@ -7,8 +7,8 @@
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
 **NGWR** is a modern Angular UI library — standalone components, signals-first,
-zoneless-ready, modular SCSS, fully tree-shakable. Built on top of `@angular/cdk`
-for overlay, portal, and a11y primitives.
+zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
+`@angular/cdk` for overlay, portal, and a11y primitives.
 
 > **Status:** active development. Public API is stable across patch releases but
 > the v7 line is still maturing. [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
@@ -168,6 +168,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 - [Color](https://ngwr.dev/getting-started/color) — design tokens and palette.
 - [Grid](https://ngwr.dev/getting-started/grid) — opt-in 12-column layout.
 - [Overlay](https://ngwr.dev/getting-started/overlay) — isolated CDK overlay container, `provideWrOverlay()`.
+- [Mobile & responsive](https://ngwr.dev/getting-started/mobile) — responsive overlays, touch targets, safe-area insets, container-query layouts.
 - [Typography](https://ngwr.dev/typography) — `wrTypography` directive: headings, paragraphs, lists, links, code.
 - [Icons](https://ngwr.dev/icons) — `ngwr/icon` registry + thin adapters for Lucide, Feather, Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap.
 - **Date adapters** — `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter(...)` to power calendar + every mode of date-picker.
@@ -176,6 +177,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 
 - **Standalone & signals-first.** Every component is standalone and uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-ready.
 - **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
+- **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, fixed surfaces respect `env(safe-area-inset-*)`, and `descriptions` / `stepper` / `page-header` reflow to their container via container queries. [Guide](https://ngwr.dev/getting-started/mobile).
 - **Tree-shakable.** ~125 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are typically 5–25 KB; the largest entry (`ngwr/icon`) is ~98 KB before tree-shaking and ships only the icons you actually register.
 - **Modular SCSS.** Component styles are scoped through CSS custom properties. Theme tokens live in `ngwr/theme`; utilities (`grid`, `reset`) and the breakpoints SCSS API are opt-in.
 - **Tree-shaken icons.** `provideWrIcons([plus, trash])` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
