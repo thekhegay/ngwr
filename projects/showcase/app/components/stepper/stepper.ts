@@ -84,7 +84,8 @@ export class MyComponent {
     },
     {
       name: 'responsive',
-      description: 'Drop a horizontal stepper to vertical when its own box is too narrow (container query, not viewport).',
+      description:
+        'Drop a horizontal stepper to vertical when its own box is too narrow (container query, not viewport).',
       type: 'boolean',
       default: 'false',
     },
