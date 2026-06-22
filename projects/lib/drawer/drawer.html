@@ -1,7 +1,14 @@
 <ng-template>
-  <div [class]="panelClass()">
+  <div #panel [class]="panelClass()">
     @if (showHandle()) {
-      <div class="wr-drawer__handle" aria-hidden="true">
+      <div
+        class="wr-drawer__handle"
+        aria-hidden="true"
+        (touchstart)="onSwipeStart($event)"
+        (touchmove)="onSwipeMove($event, panel)"
+        (touchend)="onSwipeEnd($event, panel)"
+        (touchcancel)="onSwipeEnd($event, panel)"
+      >
         <span class="wr-drawer__grabber"></span>
       </div>
     }
