@@ -20,6 +20,16 @@
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-dark);
 
+  // Opt-in (`responsive`): query the toolbar's own width so the zones stack
+  // when it's too narrow for a row. Already full-width, so containment is safe.
+  // `flex-wrap` lives here (not in the `@container` below) because a container
+  // query can't style the query container itself — only its descendants; wrap
+  // only kicks in once the zones go full-width at the breakpoint.
+  &--responsive {
+    container: wr-toolbar / inline-size;
+    flex-wrap: wrap;
+  }
+
   &__zone {
     display: flex;
     align-items: center;
@@ -61,5 +71,24 @@
       width: 1px;
       background: var(--wr-color-light);
     }
+  }
+}
+
+// Responsive toolbars stack their zones when the bar is too narrow for a row.
+@container wr-toolbar (max-width: 32rem) {
+  .wr-toolbar--responsive .wr-toolbar__zone {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  .wr-toolbar--responsive .wr-toolbar__zone--end {
+    margin-left: 0;
+  }
+
+  // The vertical hairline dividers are a horizontal-row affordance — drop them
+  // once the zones stack.
+  .wr-toolbar--responsive .wr-toolbar__zone--start + .wr-toolbar__zone--center::before,
+  .wr-toolbar--responsive .wr-toolbar__zone--center + .wr-toolbar__zone--end::before {
+    display: none;
   }
 }

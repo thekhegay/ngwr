@@ -17,4 +17,22 @@
       </wr-toolbar>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Narrow container (container query)"
+    description="With `responsive`, the zones stack when the toolbar's own box is too narrow for a row — a container query on its own width, so it adapts inside a split pane or sidebar on any screen. The box below is fixed at 320px."
+  >
+    <ngwr-doc-snippet code='<div style="width: 320px"><wr-toolbar responsive>…</wr-toolbar></div>'>
+      <div style="width: 320px; max-width: 100%">
+        <wr-toolbar responsive>
+          <div wrToolbarStart><strong>Items</strong></div>
+          <div wrToolbarCenter>
+            <wr-btn>Grid</wr-btn>
+            <wr-btn>List</wr-btn>
+          </div>
+          <div wrToolbarEnd><wr-btn color="primary">New</wr-btn></div>
+        </wr-toolbar>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 </ngwr-doc-page>

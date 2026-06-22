@@ -83,6 +83,13 @@ export class WrPagination {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Collapse to a compact `‹ page / total ›` pager when the control's own box
+   * is too narrow for the full numbered strip (a container query on its own
+   * width, not the viewport). @default false
+   */
+  readonly responsive = input(false, { transform: coerceBooleanProperty });
+
   /** Localised text between range and total ("X–Y of Z"). Falls back to `pagination.of` then `'of'`. */
   readonly ofLabel = input<string | null>(null);
 
@@ -161,6 +168,7 @@ export class WrPagination {
       `wr-pagination--${this.shape()}`,
     ];
     if (this.disabled()) parts.push('wr-pagination--disabled');
+    if (this.responsive()) parts.push('wr-pagination--responsive');
     return parts.join(' ');
   });
 
