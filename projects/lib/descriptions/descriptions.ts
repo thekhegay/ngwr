@@ -40,10 +40,19 @@ export class WrDescriptions {
   /** Add visible borders around each row. @default false */
   readonly bordered = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Reflow `inline` rows back to a stacked layout when the box itself is
+   * narrow (a container query on its own width, not the viewport — so it
+   * adapts inside a narrow card or side panel). Makes the box fill its
+   * container's width. @default false
+   */
+  readonly responsive = input(false, { transform: coerceBooleanProperty });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-descriptions'];
     if (this.inline()) parts.push('wr-descriptions--inline');
     if (this.bordered()) parts.push('wr-descriptions--bordered');
+    if (this.responsive()) parts.push('wr-descriptions--responsive');
     return parts.join(' ');
   });
 }
