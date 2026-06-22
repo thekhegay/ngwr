@@ -52,7 +52,7 @@ import { WrTableSort } from './table-sort';
   selector: 'wr-table',
   templateUrl: './table.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-table' },
+  host: { class: 'wr-table', '[class.wr-table--responsive]': 'responsive()' },
   imports: [NgTemplateOutlet, KeyValuePipe, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
 })
 export class WrTable {
@@ -64,6 +64,13 @@ export class WrTable {
 
   /** Show the loading spinner overlay. @default false */
   readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Collapse each row to a labelled card when the table's own box is too narrow
+   * for columns (a container query on its own width, not the viewport). Every
+   * cell shows its column title as a label. @default false
+   */
+  readonly responsive = input(false, { transform: coerceBooleanProperty });
 
   /** Two-way bindable sort array. Order in array = application order. */
   readonly sort = model<readonly WrTableSortState[]>([]);
