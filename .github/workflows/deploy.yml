@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 
@@ -32,7 +32,7 @@ jobs:
 
       - run: pnpm build:showcase
 
-      - uses: easingthemes/ssh-deploy@main
+      - uses: easingthemes/ssh-deploy@v6.0.1
         with:
           SCRIPT_BEFORE: ls
           ARGS: '-rlgoDzvc -i'

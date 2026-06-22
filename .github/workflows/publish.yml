@@ -22,7 +22,7 @@ jobs:
       tag: ${{ steps.check.outputs.tag }}
       is_rc: ${{ steps.check.outputs.is_rc }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - id: check
         name: Inspect head commit
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
