@@ -130,6 +130,8 @@ $toast-colors: (
   padding: 0.75rem 0.875rem;
   background: var(--wr-toast-bg);
   border: 1px solid var(--wr-toast-border);
+  // Capture horizontal swipe-to-dismiss; let vertical scroll pass through.
+  touch-action: pan-y;
   border-left: 3px solid var(--wr-toast-accent);
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: var(--wr-shadow-overlay);

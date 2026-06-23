@@ -100,6 +100,48 @@ export class WrLightbox {
     this.open.set(false);
   }
 
+  // Swipe-down-to-dismiss on the open viewer. The image follows the finger and
+  // fades; releasing past ~20% of the viewer height closes it.
+  private viewerStartY = 0;
+  private viewerSwiping = false;
+
+  protected onViewerSwipeStart(event: TouchEvent): void {
+    const touch = event.touches[0];
+    if (!touch) return;
+    this.viewerStartY = touch.clientY;
+    this.viewerSwiping = true;
+  }
+
+  protected onViewerSwipeMove(event: TouchEvent, viewer: HTMLElement): void {
+    if (!this.viewerSwiping) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    const dy = touch.clientY - this.viewerStartY;
+    if (dy <= 0) {
+      viewer.style.transform = '';
+      viewer.style.opacity = '';
+      return;
+    }
+    event.preventDefault();
+    viewer.style.transition = 'none';
+    viewer.style.transform = `translateY(${dy}px)`;
+    viewer.style.opacity = String(Math.max(0.3, 1 - dy / (viewer.offsetHeight || 1)));
+  }
+
+  protected onViewerSwipeEnd(event: TouchEvent, viewer: HTMLElement): void {
+    if (!this.viewerSwiping) return;
+    this.viewerSwiping = false;
+    const touch = event.changedTouches[0];
+    const dy = touch ? touch.clientY - this.viewerStartY : 0;
+    if (dy > (viewer.offsetHeight || 0) * 0.2) {
+      this.onClose();
+    } else {
+      viewer.style.transition = '';
+      viewer.style.transform = '';
+      viewer.style.opacity = '';
+    }
+  }
+
   protected onLoad(): void {
     this.loaded.set(true);
   }
