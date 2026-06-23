@@ -49,6 +49,9 @@
       transform var(--wr-transition-short),
       box-shadow var(--wr-transition-base);
 
+    // Coarse pointers: invisible 44px tap area so the small thumb is grabbable.
+    @include theme.touch-target($positioned: true);
+
     &:focus-visible {
       outline: none;
       box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.25);

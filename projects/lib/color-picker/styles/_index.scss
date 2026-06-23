@@ -50,6 +50,13 @@
     cursor: ew-resize;
     touch-action: none;
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+
+    // Coarse pointers: a taller track is easier to drag than the 0.75rem
+    // default. A symmetric 44px hit area would overlap the SV panel above it,
+    // so grow the track itself instead (the thumb stays vertically centred).
+    @media (pointer: coarse) {
+      height: 1.5rem;
+    }
   }
 
   &__slider--hue {
