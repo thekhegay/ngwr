@@ -1,10 +1,15 @@
 <div
+  #viewport
   class="wr-carousel__viewport"
   aria-roledescription="carousel"
   (mouseenter)="onMouseEnter()"
   (mouseleave)="onMouseLeave()"
+  (touchstart)="onSwipeStart($event)"
+  (touchmove)="onSwipeMove($event)"
+  (touchend)="onSwipeEnd($event, viewport)"
+  (touchcancel)="onSwipeEnd($event, viewport)"
 >
-  <div class="wr-carousel__track" [style.transform]="trackStyle()">
+  <div class="wr-carousel__track" [style.transform]="trackStyle()" [style.transition]="dragging() ? 'none' : null">
     <ng-content />
   </div>
 </div>

@@ -12,6 +12,8 @@
 
   &__viewport {
     overflow: hidden;
+    // Capture horizontal swipe-nav; let vertical scrolling pass through.
+    touch-action: pan-y;
   }
 
   &__track {

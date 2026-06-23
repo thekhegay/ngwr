@@ -66,8 +66,16 @@ export class WrCarousel {
   protected readonly slides = contentChildren(WrCarouselSlide);
   protected readonly count = computed(() => this.slides().length);
 
-  /** CSS transform for the track. */
-  protected readonly trackStyle = computed(() => `translateX(-${this.active() * 100}%)`);
+  /** Live horizontal drag offset (px) during a touch swipe. */
+  protected readonly dragX = signal(0);
+  protected readonly dragging = signal(false);
+
+  /** CSS transform for the track — the per-slide offset plus any live drag. */
+  protected readonly trackStyle = computed(() => {
+    const base = -this.active() * 100;
+    const drag = this.dragX();
+    return drag === 0 ? `translateX(${base}%)` : `translateX(calc(${base}% + ${drag}px))`;
+  });
 
   private timer: ReturnType<typeof setInterval> | null = null;
   private readonly paused = signal(false);
@@ -114,5 +122,36 @@ export class WrCarousel {
 
   prev(): void {
     this.goTo(this.active() - 1);
+  }
+
+  // Swipe navigation — the track follows the finger; releasing past ~20% of the
+  // viewport advances a slide (left = next, right = prev), otherwise snaps back.
+
+  private swipeStartX = 0;
+
+  protected onSwipeStart(event: TouchEvent): void {
+    const touch = event.touches[0];
+    if (!touch) return;
+    this.swipeStartX = touch.clientX;
+    this.dragging.set(true);
+    this.paused.set(true); // hold autoplay while dragging
+  }
+
+  protected onSwipeMove(event: TouchEvent): void {
+    if (!this.dragging()) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    this.dragX.set(touch.clientX - this.swipeStartX);
+  }
+
+  protected onSwipeEnd(event: TouchEvent, viewport: HTMLElement): void {
+    if (!this.dragging()) return;
+    this.dragging.set(false);
+    const dx = this.dragX();
+    this.dragX.set(0);
+    this.paused.set(false);
+    const threshold = (viewport.offsetWidth || 0) * 0.2;
+    if (dx <= -threshold) this.next();
+    else if (dx >= threshold) this.prev();
   }
 }
