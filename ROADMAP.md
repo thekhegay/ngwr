@@ -1,14 +1,16 @@
 # Roadmap — v8
 
-> Living document. v7.0.0 shipped 2026-06-12, v7.1.0 on 2026-06-19. v8.0
-> targets the Angular 23 baseline (~Nov 2026); everything non-breaking ships
-> in 7.x minors along the way. Sizes: S / M / L / XL.
+> Living document. v7.0.0 shipped 2026-06-12, v7.1.0 on 2026-06-19, v7.2.0 on
+> 2026-06-22. v8.0 targets the Angular 23 baseline (~Nov 2026); everything
+> non-breaking ships in 7.x minors along the way. Sizes: S / M / L / XL.
 >
-> **Status (2026-06-22):** the mobile theme (M, priority 1) lands in **7.2.0**
-> — M1 + M2 done, M3–M5 partially done (per-milestone notes below); the rest
-> of M continues in later 7.x minors. **8.0.0 is reserved for the breaking
-> baseline only** (Angular 23 peer + the Aria internals swap, B2) — most of
-> this roadmap is additive and ships as 7.x minors before then.
+> **Status (2026-06-23):** the mobile theme (M, priority 1) shipped its first
+> wave in **7.2.0** (M1 + M2 done, M3–M5 partially); **7.3.0** continues M3 +
+> M5 — a `touch` density preset, swipe gestures (drawer / lightbox / toast /
+> carousel), and more container-query components (table / pagination / toolbar
+> / tabs). The rest of M continues in later 7.x minors. **8.0.0 is reserved
+> for the breaking baseline only** (Angular 23 peer + the Aria internals swap,
+> B2) — most of this roadmap is additive and ships as 7.x minors before then.
 >
 > Drafted 2026-06-12 after a competitive sweep of Angular Material/CDK +
 > Angular Aria, PrimeNG, NG-ZORRO, Taiga UI, spartan-ng, Kendo, and the
@@ -57,11 +59,15 @@ them through the catalog.
 - [ ] **M3. Touch interaction pass** (L) — **partially shipped (7.x):** 44px
       touch targets via a `touch-target` mixin gated on `@media (pointer:
       coarse)`, applied to overlay close buttons (alert, lightbox) and dense
-      controls (select chips, tree / cascader toggles, toast actions).
-      **Remaining:** a `touch` density preset, long-press context-menu,
-      swipe-to-close on drawer / lightbox / toast, swipe nav on carousel /
-      tabs, touch-sized handles for slider / knob / splitter / color-picker,
-      drag-drop touch polish.
+      controls (select chips, tree / cascader toggles, toast actions); a
+      `touch` density preset (y 1.7 / x 1.25 / gap 1.5); swipe-to-close on
+      drawer (grab handle), lightbox (down) and toast (sideways), and
+      swipe-nav on carousel (finger-following track). **Remaining:**
+      long-press context-menu, touch-sized handles for slider / knob /
+      splitter / color-picker, drag-drop touch polish. Swipe-nav on tabs is
+      deferred — the content panel often holds horizontally-scrollable content
+      (code blocks, wide tables) the gesture would hijack; the strip already
+      scrolls for overflow.
 - [ ] **M4. Safe-area & viewport correctness** (M) — **partially shipped
       (7.x):** `env(safe-area-inset-*)` on the toast host, command-palette,
       and back-top (drawer already had its `--safe-area` opt-in).
@@ -70,12 +76,13 @@ them through the catalog.
       contain inputs (select search, command palette, mention, date-picker).
 - [ ] **M5. Container-query adaptive components** (M–L) — **partially shipped
       (7.x):** opt-in `responsive` container-query reflow on descriptions
-      (inline → single column), stepper (horizontal → vertical), and
-      page-header (title/actions → stacked), via `container-type: inline-size`
-      scoped to the modifier. **Remaining:** table → stacked-cards, pagination
-      → compact, tabs → scrollable with edge fade, statistic grids, toolbar
-      wrap. Driven by container queries (not viewport) so they adapt inside
-      any layout; falls back through the breakpoints API.
+      (inline → single column), stepper (horizontal → vertical), page-header
+      (title/actions → stacked), toolbar (wrap), pagination (→ compact current
+      / total), and table (→ stacked cards with `data-label` headers), via
+      `container-type: inline-size` scoped to the modifier; plus an always-on
+      scrollable tab strip with a scroll-driven edge fade. **Remaining:**
+      statistic grids. Driven by container queries (not viewport) so they
+      adapt inside any layout; falls back through the breakpoints API.
 - [ ] **M6. Pull-to-refresh + mobile niceties** (M) — pull-to-refresh,
       action-sheet preset on drawer, haptics hook where supported.
 - [ ] **M7. Mobile docs polish** (M) — per-demo phone-frame preview toggle,

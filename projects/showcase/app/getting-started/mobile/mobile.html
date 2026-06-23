@@ -20,7 +20,7 @@
 
   <ngwr-doc-section
     title="Adaptive layout components"
-    description="`descriptions`, `stepper` and `page-header` can reflow based on their own width — a container query, not the viewport — so a two-column descriptions stacks, a horizontal stepper turns vertical, and a page-header drops its actions below the title whenever the box they live in is narrow, on any screen size. Opt in with `responsive`."
+    description="`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination` and `table` can reflow based on their own width — a container query, not the viewport — so a two-column descriptions stacks, a horizontal stepper turns vertical, a page-header drops its actions below the title, a toolbar wraps, pagination collapses to a compact `current / total`, and a table becomes labelled cards whenever the box they live in is narrow, on any screen size. Opt in with `responsive`. (Tabs need no flag — the strip scrolls and shows an edge fade automatically when its headers overflow.)"
   >
     <ngwr-doc-code [code]="snippets.containerQuery" language="angular-html" />
   </ngwr-doc-section>
@@ -29,6 +29,20 @@
     title="Touch targets"
     description="Small controls — close / remove buttons, tree and cascader toggles, select chips, toast actions — automatically grow to a comfortable ≥44px tap area on touch devices, gated behind `@media (pointer: coarse)`. Nothing to configure, and mouse / trackpad layouts stay untouched."
   />
+
+  <ngwr-doc-section
+    title="Touch density"
+    description="For touch-first screens, the `touch` density preset enlarges every control at once — vertical padding ×1.7, horizontal ×1.25, gaps ×1.5 — keeping vertical rhythm intact. Set it app-wide with `provideWrDensity`, or scope it to a subtree with the `wrDensity` directive."
+  >
+    <ngwr-doc-code [code]="snippets.density" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Swipe gestures"
+    description="Touch dismissal and navigation feel native: drag a drawer's grab handle toward its edge to close it (`showHandle`), swipe a lightbox down to close, flick a toast sideways to dismiss it, and swipe a carousel left / right to change slides — the moving surface follows your finger and snaps back if you release before the threshold. Everything but the drawer handle is automatic."
+  >
+    <ngwr-doc-code [code]="snippets.swipe" language="angular-html" />
+  </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Safe areas"
