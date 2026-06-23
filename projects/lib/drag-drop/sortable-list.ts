@@ -56,6 +56,16 @@ export class WrSortableList<T = unknown> {
   /** Locked axis — restrict drag movement to one axis even diagonally. */
   readonly lockAxis = input<'x' | 'y' | undefined>(undefined);
 
+  /**
+   * Delay (ms) before a drag begins after the pointer goes down. The touch
+   * delay is the fix for the classic CDK touch snag: without it, the
+   * `touch-action: none` CDK puts on each item blocks scrolling the list on a
+   * phone. With a small touch delay, a quick swipe scrolls and a brief hold
+   * starts the drag; mouse stays instant. Pass a single number to apply one
+   * delay to both pointers. @default { touch: 150, mouse: 0 }
+   */
+  readonly dragStartDelay = input<number | { touch: number; mouse: number }>({ touch: 150, mouse: 0 });
+
   /** `trackBy` for the inner `@for`. Defaults to identity. */
   readonly trackBy = input<(index: number, item: T) => unknown>((_, item) => item);
 

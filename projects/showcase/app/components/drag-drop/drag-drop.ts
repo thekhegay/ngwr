@@ -78,6 +78,13 @@ export default class DragDropPage {
     { name: 'disabled', description: 'Disable dragging.', type: 'boolean', default: 'false' },
     { name: 'lockAxis', description: 'Restrict drag movement to one axis.', type: "'x' | 'y'", default: '—' },
     {
+      name: 'dragStartDelay',
+      description:
+        'Delay (ms) before a drag begins. The touch delay lets a quick swipe scroll the list while a brief hold starts the drag; mouse stays instant.',
+      type: 'number | { touch: number; mouse: number }',
+      default: '{ touch: 150, mouse: 0 }',
+    },
+    {
       name: 'trackBy',
       description: '`trackBy` for the inner `@for`.',
       type: '(i, item) => unknown',
