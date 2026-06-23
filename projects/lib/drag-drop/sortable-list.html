@@ -6,7 +6,13 @@
   (cdkDropListDropped)="onDrop($event)"
 >
   @for (item of items(); track trackBy()($index, item)) {
-    <div cdkDrag class="wr-sortable-list__item" [cdkDragDisabled]="disabled()" [cdkDragLockAxis]="lockAxis() ?? null">
+    <div
+      cdkDrag
+      class="wr-sortable-list__item"
+      [cdkDragDisabled]="disabled()"
+      [cdkDragLockAxis]="lockAxis() ?? null"
+      [cdkDragStartDelay]="dragStartDelay()"
+    >
       <ng-container *ngTemplateOutlet="rowTemplate(); context: { $implicit: item, index: $index }" />
     </div>
   }
