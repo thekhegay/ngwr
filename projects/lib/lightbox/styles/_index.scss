@@ -79,6 +79,8 @@
   padding: 1rem;
   animation: wr-lightbox-viewer-in 0.18s ease;
   outline: none;
+  // Own the swipe-down-to-dismiss gesture; no scroll/zoom to defer to.
+  touch-action: none;
 
   &__close {
     --wr-icon-size: 1.25rem;

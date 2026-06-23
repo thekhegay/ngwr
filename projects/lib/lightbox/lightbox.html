@@ -21,7 +21,17 @@
 }
 
 <ng-template #viewerTpl>
-  <div class="wr-lightbox-viewer" role="dialog" aria-modal="true" [attr.aria-label]="alt() || 'Image preview'">
+  <div
+    #viewer
+    class="wr-lightbox-viewer"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="alt() || 'Image preview'"
+    (touchstart)="onViewerSwipeStart($event)"
+    (touchmove)="onViewerSwipeMove($event, viewer)"
+    (touchend)="onViewerSwipeEnd($event, viewer)"
+    (touchcancel)="onViewerSwipeEnd($event, viewer)"
+  >
     <button
       type="button"
       class="wr-lightbox-viewer__close"
