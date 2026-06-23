@@ -35,6 +35,9 @@
     outline: 0;
     transition: background var(--wr-transition-base);
 
+    // Coarse pointers: expand the 4px gutter to a 44px tap area.
+    @include theme.touch-target($positioned: true);
+
     &:hover,
     &:focus-visible {
       background: var(--wr-color-primary);
