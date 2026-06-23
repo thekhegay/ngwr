@@ -29,7 +29,24 @@ this.dialog.open(EditProfile, { responsive: true });`,
      adapts inside a narrow card or split pane even on a wide screen. -->
 <wr-descriptions responsive inline bordered>…</wr-descriptions>
 <wr-stepper responsive>…</wr-stepper>
-<wr-page-header responsive title="Settings">…</wr-page-header>`,
+<wr-page-header responsive title="Settings">…</wr-page-header>
+<wr-toolbar responsive>…</wr-toolbar>
+<wr-pagination responsive [(currentPage)]="page" [total]="200" />
+<wr-table responsive [columns]="cols" [items]="rows" />`,
+    density: `import { provideWrDensity } from 'ngwr/density';
+
+// App-wide default — compact | default | comfortable | touch.
+provideWrDensity({ defaultDensity: 'touch' });
+
+// …or scope it to a subtree with the directive:
+// <section wrDensity="touch">…</section>`,
+    swipe: `<!-- Drawer: render a grab handle, then drag it toward the edge to close -->
+<wr-drawer position="bottom" showHandle>…</wr-drawer>
+
+<!-- The rest is automatic — no input needed:
+       lightbox   swipe down       → close
+       toast      swipe sideways   → dismiss
+       carousel   swipe left/right → change slide -->`,
     safeArea: `<!-- Edge-anchored drawers can pad the system safe-area inset -->
 <wr-drawer position="bottom" safeArea>…</wr-drawer>`,
     media: `import { inject } from '@angular/core';
