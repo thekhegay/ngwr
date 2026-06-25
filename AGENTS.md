@@ -114,6 +114,16 @@ subjects are checked locally (commitlint `commit-msg` hook) and PR titles on CI.
 
 ## Conventions
 
+**Build on ngwr first (dogfood).** Whenever there's any chance an ngwr primitive
+already covers the need, use it — an existing component (check the catalog
+before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
+tokens — rather than hand-rolling raw markup/logic or pulling an external
+library where an internal tool exists. The catalog is large (~124 entry points):
+check before writing a bare `<input type="file">`, a date / number / truncate
+helper, a coercion, an id generator, and so on. New external runtime
+dependencies need a strong justification — the only runtime dependency today is
+`tslib`.
+
 **Framework.** Angular 22, **standalone**, **signals-first**, **zoneless**
 (`provideZonelessChangeDetection`), explicit `ChangeDetectionStrategy.OnPush`.
 Use `input()` / `model()` / `output()` / `signal()` / `computed()` / `effect()`
