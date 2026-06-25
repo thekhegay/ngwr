@@ -1,5 +1,24 @@
 # Changelog
 
+## [7.3.0](https://github.com/thekhegay/ngwr/compare/v7.2.0...v7.3.0) (2026-06-25)
+
+### Features
+
+* **carousel:** swipe navigation with finger-follow ([#393](https://github.com/thekhegay/ngwr/issues/393)) ([8894774](https://github.com/thekhegay/ngwr/commit/88947746b365e60c7242f00c26123760b419711b))
+* **context-menu:** open on touch long-press ([#396](https://github.com/thekhegay/ngwr/issues/396)) ([e729dcb](https://github.com/thekhegay/ngwr/commit/e729dcb01a5f84076d2c006efbe87173256a5f59))
+* **density:** add touch preset for finger-friendly hit areas ([#385](https://github.com/thekhegay/ngwr/issues/385)) ([1ea094e](https://github.com/thekhegay/ngwr/commit/1ea094e78830ec778d70322aba0587e41c255cd0))
+* **drag-drop:** touch start-delay so lists stay scrollable ([#397](https://github.com/thekhegay/ngwr/issues/397)) ([af913a6](https://github.com/thekhegay/ngwr/commit/af913a66046322a7309f0734fb30f4fd7ac85150))
+* **drawer:** swipe-to-dismiss via the grab handle ([#391](https://github.com/thekhegay/ngwr/issues/391)) ([7b05f0d](https://github.com/thekhegay/ngwr/commit/7b05f0dce7cbd6e27079709bbb82b1ad6c2b3eee))
+* responsive toolbar stacking and pagination compact pager ([#388](https://github.com/thekhegay/ngwr/issues/388)) ([4de2c13](https://github.com/thekhegay/ngwr/commit/4de2c13663f1de9589779132824ae7fed49ea375))
+* swipe-to-dismiss on lightbox and toast ([#392](https://github.com/thekhegay/ngwr/issues/392)) ([8ab0119](https://github.com/thekhegay/ngwr/commit/8ab01194ab6f790b1a039050e0795c1bf39049e5))
+* **table:** responsive stacked-card layout on narrow containers ([#389](https://github.com/thekhegay/ngwr/issues/389)) ([c7265da](https://github.com/thekhegay/ngwr/commit/c7265da6133c2792cf7853549865ccb69a0878cf))
+* **tabs:** scroll-aware edge fades on the overflowing tab strip ([#386](https://github.com/thekhegay/ngwr/issues/386)) ([2f53ae6](https://github.com/thekhegay/ngwr/commit/2f53ae6f999b452d1b6cf323791c2ac3a58cfaaa))
+* touch-sized handles for slider, splitter, color-picker ([#395](https://github.com/thekhegay/ngwr/issues/395)) ([cc1bc2f](https://github.com/thekhegay/ngwr/commit/cc1bc2f1ad05901017855743a2cc8321124409db))
+
+### Bug Fixes
+
+* **rotating-text:** run the enter animation after the new word renders ([#390](https://github.com/thekhegay/ngwr/issues/390)) ([7ced9a0](https://github.com/thekhegay/ngwr/commit/7ced9a08d6bb32b606d2eaf9753cd4547ddad429))
+
 ## [7.2.0](https://github.com/thekhegay/ngwr/compare/v7.1.0...v7.2.0) (2026-06-22)
 
 ### Features
