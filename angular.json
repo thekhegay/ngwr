@@ -72,7 +72,7 @@
                 "input": "projects/showcase/public"
               },
               {
-                "glob": "llms.txt",
+                "glob": "{llms.txt,llms-full.txt}",
                 "input": ".",
                 "output": "."
               }

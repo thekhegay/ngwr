@@ -51,3 +51,7 @@ projects/lib/icon/_svg/heroicons/
 .claude/
 .gemini/
 .aider*
+
+# Generated AI assets (scripts/gen-ai-assets.ts, wired into build:lib/showcase).
+llms-full.txt
+projects/showcase/public/sitemap.xml

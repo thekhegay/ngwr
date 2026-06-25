@@ -219,10 +219,17 @@ the doc-page components from `#core/components`: `<ngwr-doc-page>`,
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
 
+**AI assets.** `llms-full.txt` and `sitemap.xml` regenerate from source on every
+build (`scripts/gen-ai-assets.ts`), so a new entry point — component, util,
+pipe, validator — is picked up automatically; no manual edit. If it's a headline
+component, also add it to the curated [`llms.txt`](llms.txt) "Common components"
+list.
+
 ## Schematics
 
-The lib ships an `ng` schematics suite (built by `scripts/build-schematics.ts`,
-which also generates `use/symbol-map.json` from a public-api scan):
+The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
+(`collection.json` + a dir per generator), built by `scripts/build-schematics.ts`
+(which also generates `use/symbol-map.json` from a public-api scan):
 
 - `ng add ngwr` — prompts for styles / dateAdapter / density / theme, installs
   peers, prints a tailored bootstrap snippet.
