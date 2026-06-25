@@ -76,6 +76,7 @@ export class Footer {
       links: [
         { label: 'GitHub', url: 'https://github.com/thekhegay/ngwr', external: true },
         { label: 'npm', url: 'https://www.npmjs.com/package/ngwr', external: true },
+        { label: 'llms.txt', url: '/llms.txt', external: true },
         { label: 'License (MIT)', url: 'https://github.com/thekhegay/ngwr/blob/main/LICENSE', external: true },
       ],
     },
