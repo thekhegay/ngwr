@@ -15,6 +15,15 @@ function stringValue(control: AbstractControl): string {
   return '';
 }
 
+/** Like {@link stringValue} but preserves whitespace — for checks that inspect spacing. */
+function rawStringValue(control: AbstractControl): string {
+  const v: unknown = control.value;
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  return '';
+}
+
 /** Luhn checksum. Returns true when the digit string is a valid card number. */
 function luhn(digits: string): boolean {
   let sum = 0;
@@ -86,7 +95,7 @@ export const WrValidators = {
 
   /** No whitespace anywhere in the value. */
   noWhitespace: (control: AbstractControl): ValidationErrors | null => {
-    const v = stringValue(control);
+    const v = rawStringValue(control);
     if (v === '') return null;
     return /\s/.test(v) ? { noWhitespace: true } : null;
   },
@@ -115,7 +124,14 @@ export const WrValidators = {
       } catch {
         return { url: true };
       }
-      if (allow && !allow.includes(parsed.protocol.replace(/:$/, '').toLowerCase())) {
+      const protocol = parsed.protocol.replace(/:$/, '').toLowerCase();
+      // WHATWG auto-inserts the authority for "special" schemes, so `http:host`
+      // (missing `//`) still parses. Require the explicit `//` for those.
+      const needsAuthority = ['http', 'https', 'ws', 'wss', 'ftp', 'file'].includes(protocol);
+      if (needsAuthority && !/^[a-z][a-z0-9+.-]*:\/\//i.test(v)) {
+        return { url: true };
+      }
+      if (allow && !allow.includes(protocol)) {
         return { url: { allowed: allow } };
       }
       return null;
