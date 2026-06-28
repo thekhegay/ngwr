@@ -28,6 +28,8 @@ import { clamp, noop } from 'ngwr/utils';
  *
  * @see https://ngwr.dev/components/rating
  */
+export type WrRatingSize = 'sm' | 'md' | 'lg';
+
 @Component({
   selector: 'wr-rating',
   templateUrl: './rating.html',
@@ -57,6 +59,9 @@ export class WrRating implements ControlValueAccessor {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /** Control size — scales the icons + gaps. @default 'md' */
+  readonly size = input<WrRatingSize>('md');
+
   /** Accessible label. @default 'Rating' */
   readonly ariaLabel = input<string>('Rating');
 
@@ -79,6 +84,8 @@ export class WrRating implements ControlValueAccessor {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-rating'];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-rating--${size}`);
     if (this.readonly()) parts.push('wr-rating--readonly');
     if (this.effectiveDisabled()) parts.push('wr-rating--disabled');
     return parts.join(' ');
