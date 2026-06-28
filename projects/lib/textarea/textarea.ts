@@ -7,9 +7,9 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
-import type { ElementRef } from '@angular/core';
 import {
   Component,
+  ElementRef,
   PLATFORM_ID,
   ViewEncapsulation,
   computed,
@@ -38,6 +38,10 @@ import { noop } from 'ngwr/utils';
  *
  * @see https://ngwr.dev/components/textarea
  */
+export type WrTextareaSize = 'sm' | 'md' | 'lg';
+
+export type WrTextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
+
 @Component({
   selector: 'wr-textarea',
   templateUrl: './textarea.html',
@@ -56,11 +60,17 @@ export class WrTextarea implements ControlValueAccessor {
   /** Native placeholder text. @default '' */
   readonly placeholder = input<string>('');
 
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrTextareaSize>('md');
+
   /** Visible row count. @default 3 */
   readonly rows = input(3, { transform: (v: unknown): number => coerceNumberProperty(v, 3) });
 
-  /** Allow user resize via the native handle. @default true */
+  /** Allow user resize via the corner grip. @default true */
   readonly resizable = input(true, { transform: coerceBooleanProperty });
+
+  /** Resize direction of the corner grip (the grip icon adapts). @default 'vertical' */
+  readonly resize = input<WrTextareaResize>('vertical');
 
   /** Read-only state. @default false */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
@@ -86,19 +96,41 @@ export class WrTextarea implements ControlValueAccessor {
 
   protected readonly native = viewChild.required<ElementRef<HTMLTextAreaElement>>('native');
 
+  /** Resize direction, gated by `resizable` (false → 'none'). */
+  protected readonly effectiveResize = computed<WrTextareaResize>(() => (this.resizable() ? this.resize() : 'none'));
+
   protected readonly classes = computed(() => {
     const parts = ['wr-textarea'];
-    if (!this.resizable() || this.autosize()) parts.push('wr-textarea--no-resize');
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-textarea--${size}`);
+    if (this.autosize()) parts.push('wr-textarea--no-resize');
+    const resize = this.effectiveResize();
+    if (resize === 'horizontal' || resize === 'both') parts.push('wr-textarea--resize-x');
     if (this.focused()) parts.push('wr-textarea--focused');
     if (this.effectiveDisabled()) parts.push('wr-textarea--disabled');
     return parts.join(' ');
   });
 
+  /** Show the corner grip (hidden when direction is 'none' / autosize / disabled). */
+  protected readonly showHandle = computed(
+    () => this.effectiveResize() !== 'none' && !this.autosize() && !this.effectiveDisabled()
+  );
+
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private onChange: (value: string) => void = noop;
   private onTouched: () => void = noop;
+
+  // Custom resize-grip drag state (replaces the native corner handle).
+  private resizing = false;
+  private resizeStartY = 0;
+  private resizeStartX = 0;
+  private resizeStartHeight = 0;
+  private resizeStartWidth = 0;
+  private resizeMinHeight = 36;
+  private resizeMaxWidth = Number.POSITIVE_INFINITY;
 
   constructor() {
     // Autosize: re-fit whenever value or autosize toggles.
@@ -106,7 +138,7 @@ export class WrTextarea implements ControlValueAccessor {
       if (!this.autosize() || !this.isBrowser) return;
       // Read `value` to register dependency
       this.value();
-      requestAnimationFrame(() => this.resize());
+      requestAnimationFrame(() => this.autofit());
     });
   }
 
@@ -141,7 +173,55 @@ export class WrTextarea implements ControlValueAccessor {
     this.onTouched();
   }
 
-  private resize(): void {
+  // Custom resize — drag the corner grip; direction comes from `effectiveResize`.
+  // Pointer capture keeps move/up on the grip even when the cursor leaves it.
+  protected startResize(event: PointerEvent): void {
+    const el = this.native()?.nativeElement;
+    if (!el) return;
+    const host = this.hostEl.nativeElement;
+    this.resizing = true;
+    this.resizeStartY = event.clientY;
+    this.resizeStartX = event.clientX;
+    this.resizeStartHeight = el.offsetHeight;
+    this.resizeStartWidth = host.offsetWidth;
+    // Height floor = fits the current content, so shrinking never opens an
+    // overflow scrollbar. Measured once, synchronously (no paint between).
+    const borderY = el.offsetHeight - el.clientHeight;
+    const prevHeight = el.style.height;
+    el.style.height = 'auto';
+    this.resizeMinHeight = el.scrollHeight + borderY;
+    el.style.height = prevHeight;
+    // Width ceiling = parent inner width, so horizontal drag can't overflow.
+    this.resizeMaxWidth = host.parentElement?.clientWidth ?? Number.POSITIVE_INFINITY;
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  protected onResize(event: PointerEvent): void {
+    if (!this.resizing) return;
+    const el = this.native()?.nativeElement;
+    if (!el) return;
+    const dir = this.effectiveResize();
+    if (dir === 'vertical' || dir === 'both') {
+      const h = Math.max(this.resizeMinHeight, this.resizeStartHeight + (event.clientY - this.resizeStartY));
+      el.style.height = `${h}px`;
+    }
+    if (dir === 'horizontal' || dir === 'both') {
+      const w = Math.min(
+        this.resizeMaxWidth,
+        Math.max(64, this.resizeStartWidth + (event.clientX - this.resizeStartX))
+      );
+      this.hostEl.nativeElement.style.width = `${w}px`;
+    }
+  }
+
+  protected endResize(event: PointerEvent): void {
+    if (!this.resizing) return;
+    this.resizing = false;
+    (event.target as HTMLElement).releasePointerCapture(event.pointerId);
+  }
+
+  private autofit(): void {
     const el = this.native()?.nativeElement;
     if (!el) return;
 
