@@ -7,7 +7,7 @@
 
 /**
  * Prepends a new section to `CHANGELOG.md` for the version currently set in
- * `projects/lib/package.json`, using the `conventional-changelog` v7 fluent
+ * `projects/lib/package.json`, using the `conventional-changelog` v8 fluent
  * API directly (no CLI shellout).
  */
 

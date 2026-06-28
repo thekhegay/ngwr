@@ -11,14 +11,7 @@ import type { ConnectedPosition } from '@angular/cdk/overlay';
  * Where the dropdown menu opens, relative to the trigger.
  */
 export type WrDropdownPosition =
-  | 'top'
-  | 'top-start'
-  | 'top-end'
-  | 'bottom'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left'
-  | 'right';
+  'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right';
 
 /**
  * Maps friendly names to CDK ConnectedPosition fallback lists.
