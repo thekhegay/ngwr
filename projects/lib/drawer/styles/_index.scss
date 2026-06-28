@@ -39,20 +39,20 @@
   // Rounded leading corners
   // The edge facing the viewport interior. Common bottom-sheet styling.
   &--rounded.wr-drawer__panel--bottom {
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
+    border-top-left-radius: var(--wr-border-radius-lg);
+    border-top-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--top {
-    border-bottom-left-radius: 1rem;
-    border-bottom-right-radius: 1rem;
+    border-bottom-left-radius: var(--wr-border-radius-lg);
+    border-bottom-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--left {
-    border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
+    border-top-right-radius: var(--wr-border-radius-lg);
+    border-bottom-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--right {
-    border-top-left-radius: 1rem;
-    border-bottom-left-radius: 1rem;
+    border-top-left-radius: var(--wr-border-radius-lg);
+    border-bottom-left-radius: var(--wr-border-radius-lg);
   }
 
   // Safe-area padding on the trailing edge

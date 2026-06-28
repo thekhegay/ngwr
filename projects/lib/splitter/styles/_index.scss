@@ -69,13 +69,13 @@
   &--horizontal &__handle {
     width: 0.875rem;
     height: 2rem;
-    @include theme.smooth-br(4px);
+    @include theme.smooth-br(var(--wr-control-radius-sm));
   }
 
   &--vertical &__handle {
     width: 2rem;
     height: 0.875rem;
-    @include theme.smooth-br(4px);
+    @include theme.smooth-br(var(--wr-control-radius-sm));
   }
 
   &--disabled &__divider {
