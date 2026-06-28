@@ -6,16 +6,7 @@
  */
 
 export type ProviderName =
-  | 'overlay'
-  | 'icons'
-  | 'toast'
-  | 'i18n'
-  | 'date-adapter'
-  | 'density'
-  | 'loading-bar'
-  | 'cookie'
-  | 'storage'
-  | 'theme';
+  'overlay' | 'icons' | 'toast' | 'i18n' | 'date-adapter' | 'density' | 'loading-bar' | 'cookie' | 'storage' | 'theme';
 
 /** Inputs accepted by `ng g ngwr:provider`. Mirrors `schema.json`. */
 export interface Schema {

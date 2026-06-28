@@ -1,13 +1,6 @@
 /** What kind of doc page a `DocSeeAlsoLink` points at — drives the badge chip. */
 export type DocSeeAlsoKind =
-  | 'Component'
-  | 'Service'
-  | 'Directive'
-  | 'Pipe'
-  | 'Util'
-  | 'Validator'
-  | 'Guide'
-  | 'Animation';
+  'Component' | 'Service' | 'Directive' | 'Pipe' | 'Util' | 'Validator' | 'Guide' | 'Animation';
 
 /** One row in the "See also" grid. */
 export interface DocSeeAlsoLink {
