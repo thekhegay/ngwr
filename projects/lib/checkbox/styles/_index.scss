@@ -1,8 +1,10 @@
 @use '../../theme/styles' as theme;
 
 .wr-checkbox {
-  --wr-checkbox-size: 1.125rem;
-  --wr-checkbox-radius: var(--wr-border-radius-sm);
+  --wr-checkbox-size: 1.125rem; // md box (18px)
+  --wr-checkbox-radius: var(--wr-control-radius-md);
+  --wr-checkbox-font-size: var(--wr-text-sm);
+  --wr-checkbox-line-height: var(--wr-control-line-height-md);
   --wr-checkbox-bg: var(--wr-color-white);
   --wr-checkbox-border: var(--wr-color-light);
   --wr-checkbox-mark: transparent;
@@ -12,8 +14,8 @@
   vertical-align: middle;
   color: var(--wr-checkbox-color);
   font-family: var(--wr-font-family-base);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--wr-checkbox-font-size);
+  line-height: var(--wr-checkbox-line-height);
 
   &__label {
     display: inline-flex;
@@ -74,6 +76,21 @@
 
   &__label:hover &__box {
     --wr-checkbox-border: var(--wr-color-primary);
+  }
+
+  // Sizes — box, radius, label font + line-height scale together.
+  &--sm {
+    --wr-checkbox-size: 1rem; // 16px
+    --wr-checkbox-radius: var(--wr-control-radius-sm);
+    --wr-checkbox-font-size: var(--wr-text-xs);
+    --wr-checkbox-line-height: var(--wr-control-line-height-sm);
+  }
+
+  &--lg {
+    --wr-checkbox-size: 1.25rem; // 20px
+    --wr-checkbox-radius: var(--wr-control-radius-lg);
+    --wr-checkbox-font-size: var(--wr-text-base);
+    --wr-checkbox-line-height: var(--wr-control-line-height-lg);
   }
 
   &--checked {

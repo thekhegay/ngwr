@@ -37,6 +37,8 @@ import { WR_CHECKBOX_GROUP } from './tokens';
  *
  * @see https://ngwr.dev/components/checkbox
  */
+export type WrCheckboxSize = 'sm' | 'md' | 'lg';
+
 @Component({
   selector: 'wr-checkbox',
   templateUrl: './checkbox.html',
@@ -73,6 +75,9 @@ export class WrCheckbox implements ControlValueAccessor {
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrCheckboxSize>('md');
+
   /**
    * Optional icon name rendered inside the box when checked, in place of the
    * default checkmark. Use any registered NGWR icon.
@@ -98,6 +103,8 @@ export class WrCheckbox implements ControlValueAccessor {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-checkbox'];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-checkbox--${size}`);
     if (this.checked()) parts.push('wr-checkbox--checked');
     if (this.effectiveDisabled()) parts.push('wr-checkbox--disabled');
     return parts.join(' ');

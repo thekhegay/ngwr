@@ -26,6 +26,8 @@ import { WR_RADIO_GROUP } from './tokens';
  *
  * @see https://ngwr.dev/components/radio
  */
+export type WrRadioSize = 'sm' | 'md' | 'lg';
+
 @Component({
   selector: 'wr-radio',
   templateUrl: './radio.html',
@@ -46,6 +48,9 @@ export class WrRadio {
    */
   readonly icon = input<WrIconName | null>(null);
 
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrRadioSize>('md');
+
   private readonly group = inject(WR_RADIO_GROUP, { optional: true });
 
   constructor() {
@@ -60,6 +65,8 @@ export class WrRadio {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-radio'];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-radio--${size}`);
     if (this.checked()) parts.push('wr-radio--checked');
     if (this.disabled()) parts.push('wr-radio--disabled');
     if (this.icon()) parts.push('wr-radio--has-icon');

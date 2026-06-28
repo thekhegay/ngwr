@@ -1,7 +1,9 @@
 @use '../../theme/styles' as theme;
 
 .wr-radio {
-  --wr-radio-size: 1.125rem;
+  --wr-radio-size: 1.125rem; // md (18px)
+  --wr-radio-font-size: var(--wr-text-sm);
+  --wr-radio-line-height: var(--wr-control-line-height-md);
   --wr-radio-bg: var(--wr-color-white);
   --wr-radio-border: var(--wr-color-light);
   --wr-radio-dot: transparent;
@@ -11,8 +13,8 @@
   vertical-align: middle;
   color: var(--wr-radio-color);
   font-family: var(--wr-font-family-base);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--wr-radio-font-size);
+  line-height: var(--wr-radio-line-height);
 
   &__label {
     display: inline-flex;
@@ -52,8 +54,8 @@
 
     &::after {
       content: '';
-      width: 0.5rem;
-      height: 0.5rem;
+      width: calc(var(--wr-radio-size) - 0.625rem);
+      height: calc(var(--wr-radio-size) - 0.625rem);
       border-radius: 50%;
       background: var(--wr-radio-dot);
       transform: scale(0);
@@ -73,6 +75,19 @@
     transition:
       transform var(--wr-transition-base),
       opacity var(--wr-transition-base);
+  }
+
+  // Sizes — dot, label font + line-height scale together.
+  &--sm {
+    --wr-radio-size: 1rem; // 16px
+    --wr-radio-font-size: var(--wr-text-xs);
+    --wr-radio-line-height: var(--wr-control-line-height-sm);
+  }
+
+  &--lg {
+    --wr-radio-size: 1.25rem; // 20px
+    --wr-radio-font-size: var(--wr-text-base);
+    --wr-radio-line-height: var(--wr-control-line-height-lg);
   }
 
   &--has-icon &__dot::after {

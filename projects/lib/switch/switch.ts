@@ -21,6 +21,8 @@ import { noop, randomId } from 'ngwr/utils';
  *
  * @see https://ngwr.dev/components/switch
  */
+export type WrSwitchSize = 'sm' | 'md' | 'lg';
+
 @Component({
   selector: 'wr-switch',
   templateUrl: './switch.html',
@@ -46,6 +48,9 @@ export class WrSwitch implements ControlValueAccessor {
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrSwitchSize>('md');
+
   protected readonly checked = signal(false);
   private readonly disabledFromCva = signal(false);
 
@@ -53,6 +58,8 @@ export class WrSwitch implements ControlValueAccessor {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-switch'];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-switch--${size}`);
     if (this.checked()) parts.push('wr-switch--checked');
     if (this.effectiveDisabled()) parts.push('wr-switch--disabled');
     return parts.join(' ');
