@@ -36,3 +36,6 @@ export type WrSelectTagValidator = (value: string, existing: readonly string[]) 
 export type WrSelectSearchLoader<T> = (
   query: string
 ) => Observable<readonly T[]> | Promise<readonly T[]> | readonly T[];
+
+/** Control size for `<wr-select>` — shares the `--wr-control-*` contract. */
+export type WrSelectSize = 'sm' | 'md' | 'lg';

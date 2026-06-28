@@ -5,7 +5,7 @@
   --wr-segmented-color: var(--wr-color-dark);
   --wr-segmented-selected-bg: var(--wr-color-white);
   --wr-segmented-selected-color: var(--wr-color-dark);
-  --wr-segmented-radius: var(--wr-border-radius-base);
+  --wr-segmented-radius: var(--wr-control-radius-md);
   --wr-segmented-padding: 0.1875rem;
 
   --wr-segmented-thumb-index: 0;
@@ -31,7 +31,7 @@
     width: calc((100% - 2 * var(--wr-segmented-padding)) / var(--wr-segmented-thumb-count));
     transform: translateX(calc(100% * var(--wr-segmented-thumb-index)));
     background: var(--wr-segmented-selected-bg);
-    @include theme.smooth-br(calc(var(--wr-segmented-radius) - var(--wr-segmented-padding)));
+    @include theme.smooth-br(var(--wr-control-radius-sm));
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     pointer-events: none;
     // Animate slides, but only after first paint — see `&--mounted` below.
@@ -56,8 +56,10 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0.3125rem 0.75rem;
-    @include theme.smooth-br(calc(var(--wr-segmented-radius) - var(--wr-segmented-padding)));
+    // 2px option padding-y + 2×3px track padding + 20px line-height = 30px,
+    // matching the md control contract (button/input/select).
+    padding: 0.125rem 0.75rem;
+    @include theme.smooth-br(var(--wr-control-radius-sm));
     color: var(--wr-segmented-color);
     font: inherit;
     cursor: pointer;

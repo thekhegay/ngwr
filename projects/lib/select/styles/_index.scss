@@ -5,14 +5,33 @@
   --wr-select-color: var(--wr-color-dark);
   --wr-select-bg: var(--wr-color-white);
   --wr-select-border: var(--wr-color-light);
-  --wr-select-radius: var(--wr-border-radius-base);
-  --wr-select-padding-y: 0.4375rem;
-  --wr-select-padding-x: 0.75rem;
-  --wr-select-font-size: 0.875rem;
-  --wr-select-line-height: 1.25rem;
+  --wr-select-radius: var(--wr-control-radius-md);
+  --wr-select-padding-y: var(--wr-control-padding-y-md);
+  --wr-select-padding-x: var(--wr-control-padding-x-md);
+  --wr-select-font-size: var(--wr-control-font-size-md);
+  --wr-select-line-height: var(--wr-control-line-height-md);
 
   display: inline-flex;
   vertical-align: middle;
+
+  // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px). Multi/tag
+  // min-height and the search/tag inputs all read these vars, so every mode
+  // tracks the size. Declared before `--rounded` so the pill modifier wins.
+  &--sm {
+    --wr-select-radius: var(--wr-control-radius-sm);
+    --wr-select-padding-y: var(--wr-control-padding-y-sm);
+    --wr-select-padding-x: var(--wr-control-padding-x-sm);
+    --wr-select-font-size: var(--wr-control-font-size-sm);
+    --wr-select-line-height: var(--wr-control-line-height-sm);
+  }
+
+  &--lg {
+    --wr-select-radius: var(--wr-control-radius-lg);
+    --wr-select-padding-y: var(--wr-control-padding-y-lg);
+    --wr-select-padding-x: var(--wr-control-padding-x-lg);
+    --wr-select-font-size: var(--wr-control-font-size-lg);
+    --wr-select-line-height: var(--wr-control-line-height-lg);
+  }
 
   &--rounded {
     --wr-select-radius: var(--wr-border-radius-pill);
@@ -94,8 +113,10 @@
   &--tag &__trigger {
     flex-wrap: wrap;
     align-items: center;
-    padding: 0.25rem 0.5rem;
-    min-height: calc(var(--wr-select-line-height) + var(--wr-select-padding-y) * 2);
+    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
+    // Empty / single chip-row floor = single-mode height
+    // (line-height + 2×padding-y + 2×1px border), so every size + density lines up.
+    min-height: calc(var(--wr-select-line-height) + var(--wr-select-padding-y) * var(--wr-density-y, 1) * 2 + 2px);
   }
 
   // Search-mode trigger: inline text input + chevron + clear
@@ -114,7 +135,7 @@
     min-width: 0;
     border: 0;
     outline: 0;
-    padding: var(--wr-select-padding-y) var(--wr-select-padding-x);
+    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
     background: transparent;
     color: inherit;
     font: inherit;
@@ -149,8 +170,8 @@
     background: transparent;
     color: inherit;
     font: inherit;
-    font-size: 0.875rem;
-    line-height: 1.4;
+    font-size: var(--wr-select-font-size);
+    line-height: var(--wr-select-line-height);
 
     &::placeholder {
       color: rgba(var(--wr-color-medium-rgb), 0.85);
@@ -243,9 +264,20 @@
   --wr-select-panel-radius: var(--wr-border-radius-base);
   --wr-select-panel-shadow: var(--wr-shadow-overlay);
   --wr-select-panel-max-height: 16rem;
+  // Option sizing — default md. --sm/--lg are set from the trigger size because
+  // the panel is portaled into an overlay and can't inherit the host size class.
+  --wr-option-font-size: var(--wr-control-font-size-md);
+  --wr-option-line-height: var(--wr-control-line-height-md);
+  --wr-option-padding-y: 0.4375rem;
+  --wr-option-padding-x: 0.625rem;
+  --wr-option-gap: 0.1875rem;
 
   display: flex;
   flex-direction: column;
+  // Fill the overlay pane so the visible panel == the pointer-catching surface;
+  // no transparent gutter to swallow outside-clicks (see openOverlay in select.ts).
+  width: 100%;
+  gap: var(--wr-option-gap);
   background: var(--wr-select-panel-bg);
   border: 1px solid var(--wr-select-panel-border);
   @include theme.smooth-br(var(--wr-select-panel-radius));
@@ -255,11 +287,27 @@
   overflow-y: auto;
   font-family: var(--wr-font-family-base);
 
+  &--sm {
+    --wr-option-font-size: var(--wr-control-font-size-sm);
+    --wr-option-line-height: var(--wr-control-line-height-sm);
+    --wr-option-padding-y: 0.3125rem;
+    --wr-option-padding-x: 0.5rem;
+    --wr-option-gap: 0.125rem;
+  }
+
+  &--lg {
+    --wr-option-font-size: var(--wr-control-font-size-lg);
+    --wr-option-line-height: var(--wr-control-line-height-lg);
+    --wr-option-padding-y: 0.5rem;
+    --wr-option-padding-x: 0.75rem;
+    --wr-option-gap: 0.25rem;
+  }
+
   &__loading,
   &__empty {
     padding: 0.625rem 0.75rem;
     color: var(--wr-color-medium);
-    font-size: 0.875rem;
+    font-size: var(--wr-option-font-size);
     text-align: center;
   }
 }
@@ -267,11 +315,11 @@
 .wr-option {
   display: flex;
   align-items: center;
-  padding: 0.4375rem 0.625rem;
+  padding: var(--wr-option-padding-y) var(--wr-option-padding-x);
   border-radius: var(--wr-border-radius-sm);
   color: var(--wr-color-dark);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--wr-option-font-size);
+  line-height: var(--wr-option-line-height);
   cursor: pointer;
   user-select: none;
   transition: background var(--wr-transition-short);
@@ -306,6 +354,7 @@
 .wr-option-group {
   display: flex;
   flex-direction: column;
+  gap: var(--wr-option-gap);
 
   &__label {
     padding: 0.5rem 0.625rem 0.25rem;

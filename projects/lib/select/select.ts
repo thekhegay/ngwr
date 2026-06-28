@@ -32,7 +32,7 @@ import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 import { noop } from 'ngwr/utils';
 
-import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator } from './interfaces';
+import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator, WrSelectSize } from './interfaces';
 import { WrOption } from './option';
 import { WR_SELECT, type WrSelectContext, type WrSelectOptionRegistration } from './tokens';
 
@@ -119,6 +119,9 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
   /** Pill-shaped corners on the trigger. @default false */
   readonly rounded = input(false, { transform: coerceBooleanProperty });
+
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrSelectSize>('md');
 
   /**
    * Present the option panel as a full-width bottom-sheet on small
@@ -330,6 +333,8 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     const parts = ['wr-select'];
     if (this.open()) parts.push('wr-select--open');
     if (this.rounded()) parts.push('wr-select--rounded');
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-select--${size}`);
     if (this.isMulti()) parts.push('wr-select--multi');
     if (this.isTag()) parts.push('wr-select--tag');
     if (this.isSearch()) parts.push('wr-select--search');
@@ -799,7 +804,14 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     this.overlayRef = this.overlay.create({
       positionStrategy,
       scrollStrategy: asSheet ? this.scrollStrategies.block() : this.scrollStrategies.reposition(),
-      width: asSheet ? '100%' : this.host.nativeElement.getBoundingClientRect().width,
+      // Floor the panel at the trigger width (it can still grow for long
+      // options) instead of pinning it. The panel fills this via `width: 100%`,
+      // so the flex overlay pane has no transparent gutter beside a
+      // content-narrow panel — that gutter would otherwise sit "inside" the
+      // overlay and swallow outside-clicks, leaving the panel open. Mirrors how
+      // mat-select sizes its overlay.
+      width: asSheet ? '100%' : undefined,
+      minWidth: asSheet ? undefined : this.host.nativeElement.getBoundingClientRect().width,
       hasBackdrop: asSheet,
       backdropClass: asSheet ? 'wr-select-backdrop' : undefined,
       panelClass: asSheet ? ['wr-select-overlay', 'wr-overlay-sheet'] : 'wr-select-overlay',
