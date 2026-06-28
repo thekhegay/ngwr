@@ -5,11 +5,14 @@
   --wr-input-otp-border: var(--wr-color-light);
   --wr-input-otp-color: var(--wr-color-dark);
   --wr-input-otp-focus: var(--wr-color-primary);
-  --wr-input-otp-size: 2.75rem;
+  --wr-input-otp-size: 2.5rem; // md cell (40px)
+  --wr-input-otp-font: var(--wr-text-lg); // 18px
+  --wr-input-otp-radius: var(--wr-control-radius-md);
+  --wr-input-otp-gap: 0.5rem;
 
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--wr-input-otp-gap);
   font-family: var(--wr-font-family-base);
 
   &__cell {
@@ -18,13 +21,13 @@
     padding: 0;
     text-align: center;
     font-family: var(--wr-font-family-mono, monospace);
-    font-size: 1.125rem;
+    font-size: var(--wr-input-otp-font);
     font-weight: 500;
     line-height: 1;
     color: var(--wr-input-otp-color);
     background: var(--wr-input-otp-bg);
     border: 1px solid var(--wr-input-otp-border);
-    @include theme.smooth-br(var(--wr-border-radius-base));
+    @include theme.smooth-br(var(--wr-input-otp-radius));
     appearance: none;
     transition:
       border-color var(--wr-transition-base),
@@ -45,6 +48,21 @@
       color: var(--wr-color-medium);
       cursor: not-allowed;
     }
+  }
+
+  // Sizes — cell, digit font, radius + gap scale together.
+  &--sm {
+    --wr-input-otp-size: 2rem; // 32px
+    --wr-input-otp-font: var(--wr-text-base); // 16px
+    --wr-input-otp-radius: var(--wr-control-radius-sm);
+    --wr-input-otp-gap: 0.375rem;
+  }
+
+  &--lg {
+    --wr-input-otp-size: 3rem; // 48px
+    --wr-input-otp-font: var(--wr-text-xl); // 20px
+    --wr-input-otp-radius: var(--wr-control-radius-lg);
+    --wr-input-otp-gap: 0.625rem;
   }
 
   &--disabled {
