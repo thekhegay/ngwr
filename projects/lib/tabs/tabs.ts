@@ -62,6 +62,8 @@ import { WR_TABS, type WrTabsContext } from './tokens';
     class: 'wr-tabs',
     '[class.wr-tabs--fade-start]': 'canScrollStart()',
     '[class.wr-tabs--fade-end]': 'canScrollEnd()',
+    '[class.wr-tabs--sm]': "size() === 'sm'",
+    '[class.wr-tabs--lg]': "size() === 'lg'",
   },
   imports: [NgTemplateOutlet, RouterLink, RouterLinkActive],
   providers: [
