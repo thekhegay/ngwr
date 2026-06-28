@@ -1,1 +1,1 @@
-export { WrCascader, type WrCascaderOption } from './cascader';
+export { WrCascader, type WrCascaderOption, type WrCascaderSize } from './cascader';
