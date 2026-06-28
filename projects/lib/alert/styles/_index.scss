@@ -52,7 +52,7 @@ $alert-colors: (
     margin: 0;
     color: var(--wr-alert-title);
     font-family: var(--wr-font-family-base);
-    font-size: 0.875rem;
+    font-size: var(--wr-text-sm);
     font-weight: 600;
     line-height: 1.25rem;
   }
@@ -61,7 +61,7 @@ $alert-colors: (
     margin: 0;
     color: var(--wr-alert-message);
     font-family: var(--wr-font-family-base);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.125rem;
   }
 

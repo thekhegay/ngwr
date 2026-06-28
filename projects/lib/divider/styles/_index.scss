@@ -15,7 +15,7 @@
   width: 100%;
   user-select: none;
   color: var(--wr-color-medium);
-  font-size: 0.8125rem;
+  font-size: var(--wr-text-sm);
   line-height: 1.125rem;
 
   &::before,

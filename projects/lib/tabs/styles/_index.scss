@@ -6,6 +6,10 @@
   --wr-tabs-color-hover: var(--wr-color-dark);
   --wr-tabs-color-active: var(--wr-color-primary);
   --wr-tabs-indicator: var(--wr-color-primary);
+  --wr-tabs-font-size: var(--wr-control-font-size-md);
+  --wr-tabs-line-height: var(--wr-control-line-height-md);
+  --wr-tabs-padding-y: 0.625rem;
+  --wr-tabs-padding-x: 1rem;
 
   display: block;
   // Claim the full row even when nested in a flex-row demo wrapper.
@@ -13,6 +17,21 @@
   width: 100%;
   min-width: 0;
   font-family: var(--wr-font-family-base);
+
+  // Sizes — wire the (previously inert) `size` input to the control fonts.
+  &--sm {
+    --wr-tabs-font-size: var(--wr-control-font-size-sm);
+    --wr-tabs-line-height: var(--wr-control-line-height-sm);
+    --wr-tabs-padding-y: 0.5rem;
+    --wr-tabs-padding-x: 0.75rem;
+  }
+
+  &--lg {
+    --wr-tabs-font-size: var(--wr-control-font-size-lg);
+    --wr-tabs-line-height: var(--wr-control-line-height-lg);
+    --wr-tabs-padding-y: 0.75rem;
+    --wr-tabs-padding-x: 1.25rem;
+  }
 
   &__strip {
     display: flex;
@@ -60,12 +79,12 @@
     background: transparent;
     border: 0;
     text-decoration: none;
-    padding: 0.625rem 1rem;
+    padding: var(--wr-tabs-padding-y) var(--wr-tabs-padding-x);
     color: var(--wr-tabs-color);
     font: inherit;
-    font-size: 0.875rem;
+    font-size: var(--wr-tabs-font-size);
     font-weight: 500;
-    line-height: 1.25rem;
+    line-height: var(--wr-tabs-line-height);
     border-bottom: 2px solid transparent;
     cursor: pointer;
     white-space: nowrap;

@@ -129,7 +129,7 @@
 
   &__tabs {
     flex: 1 1 auto;
-    font-size: 0.75rem;
+    font-size: var(--wr-text-xs);
   }
 
   // Per-tab numeric inputs
@@ -159,7 +159,7 @@
       padding: 0.25rem 0.375rem;
       color: var(--wr-color-dark);
       font-family: var(--wr-font-family-mono, monospace);
-      font-size: 0.75rem;
+      font-size: var(--wr-text-xs);
       line-height: 1rem;
       text-align: center;
       outline: 0;
@@ -191,13 +191,13 @@
     text-align: left;
     text-transform: lowercase;
     padding: 0.3125rem 0.5rem;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
   }
 
   &__field-label {
     text-align: center;
     color: var(--wr-color-medium);
-    font-size: 0.625rem;
+    font-size: 0.625rem; // 10px — intentional micro R/G/B/A channel label, below --wr-text-xs
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;

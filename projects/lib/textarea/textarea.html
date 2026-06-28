@@ -10,3 +10,46 @@
   (focus)="focused.set(true)"
   (blur)="onBlur()"
 ></textarea>
+
+@if (showHandle()) {
+  <!-- Custom corner grip — the lucide icon + cursor follow the `resize`
+       direction. Icons inlined so no icon registration is required. -->
+  <span
+    [class]="`wr-textarea__resize wr-textarea__resize--${effectiveResize()}`"
+    aria-hidden="true"
+    (pointerdown)="startResize($event)"
+    (pointermove)="onResize($event)"
+    (pointerup)="endResize($event)"
+    (pointercancel)="endResize($event)"
+  >
+    <svg
+      class="wr-icon__svg"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      @switch (effectiveResize()) {
+        @case ('vertical') {
+          <path d="M12 2v20" />
+          <path d="m8 18 4 4 4-4" />
+          <path d="m8 6 4-4 4 4" />
+        }
+        @case ('horizontal') {
+          <path d="M2 12h20" />
+          <path d="m18 8 4 4-4 4" />
+          <path d="m6 8-4 4 4 4" />
+        }
+        @default {
+          <path d="M19 13v6h-6" />
+          <path d="M5 11V5h6" />
+          <path d="m5 5 14 14" />
+        }
+      }
+    </svg>
+  </span>
+}

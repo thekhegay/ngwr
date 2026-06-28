@@ -22,7 +22,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { noop } from 'ngwr/utils';
 
-import type { WrInputOtpMode } from './interfaces';
+import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
 
 /**
  * Fixed-length one-time-code input. Renders one `<input>` per character,
@@ -63,6 +63,9 @@ export class WrInputOtp implements ControlValueAccessor {
   /** Character set per cell. @default 'numeric' */
   readonly mode = input<WrInputOtpMode>('numeric');
 
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrInputOtpSize>('md');
+
   /** Mask the typed characters like a password. @default false */
   readonly mask = input(false, { transform: coerceBooleanProperty });
 
@@ -82,6 +85,8 @@ export class WrInputOtp implements ControlValueAccessor {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-input-otp'];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-input-otp--${size}`);
     if (this.effectiveDisabled()) parts.push('wr-input-otp--disabled');
     return parts.join(' ');
   });

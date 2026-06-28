@@ -80,7 +80,7 @@
     margin: 0;
     padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
     color: var(--wr-color-dark);
-    font-size: 1.0625rem;
+    font-size: var(--wr-text-lg);
     font-weight: 600;
     line-height: 1.5rem;
     border-bottom: 1px solid var(--wr-color-light);
@@ -90,7 +90,7 @@
     padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
     overflow: auto;
     color: var(--wr-color-dark);
-    font-size: 0.9375rem;
+    font-size: var(--wr-text-base);
     line-height: 1.5rem;
   }
 

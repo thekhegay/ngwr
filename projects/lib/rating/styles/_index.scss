@@ -49,6 +49,17 @@
     transition: clip-path var(--wr-transition-base);
   }
 
+  // Sizes — scale the icon glyph + the gap between slots.
+  &--sm {
+    --wr-rating-size: 1rem; // 16px
+    --wr-rating-gap: 0.0625rem;
+  }
+
+  &--lg {
+    --wr-rating-size: 1.5rem; // 24px
+    --wr-rating-gap: 0.1875rem;
+  }
+
   &--readonly &__slot {
     cursor: default;
   }

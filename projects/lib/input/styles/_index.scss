@@ -10,12 +10,12 @@
   --wr-input-placeholder: rgba(var(--wr-color-medium-rgb), 0.7);
   --wr-input-bg: var(--wr-color-white);
   --wr-input-border: var(--wr-color-light);
-  --wr-input-radius: var(--wr-border-radius-base);
+  --wr-input-radius: var(--wr-control-radius-md);
   --wr-input-ring: transparent;
-  --wr-input-padding-y: 0.4375rem;
-  --wr-input-padding-x: 0.75rem;
-  --wr-input-font-size: 0.875rem;
-  --wr-input-line-height: 1.25rem;
+  --wr-input-padding-y: var(--wr-control-padding-y-md);
+  --wr-input-padding-x: var(--wr-control-padding-x-md);
+  --wr-input-font-size: var(--wr-control-font-size-md);
+  --wr-input-line-height: var(--wr-control-line-height-md);
 
   display: inline-block;
   width: 100%;
@@ -57,6 +57,25 @@
     cursor: not-allowed;
   }
 
+  // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px). Declared
+  // before `--rounded` so the pill modifier's radius / padding-x still win
+  // when both classes are present.
+  &--sm {
+    --wr-input-radius: var(--wr-control-radius-sm);
+    --wr-input-padding-y: var(--wr-control-padding-y-sm);
+    --wr-input-padding-x: var(--wr-control-padding-x-sm);
+    --wr-input-font-size: var(--wr-control-font-size-sm);
+    --wr-input-line-height: var(--wr-control-line-height-sm);
+  }
+
+  &--lg {
+    --wr-input-radius: var(--wr-control-radius-lg);
+    --wr-input-padding-y: var(--wr-control-padding-y-lg);
+    --wr-input-padding-x: var(--wr-control-padding-x-lg);
+    --wr-input-font-size: var(--wr-control-font-size-lg);
+    --wr-input-line-height: var(--wr-control-line-height-lg);
+  }
+
   &--rounded {
     --wr-input-radius: var(--wr-border-radius-pill);
     --wr-input-padding-x: 1rem;
@@ -70,7 +89,7 @@
 // `[wrInputPrefix]` / `[wrInputSuffix]` / `<wr-password-toggle>` siblings.
 //
 .wr-input-group {
-  --wr-input-group-radius: var(--wr-border-radius-base);
+  --wr-input-group-radius: var(--wr-control-radius-md);
   --wr-input-group-bg: var(--wr-color-white);
   --wr-input-group-border: var(--wr-color-light);
   --wr-input-group-ring: transparent;
@@ -120,7 +139,7 @@
     user-select: none;
     font-weight: 500;
     font-family: var(--wr-font-family-base);
-    font-size: 0.875rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.25rem;
   }
 

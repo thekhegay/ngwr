@@ -30,6 +30,8 @@ import type { WrSegmentedOption } from './interfaces';
  *
  * @see https://ngwr.dev/components/segmented
  */
+export type WrSegmentedSize = 'sm' | 'md' | 'lg';
+
 @Component({
   selector: 'wr-segmented',
   templateUrl: './segmented.html',
@@ -47,6 +49,9 @@ export class WrSegmented<T = unknown> {
   /** Disable the whole control. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrSegmentedSize>('md');
+
   /** Index of the selected option, or `-1` when nothing is selected. */
   protected readonly selectedIndex = computed(() => {
     const v = this.value();
@@ -62,6 +67,8 @@ export class WrSegmented<T = unknown> {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-segmented'];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-segmented--${size}`);
     if (this.disabled()) parts.push('wr-segmented--disabled');
     if (this.selectedIndex() < 0) parts.push('wr-segmented--unselected');
     if (this.mounted()) parts.push('wr-segmented--mounted');

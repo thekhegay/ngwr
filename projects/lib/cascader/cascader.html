@@ -58,7 +58,13 @@
 </button>
 
 <ng-template #panelTpl>
-  <div class="wr-cascader-panel" role="menu" [attr.id]="panelId">
+  <div
+    class="wr-cascader-panel"
+    [class.wr-cascader-panel--sm]="size() === 'sm'"
+    [class.wr-cascader-panel--lg]="size() === 'lg'"
+    role="menu"
+    [attr.id]="panelId"
+  >
     @for (col of columns(); track $index; let colIndex = $index) {
       <ul class="wr-cascader__col" role="menu">
         @for (opt of col; track opt.value) {

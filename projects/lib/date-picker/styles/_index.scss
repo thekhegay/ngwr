@@ -118,7 +118,7 @@
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-time-picker-color);
     font-family: var(--wr-font-family-base);
-    font-size: 0.9375rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.25rem;
     font-weight: 600;
     text-align: center;
@@ -157,14 +157,14 @@
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-time-picker-color);
     font-family: var(--wr-font-family-base);
-    font-size: 0.9375rem;
+    font-size: var(--wr-text-sm);
     font-weight: 600;
     user-select: none;
   }
 
   &__sep {
     color: var(--wr-time-picker-muted);
-    font-size: 1.125rem;
+    font-size: var(--wr-text-lg);
     font-weight: 600;
     line-height: 1;
     user-select: none;

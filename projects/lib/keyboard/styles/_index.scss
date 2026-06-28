@@ -4,7 +4,7 @@
   --wr-kbd-border: rgba(var(--wr-color-dark-rgb), 0.18);
   --wr-kbd-border-bottom: rgba(var(--wr-color-dark-rgb), 0.32);
   --wr-kbd-color: var(--wr-color-dark);
-  --wr-kbd-radius: 4px;
+  --wr-kbd-radius: var(--wr-control-radius-md);
   // Shadow uses the always-black backdrop token, not `--wr-color-dark-rgb`
   // — the dark RGB flips to light in dark mode, which would turn the
   // 1px drop-shadow into a top highlight.
@@ -33,23 +33,25 @@
   white-space: nowrap;
 
   &--sm {
+    --wr-kbd-radius: var(--wr-control-radius-sm);
     min-width: 1.375rem;
     height: 1.375rem;
     padding: 0 0.3125rem;
-    font-size: 0.6875rem;
+    font-size: var(--wr-text-xs);
   }
 
   &--md {
     min-width: 1.75rem;
     height: 1.75rem;
     padding: 0 0.4375rem;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
   }
 
   &--lg {
+    --wr-kbd-radius: var(--wr-control-radius-lg);
     min-width: 2.125rem;
     height: 2.125rem;
     padding: 0 0.5625rem;
-    font-size: 0.9375rem;
+    font-size: var(--wr-text-base);
   }
 }

@@ -20,13 +20,13 @@
   --wr-btn-color: var(--wr-color-dark);
   --wr-btn-bg: var(--wr-color-white);
   --wr-btn-border: var(--wr-color-light);
-  --wr-btn-radius: var(--wr-border-radius-sm);
+  --wr-btn-radius: var(--wr-control-radius-md);
   --wr-btn-gap: 0.375rem;
-  --wr-btn-padding-y: 0.5rem;
-  --wr-btn-padding-x: 1rem;
-  --wr-btn-font-size: 0.875rem;
+  --wr-btn-padding-y: var(--wr-control-padding-y-md);
+  --wr-btn-padding-x: 0.875rem; // 14px — buttons sit a touch wider than input/select
+  --wr-btn-font-size: var(--wr-control-font-size-md);
   --wr-btn-font-weight: 500;
-  --wr-btn-line-height: 1.25rem;
+  --wr-btn-line-height: var(--wr-control-line-height-md);
   --wr-btn-icon-size: 1rem;
 
   color: var(--wr-btn-color);
@@ -74,24 +74,26 @@
     min-width: 0;
   }
 
-  // Sizes — consistent 28 / 36 / 44 px scale (each +8px tall).
-  // Padding, font, line-height, icon, and gap all step up together so
-  // the proportions stay visually identical between sizes.
+  // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px) so button,
+  // input and select line up in a row. Buttons keep a slightly wider padding-x
+  // (12 / 14 / 18) than input/select; gap + icon step with the size.
   &--sm {
+    --wr-btn-radius: var(--wr-control-radius-sm);
     --wr-btn-gap: 0.25rem;
-    --wr-btn-padding-y: 0.375rem; // 6px
+    --wr-btn-padding-y: var(--wr-control-padding-y-sm);
     --wr-btn-padding-x: 0.75rem; // 12px
-    --wr-btn-font-size: 0.75rem; // 12px
-    --wr-btn-line-height: 1rem; // 16px
+    --wr-btn-font-size: var(--wr-control-font-size-sm);
+    --wr-btn-line-height: var(--wr-control-line-height-sm);
     --wr-btn-icon-size: 0.875rem; // 14px
   }
 
   &--lg {
+    --wr-btn-radius: var(--wr-control-radius-lg);
     --wr-btn-gap: 0.5rem;
-    --wr-btn-padding-y: 0.625rem; // 10px
-    --wr-btn-padding-x: 1.5rem; // 24px
-    --wr-btn-font-size: 1rem; // 16px
-    --wr-btn-line-height: 1.5rem; // 24px
+    --wr-btn-padding-y: var(--wr-control-padding-y-lg);
+    --wr-btn-padding-x: 1.125rem; // 18px
+    --wr-btn-font-size: var(--wr-control-font-size-lg);
+    --wr-btn-line-height: var(--wr-control-line-height-lg);
     --wr-btn-icon-size: 1.125rem; // 18px
   }
 

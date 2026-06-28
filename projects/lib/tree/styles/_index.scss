@@ -5,7 +5,7 @@
 
   display: block;
   font-family: var(--wr-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--wr-text-sm);
   color: var(--wr-color-dark);
 
   &__list {
@@ -100,11 +100,13 @@
     --wr-tree-trigger-color: var(--wr-color-dark);
     --wr-tree-trigger-bg: var(--wr-color-white);
     --wr-tree-trigger-border: var(--wr-color-light);
-    --wr-tree-trigger-radius: var(--wr-border-radius-base);
-    --wr-tree-trigger-padding-y: 0.4375rem;
-    --wr-tree-trigger-padding-x: 0.75rem;
-    --wr-tree-trigger-font-size: 0.875rem;
-    --wr-tree-trigger-line-height: 1.25rem;
+    // Combobox trigger on the md control contract (30px, radius 6) so it lines
+    // up with select / input / button when used as a tree-select.
+    --wr-tree-trigger-radius: var(--wr-control-radius-md);
+    --wr-tree-trigger-padding-y: var(--wr-control-padding-y-md);
+    --wr-tree-trigger-padding-x: var(--wr-control-padding-x-md);
+    --wr-tree-trigger-font-size: var(--wr-control-font-size-md);
+    --wr-tree-trigger-line-height: var(--wr-control-line-height-md);
     --wr-tree-panel-max-height: 18rem;
 
     display: inline-flex;
@@ -202,7 +204,8 @@
     flex-wrap: wrap;
     align-items: center;
     padding: 0.25rem 0.5rem;
-    min-height: calc(var(--wr-tree-trigger-line-height) + var(--wr-tree-trigger-padding-y) * 2);
+    // Empty / one-row floor = single-mode height (+2px for the border).
+    min-height: calc(var(--wr-tree-trigger-line-height) + var(--wr-tree-trigger-padding-y) * 2 + 2px);
   }
 
   &__chips {
@@ -223,7 +226,7 @@
     border-radius: 999px;
     background: rgba(var(--wr-color-primary-rgb), 0.1);
     color: var(--wr-color-primary);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.4;
     user-select: none;
   }

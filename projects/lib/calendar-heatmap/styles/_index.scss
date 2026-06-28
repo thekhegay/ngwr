@@ -59,6 +59,8 @@
   &__cell {
     width: var(--wr-heatmap-cell-size);
     height: var(--wr-heatmap-cell-size);
+    // 2px — intentional micro-radius for the tiny (~11px) cells; the control /
+    // border-radius tokens (5px+) would read as near-circles at this size.
     border-radius: 2px;
     transition: transform var(--wr-transition-base);
 

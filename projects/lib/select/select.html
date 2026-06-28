@@ -255,6 +255,8 @@
 <ng-template #panelTpl>
   <div
     class="wr-select-panel"
+    [class.wr-select-panel--sm]="size() === 'sm'"
+    [class.wr-select-panel--lg]="size() === 'lg'"
     role="listbox"
     [attr.id]="listboxId"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"

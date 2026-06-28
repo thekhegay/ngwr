@@ -9,19 +9,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: var(--wr-badge-min-height);
   padding: var(--wr-badge-padding-y) var(--wr-badge-padding-x);
   border-radius: var(--wr-badge-radius);
   font-size: var(--wr-badge-font-size);
   font-weight: var(--wr-badge-font-weight);
-  line-height: var(--wr-badge-line-height);
+  // line-height 1 + min-height: flex centres the tight glyph box vertically,
+  // instead of line-height baking in asymmetric leading (which left small
+  // sizes looking top-heavy).
+  line-height: 1;
   white-space: nowrap;
 
   // Defaults — sized modifiers override these
   --wr-badge-padding-y: 0.25rem;
   --wr-badge-padding-x: 0.5rem;
   --wr-badge-radius: var(--wr-border-radius-sm);
-  --wr-badge-font-size: 0.75rem;
-  --wr-badge-line-height: 1rem;
+  --wr-badge-font-size: var(--wr-text-xs);
+  --wr-badge-min-height: 1.5rem;
   --wr-badge-font-weight: 600;
 
   // Sizes
@@ -29,15 +33,15 @@
   &--sm {
     --wr-badge-padding-y: 0.125rem;
     --wr-badge-padding-x: 0.375rem;
-    --wr-badge-font-size: 0.625rem;
-    --wr-badge-line-height: 0.875rem;
+    --wr-badge-font-size: 0.625rem; // 10px — intentional micro-count, below --wr-text-xs
+    --wr-badge-min-height: 1.125rem;
   }
 
   &--lg {
     --wr-badge-padding-y: 0.375rem;
     --wr-badge-padding-x: 0.75rem;
-    --wr-badge-font-size: 0.875rem;
-    --wr-badge-line-height: 1.25rem;
+    --wr-badge-font-size: var(--wr-text-sm);
+    --wr-badge-min-height: 2rem;
   }
 
   // Shape — default `rounded` keeps the small radius from the defaults

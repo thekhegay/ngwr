@@ -5,8 +5,13 @@
   --wr-segmented-color: var(--wr-color-dark);
   --wr-segmented-selected-bg: var(--wr-color-white);
   --wr-segmented-selected-color: var(--wr-color-dark);
-  --wr-segmented-radius: var(--wr-border-radius-base);
+  --wr-segmented-radius: 0.5rem; // 8px track
+  // Concentric thumb: outer − inset, so track and thumb corners nest naturally.
+  --wr-segmented-thumb-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));
   --wr-segmented-padding: 0.1875rem;
+  --wr-segmented-font-size: var(--wr-text-sm);
+  --wr-segmented-line-height: var(--wr-control-line-height-md);
+  --wr-segmented-option-py: 0.125rem;
 
   --wr-segmented-thumb-index: 0;
   --wr-segmented-thumb-count: 1;
@@ -20,8 +25,25 @@
   padding: var(--wr-segmented-padding);
   @include theme.smooth-br(var(--wr-segmented-radius));
   font-family: var(--wr-font-family-base);
-  font-size: 0.8125rem;
-  line-height: 1.25rem;
+  font-size: var(--wr-segmented-font-size);
+  line-height: var(--wr-segmented-line-height);
+
+  // Sizes — track 22 / 30 / 36 px (line-height + 2×option-py + 2×track-padding).
+  &--sm {
+    --wr-segmented-radius: 0.4375rem; // 7px → concentric 5px thumb
+    --wr-segmented-padding: 0.125rem; // 2px
+    --wr-segmented-font-size: var(--wr-text-xs);
+    --wr-segmented-line-height: var(--wr-control-line-height-sm);
+    --wr-segmented-option-py: 0.0625rem; // 1px
+  }
+
+  &--lg {
+    --wr-segmented-radius: 0.5625rem; // 9px → concentric 6px thumb
+    --wr-segmented-padding: 0.1875rem; // 3px
+    --wr-segmented-font-size: var(--wr-text-base);
+    --wr-segmented-line-height: var(--wr-control-line-height-lg);
+    --wr-segmented-option-py: 0.1875rem; // 3px
+  }
 
   &__thumb {
     position: absolute;
@@ -31,7 +53,7 @@
     width: calc((100% - 2 * var(--wr-segmented-padding)) / var(--wr-segmented-thumb-count));
     transform: translateX(calc(100% * var(--wr-segmented-thumb-index)));
     background: var(--wr-segmented-selected-bg);
-    @include theme.smooth-br(calc(var(--wr-segmented-radius) - var(--wr-segmented-padding)));
+    @include theme.smooth-br(var(--wr-segmented-thumb-radius));
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
     pointer-events: none;
     // Animate slides, but only after first paint — see `&--mounted` below.
@@ -56,8 +78,9 @@
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0.3125rem 0.75rem;
-    @include theme.smooth-br(calc(var(--wr-segmented-radius) - var(--wr-segmented-padding)));
+    // Height = line-height + 2×option-py + 2×track-padding (md → 30px); all scale per size.
+    padding: var(--wr-segmented-option-py) 0.75rem;
+    @include theme.smooth-br(var(--wr-segmented-thumb-radius));
     color: var(--wr-segmented-color);
     font: inherit;
     cursor: pointer;
@@ -82,7 +105,7 @@
   }
 
   &__label {
-    line-height: 1.25rem;
+    line-height: var(--wr-segmented-line-height);
   }
 
   &--disabled {

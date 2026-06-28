@@ -62,6 +62,8 @@ let panelUid = 0;
  *
  * @see https://ngwr.dev/components/cascader
  */
+export type WrCascaderSize = 'sm' | 'md' | 'lg';
+
 @Component({
   selector: 'wr-cascader',
   templateUrl: './cascader.html',
@@ -86,6 +88,9 @@ export class WrCascader<T = string> implements ControlValueAccessor {
 
   /** Disable the cascader. */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
+  readonly size = input<WrCascaderSize>('md');
 
   /** Show a clear-all (×) button on the trigger when a path is selected. @default true */
   readonly clearable = input(true, { transform: coerceBooleanProperty });
@@ -153,6 +158,8 @@ export class WrCascader<T = string> implements ControlValueAccessor {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-cascader'];
+    const size = this.size();
+    if (size !== 'md') parts.push(`wr-cascader--${size}`);
     if (this.open()) parts.push('wr-cascader--open');
     if (this.isDisabled()) parts.push('wr-cascader--disabled');
     return parts.join(' ');

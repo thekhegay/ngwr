@@ -130,7 +130,7 @@
   &__caption {
     color: rgba(255, 255, 255, 0.85);
     font-family: var(--wr-font-family-base);
-    font-size: 0.9375rem;
+    font-size: var(--wr-text-sm);
     text-align: center;
     max-width: 60ch;
   }

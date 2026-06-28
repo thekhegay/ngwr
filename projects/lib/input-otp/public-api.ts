@@ -1,2 +1,2 @@
 export { WrInputOtp } from './input-otp';
-export type { WrInputOtpMode } from './interfaces';
+export type { WrInputOtpMode, WrInputOtpSize } from './interfaces';

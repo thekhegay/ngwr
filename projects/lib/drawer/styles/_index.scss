@@ -39,20 +39,20 @@
   // Rounded leading corners
   // The edge facing the viewport interior. Common bottom-sheet styling.
   &--rounded.wr-drawer__panel--bottom {
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
+    border-top-left-radius: var(--wr-border-radius-lg);
+    border-top-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--top {
-    border-bottom-left-radius: 1rem;
-    border-bottom-right-radius: 1rem;
+    border-bottom-left-radius: var(--wr-border-radius-lg);
+    border-bottom-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--left {
-    border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
+    border-top-right-radius: var(--wr-border-radius-lg);
+    border-bottom-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--right {
-    border-top-left-radius: 1rem;
-    border-bottom-left-radius: 1rem;
+    border-top-left-radius: var(--wr-border-radius-lg);
+    border-bottom-left-radius: var(--wr-border-radius-lg);
   }
 
   // Safe-area padding on the trailing edge
@@ -96,7 +96,7 @@
     margin: 0;
     padding: 1rem 1.25rem;
     color: var(--wr-color-dark);
-    font-size: 1.0625rem;
+    font-size: var(--wr-text-lg);
     font-weight: 600;
     line-height: 1.5rem;
     border-bottom: 1px solid var(--wr-color-light);
@@ -106,7 +106,7 @@
     flex: 1 1 auto;
     padding: 1rem 1.25rem;
     overflow: auto;
-    font-size: 0.9375rem;
+    font-size: var(--wr-text-base);
     line-height: 1.5rem;
   }
 
