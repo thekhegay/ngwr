@@ -20,7 +20,7 @@
   --wr-badge-padding-y: 0.25rem;
   --wr-badge-padding-x: 0.5rem;
   --wr-badge-radius: var(--wr-border-radius-sm);
-  --wr-badge-font-size: 0.75rem;
+  --wr-badge-font-size: var(--wr-text-xs);
   --wr-badge-line-height: 1rem;
   --wr-badge-font-weight: 600;
 
@@ -29,14 +29,14 @@
   &--sm {
     --wr-badge-padding-y: 0.125rem;
     --wr-badge-padding-x: 0.375rem;
-    --wr-badge-font-size: 0.625rem;
+    --wr-badge-font-size: 0.625rem; // 10px — intentional micro-count, below --wr-text-xs
     --wr-badge-line-height: 0.875rem;
   }
 
   &--lg {
     --wr-badge-padding-y: 0.375rem;
     --wr-badge-padding-x: 0.75rem;
-    --wr-badge-font-size: 0.875rem;
+    --wr-badge-font-size: var(--wr-text-sm);
     --wr-badge-line-height: 1.25rem;
   }
 
