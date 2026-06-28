@@ -36,7 +36,7 @@
   color: var(--wr-color-dark-contrast);
   border-radius: var(--wr-border-radius-sm);
   font-family: var(--wr-font-family-base);
-  font-size: 0.75rem;
+  font-size: var(--wr-text-xs);
   line-height: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);

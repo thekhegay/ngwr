@@ -13,7 +13,7 @@
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--wr-text-sm);
   color: var(--wr-color-dark);
   overflow: hidden;
 
@@ -41,7 +41,7 @@
   &__empty {
     padding: 0.5rem 0.75rem;
     color: var(--wr-color-medium);
-    font-size: 0.875rem;
+    font-size: var(--wr-text-sm);
     user-select: none;
   }
 }

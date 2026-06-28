@@ -5,7 +5,7 @@
 
   display: block;
   font-family: var(--wr-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--wr-text-sm);
   color: var(--wr-color-dark);
 
   &__list {
@@ -226,7 +226,7 @@
     border-radius: 999px;
     background: rgba(var(--wr-color-primary-rgb), 0.1);
     color: var(--wr-color-primary);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.4;
     user-select: none;
   }

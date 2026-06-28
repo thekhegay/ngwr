@@ -12,7 +12,7 @@
 
   display: block;
   font-family: var(--wr-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--wr-text-sm);
   color: var(--wr-breadcrumbs-color);
 
   &__nav {

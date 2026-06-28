@@ -200,7 +200,7 @@
     border-radius: 999px;
     background: rgba(var(--wr-color-primary-rgb), 0.1);
     color: var(--wr-color-primary);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.4;
     user-select: none;
   }
@@ -359,7 +359,7 @@
   &__label {
     padding: 0.5rem 0.625rem 0.25rem;
     color: var(--wr-color-medium);
-    font-size: 0.6875rem;
+    font-size: var(--wr-text-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;

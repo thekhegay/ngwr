@@ -29,7 +29,7 @@
   &__table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.25rem;
   }
 
@@ -45,7 +45,7 @@
     background: var(--wr-table-head-bg);
     color: var(--wr-color-medium);
     font-weight: 600;
-    font-size: 0.6875rem;
+    font-size: var(--wr-text-xs);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -154,7 +154,7 @@
     content: attr(data-label);
     flex: 0 0 auto;
     color: var(--wr-color-medium);
-    font-size: 0.6875rem;
+    font-size: var(--wr-text-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -214,7 +214,7 @@
     border-radius: var(--wr-border-radius-pill);
     background: var(--wr-color-primary);
     color: var(--wr-color-primary-contrast);
-    font-size: 0.625rem;
+    font-size: 0.625rem; // 10px — intentional micro-count badge, below --wr-text-xs
     font-weight: 600;
   }
 
@@ -237,7 +237,7 @@
     background: transparent;
     color: var(--wr-color-dark);
     font: inherit;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
   }
 
   &__list {
@@ -258,7 +258,7 @@
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-color-dark);
     font: inherit;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     text-align: left;
     cursor: pointer;
 
@@ -293,7 +293,7 @@
   &__empty {
     padding: 0.625rem 0.5rem;
     color: var(--wr-color-medium);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     text-align: center;
   }
 
@@ -305,7 +305,7 @@
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-color-primary);
     font: inherit;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     cursor: pointer;
     text-align: left;
 

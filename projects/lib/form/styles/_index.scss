@@ -8,7 +8,7 @@
 
   > label {
     color: var(--wr-color-medium);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     font-weight: 500;
     line-height: 1.25rem;
     transition: color var(--wr-transition-base);
@@ -30,7 +30,7 @@
 .wr-form-error {
   display: block;
   color: var(--wr-color-danger);
-  font-size: 0.75rem;
+  font-size: var(--wr-text-xs);
   line-height: 1rem;
 }
 
@@ -45,7 +45,7 @@
     align-items: center;
     gap: 0.25rem;
     color: var(--wr-color-dark);
-    font-size: 0.875rem;
+    font-size: var(--wr-text-sm);
     font-weight: 500;
     line-height: 1.25rem;
   }
@@ -57,7 +57,7 @@
   &__optional {
     color: var(--wr-color-medium);
     font-weight: 400;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
   }
 
   &__control {
@@ -79,7 +79,7 @@
 
   &__error {
     color: var(--wr-color-danger);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.25;
   }
 

@@ -42,7 +42,7 @@
     color: inherit;
     text-align: center;
     font-family: inherit;
-    font-size: 0.875rem;
+    font-size: var(--wr-text-sm);
     font-weight: 600;
     line-height: 1.5rem;
     border-radius: var(--wr-calendar-day-radius);
@@ -73,7 +73,7 @@
     height: 1.75rem;
     border-radius: var(--wr-calendar-day-radius);
     color: var(--wr-calendar-muted);
-    font-size: 1.125rem;
+    font-size: var(--wr-text-lg);
     line-height: 1;
     cursor: pointer;
     transition:
@@ -106,7 +106,7 @@
   &__weekday {
     text-align: center;
     color: var(--wr-calendar-muted);
-    font-size: 0.6875rem;
+    font-size: var(--wr-text-xs);
     font-weight: 600;
     line-height: 1.5rem;
     text-transform: uppercase;
@@ -134,7 +134,7 @@
     margin: 0;
     height: var(--wr-calendar-cell-size);
     font-family: inherit;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: var(--wr-calendar-cell-size);
     color: var(--wr-calendar-color);
     border-radius: var(--wr-calendar-day-radius);
@@ -208,7 +208,7 @@
     margin: 0;
     height: 2.5rem;
     font-family: inherit;
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: 2.5rem;
     color: var(--wr-calendar-color);
     border-radius: var(--wr-calendar-day-radius);

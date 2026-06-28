@@ -96,7 +96,7 @@
     margin: 0;
     padding: 1rem 1.25rem;
     color: var(--wr-color-dark);
-    font-size: 1.0625rem;
+    font-size: var(--wr-text-lg);
     font-weight: 600;
     line-height: 1.5rem;
     border-bottom: 1px solid var(--wr-color-light);
@@ -106,7 +106,7 @@
     flex: 1 1 auto;
     padding: 1rem 1.25rem;
     overflow: auto;
-    font-size: 0.9375rem;
+    font-size: var(--wr-text-base);
     line-height: 1.5rem;
   }
 

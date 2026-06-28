@@ -66,7 +66,7 @@
   &__label {
     margin-top: 0.5rem;
     color: var(--wr-slider-label);
-    font-size: 0.8125rem;
+    font-size: var(--wr-text-sm);
     line-height: 1.125rem;
     font-variant-numeric: tabular-nums;
   }
