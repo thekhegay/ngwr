@@ -63,6 +63,12 @@ secure.errors; // { url: { allowed: ['https'] } }`;
       default: 'any scheme',
     },
     {
+      name: 'options.requireProtocol',
+      description: 'When `false`, bare domains like `ngwr.dev` are accepted (parsed as if prefixed with `https://`).',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
       name: 'error key',
       description:
         'On unparseable input: `{ url: true }`. On scheme mismatch: `{ url: { allowed: [...] } }`. Empty value passes.',

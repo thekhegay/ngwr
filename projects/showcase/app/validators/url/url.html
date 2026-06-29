@@ -28,7 +28,7 @@
 
   <ngwr-doc-section
     title="Why ngwr provides this"
-    description="Hand-rolled URL regexes via `Validators.pattern` are notoriously wrong. This defers to the platform `URL` parser — the same check the browser performs — and can restrict protocols."
+    description="Hand-rolled URL regexes via `Validators.pattern` are notoriously wrong. This defers to the platform `URL` parser and can restrict protocols. A scheme is required by default; pass `url({ requireProtocol: false })` to also accept bare domains like `ngwr.dev` (assuming `https`)."
   />
 
   <ngwr-doc-section title="API">

@@ -238,6 +238,7 @@ export const routes = {
   },
   interfaces: {
     index: 'interfaces',
+    overview: 'overview',
     common: 'common',
     theme: 'theme',
     catalog: 'catalog',

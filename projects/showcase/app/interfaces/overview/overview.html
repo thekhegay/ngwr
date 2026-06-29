@@ -1,0 +1,21 @@
+<ngwr-doc-page
+  title="Interfaces"
+  description="ngwr declares its public shapes as interfaces and exports a small set of shared type aliases. This page explains the conventions behind that choice — see the Catalog for every type ngwr ships."
+  [keywords]="['types', 'interfaces', 'Maybe', 'SafeAny', 'conventions']"
+  [labels]="['Reference']"
+>
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Inline `T | null | undefined` unions repeat everywhere a value can be absent; `Maybe<T>` names the pattern once and keeps public signatures short. `SafeAny` exists because a bare `any` is invisible in review and impossible to grep — the alias marks every deliberate type-system escape so they can be found and burned down later."
+  />
+
+  <ngwr-doc-section
+    title="Why interfaces, not types"
+    description="ngwr declares every object shape as an `interface` — errors point at the named shape instead of an expanded literal, consumers can `extends` them, and declaration merging stays available. `type` is reserved for what interfaces can't express: unions (`WrColor`, mode strings) and aliases (`Maybe<T>`). The lib folders mirror the convention — every entry keeps its shapes in `interfaces/`. Note that `export type { WrCascaderOption }` is just TypeScript's type-only **export syntax** (erased at runtime) — the declaration behind it is still an `interface`."
+  />
+
+  <ngwr-doc-section
+    title="See also"
+    description="[Catalog](/interfaces/catalog) — every public type ngwr ships. [Common types](/interfaces/common) — the `Maybe<T>` and `SafeAny` aliases. [Theme types](/interfaces/theme) — color and mode unions."
+  />
+</ngwr-doc-page>
