@@ -70,6 +70,16 @@ $contrast-light: #ffffff !default;
   // so the hover strength stays consistent everywhere.
   --wr-color-hover: rgba(var(--wr-color-light-rgb), 0.4);
 
+  // Border / divider strengths — translucent so they read on any surface and
+  // auto-adapt in dark (via the flipping `light` channels). One place each.
+  --wr-color-border: rgba(var(--wr-color-light-rgb), 0.5);
+  --wr-color-border-subtle: rgba(var(--wr-color-light-rgb), 0.35);
+  --wr-color-border-strong: rgba(var(--wr-color-light-rgb), 0.6);
+
+  // Scrim behind modals / drawers — always black so the dim reads as "covered"
+  // regardless of theme.
+  --wr-color-overlay: rgba(var(--wr-color-backdrop-rgb), 0.45);
+
   @each $name, $base in $base-colors {
     --wr-color-#{$name}: #{$base};
     --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
@@ -91,6 +101,7 @@ $contrast-light: #ffffff !default;
     --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
     --wr-color-#{$name}-soft-border: rgba(var(--wr-color-#{$name}-rgb), 0.3);
     --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
+    --wr-color-#{$name}-active: rgba(var(--wr-color-#{$name}-rgb), 0.2);
   }
 }
 
