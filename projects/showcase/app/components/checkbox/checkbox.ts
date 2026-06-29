@@ -48,6 +48,12 @@ export class MyComponent {}`,
   protected readonly api: readonly DocApiRow[] = [
     { name: 'id', description: 'Stable id for the native input.', type: 'string', default: 'auto' },
     { name: 'value', description: 'Used only inside <wr-checkbox-group>.', type: 'unknown', default: 'null' },
+    {
+      name: 'size',
+      description: 'Control size, shares the --wr-control-* contract.',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+    },
   ];
 
   protected readonly groupApi: readonly DocApiRow[] = [

@@ -53,6 +53,12 @@ export class MyComponent {
     { name: 'step', description: 'Step granularity — whole or half stars.', type: '0.5 | 1', default: '1' },
     { name: 'readonly', description: 'Value is displayed but not interactive.', type: 'boolean', default: 'false' },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
+    {
+      name: 'size',
+      description: 'Control size — scales the icons and gaps.',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+    },
     { name: 'ariaLabel', description: 'Accessible label for the slider.', type: 'string', default: "'Rating'" },
   ];
 }

@@ -39,5 +39,6 @@ export class MyComponent {}`,
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
+    { name: 'size', description: 'Control size.', type: `'sm' | 'md' | 'lg'`, default: `'md'` },
   ];
 }
