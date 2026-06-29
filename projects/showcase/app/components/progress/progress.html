@@ -28,7 +28,7 @@
     <ngwr-doc-snippet [code]="snippets.interactive">
       <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
         <wr-progress [value]="demoValue()" />
-        <input type="range" min="0" max="100" [value]="demoValue()" (input)="onInput($event)" style="width: 100%" />
+        <wr-slider [(ngModel)]="demoValue" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
