@@ -11,6 +11,7 @@ import {
   DocPlaygroundComponent,
   DocSectionComponent,
   DocSnippetComponent,
+  ReactbitsCredit,
 } from '#core/components';
 
 @Component({
@@ -25,6 +26,7 @@ import {
     DocSnippetComponent,
     DocCodeComponent,
     DocApiComponent,
+    ReactbitsCredit,
   ],
 })
 export default class TiltCardPage {
