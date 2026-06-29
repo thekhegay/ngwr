@@ -12,7 +12,7 @@ import { WrStorage } from 'ngwr/storage';
 
 import { WR_DENSITY_CONFIG, type WrDensityValue } from './density-config';
 
-const VALID: readonly WrDensityValue[] = ['compact', 'default', 'comfortable', 'touch'];
+const VALID: readonly WrDensityValue[] = ['sm', 'md', 'lg', 'touch'];
 
 function isDensity(v: unknown): v is WrDensityValue {
   return typeof v === 'string' && (VALID as readonly string[]).includes(v);
@@ -31,8 +31,8 @@ function isDensity(v: unknown): v is WrDensityValue {
  * @example
  * ```ts
  * const density = inject(WrDensity);
- * density.set('compact');
- * density.current();   // 'compact'
+ * density.set('sm');
+ * density.current();   // 'sm'
  * ```
  *
  * @see https://ngwr.dev/services/density
@@ -64,9 +64,9 @@ export class WrDensity {
     this._current.set(density);
   }
 
-  /** Cycle compact → default → comfortable → touch → compact … */
+  /** Cycle sm → md → lg → touch → sm … */
   cycle(): void {
-    const order: readonly WrDensityValue[] = ['compact', 'default', 'comfortable', 'touch'];
+    const order: readonly WrDensityValue[] = ['sm', 'md', 'lg', 'touch'];
     const i = order.indexOf(this._current());
     this._current.set(order[(i + 1) % order.length]);
   }

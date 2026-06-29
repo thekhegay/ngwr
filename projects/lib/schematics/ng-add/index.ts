@@ -31,11 +31,11 @@ const DATE_ADAPTER_PROVIDER: Record<NonNullable<Schema['dateAdapter']>, string |
   luxon: 'provideWrDateAdapter({ adapter: WrLuxonAdapter })',
 };
 
-/** Density preset → `provideWrDensity(...)` call. */
+/** Default density → `provideWrDensity(...)` call. */
 const DENSITY_PROVIDER: Record<NonNullable<Schema['density']>, string | null> = {
   none: null,
-  comfortable: "provideWrDensity({ preset: 'comfortable' })",
-  compact: "provideWrDensity({ preset: 'compact' })",
+  sm: "provideWrDensity({ defaultDensity: 'sm' })",
+  lg: "provideWrDensity({ defaultDensity: 'lg' })",
 };
 
 /** Theme preset → `provideWrTheme(...)` call. */

@@ -41,7 +41,7 @@ export default class DensityServicePage {
   private readonly density = inject(WrDensity);
 
   protected readonly current = this.density.current;
-  protected readonly modes: readonly WrDensityValue[] = ['compact', 'default', 'comfortable', 'touch'];
+  protected readonly modes: readonly WrDensityValue[] = ['sm', 'md', 'lg', 'touch'];
 
   protected readonly demoSelect = new FormControl<string>('sm', { nonNullable: true });
 
@@ -54,20 +54,20 @@ export default class DensityServicePage {
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideWrDensity({ defaultDensity: 'compact' }),
+    provideWrDensity({ defaultDensity: 'sm' }),
   ],
 });
 
 // Switch it later:
 const density = inject(WrDensity);
-density.set('comfortable');
+density.set('lg');
 density.cycle();`,
-    directive: `<!-- Scope an override to a subtree — descendants get compact, the rest of the app keeps the global value. -->
-<aside wrDensity="compact">
+    directive: `<!-- Scope an override to a subtree — descendants get sm, the rest of the app keeps the global value. -->
+<aside wrDensity="sm">
   <wr-list ...></wr-list>
 </aside>`,
     tokens: `/* Override the multipliers in your own stylesheet. */
-[data-wr-density='compact'] {
+[data-wr-density='sm'] {
   --wr-density-y: 0.5;     /* even tighter vertical padding */
   --wr-density-x: 0.8;
 }`,

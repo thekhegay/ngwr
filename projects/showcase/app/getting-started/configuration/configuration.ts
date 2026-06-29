@@ -38,7 +38,7 @@ bootstrapApplication(AppComponent, {
     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
     provideWrToast(),
     provideWrTheme({ defaultMode: 'auto' }),
-    provideWrDensity({ preset: 'comfortable' }),
+    provideWrDensity({ defaultDensity: 'lg' }),
     provideWrDateAdapter(),
     provideWrLoadingBar(),
     provideWrI18n(),
@@ -95,8 +95,8 @@ providers: [provideWrDateAdapter({ adapter: WrLuxonAdapter })],`,
 
     density: `import { provideWrDensity } from 'ngwr/density';
 
-// Comfortable (default), compact, or custom multipliers.
-providers: [provideWrDensity({ preset: 'compact' })],
+// App-wide default density: 'sm' | 'md' (default) | 'lg' | 'touch'.
+providers: [provideWrDensity({ defaultDensity: 'sm' })],
 
 // Fine-grained:
 providers: [provideWrDensity({ height: 0.875, padding: 0.75 })],`,

@@ -29,7 +29,7 @@
           { "value": "toast", "label": "toast — global toast service" },
           { "value": "i18n", "label": "i18n — Transloco-class translation core" },
           { "value": "date-adapter", "label": "date-adapter — calendar / date-picker plumbing" },
-          { "value": "density", "label": "density — comfortable / compact preset" },
+          { "value": "density", "label": "density — sm / md / lg scale" },
           { "value": "loading-bar", "label": "loading-bar — router-aware progress bar" },
           { "value": "cookie", "label": "cookie — wr cookie service" },
           { "value": "storage", "label": "storage — swappable engine + TTL" },
