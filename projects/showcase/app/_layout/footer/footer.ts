@@ -70,11 +70,6 @@ export class Footer {
         { label: 'Directives', url: ['/directives'] },
         { label: 'Animations', url: ['/animations'] },
         { label: 'Icons', url: ['/icons'] },
-      ],
-    },
-    {
-      title: 'API',
-      links: [
         { label: 'Pipes', url: ['/pipes'] },
         { label: 'Services', url: ['/services'] },
         { label: 'Utils', url: ['/utils'] },
