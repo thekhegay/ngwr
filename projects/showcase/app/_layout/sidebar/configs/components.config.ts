@@ -11,6 +11,64 @@ import type { SidebarGroup } from '../sidebar.types';
  */
 export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
   {
+    title: 'Buttons',
+    children: [
+      { title: 'Button', url: ['/components', 'button'] },
+      { title: 'Button Group', url: ['/components', 'button-group'] },
+      { title: 'Speed Dial', url: ['/components', 'speed-dial'] },
+    ],
+  },
+  {
+    title: 'Charts',
+    children: [
+      { title: 'Bar Chart', url: ['/components', 'bar-chart'] },
+      { title: 'Calendar Heatmap', url: ['/components', 'calendar-heatmap'] },
+      { title: 'Donut Chart', url: ['/components', 'donut-chart'] },
+      { title: 'Gauge', url: ['/components', 'gauge'] },
+      { title: 'Line Chart', url: ['/components', 'line-chart'] },
+      { title: 'Meter Group', url: ['/components', 'meter-group'] },
+      { title: 'Sparkline', url: ['/components', 'sparkline'] },
+    ],
+  },
+  {
+    title: 'Data',
+    children: [
+      { title: 'Drag & Drop', url: ['/components', 'drag-drop'] },
+      { title: 'Pagination', url: ['/components', 'pagination'] },
+      { title: 'Table', url: ['/components', 'table'] },
+      { title: 'Tree', url: ['/components', 'tree'] },
+      { title: 'Virtual Scroll', url: ['/components', 'virtual-scroll'] },
+    ],
+  },
+  {
+    title: 'Display',
+    children: [
+      { title: 'Avatar', url: ['/components', 'avatar'] },
+      { title: 'Badge', url: ['/components', 'badge'] },
+      { title: 'Compare', url: ['/components', 'compare'] },
+      { title: 'Counter', url: ['/components', 'counter'] },
+      { title: 'Descriptions', url: ['/components', 'descriptions'] },
+      { title: 'Divider', url: ['/components', 'divider'] },
+      { title: 'Image Cropper', url: ['/components', 'image-cropper'] },
+      { title: 'Keyboard', url: ['/components', 'keyboard'] },
+      { title: 'Lightbox', url: ['/components', 'lightbox'] },
+      { title: 'QR', url: ['/components', 'qrcode'] },
+      { title: 'Statistic', url: ['/components', 'statistic'] },
+      { title: 'Timeline', url: ['/components', 'timeline'] },
+    ],
+  },
+  {
+    title: 'Feedback',
+    children: [
+      { title: 'Alert', url: ['/components', 'alert'] },
+      { title: 'Empty', url: ['/components', 'empty'] },
+      { title: 'Progress', url: ['/components', 'progress'] },
+      { title: 'Result', url: ['/components', 'result'] },
+      { title: 'Skeleton', url: ['/components', 'skeleton'] },
+      { title: 'Spinner', url: ['/components', 'spinner'] },
+    ],
+  },
+  {
     title: 'Form',
     children: [
       { title: 'Calendar', url: ['/components', 'calendar'] },
@@ -33,52 +91,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Slider', url: ['/components', 'slider'] },
       { title: 'Switch', url: ['/components', 'switch'] },
       { title: 'Textarea', url: ['/components', 'textarea'] },
-    ],
-  },
-  {
-    title: 'Buttons',
-    children: [
-      { title: 'Button', url: ['/components', 'button'] },
-      { title: 'Button Group', url: ['/components', 'button-group'] },
-      { title: 'Speed Dial', url: ['/components', 'speed-dial'] },
-    ],
-  },
-  {
-    title: 'Data',
-    children: [
-      { title: 'Drag & Drop', url: ['/components', 'drag-drop'] },
-      { title: 'Pagination', url: ['/components', 'pagination'] },
-      { title: 'Table', url: ['/components', 'table'] },
-      { title: 'Tree', url: ['/components', 'tree'] },
-      { title: 'Virtual Scroll', url: ['/components', 'virtual-scroll'] },
-    ],
-  },
-  {
-    title: 'Feedback',
-    children: [
-      { title: 'Alert', url: ['/components', 'alert'] },
-      { title: 'Empty', url: ['/components', 'empty'] },
-      { title: 'Progress', url: ['/components', 'progress'] },
-      { title: 'Result', url: ['/components', 'result'] },
-      { title: 'Skeleton', url: ['/components', 'skeleton'] },
-      { title: 'Spinner', url: ['/components', 'spinner'] },
-    ],
-  },
-  {
-    title: 'Display',
-    children: [
-      { title: 'Avatar', url: ['/components', 'avatar'] },
-      { title: 'Badge', url: ['/components', 'badge'] },
-      { title: 'Compare', url: ['/components', 'compare'] },
-      { title: 'Counter', url: ['/components', 'counter'] },
-      { title: 'Descriptions', url: ['/components', 'descriptions'] },
-      { title: 'Divider', url: ['/components', 'divider'] },
-      { title: 'Image Cropper', url: ['/components', 'image-cropper'] },
-      { title: 'Keyboard', url: ['/components', 'keyboard'] },
-      { title: 'Lightbox', url: ['/components', 'lightbox'] },
-      { title: 'QR', url: ['/components', 'qrcode'] },
-      { title: 'Statistic', url: ['/components', 'statistic'] },
-      { title: 'Timeline', url: ['/components', 'timeline'] },
     ],
   },
   {
@@ -118,18 +130,6 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Popover', url: ['/components', 'popover'] },
       { title: 'Toast', url: ['/components', 'toast'] },
       { title: 'Window', url: ['/components', 'window'] },
-    ],
-  },
-  {
-    title: 'Charts',
-    children: [
-      { title: 'Bar Chart', url: ['/components', 'bar-chart'] },
-      { title: 'Calendar Heatmap', url: ['/components', 'calendar-heatmap'] },
-      { title: 'Donut Chart', url: ['/components', 'donut-chart'] },
-      { title: 'Gauge', url: ['/components', 'gauge'] },
-      { title: 'Line Chart', url: ['/components', 'line-chart'] },
-      { title: 'Meter Group', url: ['/components', 'meter-group'] },
-      { title: 'Sparkline', url: ['/components', 'sparkline'] },
     ],
   },
   { title: 'Squircle', url: ['/components', 'squircle'] },
