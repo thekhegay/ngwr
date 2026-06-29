@@ -18,6 +18,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from '@angular/core';
 
 import { easeOutCubic } from './easing';
@@ -123,7 +124,11 @@ export class WrCounter {
 
     effect(() => {
       const target = this.value();
-      const start = this.current();
+      // Snapshot the current value WITHOUT tracking it — the RAF tick below
+      // writes `current` every frame, and tracking it here would re-trigger
+      // this effect each frame, cancelling + restarting the tween endlessly
+      // (the wheels hang mid-roll and only snap once the restarts converge).
+      const start = untracked(() => this.current());
       if (!this.isBrowser) {
         this.current.set(target);
         return;
