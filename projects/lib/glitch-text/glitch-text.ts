@@ -43,6 +43,7 @@ import { numAttr } from 'ngwr/utils';
     '[style.--wr-glitch-text-after-duration]': "(speed() * 3) + 's'",
     '[style.--wr-glitch-text-before-shadow]': 'beforeShadow()',
     '[style.--wr-glitch-text-after-shadow]': 'afterShadow()',
+    '[style.--wr-glitch-text-bg]': 'background() || null',
   },
 })
 export class WrGlitchText {
@@ -58,6 +59,13 @@ export class WrGlitchText {
   /** Only glitch on hover (idle until then). @default true */
   readonly enableOnHover = input(true, { transform: coerceBooleanProperty });
 
-  protected readonly beforeShadow = computed(() => (this.enableShadows() ? '5px 0 cyan' : 'none'));
-  protected readonly afterShadow = computed(() => (this.enableShadows() ? '-5px 0 red' : 'none'));
+  /**
+   * Surface colour for the clone slices. Pass the colour of the surface the
+   * component sits on so the slicing illusion masks cleanly; leave unset
+   * (transparent) on the page canvas. @default '' (transparent)
+   */
+  readonly background = input('');
+
+  protected readonly beforeShadow = computed(() => (this.enableShadows() ? '5px 0 var(--wr-color-info)' : 'none'));
+  protected readonly afterShadow = computed(() => (this.enableShadows() ? '-5px 0 var(--wr-color-danger)' : 'none'));
 }
