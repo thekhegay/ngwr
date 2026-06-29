@@ -32,7 +32,7 @@ jobs:
 
       - run: pnpm build:showcase
 
-      - uses: easingthemes/ssh-deploy@v6.0.1
+      - uses: easingthemes/ssh-deploy@v6.0.3
         with:
           SCRIPT_BEFORE: ls
           ARGS: '-rlgoDzvc -i'
