@@ -2,6 +2,8 @@
 // (set by the component from the `[separator]` input). All items except
 // the first prepend the glyph via a `::before` pseudo-element.
 
+@use '../../theme/styles' as theme;
+
 .wr-breadcrumbs {
   --wr-breadcrumbs-separator: '/';
   --wr-breadcrumbs-gap: 0.5rem;
@@ -56,7 +58,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
+      @include theme.focus-ring;
       outline-offset: 2px;
     }
   }

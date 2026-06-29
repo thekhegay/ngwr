@@ -34,7 +34,7 @@
       color var(--wr-transition-base);
 
     &:hover {
-      background: rgba(var(--wr-color-light-rgb), 0.5);
+      background: var(--wr-color-hover);
 
       .wr-sidebar__icon {
         color: var(--wr-color-primary);

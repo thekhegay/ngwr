@@ -16,7 +16,7 @@
     outline: 0;
 
     &:focus-visible {
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.2);
+      @include theme.focus-ring;
       border-radius: var(--wr-border-radius-sm);
     }
   }

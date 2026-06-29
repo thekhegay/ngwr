@@ -42,7 +42,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
+      @include theme.focus-ring;
       outline-offset: 2px;
     }
 

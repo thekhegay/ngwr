@@ -67,9 +67,8 @@
       box-shadow var(--wr-transition-base);
 
     &:focus-visible {
-      outline: none;
       border-color: var(--wr-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+      @include theme.focus-ring;
     }
 
     &:disabled {
@@ -91,7 +90,7 @@
   }
 
   &__placeholder {
-    color: rgba(var(--wr-color-medium-rgb), 0.85);
+    color: var(--wr-color-text-muted);
   }
 
   &__chevron {
@@ -143,7 +142,7 @@
     line-height: var(--wr-select-line-height);
 
     &::placeholder {
-      color: rgba(var(--wr-color-medium-rgb), 0.85);
+      color: var(--wr-color-text-muted);
     }
 
     &:disabled {
@@ -174,7 +173,7 @@
     line-height: var(--wr-select-line-height);
 
     &::placeholder {
-      color: rgba(var(--wr-color-medium-rgb), 0.85);
+      color: var(--wr-color-text-muted);
     }
 
     &:disabled {

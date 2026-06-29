@@ -53,8 +53,7 @@
     @include theme.touch-target($positioned: true);
 
     &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.25);
+      @include theme.focus-ring;
     }
 
     &:active {

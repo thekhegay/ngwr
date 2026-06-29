@@ -29,7 +29,7 @@
       color var(--wr-transition-base);
 
     &:hover:not(.wr-tree__row--disabled) {
-      background: rgba(var(--wr-color-light-rgb), 0.5);
+      background: var(--wr-color-hover);
     }
 
     &--selected {
@@ -40,8 +40,7 @@
     // Visible ring only when the row truly has keyboard focus — not
     // just because it's the roving-tabindex cursor row.
     &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(var(--wr-color-primary-rgb), 0.25);
+      @include theme.focus-ring;
     }
 
     &--disabled {
@@ -140,9 +139,8 @@
       box-shadow var(--wr-transition-base);
 
     &:focus-visible {
-      outline: none;
       border-color: var(--wr-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+      @include theme.focus-ring;
     }
 
     &:disabled {
@@ -164,7 +162,7 @@
   }
 
   &__placeholder {
-    color: rgba(var(--wr-color-medium-rgb), 0.85);
+    color: var(--wr-color-text-muted);
   }
 
   &__chevron {
