@@ -80,6 +80,11 @@ $contrast-light: #ffffff !default;
   // regardless of theme.
   --wr-color-overlay: rgba(var(--wr-color-backdrop-rgb), 0.45);
 
+  // De-emphasized text — `medium` dimmed to two canonical strengths so muted
+  // labels / captions / placeholders read consistently. One place each.
+  --wr-color-text-muted: rgba(var(--wr-color-medium-rgb), 0.85);
+  --wr-color-text-faint: rgba(var(--wr-color-medium-rgb), 0.6);
+
   @each $name, $base in $base-colors {
     --wr-color-#{$name}: #{$base};
     --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
