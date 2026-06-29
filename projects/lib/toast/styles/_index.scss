@@ -33,6 +33,14 @@ $toast-colors: (
     pointer-events: auto;
   }
 
+  // While expanded the toasts spread into a column with gaps. Those gaps are
+  // dead space under `pointer-events: none`, so the cursor crossing them fires
+  // mouseleave/mouseenter and toggles `expanded` (jitter). Make the whole host
+  // hit-testable while expanded so the inter-toast gaps stay "inside" it.
+  &--expanded {
+    pointer-events: auto;
+  }
+
   // Sonner-style stack
   // Collapsed: every toast except the front one collapses behind it with a
   // scale-down + tiny offset. Hovering the host expands them into the

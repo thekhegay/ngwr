@@ -69,8 +69,8 @@
     description="`stack` (default, Sonner-style) cascades toasts behind the newest and fans out on hover. `list` renders them as a classic vertical column. Switch the global default via `provideWrToastConfig({ mode: 'list' })` or at runtime via `toast.setMode()`."
   >
     <ngwr-doc-snippet code="">
-      <wr-segmented [options]="modeOptions" [value]="mode()" (valueChange)="$event && onModeChange($event)" />
-      <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem">
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        <wr-segmented [options]="modeOptions" [value]="mode()" (valueChange)="$event && onModeChange($event)" />
         <wr-btn (click)="fireStack()">Open 3 toasts</wr-btn>
       </div>
     </ngwr-doc-snippet>
@@ -82,7 +82,10 @@
   >
     <ngwr-doc-code [code]="snippets.position" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-segmented [options]="positionOptions" [value]="position()" (valueChange)="onPositionChange($event)" />
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        <wr-segmented [options]="positionOptions" [value]="position()" (valueChange)="onPositionChange($event)" />
+        <wr-btn (click)="firePosition()">Fire here</wr-btn>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

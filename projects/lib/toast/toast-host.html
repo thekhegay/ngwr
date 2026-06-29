@@ -1,6 +1,6 @@
 @if (closeAllVisible()) {
   <button type="button" class="wr-toast-host__close-all" (click)="dismissAllRequested.emit()">
-    {{ config().labels.closeAll }} ({{ toasts().length }})
+    {{ config().labels.closeAll }} ({{ toasts().length }}{{ atCap() ? '+' : '' }})
   </button>
 }
 

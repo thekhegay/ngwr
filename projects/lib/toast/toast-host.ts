@@ -98,6 +98,13 @@ export class WrToastHost {
     return this.toasts().length - 1 - i;
   }
 
+  /** True once the visible stack is capped at `maxStack` — the count is no
+   * longer exact, so the badge renders a trailing "+" (e.g. `(5+)`). */
+  protected readonly atCap = computed(() => {
+    const max = this.config().maxStack;
+    return max > 0 && this.toasts().length >= max;
+  });
+
   protected readonly closeAllVisible = computed(() => {
     const cfg = this.config();
     // In stack mode the toasts cascade absolutely while collapsed, which
