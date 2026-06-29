@@ -191,7 +191,7 @@ export class SignupCard {
 
     const meta = inject(MetaService);
     meta.setCanonicalURL();
-    meta.setTitle(null);
+    meta.setTitle('Angular UI components library');
     meta.setDescription(
       'ngwr — standalone, signals-first Angular components. Token-driven theming, a11y in the lib, dark mode first.'
     );
