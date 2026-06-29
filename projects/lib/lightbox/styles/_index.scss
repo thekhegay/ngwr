@@ -11,19 +11,28 @@
   cursor: zoom-in;
   background: var(--wr-color-hover);
 
+  // Reserve space before the image resolves so the box doesn't collapse to
+  // 0 and shove the layout when the thumbnail pops in.
+  &--loading {
+    min-height: var(--wr-lightbox-loading-min-height, 4rem);
+  }
+
   &--loading::after {
     content: '';
     position: absolute;
     inset: 0;
+    // Sit above the host's empty placeholder background and below the image,
+    // so the shimmer is visible over the reserved area while loading.
     background: linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.45) 50%,
-      rgba(255, 255, 255, 0) 100%
+      rgba(var(--wr-color-white-rgb), 0) 0%,
+      rgba(var(--wr-color-white-rgb), 0.45) 50%,
+      rgba(var(--wr-color-white-rgb), 0) 100%
     );
     background-size: 200% 100%;
     animation: wr-lightbox-shimmer 1.4s linear infinite;
     pointer-events: none;
+    z-index: 1;
   }
 
   &__trigger {
@@ -49,6 +58,16 @@
     object-fit: cover;
     user-select: none;
     -webkit-user-drag: none;
+    // Fade in once the `loaded` signal drops the `--loading` class, so the
+    // image resolves smoothly instead of snapping in. Sits above the shimmer.
+    position: relative;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+  }
+
+  &--loading &__thumb {
+    opacity: 0;
   }
 }
 
