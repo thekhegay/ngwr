@@ -88,7 +88,7 @@
     border: 0;
     border-radius: 50%;
     background: rgba(var(--wr-color-white-rgb), 0.55);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.15);
     cursor: pointer;
     transition:
       width var(--wr-transition-base),

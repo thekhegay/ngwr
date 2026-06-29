@@ -44,7 +44,7 @@
     background: var(--wr-color-white);
     border: 1px solid var(--wr-color-primary);
     border-radius: 50%;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.15);
     box-sizing: border-box;
 
     // Position each handle by its edge / corner.

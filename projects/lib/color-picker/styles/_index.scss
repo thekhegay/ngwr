@@ -38,7 +38,7 @@
     background:
       linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent),
       var(--wr-color-picker-hue);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.06);
   }
 
   // Hue + alpha sliders
@@ -49,7 +49,7 @@
     border-radius: var(--wr-color-picker-slider-height);
     cursor: ew-resize;
     touch-action: none;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.06);
 
     // Coarse pointers: a taller track is easier to drag than the 0.75rem
     // default. A symmetric 44px hit area would overlap the SV panel above it,
@@ -92,8 +92,8 @@
     border-radius: 50%;
     border: 2px solid #fff;
     box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.3),
-      0 1px 2px rgba(0, 0, 0, 0.25);
+      0 0 0 1px rgba(var(--wr-color-black-rgb), 0.3),
+      0 1px 2px rgba(var(--wr-color-black-rgb), 0.25);
     pointer-events: none;
     background: transparent;
   }
@@ -116,7 +116,7 @@
     background-size:
       auto,
       8px 8px;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.06);
     color: transparent; // background-image already set inline via [style.background]
   }
 
