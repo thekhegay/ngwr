@@ -57,6 +57,8 @@ export class Footer {
       links: [
         { label: 'Installation', url: ['/getting-started', 'installation'] },
         { label: 'Theming', url: ['/getting-started', 'theming'] },
+        { label: 'Typography', url: ['/typography'] },
+        { label: 'Translate (i18n)', url: ['/translate'] },
         { label: 'Schematics', url: ['/getting-started', 'schematics'] },
         { label: 'Migration', url: ['/getting-started', 'changelog'] },
       ],
@@ -64,11 +66,20 @@ export class Footer {
     {
       title: 'Catalog',
       links: [
-        { label: 'Components', url: ['/components', 'button'] },
-        { label: 'Directives', url: ['/directives', 'border-glow'] },
-        { label: 'Pipes', url: ['/pipes', 'wr-t'] },
-        { label: 'Services', url: ['/services', 'storage'] },
-        { label: 'Icons', url: ['/icons', 'lucide'] },
+        { label: 'Components', url: ['/components'] },
+        { label: 'Directives', url: ['/directives'] },
+        { label: 'Animations', url: ['/animations'] },
+        { label: 'Icons', url: ['/icons'] },
+      ],
+    },
+    {
+      title: 'API',
+      links: [
+        { label: 'Pipes', url: ['/pipes'] },
+        { label: 'Services', url: ['/services'] },
+        { label: 'Utils', url: ['/utils'] },
+        { label: 'Interfaces', url: ['/interfaces'] },
+        { label: 'Validators', url: ['/validators'] },
       ],
     },
     {
