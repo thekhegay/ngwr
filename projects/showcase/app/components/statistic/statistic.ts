@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrStatistic, WrStatisticCountdown } from 'ngwr/statistic';
 
 import {
@@ -17,6 +18,7 @@ import {
   imports: [
     WrStatistic,
     WrStatisticCountdown,
+    WrButton,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -27,6 +29,27 @@ import {
 export default class StatisticPageComponent {
   protected readonly snippet = `<wr-statistic label="Active users" [value]="12345" />
 <wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />`;
+
+  protected readonly countUpSnippet = `<wr-statistic label="Revenue" prefix="$" [value]="revenue()" [precision]="2" />
+<wr-statistic label="Sessions" [value]="sessions()" />
+
+// numeric values count up from their previous value on every change.
+protected readonly revenue = signal(9512.4);
+protected readonly sessions = signal(48210);
+
+protected shuffle(): void {
+  this.revenue.set(Math.round(Math.random() * 5_000_00) / 100);
+  this.sessions.set(Math.floor(Math.random() * 90_000));
+}`;
+
+  // Live count-up demo — a button mutates these so the value tweens.
+  protected readonly revenue = signal(9512.4);
+  protected readonly sessions = signal(48210);
+
+  protected shuffle(): void {
+    this.revenue.set(Math.round(Math.random() * 5_000_00) / 100);
+    this.sessions.set(Math.floor(Math.random() * 90_000));
+  }
 
   protected readonly countdownSnippet = `<wr-statistic-countdown
   label="Launch in"
@@ -59,6 +82,21 @@ protected readonly launchDate = new Date(Date.now() + 1000 * 60 * 60 * 36);`;
     },
     { name: 'prefix', description: 'Leading glyph or symbol.', type: 'string', default: "''", sub: true },
     { name: 'suffix', description: 'Trailing glyph or unit.', type: 'string', default: "''", sub: true },
+    {
+      name: 'precision',
+      description: 'Fixed decimals for numeric values.',
+      type: 'number',
+      default: '0',
+      sub: true,
+    },
+    {
+      name: 'animate',
+      description: 'Count up to a new numeric value (off for strings / reduced motion).',
+      type: 'boolean',
+      default: 'true',
+      sub: true,
+    },
+    { name: 'duration', description: 'Count-up duration in ms.', type: 'number', default: '700', sub: true },
     { name: 'delta', description: 'Change vs previous period.', type: 'number | null', default: 'null', sub: true },
     { name: 'deltaSuffix', description: 'Unit appended to the delta.', type: 'string', default: "'%'", sub: true },
     { name: '<wr-statistic-countdown>', description: 'Live countdown variant.', type: 'component', default: '—' },
