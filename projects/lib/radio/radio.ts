@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
@@ -51,6 +52,14 @@ export class WrRadio {
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrRadioSize>('md');
 
+  /**
+   * Disable just this option. The group can also be disabled as a whole via
+   * `<wr-radio-group disabled>`; either source disables this radio.
+   *
+   * @default false
+   */
+  readonly disabled = input(false, { transform: coerceBooleanProperty });
+
   private readonly group = inject(WR_RADIO_GROUP, { optional: true });
 
   constructor() {
@@ -61,19 +70,21 @@ export class WrRadio {
 
   protected readonly name = computed(() => this.group?.name() ?? '');
   protected readonly checked = computed(() => this.group?.value() === this.value());
-  protected readonly disabled = computed(() => this.group?.isDisabled() ?? false);
+  /** Effective disabled — this option's own `disabled` or the group's. */
+  protected readonly isDisabled = computed(() => this.disabled() || (this.group?.isDisabled() ?? false));
 
   protected readonly classes = computed(() => {
     const parts = ['wr-radio'];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-radio--${size}`);
     if (this.checked()) parts.push('wr-radio--checked');
-    if (this.disabled()) parts.push('wr-radio--disabled');
+    if (this.isDisabled()) parts.push('wr-radio--disabled');
     if (this.icon()) parts.push('wr-radio--has-icon');
     return parts.join(' ');
   });
 
   protected onSelect(): void {
+    if (this.isDisabled()) return;
     this.group?.select(this.value());
   }
 

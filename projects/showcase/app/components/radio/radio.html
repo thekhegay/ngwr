@@ -22,7 +22,7 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Plans (cards-style)">
-    <ngwr-doc-snippet [code]="snippets.basic">
+    <ngwr-doc-snippet [code]="snippets.plans">
       <wr-radio-group [(ngModel)]="plan">
         <wr-radio value="starter">Starter — $0/mo</wr-radio>
         <wr-radio value="pro">Pro — $9/mo</wr-radio>
@@ -31,11 +31,21 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Disabled">
+  <ngwr-doc-section title="Disabled (whole group)">
     <ngwr-doc-snippet [code]="snippets.disabled">
       <wr-radio-group disabled [(ngModel)]="size">
         <wr-radio value="sm">Small</wr-radio>
         <wr-radio value="md">Medium</wr-radio>
+      </wr-radio-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Disabled (single option)" description="Disable one option while the rest stay selectable.">
+    <ngwr-doc-snippet [code]="snippets.disabledOption">
+      <wr-radio-group [(ngModel)]="size">
+        <wr-radio value="sm">Small</wr-radio>
+        <wr-radio value="md">Medium</wr-radio>
+        <wr-radio value="lg" disabled>Large</wr-radio>
       </wr-radio-group>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
