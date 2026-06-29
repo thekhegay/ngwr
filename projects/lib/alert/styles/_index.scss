@@ -17,16 +17,16 @@ $alert-colors: (
   min-width: 0;
 
   // Defaults — overridden per variant below.
-  --wr-alert-bg: var(--wr-color-primary-soft);
-  --wr-alert-border: var(--wr-color-primary);
-  --wr-alert-title: var(--wr-color-primary);
+  --wr-alert-bg: var(--wr-color-info-soft);
+  --wr-alert-border: var(--wr-color-info-soft-border);
+  --wr-alert-title: var(--wr-color-info);
   --wr-alert-message: var(--wr-color-dark);
-  --wr-alert-close: var(--wr-color-medium);
+  --wr-alert-close: var(--wr-color-info);
 
   background: var(--wr-alert-bg);
-  border-left: 3px solid var(--wr-alert-border);
+  border: 1px solid var(--wr-alert-border);
   @include theme.smooth-br(var(--wr-border-radius-base));
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
 
   &--dismissed {
     display: none;
@@ -37,6 +37,14 @@ $alert-colors: (
     width: 1.125rem;
     height: 1.125rem;
     margin-top: 0.125rem;
+    color: var(--wr-alert-title);
+    // A custom `<wr-icon>` sizes via this var, not width/height.
+    --wr-icon-size: 1.125rem;
+  }
+
+  // `<wr-icon>` sets `color: inherit` on its own host at equal specificity;
+  // the type selector wins it back so a custom icon takes the intent colour.
+  wr-icon.wr-alert__icon {
     color: var(--wr-alert-title);
   }
 
@@ -84,20 +92,39 @@ $alert-colors: (
 
     &:hover {
       color: var(--wr-alert-title);
-      background: rgba(var(--wr-color-light-rgb), 0.4);
-    }
-
-    &:focus-visible {
-      outline: 2px solid rgba(var(--wr-color-primary-rgb), 0.5);
-      outline-offset: 1px;
+      background: var(--wr-color-hover);
     }
   }
 
   @each $variant, $color in $alert-colors {
     &--#{$variant} {
       --wr-alert-bg: var(--wr-color-#{$color}-soft);
-      --wr-alert-border: var(--wr-color-#{$color});
+      --wr-alert-border: var(--wr-color-#{$color}-soft-border);
       --wr-alert-title: var(--wr-color-#{$color});
+      --wr-alert-close: var(--wr-color-#{$color});
     }
+  }
+
+  // Neutral — muted gray chip, reusing the `medium` soft tokens.
+  &--neutral {
+    --wr-alert-bg: var(--wr-color-medium-soft);
+    --wr-alert-border: var(--wr-color-medium-soft-border);
+    --wr-alert-title: var(--wr-color-dark);
+    --wr-alert-message: var(--wr-color-medium);
+    --wr-alert-close: var(--wr-color-medium);
+
+    .wr-alert__icon {
+      color: var(--wr-color-medium);
+    }
+  }
+
+  // Offline — inverse chip. Auto-flips via the theme tokens: dark bg +
+  // light text in light theme; light bg + dark text in dark theme.
+  &--offline {
+    --wr-alert-bg: var(--wr-color-dark);
+    --wr-alert-border: var(--wr-color-dark);
+    --wr-alert-title: var(--wr-color-white);
+    --wr-alert-message: var(--wr-color-white);
+    --wr-alert-close: var(--wr-color-white);
   }
 }

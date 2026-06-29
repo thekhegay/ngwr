@@ -66,6 +66,10 @@ $contrast-light: #ffffff !default;
   // and turns the backdrop into a white wash.
   --wr-color-backdrop-rgb: 0, 0, 0;
 
+  // Generic subtle hover-surface tint (icon buttons, list rows) — one place
+  // so the hover strength stays consistent everywhere.
+  --wr-color-hover: rgba(var(--wr-color-light-rgb), 0.4);
+
   @each $name, $base in $base-colors {
     --wr-color-#{$name}: #{$base};
     --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
@@ -76,14 +80,16 @@ $contrast-light: #ffffff !default;
     --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
   }
 
-  // Soft tint pair per intent — tokenizes the ad-hoc
-  // `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8 different
-  // alphas. `-soft` is one canonical low-alpha fill (theme-correct over
-  // any background via the -rgb channels); `-soft-contrast` is the
-  // readable same-hue text on it (deep in light, light in dark — it
-  // follows `--wr-color-dark`).
-  @each $name in (primary, secondary, success, warning, danger, info) {
+  // Soft trio per intent (+ `medium` for neutral surfaces) — tokenizes the
+  // ad-hoc `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8
+  // different alphas, so each alpha lives in ONE place. `-soft` is the
+  // canonical low-alpha fill, `-soft-border` the matching hairline, and
+  // `-soft-contrast` the readable same-hue text on it (deep in light,
+  // light in dark — follows `--wr-color-dark`). All theme-correct over any
+  // background via the -rgb channels.
+  @each $name in (primary, secondary, success, warning, danger, info, medium) {
     --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
+    --wr-color-#{$name}-soft-border: rgba(var(--wr-color-#{$name}-rgb), 0.3);
     --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
   }
 }

@@ -91,3 +91,8 @@
 .wr-dropdown-item:focus-visible {
   @include focus-ring;
 }
+
+// Alert close
+.wr-alert__close:focus-visible {
+  @include focus-ring;
+}

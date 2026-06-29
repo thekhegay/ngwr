@@ -8,4 +8,4 @@
 /**
  * Visual variant of the alert.
  */
-export type WrAlertType = 'info' | 'success' | 'warning' | 'danger';
+export type WrAlertType = 'info' | 'success' | 'warning' | 'danger' | 'neutral' | 'offline';

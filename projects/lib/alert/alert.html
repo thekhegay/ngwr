@@ -1,5 +1,7 @@
 @if (!dismissed()) {
-  @if (icon()) {
+  @if (iconName(); as n) {
+    <wr-icon class="wr-alert__icon" [name]="n" />
+  } @else if (icon()) {
     <svg
       class="wr-alert__icon"
       xmlns="http://www.w3.org/2000/svg"
@@ -26,6 +28,15 @@
           <path d="M12 8v4" />
           <path d="M12 16h.01" />
         }
+        @case ('neutral') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v4" />
+          <path d="M12 16h.01" />
+        }
+        @case ('offline') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="m4.9 4.9 14.2 14.2" />
+        }
         @default {
           <circle cx="12" cy="12" r="10" />
           <path d="M12 16v-4" />
@@ -36,9 +47,13 @@
   }
 
   <div class="wr-alert__body">
-    <p class="wr-alert__title">{{ title() }}</p>
-    @if (message(); as text) {
-      <p class="wr-alert__message">{{ text }}</p>
+    @if (title(); as t) {
+      <p class="wr-alert__title">{{ t }}</p>
+      @if (message(); as m) {
+        <p class="wr-alert__message">{{ m }}</p>
+      }
+    } @else if (message(); as m) {
+      <p class="wr-alert__title">{{ m }}</p>
     }
   </div>
 

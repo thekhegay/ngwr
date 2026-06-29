@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Alert"
-  description="Inline status banner — info, success, warning, danger."
+  description="Inline status banner — info, success, warning, danger, neutral, offline."
   [keywords]="['alert', 'banner', 'wr-alert']"
   [labels]="['Component', 'Standalone']"
 >
@@ -22,6 +22,34 @@
         @for (t of types; track t) {
           <wr-alert [title]="t" message="Sample message" [type]="t" />
         }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="With title" description="Pair a `title` with a secondary `message`.">
+    <ngwr-doc-snippet [code]="snippets.withTitle">
+      <div style="width: 100%">
+        <wr-alert title="Update available" message="Version 2.0 is ready to install." type="info" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Without title"
+    description="Omit `title` and the `message` renders as a single primary line."
+  >
+    <ngwr-doc-snippet [code]="snippets.noTitle">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        <wr-alert message="Your changes are live." type="success" />
+        <wr-alert message="Connection lost." type="offline" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Custom icon" description="Override the default per-type icon with `iconName`.">
+    <ngwr-doc-snippet [code]="snippets.customIcon">
+      <div style="width: 100%">
+        <wr-alert iconName="sparkles" title="What's new" message="Smarter search just landed." />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
