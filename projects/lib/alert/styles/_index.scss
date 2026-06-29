@@ -1,7 +1,7 @@
 @use '../../theme/styles' as theme;
 
 $alert-colors: (
-  info: primary,
+  info: info,
   success: success,
   warning: warning,
   danger: danger,
@@ -17,7 +17,7 @@ $alert-colors: (
   min-width: 0;
 
   // Defaults — overridden per variant below.
-  --wr-alert-bg: rgba(var(--wr-color-primary-rgb), 0.08);
+  --wr-alert-bg: var(--wr-color-primary-soft);
   --wr-alert-border: var(--wr-color-primary);
   --wr-alert-title: var(--wr-color-primary);
   --wr-alert-message: var(--wr-color-dark);
@@ -95,7 +95,7 @@ $alert-colors: (
 
   @each $variant, $color in $alert-colors {
     &--#{$variant} {
-      --wr-alert-bg: rgba(var(--wr-color-#{$color}-rgb), 0.08);
+      --wr-alert-bg: var(--wr-color-#{$color}-soft);
       --wr-alert-border: var(--wr-color-#{$color});
       --wr-alert-title: var(--wr-color-#{$color});
     }
