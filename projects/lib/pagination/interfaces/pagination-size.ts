@@ -6,9 +6,6 @@
  */
 
 /**
- * Size variant. The middle three (`sm` / `md` / `lg`) cascade the
- * matching `<wr-btn>` size directly; `xs` and `xl` reuse the closest
- * button size and overlay tighter / chunkier padding + font tokens so
- * the cells read smaller / bigger than the button's own scale.
+ * Size variant. Cascades the matching `<wr-btn>` size to every cell.
  */
-export type WrPaginationSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type WrPaginationSize = 'sm' | 'md' | 'lg';
