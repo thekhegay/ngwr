@@ -5,7 +5,7 @@ import { routes } from '#routing';
 const services = routes.services;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: services.theme },
+  { path: '', pathMatch: 'full', redirectTo: services.clipboard },
   { path: services.theme, loadComponent: () => import('./theme/theme') },
   { path: services.scroll, loadComponent: () => import('./scroll/scroll') },
   { path: services.hotkey, loadComponent: () => import('./hotkey/hotkey') },

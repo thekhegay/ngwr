@@ -7,12 +7,12 @@ import type { SidebarGroup } from '../sidebar.types';
  */
 export const ICONS_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Overview', url: ['/icons', 'overview'] },
-  { title: 'Lucide', url: ['/icons', 'lucide'] },
+  { title: 'Bootstrap', url: ['/icons', 'bootstrap'] },
   { title: 'Feather', url: ['/icons', 'feather'] },
-  { title: 'Tabler', url: ['/icons', 'tabler'] },
-  { title: 'Phosphor', url: ['/icons', 'phosphor'] },
   { title: 'Heroicons', url: ['/icons', 'heroicons'] },
   { title: 'Iconoir', url: ['/icons', 'iconoir'] },
+  { title: 'Lucide', url: ['/icons', 'lucide'] },
+  { title: 'Phosphor', url: ['/icons', 'phosphor'] },
   { title: 'Radix', url: ['/icons', 'radix'] },
-  { title: 'Bootstrap', url: ['/icons', 'bootstrap'] },
+  { title: 'Tabler', url: ['/icons', 'tabler'] },
 ];

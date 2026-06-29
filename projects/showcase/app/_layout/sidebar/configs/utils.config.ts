@@ -6,47 +6,10 @@ import type { SidebarGroup } from '../sidebar.types';
  */
 export const UTILS_SIDEBAR: readonly SidebarGroup[] = [
   {
-    title: 'Math',
-    children: [
-      { title: 'clamp', url: ['/utils', 'clamp'] },
-      { title: 'round', url: ['/utils', 'round'] },
-      { title: 'numAttr', url: ['/utils', 'num-attr'] },
-    ],
-  },
-  {
     title: 'CSS',
     children: [
-      { title: 'resolveCssSize', url: ['/utils', 'resolve-css-size'] },
       { title: 'getRootFontSize', url: ['/utils', 'get-root-font-size'] },
-    ],
-  },
-  {
-    title: 'IDs',
-    children: [{ title: 'randomId', url: ['/utils', 'random-id'] }],
-  },
-  {
-    title: 'Type guards',
-    children: [
-      { title: 'isDefined', url: ['/utils', 'is-defined'] },
-      { title: 'isNonEmptyArray', url: ['/utils', 'is-non-empty-array'] },
-      { title: 'isObservable', url: ['/utils', 'is-observable'] },
-    ],
-  },
-  {
-    title: 'Keyboard',
-    children: [
-      { title: 'KEYS', url: ['/utils', 'keys'] },
-      { title: 'hasModifier', url: ['/utils', 'has-modifier'] },
-      { title: 'isPrintableKey', url: ['/utils', 'is-printable-key'] },
-    ],
-  },
-  {
-    title: 'Functional',
-    children: [
-      { title: 'noop', url: ['/utils', 'noop'] },
-      { title: 'badgeLog', url: ['/utils', 'badge-log'] },
-      { title: 'debounce', url: ['/utils', 'debounce'] },
-      { title: 'throttle', url: ['/utils', 'throttle'] },
+      { title: 'resolveCssSize', url: ['/utils', 'resolve-css-size'] },
     ],
   },
   {
@@ -54,6 +17,43 @@ export const UTILS_SIDEBAR: readonly SidebarGroup[] = [
     children: [
       { title: 'getFocusableElements', url: ['/utils', 'get-focusable-elements'] },
       { title: 'trapFocus', url: ['/utils', 'trap-focus'] },
+    ],
+  },
+  {
+    title: 'Functional',
+    children: [
+      { title: 'badgeLog', url: ['/utils', 'badge-log'] },
+      { title: 'debounce', url: ['/utils', 'debounce'] },
+      { title: 'noop', url: ['/utils', 'noop'] },
+      { title: 'throttle', url: ['/utils', 'throttle'] },
+    ],
+  },
+  {
+    title: 'IDs',
+    children: [{ title: 'randomId', url: ['/utils', 'random-id'] }],
+  },
+  {
+    title: 'Keyboard',
+    children: [
+      { title: 'hasModifier', url: ['/utils', 'has-modifier'] },
+      { title: 'isPrintableKey', url: ['/utils', 'is-printable-key'] },
+      { title: 'KEYS', url: ['/utils', 'keys'] },
+    ],
+  },
+  {
+    title: 'Math',
+    children: [
+      { title: 'clamp', url: ['/utils', 'clamp'] },
+      { title: 'numAttr', url: ['/utils', 'num-attr'] },
+      { title: 'round', url: ['/utils', 'round'] },
+    ],
+  },
+  {
+    title: 'Type guards',
+    children: [
+      { title: 'isDefined', url: ['/utils', 'is-defined'] },
+      { title: 'isNonEmptyArray', url: ['/utils', 'is-non-empty-array'] },
+      { title: 'isObservable', url: ['/utils', 'is-observable'] },
     ],
   },
 ];

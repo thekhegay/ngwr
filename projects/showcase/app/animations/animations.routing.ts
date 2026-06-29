@@ -5,7 +5,7 @@ import { routes } from '#routing';
 const a = routes.animations;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: a.borderGlow },
+  { path: '', pathMatch: 'full', redirectTo: a.aurora },
 
   // In-house animations / effects.
   { path: a.borderGlow, loadComponent: () => import('./border-glow/border-glow') },

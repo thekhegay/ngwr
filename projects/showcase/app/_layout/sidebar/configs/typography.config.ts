@@ -7,19 +7,19 @@ export const TYPOGRAPHY_SIDEBAR: readonly SidebarGroup[] = [
     url: ['/typography', 'overview'],
   },
   {
-    title: 'Scale',
-    children: [
-      { title: 'Headings', url: ['/typography', 'headings'] },
-      { title: 'Paragraphs', url: ['/typography', 'paragraphs'] },
-      { title: 'Lists', url: ['/typography', 'lists'] },
-      { title: 'Links', url: ['/typography', 'links'] },
-    ],
-  },
-  {
     title: 'Inline',
     children: [
       { title: 'Code', url: ['/typography', 'code'] },
       { title: 'Keyboard caps', url: ['/typography', 'keyboard'] },
+    ],
+  },
+  {
+    title: 'Scale',
+    children: [
+      { title: 'Headings', url: ['/typography', 'headings'] },
+      { title: 'Links', url: ['/typography', 'links'] },
+      { title: 'Lists', url: ['/typography', 'lists'] },
+      { title: 'Paragraphs', url: ['/typography', 'paragraphs'] },
     ],
   },
 ];

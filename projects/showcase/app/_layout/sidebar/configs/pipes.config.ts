@@ -5,11 +5,11 @@ import type { SidebarGroup } from '../sidebar.types';
  * row per pipe (a `SidebarGroup` with `url` renders as a direct link).
  */
 export const PIPES_SIDEBAR: readonly SidebarGroup[] = [
-  { title: 'wrNumber', url: ['/pipes', 'wr-number'] },
   { title: 'wrBytes', url: ['/pipes', 'wr-bytes'] },
   { title: 'wrDate', url: ['/pipes', 'wr-date'] },
-  { title: 'wrTruncate', url: ['/pipes', 'wr-truncate'] },
   { title: 'wrMark', url: ['/pipes', 'wr-mark'] },
+  { title: 'wrNumber', url: ['/pipes', 'wr-number'] },
   { title: 'wrPlural', url: ['/pipes', 'wr-plural'] },
   { title: 'wrRange', url: ['/pipes', 'range'] },
+  { title: 'wrTruncate', url: ['/pipes', 'wr-truncate'] },
 ];
