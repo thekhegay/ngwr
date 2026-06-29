@@ -6,7 +6,7 @@
   // treatment.
   --wr-avatar-radius: 10%;
   --wr-avatar-img-opacity: 0;
-  --wr-avatar-ring: rgba(var(--wr-color-light-rgb), 0.5);
+  --wr-avatar-ring: var(--wr-color-border);
 
   display: inline-flex;
   align-items: center;

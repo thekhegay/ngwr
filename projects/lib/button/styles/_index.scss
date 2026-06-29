@@ -41,7 +41,7 @@
   transition: var(--wr-transition-base);
 
   &:hover {
-    --wr-btn-bg: rgba(var(--wr-color-light-rgb), 0.4);
+    --wr-btn-bg: var(--wr-color-hover);
   }
 
   &:active {

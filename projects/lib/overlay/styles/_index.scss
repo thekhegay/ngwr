@@ -17,7 +17,7 @@
 
 // Dim + blur behind a sheet — for overlays that otherwise have no backdrop.
 .wr-overlay-backdrop {
-  background: rgba(var(--wr-color-backdrop-rgb), 0.45);
+  background: var(--wr-color-overlay);
   backdrop-filter: blur(2px);
 }
 

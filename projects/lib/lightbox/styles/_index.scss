@@ -9,7 +9,7 @@
   overflow: hidden;
   @include theme.smooth-br(var(--wr-lightbox-radius, var(--wr-border-radius-base)));
   cursor: zoom-in;
-  background: rgba(var(--wr-color-light-rgb), 0.4);
+  background: var(--wr-color-hover);
 
   &--loading::after {
     content: '';

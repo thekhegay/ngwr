@@ -38,7 +38,7 @@
     transition: background var(--wr-transition-base);
 
     &:hover {
-      background: rgba(var(--wr-color-light-rgb), 0.4);
+      background: var(--wr-color-hover);
     }
 
     &:focus-visible {

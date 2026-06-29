@@ -3,7 +3,7 @@
 .wr-window {
   --wr-window-bg: var(--wr-color-white);
   --wr-window-border: var(--wr-color-light);
-  --wr-window-chrome-bg: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-window-chrome-bg: var(--wr-color-hover);
   --wr-window-chrome-color: var(--wr-color-dark);
   --wr-window-radius: var(--wr-border-radius-base);
   --wr-window-handle-size: 8px;

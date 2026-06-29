@@ -310,7 +310,7 @@
     text-align: left;
 
     &:hover {
-      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      background: var(--wr-color-primary-soft);
     }
   }
 }

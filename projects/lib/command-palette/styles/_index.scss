@@ -14,7 +14,7 @@
   &__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(var(--wr-color-backdrop-rgb), 0.45);
+    background: var(--wr-color-overlay);
     backdrop-filter: blur(4px);
     pointer-events: auto;
     animation: wr-cmd-fade var(--wr-duration-base) var(--wr-ease-out);
@@ -107,7 +107,7 @@
     user-select: none;
 
     &--active {
-      background: rgba(var(--wr-color-primary-rgb), 0.08);
+      background: var(--wr-color-primary-soft);
       color: var(--wr-color-primary);
     }
   }
@@ -152,7 +152,7 @@
     padding: 0.0625rem 0.375rem;
     border: 1px solid var(--wr-color-light);
     border-radius: var(--wr-border-radius-sm);
-    background: rgba(var(--wr-color-light-rgb), 0.4);
+    background: var(--wr-color-hover);
     color: var(--wr-color-medium);
     font-family: inherit;
     font-size: var(--wr-text-xs);

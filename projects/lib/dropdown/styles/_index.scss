@@ -61,7 +61,7 @@
   --wr-dropdown-item-padding-y: 0.375rem;
   --wr-dropdown-item-padding-x: 0.625rem;
   --wr-dropdown-item-color: var(--wr-color-dark);
-  --wr-dropdown-item-bg-hover: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-dropdown-item-bg-hover: var(--wr-color-hover);
   --wr-dropdown-item-radius: var(--wr-border-radius-sm);
 
   display: flex;

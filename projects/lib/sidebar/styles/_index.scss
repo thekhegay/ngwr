@@ -43,7 +43,7 @@
 
     &--active {
       color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
+      background: var(--wr-color-primary-soft);
       pointer-events: none;
 
       .wr-sidebar__icon {
@@ -175,7 +175,7 @@
 
     &--active {
       color: var(--wr-color-primary);
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
+      background: var(--wr-color-primary-soft);
       pointer-events: none;
 
       &::before {

@@ -25,7 +25,7 @@
   &__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(var(--wr-color-backdrop-rgb), 0.5);
+    background: var(--wr-color-overlay);
     pointer-events: none;
   }
 
@@ -107,7 +107,7 @@
     padding: 2rem;
     text-align: center;
     color: var(--wr-color-medium);
-    background: rgba(var(--wr-color-light-rgb), 0.4);
+    background: var(--wr-color-hover);
     border: 1px dashed var(--wr-color-light);
     @include theme.smooth-br(var(--wr-border-radius-base));
   }

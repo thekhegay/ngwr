@@ -23,7 +23,7 @@
   background: var(--wr-color-picker-bg);
   border: 1px solid var(--wr-color-picker-border);
   @include theme.smooth-br(var(--wr-color-picker-radius));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-font-family-base);
   user-select: none;
 

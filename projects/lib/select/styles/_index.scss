@@ -198,7 +198,7 @@
     max-width: 100%;
     padding: 0.125rem 0.25rem 0.125rem 0.5rem;
     border-radius: 999px;
-    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    background: var(--wr-color-primary-soft);
     color: var(--wr-color-primary);
     font-size: var(--wr-text-sm);
     line-height: 1.4;
@@ -223,7 +223,7 @@
     transition: background 0.12s ease;
 
     &:hover {
-      background: rgba(var(--wr-color-primary-rgb), 0.2);
+      background: var(--wr-color-primary-active);
     }
   }
 
@@ -325,11 +325,11 @@
   transition: background var(--wr-transition-short);
 
   &:hover {
-    background: rgba(var(--wr-color-light-rgb), 0.4);
+    background: var(--wr-color-hover);
   }
 
   &--selected {
-    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    background: var(--wr-color-primary-soft);
     color: var(--wr-color-primary);
     font-weight: 500;
   }

@@ -95,7 +95,7 @@
   &__header--active &__indicator {
     border-color: var(--wr-color-primary);
     color: var(--wr-color-primary);
-    background: rgba(var(--wr-color-primary-rgb), 0.08);
+    background: var(--wr-color-primary-soft);
   }
 
   &__header--completed &__indicator {
