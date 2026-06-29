@@ -28,6 +28,9 @@
 
   &__logo {
     --ngwr-header-logo-bg: transparent;
+    // The droplet mark (`__bg`) is painted in the live primary color, so
+    // picking a preset in the settings panel recolors the logo in real
+    // time. The inner blob (`__icon`) stays white for contrast.
     --ngwr-header-logo-mark-color: var(--wr-color-white);
     --ngwr-header-logo-mark-bg: var(--wr-color-primary);
 
@@ -196,7 +199,7 @@
       }
     }
 
-    &--theme {
+    &--settings {
       // Strip the default <button> chrome so it matches the anchor
       // siblings (GitHub / npm).
       appearance: none;
@@ -205,7 +208,8 @@
 
       --ngwr-header-action-icon-color: var(--wr-color-medium);
 
-      &:hover {
+      &:hover,
+      &[aria-expanded='true'] {
         --ngwr-header-action-icon-color: var(--wr-color-dark);
         --ngwr-header-action-icon-bg: rgba(var(--wr-color-light-rgb), 0.4);
       }
@@ -214,6 +218,73 @@
         outline: 2px solid var(--wr-color-primary);
         outline-offset: 2px;
       }
+    }
+  }
+
+  // Settings panel — stacked live controls rendered inside the dropdown
+  // overlay (theme · density · primary color).
+  &__settings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+
+    min-width: 14rem;
+    padding: 0.875rem;
+
+    &-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    &-label {
+      color: var(--wr-color-text-muted);
+      font-size: var(--wr-text-xs);
+      font-weight: var(--wr-font-weight-medium);
+      letter-spacing: var(--wr-tracking-wide);
+      text-transform: uppercase;
+    }
+  }
+
+  // Primary-color swatches — circular preset buttons; the chosen one gets a
+  // ring. Each swatch's own color comes from the inline `--ngwr-swatch-color`
+  // (the preset hex — feature data, not a theme token).
+  &__swatches {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__swatch {
+    appearance: none;
+    cursor: pointer;
+
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: var(--ngwr-swatch-color);
+
+    box-shadow: 0 0 0 1px rgba(var(--wr-color-dark-rgb), 0.12);
+
+    transition: var(--wr-transition-base);
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &--active {
+      box-shadow:
+        0 0 0 2px var(--wr-color-white),
+        0 0 0 4px var(--ngwr-swatch-color);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wr-color-primary);
+      outline-offset: 2px;
     }
   }
 

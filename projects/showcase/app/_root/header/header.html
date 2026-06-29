@@ -28,12 +28,57 @@
   <div class="ngwr-header__actions">
     <button
       type="button"
-      class="ngwr-header__action ngwr-header__action--theme"
-      [attr.aria-label]="theme.resolved() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
-      (click)="onToggleTheme()"
+      class="ngwr-header__action ngwr-header__action--settings"
+      [wrDropdown]="settingsMenu"
+      position="bottom-end"
+      aria-label="Settings"
     >
-      <wr-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" />
+      <wr-icon name="settings" />
     </button>
+
+    <wr-dropdown-menu #settingsMenu>
+      <div class="ngwr-header__settings" role="presentation">
+        <div class="ngwr-header__settings-group">
+          <span class="ngwr-header__settings-label" id="ngwr-settings-theme">Theme</span>
+          <wr-segmented
+            size="sm"
+            aria-labelledby="ngwr-settings-theme"
+            [options]="themeOptions"
+            [value]="theme.mode()"
+            (valueChange)="onThemeChange($event)"
+          />
+        </div>
+
+        <div class="ngwr-header__settings-group">
+          <span class="ngwr-header__settings-label" id="ngwr-settings-density">Density</span>
+          <wr-segmented
+            size="sm"
+            aria-labelledby="ngwr-settings-density"
+            [options]="densityOptions"
+            [value]="density.current()"
+            (valueChange)="onDensityChange($event)"
+          />
+        </div>
+
+        <div class="ngwr-header__settings-group">
+          <span class="ngwr-header__settings-label" id="ngwr-settings-primary">Primary</span>
+          <div class="ngwr-header__swatches" role="radiogroup" aria-labelledby="ngwr-settings-primary">
+            @for (preset of primary.presets; track preset.id) {
+              <button
+                type="button"
+                class="ngwr-header__swatch"
+                [class.ngwr-header__swatch--active]="primary.current() === preset.id"
+                [style.--ngwr-swatch-color]="preset.hex"
+                [attr.aria-label]="preset.label"
+                [attr.aria-checked]="primary.current() === preset.id"
+                role="radio"
+                (click)="primary.set(preset.id)"
+              ></button>
+            }
+          </div>
+        </div>
+      </div>
+    </wr-dropdown-menu>
 
     @for (action of actions; track action.url) {
       <a
