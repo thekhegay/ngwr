@@ -2,7 +2,14 @@ import { Component } from '@angular/core';
 
 import { WrResult, WrResult403, WrResult404, WrResult500 } from 'ngwr/result';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocApiComponent,
+  type DocApiRow,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-result-page',
@@ -16,6 +23,7 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
     DocSectionComponent,
     DocSnippetComponent,
     DocCodeComponent,
+    DocApiComponent,
   ],
 })
 export default class ResultPageComponent {
@@ -31,4 +39,15 @@ export default class ResultPageComponent {
 
 <!-- Custom copy: -->
 <wr-result-404 title="Lost?" description="That URL didn't lead anywhere." />`;
+
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'title', description: 'Main heading text.', type: 'string', default: "''" },
+    { name: 'description', description: 'Secondary supporting copy.', type: 'string', default: "''" },
+    {
+      name: 'status',
+      description: 'Built-in status icon and accent.',
+      type: "'success' | 'warning' | 'error' | 'info' | 'empty'",
+      default: "'info'",
+    },
+  ];
 }
