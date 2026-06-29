@@ -8,7 +8,7 @@ export default [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: pipes.wrNumber,
+    redirectTo: pipes.wrBytes,
   },
   {
     path: pipes.wrNumber,

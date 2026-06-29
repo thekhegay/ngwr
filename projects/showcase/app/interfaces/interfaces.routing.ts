@@ -5,7 +5,7 @@ import { routes } from '#routing';
 const t = routes.interfaces;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: t.common },
+  { path: '', pathMatch: 'full', redirectTo: t.catalog },
   { path: t.common, loadComponent: () => import('./common/common') },
   { path: t.theme, loadComponent: () => import('./theme/theme') },
   { path: t.catalog, loadComponent: () => import('./catalog/catalog') },

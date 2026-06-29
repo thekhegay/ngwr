@@ -5,7 +5,7 @@ import { routes } from '#routing';
 const utils = routes.utils;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: utils.resolveCssSize },
+  { path: '', pathMatch: 'full', redirectTo: utils.getRootFontSize },
   { path: utils.resolveCssSize, loadComponent: () => import('./resolve-css-size/resolve-css-size') },
   { path: utils.getRootFontSize, loadComponent: () => import('./get-root-font-size/get-root-font-size') },
   { path: utils.randomId, loadComponent: () => import('./random-id/random-id') },

@@ -5,7 +5,7 @@ import { routes } from '#routing';
 const v = routes.validators;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: v.noWhitespace },
+  { path: '', pathMatch: 'full', redirectTo: v.match },
   { path: v.noWhitespace, loadComponent: () => import('./no-whitespace/no-whitespace') },
   { path: v.hexColor, loadComponent: () => import('./hex-color/hex-color') },
   { path: v.url, loadComponent: () => import('./url/url') },
