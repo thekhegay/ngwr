@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import type { WrWindowRef } from 'ngwr/window';
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from 'ngwr/window';
 
@@ -10,6 +11,7 @@ interface DemoData {
 /** Trivial body for the `manager.open()` showcase demo. */
 @Component({
   selector: 'ngwr-window-demo-body',
+  imports: [WrButton],
   templateUrl: './window-demo-body.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

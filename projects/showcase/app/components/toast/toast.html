@@ -23,14 +23,8 @@
 
     <ngwr-doc-snippet code="toast.show(...)">
       <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.75rem">
-        <label style="display: inline-flex; gap: 0.375rem; align-items: center; font-size: 0.8125rem; cursor: pointer">
-          <input type="checkbox" [checked]="showProgress()" (change)="showProgress.set(!showProgress())" />
-          Show progress
-        </label>
-        <label style="display: inline-flex; gap: 0.375rem; align-items: center; font-size: 0.8125rem; cursor: pointer">
-          <input type="checkbox" [checked]="showCopy()" (change)="showCopy.set(!showCopy())" />
-          Show copy button
-        </label>
+        <wr-checkbox [(ngModel)]="showProgress">Show progress</wr-checkbox>
+        <wr-checkbox [(ngModel)]="showCopy">Show copy button</wr-checkbox>
       </div>
 
       <wr-btn (click)="fire('info')">Info</wr-btn>

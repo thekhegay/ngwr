@@ -1,5 +1,6 @@
 import { Component, signal, viewChild } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrStep, WrStepper } from 'ngwr/stepper';
 
 import {
@@ -17,6 +18,7 @@ import {
   imports: [
     WrStepper,
     WrStep,
+    WrButton,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,

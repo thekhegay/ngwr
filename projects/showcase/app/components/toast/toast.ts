@@ -1,6 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
+import { WrCheckbox } from 'ngwr/checkbox';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrToast, type WrToastMode, type WrToastPosition, type WrToastType } from 'ngwr/toast';
 
@@ -17,7 +19,9 @@ import {
   selector: 'ngwr-toast-page',
   templateUrl: './toast.html',
   imports: [
+    FormsModule,
     WrButton,
+    WrCheckbox,
     WrSegmented,
     DocPageComponent,
     DocSectionComponent,
