@@ -49,7 +49,9 @@ export default class ClipboardServicePage {
   }
 
   protected async paste(): Promise<void> {
-    this.lastRead.set(await this.clip.read());
+    const text = await this.clip.read();
+    this.lastRead.set(text);
+    if (text !== null) this.draft.set(text);
   }
 
   protected async probe(): Promise<void> {

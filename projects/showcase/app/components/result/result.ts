@@ -14,6 +14,7 @@ import {
 @Component({
   selector: 'ngwr-result-page',
   templateUrl: './result.html',
+  styleUrl: './result.scss',
   imports: [
     WrResult,
     WrResult404,
