@@ -33,11 +33,9 @@ export default class PaginationComponent {
 @Component({ imports: [WrPagination] })
 export class MyComponent {}`,
     basic: `<wr-pagination [total]="120" [(currentPage)]="page" />`,
-    sizes: `<wr-pagination [total]="120" [(currentPage)]="page" size="xs" />
-<wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
+    sizes: `<wr-pagination [total]="120" [(currentPage)]="page" size="sm" />
 <wr-pagination [total]="120" [(currentPage)]="page" size="md" />
-<wr-pagination [total]="120" [(currentPage)]="page" size="lg" />
-<wr-pagination [total]="120" [(currentPage)]="page" size="xl" />`,
+<wr-pagination [total]="120" [(currentPage)]="page" size="lg" />`,
     shapes: `<wr-pagination [total]="120" [(currentPage)]="page" shape="rounded" />
 <wr-pagination [total]="120" [(currentPage)]="page" shape="square" />`,
     full: `<wr-pagination
@@ -68,12 +66,7 @@ export class MyComponent {}`,
       type: "'start' | 'center' | 'end'",
       default: "'start'",
     },
-    {
-      name: 'size',
-      description: 'Size variant. `xs` and `xl` extend the button scale via padding/font overrides.',
-      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
-      default: "'sm'",
-    },
+    { name: 'size', description: 'Size variant.', type: "'sm' | 'md' | 'lg'", default: "'sm'" },
     {
       name: 'shape',
       description: 'Cell corner treatment. `square` flattens corners for a numeric grid look.',
