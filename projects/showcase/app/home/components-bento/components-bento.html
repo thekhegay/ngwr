@@ -106,26 +106,15 @@
         </div>
       </article>
 
-      <!-- Tile 5 — Toast preview -->
+      <!-- Tile 5 — Alert -->
       <article class="ngwr-cbento__tile">
         <header class="ngwr-cbento__tile-head">
           <p wrTypography variant="h5">Notification</p>
-          <p wrTypography variant="caption" tone="medium">Toast surface</p>
+          <p wrTypography variant="caption" tone="medium">Alert surface</p>
         </header>
-        <div class="ngwr-cbento__tile-body ngwr-cbento__toasts">
-          <div class="ngwr-cbento__toast ngwr-cbento__toast--success">
-            <wr-icon name="checkmark" />
-            <div>
-              <p wrTypography variant="small">Payment received</p>
-              <p wrTypography variant="caption" tone="medium">$129.99 from Roman</p>
-            </div>
-          </div>
-          <div class="ngwr-cbento__toast">
-            <div>
-              <p wrTypography variant="small">2 new comments</p>
-              <p wrTypography variant="caption" tone="medium">View thread</p>
-            </div>
-          </div>
+        <div class="ngwr-cbento__tile-body ngwr-cbento__alerts">
+          <wr-alert type="success" title="Payment received" message="$129.99 from Roman" />
+          <wr-alert type="info" title="2 new comments" message="View thread" />
         </div>
       </article>
 
