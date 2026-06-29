@@ -175,14 +175,14 @@
           {{ radius() }} · {{ smoothing() }}
         </wr-squircle>
         <div style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 16rem">
-          <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+          <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
             Radius: <strong>{{ radius() }}px</strong>
-            <input type="range" min="0" max="80" [value]="radius()" (input)="onRadius($event)" />
-          </label>
-          <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+            <wr-slider [(ngModel)]="radius" [max]="80" />
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
             Smoothing: <strong>{{ smoothing() }}</strong>
-            <input type="range" min="0" max="1" step="0.05" [value]="smoothing()" (input)="onSmoothing($event)" />
-          </label>
+            <wr-slider [(ngModel)]="smoothing" [max]="1" [step]="0.05" />
+          </div>
         </div>
       </div>
     </ngwr-doc-snippet>

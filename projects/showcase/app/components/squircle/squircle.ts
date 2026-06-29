@@ -1,5 +1,7 @@
 import { Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
+import { WrSlider } from 'ngwr/slider';
 import { WrSquircle, WrSquircleHost } from 'ngwr/squircle';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
@@ -7,19 +9,20 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-squircle-page',
   templateUrl: './squircle.html',
-  imports: [WrSquircle, WrSquircleHost, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [
+    FormsModule,
+    WrSlider,
+    WrSquircle,
+    WrSquircleHost,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+  ],
 })
 export default class SquirclePageComponent {
   protected readonly radius = signal(28);
   protected readonly smoothing = signal(1);
-
-  protected onRadius(event: Event): void {
-    this.radius.set(+(event.target as HTMLInputElement).value);
-  }
-
-  protected onSmoothing(event: Event): void {
-    this.smoothing.set(+(event.target as HTMLInputElement).value);
-  }
 
   protected readonly snippets = {
     install: `import { WrSquircle, WrSquircleHost } from 'ngwr/squircle';`,
