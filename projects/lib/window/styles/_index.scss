@@ -3,7 +3,7 @@
 .wr-window {
   --wr-window-bg: var(--wr-color-white);
   --wr-window-border: var(--wr-color-light);
-  --wr-window-chrome-bg: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-window-chrome-bg: var(--wr-color-hover);
   --wr-window-chrome-color: var(--wr-color-dark);
   --wr-window-radius: var(--wr-border-radius-base);
   --wr-window-handle-size: 8px;
@@ -157,7 +157,7 @@
       width: 0.875rem; // 14px — bigger than the prior 12px to match native
       height: 0.875rem;
       border-radius: 50%;
-      color: rgba(0, 0, 0, 0.55); // glyph color (revealed on hover)
+      color: rgba(var(--wr-color-black-rgb), 0.55); // glyph color (revealed on hover)
 
       &--close,
       &--close:hover {
@@ -387,7 +387,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
+      @include theme.focus-ring;
       outline-offset: 2px;
     }
   }

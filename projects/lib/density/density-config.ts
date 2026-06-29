@@ -10,7 +10,7 @@ import { InjectionToken } from '@angular/core';
 import type { WrDensityConfig } from './interfaces';
 
 export const DEFAULT_WR_DENSITY_CONFIG: WrDensityConfig = {
-  defaultDensity: 'default',
+  defaultDensity: 'md',
   storageKey: 'wr-density',
   attribute: 'data-wr-density',
 };

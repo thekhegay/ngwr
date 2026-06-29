@@ -15,21 +15,21 @@
   --wr-density-gap: 1;
 }
 
-[data-wr-density='compact'] {
+[data-wr-density='sm'] {
   --wr-density-y: 0.55;
   --wr-density-x: 0.85;
   --wr-density-text: 0.95;
   --wr-density-gap: 0.8;
 }
 
-[data-wr-density='default'] {
+[data-wr-density='md'] {
   --wr-density-y: 1;
   --wr-density-x: 1;
   --wr-density-text: 1;
   --wr-density-gap: 1;
 }
 
-[data-wr-density='comfortable'] {
+[data-wr-density='lg'] {
   --wr-density-y: 1.35;
   --wr-density-x: 1.15;
   --wr-density-text: 1.05;

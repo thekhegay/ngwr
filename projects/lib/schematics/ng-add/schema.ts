@@ -16,8 +16,8 @@ export interface Schema {
   /** Date adapter wired via `provideWrDateAdapter`. */
   dateAdapter?: 'none' | 'native' | 'date-fns' | 'luxon';
 
-  /** Density preset wired via `provideWrDensity`. */
-  density?: 'none' | 'comfortable' | 'compact';
+  /** Default density wired via `provideWrDensity`. */
+  density?: 'none' | 'sm' | 'lg';
 
   /** Theme starter applied to `<html data-wr-theme="...">`. */
   theme?: 'none' | 'light' | 'dark' | 'system';

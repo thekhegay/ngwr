@@ -283,37 +283,8 @@
     }
   }
 
-  &__toasts {
+  &__alerts {
     gap: 0.5rem;
-  }
-
-  &__toast {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.625rem;
-    padding: 0.625rem 0.75rem;
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
-    border-radius: var(--wr-border-radius-base);
-    box-shadow: var(--wr-shadow-xs);
-
-    > div {
-      display: flex;
-      flex-direction: column;
-      gap: 0.125rem;
-      min-width: 0;
-    }
-
-    --wr-icon-size: 1rem;
-
-    &--success {
-      border-left: 3px solid var(--wr-color-success);
-
-      wr-icon {
-        color: var(--wr-color-success);
-        margin-top: 0.125rem;
-      }
-    }
   }
 
   &__empty {

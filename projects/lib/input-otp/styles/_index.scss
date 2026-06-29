@@ -34,7 +34,7 @@
       box-shadow var(--wr-transition-base);
 
     &::placeholder {
-      color: rgba(var(--wr-color-medium-rgb), 0.5);
+      color: var(--wr-color-text-faint);
     }
 
     &:focus {

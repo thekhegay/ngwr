@@ -1,7 +1,7 @@
 @use '../../theme/styles' as theme;
 
 .wr-drawer-backdrop {
-  background: rgba(var(--wr-color-backdrop-rgb), 0.45);
+  background: var(--wr-color-overlay);
   backdrop-filter: blur(2px);
 }
 

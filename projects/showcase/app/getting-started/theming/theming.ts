@@ -21,7 +21,7 @@ export default class ThemingPage {
   protected readonly densityCurrent = this.density.current;
 
   protected readonly modes: readonly WrThemeMode[] = ['light', 'dark', 'auto'];
-  protected readonly densities: readonly WrDensityValue[] = ['compact', 'default', 'comfortable'];
+  protected readonly densities: readonly WrDensityValue[] = ['sm', 'md', 'lg'];
 
   protected setMode(mode: WrThemeMode): void {
     this.theme.set(mode);
@@ -39,7 +39,7 @@ import { provideWrDensity } from 'ngwr/density';
 bootstrapApplication(AppComponent, {
   providers: [
     provideWrTheme({ defaultMode: 'auto' }),  // 'light' | 'dark' | 'auto'
-    provideWrDensity({ defaultDensity: 'default' }),
+    provideWrDensity({ defaultDensity: 'md' }),  // 'sm' | 'md' | 'lg' | 'touch'
   ],
 });`,
 
@@ -165,8 +165,8 @@ providers: [provideWrIcons([dragon])],
   --wr-icon-size: 1rem;
 }`,
 
-    densityScope: `<!-- Compact toolbar inside a default-density page. -->
-<aside wrDensity="compact">
+    densityScope: `<!-- sm toolbar inside an md-density page. -->
+<aside wrDensity="sm">
   <button wr-btn>Action</button>
   <input wrInput placeholder="…" />
 </aside>

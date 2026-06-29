@@ -11,7 +11,7 @@
   --wr-list-item-gap: 0.75rem;
   --wr-list-divider-color: var(--wr-color-light);
   --wr-list-bg: transparent;
-  --wr-list-hover-bg: rgba(var(--wr-color-light-rgb), 0.4);
+  --wr-list-hover-bg: var(--wr-color-hover);
   --wr-list-active-bg: rgba(var(--wr-color-primary-rgb), 0.08);
 
   display: block;
@@ -65,7 +65,7 @@
       }
 
       &:focus-visible {
-        outline: 2px solid var(--wr-color-primary);
+        @include theme.focus-ring;
         outline-offset: -2px;
       }
     }

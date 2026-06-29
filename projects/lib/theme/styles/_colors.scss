@@ -15,6 +15,7 @@ $base-colors: (
   success: #00a400,
   warning: #ffba00,
   danger: #fa383e,
+  info: #3b82f6,
   light: #cbd5e1,
   medium: #8594a4,
   dark: #0f172a,
@@ -65,6 +66,25 @@ $contrast-light: #ffffff !default;
   // and turns the backdrop into a white wash.
   --wr-color-backdrop-rgb: 0, 0, 0;
 
+  // Generic subtle hover-surface tint (icon buttons, list rows) — one place
+  // so the hover strength stays consistent everywhere.
+  --wr-color-hover: rgba(var(--wr-color-light-rgb), 0.4);
+
+  // Border / divider strengths — translucent so they read on any surface and
+  // auto-adapt in dark (via the flipping `light` channels). One place each.
+  --wr-color-border: rgba(var(--wr-color-light-rgb), 0.5);
+  --wr-color-border-subtle: rgba(var(--wr-color-light-rgb), 0.35);
+  --wr-color-border-strong: rgba(var(--wr-color-light-rgb), 0.6);
+
+  // Scrim behind modals / drawers — always black so the dim reads as "covered"
+  // regardless of theme.
+  --wr-color-overlay: rgba(var(--wr-color-backdrop-rgb), 0.45);
+
+  // De-emphasized text — `medium` dimmed to two canonical strengths so muted
+  // labels / captions / placeholders read consistently. One place each.
+  --wr-color-text-muted: rgba(var(--wr-color-medium-rgb), 0.85);
+  --wr-color-text-faint: rgba(var(--wr-color-medium-rgb), 0.6);
+
   @each $name, $base in $base-colors {
     --wr-color-#{$name}: #{$base};
     --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
@@ -73,6 +93,20 @@ $contrast-light: #ffffff !default;
     --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
     --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
     --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+  }
+
+  // Soft trio per intent (+ `medium` for neutral surfaces) — tokenizes the
+  // ad-hoc `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8
+  // different alphas, so each alpha lives in ONE place. `-soft` is the
+  // canonical low-alpha fill, `-soft-border` the matching hairline, and
+  // `-soft-contrast` the readable same-hue text on it (deep in light,
+  // light in dark — follows `--wr-color-dark`). All theme-correct over any
+  // background via the -rgb channels.
+  @each $name in (primary, secondary, success, warning, danger, info, medium) {
+    --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
+    --wr-color-#{$name}-soft-border: rgba(var(--wr-color-#{$name}-rgb), 0.3);
+    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
+    --wr-color-#{$name}-active: rgba(var(--wr-color-#{$name}-rgb), 0.2);
   }
 }
 

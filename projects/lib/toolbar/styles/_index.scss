@@ -16,7 +16,7 @@
   background: var(--wr-color-white);
   border: 1px solid var(--wr-color-light);
   @include theme.smooth-br(var(--wr-border-radius-base));
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+  box-shadow: var(--wr-shadow-xs);
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-dark);
 

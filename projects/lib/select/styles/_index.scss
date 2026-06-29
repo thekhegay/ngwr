@@ -67,9 +67,8 @@
       box-shadow var(--wr-transition-base);
 
     &:focus-visible {
-      outline: none;
       border-color: var(--wr-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+      @include theme.focus-ring;
     }
 
     &:disabled {
@@ -91,7 +90,7 @@
   }
 
   &__placeholder {
-    color: rgba(var(--wr-color-medium-rgb), 0.85);
+    color: var(--wr-color-text-muted);
   }
 
   &__chevron {
@@ -143,7 +142,7 @@
     line-height: var(--wr-select-line-height);
 
     &::placeholder {
-      color: rgba(var(--wr-color-medium-rgb), 0.85);
+      color: var(--wr-color-text-muted);
     }
 
     &:disabled {
@@ -174,7 +173,7 @@
     line-height: var(--wr-select-line-height);
 
     &::placeholder {
-      color: rgba(var(--wr-color-medium-rgb), 0.85);
+      color: var(--wr-color-text-muted);
     }
 
     &:disabled {
@@ -198,7 +197,7 @@
     max-width: 100%;
     padding: 0.125rem 0.25rem 0.125rem 0.5rem;
     border-radius: 999px;
-    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    background: var(--wr-color-primary-soft);
     color: var(--wr-color-primary);
     font-size: var(--wr-text-sm);
     line-height: 1.4;
@@ -223,7 +222,7 @@
     transition: background 0.12s ease;
 
     &:hover {
-      background: rgba(var(--wr-color-primary-rgb), 0.2);
+      background: var(--wr-color-primary-active);
     }
   }
 
@@ -325,11 +324,11 @@
   transition: background var(--wr-transition-short);
 
   &:hover {
-    background: rgba(var(--wr-color-light-rgb), 0.4);
+    background: var(--wr-color-hover);
   }
 
   &--selected {
-    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    background: var(--wr-color-primary-soft);
     color: var(--wr-color-primary);
     font-weight: 500;
   }

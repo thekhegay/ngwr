@@ -41,16 +41,16 @@
     },
     "density": {
       "type": "string",
-      "enum": ["none", "comfortable", "compact"],
+      "enum": ["none", "sm", "lg"],
       "default": "none",
-      "description": "Density preset wired via `provideWrDensity()`. `none` uses lib defaults.",
+      "description": "Default density wired via `provideWrDensity()`. `none` uses lib defaults (md).",
       "x-prompt": {
-        "message": "Pick a density preset",
+        "message": "Pick a default density",
         "type": "list",
         "items": [
-          { "value": "none", "label": "None — use lib defaults" },
-          { "value": "comfortable", "label": "Comfortable — relaxed spacing" },
-          { "value": "compact", "label": "Compact — tight spacing" }
+          { "value": "none", "label": "None — use lib defaults (md)" },
+          { "value": "sm", "label": "sm — tight spacing" },
+          { "value": "lg", "label": "lg — relaxed spacing" }
         ]
       }
     },

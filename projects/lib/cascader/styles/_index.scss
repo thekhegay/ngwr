@@ -2,6 +2,8 @@
 // is a horizontal row of columns where each column lists the children
 // of the previously-active node. Picking a leaf commits the path.
 
+@use '../../theme/styles' as theme;
+
 .wr-cascader {
   --wr-cascader-color: var(--wr-color-dark);
   --wr-cascader-bg: var(--wr-color-white);
@@ -61,9 +63,8 @@
       box-shadow var(--wr-transition-base);
 
     &:focus-visible {
-      outline: none;
       border-color: var(--wr-color-primary);
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
+      @include theme.focus-ring;
     }
 
     &:disabled {
@@ -85,7 +86,7 @@
   }
 
   &__placeholder {
-    color: rgba(var(--wr-color-medium-rgb), 0.85);
+    color: var(--wr-color-text-muted);
   }
 
   &__chevron {
@@ -178,11 +179,11 @@
     transition: background var(--wr-transition-short);
 
     &:hover {
-      background: rgba(var(--wr-color-light-rgb), 0.4);
+      background: var(--wr-color-hover);
     }
 
     &--active {
-      background: rgba(var(--wr-color-primary-rgb), 0.1);
+      background: var(--wr-color-primary-soft);
       color: var(--wr-color-primary);
       font-weight: 500;
     }

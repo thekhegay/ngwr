@@ -52,7 +52,7 @@
       color var(--wr-transition-base);
 
     &:hover:not(:disabled) {
-      background: rgba(var(--wr-color-light-rgb), 0.5);
+      background: var(--wr-color-hover);
     }
 
     &:focus-visible {
@@ -82,7 +82,7 @@
 
     &:hover:not(:disabled) {
       color: var(--wr-calendar-color);
-      background: rgba(var(--wr-color-light-rgb), 0.5);
+      background: var(--wr-color-hover);
     }
 
     &:focus-visible {
@@ -144,7 +144,7 @@
       color var(--wr-transition-base);
 
     &:hover:not(:disabled):not(.wr-calendar__day--selected) {
-      background: rgba(var(--wr-color-light-rgb), 0.5);
+      background: var(--wr-color-hover);
     }
 
     &:focus-visible {
@@ -218,7 +218,7 @@
       color var(--wr-transition-base);
 
     &:hover:not(:disabled):not(.wr-calendar__chip--selected) {
-      background: rgba(var(--wr-color-light-rgb), 0.5);
+      background: var(--wr-color-hover);
     }
 
     &:focus-visible {

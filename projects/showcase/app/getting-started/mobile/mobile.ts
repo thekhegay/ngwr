@@ -35,7 +35,7 @@ this.dialog.open(EditProfile, { responsive: true });`,
 <wr-table responsive [columns]="cols" [items]="rows" />`,
     density: `import { provideWrDensity } from 'ngwr/density';
 
-// App-wide default — compact | default | comfortable | touch.
+// App-wide default — sm | md | lg | touch.
 provideWrDensity({ defaultDensity: 'touch' });
 
 // …or scope it to a subtree with the directive:

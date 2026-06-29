@@ -41,7 +41,7 @@
   transition: var(--wr-transition-base);
 
   &:hover {
-    --wr-btn-bg: rgba(var(--wr-color-light-rgb), 0.4);
+    --wr-btn-bg: var(--wr-color-hover);
   }
 
   &:active {
@@ -206,7 +206,7 @@
   // edge. Outlined/default variants keep their own visible borders.
   @each $name in theme.$colors {
     > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:first-child) {
-      box-shadow: inset 1px 0 0 rgb(0 0 0 / 20%);
+      box-shadow: inset 1px 0 0 rgba(var(--wr-color-black-rgb), 0.2);
     }
   }
 }

@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
+import { WrIcon, type WrIconName } from 'ngwr/icon';
+
 import type { WrAlertType } from './interfaces';
 
 /**
@@ -24,6 +26,7 @@ import type { WrAlertType } from './interfaces';
 @Component({
   selector: 'wr-alert',
   templateUrl: './alert.html',
+  imports: [WrIcon],
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',
@@ -32,8 +35,12 @@ import type { WrAlertType } from './interfaces';
   },
 })
 export class WrAlert {
-  /** Required headline shown at the top of the alert. */
-  readonly title = input.required<string>();
+  /**
+   * Optional headline shown at the top of the alert.
+   *
+   * @default null
+   */
+  readonly title = input<string | null>(null);
 
   /**
    * Visual variant.
@@ -43,6 +50,13 @@ export class WrAlert {
   readonly type = input<WrAlertType>('info');
 
   /**
+   * Override the default per-type icon with any ngwr icon name.
+   *
+   * @default null
+   */
+  readonly iconName = input<WrIconName | null>(null);
+
+  /**
    * Optional secondary message rendered below the title.
    *
    * @default null
@@ -50,8 +64,8 @@ export class WrAlert {
   readonly message = input<string | null>(null);
 
   /**
-   * When `true`, renders a leading status icon matching the `type`
-   * (info / success / warning / danger). Pass `false` to hide.
+   * When `true`, renders a leading status icon matching the `type`.
+   * Pass `false` to hide. Ignored when `iconName` is set.
    *
    * @default true
    */

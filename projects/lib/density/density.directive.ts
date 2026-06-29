@@ -16,8 +16,8 @@ import { WR_DENSITY_CONFIG, type WrDensityValue } from './density-config';
  *
  * @example
  * ```html
- * <!-- The whole sidebar is compact, the rest of the app keeps its global density. -->
- * <aside wrDensity="compact">
+ * <!-- The whole sidebar is sm, the rest of the app keeps its global density. -->
+ * <aside wrDensity="sm">
  *   <wr-list ...></wr-list>
  * </aside>
  * ```
