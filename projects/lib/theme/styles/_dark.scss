@@ -1,9 +1,21 @@
+@use 'sass:color';
+
 // Dark theme overrides — opt-in via `[data-theme="dark"]` on <html>.
 // Drive the toggle from `WrTheme` (provided automatically with
 // `provideWrTheme(...)`).
 //
 // Only semantic tokens flip — palette hues stay so brand-coloured
 // elements look the same regardless of theme.
+
+// Intents re-tuned for the dark canvas. Looped (below) so each gets the
+// FULL symmetric shade set — the hand blocks used to ship only base+rgb,
+// leaving -light/-dark/-lighter/-darker baked from the LIGHT palette.
+// (primary keeps its hand-tuned block; info stays its light values.)
+$dark-intents: (
+  success: #34c759,
+  warning: #ffcc33,
+  danger: #ff5c5c,
+);
 
 [data-theme='dark'] {
   // Canvas (was `--wr-color-white` in light mode)
@@ -63,14 +75,16 @@
   --wr-color-primary-lighter: #99b6ff;
   --wr-color-primary-darker: #1f3a99;
 
-  --wr-color-success: #34c759;
-  --wr-color-success-rgb: 52, 199, 89;
-
-  --wr-color-warning: #ffcc33;
-  --wr-color-warning-rgb: 255, 204, 51;
-
-  --wr-color-danger: #ff5c5c;
-  --wr-color-danger-rgb: 255, 92, 92;
+  // success / warning / danger — retuned bases now get the FULL symmetric
+  // shade set in dark too (generated, so no intent can silently drift).
+  @each $name, $base in $dark-intents {
+    --wr-color-#{$name}: #{$base};
+    --wr-color-#{$name}-rgb: #{color.channel($base, 'red')}, #{color.channel($base, 'green')}, #{color.channel($base, 'blue')};
+    --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
+    --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+    --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
+    --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
+  }
 
   // Elevation
   // Black shadows at light-mode alphas vanish on the deep canvas; same

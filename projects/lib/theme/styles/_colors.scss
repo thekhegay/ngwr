@@ -15,6 +15,7 @@ $base-colors: (
   success: #00a400,
   warning: #ffba00,
   danger: #fa383e,
+  info: #3b82f6,
   light: #cbd5e1,
   medium: #8594a4,
   dark: #0f172a,
@@ -73,6 +74,17 @@ $contrast-light: #ffffff !default;
     --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
     --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
     --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+  }
+
+  // Soft tint pair per intent — tokenizes the ad-hoc
+  // `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8 different
+  // alphas. `-soft` is one canonical low-alpha fill (theme-correct over
+  // any background via the -rgb channels); `-soft-contrast` is the
+  // readable same-hue text on it (deep in light, light in dark — it
+  // follows `--wr-color-dark`).
+  @each $name in (primary, secondary, success, warning, danger, info) {
+    --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
+    --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
   }
 }
 
