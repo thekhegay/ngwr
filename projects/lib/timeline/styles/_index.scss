@@ -101,19 +101,28 @@
 
   // Horizontal: row layout with line through dots.
   .wr-timeline--horizontal & {
+    // Equal-width columns so every dot sits at the same horizontal pitch
+    // and the connectors line up across items.
+    flex: 1 1 0;
     flex-direction: column;
     align-items: center;
     text-align: center;
     min-width: 8rem;
+    padding-bottom: 0;
 
+    // Connector runs from this dot's centre to the next dot's centre:
+    // half of this item + the 2rem gap + half of the next item. With equal
+    // widths that is `100% of the item + the gap`, anchored at the centre.
     &::before {
       content: '';
       position: absolute;
-      top: 0.625rem;
+      // Dot centre: margin-top 0.125rem + half of the 0.75rem dot = 0.5rem.
+      top: 0.5rem;
       left: 50%;
-      right: -2rem;
+      width: calc(100% + 2rem);
       height: 1.5px;
       background: var(--wr-color-light);
+      z-index: 0;
     }
 
     &:last-child::before {
