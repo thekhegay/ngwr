@@ -142,6 +142,32 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Gray ramp"
+    description="A fixed neutral primitive — slate from `50` (subtlest surface tint) to `950` (strongest ink). Unlike the semantic neutrals it does **not** flip in dark mode; each step is a stable building block. Reach for the role aliases below when you want a value that adapts to the theme."
+  >
+    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem">
+      @for (step of grayRamp; track step) {
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem">
+          <span
+            [style.background]="`var(--wr-color-gray-${step})`"
+            style="width: 3rem; height: 3rem; border-radius: 0.375rem; border: 1px solid var(--wr-color-border)"
+          ></span>
+          <code style="font-size: 0.6875rem">{{ step }}</code>
+        </div>
+      }
+    </div>
+    <ngwr-doc-code [code]="snippets.gray" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Role aliases"
+    description="Intent-free semantic roles layered over the flipping neutrals. Prefer these in new code for surface / text jobs — they resolve through `white` / `dark` / `medium`, so they adapt to dark mode for free. The underlying `--wr-color-white` / `-dark` / `-medium` primitives stay available."
+  >
+    <ngwr-doc-api [rows]="roleTokens" />
+    <ngwr-doc-code [code]="snippets.roles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="How dark mode flips"
     description="Dark mode is opt-in via `[data-theme='dark']` on `<html>` (driven by `provideWrTheme()`). **Only semantic tokens flip** — brand hues stay put so colored elements look the same in both themes. The key inversion is that `--wr-color-white` is the page *surface* and `--wr-color-dark` is the *text* — and both swap roles in dark mode. Build with the tokens and you write zero dark-mode overrides."
   >

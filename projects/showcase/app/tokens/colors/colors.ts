@@ -122,6 +122,28 @@ export default class TokensColorsPage {
     },
   ];
 
+  /** Fixed slate gray ramp — a non-flipping primitive scale (50…950). */
+  protected readonly grayRamp = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
+
+  /** Semantic role aliases layered over the flipping neutrals. */
+  protected readonly roleTokens: readonly DocApiRow[] = [
+    {
+      name: '--wr-color-surface',
+      type: 'var(--wr-color-white)',
+      description: 'Page / card background. Flips with the theme (white → slate canvas).',
+    },
+    {
+      name: '--wr-color-on-surface',
+      type: 'var(--wr-color-dark)',
+      description: 'Primary text on a surface. Flips with the theme.',
+    },
+    {
+      name: '--wr-color-on-surface-muted',
+      type: 'var(--wr-color-medium)',
+      description: 'Secondary / muted text on a surface.',
+    },
+  ];
+
   protected readonly snippets = {
     intent: `/* Solid surface: pair the base with its auto-computed contrast. */
 .toast {
@@ -148,6 +170,20 @@ export default class TokensColorsPage {
 .ring {
   box-shadow: 0 0 0 4px rgba(var(--wr-color-primary-rgb), 0.2);
 }`,
+
+    gray: `/* Fixed slate primitive — does NOT flip; pick a step by job. */
+.code-block {
+  background: var(--wr-color-gray-50);   /* subtlest surface */
+  border: 1px solid var(--wr-color-gray-200);
+}
+.ink-strong { color: var(--wr-color-gray-900); }`,
+
+    roles: `/* Role aliases — intent-free, theme-aware surface / text. */
+.panel {
+  background: var(--wr-color-surface);
+  color: var(--wr-color-on-surface);
+}
+.panel__caption { color: var(--wr-color-on-surface-muted); }`,
 
     neutral: `/* Semantic neutrals — theme-correct surfaces, borders, muted text. */
 .card {
