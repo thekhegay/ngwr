@@ -78,8 +78,14 @@ export class WrToastHost {
     }
   }
 
-  /** @internal — pushed by the service. */
+  /** @internal — pushed by the service: the rendered (capped) stack. */
   readonly toasts = signal<readonly ActiveToast[]>([]);
+
+  /** @internal — pushed by the service: count still queued behind the cap. */
+  readonly queued = signal(0);
+
+  /** Total outstanding toasts (visible + queued) — what "Close all" clears. */
+  protected readonly totalCount = computed(() => this.toasts().length + this.queued());
 
   /** @internal — service listens to update its internal state. */
   readonly dismissed = output<number>();
@@ -97,13 +103,6 @@ export class WrToastHost {
   protected stackIndex(i: number): number {
     return this.toasts().length - 1 - i;
   }
-
-  /** True once the visible stack is capped at `maxStack` — the count is no
-   * longer exact, so the badge renders a trailing "+" (e.g. `(5+)`). */
-  protected readonly atCap = computed(() => {
-    const max = this.config().maxStack;
-    return max > 0 && this.toasts().length >= max;
-  });
 
   protected readonly closeAllVisible = computed(() => {
     const cfg = this.config();
