@@ -17,7 +17,7 @@ import { WrCheckbox } from 'ngwr/checkbox';
 import { WrCounter } from 'ngwr/counter';
 import { WrEmpty } from 'ngwr/empty';
 import { WrFormField } from 'ngwr/form';
-import { provideWrIcons, WrIcon } from 'ngwr/icon';
+import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrInput, WrInputGroup, WrInputPrefix } from 'ngwr/input';
 import { WrPagination } from 'ngwr/pagination';
@@ -47,7 +47,6 @@ import { DocCodeComponent } from '#core/components';
     WrSkeleton,
     WrEmpty,
     WrFormField,
-    WrIcon,
     WrInput,
     WrInputGroup,
     WrInputPrefix,

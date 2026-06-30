@@ -129,6 +129,12 @@ export class MyComponent {}`,
     { name: 'disabled', description: 'Disable the select.', type: 'boolean', default: 'false' },
     { name: 'rounded', description: 'Pill-shaped trigger.', type: 'boolean', default: 'false' },
     {
+      name: 'size',
+      description: 'Control size — shares the `--wr-control-*` contract.',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+    },
+    {
       name: 'mode',
       description:
         'Behavior mode. `single` (default), `multi` (chips + array value), `search` (typeahead filter — replaces `wr-autocomplete`), `tag` (free-text chips — replaces `wr-chips-input`).',

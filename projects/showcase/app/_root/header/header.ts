@@ -2,14 +2,18 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { Moon, Sun } from 'lucide';
+import { Settings } from 'lucide';
 import { WrBurger } from 'ngwr/burger';
+import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrDrawer } from 'ngwr/drawer';
+import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrTheme } from 'ngwr/theme';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 
 import { BRAND_ICONS } from '#core/icons';
+import { PrimaryColor } from '#core/services';
 import { routes } from '#routing';
 
 interface NavLink {
@@ -28,11 +32,27 @@ interface ActionLink {
   selector: 'ngwr-header',
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  imports: [RouterLink, RouterLinkActive, WrBurger, WrDrawer, WrIcon],
-  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ moon: Moon, sun: Sun })])],
+  imports: [RouterLink, RouterLinkActive, WrBurger, WrDrawer, WrIcon, WrDropdown, WrDropdownMenu, WrSegmented],
+  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ settings: Settings })])],
 })
 export class Header {
   protected readonly theme = inject(WrTheme);
+  protected readonly density = inject(WrDensity);
+  protected readonly primary = inject(PrimaryColor);
+
+  /** Theme segmented — user choice (`auto` resolves via `prefers-color-scheme`). */
+  protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [
+    { value: 'auto', label: 'Auto' },
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+  ];
+
+  /** Density segmented — sm / md / lg (the `touch` step is omitted here). */
+  protected readonly densityOptions: readonly WrSegmentedOption<WrDensityValue>[] = [
+    { value: 'sm', label: 'sm' },
+    { value: 'md', label: 'md' },
+    { value: 'lg', label: 'lg' },
+  ];
 
   protected readonly routes = routes;
   protected readonly nav: readonly NavLink[] = [
@@ -57,8 +77,13 @@ export class Header {
   /** Mobile nav sheet — the inline nav collapses to a burger below `xl`. */
   protected readonly menuOpen = signal(false);
 
-  protected onToggleTheme(): void {
-    this.theme.toggle();
+  /** Segmented emits `T | null`; the panel's options are never null, so just guard. */
+  protected onThemeChange(mode: WrThemeMode | null): void {
+    if (mode) this.theme.set(mode);
+  }
+
+  protected onDensityChange(density: WrDensityValue | null): void {
+    if (density) this.density.set(density);
   }
 
   /**

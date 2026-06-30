@@ -111,10 +111,12 @@ export const WrValidators = {
 
   /**
    * Valid URL. Accepts any scheme by default; pass `{ protocols: ['https'] }`
-   * to restrict.
+   * to restrict. A scheme is required by default; pass `{ requireProtocol: false }`
+   * to also accept bare domains (e.g. `ngwr.dev`), assuming `https`.
    */
-  url: (options: { readonly protocols?: readonly string[] } = {}): ValidatorFn => {
+  url: (options: { readonly protocols?: readonly string[]; readonly requireProtocol?: boolean } = {}): ValidatorFn => {
     const allow = options.protocols?.map(p => p.replace(/:$/, '').toLowerCase());
+    const requireProtocol = options.requireProtocol ?? true;
     return (control: AbstractControl): ValidationErrors | null => {
       const v = stringValue(control);
       if (v === '') return null;
@@ -122,6 +124,23 @@ export const WrValidators = {
       try {
         parsed = new URL(v);
       } catch {
+        // Bare domain support: when protocols aren't required and the input has
+        // no scheme, retry assuming `https://`.
+        if (!requireProtocol && !/^[a-z][a-z0-9+.-]*:/i.test(v)) {
+          let retried: URL;
+          try {
+            retried = new URL(`https://${v}`);
+          } catch {
+            return { url: true };
+          }
+          if (retried.host === '') {
+            return { url: true };
+          }
+          if (allow && !allow.includes('https')) {
+            return { url: { allowed: allow } };
+          }
+          return null;
+        }
         return { url: true };
       }
       const protocol = parsed.protocol.replace(/:$/, '').toLowerCase();

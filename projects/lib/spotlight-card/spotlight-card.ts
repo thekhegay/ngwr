@@ -43,7 +43,7 @@ import { Component, ViewEncapsulation, ElementRef, inject, input } from '@angula
 export class WrSpotlightCard {
   /**
    * Highlight colour (any CSS colour). When unset, the theme decides:
-   * a soft dark tint on light surfaces, white-alpha on dark.
+   * a dark-ish glow on light surfaces, a light glow on dark.
    */
   readonly spotlightColor = input<string | null>(null);
 

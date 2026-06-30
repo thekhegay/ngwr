@@ -5,11 +5,8 @@
 .wr-glitch-text {
   --wr-glitch-text-before-duration: 2s;
   --wr-glitch-text-after-duration: 3s;
-  --wr-glitch-text-before-shadow: 5px 0 cyan;
-  --wr-glitch-text-after-shadow: -5px 0 red;
-  // Clone backgrounds must match the page surface for the slicing
-  // illusion; the text itself uses the readable foreground token.
-  --wr-glitch-text-bg: var(--wr-color-white, #fff);
+  --wr-glitch-text-before-shadow: 5px 0 var(--wr-color-info);
+  --wr-glitch-text-after-shadow: -5px 0 var(--wr-color-danger);
 
   position: relative;
   display: inline-block;
@@ -24,7 +21,7 @@
     position: absolute;
     top: 0;
     color: inherit;
-    background-color: var(--wr-glitch-text-bg);
+    background-color: var(--wr-glitch-text-bg, transparent);
     overflow: hidden;
     clip-path: inset(0 0 0 0);
   }

@@ -153,23 +153,6 @@
   animation: wr-bounce 1s infinite;
 }
 
-// Reveal-on-scroll integration
-// Initial state — set by `[wrReveal]` on the host element via the
-// `wr-reveal` host class. The directive flips `wr-reveal--visible`
-// once the element enters the viewport.
-.wr-reveal {
-  opacity: 0;
-  transform: translateY(0.75rem);
-  transition:
-    opacity var(--wr-duration-slow) var(--wr-ease-out),
-    transform var(--wr-duration-slow) var(--wr-ease-out);
-
-  &--visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 // prefers-reduced-motion
 @media (prefers-reduced-motion: reduce) {
   .wr-animate-fade-in,
@@ -184,12 +167,6 @@
   .wr-animate-pulse,
   .wr-animate-bounce {
     animation: none !important;
-  }
-
-  .wr-reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
   }
 }
 

@@ -243,6 +243,16 @@ bootstrapApplication(AppComponent, {
     this.toast.setPosition(value);
   }
 
+  protected firePosition(): void {
+    this.toast.show({
+      type: 'info',
+      title: 'Positioned toast',
+      message: `Fired at "${this.position()}".`,
+      position: this.position(),
+      showProgress: this.showProgress(),
+    });
+  }
+
   protected dismissAll(): void {
     this.toast.dismissAll();
   }

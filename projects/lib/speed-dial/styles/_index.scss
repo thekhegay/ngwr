@@ -152,6 +152,7 @@
     &:hover {
       transform: scale(1.06);
       background: var(--wr-color-primary);
+      border-color: var(--wr-color-primary);
       color: var(--wr-color-primary-contrast, var(--wr-color-white));
     }
   }

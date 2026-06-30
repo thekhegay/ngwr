@@ -43,6 +43,7 @@ export class MyComponent {}`,
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'placeholder', description: 'Placeholder text.', type: 'string', default: "''" },
+    { name: 'size', description: 'Control size.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
     { name: 'rows', description: 'Visible row count.', type: 'number', default: '3' },
     { name: 'resizable', description: 'Allow user resize via the native handle.', type: 'boolean', default: 'true' },
     { name: 'readonly', description: 'Read-only state.', type: 'boolean', default: 'false' },

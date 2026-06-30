@@ -78,8 +78,14 @@ export class WrToastHost {
     }
   }
 
-  /** @internal — pushed by the service. */
+  /** @internal — pushed by the service: the rendered (capped) stack. */
   readonly toasts = signal<readonly ActiveToast[]>([]);
+
+  /** @internal — pushed by the service: count still queued behind the cap. */
+  readonly queued = signal(0);
+
+  /** Total outstanding toasts (visible + queued) — what "Close all" clears. */
+  protected readonly totalCount = computed(() => this.toasts().length + this.queued());
 
   /** @internal — service listens to update its internal state. */
   readonly dismissed = output<number>();

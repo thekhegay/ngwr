@@ -58,7 +58,11 @@ export class WrToast {
   private currentPosition: WrToastPosition = this.config.position;
   private currentMode: 'stack' | 'list' = this.config.mode;
   private nextId = 1;
+  /** Currently rendered toasts (capped at `config.maxStack`). */
   private active: ActiveEntry[] = [];
+  /** Overflow waiting for a free slot — promoted FIFO as actives dismiss, so
+   * nothing is ever silently dropped. */
+  private queue: ActiveEntry[] = [];
 
   /** Open a toast. Returns a handle you can `dismiss()` early. */
   show(options: WrToastOptions): WrToastRef {
@@ -75,10 +79,16 @@ export class WrToast {
       remaining: resolvedDuration,
     };
 
-    this.active = [...this.active, entry];
-    this.enforceMaxStack();
-    this.pushToHost();
-    this.startTimer(entry);
+    const max = this.config.maxStack;
+    if (max > 0 && this.active.length >= max) {
+      // Stack is full — hold this one in the queue (no timer until it's shown).
+      this.queue = [...this.queue, entry];
+      this.pushToHost();
+    } else {
+      this.active = [...this.active, entry];
+      this.pushToHost();
+      this.startTimer(entry);
+    }
 
     return new WrToastRef(entry.id, options, id => this.dismiss(id));
   }
@@ -88,8 +98,11 @@ export class WrToast {
     const entry = this.active.find(t => t.id === id);
     if (entry?.timer) clearTimeout(entry.timer);
     this.active = this.active.filter(t => t.id !== id);
+    // A dismiss can also target a still-queued toast.
+    this.queue = this.queue.filter(t => t.id !== id);
+    this.promoteFromQueue();
     this.pushToHost();
-    if (this.active.length === 0) this.disposeHost();
+    if (this.active.length === 0 && this.queue.length === 0) this.disposeHost();
   }
 
   /** Dismiss every visible toast. Wired to the host's "Close all" button. */
@@ -98,6 +111,7 @@ export class WrToast {
       if (entry.timer) clearTimeout(entry.timer);
     }
     this.active = [];
+    this.queue = [];
     this.disposeHost();
   }
 
@@ -166,18 +180,21 @@ export class WrToast {
     });
   }
 
-  private enforceMaxStack(): void {
+  /** Fill any free stack slots from the queue (FIFO), starting each promoted
+   * toast's auto-dismiss timer only as it becomes visible. */
+  private promoteFromQueue(): void {
     const max = this.config.maxStack;
-    if (max <= 0 || this.active.length <= max) return;
-    const overflow = this.active.slice(0, this.active.length - max);
-    for (const entry of overflow) {
-      if (entry.timer) clearTimeout(entry.timer);
+    while ((max <= 0 || this.active.length < max) && this.queue.length > 0) {
+      const [next, ...rest] = this.queue;
+      this.queue = rest;
+      this.active = [...this.active, next];
+      this.startTimer(next);
     }
-    this.active = this.active.slice(this.active.length - max);
   }
 
   private pushToHost(): void {
     this.hostRef?.instance.toasts.set([...this.active]);
+    this.hostRef?.instance.queued.set(this.queue.length);
   }
 
   private disposeHost(): void {

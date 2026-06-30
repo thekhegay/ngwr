@@ -141,7 +141,6 @@ export const routes = {
     aurora: 'aurora',
     marquee: 'marquee',
     confetti: 'confetti',
-    reveal: 'reveal',
     // Reactbits ports (built in follow-up commits)
     spotlightCard: 'spotlight-card',
     tiltCard: 'tilt-card',
@@ -155,7 +154,6 @@ export const routes = {
     gradientText: 'gradient-text',
     rotatingText: 'rotating-text',
     typewriter: 'typewriter',
-    scrambleText: 'scramble-text',
     decryptText: 'decrypt-text',
     glitchText: 'glitch-text',
     fuzzyText: 'fuzzy-text',
@@ -238,6 +236,7 @@ export const routes = {
   },
   interfaces: {
     index: 'interfaces',
+    overview: 'overview',
     common: 'common',
     theme: 'theme',
     catalog: 'catalog',

@@ -79,17 +79,39 @@ export class WrClipboard {
     }
   }
 
-  /** Probe the Permissions API for `clipboard-read` / `clipboard-write`. */
+  /**
+   * Report whether clipboard read / write is available and, when the
+   * browser exposes it, what the user has granted.
+   *
+   * The answer is grounded in the actual Clipboard API capability
+   * (`writeText` / `readText`), then refined by the Permissions API when
+   * it can speak for the requested name. `clipboard-read` / `clipboard-write`
+   * are not recognised everywhere — Firefox and Safari throw on the query —
+   * so a missing or throwing Permissions API is treated as "supported,
+   * will resolve at use time" (`'prompt'`), not `'unsupported'`. We only
+   * return `'unsupported'` when the capability genuinely isn't there.
+   */
   async permission(name: 'read' | 'write'): Promise<WrClipboardPermission> {
     const view = this.doc.defaultView;
-    if (!view?.navigator?.permissions?.query) return 'unsupported';
+    if (!view) return 'unsupported';
+
+    const clipboard = view.navigator?.clipboard;
+    const capable =
+      name === 'write'
+        ? typeof clipboard?.writeText === 'function' || typeof this.doc.execCommand === 'function'
+        : typeof clipboard?.readText === 'function';
+    if (!capable) return 'unsupported';
+
+    // Capability exists; ask the Permissions API to refine the state when it can.
+    if (typeof view.navigator?.permissions?.query !== 'function') return 'prompt';
     try {
       const status = await view.navigator.permissions.query({
         name: `clipboard-${name}` as PermissionName,
       });
       return status.state;
     } catch {
-      return 'unsupported';
+      // Name not recognised by this browser — capability is still present.
+      return 'prompt';
     }
   }
 

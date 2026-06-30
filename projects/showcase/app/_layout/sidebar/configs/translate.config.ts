@@ -7,17 +7,17 @@ export const TRANSLATE_SIDEBAR: readonly SidebarGroup[] = [
     url: ['/translate', 'overview'],
   },
   {
+    title: 'Getting started',
+    children: [
+      { title: 'Setup & loaders', url: ['/translate', 'setup'] },
+      { title: 'Usage in templates', url: ['/translate', 'usage'] },
+    ],
+  },
+  {
     title: 'Advanced',
     children: [
       { title: 'Interpolation', url: ['/translate', 'interpolation'] },
       { title: 'Scopes', url: ['/translate', 'scopes'] },
-    ],
-  },
-  {
-    title: 'Get started',
-    children: [
-      { title: 'Setup & loaders', url: ['/translate', 'setup'] },
-      { title: 'Usage in templates', url: ['/translate', 'usage'] },
     ],
   },
   {

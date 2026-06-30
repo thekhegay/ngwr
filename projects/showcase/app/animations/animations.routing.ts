@@ -12,7 +12,6 @@ export default [
   { path: a.aurora, loadComponent: () => import('./aurora/aurora') },
   { path: a.marquee, loadComponent: () => import('./marquee/marquee') },
   { path: a.confetti, loadComponent: () => import('./confetti/confetti') },
-  { path: a.reveal, loadComponent: () => import('./reveal/reveal') },
 
   // Reactbits ports.
   { path: a.spotlightCard, loadComponent: () => import('./spotlight-card/spotlight-card') },
@@ -27,7 +26,6 @@ export default [
   { path: a.gradientText, loadComponent: () => import('./gradient-text/gradient-text') },
   { path: a.rotatingText, loadComponent: () => import('./rotating-text/rotating-text') },
   { path: a.typewriter, loadComponent: () => import('./typewriter/typewriter') },
-  { path: a.scrambleText, loadComponent: () => import('./scramble-text/scramble-text') },
   { path: a.decryptText, loadComponent: () => import('./decrypt-text/decrypt-text') },
   { path: a.glitchText, loadComponent: () => import('./glitch-text/glitch-text') },
   { path: a.fuzzyText, loadComponent: () => import('./fuzzy-text/fuzzy-text') },

@@ -126,6 +126,12 @@ locations: WrCascaderOption[] = [
     { name: 'placeholder', description: 'Shown when no path is selected.', type: 'string', default: "''" },
     { name: 'disabled', description: 'Disable the cascader.', type: 'boolean', default: 'false' },
     {
+      name: 'size',
+      description: 'Control size — shares the `--wr-control-*` contract.',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+    },
+    {
       name: 'clearable',
       description: 'Show a clear-all (×) button when something is selected.',
       type: 'boolean',

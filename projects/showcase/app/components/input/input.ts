@@ -139,6 +139,7 @@ export class MyForm {}`,
       type: 'attribute',
       default: '—',
     },
+    { name: 'wrSize', description: 'Control size.', type: `'sm' | 'md' | 'lg'`, default: `'md'` },
     { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
   ];
 

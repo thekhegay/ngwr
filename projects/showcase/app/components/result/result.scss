@@ -1,0 +1,21 @@
+.result-grid {
+  // The snippet host (`.demo`) is a flex row, so this grid is a flex item —
+  // without an explicit width it collapses to its content and renders as a
+  // single narrow column. Force it to span the full container so the tiles
+  // lay out across multiple columns on wide screens.
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 1rem;
+
+  > wr-result,
+  > wr-result-404,
+  > wr-result-403,
+  > wr-result-500 {
+    border: 1px solid var(--wr-color-border);
+    border-radius: var(--wr-border-radius-base);
+    background: var(--wr-color-white);
+    padding: 1.5rem;
+    height: 100%;
+  }
+}

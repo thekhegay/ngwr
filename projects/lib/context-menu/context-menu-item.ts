@@ -63,6 +63,7 @@ const SUBMENU_TRANSITION_MS = 220;
     '[attr.aria-expanded]': 'submenu() ? (submenuOpen ? "true" : "false") : null',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave($event)',
+    '(click)': 'onClick()',
     '(keydown.enter)': 'activate($event)',
     '(keydown.space)': 'activate($event)',
     '(keydown.arrowRight)': 'onArrowRight($event)',
@@ -124,6 +125,20 @@ export class WrContextMenuItem {
 
   constructor() {
     this.destroyRef.onDestroy(() => this.disposeSubmenu(true));
+  }
+
+  /**
+   * @internal Pointer activation — selecting a leaf item dismisses the
+   * whole menu chain. The consumer's own `(click)` binding on the host
+   * runs in the same event; we defer the close to a microtask so that
+   * handler (the actual "select") always completes before the overlay
+   * tears down, regardless of listener registration order. Items that
+   * own a submenu (or are disabled) don't dismiss — clicking them just
+   * drills into / ignores the row.
+   */
+  protected onClick(): void {
+    if (this.disabled() || this.submenu()) return;
+    queueMicrotask(() => WrContextMenu.closeActive());
   }
 
   /** @internal Keyboard activation — Enter / Space. */

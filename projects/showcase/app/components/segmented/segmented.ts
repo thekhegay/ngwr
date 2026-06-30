@@ -61,6 +61,12 @@ export class MyComponent {}`,
     },
     { name: 'value', description: 'Selected value. Two-way bindable.', type: 'T | null', default: 'null' },
     { name: 'disabled', description: 'Disable the whole control.', type: 'boolean', default: 'false' },
+    {
+      name: 'size',
+      description: 'Control size; shares the `--wr-control-*` contract.',
+      type: `'sm' | 'md' | 'lg'`,
+      default: `'md'`,
+    },
   ];
 
   protected readonly typeSnippet = `interface WrSegmentedOption<T = unknown> {

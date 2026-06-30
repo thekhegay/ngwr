@@ -56,7 +56,7 @@ import type { WrFuzzyTextDirection } from './interfaces';
   selector: 'wr-fuzzy-text',
   template: '<canvas #canvas></canvas>',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-fuzzy-text' },
+  host: { class: 'wr-fuzzy-text', style: 'color: var(--wr-color-dark)' },
 })
 export class WrFuzzyText {
   /** Text to render. */
@@ -71,8 +71,8 @@ export class WrFuzzyText {
   /** Font family. `'inherit'` reads the canvas's computed style. @default 'inherit' */
   readonly fontFamily = input('inherit');
 
-  /** Text colour. Ignored if `[gradient]` is set. @default '#fff' */
-  readonly color = input('#fff');
+  /** Text colour. `'inherit'` reads the canvas's computed style. Ignored if `[gradient]` is set. @default 'inherit' */
+  readonly color = input('inherit');
 
   /** Optional horizontal gradient stops. */
   readonly gradient = input<readonly string[] | null>(null);
@@ -164,6 +164,7 @@ export class WrFuzzyText {
 
     const fontFamily =
       this.fontFamily() === 'inherit' ? window.getComputedStyle(canvas).fontFamily || 'sans-serif' : this.fontFamily();
+    const color = this.color() === 'inherit' ? window.getComputedStyle(canvas).color || '#fff' : this.color();
     const fontSize = this.fontSize();
     const fontSizeStr = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
     const fontWeight = this.fontWeight();
@@ -229,7 +230,7 @@ export class WrFuzzyText {
       gradient.forEach((c, i) => g.addColorStop(i / (gradient.length - 1), c));
       offCtx.fillStyle = g;
     } else {
-      offCtx.fillStyle = this.color();
+      offCtx.fillStyle = color;
     }
 
     if (letterSpacing !== 0) {

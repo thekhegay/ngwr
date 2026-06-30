@@ -56,6 +56,12 @@ export class MyComponent {
       type: "'numeric' | 'alphanumeric' | 'text'",
       default: "'numeric'",
     },
+    {
+      name: 'size',
+      description: 'Control size — shares the `--wr-control-*` contract.',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+    },
     { name: 'mask', description: 'Hide typed characters (`type="password"`).', type: 'boolean', default: 'false' },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     { name: 'placeholder', description: 'Character shown in empty cells.', type: 'string', default: "'•'" },

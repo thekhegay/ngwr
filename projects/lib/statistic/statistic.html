@@ -5,7 +5,17 @@
   @if (prefix()) {
     <span class="wr-statistic__prefix">{{ prefix() }}</span>
   }
-  <span class="wr-statistic__number">{{ value() ?? '—' }}</span>
+  @if (animated()) {
+    <wr-count-up
+      class="wr-statistic__number"
+      [from]="animateFrom()"
+      [to]="numericValue() ?? 0"
+      [decimals]="precision()"
+      [duration]="duration()"
+    />
+  } @else {
+    <span class="wr-statistic__number">{{ displayValue() }}</span>
+  }
   @if (suffix()) {
     <span class="wr-statistic__suffix">{{ suffix() }}</span>
   }

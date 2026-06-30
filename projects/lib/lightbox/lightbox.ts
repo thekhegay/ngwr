@@ -47,7 +47,10 @@ import { WR_OVERLAY } from 'ngwr/overlay';
   templateUrl: './lightbox.html',
   styleUrl: './lightbox.scss',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: {
+    '[class]': 'classes()',
+    '[style.aspect-ratio]': 'aspectRatio()',
+  },
 })
 export class WrLightbox {
   /** Image source. */
@@ -64,6 +67,15 @@ export class WrLightbox {
 
   /** Caption shown under the full image in the lightbox. */
   readonly caption = input<string>('');
+
+  /**
+   * Reserve space before the image resolves by fixing the thumbnail's
+   * `aspect-ratio` (e.g. `'16 / 9'`, `'4 / 3'`, or a number like `1.5`).
+   * Prevents the layout jump when the intrinsic image size isn't known up
+   * front — pair it with a `width` and the box keeps its height from first
+   * paint. @default null
+   */
+  readonly aspectRatio = input<string | number | null>(null);
 
   protected readonly open = signal(false);
   protected readonly loaded = signal(false);
