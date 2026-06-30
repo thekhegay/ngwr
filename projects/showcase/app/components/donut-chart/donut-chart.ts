@@ -51,6 +51,20 @@ export class MyComponent {
   color?: string;
 }`;
 
+  protected readonly apiRows: readonly DocApiRow[] = [
+    { name: 'segments', description: 'Slices to render.', type: 'WrDonutSegment[]', default: '[]' },
+    { name: 'size', description: 'Diameter in CSS pixels (min 48).', type: 'number', default: '200' },
+    {
+      name: 'thickness',
+      description: 'Inner-ring thickness as a % of radius. 0 = solid pie.',
+      type: 'number',
+      default: '30',
+    },
+    { name: 'showLegend', description: 'Show the legend under the chart.', type: 'boolean', default: 'true' },
+    { name: 'centerValue', description: 'Bold value text in the center.', type: 'string', default: "''" },
+    { name: 'centerLabel', description: 'Smaller label under the center value.', type: 'string', default: "''" },
+  ];
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrDonutSegment', description: 'One slice of the ring.', type: 'interface' },
     { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },

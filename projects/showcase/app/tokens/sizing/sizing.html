@@ -1,0 +1,107 @@
+<ngwr-doc-page
+  title="Sizing"
+  description="The control-sizing contract — a single set of `--wr-control-*` tokens that every form control reads, so button, input, select and friends line up pixel-for-pixel at each size and track density together. Plus the radius scale that frames controls, containers and overlays."
+  [keywords]="['sizing', 'control', 'size', 'sm', 'md', 'lg', 'height', 'radius', 'density', 'tokens']"
+  [labels]="['Reference', 'Tokens']"
+>
+  <ngwr-doc-section
+    title="The control-sizing contract"
+    description="Three sizes — `sm` (22px), `md` (30px, the default) and `lg` (36px). A control's height is never hard-coded. It is the sum of its line-height, twice its vertical padding and twice its 1px border. Keeping the parts as separate tokens means padding-y can stay density-aware while line-height holds the text box steady."
+  >
+    <ngwr-doc-code [code]="snippets.contract" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The size ladder"
+    description="Each box below is a bare `<div>` styled only with the contract tokens — no fixed heights. The rendered height equals `line-height + 2×padding-y + 2×1px border`, i.e. 22 / 30 / 36px."
+  >
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem">
+      <div
+        style="
+          display: inline-flex;
+          align-items: center;
+          box-sizing: border-box;
+          border: 1px solid var(--wr-color-light);
+          background: var(--wr-color-white);
+          color: var(--wr-color-dark);
+          font-family: var(--wr-font-family-base);
+          padding: var(--wr-control-padding-y-sm) var(--wr-control-padding-x-sm);
+          line-height: var(--wr-control-line-height-sm);
+          font-size: var(--wr-control-font-size-sm);
+          border-radius: var(--wr-control-radius-sm);
+        "
+      >
+        sm · 22px
+      </div>
+      <div
+        style="
+          display: inline-flex;
+          align-items: center;
+          box-sizing: border-box;
+          border: 1px solid var(--wr-color-light);
+          background: var(--wr-color-white);
+          color: var(--wr-color-dark);
+          font-family: var(--wr-font-family-base);
+          padding: var(--wr-control-padding-y-md) var(--wr-control-padding-x-md);
+          line-height: var(--wr-control-line-height-md);
+          font-size: var(--wr-control-font-size-md);
+          border-radius: var(--wr-control-radius-md);
+        "
+      >
+        md · 30px
+      </div>
+      <div
+        style="
+          display: inline-flex;
+          align-items: center;
+          box-sizing: border-box;
+          border: 1px solid var(--wr-color-light);
+          background: var(--wr-color-white);
+          color: var(--wr-color-dark);
+          font-family: var(--wr-font-family-base);
+          padding: var(--wr-control-padding-y-lg) var(--wr-control-padding-x-lg);
+          line-height: var(--wr-control-line-height-lg);
+          font-size: var(--wr-control-font-size-lg);
+          border-radius: var(--wr-control-radius-lg);
+        "
+      >
+        lg · 36px
+      </div>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="How a control derives its height"
+    description="A control points its own `--wr-<name>-*` knobs at the contract, then renders padding and line-height from them. The `sm` / `lg` modifiers simply re-point the same knobs at the matching tier — there is no separate height rule to keep in sync. Because only padding-y is multiplied by `--wr-density-y`, switching density keeps the whole catalogue aligned."
+  >
+    <ngwr-doc-code [code]="snippets.derive" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="The contract tokens">
+    <ngwr-doc-api [rows]="contractTokens" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The shared size API"
+    description="Every form control takes the same `size` input — `sm`, `md` (default) or `lg`. One mental model across the catalogue: pick a size once and button, input and select agree on it."
+  >
+    <ngwr-doc-code [code]="snippets.size" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.sizeType" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The radius scale"
+    description="Two families. Controls use the tight `--wr-control-radius-{sm,md,lg}` ramp (5 / 6 / 7px) so they read crisp at small sizes. Containers and overlays use `--wr-border-radius-*`, anchored on a 10px `base` for panels — cards, dropdowns, dialogs, toasts — with `sm` (6px) for nested rows, `lg` (16px) for large surfaces and `pill` (50rem) for fully-rounded ends. Circles (avatars, radio dots, FABs) use `border-radius: 50%` directly — there is no token for them."
+  >
+    <ngwr-doc-code [code]="snippets.radius" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="The radius tokens">
+    <ngwr-doc-api [rows]="radiusTokens" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="See also"
+    description="[Density service](/services/density) — the `--wr-density-*` multipliers that scale padding-y at runtime. [Theming](/getting-started/theming) — overriding any of these tokens on `:root`."
+  />
+</ngwr-doc-page>

@@ -67,13 +67,15 @@
 
   &__nav {
     appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: 0;
     width: 1.75rem;
     height: 1.75rem;
     border-radius: var(--wr-calendar-day-radius);
     color: var(--wr-calendar-muted);
-    font-size: var(--wr-text-lg);
     line-height: 1;
     cursor: pointer;
     transition:

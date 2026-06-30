@@ -1,0 +1,216 @@
+<ngwr-doc-page
+  title="Colors"
+  description="Every color in the system is a CSS custom property under the `--wr-color-*` namespace. There are three layers: the **intent palette** (brand hues + auto-generated shades and contrast), the **soft set** (tinted surfaces at fixed alphas), and the **semantic neutrals** (surfaces, borders, muted text). Consume tokens — never hardcode hex — and dark mode comes for free."
+  [keywords]="['colors', 'tokens', 'palette', 'theme', 'dark mode', 'css variables', 'soft', 'contrast']"
+  [labels]="['Tokens', 'Reference']"
+>
+  <ngwr-doc-section
+    title="Intent palette"
+    description="Nine intents — `primary`, `secondary`, `success`, `warning`, `danger`, `info`, `medium`, `light`, `dark`. Each exposes its base value plus four generated shades (`-dark` −5%, `-darker` −10%, `-light` +5%, `-lighter` +10% lightness), an `-rgb` channel, and a YIQ-derived `-contrast` (auto dark-on-light / light-on-dark)."
+  >
+    <div style="display: flex; flex-direction: column; gap: 0.75rem">
+      @for (intent of intents; track intent) {
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap">
+          <code style="width: 6rem; flex: none; font-size: 0.8125rem; color: var(--wr-color-text-muted)">{{
+            intent
+          }}</code>
+          <div style="display: flex; gap: 0.375rem; flex-wrap: wrap">
+            @for (shade of shades; track shade.suffix) {
+              <div
+                [style.background]="`var(--wr-color-${intent}${shade.suffix})`"
+                [style.color]="`var(--wr-color-${intent}-contrast)`"
+                [title]="`--wr-color-${intent}${shade.suffix}`"
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 5rem;
+                  height: 3rem;
+                  border-radius: 0.375rem;
+                  border: 1px solid var(--wr-color-border);
+                  font-size: 0.6875rem;
+                  text-align: center;
+                "
+              >
+                {{ shade.label }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Using an intent"
+    description="Pair the base with its `-contrast` for solid surfaces. The shade variants give you hover / pressed states at compile time — no runtime Sass."
+  >
+    <ngwr-doc-code [code]="snippets.intent" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The -rgb channel"
+    description="Each intent ships `--wr-color-{intent}-rgb` — the raw `R, G, B` triple. Compose any alpha you need at the call site with `rgba()`."
+  >
+    <ngwr-doc-code [code]="snippets.rgb" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Soft set"
+    description="Seven intents (`primary`, `secondary`, `success`, `warning`, `danger`, `info`, `medium` — **not** `light` or `dark`) also expose a soft set: a low-alpha fill, a matching hairline, a pressed tint, and a readable same-hue text color. Every alpha lives in exactly one place, so soft surfaces stay consistent everywhere."
+  >
+    <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      @for (intent of softIntents; track intent) {
+        <div
+          [style.background]="`var(--wr-color-${intent}-soft)`"
+          [style.border]="`1px solid var(--wr-color-${intent}-soft-border)`"
+          [style.color]="`var(--wr-color-${intent}-soft-contrast)`"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+          "
+        >
+          <span
+            [style.background]="`var(--wr-color-${intent})`"
+            style="width: 0.75rem; height: 0.75rem; flex: none; border-radius: 999px"
+          ></span>
+          <strong>{{ intent }}</strong>
+          <span style="opacity: 0.85"> -soft fill · -soft-border hairline · -soft-contrast text </span>
+        </div>
+      }
+    </div>
+
+    <ngwr-doc-api [rows]="softTokens" />
+    <ngwr-doc-code [code]="snippets.soft" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Semantic neutrals"
+    description="Theme-aware tokens for the chrome around your content — surfaces, dividers, scrims, and muted text. These are not per-intent; there is one canonical token for each job, and most are built on the flipping `light` / `medium` channels so they adapt to dark mode automatically."
+  >
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        background: var(--wr-color-white);
+        border: 1px solid var(--wr-color-border);
+        border-radius: 0.5rem;
+        overflow: hidden;
+      "
+    >
+      <div
+        style="
+          padding: 0.625rem 0.875rem;
+          color: var(--wr-color-dark);
+          border-bottom: 1px solid var(--wr-color-border-subtle);
+          font-weight: 600;
+        "
+      >
+        Surface on <code>--wr-color-white</code>, text in <code>--wr-color-dark</code>
+      </div>
+      <div
+        style="
+          padding: 0.625rem 0.875rem;
+          color: var(--wr-color-text-muted);
+          border-bottom: 1px solid var(--wr-color-border);
+        "
+      >
+        <code>--wr-color-text-muted</code> — de-emphasized label
+      </div>
+      <div style="padding: 0.625rem 0.875rem; color: var(--wr-color-text-faint)">
+        <code>--wr-color-text-faint</code> — faintest placeholder
+      </div>
+      <div
+        style="
+          padding: 0.625rem 0.875rem;
+          background: var(--wr-color-hover);
+          color: var(--wr-color-dark);
+          border-top: 1px solid var(--wr-color-border-strong);
+        "
+      >
+        Row with <code>--wr-color-hover</code> tint (top edge is <code>-border-strong</code>)
+      </div>
+    </div>
+
+    <ngwr-doc-api [rows]="neutralTokens" />
+    <ngwr-doc-code [code]="snippets.neutral" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Gray ramp"
+    description="A fixed neutral primitive — slate from `50` (subtlest surface tint) to `950` (strongest ink). Unlike the semantic neutrals it does **not** flip in dark mode; each step is a stable building block. Reach for the role aliases below when you want a value that adapts to the theme."
+  >
+    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem">
+      @for (step of grayRamp; track step) {
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem">
+          <span
+            [style.background]="`var(--wr-color-gray-${step})`"
+            style="width: 3rem; height: 3rem; border-radius: 0.375rem; border: 1px solid var(--wr-color-border)"
+          ></span>
+          <code style="font-size: 0.6875rem">{{ step }}</code>
+        </div>
+      }
+    </div>
+    <ngwr-doc-code [code]="snippets.gray" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Role aliases"
+    description="Intent-free semantic roles layered over the flipping neutrals. Prefer these in new code for surface / text jobs — they resolve through `white` / `dark` / `medium`, so they adapt to dark mode for free. The underlying `--wr-color-white` / `-dark` / `-medium` primitives stay available."
+  >
+    <ngwr-doc-api [rows]="roleTokens" />
+    <ngwr-doc-code [code]="snippets.roles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="How dark mode flips"
+    description="Dark mode is opt-in via `[data-theme='dark']` on `<html>` (driven by `provideWrTheme()`). **Only semantic tokens flip** — brand hues stay put so colored elements look the same in both themes. The key inversion is that `--wr-color-white` is the page *surface* and `--wr-color-dark` is the *text* — and both swap roles in dark mode. Build with the tokens and you write zero dark-mode overrides."
+  >
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap">
+      <div
+        style="
+          flex: 1 1 14rem;
+          padding: 1rem;
+          background: var(--wr-color-white);
+          color: var(--wr-color-dark);
+          border: 1px solid var(--wr-color-border);
+          border-radius: 0.5rem;
+        "
+      >
+        <strong>Same markup, current theme</strong>
+        <p style="margin: 0.5rem 0 0; color: var(--wr-color-text-muted); font-size: 0.875rem">
+          surface = <code>--wr-color-white</code>, text = <code>--wr-color-dark</code>
+        </p>
+      </div>
+
+      <div
+        data-theme="dark"
+        style="
+          flex: 1 1 14rem;
+          padding: 1rem;
+          background: var(--wr-color-white);
+          color: var(--wr-color-dark);
+          border: 1px solid var(--wr-color-border);
+          border-radius: 0.5rem;
+        "
+      >
+        <strong>Same markup, forced dark</strong>
+        <p style="margin: 0.5rem 0 0; color: var(--wr-color-text-muted); font-size: 0.875rem">
+          surface flips to <code>#0b1120</code>, text to <code>#e6ebf3</code>
+        </p>
+      </div>
+    </div>
+
+    <ngwr-doc-code [code]="snippets.dark" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="See also"
+    description="[Color (Getting Started)](/getting-started/color) — overriding the base palette at build or runtime. [Theming](/getting-started/theming) — wiring the dark-mode toggle with `provideWrTheme()`."
+  />
+</ngwr-doc-page>

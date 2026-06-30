@@ -85,6 +85,29 @@ $contrast-light: #ffffff !default;
   --wr-color-text-muted: rgba(var(--wr-color-medium-rgb), 0.85);
   --wr-color-text-faint: rgba(var(--wr-color-medium-rgb), 0.6);
 
+  // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
+  // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the
+  // semantic neutrals, does NOT flip in dark mode. For theme-aware surface /
+  // text jobs reach for the role aliases below instead.
+  --wr-color-gray-50: #f8fafc;
+  --wr-color-gray-100: #f1f5f9;
+  --wr-color-gray-200: #e2e8f0;
+  --wr-color-gray-300: #cbd5e1;
+  --wr-color-gray-400: #94a3b8;
+  --wr-color-gray-500: #64748b;
+  --wr-color-gray-600: #475569;
+  --wr-color-gray-700: #334155;
+  --wr-color-gray-800: #1e293b;
+  --wr-color-gray-900: #0f172a;
+  --wr-color-gray-950: #020617;
+
+  // Semantic role aliases over the flipping neutrals — prefer these in new code
+  // for intent-free surface / text jobs. They resolve through `white` / `dark`
+  // / `medium`, so they flip with the theme automatically.
+  --wr-color-surface: var(--wr-color-white);
+  --wr-color-on-surface: var(--wr-color-dark);
+  --wr-color-on-surface-muted: var(--wr-color-medium);
+
   @each $name, $base in $base-colors {
     --wr-color-#{$name}: #{$base};
     --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
