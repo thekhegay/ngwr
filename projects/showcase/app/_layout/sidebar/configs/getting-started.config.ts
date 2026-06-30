@@ -18,6 +18,7 @@ export const GETTING_STARTED_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Configuration', url: ['/getting-started', 'configuration'] },
   // 3. Tooling that automates steps 1–2 + day-to-day.
   { title: 'Schematics', url: ['/getting-started', 'schematics'] },
+  { title: 'Migration guide', url: ['/getting-started', 'migration'] },
   // 4. Make it look right.
   { title: 'Theming', url: ['/getting-started', 'theming'] },
   { title: 'Color', url: ['/getting-started', 'color'] },

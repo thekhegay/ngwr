@@ -60,7 +60,7 @@ export class Footer {
         { label: 'Typography', url: ['/typography'] },
         { label: 'Translate (i18n)', url: ['/translate'] },
         { label: 'Schematics', url: ['/getting-started', 'schematics'] },
-        { label: 'Migration', url: ['/getting-started', 'changelog'] },
+        { label: 'Migration', url: ['/getting-started', 'migration'] },
       ],
     },
     {

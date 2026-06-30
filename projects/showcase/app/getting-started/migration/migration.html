@@ -1,0 +1,52 @@
+<ngwr-doc-page
+  title="Migration guide"
+  description="How to move between major versions of ngwr. Each major ships an `ng update` codemod that rewrites your code automatically; the tables below document what changes if you'd rather do it by hand."
+  [keywords]="['migration', 'ng update', 'upgrade', 'breaking changes', 'codemod', 'schematics']"
+>
+  <ngwr-doc-section
+    title="Run the codemod"
+    description="`ng update` runs the version-matched migration: it rewrites templates, TypeScript and stylesheets in place. Commit first, run it, then review with `git diff`."
+  >
+    <ngwr-doc-code [code]="snippets.update" language="bash" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v7 → v8"
+    description="Three breaking changes. The codemod auto-fixes density + pagination and warns (with file paths) about the removed components, which have no automatic replacement."
+  >
+    <p wrTypography variant="small" tone="medium">
+      <strong>Density values renamed.</strong> `compact` / `default` / `comfortable` become `sm` / `md` / `lg`; `touch`
+      is unchanged and `md` is now the default. Affects `provideWrDensity`, the `wrDensity` directive, and the
+      `[data-wr-density]` selector.
+    </p>
+    <ngwr-doc-api [rows]="densityRows" />
+    <ngwr-doc-code [code]="snippets.density" language="diff" />
+    <ngwr-doc-code [code]="snippets.densityTpl" language="diff" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Pagination sizes trimmed.</strong> `WrPaginationSize` drops `xs` and `xl` — it is now `'sm' | 'md' |
+      'lg'`.
+    </p>
+    <ngwr-doc-api [rows]="paginationRows" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Removed components.</strong> `WrReveal` (the `wrReveal` directive in `ngwr/directives`) and
+      `WrScrambleText` (`ngwr/scramble-text`) were removed — both were unreliable. There is no drop-in replacement; the
+      codemod lists every file that uses them so you can swap them out.
+    </p>
+    <ngwr-doc-code [code]="snippets.removed" language="diff" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="v6 → v7"
+    description="v7 consolidated ten standalone entry-points into shared components. Run `ng update ngwr@7`; it rewrites the tags, TypeScript imports and SCSS `@use` paths."
+  >
+    <p wrTypography variant="small" tone="medium">
+      Key renames: `wr-autocomplete` / `wr-chips-input` → `wr-select` (with `mode`); `wr-time-picker` /
+      `wr-date-time-picker` → `wr-date-picker`; `wr-tooltip` → `wr-popover`; `wr-tree-select` → `wr-tree`;
+      `wr-bottom-sheet` → `wr-drawer`; `wr-image` → `wr-lightbox`; `ngwr/tag` → `ngwr/badge`; `wr-animated-text` →
+      `wr-typewriter` / `wr-decrypt-text` / `wr-split-text` (per mode). See the
+      <a wrTypography routerLink="/getting-started/schematics">Schematics</a> page for the full collection.
+    </p>
+  </ngwr-doc-section>
+</ngwr-doc-page>
