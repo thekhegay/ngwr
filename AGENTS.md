@@ -57,7 +57,7 @@ one component folder. Reach for them instead of hand-rolling:
   `provideWrI18n()` + `provideWrI18nStaticLoader()`; ngwr's own catalogs at
   `ngwr/i18n/{ru,en}`.
 - **Density** (`ngwr/density`) — `provideWrDensity()`, the `[wrDensity]`
-  directive, `WrDensity` service; values compact / default / comfortable / touch
+  directive, `WrDensity` service; values sm / md / lg / touch
   drive the `--wr-density-*` multipliers.
 - **Breakpoints** (`ngwr/media` + SCSS) — `WrMedia.matches('md')` returns a
   `Signal<boolean>`; SCSS mixin API via `@use 'ngwr/breakpoints'`.
