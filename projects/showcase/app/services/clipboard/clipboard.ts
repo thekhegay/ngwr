@@ -74,7 +74,7 @@ export class MyComponent {
     read: `// Read text. Returns null when unsupported or denied.
 const text = await this.clip.read();
 if (text) console.log('pasted:', text);`,
-    perm: `// Probe the Permissions API.
+    perm: `// Probe clipboard availability (capability + Permissions API).
 const state = await this.clip.permission('write');
 // 'granted' | 'denied' | 'prompt' | 'unsupported'`,
   };
@@ -102,7 +102,8 @@ const state = await this.clip.permission('write');
     },
     {
       name: 'permission(name)',
-      description: 'Probe the Permissions API for `clipboard-read` or `clipboard-write`.',
+      description:
+        'Report read / write availability. Grounded in the actual Clipboard API capability, then refined by the Permissions API when the browser recognises `clipboard-read` / `clipboard-write`. Returns `unsupported` only when the capability is genuinely missing.',
       type: "(name: 'read' | 'write') => Promise<WrClipboardPermission>",
       default: '—',
     },
