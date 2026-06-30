@@ -16,6 +16,18 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="With an action"
+    description="Project a control into the `wrResultExtra` slot to give the user a next step — e.g. a confirm screen with a primary button."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-result status="success" title="Submitted!" description="We'll be in touch.">
+        <button type="button" wr-btn color="primary" wrResultExtra>Continue</button>
+      </wr-result>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Presets"
     description="Drop-in 404 / 403 / 500 pages. Pass `title` / `description` to override the defaults for localisation."
   >

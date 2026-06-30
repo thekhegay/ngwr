@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrResult, WrResult403, WrResult404, WrResult500 } from 'ngwr/result';
 
 import {
@@ -16,6 +17,7 @@ import {
   templateUrl: './result.html',
   styleUrl: './result.scss',
   imports: [
+    WrButton,
     WrResult,
     WrResult404,
     WrResult403,
@@ -29,7 +31,7 @@ import {
 })
 export default class ResultPageComponent {
   protected readonly snippet = `<wr-result status="success" title="Submitted!" description="We'll be in touch.">
-  <button wrResultExtra>Continue</button>
+  <button wr-btn color="primary" wrResultExtra>Continue</button>
 </wr-result>`;
 
   protected readonly presets = `<!-- Pre-built variants for the common HTTP statuses. Override

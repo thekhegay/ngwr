@@ -41,7 +41,11 @@ export default class ScrollServicePageComponent {
   }
 
   protected scrollToSection(id: string): void {
-    this.scroll.to(`#scroll-demo-${id}`, { container: this.scrollBox().nativeElement, smooth: true });
+    this.scroll.to(`#scroll-demo-${id}`, {
+      container: this.scrollBox().nativeElement,
+      offset: 16,
+      smooth: true,
+    });
   }
 
   protected readonly snippets = {

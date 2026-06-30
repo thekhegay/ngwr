@@ -7,7 +7,7 @@ export const TRANSLATE_SIDEBAR: readonly SidebarGroup[] = [
     url: ['/translate', 'overview'],
   },
   {
-    title: 'Get started',
+    title: 'Getting started',
     children: [
       { title: 'Setup & loaders', url: ['/translate', 'setup'] },
       { title: 'Usage in templates', url: ['/translate', 'usage'] },
