@@ -11,14 +11,21 @@
   <ngwr-doc-section title="Basic">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-sparkline [data]="data" width="100%" height="4rem" />
+      <wr-sparkline [data]="data" width="100%" height="4rem" style="display: block; width: 100%" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Filled area" description="Set `[showArea]` to fill under the line.">
     <ngwr-doc-code [code]="snippets.area" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" width="100%" height="4rem" />
+      <wr-sparkline
+        [data]="data"
+        [showArea]="true"
+        color="var(--wr-color-success)"
+        width="100%"
+        height="4rem"
+        style="display: block; width: 100%"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
