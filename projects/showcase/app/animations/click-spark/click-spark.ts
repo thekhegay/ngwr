@@ -28,7 +28,7 @@ import {
 })
 export default class ClickSparkPage {
   // Live demo state
-  protected readonly sparkColor = signal('#ffffff');
+  protected readonly sparkColor = signal('var(--wr-color-dark)');
   protected readonly sparkCount = signal(8);
   protected readonly sparkRadius = signal(15);
   protected readonly sparkSize = signal(10);
@@ -68,7 +68,13 @@ export default class ClickSparkPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'sparkColor', description: 'Spark stroke colour.', type: 'string', default: "'#fff'" },
+    {
+      name: 'sparkColor',
+      description:
+        'Spark stroke colour. Accepts any CSS colour or a var(--wr-…) token, which is resolved against the theme.',
+      type: 'string',
+      default: "'var(--wr-color-dark)'",
+    },
     {
       name: 'sparkSize',
       description: 'Length of each spark line in px at start; tapers to 0 over the duration.',

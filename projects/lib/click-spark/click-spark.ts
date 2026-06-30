@@ -67,8 +67,13 @@ const EASINGS: Readonly<Record<WrClickSparkEasing, (t: number) => number>> = {
   },
 })
 export class WrClickSpark {
-  /** Spark line colour. @default '#fff' */
-  readonly sparkColor = input('#fff');
+  /**
+   * Spark line colour. Accepts any CSS colour, or a `var(--wr-…)` token which is
+   * resolved against the host so it tracks the theme. The default flips with the
+   * theme — dark sparks in light mode, light sparks in dark.
+   * @default 'var(--wr-color-dark)'
+   */
+  readonly sparkColor = input('var(--wr-color-dark)');
 
   /** Length of each spark line in pixels (at t=0; tapers to 0 at t=1). @default 10 */
   readonly sparkSize = input(10, { transform: numAttr(10) });
@@ -122,6 +127,20 @@ export class WrClickSpark {
 
   // Internals
 
+  /**
+   * Canvas `strokeStyle` can't read CSS custom properties, so a `var(--wr-…)`
+   * token is resolved against the host's computed style here. Plain colours
+   * pass through untouched. Falls back to a dark literal if the custom
+   * property resolves to nothing.
+   */
+  private resolveColor(): string {
+    const color = this.sparkColor();
+    const match = /^var\((--[\w-]+)\)$/.exec(color.trim());
+    if (!match) return color;
+    const resolved = getComputedStyle(this.host.nativeElement).getPropertyValue(match[1]).trim();
+    return resolved || '#0f172a';
+  }
+
   private syncCanvasSize(): void {
     const canvas = this.canvasRef().nativeElement;
     const host = this.host.nativeElement;
@@ -158,7 +177,7 @@ export class WrClickSpark {
       const sparkRadius = this.sparkRadius();
       const sparkSize = this.sparkSize();
       const extraScale = this.extraScale();
-      const color = this.sparkColor();
+      const color = this.resolveColor();
 
       this.sparks = this.sparks.filter(spark => {
         const elapsed = ts - spark.startTime;
