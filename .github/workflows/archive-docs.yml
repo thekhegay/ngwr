@@ -1,0 +1,59 @@
+name: Archive docs version
+
+# Build a past release's showcase docs and deploy them to a versioned path
+# (e.g. /v7/) so the header version-switcher can link to frozen older docs.
+# Run once per archived major.
+#
+# Server prerequisite: an nginx location for the path with an SPA fallback —
+#   location /v7/ { try_files $uri $uri/ /v7/index.html; }
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag to build (e.g. v7.3.0)'
+        required: true
+        type: string
+      path:
+        description: 'Versioned URL path / target subdir (e.g. v7)'
+        required: true
+        type: string
+
+concurrency:
+  group: archive-docs-${{ inputs.path }}
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    name: Build ${{ inputs.tag }} → /${{ inputs.path }}/
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # AI assets are best-effort — the generator may be absent on older tags.
+      - run: pnpm exec tsx scripts/gen-ai-assets.ts || true
+
+      # Root the snapshot at the versioned path so its assets + router links
+      # resolve under /<path>/.
+      - run: pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
+
+      - uses: easingthemes/ssh-deploy@v6.0.3
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: '-rlgoDzvc -i'
+          SOURCE: 'dist/showcase/'
+          REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}
+          TARGET: '/var/www/ngwr-showcase/${{ inputs.path }}/'
