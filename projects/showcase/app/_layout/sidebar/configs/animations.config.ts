@@ -31,7 +31,6 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
     children: [
       { title: 'Click Spark', url: ['/animations', 'click-spark'] },
       { title: 'Confetti', url: ['/animations', 'confetti'] },
-      { title: 'Reveal', url: ['/animations', 'reveal'] },
       { title: 'Splash Cursor', url: ['/animations', 'splash-cursor'] },
     ],
   },
@@ -46,7 +45,6 @@ export const ANIMATIONS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Glitch Text', url: ['/animations', 'glitch-text'] },
       { title: 'Gradient Text', url: ['/animations', 'gradient-text'] },
       { title: 'Rotating Text', url: ['/animations', 'rotating-text'] },
-      { title: 'Scramble Text', url: ['/animations', 'scramble-text'] },
       { title: 'Shiny Text', url: ['/animations', 'shiny-text'] },
       { title: 'Split Text', url: ['/animations', 'split-text'] },
       { title: 'Typewriter', url: ['/animations', 'typewriter'] },

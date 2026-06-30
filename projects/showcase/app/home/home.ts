@@ -12,7 +12,6 @@ import { WrGradientText } from 'ngwr/gradient-text';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrRotatingText } from 'ngwr/rotating-text';
-import { WrScrambleText } from 'ngwr/scramble-text';
 import { WrShinyText } from 'ngwr/shiny-text';
 import { WrSplitText } from 'ngwr/split-text';
 import { WrSpotlightCard } from 'ngwr/spotlight-card';
@@ -58,7 +57,6 @@ interface WhyTile {
     WrDecryptText,
     WrTypewriter,
     WrGradientText,
-    WrScrambleText,
     WrWaves,
     // Sections
     WrSpotlightCard,
