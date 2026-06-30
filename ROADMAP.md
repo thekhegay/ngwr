@@ -4,13 +4,24 @@
 > 2026-06-22. v8.0 targets the Angular 23 baseline (~Nov 2026); everything
 > non-breaking ships in 7.x minors along the way. Sizes: S / M / L / XL.
 >
-> **Status (2026-06-23):** the mobile theme (M, priority 1) shipped its first
-> wave in **7.2.0** (M1 + M2 done, M3–M5 partially); **7.3.0** continues M3 +
-> M5 — a `touch` density preset, swipe gestures (drawer / lightbox / toast /
-> carousel), and more container-query components (table / pagination / toolbar
-> / tabs). The rest of M continues in later 7.x minors. **8.0.0 is reserved
-> for the breaking baseline only** (Angular 23 peer + the Aria internals swap,
-> B2) — most of this roadmap is additive and ships as 7.x minors before then.
+> **Status (2026-06-30):** **v8 is now the active, shipping major.** The
+> breaking baseline merged ahead of the Angular 23 peer bump: density values
+> renamed (`compact|default|comfortable` → `sm|md|lg`, `touch` unchanged,
+> default now `md`), the pagination size scale trimmed (`xs`/`xl` dropped, now
+> `sm|md|lg`), and the unreliable `WrReveal` / `WrScrambleText` removed. The
+> mobile theme (M, priority 1) shipped its first wave in **7.2.0** (M1 + M2
+> done, M3–M5 partially); **7.3.0** continued M3 + M5 — a `touch` density
+> preset, swipe gestures (drawer / lightbox / toast / carousel), and more
+> container-query components (table / pagination / toolbar / tabs). The rest of
+> M continues in later 8.x minors. v8 also folded in a QA/polish pass and a
+> batch of additive niceties (a `/tokens` design-tokens docs section, a neutral
+> gray ramp + surface role aliases, a header settings dropdown for
+> theme/density/primary, the docs version switcher, statistic count-up,
+> lightbox `aspectRatio`, the url validator `requireProtocol` option, an
+> interfaces Overview page, toast overflow queue, and a Migration-guide page +
+> the `ng update ngwr@8` codemod). **The remaining 8.0.0 breaking work is kept
+> small** (Angular 23 peer + the Aria internals swap, B2) — most of this
+> roadmap is additive.
 >
 > Drafted 2026-06-12 after a competitive sweep of Angular Material/CDK +
 > Angular Aria, PrimeNG, NG-ZORRO, Taiga UI, spartan-ng, Kendo, and the
@@ -174,10 +185,13 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
 - [ ] **D1. Theme presets + builder** (L) — algorithmic palette from a seed
       color, 2–3 prebuilt themes, live theme-builder page that **exports
       tokens and shareable preset files** (tweakcn proves standalone demand).
-- [ ] **D2. System-token layer** (M) — semantic `--wr-sys-*` roles over the
-      raw palette, light/dark/high-contrast via `color-scheme`, plus an
-      optional `--mat-sys-*` interop map so ngwr drops into Material apps.
-      This is the M3 theming bar.
+- [ ] **D2. System-token layer** (M) — **partially shipped in v8:** a neutral
+      gray ramp plus surface role aliases landed, documented in the new
+      `/tokens` design-tokens docs section (colors / sizing / typography /
+      density). **Remaining:** the full semantic `--wr-sys-*` roles over the raw
+      palette, light/dark/high-contrast via `color-scheme`, and the optional
+      `--mat-sys-*` interop map so ngwr drops into Material apps. This is the M3
+      theming bar.
 - [ ] **D3. Squircle: graduate or cut** (S) — decide on `corner-shape`
       browser support; "experimental" shouldn't survive two majors.
 - [ ] **D4. Motion tokens** (M) — unify durations / easings as
@@ -187,8 +201,9 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
 
 ## E — DX, docs & distribution
 
-- [ ] **E1. Versioned docs** (M) — freeze v7 docs (e.g. a `/7.x` route)
-      before v8 content lands; docs search wired into the command palette.
+- [x] **E1. Versioned docs** (M) — **shipped in v8.** A header version
+      switcher plus the archive-docs approach (v7 docs frozen) landed before v8
+      content. Docs search wired into the command palette remains.
 - [ ] **E2. AI-legibility stack** (M–L, highest leverage for adoption) —
       `llms.txt`, per-component markdown export, an **ngwr MCP server**
       (search / docs / examples / install via schematics), agent skills, and
@@ -245,6 +260,15 @@ nobody ships a free, complete Angular AI kit.
 
 Kept deliberately small:
 
+- [x] **Density values renamed** — **shipped in v8.** `compact|default|comfortable`
+      → `sm|md|lg` (`touch` unchanged, default now `md`) across `WrDensity`, the
+      `wrDensity` directive, `provideWrDensity({ defaultDensity })`, and
+      `[data-wr-density]`; covered by the `ng update ngwr@8` codemod (`migration-v8`).
+- [x] **Pagination size scale trimmed** — **shipped in v8.** `xs` / `xl`
+      dropped; `WrPaginationSize` is now `sm|md|lg`.
+- [x] **Removed unreliable components** — **shipped in v8.** `WrReveal` (the
+      `wrReveal` directive, `ngwr/directives`) and `WrScrambleText`
+      (`<wr-scramble-text>`, `ngwr/scramble-text`) deleted.
 - [ ] Angular 23 peer baseline.
 - [ ] B2 internals swap (DOM/class changes from Aria primitives).
 - [ ] Drop v7 compat leftovers; naming nits (`/pipes/range` → `/pipes/wr-range`).

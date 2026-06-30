@@ -10,8 +10,9 @@
 zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
 `@angular/cdk` for overlay, portal, and a11y primitives.
 
-> **Status:** active development. Public API is stable across patch releases but
-> the v7 line is still maturing. [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
+> **Status:** active development. v8 is the current major line (Angular 22 peer).
+> Public API is stable across patch releases and still evolving between majors.
+> [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
 > if something breaks or feels wrong.
 
 ## Requirements
@@ -139,13 +140,13 @@ Plus [icon](https://ngwr.dev/components/icon), the experimental [squircle](https
 
 Animated UI effects. Mix of in-house components + ports of [reactbits.dev](https://www.reactbits.dev) — each port carries a credit chip on its docs page. Defaults are theme-aware (light + dark), and every component honors `prefers-reduced-motion`.
 
-[aurora](https://ngwr.dev/animations/aurora), [blur-text](https://ngwr.dev/animations/blur-text), [border-glow](https://ngwr.dev/animations/border-glow), [circular-text](https://ngwr.dev/animations/circular-text), [click-spark](https://ngwr.dev/animations/click-spark), [confetti](https://ngwr.dev/animations/confetti), [decrypt-text](https://ngwr.dev/animations/decrypt-text), [falling-text](https://ngwr.dev/animations/falling-text), [fuzzy-text](https://ngwr.dev/animations/fuzzy-text), [glitch-text](https://ngwr.dev/animations/glitch-text), [gradient-text](https://ngwr.dev/animations/gradient-text), [marquee](https://ngwr.dev/animations/marquee), [reveal](https://ngwr.dev/animations/reveal), [rotating-text](https://ngwr.dev/animations/rotating-text), [scramble-text](https://ngwr.dev/animations/scramble-text), [shiny-text](https://ngwr.dev/animations/shiny-text), [splash-cursor](https://ngwr.dev/animations/splash-cursor), [split-text](https://ngwr.dev/animations/split-text), [spotlight-card](https://ngwr.dev/animations/spotlight-card), [star-border](https://ngwr.dev/animations/star-border), [tilt-card](https://ngwr.dev/animations/tilt-card), [typewriter](https://ngwr.dev/animations/typewriter), [waves](https://ngwr.dev/animations/waves).
+[aurora](https://ngwr.dev/animations/aurora), [blur-text](https://ngwr.dev/animations/blur-text), [border-glow](https://ngwr.dev/animations/border-glow), [circular-text](https://ngwr.dev/animations/circular-text), [click-spark](https://ngwr.dev/animations/click-spark), [confetti](https://ngwr.dev/animations/confetti), [decrypt-text](https://ngwr.dev/animations/decrypt-text), [falling-text](https://ngwr.dev/animations/falling-text), [fuzzy-text](https://ngwr.dev/animations/fuzzy-text), [glitch-text](https://ngwr.dev/animations/glitch-text), [gradient-text](https://ngwr.dev/animations/gradient-text), [marquee](https://ngwr.dev/animations/marquee), [rotating-text](https://ngwr.dev/animations/rotating-text), [shiny-text](https://ngwr.dev/animations/shiny-text), [splash-cursor](https://ngwr.dev/animations/splash-cursor), [split-text](https://ngwr.dev/animations/split-text), [spotlight-card](https://ngwr.dev/animations/spotlight-card), [star-border](https://ngwr.dev/animations/star-border), [tilt-card](https://ngwr.dev/animations/tilt-card), [typewriter](https://ngwr.dev/animations/typewriter), [waves](https://ngwr.dev/animations/waves).
 
 Card packages bundle their related directives: `ngwr/spotlight-card` exports `WrSpotlight`; `ngwr/tilt-card` exports `WrTilt`; `ngwr/shiny-text` exports `WrShimmer`.
 
 ### Directives — `ngwr/directives`
 
-[autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard), [reveal](https://ngwr.dev/animations/reveal). [affix](https://ngwr.dev/directives/affix) ships as its own entry (`ngwr/affix`).
+[autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard). [affix](https://ngwr.dev/directives/affix) ships as its own entry (`ngwr/affix`).
 
 ### Pipes — `ngwr/pipes`
 
