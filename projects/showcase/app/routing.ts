@@ -10,6 +10,7 @@ import {
   SERVICES_SIDEBAR,
   TRANSLATE_SIDEBAR,
   TYPOGRAPHY_SIDEBAR,
+  TOKENS_SIDEBAR,
   INTERFACES_SIDEBAR,
   UTILS_SIDEBAR,
   VALIDATORS_SIDEBAR,
@@ -40,6 +41,13 @@ export const routes = {
     i18n: 'i18n',
     configuration: 'configuration',
     schematics: 'schematics',
+  },
+  tokens: {
+    index: 'tokens',
+    colors: 'colors',
+    sizing: 'sizing',
+    typography: 'typography',
+    density: 'density',
   },
   components: {
     index: 'components',
@@ -269,6 +277,11 @@ export const routing: Routes = [
         path: routes.gettingStarted.index,
         data: { sidebar: GETTING_STARTED_SIDEBAR },
         loadChildren: () => import('./getting-started/getting-started.routing'),
+      },
+      {
+        path: routes.tokens.index,
+        data: { sidebar: TOKENS_SIDEBAR },
+        loadChildren: () => import('./tokens/tokens.routing'),
       },
       {
         path: routes.components.index,

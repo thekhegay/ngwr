@@ -57,6 +57,7 @@ export class Header {
   protected readonly routes = routes;
   protected readonly nav: readonly NavLink[] = [
     { url: [routes.index, routes.gettingStarted.index], label: 'Getting Started' },
+    { url: [routes.index, routes.tokens.index], label: 'Design tokens' },
     { url: [routes.index, routes.components.index], label: 'Components' },
     { url: [routes.index, routes.typography.index], label: 'Typography' },
     { url: [routes.index, routes.icons.index], label: 'Icons' },
