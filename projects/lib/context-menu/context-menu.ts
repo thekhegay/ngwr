@@ -17,9 +17,9 @@ import type { WrContextMenuPanel } from './context-menu-panel';
 
 /**
  * Attach to any element to show a `<wr-context-menu>` at the pointer
- * position when the user right-clicks, long-presses on touch, or otherwise
- * sends a `contextmenu` event (Shift+F10, etc.). The native browser menu is
- * suppressed for the host element.
+ * position when the user right-clicks or otherwise sends a `contextmenu`
+ * event (Shift+F10, etc.). The native browser menu is suppressed for the
+ * host element.
  *
  * @example
  * ```html
@@ -36,10 +36,6 @@ import type { WrContextMenuPanel } from './context-menu-panel';
   selector: '[wrContextMenu]',
   host: {
     '(contextmenu)': 'onContextMenu($event)',
-    '(touchstart)': 'onTouchStart($event)',
-    '(touchmove)': 'onTouchMove($event)',
-    '(touchend)': 'onTouchEnd($event)',
-    '(touchcancel)': 'onTouchEnd($event)',
   },
 })
 export class WrContextMenu {
@@ -78,6 +74,16 @@ export class WrContextMenu {
   }
 
   /**
+   * Called from a `<wr-context-menu-item>` click — selecting an item
+   * dismisses the whole chain (root + any open submenus). Items live in
+   * a detached overlay portal, so they reach their owning root through
+   * this static handle rather than DI.
+   */
+  static closeActive(): void {
+    WrContextMenu.activeRoot?.closeOverlay();
+  }
+
+  /**
    * Open/close animation duration in ms. Matches the longest SCSS
    * transition on `.wr-context-menu-overlay` (the spring-scale curve).
    * The directive holds the overlay alive for this long during close
@@ -93,90 +99,20 @@ export class WrContextMenu {
    */
   private static readonly LEAVE_DELAY = 240;
 
-  /** Hold duration (ms) before a stationary touch press opens the menu. */
-  private static readonly LONG_PRESS_MS = 500;
-  /** Movement (px) that reclassifies a press as a scroll and cancels it. */
-  private static readonly LONG_PRESS_MOVE_TOLERANCE = 10;
-
-  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
-  private touchStartX = 0;
-  private touchStartY = 0;
-  private longPressFired = false;
-  private suppressContextMenuUntil = 0;
-
   constructor() {
-    this.destroyRef.onDestroy(() => {
-      this.clearLongPress();
-      this.closeOverlay();
-    });
+    this.destroyRef.onDestroy(() => this.closeOverlay());
   }
 
   /** @internal Right-click handler — opens at the pointer (or re-positions if already open). */
   protected onContextMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    // A touch long-press just opened the menu; ignore the synthetic
-    // `contextmenu` some platforms (Android) fire at the same threshold so we
-    // don't close-and-reopen with a flicker.
-    if (performance.now() < this.suppressContextMenuUntil) return;
     // Re-open at the new position even if it was already open.
     // Use page coords (document-relative) so the menu anchors to the
     // zone it was opened over — scrolling the page carries the menu
     // along with the content, matching native + PrimeNG behavior.
     this.closeOverlay();
     this.openOverlay(event.pageX, event.pageY);
-  }
-
-  /**
-   * @internal Touch long-press → open the menu. Native `contextmenu` is
-   * unreliable on touch (iOS doesn't fire it, Android's timing varies), so we
-   * detect the press ourselves: a stationary hold for `LONG_PRESS_MS` opens
-   * the menu at the touch point; moving the finger reclassifies it as a
-   * scroll and cancels.
-   */
-  protected onTouchStart(event: TouchEvent): void {
-    const touch = event.touches[0];
-    if (!touch) return;
-    this.touchStartX = touch.pageX;
-    this.touchStartY = touch.pageY;
-    this.longPressFired = false;
-    this.clearLongPress();
-    this.longPressTimer = setTimeout(() => {
-      this.longPressTimer = null;
-      this.longPressFired = true;
-      this.suppressContextMenuUntil = performance.now() + 700;
-      this.closeOverlay();
-      this.openOverlay(this.touchStartX, this.touchStartY);
-    }, WrContextMenu.LONG_PRESS_MS);
-  }
-
-  /** @internal Cancel a pending long-press once the finger travels (a scroll). */
-  protected onTouchMove(event: TouchEvent): void {
-    if (this.longPressTimer === null) return;
-    const touch = event.touches[0];
-    if (!touch) return;
-    const moved =
-      Math.abs(touch.pageX - this.touchStartX) > WrContextMenu.LONG_PRESS_MOVE_TOLERANCE ||
-      Math.abs(touch.pageY - this.touchStartY) > WrContextMenu.LONG_PRESS_MOVE_TOLERANCE;
-    if (moved) this.clearLongPress();
-  }
-
-  /** @internal Release — drop a pending press; swallow the synthetic click a fired press would emit. */
-  protected onTouchEnd(event: TouchEvent): void {
-    this.clearLongPress();
-    if (this.longPressFired) {
-      this.longPressFired = false;
-      // Stop the browser turning this long-press into a synthetic click that
-      // would land outside the freshly-opened menu and dismiss it.
-      event.preventDefault();
-    }
-  }
-
-  private clearLongPress(): void {
-    if (this.longPressTimer !== null) {
-      clearTimeout(this.longPressTimer);
-      this.longPressTimer = null;
-    }
   }
 
   /** Close the menu. */

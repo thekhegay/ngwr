@@ -1,19 +1,17 @@
 <ngwr-doc-page
   title="Context Menu"
-  description="Attach `[wrContextMenu]` to any element to open a `<wr-context-menu>` at the pointer position on right-click — or a long-press on touch. Native browser menu is suppressed on the host."
-  [keywords]="['context menu', 'right click', 'long press', 'menu', 'submenu', 'wr-context-menu']"
+  description="Attach `[wrContextMenu]` to any element to open a `<wr-context-menu>` at the pointer position on right-click. Native browser menu is suppressed on the host."
+  [keywords]="['context menu', 'right click', 'menu', 'submenu', 'wr-context-menu']"
   [labels]="['Overlay']"
 >
   <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Basic" description="Right-click — or long-press on touch — the area below.">
+  <ngwr-doc-section title="Basic" description="Right-click the area below.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div [wrContextMenu]="basicMenu" class="ngwr-cm-demo">
-        Right-click or long-press — last action: {{ last || '(none)' }}
-      </div>
+      <div [wrContextMenu]="basicMenu" class="ngwr-cm-demo">Right-click here</div>
 
       <wr-context-menu #basicMenu>
         <wr-context-menu-item icon="copy" (click)="pick('copy')">Copy</wr-context-menu-item>
