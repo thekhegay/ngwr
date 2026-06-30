@@ -23,6 +23,7 @@ import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject
  * <h2 wrReveal>Animates in once visible</h2>
  * <div wrReveal threshold="0.5" rootMargin="-100px 0px">…</div>
  * <p wrReveal [once]="false">Re-runs every time it enters the viewport</p>
+ * <div #box style="overflow:auto"><h2 wrReveal [root]="box">Observes inside a scroll box</h2></div>
  * ```
  */
 @Directive({
@@ -40,6 +41,14 @@ export class WrReveal {
 
   /** `rootMargin` passed to IntersectionObserver. @default '0px' */
   readonly rootMargin = input<string>('0px');
+
+  /**
+   * Scroll container to observe against. Defaults to `null` (the
+   * browser viewport). Pass an element to detect reveals while
+   * scrolling inside a nested scroll box.
+   * @default null
+   */
+  readonly root = input<Element | null>(null);
 
   /** Stop observing after the first reveal. @default true */
   readonly once = input(true, { transform: coerceBooleanProperty });
@@ -69,7 +78,7 @@ export class WrReveal {
             }
           }
         },
-        { threshold: this.threshold(), rootMargin: this.rootMargin() }
+        { root: this.root(), threshold: this.threshold(), rootMargin: this.rootMargin() }
       );
       observer.observe(this.el.nativeElement);
       this.destroyRef.onDestroy(() => observer.disconnect());

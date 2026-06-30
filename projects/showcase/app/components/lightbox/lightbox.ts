@@ -67,6 +67,12 @@ export class MyComponent {}`,
       default: "''",
     },
     {
+      name: 'aspectRatio',
+      description: 'Reserve thumbnail space before load to prevent layout shift. Pair with a width.',
+      type: 'string | number | null',
+      default: 'null',
+    },
+    {
       name: 'disablePreview',
       description: 'Disable the click-to-zoom behaviour. The thumb still renders.',
       type: 'boolean',

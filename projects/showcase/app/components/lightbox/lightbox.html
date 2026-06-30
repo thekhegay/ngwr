@@ -13,7 +13,7 @@
     description="Click the image to open the lightbox. Use ESC, backdrop click, or the × button to close."
   >
     <ngwr-doc-snippet [code]="snippets.basic">
-      <wr-lightbox [src]="landscape" alt="Mountain lake" style="max-width: 18rem" />
+      <wr-lightbox [src]="landscape" alt="Mountain lake" aspectRatio="3 / 2" style="width: 18rem" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -22,7 +22,7 @@
     description="Provide a small `preview` URL for the thumbnail and a high-res `src` for the lightbox."
   >
     <ngwr-doc-snippet [code]="snippets.preview">
-      <wr-lightbox [src]="portrait" [preview]="portraitThumb" alt="Forest" style="max-width: 12rem" />
+      <wr-lightbox [src]="portrait" [preview]="portraitThumb" alt="Forest" aspectRatio="2 / 3" style="width: 12rem" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -33,7 +33,8 @@
         [preview]="landscapeThumb"
         alt="Geiranger"
         caption="Geiranger, Norway — 2023"
-        style="max-width: 18rem"
+        aspectRatio="3 / 2"
+        style="width: 18rem"
       />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -43,7 +44,14 @@
     description="Setting `disablePreview` turns off the click-to-zoom behaviour — the image renders as a plain thumbnail."
   >
     <ngwr-doc-snippet [code]="snippets.disabled">
-      <wr-lightbox [src]="portrait" [preview]="portraitThumb" alt="No zoom" disablePreview style="max-width: 12rem" />
+      <wr-lightbox
+        [src]="portrait"
+        [preview]="portraitThumb"
+        alt="No zoom"
+        disablePreview
+        aspectRatio="2 / 3"
+        style="width: 12rem"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

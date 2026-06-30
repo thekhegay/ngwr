@@ -1,4 +1,13 @@
-import { Component, computed, signal } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 
 import { WrReveal } from 'ngwr/directives';
 
@@ -25,6 +34,9 @@ export default class RevealPage {
 
   protected readonly replayKey = signal(0);
 
+  private readonly scrollBox = viewChild<ElementRef<HTMLElement>>('scroll');
+  private readonly injector = inject(Injector);
+
   protected readonly snippet = computed(
     () =>
       `<!-- Add 'ngwr/animations' for the .wr-reveal enter styles. -->
@@ -45,7 +57,10 @@ export default class RevealPage {
   ];
 
   protected replay(): void {
+    // Re-create the target (re-arms the observer) and scroll the box
+    // back to the top so the reveal starts below the fold again.
     this.replayKey.update(n => n + 1);
+    afterNextRender(() => this.scrollBox()?.nativeElement.scrollTo({ top: 0 }), { injector: this.injector });
   }
 
   protected readonly snippets = {
