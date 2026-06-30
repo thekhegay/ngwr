@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-import { Settings } from 'lucide';
+import { ChevronDown, Settings } from 'lucide';
 import { WrBurger } from 'ngwr/burger';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrDrawer } from 'ngwr/drawer';
@@ -11,6 +11,7 @@ import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
+import { NGWR_VERSION_TOKEN } from 'ngwr/version';
 
 import { BRAND_ICONS } from '#core/icons';
 import { PrimaryColor } from '#core/services';
@@ -33,12 +34,25 @@ interface ActionLink {
   templateUrl: './header.html',
   styleUrl: './header.scss',
   imports: [RouterLink, RouterLinkActive, WrBurger, WrDrawer, WrIcon, WrDropdown, WrDropdownMenu, WrSegmented],
-  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ settings: Settings })])],
+  providers: [provideWrIcons([...BRAND_ICONS, ...lucideIcons({ settings: Settings, 'chevron-down': ChevronDown })])],
 })
 export class Header {
   protected readonly theme = inject(WrTheme);
   protected readonly density = inject(WrDensity);
   protected readonly primary = inject(PrimaryColor);
+
+  /** Current major (e.g. `v8`) shown on the version-switcher trigger. */
+  protected readonly major = `v${String(inject(NGWR_VERSION_TOKEN)).split('.')[0]}`;
+
+  /**
+   * Documentation versions, each a separate static deployment. The live site
+   * is `latest`; older majors are archived snapshots served from a versioned
+   * path (so these are full-page `href` links, not in-app routes).
+   */
+  protected readonly docVersions: readonly { readonly label: string; readonly url: string }[] = [
+    { label: `${this.major} · latest`, url: '/' },
+    { label: 'v7', url: '/v7/' },
+  ];
 
   /** Theme segmented — user choice (`auto` resolves via `prefers-color-scheme`). */
   protected readonly themeOptions: readonly WrSegmentedOption<WrThemeMode>[] = [

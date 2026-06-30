@@ -28,6 +28,27 @@
   <div class="ngwr-header__actions">
     <button
       type="button"
+      class="ngwr-header__action ngwr-header__version"
+      [wrDropdown]="versionMenu"
+      position="bottom-end"
+      aria-label="Documentation version"
+    >
+      <span>{{ major }}</span>
+      <wr-icon name="chevron-down" />
+    </button>
+
+    <wr-dropdown-menu #versionMenu>
+      <div class="ngwr-header__versions" role="presentation">
+        @for (v of docVersions; track v.url) {
+          <a class="ngwr-header__version-item" [class.ngwr-header__version-item--active]="v.url === '/'" [href]="v.url">
+            {{ v.label }}
+          </a>
+        }
+      </div>
+    </wr-dropdown-menu>
+
+    <button
+      type="button"
       class="ngwr-header__action ngwr-header__action--settings"
       [wrDropdown]="settingsMenu"
       position="bottom-end"
