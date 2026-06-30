@@ -12,4 +12,12 @@
  * {@link createAppHighlighter}.
  */
 export type ShikiLang =
-  'angular-html' | 'angular-ts' | 'angular-template' | 'angular-expression' | 'typescript' | 'html' | 'scss' | 'bash';
+  | 'angular-html'
+  | 'angular-ts'
+  | 'angular-template'
+  | 'angular-expression'
+  | 'typescript'
+  | 'html'
+  | 'scss'
+  | 'bash'
+  | 'diff';

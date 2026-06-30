@@ -30,6 +30,7 @@ export function getHighlighter(): Promise<HighlighterCore> {
       import('shiki/langs/html.mjs'),
       import('shiki/langs/scss.mjs'),
       import('shiki/langs/bash.mjs'),
+      import('shiki/langs/diff.mjs'),
     ],
     engine: createOnigurumaEngine(import('shiki/wasm')),
   });

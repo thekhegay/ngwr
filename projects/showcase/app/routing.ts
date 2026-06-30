@@ -41,6 +41,7 @@ export const routes = {
     i18n: 'i18n',
     configuration: 'configuration',
     schematics: 'schematics',
+    migration: 'migration',
   },
   tokens: {
     index: 'tokens',
