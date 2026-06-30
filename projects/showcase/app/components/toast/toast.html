@@ -27,10 +27,12 @@
         <wr-checkbox [(ngModel)]="showCopy">Show copy button</wr-checkbox>
       </div>
 
-      <wr-btn (click)="fire('info')">Info</wr-btn>
-      <wr-btn color="success" (click)="fire('success')">Success</wr-btn>
-      <wr-btn color="warning" (click)="fire('warning')">Warning</wr-btn>
-      <wr-btn color="danger" (click)="fire('danger')">Danger</wr-btn>
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        <wr-btn (click)="fire('info')">Info</wr-btn>
+        <wr-btn color="success" (click)="fire('success')">Success</wr-btn>
+        <wr-btn color="warning" (click)="fire('warning')">Warning</wr-btn>
+        <wr-btn color="danger" (click)="fire('danger')">Danger</wr-btn>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

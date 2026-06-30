@@ -1,13 +1,4 @@
-import {
-  Component,
-  type ElementRef,
-  Injector,
-  afterNextRender,
-  computed,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { WrReveal } from 'ngwr/directives';
 
@@ -32,10 +23,8 @@ export default class RevealPage {
   protected readonly rootMargin = signal('0px');
   protected readonly once = signal(true);
 
+  /** Replayable key — bump it to remount the target and re-arm the reveal. */
   protected readonly replayKey = signal(0);
-
-  private readonly scrollBox = viewChild<ElementRef<HTMLElement>>('scroll');
-  private readonly injector = inject(Injector);
 
   protected readonly snippet = computed(
     () =>
@@ -57,10 +46,11 @@ export default class RevealPage {
   ];
 
   protected replay(): void {
-    // Re-create the target (re-arms the observer) and scroll the box
-    // back to the top so the reveal starts below the fold again.
+    // Remount the target: the fresh element mounts at `.wr-reveal`
+    // (opacity:0, translateY) and the directive's observer flips it to
+    // `--visible` on the next frame — so the fade-and-rise plays every
+    // click, regardless of scroll position.
     this.replayKey.update(n => n + 1);
-    afterNextRender(() => this.scrollBox()?.nativeElement.scrollTo({ top: 0 }), { injector: this.injector });
   }
 
   protected readonly snippets = {
