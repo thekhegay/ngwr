@@ -5,6 +5,11 @@
       "version": "7.0.0",
       "description": "Rewrite the v6 entry-points consolidated in v7: wr-autocomplete/chips-input \u2192 wr-select; wr-time-picker/date-time-picker \u2192 wr-date-picker; wr-tooltip \u2192 wr-popover; wr-tree-select \u2192 wr-tree; wr-bottom-sheet \u2192 wr-drawer; wr-count-up(-text) \u2192 wr-counter; ngwr/tag \u2192 ngwr/badge; wr-image \u2192 wr-lightbox; wr-animated-text \u2192 wr-typewriter/wr-decrypt-text/wr-split-text (per mode). Touches .html, .ts, and .scss files.",
       "factory": "./migrations/v7/index#default"
+    },
+    "migration-v8": {
+      "version": "8.0.0",
+      "description": "Rename density values compact/default/comfortable \u2192 sm/md/lg (wrDensity, provideWrDensity defaultDensity, [data-wr-density]); pagination size xs/xl \u2192 sm/lg. Warns about removed APIs (WrReveal directive, WrScrambleText / ngwr/scramble-text) that need manual migration. Touches .html, .ts, and .scss files.",
+      "factory": "./migrations/v8/index#default"
     }
   }
 }
