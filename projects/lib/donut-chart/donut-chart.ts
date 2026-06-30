@@ -62,7 +62,12 @@ export class WrDonutChart {
   // Drawn in a 100×100 viewBox.
   private readonly outerR = 50;
 
-  protected readonly innerR = computed(() => this.outerR * (1 - this.thickness() / 100));
+  protected readonly innerR = computed(() => {
+    const thickness = this.thickness();
+    // 0 = solid pie: fill all the way to the center, not a zero-width ring.
+    if (thickness === 0) return 0;
+    return this.outerR * (1 - thickness / 100);
+  });
 
   protected readonly total = computed(() => {
     const sum = this.segments().reduce((acc, s) => acc + Math.max(0, s.value), 0);
