@@ -17,6 +17,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  NgZone,
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
@@ -30,6 +31,14 @@ import { numAttr } from 'ngwr/utils';
 interface ActiveScramble {
   swapId: ReturnType<typeof setInterval>;
   settleId: ReturnType<typeof setTimeout>;
+}
+
+/** Cached per-char geometry, refreshed on scroll/resize instead of per pointermove. */
+interface CharEntry {
+  el: HTMLElement;
+  cx: number;
+  cy: number;
+  original: string;
 }
 
 function pickRandom(pool: string, exclude: string): string {
@@ -70,6 +79,7 @@ function pickRandom(pool: string, exclude: string): string {
   host: {
     class: 'wr-scramble-text',
     '(pointermove)': 'onPointerMove($event)',
+    '(pointerleave)': 'invalidateRects()',
   },
 })
 export class WrScrambleText {
@@ -89,55 +99,116 @@ export class WrScrambleText {
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly platform = inject(WrPlatform);
+  private readonly zone = inject(NgZone);
 
   /** One entry per active scramble, keyed by char span. */
   private readonly active = new Map<HTMLElement, ActiveScramble>();
 
-  /** Cached list of char spans. Re-computed after each render. */
-  private chars: readonly HTMLElement[] = [];
+  /** Cached char spans + their viewport centres. Re-computed after render. */
+  private chars: readonly CharEntry[] = [];
+
+  /** When true, char centres are stale (post-scroll/resize) and re-read lazily. */
+  private rectsDirty = true;
+
+  /** Pending rAF id; pointermoves coalesce into a single per-frame pass. */
+  private frameId = 0;
+
+  /** Latest pointer coords, consumed by the next rAF tick. */
+  private px = 0;
+  private py = 0;
 
   constructor() {
     if (!this.isBrowser) return;
     afterNextRender(() => this.split());
-    this.destroyRef.onDestroy(() => this.clearAll());
+
+    // Scroll/resize shift char positions; mark the cache stale rather than
+    // re-reading layout on every pointermove (which forces a reflow per char).
+    const onViewportChange = (): void => this.invalidateRects();
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('scroll', onViewportChange, { capture: true, passive: true });
+      window.addEventListener('resize', onViewportChange, { passive: true });
+    });
+
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('scroll', onViewportChange, { capture: true });
+      window.removeEventListener('resize', onViewportChange);
+      if (this.frameId) cancelAnimationFrame(this.frameId);
+      this.clearAll();
+    });
   }
 
   protected onPointerMove(event: PointerEvent): void {
     if (this.chars.length === 0) return;
     // Reduced motion: pointer proximity stops scrambling — text stays put.
     if (this.platform.prefersReducedMotion()) return;
+
+    // Coalesce the burst of pointermoves into one pass per frame: pointermove
+    // can fire many times between paints, but we only need the latest position.
+    this.px = event.clientX;
+    this.py = event.clientY;
+    if (this.frameId) return;
+    this.zone.runOutsideAngular(() => {
+      this.frameId = requestAnimationFrame(() => {
+        this.frameId = 0;
+        this.scrambleNearPointer();
+      });
+    });
+  }
+
+  /** Marks cached char centres stale so the next frame re-reads layout once. */
+  protected invalidateRects(): void {
+    this.rectsDirty = true;
+  }
+
+  /** Single per-frame proximity pass against cached char centres. */
+  private scrambleNearPointer(): void {
+    if (this.rectsDirty) this.measure();
+
     const radius = this.radius();
+    const radiusSq = radius * radius;
     const duration = this.duration() * 1000;
     const swapInterval = Math.max(16, this.speed() * 1000);
     const pool = this.scrambleChars();
+    const px = this.px;
+    const py = this.py;
 
-    for (const charEl of this.chars) {
-      const rect = charEl.getBoundingClientRect();
-      const dx = event.clientX - (rect.left + rect.width / 2);
-      const dy = event.clientY - (rect.top + rect.height / 2);
-      const dist = Math.hypot(dx, dy);
-      if (dist > radius) continue;
+    for (const entry of this.chars) {
+      const dx = px - entry.cx;
+      const dy = py - entry.cy;
+      const distSq = dx * dx + dy * dy;
+      if (distSq > radiusSq) continue;
+
+      const { el, original } = entry;
 
       // Cancel any in-flight scramble for this char — we're restarting.
-      this.cancelOne(charEl);
+      this.cancelOne(el);
 
       // Proximity factor: 0 at the edge, 1 at the centre.
-      const proximity = 1 - dist / radius;
+      const proximity = 1 - Math.sqrt(distSq) / radius;
       const scrambleMs = duration * proximity;
-      const original = charEl.dataset['scrambleOriginal'] ?? '';
 
       const swapId = setInterval(() => {
-        charEl.textContent = pickRandom(pool, original);
+        el.textContent = pickRandom(pool, original);
       }, swapInterval);
 
       const settleId = setTimeout(() => {
         clearInterval(swapId);
-        charEl.textContent = original;
-        this.active.delete(charEl);
+        el.textContent = original;
+        this.active.delete(el);
       }, scrambleMs);
 
-      this.active.set(charEl, { swapId, settleId });
+      this.active.set(el, { swapId, settleId });
     }
+  }
+
+  /** Read every char centre in one batched layout pass, then mark cache fresh. */
+  private measure(): void {
+    for (const entry of this.chars) {
+      const rect = entry.el.getBoundingClientRect();
+      entry.cx = rect.left + rect.width / 2;
+      entry.cy = rect.top + rect.height / 2;
+    }
+    this.rectsDirty = false;
   }
 
   /** Walk the projected text and wrap each non-whitespace character in a span. */
@@ -160,7 +231,14 @@ export class WrScrambleText {
       }
     }
     inner.replaceChildren(frag);
-    this.chars = Array.from(inner.querySelectorAll<HTMLElement>('.wr-scramble-text__char'));
+    this.chars = Array.from(inner.querySelectorAll<HTMLElement>('.wr-scramble-text__char'), el => ({
+      el,
+      cx: 0,
+      cy: 0,
+      original: el.dataset['scrambleOriginal'] ?? '',
+    }));
+    // Centres are read lazily on the first pointer frame.
+    this.rectsDirty = true;
   }
 
   private cancelOne(el: HTMLElement): void {
