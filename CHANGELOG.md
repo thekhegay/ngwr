@@ -1,5 +1,30 @@
 # Changelog
 
+## [8.0.0](https://github.com/thekhegay/ngwr/compare/v7.3.0...v8.0.0) (2026-06-30)
+
+### ⚠ BREAKING CHANGES
+
+* qa fixes and settings dropdown; remove reveal and scramble-text (#415)
+* **pagination:** reduce sizes to sm/md/lg (#406)
+* token-driven theming, alert redesign, density sm/md/lg (#413)
+
+### Features
+
+* control-sizing contract + catalog-wide size/radius/font tokens ([#400](https://github.com/thekhegay/ngwr/issues/400)) ([1409405](https://github.com/thekhegay/ngwr/commit/1409405ff46f25cb91e0bc37823d0c6d6b806da5))
+* design tokens docs section, gray ramp and role aliases ([#416](https://github.com/thekhegay/ngwr/issues/416)) ([e61b4d2](https://github.com/thekhegay/ngwr/commit/e61b4d21a0ba34073f91134b7c72198969a14a1f))
+* qa fixes and settings dropdown; remove reveal and scramble-text ([#415](https://github.com/thekhegay/ngwr/issues/415)) ([af9f168](https://github.com/thekhegay/ngwr/commit/af9f168f672b2958ca10a3b5bb1494a9d26a7036))
+* **radio:** add per-option disabled input ([#405](https://github.com/thekhegay/ngwr/issues/405)) ([cc39d00](https://github.com/thekhegay/ngwr/commit/cc39d00727a5736244f06b59fb628cd893aca626))
+* **schematics:** v8 migration codemod and migration guide ([#417](https://github.com/thekhegay/ngwr/issues/417)) ([a2c7718](https://github.com/thekhegay/ngwr/commit/a2c7718bbe6e2147e3314185757dcd2a1b2653aa))
+* **showcase:** version switcher in the header ([#418](https://github.com/thekhegay/ngwr/issues/418)) ([08c8938](https://github.com/thekhegay/ngwr/commit/08c8938e157dd2023c552c95721c2ab48908a282))
+* token-driven theming, alert redesign, density sm/md/lg ([#413](https://github.com/thekhegay/ngwr/issues/413)) ([4661779](https://github.com/thekhegay/ngwr/commit/46617792be5bb54473de705cb6d51862f2cf430a))
+
+### Bug Fixes
+
+* **counter:** prevent odometer tween from restarting every frame ([#407](https://github.com/thekhegay/ngwr/issues/407)) ([7b6a704](https://github.com/thekhegay/ngwr/commit/7b6a704370668b0cd54558928917d8b1ce623fee))
+* **pagination:** reduce sizes to sm/md/lg ([#406](https://github.com/thekhegay/ngwr/issues/406)) ([0a66b18](https://github.com/thekhegay/ngwr/commit/0a66b18cb0c9e64941294f56f50502e0708d0a9e))
+* **showcase:** use wr-slider in progress interactive demo ([#404](https://github.com/thekhegay/ngwr/issues/404)) ([36bbcd4](https://github.com/thekhegay/ngwr/commit/36bbcd4d735b7fff0cb97c40cb23f61cad83b8d4))
+* **validators:** flag whitespace-only values, reject urls missing // ([#402](https://github.com/thekhegay/ngwr/issues/402)) ([8db61b8](https://github.com/thekhegay/ngwr/commit/8db61b8d419d6dba73dd4a2ae9f2047bcbbd3f04))
+
 ## [7.3.0](https://github.com/thekhegay/ngwr/compare/v7.2.0...v7.3.0) (2026-06-25)
 
 ### Features
