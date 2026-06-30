@@ -10,10 +10,12 @@ import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import {
   Component,
+  type ComponentRef,
   DestroyRef,
   ElementRef,
   ViewEncapsulation,
   computed,
+  effect,
   forwardRef,
   inject,
   input,
@@ -176,8 +178,20 @@ export class WrDatePicker implements ControlValueAccessor {
 
   private overlayRef: OverlayRef | null = null;
 
+  /** Live calendar ref while the date popover is open — lets the panel track
+   * the typed value in real time (not just on reopen). */
+  private readonly dateRef = signal<ComponentRef<WrCalendar> | null>(null);
+
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
+
+    // While the calendar popover is open, push every valid typed value into it
+    // so the displayed month follows the input live (the calendar snaps its
+    // own viewDate to the bound `date`).
+    effect(() => {
+      const ref = this.dateRef();
+      if (ref) ref.setInput('date', this.value());
+    });
   }
 
   // ControlValueAccessor
@@ -299,6 +313,7 @@ export class WrDatePicker implements ControlValueAccessor {
     if (!this.overlayRef) return;
     const ref = this.overlayRef.attach(new ComponentPortal(WrCalendar));
     ref.setInput('date', this.value());
+    this.dateRef.set(ref);
     ref.setInput('min', this.min());
     ref.setInput('max', this.max());
     ref.setInput('dateFilter', this.dateFilter());
@@ -353,6 +368,7 @@ export class WrDatePicker implements ControlValueAccessor {
       this.overlayRef.dispose();
       this.overlayRef = null;
     }
+    this.dateRef.set(null);
     this.overlayOpen.set(false);
   }
 
