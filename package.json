@@ -21,9 +21,9 @@
   },
   "engines": {
     "node": "^24.16.0 || >=26.0.0",
-    "pnpm": "^11.9.0"
+    "pnpm": "^11.10.0"
   },
-  "packageManager": "pnpm@11.9.0",
+  "packageManager": "pnpm@11.10.0",
   "dependencies": {
     "@angular/cdk": "^22.0.2",
     "@angular/common": "^22.0.4",
