@@ -1,11 +1,11 @@
 # Roadmap — v8
 
-> Living document. v7.0.0 shipped 2026-06-12, v7.1.0 on 2026-06-19, v7.2.0 on
-> 2026-06-22. v8.0 targets the Angular 23 baseline (~Nov 2026); everything
-> non-breaking ships in 7.x minors along the way. Sizes: S / M / L / XL.
+> Living document. v7.0.0–v7.3.0 shipped 2026-06-12…2026-06-22; **v8.0.0
+> shipped 2026-06-30**. **v9** now targets the Angular 23 baseline (~Nov 2026);
+> additive work ships in v8.x minors along the way. Sizes: S / M / L / XL.
 >
-> **Status (2026-06-30):** **v8 is now the active, shipping major.** The
-> breaking baseline merged ahead of the Angular 23 peer bump: density values
+> **Status (2026-06-30):** **v8.0.0 is RELEASED** — it shipped early with a
+> deliberately small breaking set: density values
 > renamed (`compact|default|comfortable` → `sm|md|lg`, `touch` unchanged,
 > default now `md`), the pagination size scale trimmed (`xs`/`xl` dropped, now
 > `sm|md|lg`), and the unreliable `WrReveal` / `WrScrambleText` removed. The
@@ -19,9 +19,11 @@
 > theme/density/primary, the docs version switcher, statistic count-up,
 > lightbox `aspectRatio`, the url validator `requireProtocol` option, an
 > interfaces Overview page, toast overflow queue, and a Migration-guide page +
-> the `ng update ngwr@8` codemod). **The remaining 8.0.0 breaking work is kept
-> small** (Angular 23 peer + the Aria internals swap, B2) — most of this
-> roadmap is additive.
+> the `ng update ngwr@8` codemod). **The remaining breaking work — Angular 23
+> peer, the Aria internals swap (B2), and the colour role-rename — reschedules
+> to v9**; most of this roadmap is additive and ships as v8.x minors.
+> **Next-cycle priority: B1 (Signal Forms-native controls)** — Signal Forms are
+> stable in v22, so the first-mover window is open now.
 >
 > Drafted 2026-06-12 after a competitive sweep of Angular Material/CDK +
 > Angular Aria, PrimeNG, NG-ZORRO, Taiga UI, spartan-ng, Kendo, and the
@@ -205,9 +207,11 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
       switcher plus the archive-docs approach (v7 docs frozen) landed before v8
       content. Docs search wired into the command palette remains.
 - [ ] **E2. AI-legibility stack** (M–L, highest leverage for adoption) —
-      `llms.txt`, per-component markdown export, an **ngwr MCP server**
-      (search / docs / examples / install via schematics), agent skills, and
-      an open registry schema for community blocks + theme presets. This
+      **partially in v8** (`llms.txt` / `llms-full.txt` + `AGENTS.md` + the
+      `ng update ngwr@8` codemod ship). **Remaining:** per-component markdown
+      export, an **ngwr MCP server** (search / docs / examples / install via
+      schematics), agent skills, and an open registry schema for community
+      blocks + theme presets. This
       stack drove shadcn's 20%→56% rise; Taiga has an MCP server, nobody in
       Angular has the full stack. Builds directly on E3.
 - [ ] **E3. API reference auto-extraction** (L) — generate the per-component
@@ -256,9 +260,10 @@ nobody ships a free, complete Angular AI kit.
 - [ ] **G2. CSP audit** (S) — document nonce handling; verify no inline-style
       violations from animations/canvas components.
 
-## v8.0 breaking bucket
+## Breaking — shipped in v8.0 / deferred to v9
 
-Kept deliberately small:
+v8.0.0 shipped only the three small renames/removals below; the rest of the
+breaking work reschedules to **v9** (the Angular 23 baseline).
 
 - [x] **Density values renamed** — **shipped in v8.** `compact|default|comfortable`
       → `sm|md|lg` (`touch` unchanged, default now `md`) across `WrDensity`, the
@@ -269,24 +274,33 @@ Kept deliberately small:
 - [x] **Removed unreliable components** — **shipped in v8.** `WrReveal` (the
       `wrReveal` directive, `ngwr/directives`) and `WrScrambleText`
       (`<wr-scramble-text>`, `ngwr/scramble-text`) deleted.
+**Deferred to v9:**
+
 - [ ] Angular 23 peer baseline.
 - [ ] B2 internals swap (DOM/class changes from Aria primitives).
+- [ ] **Colour role-rename** — migrate every component off the `white` / `dark` /
+      `light` literals onto the `surface` / `on-surface` roles, then remove the
+      literals. The additive gray-ramp + role aliases shipped in v8; this is the
+      breaking cleanup (D2's remaining piece) and needs a `migration-v9` codemod.
 - [ ] Drop v7 compat leftovers; naming nits (`/pipes/range` → `/pipes/wr-range`).
 - [ ] Per-entry bundle budgets enforced in CI.
 
 ## Suggested starting order
 
-1. **Finish theme M** — M1 + M2 shipped; complete the partial M3–M5 (touch
-   gestures + a `touch` density preset, `dvh` / virtual-keyboard handling, the
-   remaining container-query components), then M6–M7
-2. **B1** — Signal Forms `FormValueControl` (stable now; first-mover window)
-3. **E2 + E3** — AI-legibility stack (cheap, compounds with everything,
-   biggest lever while download count is the bottleneck)
-4. **A1** — tests (start immediately, runs through the whole cycle)
-5. **C1 + C2** — table v2 and the vscroll regression
-6. **G1** — RTL (mechanical but large; can run as background sweeps)
+Re-prioritised 2026-06-30 to lead with **B (Signal Forms)** per the user's call.
 
-Then **F1 → F2** as the 8.x marquee, and **B2** lands with v8.0 proper.
+1. **B1** — Signal Forms `FormValueControl` on every value control (the
+   first-mover window is open now), paired with **B3** (`WR_FORM_ERRORS`) and
+   **B4** (schema-driven `wr-form`) — the whole forms story in one push.
+2. **Finish theme M** — complete the partial M3–M5 (touch gestures, `dvh` /
+   virtual-keyboard handling, remaining container-query components), then M6–M7.
+3. **E2 + E3** — AI-legibility stack (cheap, compounds, biggest adoption lever
+   while downloads are the bottleneck; llms.txt / agents.md / codemod already in).
+4. **A1** — tests (start early, runs through the whole cycle).
+5. **C1 + C2** — table v2 and the vscroll regression.
+6. **G1** — RTL (mechanical but large; background sweeps).
+
+Then **F1 → F2** as the 8.x marquee, and **B2** lands with **v9** (the Aria swap).
 
 ## Non-goals (researched, rejected)
 
