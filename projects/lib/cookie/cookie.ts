@@ -40,6 +40,19 @@ const DEFAULT_OPTS: Required<Pick<WrCookieOptions, 'path' | 'sameSite'>> = {
 export class WrCookie {
   private readonly doc = inject(DOCUMENT);
 
+  /**
+   * `document.cookie`, or `''` when it cannot be read. Mirrors the guard on
+   * `set()`: under SSR the server DOM has no cookie support and throws on the
+   * getter, and sandboxed iframes reject access too.
+   */
+  private read(): string {
+    try {
+      return this.doc.cookie;
+    } catch {
+      return '';
+    }
+  }
+
   /** Is `key` present (regardless of value)? */
   has(key: string): boolean {
     return this.get(key) !== null;
@@ -47,7 +60,7 @@ export class WrCookie {
 
   /** Read `key`. Returns `fallback` (default `null`) when the key is missing. */
   get(key: string, fallback: string | null = null): string | null {
-    const raw = this.doc.cookie;
+    const raw = this.read();
     if (!raw) return fallback;
     const needle = `${encodeURIComponent(key)}=`;
     for (const part of raw.split(';')) {
@@ -95,7 +108,7 @@ export class WrCookie {
 
   /** Every cookie key visible to this document. */
   keys(): readonly string[] {
-    const raw = this.doc.cookie;
+    const raw = this.read();
     if (!raw) return [];
     const out: string[] = [];
     for (const part of raw.split(';')) {

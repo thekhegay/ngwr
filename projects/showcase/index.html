@@ -5,7 +5,45 @@
     <title>NGWR – Angular UI components library</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!--
+      Pre-paint theme resolution. The pages are prerendered at build time, which
+      cannot know a visitor's preference — the server has no localStorage and no
+      `prefers-color-scheme`, so every static page ships `data-theme="light"`.
+      This runs before first paint and corrects it, avoiding a light flash for
+      dark-mode visitors.
+
+      Mirrors `WrTheme` + `WrStorage` exactly: key `wr-theme` (empty prefix),
+      value stored as a JSON envelope `{"v":"dark"}` with an optional `e`
+      expiry, default mode `auto`. Keep in sync if those defaults change.
+    -->
+    <script>
+      (function () {
+        try {
+          var mode = null;
+          var raw = localStorage.getItem('wr-theme');
+          if (raw !== null) {
+            try {
+              var parsed = JSON.parse(raw);
+              if (parsed !== null && typeof parsed === 'object' && 'v' in parsed) {
+                if (parsed.e === undefined || parsed.e >= Date.now()) mode = parsed.v;
+              } else {
+                mode = parsed;
+              }
+            } catch (e) {
+              mode = raw;
+            }
+          }
+          if (mode !== 'light' && mode !== 'dark') mode = 'auto';
+          var dark = mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        } catch (e) {
+          /* storage blocked (private mode / sandboxed iframe) — keep the prerendered default */
+        }
+      })();
+    </script>
+
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />

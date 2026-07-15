@@ -137,6 +137,7 @@ export class WrRotatingText {
 
   private timerId: ReturnType<typeof setInterval> | undefined;
   private isAnimating = false;
+  private destroyed = false;
 
   constructor() {
     if (!this.isBrowser) return;
@@ -150,7 +151,10 @@ export class WrRotatingText {
       this.restartTimer();
     });
 
-    this.destroyRef.onDestroy(() => clearInterval(this.timerId));
+    this.destroyRef.onDestroy(() => {
+      clearInterval(this.timerId);
+      this.destroyed = true;
+    });
   }
 
   // Public imperative API
@@ -197,6 +201,14 @@ export class WrRotatingText {
     this.isAnimating = true;
 
     await this.animateOut();
+
+    // `animateOut` is an async gap, and a transition already in flight outlives
+    // the component: navigating away destroys it, and `clearInterval` only
+    // stops FUTURE ticks — not this call. Everything below touches the view, so
+    // resuming on a destroyed component throws NG0911 ("View has already been
+    // destroyed") and warns NG0953 (emit on a destroyed `OutputRef`).
+    if (this.destroyed) return;
+
     this.index.set(target);
     this.nextChange.emit(target);
     // Animate in only AFTER Angular has rendered the new word's spans. A single

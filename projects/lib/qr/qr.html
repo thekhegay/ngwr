@@ -1,3 +1,7 @@
-@if (isBrowser) {
-  <canvas #canvas></canvas>
-}
+<!--
+  Always emit the canvas — painting is guarded in the effect instead. Gating
+  the element itself on the platform makes the server and client render
+  different structures, which breaks hydration; a bare canvas costs nothing
+  and matches how the other canvas-backed components behave.
+-->
+<canvas #canvas></canvas>

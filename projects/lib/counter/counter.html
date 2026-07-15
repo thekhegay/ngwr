@@ -1,7 +1,8 @@
 @if (mode() === 'tween') {
   <span class="wr-counter__tween">{{ prefix() }}{{ tweenText() }}{{ suffix() }}</span>
 } @else {
-  <span class="wr-counter__odo">
+  <span class="wr-counter__sr-only">{{ odoText() }}</span>
+  <span class="wr-counter__odo" aria-hidden="true">
     @if (prefix()) {
       <span class="wr-counter__static">{{ prefix() }}</span>
     }

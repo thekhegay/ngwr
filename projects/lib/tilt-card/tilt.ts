@@ -6,7 +6,8 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { DestroyRef, Directive, ElementRef, NgZone, inject, input } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { DestroyRef, Directive, ElementRef, NgZone, PLATFORM_ID, effect, inject, input } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
@@ -43,14 +44,27 @@ export class WrTilt {
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platform = inject(WrPlatform);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  private glareEl: HTMLElement | null = null;
 
   constructor() {
     const host = this.el.nativeElement;
     host.style.transformStyle = 'preserve-3d';
     host.style.transition = 'transform 0.15s ease-out';
-    if (this.glare()) this.installGlare();
+
+    // Signal inputs are not bound yet while the constructor runs, so reading
+    // `glare()` here would always see the default and the overlay would never
+    // appear. Track it instead, so toggling the input at runtime works too.
+    // Only in the browser: `installGlare` measures with `getComputedStyle`,
+    // and the server has no layout to measure.
+    if (this.isBrowser) {
+      effect(() => (this.glare() ? this.installGlare() : this.removeGlare()));
+    }
+
     this.destroyRef.onDestroy(() => {
       host.style.transform = '';
+      this.removeGlare();
     });
   }
 
@@ -79,6 +93,7 @@ export class WrTilt {
   }
 
   private installGlare(): void {
+    if (this.glareEl) return;
     const host = this.el.nativeElement;
     if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
     host.style.overflow = 'hidden';
@@ -86,6 +101,11 @@ export class WrTilt {
     glare.className = 'wr-tilt-glare';
     glare.setAttribute('aria-hidden', 'true');
     host.appendChild(glare);
-    this.destroyRef.onDestroy(() => glare.remove());
+    this.glareEl = glare;
+  }
+
+  private removeGlare(): void {
+    this.glareEl?.remove();
+    this.glareEl = null;
   }
 }

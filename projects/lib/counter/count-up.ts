@@ -133,13 +133,20 @@ export class WrCountUp {
   });
 
   constructor() {
-    // Seed the resting value so SSR / first paint show the start, not 0.
+    if (!this.isBrowser) {
+      // SSR: settle on the value the animation ENDS on. Seeding the start
+      // instead would bake the placeholder (usually 0) into prerendered HTML,
+      // so readers and crawlers would get 0 rather than the real figure. The
+      // browser rewinds to the start and animates once it boots.
+      effect(() => this.value.set(this.direction() === 'down' ? this.from() : this.to()));
+      return;
+    }
+
+    // Seed the resting value so first paint shows the start, not 0.
     effect(() => {
       const initial = this.direction() === 'down' ? this.to() : this.from();
       this.value.set(initial);
     });
-
-    if (!this.isBrowser) return;
 
     // Run the animation whenever the `to` target changes (or on first mount).
     // For `trigger="visible"` the first run waits for the IntersectionObserver

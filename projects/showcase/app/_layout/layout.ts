@@ -8,7 +8,6 @@ import { Menu } from 'lucide';
 import { WrDrawer } from 'ngwr/drawer';
 import { provideWrIcons, WrIcon } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { WrMedia } from 'ngwr/media';
 
 import { Footer } from './footer/footer';
 import { Sidebar } from './sidebar/sidebar';
@@ -21,9 +20,11 @@ import { Sidebar } from './sidebar/sidebar';
   providers: [provideWrIcons(lucideIcons({ menu: Menu }))],
 })
 export default class Layout {
-  /** Below `md` the sidebar moves into an off-canvas drawer. */
-  protected readonly isDesktop = inject(WrMedia).matches('md');
-
+  /**
+   * Below `md` the sidebar moves into an off-canvas drawer. Both shapes are
+   * always in the DOM and `layout.scss` picks one per breakpoint — see the
+   * note there for why this is CSS rather than a `WrMedia` signal.
+   */
   protected readonly sidebarOpen = signal(false);
 
   constructor() {

@@ -22,6 +22,7 @@ import {
   ViewEncapsulation,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -144,7 +145,13 @@ export class WrTypewriter {
   private isVisible = false;
 
   constructor() {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser) {
+      // SSR: type nothing, but settle on the first phrase so prerendered
+      // HTML carries real text instead of an empty span. Mirrors
+      // `wr-decrypt-text`.
+      effect(() => this.displayed.set(this.textArray()[0] ?? ''));
+      return;
+    }
     afterNextRender(() => this.boot());
     this.destroyRef.onDestroy(() => clearTimeout(this.timer));
   }

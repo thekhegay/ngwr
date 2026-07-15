@@ -19,6 +19,16 @@
     grid-template-columns: 1fr;
   }
 
+  // Both navigation shapes are always rendered and CSS — not JS — picks one.
+  // The server cannot know the viewport, so gating these on a `matchMedia`
+  // signal would bake the mobile shape into every prerendered page (dropping
+  // the section links from the static HTML) and mismatch on hydration.
+  &__sidebar {
+    @include bp.media-down(md) {
+      display: none;
+    }
+  }
+
   &__content {
     min-width: 0;
     padding: 0;
@@ -38,6 +48,10 @@
 
   // Slim sticky bar that opens the section nav drawer below `md`.
   &__mobile-bar {
+    @include bp.media-up(md) {
+      display: none;
+    }
+
     position: sticky;
     top: var(--ngwr-header-height, 4rem);
     z-index: 10;

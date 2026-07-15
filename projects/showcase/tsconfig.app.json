@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/showcase",
-    "types": []
+    "types": ["node"]
   },
-  "files": ["main.ts"],
+  "files": ["main.ts", "main.server.ts"],
   "include": ["**/*.d.ts"]
 }
