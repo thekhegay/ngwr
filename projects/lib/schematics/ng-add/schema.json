@@ -58,7 +58,7 @@
       "type": "string",
       "enum": ["none", "light", "dark", "system"],
       "default": "none",
-      "description": "Theme starter for `data-wr-theme` on `<html>`. `system` auto-switches via `prefers-color-scheme`.",
+      "description": "Theme starter for `data-theme` on `<html>`. `system` auto-switches via `prefers-color-scheme`.",
       "x-prompt": {
         "message": "Theme starter?",
         "type": "list",

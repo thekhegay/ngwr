@@ -2,7 +2,10 @@
 //
 // Not loaded by the umbrella `ngwr` entry. Bring in explicitly:
 //
-//   @use 'ngwr/typography';
+//   @use 'ngwr/typography-utilities';
+//
+// NOT `ngwr/typography` — that is the `wrTypography` component entry
+// (typography/styles/_index.scss), which is a different, larger stylesheet.
 //
 // All values read from the `--wr-text-*` / `--wr-font-weight-*` /
 // `--wr-leading-*` / `--wr-tracking-*` tokens, so overriding the tokens

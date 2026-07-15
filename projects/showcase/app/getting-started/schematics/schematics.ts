@@ -35,7 +35,7 @@ ng add ngwr`,
      System — auto-switch via prefers-color-scheme`,
 
     ngAddFlags: `# Skip prompts:
-ng add ngwr --styles=all --dateAdapter=date-fns --density=comfortable --theme=auto
+ng add ngwr --styles=all --dateAdapter=date-fns --density=lg --theme=system
 
 # CI / monorepo — skip the install task:
 ng add ngwr --skipPeerInstall`,

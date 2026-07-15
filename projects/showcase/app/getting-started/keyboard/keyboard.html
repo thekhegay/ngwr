@@ -1,0 +1,90 @@
+<ngwr-doc-page
+  title="Keyboard"
+  description="Shortcuts, keycaps and key primitives live in three separate entry points — `ngwr/hotkey`, `ngwr/keyboard` and `ngwr/utils` — because they have nothing to do with each other at runtime. One task usually needs all three, so this page walks the whole job end to end: bind a chord, show the hint, handle the leftovers yourself."
+  [keywords]="['keyboard', 'hotkey', 'shortcut', 'kbd', 'keys', 'tutorial']"
+  [labels]="['Core']"
+>
+  <ngwr-doc-section
+    title="Bind a chord"
+    description="Two forms of the same registry. The directive is the usual one — bind it where the action lives. Reach for the service when the binding has no element to hang on, or when you need to add and remove it dynamically."
+  >
+    <ngwr-doc-code [code]="snippets.declarative" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.imperative" language="angular-ts" />
+
+    <p wrTypography variant="small" tone="medium">
+      Specs are written as <code>mod+k</code>, <code>shift+/</code>, <code>escape</code>.
+      <strong><code>mod</code></strong> is the point of the whole notation: it resolves to <kbd>⌘</kbd> on macOS and
+      <kbd>Ctrl</kbd> everywhere else, so you write the binding once instead of branching on the platform.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Global or scoped"
+    description="Both forms are GLOBAL by default — the listener sits on the document, not on the host. Pass `scoped` to narrow it to the element."
+  >
+    <ngwr-doc-snippet
+      title="Try it"
+      description="This box is scoped: click inside it, then press `escape`. Outside it, nothing happens."
+    >
+      <div
+        tabindex="0"
+        wrHotkey="escape"
+        [scoped]="true"
+        (wrHotkeyMatch)="hits.set(hits() + 1)"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          min-height: 5rem;
+          border-radius: var(--wr-border-radius-base);
+          box-shadow: inset 0 0 0 1px var(--wr-color-border);
+        "
+      >
+        <span>Focus me, then press</span>
+        <wr-kbd>Esc</wr-kbd>
+        <span>— caught {{ hits() }}×</span>
+      </div>
+    </ngwr-doc-snippet>
+
+    <p wrTypography variant="small" tone="medium">
+      Typing never fires a shortcut: while an <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code> or
+      contenteditable has focus, bindings are skipped unless you opt in with <code>allowInInput</code>.
+    </p>
+
+    <ngwr-doc-api [rows]="bindingApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Show the hint"
+    description="A shortcut nobody can see is a shortcut nobody uses. `<wr-kbd>` is a presentational keycap — one chip per key — and knows nothing about the registry."
+  >
+    <ngwr-doc-code [code]="snippets.hint" language="angular-html" />
+
+    <ngwr-doc-snippet title="Keycaps" description="One chip per key; combine them for a chord.">
+      <div style="display: flex; align-items: center; gap: 0.375rem">
+        <wr-kbd>⌘</wr-kbd>
+        <wr-kbd>K</wr-kbd>
+        <span wrTypography variant="small" tone="medium">or</span>
+        <wr-kbd size="sm">Ctrl</wr-kbd>
+        <wr-kbd size="sm">K</wr-kbd>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Handle the rest yourself"
+    description="Chords are the easy half. Type-ahead, arrow navigation and “ignore the browser’s own shortcuts” are plain `keydown` handlers — these three primitives are what ngwr’s own components use for them."
+  >
+    <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
+
+    <p wrTypography variant="small" tone="medium">
+      <a routerLink="/utils/keys">KEYS</a> exists so a refactor can find every place that cares about
+      <code>Escape</code>; <a routerLink="/utils/has-modifier">hasModifier</a> is how you avoid stealing <kbd>⌘C</kbd>;
+      <a routerLink="/utils/is-printable-key">isPrintableKey</a> separates “the user typed a character” from “the user
+      pressed F5”.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

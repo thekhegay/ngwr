@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="WrHotkey"
-  description="Global keybinding registry. Specs like `'mod+k'` — `mod` auto-resolves to Cmd on macOS / Ctrl elsewhere. Skips bindings while an input / textarea has focus by default. Use `[wrHotkey]` directive for element-scoped bindings."
+  description='Global keybinding registry. Specs like `mod+k` — `mod` auto-resolves to Cmd on macOS / Ctrl elsewhere. Skips bindings while an input / textarea has focus by default. `[wrHotkey]` is the declarative form of the same registry — also global unless you pass `[scoped]="true"` to limit it to the host element.'
   [keywords]="['service', 'hotkey', 'keyboard', 'WrHotkey']"
   [labels]="['Service']"
 >
@@ -26,4 +26,6 @@
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

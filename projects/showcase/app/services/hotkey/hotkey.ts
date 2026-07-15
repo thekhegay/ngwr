@@ -9,13 +9,23 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-svc-hotkey-page',
   templateUrl: './hotkey.html',
-  imports: [WrKbd, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrKbd,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class HotkeyServicePageComponent {
   private readonly hotkeys = inject(WrHotkey);
@@ -61,6 +71,27 @@ ngOnInit() {
       description: "`'+'`-separated tokens. `mod` = Cmd on macOS, Ctrl elsewhere.",
       type: 'string',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Keyboard',
+      url: ['/getting-started', 'keyboard'],
+      description: 'How chords, keycaps and key primitives fit together in one task.',
+    },
+    {
+      kind: 'Component',
+      title: 'WrKbd',
+      url: ['/components', 'keyboard'],
+      description: 'Render the chord you just bound so users can discover it.',
+    },
+    {
+      kind: 'Util',
+      title: 'KEYS',
+      url: ['/utils', 'keys'],
+      description: 'Canonical `KeyboardEvent.key` constants for your own handlers.',
     },
   ];
 }

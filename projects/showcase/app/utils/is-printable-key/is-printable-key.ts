@@ -6,12 +6,14 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-utl-is-printable-key-page',
   templateUrl: './is-printable-key.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class IsPrintableKeyPage {
   protected readonly snippet = `import { isPrintableKey } from 'ngwr/utils';
@@ -35,6 +37,27 @@ if (isPrintableKey(e)) buffer.push(e.key);`;
         'True when the key is a single printable character with no modifiers. Use for type-to-search and inline-edit flows.',
       type: '(e: KeyboardEvent) => boolean',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Keyboard',
+      url: ['/getting-started', 'keyboard'],
+      description: 'How chords, keycaps and key primitives fit together in one task.',
+    },
+    {
+      kind: 'Util',
+      title: 'hasModifier',
+      url: ['/utils', 'has-modifier'],
+      description: 'Skip the browser’s own chords before testing for a character.',
+    },
+    {
+      kind: 'Util',
+      title: 'KEYS',
+      url: ['/utils', 'keys'],
+      description: 'Canonical `KeyboardEvent.key` constants.',
     },
   ];
 }

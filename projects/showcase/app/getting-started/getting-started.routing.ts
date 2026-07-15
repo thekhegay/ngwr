@@ -13,6 +13,7 @@ export default [
   { path: gettingStarted.overlay, loadComponent: () => import('./overlay/overlay') },
   { path: gettingStarted.mobile, loadComponent: () => import('./mobile/mobile') },
   { path: gettingStarted.i18n, loadComponent: () => import('./i18n/i18n') },
+  { path: gettingStarted.keyboard, loadComponent: () => import('./keyboard/keyboard') },
   { path: gettingStarted.configuration, loadComponent: () => import('./configuration/configuration') },
   { path: gettingStarted.schematics, loadComponent: () => import('./schematics/schematics') },
   { path: gettingStarted.migration, loadComponent: () => import('./migration/migration') },
