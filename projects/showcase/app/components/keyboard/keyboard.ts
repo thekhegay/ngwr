@@ -8,13 +8,23 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-keyboard-page',
   templateUrl: './keyboard.html',
-  imports: [WrKbd, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrKbd,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class KeyboardPageComponent {
   protected readonly snippets = {
@@ -147,6 +157,21 @@ export class MyComponent {}`,
       type: 'shadow',
       default: '0 1px 0 rgba(dark, 0.12)',
       description: 'Drop shadow under the cap.',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Keyboard',
+      url: ['/getting-started', 'keyboard'],
+      description: 'How chords, keycaps and key primitives fit together in one task.',
+    },
+    {
+      kind: 'Service',
+      title: 'WrHotkey',
+      url: ['/services', 'hotkey'],
+      description: 'Bind the chord this keycap advertises.',
     },
   ];
 }

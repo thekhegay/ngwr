@@ -6,12 +6,14 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-utl-has-modifier-page',
   templateUrl: './has-modifier.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class HasModifierPage {
   protected readonly snippet = `import { hasModifier } from 'ngwr/utils';
@@ -40,6 +42,27 @@ export default class HasModifierPage {
         'True when Ctrl / Cmd / Alt / Shift / Meta is currently held. Use to bypass plain-key shortcuts during chorded shortcuts.',
       type: '(e: KeyboardEvent) => boolean',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Keyboard',
+      url: ['/getting-started', 'keyboard'],
+      description: 'How chords, keycaps and key primitives fit together in one task.',
+    },
+    {
+      kind: 'Util',
+      title: 'isPrintableKey',
+      url: ['/utils', 'is-printable-key'],
+      description: 'The other half of a type-ahead guard.',
+    },
+    {
+      kind: 'Util',
+      title: 'KEYS',
+      url: ['/utils', 'keys'],
+      description: 'Canonical `KeyboardEvent.key` constants.',
     },
   ];
 }

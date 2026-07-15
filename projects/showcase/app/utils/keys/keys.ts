@@ -6,12 +6,14 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-utl-keys-page',
   templateUrl: './keys.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class KeysPage {
   protected readonly snippet = `import { KEYS, type WrKey } from 'ngwr/utils';
@@ -45,6 +47,33 @@ if (event.key === KEYS.SPACE) toggle();`;
       description: 'Union of every value in `KEYS` — drop into function signatures for type-safe key matching.',
       type: 'type alias',
       default: '—',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Keyboard',
+      url: ['/getting-started', 'keyboard'],
+      description: 'How chords, keycaps and key primitives fit together in one task.',
+    },
+    {
+      kind: 'Service',
+      title: 'WrHotkey',
+      url: ['/services', 'hotkey'],
+      description: 'For whole chords, use the registry instead of comparing keys by hand.',
+    },
+    {
+      kind: 'Util',
+      title: 'hasModifier',
+      url: ['/utils', 'has-modifier'],
+      description: 'Is any modifier held?',
+    },
+    {
+      kind: 'Util',
+      title: 'isPrintableKey',
+      url: ['/utils', 'is-printable-key'],
+      description: 'Did the key produce a character?',
     },
   ];
 }
