@@ -1,13 +1,13 @@
 @use '../../theme/styles' as theme;
 
 .wr-slider {
-  --wr-slider-track: var(--wr-color-light);
+  --wr-slider-track: var(--wr-color-outline);
   --wr-slider-fill: var(--wr-color-primary);
-  --wr-slider-thumb: var(--wr-color-white);
+  --wr-slider-thumb: var(--wr-color-surface);
   --wr-slider-thumb-border: var(--wr-color-primary);
   --wr-slider-thumb-size: 1rem;
   --wr-slider-track-height: 0.25rem;
-  --wr-slider-label: var(--wr-color-medium);
+  --wr-slider-label: var(--wr-color-on-surface-muted);
 
   display: block;
   width: 100%;
@@ -71,8 +71,8 @@
   }
 
   &--disabled {
-    --wr-slider-thumb-border: var(--wr-color-medium);
-    --wr-slider-fill: var(--wr-color-medium);
+    --wr-slider-thumb-border: var(--wr-color-on-surface-muted);
+    --wr-slider-fill: var(--wr-color-on-surface-muted);
     pointer-events: none;
     opacity: 0.6;
   }

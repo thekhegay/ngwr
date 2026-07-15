@@ -52,11 +52,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(var(--wr-color-dark-rgb), 0.45);
+  color: rgba(var(--wr-color-on-surface-rgb), 0.45);
   transition: color 0.15s ease;
 
   &:hover {
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
 
   &:active {
@@ -68,14 +68,14 @@
 
 .cdk-drag-preview {
   box-sizing: border-box;
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   font-family: var(--wr-font-family-base);
   // The preview must track the cursor 1:1 — never animate its transform.
   transition: none;
   // The lift-off shadow follows the row template's rendered shape
   // (drop-shadow, not box-shadow) so the preview box itself never shows
   // as a white slab around the card. Backdrop token stays black in dark
-  // mode — `--wr-color-dark-rgb` would flip and glow instead.
+  // mode — `--wr-color-on-surface-rgb` would flip and glow instead.
   filter: drop-shadow(0 8px 12px rgba(var(--wr-color-backdrop-rgb), 0.24))
     drop-shadow(0 2px 3px rgba(var(--wr-color-backdrop-rgb), 0.16));
   // CDK sets pointer-events to none on the preview; we keep visuals only.
@@ -84,9 +84,9 @@
 .cdk-drag-placeholder {
   opacity: 0.35;
   // Subtle dashed outline so users see where the item came from.
-  background: rgba(var(--wr-color-light-rgb), 0.6);
+  background: rgba(var(--wr-color-outline-rgb), 0.6);
   border-radius: var(--wr-border-radius-base);
-  outline: 1px dashed rgba(var(--wr-color-dark-rgb), 0.25);
+  outline: 1px dashed rgba(var(--wr-color-on-surface-rgb), 0.25);
   outline-offset: -1px;
 }
 

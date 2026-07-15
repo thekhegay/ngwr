@@ -7,7 +7,7 @@
   width: 100%;
   min-width: 0;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   &--vertical {
     flex-direction: column;
@@ -36,7 +36,7 @@
     margin-top: 0.125rem;
     border-radius: 50%;
     background: var(--wr-color-primary);
-    box-shadow: 0 0 0 2px var(--wr-color-white);
+    box-shadow: 0 0 0 2px var(--wr-color-surface);
     z-index: 1;
   }
 
@@ -53,6 +53,7 @@
   }
 
   &--medium &__dot {
+    // The `color="medium"` INTENT, not the muted-text role — keep the literal.
     background: var(--wr-color-medium);
   }
 
@@ -64,7 +65,7 @@
   &__time {
     font-size: var(--wr-text-xs);
     line-height: 1rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-weight: var(--wr-font-weight-medium);
     margin-bottom: 0.125rem;
   }
@@ -79,7 +80,7 @@
     margin-top: 0.25rem;
     font-size: var(--wr-text-sm);
     line-height: var(--wr-leading-relaxed);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
 
   // Vertical: connector line between dots.
@@ -91,7 +92,7 @@
       top: 1rem;
       bottom: -1.25rem;
       width: 1.5px;
-      background: var(--wr-color-light);
+      background: var(--wr-color-outline);
     }
 
     &:last-child::before {
@@ -121,7 +122,7 @@
       left: 50%;
       width: calc(100% + 2rem);
       height: 1.5px;
-      background: var(--wr-color-light);
+      background: var(--wr-color-outline);
       z-index: 0;
     }
 

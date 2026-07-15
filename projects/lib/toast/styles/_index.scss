@@ -125,11 +125,11 @@ $toast-colors: (
 }
 
 .wr-toast {
-  --wr-toast-bg: var(--wr-color-white);
-  --wr-toast-border: var(--wr-color-light);
+  --wr-toast-bg: var(--wr-color-surface);
+  --wr-toast-border: var(--wr-color-outline);
   --wr-toast-accent: var(--wr-color-primary);
-  --wr-toast-title: var(--wr-color-dark);
-  --wr-toast-message: var(--wr-color-medium);
+  --wr-toast-title: var(--wr-color-on-surface);
+  --wr-toast-message: var(--wr-color-on-surface-muted);
 
   position: relative;
   display: flex;
@@ -180,7 +180,7 @@ $toast-colors: (
     background: transparent;
     border: 0;
     padding: 0.125rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     border-radius: var(--wr-border-radius-sm);
     transition:
@@ -190,7 +190,7 @@ $toast-colors: (
     --wr-icon-size: 0.875rem;
 
     &:hover {
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
       background: var(--wr-color-hover);
     }
   }
@@ -245,11 +245,11 @@ $toast-colors: (
   align-self: stretch;
   pointer-events: auto;
   appearance: none;
-  background: var(--wr-color-white);
-  border: 1px solid var(--wr-color-light);
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-color-outline);
   @include theme.smooth-br(var(--wr-border-radius-base));
   padding: 0.375rem 0.75rem;
-  color: var(--wr-color-medium);
+  color: var(--wr-color-on-surface-muted);
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-text-xs);
   font-weight: 500;
@@ -263,8 +263,8 @@ $toast-colors: (
     border-color var(--wr-transition-base);
 
   &:hover {
-    color: var(--wr-color-dark);
-    border-color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface);
+    border-color: var(--wr-color-on-surface-muted);
   }
 }
 

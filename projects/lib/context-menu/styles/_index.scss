@@ -38,8 +38,8 @@
 .wr-context-menu {
   min-width: 10rem;
   padding: 0.3125rem;
-  background: var(--wr-color-white, #fff);
-  border: 1px solid var(--wr-color-light);
+  background: var(--wr-color-surface, #fff);
+  border: 1px solid var(--wr-color-outline);
   // Soft rounded corners — smooth-br opts into native `corner-shape:
   // squircle` where supported (Chrome 145+) and falls back to plain
   // border-radius elsewhere.
@@ -54,7 +54,7 @@
   width: 100%;
   padding: 0.4375rem 0.625rem;
   @include theme.smooth-br(var(--wr-border-radius-sm));
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   font-size: var(--wr-text-sm);
   cursor: pointer;
   user-select: none;
@@ -70,7 +70,7 @@
   }
 
   &--disabled {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     opacity: 0.6;
     pointer-events: none;
   }
@@ -93,7 +93,7 @@
     flex: 0 0 auto;
     width: 0.8125rem;
     height: 0.8125rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     margin-left: 0.25rem;
   }
 
@@ -108,5 +108,5 @@
   display: block;
   height: 1px;
   margin: 0.25rem 0;
-  background: var(--wr-color-light);
+  background: var(--wr-color-outline);
 }

@@ -6,10 +6,10 @@
 // border so the visuals belong to the group instead).
 //
 .wr-input {
-  --wr-input-color: var(--wr-color-dark);
-  --wr-input-placeholder: rgba(var(--wr-color-medium-rgb), 0.7);
-  --wr-input-bg: var(--wr-color-white);
-  --wr-input-border: var(--wr-color-light);
+  --wr-input-color: var(--wr-color-on-surface);
+  --wr-input-placeholder: rgba(var(--wr-color-on-surface-muted-rgb), 0.7);
+  --wr-input-bg: var(--wr-color-surface);
+  --wr-input-border: var(--wr-color-outline);
   --wr-input-radius: var(--wr-control-radius-md);
   --wr-input-ring: transparent;
   --wr-input-padding-y: var(--wr-control-padding-y-md);
@@ -49,8 +49,8 @@
 
   &:disabled,
   &[readonly] {
-    --wr-input-color: var(--wr-color-medium);
-    --wr-input-bg: rgba(var(--wr-color-light-rgb), 0.35);
+    --wr-input-color: var(--wr-color-on-surface-muted);
+    --wr-input-bg: rgba(var(--wr-color-outline-rgb), 0.35);
   }
 
   &:disabled {
@@ -90,10 +90,10 @@
 //
 .wr-input-group {
   --wr-input-group-radius: var(--wr-control-radius-md);
-  --wr-input-group-bg: var(--wr-color-white);
-  --wr-input-group-border: var(--wr-color-light);
+  --wr-input-group-bg: var(--wr-color-surface);
+  --wr-input-group-border: var(--wr-color-outline);
   --wr-input-group-ring: transparent;
-  --wr-input-group-affix: var(--wr-color-medium);
+  --wr-input-group-affix: var(--wr-color-on-surface-muted);
   --wr-input-group-padding-x: 0.75rem;
 
   display: inline-flex;

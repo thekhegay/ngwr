@@ -1,9 +1,9 @@
 @use '../../theme/styles' as theme;
 
 .wr-input-otp {
-  --wr-input-otp-bg: var(--wr-color-white);
-  --wr-input-otp-border: var(--wr-color-light);
-  --wr-input-otp-color: var(--wr-color-dark);
+  --wr-input-otp-bg: var(--wr-color-surface);
+  --wr-input-otp-border: var(--wr-color-outline);
+  --wr-input-otp-color: var(--wr-color-on-surface);
   --wr-input-otp-focus: var(--wr-color-primary);
   --wr-input-otp-size: 2.5rem; // md cell (40px)
   --wr-input-otp-font: var(--wr-text-lg); // 18px
@@ -44,8 +44,8 @@
     }
 
     &:disabled {
-      background: rgba(var(--wr-color-light-rgb), 0.5);
-      color: var(--wr-color-medium);
+      background: rgba(var(--wr-color-outline-rgb), 0.5);
+      color: var(--wr-color-on-surface-muted);
       cursor: not-allowed;
     }
   }

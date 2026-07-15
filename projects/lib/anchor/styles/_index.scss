@@ -3,7 +3,7 @@
 .wr-anchor {
   display: block;
   font-family: var(--wr-font-family-base);
-  border-left: 1.5px solid var(--wr-color-light);
+  border-left: 1.5px solid var(--wr-color-outline);
   padding-left: 0.875rem;
 
   &__list {
@@ -25,7 +25,7 @@
     display: block;
     padding: 0.25rem 0.5rem;
     border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-sm);
     line-height: var(--wr-leading-snug);
     transition:
@@ -44,7 +44,7 @@
     }
 
     &:hover {
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
     }
 
     &--active {

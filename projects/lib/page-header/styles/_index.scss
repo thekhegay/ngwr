@@ -9,7 +9,7 @@
   width: 100%;
   min-width: 0;
   padding: 1.5rem 0 1.25rem;
-  border-bottom: 1px solid var(--wr-color-light);
+  border-bottom: 1px solid var(--wr-color-outline);
   font-family: var(--wr-font-family-base);
 
   // Opt-in (`responsive`): query the box's own width so the title + actions row
@@ -21,7 +21,7 @@
 
   &__breadcrumbs {
     font-size: var(--wr-text-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
 
     &:empty {
       display: none;
@@ -49,14 +49,14 @@
     font-weight: var(--wr-font-weight-bold);
     line-height: var(--wr-leading-tight);
     letter-spacing: -0.015em;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
 
   &__subtitle {
     margin: 0;
     font-size: var(--wr-text-base);
     line-height: var(--wr-leading-normal);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &__actions {

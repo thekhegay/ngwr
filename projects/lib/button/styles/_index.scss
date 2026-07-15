@@ -17,9 +17,9 @@
   white-space: nowrap;
 
   // Defaults — modifiers override
-  --wr-btn-color: var(--wr-color-dark);
-  --wr-btn-bg: var(--wr-color-white);
-  --wr-btn-border: var(--wr-color-light);
+  --wr-btn-color: var(--wr-color-on-surface);
+  --wr-btn-bg: var(--wr-color-surface);
+  --wr-btn-border: var(--wr-color-outline);
   --wr-btn-radius: var(--wr-control-radius-md);
   --wr-btn-gap: 0.375rem;
   --wr-btn-padding-y: var(--wr-control-padding-y-md);
@@ -45,7 +45,7 @@
   }
 
   &:active {
-    --wr-btn-bg: rgba(var(--wr-color-light-rgb), 0.6);
+    --wr-btn-bg: rgba(var(--wr-color-outline-rgb), 0.6);
   }
 
   &[disabled],

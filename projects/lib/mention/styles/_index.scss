@@ -8,13 +8,13 @@
   display: block;
   min-width: 12rem;
   max-width: 20rem;
-  background: var(--wr-color-white);
-  border: 1px solid var(--wr-color-light);
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-color-outline);
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-text-sm);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   overflow: hidden;
 
   &__list {
@@ -40,7 +40,7 @@
 
   &__empty {
     padding: 0.5rem 0.75rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-sm);
     user-select: none;
   }

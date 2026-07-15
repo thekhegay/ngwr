@@ -6,7 +6,7 @@
   align-items: center;
   gap: 0.875rem;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   &__surface {
     position: relative;
@@ -39,7 +39,7 @@
   &__center-label {
     margin-top: 0.125rem;
     font-size: var(--wr-text-xs);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &__legend {
@@ -70,7 +70,7 @@
   }
 
   &__legend-value {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
 }

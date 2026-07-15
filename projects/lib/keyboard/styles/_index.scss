@@ -1,11 +1,11 @@
 .wr-kbd {
   // Override these on `:root` / a scope to retheme every keycap at once.
-  --wr-kbd-bg: var(--wr-color-white);
-  --wr-kbd-border: rgba(var(--wr-color-dark-rgb), 0.18);
-  --wr-kbd-border-bottom: rgba(var(--wr-color-dark-rgb), 0.32);
-  --wr-kbd-color: var(--wr-color-dark);
+  --wr-kbd-bg: var(--wr-color-surface);
+  --wr-kbd-border: rgba(var(--wr-color-on-surface-rgb), 0.18);
+  --wr-kbd-border-bottom: rgba(var(--wr-color-on-surface-rgb), 0.32);
+  --wr-kbd-color: var(--wr-color-on-surface);
   --wr-kbd-radius: var(--wr-control-radius-md);
-  // Shadow uses the always-black backdrop token, not `--wr-color-dark-rgb`
+  // Shadow uses the always-black backdrop token, not `--wr-color-on-surface-rgb`
   // — the dark RGB flips to light in dark mode, which would turn the
   // 1px drop-shadow into a top highlight.
   --wr-kbd-shadow: 0 1px 0 rgba(var(--wr-color-backdrop-rgb), 0.25);

@@ -9,7 +9,7 @@
   --wr-marquee-height: 28px;
   // Default to the lib's surface colour; consumers can override via
   // `[fadeOutColor]` or by setting `--wr-marquee-fade-color` directly.
-  --wr-marquee-fade-color-auto: var(--wr-color-white, #ffffff);
+  --wr-marquee-fade-color-auto: var(--wr-color-surface, #ffffff);
 
   position: relative;
   display: block;

@@ -24,8 +24,8 @@
     position: relative;
     width: 100%;
     max-width: 36rem;
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
     @include theme.smooth-br(var(--wr-border-radius-base));
     box-shadow: var(--wr-shadow-modal);
     overflow: hidden;
@@ -38,8 +38,8 @@
     align-items: center;
     gap: 0.625rem;
     padding: 0.875rem 1rem;
-    border-bottom: 1px solid var(--wr-color-light);
-    color: var(--wr-color-medium);
+    border-bottom: 1px solid var(--wr-color-outline);
+    color: var(--wr-color-on-surface-muted);
 
     input {
       flex: 1 1 auto;
@@ -49,21 +49,21 @@
       border: 0;
       outline: 0;
       padding: 0;
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
       font-family: inherit;
       font-size: var(--wr-text-base);
 
       &::placeholder {
-        color: var(--wr-color-medium);
+        color: var(--wr-color-on-surface-muted);
       }
     }
   }
 
   &__hint {
     padding: 0.0625rem 0.375rem;
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-family: inherit;
     font-size: var(--wr-text-xs);
     font-weight: var(--wr-font-weight-medium);
@@ -87,7 +87,7 @@
 
   &__group-title {
     padding: 0.375rem 0.625rem 0.25rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     font-weight: var(--wr-font-weight-semibold);
     text-transform: uppercase;
@@ -101,7 +101,7 @@
     padding: 0.5rem 0.625rem;
     border-radius: var(--wr-border-radius-sm);
     cursor: pointer;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-size: var(--wr-text-sm);
     line-height: var(--wr-leading-tight);
     user-select: none;
@@ -116,7 +116,7 @@
     flex: 0 0 auto;
     width: 1rem;
     height: 1rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -140,7 +140,7 @@
 
   &__option-description {
     margin-top: 0.0625rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -150,10 +150,10 @@
   &__option-shortcut {
     flex: 0 0 auto;
     padding: 0.0625rem 0.375rem;
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-sm);
     background: var(--wr-color-hover);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-family: inherit;
     font-size: var(--wr-text-xs);
     font-weight: var(--wr-font-weight-medium);
@@ -162,7 +162,7 @@
   &__empty {
     padding: 1.5rem 1rem;
     text-align: center;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-sm);
   }
 }

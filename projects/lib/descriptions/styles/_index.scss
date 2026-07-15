@@ -3,7 +3,7 @@
 .wr-descriptions {
   display: block;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   // Opt-in (`responsive`): query the box's own width so inline layouts reflow
   // to stacked inside a narrow card / side panel, regardless of the viewport.
@@ -39,7 +39,7 @@
   &__label {
     font-size: var(--wr-text-xs);
     font-weight: var(--wr-font-weight-medium);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     text-transform: uppercase;
     letter-spacing: var(--wr-tracking-wide);
   }
@@ -48,7 +48,7 @@
     margin: 0;
     font-size: var(--wr-text-sm);
     line-height: var(--wr-leading-normal);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
 
   // Inline
@@ -73,7 +73,7 @@
   // Bordered
   &--bordered &__list {
     gap: 0;
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-base);
     overflow: hidden;
   }
@@ -82,7 +82,7 @@
     padding: 0.625rem 0.875rem;
 
     & + & {
-      border-top: 1px solid var(--wr-color-light);
+      border-top: 1px solid var(--wr-color-outline);
     }
   }
 
@@ -99,7 +99,7 @@
   &--bordered#{&}--inline &__label,
   &--bordered#{&}--inline &__value {
     padding: 0.625rem 0.875rem;
-    border-top: 1px solid var(--wr-color-light);
+    border-top: 1px solid var(--wr-color-outline);
   }
 
   &--bordered#{&}--inline &__row:first-child &__label,
@@ -108,8 +108,8 @@
   }
 
   &--bordered#{&}--inline &__label {
-    background: rgba(var(--wr-color-light-rgb), 0.35);
-    border-right: 1px solid var(--wr-color-light);
+    background: rgba(var(--wr-color-outline-rgb), 0.35);
+    border-right: 1px solid var(--wr-color-outline);
   }
 }
 
@@ -147,7 +147,7 @@
   }
 
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row + .wr-descriptions__row {
-    border-top: 1px solid var(--wr-color-light);
+    border-top: 1px solid var(--wr-color-outline);
   }
 
   .wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__label,

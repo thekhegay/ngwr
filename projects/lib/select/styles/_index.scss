@@ -2,9 +2,9 @@
 @use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 
 .wr-select {
-  --wr-select-color: var(--wr-color-dark);
-  --wr-select-bg: var(--wr-color-white);
-  --wr-select-border: var(--wr-color-light);
+  --wr-select-color: var(--wr-color-on-surface);
+  --wr-select-bg: var(--wr-color-surface);
+  --wr-select-border: var(--wr-color-outline);
   --wr-select-radius: var(--wr-control-radius-md);
   --wr-select-padding-y: var(--wr-control-padding-y-md);
   --wr-select-padding-x: var(--wr-control-padding-x-md);
@@ -40,8 +40,8 @@
   }
 
   &--disabled {
-    --wr-select-color: var(--wr-color-medium);
-    --wr-select-bg: rgba(var(--wr-color-light-rgb), 0.35);
+    --wr-select-color: var(--wr-color-on-surface-muted);
+    --wr-select-bg: rgba(var(--wr-color-outline-rgb), 0.35);
   }
 
   &__trigger {
@@ -96,7 +96,7 @@
   &__chevron {
     --wr-icon-size: 1rem;
     flex: 0 0 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     transition: transform var(--wr-transition-base);
   }
 
@@ -227,8 +227,8 @@
   }
 
   &__chip--more {
-    background: rgba(var(--wr-color-dark-rgb), 0.08);
-    color: rgba(var(--wr-color-dark-rgb), 0.7);
+    background: rgba(var(--wr-color-on-surface-rgb), 0.08);
+    color: rgba(var(--wr-color-on-surface-rgb), 0.7);
   }
 
   &__clear {
@@ -240,15 +240,15 @@
     height: 1.125rem;
     margin-right: -0.25rem;
     border-radius: 999px;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     transition:
       background 0.12s ease,
       color 0.12s ease;
 
     &:hover {
-      background: rgba(var(--wr-color-dark-rgb), 0.06);
-      color: var(--wr-color-dark);
+      background: rgba(var(--wr-color-on-surface-rgb), 0.06);
+      color: var(--wr-color-on-surface);
     }
   }
 }
@@ -258,8 +258,8 @@
 }
 
 .wr-select-panel {
-  --wr-select-panel-bg: var(--wr-color-white);
-  --wr-select-panel-border: var(--wr-color-light);
+  --wr-select-panel-bg: var(--wr-color-surface);
+  --wr-select-panel-border: var(--wr-color-outline);
   --wr-select-panel-radius: var(--wr-border-radius-base);
   --wr-select-panel-shadow: var(--wr-shadow-overlay);
   --wr-select-panel-max-height: 16rem;
@@ -305,7 +305,7 @@
   &__loading,
   &__empty {
     padding: 0.625rem 0.75rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-option-font-size);
     text-align: center;
   }
@@ -316,7 +316,7 @@
   align-items: center;
   padding: var(--wr-option-padding-y) var(--wr-option-padding-x);
   border-radius: var(--wr-border-radius-sm);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   font-size: var(--wr-option-font-size);
   line-height: var(--wr-option-line-height);
   cursor: pointer;
@@ -334,7 +334,7 @@
   }
 
   &--disabled {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     cursor: not-allowed;
     opacity: 0.6;
 
@@ -357,7 +357,7 @@
 
   &__label {
     padding: 0.5rem 0.625rem 0.25rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -365,7 +365,7 @@
   }
 
   + .wr-option-group {
-    border-top: 1px solid var(--wr-color-light);
+    border-top: 1px solid var(--wr-color-outline);
     margin-top: 0.25rem;
     padding-top: 0.25rem;
   }

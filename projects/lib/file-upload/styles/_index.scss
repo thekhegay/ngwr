@@ -12,10 +12,10 @@
     justify-content: center;
     gap: 0.75rem;
     padding: 1.5rem;
-    background: var(--wr-color-white);
-    border: 1.5px dashed var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1.5px dashed var(--wr-color-outline);
     @include theme.smooth-br(var(--wr-border-radius-base));
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     text-align: center;
     cursor: pointer;
     outline: 0;
@@ -44,7 +44,7 @@
   }
 
   &__icon {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     transition: color var(--wr-transition-base);
   }
 
@@ -66,12 +66,12 @@
     }
 
     span {
-      color: var(--wr-color-medium);
+      color: var(--wr-color-on-surface-muted);
     }
 
     small {
       margin-top: 0.25rem;
-      color: var(--wr-color-medium);
+      color: var(--wr-color-on-surface-muted);
       font-size: var(--wr-text-xs);
     }
   }
@@ -103,8 +103,8 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.4375rem 0.625rem 0.4375rem 0.75rem;
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
     @include theme.smooth-br(var(--wr-border-radius-base));
     font-size: var(--wr-text-sm);
     line-height: 1.25rem;
@@ -115,12 +115,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
 
   &__size {
     flex: 0 0 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
   }
 
@@ -129,7 +129,7 @@
     background: transparent;
     border: 0;
     padding: 0.25rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     border-radius: var(--wr-border-radius-sm);
     cursor: pointer;
     display: inline-flex;

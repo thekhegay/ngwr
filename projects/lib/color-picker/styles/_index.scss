@@ -7,8 +7,8 @@
   --wr-color-picker-thumb-size: 0.875rem;
   --wr-color-picker-radius: var(--wr-border-radius-base);
   --wr-color-picker-padding: 0.75rem;
-  --wr-color-picker-bg: var(--wr-color-white);
-  --wr-color-picker-border: var(--wr-color-light);
+  --wr-color-picker-bg: var(--wr-color-surface);
+  --wr-color-picker-border: var(--wr-color-outline);
   --wr-color-picker-gap: 0.625rem;
 
   // Driven by host bindings on the component
@@ -153,11 +153,11 @@
     input {
       appearance: none;
       -moz-appearance: textfield;
-      background: var(--wr-color-white);
-      border: 1px solid var(--wr-color-light);
+      background: var(--wr-color-surface);
+      border: 1px solid var(--wr-color-outline);
       border-radius: var(--wr-border-radius-sm);
       padding: 0.25rem 0.375rem;
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
       font-family: var(--wr-font-family-mono, monospace);
       font-size: var(--wr-text-xs);
       line-height: 1rem;
@@ -180,8 +180,8 @@
       }
 
       &:disabled {
-        background: rgba(var(--wr-color-light-rgb), 0.35);
-        color: var(--wr-color-medium);
+        background: rgba(var(--wr-color-outline-rgb), 0.35);
+        color: var(--wr-color-on-surface-muted);
         cursor: not-allowed;
       }
     }
@@ -196,7 +196,7 @@
 
   &__field-label {
     text-align: center;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: 0.625rem; // 10px — intentional micro R/G/B/A channel label, below --wr-text-xs
     font-weight: 600;
     text-transform: uppercase;
@@ -217,7 +217,7 @@
     // Use the dark token so the hairline tracks theme — fixed black at
     // 8% disappears against the dark-mode canvas, leaving swatches
     // bleeding into each other.
-    border: 1px solid rgba(var(--wr-color-dark-rgb), 0.12);
+    border: 1px solid rgba(var(--wr-color-on-surface-rgb), 0.12);
     border-radius: var(--wr-border-radius-sm);
     cursor: pointer;
     padding: 0;

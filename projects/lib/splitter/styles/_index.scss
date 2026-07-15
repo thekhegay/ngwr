@@ -31,7 +31,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--wr-color-light);
+    background: var(--wr-color-outline);
     outline: 0;
     transition: background var(--wr-transition-base);
 
@@ -59,8 +59,8 @@
   }
 
   &__handle {
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
     box-shadow: var(--wr-shadow-sm);
     display: inline-block;
     flex: 0 0 auto;
@@ -82,7 +82,7 @@
     cursor: not-allowed;
 
     &:hover {
-      background: var(--wr-color-light);
+      background: var(--wr-color-outline);
     }
   }
 }

@@ -12,24 +12,24 @@
   // that want a compact inline empty can override `width`/`min-height`.
   width: 100%;
   min-height: 100%;
-  color: var(--wr-color-medium);
+  color: var(--wr-color-on-surface-muted);
   text-align: center;
 
   &__icon {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     opacity: 0.6;
     margin-bottom: 0.25rem;
   }
 
   &__title {
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-size: var(--wr-text-base);
     font-weight: var(--wr-font-weight-semibold);
   }
 
   &__description {
     font-size: var(--wr-text-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     max-width: 32rem;
 
     &:empty {

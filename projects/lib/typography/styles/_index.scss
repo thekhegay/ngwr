@@ -3,7 +3,7 @@
 .wr-typography {
   // Inherit the host element's native display (block for h1/p, inline for span).
   margin: 0;
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   font-family: var(--wr-font-family-base);
 
   &--display {
@@ -56,7 +56,7 @@
     font-size: var(--wr-text-xl);
     font-weight: var(--wr-font-weight-regular);
     line-height: var(--wr-leading-relaxed);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &--body {
@@ -73,7 +73,7 @@
   &--caption {
     font-size: var(--wr-text-xs);
     line-height: var(--wr-leading-normal);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &--overline {
@@ -81,12 +81,12 @@
     font-weight: var(--wr-font-weight-semibold);
     text-transform: uppercase;
     letter-spacing: var(--wr-tracking-widest);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &--code {
     padding: 0.0625rem 0.375rem;
-    background: rgba(var(--wr-color-light-rgb), 0.6);
+    background: rgba(var(--wr-color-outline-rgb), 0.6);
     border-radius: var(--wr-border-radius-sm);
     font-size: 0.875em;
   }
@@ -99,7 +99,7 @@
     padding: 0;
     font-size: var(--wr-text-base);
     line-height: var(--wr-leading-normal);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
 
     > li + li,
     > li > ul,
@@ -133,19 +133,19 @@
 
     dl#{&}--list dt {
       margin-bottom: 0.25rem;
-      color: var(--wr-color-medium);
+      color: var(--wr-color-on-surface-muted);
     }
 
     dl#{&}--list dd {
       font-size: var(--wr-text-lg);
       font-weight: var(--wr-font-weight-medium);
-      color: var(--wr-color-dark);
+      color: var(--wr-color-on-surface);
     }
 
     dl#{&}--list dd + dt {
       margin-top: 0.75rem;
       padding-top: 0.75rem;
-      border-top: 1px solid var(--wr-color-light);
+      border-top: 1px solid var(--wr-color-outline);
     }
   }
 
@@ -165,10 +165,10 @@
 
   // Tones
   &--tone-dark {
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
   &--tone-medium {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
   &--tone-primary {
     color: var(--wr-color-primary);

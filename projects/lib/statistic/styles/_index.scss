@@ -5,11 +5,11 @@
   flex-direction: column;
   gap: 0.25rem;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   &__label {
     font-size: var(--wr-text-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     line-height: var(--wr-leading-normal);
   }
 
@@ -28,7 +28,7 @@
   &__suffix {
     font-size: var(--wr-text-lg);
     font-weight: var(--wr-font-weight-medium);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &__delta {
@@ -48,7 +48,7 @@
     }
 
     &--flat {
-      color: var(--wr-color-medium);
+      color: var(--wr-color-on-surface-muted);
     }
   }
 }

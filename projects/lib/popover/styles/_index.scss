@@ -6,12 +6,12 @@
     display: block;
     min-width: 8rem;
     max-width: 22rem;
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
     @include theme.smooth-br(var(--wr-border-radius-base));
     box-shadow: var(--wr-shadow-overlay);
     font-family: var(--wr-font-family-base);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
     transform-origin: top left;
   }
@@ -32,7 +32,7 @@
   display: inline-block;
   max-width: 18rem;
   padding: 0.3125rem 0.5rem;
-  background: var(--wr-color-dark);
+  background: var(--wr-color-on-surface);
   color: var(--wr-color-dark-contrast);
   border-radius: var(--wr-border-radius-sm);
   font-family: var(--wr-font-family-base);
@@ -48,7 +48,7 @@
     position: absolute;
     width: 6px;
     height: 6px;
-    background: var(--wr-color-dark);
+    background: var(--wr-color-on-surface);
     transform: rotate(45deg);
   }
 }

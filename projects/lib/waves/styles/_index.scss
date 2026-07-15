@@ -3,7 +3,7 @@
 // `--wr-waves-line-color` unless `[lineColor]` overrides it.
 
 .wr-waves {
-  --wr-waves-line-color: rgba(var(--wr-color-dark-rgb), 0.12);
+  --wr-waves-line-color: rgba(var(--wr-color-on-surface-rgb), 0.12);
 
   position: absolute;
   inset: 0;

@@ -13,7 +13,7 @@
   min-height: 100%;
   text-align: center;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   &__icon {
     line-height: 0;
@@ -31,7 +31,7 @@
     margin: 0;
     max-width: 32rem;
     font-size: var(--wr-text-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     line-height: var(--wr-leading-relaxed);
   }
 
@@ -64,6 +64,6 @@
   }
 
   &--empty &__icon {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 }

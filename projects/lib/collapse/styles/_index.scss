@@ -1,10 +1,10 @@
 @use '../../theme/styles' as theme;
 
 .wr-collapse {
-  --wr-collapse-bg: var(--wr-color-white);
-  --wr-collapse-border: var(--wr-color-light);
+  --wr-collapse-bg: var(--wr-color-surface);
+  --wr-collapse-border: var(--wr-color-outline);
   --wr-collapse-radius: var(--wr-border-radius-base);
-  --wr-collapse-color: var(--wr-color-dark);
+  --wr-collapse-color: var(--wr-color-on-surface);
 
   display: block;
   border: 1px solid var(--wr-collapse-border);
@@ -35,7 +35,7 @@
     transition: background var(--wr-transition-base);
 
     &:hover:not(:disabled) {
-      background: rgba(var(--wr-color-light-rgb), 0.25);
+      background: rgba(var(--wr-color-outline-rgb), 0.25);
     }
 
     &:disabled {
@@ -50,7 +50,7 @@
   &__chevron {
     --wr-icon-size: 1rem;
     flex: 0 0 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     transition: transform var(--wr-transition-base);
   }
 
@@ -82,7 +82,7 @@
   }
 
   &--disabled {
-    --wr-collapse-color: var(--wr-color-medium);
+    --wr-collapse-color: var(--wr-color-on-surface-muted);
     opacity: 0.7;
   }
 }

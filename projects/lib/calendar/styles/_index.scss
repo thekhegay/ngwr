@@ -2,10 +2,10 @@
 
 .wr-calendar {
   --wr-calendar-width: 17rem;
-  --wr-calendar-bg: var(--wr-color-white);
-  --wr-calendar-border: var(--wr-color-light);
-  --wr-calendar-color: var(--wr-color-dark);
-  --wr-calendar-muted: var(--wr-color-medium);
+  --wr-calendar-bg: var(--wr-color-surface);
+  --wr-calendar-border: var(--wr-color-outline);
+  --wr-calendar-color: var(--wr-color-on-surface);
+  --wr-calendar-muted: var(--wr-color-on-surface-muted);
   --wr-calendar-radius: var(--wr-border-radius-base);
   --wr-calendar-day-radius: var(--wr-border-radius-sm);
   --wr-calendar-cell-size: 2rem;

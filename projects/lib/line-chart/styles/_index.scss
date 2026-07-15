@@ -3,7 +3,7 @@
 .wr-line-chart {
   display: block;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   &__legend {
     list-style: none;
@@ -41,8 +41,8 @@
   &__tooltip {
     position: absolute;
     transform: translate(-50%, 0.5rem);
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-base);
     box-shadow: var(--wr-shadow-sm);
     padding: 0.5rem 0.625rem;
@@ -66,7 +66,7 @@
 
   &__tooltip-name {
     flex: 1 1 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &__tooltip-value {
@@ -85,7 +85,7 @@
     flex: 1 1 0;
     text-align: center;
     font-size: var(--wr-text-xs);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

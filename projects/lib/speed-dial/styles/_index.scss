@@ -18,7 +18,7 @@
     border: 0;
     border-radius: 50%;
     background: var(--wr-color-primary);
-    color: var(--wr-color-primary-contrast, var(--wr-color-white));
+    color: var(--wr-color-primary-contrast, var(--wr-color-surface));
     cursor: pointer;
     box-shadow: var(--wr-shadow-float);
     transition: transform var(--wr-transition-base);
@@ -135,12 +135,12 @@
     align-items: center;
     justify-content: center;
     // Hairline silhouette so the button reads as a distinct surface even
-    // when its `--wr-color-white` bg matches the canvas (dark mode) or
+    // when its `--wr-color-surface` bg matches the canvas (dark mode) or
     // sits on a same-tone page bg (light mode).
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-color-outline);
     border-radius: 50%;
-    background: var(--wr-color-white);
-    color: var(--wr-color-dark);
+    background: var(--wr-color-surface);
+    color: var(--wr-color-on-surface);
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(var(--wr-color-backdrop-rgb), 0.18);
     transition:
@@ -153,7 +153,7 @@
       transform: scale(1.06);
       background: var(--wr-color-primary);
       border-color: var(--wr-color-primary);
-      color: var(--wr-color-primary-contrast, var(--wr-color-white));
+      color: var(--wr-color-primary-contrast, var(--wr-color-surface));
     }
   }
 }

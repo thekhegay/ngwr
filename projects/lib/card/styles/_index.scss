@@ -1,9 +1,9 @@
 @use '../../theme/styles' as theme;
 
 .wr-card {
-  --wr-card-bg: var(--wr-color-white);
-  --wr-card-color: var(--wr-color-dark);
-  --wr-card-border: var(--wr-color-light);
+  --wr-card-bg: var(--wr-color-surface);
+  --wr-card-color: var(--wr-color-on-surface);
+  --wr-card-border: var(--wr-color-outline);
   --wr-card-radius: var(--wr-border-radius-base);
   --wr-card-padding-y: 1rem;
   --wr-card-padding-x: 1.25rem;
@@ -75,14 +75,14 @@
     align-items: center;
     justify-content: center;
     @include theme.smooth-br(var(--wr-card-radius));
-    background: rgba(var(--wr-color-white-rgb), 0.5);
+    background: rgba(var(--wr-color-surface-rgb), 0.5);
     pointer-events: none;
   }
 
   &__spinner {
     width: 1.5rem;
     height: 1.5rem;
-    border: 2px solid rgb(var(--wr-color-medium-rgb) / 30%);
+    border: 2px solid rgb(var(--wr-color-on-surface-muted-rgb) / 30%);
     border-top-color: var(--wr-color-primary);
     border-radius: 50%;
     animation: wr-card-spin 0.7s linear infinite;

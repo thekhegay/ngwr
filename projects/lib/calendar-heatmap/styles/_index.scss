@@ -3,7 +3,7 @@
 .wr-calendar-heatmap {
   display: inline-block;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-medium);
+  color: var(--wr-color-on-surface-muted);
 
   &__grid {
     display: grid;
@@ -20,7 +20,7 @@
     grid-template-rows: repeat(7, var(--wr-heatmap-cell-size));
     gap: var(--wr-heatmap-cell-gap);
     font-size: var(--wr-text-xs);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     align-items: center;
   }
 
@@ -43,7 +43,7 @@
   &__months {
     grid-area: months;
     font-size: var(--wr-text-xs);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &__month {

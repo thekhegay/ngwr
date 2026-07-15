@@ -3,13 +3,13 @@
 .wr-bar-chart {
   display: block;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   &__plot {
     display: flex;
     align-items: flex-end;
     gap: 0.5rem;
-    border-bottom: 1px solid var(--wr-color-light);
+    border-bottom: 1px solid var(--wr-color-outline);
   }
 
   &__column {
@@ -25,7 +25,7 @@
 
   &__value {
     font-size: var(--wr-text-xs);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-variant-numeric: tabular-nums;
     line-height: 1;
   }
@@ -47,7 +47,7 @@
     flex: 1 1 0;
     text-align: center;
     font-size: var(--wr-text-xs);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

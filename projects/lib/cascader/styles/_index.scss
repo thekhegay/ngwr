@@ -5,9 +5,9 @@
 @use '../../theme/styles' as theme;
 
 .wr-cascader {
-  --wr-cascader-color: var(--wr-color-dark);
-  --wr-cascader-bg: var(--wr-color-white);
-  --wr-cascader-border: var(--wr-color-light);
+  --wr-cascader-color: var(--wr-color-on-surface);
+  --wr-cascader-bg: var(--wr-color-surface);
+  --wr-cascader-border: var(--wr-color-outline);
   --wr-cascader-radius: var(--wr-control-radius-md);
   --wr-cascader-padding-y: var(--wr-control-padding-y-md);
   --wr-cascader-padding-x: var(--wr-control-padding-x-md);
@@ -20,8 +20,8 @@
   vertical-align: middle;
 
   &--disabled {
-    --wr-cascader-color: var(--wr-color-medium);
-    --wr-cascader-bg: rgba(var(--wr-color-light-rgb), 0.35);
+    --wr-cascader-color: var(--wr-color-on-surface-muted);
+    --wr-cascader-bg: rgba(var(--wr-color-outline-rgb), 0.35);
   }
 
   // Sizes — trigger on the control contract (sm 22 / md 30 / lg 36).
@@ -92,7 +92,7 @@
   &__chevron {
     --wr-icon-size: 1rem;
     flex: 0 0 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     transition: transform var(--wr-transition-base);
   }
 
@@ -108,15 +108,15 @@
     width: 1.125rem;
     height: 1.125rem;
     border-radius: 999px;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     transition:
       background 0.12s ease,
       color 0.12s ease;
 
     &:hover {
-      background: rgba(var(--wr-color-dark-rgb), 0.06);
-      color: var(--wr-color-dark);
+      background: rgba(var(--wr-color-on-surface-rgb), 0.06);
+      color: var(--wr-color-on-surface);
     }
   }
 }
@@ -132,8 +132,8 @@
   --wr-cascader-opt-py: 0.5rem;
 
   display: flex;
-  background: var(--wr-color-white);
-  border: 1px solid var(--wr-color-light);
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-color-outline);
   border-radius: var(--wr-border-radius-base);
   box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-font-family-base);
@@ -163,7 +163,7 @@
     gap: 0.125rem;
 
     + .wr-cascader__col {
-      border-left: 1px solid var(--wr-color-light);
+      border-left: 1px solid var(--wr-color-outline);
     }
   }
 
@@ -174,7 +174,7 @@
     gap: 0.5rem;
     padding: var(--wr-cascader-opt-py) 0.625rem;
     border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     cursor: pointer;
     transition: background var(--wr-transition-short);
 
@@ -189,7 +189,7 @@
     }
 
     &--disabled {
-      color: var(--wr-color-medium);
+      color: var(--wr-color-on-surface-muted);
       cursor: not-allowed;
       opacity: 0.55;
 
@@ -209,7 +209,7 @@
   .wr-cascader__opt-arrow {
     --wr-icon-size: 0.875rem;
     flex: 0 0 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 }
 
