@@ -3,6 +3,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
+import { provideClientHydration } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
@@ -29,6 +30,11 @@ export const appConfig: ApplicationConfig = {
     // angular
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
+    // Reuse the prerendered DOM instead of throwing it away and re-rendering
+    // on boot. Requires server and client to agree on structure — see the
+    // `ngSkipHydration` note on `wr-window`, the CSS-driven nav split in
+    // `layout.scss`, and the platform-resolved date locale.
+    provideClientHydration(),
     // Reset to top on every forward navigation; back / forward restores
     // the previous position. `anchorScrolling` makes `#fragment` links work.
     provideRouter(routing, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
