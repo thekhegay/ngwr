@@ -20,7 +20,7 @@
       height: 0.5rem;
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(var(--wr-color-dark-rgb), 0.2);
+      background: rgba(var(--wr-color-on-surface-rgb), 0.2);
       border-radius: 999px;
     }
   }

@@ -32,7 +32,7 @@
   &__window {
     position: absolute;
     box-sizing: border-box;
-    border: 1px solid var(--wr-color-white);
+    border: 1px solid var(--wr-color-surface);
     cursor: move;
     box-shadow: 0 0 0 1px rgba(var(--wr-color-primary-rgb), 0.6);
   }
@@ -41,7 +41,7 @@
     position: absolute;
     width: 0.75rem;
     height: 0.75rem;
-    background: var(--wr-color-white);
+    background: var(--wr-color-surface);
     border: 1px solid var(--wr-color-primary);
     border-radius: 50%;
     box-shadow: 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.15);
@@ -106,9 +106,9 @@
   &__empty {
     padding: 2rem;
     text-align: center;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     background: var(--wr-color-hover);
-    border: 1px dashed var(--wr-color-light);
+    border: 1px dashed var(--wr-color-outline);
     @include theme.smooth-br(var(--wr-border-radius-base));
   }
 }

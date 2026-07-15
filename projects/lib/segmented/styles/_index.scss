@@ -1,10 +1,10 @@
 @use '../../theme/styles' as theme;
 
 .wr-segmented {
-  --wr-segmented-bg: rgba(var(--wr-color-light-rgb), 0.4);
-  --wr-segmented-color: var(--wr-color-dark);
-  --wr-segmented-selected-bg: var(--wr-color-white);
-  --wr-segmented-selected-color: var(--wr-color-dark);
+  --wr-segmented-bg: rgba(var(--wr-color-outline-rgb), 0.4);
+  --wr-segmented-color: var(--wr-color-on-surface);
+  --wr-segmented-selected-bg: var(--wr-color-surface);
+  --wr-segmented-selected-color: var(--wr-color-on-surface);
   --wr-segmented-radius: 0.5rem; // 8px track
   // Concentric thumb: outer − inset, so track and thumb corners nest naturally.
   --wr-segmented-thumb-radius: calc(var(--wr-segmented-radius) - var(--wr-segmented-padding));

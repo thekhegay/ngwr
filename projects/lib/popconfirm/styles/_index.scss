@@ -6,11 +6,11 @@
     min-width: 14rem;
     max-width: 22rem;
     padding: 0.875rem 1rem;
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-base);
     box-shadow: var(--wr-shadow-overlay);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-family: var(--wr-font-family-base);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
     transform-origin: top left;

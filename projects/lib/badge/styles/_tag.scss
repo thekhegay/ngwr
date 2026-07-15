@@ -11,9 +11,9 @@
   white-space: nowrap;
 
   // Defaults — color and style modifiers override
-  --wr-tag-color: var(--wr-color-dark);
-  --wr-tag-bg: var(--wr-color-white);
-  --wr-tag-border: var(--wr-color-light);
+  --wr-tag-color: var(--wr-color-on-surface);
+  --wr-tag-bg: var(--wr-color-surface);
+  --wr-tag-border: var(--wr-color-outline);
   --wr-tag-radius: var(--wr-border-radius-sm);
   --wr-tag-padding-y: 0.125rem;
   --wr-tag-padding-x: 0.5rem;

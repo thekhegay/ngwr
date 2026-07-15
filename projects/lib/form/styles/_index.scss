@@ -7,7 +7,7 @@
   width: 100%;
 
   > label {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-sm);
     font-weight: 500;
     line-height: 1.25rem;
@@ -44,7 +44,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-size: var(--wr-text-sm);
     font-weight: 500;
     line-height: 1.25rem;
@@ -55,7 +55,7 @@
   }
 
   &__optional {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-weight: 400;
     font-size: var(--wr-text-sm);
   }
@@ -66,7 +66,7 @@
   }
 
   &__hint {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     line-height: 1.25;
   }

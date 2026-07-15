@@ -10,8 +10,8 @@
   // Theme-default sweep (overridden by `[color]` / `[shineColor]`):
   // gray base with a dark shine on light surfaces; dark theme restores
   // the reactbits gray-with-white-flash below.
-  --wr-shiny-text-base: var(--wr-color-medium, #8594a4);
-  --wr-shiny-text-shine: var(--wr-color-dark, #0f172a);
+  --wr-shiny-text-base: var(--wr-color-on-surface-muted, #8594a4);
+  --wr-shiny-text-shine: var(--wr-color-on-surface, #0f172a);
 
   display: inline-block;
   background-size: 200% auto;
@@ -79,9 +79,9 @@
 .wr-shimmer {
   background: linear-gradient(
     110deg,
-    var(--wr-color-dark) 30%,
+    var(--wr-color-on-surface) 30%,
     rgba(var(--wr-color-primary-rgb), 0.9) 50%,
-    var(--wr-color-dark) 70%
+    var(--wr-color-on-surface) 70%
   );
   background-size: 200% 100%;
   background-clip: text;

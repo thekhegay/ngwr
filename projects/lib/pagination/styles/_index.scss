@@ -34,7 +34,7 @@
   }
 
   &__total {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-family: var(--wr-font-family-base);
     font-size: var(--wr-text-sm);
   }
@@ -61,7 +61,7 @@
     display: inline-flex;
     min-width: var(--wr-pagination-cell, 2rem);
     justify-content: center;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     user-select: none;
   }
 
@@ -71,7 +71,7 @@
     display: none;
     align-items: center;
     padding: 0 0.375rem;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-family: var(--wr-font-family-base);
     font-size: var(--wr-text-sm);
     font-variant-numeric: tabular-nums;

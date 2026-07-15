@@ -2,8 +2,8 @@
 
 .wr-stepper {
   --wr-stepper-indicator-size: 1.75rem;
-  --wr-stepper-connector: var(--wr-color-light);
-  --wr-stepper-muted: var(--wr-color-medium);
+  --wr-stepper-connector: var(--wr-color-outline);
+  --wr-stepper-muted: var(--wr-color-on-surface-muted);
 
   display: flex;
   flex-direction: column;
@@ -58,7 +58,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.625rem;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     cursor: pointer;
     text-align: left;
     flex: 0 0 auto;
@@ -77,8 +77,8 @@
     width: var(--wr-stepper-indicator-size);
     height: var(--wr-stepper-indicator-size);
     border-radius: 50%;
-    border: 1.5px solid var(--wr-color-light);
-    background: var(--wr-color-white);
+    border: 1.5px solid var(--wr-color-outline);
+    background: var(--wr-color-surface);
     color: var(--wr-stepper-muted);
     font-size: var(--wr-text-sm);
     font-weight: 600;
@@ -101,7 +101,7 @@
   &__header--completed &__indicator {
     background: var(--wr-color-primary);
     border-color: var(--wr-color-primary);
-    color: var(--wr-color-white);
+    color: var(--wr-color-surface);
   }
 
   &__label {

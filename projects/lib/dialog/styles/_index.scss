@@ -52,7 +52,7 @@
 }
 
 .wr-dialog-panel {
-  --wr-dialog-bg: var(--wr-color-white);
+  --wr-dialog-bg: var(--wr-color-surface);
   --wr-dialog-radius: var(--wr-border-radius-lg);
   --wr-dialog-shadow: var(--wr-shadow-modal);
   --wr-dialog-min-width: 18rem;
@@ -70,7 +70,7 @@
   box-shadow: var(--wr-dialog-shadow);
   overflow: hidden;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   animation: wr-dialog-enter 0.2s ease-out;
 }
@@ -79,17 +79,17 @@
   &__title {
     margin: 0;
     padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-size: var(--wr-text-lg);
     font-weight: 600;
     line-height: 1.5rem;
-    border-bottom: 1px solid var(--wr-color-light);
+    border-bottom: 1px solid var(--wr-color-outline);
   }
 
   &__content {
     padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
     overflow: auto;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-size: var(--wr-text-base);
     line-height: 1.5rem;
   }
@@ -99,7 +99,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: calc(var(--wr-dialog-padding-y) * 0.75) var(--wr-dialog-padding-x);
-    border-top: 1px solid var(--wr-color-light);
+    border-top: 1px solid var(--wr-color-outline);
 
     &--start {
       justify-content: flex-start;

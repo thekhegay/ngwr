@@ -3,7 +3,7 @@
 .wr-gauge {
   display: inline-block;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   &__surface {
     position: relative;
@@ -31,7 +31,7 @@
   &__suffix {
     margin-left: 0.125rem;
     font-size: var(--wr-text-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-weight: var(--wr-font-weight-medium);
   }
 }

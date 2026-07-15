@@ -6,10 +6,10 @@
   --wr-switch-thumb-size: 0.875rem;
   --wr-switch-font-size: var(--wr-text-sm);
   --wr-switch-line-height: var(--wr-control-line-height-md);
-  --wr-switch-bg: var(--wr-color-light);
+  --wr-switch-bg: var(--wr-color-outline);
   --wr-switch-bg-checked: var(--wr-color-primary);
-  --wr-switch-thumb: var(--wr-color-white);
-  --wr-switch-color: var(--wr-color-dark);
+  --wr-switch-thumb: var(--wr-color-surface);
+  --wr-switch-color: var(--wr-color-on-surface);
 
   display: inline-flex;
   vertical-align: middle;
@@ -94,7 +94,7 @@
   }
 
   &--disabled {
-    --wr-switch-color: var(--wr-color-medium);
+    --wr-switch-color: var(--wr-color-on-surface-muted);
     pointer-events: none;
     opacity: 0.6;
   }

@@ -4,10 +4,10 @@
   --wr-radio-size: 1.125rem; // md (18px)
   --wr-radio-font-size: var(--wr-text-sm);
   --wr-radio-line-height: var(--wr-control-line-height-md);
-  --wr-radio-bg: var(--wr-color-white);
-  --wr-radio-border: var(--wr-color-light);
+  --wr-radio-bg: var(--wr-color-surface);
+  --wr-radio-border: var(--wr-color-outline);
   --wr-radio-dot: transparent;
-  --wr-radio-color: var(--wr-color-dark);
+  --wr-radio-color: var(--wr-color-on-surface);
 
   display: inline-flex;
   vertical-align: middle;
@@ -113,7 +113,7 @@
   }
 
   &--disabled {
-    --wr-radio-color: var(--wr-color-medium);
+    --wr-radio-color: var(--wr-color-on-surface-muted);
     pointer-events: none;
     opacity: 0.6;
   }

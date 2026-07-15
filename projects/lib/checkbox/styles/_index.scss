@@ -5,10 +5,10 @@
   --wr-checkbox-radius: var(--wr-control-radius-md);
   --wr-checkbox-font-size: var(--wr-text-sm);
   --wr-checkbox-line-height: var(--wr-control-line-height-md);
-  --wr-checkbox-bg: var(--wr-color-white);
-  --wr-checkbox-border: var(--wr-color-light);
+  --wr-checkbox-bg: var(--wr-color-surface);
+  --wr-checkbox-border: var(--wr-color-outline);
   --wr-checkbox-mark: transparent;
-  --wr-checkbox-color: var(--wr-color-dark);
+  --wr-checkbox-color: var(--wr-color-on-surface);
 
   display: inline-flex;
   vertical-align: middle;
@@ -106,7 +106,7 @@
   }
 
   &--disabled {
-    --wr-checkbox-color: var(--wr-color-medium);
+    --wr-checkbox-color: var(--wr-color-on-surface-muted);
     pointer-events: none;
     opacity: 0.6;
   }

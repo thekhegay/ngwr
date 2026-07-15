@@ -8,7 +8,7 @@
   // Defaults — color modifiers override the bar color.
   --wr-progress-height: 0.5rem;
   --wr-progress-radius: var(--wr-border-radius-pill);
-  --wr-progress-track: rgba(var(--wr-color-light-rgb), 0.35);
+  --wr-progress-track: rgba(var(--wr-color-outline-rgb), 0.35);
   --wr-progress-bar: var(--wr-color-primary);
 
   // `flex: 1 1 100%` here would claim 100% basis on the flex MAIN axis —

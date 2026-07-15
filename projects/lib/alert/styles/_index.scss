@@ -20,7 +20,7 @@ $alert-colors: (
   --wr-alert-bg: var(--wr-color-info-soft);
   --wr-alert-border: var(--wr-color-info-soft-border);
   --wr-alert-title: var(--wr-color-info);
-  --wr-alert-message: var(--wr-color-dark);
+  --wr-alert-message: var(--wr-color-on-surface);
   --wr-alert-close: var(--wr-color-info);
 
   background: var(--wr-alert-bg);
@@ -109,22 +109,22 @@ $alert-colors: (
   &--neutral {
     --wr-alert-bg: var(--wr-color-medium-soft);
     --wr-alert-border: var(--wr-color-medium-soft-border);
-    --wr-alert-title: var(--wr-color-dark);
-    --wr-alert-message: var(--wr-color-medium);
-    --wr-alert-close: var(--wr-color-medium);
+    --wr-alert-title: var(--wr-color-on-surface);
+    --wr-alert-message: var(--wr-color-on-surface-muted);
+    --wr-alert-close: var(--wr-color-on-surface-muted);
 
     .wr-alert__icon {
-      color: var(--wr-color-medium);
+      color: var(--wr-color-on-surface-muted);
     }
   }
 
   // Offline — inverse chip. Auto-flips via the theme tokens: dark bg +
   // light text in light theme; light bg + dark text in dark theme.
   &--offline {
-    --wr-alert-bg: var(--wr-color-dark);
-    --wr-alert-border: var(--wr-color-dark);
-    --wr-alert-title: var(--wr-color-white);
-    --wr-alert-message: var(--wr-color-white);
-    --wr-alert-close: var(--wr-color-white);
+    --wr-alert-bg: var(--wr-color-on-surface);
+    --wr-alert-border: var(--wr-color-on-surface);
+    --wr-alert-title: var(--wr-color-surface);
+    --wr-alert-message: var(--wr-color-surface);
+    --wr-alert-close: var(--wr-color-surface);
   }
 }

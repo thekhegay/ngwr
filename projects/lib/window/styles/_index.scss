@@ -1,10 +1,10 @@
 @use '../../theme/styles' as theme;
 
 .wr-window {
-  --wr-window-bg: var(--wr-color-white);
-  --wr-window-border: var(--wr-color-light);
+  --wr-window-bg: var(--wr-color-surface);
+  --wr-window-border: var(--wr-color-outline);
   --wr-window-chrome-bg: var(--wr-color-hover);
-  --wr-window-chrome-color: var(--wr-color-dark);
+  --wr-window-chrome-color: var(--wr-color-on-surface);
   --wr-window-radius: var(--wr-border-radius-base);
   --wr-window-handle-size: 8px;
   --wr-window-chrome-height: 2.25rem;
@@ -20,7 +20,7 @@
   @include theme.smooth-br(var(--wr-window-radius));
   box-shadow: var(--wr-shadow-modal);
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
   overflow: hidden;
   user-select: none;
   // Enter animation — popover-style fade + scale-up. Disabled by
@@ -118,7 +118,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     cursor: pointer;
     border-radius: var(--wr-border-radius-sm);
     transition:
@@ -126,12 +126,12 @@
       background var(--wr-transition-base);
 
     &:hover {
-      color: var(--wr-color-dark);
-      background: rgba(var(--wr-color-light-rgb), 0.6);
+      color: var(--wr-color-on-surface);
+      background: rgba(var(--wr-color-outline-rgb), 0.6);
     }
 
     &--close:hover {
-      color: var(--wr-color-white);
+      color: var(--wr-color-surface);
       background: var(--wr-color-danger);
     }
   }
@@ -222,9 +222,9 @@
     gap: 0.5rem;
     padding: 0.25rem 0.75rem;
     border-top: 1px solid var(--wr-window-border);
-    background: rgba(var(--wr-color-light-rgb), 0.25);
+    background: rgba(var(--wr-color-outline-rgb), 0.25);
     font-size: var(--wr-text-xs);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
 
     &:empty {
       display: none;
@@ -356,8 +356,8 @@
     align-items: center;
     gap: 0.25rem;
     padding: 0.25rem;
-    background: var(--wr-color-white);
-    border: 1px solid var(--wr-color-light);
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
     @include theme.smooth-br(var(--wr-border-radius-base));
     box-shadow: var(--wr-shadow-overlay);
     pointer-events: auto;
@@ -372,7 +372,7 @@
     gap: 0.375rem;
     padding: 0.25rem 0.5rem 0.25rem 0.75rem;
     border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font-family: inherit;
     font-size: var(--wr-text-sm);
     line-height: 1.25rem;
@@ -383,7 +383,7 @@
       color var(--wr-transition-base);
 
     &:hover {
-      background: rgba(var(--wr-color-light-rgb), 0.6);
+      background: rgba(var(--wr-color-outline-rgb), 0.6);
     }
 
     &:focus-visible {
@@ -408,11 +408,11 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     cursor: pointer;
 
     &:hover {
-      color: var(--wr-color-white);
+      color: var(--wr-color-surface);
       background: var(--wr-color-danger);
     }
   }

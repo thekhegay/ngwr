@@ -1,9 +1,9 @@
 @use '../../theme/styles' as theme;
 
 .wr-table {
-  --wr-table-border: var(--wr-color-light);
-  --wr-table-head-bg: rgba(var(--wr-color-light-rgb), 0.25);
-  --wr-table-row-hover: rgba(var(--wr-color-light-rgb), 0.15);
+  --wr-table-border: var(--wr-color-outline);
+  --wr-table-head-bg: rgba(var(--wr-color-outline-rgb), 0.25);
+  --wr-table-row-hover: rgba(var(--wr-color-outline-rgb), 0.15);
 
   display: block;
   position: relative;
@@ -12,7 +12,7 @@
   @include theme.smooth-br(var(--wr-border-radius-base));
   overflow: hidden;
   font-family: var(--wr-font-family-base);
-  color: var(--wr-color-dark);
+  color: var(--wr-color-on-surface);
 
   // Opt-in (`responsive`): query the table's own width so each row collapses to
   // a labelled card when it's too narrow for columns. Already width:100%, so
@@ -43,7 +43,7 @@
 
   &__th {
     background: var(--wr-table-head-bg);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-weight: 600;
     font-size: var(--wr-text-xs);
     letter-spacing: 0.04em;
@@ -85,7 +85,7 @@
 
   &__empty {
     text-align: center;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     padding: 1.5rem;
   }
 
@@ -103,7 +103,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(var(--wr-color-white-rgb), 0.7);
+    background: rgba(var(--wr-color-surface-rgb), 0.7);
     backdrop-filter: blur(2px);
     z-index: 1;
   }
@@ -153,7 +153,7 @@
   .wr-table--responsive .wr-table__td::before {
     content: attr(data-label);
     flex: 0 0 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -166,7 +166,7 @@
 .wr-table-sort {
   display: inline-flex;
   --wr-icon-size: 0.875rem;
-  color: var(--wr-color-medium);
+  color: var(--wr-color-on-surface-muted);
   transition:
     transform var(--wr-transition-base),
     color var(--wr-transition-base);
@@ -186,7 +186,7 @@
 
 .wr-table-filter {
   display: inline-flex;
-  color: var(--wr-color-medium);
+  color: var(--wr-color-on-surface-muted);
 
   &--active {
     color: var(--wr-color-primary);
@@ -232,10 +232,10 @@
     appearance: none;
     width: 100%;
     padding: 0.375rem 0.5rem;
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-color-outline);
     border-radius: var(--wr-border-radius-sm);
     background: transparent;
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font: inherit;
     font-size: var(--wr-text-sm);
   }
@@ -256,14 +256,14 @@
     border: 0;
     padding: 0.375rem 0.5rem;
     border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
     font: inherit;
     font-size: var(--wr-text-sm);
     text-align: left;
     cursor: pointer;
 
     &:hover {
-      background: rgba(var(--wr-color-light-rgb), 0.35);
+      background: rgba(var(--wr-color-outline-rgb), 0.35);
     }
   }
 
@@ -274,7 +274,7 @@
     width: 1rem;
     height: 1rem;
     border-radius: var(--wr-border-radius-sm);
-    border: 1px solid var(--wr-color-light);
+    border: 1px solid var(--wr-color-outline);
     color: transparent;
     --wr-icon-size: 0.75rem;
     transition: var(--wr-transition-base);
@@ -292,7 +292,7 @@
 
   &__empty {
     padding: 0.625rem 0.5rem;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-sm);
     text-align: center;
   }

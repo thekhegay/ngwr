@@ -35,7 +35,7 @@
   position: relative;
   display: grid;
   border-radius: var(--wr-border-glow-radius);
-  background: var(--wr-border-glow-bg, var(--wr-color-white, #fff));
+  background: var(--wr-border-glow-bg, var(--wr-color-surface, #fff));
   overflow: visible;
   isolation: isolate;
   transform: translate3d(0, 0, 0.01px); // create a new layer to keep blends tidy
@@ -43,7 +43,7 @@
   // CSS borders + `border-radius` leave 1px subpixel notches at the corners
   // where the mask layers meet the curve, but inset shadows hug the radius
   // pixel-perfect.
-  box-shadow: inset 0 0 0 1px var(--wr-border-glow-outline, var(--wr-color-light, rgb(255 255 255 / 15%)));
+  box-shadow: inset 0 0 0 1px var(--wr-border-glow-outline, var(--wr-color-outline, rgb(255 255 255 / 15%)));
 
   &::before,
   &::after,
@@ -72,7 +72,7 @@
   &::before {
     border: 1px solid transparent;
     background:
-      linear-gradient(var(--wr-border-glow-bg, var(--wr-color-white, #fff)) 0 100%) padding-box,
+      linear-gradient(var(--wr-border-glow-bg, var(--wr-color-surface, #fff)) 0 100%) padding-box,
       linear-gradient(rgb(255 255 255 / 0%) 0 100%) border-box,
       var(--wr-border-glow-gradient-one, radial-gradient(at 80% 55%, hsl(268deg 100% 76%) 0px, transparent 50%))
         border-box,

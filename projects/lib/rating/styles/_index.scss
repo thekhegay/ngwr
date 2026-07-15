@@ -3,7 +3,7 @@
 .wr-rating {
   --wr-rating-size: 1.25rem;
   --wr-rating-gap: 0.125rem;
-  --wr-rating-empty: var(--wr-color-light);
+  --wr-rating-empty: var(--wr-color-outline);
   --wr-rating-filled: var(--wr-color-warning, #ffba00);
 
   display: inline-flex;
