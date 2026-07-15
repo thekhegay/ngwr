@@ -102,11 +102,35 @@ $contrast-light: #ffffff !default;
   --wr-color-gray-950: #020617;
 
   // Semantic role aliases over the flipping neutrals — prefer these in new code
-  // for intent-free surface / text jobs. They resolve through `white` / `dark`
-  // / `medium`, so they flip with the theme automatically.
+  // for intent-free surface / text / outline jobs. They resolve through
+  // `white` / `dark` / `medium` / `light`, so they flip with the theme
+  // automatically.
+  //
+  // Why roles at all: the neutrals do double duty. `--wr-color-dark` is both
+  // the `color="dark"` INTENT (a button variant, public API) and the default
+  // text colour; `--wr-color-white` is both the `color="light"`-adjacent
+  // surface and the page background. Reading `dark` in a component tells you
+  // nothing about which job it is doing. The roles name the job, so a future
+  // reader — and a future re-theme — can tell them apart. The intent scale
+  // stays exactly as it is; these sit on top of it.
+  //
+  // Each role mirrors the literal 1:1, including the `-rgb` channel list so
+  // translucent fills (`rgba(var(--wr-color-surface-rgb), α)`) never have to
+  // reach back down to a literal.
   --wr-color-surface: var(--wr-color-white);
+  --wr-color-surface-rgb: var(--wr-color-white-rgb);
   --wr-color-on-surface: var(--wr-color-dark);
+  --wr-color-on-surface-rgb: var(--wr-color-dark-rgb);
   --wr-color-on-surface-muted: var(--wr-color-medium);
+  --wr-color-on-surface-muted-rgb: var(--wr-color-medium-rgb);
+
+  // Solid hairline / divider colour. Distinct from `--wr-color-border` above,
+  // which is deliberately translucent (`light` at 50%) so it reads on any
+  // surface — `outline` is the opaque one components actually draw 1px rules
+  // with today. Both are kept: swapping one for the other changes appearance,
+  // not just naming.
+  --wr-color-outline: var(--wr-color-light);
+  --wr-color-outline-rgb: var(--wr-color-light-rgb);
 
   @each $name, $base in $base-colors {
     --wr-color-#{$name}: #{$base};
