@@ -10,6 +10,17 @@
 // `--wr-font-family-*` to Inter.
 @use 'styles/fonts';
 
+:root {
+  // Hairline around colour swatches on the token / colour pages. Drawn INSIDE
+  // the swatch as ink at low alpha, not as a border in `--wr-color-border`:
+  // that token is deliberately translucent slate, so over a saturated or
+  // near-black fill it reads as a grey halo rather than an edge. Keying it to
+  // the ink role means the line only shows up on canvas-coloured swatches —
+  // the ones that would otherwise dissolve into the page — and disappears on
+  // ink-coloured ones that never needed bounding. Self-correcting in dark mode.
+  --doc-swatch-ring: inset 0 0 0 1px rgba(var(--wr-color-on-surface-rgb), 0.12);
+}
+
 *,
 *::before,
 *::after {
