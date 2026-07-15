@@ -54,12 +54,16 @@ bootstrapApplication(AppComponent, {
 
     paletteScss: `// Rebrand at compile time — override the SCSS palette before the @use.
 // NGWR re-derives -dark / -darker / -light / -lighter / -contrast variants.
+// The whole palette is ONE map, so pass \`$base-colors\` — not a variable
+// per intent. Keys you omit keep their defaults.
 @use 'ngwr/theme/styles/colors' with (
-  $primary: #6366f1,    // indigo-500
-  $secondary: #14b8a6,  // teal-500
-  $danger:    #f43f5e,
-  $warning:   #f59e0b,
-  $success:   #22c55e,
+  $base-colors: (
+    primary: #6366f1,   // indigo-500
+    secondary: #14b8a6, // teal-500
+    danger: #f43f5e,
+    warning: #f59e0b,
+    success: #22c55e,
+  )
 );
 @use 'ngwr' as *;`,
 

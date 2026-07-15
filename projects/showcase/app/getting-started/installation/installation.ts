@@ -69,7 +69,7 @@ export class AppComponent {}`,
   --wr-font-family-base: 'Inter', sans-serif;
 }`,
     overridePalette: `// Or override the whole palette at SCSS compile time.
-@use 'ngwr/theme/colors' with (
+@use 'ngwr/theme/styles/colors' with (
   $base-colors: (
     primary: #6366f1,
     secondary: #ec4899,
