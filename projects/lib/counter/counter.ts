@@ -89,6 +89,14 @@ export class WrCounter {
   /** Tween-mode formatted output. */
   protected readonly tweenText = computed(() => this.format(this.current()));
 
+  /**
+   * Odometer-mode text for assistive tech and prerendered output. The strip
+   * renders every digit 0-9 per column and picks one with a transform, so its
+   * markup carries no usable text — screen readers would announce all ten, and
+   * static HTML would ship the same noise. This node holds the real value.
+   */
+  protected readonly odoText = computed(() => `${this.prefix()}${this.format(this.value())}${this.suffix()}`);
+
   /** Odometer cells — one per character in the formatted target string. */
   protected readonly cells = computed<readonly Cell[]>(() => {
     // Build the string with target sign + max length so we can interpolate
