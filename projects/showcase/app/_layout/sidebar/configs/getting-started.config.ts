@@ -27,4 +27,5 @@ export const GETTING_STARTED_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Overlay', url: ['/getting-started', 'overlay'] },
   { title: 'Mobile & responsive', url: ['/getting-started', 'mobile'] },
   { title: 'Internationalization (i18n)', url: ['/getting-started', 'i18n'] },
+  { title: 'Keyboard', url: ['/getting-started', 'keyboard'] },
 ];

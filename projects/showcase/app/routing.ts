@@ -39,6 +39,7 @@ export const routes = {
     overlay: 'overlay',
     mobile: 'mobile',
     i18n: 'i18n',
+    keyboard: 'keyboard',
     configuration: 'configuration',
     schematics: 'schematics',
     migration: 'migration',
