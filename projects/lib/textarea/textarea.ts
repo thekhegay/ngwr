@@ -14,26 +14,32 @@ import {
   ViewEncapsulation,
   computed,
   effect,
-  forwardRef,
   inject,
   input,
+  model,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
-import { noop } from 'ngwr/utils';
+import type { FormValueControl } from '@angular/forms/signals';
 
 /**
  * Multi-line text input.
  *
- * Implements `ControlValueAccessor`. Optional `autosize` grows the
- * textarea with its content, capped at `maxRows` if provided.
+ * A signal-forms native control: it implements `FormValueControl<string>`, so
+ * `[formField]` binds straight to its `value` model — no
+ * `ControlValueAccessor` in between. `[(value)]` works standalone.
+ *
+ * Optional `autosize` grows the textarea with its content, capped at
+ * `maxRows` if provided.
  *
  * @example
  * ```html
- * <wr-textarea placeholder="Notes" [(ngModel)]="text" />
- * <wr-textarea autosize [maxRows]="6" [(ngModel)]="text" />
+ * <!-- signal forms -->
+ * <wr-textarea placeholder="Notes" [formField]="form.notes" />
+ *
+ * <!-- standalone two-way binding -->
+ * <wr-textarea autosize [maxRows]="6" [(value)]="text" />
  * ```
  *
  * @see https://ngwr.dev/components/textarea
@@ -47,16 +53,8 @@ export type WrTextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
   templateUrl: './textarea.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrTextarea),
-      multi: true,
-    },
-  ],
 })
-export class WrTextarea implements ControlValueAccessor {
+export class WrTextarea implements FormValueControl<string> {
   /** Native placeholder text. @default '' */
   readonly placeholder = input<string>('');
 
@@ -82,17 +80,20 @@ export class WrTextarea implements ControlValueAccessor {
   readonly maxRows = input<number | null>(null);
 
   /**
-   * Disable the textarea. Also set by Angular forms via `setDisabledState`.
+   * Disable the textarea. Bound automatically from the field's disabled state
+   * when used with `[formField]`.
    *
    * @default false
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  protected readonly value = signal<string>('');
-  protected readonly disabledFromCva = signal(false);
-  protected readonly focused = signal(false);
+  /** The edited text. Bound by `[formField]`, or two-way via `[(value)]`. */
+  readonly value = model<string>('');
 
-  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
+
+  protected readonly focused = signal(false);
 
   protected readonly native = viewChild.required<ElementRef<HTMLTextAreaElement>>('native');
 
@@ -107,21 +108,18 @@ export class WrTextarea implements ControlValueAccessor {
     const resize = this.effectiveResize();
     if (resize === 'horizontal' || resize === 'both') parts.push('wr-textarea--resize-x');
     if (this.focused()) parts.push('wr-textarea--focused');
-    if (this.effectiveDisabled()) parts.push('wr-textarea--disabled');
+    if (this.disabled()) parts.push('wr-textarea--disabled');
     return parts.join(' ');
   });
 
   /** Show the corner grip (hidden when direction is 'none' / autosize / disabled). */
   protected readonly showHandle = computed(
-    () => this.effectiveResize() !== 'none' && !this.autosize() && !this.effectiveDisabled()
+    () => this.effectiveResize() !== 'none' && !this.autosize() && !this.disabled()
   );
 
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  private onChange: (value: string) => void = noop;
-  private onTouched: () => void = noop;
 
   // Custom resize-grip drag state (replaces the native corner handle).
   private resizing = false;
@@ -142,35 +140,15 @@ export class WrTextarea implements ControlValueAccessor {
     });
   }
 
-  // ControlValueAccessor
-
-  writeValue(value: string | null): void {
-    this.value.set(value ?? '');
-  }
-
-  registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(isDisabled);
-  }
-
   // Template handlers
 
   protected onInput(event: Event): void {
-    const next = (event.target as HTMLTextAreaElement).value;
-    this.value.set(next);
-    this.onChange(next);
+    this.value.set((event.target as HTMLTextAreaElement).value);
   }
 
   protected onBlur(): void {
     this.focused.set(false);
-    this.onTouched();
+    this.touch.emit();
   }
 
   // Custom resize — drag the corner grip; direction comes from `effectiveResize`.
