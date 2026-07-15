@@ -63,6 +63,8 @@
             },
             "index": "projects/showcase/index.html",
             "browser": "projects/showcase/main.ts",
+            "server": "projects/showcase/main.server.ts",
+            "outputMode": "static",
             "polyfills": [],
             "tsConfig": "projects/showcase/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
