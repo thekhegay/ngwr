@@ -117,10 +117,24 @@ what makes v8 a library people can bet on.
 - [ ] **A3. a11y CI** (L) — axe-core sweep over every showcase route + an
       APG-pattern conformance pass per component. Expose the service layer
       too (LiveAnnouncer-style announcements, focus-trap utils).
-- [ ] **A4. SSR / hydration audit** (M) — render every entry under SSR +
-      incremental hydration smoke in CI; per-component SSR-safety notes.
-      Zero NgZone references, OnPush everywhere (v22 default), no
-      constructor-time DOM access.
+- [x] **A4. SSR / hydration audit** (M) — **shipped 2026-07-15.** Every
+      browser-API file in lib + showcase (80) was audited, and the showcase now
+      prerenders under `outputMode: 'static'` (204 routes) with
+      `provideClientHydration()` — so every component's demo page is rendered in
+      Node on each build, which is the "render every entry under SSR" smoke this
+      item asked for. The catalog held up well: only ONE real blocker existed
+      across 130 entry points. Fixed along the way: `WrCookie` reads (documented
+      SSR-safe but only writes were guarded — domino implements no
+      `document.cookie`), `wrAutosize` (`getComputedStyle` in a constructor
+      effect), `WR_DATE_LOCALE` (a `typeof navigator` probe baked the build
+      machine's locale — Node 21+ defines `navigator`), `wr-qr` (a
+      platform-gated `<canvas>` made server and client structures disagree), and
+      server-side text for typewriter / counter / count-up. **`build:showcase`
+      now fails on prerender errors** (`scripts/build-showcase.ts`) — the
+      builder logs them, still emits HTML and exits 0, so CI would otherwise
+      stay green while pages silently degraded. **Remaining:** per-component
+      SSR-safety notes in the docs; incremental hydration
+      (`withIncrementalHydration` + `@defer (hydrate on …)`).
 - [ ] **A5. Visual regression** (M) — Playwright screenshot diffs across the
       showcase.
 
@@ -208,7 +222,12 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
       content. Docs search wired into the command palette remains.
 - [ ] **E2. AI-legibility stack** (M–L, highest leverage for adoption) —
       **partially in v8** (`llms.txt` / `llms-full.txt` + `AGENTS.md` + the
-      `ng update ngwr@8` codemod ship). **Remaining:** per-component markdown
+      `ng update ngwr@8` codemod ship). **2026-07-15: the docs themselves are
+      now legible without JS** — ngwr.dev used to serve an empty shell, so
+      crawlers and agents got nothing but a `<title>`; static prerendering (A4)
+      means every page ships real content, its section links, and
+      shiki-highlighted code as HTML. That was an unstated prerequisite for
+      everything below. **Remaining:** per-component markdown
       export, an **ngwr MCP server** (search / docs / examples / install via
       schematics), agent skills, and an open registry schema for community
       blocks + theme presets. This
