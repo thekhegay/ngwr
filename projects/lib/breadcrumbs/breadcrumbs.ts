@@ -25,7 +25,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * <wr-breadcrumbs separator="›">…</wr-breadcrumbs>
  * ```
  *
- * @see https://ngwr.dev/components/breadcrumbs
+ * @see https://ngwr.dev/reference/components/breadcrumbs
  */
 @Component({
   selector: 'wr-breadcrumbs',

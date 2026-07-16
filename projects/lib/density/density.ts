@@ -35,7 +35,7 @@ function isDensity(v: unknown): v is WrDensityValue {
  * density.current();   // 'sm'
  * ```
  *
- * @see https://ngwr.dev/services/density
+ * @see https://ngwr.dev/reference/services/density
  */
 @Service()
 export class WrDensity {

@@ -26,7 +26,7 @@ import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
  * </wr-checkbox-group>
  * ```
  *
- * @see https://ngwr.dev/components/checkbox
+ * @see https://ngwr.dev/reference/components/checkbox
  */
 @Component({
   selector: 'wr-checkbox-group',

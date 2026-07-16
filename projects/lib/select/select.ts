@@ -79,7 +79,7 @@ interface SelectedChip {
  * The legacy `[multi]="true"` boolean is still accepted but is now an
  * alias for `[mode]="'multi'"` — prefer the explicit mode.
  *
- * @see https://ngwr.dev/components/select
+ * @see https://ngwr.dev/reference/components/select
  */
 @Component({
   selector: 'wr-select',

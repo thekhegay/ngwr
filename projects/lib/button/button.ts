@@ -38,7 +38,7 @@ import { WR_BUTTON_GROUP } from './tokens';
  * every child — child `[shape]` inputs are ignored so the group reads as
  * one coherent control.
  *
- * @see https://ngwr.dev/components/button
+ * @see https://ngwr.dev/reference/components/button
  */
 @Component({
   selector: 'wr-btn, button[wr-btn], a[wr-btn]',

@@ -42,7 +42,7 @@ const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
  * <wr-calendar-heatmap [data]="data" [endDate]="today" [weeks]="26" color="#10b981" />
  * ```
  *
- * @see https://ngwr.dev/components/calendar-heatmap
+ * @see https://ngwr.dev/reference/components/calendar-heatmap
  */
 @Component({
   selector: 'wr-calendar-heatmap',

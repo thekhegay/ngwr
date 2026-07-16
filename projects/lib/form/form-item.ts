@@ -23,7 +23,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * </wr-form-item>
  * ```
  *
- * @see https://ngwr.dev/components/form
+ * @see https://ngwr.dev/reference/components/form
  */
 @Component({
   selector: 'wr-form-item',

@@ -79,7 +79,7 @@ let panelUid = 0;
  * />
  * ```
  *
- * @see https://ngwr.dev/components/tree
+ * @see https://ngwr.dev/reference/components/tree
  */
 @Component({
   selector: 'wr-tree',

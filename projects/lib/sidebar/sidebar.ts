@@ -40,7 +40,7 @@ function isGroup(entry: WrSidebarEntry): entry is WrSidebarGroup {
  * ]" />
  * ```
  *
- * @see https://ngwr.dev/components/sidebar
+ * @see https://ngwr.dev/reference/components/sidebar
  */
 @Component({
   selector: 'wr-sidebar',

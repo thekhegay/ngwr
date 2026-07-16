@@ -26,7 +26,7 @@ import { clamp, noop } from 'ngwr/utils';
  * <wr-rating [ngModel]="4.5" [readonly]="true" />
  * ```
  *
- * @see https://ngwr.dev/components/rating
+ * @see https://ngwr.dev/reference/components/rating
  */
 export type WrRatingSize = 'sm' | 'md' | 'lg';
 

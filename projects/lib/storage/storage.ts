@@ -50,7 +50,7 @@ function isEnvelope(x: unknown): x is Envelope<unknown> {
  * effect(() => console.log('theme is', theme()));
  * ```
  *
- * @see https://ngwr.dev/services/storage
+ * @see https://ngwr.dev/reference/services/storage
  */
 @Service()
 export class WrStorage {

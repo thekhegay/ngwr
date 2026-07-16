@@ -26,7 +26,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * </wr-input-group>
  * ```
  *
- * @see https://ngwr.dev/components/input
+ * @see https://ngwr.dev/reference/components/input
  */
 @Component({
   selector: 'wr-input-group',

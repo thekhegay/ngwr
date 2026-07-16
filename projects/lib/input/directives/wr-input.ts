@@ -29,7 +29,7 @@ import type { WrInputSize } from '../interfaces';
  * For prefix / suffix / password-toggle layouts, wrap the input in
  * `<wr-input-group>`.
  *
- * @see https://ngwr.dev/components/input
+ * @see https://ngwr.dev/reference/components/input
  */
 @Directive({
   selector: 'input[wrInput], textarea[wrInput]',

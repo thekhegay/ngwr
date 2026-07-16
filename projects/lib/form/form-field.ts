@@ -30,7 +30,7 @@ let uid = 0;
  * </wr-form-field>
  * ```
  *
- * @see https://ngwr.dev/components/form-field
+ * @see https://ngwr.dev/reference/components/form-field
  */
 @Component({
   selector: 'wr-form-field',

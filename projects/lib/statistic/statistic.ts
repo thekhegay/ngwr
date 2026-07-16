@@ -37,7 +37,7 @@ import { numAttr } from 'ngwr/utils';
  * <wr-statistic label="Churn" [value]="1.8" suffix="%" [precision]="1" />
  * ```
  *
- * @see https://ngwr.dev/components/statistic
+ * @see https://ngwr.dev/reference/components/statistic
  */
 @Component({
   selector: 'wr-statistic',

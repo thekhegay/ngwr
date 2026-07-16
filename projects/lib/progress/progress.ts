@@ -19,7 +19,7 @@ import type { WrColor } from 'ngwr/theme';
  * <wr-progress color="success" [value]="80" />
  * ```
  *
- * @see https://ngwr.dev/components/progress
+ * @see https://ngwr.dev/reference/components/progress
  */
 @Component({
   selector: 'wr-progress',

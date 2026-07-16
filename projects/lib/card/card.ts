@@ -29,7 +29,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * </wr-card>
  * ```
  *
- * @see https://ngwr.dev/components/card
+ * @see https://ngwr.dev/reference/components/card
  */
 @Component({
   selector: 'wr-card',

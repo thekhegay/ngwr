@@ -29,7 +29,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * </wr-page-header>
  * ```
  *
- * @see https://ngwr.dev/components/page-header
+ * @see https://ngwr.dev/reference/components/page-header
  */
 @Component({
   selector: 'wr-page-header',

@@ -23,7 +23,7 @@ import type { WrColor } from 'ngwr/theme';
  * <wr-skeleton color="primary" [animated]="false" />
  * ```
  *
- * @see https://ngwr.dev/components/skeleton
+ * @see https://ngwr.dev/reference/components/skeleton
  */
 @Component({
   selector: 'wr-skeleton',

@@ -25,7 +25,7 @@ import { WR_RADIO_GROUP } from './tokens';
  * </wr-radio-group>
  * ```
  *
- * @see https://ngwr.dev/components/radio
+ * @see https://ngwr.dev/reference/components/radio
  */
 export type WrRadioSize = 'sm' | 'md' | 'lg';
 

@@ -20,7 +20,7 @@ import { WrSquircle } from './wr-squircle';
  * </wr-squircle>
  * ```
  *
- * @see https://ngwr.dev/components/squircle
+ * @see https://ngwr.dev/reference/components/squircle
  */
 @Component({
   selector: 'wr-squircle',

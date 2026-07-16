@@ -38,7 +38,7 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
  * <wr-input-otp [(ngModel)]="code" length="6" (completed)="verify($event)" />
  * ```
  *
- * @see https://ngwr.dev/components/input-otp
+ * @see https://ngwr.dev/reference/components/input-otp
  */
 @Component({
   selector: 'wr-input-otp',

@@ -40,7 +40,7 @@ import { WR_OVERLAY } from 'ngwr/overlay';
  * />
  * ```
  *
- * @see https://ngwr.dev/components/lightbox
+ * @see https://ngwr.dev/reference/components/lightbox
  */
 @Component({
   selector: 'wr-lightbox',

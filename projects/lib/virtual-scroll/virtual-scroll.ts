@@ -35,7 +35,7 @@ import {
  * </wr-virtual-scroll>
  * ```
  *
- * @see https://ngwr.dev/components/virtual-scroll
+ * @see https://ngwr.dev/reference/components/virtual-scroll
  */
 @Component({
   selector: 'wr-virtual-scroll',

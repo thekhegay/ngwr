@@ -37,7 +37,7 @@ function isThemeMode(v: unknown): v is WrThemeMode {
  * theme.resolved();  // 'dark'
  * ```
  *
- * @see https://ngwr.dev/services/theme
+ * @see https://ngwr.dev/reference/services/theme
  */
 @Service()
 export class WrTheme {

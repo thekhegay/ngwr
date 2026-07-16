@@ -30,7 +30,7 @@ interface Member {
  * </wr-accordion>
  * ```
  *
- * @see https://ngwr.dev/components/collapse
+ * @see https://ngwr.dev/reference/components/collapse
  */
 @Component({
   selector: 'wr-accordion',

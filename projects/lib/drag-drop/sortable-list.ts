@@ -33,7 +33,7 @@ import type { WrSortableReorderEvent } from './interfaces';
  * </wr-sortable-list>
  * ```
  *
- * @see https://ngwr.dev/components/drag-drop
+ * @see https://ngwr.dev/reference/components/drag-drop
  */
 @Component({
   selector: 'wr-sortable-list',

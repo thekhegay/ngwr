@@ -31,7 +31,7 @@ import { WR_ICONS } from './tokens';
  * <wr-icon name="home" />
  * ```
  *
- * @see https://ngwr.dev/components/icon
+ * @see https://ngwr.dev/reference/components/icon
  */
 @Component({
   selector: 'wr-icon',

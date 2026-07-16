@@ -53,7 +53,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
  * handle.unbind();
  * ```
  *
- * @see https://ngwr.dev/services/hotkey
+ * @see https://ngwr.dev/reference/services/hotkey
  */
 @Service()
 export class WrHotkey {

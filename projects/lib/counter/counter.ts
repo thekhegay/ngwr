@@ -44,7 +44,7 @@ type Cell = { readonly kind: 'digit'; readonly fraction: number } | { readonly k
  * <wr-counter [value]="9.99" mode="tween" [decimals]="2" prefix="$" />
  * ```
  *
- * @see https://ngwr.dev/components/counter
+ * @see https://ngwr.dev/reference/components/counter
  */
 @Component({
   selector: 'wr-counter',

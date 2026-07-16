@@ -32,7 +32,7 @@ import type { WrClipboardPermission } from './interfaces';
  * await clip.permission('write');      // 'granted' | 'denied' | 'prompt' | 'unsupported'
  * ```
  *
- * @see https://ngwr.dev/services/clipboard
+ * @see https://ngwr.dev/reference/services/clipboard
  */
 @Service()
 export class WrClipboard {

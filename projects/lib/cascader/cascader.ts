@@ -60,7 +60,7 @@ let panelUid = 0;
  * ];
  * ```
  *
- * @see https://ngwr.dev/components/cascader
+ * @see https://ngwr.dev/reference/components/cascader
  */
 export type WrCascaderSize = 'sm' | 'md' | 'lg';
 

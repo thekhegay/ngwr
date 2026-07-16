@@ -30,7 +30,7 @@ import { WR_BUTTON_GROUP, type WrButtonGroupContext } from './tokens';
  * </wr-btn-group>
  * ```
  *
- * @see https://ngwr.dev/components/button-group
+ * @see https://ngwr.dev/reference/components/button-group
  */
 @Component({
   selector: 'wr-btn-group',
