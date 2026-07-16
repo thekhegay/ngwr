@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ng serve --o",
     "test": "ng test",
-    "lint": "ng lint && eslint scripts && pnpm lint:styles",
+    "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors",
+    "check:colors": "tsx scripts/check-color-parity.ts",
     "lint:styles": "stylelint \"projects/**/*.scss\"",
     "build:lib": "ng build lib && tsx scripts/gen-ai-assets.ts && tsx scripts/copy-dist-assets.ts && tsx scripts/build-schematics.ts",
     "build:showcase": "tsx scripts/gen-ai-assets.ts && tsx scripts/build-showcase.ts",

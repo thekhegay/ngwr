@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 
+import { WR_COLORS } from 'ngwr/theme';
+
 import { DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
 import type { DocApiRow } from '#core/components';
 
@@ -16,20 +18,24 @@ interface Swatch {
   imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })
 export default class TokensColorsPage {
-  /** The 9 intents that get a full generated shade set in `_colors.scss`. */
-  protected readonly intents = [
-    'primary',
-    'secondary',
-    'success',
-    'warning',
-    'danger',
-    'info',
-    'medium',
-    'light',
-    'dark',
-  ] as const;
+  /**
+   * Every intent that gets a full generated shade set in `_colors.scss`.
+   *
+   * Taken from the tuple rather than retyped: this page's whole job is showing
+   * what the palette contains, so a copy that can fall behind it is the one
+   * thing it must not have. `scripts/check-color-parity.ts` keeps the tuple
+   * itself honest against `$base-colors`.
+   */
+  protected readonly intents = WR_COLORS;
 
-  /** Intents that additionally get the soft set (light + dark are excluded). */
+  /**
+   * Intents that additionally get the soft set (light + dark are excluded).
+   *
+   * Still hand-written, because the lib does not export this subset — it is
+   * the literal `@each $name in (…)` list at `_colors.scss:152`, so it cannot
+   * be derived from anything importable. Adding a colour to the palette does
+   * NOT add it here or there; both are manual.
+   */
   protected readonly softIntents = ['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'medium'] as const;
 
   /** Generated shade variants every intent exposes. */
