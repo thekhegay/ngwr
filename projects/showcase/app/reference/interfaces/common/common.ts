@@ -31,7 +31,7 @@ function fromLegacyBridge(payload: SafeAny): void {
     {
       name: 'Maybe<T>',
       description:
-        'A value that may be absent — `T | null | undefined`. Pairs with [isDefined](/utils/is-defined) to narrow back to `T`.',
+        'A value that may be absent — `T | null | undefined`. Pairs with [isDefined](/reference/utils/is-defined) to narrow back to `T`.',
       type: 'type alias',
       default: '—',
     },
