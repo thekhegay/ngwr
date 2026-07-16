@@ -210,7 +210,15 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Iterating the palette"
+    description="Both lists track `$base-colors`, so a rebrand flows through without touching either. Use the SCSS `$colors` list to generate per-intent rules the way the lib's own components do; use `WR_COLORS` when you need the intents at runtime."
+  >
+    <ngwr-doc-code [code]="snippets.iterateScss" language="scss" />
+    <ngwr-doc-code [code]="snippets.iterateTs" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="See also"
-    description="[Color (Getting Started)](/getting-started/color) — overriding the base palette at build or runtime. [Theming](/getting-started/theming) — wiring the dark-mode toggle with `provideWrTheme()`."
+    description="[Theming](/guides/theming) — wiring `provideWrTheme()`, the dark-mode toggle, and rebranding the palette at build or runtime. [Density tokens](/guides/tokens/density) — the spacing scale these colours sit on."
   />
 </ngwr-doc-page>

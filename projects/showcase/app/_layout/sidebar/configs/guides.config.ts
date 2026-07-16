@@ -9,13 +9,11 @@ import type { SidebarGroup } from '../sidebar.types';
  *
  * `Tokens`, `Translations` and `Typography` arrived as whole top-level
  * sections and still carry their own child sidebars, so entering one swaps
- * this nav out. Folding them into the guides they belong to (Theming / i18n)
- * is the next pass — until then they are listed here as their own entries.
+ * this nav out.
  */
 export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   // Make it look right.
   { title: 'Theming', url: ['/guides', 'theming'] },
-  { title: 'Color', url: ['/guides', 'color'] },
   { title: 'Design tokens', url: ['/guides', 'tokens'] },
   { title: 'Typography', url: ['/guides', 'typography'] },
   { title: 'Grid', url: ['/guides', 'grid'] },

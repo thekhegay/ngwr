@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Theming"
-  description="ngwr is themed entirely with CSS custom properties — no SCSS rebuild required for most changes. Light + dark out of the box, swappable density, palette overrides at runtime or compile time, and tree-shakable icons you register yourself."
-  [keywords]="['theme', 'theming', 'dark mode', 'palette', 'icons', 'density', 'css variables']"
+  description="ngwr is themed entirely with CSS custom properties — no SCSS rebuild required for most changes. Wire up the providers, load the stylesheet, and you get light + dark out of the box with a palette you can rebrand at compile time or at runtime."
+  [keywords]="['theme', 'theming', 'dark mode', 'palette', 'rebrand', 'css variables']"
   [labels]="['Core']"
 >
   <ngwr-doc-section
@@ -54,13 +54,6 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Design tokens"
-    description="Radius, typography, motion — all CSS custom properties you can retune."
-  >
-    <ngwr-doc-code [code]="snippets.tokens" language="scss" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
     title="Per-component tokens"
     description="Every component also exposes its own scoped CSS variables (`--wr-btn-radius`, `--wr-tag-bg`, …). Override at the element level when you only need to nudge one widget."
   >
@@ -68,45 +61,12 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Density"
-    description="A spacing scale — sm / md / lg (+ touch) — applied via CSS-variable multipliers. Components like button, input, select, table, list automatically pick it up."
-  >
-    <ngwr-doc-snippet code="">
-      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start">
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-          @for (d of densities; track d) {
-            <button wr-btn type="button" [color]="densityCurrent() === d ? 'primary' : null" (click)="setDensity(d)">
-              {{ d }}
-            </button>
-          }
-        </div>
-        <p style="margin: 0">
-          density: <code>{{ densityCurrent() }}</code>
-        </p>
-      </div>
-    </ngwr-doc-snippet>
-    <ngwr-doc-code [code]="snippets.densityScope" language="html" />
-    <p style="margin: 0.5rem 0 0">See <a routerLink="/reference/services/density">WrDensity</a> for the full API.</p>
-  </ngwr-doc-section>
+    title="Where to go next"
+    description="Theming wires the system up; the tokens are catalogued one family per page. [Colors](/guides/tokens/colors) — intents, the soft set, semantic neutrals and how dark mode flips. [Sizing](/guides/tokens/sizing) — the control-sizing contract and the radius scale. [Typography](/guides/tokens/typography) — the type scale, families and weights. [Density](/guides/tokens/density) — the spacing scale, `provideWrDensity()` and the `[wrDensity]` subtree override. [Motion](/guides/tokens/motion) — easings, durations and the overlay timing hook."
+  />
 
   <ngwr-doc-section
-    title="Icons"
-    description="ngwr icons are inline SVGs you register explicitly — no HTTP, no font, tree-shakable. Import the icon constants you need; unused icons never reach the bundle."
-  >
-    <ngwr-doc-code [code]="snippets.iconRegister" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Custom icons"
-    description="Define your own with a name + raw SVG path. Same registration flow."
-  >
-    <ngwr-doc-code [code]="snippets.iconCustom" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Sizing and colouring icons"
-    description="Colour follows `currentColor`. Size via the `size` input (number or rem string) or the `--wr-icon-size` token."
-  >
-    <ngwr-doc-code [code]="snippets.iconStyle" language="html" />
-  </ngwr-doc-section>
+    title="See also"
+    description="[`WrTheme` service reference](/reference/services/theme) — the full API behind the toggle above. [`WrDensity` service reference](/reference/services/density) — the density counterpart. [Icons](/icons) — registering icon sets, the adapters, and the `ng g ngwr:icon-set` schematic."
+  />
 </ngwr-doc-page>

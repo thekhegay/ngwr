@@ -10,4 +10,5 @@ export default [
   { path: t.sizing, loadComponent: () => import('./sizing/sizing') },
   { path: t.typography, loadComponent: () => import('./typography/typography') },
   { path: t.density, loadComponent: () => import('./density/density') },
+  { path: t.motion, loadComponent: () => import('./motion/motion') },
 ] satisfies Routes;

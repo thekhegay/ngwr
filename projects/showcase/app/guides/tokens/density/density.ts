@@ -1,14 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
-import { DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import { WrButton } from 'ngwr/button';
+import { WrDensity, type WrDensityValue } from 'ngwr/density';
+
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSnippetComponent,
+} from '#core/components';
 import type { DocApiRow } from '#core/components';
 
 @Component({
   selector: 'ngwr-tokens-density',
   templateUrl: './density.html',
-  imports: [DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent],
+  imports: [WrButton, DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent],
 })
 export default class TokensDensityPage {
+  private readonly density = inject(WrDensity);
+
+  /** Live global density — the same signal `set()` and `cycle()` write to. */
+  protected readonly current = this.density.current;
+
+  protected readonly densities: readonly WrDensityValue[] = ['sm', 'md', 'lg', 'touch'];
+
+  protected set(value: WrDensityValue): void {
+    this.density.set(value);
+  }
+
+  protected cycle(): void {
+    this.density.cycle();
+  }
+
   protected readonly multipliers: readonly DocApiRow[] = [
     {
       name: '--wr-density-y',

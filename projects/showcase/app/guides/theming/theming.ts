@@ -1,8 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
-import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
@@ -10,25 +8,18 @@ import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComp
 @Component({
   selector: 'ngwr-gs-theming-page',
   templateUrl: './theming.html',
-  imports: [RouterLink, WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class ThemingPage {
   private readonly theme = inject(WrTheme);
-  private readonly density = inject(WrDensity);
 
   protected readonly mode = this.theme.mode;
   protected readonly resolved = this.theme.resolved;
-  protected readonly densityCurrent = this.density.current;
 
   protected readonly modes: readonly WrThemeMode[] = ['light', 'dark', 'auto'];
-  protected readonly densities: readonly WrDensityValue[] = ['sm', 'md', 'lg'];
 
   protected setMode(mode: WrThemeMode): void {
     this.theme.set(mode);
-  }
-
-  protected setDensity(d: WrDensityValue): void {
-    this.density.set(d);
   }
 
   protected readonly snippets = {
@@ -97,28 +88,6 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
   --wr-color-dark: #f5f6f8;
 }`,
 
-    tokens: `/* Every component reads from a small set of design tokens.
-   Override on :root to retune across the app. */
-:root {
-  /* Radius */
-  --wr-border-radius-sm:   0.25rem;
-  --wr-border-radius-base: 0.625rem;
-  --wr-border-radius-lg:   1rem;
-  --wr-border-radius-pill: 50rem;
-
-  /* Typography */
-  --wr-font-family-base: 'Inter', system-ui, sans-serif;
-  --wr-font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
-
-  /* Motion */
-  --wr-duration-base:  0.15s;
-  --wr-ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* Density multipliers — see Density section below. */
-  --wr-density-y: 1;
-  --wr-density-x: 1;
-}`,
-
     component: `/* Components also expose per-instance vars — override on the element.
    No need to ship a full theme just to nudge one widget. */
 .wr-btn {
@@ -128,54 +97,5 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
 
 /* Or inline on the host: */
 <wr-tag style="--wr-tag-bg: #fef3c7; --wr-tag-color: #92400e">soon</wr-tag>`,
-
-    iconRegister: `import { Component } from '@angular/core';
-import { Check, Info, X } from 'lucide';
-import { WrIcon, provideWrIcons } from 'ngwr/icon';
-import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-
-@Component({
-  selector: 'app-toolbar',
-  template: \`
-    <wr-icon name="check" />
-    <wr-icon name="close" />
-  \`,
-  imports: [WrIcon],
-  providers: [provideWrIcons(lucideIcons({ check: Check, close: X, info: Info }))],
-})
-export class Toolbar {}`,
-
-    iconCustom: `// Define your own (SVG string-based — tree-shakeable, no HTTP).
-import { type WrIconDef } from 'ngwr/icon';
-
-export const dragon: WrIconDef = {
-  name: 'dragon',
-  data: '<path d="M12 2 L22 22 L2 22 Z" />',
-  viewBox: '0 0 24 24',
-};
-
-// Register it like a built-in:
-providers: [provideWrIcons([dragon])],
-
-// Then in any template:
-<wr-icon name="dragon" />`,
-
-    iconStyle: `/* Icons are plain inline SVGs — colour with \`currentColor\`, size via the
-   \`--wr-icon-size\` var or the \`size\` input. */
-<wr-icon name="info" size="24" style="color: var(--wr-color-primary)" />
-
-/* App-wide default: */
-:root {
-  --wr-icon-size: 1rem;
-}`,
-
-    densityScope: `<!-- sm toolbar inside an md-density page. -->
-<aside wrDensity="sm">
-  <button wr-btn>Action</button>
-  <input wrInput placeholder="…" />
-</aside>
-
-<!-- Cycle the global density: -->
-<button wr-btn (click)="density.cycle()">Toggle density</button>`,
   };
 }

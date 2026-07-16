@@ -17,7 +17,10 @@ const guides = routes.guides;
 export default [
   { path: '', pathMatch: 'full', redirectTo: guides.theming },
   { path: guides.theming, loadComponent: () => import('./theming/theming') },
-  { path: guides.color, loadComponent: () => import('./color/color') },
+  // `color` was a thinner second copy of the colour tokens — same swatch grid
+  // for 8 of the 9 intents, and its two rebrand snippets had drifted onto a
+  // SCSS path that no longer resolves. The catalog page is the single copy.
+  { path: guides.color, redirectTo: '/guides/tokens/colors' },
   { path: guides.grid, loadComponent: () => import('./grid/grid') },
   { path: guides.overlay, loadComponent: () => import('./overlay/overlay') },
   { path: guides.mobile, loadComponent: () => import('./mobile/mobile') },

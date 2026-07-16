@@ -200,6 +200,29 @@ export default class TokensColorsPage {
 .card__meta  { color: var(--wr-color-text-muted); }
 .card__row:hover { background: var(--wr-color-hover); }`,
 
+    iterateScss: `/* Author an intent-aware component the way the lib itself does.
+   \`$colors\` is \`map.keys($base-colors)\`, so it tracks the palette — rebrand
+   with extra intents and your own component picks them up for free. */
+@use 'ngwr/theme/styles' as theme;
+
+.my-badge {
+  @each $name in theme.$colors {
+    &--#{$name} {
+      background: var(--wr-color-#{$name});
+      color: var(--wr-color-#{$name}-contrast);
+    }
+  }
+}`,
+
+    iterateTs: `import { WR_COLORS, type WrColor } from 'ngwr/theme';
+
+@Component({...})
+export class Palette {
+  // The TS-side intent list — drives \`WrColor\`, the type every \`color\`
+  // input accepts.
+  readonly colors = WR_COLORS;
+}`,
+
     dark: `/* Only semantic tokens flip; brand hues stay put.
    --wr-color-white  = page surface  → #0b1120 in dark
    --wr-color-dark   = body text     → #e6ebf3 in dark

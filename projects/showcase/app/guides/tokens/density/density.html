@@ -66,6 +66,19 @@
     title="Changing it at runtime — WrDensity"
     description="Inject the `WrDensity` service to switch density live. `set()` writes `[data-wr-density]` on `<html>` and persists the value, `cycle()` steps through `sm → md → lg → touch`, and `current()` is a `Signal<WrDensityValue>` you can bind to. Unknown values passed to `set()` are ignored."
   >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          @for (d of densities; track d) {
+            <button wr-btn type="button" [color]="current() === d ? 'primary' : null" (click)="set(d)">{{ d }}</button>
+          }
+          <button wr-btn type="button" (click)="cycle()">cycle()</button>
+        </div>
+        <p style="margin: 0">
+          current(): <code>{{ current() }}</code>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
     <ngwr-doc-code [code]="snippets.service" language="angular-ts" />
   </ngwr-doc-section>
 
@@ -78,6 +91,6 @@
 
   <ngwr-doc-section
     title="See also"
-    description="[`WrDensity` service reference](/services/density) — the runtime switcher. Density only scales paddings declared through the [control-sizing tokens](/tokens/control) — controls that don't read `--wr-control-*` paddings won't track it."
+    description="[`WrDensity` service reference](/reference/services/density) — the runtime switcher. Density only scales paddings declared through the [control-sizing tokens](/guides/tokens/sizing) — controls that don't read `--wr-control-*` paddings won't track it. [Theming](/guides/theming) — wiring `provideWrDensity()` alongside the theme."
   />
 </ngwr-doc-page>

@@ -54,6 +54,7 @@ export const routes = {
     sizing: 'sizing',
     typography: 'typography',
     density: 'density',
+    motion: 'motion',
   },
   components: {
     index: 'components',
@@ -319,6 +320,9 @@ export const routing: Routes = [
       // `/getting-started/i18n` was the old single-page tutorial; it is now the
       // Translations cluster, so that one slug needs its own landing spot.
       { path: 'getting-started/i18n', redirectTo: '/guides/translations' },
+      // Same story for `color`: it folded into the token catalog rather than
+      // keeping a guide of its own, so it can't ride the `:page` rule below.
+      { path: 'getting-started/color', redirectTo: '/guides/tokens/colors' },
       { path: 'getting-started/:page', redirectTo: ({ params }) => `/guides/${params['page']}` },
       { path: 'getting-started', redirectTo: '/start' },
       { path: 'tokens/:page', redirectTo: ({ params }) => `/guides/tokens/${params['page']}` },
