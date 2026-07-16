@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { WrKbd } from 'ngwr/keyboard';
+import { WrTypography } from 'ngwr/typography';
 
 import {
   DocApiComponent,
@@ -18,6 +19,7 @@ import {
   templateUrl: './keyboard.html',
   imports: [
     WrKbd,
+    WrTypography,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -33,6 +35,9 @@ export default class KeyboardPageComponent {
 @Component({ imports: [WrKbd] })
 export class MyComponent {}`,
     basic: `<wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd>`,
+    prose: `<p wrTypography>
+  Press <wr-kbd>⌘</wr-kbd> + <wr-kbd>P</wr-kbd> to open the command palette.
+</p>`,
     sizes: `<wr-kbd size="sm">Esc</wr-kbd>
 <wr-kbd size="md">Enter</wr-kbd>
 <wr-kbd size="lg">⌫</wr-kbd>`,

@@ -7,19 +7,26 @@ export const TYPOGRAPHY_SIDEBAR: readonly SidebarGroup[] = [
     url: ['/guides/typography', 'overview'],
   },
   {
-    title: 'Inline',
-    children: [
-      { title: 'Code', url: ['/guides/typography', 'code'] },
-      { title: 'Keyboard caps', url: ['/guides/typography', 'keyboard'] },
-    ],
-  },
-  {
     title: 'Scale',
     children: [
       { title: 'Headings', url: ['/guides/typography', 'headings'] },
+      { title: 'Paragraphs', url: ['/guides/typography', 'paragraphs'] },
       { title: 'Links', url: ['/guides/typography', 'links'] },
       { title: 'Lists', url: ['/guides/typography', 'lists'] },
-      { title: 'Paragraphs', url: ['/guides/typography', 'paragraphs'] },
+    ],
+  },
+  {
+    title: 'Inline',
+    children: [{ title: 'Code', url: ['/guides/typography', 'code'] }],
+  },
+  {
+    title: 'Reference',
+    // Leaves the guide on purpose — the API table is maintained once. Headings,
+    // Paragraphs and Code each used to carry a partial copy, and they had
+    // drifted into contradicting each other on `tone`'s default.
+    children: [
+      { title: 'wrTypography API', url: ['/reference/directives', 'typography'] },
+      { title: 'Typography tokens', url: ['/guides/tokens', 'typography'] },
     ],
   },
 ];

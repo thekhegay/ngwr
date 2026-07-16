@@ -11,4 +11,5 @@ export default [
   { path: directives.autosize, loadComponent: () => import('./autosize/autosize') },
   { path: directives.clickOutside, loadComponent: () => import('./click-outside/click-outside') },
   { path: directives.copyToClipboard, loadComponent: () => import('./copy-to-clipboard/copy-to-clipboard') },
+  { path: directives.typography, loadComponent: () => import('./typography/typography') },
 ] satisfies Routes;

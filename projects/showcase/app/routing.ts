@@ -147,6 +147,7 @@ export const routes = {
     autosize: 'autosize',
     clickOutside: 'click-outside',
     copyToClipboard: 'copy-to-clipboard',
+    typography: 'typography',
   },
   // Visual effects + animations. Mixed bag of in-house components and
   // ports of reactbits.dev effects (attribution in each file).

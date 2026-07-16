@@ -60,6 +60,18 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Inside prose"
+    description="Caps sit inline in running text. Their size is fixed per `size` rather than inherited, so match it to the surrounding variant — `md` reads level with body copy, `sm` with `small`. The glyphs render from `--wr-font-family-base`, not the mono stack, because `⌘` `⇧` `⌥` `⌃` are missing from many monospace fonts and would fall back to tofu."
+  >
+    <ngwr-doc-code [code]="snippets.prose" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography style="max-width: 32rem">
+        Press <wr-kbd>⌘</wr-kbd> + <wr-kbd>P</wr-kbd> to open the command palette.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

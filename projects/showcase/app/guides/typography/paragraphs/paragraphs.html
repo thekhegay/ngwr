@@ -40,11 +40,15 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Tones" description="The same `--wr-color-*` tokens used by every other ngwr component.">
+  <ngwr-doc-section
+    title="Tones"
+    description="The same `--wr-color-*` tokens used by every other ngwr component. Setting no tone at all is the default, and it is not the same as asking for `dark` — an untoned variant keeps its own colour, which is why `lead`, `caption` and `overline` above are muted without anyone asking."
+  >
     <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.25rem">
-        <p wrTypography tone="dark">Dark (default)</p>
+        <p wrTypography>Body, untoned</p>
+        <p wrTypography tone="dark">Dark</p>
         <p wrTypography tone="medium">Muted</p>
         <p wrTypography tone="primary">Primary</p>
         <p wrTypography tone="success">Success</p>
@@ -78,7 +82,8 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="API">
-    <ngwr-doc-api [rows]="api" />
-  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="See also"
+    description="[`wrTypography` reference](/reference/directives/typography) — every input, the full variant union, and the classes the directive emits."
+  />
 </ngwr-doc-page>

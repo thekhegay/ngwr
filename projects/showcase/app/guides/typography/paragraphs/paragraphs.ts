@@ -2,26 +2,12 @@ import { Component } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
 
-import {
-  DocApiComponent,
-  type DocApiRow,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-typography-text-page',
   templateUrl: './paragraphs.html',
-  imports: [
-    WrTypography,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class TypographyTextPage {
   protected readonly snippets = {
@@ -32,7 +18,10 @@ export default class TypographyTextPage {
 <p wrTypography variant="small">Small print.</p>
 <p wrTypography variant="caption">Captions and helper text.</p>
 <p wrTypography variant="overline">Section label</p>`,
-    tones: `<p wrTypography tone="dark">Dark (default)</p>
+    tones: `<!-- No tone at all is the default: each variant keeps its own colour. -->
+<p wrTypography>Body, untoned</p>
+
+<p wrTypography tone="dark">Dark</p>
 <p wrTypography tone="medium">Muted</p>
 <p wrTypography tone="primary">Primary</p>
 <p wrTypography tone="success">Success</p>
@@ -46,26 +35,4 @@ export default class TypographyTextPage {
   A long line that gets ellipsized when it overflows the container.
 </p>`,
   };
-
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'variant',
-      type: `'lead' | 'body' | 'small' | 'caption' | 'overline'`,
-      default: `'body'`,
-      description: 'Running-text variants.',
-    },
-    {
-      name: 'tone',
-      type: `'dark' | 'medium' | 'primary' | 'success' | 'warning' | 'danger'`,
-      default: `'dark'`,
-      description: 'Color tone, mapped to a `--wr-color-*` token.',
-    },
-    {
-      name: 'align',
-      type: `'start' | 'center' | 'end' | 'justify' | null`,
-      default: 'null',
-      description: 'Horizontal alignment.',
-    },
-    { name: 'truncate', type: 'boolean', default: 'false', description: 'Single-line ellipsis on overflow.' },
-  ];
 }

@@ -14,5 +14,9 @@ export default [
   // Pre-flowbite name for the paragraphs page.
   { path: t.text, redirectTo: t.paragraphs },
   { path: t.code, loadComponent: () => import('./code/code') },
-  { path: t.keyboard, loadComponent: () => import('./keyboard/keyboard') },
+  // `<wr-kbd>` ships from `ngwr/keyboard`, not `ngwr/typography` — this page
+  // only ever sat here because keycaps show up in prose. Install, sizes and
+  // the API were a second copy of the component reference; the one demo it
+  // owned (a cap inline in a paragraph) moved there with it.
+  { path: t.keyboard, redirectTo: '/reference/components/keyboard' },
 ] satisfies Routes;

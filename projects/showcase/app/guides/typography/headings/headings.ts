@@ -2,26 +2,12 @@ import { Component } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
 
-import {
-  DocApiComponent,
-  type DocApiRow,
-  DocCodeComponent,
-  DocPageComponent,
-  DocSectionComponent,
-  DocSnippetComponent,
-} from '#core/components';
+import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
 
 @Component({
   selector: 'ngwr-typography-headings-page',
   templateUrl: './headings.html',
-  imports: [
-    WrTypography,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
 })
 export default class TypographyHeadingsPage {
   protected readonly snippets = {
@@ -38,16 +24,4 @@ export default class TypographyHeadingsPage {
   Start on the free tier and grow into a self-hosted seat the moment you outgrow it.
 </p>`,
   };
-
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'variant',
-      type: `'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'`,
-      default: '—',
-      description:
-        'Heading-scale variant. `display` is the oversized hero size; h1–h6 follow the standard semantic ladder.',
-    },
-    { name: 'tone', type: 'WrTypographyTone', default: "'dark'", description: 'Color tone.' },
-    { name: 'align', type: 'WrTypographyAlign | null', default: 'null', description: 'Horizontal alignment.' },
-  ];
 }
