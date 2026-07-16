@@ -5,7 +5,6 @@ import { WrI18n, WrTDirective, WrTPipe } from 'ngwr/i18n';
 import {
   DocApiComponent,
   type DocApiRow,
-  DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
@@ -22,7 +21,6 @@ import {
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
-    DocCodeComponent,
     DocApiComponent,
     DocSeeAlsoComponent,
   ],
@@ -37,51 +35,6 @@ export default class I18nServicePage {
   protected use(locale: string): void {
     this.i18n.use(locale);
   }
-
-  protected readonly snippets = {
-    install: `import { provideHttpClient } from '@angular/common/http';
-import {
-  provideWrI18n,
-  provideWrI18nStaticLoader,
-} from 'ngwr/i18n';
-import { wrEn } from 'ngwr/i18n/en';
-import { wrRu } from 'ngwr/i18n/ru';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideHttpClient(),
-    provideWrI18n({
-      defaultLocale: 'en',
-      availableLocales: ['en', 'ru'],
-    }),
-    provideWrI18nStaticLoader({
-      en: { ...wrEn, app: { title: 'My app' } },
-      ru: { ...wrRu, app: { title: 'Моё приложение' } },
-    }),
-  ],
-});`,
-    http: `provideWrI18nHttpLoader({
-  path: '/assets/i18n/{locale}.json',
-  // Optional — different template for scoped catalogs:
-  // rootPath: '/assets/i18n/root/{locale}.json',
-});
-
-// Then per-feature lazy load:
-i18n.registerScope('checkout');
-// → fetches /assets/i18n/checkout/{locale}.json`,
-    pipe: `<h1>{{ 'app.title' | wrT }}</h1>
-<p>{{ 'app.hello' | wrT: { name: user().name } }}</p>
-<button>{{ 'common.save' | wrT }}</button>`,
-    directive: `<h1 [wrT]="'app.title'"></h1>
-<p [wrT]="'app.hello'" [wrTParams]="{ name: user().name }"></p>`,
-    service: `const i18n = inject(WrI18n);
-i18n.use('ru');                                 // switch locale
-i18n.t('app.hello', { name: 'Ada' });           // → 'Привет, Ada!'
-
-// Reactive lookup — re-runs on locale change:
-const title = i18n.translate('app.title');
-effect(() => console.log(title()));`,
-  };
 
   protected readonly api: readonly DocApiRow[] = [
     {
@@ -122,12 +75,56 @@ effect(() => console.log(title()));`,
     },
   ];
 
+  /** Providers that wire the service up. Previously only documented in the guide. */
+  protected readonly providerApi: readonly DocApiRow[] = [
+    {
+      name: 'provideWrI18n(config)',
+      description: 'Root provider. Pass `defaultLocale`, `availableLocales`, and optional `missingHandler`.',
+      type: '(config: WrI18nConfig) => Provider',
+      default: '—',
+    },
+    {
+      name: 'provideWrI18nStaticLoader(catalogs)',
+      description: 'Inline catalogs at bootstrap. Best for small apps and SSR.',
+      type: '(catalogs: Record<string, WrI18nCatalog>) => Provider',
+      default: '—',
+    },
+    {
+      name: 'provideWrI18nHttpLoader({ path, rootPath? })',
+      description: 'Fetch JSON catalogs at runtime. `{locale}` and `{scope}` tokens interpolate.',
+      type: '({ path, rootPath? }) => Provider',
+      default: '—',
+    },
+  ];
+
+  /** The template-side surface of the same service. */
+  protected readonly templateApi: readonly DocApiRow[] = [
+    {
+      name: 'WrTPipe — `| wrT[: params][: scope]`',
+      description: 'Impure pipe. Re-evaluates on every CD cycle.',
+      type: 'pipe',
+      default: '—',
+    },
+    {
+      name: 'WrTDirective — `[wrT]="key" [wrTParams] [wrTScope]`',
+      description: 'Writes `textContent` of the host element on locale change.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: 'useI18nFormatter(key, scope?)',
+      description: 'Returns a `(params) => string` helper for the given key.',
+      type: '(key, scope?) => (params) => string',
+      default: '—',
+    },
+  ];
+
   protected readonly related: readonly DocSeeAlsoLink[] = [
     {
       kind: 'Guide',
-      title: 'i18n tutorial',
-      url: ['/guides', 'i18n'],
-      description: 'Step-by-step walkthrough — provider wiring, locale switcher, scopes, custom missing-key handler.',
+      title: 'Translations',
+      url: ['/guides', 'translations'],
+      description: 'How to actually use this: loaders, scopes, interpolation, a locale switcher.',
     },
     {
       kind: 'Service',

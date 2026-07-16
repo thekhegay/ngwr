@@ -5,39 +5,9 @@
   [labels]="['Service']"
 >
   <ngwr-doc-section
-    title="Install"
-    description="Pick a loader. The static loader takes catalogs you already have in memory; the HTTP loader fetches them."
-  >
-    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="HTTP loader + scopes"
-    description="For larger apps — ship the root catalog plus per-feature scopes that load on demand."
-  >
-    <ngwr-doc-code [code]="snippets.http" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="In templates — pipe"
-    description="Pipe form. Impure — re-evaluates on every CD cycle so locale and catalog updates propagate automatically."
-  >
-    <ngwr-doc-code [code]="snippets.pipe" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="In templates — directive"
-    description="Directive form. Writes `textContent` of the host element; tidier when the entire element is a translation."
-  >
-    <ngwr-doc-code [code]="snippets.directive" language="angular-ts" />
-  </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="In code — service"
-    description="Imperative API for `t()` / reactive `translate()` / `use()` / `registerScope()`."
-  >
-    <ngwr-doc-code [code]="snippets.service" language="angular-ts" />
-  </ngwr-doc-section>
+    title="Why ngwr provides this"
+    description="Angular's built-in i18n bakes translations in at build time — one bundle per locale, no runtime switching. This service swaps catalogs at runtime, scopes keys per feature, and interpolates parameters."
+  />
 
   <ngwr-doc-section
     title="Live demo"
@@ -69,13 +39,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Why ngwr provides this"
-    description="Angular's built-in i18n bakes translations in at build time — one bundle per locale, no runtime switching. This service swaps catalogs at runtime, scopes keys per feature, and interpolates parameters."
-  />
-
-  <ngwr-doc-section title="API">
+  <ngwr-doc-section title="Service" description="Everything on the injected `WrI18n` instance.">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Providers" description="Wire the service up at bootstrap. Pick exactly one loader.">
+    <ngwr-doc-api [rows]="providerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Template helpers" description="The same service, reached from a template.">
+    <ngwr-doc-api [rows]="templateApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-see-also [links]="related" />

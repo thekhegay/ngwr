@@ -22,7 +22,6 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   // Cross-cutting subsystems users typically meet later.
   { title: 'Overlay', url: ['/guides', 'overlay'] },
   { title: 'Mobile & responsive', url: ['/guides', 'mobile'] },
-  { title: 'Internationalization (i18n)', url: ['/guides', 'i18n'] },
-  { title: 'Translations', url: ['/guides', 'translations'] },
+  { title: 'Translations (i18n)', url: ['/guides', 'translations'] },
   { title: 'Keyboard', url: ['/guides', 'keyboard'] },
 ];

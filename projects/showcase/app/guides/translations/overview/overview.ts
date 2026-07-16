@@ -43,9 +43,11 @@ export default class TranslateOverviewPage {
       body: '`{{name}}` placeholders and helper formatters for plurals, dates, numbers.',
     },
     {
-      url: ['/guides/translations', 'api'] as const,
-      title: 'API',
-      body: 'Full `WrI18n` reference — every method, signal, and config option.',
+      // Points OUT of the guide — the API table lives in reference, and is
+      // maintained in exactly one place. This card is the hand-off.
+      url: ['/reference/services', 'i18n'] as const,
+      title: 'API reference',
+      body: 'Every method, signal, provider and template helper on `WrI18n`.',
     },
   ];
 }

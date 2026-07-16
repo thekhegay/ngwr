@@ -22,6 +22,9 @@ export const TRANSLATE_SIDEBAR: readonly SidebarGroup[] = [
   },
   {
     title: 'Reference',
-    children: [{ title: 'API', url: ['/guides/translations', 'api'] }],
+    // Leaves the guide on purpose: the API table is maintained once, in
+    // reference. A guide that keeps its own copy is how the two drifted apart
+    // in the first place — this one was more complete than the "real" one.
+    children: [{ title: 'WrI18n API', url: ['/reference/services', 'i18n'] }],
   },
 ];

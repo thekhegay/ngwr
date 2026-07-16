@@ -21,7 +21,6 @@ export default [
   { path: guides.grid, loadComponent: () => import('./grid/grid') },
   { path: guides.overlay, loadComponent: () => import('./overlay/overlay') },
   { path: guides.mobile, loadComponent: () => import('./mobile/mobile') },
-  { path: guides.i18n, loadComponent: () => import('./i18n/i18n') },
   { path: guides.keyboard, loadComponent: () => import('./keyboard/keyboard') },
   {
     path: guides.tokens,

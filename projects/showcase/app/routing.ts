@@ -32,7 +32,6 @@ export const routes = {
     grid: 'grid',
     overlay: 'overlay',
     mobile: 'mobile',
-    i18n: 'i18n',
     keyboard: 'keyboard',
     tokens: 'tokens',
     translations: 'translations',
@@ -317,6 +316,9 @@ export const routing: Routes = [
       { path: 'getting-started/configuration', redirectTo: '/start/configuration' },
       { path: 'getting-started/schematics', redirectTo: '/start/schematics' },
       { path: 'getting-started/migration', redirectTo: '/start/migration' },
+      // `/getting-started/i18n` was the old single-page tutorial; it is now the
+      // Translations cluster, so that one slug needs its own landing spot.
+      { path: 'getting-started/i18n', redirectTo: '/guides/translations' },
       { path: 'getting-started/:page', redirectTo: ({ params }) => `/guides/${params['page']}` },
       { path: 'getting-started', redirectTo: '/start' },
       { path: 'tokens/:page', redirectTo: ({ params }) => `/guides/tokens/${params['page']}` },
