@@ -39,7 +39,10 @@ export default class ThemeTypesPage {
     {
       name: 'WrColor',
       description: 'Palette names accepted by every `[color]` input.',
-      type: "'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'light' | 'medium' | 'dark'",
+      // Derived from the real tuple rather than retyped. The hand-written
+      // mirror that used to sit here fell a member behind the union it
+      // documents — on the page that renders that same tuple as badges.
+      type: WR_COLORS.map(color => `'${color}'`).join(' | '),
       default: '—',
     },
     {

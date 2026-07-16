@@ -77,7 +77,7 @@ export default class ColorPageComponent {
 
 @Component({...})
 export class Palette {
-  readonly colors = WR_COLORS; // readonly tuple of 8
+  readonly colors = WR_COLORS; // readonly tuple of every intent name
 }`,
   };
 
