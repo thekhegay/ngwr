@@ -62,19 +62,19 @@ card.setValue('1234567890123456');    // bad checksum → { cardNumber: true }`;
     {
       kind: 'Component',
       title: 'wr-input',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'Host control for card entry.',
     },
     {
       kind: 'Validator',
       title: 'cvc',
-      url: ['/validators', 'cvc'],
+      url: ['/reference/validators', 'cvc'],
       description: 'Sibling rule for the security code.',
     },
     {
       kind: 'Validator',
       title: 'iban',
-      url: ['/validators', 'iban'],
+      url: ['/reference/validators', 'iban'],
       description: 'Sibling rule for bank account numbers.',
     },
   ];

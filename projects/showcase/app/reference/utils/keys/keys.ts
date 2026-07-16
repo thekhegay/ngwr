@@ -54,25 +54,25 @@ if (event.key === KEYS.SPACE) toggle();`;
     {
       kind: 'Guide',
       title: 'Keyboard',
-      url: ['/getting-started', 'keyboard'],
+      url: ['/guides', 'keyboard'],
       description: 'How chords, keycaps and key primitives fit together in one task.',
     },
     {
       kind: 'Service',
       title: 'WrHotkey',
-      url: ['/services', 'hotkey'],
+      url: ['/reference/services', 'hotkey'],
       description: 'For whole chords, use the registry instead of comparing keys by hand.',
     },
     {
       kind: 'Util',
       title: 'hasModifier',
-      url: ['/utils', 'has-modifier'],
+      url: ['/reference/utils', 'has-modifier'],
       description: 'Is any modifier held?',
     },
     {
       kind: 'Util',
       title: 'isPrintableKey',
-      url: ['/utils', 'is-printable-key'],
+      url: ['/reference/utils', 'is-printable-key'],
       description: 'Did the key produce a character?',
     },
   ];

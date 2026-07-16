@@ -72,13 +72,13 @@ const size = new FormControl('', [
     {
       kind: 'Component',
       title: 'wr-select',
-      url: ['/components', 'select'],
+      url: ['/reference/components', 'select'],
       description: 'Constrained choice control - validate free input against its options.',
     },
     {
       kind: 'Component',
       title: 'wr-segmented',
-      url: ['/components', 'segmented'],
+      url: ['/reference/components', 'segmented'],
       description: 'Inline single-choice alternative.',
     },
   ];

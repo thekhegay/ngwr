@@ -52,7 +52,7 @@ export default class CopyToClipboardPage {
     {
       kind: 'Service',
       title: 'WrClipboard',
-      url: ['/services', 'clipboard'],
+      url: ['/reference/services', 'clipboard'],
       description: "Programmatic read + write API — what to reach for when you don't want a host-click directive.",
     },
   ];

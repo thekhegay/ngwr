@@ -65,19 +65,19 @@ const end = new FormControl('', [
     {
       kind: 'Component',
       title: 'wr-date-picker',
-      url: ['/components', 'date-picker'],
+      url: ['/reference/components', 'date-picker'],
       description: 'Calendar-popup input - pair it with maxDate for range ceilings.',
     },
     {
       kind: 'Component',
       title: 'wr-calendar',
-      url: ['/components', 'calendar'],
+      url: ['/reference/components', 'calendar'],
       description: 'Inline month view with its own [max] guard.',
     },
     {
       kind: 'Validator',
       title: 'minDate',
-      url: ['/validators', 'min-date'],
+      url: ['/reference/validators', 'min-date'],
       description: 'The matching lower-bound rule.',
     },
   ];

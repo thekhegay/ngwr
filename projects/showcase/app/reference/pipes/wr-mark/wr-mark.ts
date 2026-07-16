@@ -98,13 +98,13 @@ mark {
     {
       kind: 'Component',
       title: 'wr-select',
-      url: ['/components', 'select'],
+      url: ['/reference/components', 'select'],
       description: 'Most common host — highlight the typed query inside each suggestion.',
     },
     {
       kind: 'Component',
       title: 'wr-command-palette',
-      url: ['/components', 'command-palette'],
+      url: ['/reference/components', 'command-palette'],
       description: 'Same pattern — visually link the query to the matching item label.',
     },
   ];

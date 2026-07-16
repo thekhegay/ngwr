@@ -113,7 +113,7 @@ const state = await this.clip.permission('write');
     {
       kind: 'Directive',
       title: '[wrCopyToClipboard]',
-      url: ['/directives', 'copy-to-clipboard'],
+      url: ['/reference/directives', 'copy-to-clipboard'],
       description: 'Host-click directive — drop-in copy button without writing the imperative call.',
     },
   ];

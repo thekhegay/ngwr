@@ -90,13 +90,13 @@ export class MyComponent { /* ... */ }`,
     {
       kind: 'Component',
       title: 'wr-date-picker',
-      url: ['/components', 'date-picker'],
+      url: ['/reference/components', 'date-picker'],
       description: 'Produces the Date values this pipe renders.',
     },
     {
       kind: 'Guide',
       title: 'Date adapters',
-      url: ['/getting-started', 'configuration'],
+      url: ['/start', 'configuration'],
       description: 'Wire date-fns or Luxon to unlock token strings.',
     },
   ];

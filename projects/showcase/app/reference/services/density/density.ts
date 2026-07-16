@@ -111,13 +111,13 @@ density.cycle();`,
     {
       kind: 'Guide',
       title: 'Theming',
-      url: ['/getting-started', 'theming'],
+      url: ['/guides', 'theming'],
       description: 'How density fits alongside palette, dark mode, and design-token overrides.',
     },
     {
       kind: 'Service',
       title: 'WrTheme',
-      url: ['/services', 'theme'],
+      url: ['/reference/services', 'theme'],
       description: 'Sibling — light / dark / auto. Pair both for a full appearance API.',
     },
   ];

@@ -23,23 +23,23 @@ import {
 })
 export default class SidebarPage {
   protected readonly entries: readonly WrSidebarEntry[] = [
-    { title: 'Dashboard', icon: 'home', url: ['/components', 'sidebar'] },
+    { title: 'Dashboard', icon: 'home', url: ['/reference/components', 'sidebar'] },
     {
       title: 'Workspace',
       icon: 'folder',
       children: [
-        { title: 'Projects', url: ['/components', 'sidebar'] },
-        { title: 'Members', url: ['/components', 'sidebar'], badge: '12' },
-        { title: 'Billing', url: ['/components', 'sidebar'], badge: 'new' },
+        { title: 'Projects', url: ['/reference/components', 'sidebar'] },
+        { title: 'Members', url: ['/reference/components', 'sidebar'], badge: '12' },
+        { title: 'Billing', url: ['/reference/components', 'sidebar'], badge: 'new' },
       ],
     },
     {
       title: 'Settings',
       icon: 'cog',
       children: [
-        { title: 'Profile', url: ['/components', 'sidebar'] },
-        { title: 'Security', url: ['/components', 'sidebar'] },
-        { title: 'Tokens (soon)', url: ['/components', 'sidebar'], disabled: true },
+        { title: 'Profile', url: ['/reference/components', 'sidebar'] },
+        { title: 'Security', url: ['/reference/components', 'sidebar'] },
+        { title: 'Tokens (soon)', url: ['/reference/components', 'sidebar'], disabled: true },
       ],
     },
   ];

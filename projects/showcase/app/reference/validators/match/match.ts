@@ -71,13 +71,13 @@ const form = new FormGroup({
     {
       kind: 'Component',
       title: 'wr-input',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'Password + confirm fields this rule usually guards.',
     },
     {
       kind: 'Component',
       title: 'wr-form-field',
-      url: ['/components', 'form-field'],
+      url: ['/reference/components', 'form-field'],
       description: 'Label / hint / error scaffolding for the pair.',
     },
   ];

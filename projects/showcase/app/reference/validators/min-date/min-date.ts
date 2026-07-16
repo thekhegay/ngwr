@@ -68,19 +68,19 @@ start.errors; // { minDate: { min: Date(2026-01-01) } }`;
     {
       kind: 'Component',
       title: 'wr-date-picker',
-      url: ['/components', 'date-picker'],
+      url: ['/reference/components', 'date-picker'],
       description: 'Calendar-popup input - pair it with minDate for range floors.',
     },
     {
       kind: 'Component',
       title: 'wr-calendar',
-      url: ['/components', 'calendar'],
+      url: ['/reference/components', 'calendar'],
       description: 'Inline month view with its own [min] guard.',
     },
     {
       kind: 'Validator',
       title: 'maxDate',
-      url: ['/validators', 'max-date'],
+      url: ['/reference/validators', 'max-date'],
       description: 'The matching upper-bound rule.',
     },
   ];

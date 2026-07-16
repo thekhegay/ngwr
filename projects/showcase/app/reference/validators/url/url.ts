@@ -81,13 +81,13 @@ secure.errors; // { url: { allowed: ['https'] } }`;
     {
       kind: 'Component',
       title: 'wr-input',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'Host control for link entry.',
     },
     {
       kind: 'Component',
       title: 'wr-form-field',
-      url: ['/components', 'form-field'],
+      url: ['/reference/components', 'form-field'],
       description: 'Label / hint / error scaffolding around it.',
     },
   ];

@@ -63,13 +63,13 @@ export class MyComponent { /* ... */ }`,
     {
       kind: 'Component',
       title: 'wr-file-upload',
-      url: ['/components', 'file-upload'],
+      url: ['/reference/components', 'file-upload'],
       description: 'Show human-readable sizes next to picked files.',
     },
     {
       kind: 'Pipe',
       title: 'wrNumber',
-      url: ['/pipes', 'wr-number'],
+      url: ['/reference/pipes', 'wr-number'],
       description: 'General locale-aware number formatting.',
     },
   ];

@@ -49,19 +49,19 @@ export default class HasModifierPage {
     {
       kind: 'Guide',
       title: 'Keyboard',
-      url: ['/getting-started', 'keyboard'],
+      url: ['/guides', 'keyboard'],
       description: 'How chords, keycaps and key primitives fit together in one task.',
     },
     {
       kind: 'Util',
       title: 'isPrintableKey',
-      url: ['/utils', 'is-printable-key'],
+      url: ['/reference/utils', 'is-printable-key'],
       description: 'The other half of a type-ahead guard.',
     },
     {
       kind: 'Util',
       title: 'KEYS',
-      url: ['/utils', 'keys'],
+      url: ['/reference/utils', 'keys'],
       description: 'Canonical `KeyboardEvent.key` constants.',
     },
   ];

@@ -23,27 +23,27 @@ export default class TranslateOverviewPage {
 
   protected readonly cards = [
     {
-      url: ['/translate', 'setup'] as const,
+      url: ['/guides/translations', 'setup'] as const,
       title: 'Setup & loaders',
       body: 'Wire `provideWrI18n` plus a static or HTTP catalog loader. Two-snippet bootstrap.',
     },
     {
-      url: ['/translate', 'usage'] as const,
+      url: ['/guides/translations', 'usage'] as const,
       title: 'Usage in templates',
       body: 'Three call sites — `| wrT` pipe, `[wrT]` directive, or `inject(WrI18n)` for code.',
     },
     {
-      url: ['/translate', 'scopes'] as const,
+      url: ['/guides/translations', 'scopes'] as const,
       title: 'Scopes',
       body: 'Feature-scoped catalogs load on demand. Ship the root, lazy-load the rest.',
     },
     {
-      url: ['/translate', 'interpolation'] as const,
+      url: ['/guides/translations', 'interpolation'] as const,
       title: 'Interpolation',
       body: '`{{name}}` placeholders and helper formatters for plurals, dates, numbers.',
     },
     {
-      url: ['/translate', 'api'] as const,
+      url: ['/guides/translations', 'api'] as const,
       title: 'API',
       body: 'Full `WrI18n` reference — every method, signal, and config option.',
     },

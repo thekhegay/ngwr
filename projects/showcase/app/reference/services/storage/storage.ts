@@ -144,14 +144,14 @@ effect(() => console.log('theme is', theme()));`,
     {
       kind: 'Service',
       title: 'WrCookie',
-      url: ['/services', 'cookie'],
+      url: ['/reference/services', 'cookie'],
       description:
         'Same shape for `document.cookie`. Reach for cookies when you need expiry attributes / cross-subdomain reads.',
     },
     {
       kind: 'Service',
       title: 'WrTheme',
-      url: ['/services', 'theme'],
+      url: ['/reference/services', 'theme'],
       description: 'Built on top of WrStorage — your theme mode persists through whatever engine you swap in.',
     },
   ];

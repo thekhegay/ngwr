@@ -164,13 +164,13 @@ export class MyComponent {}`,
     {
       kind: 'Guide',
       title: 'Keyboard',
-      url: ['/getting-started', 'keyboard'],
+      url: ['/guides', 'keyboard'],
       description: 'How chords, keycaps and key primitives fit together in one task.',
     },
     {
       kind: 'Service',
       title: 'WrHotkey',
-      url: ['/services', 'hotkey'],
+      url: ['/reference/services', 'hotkey'],
       description: 'Bind the chord this keycap advertises.',
     },
   ];

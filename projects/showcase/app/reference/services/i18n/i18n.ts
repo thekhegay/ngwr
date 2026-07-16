@@ -126,13 +126,13 @@ effect(() => console.log(title()));`,
     {
       kind: 'Guide',
       title: 'i18n tutorial',
-      url: ['/getting-started', 'i18n'],
+      url: ['/guides', 'i18n'],
       description: 'Step-by-step walkthrough — provider wiring, locale switcher, scopes, custom missing-key handler.',
     },
     {
       kind: 'Service',
       title: 'WrStorage',
-      url: ['/services', 'storage'],
+      url: ['/reference/services', 'storage'],
       description: 'Used to persist the active locale across reloads. Swap the engine to change where.',
     },
   ];

@@ -107,19 +107,19 @@ export class MyComponent {}`,
     {
       kind: 'Directive',
       title: 'wrInput',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'The most common control to wrap. Add `wrInput` to a native `<input>` and drop it inside.',
     },
     {
       kind: 'Component',
       title: 'wr-select',
-      url: ['/components', 'select'],
+      url: ['/reference/components', 'select'],
       description: 'Pairs cleanly — the form-field surfaces select errors too.',
     },
     {
       kind: 'Validator',
       title: 'WrValidators',
-      url: ['/validators', 'email'],
+      url: ['/reference/validators', 'email'],
       description:
         'The error-key contract — every `WrValidators.*` member has a stable key for `<wr-form-error key="…">`.',
     },

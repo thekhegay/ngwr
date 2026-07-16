@@ -62,13 +62,13 @@ colour.setValue('#xyz');     // → { hexColor: true }`;
     {
       kind: 'Component',
       title: 'wr-color-picker',
-      url: ['/components', 'color-picker'],
+      url: ['/reference/components', 'color-picker'],
       description: 'Emits the hex strings this rule accepts.',
     },
     {
       kind: 'Component',
       title: 'wr-input',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'For free-typed color values.',
     },
   ];

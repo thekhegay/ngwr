@@ -63,13 +63,13 @@ export default class ThemeTypesPage {
     {
       kind: 'Service',
       title: 'WrTheme',
-      url: ['/services', 'theme'],
+      url: ['/reference/services', 'theme'],
       description: 'Switches the mode and persists the choice.',
     },
     {
       kind: 'Guide',
       title: 'Configuration',
-      url: ['/getting-started', 'configuration'],
+      url: ['/start', 'configuration'],
       description: 'Overriding the palette and theme tokens.',
     },
   ];

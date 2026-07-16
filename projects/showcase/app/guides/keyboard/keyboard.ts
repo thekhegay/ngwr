@@ -113,31 +113,31 @@ protected onKeydown(event: KeyboardEvent): void {
     {
       kind: 'Service',
       title: 'WrHotkey',
-      url: ['/services', 'hotkey'],
+      url: ['/reference/services', 'hotkey'],
       description: 'The registry itself — bind and unbind chords imperatively.',
     },
     {
       kind: 'Component',
       title: 'WrKbd',
-      url: ['/components', 'keyboard'],
+      url: ['/reference/components', 'keyboard'],
       description: 'The keycap chip used to render a chord next to its action.',
     },
     {
       kind: 'Util',
       title: 'KEYS',
-      url: ['/utils', 'keys'],
+      url: ['/reference/utils', 'keys'],
       description: 'Canonical `KeyboardEvent.key` constants — searchable instead of magic strings.',
     },
     {
       kind: 'Util',
       title: 'hasModifier',
-      url: ['/utils', 'has-modifier'],
+      url: ['/reference/utils', 'has-modifier'],
       description: 'Is any modifier held? Use it to leave the browser’s own chords alone.',
     },
     {
       kind: 'Util',
       title: 'isPrintableKey',
-      url: ['/utils', 'is-printable-key'],
+      url: ['/reference/utils', 'is-printable-key'],
       description: 'Did the key produce a character? The type-ahead predicate.',
     },
   ];

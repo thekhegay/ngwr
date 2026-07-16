@@ -126,7 +126,7 @@ cookies.clear();   // remove them all (path: '/')`,
     {
       kind: 'Service',
       title: 'WrStorage',
-      url: ['/services', 'storage'],
+      url: ['/reference/services', 'storage'],
       description: 'Sibling API for localStorage / sessionStorage / custom engines — same shape, no expiry headers.',
     },
   ];

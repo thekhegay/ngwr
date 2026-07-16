@@ -62,13 +62,13 @@ iban.setValue('GB82 WEST 1234 5698 7654 32'); // → valid (passes mod-97)`;
     {
       kind: 'Component',
       title: 'wr-input',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'Host control for account entry.',
     },
     {
       kind: 'Validator',
       title: 'cardNumber',
-      url: ['/validators', 'card-number'],
+      url: ['/reference/validators', 'card-number'],
       description: 'Sibling rule for card payments.',
     },
   ];

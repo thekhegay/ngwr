@@ -44,19 +44,19 @@ if (isPrintableKey(e)) buffer.push(e.key);`;
     {
       kind: 'Guide',
       title: 'Keyboard',
-      url: ['/getting-started', 'keyboard'],
+      url: ['/guides', 'keyboard'],
       description: 'How chords, keycaps and key primitives fit together in one task.',
     },
     {
       kind: 'Util',
       title: 'hasModifier',
-      url: ['/utils', 'has-modifier'],
+      url: ['/reference/utils', 'has-modifier'],
       description: 'Skip the browser’s own chords before testing for a character.',
     },
     {
       kind: 'Util',
       title: 'KEYS',
-      url: ['/utils', 'keys'],
+      url: ['/reference/utils', 'keys'],
       description: 'Canonical `KeyboardEvent.key` constants.',
     },
   ];

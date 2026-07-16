@@ -66,13 +66,13 @@ const amex = new FormControl('', [WrValidators.cvc(4)]);  // 4 digits`;
     {
       kind: 'Component',
       title: 'wr-input',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'Host control for the 3-4 digit code.',
     },
     {
       kind: 'Validator',
       title: 'cardNumber',
-      url: ['/validators', 'card-number'],
+      url: ['/reference/validators', 'card-number'],
       description: 'Sibling rule for the card number itself.',
     },
   ];

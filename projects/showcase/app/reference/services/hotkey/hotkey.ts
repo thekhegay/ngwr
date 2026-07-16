@@ -78,19 +78,19 @@ ngOnInit() {
     {
       kind: 'Guide',
       title: 'Keyboard',
-      url: ['/getting-started', 'keyboard'],
+      url: ['/guides', 'keyboard'],
       description: 'How chords, keycaps and key primitives fit together in one task.',
     },
     {
       kind: 'Component',
       title: 'WrKbd',
-      url: ['/components', 'keyboard'],
+      url: ['/reference/components', 'keyboard'],
       description: 'Render the chord you just bound so users can discover it.',
     },
     {
       kind: 'Util',
       title: 'KEYS',
-      url: ['/utils', 'keys'],
+      url: ['/reference/utils', 'keys'],
       description: 'Canonical `KeyboardEvent.key` constants for your own handlers.',
     },
   ];

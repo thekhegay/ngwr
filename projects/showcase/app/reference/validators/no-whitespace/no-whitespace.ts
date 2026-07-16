@@ -56,13 +56,13 @@ username.errors; // { noWhitespace: true }`;
     {
       kind: 'Component',
       title: 'wr-input',
-      url: ['/components', 'input'],
+      url: ['/reference/components', 'input'],
       description: 'Usernames / handles where stray spaces sneak in.',
     },
     {
       kind: 'Validator',
       title: 'match',
-      url: ['/validators', 'match'],
+      url: ['/reference/validators', 'match'],
       description: 'Another cross-field staple for signup forms.',
     },
   ];
