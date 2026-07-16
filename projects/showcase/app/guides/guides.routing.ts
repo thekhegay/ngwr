@@ -1,7 +1,5 @@
 import type { Routes } from '@angular/router';
 
-import { TOKENS_SIDEBAR, TRANSLATE_SIDEBAR, TYPOGRAPHY_SIDEBAR } from '../_layout/sidebar/configs';
-
 import { routes } from '#routing';
 
 const guides = routes.guides;
@@ -25,19 +23,11 @@ export default [
   { path: guides.overlay, loadComponent: () => import('./overlay/overlay') },
   { path: guides.mobile, loadComponent: () => import('./mobile/mobile') },
   { path: guides.keyboard, loadComponent: () => import('./keyboard/keyboard') },
-  {
-    path: guides.tokens,
-    data: { sidebar: TOKENS_SIDEBAR },
-    loadChildren: () => import('./tokens/tokens.routing'),
-  },
-  {
-    path: guides.translations,
-    data: { sidebar: TRANSLATE_SIDEBAR },
-    loadChildren: () => import('./translations/translations.routing'),
-  },
-  {
-    path: guides.typography,
-    data: { sidebar: TYPOGRAPHY_SIDEBAR },
-    loadChildren: () => import('./typography/typography.routing'),
-  },
+  // These three are multi-page clusters, but they deliberately do NOT declare
+  // their own `data.sidebar`: the sidebar resolves from the deepest activated
+  // route, so a child sidebar would replace the guides nav on entry. They nest
+  // inside GUIDES_SIDEBAR instead.
+  { path: guides.tokens, loadChildren: () => import('./tokens/tokens.routing') },
+  { path: guides.translations, loadChildren: () => import('./translations/translations.routing') },
+  { path: guides.typography, loadChildren: () => import('./typography/typography.routing') },
 ] satisfies Routes;
