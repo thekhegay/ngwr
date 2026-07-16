@@ -1,20 +1,6 @@
 import type { Routes } from '@angular/router';
 
-import {
-  ANIMATIONS_SIDEBAR,
-  COMPONENTS_SIDEBAR,
-  DIRECTIVES_SIDEBAR,
-  GETTING_STARTED_SIDEBAR,
-  ICONS_SIDEBAR,
-  PIPES_SIDEBAR,
-  SERVICES_SIDEBAR,
-  TRANSLATE_SIDEBAR,
-  TYPOGRAPHY_SIDEBAR,
-  TOKENS_SIDEBAR,
-  INTERFACES_SIDEBAR,
-  UTILS_SIDEBAR,
-  VALIDATORS_SIDEBAR,
-} from './_layout/sidebar/configs';
+import { ANIMATIONS_SIDEBAR, GUIDES_SIDEBAR, ICONS_SIDEBAR, START_SIDEBAR } from './_layout/sidebar/configs';
 
 export const routes = {
   index: '/',
@@ -30,9 +16,17 @@ export const routes = {
     radix: 'radix',
     bootstrap: 'bootstrap',
   },
-  gettingStarted: {
-    index: 'getting-started',
+  /** Getting the library into an app. Not how to use a subsystem — that's `guides`. */
+  start: {
+    index: 'start',
     installation: 'installation',
+    configuration: 'configuration',
+    schematics: 'schematics',
+    migration: 'migration',
+  },
+  /** Task-oriented walkthroughs that span several APIs and link into `reference`. */
+  guides: {
+    index: 'guides',
     theming: 'theming',
     color: 'color',
     grid: 'grid',
@@ -40,9 +34,20 @@ export const routes = {
     mobile: 'mobile',
     i18n: 'i18n',
     keyboard: 'keyboard',
-    configuration: 'configuration',
-    schematics: 'schematics',
-    migration: 'migration',
+    tokens: 'tokens',
+    translations: 'translations',
+    typography: 'typography',
+  },
+  /** One public API per page: description, demos, and the full API table. */
+  reference: {
+    index: 'reference',
+    components: 'components',
+    directives: 'directives',
+    pipes: 'pipes',
+    services: 'services',
+    utils: 'utils',
+    validators: 'validators',
+    interfaces: 'interfaces',
   },
   tokens: {
     index: 'tokens',
@@ -275,20 +280,24 @@ export const routing: Routes = [
     path: '',
     loadComponent: () => import('#layout'),
     children: [
+      // Three doors, by what the reader is doing — not by how the code is
+      // organised. `start` = get it installed. `guides` = do a job that spans
+      // several APIs. `reference` = look one API up. Icons and animations stay
+      // separate: the first is a set of browsable catalogs, the second a
+      // distinct family of reactbits ports.
       {
-        path: routes.gettingStarted.index,
-        data: { sidebar: GETTING_STARTED_SIDEBAR },
-        loadChildren: () => import('./getting-started/getting-started.routing'),
+        path: routes.start.index,
+        data: { sidebar: START_SIDEBAR },
+        loadChildren: () => import('./start/start.routing'),
       },
       {
-        path: routes.tokens.index,
-        data: { sidebar: TOKENS_SIDEBAR },
-        loadChildren: () => import('./tokens/tokens.routing'),
+        path: routes.guides.index,
+        data: { sidebar: GUIDES_SIDEBAR },
+        loadChildren: () => import('./guides/guides.routing'),
       },
       {
-        path: routes.components.index,
-        data: { sidebar: COMPONENTS_SIDEBAR },
-        loadChildren: () => import('./components/components.routing'),
+        path: routes.reference.index,
+        loadChildren: () => import('./reference/reference.routing'),
       },
       {
         path: routes.icons.index,
@@ -296,53 +305,43 @@ export const routing: Routes = [
         loadChildren: () => import('./icons/icons.routing'),
       },
       {
-        path: routes.directives.index,
-        data: { sidebar: DIRECTIVES_SIDEBAR },
-        loadChildren: () => import('./directives/directives.routing'),
-      },
-      {
         path: routes.animations.index,
         data: { sidebar: ANIMATIONS_SIDEBAR },
         loadChildren: () => import('./animations/animations.routing'),
       },
-      {
-        path: routes.pipes.index,
-        data: { sidebar: PIPES_SIDEBAR },
-        loadChildren: () => import('./pipes/pipes.routing'),
-      },
-      {
-        path: routes.services.index,
-        data: { sidebar: SERVICES_SIDEBAR },
-        loadChildren: () => import('./services/services.routing'),
-      },
-      {
-        path: routes.utils.index,
-        data: { sidebar: UTILS_SIDEBAR },
-        loadChildren: () => import('./utils/utils.routing'),
-      },
-      {
-        path: routes.interfaces.index,
-        data: { sidebar: INTERFACES_SIDEBAR },
-        loadChildren: () => import('./interfaces/interfaces.routing'),
-      },
-      // The section briefly shipped as /types — keep those URLs alive.
-      { path: 'types/:page', redirectTo: 'interfaces/:page' },
-      { path: 'types', redirectTo: 'interfaces' },
-      {
-        path: routes.typography.index,
-        data: { sidebar: TYPOGRAPHY_SIDEBAR },
-        loadChildren: () => import('./typography/typography.routing'),
-      },
-      {
-        path: routes.translate.index,
-        data: { sidebar: TRANSLATE_SIDEBAR },
-        loadChildren: () => import('./translate/translate.routing'),
-      },
-      {
-        path: routes.validators.index,
-        data: { sidebar: VALIDATORS_SIDEBAR },
-        loadChildren: () => import('./validators/validators.routing'),
-      },
+
+      // Legacy URLs. The docs were reorganised into start / guides / reference;
+      // these keep every previously-published path resolving. Cheap to carry —
+      // and the `/v7/` archive plus older CHANGELOG entries still point here.
+      { path: 'getting-started/installation', redirectTo: '/start/installation' },
+      { path: 'getting-started/configuration', redirectTo: '/start/configuration' },
+      { path: 'getting-started/schematics', redirectTo: '/start/schematics' },
+      { path: 'getting-started/migration', redirectTo: '/start/migration' },
+      { path: 'getting-started/:page', redirectTo: ({ params }) => `/guides/${params['page']}` },
+      { path: 'getting-started', redirectTo: '/start' },
+      { path: 'tokens/:page', redirectTo: ({ params }) => `/guides/tokens/${params['page']}` },
+      { path: 'tokens', redirectTo: '/guides/tokens' },
+      { path: 'translate/:page', redirectTo: ({ params }) => `/guides/translations/${params['page']}` },
+      { path: 'translate', redirectTo: '/guides/translations' },
+      { path: 'typography/:page', redirectTo: ({ params }) => `/guides/typography/${params['page']}` },
+      { path: 'typography', redirectTo: '/guides/typography' },
+      { path: 'components/:page', redirectTo: ({ params }) => `/reference/components/${params['page']}` },
+      { path: 'components', redirectTo: '/reference/components' },
+      { path: 'directives/:page', redirectTo: ({ params }) => `/reference/directives/${params['page']}` },
+      { path: 'directives', redirectTo: '/reference/directives' },
+      { path: 'pipes/:page', redirectTo: ({ params }) => `/reference/pipes/${params['page']}` },
+      { path: 'pipes', redirectTo: '/reference/pipes' },
+      { path: 'services/:page', redirectTo: ({ params }) => `/reference/services/${params['page']}` },
+      { path: 'services', redirectTo: '/reference/services' },
+      { path: 'utils/:page', redirectTo: ({ params }) => `/reference/utils/${params['page']}` },
+      { path: 'utils', redirectTo: '/reference/utils' },
+      { path: 'validators/:page', redirectTo: ({ params }) => `/reference/validators/${params['page']}` },
+      { path: 'validators', redirectTo: '/reference/validators' },
+      { path: 'interfaces/:page', redirectTo: ({ params }) => `/reference/interfaces/${params['page']}` },
+      { path: 'interfaces', redirectTo: '/reference/interfaces' },
+      // The section briefly shipped as /types before it was /interfaces.
+      { path: 'types/:page', redirectTo: ({ params }) => `/reference/interfaces/${params['page']}` },
+      { path: 'types', redirectTo: '/reference/interfaces' },
     ],
   },
 ];

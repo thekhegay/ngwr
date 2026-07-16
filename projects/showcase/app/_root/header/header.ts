@@ -69,20 +69,19 @@ export class Header {
   ];
 
   protected readonly routes = routes;
+  /**
+   * Five doors, ordered by what the reader is doing. The previous thirteen
+   * mirrored how the code is organised (Components / Directives / Pipes /
+   * Services / Utils…), which is not a question anyone arrives with — those
+   * are all one thing now, `Reference`, and you reach them from the guide for
+   * the job you are actually doing.
+   */
   protected readonly nav: readonly NavLink[] = [
-    { url: [routes.index, routes.gettingStarted.index], label: 'Getting Started' },
-    { url: [routes.index, routes.tokens.index], label: 'Design tokens' },
-    { url: [routes.index, routes.components.index], label: 'Components' },
-    { url: [routes.index, routes.typography.index], label: 'Typography' },
+    { url: [routes.index, routes.start.index], label: 'Start' },
+    { url: [routes.index, routes.guides.index], label: 'Guides' },
+    { url: [routes.index, routes.reference.index], label: 'Reference' },
     { url: [routes.index, routes.icons.index], label: 'Icons' },
     { url: [routes.index, routes.animations.index], label: 'Animations' },
-    { url: [routes.index, routes.directives.index], label: 'Directives' },
-    { url: [routes.index, routes.pipes.index], label: 'Pipes' },
-    { url: [routes.index, routes.services.index], label: 'Services' },
-    { url: [routes.index, routes.translate.index], label: 'Translate' },
-    { url: [routes.index, routes.interfaces.index], label: 'Interfaces' },
-    { url: [routes.index, routes.utils.index], label: 'Utils' },
-    { url: [routes.index, routes.validators.index], label: 'Validators' },
   ];
   protected readonly actions: readonly ActionLink[] = [
     { url: 'https://github.com/thekhegay/ngwr', icon: 'github', modifier: 'github', label: 'GitHub' },
