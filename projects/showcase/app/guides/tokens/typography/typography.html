@@ -1,0 +1,81 @@
+<ngwr-doc-page
+  title="Typography tokens"
+  description="The type scale and font primitives every component reads from — `--wr-text-*` sizes, `--wr-font-family-*` faces, plus weight, line-height, and letter-spacing scales. Looking for guidance on *how* to apply type in apps? See the [Typography](/guides/typography) section instead — this page is the token reference."
+  [keywords]="[
+    'typography',
+    'tokens',
+    'font-size',
+    'type scale',
+    'font-family',
+    'font-weight',
+    'line-height',
+    'letter-spacing',
+    'css variables',
+  ]"
+  [labels]="['Tokens', 'Reference']"
+>
+  <ngwr-doc-section
+    title="Type scale"
+    description="Nine `--wr-text-*` steps, named like a t-shirt scale and rooted at `--wr-text-base` (1rem = 16px). Reference the token, never a raw `px` — sizes then stay consistent and respond to a root `font-size` change in one place."
+  >
+    <div class="scale">
+      @for (step of scale; track step.token) {
+        <div class="scale__row">
+          <div class="scale__meta">
+            <code class="scale__token">{{ step.token }}</code>
+            <span class="scale__value">{{ step.value }} · {{ step.px }}</span>
+          </div>
+          <div class="scale__sample" [style.font-size]="`var(${step.token})`">Ag</div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Using the tokens"
+    description="Pull sizes and faces straight from the custom properties. Pair `--wr-text-*` with a `--wr-leading-*` line-height and a `--wr-font-weight-*` weight for a complete type ramp."
+  >
+    <ngwr-doc-code [code]="snippets.usage" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Font families"
+    description="The library ships only system-font fallback chains. Override these on `:root` to ship your own typeface — every component re-reads them, so one change reskins the whole catalog."
+  >
+    <div class="families">
+      <div class="families__row">
+        <code class="families__token">--wr-font-family-base</code>
+        <p class="families__sample families__sample--base">The quick brown fox jumps over the lazy dog — 0123456789</p>
+      </div>
+      <div class="families__row">
+        <code class="families__token">--wr-font-family-mono</code>
+        <p class="families__sample families__sample--mono">const x = 42; // the quick brown fox — 0123456789</p>
+      </div>
+    </div>
+
+    <ngwr-doc-api [rows]="families" />
+
+    <ngwr-doc-code [code]="snippets.override" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Font weights"
+    description="A `--wr-font-weight-*` ramp from thin (200) to extrabold (800). Body copy sits at `regular` (400); labels and headings step up from there."
+  >
+    <ngwr-doc-api [rows]="weights" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Line height"
+    description="Unitless `--wr-leading-*` multipliers — they scale with the element's own font-size. `normal` (1.5) is the body default."
+  >
+    <ngwr-doc-api [rows]="leading" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Letter spacing"
+    description="`--wr-tracking-*` offsets in `em`, so tracking tracks the font-size. Tighten large display text, widen uppercase eyebrows and badges."
+  >
+    <ngwr-doc-api [rows]="tracking" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -28,7 +28,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * </wr-list>
  * ```
  *
- * @see https://ngwr.dev/components/list
+ * @see https://ngwr.dev/reference/components/list
  */
 @Component({
   selector: 'wr-list',

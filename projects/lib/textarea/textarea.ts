@@ -42,7 +42,7 @@ import type { FormValueControl } from '@angular/forms/signals';
  * <wr-textarea autosize [maxRows]="6" [(value)]="text" />
  * ```
  *
- * @see https://ngwr.dev/components/textarea
+ * @see https://ngwr.dev/reference/components/textarea
  */
 export type WrTextareaSize = 'sm' | 'md' | 'lg';
 

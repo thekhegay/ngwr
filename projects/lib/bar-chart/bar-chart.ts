@@ -23,7 +23,7 @@ import type { WrBarChartDatum } from './interfaces';
  * ]" />
  * ```
  *
- * @see https://ngwr.dev/components/bar-chart
+ * @see https://ngwr.dev/reference/components/bar-chart
  */
 @Component({
   selector: 'wr-bar-chart',

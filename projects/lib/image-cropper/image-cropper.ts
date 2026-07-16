@@ -48,7 +48,7 @@ interface RectPx {
  * />
  * ```
  *
- * @see https://ngwr.dev/components/image-cropper
+ * @see https://ngwr.dev/reference/components/image-cropper
  */
 @Component({
   selector: 'wr-image-cropper',

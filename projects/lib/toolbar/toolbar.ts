@@ -28,7 +28,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * </wr-toolbar>
  * ```
  *
- * @see https://ngwr.dev/components/toolbar
+ * @see https://ngwr.dev/reference/components/toolbar
  */
 @Component({
   selector: 'wr-toolbar',

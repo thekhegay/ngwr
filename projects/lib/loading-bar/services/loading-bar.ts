@@ -28,7 +28,7 @@ import type { WrLoadingState } from '../interfaces';
  * return next(req).pipe(finalize(() => bar.complete()));
  * ```
  *
- * @see https://ngwr.dev/services/loading-bar
+ * @see https://ngwr.dev/reference/services/loading-bar
  */
 @Service()
 export class WrLoadingBar {

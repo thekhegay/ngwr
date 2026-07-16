@@ -1,0 +1,55 @@
+<ngwr-doc-page
+  title="WrI18n"
+  description="Reactive i18n service. Active locale lives on a signal, catalogs load lazily through a swappable loader (HTTP or static), and double-brace placeholders interpolate at render time. Scopes let feature modules ship and load their own catalogs."
+  [keywords]="['i18n', 'translation', 'locale', 'transloco', 'wr-i18n', 'service']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Angular's built-in i18n bakes translations in at build time — one bundle per locale, no runtime switching. This service swaps catalogs at runtime, scopes keys per feature, and interpolates parameters."
+  />
+
+  <ngwr-doc-section
+    title="Live demo"
+    description="Switch the active locale — every binding on the page updates without a re-render."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <p style="margin: 0">
+          <strong>Active locale:</strong> <code>{{ locale() }}</code>
+        </p>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          @for (lc of available; track lc) {
+            <button type="button" (click)="use(lc)">{{ lc }}</button>
+          }
+        </div>
+        <p style="margin: 0">
+          <strong>Pipe:</strong> {{ 'app.title' | wrT }} — {{ 'app.hello' | wrT: { name: name() } }}
+        </p>
+        <p style="margin: 0">
+          <strong>Directive:</strong>
+          <span wrT="app.hello" [wrTParams]="{ name: name() }"></span>
+        </p>
+        <p style="margin: 0">
+          <strong>Common keys:</strong>
+          <code>{{ 'common.save' | wrT }}</code> / <code>{{ 'common.cancel' | wrT }}</code> /
+          <code>{{ 'common.loading' | wrT }}</code>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Service" description="Everything on the injected `WrI18n` instance.">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Providers" description="Wire the service up at bootstrap. Pick exactly one loader.">
+    <ngwr-doc-api [rows]="providerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Template helpers" description="The same service, reached from a template.">
+    <ngwr-doc-api [rows]="templateApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

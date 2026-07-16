@@ -53,7 +53,7 @@ import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './in
  * <wr-count-up [from]="60" [to]="0" direction="down" />
  * ```
  *
- * @see https://ngwr.dev/components/counter
+ * @see https://ngwr.dev/reference/components/counter
  */
 @Component({
   selector: 'wr-count-up',

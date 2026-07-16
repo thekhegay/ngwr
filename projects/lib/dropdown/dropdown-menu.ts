@@ -24,7 +24,7 @@ let uid = 0;
  * </wr-dropdown-menu>
  * ```
  *
- * @see https://ngwr.dev/components/dropdown
+ * @see https://ngwr.dev/reference/components/dropdown
  */
 @Component({
   selector: 'wr-dropdown-menu',

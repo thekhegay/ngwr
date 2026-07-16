@@ -1,0 +1,84 @@
+<ngwr-doc-page
+  title="Motion"
+  description="Easing curves, durations and the shorthands that pair them. Components never hardcode timing — they read these tokens, so retuning one value re-times the whole UI."
+  [keywords]="['motion', 'animation', 'transition', 'easing', 'duration', 'reduced motion']"
+  [labels]="['Tokens']"
+>
+  <ngwr-doc-section
+    title="Easing curves"
+    description="Pick by direction, not by taste: `-out` for entering, `-in` for leaving, `-in-out` for motion that stays on screen, `-linear` for anything continuous."
+  >
+    <ngwr-doc-api [rows]="easings" />
+
+    <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1rem">
+      @for (e of easings; track e.name) {
+        <div style="display: flex; flex-direction: column; gap: 0.5rem">
+          <code style="font-size: var(--wr-text-xs); color: var(--wr-color-text-muted)">{{ e.name }}</code>
+          <div
+            style="
+              width: 9rem;
+              height: 0.5rem;
+              background: var(--wr-color-hover);
+              border-radius: var(--wr-border-radius-pill);
+            "
+          >
+            <div
+              [style.animation-timing-function]="`var(${e.name})`"
+              style="
+                width: 1.75rem;
+                height: 0.5rem;
+                background: var(--wr-color-primary);
+                border-radius: var(--wr-border-radius-pill);
+                animation-name: ngwr-doc-ease-demo;
+                animation-duration: 1.6s;
+                animation-iteration-count: infinite;
+                animation-direction: alternate;
+              "
+            ></div>
+          </div>
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Durations"
+    description="Four steps. The rule of thumb: the more distance an element covers, the longer it may take — feedback should feel instant, travel should be readable."
+  >
+    <ngwr-doc-api [rows]="durations" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Transition shorthands"
+    description="Each pairs a duration with an easing. They deliberately omit the property — you name that at the call site, which is what lets one token serve `background-color`, `transform` and `opacity` alike."
+  >
+    <ngwr-doc-api [rows]="transitions" />
+    <ngwr-doc-code [code]="snippets.compose" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Overlay timing"
+    description="Every overlay panel — dialog, drawer, select, tooltip, context menu — routes its open animation through one pair of tokens instead of its own timing, so a global tweak lands everywhere at once."
+  >
+    <ngwr-doc-api [rows]="overlayTokens" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Retuning the feel"
+    description="Because nothing hardcodes timing, motion is a palette you can rebrand the same way as colour — override the tokens on `:root`."
+  >
+    <ngwr-doc-code [code]="snippets.retune" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reduced motion"
+    description="ngwr collapses its own animations to a near-instant step under `prefers-reduced-motion: reduce` — built-in components need nothing from you. Honour the same preference in your own motion."
+  >
+    <ngwr-doc-code [code]="snippets.reduced" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="See also"
+    description="[Theming](/guides/theming) — retuning tokens across the app. [Animations](/animations) — the ready-made animated components that build on these curves. [Overlay](/guides/overlay) — the panel layer whose timing these tokens drive."
+  />
+</ngwr-doc-page>

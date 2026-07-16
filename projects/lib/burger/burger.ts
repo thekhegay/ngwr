@@ -23,7 +23,7 @@ import { Component, ViewEncapsulation, computed, input, model } from '@angular/c
  * <wr-drawer [(open)]="menuOpen" position="right">…</wr-drawer>
  * ```
  *
- * @see https://ngwr.dev/components/burger
+ * @see https://ngwr.dev/reference/components/burger
  */
 @Component({
   selector: 'wr-burger',

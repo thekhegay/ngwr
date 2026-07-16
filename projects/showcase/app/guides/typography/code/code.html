@@ -1,0 +1,41 @@
+<ngwr-doc-page
+  title="Code"
+  description="Inline code rendering — either the `code` variant for code-tagged spans, or the `[mono]` modifier to force monospace on any other variant."
+  [keywords]="['typography', 'code', 'mono', 'monospace']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section title="Inline code" description='Wrap inline tokens in `<code wrTypography variant="code">`.'>
+    <ngwr-doc-code [code]="snippets.inline" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography>Inject the theme service with <code wrTypography variant="code">inject(WrTheme)</code>.</p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Force monospace"
+    description="`[mono]` flips any variant to the monospace stack — useful when the surrounding element is a `<p>` or a `<span>` rather than a `<code>`."
+  >
+    <ngwr-doc-code [code]="snippets.mono" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography [mono]="true" style="max-width: 32rem">
+        Forces monospace on any variant — useful for ids, paths, version tags.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Tones in code" description='Combine `variant="code"` with any tone for status callouts.'>
+    <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start">
+        <code wrTypography variant="code" tone="primary">routes.start.installation</code>
+        <code wrTypography variant="code" tone="success">200 OK</code>
+        <code wrTypography variant="code" tone="danger">500 Server Error</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="See also"
+    description="[`wrTypography` reference](/reference/directives/typography) — every input, the full variant union, and the classes the directive emits."
+  />
+</ngwr-doc-page>

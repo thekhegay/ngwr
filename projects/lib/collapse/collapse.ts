@@ -29,7 +29,7 @@ import { WR_COLLAPSE_GROUP } from './tokens';
  * </wr-collapse-group>
  * ```
  *
- * @see https://ngwr.dev/components/collapse
+ * @see https://ngwr.dev/reference/components/collapse
  */
 @Component({
   selector: 'wr-collapse',

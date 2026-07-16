@@ -28,7 +28,7 @@ import type { WrTypographyAlign, WrTypographyTone, WrTypographyVariant } from '.
  * <code wrTypography variant="code">inject(WrTheme)</code>
  * ```
  *
- * @see https://ngwr.dev/typography/overview
+ * @see https://ngwr.dev/guides/typography/overview
  */
 @Directive({
   selector: '[wrTypography]',

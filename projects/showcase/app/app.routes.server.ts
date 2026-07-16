@@ -24,6 +24,22 @@ const icons = routes.icons;
  * SPA fallback, exactly as today.
  */
 export const serverRoutes: ServerRoute[] = [
+  // Legacy URL redirects from the start / guides / reference reorganisation.
+  // Each is parameterised (`:page`), and a parameterised route under
+  // `RenderMode.Prerender` demands `getPrerenderParams` — enumerating every
+  // old slug just to emit a meta-refresh stub. These only bounce to the new
+  // location, so client rendering is both cheaper and honest.
+  { path: 'getting-started/**', renderMode: RenderMode.Client },
+  { path: 'tokens/**', renderMode: RenderMode.Client },
+  { path: 'translate/**', renderMode: RenderMode.Client },
+  { path: 'typography/**', renderMode: RenderMode.Client },
+  { path: 'components/**', renderMode: RenderMode.Client },
+  { path: 'directives/**', renderMode: RenderMode.Client },
+  { path: 'pipes/**', renderMode: RenderMode.Client },
+  { path: 'services/**', renderMode: RenderMode.Client },
+  { path: 'utils/**', renderMode: RenderMode.Client },
+  { path: 'validators/**', renderMode: RenderMode.Client },
+  { path: 'interfaces/**', renderMode: RenderMode.Client },
   { path: 'types/**', renderMode: RenderMode.Client },
 
   { path: `${icons.index}/${icons.tabler}`, renderMode: RenderMode.Client },

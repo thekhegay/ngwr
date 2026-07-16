@@ -1,0 +1,96 @@
+<ngwr-doc-page
+  title="Density"
+  description="One global knob that scales how tightly every control packs — `sm`, `md` (default), `lg`, `touch`. Controls multiply their paddings by a small set of density scalars, so the whole UI tightens or relaxes together without re-rendering."
+  [keywords]="['density', 'compact', 'comfortable', 'touch', 'spacing', 'data-wr-density']"
+  [labels]="['Tokens']"
+>
+  <ngwr-doc-section
+    title="How it works"
+    description="Density is four CSS custom properties — multipliers that default to `1`. Setting a density writes `[data-wr-density]` (on `<html>` for the global scale, or on a subtree host for an override), and the stylesheet swaps the multipliers for that scope. Every control reads them through `calc()`, so changing density is a pure CSS-variable flip — no JS re-layout, no component churn. `md` resolves every multiplier to `1`, so touching density is pure opt-in: controls without density-aware paddings just keep their static values."
+  >
+    <ngwr-doc-api [rows]="multipliers" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The scale"
+    description="`WrDensityValue` is `'sm' | 'md' | 'lg' | 'touch'`, default `md`. Each value maps to a fixed set of multipliers, scoped by the `[data-wr-density='…']` selectors in the density stylesheet."
+  >
+    <ngwr-doc-api [rows]="scale" />
+
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem">
+      @for (d of ['sm', 'md', 'lg', 'touch']; track d) {
+        <div [attr.data-wr-density]="d" style="display: flex; flex-direction: column; gap: 0.375rem">
+          <span
+            style="
+              font-size: var(--wr-text-xs);
+              color: var(--wr-color-medium);
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            "
+            >{{ d }}</span
+          >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              padding: calc(var(--wr-control-padding-y-md) * var(--wr-density-y))
+                calc(var(--wr-control-padding-x-md) * var(--wr-density-x));
+              font-size: calc(var(--wr-text-sm) * var(--wr-density-text));
+              line-height: var(--wr-control-line-height-md);
+              color: var(--wr-color-primary-contrast);
+              background-color: var(--wr-color-primary);
+              border-radius: var(--wr-control-radius-md);
+            "
+            >Button</span
+          >
+        </div>
+      }
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="How density meets control sizing"
+    description="Controls never hardcode their height. Each declares its static `padding-y` / `padding-x` from the shared `--wr-control-*` contract (so a button, input and select line up pixel-for-pixel at every size), then multiplies that padding by the matching density scalar in `calc()`. Because height is `line-height + 2×padding-y + 2×border`, scaling `padding-y` is what actually changes the control's height — which is why `touch` leans almost entirely on `--wr-density-y`."
+  >
+    <ngwr-doc-code [code]="snippets.consume" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Global density — provideWrDensity()"
+    description="Configure the global scale at bootstrap. All fields are optional and merged with the defaults (`defaultDensity: 'md'`, `storageKey: 'wr-density'`, `attribute: 'data-wr-density'`). The chosen value is persisted via `WrStorage` under `storageKey` — pass `storageKey: null` to disable persistence."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Changing it at runtime — WrDensity"
+    description="Inject the `WrDensity` service to switch density live. `set()` writes `[data-wr-density]` on `<html>` and persists the value, `cycle()` steps through `sm → md → lg → touch`, and `current()` is a `Signal<WrDensityValue>` you can bind to. Unknown values passed to `set()` are ignored."
+  >
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          @for (d of densities; track d) {
+            <button wr-btn type="button" [color]="current() === d ? 'primary' : null" (click)="set(d)">{{ d }}</button>
+          }
+          <button wr-btn type="button" (click)="cycle()">cycle()</button>
+        </div>
+        <p style="margin: 0">
+          current(): <code>{{ current() }}</code>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.service" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Per-subtree override — [wrDensity]"
+    description="Drop the `wrDensity` directive on any element to scope a density to that subtree only — it writes the same `data-wr-density` attribute on its host instead of `<html>`, so the multiplier rules cascade to descendants while the rest of the app keeps its global value."
+  >
+    <ngwr-doc-code [code]="snippets.directive" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="See also"
+    description="[`WrDensity` service reference](/reference/services/density) — the runtime switcher. Density only scales paddings declared through the [control-sizing tokens](/guides/tokens/sizing) — controls that don't read `--wr-control-*` paddings won't track it. [Theming](/guides/theming) — wiring `provideWrDensity()` alongside the theme."
+  />
+</ngwr-doc-page>

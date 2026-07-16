@@ -32,7 +32,7 @@ type Edges = 'sv' | 'hue' | 'alpha';
  * <wr-color-picker [(ngModel)]="brandColor" [alpha]="false" />
  * ```
  *
- * @see https://ngwr.dev/components/color-picker
+ * @see https://ngwr.dev/reference/components/color-picker
  */
 @Component({
   selector: 'wr-color-picker',

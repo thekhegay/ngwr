@@ -40,7 +40,7 @@ const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
  * if (ok) remove();
  * ```
  *
- * @see https://ngwr.dev/components/dialog
+ * @see https://ngwr.dev/reference/components/dialog
  */
 @Service()
 export class WrDialog {

@@ -1,0 +1,89 @@
+<ngwr-doc-page
+  title="Paragraphs"
+  description="Lead, body, small, caption, and overline — the running-text vocabulary. Pair with tone, alignment, and the truncate modifier."
+  [keywords]="['typography', 'body', 'lead', 'caption', 'overline']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section
+    title="Default paragraph"
+    description="`body` — base size on normal leading, the everyday reading style."
+  >
+    <ngwr-doc-snippet [code]="snippets.defaultP">
+      <p wrTypography variant="body" style="max-width: 48rem">
+        Track work across the entire organization with automation, integrations and dashboards built for flow. Less
+        busywork, more shipping — the tools fade into the background and the product takes the page.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Lead paragraph"
+    description="`lead` — one size up with relaxed leading; the intro under a page heading."
+  >
+    <ngwr-doc-snippet [code]="snippets.leadP">
+      <p wrTypography variant="lead" style="max-width: 48rem">
+        Deliver great experiences fast — a type system tuned for reading, driven by tokens you can re-skin in one place.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Variants">
+    <ngwr-doc-code [code]="snippets.variants" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 32rem">
+        <p wrTypography variant="lead">Lead paragraph — calmer subhead under a headline.</p>
+        <p wrTypography>Body copy in the default variant.</p>
+        <p wrTypography variant="small">Small print.</p>
+        <p wrTypography variant="caption">Captions and helper text.</p>
+        <p wrTypography variant="overline">Section label</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tones"
+    description="The same `--wr-color-*` tokens used by every other ngwr component. Setting no tone at all is the default, and it is not the same as asking for `dark` — an untoned variant keeps its own colour, which is why `lead`, `caption` and `overline` above are muted without anyone asking."
+  >
+    <ngwr-doc-code [code]="snippets.tones" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.25rem">
+        <p wrTypography>Body, untoned</p>
+        <p wrTypography tone="dark">Dark</p>
+        <p wrTypography tone="medium">Muted</p>
+        <p wrTypography tone="primary">Primary</p>
+        <p wrTypography tone="success">Success</p>
+        <p wrTypography tone="warning">Warning</p>
+        <p wrTypography tone="danger">Danger</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Alignment">
+    <ngwr-doc-code [code]="snippets.align" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        <p wrTypography align="start">Start (default)</p>
+        <p wrTypography align="center">Centered</p>
+        <p wrTypography align="end">End</p>
+        <p wrTypography align="justify">
+          Justified text fills the line width by adjusting word spacing. Use it for long-form copy where ragged right
+          edges would distract — multi-line paragraphs stretch every full line flush to both edges, like this one.
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Truncation">
+    <ngwr-doc-code [code]="snippets.truncate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <p wrTypography [truncate]="true" style="max-width: 18rem; display: inline-block">
+        A long line that gets ellipsized when it overflows the container.
+      </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="See also"
+    description="[`wrTypography` reference](/reference/directives/typography) — every input, the full variant union, and the classes the directive emits."
+  />
+</ngwr-doc-page>

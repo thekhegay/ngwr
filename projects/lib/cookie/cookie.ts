@@ -34,7 +34,7 @@ const DEFAULT_OPTS: Required<Pick<WrCookieOptions, 'path' | 'sameSite'>> = {
  * cookies.keys();                                                // readonly string[]
  * ```
  *
- * @see https://ngwr.dev/services/cookie
+ * @see https://ngwr.dev/reference/services/cookie
  */
 @Service()
 export class WrCookie {

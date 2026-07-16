@@ -12,7 +12,7 @@ import type { DocSeeAlsoLink } from './types';
  * ```html
  * <ngwr-doc-see-also
  *   [links]="[
- *     { kind: 'Service', title: 'WrClipboard', url: ['/services', 'clipboard'],
+ *     { kind: 'Service', title: 'WrClipboard', url: ['/reference/services', 'clipboard'],
  *       description: 'Programmatic read + write API.' }
  *   ]"
  * />

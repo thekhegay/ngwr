@@ -1,0 +1,30 @@
+<ngwr-doc-page
+  title="minDate"
+  description="Value (Date or anything `new Date()` parses) must be ≥ `min`. Empty values pass."
+  [keywords]="['minDate', 'date', 'validator', 'wr-validators']"
+  [labels]="['Validator']"
+>
+  <ngwr-doc-section title="Live demo" [description]="`Minimum is ${min} — earlier dates fail.`">
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 18rem">
+        <wr-date-picker [formControl]="control" />
+        <code style="font-size: 0.8125rem">errors: {{ control.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why ngwr provides this"
+    description="Angular's `Validators.min` is numeric-only. This compares dates — `Date` instances or anything `new Date()` parses — and pairs naturally with [wr-date-picker](/reference/components/date-picker)."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

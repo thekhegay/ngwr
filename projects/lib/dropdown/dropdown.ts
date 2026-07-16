@@ -41,7 +41,7 @@ import { WR_DROPDOWN_POSITIONS, type WrDropdownPosition, type WrDropdownTrigger 
  * </wr-dropdown-menu>
  * ```
  *
- * @see https://ngwr.dev/components/dropdown
+ * @see https://ngwr.dev/reference/components/dropdown
  */
 let triggerUid = 0;
 

@@ -1,0 +1,22 @@
+// Drives the easing preview strips. Each swatch runs the same keyframes and
+// only swaps `animation-timing-function`, so the curves are compared like for
+// like — the shape of the motion is the only variable.
+@keyframes ngwr-doc-ease-demo {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(7.25rem);
+  }
+}
+
+// The previews loop forever; stop them when the reader asked for less motion.
+@media (prefers-reduced-motion: reduce) {
+  @keyframes ngwr-doc-ease-demo {
+    from,
+    to {
+      transform: translateX(0);
+    }
+  }
+}

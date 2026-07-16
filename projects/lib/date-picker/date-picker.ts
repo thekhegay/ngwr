@@ -69,7 +69,7 @@ import { WrTimePanel } from './internal/time-panel';
  * <wr-date-picker mode="datetime" [(ngModel)]="when" [showSeconds]="true" [step]="5" />
  * ```
  *
- * @see https://ngwr.dev/components/date-picker
+ * @see https://ngwr.dev/reference/components/date-picker
  */
 @Component({
   selector: 'wr-date-picker',

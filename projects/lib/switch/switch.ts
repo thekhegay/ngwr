@@ -19,7 +19,7 @@ import { noop, randomId } from 'ngwr/utils';
  * <wr-switch [(ngModel)]="enabled">Notifications</wr-switch>
  * ```
  *
- * @see https://ngwr.dev/components/switch
+ * @see https://ngwr.dev/reference/components/switch
  */
 export type WrSwitchSize = 'sm' | 'md' | 'lg';
 

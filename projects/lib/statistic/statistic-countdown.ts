@@ -85,7 +85,7 @@ function formatRemaining(ms: number, fmt: string): string {
  * />
  * ```
  *
- * @see https://ngwr.dev/components/statistic
+ * @see https://ngwr.dev/reference/components/statistic
  */
 @Component({
   selector: 'wr-statistic-countdown',

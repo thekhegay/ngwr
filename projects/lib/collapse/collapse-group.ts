@@ -19,7 +19,7 @@ interface Member {
  * Visual + behavioral grouping of `<wr-collapse>` children. When
  * `accordion` is true, opening one child closes the others.
  *
- * @see https://ngwr.dev/components/collapse
+ * @see https://ngwr.dev/reference/components/collapse
  */
 @Component({
   selector: 'wr-collapse-group',

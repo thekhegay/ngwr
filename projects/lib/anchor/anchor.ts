@@ -32,7 +32,7 @@ import type { WrAnchorLink } from './interfaces';
  * />
  * ```
  *
- * @see https://ngwr.dev/components/anchor
+ * @see https://ngwr.dev/reference/components/anchor
  */
 @Component({
   selector: 'wr-anchor',

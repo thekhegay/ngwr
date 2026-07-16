@@ -46,7 +46,7 @@ import { WrTableSort } from './table-sort';
  * </wr-table>
  * ```
  *
- * @see https://ngwr.dev/components/table
+ * @see https://ngwr.dev/reference/components/table
  */
 @Component({
   selector: 'wr-table',

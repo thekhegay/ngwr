@@ -74,7 +74,7 @@ export function wrInterpolate(template: string, params: WrI18nParams | undefined
  * effect(() => console.log(i18n.translate('hi')())); // re-runs on locale change
  * ```
  *
- * @see https://ngwr.dev/services/i18n
+ * @see https://ngwr.dev/reference/services/i18n
  */
 @Service()
 export class WrI18n {

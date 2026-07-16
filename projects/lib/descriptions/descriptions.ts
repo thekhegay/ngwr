@@ -22,7 +22,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * </wr-descriptions>
  * ```
  *
- * @see https://ngwr.dev/components/descriptions
+ * @see https://ngwr.dev/reference/components/descriptions
  */
 @Component({
   selector: 'wr-descriptions',

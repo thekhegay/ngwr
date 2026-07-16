@@ -35,7 +35,7 @@ import { WR_CHECKBOX_GROUP } from './tokens';
  * </wr-checkbox-group>
  * ```
  *
- * @see https://ngwr.dev/components/checkbox
+ * @see https://ngwr.dev/reference/components/checkbox
  */
 export type WrCheckboxSize = 'sm' | 'md' | 'lg';
 

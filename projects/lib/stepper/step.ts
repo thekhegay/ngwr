@@ -23,7 +23,7 @@ import { WR_STEPPER } from './tokens';
  * The stepper hides every step except the active one via a host class —
  * each step still mounts once, so component state survives navigation.
  *
- * @see https://ngwr.dev/components/stepper
+ * @see https://ngwr.dev/reference/components/stepper
  */
 @Component({
   selector: 'wr-step',

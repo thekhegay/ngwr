@@ -25,7 +25,7 @@ const DEFAULT_SIZE: WrAvatarSize = '6rem';
  * <wr-avatar url="/me.png" alt="Roman" [size]="48" />
  * ```
  *
- * @see https://ngwr.dev/components/avatar
+ * @see https://ngwr.dev/reference/components/avatar
  */
 @Component({
   selector: 'wr-avatar',

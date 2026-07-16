@@ -25,7 +25,7 @@ import type { WrWindowRef } from './window-ref';
  * <wr-window-taskbar position="top" />
  * ```
  *
- * @see https://ngwr.dev/components/window
+ * @see https://ngwr.dev/reference/components/window
  */
 @Component({
   selector: 'wr-window-taskbar',

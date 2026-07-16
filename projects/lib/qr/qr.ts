@@ -23,7 +23,7 @@ import type { WrQrErrorLevel } from './interfaces';
  * <wr-qr value="..." iconUrl="/logo.png" [iconSize]="48" level="H" />
  * ```
  *
- * @see https://ngwr.dev/components/qrcode
+ * @see https://ngwr.dev/reference/components/qrcode
  */
 @Component({
   selector: 'wr-qr',

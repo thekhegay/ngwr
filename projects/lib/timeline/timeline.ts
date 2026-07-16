@@ -18,7 +18,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * </wr-timeline>
  * ```
  *
- * @see https://ngwr.dev/components/timeline
+ * @see https://ngwr.dev/reference/components/timeline
  */
 @Component({
   selector: 'wr-timeline',

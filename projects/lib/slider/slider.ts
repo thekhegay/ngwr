@@ -32,7 +32,7 @@ import type { WrSliderValue } from './interfaces';
  * <wr-slider [(ngModel)]="range" range min="0" max="1000" step="10" />
  * ```
  *
- * @see https://ngwr.dev/components/slider
+ * @see https://ngwr.dev/reference/components/slider
  */
 @Component({
   selector: 'wr-slider',

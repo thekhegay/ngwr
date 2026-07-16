@@ -74,7 +74,7 @@ function matches(item: WrCommandItem, query: string): boolean {
  * <wr-command-palette [items]="commands" trigger="mod+k" (picked)="onPicked($event)" />
  * ```
  *
- * @see https://ngwr.dev/components/command-palette
+ * @see https://ngwr.dev/reference/components/command-palette
  */
 @Component({
   selector: 'wr-command-palette',

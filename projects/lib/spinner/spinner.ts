@@ -20,7 +20,7 @@ import type { WrSpinnerSize } from './interfaces';
  * <wr-spinner size="lg" />
  * ```
  *
- * @see https://ngwr.dev/components/spinner
+ * @see https://ngwr.dev/reference/components/spinner
  */
 @Component({
   selector: 'wr-spinner',

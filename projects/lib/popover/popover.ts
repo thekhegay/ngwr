@@ -57,7 +57,7 @@ import { WrPopoverTextPanel } from './internal/text-panel';
  * </button>
  * ```
  *
- * @see https://ngwr.dev/components/popover
+ * @see https://ngwr.dev/reference/components/popover
  */
 let popoverUid = 0;
 

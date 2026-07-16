@@ -38,7 +38,7 @@ function resolveSeparators(locale: string): { decimal: string; group: string } {
  * <wr-input-number [(ngModel)]="price" [decimals]="2" suffix="USD" />
  * ```
  *
- * @see https://ngwr.dev/components/input-number
+ * @see https://ngwr.dev/reference/components/input-number
  */
 @Component({
   selector: 'wr-input-number',
