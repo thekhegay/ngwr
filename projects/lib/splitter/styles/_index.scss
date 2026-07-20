@@ -33,6 +33,9 @@
     justify-content: center;
     background: var(--wr-color-outline);
     outline: 0;
+    // Own the drag gesture — without this a coarse pointer can hand the
+    // divider drag to the browser as a pan and fire pointercancel mid-drag.
+    touch-action: none;
     transition: background var(--wr-transition-base);
 
     // Coarse pointers: expand the 4px gutter to a 44px tap area.

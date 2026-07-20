@@ -13,6 +13,10 @@
     touch-action: none;
     outline: 0;
 
+    // Coarse pointers: floor the dial's hit area at 44px so a small knob
+    // (size < 44) stays grabbable. No-op when the dial is already >= 44px.
+    @include theme.touch-target($positioned: true);
+
     &:focus-visible {
       @include theme.focus-ring;
       border-radius: 50%;

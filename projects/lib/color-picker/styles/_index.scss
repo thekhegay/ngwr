@@ -57,6 +57,12 @@
     @media (pointer: coarse) {
       height: 1.5rem;
     }
+
+    // Plus an invisible 44px hit slug over the 24px track — capture is
+    // track-level, so this makes taps in the full band register without
+    // growing the visual. The 10px overhang each side fills the inter-element
+    // gap rather than biting into the SV canvas.
+    @include theme.touch-target($positioned: true);
   }
 
   &__slider--hue {

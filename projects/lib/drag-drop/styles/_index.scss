@@ -1,3 +1,5 @@
+@use '../../theme/styles' as theme;
+
 // Drag-to-reorder list. Visual chrome lives here; the layout + drop
 // mechanics come from CDK's `cdkDropList` / `cdkDrag` directives.
 //
@@ -54,6 +56,9 @@
   justify-content: center;
   color: rgba(var(--wr-color-on-surface-rgb), 0.45);
   transition: color 0.15s ease;
+
+  // Coarse pointers: a 44px grab area around the grip glyph.
+  @include theme.touch-target;
 
   &:hover {
     color: var(--wr-color-on-surface);
