@@ -1,6 +1,6 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 
-import { WrStatistic, WrStatisticCountdown } from 'ngwr/statistic';
+import { WrStatistic, WrStatisticCountdown, WrStatisticGroup } from 'ngwr/statistic';
 
 import {
   DocApiComponent,
@@ -17,6 +17,7 @@ import {
   imports: [
     WrStatistic,
     WrStatisticCountdown,
+    WrStatisticGroup,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -27,6 +28,13 @@ import {
 export default class StatisticPageComponent {
   protected readonly snippet = `<wr-statistic label="Active users" [value]="12345" />
 <wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />`;
+
+  protected readonly groupSnippet = `<wr-statistic-group [columns]="4" min="11rem">
+  <wr-statistic label="Active users" [value]="12345" />
+  <wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />
+  <wr-statistic label="Churn" [value]="1.8" suffix="%" [delta]="-0.4" />
+  <wr-statistic label="Sessions" [value]="48210" />
+</wr-statistic-group>`;
 
   protected readonly countUpSnippet = `<wr-statistic label="Revenue" prefix="$" [value]="revenue()" [precision]="2" [delta]="delta()" />
 <wr-statistic label="Sessions" [value]="sessions()" />
@@ -109,6 +117,26 @@ protected readonly launchDate = new Date(Date.now() + 1000 * 60 * 60 * 36);`;
     { name: 'duration', description: 'Count-up duration in ms.', type: 'number', default: '700', sub: true },
     { name: 'delta', description: 'Change vs previous period.', type: 'number | null', default: 'null', sub: true },
     { name: 'deltaSuffix', description: 'Unit appended to the delta.', type: 'string', default: "'%'", sub: true },
+    {
+      name: '<wr-statistic-group>',
+      description: 'Responsive dashboard grid — reflows on its own width, not the viewport.',
+      type: 'component',
+      default: '—',
+    },
+    {
+      name: 'min',
+      description: 'Minimum column width before the grid reflows to fewer columns.',
+      type: 'string',
+      default: "'12rem'",
+      sub: true,
+    },
+    {
+      name: 'columns',
+      description: 'Cap on columns for a wide container (0 = uncapped).',
+      type: 'number',
+      default: '0',
+      sub: true,
+    },
     { name: '<wr-statistic-countdown>', description: 'Live countdown variant.', type: 'component', default: '—' },
     {
       name: 'target',

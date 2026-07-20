@@ -15,6 +15,33 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Dashboard grid"
+    description="`<wr-statistic-group>` lays cards out in a grid that reflows on its OWN width — a container query, not a viewport breakpoint — so it adapts inside any column, card, or split pane. Drag the handle at the bottom-right to watch the columns step down. `min` sets the narrowest column; `columns` caps how many sit in a row."
+  >
+    <ngwr-doc-code [code]="groupSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div
+        style="
+          resize: horizontal;
+          overflow: auto;
+          min-width: 15rem;
+          max-width: 100%;
+          padding: 1rem;
+          border: 1px dashed var(--wr-color-outline);
+          border-radius: var(--wr-border-radius-base);
+        "
+      >
+        <wr-statistic-group [columns]="4" min="11rem">
+          <wr-statistic label="Active users" [value]="12345" />
+          <wr-statistic label="Revenue" [value]="9512" prefix="$" [delta]="12.4" />
+          <wr-statistic label="Churn" [value]="1.8" suffix="%" [delta]="-0.4" />
+          <wr-statistic label="Sessions" [value]="48210" />
+        </wr-statistic-group>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Count up"
     description="A live dashboard — values randomize on a timer (~2s) and tween from their previous value to the new one (~700ms ease-out). The delta swings positive/negative so the up/down indicator flips green/red. Honours `precision`, opts out via `[animate]='false'`, and respects `prefers-reduced-motion`."
   >
