@@ -7,11 +7,11 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
-import { Component, ViewEncapsulation, computed, forwardRef, input, signal } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, ViewEncapsulation, computed, effect, input, model, output, signal } from '@angular/core';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
-import { clamp, noop } from 'ngwr/utils';
+import { clamp } from 'ngwr/utils';
 
 import { hslToRgb, hsvToRgb, parseHex, rgbToHsl, rgbToHsv, toHex, type WrHsl, type WrRgb } from './color';
 import type { WrColorFormat } from './interfaces';
@@ -22,14 +22,20 @@ type Edges = 'sv' | 'hue' | 'alpha';
 
 /**
  * Inline colour picker — HSV canvas, hue slider, optional alpha slider, HEX
- * input. Implements `ControlValueAccessor`, so it binds with `[(ngModel)]`,
- * `[formControl]`, or `formControlName`. Output is always a string in the
- * format chosen via `[format]`.
+ * input.
+ *
+ * A signal-forms native control: it implements `FormValueControl<string>`, so
+ * `[formField]` binds straight to its `value` model — no
+ * `ControlValueAccessor` in between. `[(value)]` works standalone. Output is
+ * always a hex string.
  *
  * @example
  * ```html
- * <wr-color-picker [(ngModel)]="brandColor" />
- * <wr-color-picker [(ngModel)]="brandColor" [alpha]="false" />
+ * <!-- signal forms -->
+ * <wr-color-picker [formField]="form.brandColor" />
+ *
+ * <!-- standalone two-way binding -->
+ * <wr-color-picker [(value)]="brandColor" [alpha]="false" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/color-picker
@@ -44,27 +50,25 @@ type Edges = 'sv' | 'hue' | 'alpha';
     '[style.--wr-color-picker-rgb]': 'rgbCss()',
   },
   imports: [DecimalPipe, WrSegmented],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrColorPicker),
-      multi: true,
-    },
-  ],
 })
-export class WrColorPicker implements ControlValueAccessor {
+export class WrColorPicker implements FormValueControl<string> {
   /** Render the alpha slider and emit 8-digit hex / `rgba()`. @default true */
   readonly alpha = input(true, { transform: coerceBooleanProperty });
 
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Output format produced through the CVA. @default 'hex' */
+  /** Output format produced by the control. @default 'hex' */
   readonly format = input<WrColorFormat>('hex');
 
   /** Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. @default [] */
   readonly swatches = input<readonly string[]>([]);
+
+  /** The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`. */
+  readonly value = model<string>('');
+
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
 
   // Source of truth: HSV + alpha
 
@@ -72,10 +76,6 @@ export class WrColorPicker implements ControlValueAccessor {
   protected readonly s = signal(0);
   protected readonly v = signal(0);
   protected readonly a = signal(1);
-
-  private readonly disabledFromCva = signal(false);
-
-  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
   // Derived values
 
@@ -121,41 +121,34 @@ export class WrColorPicker implements ControlValueAccessor {
   protected readonly classes = computed(() => {
     const parts = ['wr-color-picker'];
     if (this.alpha()) parts.push('wr-color-picker--alpha');
-    if (this.effectiveDisabled()) parts.push('wr-color-picker--disabled');
+    if (this.disabled()) parts.push('wr-color-picker--disabled');
     return parts.join(' ');
   });
 
-  // ControlValueAccessor
+  /** Last hex we pushed into `value`; lets the sync effect ignore our own writes. */
+  private lastEmittedHex: string | null = null;
 
-  private onChange: (value: string) => void = noop;
-  private onTouched: () => void = noop;
-
-  writeValue(value: string | null): void {
-    const rgb = parseHex(value ?? '') ?? { r: 0, g: 0, b: 0, a: 1 };
-    const hsv = rgbToHsv(rgb);
-    this.h.set(hsv.h);
-    this.s.set(hsv.s);
-    this.v.set(hsv.v);
-    this.a.set(hsv.a);
-    this.hexInput.set(this.hex());
-  }
-
-  registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
+  constructor() {
+    // External writes (via `[formField]` / `[(value)]`) flow the incoming hex
+    // string back into the HSV source of truth. Our own emits are skipped via
+    // `lastEmittedHex` so dragging keeps its continuous (unquantised) values.
+    effect(() => {
+      const value = this.value();
+      if (value === this.lastEmittedHex) return;
+      const rgb = parseHex(value) ?? { r: 0, g: 0, b: 0, a: 1 };
+      const hsv = rgbToHsv(rgb);
+      this.h.set(hsv.h);
+      this.s.set(hsv.s);
+      this.v.set(hsv.v);
+      this.a.set(hsv.a);
+      this.hexInput.set(toHex(rgb, this.alpha()));
+    });
   }
 
   // Drag handlers
 
   protected onPointerDown(event: PointerEvent, surface: Edges): void {
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     event.preventDefault();
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
@@ -165,7 +158,7 @@ export class WrColorPicker implements ControlValueAccessor {
       target.releasePointerCapture(e.pointerId);
       target.removeEventListener('pointermove', update);
       target.removeEventListener('pointerup', cleanup);
-      this.onTouched();
+      this.touch.emit();
     };
 
     target.addEventListener('pointermove', update);
@@ -207,7 +200,7 @@ export class WrColorPicker implements ControlValueAccessor {
   protected onHexBlur(): void {
     // Re-sync the input with the canonical value (in case the user typed invalid).
     this.hexInput.set(this.hex());
-    this.onTouched();
+    this.touch.emit();
   }
 
   // Emission
@@ -218,7 +211,9 @@ export class WrColorPicker implements ControlValueAccessor {
   }
 
   private emitWithoutHexSync(): void {
-    this.onChange(this.hex());
+    const hex = this.hex();
+    this.lastEmittedHex = hex;
+    this.value.set(hex);
   }
 
   // Tab + channel handlers
@@ -252,7 +247,7 @@ export class WrColorPicker implements ControlValueAccessor {
   }
 
   protected onSwatchClick(hex: string): void {
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     const rgb = parseHex(hex);
     if (!rgb) return;
     this.applyRgb(rgb);

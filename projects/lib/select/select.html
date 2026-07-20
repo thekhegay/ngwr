@@ -20,7 +20,7 @@
       (input)="onSearchInput($event)"
       (focus)="onSearchFocus()"
       (keydown)="onSearchKey($event)"
-      (blur)="onTouched()"
+      (blur)="touch.emit()"
     />
     @if (clearable() && hasSelection() && !isDisabled()) {
       <span
@@ -160,7 +160,7 @@
     [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
     (click)="onTriggerClick()"
     (keydown)="onTriggerKey($event)"
-    (blur)="onTouched()"
+    (blur)="touch.emit()"
   >
     @if (isMulti()) {
       @if (hasSelection()) {

@@ -21,8 +21,12 @@ export interface WrRadioGroupContext {
   readonly isDisabled: Signal<boolean>;
   /** Select the given value. */
   select(value: unknown): void;
-  /** Mark the group as touched (called on blur from any child). */
-  touch(): void;
+  /**
+   * Mark the group as touched (called on blur from any child). Named
+   * `markTouched` rather than `touch` so it doesn't clash with the
+   * `FormUiControl.touch` output the group now exposes for signal forms.
+   */
+  markTouched(): void;
 }
 
 /**

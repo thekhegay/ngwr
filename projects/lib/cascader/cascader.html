@@ -2,12 +2,12 @@
   type="button"
   class="wr-cascader__trigger"
   role="combobox"
-  [disabled]="isDisabled()"
+  [disabled]="disabled()"
   [attr.aria-haspopup]="'menu'"
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="panelId"
   (click)="onTriggerClick()"
-  (blur)="onTouched()"
+  (blur)="touch.emit()"
 >
   @if (displayLabel(); as label) {
     <span class="wr-cascader__value">{{ label }}</span>
@@ -15,7 +15,7 @@
     <span class="wr-cascader__placeholder">{{ placeholder() }}</span>
   }
 
-  @if (clearable() && hasSelection() && !isDisabled()) {
+  @if (clearable() && hasSelection() && !disabled()) {
     <span
       class="wr-cascader__clear"
       role="button"

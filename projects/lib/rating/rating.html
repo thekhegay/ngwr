@@ -6,10 +6,11 @@
   [attr.aria-valuemax]="count()"
   [attr.aria-valuenow]="value() ?? 0"
   [attr.aria-readonly]="readonly() || null"
-  [attr.aria-disabled]="effectiveDisabled() || null"
+  [attr.aria-disabled]="disabled() || null"
   [attr.tabindex]="interactive() ? 0 : -1"
   (keydown)="onKeydown($event)"
   (mouseleave)="onLeave()"
+  (blur)="onBlur()"
 >
   @for (slot of slots(); track $index) {
     <!-- The parent row owns keyboard focus + handlers; slots are pointer-only

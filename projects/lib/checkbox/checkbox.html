@@ -4,13 +4,18 @@
     type="checkbox"
     [id]="id()"
     [checked]="checked()"
+    [indeterminate]="indeterminate()"
     [disabled]="effectiveDisabled()"
     (change)="onInputChange($event)"
     (blur)="onInputBlur()"
   />
 
   <span class="wr-checkbox__box" aria-hidden="true">
-    @if (icon(); as iconName) {
+    @if (indeterminate()) {
+      <svg viewBox="0 0 16 16" class="wr-checkbox__dash">
+        <line x1="3.5" y1="8" x2="12.5" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    } @else if (icon(); as iconName) {
       <wr-icon class="wr-checkbox__icon" [name]="iconName" />
     } @else {
       <svg viewBox="0 0 16 16" class="wr-checkbox__mark">

@@ -11,9 +11,10 @@
     spellcheck="false"
     [value]="text()"
     [placeholder]="placeholder()"
-    [disabled]="effectiveDisabled()"
+    [disabled]="disabled()"
     [readonly]="readonly()"
     (input)="onInput($event)"
+    (focus)="onFocus()"
     (blur)="onBlur()"
     (keydown)="onKeydown($event)"
   />

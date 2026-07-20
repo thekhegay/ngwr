@@ -6,23 +6,40 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  Component,
+  ElementRef,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+} from '@angular/core';
+import type { FormValueControl } from '@angular/forms/signals';
 
-import { clamp, noop } from 'ngwr/utils';
+import { clamp } from 'ngwr/utils';
 
 const ARC_START = -135; // 7 o'clock
 const ARC_END = 135; // 5 o'clock — 270° sweep total
 const ARC_SWEEP = ARC_END - ARC_START;
 
 /**
- * Radial dial input. CVA-backed `number | null` value clamped to
- * `[min, max]`. Drag the indicator around the dial or use ←→ / ↑↓ to step.
+ * Radial dial input. A signal-forms native control: it implements
+ * `FormValueControl<number>`, so `[formField]` binds straight to its `value`
+ * model — no `ControlValueAccessor` in between. `[(value)]` works standalone.
+ *
+ * The value is clamped to `[min, max]`. Drag the indicator around the dial or
+ * use ←→ / ↑↓ to step.
  *
  * @example
  * ```html
- * <wr-knob [(ngModel)]="value" [min]="0" [max]="100" />
- * <wr-knob [(ngModel)]="vol" suffix="%" valueColor="var(--wr-color-success)" />
+ * <!-- signal forms -->
+ * <wr-knob [formField]="form.volume" [min]="0" [max]="100" />
+ *
+ * <!-- standalone two-way binding -->
+ * <wr-knob [(value)]="vol" suffix="%" valueColor="var(--wr-color-success)" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/knob
@@ -32,21 +49,16 @@ const ARC_SWEEP = ARC_END - ARC_START;
   templateUrl: './knob.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrKnob),
-      multi: true,
-    },
-  ],
 })
-export class WrKnob implements ControlValueAccessor {
+export class WrKnob implements FormValueControl<number> {
   /** Minimum allowed value. @default 0 */
-  readonly min = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
+  readonly min = input<number | undefined>(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
 
   /** Maximum allowed value. @default 100 */
-  readonly max = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
+  readonly max = input<number | undefined>(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
+
+  private readonly minValue = computed(() => this.min() ?? 0);
+  private readonly maxValue = computed(() => this.max() ?? 100);
 
   /** Step granularity. @default 1 */
   readonly step = input(1, { transform: (v: unknown): number => Math.max(0.0001, coerceNumberProperty(v, 1)) });
@@ -77,16 +89,19 @@ export class WrKnob implements ControlValueAccessor {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  protected readonly value = signal<number>(0);
-  private readonly disabledFromCva = signal(false);
+  /** Bound by `[formField]`, or two-way via `[(value)]`. */
+  readonly value = model<number>(0);
+
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
+
   private dragging = false;
 
-  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
-  protected readonly interactive = computed(() => !this.effectiveDisabled() && !this.readonly());
+  protected readonly interactive = computed(() => !this.disabled() && !this.readonly());
 
   protected readonly classes = computed(() => {
     const parts = ['wr-knob'];
-    if (this.effectiveDisabled()) parts.push('wr-knob--disabled');
+    if (this.disabled()) parts.push('wr-knob--disabled');
     return parts.join(' ');
   });
 
@@ -97,9 +112,9 @@ export class WrKnob implements ControlValueAccessor {
 
   /** Ratio of the filled arc — `0` at min, `1` at max. */
   protected readonly ratio = computed(() => {
-    const range = this.max() - this.min();
+    const range = this.maxValue() - this.minValue();
     if (range <= 0) return 0;
-    return clamp((this.value() - this.min()) / range, 0, 1);
+    return clamp((this.value() - this.minValue()) / range, 0, 1);
   });
 
   /** SVG path `d` for the background arc. */
@@ -123,25 +138,14 @@ export class WrKnob implements ControlValueAccessor {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  // ControlValueAccessor
-
-  private onChange: (value: number | null) => void = noop;
-  private onTouched: () => void = noop;
-
-  writeValue(value: number | null): void {
-    this.value.set(value === null || value === undefined ? this.min() : clamp(Number(value), this.min(), this.max()));
-  }
-
-  registerOnChange(fn: (value: number | null) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
+  constructor() {
+    // Keep the value within `[min, max]` even when written externally (via
+    // `[formField]` / `[(value)]`). Interactive changes are already clamped in
+    // `commit`, so this only normalizes out-of-range external writes.
+    effect(() => {
+      const clamped = clamp(this.value(), this.minValue(), this.maxValue());
+      if (clamped !== this.value()) this.value.set(clamped);
+    });
   }
 
   // Pointer / keyboard
@@ -163,7 +167,7 @@ export class WrKnob implements ControlValueAccessor {
     if (!this.dragging) return;
     this.dragging = false;
     (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
-    this.onTouched();
+    this.touch.emit();
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -180,16 +184,16 @@ export class WrKnob implements ControlValueAccessor {
         next = this.value() - step;
         break;
       case 'Home':
-        next = this.min();
+        next = this.minValue();
         break;
       case 'End':
-        next = this.max();
+        next = this.maxValue();
         break;
       default:
         return;
     }
     event.preventDefault();
-    this.commit(clamp(next, this.min(), this.max()));
+    this.commit(clamp(next, this.minValue(), this.maxValue()));
   }
 
   // Internals
@@ -204,16 +208,15 @@ export class WrKnob implements ControlValueAccessor {
     if (angle < ARC_START) angle = angle + 360 > ARC_END ? ARC_START : angle + 360;
     angle = clamp(angle, ARC_START, ARC_END);
     const ratio = (angle - ARC_START) / ARC_SWEEP;
-    const range = this.max() - this.min();
-    const raw = this.min() + ratio * range;
+    const range = this.maxValue() - this.minValue();
+    const raw = this.minValue() + ratio * range;
     const stepped = Math.round(raw / this.step()) * this.step();
-    this.commit(clamp(stepped, this.min(), this.max()));
+    this.commit(clamp(stepped, this.minValue(), this.maxValue()));
   }
 
   private commit(next: number): void {
     if (next === this.value()) return;
     this.value.set(next);
-    this.onChange(next);
   }
 
   // Arc helper

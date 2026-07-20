@@ -55,7 +55,8 @@
     transition: var(--wr-transition-base);
   }
 
-  &__mark {
+  &__mark,
+  &__dash {
     width: 100%;
     height: 100%;
     transform: scale(0.7);
@@ -100,6 +101,20 @@
 
     .wr-checkbox__mark,
     .wr-checkbox__icon {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  // Indeterminate: same filled box as checked, but reveals the dash. Takes
+  // visual precedence over `--checked` (the two classes are mutually exclusive
+  // in the host binding).
+  &--indeterminate {
+    --wr-checkbox-bg: var(--wr-color-primary);
+    --wr-checkbox-border: var(--wr-color-primary);
+    --wr-checkbox-mark: var(--wr-color-primary-contrast);
+
+    .wr-checkbox__dash {
       transform: scale(1);
       opacity: 1;
     }

@@ -29,11 +29,17 @@ import { WR_CHECKBOX_GROUP } from './tokens';
  *
  * @example
  * ```html
- * <wr-checkbox-group [(ngModel)]="features">
+ * <wr-checkbox-group [formField]="form.features">
  *   <wr-checkbox value="autosave">Autosave</wr-checkbox>
  *   <wr-checkbox value="notifications">Notifications</wr-checkbox>
  * </wr-checkbox-group>
  * ```
+ *
+ * Unlike the other value controls, the standalone checkbox stays a
+ * `ControlValueAccessor` rather than a signal-forms `FormCheckboxControl`:
+ * that contract forbids a `value` property, but `value` is this component's
+ * group-membership identity. Both `[formField]` and `[(ngModel)]` still work
+ * on it through Angular's CVA bridge; the group is the native form control.
  *
  * @see https://ngwr.dev/reference/components/checkbox
  */
@@ -84,6 +90,16 @@ export class WrCheckbox implements ControlValueAccessor {
    */
   readonly icon = input<WrIconName | null>(null);
 
+  /**
+   * Show the indeterminate ("mixed") state — a dash instead of a check. Visual
+   * only and controlled: set it yourself for a parent "select all" whose
+   * children are partly checked, and clear it on the next toggle. Takes visual
+   * precedence over `checked`; the native input reports `aria-checked="mixed"`.
+   *
+   * @default false
+   */
+  readonly indeterminate = input(false, { transform: coerceBooleanProperty });
+
   private readonly group = inject(WR_CHECKBOX_GROUP, { optional: true });
 
   // Standalone state. When inside a group, these are not used as the source of truth.
@@ -105,7 +121,8 @@ export class WrCheckbox implements ControlValueAccessor {
     const parts = ['wr-checkbox'];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-checkbox--${size}`);
-    if (this.checked()) parts.push('wr-checkbox--checked');
+    if (this.indeterminate()) parts.push('wr-checkbox--indeterminate');
+    else if (this.checked()) parts.push('wr-checkbox--checked');
     if (this.effectiveDisabled()) parts.push('wr-checkbox--disabled');
     return parts.join(' ');
   });
