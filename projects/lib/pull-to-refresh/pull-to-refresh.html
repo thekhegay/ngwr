@@ -1,0 +1,8 @@
+@if (distance() > 0 || refreshing()) {
+  <div class="wr-pull-to-refresh__indicator" [style.height.px]="distance()" aria-hidden="true">
+    <wr-spinner class="wr-pull-to-refresh__spinner" size="sm" [style.opacity]="progress()" />
+  </div>
+}
+<div class="wr-pull-to-refresh__content" [style.transform]="contentTransform()">
+  <ng-content />
+</div>

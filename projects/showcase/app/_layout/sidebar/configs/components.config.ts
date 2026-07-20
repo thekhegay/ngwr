@@ -63,6 +63,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Alert', url: ['/reference/components', 'alert'] },
       { title: 'Empty', url: ['/reference/components', 'empty'] },
       { title: 'Progress', url: ['/reference/components', 'progress'] },
+      { title: 'Pull to Refresh', url: ['/reference/components', 'pull-to-refresh'] },
       { title: 'Result', url: ['/reference/components', 'result'] },
       { title: 'Skeleton', url: ['/reference/components', 'skeleton'] },
       { title: 'Spinner', url: ['/reference/components', 'spinner'] },

@@ -220,6 +220,10 @@ export default [
     loadComponent: () => import('./pagination/pagination'),
   },
   {
+    path: components.pullToRefresh,
+    loadComponent: () => import('./pull-to-refresh/pull-to-refresh'),
+  },
+  {
     path: components.popconfirm,
     loadComponent: () => import('./popconfirm/popconfirm'),
   },
