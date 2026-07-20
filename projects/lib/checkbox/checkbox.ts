@@ -90,6 +90,16 @@ export class WrCheckbox implements ControlValueAccessor {
    */
   readonly icon = input<WrIconName | null>(null);
 
+  /**
+   * Show the indeterminate ("mixed") state — a dash instead of a check. Visual
+   * only and controlled: set it yourself for a parent "select all" whose
+   * children are partly checked, and clear it on the next toggle. Takes visual
+   * precedence over `checked`; the native input reports `aria-checked="mixed"`.
+   *
+   * @default false
+   */
+  readonly indeterminate = input(false, { transform: coerceBooleanProperty });
+
   private readonly group = inject(WR_CHECKBOX_GROUP, { optional: true });
 
   // Standalone state. When inside a group, these are not used as the source of truth.
@@ -111,7 +121,8 @@ export class WrCheckbox implements ControlValueAccessor {
     const parts = ['wr-checkbox'];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-checkbox--${size}`);
-    if (this.checked()) parts.push('wr-checkbox--checked');
+    if (this.indeterminate()) parts.push('wr-checkbox--indeterminate');
+    else if (this.checked()) parts.push('wr-checkbox--checked');
     if (this.effectiveDisabled()) parts.push('wr-checkbox--disabled');
     return parts.join(' ');
   });

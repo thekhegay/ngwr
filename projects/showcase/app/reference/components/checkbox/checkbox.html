@@ -31,6 +31,24 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Indeterminate"
+    description="A parent `[indeterminate]` shows the mixed state (a dash) when only some children are checked — the classic 'select all'. It's visual and controlled: you set it, and clear it on the next toggle."
+  >
+    <ngwr-doc-snippet [code]="snippets.indeterminate">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-checkbox [ngModel]="allChecked()" (ngModelChange)="toggleAll()" [indeterminate]="someChecked()">
+          Select all
+        </wr-checkbox>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-left: 1.5rem">
+          @for (p of permItems; track p) {
+            <wr-checkbox [ngModel]="perms().includes(p)" (ngModelChange)="togglePerm(p)">{{ p }}</wr-checkbox>
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Disabled">
     <ngwr-doc-snippet [code]="snippets.disabled">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
