@@ -72,7 +72,8 @@ protected readonly keyboard = this.vv.bottomInset;         // Signal<number>
   protected readonly viewportApi: readonly DocApiRow[] = [
     {
       name: 'bottomInset',
-      description: 'Height (px) the on-screen keyboard / browser chrome hides at the viewport bottom. `0` when nothing covers it, on the server, or without the API.',
+      description:
+        'Height (px) the on-screen keyboard / browser chrome hides at the viewport bottom. `0` when nothing covers it, on the server, or without the API.',
       type: 'Signal<number>',
       default: '—',
     },
