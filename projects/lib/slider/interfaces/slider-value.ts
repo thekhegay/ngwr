@@ -11,6 +11,6 @@
  * - `[number, number]` (`[low, high]`) for range sliders (`range="true"`)
  *
  * The component reads `range` at runtime and writes back the matching shape
- * through `ControlValueAccessor`.
+ * through its `value` model.
  */
 export type WrSliderValue = number | readonly [number, number];

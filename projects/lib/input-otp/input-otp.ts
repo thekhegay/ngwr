@@ -12,15 +12,14 @@ import {
   ViewEncapsulation,
   computed,
   effect,
-  forwardRef,
   input,
+  model,
   output,
   signal,
+  untracked,
   viewChildren,
 } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
-import { noop } from 'ngwr/utils';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
 
@@ -29,13 +28,18 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
  * auto-advances focus on typing, handles paste of a full code, and supports
  * masking like a password field.
  *
- * Implements `ControlValueAccessor` — emits the joined string through
- * `[(ngModel)]` / `formControl`. Emits `completed` once all cells are
- * filled (useful for auto-submission).
+ * A signal-forms native control: it implements `FormValueControl<string>`, so
+ * `[formField]` binds straight to its `value` model — no
+ * `ControlValueAccessor` in between. `[(value)]` works standalone. Emits
+ * `completed` once all cells are filled (useful for auto-submission).
  *
  * @example
  * ```html
- * <wr-input-otp [(ngModel)]="code" length="6" (completed)="verify($event)" />
+ * <!-- signal forms -->
+ * <wr-input-otp [formField]="form.code" length="6" (completed)="verify($event)" />
+ *
+ * <!-- standalone two-way binding -->
+ * <wr-input-otp [(value)]="code" length="6" (completed)="verify($event)" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/input-otp
@@ -45,16 +49,8 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
   templateUrl: './input-otp.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', role: 'group', 'aria-label': 'Verification code' },
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrInputOtp),
-      multi: true,
-    },
-  ],
 })
-export class WrInputOtp implements ControlValueAccessor {
+export class WrInputOtp implements FormValueControl<string> {
   /** Number of cells to render. Clamped to `[1, 20]`. @default 6 */
   readonly length = input(6, {
     transform: (v: unknown): number => Math.max(1, Math.min(20, coerceNumberProperty(v, 6))),
@@ -69,25 +65,33 @@ export class WrInputOtp implements ControlValueAccessor {
   /** Mask the typed characters like a password. @default false */
   readonly mask = input(false, { transform: coerceBooleanProperty });
 
-  /** Disable interaction. @default false */
+  /**
+   * Disable interaction. Bound automatically from the field's disabled state
+   * when used with `[formField]`.
+   *
+   * @default false
+   */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /** Character shown in empty cells. @default '•' */
   readonly placeholder = input<string>('•');
 
+  /** The entered code. Bound by `[formField]`, or two-way via `[(value)]`. */
+  readonly value = model<string>('');
+
   /** Fires once when every cell holds a character. */
   readonly completed = output<string>();
 
-  protected readonly cells = signal<readonly string[]>(Array.from({ length: 6 }, () => ''));
-  private readonly disabledFromCva = signal(false);
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
 
-  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
+  protected readonly cells = signal<readonly string[]>(Array.from({ length: 6 }, () => ''));
 
   protected readonly classes = computed(() => {
     const parts = ['wr-input-otp'];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-input-otp--${size}`);
-    if (this.effectiveDisabled()) parts.push('wr-input-otp--disabled');
+    if (this.disabled()) parts.push('wr-input-otp--disabled');
     return parts.join(' ');
   });
 
@@ -105,29 +109,22 @@ export class WrInputOtp implements ControlValueAccessor {
       const next = Array.from({ length: len }, (_, i) => current[i] ?? '');
       this.cells.set(next);
     });
-  }
 
-  private onChange: (value: string) => void = noop;
-  private onTouched: () => void = noop;
-
-  // ControlValueAccessor
-
-  writeValue(v: string | null): void {
-    const raw = (v ?? '').slice(0, this.length());
-    const next = Array.from({ length: this.length() }, (_, i) => this.sanitiseChar(raw[i] ?? ''));
-    this.cells.set(next);
-  }
-
-  registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
+    // Split an external `value` write back into cells (mirrors the old
+    // writeValue). Skipped when the value is merely the echo of an in-cell
+    // edit, so re-splitting can never shift or clobber what the user typed.
+    effect(() => {
+      // Coerce null/undefined to '' — a classic-forms binding can write null,
+      // which the old `writeValue(v: string | null)` accepted too.
+      const v = this.value() ?? '';
+      untracked(() => {
+        if (this.cells().join('') === v) return;
+        const len = this.length();
+        const raw = v.slice(0, len);
+        const next = Array.from({ length: len }, (_, i) => this.sanitiseChar(raw[i] ?? ''));
+        this.cells.set(next);
+      });
+    });
   }
 
   // Template handlers
@@ -185,7 +182,7 @@ export class WrInputOtp implements ControlValueAccessor {
   }
 
   protected onBlur(): void {
-    this.onTouched();
+    this.touch.emit();
   }
 
   protected trackIndex(index: number): number {
@@ -204,7 +201,7 @@ export class WrInputOtp implements ControlValueAccessor {
 
   private emitChange(): void {
     const code = this.cells().join('');
-    this.onChange(code);
+    this.value.set(code);
     if (code.length === this.length() && code.split('').every(c => c.length === 1)) {
       this.completed.emit(code);
     }

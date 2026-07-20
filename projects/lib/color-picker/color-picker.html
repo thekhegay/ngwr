@@ -31,7 +31,7 @@
           spellcheck="false"
           autocomplete="off"
           [value]="hexInput()"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (input)="onHexInput($event)"
           (blur)="onHexBlur()"
         />
@@ -47,7 +47,7 @@
           min="0"
           max="255"
           [value]="rgb().r"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (input)="onRgbChannel('r', $event)"
         />
         <span class="wr-color-picker__field-label">R</span>
@@ -58,7 +58,7 @@
           min="0"
           max="255"
           [value]="rgb().g"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (input)="onRgbChannel('g', $event)"
         />
         <span class="wr-color-picker__field-label">G</span>
@@ -69,7 +69,7 @@
           min="0"
           max="255"
           [value]="rgb().b"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (input)="onRgbChannel('b', $event)"
         />
         <span class="wr-color-picker__field-label">B</span>
@@ -81,7 +81,7 @@
             min="0"
             max="100"
             [value]="alphaPercent()"
-            [disabled]="effectiveDisabled()"
+            [disabled]="disabled()"
             (input)="onAlphaPercent($event)"
           />
           <span class="wr-color-picker__field-label">A%</span>
@@ -97,7 +97,7 @@
           min="0"
           max="360"
           [value]="hslView().h | number: '1.0-0'"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (input)="onHslChannel('h', $event)"
         />
         <span class="wr-color-picker__field-label">H</span>
@@ -108,7 +108,7 @@
           min="0"
           max="100"
           [value]="hslView().s * 100 | number: '1.0-0'"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (input)="onHslChannel('s', $event)"
         />
         <span class="wr-color-picker__field-label">S%</span>
@@ -119,7 +119,7 @@
           min="0"
           max="100"
           [value]="hslView().l * 100 | number: '1.0-0'"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (input)="onHslChannel('l', $event)"
         />
         <span class="wr-color-picker__field-label">L%</span>
@@ -131,7 +131,7 @@
             min="0"
             max="100"
             [value]="alphaPercent()"
-            [disabled]="effectiveDisabled()"
+            [disabled]="disabled()"
             (input)="onAlphaPercent($event)"
           />
           <span class="wr-color-picker__field-label">A%</span>
@@ -149,7 +149,7 @@
         class="wr-color-picker__swatch"
         [style.background]="color"
         [attr.aria-label]="color"
-        [disabled]="effectiveDisabled()"
+        [disabled]="disabled()"
         (click)="onSwatchClick(color)"
       ></button>
     }

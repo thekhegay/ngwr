@@ -9,7 +9,7 @@
     autocapitalize="off"
     spellcheck="false"
     [value]="cell"
-    [disabled]="effectiveDisabled()"
+    [disabled]="disabled()"
     [placeholder]="placeholder()"
     [attr.aria-label]="`Digit ${$index + 1}`"
     (input)="onInput($event, $index)"

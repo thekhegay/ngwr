@@ -125,10 +125,10 @@ export class WrColorPickerTrigger {
     ref.setInput('format', this.format());
     ref.setInput('swatches', this.swatches());
     ref.setInput('disabled', this.disabled());
-    ref.instance.writeValue(this.value());
+    ref.setInput('value', this.value());
 
-    // Bridge inner picker's CVA onChange to our two-way [(value)] model.
-    ref.instance.registerOnChange((next: string) => this.value.set(next));
+    // Bridge the inner picker's `value` model back to our two-way [(value)].
+    ref.instance.value.subscribe((next: string) => this.value.set(next));
 
     // Outside-click → close (CDK's outsidePointerEvents only fires for clicks
     // outside the overlay pane; we also need to ignore re-clicks on the host).
