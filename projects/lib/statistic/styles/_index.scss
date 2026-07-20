@@ -52,3 +52,50 @@
     }
   }
 }
+
+// Dashboard grid for `<wr-statistic>` cards. The host establishes the query
+// container; the inner `__grid` is the grid itself (an element can't respond
+// to its own `container-type`, so the reflow rule below has to target a
+// descendant). The column count follows the GROUP's own inline size — not the
+// viewport — so it reflows correctly inside any column, card, or split pane.
+.wr-statistic-group {
+  --wr-statistic-group-gap: 1.5rem;
+
+  container: wr-statistic-group / inline-size;
+  display: block;
+  width: 100%;
+  font-family: var(--wr-font-family-base);
+
+  // Intrinsic "RAM" grid (Repeat, Auto-fit, Minmax): each column is at least
+  // `--wr-statistic-group-min`, but also at least the width needed to keep the
+  // row within `--wr-statistic-group-columns` cards — so the count never
+  // exceeds the cap yet steps down one column at a time as the box narrows.
+  // The unset cap defaults to a large sentinel, which collapses the second
+  // term below `min`, leaving a plain auto-fit grid.
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(
+        max(
+          var(--wr-statistic-group-min, 12rem),
+          calc(
+            (100% - (var(--wr-statistic-group-columns, 999) - 1) * var(--wr-statistic-group-gap)) /
+              var(--wr-statistic-group-columns, 999)
+          )
+        ),
+        1fr
+      )
+    );
+    gap: var(--wr-statistic-group-gap);
+  }
+}
+
+// Tighten the gutters once the group itself is narrow (a phone column, a side
+// panel) — a genuine container query on the group's width, independent of the
+// viewport.
+@container wr-statistic-group (max-width: 28rem) {
+  .wr-statistic-group__grid {
+    --wr-statistic-group-gap: 1rem;
+  }
+}

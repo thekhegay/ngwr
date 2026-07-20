@@ -24,7 +24,7 @@ import { numAttr } from 'ngwr/utils';
 
 /**
  * KPI card — label + big number + optional prefix/suffix + delta. Pair
- * with a layout grid for dashboards.
+ * with `<wr-statistic-group>` for a responsive dashboard grid.
  *
  * When `value` is numeric the number counts up (eased) from its previous
  * value to the new one on every change — see `animate`. String values and
