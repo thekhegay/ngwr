@@ -52,6 +52,6 @@ projects/lib/icon/_svg/heroicons/
 .gemini/
 .aider*
 
-# Generated AI assets (scripts/gen-ai-assets.ts, wired into build:lib/showcase).
+# Generated AI assets. llms-full.txt via scripts/gen-ai-assets.ts; sitemap.xml
+# is emitted straight into the (ignored) dist by scripts/gen-sitemap.ts.
 llms-full.txt
-projects/showcase/public/sitemap.xml

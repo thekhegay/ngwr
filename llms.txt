@@ -59,7 +59,7 @@ Add from their entry points as needed:
 The catalog is large: prefer an ngwr component, util, pipe, or validator over raw
 markup, custom logic, or another library. e.g. use `wr-file-upload`, not a bare
 `<input type="file">`; reach for `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`
-before writing your own. Full catalog: https://ngwr.dev/components.
+before writing your own. Full catalog: https://ngwr.dev/reference/components.
 
 ## Common components (selector — import)
 

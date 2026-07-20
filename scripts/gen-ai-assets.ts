@@ -6,18 +6,16 @@
  */
 
 /**
- * Generates the machine-readable AI assets from library + showcase source, so
- * they never drift from the code:
+ * Generates `llms-full.txt` from library + showcase source, so it never drifts
+ * from the code: every ngwr entry point with its import path, selector(s),
+ * public exports, and description. The exhaustive companion to the curated
+ * `llms.txt`. Written to the repo root; shipped in the package (via
+ * copy-dist-assets) and served at ngwr.dev/llms-full.txt.
  *
- *   - `llms-full.txt` — every ngwr entry point with its import path, selector(s),
- *     public exports, and description. The exhaustive companion to the curated
- *     `llms.txt`. Written to the repo root; shipped in the package (via
- *     copy-dist-assets) and served at ngwr.dev/llms-full.txt.
- *   - `projects/showcase/public/sitemap.xml` — every showcase route, served at
- *     ngwr.dev/sitemap.xml (the SPA's routes are otherwise invisible to crawlers).
- *
- * Wired into `build:lib` + `build:showcase`. Both outputs are generated
- * (gitignored) — never hand-edit them; edit this script.
+ * Wired into `build:lib` + `build:showcase`. The output is generated
+ * (gitignored) — never hand-edit it; edit this script. (The sitemap is a
+ * separate post-build step, `scripts/gen-sitemap.ts`, because it needs the
+ * prerendered route list, which only exists after the showcase build.)
  *
  * Usage:
  *   pnpm tsx scripts/gen-ai-assets.ts
@@ -29,10 +27,8 @@ import { join } from 'node:path';
 import { info } from './lib/log/info';
 import { ROOT_PATH } from './lib/paths/root';
 
-const SITE = 'https://ngwr.dev';
 const LIB_DIR = join(ROOT_PATH, 'projects/lib');
-const COMPONENTS_DIR = join(ROOT_PATH, 'projects/showcase/app/components');
-const GETTING_STARTED_DIR = join(ROOT_PATH, 'projects/showcase/app/getting-started');
+const REFERENCE_DIR = join(ROOT_PATH, 'projects/showcase/app/reference');
 
 const dirsOnly = (path: string): string[] =>
   existsSync(path)
@@ -68,10 +64,26 @@ const exportsOf = (entryDir: string): string[] => {
   return [...out];
 };
 
-const descriptionOf = (name: string): string => {
-  const match = /description="([^"]*)"/s.exec(read(join(COMPONENTS_DIR, name, `${name}.html`)));
-  return match ? match[1].replace(/\s+/g, ' ').trim() : '';
-};
+/**
+ * Map a lib-entry name to its reference doc-page description. The pages live at
+ * `app/reference/<cluster>/<name>/<name>.html` (components, directives, pipes,
+ * services, …); walking the tree instead of a hard-coded path keeps this
+ * working across doc reorganisations — the mistake that once silently emptied
+ * these assets was a generator pinned to `app/components`.
+ */
+const descriptions = ((): Map<string, string> => {
+  const map = new Map<string, string>();
+  for (const cluster of dirsOnly(REFERENCE_DIR)) {
+    const clusterDir = join(REFERENCE_DIR, cluster);
+    for (const name of dirsOnly(clusterDir)) {
+      const match = /description="([^"]*)"/s.exec(read(join(clusterDir, name, `${name}.html`)));
+      if (match) map.set(name, match[1].replace(/\s+/g, ' ').trim());
+    }
+  }
+  return map;
+})();
+
+const descriptionOf = (name: string): string => descriptions.get(name) ?? '';
 
 const entries = dirsOnly(LIB_DIR).filter(name => existsSync(join(LIB_DIR, name, 'public-api.ts')));
 
@@ -96,21 +108,4 @@ for (const name of entries) {
 }
 
 writeFileSync(join(ROOT_PATH, 'llms-full.txt'), full);
-info(`✓ llms-full.txt — ${entries.length} entry points`);
-
-// --- sitemap.xml -----------------------------------------------------------
-
-const urls = [
-  `${SITE}/`,
-  ...dirsOnly(COMPONENTS_DIR).map(name => `${SITE}/components/${name}`),
-  ...dirsOnly(GETTING_STARTED_DIR).map(name => `${SITE}/getting-started/${name}`),
-];
-
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(url => `  <url><loc>${url}</loc></url>`).join('\n')}
-</urlset>
-`;
-
-writeFileSync(join(ROOT_PATH, 'projects/showcase/public/sitemap.xml'), sitemap);
-info(`✓ sitemap.xml — ${urls.length} URLs`);
+info(`✓ llms-full.txt — ${entries.length} entry points, ${descriptions.size} descriptions`);

@@ -15,9 +15,11 @@ A pnpm + Angular CLI monorepo with two projects:
   them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Built with
   **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
-  docs, and where components are dogfooded. Pages live under
-  `app/components/<name>/` and `app/getting-started/<name>/`; shared doc
-  scaffolding (the `<ngwr-doc-*>` components, services, shiki highlighting)
+  docs, and where components are dogfooded. Docs are organised **start /
+  guides / reference**: API pages under `app/reference/<cluster>/<name>/`
+  (components, directives, pipes, services, utils, validators, interfaces),
+  task guides under `app/guides/`, getting-started under `app/start/`. Shared
+  doc scaffolding (the `<ngwr-doc-*>` components, services, shiki highlighting)
   is in `app/_core/` (alias `#core/*`).
 - **`projects/lib/theme/`** — the styling foundation: design tokens (CSS custom
   properties, `--wr-*`) and SCSS mixins under `theme/styles/`. Not a component.
@@ -137,11 +139,15 @@ custom properties are public too.
 
 **Styling.** Component styles live in `styles/_index.scss`, themed through
 **CSS custom properties** (`--wr-*`), not encapsulation. The token layer (set
-by `provideWrTheme()`): colors
-`--wr-color-{primary,secondary,success,warning,danger,light,medium,dark}`, each
-with `-contrast / -light / -lighter / -dark / -darker / -rgb`; plus
+by `provideWrTheme()`): intent colors
+`--wr-color-{primary,secondary,success,warning,danger,info,light,medium,dark}`,
+each with `-contrast / -light / -lighter / -dark / -darker / -rgb`, plus the
+soft set (`-soft / -soft-border / -soft-contrast / -active`) and semantic role
+aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
 `--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`, `--wr-font-weight-*`,
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
+The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
+`scripts/check-color-parity.ts` (in `pnpm lint`) fails the build if they drift.
 
 **SSR-safe.** Components must render under SSR / hydration: OnPush, zoneless,
 and **no constructor-time DOM access** (guard with `afterNextRender` /
@@ -168,10 +174,10 @@ CI, bump versions, or touch adjacent areas unprompted. If a broader change
 looks worthwhile, propose it in one line and wait for a yes. Prefer the
 smallest diff that satisfies the request.
 
-**Versioning.** Additive work ships as **7.x minors**; **8.0.0** is reserved
-for the breaking baseline only (Angular 23 peer + the `@angular/aria` internals
-swap). Don't bump the version pre-release — releases are maintainer-cut via tags
-(`pnpm release:prepare` / `release:body`).
+**Versioning.** **v8.0.0 shipped** (2026-06-30); additive work now ships as
+**8.x minors**. **9.0.0** is the next breaking baseline (Angular 23 peer + the
+`@angular/aria` internals swap). Don't bump the version pre-release — releases
+are maintainer-cut via tags (`pnpm release:prepare` / `release:body`).
 
 **Dependencies.** Check with `pnpm outdated` (one shot — don't query packages
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
@@ -213,17 +219,20 @@ correct roles/states, keyboard navigation, and focus management; overlays use th
 CDK a11y primitives (focus trap) plus live-region announcements. (a11y CI is
 roadmap A3.)
 
-**Showcase page = the docs.** Every component ships a page under
-`projects/showcase/app/components/<name>/`, wired into routing and authored with
-the doc-page components from `#core/components`: `<ngwr-doc-page>`,
+**Showcase page = the docs.** Every component ships a reference page under
+`projects/showcase/app/reference/components/<name>/`, wired into routing and
+authored with the doc-page components from `#core/components`: `<ngwr-doc-page>`,
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
 
-**AI assets.** `llms-full.txt` and `sitemap.xml` regenerate from source on every
-build (`scripts/gen-ai-assets.ts`), so a new entry point — component, util,
-pipe, validator — is picked up automatically; no manual edit. If it's a headline
-component, also add it to the curated [`llms.txt`](llms.txt) "Common components"
-list.
+**AI assets.** `llms-full.txt` regenerates from library source on every build
+(`scripts/gen-ai-assets.ts`), and `sitemap.xml` from the prerendered route list
+after `build:showcase` (`scripts/gen-sitemap.ts`) — so a new entry point or
+route is picked up automatically. The curated [`llms.txt`](llms.txt) and this
+file are hand-maintained: update them when the doc structure or the headline
+components change. (A rename once silently emptied the sitemap because its
+generator hard-coded the old `app/components` path — the rewrite derives from
+the prerender output and floor-checks the count so that can't recur.)
 
 ## Schematics
 
