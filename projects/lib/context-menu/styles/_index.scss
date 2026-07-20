@@ -110,3 +110,13 @@
   margin: 0.25rem 0;
   background: var(--wr-color-outline);
 }
+
+// Touch long-press opens the menu; suppress the native iOS callout + text
+// selection on coarse pointers so the hold isn't fought by the magnifier /
+// selection UI. Desktop selection inside the host stays intact.
+@media (pointer: coarse) {
+  .wr-context-menu-host {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+}

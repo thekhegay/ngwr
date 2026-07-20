@@ -35,7 +35,12 @@ import type { WrContextMenuPanel } from './context-menu-panel';
 @Directive({
   selector: '[wrContextMenu]',
   host: {
+    class: 'wr-context-menu-host',
     '(contextmenu)': 'onContextMenu($event)',
+    '(pointerdown)': 'onPointerDown($event)',
+    '(pointermove)': 'onPointerMove($event)',
+    '(pointerup)': 'onPointerUp()',
+    '(pointercancel)': 'onPointerUp()',
   },
 })
 export class WrContextMenu {
@@ -51,6 +56,15 @@ export class WrContextMenu {
   private overlayRef: OverlayRef | null = null;
   private closingTimer: ReturnType<typeof setTimeout> | null = null;
   private leaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Touch long-press → open. Right-click keeps using `(contextmenu)`.
+  private pressTimer: ReturnType<typeof setTimeout> | null = null;
+  private pressX = 0;
+  private pressY = 0;
+  private pressPageX = 0;
+  private pressPageY = 0;
+  private lastLongPressAt = 0;
+  private cancelPressScroll: (() => void) | null = null;
 
   /**
    * Single open root menu at a time. Submenu items use this to signal
@@ -99,13 +113,25 @@ export class WrContextMenu {
    */
   private static readonly LEAVE_DELAY = 240;
 
+  /** Hold duration before a touch long-press opens the menu. */
+  private static readonly LONG_PRESS_MS = 500;
+  /** Finger travel (px) that turns a pending long-press into a scroll/drag. */
+  private static readonly PRESS_MOVE_TOLERANCE = 10;
+
   constructor() {
-    this.destroyRef.onDestroy(() => this.closeOverlay());
+    this.destroyRef.onDestroy(() => {
+      this.cancelPress();
+      this.closeOverlay();
+    });
   }
 
   /** @internal Right-click handler — opens at the pointer (or re-positions if already open). */
   protected onContextMenu(event: MouseEvent): void {
     event.preventDefault();
+    // Some touch browsers (Android Chrome) fire a synthetic `contextmenu`
+    // right after a long-press has already opened the menu — swallow it so it
+    // doesn't re-open / restart the animation.
+    if (Date.now() - this.lastLongPressAt < 700) return;
     event.stopPropagation();
     // Re-open at the new position even if it was already open.
     // Use page coords (document-relative) so the menu anchors to the
@@ -113,6 +139,53 @@ export class WrContextMenu {
     // along with the content, matching native + PrimeNG behavior.
     this.closeOverlay();
     this.openOverlay(event.pageX, event.pageY);
+  }
+
+  /**
+   * @internal Touch/pen long-press → open the menu at the press point. Desktop
+   * right-click stays on `(contextmenu)`; this path is filtered to non-mouse
+   * pointers. Deliberately does NOT `preventDefault`/`setPointerCapture` or set
+   * `touch-action` — a press that turns into a scroll must still scroll, so the
+   * open is cancelled on movement (> tolerance), on scroll, and on early lift.
+   */
+  protected onPointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'mouse' || !event.isPrimary || this.pressTimer !== null) return;
+    this.pressX = event.clientX;
+    this.pressY = event.clientY;
+    this.pressPageX = event.pageX;
+    this.pressPageY = event.pageY;
+    this.pressTimer = setTimeout(() => {
+      this.pressTimer = null;
+      this.cancelPress();
+      this.lastLongPressAt = Date.now();
+      this.closeOverlay();
+      this.openOverlay(this.pressPageX, this.pressPageY);
+    }, WrContextMenu.LONG_PRESS_MS);
+    const onScroll = (): void => this.cancelPress();
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    this.cancelPressScroll = (): void => document.removeEventListener('scroll', onScroll, { capture: true });
+  }
+
+  /** @internal Finger moved too far before the hold fired — it's a scroll/drag. */
+  protected onPointerMove(event: PointerEvent): void {
+    if (this.pressTimer === null) return;
+    if (Math.hypot(event.clientX - this.pressX, event.clientY - this.pressY) > WrContextMenu.PRESS_MOVE_TOLERANCE) {
+      this.cancelPress();
+    }
+  }
+
+  /** @internal Lifted (or the browser claimed the gesture) before the hold fired. */
+  protected onPointerUp(): void {
+    this.cancelPress();
+  }
+
+  private cancelPress(): void {
+    if (this.pressTimer !== null) {
+      clearTimeout(this.pressTimer);
+      this.pressTimer = null;
+    }
+    this.cancelPressScroll?.();
+    this.cancelPressScroll = null;
   }
 
   /** Close the menu. */
