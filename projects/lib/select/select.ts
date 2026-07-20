@@ -20,17 +20,18 @@ import {
   forwardRef,
   inject,
   input,
+  model,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
-import { noop } from 'ngwr/utils';
 
 import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator, WrSelectSize } from './interfaces';
 import { WrOption } from './option';
@@ -57,20 +58,22 @@ interface SelectedChip {
  * - `'tag'` — free-text + chips with `[separators]` / `[validate]` /
  *   `[allowDuplicates]`. Replaces `<wr-chips-input>`.
  *
- * Implements `ControlValueAccessor` — usable with `[(ngModel)]`,
- * `formControl`, or `formControlName`.
+ * A signal-forms native control: it implements `FormValueControl<unknown>`, so
+ * `[formField]` binds straight to its `value` model — no
+ * `ControlValueAccessor` in between. `[(value)]` works standalone, and classic
+ * `[(ngModel)]` / reactive forms keep working through Angular's bridge.
  *
  * @example
  * ```html
- * <!-- Single -->
- * <wr-select placeholder="Pick a size" [(ngModel)]="size">
+ * <!-- Single (signal forms) -->
+ * <wr-select placeholder="Pick a size" [formField]="form.size">
  *   <wr-option value="sm">Small</wr-option>
  *   <wr-option value="md">Medium</wr-option>
  *   <wr-option value="lg">Large</wr-option>
  * </wr-select>
  *
- * <!-- Multi -->
- * <wr-select mode="multi" placeholder="Pick tags" [(ngModel)]="tags">
+ * <!-- Multi (standalone two-way binding) -->
+ * <wr-select mode="multi" placeholder="Pick tags" [(value)]="tags">
  *   <wr-option value="ts">TypeScript</wr-option>
  *   <wr-option value="ng">Angular</wr-option>
  * </wr-select>
@@ -89,19 +92,13 @@ interface SelectedChip {
   imports: [WrOption],
   providers: [
     {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrSelect),
-      multi: true,
-    },
-    {
       provide: WR_SELECT,
       // eslint-disable-next-line @angular-eslint/no-forward-ref
       useExisting: forwardRef(() => WrSelect),
     },
   ],
 })
-export class WrSelect implements ControlValueAccessor, WrSelectContext {
+export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Placeholder shown when no option is selected. Falls back to `select.placeholder`. */
   readonly placeholder = input<string | null>(null);
 
@@ -114,7 +111,12 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   /** Per-chip ARIA label — interpolates `{{label}}`. @internal */
   protected readonly chipRemoveLabel = useI18nFormatter('select.removeItem', 'Remove {{label}}');
 
-  /** Disable the select. Also set by Angular forms via `setDisabledState`. */
+  /**
+   * Disable the select. Bound automatically from the field's disabled state
+   * when used with `[formField]`.
+   *
+   * @default false
+   */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /** Pill-shaped corners on the trigger. @default false */
@@ -263,12 +265,14 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   });
 
   /**
-   * Unified value signal. Single mode holds `T | null`; multi mode
-   * holds `readonly T[]`. Internal — consumers go through `[(ngModel)]`
-   * or `[formControl]` via CVA.
-   * @internal
+   * Unified value. Single mode holds a scalar (or `null`); multi / tag
+   * mode holds `readonly unknown[]`. Bound by `[formField]`, or two-way
+   * via `[(value)]`.
    */
-  readonly value = signal<unknown>(null);
+  readonly value = model<unknown>(null);
+
+  /** Emitted on blur / commit so a bound field can mark itself touched. */
+  readonly touch = output<void>();
 
   /** Listbox id used by the trigger's `aria-controls`. */
   protected readonly listboxId = `wr-select-listbox-${++listboxUid}`;
@@ -324,10 +328,8 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     return this.value() != null;
   });
 
-  private readonly disabledFromCva = signal(false);
-
-  /** Effective disabled state — input wins, CVA second. */
-  readonly isDisabled = computed(() => this.disabled() || this.disabledFromCva());
+  /** Effective disabled state. Part of {@link WrSelectContext} for child options. */
+  readonly isDisabled = computed(() => this.disabled());
 
   protected readonly classes = computed(() => {
     const parts = ['wr-select'];
@@ -428,8 +430,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
       if (!hasActive && q) {
         event.preventDefault();
         this.value.set(q);
-        this.onChange(q);
-        this.onTouched();
+        this.touch.emit();
         this.open.set(false);
         return;
       }
@@ -455,9 +456,6 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
   private overlayRef: OverlayRef | null = null;
-
-  private onChange: (value: unknown) => void = noop;
-  protected onTouched: () => void = noop;
 
   constructor() {
     effect(() => {
@@ -526,14 +524,12 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
         next = [...current, value];
       }
       this.value.set(next);
-      this.onChange(next);
-      this.onTouched();
+      this.touch.emit();
       // Keep the panel open in multi mode so the user can keep picking.
       return;
     }
     this.value.set(value);
-    this.onChange(value);
-    this.onTouched();
+    this.touch.emit();
     this.open.set(false);
   }
 
@@ -550,8 +546,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     if (this.isDisabled() || !this.hasChips()) return;
     const next = this.asArray(this.value()).filter(v => v !== value);
     this.value.set(next);
-    this.onChange(next);
-    this.onTouched();
+    this.touch.emit();
   }
 
   /** Clear every selection (× button). Multi/tag → empty array; search → null. */
@@ -560,15 +555,13 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     if (this.isDisabled()) return;
     if (this.hasChips()) {
       this.value.set([]);
-      this.onChange([]);
     } else if (this.isSearch()) {
       this.value.set(null);
-      this.onChange(null);
       this.searchQuery.set('');
     } else {
       return;
     }
-    this.onTouched();
+    this.touch.emit();
   }
 
   // Tag-mode draft handlers
@@ -619,7 +612,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
   protected onTagBlur(): void {
     if (this.draft().trim()) this.commitDraft();
-    this.onTouched();
+    this.touch.emit();
   }
 
   private commitDraft(): void {
@@ -641,31 +634,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
 
     const next = [...existing, value];
     this.value.set(next);
-    this.onChange(next);
-    this.onTouched();
-  }
-
-  // ControlValueAccessor
-
-  writeValue(value: unknown): void {
-    if (this.hasChips()) {
-      this.value.set(Array.isArray(value) ? (value as readonly unknown[]) : []);
-    } else {
-      this.value.set(value);
-    }
-  }
-
-  registerOnChange(fn: (value: unknown) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
-    if (isDisabled) this.open.set(false);
+    this.touch.emit();
   }
 
   // Template handlers
@@ -774,7 +743,7 @@ export class WrSelect implements ControlValueAccessor, WrSelectContext {
     return found;
   }
 
-  /** Coerce the multi-mode value signal into an array (handles writeValue from non-array). */
+  /** Coerce the multi-mode value into an array (tolerates a scalar or null write). */
   private asArray(value: unknown): readonly unknown[] {
     if (Array.isArray(value)) return value as readonly unknown[];
     if (value == null) return [];

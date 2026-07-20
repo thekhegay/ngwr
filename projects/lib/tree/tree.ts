@@ -18,19 +18,19 @@ import {
   ViewEncapsulation,
   computed,
   effect,
-  forwardRef,
   inject,
   input,
   model,
+  output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
-import { noop } from 'ngwr/utils';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 
@@ -57,9 +57,11 @@ let panelUid = 0;
  * - `'inline'` (default) — renders the tree list in-place. Use as a display
  *   widget or form-less hierarchical picker.
  * - `'overlay'` — renders a `<wr-select>`-style trigger button (with chips
- *   in multi mode) that opens a popover containing the tree. Acts as a
- *   `ControlValueAccessor` — bind via `[(ngModel)]`, `[formControl]`, or
- *   `formControlName`. Replaces the standalone `<wr-tree-select>`.
+ *   in multi mode) that opens a popover containing the tree. A signal-forms
+ *   native control: it implements `FormValueControl<unknown>`, so `[formField]`
+ *   binds straight to its `value` model — no `ControlValueAccessor` in between.
+ *   `[(value)]` and classic `[(ngModel)]` / reactive forms all keep working via
+ *   Angular's bridge. Replaces the standalone `<wr-tree-select>`.
  *
  * Value type in `overlay` mode: `TId | null` in single mode,
  * `readonly TId[]` in multi mode.
@@ -69,14 +71,17 @@ let panelUid = 0;
  * <!-- Inline tree (display widget) -->
  * <wr-tree [nodes]="folders" [(selected)]="picked" [(expanded)]="open" />
  *
- * <!-- Form-bound combobox -->
+ * <!-- Form-bound combobox (signal forms) -->
  * <wr-tree
  *   openOn="overlay"
  *   [nodes]="folders"
  *   selectionMode="single"
- *   [(ngModel)]="picked"
+ *   [formField]="form.folder"
  *   placeholder="Pick a folder"
  * />
+ *
+ * <!-- standalone two-way binding -->
+ * <wr-tree openOn="overlay" [nodes]="folders" [(value)]="picked" placeholder="Pick a folder" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/tree
@@ -87,16 +92,8 @@ let panelUid = 0;
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [NgTemplateOutlet],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrTree),
-      multi: true,
-    },
-  ],
 })
-export class WrTree<TId = string> implements ControlValueAccessor {
+export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Tree data. */
   readonly nodes = input<readonly WrTreeNode<TId>[]>([]);
 
@@ -109,7 +106,12 @@ export class WrTree<TId = string> implements ControlValueAccessor {
   /** Selection behavior. @default 'single' */
   readonly selectionMode = input<WrTreeSelectionMode>('single');
 
-  /** Disable the whole tree. @default false */
+  /**
+   * Disable the whole tree. Bound automatically from the field's disabled
+   * state when used with `[formField]`.
+   *
+   * @default false
+   */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   // Overlay-mode inputs (ignored when openOn='inline')
@@ -134,6 +136,17 @@ export class WrTree<TId = string> implements ControlValueAccessor {
 
   /** Auto-expand every node that has children on first open of the overlay. @default false */
   readonly defaultExpandAll = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Form value — the current selection as seen by a bound field. Bound by
+   * `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`:
+   * `TId | null` in single mode, `readonly TId[]` in multi mode. Meaningful in
+   * `overlay` mode; inline mode drives selection via `[(selected)]` instead.
+   */
+  readonly value = model<unknown>(undefined);
+
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
 
   // Internals
 
@@ -217,13 +230,9 @@ export class WrTree<TId = string> implements ControlValueAccessor {
   /** Trigger / panel id for `aria-controls`. */
   protected readonly panelId = `wr-tree-panel-${++panelUid}`;
 
-  private readonly disabledFromCva = signal(false);
-
-  protected readonly isDisabled = computed(() => this.disabled() || this.disabledFromCva());
-
   protected readonly classes = computed(() => {
     const parts = ['wr-tree'];
-    if (this.isDisabled()) parts.push('wr-tree--disabled');
+    if (this.disabled()) parts.push('wr-tree--disabled');
     if (this.isOverlay()) {
       parts.push('wr-tree--combobox');
       if (this.open()) parts.push('wr-tree--open');
@@ -235,12 +244,6 @@ export class WrTree<TId = string> implements ControlValueAccessor {
   protected readonly panelTpl = viewChild('panelTpl', { read: TemplateRef });
 
   private overlayRef: OverlayRef | null = null;
-
-  // ControlValueAccessor
-
-  private onChange: (value: TId | readonly TId[] | null) => void = noop;
-  /** @internal exposed so the trigger can fire on blur. */
-  protected onTouched: () => void = noop;
 
   constructor() {
     // Drive the overlay open/close in response to the `open` signal.
@@ -256,36 +259,42 @@ export class WrTree<TId = string> implements ControlValueAccessor {
       }
     });
 
+    // Disabling the control closes any open overlay (mirrors the side effect
+    // of the old CVA setDisabledState).
+    effect(() => {
+      if (this.disabled()) this.open.set(false);
+    });
+
+    // Bridge an external `value` write back into the internal `selected`
+    // state (this is the old writeValue body). `undefined` is the untouched
+    // sentinel — no field / ngModel has written yet, so leave any preset
+    // `[(selected)]` alone; a real `null` still clears, exactly as
+    // `writeValue(null)` did. Guarded against the echo of our own `emit()`
+    // (equality check under `untracked`) so a live pick is never clobbered.
+    effect(() => {
+      const value = this.value();
+      if (value === undefined) return;
+      untracked(() => {
+        const next: readonly TId[] = this.isMulti()
+          ? Array.isArray(value)
+            ? (value as readonly TId[])
+            : []
+          : value == null
+            ? []
+            : [value as TId];
+        const current = this.selected();
+        if (next.length === current.length && next.every((id, i) => id === current[i])) return;
+        this.selected.set(next);
+      });
+    });
+
     this.destroyRef.onDestroy(() => this.closeOverlay());
-  }
-
-  writeValue(value: unknown): void {
-    if (this.isMulti()) {
-      this.selected.set(Array.isArray(value) ? (value as readonly TId[]) : []);
-    } else if (value == null) {
-      this.selected.set([]);
-    } else {
-      this.selected.set([value as TId]);
-    }
-  }
-
-  registerOnChange(fn: (value: TId | readonly TId[] | null) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
-    if (isDisabled) this.open.set(false);
   }
 
   // Template handlers
 
   protected onRowClick(flat: FlatNode<TId>, event: MouseEvent): void {
-    if (this.isDisabled() || flat.node.disabled) return;
+    if (this.disabled() || flat.node.disabled) return;
     if (flat.hasChildren && (event.target as HTMLElement).closest('.wr-tree__toggle')) {
       this.toggleExpanded(flat.node.id);
       return;
@@ -296,12 +305,12 @@ export class WrTree<TId = string> implements ControlValueAccessor {
 
   protected onToggleClick(node: WrTreeNode<TId>, event: MouseEvent): void {
     event.stopPropagation();
-    if (this.isDisabled() || node.disabled) return;
+    if (this.disabled() || node.disabled) return;
     this.toggleExpanded(node.id);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (this.isDisabled()) return;
+    if (this.disabled()) return;
     const flat = this.flat();
     const i = this.focusedIndex();
     const current = flat[i];
@@ -358,13 +367,18 @@ export class WrTree<TId = string> implements ControlValueAccessor {
   // Overlay-mode trigger handlers
 
   protected onTriggerClick(): void {
-    if (this.isDisabled()) return;
+    if (this.disabled()) return;
     this.open.update(v => !v);
+  }
+
+  /** Trigger blur — mark the bound field touched. */
+  protected onBlur(): void {
+    this.touch.emit();
   }
 
   protected removeChip(id: TId, event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled()) return;
+    if (this.disabled()) return;
     const next = this.selected().filter(x => x !== id);
     this.selected.set(next);
     this.emit();
@@ -372,14 +386,9 @@ export class WrTree<TId = string> implements ControlValueAccessor {
 
   protected clearSelection(event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled()) return;
+    if (this.disabled()) return;
     this.selected.set([]);
-    if (this.isMulti()) {
-      this.onChange([]);
-    } else {
-      this.onChange(null);
-    }
-    this.onTouched();
+    this.emit();
   }
 
   // Selection / expansion plumbing
@@ -412,7 +421,7 @@ export class WrTree<TId = string> implements ControlValueAccessor {
       this.selected.set([...set]);
     }
 
-    // Overlay mode: propagate to CVA, close on single-mode pick.
+    // Overlay mode: propagate to the bound value, close on single-mode pick.
     if (this.isOverlay()) {
       this.emit();
       if (mode === 'single' && this.selected().length > 0) {
@@ -422,11 +431,11 @@ export class WrTree<TId = string> implements ControlValueAccessor {
   }
 
   private emit(): void {
-    this.onTouched();
+    this.touch.emit();
     if (this.isMulti()) {
-      this.onChange(this.selected());
+      this.value.set(this.selected());
     } else {
-      this.onChange(this.selected()[0] ?? null);
+      this.value.set(this.selected()[0] ?? null);
     }
   }
 

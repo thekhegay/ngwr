@@ -17,17 +17,18 @@ import {
   ViewEncapsulation,
   computed,
   effect,
-  forwardRef,
   inject,
   input,
+  model,
+  output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
-import { noop } from 'ngwr/utils';
 
 import type { WrCascaderOption } from './interfaces';
 
@@ -39,12 +40,18 @@ let panelUid = 0;
  * advance to the next column. Selecting a leaf (no children) commits
  * the full path.
  *
- * Implements `ControlValueAccessor` — value is the path through the
- * tree as a `readonly T[]`.
+ * A signal-forms native control: it implements `FormValueControl<unknown>`,
+ * so `[formField]` binds straight to its `value` model — no
+ * `ControlValueAccessor` in between. `[(value)]` works standalone. The value
+ * is the path through the tree (an array from root to leaf).
  *
  * @example
  * ```html
- * <wr-cascader [options]="locations" [(ngModel)]="path" placeholder="Pick a location" />
+ * <!-- signal forms -->
+ * <wr-cascader [options]="locations" [formField]="form.path" placeholder="Pick a location" />
+ *
+ * <!-- standalone two-way binding -->
+ * <wr-cascader [options]="locations" [(value)]="path" placeholder="Pick a location" />
  * ```
  *
  * ```ts
@@ -70,23 +77,20 @@ export type WrCascaderSize = 'sm' | 'md' | 'lg';
   styleUrl: './cascader.scss',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrCascader),
-      multi: true,
-    },
-  ],
 })
-export class WrCascader<T = string> implements ControlValueAccessor {
+export class WrCascader<T = string> implements FormValueControl<unknown> {
   /** Root-level options. Each may have `children` for deeper levels. */
   readonly options = input.required<readonly WrCascaderOption<T>[]>();
 
   /** Placeholder shown when no path is selected. @default '' */
   readonly placeholder = input<string>('');
 
-  /** Disable the cascader. */
+  /**
+   * Disable the cascader. Bound automatically from the field's disabled state
+   * when used with `[formField]`.
+   *
+   * @default false
+   */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
@@ -104,6 +108,15 @@ export class WrCascader<T = string> implements ControlValueAccessor {
   /** Separator between labels in the trigger display. @default '/' */
   readonly separator = input<string>('/');
 
+  /**
+   * Committed selection path (full array from root to leaf). Bound by
+   * `[formField]`, or two-way via `[(value)]`.
+   */
+  readonly value = model<unknown>([]);
+
+  /** Emitted on blur / commit so a bound field can mark itself touched. */
+  readonly touch = output<void>();
+
   /** Committed selection path (full T[] from root to leaf). @internal */
   protected readonly path = signal<readonly T[]>([]);
 
@@ -114,10 +127,6 @@ export class WrCascader<T = string> implements ControlValueAccessor {
 
   /** Panel id used by the trigger's `aria-controls`. */
   protected readonly panelId = `wr-cascader-panel-${++panelUid}`;
-
-  private readonly disabledFromCva = signal(false);
-
-  protected readonly isDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
   /**
    * Columns visible in the panel. Each column shows the children of the
@@ -161,7 +170,7 @@ export class WrCascader<T = string> implements ControlValueAccessor {
     const size = this.size();
     if (size !== 'md') parts.push(`wr-cascader--${size}`);
     if (this.open()) parts.push('wr-cascader--open');
-    if (this.isDisabled()) parts.push('wr-cascader--disabled');
+    if (this.disabled()) parts.push('wr-cascader--disabled');
     return parts.join(' ');
   });
 
@@ -174,9 +183,6 @@ export class WrCascader<T = string> implements ControlValueAccessor {
   private readonly destroyRef = inject(DestroyRef);
   private overlayRef: OverlayRef | null = null;
 
-  private onChange: (value: readonly T[]) => void = noop;
-  protected onTouched: () => void = noop;
-
   constructor() {
     effect(() => {
       if (this.open()) {
@@ -185,19 +191,40 @@ export class WrCascader<T = string> implements ControlValueAccessor {
         this.closeOverlay();
       }
     });
+
+    // Close the panel if the control becomes disabled while open.
+    effect(() => {
+      if (this.disabled()) this.open.set(false);
+    });
+
+    // Mirror an external `value` write into the internal path/activePath
+    // (the old `writeValue`). Skipped when the write merely echoes the
+    // committed path, so a live drill-down can never be clobbered.
+    effect(() => {
+      // Coerce null/undefined/non-array to an empty path — a classic-forms
+      // binding can write null, which the old `writeValue(value: unknown)`
+      // treated as "no selection" too.
+      const value = this.value();
+      untracked(() => {
+        const next: readonly T[] = Array.isArray(value) ? (value as readonly T[]) : [];
+        if (this.pathsEqual(this.path(), next)) return;
+        this.path.set(next);
+        this.activePath.set(next);
+      });
+    });
   }
 
   // Template handlers
 
   protected onTriggerClick(): void {
-    if (this.isDisabled()) return;
+    if (this.disabled()) return;
     if (!this.open()) this.activePath.set(this.path());
     this.open.update(v => !v);
   }
 
   protected onOptionClick(colIndex: number, opt: WrCascaderOption<T>, event: Event): void {
     event.stopPropagation();
-    if (opt.disabled || this.isDisabled()) return;
+    if (opt.disabled || this.disabled()) return;
 
     const head = this.activePath().slice(0, colIndex);
     const newPath = [...head, opt.value];
@@ -210,8 +237,8 @@ export class WrCascader<T = string> implements ControlValueAccessor {
     // Commit when we've reached a leaf, or when changeOnSelect is on.
     if (!hasChildren || this.changeOnSelect()) {
       this.path.set(newPath);
-      this.onChange(newPath);
-      this.onTouched();
+      this.value.set(newPath);
+      this.touch.emit();
       // Close once we hit a true leaf — parent commits keep the panel open.
       if (!hasChildren) this.open.set(false);
     }
@@ -219,41 +246,19 @@ export class WrCascader<T = string> implements ControlValueAccessor {
 
   protected clearSelection(event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled()) return;
+    if (this.disabled()) return;
     this.path.set([]);
     this.activePath.set([]);
-    const empty: readonly T[] = [];
-    this.onChange(empty);
-    this.onTouched();
+    this.value.set([]);
+    this.touch.emit();
   }
 
   protected isActiveAt(colIndex: number, value: T): boolean {
     return this.activePath()[colIndex] === value;
   }
 
-  // ControlValueAccessor
-
-  writeValue(value: unknown): void {
-    if (Array.isArray(value)) {
-      this.path.set(value as readonly T[]);
-      this.activePath.set(value as readonly T[]);
-    } else {
-      this.path.set([]);
-      this.activePath.set([]);
-    }
-  }
-
-  registerOnChange(fn: (value: readonly T[]) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
-    if (isDisabled) this.open.set(false);
+  private pathsEqual(a: readonly T[], b: readonly T[]): boolean {
+    return a.length === b.length && a.every((v, i) => v === b[i]);
   }
 
   // Overlay

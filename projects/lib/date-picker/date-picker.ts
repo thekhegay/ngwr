@@ -16,21 +16,22 @@ import {
   ViewEncapsulation,
   computed,
   effect,
-  forwardRef,
   inject,
   input,
+  model,
+  output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date-adapter';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY } from 'ngwr/overlay';
-import { noop } from 'ngwr/utils';
 
 import { WrDateTimePanel } from './internal/date-time-panel';
 import { WrTimePanel } from './internal/time-panel';
@@ -46,8 +47,11 @@ import { WrTimePanel } from './internal/time-panel';
  * - `'datetime'` — popover stacks calendar + time stepper. Picking a date
  *   does NOT close (the user typically wants to set the time next).
  *
- * Implements `ControlValueAccessor` — bind via `[(ngModel)]`, `[formControl]`,
- * or `formControlName`. Value type is `Date | null` for every mode.
+ * A signal-forms native control: it implements `FormValueControl<Date | null>`,
+ * so `[formField]` binds straight to its `value` model — no
+ * `ControlValueAccessor` in between. `[(value)]` works standalone, and classic
+ * `[(ngModel)]` / reactive forms keep working through Angular's bridge. Value
+ * type is `Date | null` for every mode.
  *
  * Parses the input on every keystroke (silently — only emits when valid) and
  * re-formats canonical on blur. Format is driven by {@link WrDateAdapter}: it
@@ -59,14 +63,17 @@ import { WrTimePanel } from './internal/time-panel';
  *
  * @example
  * ```html
- * <!-- Date only -->
- * <wr-date-picker [(ngModel)]="picked" format="dd.MM.yyyy" [min]="minDate" />
+ * <!-- signal forms -->
+ * <wr-date-picker [formField]="form.picked" format="dd.MM.yyyy" [min]="minDate" />
+ *
+ * <!-- standalone two-way binding, date only -->
+ * <wr-date-picker [(value)]="picked" format="dd.MM.yyyy" [min]="minDate" />
  *
  * <!-- Time only -->
- * <wr-date-picker mode="time" [(ngModel)]="picked" timeFormat="24h" />
+ * <wr-date-picker mode="time" [(value)]="picked" timeFormat="24h" />
  *
  * <!-- Date + time -->
- * <wr-date-picker mode="datetime" [(ngModel)]="when" [showSeconds]="true" [step]="5" />
+ * <wr-date-picker mode="datetime" [(value)]="when" [showSeconds]="true" [step]="5" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/date-picker
@@ -77,16 +84,8 @@ import { WrTimePanel } from './internal/time-panel';
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrInput, WrInputGroup, WrInputSuffix],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrDatePicker),
-      multi: true,
-    },
-  ],
 })
-export class WrDatePicker implements ControlValueAccessor {
+export class WrDatePicker implements FormValueControl<Date | null> {
   /** Picker behavior — see class doc. @default 'date' */
   readonly mode = input<'date' | 'time' | 'datetime'>('date');
 
@@ -100,11 +99,15 @@ export class WrDatePicker implements ControlValueAccessor {
   /** Placeholder shown when the input is empty. */
   readonly placeholder = input<string>('');
 
+  // Typed `Date | undefined` (not `Date | null`) to satisfy the reserved
+  // `FormUiControl` min/max slots, which are keyed to the control's value type
+  // and want `Date | undefined`. Both null and undefined stay falsy, so the
+  // internal bounds checks below are unaffected.
   /** Min selectable date (forwarded to the calendar). Ignored in `time` mode. */
-  readonly min = input<Date | null>(null);
+  readonly min = input<Date | undefined>(undefined);
 
   /** Max selectable date (forwarded to the calendar). Ignored in `time` mode. */
-  readonly max = input<Date | null>(null);
+  readonly max = input<Date | undefined>(undefined);
 
   /** Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
@@ -118,7 +121,12 @@ export class WrDatePicker implements ControlValueAccessor {
   /** Minute / second step for the time panel. @default 1 */
   readonly step = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });
 
-  /** Disable interaction. @default false */
+  /**
+   * Disable interaction. Bound automatically from the field's disabled state
+   * when used with `[formField]`.
+   *
+   * @default false
+   */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /** Read-only — input not typeable, but the trigger icon still opens the overlay. @default false */
@@ -131,15 +139,14 @@ export class WrDatePicker implements ControlValueAccessor {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
-  /** The picked Date. Mirrored from the CVA. */
-  protected readonly value = signal<Date | null>(null);
+  /** The picked Date. Bound by `[formField]`, or two-way via `[(value)]`. */
+  readonly value = model<Date | null>(null);
+
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
 
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
-
-  private readonly disabledFromCva = signal(false);
-
-  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
 
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
@@ -172,7 +179,7 @@ export class WrDatePicker implements ControlValueAccessor {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-date-picker', `wr-date-picker--${this.mode()}`];
-    if (this.effectiveDisabled()) parts.push('wr-date-picker--disabled');
+    if (this.disabled()) parts.push('wr-date-picker--disabled');
     return parts.join(' ');
   });
 
@@ -182,8 +189,27 @@ export class WrDatePicker implements ControlValueAccessor {
    * the typed value in real time (not just on reopen). */
   private readonly dateRef = signal<ComponentRef<WrCalendar> | null>(null);
 
+  /** Last value we pushed into the model ourselves — lets the sync effect
+   * skip the echo of our own edits (so a live keystroke's raw text is never
+   * reformatted mid-type). */
+  private lastValue: Date | null = null;
+
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
+
+    // Mirror external writes to `value` (from `[formField]`, `[(value)]`, or a
+    // classic-forms bridge) into the display text — this is the old
+    // `writeValue` body. Wrapped so it reacts only to `value()`; the echo of
+    // our own edits is skipped, and a null/undefined write is tolerated (it
+    // clears the text, exactly as the old `writeValue(Date | null)` did).
+    effect(() => {
+      const v = this.value();
+      untracked(() => {
+        if (this.sameDate(v, this.lastValue)) return;
+        this.lastValue = v;
+        this.text.set(v && this.adapter.isValid(v) ? this.adapter.format(v, this.resolvedFormat()) : '');
+      });
+    });
 
     // While the calendar popover is open, push every valid typed value into it
     // so the displayed month follows the input live (the calendar snaps its
@@ -194,65 +220,40 @@ export class WrDatePicker implements ControlValueAccessor {
     });
   }
 
-  // ControlValueAccessor
-
-  private onChange: (value: Date | null) => void = noop;
-  private onTouched: () => void = noop;
-
-  writeValue(value: Date | null): void {
-    this.value.set(value);
-    this.text.set(value && this.adapter.isValid(value) ? this.adapter.format(value, this.resolvedFormat()) : '');
-  }
-
-  registerOnChange(fn: (value: Date | null) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
-  }
-
   // Template handlers
 
   protected onInput(event: Event): void {
     const raw = (event.target as HTMLInputElement).value;
     this.text.set(raw);
     if (!raw) {
-      this.value.set(null);
-      this.onChange(null);
+      this.commitValue(null);
       return;
     }
     const parsed = this.adapter.parse(raw, this.resolvedFormat());
     if (parsed && this.adapter.isValid(parsed) && !this.isOutOfBounds(parsed)) {
-      this.value.set(parsed);
-      this.onChange(parsed);
+      this.commitValue(parsed);
     }
   }
 
   protected onBlur(): void {
-    this.onTouched();
+    this.touch.emit();
     // Reformat to canonical on blur (cleans up `1/5/25` → `1/5/2025`).
     const v = this.value();
     if (v && this.adapter.isValid(v)) {
       this.text.set(this.adapter.format(v, this.resolvedFormat()));
     } else if (!this.text()) {
-      this.value.set(null);
-      this.onChange(null);
+      this.commitValue(null);
     }
   }
 
   /** Called by the input's click — opens the overlay if it isn't open already. */
   protected openOnInput(): void {
-    if (this.effectiveDisabled() || this.overlayRef) return;
+    if (this.disabled() || this.overlayRef) return;
     this.openOverlay();
   }
 
   protected toggleOverlay(): void {
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     if (this.overlayRef) {
       this.closeOverlay();
     } else {
@@ -354,9 +355,15 @@ export class WrDatePicker implements ControlValueAccessor {
   }
 
   private commit(next: Date): void {
-    this.value.set(next);
     this.text.set(this.adapter.format(next, this.resolvedFormat()));
-    this.onChange(next);
+    this.commitValue(next);
+  }
+
+  /** Push a value to the model while remembering it, so the sync effect treats
+   * the resulting change as an echo and leaves the display text alone. */
+  private commitValue(next: Date | null): void {
+    this.lastValue = next;
+    this.value.set(next);
   }
 
   private closeOverlay(): void {
@@ -381,5 +388,11 @@ export class WrDatePicker implements ControlValueAccessor {
     const max = this.max();
     if (max && this.adapter.compareDate(date, max) > 0) return true;
     return false;
+  }
+
+  private sameDate(a: Date | null, b: Date | null): boolean {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    return a.getTime() === b.getTime();
   }
 }

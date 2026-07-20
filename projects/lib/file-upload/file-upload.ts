@@ -11,16 +11,17 @@ import {
   type ElementRef,
   ViewEncapsulation,
   computed,
-  forwardRef,
+  effect,
   input,
+  model,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { useI18nText } from 'ngwr/i18n';
-import { noop } from 'ngwr/utils';
 
 import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './interfaces';
 
@@ -54,13 +55,19 @@ function matchesAccept(file: File, accept: string): boolean {
  * Drag-and-drop file upload zone. Click to browse, drag-and-drop to add,
  * with an optional file list + remove buttons.
  *
- * Implements `ControlValueAccessor` — value is `File | File[] | null`
- * (single or array, governed by `multiple`).
+ * A signal-forms native control: it implements
+ * `FormValueControl<File | readonly File[] | null>`, so `[formField]` binds
+ * straight to its `value` model — no `ControlValueAccessor` in between.
+ * `[(value)]` works standalone. The value shape follows `multiple`: a single
+ * `File` (or `null`), or a `File[]` array.
  *
  * @example
  * ```html
- * <wr-file-upload [(ngModel)]="files" [multiple]="true" accept="image/*" />
- * <wr-file-upload [(ngModel)]="avatar" accept=".png,.jpg" [maxSize]="2 * 1024 * 1024" />
+ * <!-- signal forms -->
+ * <wr-file-upload [formField]="form.files" [multiple]="true" accept="image/*" />
+ *
+ * <!-- standalone two-way binding -->
+ * <wr-file-upload [(value)]="avatar" accept=".png,.jpg" [maxSize]="2 * 1024 * 1024" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/file-upload
@@ -71,16 +78,8 @@ function matchesAccept(file: File, accept: string): boolean {
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrFileUpload),
-      multi: true,
-    },
-  ],
 })
-export class WrFileUpload implements ControlValueAccessor {
+export class WrFileUpload implements FormValueControl<File | readonly File[] | null> {
   /** Allow multiple files. Single mode replaces on each add. @default false */
   readonly multiple = input(false, { transform: coerceBooleanProperty });
 
@@ -96,7 +95,12 @@ export class WrFileUpload implements ControlValueAccessor {
   /** Render the picked-files list below the zone. @default true */
   readonly showList = input(true, { transform: coerceBooleanProperty });
 
-  /** Disable interaction. @default false */
+  /**
+   * Disable interaction. Bound automatically from the field's disabled state
+   * when used with `[formField]`.
+   *
+   * @default false
+   */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /** Primary call-to-action label. Falls back to `fileUpload.browse`. */
@@ -123,56 +127,53 @@ export class WrFileUpload implements ControlValueAccessor {
   /** Optional helper text shown below the labels (e.g. accepted formats). */
   readonly helperText = input<string>('');
 
+  /**
+   * Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape
+   * follows `multiple`: a single `File` (or `null`), or a `File[]` array.
+   */
+  readonly value = model<File | readonly File[] | null>(null);
+
   /** Emitted when files are rejected for type / size / count reasons. */
   readonly rejected = output<readonly WrFileUploadRejection[]>();
+
+  /** Emitted on commit so a bound field can mark itself touched. */
+  readonly touch = output<void>();
 
   protected readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
 
   protected readonly files = signal<readonly File[]>([]);
   protected readonly dragging = signal(false);
 
-  private readonly disabledFromCva = signal(false);
-
-  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
-
   protected readonly classes = computed(() => {
     const parts = ['wr-file-upload'];
     if (this.dragging()) parts.push('wr-file-upload--dragging');
-    if (this.effectiveDisabled()) parts.push('wr-file-upload--disabled');
+    if (this.disabled()) parts.push('wr-file-upload--disabled');
     return parts.join(' ');
   });
 
   protected readonly formatBytes = formatBytes;
 
-  // ControlValueAccessor
-
-  private onChange: (value: File | readonly File[] | null) => void = noop;
-  private onTouched: () => void = noop;
-
-  writeValue(value: File | readonly File[] | null): void {
-    if (value === null || value === undefined) {
-      this.files.set([]);
-      return;
-    }
-    this.files.set(Array.isArray(value) ? value : [value as File]);
-  }
-
-  registerOnChange(fn: (value: File | readonly File[] | null) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
+  constructor() {
+    // Rebuild the internal file list from an external `value` write (mirrors the
+    // old `writeValue`). Skipped when the value is merely the echo of an
+    // in-component edit, so re-syncing can never clobber a live selection.
+    effect(() => {
+      const v = this.value();
+      untracked(() => {
+        // Coerce null/undefined to `[]` — a classic-forms binding can write
+        // null, which the old `writeValue(v: … | null)` accepted too.
+        const next: readonly File[] = v === null || v === undefined ? [] : Array.isArray(v) ? v : [v as File];
+        const current = this.files();
+        if (current.length === next.length && current.every((file, i) => file === next[i])) return;
+        this.files.set(next);
+      });
+    });
   }
 
   // Template handlers
 
   protected openPicker(): void {
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     this.picker().nativeElement.click();
   }
 
@@ -191,13 +192,13 @@ export class WrFileUpload implements ControlValueAccessor {
   }
 
   protected onDragEnter(event: DragEvent): void {
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     event.preventDefault();
     this.dragging.set(true);
   }
 
   protected onDragOver(event: DragEvent): void {
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     event.preventDefault();
     if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
   }
@@ -210,13 +211,13 @@ export class WrFileUpload implements ControlValueAccessor {
   protected onDrop(event: DragEvent): void {
     event.preventDefault();
     this.dragging.set(false);
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     const dropped = event.dataTransfer?.files ? Array.from(event.dataTransfer.files) : [];
     if (dropped.length > 0) this.acceptFiles(dropped);
   }
 
   protected removeAt(index: number): void {
-    if (this.effectiveDisabled()) return;
+    if (this.disabled()) return;
     const next = this.files().filter((_, i) => i !== index);
     this.files.set(next);
     this.emit();
@@ -250,7 +251,7 @@ export class WrFileUpload implements ControlValueAccessor {
     }
 
     this.files.set(next);
-    this.onTouched();
+    this.touch.emit();
     this.emit();
     if (rejections.length > 0) this.rejected.emit(rejections);
   }
@@ -264,9 +265,9 @@ export class WrFileUpload implements ControlValueAccessor {
   private emit(): void {
     const list = this.files();
     if (this.multiple()) {
-      this.onChange(list);
+      this.value.set(list);
     } else {
-      this.onChange(list.length > 0 ? list[0] : null);
+      this.value.set(list.length > 0 ? list[0] : null);
     }
   }
 }

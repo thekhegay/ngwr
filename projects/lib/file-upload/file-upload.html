@@ -3,7 +3,7 @@
   role="button"
   tabindex="0"
   [attr.aria-label]="resolvedDropZone()"
-  [attr.aria-disabled]="effectiveDisabled() || null"
+  [attr.aria-disabled]="disabled() || null"
   (click)="openPicker()"
   (keydown)="onZoneKey($event)"
   (dragenter)="onDragEnter($event)"
@@ -34,7 +34,7 @@
     type="file"
     [attr.accept]="accept() || null"
     [attr.multiple]="multiple() ? '' : null"
-    [disabled]="effectiveDisabled()"
+    [disabled]="disabled()"
     (change)="onPickerChange($event)"
   />
 </div>
@@ -49,7 +49,7 @@
           type="button"
           class="wr-file-upload__remove"
           [attr.aria-label]="resolvedRemove()"
-          [disabled]="effectiveDisabled()"
+          [disabled]="disabled()"
           (click)="removeAt($index)"
         >
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">

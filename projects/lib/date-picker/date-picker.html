@@ -9,7 +9,7 @@
     [attr.aria-expanded]="overlayOpen()"
     [value]="text()"
     [placeholder]="placeholder()"
-    [disabled]="effectiveDisabled()"
+    [disabled]="disabled()"
     [readonly]="readonly()"
     (click)="openOnInput()"
     (input)="onInput($event)"
@@ -20,7 +20,7 @@
     wrInputSuffix
     class="wr-date-picker__trigger"
     [attr.aria-label]="triggerLabel()"
-    [disabled]="effectiveDisabled()"
+    [disabled]="disabled()"
     (click)="toggleOverlay()"
   >
     @if (isTime()) {

@@ -3,13 +3,13 @@
     type="button"
     class="wr-tree__trigger"
     role="combobox"
-    [disabled]="isDisabled()"
+    [disabled]="disabled()"
     [attr.aria-haspopup]="'tree'"
     [attr.aria-expanded]="open()"
     [attr.aria-controls]="panelId"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"
     (click)="onTriggerClick()"
-    (blur)="onTouched()"
+    (blur)="onBlur()"
   >
     @if (isMulti()) {
       @if (hasSelection()) {
@@ -58,7 +58,7 @@
       }
     }
 
-    @if (clearable() && hasSelection() && !isDisabled()) {
+    @if (clearable() && hasSelection() && !disabled()) {
       <span
         class="wr-tree__clear"
         role="button"
@@ -129,7 +129,7 @@
         [attr.aria-level]="entry.depth + 1"
         [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"
         [attr.aria-selected]="selectionMode() === 'none' ? null : selectedSet().has(entry.node.id)"
-        [attr.aria-disabled]="entry.node.disabled || isDisabled() || null"
+        [attr.aria-disabled]="entry.node.disabled || disabled() || null"
         [attr.data-tree-index]="$index"
         [attr.tabindex]="$index === focusedIndex() ? 0 : -1"
         [style.--wr-tree-depth]="entry.depth"
