@@ -12,7 +12,10 @@ import {
   type EnvironmentProviders,
   inject,
   makeEnvironmentProviders,
+  provideEnvironmentInitializer,
 } from '@angular/core';
+
+import { WrVisualViewport } from 'ngwr/platform';
 
 import { WR_OVERLAY, WR_OVERLAY_CONTAINER } from './tokens';
 import { WrOverlayContainer } from './wr-overlay-container';
@@ -47,6 +50,10 @@ import { WrOverlayContainer } from './wr-overlay-container';
  */
 export function provideWrOverlay(): EnvironmentProviders {
   return makeEnvironmentProviders([
+    // Track the visual viewport app-wide so overlay sheets (and the
+    // command-palette) can lift above the on-screen keyboard. No-op on the
+    // server / in browsers without the API.
+    provideEnvironmentInitializer(() => void inject(WrVisualViewport)),
     { provide: WR_OVERLAY_CONTAINER, useClass: WrOverlayContainer },
     {
       provide: WR_OVERLAY,

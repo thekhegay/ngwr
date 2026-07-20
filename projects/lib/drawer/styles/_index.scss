@@ -9,6 +9,15 @@
   pointer-events: auto;
 }
 
+// Horizontal drawers stretch full-height. The height moved off the CDK inline
+// style (which can't carry a fallback) so we can offer `dvh` with a `vh`
+// fallback here; the panel's `height: 100%` then fills it.
+.wr-drawer-overlay--left,
+.wr-drawer-overlay--right {
+  height: 100vh;
+  height: 100dvh;
+}
+
 .wr-drawer__panel {
   --wr-drawer-bg: var(--wr-color-surface);
   --wr-drawer-shadow: var(--wr-shadow-modal);

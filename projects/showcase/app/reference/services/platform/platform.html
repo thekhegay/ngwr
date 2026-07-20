@@ -30,4 +30,23 @@
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrVisualViewport"
+    description="A second `ngwr/platform` service tracking `window.visualViewport` — the slice of the layout viewport still visible once the on-screen keyboard is accounted for. `provideWrOverlay()` eagerly instantiates it, so responsive overlay sheets and the command-palette lift above the keyboard out of the box; inject it directly for custom handling. Try it on a phone — focus a text field and watch the value change."
+  >
+    <ngwr-doc-code [code]="snippets.viewport" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="font-family: var(--wr-font-family-base); font-size: 0.875rem; line-height: 1.5">
+        <div>
+          bottomInset (keyboard): <strong>{{ bottomInset() }}px</strong>
+        </div>
+        <div>
+          offsetTop: <strong>{{ offsetTop() }}px</strong>
+        </div>
+        <small style="color: var(--wr-color-medium)">0 on desktop / without the VisualViewport API.</small>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-api [rows]="viewportApi" />
+  </ngwr-doc-section>
 </ngwr-doc-page>

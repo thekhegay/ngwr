@@ -186,7 +186,10 @@
     // Top-docked full-screen: clear the notch at the top (search bar) and the
     // home indicator at the bottom. The panel background still fills both edges.
     padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    // When the on-screen keyboard is up (--wr-keyboard-inset, set by
+    // WrVisualViewport) it covers more than the home indicator, so keep the
+    // results list above whichever is taller.
+    padding-bottom: max(env(safe-area-inset-bottom), var(--wr-keyboard-inset, 0px));
   }
 
   .wr-command-palette__body {

@@ -219,7 +219,7 @@ export class WrDrawer {
       panelClass: ['wr-drawer-overlay', `wr-drawer-overlay--${pos}`],
       scrollStrategy: this.overlay.scrollStrategies.block(),
       width: isHorizontal ? this.width() : '100vw',
-      height: isHorizontal ? '100vh' : this.height(),
+      height: isHorizontal ? undefined : this.height(),
       maxHeight: isHorizontal ? undefined : (cap ?? undefined),
     });
 

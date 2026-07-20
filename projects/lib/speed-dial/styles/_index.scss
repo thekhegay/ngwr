@@ -9,6 +9,22 @@
   display: inline-block;
   font-family: var(--wr-font-family-base);
 
+  // Safe-area opt-in: pad the host toward the fan direction so a consumer who
+  // pins the FAB to that edge clears the notch / home indicator. env() is 0
+  // without insets, so desktop is unaffected.
+  &--safe-area.wr-speed-dial--up {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  &--safe-area.wr-speed-dial--down {
+    padding-top: env(safe-area-inset-top);
+  }
+  &--safe-area.wr-speed-dial--left {
+    padding-right: env(safe-area-inset-right);
+  }
+  &--safe-area.wr-speed-dial--right {
+    padding-left: env(safe-area-inset-left);
+  }
+
   &__trigger {
     width: var(--wr-speed-dial-size);
     height: var(--wr-speed-dial-size);

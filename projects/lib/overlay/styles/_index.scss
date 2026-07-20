@@ -10,8 +10,16 @@
   min-width: 0 !important;
   max-width: 100% !important;
   max-height: 90vh !important;
+  // Dynamic viewport height, and never taller than the space left above the
+  // on-screen keyboard (--wr-keyboard-inset, set by WrVisualViewport; 0 when
+  // there is no keyboard, on the server, or in browsers without the API).
+  max-height: calc(90dvh - var(--wr-keyboard-inset, 0px)) !important;
   border-radius: var(--wr-border-radius-lg) var(--wr-border-radius-lg) 0 0 !important;
   padding-bottom: env(safe-area-inset-bottom);
+  // Lift the bottom-pinned sheet clear of the keyboard. margin (not transform)
+  // so it doesn't fight the slide-up animation; transitions smoothly.
+  margin-bottom: var(--wr-keyboard-inset, 0px);
+  transition: margin-bottom var(--wr-overlay-duration, 0.2s) var(--wr-overlay-ease, ease-out);
   animation: wr-overlay-sheet-up var(--wr-overlay-duration, 0.2s) var(--wr-overlay-ease, ease-out) !important;
 }
 
