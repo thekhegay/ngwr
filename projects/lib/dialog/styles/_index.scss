@@ -64,6 +64,7 @@
   min-width: var(--wr-dialog-min-width);
   max-width: calc(100vw - 2rem);
   max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
 
   background: var(--wr-dialog-bg);
   @include theme.smooth-br(var(--wr-dialog-radius));

@@ -345,10 +345,10 @@
   font-family: var(--wr-font-family-base);
 
   &--bottom {
-    bottom: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
   }
   &--top {
-    top: 0.75rem;
+    top: calc(0.75rem + env(safe-area-inset-top));
   }
 
   &__rail {

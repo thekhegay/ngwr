@@ -52,6 +52,13 @@ export class WrSpeedDial {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Pad the host toward the dial `direction` with `env(safe-area-inset-*)`.
+   * Only matters when the consumer pins the dial to that edge of the
+   * viewport; otherwise it has no effect. @default false
+   */
+  readonly safeArea = input(false, { transform: coerceBooleanProperty });
+
   /** Fires when the user picks one of the actions. */
   readonly pick = output<WrSpeedDialAction>();
 
@@ -59,6 +66,7 @@ export class WrSpeedDial {
     const parts = ['wr-speed-dial', `wr-speed-dial--${this.direction()}`];
     if (this.open()) parts.push('wr-speed-dial--open');
     if (this.disabled()) parts.push('wr-speed-dial--disabled');
+    if (this.safeArea()) parts.push('wr-speed-dial--safe-area');
     return parts.join(' ');
   });
 
