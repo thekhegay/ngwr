@@ -49,4 +49,30 @@
     </ngwr-doc-snippet>
     <ngwr-doc-api [rows]="viewportApi" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrHaptics"
+    description="A third `ngwr/platform` service — an SSR-safe wrapper over the Vibration API. Semantic presets (`impact`, `selection`, `success`, `warning`, `error`) map to sensible patterns. It is a graceful no-op where unsupported: the server, browsers without `navigator.vibrate`, and iOS Safari (native-only haptics). Tap a button below on an Android / Chrome touch device to feel it."
+  >
+    <ngwr-doc-code [code]="snippets.haptics" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+          <wr-btn size="sm" (click)="haptics.impact('light')">Impact light</wr-btn>
+          <wr-btn size="sm" (click)="haptics.impact('medium')">Impact medium</wr-btn>
+          <wr-btn size="sm" (click)="haptics.impact('heavy')">Impact heavy</wr-btn>
+          <wr-btn size="sm" (click)="haptics.selection()">Selection</wr-btn>
+          <wr-btn size="sm" color="success" (click)="haptics.success()">Success</wr-btn>
+          <wr-btn size="sm" color="warning" (click)="haptics.warning()">Warning</wr-btn>
+          <wr-btn size="sm" color="danger" (click)="haptics.error()">Error</wr-btn>
+        </div>
+        <small style="color: var(--wr-color-medium)">
+          supported: <strong>{{ hapticsSupported }}</strong> — this reflects only whether the Vibration API exists, not
+          whether the device can buzz: desktops often report supported yet have no vibration hardware, while iOS Safari
+          lacks the API entirely.
+        </small>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-api [rows]="hapticsApi" />
+  </ngwr-doc-section>
 </ngwr-doc-page>

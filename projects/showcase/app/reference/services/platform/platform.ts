@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 
-import { WrPlatform, WrVisualViewport } from 'ngwr/platform';
+import { WrButton } from 'ngwr/button';
+import { WrHaptics, WrPlatform, WrVisualViewport } from 'ngwr/platform';
 
 import {
   DocApiComponent,
@@ -14,11 +15,13 @@ import {
 @Component({
   selector: 'ngwr-svc-platform-page',
   templateUrl: './platform.html',
-  imports: [DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class PlatformServicePageComponent {
   private readonly platformService = inject(WrPlatform);
   private readonly visualViewport = inject(WrVisualViewport);
+  protected readonly haptics = inject(WrHaptics);
+  protected readonly hapticsSupported = this.haptics.supported;
 
   protected readonly prefersDark = this.platformService.prefersDark;
   protected readonly prefersReducedMotion = this.platformService.prefersReducedMotion;
@@ -45,6 +48,19 @@ protected readonly keyboard = this.vv.bottomInset;         // Signal<number>
 // Also mirrored onto the document root as \`--wr-keyboard-inset\`, so purely
 // presentational surfaces can lift above the keyboard with CSS alone:
 //   padding-bottom: max(env(safe-area-inset-bottom), var(--wr-keyboard-inset, 0px));`,
+    haptics: `private readonly haptics = inject(WrHaptics);
+
+onConfirmDelete(): void {
+  this.haptics.warning();          // buzz before a destructive action
+}
+
+onToggle(): void {
+  this.haptics.selection();        // subtle tick on a switch / segmented change
+}
+
+// No-op off-device: false on the server, in browsers without the Vibration
+// API, and on iOS Safari (native-only haptics). Branch on \`supported\`.
+protected readonly canBuzz = this.haptics.supported;`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -83,5 +99,39 @@ protected readonly keyboard = this.vv.bottomInset;         // Signal<number>
       type: 'Signal<number>',
       default: '—',
     },
+  ];
+
+  protected readonly hapticsApi: readonly DocApiRow[] = [
+    {
+      name: 'supported',
+      description: 'Whether the Vibration API is available (browser + `navigator.vibrate`; `false` on iOS Safari).',
+      type: 'boolean',
+      default: '—',
+    },
+    {
+      name: 'vibrate(pattern)',
+      description: 'Raw pattern — ms, or `[buzz, pause, …]`. Returns whether it fired; `0` / `[]` cancels.',
+      type: '(number | readonly number[]) => boolean',
+      default: '—',
+    },
+    {
+      name: 'impact(strength?)',
+      description: 'A physical tap — `light` / `medium` / `heavy`.',
+      type: "('light'|'medium'|'heavy') => boolean",
+      default: "'medium'",
+    },
+    {
+      name: 'selection()',
+      description: 'A subtle tick for a discrete change.',
+      type: '() => boolean',
+      default: '—',
+    },
+    {
+      name: 'success() / warning() / error()',
+      description: 'Notification pulses for completed / risky / failed actions.',
+      type: '() => boolean',
+      default: '—',
+    },
+    { name: 'stop()', description: 'Cancel any in-progress vibration.', type: '() => void', default: '—' },
   ];
 }
