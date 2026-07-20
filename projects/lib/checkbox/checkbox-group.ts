@@ -6,10 +6,8 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, forwardRef, input, signal } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
-import { noop } from 'ngwr/utils';
+import { Component, ViewEncapsulation, computed, forwardRef, input, model, output } from '@angular/core';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
 
@@ -17,9 +15,13 @@ import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
  * Manages a group of `<wr-checkbox>` children as a single form value
  * (an array of the checked items' `value` inputs).
  *
+ * A signal-forms native control: it implements `FormValueControl<unknown[]>`,
+ * so `[formField]` binds to its `value` model. `[(value)]` works standalone,
+ * and classic `[(ngModel)]` / reactive forms keep working through the bridge.
+ *
  * @example
  * ```html
- * <wr-checkbox-group [(ngModel)]="features">
+ * <wr-checkbox-group [formField]="form.features">
  *   <wr-checkbox value="autosave">Autosave</wr-checkbox>
  *   <wr-checkbox value="notifications">Notifications</wr-checkbox>
  *   <wr-checkbox value="darkmode">Dark mode</wr-checkbox>
@@ -35,35 +37,36 @@ import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
   host: { class: 'wr-checkbox-group', role: 'group' },
   providers: [
     {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrCheckboxGroup),
-      multi: true,
-    },
-    {
       provide: WR_CHECKBOX_GROUP,
       // eslint-disable-next-line @angular-eslint/no-forward-ref
       useExisting: forwardRef(() => WrCheckboxGroup),
     },
   ],
 })
-export class WrCheckboxGroup implements ControlValueAccessor, WrCheckboxGroupContext {
+export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxGroupContext {
   /**
-   * Disable every child checkbox. Also set by Angular forms via
-   * `setDisabledState`.
+   * Disable every child checkbox. Bound automatically from the field's
+   * disabled state when used with `[formField]`.
    *
    * @default false
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  private readonly selected = signal<readonly unknown[]>([]);
-  private readonly disabledFromCva = signal(false);
+  /** The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`. */
+  readonly value = model<unknown[]>([]);
 
-  /** Effective disabled state — input wins, CVA second. */
-  readonly isDisabled = computed(() => this.disabled() || this.disabledFromCva());
+  /** Emitted when a child toggles so a bound field can mark itself touched. */
+  readonly touch = output<void>();
 
-  private onChange: (value: unknown[]) => void = noop;
-  private onTouched: () => void = noop;
+  // The current selection as a guaranteed array — a classic-forms binding can
+  // write null even though the type is `unknown[]`, so normalise every read.
+  private readonly selected = computed<readonly unknown[]>(() => {
+    const v = this.value();
+    return Array.isArray(v) ? v : [];
+  });
+
+  /** Effective disabled state (WrCheckboxGroupContext). */
+  readonly isDisabled = computed(() => this.disabled());
 
   // WrCheckboxGroupContext
 
@@ -75,26 +78,7 @@ export class WrCheckboxGroup implements ControlValueAccessor, WrCheckboxGroupCon
     if (this.isDisabled()) return;
     const current = this.selected();
     const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
-    this.selected.set(next);
-    this.onChange([...next]);
-    this.onTouched();
-  }
-
-  // ControlValueAccessor
-
-  writeValue(value: unknown): void {
-    this.selected.set(Array.isArray(value) ? [...(value as unknown[])] : []);
-  }
-
-  registerOnChange(fn: (value: unknown[]) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
+    this.value.set(next);
+    this.touch.emit();
   }
 }

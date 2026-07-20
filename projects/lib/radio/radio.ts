@@ -89,6 +89,6 @@ export class WrRadio {
   }
 
   protected onBlur(): void {
-    this.group?.touch();
+    this.group?.markTouched();
   }
 }

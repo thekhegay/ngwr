@@ -29,11 +29,17 @@ import { WR_CHECKBOX_GROUP } from './tokens';
  *
  * @example
  * ```html
- * <wr-checkbox-group [(ngModel)]="features">
+ * <wr-checkbox-group [formField]="form.features">
  *   <wr-checkbox value="autosave">Autosave</wr-checkbox>
  *   <wr-checkbox value="notifications">Notifications</wr-checkbox>
  * </wr-checkbox-group>
  * ```
+ *
+ * Unlike the other value controls, the standalone checkbox stays a
+ * `ControlValueAccessor` rather than a signal-forms `FormCheckboxControl`:
+ * that contract forbids a `value` property, but `value` is this component's
+ * group-membership identity. Both `[formField]` and `[(ngModel)]` still work
+ * on it through Angular's CVA bridge; the group is the native form control.
  *
  * @see https://ngwr.dev/reference/components/checkbox
  */
