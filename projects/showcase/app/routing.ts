@@ -135,6 +135,7 @@ export const routes = {
     dropdown: 'dropdown',
     fileUpload: 'file-upload',
     pagination: 'pagination',
+    pullToRefresh: 'pull-to-refresh',
     table: 'table',
     virtualScroll: 'virtual-scroll',
     dragDrop: 'drag-drop',

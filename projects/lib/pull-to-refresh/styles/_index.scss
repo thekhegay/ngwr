@@ -1,0 +1,38 @@
+.wr-pull-to-refresh {
+  display: block;
+  position: relative;
+  overflow-y: auto;
+  // Keep the browser's own pull-to-refresh / scroll-chaining out of the way.
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  font-family: var(--wr-font-family-base);
+
+  // Revealed above the content as it is pulled down (absolute, so it never
+  // adds to the scroll height). Height tracks the live pull distance.
+  &__indicator {
+    position: absolute;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+    color: var(--wr-color-on-surface-muted);
+  }
+
+  &__content {
+    min-height: 100%;
+  }
+
+  // Only while settling (not during the drag) so the indicator follows the
+  // finger 1:1, then eases back on release / completion.
+  &--animating {
+    .wr-pull-to-refresh__content {
+      transition: transform var(--wr-duration-base) var(--wr-ease-out);
+    }
+
+    .wr-pull-to-refresh__indicator {
+      transition: height var(--wr-duration-base) var(--wr-ease-out);
+    }
+  }
+}
