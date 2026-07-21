@@ -52,8 +52,10 @@ function lucide(name: string, children: LucideIconNode): WrIconDef {
 
 /**
  * Wrap a bag of Lucide icons in one shot. Keys become the registered
- * names (camelCase → kebab-case), values are the upstream IconNode
- * tuples. The shape mirrors how you'd write `provideWrIcons` anyway.
+ * names **verbatim** — exactly what you pass to `<wr-icon name>` — matching
+ * the singular `lucide()` helper and the other adapters. Kebab-case by
+ * convention, so quote multi-word keys (`'chevron-down'`). Values are the
+ * upstream IconNode tuples.
  *
  * Tree-shaking: every `Plus`, `Trash`, … import lives in *your* file
  * — ngwr ships only this wrapper, not the icon data. Unused icons in
@@ -66,13 +68,13 @@ function lucide(name: string, children: LucideIconNode): WrIconDef {
  *
  * bootstrapApplication(AppComponent, {
  *   providers: [
- *     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, chevronDown: ChevronDown })),
+ *     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, 'chevron-down': ChevronDown })),
  *   ],
  * });
  * ```
  */
 function lucideIcons(icons: Record<string, LucideIconNode>): WrIconDef[] {
-  return Object.entries(icons).map(([name, node]) => lucide(camelToKebab(name), node));
+  return Object.entries(icons).map(([name, node]) => lucide(name, node));
 }
 
 function renderChild([tag, attrs]: readonly [string, Record<string, string | number | undefined>]): string {
@@ -81,10 +83,6 @@ function renderChild([tag, attrs]: readonly [string, Record<string, string | num
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ');
   return `<${tag} ${rendered}/>`;
-}
-
-function camelToKebab(value: string): string {
-  return value.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
 export { lucide, lucideIcons, type LucideIconNode };

@@ -76,5 +76,5 @@ bootstrapApplication(AppComponent, {
 // Then in any template: <wr-icon name="add" />`;
 
   protected readonly snippetFor = (entry: IconEntry): string =>
-    `import { ${kebabToPascal(entry.name)} } from 'lucide';\nimport { lucideIcons } from 'ngwr/icon/adapters/lucide';\n\nprovideWrIcons(lucideIcons({ ${kebabToCamel(entry.name)}: ${kebabToPascal(entry.name)} }));`;
+    `import { ${kebabToPascal(entry.name)} } from 'lucide';\nimport { lucideIcons } from 'ngwr/icon/adapters/lucide';\n\nprovideWrIcons(lucideIcons({ '${entry.name}': ${kebabToPascal(entry.name)} }));`;
 }
