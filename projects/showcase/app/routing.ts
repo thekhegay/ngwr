@@ -58,6 +58,7 @@ export const routes = {
   },
   components: {
     index: 'components',
+    actionSheet: 'action-sheet',
     alert: 'alert',
     anchor: 'anchor',
     avatar: 'avatar',

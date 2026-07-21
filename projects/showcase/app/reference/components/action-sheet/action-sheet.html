@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="Action Sheet"
+  description="An iOS-style bottom sheet of choices — a data-driven preset over the drawer, with destructive and cancel roles."
+  [keywords]="['action-sheet', 'action sheet', 'bottom sheet', 'menu', 'mobile']"
+  [labels]="['Component']"
+>
+  <ngwr-doc-section
+    title="Basic"
+    description="Pass `actions`; picking one emits `action` and closes the sheet. `role: 'destructive'` paints the row red, `role: 'cancel'` drops it to a separate group at the bottom. Dismissing via the backdrop, Escape, or a swipe-down closes without emitting."
+  >
+    <ngwr-doc-code [code]="htmlSnippet" language="angular-html" />
+    <ngwr-doc-code [code]="tsSnippet" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap">
+        <wr-btn (click)="open.set(true)">Open action sheet</wr-btn>
+        @if (picked()) {
+          <span style="font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+            picked: <strong>{{ picked() }}</strong>
+          </span>
+        }
+      </div>
+
+      <wr-action-sheet
+        [(open)]="open"
+        title="Photo"
+        message="Choose a source"
+        [actions]="actions"
+        (action)="onPick($event)"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>
