@@ -31,7 +31,7 @@ provideWrIcons([svgIcon('plus', plusSvg)]);`,
 import { Plus, Trash, ChevronDown } from 'lucide';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
-provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, chevronDown: ChevronDown }));`,
+provideWrIcons(lucideIcons({ plus: Plus, trash: Trash, 'chevron-down': ChevronDown }));`,
 
     feather: `// Feather ships inner-SVG strings under \`dist/icons.json\`.
 // The adapter wraps each with Feather's default <svg> chrome.
