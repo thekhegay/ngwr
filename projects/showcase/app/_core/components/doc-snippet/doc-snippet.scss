@@ -9,6 +9,7 @@
 }
 
 .demo {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -17,7 +18,10 @@
   padding: 1.5rem;
   border-bottom: 1px solid var(--wr-color-light);
 
-  &:empty {
+  // Collapse when nothing is projected (a code-only snippet). The demo is now
+  // wrapped for the phone frame, so `:empty` no longer matches — key off the
+  // screen having no element children instead.
+  &:not(:has(.demo__screen > *)) {
     display: none;
   }
 
@@ -25,6 +29,70 @@
   &--no-code {
     border-bottom: 0;
   }
+}
+
+// Phone-frame preview -------------------------------------------------------
+
+.demo__toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--wr-color-light);
+  border-radius: var(--wr-border-radius-sm);
+  background: var(--wr-color-surface);
+  color: var(--wr-color-medium);
+  cursor: pointer;
+  opacity: 0.55;
+  transition:
+    opacity var(--wr-duration-base) var(--wr-ease-out),
+    color var(--wr-duration-base) var(--wr-ease-out);
+  --wr-icon-size: 1rem;
+
+  &:hover,
+  &[aria-pressed='true'] {
+    opacity: 1;
+    color: var(--wr-color-on-surface);
+  }
+}
+
+// Transparent by default so the demo lays out exactly as before; the wrappers
+// become the device shell only once framed.
+.demo__viewport,
+.demo__screen {
+  display: contents;
+}
+
+.demo--framed {
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: var(--wr-color-hover);
+}
+
+.demo--framed .demo__viewport {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 21rem);
+  height: min(70vh, 40rem);
+  overflow: hidden;
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-color-light);
+  border-radius: 2rem;
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.18);
+}
+
+.demo--framed .demo__screen {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.25rem;
 }
 
 .code {
