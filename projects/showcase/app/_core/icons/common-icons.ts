@@ -24,7 +24,9 @@ import {
   Eye,
   EyeOff,
   Funnel,
+  Monitor,
   Search,
+  Smartphone,
   X,
 } from 'lucide';
 import type { WrIconDef } from 'ngwr/icon';
@@ -49,6 +51,8 @@ export const COMMON_ICONS: readonly WrIconDef[] = lucideIcons({
   eye: Eye,
   'eye-off': EyeOff,
   filter: Funnel,
+  monitor: Monitor,
   search: Search,
+  smartphone: Smartphone,
   time: Clock,
 });

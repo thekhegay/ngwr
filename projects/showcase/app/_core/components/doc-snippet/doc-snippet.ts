@@ -1,4 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
+
+import { WrIcon } from 'ngwr/icon';
 
 import { DocCodeComponent } from '../doc-code/doc-code';
 import type { DocCodeFile } from '../doc-code/types';
@@ -28,12 +30,18 @@ import type { ShikiLang } from '#core/shiki';
   selector: 'ngwr-doc-snippet',
   templateUrl: './doc-snippet.html',
   styleUrl: './doc-snippet.scss',
-  imports: [DocCodeComponent],
+  imports: [DocCodeComponent, WrIcon],
 })
 export class DocSnippetComponent {
   readonly code = input<string>('');
   readonly language = input<ShikiLang>('html');
   readonly files = input<readonly DocCodeFile[] | null>(null);
+
+  /** Offer the phone-frame preview toggle on this demo. @default true */
+  readonly framable = input(true);
+
+  /** Whether the demo is currently rendered inside a phone frame. */
+  protected readonly framed = signal(false);
 
   /** Drives the border between demo + code (hidden when nothing to show). */
   protected readonly hasCode = computed(() => {

@@ -1,4 +1,19 @@
-<div class="demo" [class.demo--no-code]="!hasCode()">
-  <ng-content />
+<div class="demo" [class.demo--no-code]="!hasCode()" [class.demo--framed]="framed()">
+  @if (framable()) {
+    <button
+      type="button"
+      class="demo__toggle"
+      [attr.aria-pressed]="framed()"
+      [attr.aria-label]="framed() ? 'Exit phone-frame preview' : 'Preview in a phone frame'"
+      (click)="framed.set(!framed())"
+    >
+      <wr-icon [name]="framed() ? 'monitor' : 'smartphone'" />
+    </button>
+  }
+  <div class="demo__viewport">
+    <div class="demo__screen">
+      <ng-content />
+    </div>
+  </div>
 </div>
 <ngwr-doc-code class="code" [code]="code()" [language]="language()" [files]="files()" />
