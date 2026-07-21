@@ -11,6 +11,10 @@ export default [
     redirectTo: components.button,
   },
   {
+    path: components.actionSheet,
+    loadComponent: () => import('./action-sheet/action-sheet'),
+  },
+  {
     path: components.alert,
     loadComponent: () => import('./alert/alert'),
   },

@@ -1,0 +1,52 @@
+<wr-drawer [(open)]="open" position="bottom" height="auto" rounded showHandle safeArea maxHeight="90dvh">
+  <div class="wr-action-sheet">
+    @if (title() || message()) {
+      <div class="wr-action-sheet__header">
+        @if (title()) {
+          <div class="wr-action-sheet__title" wrDrawerTitle>{{ title() }}</div>
+        }
+        @if (message()) {
+          <div class="wr-action-sheet__message">{{ message() }}</div>
+        }
+      </div>
+    }
+    <!-- The drawer opens as an aria-modal dialog; name it via wrDrawerTitle.
+         When there is no visible title, a screen-reader-only fallback keeps the
+         dialog from being announced as unnamed. -->
+    @if (!title()) {
+      <span class="wr-action-sheet__sr-only" wrDrawerTitle>Actions</span>
+    }
+
+    <div class="wr-action-sheet__group">
+      @for (item of mainActions(); track $index) {
+        <button
+          type="button"
+          class="wr-action-sheet__action"
+          [class.wr-action-sheet__action--destructive]="item.role === 'destructive'"
+          [disabled]="item.disabled"
+          (click)="select(item)"
+        >
+          @if (item.icon) {
+            <wr-icon class="wr-action-sheet__icon" [name]="item.icon" />
+          }
+          <span class="wr-action-sheet__label">{{ item.label }}</span>
+        </button>
+      }
+    </div>
+
+    @if (cancelActions().length) {
+      <div class="wr-action-sheet__group wr-action-sheet__group--cancel">
+        @for (item of cancelActions(); track $index) {
+          <button
+            type="button"
+            class="wr-action-sheet__action wr-action-sheet__action--cancel"
+            [disabled]="item.disabled"
+            (click)="select(item)"
+          >
+            <span class="wr-action-sheet__label">{{ item.label }}</span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</wr-drawer>
