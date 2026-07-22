@@ -18,6 +18,19 @@
         [cdkDropListSortPredicate]="sortPredicate"
         (cdkDropListDropped)="onColumnDrop($event)"
       >
+        @if (rowSelection()) {
+          <th class="wr-table__th wr-table__th--select">
+            @if (rowSelection() === 'multiple') {
+              <wr-checkbox
+                size="sm"
+                [ngModel]="allSelected()"
+                [indeterminate]="someSelected()"
+                (ngModelChange)="toggleAll($event)"
+                aria-label="Select all rows"
+              />
+            }
+          </th>
+        }
         @for (col of displayColumns(); track col.key) {
           <th
             #thCell
@@ -68,7 +81,17 @@
     <tbody>
       @if (visibleItems(); as rows) {
         @for (row of rows; track $index) {
-          <tr class="wr-table__tr">
+          <tr class="wr-table__tr" [class.wr-table__tr--selected]="rowSelection() && isRowSelected(row)">
+            @if (rowSelection()) {
+              <td class="wr-table__td wr-table__td--select">
+                <wr-checkbox
+                  size="sm"
+                  [ngModel]="isRowSelected(row)"
+                  (ngModelChange)="toggleRow(row, $event)"
+                  aria-label="Select row"
+                />
+              </td>
+            }
             @for (col of displayColumns(); track col.key) {
               <td
                 class="wr-table__td"
@@ -93,7 +116,7 @@
           </tr>
         } @empty {
           <tr>
-            <td class="wr-table__empty" [attr.colspan]="displayColumns().length">No data</td>
+            <td class="wr-table__empty" [attr.colspan]="displayColumns().length + (rowSelection() ? 1 : 0)">No data</td>
           </tr>
         }
       }

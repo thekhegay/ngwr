@@ -152,6 +152,8 @@ export default class TablePageComponent {
     role: { title: 'Role', resizable: true },
   };
 
+  protected readonly selected = signal<readonly unknown[]>([]);
+
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
@@ -177,6 +179,13 @@ export class MyComponent {}`,
   role:  { title: 'Role', resizable: true },
 };`,
     reorderable: `<wr-table reorderable [(columnOrder)]="order" [columns]="columns" [items]="rows" />`,
+    selection: `<wr-table
+  rowSelection="multiple"
+  rowKey="email"
+  [(selection)]="selected"
+  [columns]="columns"
+  [items]="rows"
+/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -205,6 +214,19 @@ export class MyComponent {}`,
       type: 'readonly string[]',
       default: '[]',
     },
+    {
+      name: 'rowSelection',
+      description: "Selection mode — 'single' or 'multiple' (adds a leading checkbox column).",
+      type: "'single' | 'multiple' | null",
+      default: 'null',
+    },
+    {
+      name: 'rowKey',
+      description: 'Identify a row for selection — a property name or a function.',
+      type: 'string | ((row) => unknown) | null',
+      default: 'null',
+    },
+    { name: 'selection', description: 'Two-way selected row keys.', type: 'readonly unknown[]', default: '[]' },
     { name: 'sort', description: 'Two-way bindable sort array.', type: 'readonly WrTableSortState[]', default: '[]' },
     {
       name: '(filterChange)',

@@ -114,6 +114,29 @@
     transition: transform 0.18s cubic-bezier(0, 0, 0.2, 1);
   }
 
+  // --- Row selection --------------------------------------------------------
+  &__th--select,
+  &__td--select {
+    width: 1%;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  &__tr--selected,
+  &__tr--selected:hover {
+    background: var(--wr-color-primary-soft);
+  }
+
+  // Pinned cells paint their own opaque background, so re-apply the selection
+  // tint over it (same technique as the row-hover rule above).
+  &__tr--selected &__td--pin-left,
+  &__tr--selected &__td--pin-right,
+  &__tr--selected:hover &__td--pin-left,
+  &__tr--selected:hover &__td--pin-right {
+    background-image: linear-gradient(var(--wr-color-primary-soft), var(--wr-color-primary-soft));
+  }
+
   // --- Pinned columns -------------------------------------------------------
   // Frozen against an edge while the rest scrolls. Pinned cells need an opaque
   // background so scrolled content can't show through; the left / right offsets
@@ -284,6 +307,11 @@
     overflow: visible;
     white-space: normal;
     text-overflow: clip;
+  }
+
+  // The select cell has no label — drop its empty card-mode label line.
+  .wr-table--responsive .wr-table__td--select::before {
+    display: none;
   }
 }
 
