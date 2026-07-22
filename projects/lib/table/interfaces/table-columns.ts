@@ -21,6 +21,10 @@ export interface WrTableColumn {
    * `'left'` and the rightmost `'right'`; several per side stack in order.
    */
   readonly pin?: 'left' | 'right';
+  /** Show a drag handle on the header edge to resize the column. */
+  readonly resizable?: boolean;
+  /** Initial column width in px. Overridden once the user drags to resize. */
+  readonly width?: number;
 }
 
 /**

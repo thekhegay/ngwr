@@ -5,7 +5,12 @@
 }
 
 <div class="wr-table__scroll">
-  <table class="wr-table__table">
+  <table class="wr-table__table" [class.wr-table__table--fixed]="fixedLayout()">
+    <colgroup>
+      @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
+        <col [style.width.px]="colWidth(entry.key)" />
+      }
+    </colgroup>
     <thead>
       <tr>
         @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
@@ -39,6 +44,17 @@
                 }
               }
             </div>
+
+            @if (entry.value.resizable) {
+              <span
+                class="wr-table__resize-handle"
+                aria-hidden="true"
+                (pointerdown)="onResizeStart($event, entry.key, thCell)"
+                (pointermove)="onResizeMove($event)"
+                (pointerup)="onResizeEnd($event)"
+                (pointercancel)="onResizeEnd($event)"
+              ></span>
+            }
           </th>
         }
       </tr>

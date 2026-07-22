@@ -146,6 +146,12 @@ export default class TablePageComponent {
     status: { title: 'Status', pin: 'right' },
   };
 
+  protected readonly resizableColumns: WrTableColumns = {
+    name: { title: 'Name', resizable: true, sortable: true },
+    email: { title: 'Email', resizable: true, width: 240 },
+    role: { title: 'Role', resizable: true },
+  };
+
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
@@ -164,6 +170,11 @@ export class MyComponent {}`,
   role:   { title: 'Role' },
   // …more columns in between…
   status: { title: 'Status', pin: 'right' },
+};`,
+    resizable: `const columns: WrTableColumns = {
+  name:  { title: 'Name', resizable: true },
+  email: { title: 'Email', resizable: true, width: 240 },
+  role:  { title: 'Role', resizable: true },
 };`,
   };
 
@@ -217,6 +228,8 @@ interface WrTableColumn {
   sortable?: boolean;
   filterItems?: readonly WrTableFilterItem[];
   pin?: 'left' | 'right';
+  resizable?: boolean;
+  width?: number;
 }
 
 interface WrTableFilterItem<T = unknown> {
@@ -251,6 +264,14 @@ interface WrTableSortState {
       type: "'left' | 'right'",
       sub: true,
     },
+    {
+      name: 'resizable',
+      description: 'Add a drag handle on the header edge to resize.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    { name: 'width', description: 'Initial column width in px (overridden by a drag).', type: 'number', sub: true },
     { name: 'WrTableFilterItem', description: 'One entry in a column filter.', type: 'interface' },
     { name: 'title', description: 'Visible label.', type: 'string', required: true, sub: true },
     { name: 'value', description: 'Value matched against the cell.', type: 'T', required: true, sub: true },
