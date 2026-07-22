@@ -6,7 +6,8 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { KeyValuePipe, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
+import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import type { ElementRef, TemplateRef } from '@angular/core';
 import {
   Component,
@@ -67,7 +68,7 @@ import { WrTableSort } from './table-sort';
   templateUrl: './table.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-table', '[class.wr-table--responsive]': 'responsive()' },
-  imports: [NgTemplateOutlet, KeyValuePipe, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
+  imports: [NgTemplateOutlet, CdkDropList, CdkDrag, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
 })
 export class WrTable {
   /** Column definitions, keyed by row property name. */
@@ -85,6 +86,16 @@ export class WrTable {
    * cell shows its column title as a label. @default false
    */
   readonly responsive = input(false, { transform: coerceBooleanProperty });
+
+  /** Enable drag-to-reorder on the column headers. @default false */
+  readonly reorderable = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Two-way bindable column order — an array of column keys. Reflects and drives
+   * the header order: the table falls back to declaration order for any key not
+   * listed, and updates this on drag. Bind it to persist a user's arrangement.
+   */
+  readonly columnOrder = model<readonly string[]>([]);
 
   /** Two-way bindable sort array. Order in array = application order. */
   readonly sort = model<readonly WrTableSortState[]>([]);
@@ -145,10 +156,29 @@ export class WrTable {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly headerCells = viewChildren<ElementRef<HTMLElement>>('thCell');
 
-  /** Columns in declaration order (matches the rendered `keyvalue` order). */
-  private readonly orderedColumns = computed<readonly { key: string; column: WrTableColumn }[]>(() =>
-    Object.entries(this.columns()).map(([key, column]) => ({ key, column }))
-  );
+  /**
+   * Columns in render order — declaration order, overridden by `columnOrder`
+   * once reordered; new keys append, removed keys drop out. Pin and resize
+   * measurement key off this, so it must equal the rendered order.
+   */
+  protected readonly displayColumns = computed<readonly { key: string; column: WrTableColumn }[]>(() => {
+    const cols = this.columns();
+    const seen = new Set<string>();
+    const result: { key: string; column: WrTableColumn }[] = [];
+    for (const key of this.columnOrder()) {
+      if (Object.hasOwn(cols, key) && !seen.has(key)) {
+        result.push({ key, column: cols[key] });
+        seen.add(key);
+      }
+    }
+    for (const key of Object.keys(cols)) {
+      if (!seen.has(key)) {
+        result.push({ key, column: cols[key] });
+        seen.add(key);
+      }
+    }
+    return result;
+  });
 
   /**
    * Sticky offsets for pinned columns, measured from the header cells so any
@@ -168,7 +198,7 @@ export class WrTable {
     // with no pinned column skip the observer entirely.
     effect(onCleanup => {
       const cells = this.headerCells();
-      const cols = this.orderedColumns();
+      const cols = this.displayColumns();
       if (!cols.some(c => c.column.pin)) {
         this.pins.set({ left: new Map(), right: new Map(), leftEdge: null, rightEdge: null });
         return;
@@ -264,7 +294,7 @@ export class WrTable {
     // layout — the drag then resizes precisely (both directions) without the
     // content-sized columns jumping.
     if (!this.fixedLayout()) {
-      const cols = this.orderedColumns();
+      const cols = this.displayColumns();
       const cells = this.headerCells();
       const frozen = new Map(this.resizeWidths());
       for (let i = 0; i < cols.length; i++) {
@@ -295,8 +325,18 @@ export class WrTable {
     this.resizeKey = null;
   }
 
-  /** Keep KeyValuePipe in declaration order (comparator that treats all keys as equal). */
-  protected readonly keepOrder = (): number => 0;
+  protected onColumnDrop(event: CdkDragDrop<unknown>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    const order = this.displayColumns().map(c => c.key);
+    moveItemInArray(order, event.previousIndex, event.currentIndex);
+    this.columnOrder.set(order);
+  }
+
+  /**
+   * Keep pinned columns anchored — a drop can't land on a pinned column's slot,
+   * so a scrollable column can't be dragged into the frozen region at either edge.
+   */
+  protected readonly sortPredicate = (index: number): boolean => !this.displayColumns()[index]?.column.pin;
 
   protected directionFor(key: string): WrTableSortDirection {
     return this.sort().find(s => s.key === key)?.direction ?? null;

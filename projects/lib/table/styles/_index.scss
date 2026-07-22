@@ -100,6 +100,20 @@
     }
   }
 
+  // --- Column reordering ----------------------------------------------------
+  &__th--draggable {
+    cursor: grab;
+    user-select: none;
+  }
+
+  .cdk-drag-placeholder {
+    opacity: 0.35;
+  }
+
+  .cdk-drag-animating {
+    transition: transform 0.18s cubic-bezier(0, 0, 0.2, 1);
+  }
+
   // --- Pinned columns -------------------------------------------------------
   // Frozen against an edge while the rest scrolls. Pinned cells need an opaque
   // background so scrolled content can't show through; the left / right offsets

@@ -176,6 +176,7 @@ export class MyComponent {}`,
   email: { title: 'Email', resizable: true, width: 240 },
   role:  { title: 'Role', resizable: true },
 };`,
+    reorderable: `<wr-table reorderable [(columnOrder)]="order" [columns]="columns" [items]="rows" />`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -192,6 +193,18 @@ export class MyComponent {}`,
       default: 'null',
     },
     { name: 'loading', description: 'Show a spinner overlay.', type: 'boolean', default: 'false' },
+    {
+      name: 'reorderable',
+      description: 'Enable drag-to-reorder on the column headers.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'columnOrder',
+      description: 'Two-way column order (array of keys); pinned columns stay anchored.',
+      type: 'readonly string[]',
+      default: '[]',
+    },
     { name: 'sort', description: 'Two-way bindable sort array.', type: 'readonly WrTableSortState[]', default: '[]' },
     {
       name: '(filterChange)',
