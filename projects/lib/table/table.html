@@ -7,52 +7,57 @@
 <div class="wr-table__scroll">
   <table class="wr-table__table" [class.wr-table__table--fixed]="fixedLayout()">
     <colgroup>
-      @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
-        <col [style.width.px]="colWidth(entry.key)" />
+      @for (col of displayColumns(); track col.key) {
+        <col [style.width.px]="colWidth(col.key)" />
       }
     </colgroup>
     <thead>
-      <tr>
-        @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
+      <tr
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        [cdkDropListSortPredicate]="sortPredicate"
+        (cdkDropListDropped)="onColumnDrop($event)"
+      >
+        @for (col of displayColumns(); track col.key) {
           <th
             #thCell
+            cdkDrag
+            [cdkDragDisabled]="!reorderable() || !!col.column.pin"
             class="wr-table__th"
-            [class.wr-table__th--pin-left]="entry.value.pin === 'left'"
-            [class.wr-table__th--pin-right]="entry.value.pin === 'right'"
-            [class.wr-table__th--pin-edge-left]="isPinEdge(entry.key, 'left')"
-            [class.wr-table__th--pin-edge-right]="isPinEdge(entry.key, 'right')"
-            [style.left.px]="leftPin(entry.key)"
-            [style.right.px]="rightPin(entry.key)"
+            [class.wr-table__th--draggable]="reorderable() && !col.column.pin"
+            [class.wr-table__th--pin-left]="col.column.pin === 'left'"
+            [class.wr-table__th--pin-right]="col.column.pin === 'right'"
+            [class.wr-table__th--pin-edge-left]="isPinEdge(col.key, 'left')"
+            [class.wr-table__th--pin-edge-right]="isPinEdge(col.key, 'right')"
+            [style.left.px]="leftPin(col.key)"
+            [style.right.px]="rightPin(col.key)"
           >
             <div class="wr-table__th-inner">
-              <span class="wr-table__title">{{ entry.value.title }}</span>
+              <span class="wr-table__title">{{ col.column.title }}</span>
 
-              @if (entry.value.sortable) {
-                <button
-                  type="button"
-                  class="wr-table__sort-btn"
-                  aria-label="Sort column"
-                  (click)="cycleSort(entry.key)"
-                >
-                  <wr-table-sort [direction]="directionFor(entry.key)" />
+              @if (col.column.sortable) {
+                <button type="button" class="wr-table__sort-btn" aria-label="Sort column" (click)="cycleSort(col.key)">
+                  <wr-table-sort [direction]="directionFor(col.key)" />
                 </button>
               }
 
-              @if (entry.value.filterItems; as filterItems) {
+              @if (col.column.filterItems; as filterItems) {
                 @if (filterItems.length) {
-                  <wr-table-filter [items]="filterItems" (selectionChange)="onFilter(entry.key, $event)" />
+                  <wr-table-filter [items]="filterItems" (selectionChange)="onFilter(col.key, $event)" />
                 }
               }
             </div>
 
-            @if (entry.value.resizable) {
+            @if (col.column.resizable) {
               <span
                 class="wr-table__resize-handle"
                 aria-hidden="true"
-                (pointerdown)="onResizeStart($event, entry.key, thCell)"
+                (pointerdown)="onResizeStart($event, col.key, thCell)"
                 (pointermove)="onResizeMove($event)"
                 (pointerup)="onResizeEnd($event)"
                 (pointercancel)="onResizeEnd($event)"
+                (mousedown)="$event.stopPropagation()"
+                (touchstart)="$event.stopPropagation()"
               ></span>
             }
           </th>
@@ -64,31 +69,31 @@
       @if (visibleItems(); as rows) {
         @for (row of rows; track $index) {
           <tr class="wr-table__tr">
-            @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
+            @for (col of displayColumns(); track col.key) {
               <td
                 class="wr-table__td"
-                [class.wr-table__td--pin-left]="entry.value.pin === 'left'"
-                [class.wr-table__td--pin-right]="entry.value.pin === 'right'"
-                [class.wr-table__td--pin-edge-left]="isPinEdge(entry.key, 'left')"
-                [class.wr-table__td--pin-edge-right]="isPinEdge(entry.key, 'right')"
-                [style.left.px]="leftPin(entry.key)"
-                [style.right.px]="rightPin(entry.key)"
-                [attr.data-label]="entry.value.title"
+                [class.wr-table__td--pin-left]="col.column.pin === 'left'"
+                [class.wr-table__td--pin-right]="col.column.pin === 'right'"
+                [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
+                [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
+                [style.left.px]="leftPin(col.key)"
+                [style.right.px]="rightPin(col.key)"
+                [attr.data-label]="col.column.title"
               >
-                @if (templateFor(entry.key); as tpl) {
+                @if (templateFor(col.key); as tpl) {
                   <ng-container
                     [ngTemplateOutlet]="tpl"
-                    [ngTemplateOutletContext]="cellContext(row, entry.key, entry.value)"
+                    [ngTemplateOutletContext]="cellContext(row, col.key, col.column)"
                   />
                 } @else {
-                  {{ getValue(row, entry.key) }}
+                  {{ getValue(row, col.key) }}
                 }
               </td>
             }
           </tr>
         } @empty {
           <tr>
-            <td class="wr-table__empty" [attr.colspan]="(columns() | keyvalue).length">No data</td>
+            <td class="wr-table__empty" [attr.colspan]="displayColumns().length">No data</td>
           </tr>
         }
       }

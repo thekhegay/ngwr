@@ -72,6 +72,18 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Reorderable columns"
+    description="Set `reorderable` to drag column headers into a new order. Bind `[(columnOrder)]` (an array of keys) to control or persist the arrangement. Pinned columns stay anchored — they aren't draggable."
+  >
+    <ngwr-doc-code [code]="snippets.reorderable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table reorderable [columns]="columns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Narrow container (stacked cards)"
     description="With `responsive`, each row collapses to a labelled card when the table's own box is too narrow for columns — a container query on its own width, so it adapts inside a split pane on any screen. Every cell shows its column title as a label. The box below is fixed at 360px."
   >
