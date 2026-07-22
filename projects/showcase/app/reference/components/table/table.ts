@@ -1,7 +1,14 @@
 import { Component, computed, signal } from '@angular/core';
 
 import { WrTag } from 'ngwr/badge';
-import { WrTableCell, WrTable, type WrTableColumns, type WrTableFilterChange, type WrTableSortState } from 'ngwr/table';
+import {
+  WrTableCell,
+  WrTableExpand,
+  WrTable,
+  type WrTableColumns,
+  type WrTableFilterChange,
+  type WrTableSortState,
+} from 'ngwr/table';
 
 import {
   DocApiComponent,
@@ -88,6 +95,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
   imports: [
     WrTable,
     WrTableCell,
+    WrTableExpand,
     WrTag,
     DocPageComponent,
     DocSectionComponent,
@@ -153,6 +161,7 @@ export default class TablePageComponent {
   };
 
   protected readonly selected = signal<readonly unknown[]>([]);
+  protected readonly expanded = signal<readonly unknown[]>([]);
 
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
@@ -186,6 +195,11 @@ export class MyComponent {}`,
   [columns]="columns"
   [items]="rows"
 />`,
+    expandable: `<wr-table rowKey="email" [(expanded)]="expanded" [columns]="columns" [items]="rows">
+  <ng-template wrTableExpand let-row>
+    <p>{{ row.name }} — {{ row.email }}</p>
+  </ng-template>
+</wr-table>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -227,6 +241,18 @@ export class MyComponent {}`,
       default: 'null',
     },
     { name: 'selection', description: 'Two-way selected row keys.', type: 'readonly unknown[]', default: '[]' },
+    {
+      name: 'expanded',
+      description: 'Two-way expanded row keys (needs a wrTableExpand template).',
+      type: 'readonly unknown[]',
+      default: '[]',
+    },
+    {
+      name: '<ng-template wrTableExpand>',
+      description: 'Detail template revealed when a row expands (let-row).',
+      type: 'directive',
+      default: '—',
+    },
     { name: 'sort', description: 'Two-way bindable sort array.', type: 'readonly WrTableSortState[]', default: '[]' },
     {
       name: '(filterChange)',
