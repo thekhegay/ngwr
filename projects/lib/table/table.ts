@@ -14,6 +14,7 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
   computed,
+  contentChild,
   contentChildren,
   effect,
   inject,
@@ -33,12 +34,14 @@ import type {
   WrTableCellContext,
   WrTableColumn,
   WrTableColumns,
+  WrTableExpandContext,
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableSortState,
   WrTableSortDirection,
 } from './interfaces';
 import { WrTableCell } from './table-cell';
+import { WrTableExpand } from './table-expand';
 import { WrTableFilter } from './table-filter';
 import { WrTableSort } from './table-sort';
 
@@ -123,6 +126,9 @@ export class WrTable {
 
   /** Two-way bindable selected row keys. */
   readonly selection = model<readonly unknown[]>([]);
+
+  /** Two-way bindable expanded row keys (needs a `[wrTableExpand]` template). */
+  readonly expanded = model<readonly unknown[]>([]);
 
   /** Two-way bindable sort array. Order in array = application order. */
   readonly sort = model<readonly WrTableSortState[]>([]);
@@ -418,6 +424,37 @@ export class WrTable {
       const drop = new Set(keys);
       this.selection.set(sel.filter(k => !drop.has(k)));
     }
+  }
+
+  // --- Row expansion --------------------------------------------------------
+
+  private readonly expandTpl = contentChild(WrTableExpand);
+
+  /** Whether the expand column shows (a `[wrTableExpand]` template was projected). */
+  protected readonly expandable = computed<boolean>(() => !!this.expandTpl());
+
+  /** Leading control columns — selection + expand. */
+  protected readonly leadingCols = computed<number>(() => (this.rowSelection() ? 1 : 0) + (this.expandable() ? 1 : 0));
+
+  /** Total rendered columns (data + leading), for detail-row / empty colspans. */
+  protected readonly totalCols = computed<number>(() => this.displayColumns().length + this.leadingCols());
+
+  protected expandTemplate(): TemplateRef<WrTableExpandContext> | undefined {
+    return this.expandTpl()?.template;
+  }
+
+  protected isExpanded(row: Record<string, unknown>): boolean {
+    return this.expanded().includes(this.rowKeyOf(row));
+  }
+
+  protected toggleExpand(row: Record<string, unknown>): void {
+    const key = this.rowKeyOf(row);
+    const set = this.expanded();
+    this.expanded.set(set.includes(key) ? set.filter(k => k !== key) : [...set, key]);
+  }
+
+  protected expandContext(row: Record<string, unknown>): WrTableExpandContext {
+    return { $implicit: row, row };
   }
 
   protected directionFor(key: string): WrTableSortDirection {

@@ -7,6 +7,12 @@
 <div class="wr-table__scroll">
   <table class="wr-table__table" [class.wr-table__table--fixed]="fixedLayout()">
     <colgroup>
+      @if (rowSelection()) {
+        <col class="wr-table__col--lead" />
+      }
+      @if (expandable()) {
+        <col class="wr-table__col--lead" />
+      }
       @for (col of displayColumns(); track col.key) {
         <col [style.width.px]="colWidth(col.key)" />
       }
@@ -30,6 +36,9 @@
               />
             }
           </th>
+        }
+        @if (expandable()) {
+          <th class="wr-table__th wr-table__th--expand"></th>
         }
         @for (col of displayColumns(); track col.key) {
           <th
@@ -92,6 +101,32 @@
                 />
               </td>
             }
+            @if (expandable()) {
+              <td class="wr-table__td wr-table__td--expand">
+                <button
+                  type="button"
+                  class="wr-table__expand-btn"
+                  [class.wr-table__expand-btn--open]="isExpanded(row)"
+                  [attr.aria-expanded]="isExpanded(row)"
+                  aria-label="Toggle row details"
+                  (click)="toggleExpand(row)"
+                >
+                  <svg
+                    class="wr-icon__svg wr-table__expand-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+              </td>
+            }
             @for (col of displayColumns(); track col.key) {
               <td
                 class="wr-table__td"
@@ -114,9 +149,19 @@
               </td>
             }
           </tr>
+          @if (expandable() && isExpanded(row)) {
+            <tr class="wr-table__detail-row">
+              <td class="wr-table__detail" [attr.colspan]="totalCols()">
+                <ng-container
+                  [ngTemplateOutlet]="expandTemplate() ?? null"
+                  [ngTemplateOutletContext]="expandContext(row)"
+                />
+              </td>
+            </tr>
+          }
         } @empty {
           <tr>
-            <td class="wr-table__empty" [attr.colspan]="displayColumns().length + (rowSelection() ? 1 : 0)">No data</td>
+            <td class="wr-table__empty" [attr.colspan]="totalCols()">No data</td>
           </tr>
         }
       }

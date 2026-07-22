@@ -69,6 +69,24 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Expandable rows"
+    description="Project an `<ng-template wrTableExpand let-row>` to reveal a detail panel per row — it adds a leading chevron column. Bind `[(expanded)]` (row keys) and set `rowKey`."
+  >
+    <ngwr-doc-code [code]="snippets.expandable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table rowKey="email" [(expanded)]="expanded" [columns]="columns" [items]="visibleRows()">
+          <ng-template wrTableExpand let-row>
+            <div style="font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+              <strong>{{ row.name }}</strong> — {{ row.email }} · role: {{ row.role }}
+            </div>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Pinned columns"
     description="Set `pin: 'left'` or `pin: 'right'` on a column to freeze it against that edge while the rest scrolls horizontally. Several per side stack in order, and offsets are measured so columns of any width line up. Scroll the table below sideways — Name stays left, Status stays right."
   >

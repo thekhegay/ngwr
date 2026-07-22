@@ -137,6 +137,58 @@
     background-image: linear-gradient(var(--wr-color-primary-soft), var(--wr-color-primary-soft));
   }
 
+  // --- Row expansion --------------------------------------------------------
+  &__th--expand,
+  &__td--expand {
+    width: 1%;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  &__expand-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    appearance: none;
+    padding: 0.25rem;
+    background: transparent;
+    border: 0;
+    border-radius: var(--wr-border-radius-sm);
+    color: var(--wr-color-on-surface-muted);
+    cursor: pointer;
+    transition: color var(--wr-transition-base);
+
+    &:hover {
+      color: var(--wr-color-on-surface);
+    }
+  }
+
+  &__expand-icon {
+    width: 1rem;
+    height: 1rem;
+    transition: transform var(--wr-transition-base);
+  }
+
+  &__expand-btn--open &__expand-icon {
+    transform: rotate(90deg);
+  }
+
+  &__detail-row > &__detail {
+    padding: 0.875rem 1rem;
+    background: rgba(var(--wr-color-outline-rgb), 0.08);
+    border-bottom: 1px solid var(--wr-table-border);
+  }
+
+  &__detail-row:last-child > &__detail {
+    border-bottom: 0;
+  }
+
+  // Fixed width for the leading select / expand columns (their `<col>` entries).
+  &__col--lead {
+    width: 2.75rem;
+  }
+
   // --- Pinned columns -------------------------------------------------------
   // Frozen against an edge while the rest scrolls. Pinned cells need an opaque
   // background so scrolled content can't show through; the left / right offsets
@@ -309,9 +361,16 @@
     text-overflow: clip;
   }
 
-  // The select cell has no label — drop its empty card-mode label line.
-  .wr-table--responsive .wr-table__td--select::before {
+  // The select / expand cells have no label — drop their empty card-mode label.
+  .wr-table--responsive .wr-table__td--select::before,
+  .wr-table--responsive .wr-table__td--expand::before {
     display: none;
+  }
+
+  // The detail row spans the card rather than a table cell.
+  .wr-table--responsive .wr-table__detail-row,
+  .wr-table--responsive .wr-table__detail {
+    display: block;
   }
 }
 
