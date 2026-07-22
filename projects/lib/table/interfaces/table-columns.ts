@@ -15,6 +15,12 @@ export interface WrTableColumn {
   readonly sortable?: boolean;
   /** When non-empty, shows a filter dropdown in the header. */
   readonly filterItems?: readonly WrTableFilterItem[];
+  /**
+   * Freeze the column against the left or right edge — it stays visible while
+   * the rest of the table scrolls horizontally. Pin the leftmost columns
+   * `'left'` and the rightmost `'right'`; several per side stack in order.
+   */
+  readonly pin?: 'left' | 'right';
 }
 
 /**

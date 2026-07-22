@@ -33,6 +33,55 @@ const PAGINATED_ROWS: readonly Row[] = Array.from({ length: 23 }, (_, i) => ({
   role: i % 7 === 0 ? 'admin' : i % 3 === 0 ? 'editor' : 'viewer',
 }));
 
+// Many-column dataset for the pinned-columns demo (needs to overflow its box).
+const WIDE_ROWS: readonly Record<string, unknown>[] = [
+  {
+    name: 'Roman',
+    email: 'rk@garuna.dev',
+    role: 'admin',
+    department: 'Engineering',
+    location: 'Almaty',
+    joined: '2021-03-12',
+    status: 'Active',
+  },
+  {
+    name: 'Alice',
+    email: 'alice@example.com',
+    role: 'editor',
+    department: 'Design',
+    location: 'Berlin',
+    joined: '2022-07-01',
+    status: 'Active',
+  },
+  {
+    name: 'Bob',
+    email: 'bob@example.com',
+    role: 'viewer',
+    department: 'Support',
+    location: 'Toronto',
+    joined: '2023-01-19',
+    status: 'Invited',
+  },
+  {
+    name: 'Cara',
+    email: 'cara@example.com',
+    role: 'editor',
+    department: 'Marketing',
+    location: 'São Paulo',
+    joined: '2020-11-05',
+    status: 'Active',
+  },
+  {
+    name: 'Diego',
+    email: 'diego@example.com',
+    role: 'viewer',
+    department: 'Sales',
+    location: 'Madrid',
+    joined: '2024-02-28',
+    status: 'Suspended',
+  },
+];
+
 @Component({
   selector: 'ngwr-table-page',
   templateUrl: './table.html',
@@ -86,6 +135,17 @@ export default class TablePageComponent {
   protected readonly paginatedRows = PAGINATED_ROWS;
   protected readonly page = signal(1);
 
+  protected readonly wideRows = WIDE_ROWS;
+  protected readonly wideColumns: WrTableColumns = {
+    name: { title: 'Name', pin: 'left', sortable: true },
+    email: { title: 'Email' },
+    role: { title: 'Role' },
+    department: { title: 'Department' },
+    location: { title: 'Location' },
+    joined: { title: 'Joined', sortable: true },
+    status: { title: 'Status', pin: 'right' },
+  };
+
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
@@ -98,6 +158,13 @@ export class MyComponent {}`,
   </ng-template>
 </wr-table>`,
     paginated: `<wr-table [columns]="columns" [items]="rows" [pageSize]="5" [(page)]="page" />`,
+    pinned: `const columns: WrTableColumns = {
+  name:   { title: 'Name', pin: 'left' },
+  email:  { title: 'Email' },
+  role:   { title: 'Role' },
+  // …more columns in between…
+  status: { title: 'Status', pin: 'right' },
+};`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -149,6 +216,7 @@ interface WrTableColumn {
   title: string;
   sortable?: boolean;
   filterItems?: readonly WrTableFilterItem[];
+  pin?: 'left' | 'right';
 }
 
 interface WrTableFilterItem<T = unknown> {
@@ -175,6 +243,12 @@ interface WrTableSortState {
       name: 'filterItems',
       description: 'Non-empty list shows a filter dropdown.',
       type: 'readonly WrTableFilterItem[]',
+      sub: true,
+    },
+    {
+      name: 'pin',
+      description: "Freeze the column against the 'left' or 'right' edge while the rest scrolls.",
+      type: "'left' | 'right'",
       sub: true,
     },
     { name: 'WrTableFilterItem', description: 'One entry in a column filter.', type: 'interface' },
