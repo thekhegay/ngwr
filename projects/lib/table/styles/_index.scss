@@ -62,7 +62,8 @@
     table-layout: fixed;
   }
 
-  &__table--fixed &__td {
+  &__table--fixed &__td,
+  &__table--fixed &__foot-cell {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -187,6 +188,23 @@
   // Fixed width for the leading select / expand columns (their `<col>` entries).
   &__col--lead {
     width: 2.75rem;
+  }
+
+  // --- Summary / footer row -------------------------------------------------
+  &__foot-cell {
+    padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+    background: var(--wr-table-head-bg);
+    border-top: 1px solid var(--wr-table-border);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  // Pinned footer cells need an opaque base (over the head tint) to stay sticky.
+  &__foot-cell#{&}__td--pin-left,
+  &__foot-cell#{&}__td--pin-right {
+    background-color: var(--wr-color-surface);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
   }
 
   // --- Pinned columns -------------------------------------------------------
@@ -371,6 +389,11 @@
   .wr-table--responsive .wr-table__detail-row,
   .wr-table--responsive .wr-table__detail {
     display: block;
+  }
+
+  // The summary footer doesn't translate to cards — hide it.
+  .wr-table--responsive .wr-table__foot-row {
+    display: none;
   }
 }
 

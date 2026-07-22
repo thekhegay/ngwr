@@ -166,6 +166,32 @@
         }
       }
     </tbody>
+
+    @if (hasSummary() && items()?.length) {
+      <tfoot>
+        <tr class="wr-table__foot-row">
+          @if (rowSelection()) {
+            <td class="wr-table__foot-cell wr-table__foot-cell--lead"></td>
+          }
+          @if (expandable()) {
+            <td class="wr-table__foot-cell wr-table__foot-cell--lead"></td>
+          }
+          @for (col of displayColumns(); track col.key) {
+            <td
+              class="wr-table__foot-cell"
+              [class.wr-table__td--pin-left]="col.column.pin === 'left'"
+              [class.wr-table__td--pin-right]="col.column.pin === 'right'"
+              [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
+              [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
+              [style.left.px]="leftPin(col.key)"
+              [style.right.px]="rightPin(col.key)"
+            >
+              {{ summaryFor(col.key) }}
+            </td>
+          }
+        </tr>
+      </tfoot>
+    }
   </table>
 </div>
 

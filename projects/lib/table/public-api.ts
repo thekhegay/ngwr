@@ -12,4 +12,5 @@ export type {
   WrTableFilterItem,
   WrTableSortState,
   WrTableSortDirection,
+  WrTableSummary,
 } from './interfaces';

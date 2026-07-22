@@ -87,6 +87,18 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Summary row"
+    description="Give a column a `summary` — a built-in aggregate (`'sum'` / `'avg'` / `'count'` / `'min'` / `'max'`) over its numeric values, or a function of all rows. A footer row appears with the results (computed over the current `items`)."
+  >
+    <ngwr-doc-code [code]="snippets.summary" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="summaryColumns" [items]="summaryRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Pinned columns"
     description="Set `pin: 'left'` or `pin: 'right'` on a column to freeze it against that edge while the rest scrolls horizontally. Several per side stack in order, and offsets are measured so columns of any width line up. Scroll the table below sideways — Name stays left, Status stays right."
   >
