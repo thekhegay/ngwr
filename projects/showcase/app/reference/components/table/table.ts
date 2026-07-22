@@ -163,6 +163,18 @@ export default class TablePageComponent {
   protected readonly selected = signal<readonly unknown[]>([]);
   protected readonly expanded = signal<readonly unknown[]>([]);
 
+  protected readonly summaryRows: readonly Record<string, unknown>[] = [
+    { product: 'Widget', price: 19.99, qty: 3 },
+    { product: 'Gadget', price: 49.5, qty: 1 },
+    { product: 'Gizmo', price: 8.75, qty: 12 },
+    { product: 'Doohickey', price: 120, qty: 2 },
+  ];
+  protected readonly summaryColumns: WrTableColumns = {
+    product: { title: 'Product', summary: () => 'Total' },
+    price: { title: 'Price', summary: 'avg' },
+    qty: { title: 'Qty', summary: 'sum' },
+  };
+
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
@@ -200,6 +212,11 @@ export class MyComponent {}`,
     <p>{{ row.name }} — {{ row.email }}</p>
   </ng-template>
 </wr-table>`,
+    summary: `const columns: WrTableColumns = {
+  product: { title: 'Product', summary: () => 'Total' },
+  price:   { title: 'Price', summary: 'avg' },
+  qty:     { title: 'Qty', summary: 'sum' },
+};`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -291,6 +308,7 @@ interface WrTableColumn {
   pin?: 'left' | 'right';
   resizable?: boolean;
   width?: number;
+  summary?: WrTableSummary;
 }
 
 interface WrTableFilterItem<T = unknown> {
@@ -333,6 +351,12 @@ interface WrTableSortState {
       sub: true,
     },
     { name: 'width', description: 'Initial column width in px (overridden by a drag).', type: 'number', sub: true },
+    {
+      name: 'summary',
+      description: "Footer aggregate — 'sum' / 'avg' / 'count' / 'min' / 'max', or (rows) => value.",
+      type: 'WrTableSummary',
+      sub: true,
+    },
     { name: 'WrTableFilterItem', description: 'One entry in a column filter.', type: 'interface' },
     { name: 'title', description: 'Visible label.', type: 'string', required: true, sub: true },
     { name: 'value', description: 'Value matched against the cell.', type: 'T', required: true, sub: true },

@@ -7,6 +7,13 @@
 
 import type { WrTableFilterItem } from './table-filter-item';
 
+/**
+ * A column's footer aggregate — a built-in over its numeric values, or a
+ * function given all rows that returns the value to display.
+ */
+export type WrTableSummary =
+  'sum' | 'avg' | 'count' | 'min' | 'max' | ((rows: readonly Record<string, unknown>[]) => unknown);
+
 /** A single column definition. */
 export interface WrTableColumn {
   /** Heading shown in the column's header. */
@@ -25,6 +32,12 @@ export interface WrTableColumn {
   readonly resizable?: boolean;
   /** Initial column width in px. Overridden once the user drags to resize. */
   readonly width?: number;
+  /**
+   * Footer aggregate for this column — renders a summary row when any column
+   * sets it. Computed over the current `items`, so in server-side mode
+   * (`totalItems` set) it reflects the current page, not the whole dataset.
+   */
+  readonly summary?: WrTableSummary;
 }
 
 /**

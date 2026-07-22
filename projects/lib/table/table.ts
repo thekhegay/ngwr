@@ -39,6 +39,7 @@ import type {
   WrTableFilterItem,
   WrTableSortState,
   WrTableSortDirection,
+  WrTableSummary,
 } from './interfaces';
 import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
@@ -455,6 +456,50 @@ export class WrTable {
 
   protected expandContext(row: Record<string, unknown>): WrTableExpandContext {
     return { $implicit: row, row };
+  }
+
+  // --- Summary row ----------------------------------------------------------
+
+  /** Whether any column defines a `summary` (so the footer row shows). */
+  protected readonly hasSummary = computed<boolean>(() =>
+    Object.values(this.columns()).some(col => col.summary !== undefined)
+  );
+
+  /** Per-column footer values, computed over `items` (the current page in server mode). */
+  private readonly summaries = computed<ReadonlyMap<string, unknown>>(() => {
+    const rows = this.items() ?? [];
+    const map = new Map<string, unknown>();
+    for (const [key, col] of Object.entries(this.columns())) {
+      if (col.summary !== undefined) map.set(key, this.computeSummary(col.summary, rows, key));
+    }
+    return map;
+  });
+
+  protected summaryFor(key: string): unknown {
+    return this.summaries().get(key) ?? '';
+  }
+
+  private computeSummary(kind: WrTableSummary, rows: readonly Record<string, unknown>[], key: string): unknown {
+    if (typeof kind === 'function') return kind(rows);
+    // Drop empty/nullish cells first — `Number('')`/`Number(null)` are 0 and
+    // would otherwise skew the aggregate.
+    const values = rows.map(row => row[key]).filter(v => v != null && v !== '');
+    if (kind === 'count') return values.length;
+    const nums = values.map(Number).filter(Number.isFinite);
+    if (nums.length === 0) return '';
+    const sum = nums.reduce((a, b) => a + b, 0);
+    switch (kind) {
+      case 'sum':
+        return sum;
+      case 'avg':
+        return Math.round((sum / nums.length) * 100) / 100;
+      case 'min':
+        return Math.min(...nums);
+      case 'max':
+        return Math.max(...nums);
+      default:
+        return '';
+    }
   }
 
   protected directionFor(key: string): WrTableSortDirection {
