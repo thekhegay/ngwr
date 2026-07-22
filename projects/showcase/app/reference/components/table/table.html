@@ -48,6 +48,27 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Row selection"
+    description="Set `rowSelection` to `'multiple'` (checkboxes + a select-all header) or `'single'`. Bind `[(selection)]` to the selected row keys, and `rowKey` to identify rows (a property name or a function)."
+  >
+    <ngwr-doc-code [code]="snippets.selection" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowSelection="multiple"
+          rowKey="email"
+          [(selection)]="selected"
+          [columns]="columns"
+          [items]="visibleRows()"
+        />
+        <div style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          selected: <strong>{{ selected().length }}</strong>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Pinned columns"
     description="Set `pin: 'left'` or `pin: 'right'` on a column to freeze it against that edge while the rest scrolls horizontally. Several per side stack in order, and offsets are measured so columns of any width line up. Scroll the table below sideways — Name stays left, Status stays right."
   >

@@ -23,7 +23,9 @@ import {
   signal,
   viewChildren,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
+import { WrCheckbox } from 'ngwr/checkbox';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 
@@ -68,7 +70,17 @@ import { WrTableSort } from './table-sort';
   templateUrl: './table.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-table', '[class.wr-table--responsive]': 'responsive()' },
-  imports: [NgTemplateOutlet, CdkDropList, CdkDrag, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
+  imports: [
+    NgTemplateOutlet,
+    FormsModule,
+    CdkDropList,
+    CdkDrag,
+    WrCheckbox,
+    WrPagination,
+    WrSpinner,
+    WrTableSort,
+    WrTableFilter,
+  ],
 })
 export class WrTable {
   /** Column definitions, keyed by row property name. */
@@ -96,6 +108,21 @@ export class WrTable {
    * listed, and updates this on drag. Bind it to persist a user's arrangement.
    */
   readonly columnOrder = model<readonly string[]>([]);
+
+  /**
+   * Row selection with a leading checkbox column — `'multiple'` adds a
+   * select-all header; `'single'` keeps one row selected. @default null (off)
+   */
+  readonly rowSelection = input<'single' | 'multiple' | null>(null);
+
+  /**
+   * How to identify a row for selection — a property name or a function.
+   * Unset uses the row object itself (fine for a stable row array).
+   */
+  readonly rowKey = input<string | ((row: Record<string, unknown>) => unknown) | null>(null);
+
+  /** Two-way bindable selected row keys. */
+  readonly selection = model<readonly unknown[]>([]);
 
   /** Two-way bindable sort array. Order in array = application order. */
   readonly sort = model<readonly WrTableSortState[]>([]);
@@ -337,6 +364,61 @@ export class WrTable {
    * so a scrollable column can't be dragged into the frozen region at either edge.
    */
   protected readonly sortPredicate = (index: number): boolean => !this.displayColumns()[index]?.column.pin;
+
+  // --- Row selection --------------------------------------------------------
+
+  private rowKeyOf(row: Record<string, unknown>): unknown {
+    const rk = this.rowKey();
+    if (typeof rk === 'function') return rk(row);
+    if (typeof rk === 'string') return row[rk];
+    return row;
+  }
+
+  /** Keys of the rows on the current page — the select-all scope. */
+  private readonly pageRowKeys = computed<readonly unknown[]>(() =>
+    (this.visibleItems() ?? []).map(row => this.rowKeyOf(row))
+  );
+
+  protected isRowSelected(row: Record<string, unknown>): boolean {
+    return this.selection().includes(this.rowKeyOf(row));
+  }
+
+  /** Every current-page row selected (drives the header checkbox). */
+  protected readonly allSelected = computed<boolean>(() => {
+    const keys = this.pageRowKeys();
+    if (keys.length === 0) return false;
+    const sel = this.selection();
+    return keys.every(key => sel.includes(key));
+  });
+
+  /** Some but not all selected (drives the header indeterminate). */
+  protected readonly someSelected = computed<boolean>(() => {
+    const sel = this.selection();
+    return this.pageRowKeys().some(key => sel.includes(key)) && !this.allSelected();
+  });
+
+  protected toggleRow(row: Record<string, unknown>, checked: boolean): void {
+    const key = this.rowKeyOf(row);
+    if (this.rowSelection() === 'single') {
+      this.selection.set(checked ? [key] : []);
+      return;
+    }
+    const sel = this.selection();
+    this.selection.set(checked ? [...sel, key] : sel.filter(k => k !== key));
+  }
+
+  protected toggleAll(checked: boolean): void {
+    const keys = this.pageRowKeys();
+    const sel = this.selection();
+    if (checked) {
+      const merged = new Set(sel);
+      for (const key of keys) merged.add(key);
+      this.selection.set([...merged]);
+    } else {
+      const drop = new Set(keys);
+      this.selection.set(sel.filter(k => !drop.has(k)));
+    }
+  }
 
   protected directionFor(key: string): WrTableSortDirection {
     return this.sort().find(s => s.key === key)?.direction ?? null;
