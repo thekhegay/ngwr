@@ -9,7 +9,16 @@
     <thead>
       <tr>
         @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
-          <th class="wr-table__th">
+          <th
+            #thCell
+            class="wr-table__th"
+            [class.wr-table__th--pin-left]="entry.value.pin === 'left'"
+            [class.wr-table__th--pin-right]="entry.value.pin === 'right'"
+            [class.wr-table__th--pin-edge-left]="isPinEdge(entry.key, 'left')"
+            [class.wr-table__th--pin-edge-right]="isPinEdge(entry.key, 'right')"
+            [style.left.px]="leftPin(entry.key)"
+            [style.right.px]="rightPin(entry.key)"
+          >
             <div class="wr-table__th-inner">
               <span class="wr-table__title">{{ entry.value.title }}</span>
 
@@ -40,7 +49,16 @@
         @for (row of rows; track $index) {
           <tr class="wr-table__tr">
             @for (entry of columns() | keyvalue: keepOrder; track entry.key) {
-              <td class="wr-table__td" [attr.data-label]="entry.value.title">
+              <td
+                class="wr-table__td"
+                [class.wr-table__td--pin-left]="entry.value.pin === 'left'"
+                [class.wr-table__td--pin-right]="entry.value.pin === 'right'"
+                [class.wr-table__td--pin-edge-left]="isPinEdge(entry.key, 'left')"
+                [class.wr-table__td--pin-edge-right]="isPinEdge(entry.key, 'right')"
+                [style.left.px]="leftPin(entry.key)"
+                [style.right.px]="rightPin(entry.key)"
+                [attr.data-label]="entry.value.title"
+              >
                 @if (templateFor(entry.key); as tpl) {
                   <ng-container
                     [ngTemplateOutlet]="tpl"

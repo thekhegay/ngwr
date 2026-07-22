@@ -7,6 +7,9 @@
 
   display: block;
   position: relative;
+  // Own stacking context so the loading overlay reliably outranks the sticky
+  // pinned cells regardless of the surrounding page z-index.
+  isolation: isolate;
   width: 100%;
   border: 1px solid var(--wr-table-border);
   @include theme.smooth-br(var(--wr-border-radius-base));
@@ -49,6 +52,48 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;
+  }
+
+  // --- Pinned columns -------------------------------------------------------
+  // Frozen against an edge while the rest scrolls. Pinned cells need an opaque
+  // background so scrolled content can't show through; the left / right offsets
+  // are measured and set inline by the component.
+  &__th--pin-left,
+  &__th--pin-right,
+  &__td--pin-left,
+  &__td--pin-right {
+    position: sticky;
+  }
+
+  &__td--pin-left,
+  &__td--pin-right {
+    z-index: 1;
+    background-color: var(--wr-color-surface);
+  }
+
+  // Header cells lay the head tint over the opaque base so the row stays seamless.
+  &__th--pin-left,
+  &__th--pin-right {
+    z-index: 2;
+    background-color: var(--wr-color-surface);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
+  }
+
+  // Keep the row-hover tint on pinned body cells.
+  &__tr:hover &__td--pin-left,
+  &__tr:hover &__td--pin-right {
+    background-image: linear-gradient(var(--wr-table-row-hover), var(--wr-table-row-hover));
+  }
+
+  // Separating shadow on the inner edge of each pinned group.
+  &__th--pin-edge-left,
+  &__td--pin-edge-left {
+    box-shadow: 0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
+  }
+
+  &__th--pin-edge-right,
+  &__td--pin-edge-right {
+    box-shadow: -0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
   }
 
   &__th-inner {
@@ -105,7 +150,8 @@
     justify-content: center;
     background: rgba(var(--wr-color-surface-rgb), 0.7);
     backdrop-filter: blur(2px);
-    z-index: 1;
+    // Above the pinned sticky cells (th z-index 2), so loading veils them too.
+    z-index: 3;
   }
 }
 
@@ -160,6 +206,17 @@
     text-transform: uppercase;
     text-align: left;
     white-space: nowrap;
+  }
+
+  // Pinning is meaningless once each row is a card — unfreeze the body cells
+  // (the header, and thus pinned `th`, is already hidden above).
+  .wr-table--responsive .wr-table__td--pin-left,
+  .wr-table--responsive .wr-table__td--pin-right {
+    position: static;
+    z-index: auto;
+    box-shadow: none;
+    background-color: transparent;
+    background-image: none;
   }
 }
 

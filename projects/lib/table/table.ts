@@ -6,15 +6,29 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { KeyValuePipe, NgTemplateOutlet } from '@angular/common';
-import type { TemplateRef } from '@angular/core';
-import { Component, ViewEncapsulation, computed, contentChildren, input, model, output } from '@angular/core';
+import { KeyValuePipe, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
+import type { ElementRef, TemplateRef } from '@angular/core';
+import {
+  Component,
+  PLATFORM_ID,
+  ViewEncapsulation,
+  computed,
+  contentChildren,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChildren,
+} from '@angular/core';
 
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 
 import type {
   WrTableCellContext,
+  WrTableColumn,
   WrTableColumns,
   WrTableFilterChange,
   WrTableFilterItem,
@@ -125,6 +139,93 @@ export class WrTable {
     for (const cell of this.cellTemplates()) map.set(cell.columnKey(), cell.template);
     return map;
   });
+
+  // --- Column pinning -------------------------------------------------------
+
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly headerCells = viewChildren<ElementRef<HTMLElement>>('thCell');
+
+  /** Columns in declaration order (matches the rendered `keyvalue` order). */
+  private readonly orderedColumns = computed<readonly { key: string; column: WrTableColumn }[]>(() =>
+    Object.entries(this.columns()).map(([key, column]) => ({ key, column }))
+  );
+
+  /**
+   * Sticky offsets for pinned columns, measured from the header cells so any
+   * number of columns can stack per side. Also names the inner-edge column on
+   * each side (where the separating shadow sits). Empty until measured in the
+   * browser; on the server the pins stay at offset 0, corrected on hydration.
+   */
+  private readonly pins = signal<{
+    left: ReadonlyMap<string, number>;
+    right: ReadonlyMap<string, number>;
+    leftEdge: string | null;
+    rightEdge: string | null;
+  }>({ left: new Map(), right: new Map(), leftEdge: null, rightEdge: null });
+
+  constructor() {
+    // Re-measure whenever the columns or their rendered widths change. Tables
+    // with no pinned column skip the observer entirely.
+    effect(onCleanup => {
+      const cells = this.headerCells();
+      const cols = this.orderedColumns();
+      if (!cols.some(c => c.column.pin)) {
+        this.pins.set({ left: new Map(), right: new Map(), leftEdge: null, rightEdge: null });
+        return;
+      }
+      if (!isPlatformBrowser(this.platformId) || typeof ResizeObserver === 'undefined') {
+        this.measurePins(cols, cells);
+        return;
+      }
+      const observer = new ResizeObserver(() => this.measurePins(cols, cells));
+      for (const cell of cells) observer.observe(cell.nativeElement);
+      this.measurePins(cols, cells);
+      onCleanup(() => observer.disconnect());
+    });
+  }
+
+  private measurePins(
+    cols: readonly { key: string; column: WrTableColumn }[],
+    cells: readonly ElementRef<HTMLElement>[]
+  ): void {
+    const left = new Map<string, number>();
+    const right = new Map<string, number>();
+    let leftEdge: string | null = null;
+    let rightEdge: string | null = null;
+
+    let acc = 0;
+    for (let i = 0; i < cols.length; i++) {
+      if (cols[i].column.pin === 'left') {
+        left.set(cols[i].key, acc);
+        acc += cells[i]?.nativeElement.offsetWidth ?? 0;
+        leftEdge = cols[i].key;
+      }
+    }
+    acc = 0;
+    for (let i = cols.length - 1; i >= 0; i--) {
+      if (cols[i].column.pin === 'right') {
+        right.set(cols[i].key, acc);
+        acc += cells[i]?.nativeElement.offsetWidth ?? 0;
+        rightEdge = cols[i].key;
+      }
+    }
+    this.pins.set({ left, right, leftEdge, rightEdge });
+  }
+
+  /** Sticky `left` offset (px) for a left-pinned column, else `null`. */
+  protected leftPin(key: string): number | null {
+    return this.pins().left.get(key) ?? null;
+  }
+
+  /** Sticky `right` offset (px) for a right-pinned column, else `null`. */
+  protected rightPin(key: string): number | null {
+    return this.pins().right.get(key) ?? null;
+  }
+
+  /** Whether `key` is the inner-edge pinned column on `side` (carries the shadow). */
+  protected isPinEdge(key: string, side: 'left' | 'right'): boolean {
+    return (side === 'left' ? this.pins().leftEdge : this.pins().rightEdge) === key;
+  }
 
   /** Keep KeyValuePipe in declaration order (comparator that treats all keys as equal). */
   protected readonly keepOrder = (): number => 0;

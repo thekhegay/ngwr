@@ -48,6 +48,18 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Pinned columns"
+    description="Set `pin: 'left'` or `pin: 'right'` on a column to freeze it against that edge while the rest scrolls horizontally. Several per side stack in order, and offsets are measured so columns of any width line up. Scroll the table below sideways — Name stays left, Status stays right."
+  >
+    <ngwr-doc-code [code]="snippets.pinned" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="max-width: 34rem">
+        <wr-table [columns]="wideColumns" [items]="wideRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Narrow container (stacked cards)"
     description="With `responsive`, each row collapses to a labelled card when the table's own box is too narrow for columns — a container query on its own width, so it adapts inside a split pane on any screen. Every cell shows its column title as a label. The box below is fixed at 360px."
   >
