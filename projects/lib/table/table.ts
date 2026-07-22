@@ -182,6 +182,17 @@ export class WrTable {
       this.measurePins(cols, cells);
       onCleanup(() => observer.disconnect());
     });
+
+    // Reset resize state when the column KEY SET changes (added/removed/renamed)
+    // so a stale frozen width can't collapse a new column under the latched
+    // fixed layout. Keyed on sorted keys, not object identity (which churns).
+    effect(() => {
+      const keys = Object.keys(this.columns()).sort().join('\n');
+      if (keys === this.lastColumnKeys) return;
+      this.lastColumnKeys = keys;
+      this.resizeWidths.set(new Map());
+      this.fixedLayout.set(false);
+    });
   }
 
   private measurePins(
@@ -225,6 +236,63 @@ export class WrTable {
   /** Whether `key` is the inner-edge pinned column on `side` (carries the shadow). */
   protected isPinEdge(key: string, side: 'left' | 'right'): boolean {
     return (side === 'left' ? this.pins().leftEdge : this.pins().rightEdge) === key;
+  }
+
+  // --- Column resizing ------------------------------------------------------
+
+  private readonly resizeWidths = signal<ReadonlyMap<string, number>>(new Map());
+  private resizeKey: string | null = null;
+  private resizeStartX = 0;
+  private resizeStartWidth = 0;
+  private lastColumnKeys = '';
+
+  /**
+   * Once a column has been dragged, the table switches to fixed layout so the
+   * `<col>` widths are honoured exactly (auto layout treats them as minimums).
+   */
+  protected readonly fixedLayout = signal(false);
+
+  /** Current width (px) for a column, or `null` for auto — a live resize wins. */
+  protected colWidth(key: string): number | null {
+    return this.resizeWidths().get(key) ?? this.columns()[key]?.width ?? null;
+  }
+
+  protected onResizeStart(event: PointerEvent, key: string, th: HTMLElement): void {
+    event.preventDefault();
+    event.stopPropagation();
+    // Freeze every column at its current rendered width, then switch to fixed
+    // layout — the drag then resizes precisely (both directions) without the
+    // content-sized columns jumping.
+    if (!this.fixedLayout()) {
+      const cols = this.orderedColumns();
+      const cells = this.headerCells();
+      const frozen = new Map(this.resizeWidths());
+      for (let i = 0; i < cols.length; i++) {
+        if (!frozen.has(cols[i].key)) {
+          const width = cells[i]?.nativeElement.offsetWidth;
+          if (width) frozen.set(cols[i].key, width);
+        }
+      }
+      this.resizeWidths.set(frozen);
+      this.fixedLayout.set(true);
+    }
+    this.resizeKey = key;
+    this.resizeStartX = event.clientX;
+    this.resizeStartWidth = th.offsetWidth;
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+  }
+
+  protected onResizeMove(event: PointerEvent): void {
+    if (this.resizeKey === null) return;
+    const width = Math.max(48, this.resizeStartWidth + (event.clientX - this.resizeStartX));
+    this.resizeWidths.set(new Map(this.resizeWidths()).set(this.resizeKey, width));
+  }
+
+  protected onResizeEnd(event: PointerEvent): void {
+    if (this.resizeKey === null) return;
+    const target = event.target as HTMLElement;
+    if (target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture(event.pointerId);
+    this.resizeKey = null;
   }
 
   /** Keep KeyValuePipe in declaration order (comparator that treats all keys as equal). */

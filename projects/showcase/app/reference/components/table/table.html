@@ -60,6 +60,18 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Resizable columns"
+    description="Set `resizable: true` for a drag handle on the header's right edge. The first drag freezes the current widths and switches the table to fixed layout so resizing is exact in both directions; `width` sets an initial px width."
+  >
+    <ngwr-doc-code [code]="snippets.resizable" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="resizableColumns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Narrow container (stacked cards)"
     description="With `responsive`, each row collapses to a labelled card when the table's own box is too narrow for columns — a container query on its own width, so it adapts inside a split pane on any screen. Every cell shows its column title as a label. The box below is fixed at 360px."
   >
