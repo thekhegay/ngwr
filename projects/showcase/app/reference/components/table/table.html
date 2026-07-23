@@ -99,6 +99,21 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="CSV export"
+    description="Call `exportCsv()` on the table (via a template ref) to download its rows — headers from the column titles, values from the row data, in the current column order. It covers the current `items`, so in server-side mode (`totalItems` set) that's the current page. `{ selectedOnly: true }` exports just the selected rows; `toCsv()` returns the string instead of downloading."
+  >
+    <ngwr-doc-code [code]="snippets.csv" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; width: 100%; flex-direction: column; gap: 0.75rem">
+        <wr-table #csvTable [columns]="columns" [items]="visibleRows()" />
+        <div>
+          <wr-btn size="sm" (click)="csvTable.exportCsv({ filename: 'users.csv' })">Export CSV</wr-btn>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Pinned columns"
     description="Set `pin: 'left'` or `pin: 'right'` on a column to freeze it against that edge while the rest scrolls horizontally. Several per side stack in order, and offsets are measured so columns of any width line up. Scroll the table below sideways — Name stays left, Status stays right."
   >

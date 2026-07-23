@@ -7,7 +7,7 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import type { ElementRef, TemplateRef } from '@angular/core';
 import {
   Component,
@@ -34,6 +34,7 @@ import type {
   WrTableCellContext,
   WrTableColumn,
   WrTableColumns,
+  WrTableCsvOptions,
   WrTableExpandContext,
   WrTableFilterChange,
   WrTableFilterItem,
@@ -477,6 +478,70 @@ export class WrTable {
 
   protected summaryFor(key: string): unknown {
     return this.summaries().get(key) ?? '';
+  }
+
+  // --- CSV export -----------------------------------------------------------
+
+  private readonly doc = inject(DOCUMENT);
+
+  /**
+   * Build the table as an RFC-4180 CSV string — a header row from the column
+   * titles, then one row per item in the current column order. Values are taken
+   * from the row data, not from custom `[wrTableCell]` templates.
+   *
+   * Covers the current `items`, so in server-side mode (`totalItems` set) it
+   * exports the current page, while client-side pagination exports every page.
+   *
+   * @example
+   * ```html
+   * <wr-table #table [columns]="columns" [items]="rows" />
+   * <wr-btn (click)="table.exportCsv({ filename: 'users.csv' })">Export</wr-btn>
+   * ```
+   */
+  toCsv(options: WrTableCsvOptions = {}): string {
+    const delimiter = options.delimiter ?? ',';
+    const escapeFormulas = options.escapeFormulas ?? true;
+    const cols = this.displayColumns();
+    const rows = options.selectedOnly ? this.selectedRows() : (this.items() ?? []);
+    const text = (value: unknown): string => {
+      if (value == null) return '';
+      if (typeof value === 'string') return value;
+      if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') return String(value);
+      if (value instanceof Date) return Number.isNaN(value.getTime()) ? '' : value.toISOString();
+      try {
+        return JSON.stringify(value) ?? '';
+      } catch {
+        // Circular structures and nested bigints throw — never fail the export over one cell.
+        return '';
+      }
+    };
+    const cell = (value: unknown): string => {
+      let s = text(value);
+      // Spreadsheets evaluate cells starting with these, so neutralize them into text.
+      if (escapeFormulas && typeof value === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+      return s.includes(delimiter) || /["\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [cols.map(col => cell(col.column.title)).join(delimiter)];
+    for (const row of rows) lines.push(cols.map(col => cell(row[col.key])).join(delimiter));
+    return lines.join('\r\n');
+  }
+
+  /** Download the table as a CSV file. No-op on the server. */
+  exportCsv(options: WrTableCsvOptions = {}): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    // Lead with a BOM so Excel reads the file as UTF-8.
+    const blob = new Blob([`\uFEFF${this.toCsv(options)}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = this.doc.createElement('a');
+    link.href = url;
+    link.download = options.filename ?? 'table.csv';
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url));
+  }
+
+  private selectedRows(): readonly Record<string, unknown>[] {
+    const keys = new Set(this.selection());
+    return (this.items() ?? []).filter(row => keys.has(this.rowKeyOf(row)));
   }
 
   private computeSummary(kind: WrTableSummary, rows: readonly Record<string, unknown>[], key: string): unknown {
