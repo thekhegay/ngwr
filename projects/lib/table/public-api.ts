@@ -7,6 +7,7 @@ export type {
   WrTableCellContext,
   WrTableColumn,
   WrTableColumns,
+  WrTableCsvOptions,
   WrTableExpandContext,
   WrTableFilterChange,
   WrTableFilterItem,

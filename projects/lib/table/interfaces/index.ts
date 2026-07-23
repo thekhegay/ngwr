@@ -4,4 +4,5 @@ export type { WrTableFilterItem } from './table-filter-item';
 export type { WrTableFilterChange } from './table-filter-change';
 export type { WrTableColumn, WrTableColumns, WrTableSummary } from './table-columns';
 export type { WrTableCellContext } from './table-cell-context';
+export type { WrTableCsvOptions } from './table-csv-options';
 export type { WrTableExpandContext } from './table-expand-context';

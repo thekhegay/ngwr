@@ -1,6 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 
 import { WrTag } from 'ngwr/badge';
+import { WrButton } from 'ngwr/button';
 import {
   WrTableCell,
   WrTableExpand,
@@ -97,6 +98,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     WrTableCell,
     WrTableExpand,
     WrTag,
+    WrButton,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -217,6 +219,9 @@ export class MyComponent {}`,
   price:   { title: 'Price', summary: 'avg' },
   qty:     { title: 'Qty', summary: 'sum' },
 };`,
+    csv: `<wr-table #table [columns]="columns" [items]="rows" />
+
+<wr-btn (click)="table.exportCsv({ filename: 'users.csv' })">Export CSV</wr-btn>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -270,6 +275,18 @@ export class MyComponent {}`,
       type: 'directive',
       default: '—',
     },
+    {
+      name: 'exportCsv(options?)',
+      description: 'Download the rows as a CSV file (options: filename, selectedOnly, delimiter).',
+      type: '(WrTableCsvOptions) => void',
+      default: '—',
+    },
+    {
+      name: 'toCsv(options?)',
+      description: 'Return the table as a CSV string instead of downloading.',
+      type: '(WrTableCsvOptions) => string',
+      default: '—',
+    },
     { name: 'sort', description: 'Two-way bindable sort array.', type: 'readonly WrTableSortState[]', default: '[]' },
     {
       name: '(filterChange)',
@@ -320,6 +337,13 @@ interface WrTableFilterItem<T = unknown> {
 interface WrTableSortState {
   key: string;
   direction: 'asc' | 'desc' | null;
+}
+
+interface WrTableCsvOptions {
+  filename?: string;
+  selectedOnly?: boolean;
+  delimiter?: string;
+  escapeFormulas?: boolean;
 }`;
 
   protected readonly typeRows: readonly DocApiRow[] = [
@@ -365,6 +389,29 @@ interface WrTableSortState {
       name: 'WrTableSortState',
       description: 'Emitted by (sortChange).',
       type: '{ key: string; direction: WrTableSortDirection }',
+    },
+    { name: 'WrTableCsvOptions', description: 'Argument of exportCsv() / toCsv().', type: 'interface' },
+    { name: 'filename', description: 'Download filename.', type: 'string', default: "'table.csv'", sub: true },
+    {
+      name: 'selectedOnly',
+      description: 'Export only the selected rows (needs rowSelection).',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    {
+      name: 'delimiter',
+      description: "Field delimiter — use ';' where Excel expects it.",
+      type: 'string',
+      default: "','",
+      sub: true,
+    },
+    {
+      name: 'escapeFormulas',
+      description: 'Prefix values starting with = + - @ so spreadsheets keep them as text.',
+      type: 'boolean',
+      default: 'true',
+      sub: true,
     },
   ];
 }
