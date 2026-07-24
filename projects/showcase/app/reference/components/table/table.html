@@ -99,6 +99,47 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Row grouping"
+    description="Set `groupBy` to a row property (or a function) to gather rows under collapsible band headers. Grouping runs after pagination — sort by the same key, or use `pageSize = 0`, to keep each group whole. Bind `[(collapsedGroups)]` (keyed by group value) to control or persist collapse. Scroll a pinned table sideways and the group label stays pinned to the left edge like a frozen column."
+  >
+    <ngwr-doc-code [code]="snippets.grouping" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table groupBy="role" [(collapsedGroups)]="groupCollapsed" [columns]="columns" [items]="visibleRows()" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Group subtotals"
+    description="Add `groupSummary` to repeat each column's `summary` aggregate as a subtotal row under every group, computed over that group's rows. The grand footer still totals the whole dataset — with client-side pagination the two describe different scopes, so pair `groupSummary` with `pageSize = 0`."
+  >
+    <ngwr-doc-code [code]="snippets.groupSummary" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table groupBy="region" groupSummary [columns]="salesColumns" [items]="salesRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom group header"
+    description="Project an `<ng-template wrTableGroupHeader>` for a rich band label — it receives the group `value`, `label`, `rows`, `count`, `collapsed` and a `toggle()` callback. The chevron and the group checkbox are still rendered by the table, so the template may contain its own interactive content."
+  >
+    <ngwr-doc-code [code]="snippets.groupHeader" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table groupBy="role" [columns]="columns" [items]="visibleRows()">
+          <ng-template wrTableGroupHeader let-value let-count="count">
+            <wr-tag color="primary" transparent>{{ value }}</wr-tag>
+            <small style="color: var(--wr-color-on-surface-muted)">{{ count }} users</small>
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="CSV export"
     description="Call `exportCsv()` on the table (via a template ref) to download its rows — headers from the column titles, values from the row data, in the current column order. It covers the current `items`, so in server-side mode (`totalItems` set) that's the current page. `{ selectedOnly: true }` exports just the selected rows; `toCsv()` returns the string instead of downloading."
   >

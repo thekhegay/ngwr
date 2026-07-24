@@ -306,6 +306,103 @@
     // Above the pinned sticky cells (th z-index 2), so loading veils them too.
     z-index: 3;
   }
+
+  // --- Row grouping ---------------------------------------------------------
+  --wr-table-group-bg: rgba(var(--wr-color-outline-rgb), 0.18);
+
+  &__group-cell {
+    // NOTE: never add `overflow` here — the inner box below is `position: sticky`
+    // and clips the instant this cell becomes a scroll container. The `--fixed`
+    // overflow rules target `__td` / `__foot-cell`, which this cell deliberately
+    // is NOT, so it stays safe as written.
+    padding: 0;
+    background: var(--wr-table-group-bg);
+    border-bottom: 1px solid var(--wr-table-border);
+  }
+
+  // The band cell is full table width, so a sticky inline box inside it rides
+  // horizontal scroll and keeps the label at the left edge. No measurement.
+  &__group-inner {
+    position: sticky;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    padding: calc(0.5rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+  }
+
+  &__group-select {
+    flex: 0 0 auto;
+  }
+
+  &__group-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0; // lets the label shrink so the cell can't widen columns
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  &__group-icon {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    transition: transform var(--wr-transition-base);
+    transform: rotate(90deg); // expanded — chevron points down
+  }
+
+  &__group-row--collapsed &__group-icon {
+    transform: none; // collapsed — chevron points right
+  }
+
+  &__group-label {
+    // Cap intrinsic width: in the default (auto) layout a colspan cell's
+    // min-content is spread across columns, so an ellipsizing shrinkable label
+    // keeps a long group name from widening the table.
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__group-count {
+    flex: 0 0 auto;
+    padding: 0 0.375rem;
+    border-radius: var(--wr-border-radius-pill);
+    background: rgba(var(--wr-color-outline-rgb), 0.5);
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-xs);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // Per-group subtotal row: the grand footer in the group tint. Every cell
+  // carries an opaque `surface` base with the tint layered on top (same
+  // technique as the pinned-footer rule), so pinned subtotal cells stay opaque
+  // and sticky. Declared AFTER `&__foot-cell#{&}__td--pin-*` so the
+  // same-specificity (0,2,0) tie resolves here and paints the group tint.
+  &__group-foot-row > &__foot-cell {
+    border-top: 0;
+    border-bottom: 1px solid var(--wr-table-border);
+    background-color: var(--wr-color-surface);
+    background-image: linear-gradient(var(--wr-table-group-bg), var(--wr-table-group-bg));
+  }
+
+  // The table's genuine last body row must not double the host's own bottom
+  // border. The existing `&__tr:last-child .wr-table__td` covers a data row;
+  // these cover a trailing subtotal row or a trailing collapsed band.
+  &__group-foot-row:last-child > &__foot-cell,
+  &__group-row:last-child > &__group-cell {
+    border-bottom: 0;
+  }
 }
 
 // Responsive tables: when the box is too narrow for columns, each row becomes a
@@ -394,6 +491,39 @@
   // The summary footer doesn't translate to cards — hide it.
   .wr-table--responsive .wr-table__foot-row {
     display: none;
+  }
+
+  // Group bands become full-width section headers between the cards.
+  .wr-table--responsive .wr-table__group-row,
+  .wr-table--responsive .wr-table__group-cell {
+    display: block;
+  }
+
+  .wr-table--responsive .wr-table__group-inner {
+    position: static;
+    display: flex;
+    width: 100%;
+  }
+
+  .wr-table--responsive .wr-table__group-toggle {
+    flex: 1 1 auto;
+    text-align: left;
+  }
+
+  // Per-group subtotals don't translate to cards either — hide like the grand footer.
+  .wr-table--responsive .wr-table__group-foot-row {
+    display: none;
+  }
+
+  .wr-table--responsive .wr-table__group-row:last-child {
+    border-bottom: 0;
+  }
+
+  // A hidden trailing subtotal row still occupies the DOM, stealing `:last-child`
+  // from the last data card — clear that card's border so it doesn't double the
+  // host's own bottom border.
+  .wr-table--responsive .wr-table__tr:has(+ .wr-table__group-foot-row:last-child) {
+    border-bottom: 0;
   }
 }
 
