@@ -88,76 +88,165 @@
     </thead>
 
     <tbody>
-      @if (visibleItems(); as rows) {
-        @for (row of rows; track $index) {
-          <tr class="wr-table__tr" [class.wr-table__tr--selected]="rowSelection() && isRowSelected(row)">
-            @if (rowSelection()) {
-              <td class="wr-table__td wr-table__td--select">
-                <wr-checkbox
-                  size="sm"
-                  [ngModel]="isRowSelected(row)"
-                  (ngModelChange)="toggleRow(row, $event)"
-                  aria-label="Select row"
-                />
-              </td>
-            }
-            @if (expandable()) {
-              <td class="wr-table__td wr-table__td--expand">
-                <button
-                  type="button"
-                  class="wr-table__expand-btn"
-                  [class.wr-table__expand-btn--open]="isExpanded(row)"
-                  [attr.aria-expanded]="isExpanded(row)"
-                  aria-label="Toggle row details"
-                  (click)="toggleExpand(row)"
-                >
-                  <svg
-                    class="wr-icon__svg wr-table__expand-icon"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="m9 18 6-6-6-6" />
-                  </svg>
-                </button>
-              </td>
-            }
-            @for (col of displayColumns(); track col.key) {
-              <td
-                class="wr-table__td"
-                [class.wr-table__td--pin-left]="col.column.pin === 'left'"
-                [class.wr-table__td--pin-right]="col.column.pin === 'right'"
-                [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
-                [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
-                [style.left.px]="leftPin(col.key)"
-                [style.right.px]="rightPin(col.key)"
-                [attr.data-label]="col.column.title"
-              >
-                @if (templateFor(col.key); as tpl) {
-                  <ng-container
-                    [ngTemplateOutlet]="tpl"
-                    [ngTemplateOutletContext]="cellContext(row, col.key, col.column)"
-                  />
-                } @else {
-                  {{ getValue(row, col.key) }}
-                }
-              </td>
-            }
-          </tr>
-          @if (expandable() && isExpanded(row)) {
-            <tr class="wr-table__detail-row">
-              <td class="wr-table__detail" [attr.colspan]="totalCols()">
-                <ng-container
-                  [ngTemplateOutlet]="expandTemplate() ?? null"
-                  [ngTemplateOutletContext]="expandContext(row)"
-                />
+      @if (visibleItems()) {
+        @for (entry of renderRows(); track entry.id) {
+          @if (entry.kind === 'group') {
+            <tr class="wr-table__group-row" [class.wr-table__group-row--collapsed]="entry.group.collapsed">
+              <td class="wr-table__group-cell" [attr.colspan]="totalCols()">
+                <!-- The cell spans the full table width; this inner box is what sticks. -->
+                <div class="wr-table__group-inner">
+                  @if (rowSelection() === 'multiple') {
+                    <wr-checkbox
+                      class="wr-table__group-select"
+                      size="sm"
+                      [ngModel]="groupChecked(entry.group.rows)"
+                      [indeterminate]="groupIndeterminate(entry.group.rows)"
+                      (ngModelChange)="toggleGroupSelection(entry.group.rows, $event)"
+                      aria-label="Select group"
+                    />
+                  }
+                  @if (groupTemplate(); as tpl) {
+                    <button
+                      type="button"
+                      class="wr-table__group-toggle wr-table__group-toggle--icon"
+                      [attr.aria-expanded]="!entry.group.collapsed"
+                      aria-label="Toggle group"
+                      (click)="toggleGroupCollapse(entry.group.value)"
+                    >
+                      <svg
+                        class="wr-icon__svg wr-table__group-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </button>
+                    <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="entry.group" />
+                  } @else {
+                    <button
+                      type="button"
+                      class="wr-table__group-toggle"
+                      [attr.aria-expanded]="!entry.group.collapsed"
+                      (click)="toggleGroupCollapse(entry.group.value)"
+                    >
+                      <svg
+                        class="wr-icon__svg wr-table__group-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                      <span class="wr-table__group-label">{{ entry.group.label }}</span>
+                      @if (showGroupCount()) {
+                        <span class="wr-table__group-count">{{ entry.group.count }}</span>
+                      }
+                    </button>
+                  }
+                </div>
               </td>
             </tr>
+          } @else if (entry.kind === 'group-foot') {
+            <tr class="wr-table__group-foot-row">
+              @if (rowSelection()) {
+                <td class="wr-table__foot-cell wr-table__foot-cell--lead"></td>
+              }
+              @if (expandable()) {
+                <td class="wr-table__foot-cell wr-table__foot-cell--lead"></td>
+              }
+              @for (col of displayColumns(); track col.key) {
+                <td
+                  class="wr-table__foot-cell"
+                  [class.wr-table__td--pin-left]="col.column.pin === 'left'"
+                  [class.wr-table__td--pin-right]="col.column.pin === 'right'"
+                  [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
+                  [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
+                  [style.left.px]="leftPin(col.key)"
+                  [style.right.px]="rightPin(col.key)"
+                >
+                  {{ entry.summaries.get(col.key) ?? '' }}
+                </td>
+              }
+            </tr>
+          } @else {
+            <tr class="wr-table__tr" [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)">
+              @if (rowSelection()) {
+                <td class="wr-table__td wr-table__td--select">
+                  <wr-checkbox
+                    size="sm"
+                    [ngModel]="isRowSelected(entry.row)"
+                    (ngModelChange)="toggleRow(entry.row, $event)"
+                    aria-label="Select row"
+                  />
+                </td>
+              }
+              @if (expandable()) {
+                <td class="wr-table__td wr-table__td--expand">
+                  <button
+                    type="button"
+                    class="wr-table__expand-btn"
+                    [class.wr-table__expand-btn--open]="isExpanded(entry.row)"
+                    [attr.aria-expanded]="isExpanded(entry.row)"
+                    aria-label="Toggle row details"
+                    (click)="toggleExpand(entry.row)"
+                  >
+                    <svg
+                      class="wr-icon__svg wr-table__expand-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </button>
+                </td>
+              }
+              @for (col of displayColumns(); track col.key) {
+                <td
+                  class="wr-table__td"
+                  [class.wr-table__td--pin-left]="col.column.pin === 'left'"
+                  [class.wr-table__td--pin-right]="col.column.pin === 'right'"
+                  [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
+                  [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
+                  [style.left.px]="leftPin(col.key)"
+                  [style.right.px]="rightPin(col.key)"
+                  [attr.data-label]="col.column.title"
+                >
+                  @if (templateFor(col.key); as tpl) {
+                    <ng-container
+                      [ngTemplateOutlet]="tpl"
+                      [ngTemplateOutletContext]="cellContext(entry.row, col.key, col.column)"
+                    />
+                  } @else {
+                    {{ getValue(entry.row, col.key) }}
+                  }
+                </td>
+              }
+            </tr>
+            @if (expandable() && isExpanded(entry.row)) {
+              <tr class="wr-table__detail-row">
+                <td class="wr-table__detail" [attr.colspan]="totalCols()">
+                  <ng-container
+                    [ngTemplateOutlet]="expandTemplate() ?? null"
+                    [ngTemplateOutletContext]="expandContext(entry.row)"
+                  />
+                </td>
+              </tr>
+            }
           }
         } @empty {
           <tr>

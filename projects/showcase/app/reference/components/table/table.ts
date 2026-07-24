@@ -5,6 +5,7 @@ import { WrButton } from 'ngwr/button';
 import {
   WrTableCell,
   WrTableExpand,
+  WrTableGroupHeader,
   WrTable,
   type WrTableColumns,
   type WrTableFilterChange,
@@ -97,6 +98,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     WrTable,
     WrTableCell,
     WrTableExpand,
+    WrTableGroupHeader,
     WrTag,
     WrButton,
     DocPageComponent,
@@ -177,6 +179,22 @@ export default class TablePageComponent {
     qty: { title: 'Qty', summary: 'sum' },
   };
 
+  protected readonly groupCollapsed = signal<readonly unknown[]>([]);
+
+  protected readonly salesRows: readonly Record<string, unknown>[] = [
+    { region: 'EMEA', rep: 'Alice', deals: 12, revenue: 48200 },
+    { region: 'EMEA', rep: 'Bob', deals: 7, revenue: 21500 },
+    { region: 'AMER', rep: 'Cara', deals: 15, revenue: 61000 },
+    { region: 'AMER', rep: 'Diego', deals: 9, revenue: 33750 },
+    { region: 'APAC', rep: 'Emi', deals: 11, revenue: 40100 },
+  ];
+  protected readonly salesColumns: WrTableColumns = {
+    region: { title: 'Region', summary: () => 'Subtotal' },
+    rep: { title: 'Rep' },
+    deals: { title: 'Deals', summary: 'sum' },
+    revenue: { title: 'Revenue', summary: 'sum' },
+  };
+
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
@@ -222,6 +240,26 @@ export class MyComponent {}`,
     csv: `<wr-table #table [columns]="columns" [items]="rows" />
 
 <wr-btn (click)="table.exportCsv({ filename: 'users.csv' })">Export CSV</wr-btn>`,
+    grouping: `<wr-table
+  groupBy="role"
+  [(collapsedGroups)]="collapsed"
+  [columns]="columns"
+  [items]="rows"
+/>`,
+    groupSummary: `const columns: WrTableColumns = {
+  region:  { title: 'Region', summary: () => 'Subtotal' },
+  rep:     { title: 'Rep' },
+  deals:   { title: 'Deals',   summary: 'sum' },
+  revenue: { title: 'Revenue', summary: 'sum' },
+};
+
+<wr-table groupBy="region" groupSummary [columns]="columns" [items]="rows" />`,
+    groupHeader: `<wr-table groupBy="role" [columns]="columns" [items]="rows">
+  <ng-template wrTableGroupHeader let-value let-count="count">
+    <wr-tag color="primary" transparent>{{ value }}</wr-tag>
+    <small>{{ count }} users</small>
+  </ng-template>
+</wr-table>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -287,6 +325,42 @@ export class MyComponent {}`,
       type: '(WrTableCsvOptions) => string',
       default: '—',
     },
+    {
+      name: 'groupBy',
+      description: 'Group rows under collapsible bands — a property name or a function. Runs after pagination.',
+      type: 'string | ((row) => unknown) | null',
+      default: 'null',
+    },
+    {
+      name: 'collapsedGroups',
+      description: 'Two-way collapsed group values (keyed by value; survives paging).',
+      type: 'readonly unknown[]',
+      default: '[]',
+    },
+    {
+      name: 'groupSummary',
+      description: "Repeat each column's `summary` as a per-group subtotal row.",
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'showGroupCount',
+      description: 'Show the page-scoped row-count badge in each group band.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: '<ng-template wrTableGroupHeader>',
+      description: 'Custom band label template (let-value, let-count, let-toggle, …).',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: 'collapseAllGroups() / expandAllGroups()',
+      description: 'Collapse or expand every group on the current page.',
+      type: '() => void',
+      default: '—',
+    },
     { name: 'sort', description: 'Two-way bindable sort array.', type: 'readonly WrTableSortState[]', default: '[]' },
     {
       name: '(filterChange)',
@@ -344,6 +418,16 @@ interface WrTableCsvOptions {
   selectedOnly?: boolean;
   delimiter?: string;
   escapeFormulas?: boolean;
+}
+
+interface WrTableGroupContext {
+  value: unknown;
+  label: string;
+  rows: readonly Record<string, unknown>[];
+  count: number;
+  collapsed: boolean;
+  index: number;
+  toggle: () => void;
 }`;
 
   protected readonly typeRows: readonly DocApiRow[] = [
@@ -413,5 +497,27 @@ interface WrTableCsvOptions {
       default: 'true',
       sub: true,
     },
+    {
+      name: 'WrTableGroupContext',
+      description: 'Passed to a wrTableGroupHeader template (also the built-in band context).',
+      type: 'interface',
+    },
+    {
+      name: 'value',
+      description: 'The value groupBy returned; also the collapse identity.',
+      type: 'unknown',
+      sub: true,
+    },
+    { name: 'label', description: "Default label — String(value), or '—' for empty.", type: 'string', sub: true },
+    {
+      name: 'rows',
+      description: "The group's rows on the current page.",
+      type: 'readonly Record<string, unknown>[]',
+      sub: true,
+    },
+    { name: 'count', description: 'rows.length — page-scoped row count.', type: 'number', sub: true },
+    { name: 'collapsed', description: 'Whether the group is currently collapsed.', type: 'boolean', sub: true },
+    { name: 'index', description: '0-based index of the group on the current page.', type: 'number', sub: true },
+    { name: 'toggle', description: 'Collapse / expand this group.', type: '() => void', sub: true },
   ];
 }

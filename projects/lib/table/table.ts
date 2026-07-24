@@ -38,6 +38,7 @@ import type {
   WrTableExpandContext,
   WrTableFilterChange,
   WrTableFilterItem,
+  WrTableGroupContext,
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
@@ -45,7 +46,17 @@ import type {
 import { WrTableCell } from './table-cell';
 import { WrTableExpand } from './table-expand';
 import { WrTableFilter } from './table-filter';
+import { WrTableGroupHeader } from './table-group-header';
 import { WrTableSort } from './table-sort';
+
+/** Sentinel value for the single synthetic bucket used when grouping is off. */
+const WR_TABLE_UNGROUPED = Symbol('wr-table-ungrouped');
+
+/** One `<tbody>` row descriptor. Not exported — same precedent as the tree's flat node. */
+type RenderRow =
+  | { readonly kind: 'group'; readonly id: string; readonly group: WrTableGroupContext }
+  | { readonly kind: 'row'; readonly id: string; readonly row: Record<string, unknown> }
+  | { readonly kind: 'group-foot'; readonly id: string; readonly summaries: ReadonlyMap<string, unknown> };
 
 /**
  * Data table with sortable / filterable headers and custom cell templates.
@@ -131,6 +142,44 @@ export class WrTable {
 
   /** Two-way bindable expanded row keys (needs a `[wrTableExpand]` template). */
   readonly expanded = model<readonly unknown[]>([]);
+
+  /**
+   * Group rows under collapsible band headers — a row property name, or a
+   * function returning the group value. `null` (default) renders the table
+   * exactly as before.
+   *
+   * Grouping runs AFTER pagination: it buckets the rows on the current page in
+   * first-appearance order (it never re-sorts your data — same contract as
+   * `[(sort)]`), so a group straddling a page boundary shows a band on both
+   * pages, and per-group counts / subtotals are page-scoped. Sort `items` by the
+   * same key upstream to keep groups whole, or pair with `pageSize = 0`.
+   *
+   * Group values are compared by identity (`Map`/`Set`, SameValueZero) — return
+   * a primitive, exactly as for `rowKey`. Objects / `Date`s bucket by reference.
+   *
+   * @default null
+   */
+  readonly groupBy = input<string | ((row: Record<string, unknown>) => unknown) | null>(null);
+
+  /**
+   * Two-way bindable collapsed group values (the values `groupBy` returns).
+   * Keyed by value, so a collapsed group stays collapsed across page changes and
+   * re-sorts. Empty (the default) shows every group expanded.
+   */
+  readonly collapsedGroups = model<readonly unknown[]>([]);
+
+  /**
+   * Render an aggregate row under each group using the same `column.summary`
+   * definitions as the grand footer, computed over that group's rows on the
+   * current page. No-op unless at least one column defines a `summary`. The grand
+   * `<tfoot>` is unaffected and still aggregates the whole client dataset — with
+   * client-side pagination the two describe different scopes, so pair grouping
+   * with `pageSize = 0` when you need them to reconcile. @default false
+   */
+  readonly groupSummary = input(false, { transform: coerceBooleanProperty });
+
+  /** Show the page-scoped row-count badge in each group band. @default true */
+  readonly showGroupCount = input(true, { transform: coerceBooleanProperty });
 
   /** Two-way bindable sort array. Order in array = application order. */
   readonly sort = model<readonly WrTableSortState[]>([]);
@@ -415,8 +464,8 @@ export class WrTable {
     this.selection.set(checked ? [...sel, key] : sel.filter(k => k !== key));
   }
 
-  protected toggleAll(checked: boolean): void {
-    const keys = this.pageRowKeys();
+  /** Add (or remove) a set of row keys from the selection in one update. */
+  private applySelection(keys: readonly unknown[], checked: boolean): void {
     const sel = this.selection();
     if (checked) {
       const merged = new Set(sel);
@@ -426,6 +475,10 @@ export class WrTable {
       const drop = new Set(keys);
       this.selection.set(sel.filter(k => !drop.has(k)));
     }
+  }
+
+  protected toggleAll(checked: boolean): void {
+    this.applySelection(this.pageRowKeys(), checked);
   }
 
   // --- Row expansion --------------------------------------------------------
@@ -478,6 +531,136 @@ export class WrTable {
 
   protected summaryFor(key: string): unknown {
     return this.summaries().get(key) ?? '';
+  }
+
+  // --- Row grouping ---------------------------------------------------------
+
+  private readonly groupTpl = contentChild(WrTableGroupHeader);
+
+  protected groupTemplate(): TemplateRef<WrTableGroupContext> | undefined {
+    return this.groupTpl()?.template;
+  }
+
+  /**
+   * Rows on the current page bucketed by `groupBy`, in first-appearance order.
+   * Depends only on `visibleItems()` + `groupBy` (not on collapse / summary), so
+   * a collapse toggle never re-buckets. The ungrouped path returns one synthetic
+   * bucket holding the same array instance `visibleItems()` returned.
+   */
+  private readonly groupBuckets = computed<readonly { value: unknown; rows: readonly Record<string, unknown>[] }[]>(
+    () => {
+      const rows = this.visibleItems() ?? [];
+      const by = this.groupBy();
+      if (by === null) return [{ value: WR_TABLE_UNGROUPED, rows }];
+      const buckets = new Map<unknown, Record<string, unknown>[]>();
+      for (const row of rows) {
+        const value = typeof by === 'function' ? by(row) : row[by];
+        const bucket = buckets.get(value);
+        if (bucket) bucket.push(row);
+        else buckets.set(value, [row]);
+      }
+      return Array.from(buckets, ([value, groupRows]) => ({ value, rows: groupRows }));
+    }
+  );
+
+  /**
+   * The flat `<tbody>` render list. Ungrouped it is exactly today's rows in
+   * order (the rendered elements are unchanged; only the `@for` track identity
+   * moves to a stable id). Returns `[]` for both no-rows and loading — the
+   * template's `@if (visibleItems())` guard keeps the loading case from showing
+   * the empty row.
+   */
+  protected readonly renderRows = computed<readonly RenderRow[]>(() => {
+    const rows = this.visibleItems();
+    if (!rows) return [];
+    const buckets = this.groupBuckets();
+
+    if (this.groupBy() === null) {
+      return buckets[0].rows.map((row, i) => ({ kind: 'row', id: `r${i}`, row }) as const);
+    }
+
+    const collapsed = new Set(this.collapsedGroups());
+    const summaryCols =
+      this.groupSummary() && this.hasSummary()
+        ? Object.entries(this.columns()).filter(([, c]) => c.summary !== undefined)
+        : [];
+
+    const out: RenderRow[] = [];
+    buckets.forEach((bucket, gi) => {
+      const isCollapsed = collapsed.has(bucket.value);
+      const label = this.groupLabelOf(bucket.value);
+      const group: WrTableGroupContext = {
+        $implicit: bucket.value,
+        value: bucket.value,
+        label,
+        rows: bucket.rows,
+        count: bucket.rows.length,
+        collapsed: isCollapsed,
+        index: gi,
+        toggle: () => this.toggleGroupCollapse(bucket.value),
+      };
+      out.push({ kind: 'group', id: `g${gi}`, group });
+      if (isCollapsed) return;
+      bucket.rows.forEach((row, ri) => out.push({ kind: 'row', id: `g${gi}r${ri}`, row }));
+      if (summaryCols.length) {
+        const summaries = new Map<string, unknown>();
+        for (const [key, col] of summaryCols) summaries.set(key, this.computeSummary(col.summary!, bucket.rows, key));
+        out.push({ kind: 'group-foot', id: `g${gi}f`, summaries });
+      }
+    });
+    return out;
+  });
+
+  /** Default band label — the primitive as text, `'—'` for empty, JSON for objects. */
+  private groupLabelOf(value: unknown): string {
+    if (value == null || value === '') return '—';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'bigint' || typeof value === 'boolean') return String(value);
+    // Objects / symbols / functions aren't the documented contract (groupBy
+    // should return a primitive, like rowKey); format gracefully anyway.
+    try {
+      return JSON.stringify(value) ?? '—';
+    } catch {
+      return '—';
+    }
+  }
+
+  protected toggleGroupCollapse(value: unknown): void {
+    const set = this.collapsedGroups();
+    this.collapsedGroups.set(set.includes(value) ? set.filter(v => v !== value) : [...set, value]);
+  }
+
+  /** Collapse every group on the current page. No-op when `groupBy` is unset. */
+  collapseAllGroups(): void {
+    if (this.groupBy() === null) return;
+    this.collapsedGroups.set(this.groupBuckets().map(b => b.value));
+  }
+
+  /** Expand every group. */
+  expandAllGroups(): void {
+    this.collapsedGroups.set([]);
+  }
+
+  // --- Group selection (memoized Set; reuses the row-selection primitive) ----
+
+  private readonly selectionSet = computed<ReadonlySet<unknown>>(() => new Set(this.selection()));
+
+  protected groupChecked(rows: readonly Record<string, unknown>[]): boolean {
+    if (rows.length === 0) return false;
+    const sel = this.selectionSet();
+    return rows.every(r => sel.has(this.rowKeyOf(r)));
+  }
+
+  protected groupIndeterminate(rows: readonly Record<string, unknown>[]): boolean {
+    const sel = this.selectionSet();
+    return rows.some(r => sel.has(this.rowKeyOf(r))) && !this.groupChecked(rows);
+  }
+
+  protected toggleGroupSelection(rows: readonly Record<string, unknown>[], checked: boolean): void {
+    this.applySelection(
+      rows.map(r => this.rowKeyOf(r)),
+      checked
+    );
   }
 
   // --- CSV export -----------------------------------------------------------
