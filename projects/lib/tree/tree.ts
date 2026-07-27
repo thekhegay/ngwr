@@ -5,14 +5,15 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
   ElementRef,
+  PLATFORM_ID,
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
@@ -38,6 +39,12 @@ interface FlatNode<TId> {
   readonly node: WrTreeNode<TId>;
   readonly depth: number;
   readonly hasChildren: boolean;
+  /** Absolute position in the flattened visible list. */
+  readonly index: number;
+  /** 1-based position within its sibling group (ARIA `aria-posinset`). */
+  readonly posinset: number;
+  /** Sibling count at this level (ARIA `aria-setsize`). */
+  readonly setsize: number;
 }
 
 interface SelectedChip<TId> {
@@ -138,6 +145,34 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   readonly defaultExpandAll = input(false, { transform: coerceBooleanProperty });
 
   /**
+   * Window the visible-node list so a large tree keeps only ~one viewport of
+   * rows in the DOM. Opt-in and OFF by default — a tree without it renders
+   * byte-identically to today. Works in both `inline` and `overlay` shapes;
+   * while on, keyboard navigation switches to the `aria-activedescendant`
+   * pattern so Arrow / Home / End / Enter keep working across un-rendered rows.
+   * @default false
+   */
+  readonly virtualScroll = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Uniform row height in px used to map scroll offset to node index. `0`
+   * (default) measures the first rendered row once and reuses it, so it adapts
+   * to the active density / touch target automatically. Read only when
+   * `virtualScroll` is on. @default 0
+   */
+  readonly rowHeight = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
+
+  /**
+   * Height of the scroll viewport when `virtualScroll` is on — a number (px) or
+   * any CSS length (`'60vh'`). A numeric px value lets the server prerender the
+   * exact first window. @default 288
+   */
+  readonly viewportHeight = input<number | string>(288);
+
+  /** Extra rows kept rendered above and below the viewport as scroll headroom. @default 6 */
+  readonly overscan = input(6, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 6)) });
+
+  /**
    * Form value — the current selection as seen by a bound field. Bound by
    * `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`:
    * `TId | null` in single mode, `readonly TId[]` in multi mode. Meaningful in
@@ -155,6 +190,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
   /** Currently focused row's index in the flattened visible list. */
   protected readonly focusedIndex = signal(0);
@@ -170,11 +206,11 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     const expanded = new Set(this.expanded());
     const out: FlatNode<TId>[] = [];
     const walk = (list: readonly WrTreeNode<TId>[], depth: number): void => {
-      for (const node of list) {
+      list.forEach((node, i) => {
         const hasChildren = (node.children?.length ?? 0) > 0;
-        out.push({ node, depth, hasChildren });
+        out.push({ node, depth, hasChildren, index: out.length, posinset: i + 1, setsize: list.length });
         if (hasChildren && expanded.has(node.id)) walk(node.children!, depth + 1);
-      }
+      });
     };
     walk(this.nodes(), 0);
     return out;
@@ -245,6 +281,101 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   private overlayRef: OverlayRef | null = null;
 
+  // --- Virtual scroll -------------------------------------------------------
+
+  private static readonly FALLBACK_ROW_PX = 32;
+  private static readonly FALLBACK_VIEWPORT_PX = 288;
+
+  /** Live vertical scroll offset (px); 0 on the server / before first scroll. */
+  private readonly scrollTop = signal(0);
+  /** Measured viewport clientHeight (px); 0 until the browser observer fires. */
+  private readonly viewportPx = signal(0);
+  /** Measured first-row height (px) when `rowHeight` is auto; 0 until measured. */
+  private readonly measuredRowPx = signal(0);
+
+  /** Virtualization active (opt-in and there is anything to window). */
+  protected readonly virtualized = computed(() => this.virtualScroll() && this.flat().length > 0);
+
+  /** Effective uniform row height (px). */
+  protected readonly effRowH = computed(() =>
+    this.rowHeight() > 0 ? this.rowHeight() : this.measuredRowPx() || WrTree.FALLBACK_ROW_PX
+  );
+
+  /** Deterministic viewport px for SSR + first paint (numeric height, else fallback). */
+  private readonly fallbackViewportPx = computed(() => {
+    const h = this.viewportHeight();
+    return typeof h === 'number' ? h : WrTree.FALLBACK_VIEWPORT_PX;
+  });
+
+  /** `viewportHeight` as a CSS length for the inline max-height. */
+  protected readonly resolvedViewportHeight = computed(() => {
+    const h = this.viewportHeight();
+    return typeof h === 'number' ? `${h}px` : h;
+  });
+
+  /** Rendered window [start,end) + spacer pads (px). Pure math from `scrollTop`. */
+  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
+    const total = this.flat().length;
+    if (!this.virtualized() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
+    const h = this.effRowH();
+    const vp = this.viewportPx() || this.fallbackViewportPx();
+    const over = this.overscan();
+    // Clamp `first` so a transient effRowH shrink (auto-measure landing below the
+    // fallback within one frame) can't push it past the list and slice to empty.
+    const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
+    // `+ 1` covers the partial row at the viewport's bottom edge even at overscan 0.
+    const count = Math.ceil(vp / h) + 1;
+    const start = Math.max(0, first - over);
+    const end = Math.min(total, first + count + over);
+    return { start, end, padTop: start * h, padBottom: (total - end) * h };
+  });
+
+  /** Nodes placed in the list. SAME array instance as `flat()` when off → byte-identical DOM. */
+  protected readonly windowRows = computed<readonly FlatNode<TId>[]>(() => {
+    if (!this.virtualized()) return this.flat();
+    const { start, end } = this.virtualWindow();
+    return this.flat().slice(start, end);
+  });
+
+  /** Stable id for a row at flat index `i` — the `aria-activedescendant` target. */
+  protected rowId(i: number): string {
+    return `${this.panelId}-row-${i}`;
+  }
+
+  /**
+   * Active-descendant id when virtualized (focus stays on the list container),
+   * else `null`. Returns `null` while the focused row is outside the rendered
+   * window (e.g. mouse-wheeled away) so `aria-activedescendant` never dangles at
+   * a removed element — the next arrow key scrolls it back and re-establishes it.
+   */
+  protected readonly activeRowId = computed(() => {
+    if (!this.virtualized()) return null;
+    const i = this.focusedIndex();
+    const { start, end } = this.virtualWindow();
+    return i >= start && i < end ? this.rowId(i) : null;
+  });
+
+  /** The scrollable `<ul>` — inside the overlay panel in overlay mode, else in the host. */
+  private get listElement(): HTMLElement | null {
+    const root = this.overlayRef?.overlayElement ?? this.host.nativeElement;
+    return root.querySelector<HTMLElement>('.wr-tree__list');
+  }
+
+  /** Scroll flat index `i` just into view (sets the `scrollTop` signal synchronously). */
+  private ensureVisible(i: number): void {
+    const h = this.effRowH();
+    const vp = this.viewportPx() || this.fallbackViewportPx();
+    const top = i * h;
+    const cur = this.scrollTop();
+    let next = cur;
+    if (top < cur) next = top;
+    else if (top + h > cur + vp) next = top + h - vp;
+    if (next !== cur) {
+      this.scrollTop.set(next);
+      this.listElement?.scrollTo({ top: next });
+    }
+  }
+
   constructor() {
     // Drive the overlay open/close in response to the `open` signal.
     effect(() => {
@@ -288,6 +419,54 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       });
     });
 
+    // Wire the scroll listener + viewport/row measurement — only while virtual
+    // and in the browser. Re-runs when the list (re)appears (overlay open, data
+    // change), deferring the DOM read to a microtask so the portal / inline list
+    // is attached. No-op on the server (SSR renders the deterministic first
+    // window from inputs alone).
+    effect(onCleanup => {
+      if (!isPlatformBrowser(this.platformId) || !this.virtualScroll()) return;
+      const open = this.isOverlay() ? this.open() : true;
+      this.flat();
+      if (!open) return;
+      let raf = 0;
+      let ro: ResizeObserver | null = null;
+      let el: HTMLElement | null = null;
+      const onScroll = (): void => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          if (el) this.scrollTop.set(el.scrollTop);
+        });
+      };
+      queueMicrotask(() => {
+        el = this.listElement;
+        if (!el) return;
+        // The overlay `<ul>` is destroyed + recreated on each open, but the
+        // `scrollTop` signal persists — restore the fresh element to it so a
+        // reopened panel isn't blank (window computed from a non-zero signal
+        // while the new DOM sits at scrollTop 0). No-op on first open / inline.
+        if (el.scrollTop !== this.scrollTop()) el.scrollTop = this.scrollTop();
+        this.viewportPx.set(el.clientHeight);
+        if (this.rowHeight() === 0) {
+          const h = el.querySelector<HTMLElement>('.wr-tree__row')?.offsetHeight ?? 0;
+          if (h > 0) this.measuredRowPx.set(h);
+        }
+        el.addEventListener('scroll', onScroll, { passive: true });
+        if (typeof ResizeObserver !== 'undefined') {
+          ro = new ResizeObserver(() => {
+            if (el) this.viewportPx.set(el.clientHeight);
+          });
+          ro.observe(el);
+        }
+      });
+      onCleanup(() => {
+        if (raf) cancelAnimationFrame(raf);
+        if (el) el.removeEventListener('scroll', onScroll);
+        ro?.disconnect();
+      });
+    });
+
     this.destroyRef.onDestroy(() => this.closeOverlay());
   }
 
@@ -299,7 +478,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       this.toggleExpanded(flat.node.id);
       return;
     }
-    this.focusIndex(this.flat().indexOf(flat));
+    this.focusIndex(flat.index);
     this.select(flat.node.id, event.ctrlKey || event.metaKey);
   }
 
@@ -441,7 +620,17 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   private focusIndex(i: number): void {
     this.focusedIndex.set(i);
-    // Defer to next frame so the DOM has updated row classes/tabindex.
+    if (this.virtualized()) {
+      // Managed-focus (aria-activedescendant): focus stays on the list container.
+      // Setting `scrollTop` synchronously materializes row `i` in the SAME change
+      // detection pass, so the id referenced by `aria-activedescendant` is present
+      // — no rAF/microtask race, no "points at an absent id" gap.
+      this.ensureVisible(i);
+      this.listElement?.focus();
+      return;
+    }
+    // Non-virtual roving tabindex: defer so the DOM has updated tabindex, then
+    // move focus to the row element.
     queueMicrotask(() => {
       const root = this.overlayRef?.overlayElement ?? this.host.nativeElement;
       const row = root.querySelector<HTMLElement>(`[data-tree-index="${i}"]`);
@@ -487,6 +676,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     });
 
     this.overlayRef.attach(new TemplatePortal(tpl, this.vcr));
+
+    // Virtual mode drives keyboard nav via aria-activedescendant on the list
+    // container, so it must hold focus once the panel is attached.
+    if (this.virtualized()) queueMicrotask(() => this.listElement?.focus());
 
     this.overlayRef
       .outsidePointerEvents()

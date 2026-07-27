@@ -69,6 +69,15 @@ export default class TreePageComponent {
   protected readonly comboSingle = signal<string | null>(null);
   protected readonly comboMulti = signal<readonly string[]>([]);
 
+  // 5,020-node tree for the virtual-scroll demo.
+  protected readonly bigTree: readonly WrTreeNode[] = Array.from({ length: 20 }, (_, g) => ({
+    id: `g${g}`,
+    label: `Group ${g + 1}`,
+    children: Array.from({ length: 250 }, (_, i) => ({ id: `g${g}-i${i}`, label: `Item ${g + 1}.${i + 1}` })),
+  }));
+  protected readonly bigExpanded = signal<readonly string[]>(Array.from({ length: 20 }, (_, g) => `g${g}`));
+  protected readonly bigPick = signal<readonly string[]>([]);
+
   protected readonly snippets = {
     install: `import { WrTree, type WrTreeNode } from 'ngwr/tree';
 
@@ -112,6 +121,15 @@ export class MyComponent {
   [defaultExpandAll]="true"
   placeholder="Pick folders"
   [(ngModel)]="picked"
+/>`,
+
+    virtual: `<!-- 5,000+ nodes; only ~one viewport of rows stays in the DOM. -->
+<wr-tree
+  [nodes]="bigTree"
+  [(expanded)]="expanded"
+  [(selected)]="picked"
+  virtualScroll
+  [viewportHeight]="320"
 />`,
   };
 
@@ -162,6 +180,25 @@ export class MyComponent {
       type: 'boolean',
       default: 'false',
     },
+    {
+      name: 'virtualScroll',
+      description: 'Window the visible-node list — keep only ~one viewport of rows in the DOM (inline or overlay).',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'rowHeight',
+      description: 'Uniform virtual row height (px). `0` auto-measures the first row (adapts to density / touch).',
+      type: 'number',
+      default: '0',
+    },
+    {
+      name: 'viewportHeight',
+      description: 'Virtual scroll viewport height — a number (px) or CSS length.',
+      type: 'number | string',
+      default: '288',
+    },
+    { name: 'overscan', description: 'Extra rows kept above/below the viewport.', type: 'number', default: '6' },
     {
       name: 'WrTreeNode',
       description: '{ id, label, children?, disabled? }',

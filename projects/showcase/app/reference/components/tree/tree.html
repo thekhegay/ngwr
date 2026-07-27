@@ -74,6 +74,25 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Virtual scroll"
+    description="Set `virtualScroll` to window a large tree — only ~one viewport of rows stays in the DOM. `rowHeight` (0 = auto-measure the first row) and `viewportHeight` size the window; keyboard nav switches to `aria-activedescendant` so Arrow / Home / End / Enter keep working across un-rendered rows. Works inline and in `openOn=overlay`. The tree below holds 5,020 nodes."
+  >
+    <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-tree
+        [nodes]="bigTree"
+        [(expanded)]="bigExpanded"
+        [(selected)]="bigPick"
+        virtualScroll
+        [viewportHeight]="320"
+      />
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+        Picked: {{ bigPick().join(', ') || '(none)' }}
+      </small>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

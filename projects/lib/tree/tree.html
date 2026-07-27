@@ -102,7 +102,7 @@
 
   <!-- Tree list lives inside the overlay panel. -->
   <ng-template #panelTpl>
-    <div class="wr-tree-panel" [attr.id]="panelId">
+    <div class="wr-tree-panel" [class.wr-tree-panel--virtual]="virtualized()" [attr.id]="panelId">
       <ng-container [ngTemplateOutlet]="listTpl" />
     </div>
   </ng-template>
@@ -113,25 +113,45 @@
 <!-- Shared row list — rendered inline (default) or projected into the
      overlay panel (when openOn="overlay"). -->
 <ng-template #listTpl>
-  <!-- Roving tabindex: the tree owns keyboard focus and routes arrow keys
-       to its currently-focused row. -->
-  <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
-  <ul class="wr-tree__list" role="tree" (keydown)="onKeydown($event)">
-    @for (entry of flat(); track entry.node.id) {
+  <!-- Roving tabindex (non-virtual) / aria-activedescendant (virtual): the tree
+       owns keyboard focus and routes arrow keys to its currently-focused row. -->
+  <ul
+    class="wr-tree__list"
+    role="tree"
+    [class.wr-tree__list--virtual]="virtualized()"
+    [attr.tabindex]="virtualized() ? 0 : null"
+    [attr.aria-activedescendant]="activeRowId()"
+    [style.max-height]="virtualized() ? resolvedViewportHeight() : null"
+    [style.overflow-y]="virtualized() ? 'auto' : null"
+    (keydown)="onKeydown($event)"
+  >
+    @if (virtualized() && virtualWindow().padTop > 0) {
+      <li
+        class="wr-tree__spacer"
+        role="presentation"
+        aria-hidden="true"
+        [style.height.px]="virtualWindow().padTop"
+      ></li>
+    }
+    @for (entry of windowRows(); track entry.node.id) {
       <!-- Click handler lives on focusable rows; keyboard handling is owned
            by the parent <ul> via the roving-tabindex pattern. -->
       <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
       <li
         class="wr-tree__row"
         role="treeitem"
+        [attr.id]="virtualized() ? rowId(entry.index) : null"
         [class.wr-tree__row--selected]="selectedSet().has(entry.node.id)"
+        [class.wr-tree__row--active]="virtualized() && entry.index === focusedIndex()"
         [class.wr-tree__row--disabled]="entry.node.disabled"
         [attr.aria-level]="entry.depth + 1"
+        [attr.aria-setsize]="virtualized() ? entry.setsize : null"
+        [attr.aria-posinset]="virtualized() ? entry.posinset : null"
         [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"
         [attr.aria-selected]="selectionMode() === 'none' ? null : selectedSet().has(entry.node.id)"
         [attr.aria-disabled]="entry.node.disabled || disabled() || null"
-        [attr.data-tree-index]="$index"
-        [attr.tabindex]="$index === focusedIndex() ? 0 : -1"
+        [attr.data-tree-index]="entry.index"
+        [attr.tabindex]="virtualized() ? null : entry.index === focusedIndex() ? 0 : -1"
         [style.--wr-tree-depth]="entry.depth"
         (click)="onRowClick(entry, $event)"
       >
@@ -152,6 +172,14 @@
         }
         <span class="wr-tree__label">{{ entry.node.label }}</span>
       </li>
+    }
+    @if (virtualized() && virtualWindow().padBottom > 0) {
+      <li
+        class="wr-tree__spacer"
+        role="presentation"
+        aria-hidden="true"
+        [style.height.px]="virtualWindow().padBottom"
+      ></li>
     }
   </ul>
 </ng-template>
