@@ -4,8 +4,18 @@
   </div>
 }
 
-<div class="wr-table__scroll">
-  <table class="wr-table__table" [class.wr-table__table--fixed]="fixedLayout()">
+<div
+  class="wr-table__scroll"
+  #scroll
+  [style.max-height]="virtualized() ? resolvedViewportHeight() : null"
+  [attr.tabindex]="virtualized() ? 0 : null"
+>
+  <table
+    class="wr-table__table"
+    [class.wr-table__table--fixed]="fixedLayoutActive()"
+    [style.--wr-table-row-h.px]="virtualized() ? effRowH() : null"
+    [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
+  >
     <colgroup>
       @if (rowSelection()) {
         <col class="wr-table__col--lead" />
@@ -89,7 +99,12 @@
 
     <tbody>
       @if (visibleItems()) {
-        @for (entry of renderRows(); track entry.id) {
+        @if (virtualized() && virtualWindow().padTop > 0) {
+          <tr class="wr-table__spacer" aria-hidden="true">
+            <td [attr.colspan]="totalCols()" [style.height.px]="virtualWindow().padTop"></td>
+          </tr>
+        }
+        @for (entry of windowRows(); track entry.id; let i = $index) {
           @if (entry.kind === 'group') {
             <tr class="wr-table__group-row" [class.wr-table__group-row--collapsed]="entry.group.collapsed">
               <td class="wr-table__group-cell" [attr.colspan]="totalCols()">
@@ -178,7 +193,11 @@
               }
             </tr>
           } @else {
-            <tr class="wr-table__tr" [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)">
+            <tr
+              class="wr-table__tr"
+              [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)"
+              [attr.aria-rowindex]="virtualized() ? windowStart() + i + 2 : null"
+            >
               @if (rowSelection()) {
                 <td class="wr-table__td wr-table__td--select">
                   <wr-checkbox
@@ -251,6 +270,11 @@
         } @empty {
           <tr>
             <td class="wr-table__empty" [attr.colspan]="totalCols()">No data</td>
+          </tr>
+        }
+        @if (virtualized() && virtualWindow().padBottom > 0) {
+          <tr class="wr-table__spacer" aria-hidden="true">
+            <td [attr.colspan]="totalCols()" [style.height.px]="virtualWindow().padBottom"></td>
           </tr>
         }
       }

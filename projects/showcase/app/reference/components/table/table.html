@@ -48,6 +48,24 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Virtual scroll"
+    description="Set `virtualScroll` with a fixed `viewportHeight` to window thousands of rows — only the visible slice is in the DOM. It forces fixed column layout, assumes a uniform `rowHeight` (auto-measured by default), and falls back to the full render while grouping, expandable rows, responsive cards or a pager is active. The table below holds 10,000 rows."
+  >
+    <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          virtualScroll
+          [rowHeight]="41"
+          [viewportHeight]="440"
+          [columns]="virtualColumns"
+          [items]="virtualRows"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Row selection"
     description="Set `rowSelection` to `'multiple'` (checkboxes + a select-all header) or `'single'`. Bind `[(selection)]` to the selected row keys, and `rowKey` to identify rows (a property name or a function)."
   >

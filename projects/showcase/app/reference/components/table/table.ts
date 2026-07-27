@@ -35,6 +35,14 @@ const RAW_ROWS: readonly Row[] = [
   { name: 'Diego', email: 'diego@example.com', role: 'viewer' },
 ];
 
+// Large dataset for the virtual-scroll demo — 10k rows the DOM never fully holds.
+const VIRTUAL_ROWS: readonly Record<string, unknown>[] = Array.from({ length: 10_000 }, (_, i) => ({
+  id: i + 1,
+  name: `User ${String(i + 1).padStart(5, '0')}`,
+  email: `user${i + 1}@example.com`,
+  role: i % 7 === 0 ? 'admin' : i % 3 === 0 ? 'editor' : 'viewer',
+}));
+
 // Wider dataset for the paginated demo so >1 page is actually visible.
 const PAGINATED_ROWS: readonly Row[] = Array.from({ length: 23 }, (_, i) => ({
   name: `User ${String(i + 1).padStart(2, '0')}`,
@@ -195,6 +203,14 @@ export default class TablePageComponent {
     revenue: { title: 'Revenue', summary: 'sum' },
   };
 
+  protected readonly virtualRows = VIRTUAL_ROWS;
+  protected readonly virtualColumns: WrTableColumns = {
+    id: { title: 'ID', width: 96 },
+    name: { title: 'Name', width: 220 },
+    email: { title: 'Email', width: 280 },
+    role: { title: 'Role', width: 160 },
+  };
+
   protected readonly snippets = {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
@@ -260,6 +276,13 @@ export class MyComponent {}`,
     <small>{{ count }} users</small>
   </ng-template>
 </wr-table>`,
+    virtual: `<wr-table
+  virtualScroll
+  [rowHeight]="41"
+  [viewportHeight]="440"
+  [columns]="columns"
+  [items]="rows"
+/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -381,6 +404,32 @@ export class MyComponent {}`,
         'Server-side total. When set, the table renders the pager but does NOT slice `items` (you handle paging).',
       type: 'number | null',
       default: 'null',
+    },
+    {
+      name: 'virtualScroll',
+      description:
+        'Window the body — keep only ~one viewport of rows in the DOM. Falls back to the full render while grouping / expansion / responsive / a pager is active.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'rowHeight',
+      description: 'Uniform virtual row height (px). `0` auto-measures the first row.',
+      type: 'number',
+      default: '0',
+    },
+    {
+      name: 'viewportHeight',
+      description: 'Virtual scroll viewport height — a number (px) or CSS length. Applied as max-height.',
+      type: 'number | string',
+      default: '480',
+    },
+    { name: 'overscan', description: 'Extra rows kept above/below the viewport.', type: 'number', default: '6' },
+    {
+      name: 'scrollToRow(index, behavior?)',
+      description: 'Scroll a row index to the top of the virtual viewport.',
+      type: '(number, ScrollBehavior) => void',
+      default: '—',
     },
   ];
 

@@ -405,6 +405,72 @@
   }
 }
 
+// --- Virtualized body -------------------------------------------------------
+// Scoped under the host `--virtual` class, so a non-virtual table is untouched.
+.wr-table--virtual {
+  // One dual-axis scroll container: keep overflow-x (pins), add overflow-y.
+  // `max-height` is set inline from `viewportHeight`.
+  .wr-table__scroll {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  // Sticky header. Plain (non-pinned) cells need an OPAQUE base or scrolled body
+  // rows bleed through the translucent head tint.
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  thead th:not(.wr-table__th--pin-left):not(.wr-table__th--pin-right) {
+    background-color: var(--wr-color-surface);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
+  }
+
+  // The corner-sticky pinned header must beat the plain sticky header during
+  // horizontal scroll (plain th is z-2).
+  .wr-table__th--pin-left,
+  .wr-table__th--pin-right {
+    z-index: 3;
+  }
+
+  // Uniform row height (fixed layout is already forced → cells truncate via the
+  // existing `--fixed` rules). `height` is a MINIMUM, not a clamp — see the
+  // rowHeight contract on the component.
+  .wr-table__tr {
+    height: var(--wr-table-row-h);
+  }
+
+  // Height-only reserved rows contribute nothing to columns or borders.
+  .wr-table__spacer > td {
+    padding: 0;
+    border: 0;
+  }
+
+  // Grand footer pinned to the viewport bottom; plain cells get the opaque base.
+  tfoot .wr-table__foot-cell {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  tfoot .wr-table__foot-cell:not(.wr-table__td--pin-left):not(.wr-table__td--pin-right) {
+    background-color: var(--wr-color-surface);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
+  }
+
+  tfoot .wr-table__foot-cell.wr-table__td--pin-left,
+  tfoot .wr-table__foot-cell.wr-table__td--pin-right {
+    z-index: 3;
+  }
+
+  // The loading overlay must outrank the new z-3 corner-sticky header/footer.
+  .wr-table__loading {
+    z-index: 4;
+  }
+}
+
 // Responsive tables: when the box is too narrow for columns, each row becomes a
 // card and every cell shows its column title (from `data-label`) as a label.
 @container wr-table (max-width: 36rem) {
