@@ -22,6 +22,8 @@ import {
   model,
   output,
   signal,
+  untracked,
+  viewChild,
   viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -85,7 +87,11 @@ type RenderRow =
   selector: 'wr-table',
   templateUrl: './table.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-table', '[class.wr-table--responsive]': 'responsive()' },
+  host: {
+    class: 'wr-table',
+    '[class.wr-table--responsive]': 'responsive()',
+    '[class.wr-table--virtual]': 'virtualized()',
+  },
   imports: [
     NgTemplateOutlet,
     FormsModule,
@@ -203,6 +209,46 @@ export class WrTable {
    */
   readonly totalItems = input<number | null>(null);
 
+  /**
+   * Window the `<tbody>` so a table of thousands of rows keeps only ~one
+   * viewport of `<tr>`s in the DOM. Opt-in and OFF by default — a table
+   * without it renders byte-identically to today.
+   *
+   * Engages ONLY on the flat, fixed-height tier: it silently falls back to the
+   * full render whenever a variable-height layout is active — `groupBy`, a
+   * `[wrTableExpand]` template, `responsive` card mode, or a visible pager
+   * (`pageSize > 0` / `totalItems`). While on, it forces fixed layout for
+   * stable column widths and assumes a uniform row height (see `rowHeight`).
+   *
+   * Intended as static config. Give columns an explicit `width` so the frozen
+   * layout is exact (a virtualized table always renders fixed-layout); toggling
+   * it off at runtime leaves the frozen widths in place as column minimums.
+   * @default false
+   */
+  readonly virtualScroll = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Uniform body-row height in px used to map scroll offset to row index. `0`
+   * (default) measures the first rendered row once — matching the density at
+   * that point — and reuses it; pass an explicit value to remove the
+   * post-hydration measure and make SSR pixel-exact (recommended if the density
+   * can change at runtime). Read only when `virtualScroll` is on. Keep
+   * virtualized cells single-line and no taller than this — a taller custom
+   * `[wrTableCell]` template drifts the window. @default 0
+   */
+  readonly rowHeight = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
+
+  /**
+   * Height of the scroll viewport when `virtualScroll` is on — a number (px) or
+   * any CSS length (`'70vh'`). Applied as `max-height` on `.wr-table__scroll`
+   * (a short table shrinks to fit; a long one caps and scrolls). A numeric px
+   * value lets the server prerender the exact first window. @default 480
+   */
+  readonly viewportHeight = input<number | string>(480);
+
+  /** Extra rows kept rendered above and below the viewport as scroll headroom. @default 6 */
+  readonly overscan = input(6, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 6)) });
+
   /** Total row count derived for the pager (server-mode wins). */
   protected readonly resolvedTotal = computed<number>(() => {
     const server = this.totalItems();
@@ -300,12 +346,63 @@ export class WrTable {
     // Reset resize state when the column KEY SET changes (added/removed/renamed)
     // so a stale frozen width can't collapse a new column under the latched
     // fixed layout. Keyed on sorted keys, not object identity (which churns).
+    // Also drops the virtual freeze so activation effect (A), registered after
+    // this, re-establishes it from the fresh natural widths.
     effect(() => {
       const keys = Object.keys(this.columns()).sort().join('\n');
       if (keys === this.lastColumnKeys) return;
       this.lastColumnKeys = keys;
       this.resizeWidths.set(new Map());
       this.fixedLayout.set(false);
+      this.virtualFixed.set(false);
+    });
+
+    // (A) Virtual activation: freeze the natural column widths BEFORE fixed
+    // layout applies (so there's no jump), then switch to fixed and measure the
+    // row height. Tracks columns so a structural change re-freshes the widths —
+    // registered AFTER the key-set reset above, so this freeze wins the tie.
+    effect(() => {
+      const active = this.virtualized();
+      this.displayColumns(); // re-run on a structural column change
+      if (!active) {
+        this.virtualFixed.set(false);
+        return;
+      }
+      if (!isPlatformBrowser(this.platformId)) return;
+      untracked(() => {
+        this.freezeColumnWidths(); // captured while still auto-layout = natural widths
+        this.virtualFixed.set(true); // now fixed, with those exact widths (no jump)
+        if (this.rowHeight() === 0) {
+          const row = this.scrollEl()?.nativeElement.querySelector('.wr-table__tr') as HTMLElement | null;
+          const h = row?.offsetHeight ?? 0;
+          if (h > 0) this.measuredRowPx.set(h);
+        }
+      });
+    });
+
+    // (B) Scroll + viewport observer — attached ONLY when virtual + browser, so
+    // a non-virtual table gets no scroll listener / no per-scroll change detection.
+    effect(onCleanup => {
+      const el = this.scrollEl()?.nativeElement;
+      if (!el || !this.virtualized() || !isPlatformBrowser(this.platformId)) return;
+      let raf = 0;
+      const onScroll = (): void => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          this.scrollTop.set(el.scrollTop);
+        });
+      };
+      el.addEventListener('scroll', onScroll, { passive: true });
+      this.viewportPx.set(el.clientHeight);
+      const ro =
+        typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => this.viewportPx.set(el.clientHeight)) : null;
+      ro?.observe(el);
+      onCleanup(() => {
+        el.removeEventListener('scroll', onScroll);
+        if (raf) cancelAnimationFrame(raf);
+        ro?.disconnect();
+      });
     });
   }
 
@@ -371,6 +468,20 @@ export class WrTable {
     return this.resizeWidths().get(key) ?? this.columns()[key]?.width ?? null;
   }
 
+  /** Freeze every column at its current rendered header width (skips frozen keys). */
+  private freezeColumnWidths(): void {
+    const cols = this.displayColumns();
+    const cells = this.headerCells();
+    const frozen = new Map(this.resizeWidths());
+    for (let i = 0; i < cols.length; i++) {
+      if (!frozen.has(cols[i].key)) {
+        const width = cells[i]?.nativeElement.offsetWidth;
+        if (width) frozen.set(cols[i].key, width);
+      }
+    }
+    this.resizeWidths.set(frozen);
+  }
+
   protected onResizeStart(event: PointerEvent, key: string, th: HTMLElement): void {
     event.preventDefault();
     event.stopPropagation();
@@ -378,16 +489,7 @@ export class WrTable {
     // layout — the drag then resizes precisely (both directions) without the
     // content-sized columns jumping.
     if (!this.fixedLayout()) {
-      const cols = this.displayColumns();
-      const cells = this.headerCells();
-      const frozen = new Map(this.resizeWidths());
-      for (let i = 0; i < cols.length; i++) {
-        if (!frozen.has(cols[i].key)) {
-          const width = cells[i]?.nativeElement.offsetWidth;
-          if (width) frozen.set(cols[i].key, width);
-        }
-      }
-      this.resizeWidths.set(frozen);
+      this.freezeColumnWidths();
       this.fixedLayout.set(true);
     }
     this.resizeKey = key;
@@ -407,6 +509,85 @@ export class WrTable {
     const target = event.target as HTMLElement;
     if (target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture(event.pointerId);
     this.resizeKey = null;
+  }
+
+  // --- Virtual scroll -------------------------------------------------------
+
+  /** md-density fallback row height (px), used before measuring / on the server. */
+  private static readonly FALLBACK_ROW_PX = 40;
+  private static readonly FALLBACK_VIEWPORT_PX = 480;
+
+  /** The `.wr-table__scroll` div (always in the template; only read when virtual). */
+  private readonly scrollEl = viewChild<ElementRef<HTMLElement>>('scroll');
+  /** Live vertical scroll offset (px); 0 on the server / before first scroll. */
+  private readonly scrollTop = signal(0);
+  /** Measured viewport clientHeight (px); 0 until the browser observer fires. */
+  private readonly viewportPx = signal(0);
+  /** Measured first-row height (px) when `rowHeight` is auto; 0 until measured. */
+  private readonly measuredRowPx = signal(0);
+  /** Fixed layout forced ON by virtualization (distinct from the resize latch). */
+  private readonly virtualFixed = signal(false);
+
+  /** `virtualScroll` requested AND the data shape is safe to window. SSR-deterministic. */
+  protected readonly virtualized = computed<boolean>(
+    () =>
+      this.virtualScroll() &&
+      this.groupBy() === null && // group bands / subtotals are variable height
+      !this.expandable() && // an injected detail <tr> desyncs uniform offsets
+      !this.responsive() && // card mode has no uniform row height
+      this.pageSize() === 0 && // a visible pager owns chunking — the pager wins
+      this.totalItems() === null &&
+      !!this.visibleItems()
+  );
+
+  /** Effective uniform row height (px). */
+  protected readonly effRowH = computed<number>(() =>
+    this.rowHeight() > 0 ? this.rowHeight() : this.measuredRowPx() || WrTable.FALLBACK_ROW_PX
+  );
+
+  /** Deterministic viewport px for SSR + first paint (numeric height, else fallback). */
+  private readonly fallbackViewportPx = computed<number>(() => {
+    const h = this.viewportHeight();
+    return typeof h === 'number' ? h : WrTable.FALLBACK_VIEWPORT_PX;
+  });
+
+  /** `viewportHeight` as a CSS length for the inline max-height. */
+  protected readonly resolvedViewportHeight = computed<string>(() => {
+    const h = this.viewportHeight();
+    return typeof h === 'number' ? `${h}px` : h;
+  });
+
+  /** Rendered window [start,end) + spacer pads (px). Pure math, O(1) per scroll frame. */
+  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
+    const total = this.renderRows().length;
+    if (!this.virtualized() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
+    const h = this.effRowH();
+    const vp = this.viewportPx() || this.fallbackViewportPx();
+    const over = this.overscan();
+    const first = Math.floor(this.scrollTop() / h);
+    const count = Math.ceil(vp / h);
+    const start = Math.max(0, first - over);
+    const end = Math.min(total, first + count + over);
+    return { start, end, padTop: start * h, padBottom: (total - end) * h };
+  });
+
+  /** Flat index of the first rendered window row (for `aria-rowindex`). */
+  protected readonly windowStart = computed<number>(() => this.virtualWindow().start);
+
+  /** Rows placed in `<tbody>`. SAME array instance as `renderRows()` when off → byte-identical DOM. */
+  protected readonly windowRows = computed<readonly RenderRow[]>(() => {
+    if (!this.virtualized()) return this.renderRows();
+    const { start, end } = this.virtualWindow();
+    return this.renderRows().slice(start, end);
+  });
+
+  /** Fixed layout is on when a resize drag latched it OR virtualization forces it. */
+  protected readonly fixedLayoutActive = computed<boolean>(() => this.fixedLayout() || this.virtualFixed());
+
+  /** Scroll a flat row index to the top of the virtual viewport. No-op on the server / when not virtual. */
+  scrollToRow(index: number, behavior: ScrollBehavior = 'auto'): void {
+    if (!isPlatformBrowser(this.platformId) || !this.virtualized()) return;
+    this.scrollEl()?.nativeElement.scrollTo({ top: Math.max(0, index) * this.effRowH(), behavior });
   }
 
   protected onColumnDrop(event: CdkDragDrop<unknown>): void {
@@ -437,21 +618,21 @@ export class WrTable {
   );
 
   protected isRowSelected(row: Record<string, unknown>): boolean {
-    return this.selection().includes(this.rowKeyOf(row));
+    return this.selectionSet().has(this.rowKeyOf(row));
   }
 
   /** Every current-page row selected (drives the header checkbox). */
   protected readonly allSelected = computed<boolean>(() => {
     const keys = this.pageRowKeys();
     if (keys.length === 0) return false;
-    const sel = this.selection();
-    return keys.every(key => sel.includes(key));
+    const sel = this.selectionSet();
+    return keys.every(key => sel.has(key));
   });
 
   /** Some but not all selected (drives the header indeterminate). */
   protected readonly someSelected = computed<boolean>(() => {
-    const sel = this.selection();
-    return this.pageRowKeys().some(key => sel.includes(key)) && !this.allSelected();
+    const sel = this.selectionSet();
+    return this.pageRowKeys().some(key => sel.has(key)) && !this.allSelected();
   });
 
   protected toggleRow(row: Record<string, unknown>, checked: boolean): void {
@@ -643,6 +824,7 @@ export class WrTable {
 
   // --- Group selection (memoized Set; reuses the row-selection primitive) ----
 
+  /** Memoized selection as a Set — O(1) membership for row + group + select-all checks. */
   private readonly selectionSet = computed<ReadonlySet<unknown>>(() => new Set(this.selection()));
 
   protected groupChecked(rows: readonly Record<string, unknown>[]): boolean {
