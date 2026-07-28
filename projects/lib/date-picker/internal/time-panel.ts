@@ -6,11 +6,22 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
+import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date-adapter';
-import { clamp, noop } from 'ngwr/utils';
+import { clamp } from 'ngwr/utils';
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
@@ -42,16 +53,8 @@ function isLocaleHour12(locale: string): boolean {
   templateUrl: './time-panel.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrTimePanel),
-      multi: true,
-    },
-  ],
 })
-export class WrTimePanel implements ControlValueAccessor {
+export class WrTimePanel implements FormValueControl<Date | null> {
   /** 12 / 24-hour mode. @default 'auto' (derived from the locale) */
   readonly format = input<'auto' | '12h' | '24h'>('auto');
 
@@ -70,6 +73,16 @@ export class WrTimePanel implements ControlValueAccessor {
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly locale = inject(WR_DATE_LOCALE);
 
+  /**
+   * Form value — the selected time as a `Date` (its date portion is preserved).
+   * A signal-forms native control: `[formField]` binds this directly, and
+   * `[(ngModel)]` / `[(value)]` bind it through Angular's bridge.
+   */
+  readonly value = model<Date | null>(null);
+
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
+
   /** Source of truth — stores h/m/s in 24-hour form. */
   protected readonly hours = signal(0);
   protected readonly minutes = signal(0);
@@ -78,9 +91,30 @@ export class WrTimePanel implements ControlValueAccessor {
   /** Date portion preserved across updates (today's date if none was supplied). */
   private readonly basis = signal<Date>(this.adapter.today());
 
-  private readonly disabledFromCva = signal(false);
+  protected readonly effectiveDisabled = computed(() => this.disabled());
 
-  protected readonly effectiveDisabled = computed(() => this.disabled() || this.disabledFromCva());
+  constructor() {
+    // Mirror an external `value` write into the internal h/m/s state (the old
+    // `writeValue` body). Guarded against the echo of our own `emit()` so a live
+    // edit is never clobbered by re-deriving it.
+    effect(() => {
+      const value = this.value();
+      untracked(() => {
+        if (value === this.lastEmitted) return;
+        if (value && this.adapter.isValid(value)) {
+          this.basis.set(this.adapter.clone(value));
+          this.hours.set(this.adapter.getHours(value));
+          this.minutes.set(this.adapter.getMinutes(value));
+          this.seconds.set(this.adapter.getSeconds(value));
+        } else {
+          this.basis.set(this.adapter.today());
+          this.hours.set(0);
+          this.minutes.set(0);
+          this.seconds.set(0);
+        }
+      });
+    });
+  }
 
   protected readonly interactive = computed(() => !this.effectiveDisabled() && !this.readonly());
 
@@ -115,36 +149,8 @@ export class WrTimePanel implements ControlValueAccessor {
     return parts.join(' ');
   });
 
-  // ControlValueAccessor
-
-  private onChange: (value: Date | null) => void = noop;
-  private onTouched: () => void = noop;
-
-  writeValue(value: Date | null): void {
-    if (value && this.adapter.isValid(value)) {
-      this.basis.set(this.adapter.clone(value));
-      this.hours.set(this.adapter.getHours(value));
-      this.minutes.set(this.adapter.getMinutes(value));
-      this.seconds.set(this.adapter.getSeconds(value));
-    } else {
-      this.basis.set(this.adapter.today());
-      this.hours.set(0);
-      this.minutes.set(0);
-      this.seconds.set(0);
-    }
-  }
-
-  registerOnChange(fn: (value: Date | null) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabledFromCva.set(coerceBooleanProperty(isDisabled));
-  }
+  /** Last value we pushed via `emit()`, so the sync effect can skip the echo. */
+  private lastEmitted: Date | null = null;
 
   // Typed-input handlers
 
@@ -175,7 +181,7 @@ export class WrTimePanel implements ControlValueAccessor {
   }
 
   protected onBlur(): void {
-    this.onTouched();
+    this.touch.emit();
   }
 
   // Stepper handlers (▲ / ▼ buttons)
@@ -209,6 +215,7 @@ export class WrTimePanel implements ControlValueAccessor {
 
   private emit(): void {
     const next = this.adapter.setTime(this.basis(), this.hours(), this.minutes(), this.seconds());
-    this.onChange(next);
+    this.lastEmitted = next;
+    this.value.set(next);
   }
 }

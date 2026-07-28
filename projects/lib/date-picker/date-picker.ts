@@ -331,8 +331,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('format', this.timeFormat());
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
-    ref.instance.writeValue(this.value() ?? this.adapter.today());
-    ref.instance.registerOnChange((next: Date | null) => {
+    ref.setInput('value', this.value() ?? this.adapter.today());
+    ref.instance.value.subscribe((next: Date | null) => {
       if (!next) return;
       this.commit(next);
     });
