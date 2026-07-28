@@ -350,6 +350,41 @@
   }
 }
 
+// --- Virtual scroll (search-mode data-array path) ---------------------------
+.wr-select-panel--virtual {
+  // The inner `__vlist` owns scrolling; the panel must not add a second scroll
+  // container or cap height, and the flex `gap` would drift the fixed-offset
+  // window math — zero it so rows are contiguous from offset 0.
+  max-height: none;
+  overflow: visible;
+  gap: 0;
+
+  .wr-select-panel__vlist {
+    // `max-height` is set inline from `viewportHeight`.
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  // Height-only reserved rows.
+  .wr-select-panel__vspacer {
+    flex: none;
+  }
+
+  // Uniform row height: keep each option a single line so measurement matches.
+  .wr-option {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  // Keyboard cursor highlight — the virtualized list is navigated by
+  // aria-activedescendant, so the active row needs a visible marker.
+  .wr-option--active {
+    background: var(--wr-color-hover);
+  }
+}
+
 .wr-option-group {
   display: flex;
   flex-direction: column;

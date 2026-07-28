@@ -118,6 +118,27 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Search mode — virtual scroll"
+    description="For large `[options]` arrays, add `virtualScroll` so only ~one viewport of rows stays in the DOM. It engages on the data-array path only (falls back to the full render when static `<wr-option>` children are projected); rows are navigated via `aria-activedescendant` and selected by value. Type to filter, Arrow / Home / End / Enter to pick. The list below holds 5,000 items."
+  >
+    <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select
+          mode="search"
+          virtualScroll
+          placeholder="Search 5,000 items"
+          [options]="bigOptions"
+          [(ngModel)]="bigPick"
+        />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">
+          Picked: <code>{{ bigPick() ?? '—' }}</code>
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Tag mode"
     description="The `tag` mode turns the trigger into a chip area with an inline input. Press one of `[separators]` (default: Enter or comma) to commit the draft. Backspace on an empty input removes the last chip. Replaces the removed `wr-chips-input`."
   >
