@@ -257,6 +257,7 @@
     class="wr-select-panel"
     [class.wr-select-panel--sm]="size() === 'sm'"
     [class.wr-select-panel--lg]="size() === 'lg'"
+    [class.wr-select-panel--virtual]="virtualActive()"
     role="listbox"
     [attr.id]="listboxId"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"
@@ -265,14 +266,46 @@
       <div class="wr-select-panel__loading" aria-busy="true">{{ resolvedLoading() }}</div>
     }
 
-    <!-- Dynamic options from [options] or async [loader] (search mode).
-         Rendered as wr-option so the standard registration / filter
-         pipeline applies uniformly. -->
-    @for (item of dynamicOptions(); track $index) {
-      <wr-option [value]="item">{{ displayWith()(item) }}</wr-option>
+    @if (virtualActive()) {
+      <!-- Windowed data-array rows: plain role="option" elements (not <wr-option>),
+           navigated via the input's aria-activedescendant, selected by value. -->
+      <div class="wr-select-panel__vlist" [style.max-height]="resolvedViewportHeight()">
+        @if (virtualWindow().padTop > 0) {
+          <div class="wr-select-panel__vspacer" aria-hidden="true" [style.height.px]="virtualWindow().padTop"></div>
+        }
+        @for (entry of windowOptions(); track entry.index) {
+          <!-- Keyboard handled by the search input via aria-activedescendant; the
+               row is a pointer target only. -->
+          <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+          <div
+            role="option"
+            class="wr-option"
+            [id]="virtualRowId(entry.index)"
+            [class.wr-option--active]="entry.index === activeIndex()"
+            [class.wr-option--selected]="isSelected(entry.item)"
+            [attr.aria-selected]="isSelected(entry.item)"
+            [attr.aria-setsize]="filteredDynamicOptions().length"
+            [attr.aria-posinset]="entry.index + 1"
+            (click)="selectOption(entry.item)"
+          >
+            {{ displayWith()(entry.item) }}
+          </div>
+        }
+        @if (virtualWindow().padBottom > 0) {
+          <div class="wr-select-panel__vspacer" aria-hidden="true" [style.height.px]="virtualWindow().padBottom"></div>
+        }
+      </div>
+    } @else {
+      <!-- Dynamic options from [options] or async [loader] (search mode).
+           Rendered as wr-option so the standard registration / filter
+           pipeline applies uniformly. -->
+      @for (item of dynamicOptions(); track $index) {
+        <wr-option [value]="item">{{ displayWith()(item) }}</wr-option>
+      }
     }
 
-    <!-- Projected static options. -->
+    <!-- Projected static options — always present (a conditional `<ng-content>`
+         would drop projected content). Empty whenever `virtualActive`. -->
     <ng-content />
 
     @if (hasNoResults()) {

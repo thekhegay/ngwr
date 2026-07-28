@@ -93,6 +93,15 @@ export class MyComponent {}`,
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
+    virtual: `<!-- 5,000 options via the [options] data array + virtualScroll:
+     only ~one viewport of rows is ever in the DOM. -->
+<wr-select
+  mode="search"
+  virtualScroll
+  placeholder="Search 5,000 items"
+  [options]="bigOptions"
+  [(ngModel)]="picked"
+/>`,
   };
 
   protected readonly countries = [
@@ -123,6 +132,10 @@ export class MyComponent {}`,
   ];
 
   protected readonly country = signal<string | null>(null);
+
+  // 5,000-item array for the virtual-scroll demo (search mode, [options] path).
+  protected readonly bigOptions = Array.from({ length: 5000 }, (_, i) => `Item ${String(i + 1).padStart(4, '0')}`);
+  protected readonly bigPick = signal<string | null>(null);
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'placeholder', description: 'Shown when no option is chosen.', type: 'string', default: "''" },
@@ -182,6 +195,31 @@ export class MyComponent {}`,
       description: 'Tag mode only — `(value, existing) => boolean`. Return `false` to silently reject.',
       type: 'WrSelectTagValidator | null',
       default: 'null',
+    },
+    {
+      name: 'virtualScroll',
+      description:
+        'Search mode — window the `[options]` panel (keeps ~one viewport in the DOM). Falls back to the full render when `<wr-option>` children are projected.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'rowHeight',
+      description: 'Search mode — uniform virtual row height (px). `0` auto-measures the first row.',
+      type: 'number',
+      default: '0',
+    },
+    {
+      name: 'viewportHeight',
+      description: 'Search mode — virtual scroll viewport height (number px or CSS length).',
+      type: 'number | string',
+      default: '256',
+    },
+    {
+      name: 'overscan',
+      description: 'Search mode — extra rows kept above/below the viewport.',
+      type: 'number',
+      default: '6',
     },
   ];
 

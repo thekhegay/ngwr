@@ -5,17 +5,20 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
+import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
   ElementRef,
+  PLATFORM_ID,
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
   computed,
+  contentChildren,
   effect,
   forwardRef,
   inject,
@@ -206,6 +209,32 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    */
   readonly freeText = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Search mode: window the option panel so thousands of `[options]` keep only
+   * ~one viewport of rows in the DOM. Opt-in and OFF by default. Engages ONLY on
+   * the pure data-array search tier — it silently falls back to the full render
+   * when static `<wr-option>` children are projected or the filtered list is
+   * empty. While on, rows are plain `role="option"` elements (no `<wr-option>`),
+   * navigated via `aria-activedescendant`, selected by value. @default false
+   */
+  readonly virtualScroll = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Search mode: uniform option-row height in px for the virtual window. `0`
+   * (default) measures the first rendered row once and reuses it, so it adapts
+   * to the control size. Read only when `virtualScroll` engages. @default 0
+   */
+  readonly rowHeight = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
+
+  /**
+   * Search mode: height of the virtual scroll viewport — a number (px) or any
+   * CSS length. @default 256
+   */
+  readonly viewportHeight = input<number | string>(256);
+
+  /** Search mode: extra rows kept above/below the virtual viewport. @default 6 */
+  readonly overscan = input(6, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 6)) });
+
   /** Search mode: text shown when the filter / loader returns nothing. Falls back to `select.noResults`. */
   readonly noResultsText = input<string | null>(null);
 
@@ -281,11 +310,18 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private readonly registry = signal<readonly WrSelectOptionRegistration[]>([]);
 
   /** Keyboard cursor index into `options`. -1 = none. */
-  private readonly activeIndex = signal(-1);
+  protected readonly activeIndex = signal(-1);
 
   /** Id of the active option (for `aria-activedescendant`). */
   readonly activeOptionId = computed<string | null>(() => {
     const idx = this.activeIndex();
+    if (this.virtualActive()) {
+      // Virtual rows aren't registered; the active id is derived from the index,
+      // and returned only while the row is inside the rendered window so
+      // `aria-activedescendant` never dangles at a recycled element.
+      const { start, end } = this.virtualWindow();
+      return idx >= start && idx < end ? this.virtualRowId(idx) : null;
+    }
     const list = this.registry();
     return idx >= 0 && idx < list.length ? list[idx].id : null;
   });
@@ -353,11 +389,117 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     this.loader() ? this.loadedOptions() : this.options()
   );
 
+  // --- Virtual scroll (search mode, data-array path) ------------------------
+
+  private static readonly FALLBACK_ROW_PX = 34;
+  private static readonly FALLBACK_VIEWPORT_PX = 256;
+
+  /** Consumer-projected `<wr-option>` children only (NOT the `@for`-rendered ones). */
+  private readonly projectedOptions = contentChildren(WrOption);
+
+  /**
+   * `dynamicOptions()` narrowed to the current search query. `dynamicOptions()`
+   * is intentionally UNFILTERED (projected `<wr-option>` self-hide via CSS), so
+   * the virtual path — which renders plain rows that can't self-hide — filters
+   * here. Loader results are already query-scoped upstream.
+   */
+  protected readonly filteredDynamicOptions = computed<readonly unknown[]>(() => {
+    const items = this.dynamicOptions();
+    if (this.loader()) return items;
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return items;
+    const label = this.displayWith();
+    return items.filter(it => label(it).toLowerCase().includes(q));
+  });
+
+  /**
+   * Virtualization engaged: opt-in, search mode, a non-empty filtered array, and
+   * NO projected `<wr-option>` children (those keep the full-render registry path
+   * so their DOM-derived labels / selection still work).
+   */
+  protected readonly virtualActive = computed<boolean>(
+    () =>
+      this.virtualScroll() &&
+      this.isSearch() &&
+      this.projectedOptions().length === 0 &&
+      this.filteredDynamicOptions().length > 0
+  );
+
+  private readonly scrollTop = signal(0);
+  private readonly viewportPx = signal(0);
+  private readonly measuredRowPx = signal(0);
+
+  /** Effective uniform row height (px). */
+  protected readonly effRowH = computed(() =>
+    this.rowHeight() > 0 ? this.rowHeight() : this.measuredRowPx() || WrSelect.FALLBACK_ROW_PX
+  );
+
+  private readonly fallbackViewportPx = computed(() => {
+    const h = this.viewportHeight();
+    if (typeof h === 'number') return h;
+    return /^\d+$/.test(h) ? Number(h) : WrSelect.FALLBACK_VIEWPORT_PX;
+  });
+
+  /** `viewportHeight` as a CSS length for the inline max-height (bare number → px). */
+  protected readonly resolvedViewportHeight = computed(() => {
+    const h = this.viewportHeight();
+    return typeof h === 'number' || /^\d+$/.test(h) ? `${h}px` : h;
+  });
+
+  /** Rendered window [start,end) + spacer pads (px). */
+  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
+    const total = this.filteredDynamicOptions().length;
+    if (!this.virtualActive() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
+    const h = this.effRowH();
+    const vp = this.viewportPx() || this.fallbackViewportPx();
+    const over = this.overscan();
+    const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
+    const count = Math.ceil(vp / h) + 1;
+    const start = Math.max(0, first - over);
+    const end = Math.min(total, first + count + over);
+    return { start, end, padTop: start * h, padBottom: (total - end) * h };
+  });
+
+  /** The windowed slice of options, each carrying its absolute index. */
+  protected readonly windowOptions = computed<readonly { item: unknown; index: number }[]>(() => {
+    const { start, end } = this.virtualWindow();
+    return this.filteredDynamicOptions()
+      .slice(start, end)
+      .map((item, k) => ({ item, index: start + k }));
+  });
+
+  /** Stable id for a virtual option row at filtered index `i`. */
+  protected virtualRowId(i: number): string {
+    return `${this.listboxId}-vopt-${i}`;
+  }
+
+  /** The virtual scroll container inside the overlay panel, if attached. */
+  private get vlistElement(): HTMLElement | null {
+    return this.overlayRef?.overlayElement.querySelector<HTMLElement>('.wr-select-panel__vlist') ?? null;
+  }
+
+  /** Scroll filtered index `i` just into view (sets the `scrollTop` signal synchronously). */
+  private ensureVisible(i: number): void {
+    if (!this.virtualActive() || i < 0) return;
+    const h = this.effRowH();
+    const vp = this.viewportPx() || this.fallbackViewportPx();
+    const top = i * h;
+    const cur = this.scrollTop();
+    let next = cur;
+    if (top < cur) next = top;
+    else if (top + h > cur + vp) next = top + h - vp;
+    if (next !== cur) {
+      this.scrollTop.set(next);
+      this.vlistElement?.scrollTo({ top: next });
+    }
+  }
+
   /**
    * Count of registered options that pass the current search filter.
    * Hides the noResults state when the panel has at least one visible row.
    */
   protected readonly visibleCount = computed(() => {
+    if (this.virtualActive()) return this.filteredDynamicOptions().length;
     const list = this.registry();
     if (!this.isSearch()) return list.length;
     const q = this.searchQuery().trim().toLowerCase();
@@ -407,6 +549,13 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
     if (!this.open()) this.open.set(true);
+    // A new filter re-tops the virtual window and cursor (the filtered array
+    // — hence every index — just changed under `activeIndex`).
+    if (this.virtualActive()) {
+      this.scrollTop.set(0);
+      this.activeIndex.set(this.firstEnabled());
+      this.vlistElement?.scrollTo({ top: 0 });
+    }
   }
 
   protected onSearchFocus(): void {
@@ -425,8 +574,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       const q = this.searchQuery().trim();
       const idx = this.activeIndex();
       const list = this.registry();
-      const hasActive =
-        idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel());
+      const hasActive = this.virtualActive()
+        ? idx >= 0 && idx < this.filteredDynamicOptions().length
+        : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel());
       if (!hasActive && q) {
         event.preventDefault();
         this.value.set(q);
@@ -455,6 +605,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
@@ -500,7 +651,61 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         return;
       }
       const match = list.find(o => o.value === v);
-      this.selectedLabel.set(match ? match.getLabel() : null);
+      if (match) {
+        this.selectedLabel.set(match.getLabel());
+        return;
+      }
+      // Search mode: a value picked from a virtualized (or since-unmounted) row
+      // has no registered `<wr-option>`, so derive its label from `displayWith`
+      // — the same function that rendered the row.
+      this.selectedLabel.set(v != null && this.isSearch() ? this.displayWith()(v) : null);
+    });
+
+    // Wire the virtual scroll listener + viewport/row measurement while the panel
+    // is open and virtualized. Re-runs when the panel opens/closes or the virtual
+    // list mounts/unmounts; the microtask defers the DOM read until the overlay
+    // portal is attached. Browser-only — the panel never prerenders (overlay).
+    effect(onCleanup => {
+      if (!isPlatformBrowser(this.platformId)) return;
+      if (!this.open() || !this.virtualActive()) return;
+      let raf = 0;
+      let ro: ResizeObserver | null = null;
+      let el: HTMLElement | null = null;
+      const onScroll = (): void => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          if (el) this.scrollTop.set(el.scrollTop);
+        });
+      };
+      queueMicrotask(() => {
+        el = this.vlistElement;
+        if (!el) return;
+        this.viewportPx.set(el.clientHeight);
+        if (this.rowHeight() === 0) {
+          const h = el.querySelector<HTMLElement>('.wr-option')?.offsetHeight ?? 0;
+          if (h > 0) this.measuredRowPx.set(h);
+        }
+        // Re-seed the scroll with the now-measured row height + real viewport so
+        // a deep pre-selected active row lands correctly on first open (the seed
+        // before open used the fallback height). No-op when it's already in view.
+        this.ensureVisible(this.activeIndex());
+        // Sync the freshly-attached element to the retained signal — seeds the
+        // scroll to the active option and avoids a blank panel on reopen.
+        if (el.scrollTop !== this.scrollTop()) el.scrollTop = this.scrollTop();
+        el.addEventListener('scroll', onScroll, { passive: true });
+        if (typeof ResizeObserver !== 'undefined') {
+          ro = new ResizeObserver(() => {
+            if (el) this.viewportPx.set(el.clientHeight);
+          });
+          ro.observe(el);
+        }
+      });
+      onCleanup(() => {
+        if (raf) cancelAnimationFrame(raf);
+        if (el) el.removeEventListener('scroll', onScroll);
+        ro?.disconnect();
+      });
     });
   }
 
@@ -681,15 +886,23 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       case 'Home':
         event.preventDefault();
         this.activeIndex.set(this.firstEnabled());
+        this.ensureVisible(this.activeIndex());
         break;
       case 'End':
         event.preventDefault();
         this.activeIndex.set(this.lastEnabled());
+        this.ensureVisible(this.activeIndex());
         break;
       case 'Enter':
       case ' ': {
         event.preventDefault();
         const idx = this.activeIndex();
+        if (this.virtualActive()) {
+          // Virtual rows aren't in the DOM to click — select the value directly.
+          const list = this.filteredDynamicOptions();
+          if (idx >= 0 && idx < list.length) this.selectOption(list[idx]);
+          break;
+        }
         const list = this.registry();
         if (idx >= 0 && idx < list.length && !list[idx].disabled) {
           const id = list[idx].id;
@@ -704,6 +917,13 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   private seedActiveIndex(): void {
+    if (this.virtualActive()) {
+      const list = this.filteredDynamicOptions();
+      const idx = list.findIndex(it => this.isSelected(it));
+      this.activeIndex.set(idx >= 0 ? idx : this.firstEnabled());
+      this.ensureVisible(this.activeIndex());
+      return;
+    }
     const list = this.registry();
     let selectedIdx = -1;
     if (this.isMulti()) {
@@ -716,6 +936,16 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   private moveActive(delta: number): void {
+    // Virtual rows are never disabled or hidden (the list is already filtered),
+    // so navigation is a plain wrap plus a scroll-into-view.
+    if (this.virtualActive()) {
+      const len = this.filteredDynamicOptions().length;
+      if (len === 0) return;
+      const i = (this.activeIndex() + delta + len) % len;
+      this.activeIndex.set(i);
+      this.ensureVisible(i);
+      return;
+    }
     const list = this.registry();
     if (list.length === 0) return;
     let i = this.activeIndex();
@@ -731,10 +961,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   private firstEnabled(): number {
+    if (this.virtualActive()) return this.filteredDynamicOptions().length > 0 ? 0 : -1;
     return this.registry().findIndex(o => !o.disabled && !this.isOptionHidden(o.getLabel()));
   }
 
   private lastEnabled(): number {
+    if (this.virtualActive()) return this.filteredDynamicOptions().length - 1;
     const list = this.registry();
     let found = -1;
     list.forEach((o, i) => {
