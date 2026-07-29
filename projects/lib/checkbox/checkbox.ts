@@ -6,40 +6,41 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, forwardRef, inject, input, signal } from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, ViewEncapsulation, computed, inject, input, model, output } from '@angular/core';
+import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { noop, randomId } from 'ngwr/utils';
+import { randomId } from 'ngwr/utils';
 
 import { WR_CHECKBOX_GROUP } from './tokens';
 
 /**
  * Two-state checkbox.
  *
- * **Standalone mode** — boolean value, works as a `ControlValueAccessor`:
+ * A signal-forms native control: it implements `FormCheckboxControl`, so
+ * `[formField]` binds straight to its `checked` model — no
+ * `ControlValueAccessor` in between. `[(checked)]` works standalone, and
+ * classic `[(ngModel)]` / reactive forms keep working through Angular's bridge.
  *
  * @example
  * ```html
- * <wr-checkbox [(ngModel)]="agree">I agree</wr-checkbox>
+ * <wr-checkbox [(checked)]="agree">I agree</wr-checkbox>
+ * <wr-checkbox [formField]="form.agree">I agree</wr-checkbox>
  * ```
  *
- * **Inside `<wr-checkbox-group>`** — the checkbox's `value` is added to
- * or removed from the group's array. The standalone CVA is ignored.
+ * **Inside `<wr-checkbox-group>`** — the checkbox's `checkboxValue` is added to
+ * or removed from the group's array, and the group is the native form control.
+ * (The identity input is `checkboxValue`, not `value`, because
+ * `FormCheckboxControl` reserves `value` — its form state is the boolean
+ * `checked`.)
  *
  * @example
  * ```html
  * <wr-checkbox-group [formField]="form.features">
- *   <wr-checkbox value="autosave">Autosave</wr-checkbox>
- *   <wr-checkbox value="notifications">Notifications</wr-checkbox>
+ *   <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
+ *   <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
  * </wr-checkbox-group>
  * ```
- *
- * Unlike the other value controls, the standalone checkbox stays a
- * `ControlValueAccessor` rather than a signal-forms `FormCheckboxControl`:
- * that contract forbids a `value` property, but `value` is this component's
- * group-membership identity. Both `[formField]` and `[(ngModel)]` still work
- * on it through Angular's CVA bridge; the group is the native form control.
  *
  * @see https://ngwr.dev/reference/components/checkbox
  */
@@ -51,16 +52,8 @@ export type WrCheckboxSize = 'sm' | 'md' | 'lg';
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
   imports: [WrIcon],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      // eslint-disable-next-line @angular-eslint/no-forward-ref
-      useExisting: forwardRef(() => WrCheckbox),
-      multi: true,
-    },
-  ],
 })
-export class WrCheckbox implements ControlValueAccessor {
+export class WrCheckbox implements FormCheckboxControl {
   /**
    * Stable id used to associate the native input with its label.
    *
@@ -69,13 +62,26 @@ export class WrCheckbox implements ControlValueAccessor {
   readonly id = input<string>(randomId('wr-checkbox'));
 
   /**
-   * Per-checkbox value used only when inside a `<wr-checkbox-group>`.
-   * Ignored in standalone mode.
+   * This checkbox's identity when inside a `<wr-checkbox-group>` — the value
+   * added to / removed from the group's array. Ignored in standalone mode.
+   * (Named `checkboxValue`, not `value`, because `FormCheckboxControl` reserves
+   * `value`.)
    */
-  readonly value = input<unknown>(null);
+  readonly checkboxValue = input<unknown>(null);
 
   /**
-   * Disable the checkbox. Also set automatically by Angular forms.
+   * Checked state — the form value. Bound by `[formField]`, two-way via
+   * `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`,
+   * where the group's array is the source of truth.
+   */
+  readonly checked = model<boolean>(false);
+
+  /** Emitted on blur so a bound field can mark itself touched. */
+  readonly touch = output<void>();
+
+  /**
+   * Disable the checkbox. Bound automatically from the field's disabled state
+   * when used with `[formField]`.
    *
    * @default false
    */
@@ -102,19 +108,15 @@ export class WrCheckbox implements ControlValueAccessor {
 
   private readonly group = inject(WR_CHECKBOX_GROUP, { optional: true });
 
-  // Standalone state. When inside a group, these are not used as the source of truth.
-  protected readonly standaloneChecked = signal(false);
-  protected readonly standaloneDisabledFromCva = signal(false);
+  /** Rendered "is checked" — reads the group when grouped, else the `checked` model. */
+  protected readonly isChecked = computed(() =>
+    this.group ? this.group.isSelected(this.checkboxValue()) : this.checked()
+  );
 
-  /** Derived "is checked". Reads from group when grouped, else local state. */
-  protected readonly checked = computed(() => {
-    return this.group ? this.group.isSelected(this.value()) : this.standaloneChecked();
-  });
-
-  /** Effective disabled — input wins, then group, then CVA. */
+  /** Effective disabled — the `disabled` input wins, then the group. */
   protected readonly effectiveDisabled = computed(() => {
     if (this.disabled()) return true;
-    return this.group ? this.group.isDisabled() : this.standaloneDisabledFromCva();
+    return this.group ? this.group.isDisabled() : false;
   });
 
   protected readonly classes = computed(() => {
@@ -122,45 +124,22 @@ export class WrCheckbox implements ControlValueAccessor {
     const size = this.size();
     if (size !== 'md') parts.push(`wr-checkbox--${size}`);
     if (this.indeterminate()) parts.push('wr-checkbox--indeterminate');
-    else if (this.checked()) parts.push('wr-checkbox--checked');
+    else if (this.isChecked()) parts.push('wr-checkbox--checked');
     if (this.effectiveDisabled()) parts.push('wr-checkbox--disabled');
     return parts.join(' ');
   });
 
-  private onChange: (value: boolean) => void = noop;
-  private onTouched: () => void = noop;
-
-  // ControlValueAccessor (standalone mode)
-
-  writeValue(value: boolean | null): void {
-    this.standaloneChecked.set(!!value);
-  }
-
-  registerOnChange(fn: (value: boolean) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.standaloneDisabledFromCva.set(coerceBooleanProperty(isDisabled));
-  }
-
   // Template handlers
 
   protected onInputChange(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
     if (this.group) {
-      this.group.toggle(this.value());
+      this.group.toggle(this.checkboxValue());
       return;
     }
-    this.standaloneChecked.set(checked);
-    this.onChange(checked);
+    this.checked.set((event.target as HTMLInputElement).checked);
   }
 
   protected onInputBlur(): void {
-    this.onTouched();
+    this.touch.emit();
   }
 }

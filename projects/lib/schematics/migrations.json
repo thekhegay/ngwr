@@ -10,6 +10,11 @@
       "version": "8.0.0",
       "description": "Rename density values compact/default/comfortable \u2192 sm/md/lg (wrDensity, provideWrDensity defaultDensity, [data-wr-density]); pagination size xs/xl \u2192 sm/lg. Warns about removed APIs (WrReveal directive, WrScrambleText / ngwr/scramble-text) that need manual migration. Touches .html, .ts, and .scss files.",
       "factory": "./migrations/v8/index#default"
+    },
+    "migration-v9": {
+      "version": "9.0.0",
+      "description": "Rename the <wr-checkbox> group-membership input value \u2192 checkboxValue (also [value] / [(value)]). The standalone checkbox is now a signal-forms FormCheckboxControl whose contract reserves `value` for the form value \u2014 its boolean state is the `checked` model. Touches .html and .ts files.",
+      "factory": "./migrations/v9/index#default"
     }
   }
 }
