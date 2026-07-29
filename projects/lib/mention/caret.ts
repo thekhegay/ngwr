@@ -5,8 +5,15 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-/** CSS properties whose values must be copied onto the mirror to match layout. */
-const MIRROR_PROPS: readonly (keyof CSSStyleDeclaration)[] = [
+/**
+ * CSS properties whose values must be copied onto the mirror to match layout.
+ *
+ * `as const satisfies` keeps each name checked against `CSSStyleDeclaration`
+ * while narrowing the element type to these string-valued literals — the wider
+ * `keyof CSSStyleDeclaration` also spans its methods (`setProperty`, `item`, …),
+ * which makes the indexed read below look like an unbound method.
+ */
+const MIRROR_PROPS = [
   'boxSizing',
   'width',
   'height',
@@ -37,7 +44,7 @@ const MIRROR_PROPS: readonly (keyof CSSStyleDeclaration)[] = [
   'tabSize',
   'whiteSpace',
   'wordWrap',
-];
+] as const satisfies readonly (keyof CSSStyleDeclaration)[];
 
 /**
  * Compute the viewport coordinates of a textarea / input caret at a given
@@ -57,7 +64,6 @@ export function getCaretCoordinates(
   const mirror = doc.createElement('div');
 
   for (const prop of MIRROR_PROPS) {
-    // @ts-expect-error — assigning across CSSStyleDeclaration keys.
     mirror.style[prop] = style[prop];
   }
   mirror.style.position = 'absolute';
