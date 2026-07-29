@@ -36,11 +36,12 @@ import { FormsModule } from '@angular/forms';
 
 @Component({ imports: [WrCheckbox, WrCheckboxGroup, FormsModule] })
 export class MyComponent {}`,
-    standalone: `<wr-checkbox [(ngModel)]="agree">I agree</wr-checkbox>`,
+    standalone: `<!-- signal-forms native: [(checked)], [formField], or classic [(ngModel)] -->
+<wr-checkbox [(checked)]="agree">I agree</wr-checkbox>`,
     group: `<wr-checkbox-group [(ngModel)]="features">
-  <wr-checkbox value="autosave">Autosave</wr-checkbox>
-  <wr-checkbox value="notifications">Notifications</wr-checkbox>
-  <wr-checkbox value="darkmode">Dark mode</wr-checkbox>
+  <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
+  <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
+  <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
 </wr-checkbox-group>`,
     disabled: `<wr-checkbox [disabled]="true">Disabled</wr-checkbox>`,
     indeterminate: `<!-- A parent "select all": mixed when only some children are checked. -->
@@ -68,7 +69,24 @@ export class MyComponent {}`,
 
   protected readonly api: readonly DocApiRow[] = [
     { name: 'id', description: 'Stable id for the native input.', type: 'string', default: 'auto' },
-    { name: 'value', description: 'Used only inside <wr-checkbox-group>.', type: 'unknown', default: 'null' },
+    {
+      name: 'checked',
+      description: 'Checked state — the form value (two-way; [formField] / [(ngModel)] also bind it).',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'checkboxValue',
+      description: 'Identity inside <wr-checkbox-group>. (Named checkboxValue — FormCheckboxControl reserves `value`.)',
+      type: 'unknown',
+      default: 'null',
+    },
+    {
+      name: '(touch)',
+      description: 'Emitted on blur so a bound field can mark itself touched.',
+      type: 'OutputRef<void>',
+      default: '—',
+    },
     {
       name: 'size',
       description: 'Control size, shares the --wr-control-* contract.',

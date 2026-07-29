@@ -22,9 +22,9 @@ import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
  * @example
  * ```html
  * <wr-checkbox-group [formField]="form.features">
- *   <wr-checkbox value="autosave">Autosave</wr-checkbox>
- *   <wr-checkbox value="notifications">Notifications</wr-checkbox>
- *   <wr-checkbox value="darkmode">Dark mode</wr-checkbox>
+ *   <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
+ *   <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
+ *   <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
  * </wr-checkbox-group>
  * ```
  *
