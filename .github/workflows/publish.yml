@@ -56,10 +56,15 @@ jobs:
 
       - uses: pnpm/action-setup@v6
 
+      # No dependency cache in the publishing job: it holds an OIDC token
+      # (Trusted Publisher), and a poisoned cache would hand that token to
+      # attacker-controlled code. `package-manager-cache: false` also opts out
+      # of the automatic caching keyed off package.json's `packageManager`.
+      # Costs this job a cold `pnpm install`; it only runs on release commits.
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
 
       - run: pnpm install --frozen-lockfile

@@ -304,13 +304,14 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Deterministic viewport px for SSR + first paint (numeric height, else fallback). */
   private readonly fallbackViewportPx = computed(() => {
     const h = this.viewportHeight();
-    return typeof h === 'number' ? h : WrTree.FALLBACK_VIEWPORT_PX;
+    if (typeof h === 'number') return h;
+    return /^\d+$/.test(h) ? Number(h) : WrTree.FALLBACK_VIEWPORT_PX;
   });
 
-  /** `viewportHeight` as a CSS length for the inline max-height. */
+  /** `viewportHeight` as a CSS length for the inline max-height (bare number → px). */
   protected readonly resolvedViewportHeight = computed(() => {
     const h = this.viewportHeight();
-    return typeof h === 'number' ? `${h}px` : h;
+    return typeof h === 'number' || /^\d+$/.test(h) ? `${h}px` : h;
   });
 
   /** Rendered window [start,end) + spacer pads (px). Pure math from `scrollTop`. */
