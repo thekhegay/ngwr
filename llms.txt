@@ -1,19 +1,20 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> ~124 components built on `@angular/cdk` primitives. The only runtime dependency
-> is `tslib`. Docs and live demos: https://ngwr.dev — source:
-> https://github.com/thekhegay/ngwr
+> 127 entry points — 105 of them components and directives — built on
+> `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
+> live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
 This file orients AI agents and LLMs that consume ngwr. For exact, current
-component APIs, read the bundled TypeScript types (`node_modules/ngwr/<name>`).
-Note: **ngwr.dev is a single-page app** — fetching its routes returns a JS shell,
-not text. Use the machine-readable resources listed at the bottom instead.
+component APIs, read the bundled TypeScript types
+(`node_modules/ngwr/types/ngwr-<name>.d.ts`). Note: **ngwr.dev is a single-page
+app** — fetching its routes returns a JS shell, not text. Use the
+machine-readable resources listed at the bottom instead.
 
 ## Install
 
-Preferred — the schematic installs ngwr, wires the providers + styles, and
-prints a tailored bootstrap snippet:
+Preferred — the schematic installs ngwr + its peers, adds `@use 'ngwr'` to your
+global styles, and prints a tailored provider snippet to paste into bootstrap:
 
 ```
 ng add ngwr
@@ -25,6 +26,10 @@ Or add it manually (pnpm / npm / yarn):
 pnpm add ngwr @angular/cdk
 ```
 
+Requires Angular / CDK `>= 22.0.0` (peers: `@angular/cdk`, `@angular/common`,
+`@angular/core`, `@angular/platform-browser`, `rxjs ^7`; optional `date-fns` /
+`luxon` / `lucide`).
+
 Each component is a tree-shakable subpath import: `import { WrButton } from
 'ngwr/button'`. Styles: `@use 'ngwr'` (everything) or `@use 'ngwr/<name>'` (per
 component) in your global SCSS.
@@ -33,8 +38,13 @@ component) in your global SCSS.
 
 Add from their entry points as needed:
 
-- `provideWrOverlay()` — required for any overlay (dialog / select / dropdown /
-  popover / toast / drawer). Add `provideWrResponsiveOverlays()` for mobile sheets.
+- `provideWrOverlay()` — strongly recommended for any overlay (dialog / select /
+  dropdown / popover / toast / drawer): gives ngwr its own CDK overlay container
+  so it never collides with other CDK consumers, and installs the visual-viewport
+  tracker mobile sheets need to clear the on-screen keyboard. Without it overlays
+  still work, falling back to CDK's shared root container — but
+  `--wr-keyboard-inset` stays 0 and sheets won't lift above the keyboard. Add
+  `provideWrResponsiveOverlays()` for mobile sheets.
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
   adapters under `ngwr/icon/adapters/*`).
 - `provideWrTheme()` — `--wr-*` design tokens. `provideWrDensity()` — sizing.
@@ -64,43 +74,49 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 ## Common components (selector — import)
 
 - **Form** — `wr-btn` (ngwr/button), `wrInput` (ngwr/input), `wr-select`
-  (ngwr/select; modes single/multi/search/tag), `wr-checkbox`, `wr-switch`,
-  `wr-slider`, `wr-input-number`, `wr-input-otp`, `wr-date-picker`
-  (date/time/datetime), `wr-file-upload`, `wr-form-field`, `wr-color-picker`.
-- **Data** — `wr-table`, `wr-pagination`, `wr-tree`, `wr-virtual-scroll`,
-  `wr-sortable-list` (drag-to-reorder).
-- **Feedback** — `wr-alert`, `wr-toast`, `wr-result`, `wr-empty`, `wr-skeleton`,
+  (ngwr/select; modes single/multi/search/tag), `wr-checkbox` (form state is
+  `[(checked)]`; inside `<wr-checkbox-group>` the identity input is
+  `checkboxValue`, NOT `value`), `wr-switch`, `wr-slider`, `wr-input-number`,
+  `wr-input-otp`, `wr-date-picker` (date/time/datetime), `wr-file-upload`,
+  `wr-form-field`, `wr-color-picker`.
+- **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
+  expandable rows, grouping, summary rows, CSV export, virtualized body),
+  `wr-pagination`, `wr-tree`, `wr-virtual-scroll`, `wr-sortable-list`
+  (drag-to-reorder).
+- **Feedback** — `wr-alert`, `wr-result`, `wr-empty`, `wr-skeleton`,
   `wr-spinner`.
 - **Layout / Display** — `wr-card`, `wr-carousel`, `wr-collapse`, `wr-splitter`,
-  `wr-toolbar`, `wr-descriptions`, `wr-statistic`, `wr-lightbox`.
+  `wr-toolbar`, `wr-descriptions`, `wr-statistic`, `wr-lightbox`,
+  `wr-pull-to-refresh`.
 - **Navigation** — `wr-tabs`, `wr-stepper`, `wr-breadcrumbs`, `wr-dropdown-menu`.
-- **Overlays** — `wr-drawer`, `wr-popover` (has a `tooltip` mode),
-  `wr-command-palette`, `wr-context-menu`, `wr-popconfirm`. (Dialog is
-  service-opened.)
+- **Overlays** — `wr-drawer`, `wr-action-sheet`, `[wrPopover]` (directive; has a
+  `tooltip` mode), `wr-command-palette`, `wr-context-menu`, `wr-popconfirm`.
+  (Dialog and toast are service-opened — inject `WrDialog` / `WrToast`.)
 
 ## Patterns
 
-- **Forms** — components are ControlValueAccessors → bind `[formField]="form.x"`
-  (Signal Forms) or `[(ngModel)]`.
+- **Forms** — every value control is signal-forms native (`FormValueControl`, or
+  `FormCheckboxControl` for checkbox) — no `ControlValueAccessor` in between.
+  Bind `[formField]="form.x"`, use the two-way model standalone (`[(value)]`, or
+  `[(checked)]` on checkbox/switch), or classic `[(ngModel)]` / reactive forms
+  via Angular's bridge.
 - **Icons** — register via `provideWrIcons`, render `<wr-icon name="check" />`.
 - **i18n** — `{{ 'key' | wrT }}` (pipe from `ngwr/i18n`).
 - **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, … set
   by `provideWrTheme()`.
 - **Mobile** — overlays collapse to sheets (`provideWrResponsiveOverlays()`), a
-  `responsive` input reflows layout components, and a `touch` density preset
-  enlarges controls.
+  `responsive` input reflows layout components, a `touch` density preset enlarges
+  controls, and `WrHaptics` (ngwr/platform) fires vibration feedback.
+- **Large datasets** — `virtualScroll` is an opt-in input on `wr-table`,
+  `wr-tree` and `wr-select` (search mode), alongside the standalone
+  `wr-virtual-scroll` wrapper.
 
 ## Resources (machine-readable)
-
-ngwr.dev is a single-page app, so its HTML routes return a JS shell with no
-content. Read these instead:
 
 - This quick-ref: https://ngwr.dev/llms.txt
 - Full reference (every entry point + selector + description):
   https://ngwr.dev/llms-full.txt
 - All site URLs (for crawlers): https://ngwr.dev/sitemap.xml
 - Source, README, per-component `.d.ts` types: https://github.com/thekhegay/ngwr
-  (installed at `node_modules/ngwr/<name>`; the package also ships `README.md`,
-  `llms.txt`, and `llms-full.txt`)
-
-Human-facing live demos (JS, for people): https://ngwr.dev.
+  (installed at `node_modules/ngwr/types/ngwr-<name>.d.ts`; the package also
+  ships `README.md`, `llms.txt`, and `llms-full.txt`)

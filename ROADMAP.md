@@ -1,29 +1,41 @@
-# Roadmap — v8
+# Roadmap — v9
 
-> Living document. v7.0.0–v7.3.0 shipped 2026-06-12…2026-06-22; **v8.0.0
-> shipped 2026-06-30**. **v9** now targets the Angular 23 baseline (~Nov 2026);
-> additive work ships in v8.x minors along the way. Sizes: S / M / L / XL.
+> Living document. v7.0.0–v7.3.0 shipped 2026-06-12…2026-06-25; **v8.0.0
+> shipped 2026-06-30**. **v9.0.0 is the next release** — main already carries
+> three breaking changes since v8.0.0 (#432 `info` colour, #445 lucide verbatim
+> icon names, #459 checkbox `value` → `checkboxValue`) and a registered
+> `migration-v9` codemod, so nothing shipped as an 8.x minor and none will.
+> Sizes: S / M / L / XL.
 >
-> **Status (2026-06-30):** **v8.0.0 is RELEASED** — it shipped early with a
-> deliberately small breaking set: density values
-> renamed (`compact|default|comfortable` → `sm|md|lg`, `touch` unchanged,
+> **Status (2026-07-31):** the released version is **8.0.0**; main carries **41
+> unreleased commits**, three of them breaking. Nothing below marked "merged to
+> main" is installable yet — **cutting v9.0.0 is the next action**,
+> and it is also what publishes the docs (`deploy.yml` fires only on a
+> `chore(release): v*` commit, so A4's static prerendering — merged
+> 2026-07-15 — has never gone live). Complete since v8.0.0: **theme M (M1–M7)**,
+> **B1** Signal Forms-native controls, **C1** Table v2, **C2** virtual scroll in
+> the overlay pickers, **A4** SSR / prerender, plus the docs IA refactor to
+> start / guides / reference (#433).
+>
+> **v8.0.0** shipped early with a deliberately small breaking set: density
+> values renamed (`compact|default|comfortable` → `sm|md|lg`, `touch` unchanged,
 > default now `md`), the pagination size scale trimmed (`xs`/`xl` dropped, now
 > `sm|md|lg`), and the unreliable `WrReveal` / `WrScrambleText` removed. The
-> mobile theme (M, priority 1) shipped its first wave in **7.2.0** (M1 + M2
-> done, M3–M5 partially); **7.3.0** continued M3 + M5 — a `touch` density
-> preset, swipe gestures (drawer / lightbox / toast / carousel), and more
-> container-query components (table / pagination / toolbar / tabs). The rest of
-> M continues in later 8.x minors. v8 also folded in a QA/polish pass and a
-> batch of additive niceties (a `/tokens` design-tokens docs section, a neutral
-> gray ramp + surface role aliases, a header settings dropdown for
+> mobile theme (M) shipped its first wave in **7.2.0** (M1 + M2 done, M3–M5
+> partially); **7.3.0** continued M3 + M5 — a `touch` density preset, swipe
+> gestures (drawer / lightbox / toast / carousel), and more container-query
+> components (table / pagination / toolbar / tabs). v8 also folded in a
+> QA/polish pass and a batch of additive niceties (a design-tokens docs section,
+> a neutral gray ramp + surface role aliases, a header settings dropdown for
 > theme/density/primary, the docs version switcher, statistic count-up,
 > lightbox `aspectRatio`, the url validator `requireProtocol` option, an
 > interfaces Overview page, toast overflow queue, and a Migration-guide page +
-> the `ng update ngwr@8` codemod). **The remaining breaking work — Angular 23
-> peer, the Aria internals swap (B2), and the colour role-rename — reschedules
-> to v9**; most of this roadmap is additive and ships as v8.x minors.
-> **Next-cycle priority: B1 (Signal Forms-native controls)** — Signal Forms are
-> stable in v22, so the first-mover window is open now.
+> the `ng update ngwr@8` codemod).
+>
+> **Next: cut v9.0.0** (the breaking set is already on main), then **B2** — the
+> `@angular/aria` internals swap, which is what unblocks C3. The **Angular 23
+> peer baseline** (~Nov 2026) travels with B2 to **v10**; the colour role-rename
+> can still ride v9, since `migration-v9` already exists to carry the rule.
 >
 > Drafted 2026-06-12 after a competitive sweep of Angular Material/CDK +
 > Angular Aria, PrimeNG, NG-ZORRO, Taiga UI, spartan-ng, Kendo, and the
@@ -34,77 +46,67 @@
 > **"signal-first styled components on official Angular primitives, the most
 > AI-legible UI library in the ecosystem."**
 >
-> **Priority 1: mobile / responsive (theme M).** Every component must be
-> usable on a phone before anything else ships. Taiga's `addon-mobile` is
-> the only OSS mobile story in Angular — a fully mobile-first catalog is
-> both a real gap and a differentiator.
+> **Mobile / responsive (theme M) — delivered.** M1–M7 all shipped: every
+> component is usable on a phone and every layout component adapts. Taiga's
+> `addon-mobile` was the only other OSS mobile story in Angular, so this is now
+> ngwr's differentiator to keep, not a gap to close.
 
-## M — Mobile & responsive (priority 1)
+## M — Mobile & responsive (complete)
 
 Goal: every component usable on a touch device, every layout component
-adaptive. Foundations already exist (breakpoints SCSS API, `WrMedia`
-service, density tokens, `drawer position="bottom"`) — this theme wires
+adaptive. Foundations already existed (breakpoints SCSS API, `WrMedia`
+service, density tokens, `drawer position="bottom"`) — this theme wired
 them through the catalog.
 
 - [x] **M1. Showcase mobile adaptation** (L) — **shipped (7.x).** Mobile
-      header (hamburger + sheet, drawer over the menu) and off-canvas docs
-      sidebar — the two blockers that made the site unusable on phones —
-      dogfooded on ngwr's own drawer / breakpoints. Original audit
-      (2026-06-13, 375×812):
-      - header nav overflows, no hamburger; logo + theme/GitHub/npm actions
-        pushed off-screen → collapse to hamburger + sheet, keep logo +
-        theme toggle visible
-      - **docs sidebar fills the entire viewport — page content is
-        unreachable** → off-canvas drawer below `lg`, opened from the
-        header, closed on navigation
-      - homepage split-text hero overflows horizontally → `clamp()` type
-        scale + allow wrapping (mind the descender fix)
-      - doc-page gutters too wide at small widths; API tables + code blocks
-        need horizontal-scroll containers; playground controls stack under
-        the demo
-      - dogfood it: build the shell fixes with ngwr's own drawer /
-        breakpoints / WrMedia
+      header (hamburger + sheet, drawer over the menu), off-canvas docs sidebar
+      below `lg`, a `clamp()` hero type scale, horizontal-scroll containers for
+      API tables + code blocks, and stacked playground controls — dogfooded on
+      ngwr's own drawer / breakpoints / `WrMedia`.
 - [x] **M2. Responsive overlay presets** (L) — **shipped (7.x).** On small
       viewports dialog / select / dropdown / popover collapse to a bottom-sheet
       and command-palette to a full-screen sheet. `provideWrResponsiveOverlays()`
       opt-in + per-component `responsive` input, shared `.wr-overlay-sheet`
       styles; built on the existing overlay plumbing.
-- [ ] **M3. Touch interaction pass** (L) — **partially shipped (7.x):** 44px
+- [x] **M3. Touch interaction pass** (L) — **shipped (7.x + #439).** 44px
       touch targets via a `touch-target` mixin gated on `@media (pointer:
       coarse)`, applied to overlay close buttons (alert, lightbox) and dense
       controls (select chips, tree / cascader toggles, toast actions); a
       `touch` density preset (y 1.7 / x 1.25 / gap 1.5); swipe-to-close on
-      drawer (grab handle), lightbox (down) and toast (sideways), and
-      swipe-nav on carousel (finger-following track). **Remaining:**
-      long-press context-menu, touch-sized handles for slider / knob /
-      splitter / color-picker, drag-drop touch polish. Swipe-nav on tabs is
-      deferred — the content panel often holds horizontally-scrollable content
-      (code blocks, wide tables) the gesture would hijack; the strip already
-      scrolls for overflow.
-- [ ] **M4. Safe-area & viewport correctness** (M) — **partially shipped
-      (7.x):** `env(safe-area-inset-*)` on the toast host, command-palette,
-      and back-top (drawer already had its `--safe-area` opt-in).
-      **Remaining:** safe-area for speed-dial / window; `dvh` for full-screen
-      overlays; VisualViewport (virtual keyboard) handling for overlays that
-      contain inputs (select search, command palette, mention, date-picker).
-- [ ] **M5. Container-query adaptive components** (M–L) — **partially shipped
-      (7.x):** opt-in `responsive` container-query reflow on descriptions
+      drawer (grab handle), lightbox (down) and toast (sideways), swipe-nav on
+      carousel (finger-following track); long-press context-menu, touch-sized
+      handles for slider / knob / splitter / color-picker, and drag-drop touch
+      polish. Swipe-nav on tabs is deferred — the content panel often holds
+      horizontally-scrollable content (code blocks, wide tables) the gesture
+      would hijack; the strip already scrolls for overflow.
+- [x] **M4. Safe-area & viewport correctness** (M) — **shipped (7.x + #440).**
+      `env(safe-area-inset-*)` across the overlay hosts (toast,
+      command-palette, back-top, speed-dial, window; drawer already had its
+      `--safe-area` opt-in) and `dvh` for full-screen overlays.
+      `WrVisualViewport` (`ngwr/platform`) publishes `--wr-keyboard-inset`,
+      applied once at the overlay layer so every overlay containing an input
+      (select search, command palette, mention, date-picker) clears the
+      on-screen keyboard.
+- [x] **M5. Container-query adaptive components** (M–L) — **shipped (7.x +
+      #441).** Opt-in `responsive` container-query reflow on descriptions
       (inline → single column), stepper (horizontal → vertical), page-header
       (title/actions → stacked), toolbar (wrap), pagination (→ compact current
-      / total), and table (→ stacked cards with `data-label` headers), via
-      `container-type: inline-size` scoped to the modifier; plus an always-on
-      scrollable tab strip with a scroll-driven edge fade. **Remaining:**
-      statistic grids. Driven by container queries (not viewport) so they
-      adapt inside any layout; falls back through the breakpoints API.
-- [ ] **M6. Pull-to-refresh + mobile niceties** (M) — pull-to-refresh,
-      action-sheet preset on drawer, haptics hook where supported.
-- [ ] **M7. Mobile docs polish** (M) — per-demo phone-frame preview toggle,
-      and A5 visual regression runs mobile viewports too.
+      / total), table (→ stacked cards with `data-label` headers) and the
+      `wr-statistic-group` dashboard grid, via `container-type: inline-size`
+      scoped to the modifier; plus an always-on scrollable tab strip with a
+      scroll-driven edge fade. Driven by container queries (not viewport) so
+      they adapt inside any layout; falls back through the breakpoints API.
+- [x] **M6. Pull-to-refresh + mobile niceties** (M) — **shipped (#442 haptics,
+      #443 pull-to-refresh, #444 action-sheet) — unreleased, ships in v9.0.0.**
+      `WrHaptics` (`ngwr/platform`) wraps the Vibration API,
+      `<wr-pull-to-refresh>` and `<wr-action-sheet>` are their own entry points.
+- [x] **M7. Mobile docs polish** (M) — **shipped (#446).** Per-demo phone-frame
+      preview toggle.
 
 ## A — Trust & hardening
 
-The catalog is ~126 entry-points gated by lint + build only. This theme is
-what makes v8 a library people can bet on.
+The catalog is 127 secondary entry points gated by lint + build only. This
+theme is what makes ngwr a library people can bet on.
 
 - [ ] **A1. Test foundation** (XL, spans the cycle) — vitest via `ng test`
       (Karma is gone; vitest is the blessed runner), CI-gated. Order: utils /
@@ -119,11 +121,11 @@ what makes v8 a library people can bet on.
       too (LiveAnnouncer-style announcements, focus-trap utils).
 - [x] **A4. SSR / hydration audit** (M) — **shipped 2026-07-15.** Every
       browser-API file in lib + showcase (80) was audited, and the showcase now
-      prerenders under `outputMode: 'static'` (204 routes) with
+      prerenders every route under `outputMode: 'static'` with
       `provideClientHydration()` — so every component's demo page is rendered in
       Node on each build, which is the "render every entry under SSR" smoke this
-      item asked for. The catalog held up well: only ONE real blocker existed
-      across 130 entry points. Fixed along the way: `WrCookie` reads (documented
+      item asked for. It held up well: only ONE real blocker existed across all
+      127 entry points. Fixed along the way: `WrCookie` reads (documented
       SSR-safe but only writes were guarded — domino implements no
       `document.cookie`), `wrAutosize` (`getComputedStyle` in a constructor
       effect), `WR_DATE_LOCALE` (a `typeof navigator` probe baked the build
@@ -136,27 +138,31 @@ what makes v8 a library people can bet on.
       SSR-safety notes in the docs; incremental hydration
       (`withIncrementalHydration` + `@defer (hydrate on …)`).
 - [ ] **A5. Visual regression** (M) — Playwright screenshot diffs across the
-      showcase.
+      showcase, run at mobile viewports too.
 
 ## B — Platform alignment (Signal Forms + Angular Aria)
 
 Both stabilized in Angular 22 — this moved from "strategic bet" to "the
 adoption window is open now".
 
-- [x] **B1. Signal Forms-native controls** (XL, flagship) — **shipped in 8.x.**
-      All 17 value-editing components implement `FormValueControl` /
-      `FormCheckboxControl`, and `ControlValueAccessor` is gone from the
-      library entirely. Dropping CVA turned out to be **non-breaking**:
-      Angular 22 synthesises the accessor for a signal-forms control, so
-      `[(ngModel)]` and reactive forms keep working alongside `[formField]`.
-      Last stragglers: the internal time panel (#458) and the checkbox (#459,
-      whose group-identity `value` had to become `checkboxValue` because
-      `FormCheckboxControl` reserves `value` — a v9 migration ships with it).
-- [ ] **B2. Rebuild interactive internals on `@angular/aria`** (XL, candidate
-      for v8.0 since DOM/classes may shift) — listbox→select, combobox,
-      menu/menubar, tabs, accordion, tree, grid primitives. Position ngwr as
-      "styled components over the official primitives" — less a11y logic to
-      own, and a story no other styled Angular lib has yet.
+- [x] **B1. Signal Forms-native controls** (XL, flagship) — **merged to main,
+      unreleased — ships in v9.0.0.** All 16 public value controls (plus the
+      internal time panel) implement `FormValueControl` / `FormCheckboxControl`,
+      and `ControlValueAccessor` is gone from the library entirely
+      (`NG_VALUE_ACCESSOR`: 0 hits repo-wide). `wr-segmented` and `wr-calendar`
+      stay plain `model()` components — they never carried a CVA. Dropping CVA
+      turned out to be **non-breaking**: Angular 22 synthesises the accessor for
+      a signal-forms control, so `[(ngModel)]` and reactive forms keep working
+      alongside `[formField]`. Last stragglers: the internal time panel (#458)
+      and the checkbox (#459, whose group-identity `value` had to become
+      `checkboxValue` because `FormCheckboxControl` reserves `value` — a v9
+      migration ships with it).
+- [ ] **B2. Rebuild interactive internals on `@angular/aria`** (XL, **v10** —
+      DOM/classes will shift) — listbox→select, combobox, menu/menubar, tabs,
+      accordion, tree, grid primitives. Position ngwr as "styled components over
+      the official primitives" — less a11y logic to own, and a story no other
+      styled Angular lib has yet. **Blocks C3.** Do not start it before A1/A5
+      have coverage: it moves DOM and BEM classes that are public API.
 - [ ] **B3. `WR_FORM_ERRORS` provider** (M) — centralized, i18n-aware
       validation messages; `wr-form-field` renders them automatically.
 - [ ] **B4. Schema-driven `wr-form`** (L, stretch) — generate a form from a
@@ -166,35 +172,46 @@ adoption window is open now".
 
 Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
 
-- [x] **C1. Table v2** (XL) — **shipped in 8.x**, one PR per feature: column
-      pin (#447) / resize (#448) / drag-reorder (#449), row selection (#450),
-      expandable rows (#451), summary/footer rows (#452), CSV export (#453),
-      row grouping (#454), virtualized body (#455). Server-side sort / filter /
-      paginate is served by `[totalItems]` + the `(sort)` / `(filterChange)`
-      outputs. Today's API stayed the simple tier — every feature is opt-in.
+- [x] **C1. Table v2** (XL) — **merged to main, unreleased — ships in
+      v9.0.0**, one PR per feature: column pin (#447) / resize (#448) /
+      drag-reorder (#449), row selection (#450), expandable rows (#451),
+      summary/footer rows (#452), CSV export (#453), row grouping (#454),
+      virtualized body (#455, opt-in via `[virtualScroll]` + `[rowHeight]` /
+      `[overscan]`). Server-side sort / filter / paginate is served by
+      `[totalItems]` + the `[(sort)]` model (`(sortChange)`) and the
+      `(filterChange)` output. Today's API stayed the simple tier — every
+      feature is opt-in. `ngwr/table` is now the heaviest bundle in the catalog.
       Deferred: **Excel (.xlsx)** export (needs a third-party dependency —
       CSV is dependency-free) and the stretch "pro table" preset.
-- [x] **C2. Virtual scroll in overlay pickers** (M) — **shipped in 8.x**; the
-      v7 regression is closed. `wr-tree` (#456) and `wr-select` search mode
-      (#457) window their lists with hand-rolled spacer-row virtualization
-      (same shape as `wr-table`, not the CDK viewport, which cannot host
-      `<tr>` / role-owned list children), and switch to
-      `aria-activedescendant` while virtual so keyboard nav still reaches
-      un-rendered rows. **Cascader deferred** — its options are per-column
+- [x] **C2. Virtual scroll in overlay pickers** (M) — **merged to main,
+      unreleased — ships in v9.0.0**; the v7 regression is closed. `wr-tree`
+      (#456) and `wr-select` search mode (#457) window their lists with
+      hand-rolled spacer-row virtualization (same shape as `wr-table`, not the
+      CDK viewport, which cannot host `<tr>` / role-owned list children), and
+      switch to `aria-activedescendant` while virtual so keyboard nav still
+      reaches un-rendered rows. Both are opt-in via `[virtualScroll]` +
+      `[viewportHeight]`. **Select virtualization engages only on the
+      `[options]` array path** — projected `<wr-option>` children keep the
+      full-render registry, because their labels and selection are derived from
+      the DOM. **Cascader deferred** — its options are per-column
       native tabstops with no container-owned arrow-nav model, so windowing
       would strip off-screen rows out of the tab order; it needs that
       keyboard refactor first. **Mention excluded** — its list is already
       capped at `maxResults` (~8), so there is nothing to window.
-- [ ] **C3. Combobox / autocomplete proper** (M) — free-text input +
-      suggestions is a different ARIA pattern than select-with-search; build
-      on the Aria `Combobox` primitive after B2.
-- [ ] **C4. Input mask** (M) — evaluate integrating Maskito vs. first-party;
-      ngx-mask's download numbers prove the demand. Phone-international /
-      card presets later (Taiga's fintech inputs are loved).
-- [ ] **C5. Tree-select + tree-table mode** (L) — tree in an overlay
-      (re-using `wr-tree openOn="overlay"` plumbing) + tree rows in table.
+- [ ] **C3. Combobox / autocomplete proper** (M, **blocked on B2**) — free-text
+      input + suggestions is a different ARIA pattern than select-with-search;
+      build on the Aria `Combobox` primitive after B2.
+- [ ] **C4. Input mask** (M) — cheaper than it reads: `ngx-mask@^22.1.0` is
+      already a workspace dependency and `wr-input`'s JSDoc already documents
+      composing with it, so the open question is *own it or bless it*, not
+      *build it from scratch*. ngx-mask's download numbers prove the demand.
+      Phone-international / card presets later (Taiga's fintech inputs are
+      loved).
+- [ ] **C5. Tree-table mode** (M) — tree rows inside `wr-table`
+      (expand/collapse hierarchy). Tree-select already ships as
+      `wr-tree openOn="overlay"` (consolidated in v7).
       (Material #14159 open for years; standard in PrimeNG/NG-ZORRO/Kendo.)
-- [ ] **C6. Event calendar / scheduler** (XL, candidate for 8.1) — month /
+- [ ] **C6. Event calendar / scheduler** (XL, candidate for v10) — month /
       week / day event views with drag. (PrimeNG + Kendo 2026 roadmaps.)
 - [ ] **C7. Menubar** (M) — horizontal app menu with submenus; Aria ships
       the primitive. Completes dropdown/context-menu into a menu family.
@@ -203,7 +220,7 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
 - [ ] **C9. Charts round-out** (L) — area / scatter / radar; unified legends
       + theming. Differentiator is theme-token integration + dashboard
       blocks, not chart-engine breadth — do not build an engine.
-- [ ] **C10. Rich text editor** (XL, evaluate for 8.1) — the biggest single
+- [ ] **C10. Rich text editor** (XL, evaluate for v10) — the biggest single
       component gap across free Angular libs (Taiga wraps ProseMirror;
       PrimeNG is rebuilding theirs). Likely a ProseMirror-based
       `ngwr/editor`. Validate demand before committing.
@@ -212,17 +229,26 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
 - [ ] **D1. Theme presets + builder** (L) — algorithmic palette from a seed
       color, 2–3 prebuilt themes, live theme-builder page that **exports
       tokens and shareable preset files** (tweakcn proves standalone demand).
+      Starts from lift-and-generalise, not zero:
+      `showcase/app/_core/services/primary-color.ts` already derives the full
+      `--wr-color-primary*` ramp from a hex seed at runtime.
 - [ ] **D2. System-token layer** (M) — **partially shipped in v8:** a neutral
-      gray ramp plus surface role aliases landed, documented in the new
-      `/tokens` design-tokens docs section (colors / sizing / typography /
-      density). **Remaining:** the full semantic `--wr-sys-*` roles over the raw
+      gray ramp plus surface role aliases landed, documented at
+      `/guides/tokens` (colors / sizing / typography / density / motion).
+      **Remaining:** the full semantic `--wr-sys-*` roles over the raw
       palette, light/dark/high-contrast via `color-scheme`, and the optional
       `--mat-sys-*` interop map so ngwr drops into Material apps. This is the M3
       theming bar.
 - [ ] **D3. Squircle: graduate or cut** (S) — decide on `corner-shape`
       browser support; "experimental" shouldn't survive two majors.
-- [ ] **D4. Motion tokens** (M) — unify durations / easings as
-      `--wr-motion-*` across the animation kit and overlays.
+- [ ] **D4. Motion tokens** (S, mostly shipped) — `--wr-duration-*` /
+      `--wr-ease-*` / `--wr-transition-*` live in
+      `theme/styles/_variables.scss`, are consumed by 49 stylesheets, and are
+      documented at `/guides/tokens/motion`. Keep the shipped prefixes —
+      renaming public custom properties now would be a gratuitous break.
+      **Remaining:** the 8 stylesheets still hardcoding `cubic-bezier`
+      (circular-text, segmented, toast, marquee, dialog,
+      `styles/_animations.scss`, table, drag-drop).
 - [ ] **D5. Figma kit** (L, later) — token-synced community kit; credibility
       multiplier once D1/D2 land. (PrimeNG/Kendo/Material all ship kits.)
 
@@ -233,17 +259,17 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
       content. Docs search wired into the command palette remains.
 - [ ] **E2. AI-legibility stack** (M–L, highest leverage for adoption) —
       **partially in v8** (`llms.txt` / `llms-full.txt` + `AGENTS.md` + the
-      `ng update ngwr@8` codemod ship). **2026-07-15: the docs themselves are
-      now legible without JS** — ngwr.dev used to serve an empty shell, so
-      crawlers and agents got nothing but a `<title>`; static prerendering (A4)
-      means every page ships real content, its section links, and
-      shiki-highlighted code as HTML. That was an unstated prerequisite for
-      everything below. **Remaining:** per-component markdown
-      export, an **ngwr MCP server** (search / docs / examples / install via
-      schematics), agent skills, and an open registry schema for community
-      blocks + theme presets. This
-      stack drove shadcn's 20%→56% rise; Taiga has an MCP server, nobody in
-      Angular has the full stack. Builds directly on E3.
+      `ng update ngwr@8` codemod ship). **2026-07-15: the docs build itself is
+      now legible without JS** — ngwr.dev serves an empty shell, so crawlers and
+      agents get nothing but a `<title>`; static prerendering (A4) means every
+      page ships real content, its section links, and shiki-highlighted code as
+      HTML — **live only once v9.0.0 is cut**, since `deploy.yml` fires on a
+      release commit. That was an unstated prerequisite for everything below.
+      **Remaining:** per-component markdown export, an **ngwr MCP server**
+      (search / docs / examples / install via schematics), agent skills, and an
+      open registry schema for community blocks + theme presets. This stack
+      drove shadcn's 20%→56% rise; Taiga has an MCP server, nobody in Angular
+      has the full stack. Builds directly on E3.
 - [ ] **E3. API reference auto-extraction** (L) — generate the per-component
       type tables from JSDoc instead of maintaining them by hand.
 - [ ] **E4. Playground embeds** (M) — StackBlitz per component page.
@@ -265,6 +291,10 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
       composed from ngwr components and themed by D1. Proven adoption driver
       (shadcnblocks economy, Ant Pro, Tremor); virtually no Angular block
       ecosystem exists today.
+- [ ] **Docs chore: `/pipes/range` → `/pipes/wr-range`** (S) — the sole
+      unprefixed pipe folder; `app/routing.ts` still maps `range: 'range'`
+      beside six `wr-`-prefixed siblings. A docs-route rename with a redirect,
+      not a breaking change.
 
 ## F — AI components (`ngwr/ai`)
 
@@ -274,7 +304,7 @@ nobody ships a free, complete Angular AI kit.
 - [ ] **F1. Streaming markdown renderer** (M) — standalone component
       (typed-out streaming, code blocks via the existing shiki setup).
       Foundation for F2 and useful alone.
-- [ ] **F2. Chat / agent kit** (XL, the 8.x headline) — message thread,
+- [ ] **F2. Chat / agent kit** (XL, the v10 marquee) — message thread,
       prompt input (attachments, slash commands via mention plumbing),
       tool-call + approval + reasoning-trace renderers, sources panel —
       wired to AG-UI / Vercel-AI-SDK-style streams. Showcases the existing
@@ -290,10 +320,11 @@ nobody ships a free, complete Angular AI kit.
 - [ ] **G2. CSP audit** (S) — document nonce handling; verify no inline-style
       violations from animations/canvas components.
 
-## Breaking — shipped in v8.0 / deferred to v9
+## Breaking — shipped in v8.0 / landed for v9 / still deferred
 
-v8.0.0 shipped only the three small renames/removals below; the rest of the
-breaking work reschedules to **v9** (the Angular 23 baseline).
+v8.0.0 shipped only the three small renames/removals below. Three more are
+already on main for **v9.0.0** (unreleased); the rest travels on to **v10**
+with the Angular 23 baseline.
 
 - [x] **Density values renamed** — **shipped in v8.** `compact|default|comfortable`
       → `sm|md|lg` (`touch` unchanged, default now `md`) across `WrDensity`, the
@@ -304,33 +335,103 @@ breaking work reschedules to **v9** (the Angular 23 baseline).
 - [x] **Removed unreliable components** — **shipped in v8.** `WrReveal` (the
       `wrReveal` directive, `ngwr/directives`) and `WrScrambleText`
       (`<wr-scramble-text>`, `ngwr/scramble-text`) deleted.
-**Deferred to v9:**
 
-- [ ] Angular 23 peer baseline.
-- [ ] B2 internals swap (DOM/class changes from Aria primitives).
-- [ ] **Colour role-rename** — migrate every component off the `white` / `dark` /
-      `light` literals onto the `surface` / `on-surface` roles, then remove the
-      literals. The additive gray-ramp + role aliases shipped in v8; this is the
-      breaking cleanup (D2's remaining piece) and needs a `migration-v9` codemod.
-- [ ] Drop v7 compat leftovers; naming nits (`/pipes/range` → `/pipes/wr-range`).
+**Landed on main for v9.0.0 (unreleased):**
+
+- [x] **`<wr-checkbox>` `value` → `checkboxValue`** (#459) — `FormCheckboxControl`
+      reserves `value` for the form value, so the boolean state is the `checked`
+      model and group membership moves to `checkboxValue`. Covered by
+      `migration-v9`. Fails **silently** without the codemod: a leftover static
+      `value="x"` lands on the host as a plain DOM attribute, every checkbox in
+      the group keeps the default identity `null`, and they all toggle together.
+- [x] **Lucide icon names registered verbatim** (#445) —
+      `lucideIcons({ chevronDown })` now registers `chevronDown`, not
+      `chevron-down`. **No codemod**; the icon just stops rendering. Fix by
+      quoting multi-word keys.
+- [x] **`info` added to `WR_COLORS` / `WrColor`** (#432) — breaks exhaustive
+      switches over the colour union. No codemod.
+
+**Still deferred (v9 candidate or v10):**
+
+- [ ] **Colour role-rename** (v9 candidate) — component stylesheets are already
+      fully on the surface roles; what remains is eight TS/HTML/SCSS default
+      values still naming `--wr-color-{white,dark,light}` (`click-spark.ts:76`,
+      `fuzzy-text.ts:59`, `calendar-heatmap.ts:72`, `gauge.ts:44`,
+      `knob.ts:74,75`, `line-chart.html:27,77`, `popover/styles/_index.scss:36`)
+      plus dropping `light` / `dark` from `WR_COLORS` / `WrColor`. Add the rule
+      to the **existing** `migration-v9` codemod. (D2's remaining piece.)
+- [ ] Angular 23 peer baseline (v10, ~Nov 2026).
+- [ ] B2 internals swap (v10) — DOM/class changes from Aria primitives.
 - [ ] Per-entry bundle budgets enforced in CI.
+
+## What blocks what
+
+Almost nothing is blocked; the one hard edge is B2. Check here before picking
+up an item.
+
+- **C3** (combobox) — **hard-blocked on B2**; it needs the Aria `Combobox`
+  primitive.
+- **A2** (CDK harnesses) — soft-blocked on **A1**: harnesses with no suite
+  behind them are just more untested API surface.
+- **B4** (schema-driven `wr-form`) — soft-depends on **B3**.
+- **D5** (Figma kit) — blocked in practice on **D1** + **D2**.
+- **C7** (menubar) — unblocked, but cheaper after **B2** ships the primitive.
+- **B2** itself — unblocked on paper, but do not start it before **A1** / **A5**
+  have coverage; it churns DOM and BEM classes that are public API.
+- **Everything else is unblocked** — A1, A3, A5, B3, C4–C6, C8–C10, D1–D4,
+  E2–E9, F1, F2, G1, G2.
 
 ## Suggested starting order
 
-Re-prioritised 2026-06-30 to lead with **B (Signal Forms)** per the user's call.
+Re-prioritised 2026-07-31 against HEAD. The library's problem right now is not
+a missing feature — it is that a cycle's worth of finished work is unreleased.
 
-1. **B1** — Signal Forms `FormValueControl` on every value control (the
-   first-mover window is open now), paired with **B3** (`WR_FORM_ERRORS`) and
-   **B4** (schema-driven `wr-form`) — the whole forms story in one push.
-2. **Finish theme M** — complete the partial M3–M5 (touch gestures, `dvh` /
-   virtual-keyboard handling, remaining container-query components), then M6–M7.
-3. **E2 + E3** — AI-legibility stack (cheap, compounds, biggest adoption lever
-   while downloads are the bottleneck; llms.txt / agents.md / codemod already in).
-4. **A1** — tests (start early, runs through the whole cycle).
-5. **C1 + C2** — table v2 and the vscroll regression.
-6. **G1** — RTL (mechanical but large; background sweeps).
+1. **Cut v9.0.0. Today.** Nothing else is close. Main has 41 unreleased commits
+   — the entire signal-forms migration, all of Table v2, both picker
+   virtualizations, the M6/M7 mobile work, the docs IA refactor — and no user
+   can install any of it. Worse, `deploy.yml` fires only on a
+   `chore(release): v*` head commit, so the static-prerendered docs merged
+   2026-07-15 have never shipped: ngwr.dev still serves a JS shell, which means
+   A4 and the whole E2 adoption thesis deliver *zero* value today.
+   `migration-v9` is already written and registered.
+2. **Land the doc pass in the release PR** — README size figures, the version
+   table, the ngwr.dev link migration, and the `AGENTS.md` / `llms.txt` forms
+   paragraphs (which still describe `ControlValueAccessor`, i.e. actively
+   instruct agents to write code the library rejects). It is E2's own
+   maintenance debt; ship it with the release so it all lands at once.
+3. **Decide the v9 scope question explicitly, in the release PR body.** This
+   doc used to assume v9 = Angular 23 + B2, but Angular 23 is ~Nov 2026 and
+   there are three breaking changes on main *now*. Recommended: cut v9 as a
+   small breaking release (the v8 pattern) and retarget Angular 23 + B2 to
+   **v10**. Optionally fold the colour role-rename in first — eight default
+   values plus a `WR_COLORS` trim, and `migration-v9` already exists to carry
+   the rule. One fewer major later for about a day of work.
+4. **B3 `WR_FORM_ERRORS`** (M) — do it next because B1 *just* landed and the
+   forms surface is the freshest code in the repo. Small, unblocked, and it is
+   what makes `wr-form-field` self-sufficient; today the headline feature still
+   makes consumers hand-write every error message.
+5. **A1 test foundation** (XL, start now, runs through the cycle) — 127 entry
+   points, zero tests. The credibility gap, and the prerequisite that makes B2
+   survivable. Order as A1 says: utils / validators / pipes / services first,
+   then interaction tests on select, date-picker, dialog, popover, toast.
+6. **C4 input mask** (M) — the cheapest closure of a proven-demand gap.
+   `ngx-mask` is already a workspace dependency and `wr-input`'s own docs
+   already describe composing with it, so the work is a decision plus a guide
+   page. Build first-party only if the composition genuinely breaks.
+7. **B2 `@angular/aria` swap** (XL) — schedule for **v10** and pair it with
+   **A5**. Last big breaking item, unblocks C3, retires a pile of a11y logic.
+   Not before A1/A5: it moves DOM and BEM classes consumers style against.
+8. **G1 RTL** (L) — start as a background sweep any time. Mechanical,
+   parallelizable, fully unblocked, and the one remaining hard "we can't adopt
+   this" blocker for a whole market segment.
+9. **E3, then E2's MCP server** — in that order, deliberately. The MCP server
+   should serve *generated* API data, not the 81 hand-maintained tables; doing
+   E2 first bakes the drift in.
+10. **Clear the small deferred pile in one afternoon** — D4's 8 hardcoded
+    `cubic-bezier`s, D3's squircle graduate-or-cut decision, G2's CSP audit,
+    E8's `provideWrConfig()`. Four items off the board, all S, all unblocked.
 
-Then **F1 → F2** as the 8.x marquee, and **B2** lands with **v9** (the Aria swap).
+Then **F1 → F2** as the v10 marquee, once A1 gives it a floor to build on.
 
 ## Non-goals (researched, rejected)
 

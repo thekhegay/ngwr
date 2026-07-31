@@ -76,6 +76,9 @@
     "./typography-utilities": {
       "sass": "./styles/_typography.scss"
     },
+    "./action-sheet": {
+      "sass": "./action-sheet/styles/_index.scss"
+    },
     "./affix": {
       "sass": "./affix/styles/_index.scss"
     },
@@ -166,6 +169,9 @@
     "./density": {
       "sass": "./density/styles/_index.scss"
     },
+    "./descriptions": {
+      "sass": "./descriptions/styles/_index.scss"
+    },
     "./dialog": {
       "sass": "./dialog/styles/_index.scss"
     },
@@ -229,6 +235,9 @@
     "./layout": {
       "sass": "./layout/styles/_index.scss"
     },
+    "./lightbox": {
+      "sass": "./lightbox/styles/_index.scss"
+    },
     "./line-chart": {
       "sass": "./line-chart/styles/_index.scss"
     },
@@ -264,6 +273,9 @@
     },
     "./progress": {
       "sass": "./progress/styles/_index.scss"
+    },
+    "./pull-to-refresh": {
+      "sass": "./pull-to-refresh/styles/_index.scss"
     },
     "./qr": {
       "sass": "./qr/styles/_index.scss"

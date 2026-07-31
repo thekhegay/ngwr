@@ -18,14 +18,15 @@ Other scripts:
 ```shell
 pnpm build:lib        # build the publishable library → dist/lib
 pnpm build:showcase   # build the docs site         → dist/showcase
-pnpm lint             # lint lib + showcase + scripts
-pnpm generate:icons   # regenerate icon constants from SVGs
+pnpm lint             # eslint (lib + showcase + scripts) + stylelint + colour parity
+pnpm icons:sets       # rebuild showcase icon catalogs (also runs on postinstall)
 ```
 
 Requirements:
 
-- Node `^22.12 || ^24`
-- pnpm `^11`
+- Node `^24.16 || >=26` (`.nvmrc` pins 24; `.npmrc` sets `engine-strict=true`,
+  so an older Node fails `pnpm install` outright)
+- pnpm `^11.10` (pinned via `packageManager`: `pnpm@11.10.0`)
 
 ## Filing issues
 
@@ -43,9 +44,12 @@ Use the appropriate template:
 
 ## Commits
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/). The
-PR title is enforced; individual commits inside the branch are not. Common
-types:
+We follow [Conventional Commits](https://www.conventionalcommits.org/). Both
+are enforced — PR titles by CI
+([`pr-title.yml`](./.github/workflows/pr-title.yml)) and every local commit by
+a commitlint `commit-msg` hook, installed via `simple-git-hooks` on
+`pnpm install`. Subjects must be lowercase; the header is capped at 100 chars.
+Types:
 
 | Type | When |
 |---|---|
@@ -54,10 +58,12 @@ types:
 | `perf` | performance improvement |
 | `refactor` | neither feature nor fix |
 | `docs` | documentation only |
+| `style` | formatting only, no behaviour change |
 | `test` | tests only |
 | `build` | dependency or build pipeline change |
 | `ci` | GitHub Actions change |
 | `chore` | tooling, cleanup |
+| `revert` | revert a previous commit |
 
 Add `!` after the type for a breaking change: `feat(button)!: drop legacy color prop`.
 
@@ -80,7 +86,7 @@ need to bump versions.
 ## Adding a new component
 
 Each component is its own ng-packagr secondary entry point. Use an existing
-small component (`projects/lib/badge` is a good template) and replicate the
+small component (`projects/lib/alert` is a good template) and replicate the
 structure:
 
 ```
@@ -88,31 +94,45 @@ projects/lib/<name>/
 ├── ng-package.json
 ├── index.ts
 ├── public-api.ts
-├── <name>.component.ts        # standalone, OnPush, encapsulation: None
-├── <name>.component.html
+├── <name>.ts                  # encapsulation: None, signals-only
+├── <name>.html
 ├── styles/_index.scss
-└── types/index.ts             # only if you have public types
+└── interfaces/index.ts        # public types, re-exported from public-api.ts
 ```
 
 Then:
 
 1. Add the entry to the umbrella SCSS at `projects/lib/styles.scss`.
 2. Add the entry to `projects/lib/package.json` `exports` map.
-3. Add a docs page under `projects/showcase/app/docs/components/<name>/`.
-4. Add a sidebar link in
-   `projects/showcase/app/_layout/sidebar/sidebar.component.ts`.
+3. Add a docs page under
+   `projects/showcase/app/reference/components/<name>/` (`<name>.ts` +
+   `<name>.html`).
+4. Add the path constant to `projects/showcase/app/routing.ts` (the
+   `components` map).
+5. Add the lazy route to
+   `projects/showcase/app/reference/components/components.routing.ts`.
+6. Add the sidebar entry to
+   `projects/showcase/app/_layout/sidebar/configs/components.config.ts`.
 
 ## Style guide
 
-- **Standalone, signals-first.** Use `input()`, `model()`, `output()`,
-  `signal()`, `computed()`, `effect()`, `viewChild()`, `contentChildren()`.
-- **OnPush + zoneless-friendly.** No `setTimeout` to nudge change detection.
+- **Signals-first, zoneless-friendly.** Use `input()`, `model()`, `output()`,
+  `signal()`, `computed()`, `effect()`, `viewChild()`, `contentChildren()`. No
+  `setTimeout` to nudge change detection. Don't add `standalone: true` (the
+  Angular 22 default) or `changeDetection: OnPush` — neither is the convention
+  here.
+- **`ViewEncapsulation.None`.** The BEM `.wr-*` classes are public API —
+  consumers style against them, so renaming one is a breaking change.
 - **CDK for primitives.** Overlay, portal, a11y, focus management — use
   `@angular/cdk`, not custom code. Always inject `WR_OVERLAY` (not
   `Overlay`) so isolation works.
 - **CSS custom properties scoped per component.** Component styles read from
   `--wr-*` tokens; consumers can override per-instance.
-- **Lint is the source of truth.** If `pnpm lint` is green, you're good.
+- **Verify lint by exit code.** `pnpm lint` is multi-stage (`ng lint` →
+  `eslint scripts` → stylelint → `check:colors`); the first stage prints
+  `All files pass linting.` even when a later stage fails, so run
+  `pnpm lint; echo $?`. CI gates on lint **plus** `pnpm build:lib` and
+  `pnpm build:showcase`.
 
 ## Setting up your editor
 
