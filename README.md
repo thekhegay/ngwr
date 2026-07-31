@@ -26,10 +26,24 @@ zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
 | `rxjs`                      | `^7.0.0`             |
 | `date-fns` _(optional)_     | `^3.0.0 \|\| ^4.0.0` |
 | `luxon` _(optional)_        | `^3.0.0`             |
+| `lucide` _(optional)_       | `>= 1.0.0`           |
 
-Node ≥ 24.16.0 (or 26+). pnpm ≥ 11.8. TypeScript ≥ 6.0.
+Node ≥ 24.16.0 (or 26+) and TypeScript `~6.0.x` (Angular 22 requires
+`typescript >=6.0 <6.1`). Contributing to this repo additionally needs
+pnpm ≥ 11.10.
 
 ## Install
+
+The schematic does the whole Install + Styles section for you — it installs
+ngwr and its peers, appends `@use 'ngwr';` to your global stylesheet, and
+prints a provider snippet tailored to your answers (date adapter, density,
+theme) to paste into bootstrap:
+
+```shell
+ng add ngwr
+```
+
+Or wire it up by hand:
 
 ```shell
 pnpm add ngwr @angular/cdk
@@ -63,8 +77,13 @@ Opt-in utilities (not part of `@use 'ngwr'`):
 ```scss
 @use 'ngwr/reset'; // box-sizing, body margin, sane defaults
 @use 'ngwr/grid'; // .grid, .container, .col-*
+@use 'ngwr/animations'; // .wr-animate-fade-in, .wr-animate-slide-up, …
+@use 'ngwr/typography-utilities'; // .wr-text-*, .wr-font-* utility classes
 @use 'ngwr/breakpoints' as bp; // SCSS mixins only, no CSS output
 ```
+
+`ngwr/typography-utilities` is the utility-class sheet — not `ngwr/typography`,
+which is the larger `wrTypography` component entry.
 
 ## Quick start
 
@@ -109,32 +128,58 @@ export class AppComponent {
 }
 ```
 
+Every value control is Signal Forms-native, so `[formField]` binds straight
+through — no `ControlValueAccessor` anywhere in the chain:
+
+```ts
+// profile-form.ts
+import { Component, signal } from '@angular/core';
+import { FormField, form } from '@angular/forms/signals';
+import { WrCheckbox } from 'ngwr/checkbox';
+import { WrInput } from 'ngwr/input';
+
+@Component({
+  selector: 'app-profile-form',
+  imports: [FormField, WrCheckbox, WrInput],
+  template: `
+    <input wrInput [formField]="profile.name" placeholder="Your name" />
+    <wr-checkbox [formField]="profile.agree">I agree</wr-checkbox>
+  `,
+})
+export class ProfileForm {
+  readonly model = signal({ name: '', agree: false });
+  readonly profile = form(this.model); // FieldTree — profile.name, profile.agree
+}
+```
+
 ## Catalog
 
 > Browse the full catalog with live demos at [**ngwr.dev**](https://ngwr.dev).
 > Each entry below is a tree-shakable subpath — `import { … } from 'ngwr/<name>'`.
+> A few share a package: `form-field` ships from `ngwr/form`, `button-group` from
+> `ngwr/button`, and `qr` is the subpath behind the `qrcode` docs page.
 
 ### Components
 
-**Form** — [calendar](https://ngwr.dev/components/calendar), [cascader](https://ngwr.dev/components/cascader), [checkbox](https://ngwr.dev/components/checkbox), [color-picker](https://ngwr.dev/components/color-picker), [date-picker](https://ngwr.dev/components/date-picker), [file-upload](https://ngwr.dev/components/file-upload), [form](https://ngwr.dev/components/form), [form-field](https://ngwr.dev/components/form-field), [input](https://ngwr.dev/components/input), [input-number](https://ngwr.dev/components/input-number), [input-otp](https://ngwr.dev/components/input-otp), [knob](https://ngwr.dev/components/knob), [mention](https://ngwr.dev/components/mention), [radio](https://ngwr.dev/components/radio), [rating](https://ngwr.dev/components/rating), [segmented](https://ngwr.dev/components/segmented), [select](https://ngwr.dev/components/select), [slider](https://ngwr.dev/components/slider), [switch](https://ngwr.dev/components/switch), [textarea](https://ngwr.dev/components/textarea).
+**Form** — [calendar](https://ngwr.dev/reference/components/calendar), [cascader](https://ngwr.dev/reference/components/cascader), [checkbox](https://ngwr.dev/reference/components/checkbox), [color-picker](https://ngwr.dev/reference/components/color-picker), [date-picker](https://ngwr.dev/reference/components/date-picker), [file-upload](https://ngwr.dev/reference/components/file-upload), [form](https://ngwr.dev/reference/components/form), [form-field](https://ngwr.dev/reference/components/form-field), [input](https://ngwr.dev/reference/components/input), [input-number](https://ngwr.dev/reference/components/input-number), [input-otp](https://ngwr.dev/reference/components/input-otp), [knob](https://ngwr.dev/reference/components/knob), [mention](https://ngwr.dev/reference/components/mention), [radio](https://ngwr.dev/reference/components/radio), [rating](https://ngwr.dev/reference/components/rating), [segmented](https://ngwr.dev/reference/components/segmented), [select](https://ngwr.dev/reference/components/select), [slider](https://ngwr.dev/reference/components/slider), [switch](https://ngwr.dev/reference/components/switch), [textarea](https://ngwr.dev/reference/components/textarea).
 
-**Buttons** — [button](https://ngwr.dev/components/button), [button-group](https://ngwr.dev/components/button-group), [speed-dial](https://ngwr.dev/components/speed-dial).
+**Buttons** — [button](https://ngwr.dev/reference/components/button), [button-group](https://ngwr.dev/reference/components/button-group), [speed-dial](https://ngwr.dev/reference/components/speed-dial).
 
-**Data** — [drag-drop](https://ngwr.dev/components/drag-drop), [pagination](https://ngwr.dev/components/pagination), [table](https://ngwr.dev/components/table), [tree](https://ngwr.dev/components/tree), [virtual-scroll](https://ngwr.dev/components/virtual-scroll).
+**Data** — [drag-drop](https://ngwr.dev/reference/components/drag-drop), [pagination](https://ngwr.dev/reference/components/pagination), [pull-to-refresh](https://ngwr.dev/reference/components/pull-to-refresh), [table](https://ngwr.dev/reference/components/table), [tree](https://ngwr.dev/reference/components/tree), [virtual-scroll](https://ngwr.dev/reference/components/virtual-scroll).
 
-**Feedback** — [alert](https://ngwr.dev/components/alert), [empty](https://ngwr.dev/components/empty), [progress](https://ngwr.dev/components/progress), [result](https://ngwr.dev/components/result), [skeleton](https://ngwr.dev/components/skeleton), [spinner](https://ngwr.dev/components/spinner).
+**Feedback** — [alert](https://ngwr.dev/reference/components/alert), [empty](https://ngwr.dev/reference/components/empty), [progress](https://ngwr.dev/reference/components/progress), [result](https://ngwr.dev/reference/components/result), [skeleton](https://ngwr.dev/reference/components/skeleton), [spinner](https://ngwr.dev/reference/components/spinner).
 
-**Display** — [avatar](https://ngwr.dev/components/avatar), [badge](https://ngwr.dev/components/badge) (incl. `wr-tag`), [compare](https://ngwr.dev/components/compare), [counter](https://ngwr.dev/components/counter), [descriptions](https://ngwr.dev/components/descriptions), [divider](https://ngwr.dev/components/divider), [image-cropper](https://ngwr.dev/components/image-cropper), [keyboard](https://ngwr.dev/components/keyboard), [lightbox](https://ngwr.dev/components/lightbox), [qrcode](https://ngwr.dev/components/qrcode), [statistic](https://ngwr.dev/components/statistic), [timeline](https://ngwr.dev/components/timeline).
+**Display** — [avatar](https://ngwr.dev/reference/components/avatar), [badge](https://ngwr.dev/reference/components/badge) (incl. `wr-tag`), [compare](https://ngwr.dev/reference/components/compare), [counter](https://ngwr.dev/reference/components/counter), [descriptions](https://ngwr.dev/reference/components/descriptions), [divider](https://ngwr.dev/reference/components/divider), [image-cropper](https://ngwr.dev/reference/components/image-cropper), [keyboard](https://ngwr.dev/reference/components/keyboard), [lightbox](https://ngwr.dev/reference/components/lightbox), [qr](https://ngwr.dev/reference/components/qrcode), [statistic](https://ngwr.dev/reference/components/statistic), [timeline](https://ngwr.dev/reference/components/timeline).
 
-**Layout** — [card](https://ngwr.dev/components/card), [carousel](https://ngwr.dev/components/carousel), [collapse](https://ngwr.dev/components/collapse), [layout](https://ngwr.dev/components/layout), [list](https://ngwr.dev/components/list), [page-header](https://ngwr.dev/components/page-header), [splitter](https://ngwr.dev/components/splitter), [toolbar](https://ngwr.dev/components/toolbar).
+**Layout** — [card](https://ngwr.dev/reference/components/card), [carousel](https://ngwr.dev/reference/components/carousel), [collapse](https://ngwr.dev/reference/components/collapse), [layout](https://ngwr.dev/reference/components/layout), [list](https://ngwr.dev/reference/components/list), [page-header](https://ngwr.dev/reference/components/page-header), [splitter](https://ngwr.dev/reference/components/splitter), [toolbar](https://ngwr.dev/reference/components/toolbar).
 
-**Navigation** — [anchor](https://ngwr.dev/components/anchor), [back-top](https://ngwr.dev/components/back-top), [breadcrumbs](https://ngwr.dev/components/breadcrumbs), [burger](https://ngwr.dev/components/burger), [dropdown](https://ngwr.dev/components/dropdown), [sidebar](https://ngwr.dev/components/sidebar), [stepper](https://ngwr.dev/components/stepper), [tabs](https://ngwr.dev/components/tabs).
+**Navigation** — [anchor](https://ngwr.dev/reference/components/anchor), [back-top](https://ngwr.dev/reference/components/back-top), [breadcrumbs](https://ngwr.dev/reference/components/breadcrumbs), [burger](https://ngwr.dev/reference/components/burger), [dropdown](https://ngwr.dev/reference/components/dropdown), [sidebar](https://ngwr.dev/reference/components/sidebar), [stepper](https://ngwr.dev/reference/components/stepper), [tabs](https://ngwr.dev/reference/components/tabs).
 
-**Overlays** — [command-palette](https://ngwr.dev/components/command-palette), [context-menu](https://ngwr.dev/components/context-menu), [dialog](https://ngwr.dev/components/dialog), [drawer](https://ngwr.dev/components/drawer), [popconfirm](https://ngwr.dev/components/popconfirm), [popover](https://ngwr.dev/components/popover), [toast](https://ngwr.dev/components/toast), [window](https://ngwr.dev/components/window).
+**Overlays** — [action-sheet](https://ngwr.dev/reference/components/action-sheet), [command-palette](https://ngwr.dev/reference/components/command-palette), [context-menu](https://ngwr.dev/reference/components/context-menu), [dialog](https://ngwr.dev/reference/components/dialog), [drawer](https://ngwr.dev/reference/components/drawer), [popconfirm](https://ngwr.dev/reference/components/popconfirm), [popover](https://ngwr.dev/reference/components/popover), [toast](https://ngwr.dev/reference/components/toast), [window](https://ngwr.dev/reference/components/window).
 
-**Charts** — [bar-chart](https://ngwr.dev/components/bar-chart), [calendar-heatmap](https://ngwr.dev/components/calendar-heatmap), [donut-chart](https://ngwr.dev/components/donut-chart), [gauge](https://ngwr.dev/components/gauge), [line-chart](https://ngwr.dev/components/line-chart), [meter-group](https://ngwr.dev/components/meter-group), [sparkline](https://ngwr.dev/components/sparkline).
+**Charts** — [bar-chart](https://ngwr.dev/reference/components/bar-chart), [calendar-heatmap](https://ngwr.dev/reference/components/calendar-heatmap), [donut-chart](https://ngwr.dev/reference/components/donut-chart), [gauge](https://ngwr.dev/reference/components/gauge), [line-chart](https://ngwr.dev/reference/components/line-chart), [meter-group](https://ngwr.dev/reference/components/meter-group), [sparkline](https://ngwr.dev/reference/components/sparkline).
 
-Plus [icon](https://ngwr.dev/components/icon), the experimental [squircle](https://ngwr.dev/components/squircle), and the [typography](https://ngwr.dev/typography) directive.
+Plus [icon](https://ngwr.dev/reference/components/icon), the experimental [squircle](https://ngwr.dev/reference/components/squircle), and the [typography](https://ngwr.dev/reference/directives/typography) directive.
 
 ### Animations
 
@@ -146,42 +191,44 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 ### Directives — `ngwr/directives`
 
-[autofocus](https://ngwr.dev/directives/autofocus), [autosize](https://ngwr.dev/directives/autosize), [click-outside](https://ngwr.dev/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/directives/copy-to-clipboard). [affix](https://ngwr.dev/directives/affix) ships as its own entry (`ngwr/affix`).
+[autofocus](https://ngwr.dev/reference/directives/autofocus), [autosize](https://ngwr.dev/reference/directives/autosize), [click-outside](https://ngwr.dev/reference/directives/click-outside), [copy-to-clipboard](https://ngwr.dev/reference/directives/copy-to-clipboard). [affix](https://ngwr.dev/reference/directives/affix) ships as its own entry (`ngwr/affix`).
 
 ### Pipes — `ngwr/pipes`
 
-[wrBytes](https://ngwr.dev/pipes/wr-bytes), [wrDate](https://ngwr.dev/pipes/wr-date), [wrMark](https://ngwr.dev/pipes/wr-mark), [wrNumber](https://ngwr.dev/pipes/wr-number), [wrPlural](https://ngwr.dev/pipes/wr-plural), [wrRange](https://ngwr.dev/pipes/range), [wrTruncate](https://ngwr.dev/pipes/wr-truncate).
+[wrBytes](https://ngwr.dev/reference/pipes/wr-bytes), [wrDate](https://ngwr.dev/reference/pipes/wr-date), [wrMark](https://ngwr.dev/reference/pipes/wr-mark), [wrNumber](https://ngwr.dev/reference/pipes/wr-number), [wrPlural](https://ngwr.dev/reference/pipes/wr-plural), [wrRange](https://ngwr.dev/reference/pipes/range), [wrTruncate](https://ngwr.dev/reference/pipes/wr-truncate).
 
 ### Services
 
-[clipboard](https://ngwr.dev/services/clipboard), [cookie](https://ngwr.dev/services/cookie), [density](https://ngwr.dev/services/density), [hotkey](https://ngwr.dev/services/hotkey), [loading-bar](https://ngwr.dev/services/loading-bar), [media](https://ngwr.dev/services/media), [meta](https://ngwr.dev/services/meta), [platform](https://ngwr.dev/services/platform), [scroll](https://ngwr.dev/services/scroll), [storage](https://ngwr.dev/services/storage), [theme](https://ngwr.dev/services/theme), [translate](https://ngwr.dev/translate) (i18n).
+[clipboard](https://ngwr.dev/reference/services/clipboard), [cookie](https://ngwr.dev/reference/services/cookie), [density](https://ngwr.dev/reference/services/density), [hotkey](https://ngwr.dev/reference/services/hotkey), [loading-bar](https://ngwr.dev/reference/services/loading-bar), [media](https://ngwr.dev/reference/services/media), [meta](https://ngwr.dev/reference/services/meta), [platform](https://ngwr.dev/reference/services/platform), [scroll](https://ngwr.dev/reference/services/scroll), [storage](https://ngwr.dev/reference/services/storage), [theme](https://ngwr.dev/reference/services/theme), [i18n](https://ngwr.dev/reference/services/i18n).
 
 ### Validators — `ngwr/validators`
 
-Bundled `ValidatorFn`s composing cleanly with Angular's built-in `Validators`: `cardNumber` (Luhn), `cvc`, `hexColor`, `iban` (mod-97), `match` (sibling control), `maxDate`, `minDate`, `noWhitespace`, `oneOf`, `url`. See [docs](https://ngwr.dev/validators).
+Bundled `ValidatorFn`s composing cleanly with Angular's built-in `Validators`: `cardNumber` (Luhn), `cvc`, `hexColor`, `iban` (mod-97), `match` (sibling control), `maxDate`, `minDate`, `noWhitespace`, `oneOf`, `url`. See [docs](https://ngwr.dev/reference/validators).
 
 ### Utils — `ngwr/utils`
 
-Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `getRootFontSize`), ids (`randomId`), type guards (`isDefined`, `isNonEmptyArray`, `isObservable`), keyboard helpers (`KEYS`, `hasModifier`, `isPrintableKey`), functional primitives (`noop`, `badgeLog`, `debounce`, `throttle`), focus management (`getFocusableElements`, `trapFocus`). See [docs](https://ngwr.dev/utils) for the full list. Shared shapes (`Maybe`, `SafeAny`, `WrColor`, …) are documented under [Interfaces](https://ngwr.dev/interfaces).
+Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `getRootFontSize`), ids (`randomId`), type guards (`isDefined`, `isNonEmptyArray`, `isObservable`), keyboard helpers (`KEYS`, `hasModifier`, `isPrintableKey`), functional primitives (`noop`, `badgeLog`, `debounce`, `throttle`), focus management (`getFocusableElements`, `trapFocus`). See [docs](https://ngwr.dev/reference/utils) for the full list. Shared shapes (`Maybe`, `SafeAny`, `WrColor`, …) are documented under [Interfaces](https://ngwr.dev/reference/interfaces).
 
 ### Core
 
-- [Color](https://ngwr.dev/getting-started/color) — design tokens and palette.
-- [Grid](https://ngwr.dev/getting-started/grid) — opt-in 12-column layout.
-- [Overlay](https://ngwr.dev/getting-started/overlay) — isolated CDK overlay container, `provideWrOverlay()`.
-- [Mobile & responsive](https://ngwr.dev/getting-started/mobile) — responsive overlays, touch targets & density, swipe gestures, safe-area insets, container-query layouts.
-- [Typography](https://ngwr.dev/typography) — `wrTypography` directive: headings, paragraphs, lists, links, code.
-- [Icons](https://ngwr.dev/icons) — `ngwr/icon` registry + thin adapters for Lucide, Feather, Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap.
+- [Color](https://ngwr.dev/guides/tokens/colors) — design tokens and palette.
+- [Grid](https://ngwr.dev/guides/grid) — opt-in 12-column layout.
+- [Overlay](https://ngwr.dev/guides/overlay) — isolated CDK overlay container, `provideWrOverlay()`.
+- [Mobile & responsive](https://ngwr.dev/guides/mobile) — responsive overlays, touch targets & density, swipe gestures, safe-area insets, container-query layouts.
+- [Typography](https://ngwr.dev/guides/typography) — `wrTypography` directive: headings, paragraphs, lists, links, code.
+- [Icons](https://ngwr.dev/icons) — `ngwr/icon` registry. Use `svgIcon()` for any set that ships raw SVG files (Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap, or your designer's own), plus thin adapters for Lucide (`ngwr/icon/adapters/lucide`) and Feather (`ngwr/icon/adapters/feather`), whose packages don't ship SVGs.
 - **Date adapters** — `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter(...)` to power calendar + every mode of date-picker.
 
 ## Highlights
 
 - **Standalone & signals-first.** Every component is standalone and uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-ready.
+- **Signal Forms native.** Every value control implements `FormValueControl` / `FormCheckboxControl`, so `[formField]` binds straight through — there is no `ControlValueAccessor` in the library at all. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and every control also works standalone via `[(value)]` / `[(checked)]`.
 - **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
-- **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, a `touch` density preset enlarges every control, and drawer / lightbox / toast / carousel respond to swipe gestures. Fixed surfaces respect `env(safe-area-inset-*)`, and layout components (`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination`, `table`, `tabs`) reflow to their container via container queries. [Guide](https://ngwr.dev/getting-started/mobile).
-- **Tree-shakable.** 127 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are small: a median of ~3 KB gzipped, the heaviest (`ngwr/window`) ~15 KB. The whole catalog gzips to ~320 KB — but real apps pull a handful of entries. The only runtime dependency is `tslib`.
+- **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, a `touch` density preset enlarges every control, and drawer / lightbox / toast / carousel respond to swipe gestures. Fixed surfaces respect `env(safe-area-inset-*)`, and layout components (`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination`, `table`) reflow to their container via container queries. [Guide](https://ngwr.dev/guides/mobile).
+- **Table, batteries included.** `wr-table` covers column pinning / resizing / drag-reorder, row selection, expandable rows, grouping, summary rows, CSV export (`exportCsv()`, dependency-free RFC 4180) and a virtualized body — all opt-in inputs on the one component. Excel (`.xlsx`) export is deliberately not shipped: it would mean a third-party dependency.
+- **Tree-shakable.** 127 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are small: a median of ~3 KB gzipped, the heaviest (`ngwr/table`) ~18 KB. The whole catalog gzips to ~490 KB — but real apps pull a handful of entries. The only runtime dependency is `tslib`.
 - **Modular SCSS.** Component styles are scoped through CSS custom properties. Theme tokens live in `ngwr/theme`; utilities (`grid`, `reset`) and the breakpoints SCSS API are opt-in.
-- **Tree-shaken icons.** `provideWrIcons([plus, trash])` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
+- **Tree-shaken icons.** `provideWrIcons(lucideIcons({ plus: Plus }))` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
 - **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` / raw WebGL — no GSAP, no `motion/react`, no `matter-js`, no `ogl`.
 - **Motion respects the OS.** Every animation component short-circuits to its final state under `prefers-reduced-motion`.
 
@@ -192,9 +239,9 @@ Conventional commits are enforced on PR titles. Common types: `feat`, `fix`, `pe
 ```shell
 pnpm install
 pnpm dev            # ng serve --o (showcase)
-pnpm build:lib      # ng build lib
-pnpm build:showcase # ng build showcase
-pnpm lint           # ng lint
+pnpm build:lib      # ng build lib + ai assets + dist assets + schematics
+pnpm build:showcase # showcase build + sitemap
+pnpm lint           # ng lint + eslint scripts + stylelint + colour parity
 ```
 
 ## Authors
