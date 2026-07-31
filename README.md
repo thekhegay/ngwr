@@ -10,7 +10,7 @@
 zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
 `@angular/cdk` for overlay, portal, and a11y primitives.
 
-> **Status:** active development. v8 is the current major line (Angular 22 peer).
+> **Status:** active development. v9 is the current major line (Angular 22 peer).
 > Public API is stable across patch releases and still evolving between majors.
 > [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
 > if something breaks or feels wrong.

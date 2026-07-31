@@ -13,6 +13,13 @@ concurrency:
 jobs:
   build:
     name: Lint & build
+    # Skip release commits. They are already gated by the workflows that act on
+    # them: publish.yml runs `lint` + `build:lib` before `npm publish`, and
+    # deploy.yml runs `lint` + `build:showcase` before deploying. Running here as
+    # well only added a third copy of the same work that finished *after* both had
+    # shipped — which read like the release had raced the gate. (On pull_request
+    # `head_commit` is null, so this never skips a PR.)
+    if: "!startsWith(github.event.head_commit.message, 'chore(release): v')"
     runs-on: ubuntu-latest
 
     steps:

@@ -11,6 +11,35 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="v8 → v9"
+    description="Three breaking changes. The codemod auto-fixes the checkbox rename; the other two are one-line manual edits — and both of those fail SILENTLY, so check them even if your build is green."
+  >
+    <p wrTypography variant="small" tone="medium">
+      <strong>`&lt;wr-checkbox&gt;` — `value` is now `checkboxValue`.</strong> The checkbox became a signal-forms native
+      `FormCheckboxControl`, whose contract reserves `value` for the form value — so its boolean state is the `checked`
+      model, and the group-membership identity moved to `checkboxValue`. Watch out: the static form fails silently.
+      `&lt;wr-checkbox value="x"&gt;` raises no template error, it just lands as a plain DOM attribute, leaving every
+      child of the group with the same `null` identity — so they all toggle together. The codemod rewrites `value` /
+      `[value]` / `[(value)]` scoped to the `&lt;wr-checkbox` tag, and deliberately leaves `&lt;wr-checkbox-group&gt;`'s
+      own `value` alone.
+    </p>
+    <ngwr-doc-api [rows]="checkboxRows" />
+    <ngwr-doc-code [code]="snippets.checkbox" language="diff" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Lucide icon names register verbatim.</strong> `lucideIcons()` no longer kebab-cases its keys, so a
+      `chevronDown` key now registers as `chevronDown`, not `chevron-down`. No codemod — and nothing errors, the icon
+      simply stops rendering. Either quote the key or update the usages.
+    </p>
+    <ngwr-doc-code [code]="snippets.lucide" language="diff" />
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>`info` added to `WR_COLORS` / `WrColor`.</strong> Additive at runtime, but it widens the union — an
+      exhaustive `switch` over `WrColor` without a `default` will stop compiling until you handle the new member.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="v7 → v8"
     description="Three breaking changes. The codemod auto-fixes density + pagination and warns (with file paths) about the removed components, which have no automatic replacement."
   >
