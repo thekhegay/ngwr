@@ -1,5 +1,11 @@
 # Changelog
 
+## [9.0.1](https://github.com/thekhegay/ngwr/compare/v9.0.0...v9.0.1) (2026-07-31)
+
+### Bug Fixes
+
+* v9 migration group scope ([#466](https://github.com/thekhegay/ngwr/issues/466)) ([242b2de](https://github.com/thekhegay/ngwr/commit/242b2de42fe7f273bc4f177c88d2b86497253e27))
+
 ## [9.0.0](https://github.com/thekhegay/ngwr/compare/v8.0.0...v9.0.0) (2026-07-31)
 
 ### ⚠ BREAKING CHANGES
