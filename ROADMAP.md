@@ -143,12 +143,15 @@ what makes v8 a library people can bet on.
 Both stabilized in Angular 22 — this moved from "strategic bet" to "the
 adoption window is open now".
 
-- [ ] **B1. Signal Forms-native controls** (XL, flagship, start first) —
-      implement `FormValueControl` on every value-editing component (input,
-      select, checkbox, radio, switch, slider, date-picker, rating, knob,
-      input-number, input-otp, color-picker, mention, textarea, segmented),
-      keeping the CVA shim for reactive-forms back-compat. Document
-      `form()` / schema usage on every form page.
+- [x] **B1. Signal Forms-native controls** (XL, flagship) — **shipped in 8.x.**
+      All 17 value-editing components implement `FormValueControl` /
+      `FormCheckboxControl`, and `ControlValueAccessor` is gone from the
+      library entirely. Dropping CVA turned out to be **non-breaking**:
+      Angular 22 synthesises the accessor for a signal-forms control, so
+      `[(ngModel)]` and reactive forms keep working alongside `[formField]`.
+      Last stragglers: the internal time panel (#458) and the checkbox (#459,
+      whose group-identity `value` had to become `checkboxValue` because
+      `FormCheckboxControl` reserves `value` — a v9 migration ships with it).
 - [ ] **B2. Rebuild interactive internals on `@angular/aria`** (XL, candidate
       for v8.0 since DOM/classes may shift) — listbox→select, combobox,
       menu/menubar, tabs, accordion, tree, grid primitives. Position ngwr as
@@ -163,17 +166,25 @@ adoption window is open now".
 
 Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
 
-- [ ] **C1. Table v2** (XL) — column pin / resize / **drag-reorder**, row
-      selection, expandable rows, virtualized body, server-side sort /
-      filter / paginate, **summary/footer rows, row grouping, CSV/Excel
-      export**. (Evidence: angular/components #8312 open since 2017; PrimeNG
-      "Advanced DataGrid" + Kendo sticky-group-headers on 2026 roadmaps;
-      grouping/export are exactly what MUI X license-gates.) Today's API
-      stays as the simple tier. Stretch: config-driven "pro table" preset
-      (columns → auto filter form + CRUD), the Ant ProTable lesson.
-- [ ] **C2. Virtual scroll in overlay pickers** (M) — known v7 regression
-      (autocomplete had it; select consolidation lost it). Applies to
-      select / cascader / tree / mention. (angular/components #20273 class.)
+- [x] **C1. Table v2** (XL) — **shipped in 8.x**, one PR per feature: column
+      pin (#447) / resize (#448) / drag-reorder (#449), row selection (#450),
+      expandable rows (#451), summary/footer rows (#452), CSV export (#453),
+      row grouping (#454), virtualized body (#455). Server-side sort / filter /
+      paginate is served by `[totalItems]` + the `(sort)` / `(filterChange)`
+      outputs. Today's API stayed the simple tier — every feature is opt-in.
+      Deferred: **Excel (.xlsx)** export (needs a third-party dependency —
+      CSV is dependency-free) and the stretch "pro table" preset.
+- [x] **C2. Virtual scroll in overlay pickers** (M) — **shipped in 8.x**; the
+      v7 regression is closed. `wr-tree` (#456) and `wr-select` search mode
+      (#457) window their lists with hand-rolled spacer-row virtualization
+      (same shape as `wr-table`, not the CDK viewport, which cannot host
+      `<tr>` / role-owned list children), and switch to
+      `aria-activedescendant` while virtual so keyboard nav still reaches
+      un-rendered rows. **Cascader deferred** — its options are per-column
+      native tabstops with no container-owned arrow-nav model, so windowing
+      would strip off-screen rows out of the tab order; it needs that
+      keyboard refactor first. **Mention excluded** — its list is already
+      capped at `maxResults` (~8), so there is nothing to window.
 - [ ] **C3. Combobox / autocomplete proper** (M) — free-text input +
       suggestions is a different ARIA pattern than select-with-search; build
       on the Aria `Combobox` primitive after B2.
