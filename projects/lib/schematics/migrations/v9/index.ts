@@ -35,14 +35,21 @@ interface Transform {
  * Match `value` / `[value]` / `[(value)]` inside a `<wr-checkbox …>` open tag.
  * `[^>]*?` stays inside the tag (it can't cross `>`), so the rename never
  * escapes the element it's scoped to.
+ *
+ * The tag anchor is `(?![-\w])`, NOT `\b`: a word boundary still matches at
+ * `<wr-checkbox-group`, whose own `value` IS its form model (it is the group's
+ * `FormValueControl`) and must be left alone — renaming it would break every
+ * bound group.
  */
+const CHECKBOX_TAG = String.raw`<wr-checkbox(?![-\w])[^>]*?\s`;
+
 const HTML_TRANSFORMS: readonly Transform[] = [
   // <wr-checkbox … value="x">  →  checkboxValue="x"
-  { pattern: /(<wr-checkbox\b[^>]*?\s)value=/g, replacement: '$1checkboxValue=' },
+  { pattern: new RegExp(`(${CHECKBOX_TAG})value=`, 'g'), replacement: '$1checkboxValue=' },
   // <wr-checkbox … [value]="x">  →  [checkboxValue]="x"
-  { pattern: /(<wr-checkbox\b[^>]*?\s)\[value\]=/g, replacement: '$1[checkboxValue]=' },
+  { pattern: new RegExp(`(${CHECKBOX_TAG})\\[value\\]=`, 'g'), replacement: '$1[checkboxValue]=' },
   // <wr-checkbox … [(value)]="x">  →  [(checkboxValue)]="x"
-  { pattern: /(<wr-checkbox\b[^>]*?\s)\[\(value\)\]=/g, replacement: '$1[(checkboxValue)]=' },
+  { pattern: new RegExp(`(${CHECKBOX_TAG})\\[\\(value\\)\\]=`, 'g'), replacement: '$1[(checkboxValue)]=' },
 ];
 
 const IGNORE_DIRS = new Set(['node_modules', 'dist', '.git', '.cache', '.angular', 'coverage', '.next', '.nuxt']);
