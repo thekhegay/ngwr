@@ -1,5 +1,57 @@
 # Changelog
 
+## [9.0.0](https://github.com/thekhegay/ngwr/compare/v8.0.0...v9.0.0) (2026-07-31)
+
+### ⚠ BREAKING CHANGES
+
+* **theme:** add info to wr_colors so the type matches the palette (#432)
+* register lucide icon names verbatim, not kebab-cased (#445)
+* **checkbox:** the <wr-checkbox> group-membership input is renamed
+  `value` → `checkboxValue`, because the signal-forms
+  `FormCheckboxControl` contract reserves `value` (its form value is the
+  boolean `checked` model). Run `ng update ngwr@9` — the migration-v9
+  schematic rewrites `value=`, `[value]=` and `[(value)]=` on
+  <wr-checkbox> elements automatically. The static form `<wr-checkbox
+  value="x">` fails SILENTLY otherwise (it becomes a plain DOM attribute),
+  so run the migration.
+
+### Features
+
+* add column drag-reorder to wr-table ([#449](https://github.com/thekhegay/ngwr/issues/449)) ([e917d27](https://github.com/thekhegay/ngwr/commit/e917d27d033710a3909604434dec5885d8d8b75a))
+* add column pinning to wr-table ([#447](https://github.com/thekhegay/ngwr/issues/447)) ([7c7a5e8](https://github.com/thekhegay/ngwr/commit/7c7a5e85b88919e99f03a9434925cfd8aa9934a6))
+* add column resizing to wr-table ([#448](https://github.com/thekhegay/ngwr/issues/448)) ([9fc44d9](https://github.com/thekhegay/ngwr/commit/9fc44d9fe1b9468facc3de496963e5634f8163db))
+* add csv export to wr-table ([#453](https://github.com/thekhegay/ngwr/issues/453)) ([bb010fe](https://github.com/thekhegay/ngwr/commit/bb010fea149193f434f10274f399b7654f230761))
+* add expandable rows to wr-table ([#451](https://github.com/thekhegay/ngwr/issues/451)) ([47036a5](https://github.com/thekhegay/ngwr/commit/47036a50c5b664d6107d7b483c3520c45007b93c))
+* add per-demo phone-frame preview toggle ([#446](https://github.com/thekhegay/ngwr/issues/446)) ([57f9f7f](https://github.com/thekhegay/ngwr/commit/57f9f7fdb55df76cebcbde25e2dd8260504d0187))
+* add row grouping to wr-table ([#454](https://github.com/thekhegay/ngwr/issues/454)) ([4df823e](https://github.com/thekhegay/ngwr/commit/4df823ec382c2ce855240f140ff797130884e6e4))
+* add row selection to wr-table ([#450](https://github.com/thekhegay/ngwr/issues/450)) ([0e83ff4](https://github.com/thekhegay/ngwr/commit/0e83ff481d65731d72283465e78b71ea07c10977))
+* add summary row to wr-table ([#452](https://github.com/thekhegay/ngwr/issues/452)) ([d4dc75e](https://github.com/thekhegay/ngwr/commit/d4dc75e9e60c19583b9af6e63c091ed1bd8c2e55))
+* add virtual scroll to wr-select search mode ([#457](https://github.com/thekhegay/ngwr/issues/457)) ([75a4e09](https://github.com/thekhegay/ngwr/commit/75a4e093c90f8e9e2dfef949968ea6b6a8b3b975))
+* add virtual scroll to wr-tree ([#456](https://github.com/thekhegay/ngwr/issues/456)) ([3c86f83](https://github.com/thekhegay/ngwr/commit/3c86f83aaafee839e1cfab5807b3145a165f4171))
+* add virtualized body to wr-table ([#455](https://github.com/thekhegay/ngwr/issues/455)) ([ea4d0fb](https://github.com/thekhegay/ngwr/commit/ea4d0fb6ec8189ff295f2a98b4e4abaf48f8615d))
+* add wr-action-sheet component ([#444](https://github.com/thekhegay/ngwr/issues/444)) ([fb26efa](https://github.com/thekhegay/ngwr/commit/fb26efaed2a6920e278d0faf8dd06022994d6711))
+* add wr-haptics service wrapping the vibration api ([#442](https://github.com/thekhegay/ngwr/issues/442)) ([5858f6b](https://github.com/thekhegay/ngwr/commit/5858f6b8e358bcc57f05060ffc43126b44562eaa))
+* add wr-pull-to-refresh component ([#443](https://github.com/thekhegay/ngwr/issues/443)) ([2b32807](https://github.com/thekhegay/ngwr/commit/2b328070c1c58c11e88c8e4a3acf6ee5f7320e43))
+* add wr-statistic-group container-query dashboard grid ([#441](https://github.com/thekhegay/ngwr/issues/441)) ([4c037e1](https://github.com/thekhegay/ngwr/commit/4c037e18d0b4822c2ebe5dfdb3acb8d843fbbdde))
+* **checkbox:** migrate off cva to signal forms ([#459](https://github.com/thekhegay/ngwr/issues/459)) ([b3f7e8a](https://github.com/thekhegay/ngwr/commit/b3f7e8a0c06f1e6986775578edb55e6cfbfc0b32))
+* **date-picker:** migrate internal time panel off cva to signal forms ([#458](https://github.com/thekhegay/ngwr/issues/458)) ([aa60cb0](https://github.com/thekhegay/ngwr/commit/aa60cb0e5f41208a3f2d8b358608af2e8ec46aae))
+* finish the touch-interaction pass ([#439](https://github.com/thekhegay/ngwr/issues/439)) ([8171fa7](https://github.com/thekhegay/ngwr/commit/8171fa765a8b153dce12fd94a2064ac5e40deff1))
+* migrate the value controls to signal forms, add checkbox indeterminate ([#438](https://github.com/thekhegay/ngwr/issues/438)) ([fe5a3dc](https://github.com/thekhegay/ngwr/commit/fe5a3dc53cb15d67834eeb0154cbb4cf628a94b7))
+* respect safe-area insets, dynamic viewport height, and the on-screen keyboard ([#440](https://github.com/thekhegay/ngwr/issues/440)) ([98af3e7](https://github.com/thekhegay/ngwr/commit/98af3e70b85687cda74129d70cd6b22f5fcf0277))
+* **showcase:** prerender docs to static html ([#428](https://github.com/thekhegay/ngwr/issues/428)) ([6b42adc](https://github.com/thekhegay/ngwr/commit/6b42adc166967f28855577244519d4d2a94b4a0b))
+* switch signal forms ([#437](https://github.com/thekhegay/ngwr/issues/437)) ([5dffab3](https://github.com/thekhegay/ngwr/commit/5dffab34682e69cba8337af54eee9c1b5e5f023b))
+* **textarea:** implement formvaluecontrol for signal forms ([#430](https://github.com/thekhegay/ngwr/issues/430)) ([3e5541c](https://github.com/thekhegay/ngwr/commit/3e5541c8920fc75224ded081fbb720659d91d6a2))
+* **theme:** add colour role aliases and move components onto them ([#429](https://github.com/thekhegay/ngwr/issues/429)) ([c7b161f](https://github.com/thekhegay/ngwr/commit/c7b161f59e3a2ad0975a0b9ec60c081c1fd44aef))
+
+### Bug Fixes
+
+* **docs:** correct broken snippets, swatch ring and keyboard cross-links ([#431](https://github.com/thekhegay/ngwr/issues/431)) ([9b47a2e](https://github.com/thekhegay/ngwr/commit/9b47a2ebe194f81a13171981870dbd778a22d83d))
+* register lucide icon names verbatim, not kebab-cased ([#445](https://github.com/thekhegay/ngwr/issues/445)) ([55af65f](https://github.com/thekhegay/ngwr/commit/55af65f71700ada09ec157014ba9a1f081b40b3f))
+* **schematics:** stop the v9 codemod renaming wr-checkbox-group value ([#464](https://github.com/thekhegay/ngwr/issues/464)) ([889b96b](https://github.com/thekhegay/ngwr/commit/889b96b73ba3ed3d672467d09b7036ebf51886b5))
+* **showcase:** regenerate the sitemap from prerender output and refre… ([#435](https://github.com/thekhegay/ngwr/issues/435)) ([2cd6910](https://github.com/thekhegay/ngwr/commit/2cd691023cda3170b2761ab60964378aaafb7cd6))
+* **theme:** add info to wr_colors so the type matches the palette ([#432](https://github.com/thekhegay/ngwr/issues/432)) ([6232080](https://github.com/thekhegay/ngwr/commit/62320804dee084769f9846335ec7b630461071b1))
+* **tree:** treat a unitless viewportheight string as px ([#462](https://github.com/thekhegay/ngwr/issues/462)) ([84a5db6](https://github.com/thekhegay/ngwr/commit/84a5db6c8cb9f0bb213abc0eeee4542e12672e6e))
+
 ## [8.0.0](https://github.com/thekhegay/ngwr/compare/v7.3.0...v8.0.0) (2026-06-30)
 
 ### ⚠ BREAKING CHANGES
