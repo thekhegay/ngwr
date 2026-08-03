@@ -63,10 +63,26 @@ export class WrDialogRef<C, R = unknown> {
     return this.componentRef.instance;
   }
 
+  private isClosed = false;
+
   /** Close the dialog, optionally returning a result. */
   close(result?: R): void {
+    if (this.isClosed) return;
+    this.isClosed = true;
     this.closed.next(result);
     this.closed.complete();
+    // Content that closes itself while constructing gets here with
+    // `OverlayRef.attach()` still on the stack — `componentRef` is assigned
+    // only once attach returns. Disposing mid-attach leaves the CDK writing to
+    // a detached host, so let the current task finish first.
+    if (!this.componentRef) {
+      queueMicrotask(() => this.teardown());
+      return;
+    }
+    this.teardown();
+  }
+
+  private teardown(): void {
     this.focusTrap?.destroy();
     this.focusTrap = null;
     const restore = this.previouslyFocused;
