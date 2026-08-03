@@ -31,7 +31,7 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { type Observable, debounceTime, finalize, from, isObservable, of, skip, switchMap, tap } from 'rxjs';
+import { type Observable, debounce, finalize, from, isObservable, of, skip, switchMap, tap, timer } from 'rxjs';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
@@ -443,7 +443,11 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const list = this.registry();
     return arr.map<SelectedChip>(v => {
       const found = list.find(o => o.value === v);
-      return { value: v, label: found?.getLabel() ?? String(v) };
+      // Fall back to `displayWith` (defaults to `String`) rather than `String`
+      // directly: a searchable multi fed from `[options]` has no registered
+      // `<wr-option>` for a virtualized or unmounted row, and object items
+      // would otherwise render as "[object Object]".
+      return { value: v, label: found?.getLabel() ?? this.displayWith()(v) };
     });
   });
 
@@ -715,6 +719,24 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         return;
       }
     }
+    // Space belongs to the text field, not to the listbox. The button trigger
+    // uses it to pick the active option, but here swallowing it would make a
+    // multi-word query ("dump trucks") impossible to type.
+    if (event.key === ' ') return;
+
+    // Backspace on an empty query drops the last chip, matching tag mode. The
+    // button-trigger path only does this while closed, and a chip-search input
+    // keeps the panel open, so it never reaches that branch.
+    if (event.key === 'Backspace' && this.hasChipSearch() && this.searchQuery() === '' && this.hasSelection()) {
+      const chips = this.selectedChips();
+      const last = chips[chips.length - 1];
+      if (last) {
+        event.preventDefault();
+        this.removeChip(last.value, event);
+        return;
+      }
+    }
+
     // Otherwise route through the same keyboard plumbing as the button trigger.
     this.onTriggerKey(event);
   }
@@ -751,8 +773,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     });
 
     // One debounced query stream feeds both the async loader and the public
-    // `search` output, so they fire on exactly the same cadence.
-    const debouncedQuery = toObservable(this.searchQuery).pipe(debounceTime(this.debounceMs()));
+    // `searchChange` output, so they fire on exactly the same cadence.
+    // `debounce(() => timer(...))` rather than `debounceTime(this.debounceMs())`:
+    // this runs in the constructor, where inputs aren't bound yet, so reading
+    // the input eagerly would pin the delay to the default and ignore
+    // `[debounceMs]` forever.
+    const debouncedQuery = toObservable(this.searchQuery).pipe(debounce(() => timer(this.debounceMs())));
 
     // `skip(1)` drops the initial replay of the empty query — mounting a select
     // is not a search.
@@ -906,7 +932,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (this.isDisabled()) return;
     if (this.hasChips()) {
       this.value.set([]);
-    } else if (this.isSearch()) {
+      // `isSearchTrigger()`, not `isSearch()` — a searchable single renders the
+      // same × and would otherwise fall through to the no-op below.
+    } else if (this.isSearchTrigger()) {
       this.value.set(null);
       this.searchQuery.set('');
     } else {
