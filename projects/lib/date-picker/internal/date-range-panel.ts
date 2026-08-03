@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, computed, inject, input, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
@@ -51,29 +51,56 @@ export class WrDateRangePanel {
   protected readonly startTimeLabel = readI18nText('datePicker.startTime', 'Start time');
   protected readonly endTimeLabel = readI18nText('datePicker.endTime', 'End time');
 
+  /**
+   * A time set before its end has a date. The stepper is always live, so the
+   * hours are parked here until a date arrives to carry them — otherwise the
+   * edit would be silently dropped and the pick would land on midnight.
+   */
+  private readonly pendingStartTime = signal<Date | null>(null);
+  private readonly pendingEndTime = signal<Date | null>(null);
+
   /** The calendar's own range model shape — same tuple, narrower name. */
   protected readonly calendarRange = computed<WrCalendarRange>(() => this.value());
 
-  /** Time steppers need a concrete date; fall back to today (00:00) per end. */
-  protected readonly startTime = computed(() => this.value()[0] ?? this.adapter.today());
-  protected readonly endTime = computed(() => this.value()[1] ?? this.adapter.today());
+  /** Time steppers need a concrete date; fall back to a parked time, then today. */
+  protected readonly startTime = computed(() => this.value()[0] ?? this.pendingStartTime() ?? this.adapter.today());
+  protected readonly endTime = computed(() => this.value()[1] ?? this.pendingEndTime() ?? this.adapter.today());
 
   protected onRangeChange(range: WrCalendarRange): void {
     const [start, end] = range;
     const [prevStart, prevEnd] = this.value();
-    // The calendar only moves dates, so carry each end's existing time across.
-    this.changed.emit([this.withTimeOf(start, prevStart), this.withTimeOf(end, prevEnd)]);
+
+    // `WrCalendar.pickRange` restarts the range whenever it has no start, so a
+    // range that was end-only (typed into the end input alone) would lose that
+    // end on the next click. Read the click as filling in the missing start
+    // instead; the picker orders the pair afterwards.
+    const keptEnd = !prevStart && prevEnd && start && !end ? prevEnd : end;
+
+    // The calendar only moves dates, so carry each end's existing time across —
+    // or the time parked by a stepper that ran before this date existed.
+    this.changed.emit([
+      this.withTimeOf(start, prevStart ?? this.pendingStartTime()),
+      this.withTimeOf(keptEnd, prevEnd ?? this.pendingEndTime()),
+    ]);
   }
 
   protected onStartTimeChange(time: Date | null): void {
+    if (!time) return;
     const [start, end] = this.value();
-    if (!time || !start) return;
+    if (!start) {
+      this.pendingStartTime.set(time);
+      return;
+    }
     this.changed.emit([this.withTimeOf(start, time), end]);
   }
 
   protected onEndTimeChange(time: Date | null): void {
+    if (!time) return;
     const [start, end] = this.value();
-    if (!time || !end) return;
+    if (!end) {
+      this.pendingEndTime.set(time);
+      return;
+    }
     this.changed.emit([start, this.withTimeOf(end, time)]);
   }
 

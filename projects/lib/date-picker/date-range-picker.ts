@@ -213,8 +213,10 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   protected onBlur(): void {
     this.touch.emit();
+    // Typing leaves the ends in whatever order they were entered; settle it
+    // here, once the user has stopped.
+    const [start, end] = this.commitRange(this.current(), { normalise: true });
     // Reformat to canonical on blur (cleans up `1/5/25` → `1/5/2025`).
-    const [start, end] = this.current();
     this.startText.set(this.display(start));
     this.endText.set(this.display(end));
   }
@@ -239,12 +241,15 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
     const [start, finish] = this.current();
     if (!raw) {
-      this.commitRange(end === 0 ? [null, finish] : [start, null]);
+      this.commitRange(end === 0 ? [null, finish] : [start, null], { normalise: false });
       return;
     }
     const parsed = this.adapter.parse(raw, this.resolvedFormat());
     if (!parsed || !this.adapter.isValid(parsed) || this.isOutOfBounds(parsed)) return;
-    this.commitRange(end === 0 ? [parsed, finish] : [start, parsed]);
+    // Never reorder mid-keystroke: a half-typed date can parse to an
+    // out-of-order value, and swapping there would yank the text the user is
+    // still typing over to the other input. Ordering is settled on blur.
+    this.commitRange(end === 0 ? [parsed, finish] : [start, parsed], { normalise: false });
   }
 
   // Overlay
@@ -282,7 +287,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.panelRef.set(ref);
 
     ref.instance.changed.subscribe(next => {
-      const committed = this.commitRange(next);
+      const committed = this.commitRange(next, { normalise: true });
       // A complete date-only range is the end of the interaction; a datetime
       // range still needs its hours, so the panel stays put.
       if (!this.isDateTime() && committed[0] && committed[1]) this.closeOverlay();
@@ -324,11 +329,15 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   // Commit
 
   /**
-   * Normalise (swap out-of-order ends), push to the model and refresh the text
-   * of whichever ends changed. Returns what was actually committed.
+   * Push to the model and refresh the text of whichever ends changed. Returns
+   * what was actually committed.
+   *
+   * `normalise` swaps out-of-order ends. The calendar and blur ask for it; a
+   * keystroke does not, because reordering while the user is still typing would
+   * move their in-progress text into the other input.
    */
-  private commitRange(next: WrDateRange): WrDateRange {
-    const normalised = this.normalise(next);
+  private commitRange(next: WrDateRange, options: { normalise: boolean }): WrDateRange {
+    const normalised = options.normalise ? this.normalise(next) : next;
     this.lastValue = normalised;
     this.value.set(normalised);
     // Only rewrite the text of an end whose date moved out from under it —
@@ -361,8 +370,21 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Keep `[start, end]` in chronological order once both ends exist. */
   private normalise(range: WrDateRange): WrDateRange {
     const [start, end] = range;
-    if (start && end && this.adapter.compareDate(start, end) > 0) return [end, start];
+    if (start && end && this.compareEnds(start, end) > 0) return [end, start];
     return [start, end];
+  }
+
+  /**
+   * Chronological comparison at the precision the mode needs. The adapter's
+   * `compareDate` is day-precision by contract, which would leave an inverted
+   * same-day `datetime` range (18:00 → 09:00) unswapped.
+   */
+  private compareEnds(a: Date, b: Date): number {
+    const byDay = this.adapter.compareDate(a, b);
+    if (byDay !== 0 || !this.isDateTime()) return byDay;
+    const clock = (d: Date): number =>
+      this.adapter.getHours(d) * 3600 + this.adapter.getMinutes(d) * 60 + this.adapter.getSeconds(d);
+    return clock(a) - clock(b);
   }
 
   private isOutOfBounds(date: Date): boolean {
