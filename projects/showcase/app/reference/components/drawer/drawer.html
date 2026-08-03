@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Drawer"
-  description="Side panel that slides in from any edge. Two-way binds `open`; renders into a CDK overlay so it sits above page content."
-  [keywords]="['drawer', 'wr-drawer', 'panel', 'overlay']"
-  [labels]="['Component', 'Directives', 'CDK Overlay']"
+  description="Side panel that slides in from any edge. Use the component when the markup lives in your template, or `WrDrawerManager` to open any component as a drawer and read its close result."
+  [keywords]="['drawer', 'wr-drawer', 'panel', 'overlay', 'sheet']"
+  [labels]="['Component', 'Service', 'Directives', 'CDK Overlay']"
 >
   <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
@@ -35,11 +35,41 @@
     </wr-drawer>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Opening a drawer from code"
+    description="`WrDrawerManager.open()` renders any component as a drawer — no `<wr-drawer>` in the template. Reach for it when the caller doesn't own the markup (a toolbar action, an effect, a route guard) or when you need the close result. The content uses the same layout directives and injects `WR_DRAWER_DATA` / `WrDrawerRef`, exactly like a dialog."
+  >
+    <ngwr-doc-code [code]="snippets.service" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.serviceContent" language="angular-ts" />
+
+    <ngwr-doc-snippet code="drawers.open(ChatComponent, { data, position: 'right', width: '24rem' })">
+      <wr-btn color="primary" (click)="openChat()">Open chat drawer</wr-btn>
+      <span style="color: var(--wr-color-medium); font-size: 0.875rem; align-self: center">
+        Last result: {{ lastResult() }}
+      </span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Drawer API">
     <ngwr-doc-api [rows]="drawerApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Service API">
+    <ngwr-doc-api [rows]="serviceApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="WrDrawerOptions"
+    description="Mirrors the component inputs, minus `showHandle` — swipe-to-dismiss needs the component's own wrapper markup."
+  >
+    <ngwr-doc-api [rows]="optionsApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Layout directives">
     <ngwr-doc-api [rows]="directivesApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Available inside a service-opened drawer">
+    <ngwr-doc-api [rows]="injectablesApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

@@ -18,6 +18,15 @@
   height: 100dvh;
 }
 
+// `WrDrawerManager.open()` attaches the content component straight into the
+// overlay pane, so both class sets land on the same element and the panel's
+// `height: 100%` would otherwise win over the rule above.
+.wr-drawer-overlay--left.wr-drawer__panel,
+.wr-drawer-overlay--right.wr-drawer__panel {
+  height: 100vh;
+  height: 100dvh;
+}
+
 .wr-drawer__panel {
   --wr-drawer-bg: var(--wr-color-surface);
   --wr-drawer-shadow: var(--wr-shadow-modal);
