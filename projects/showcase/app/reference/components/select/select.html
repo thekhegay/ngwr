@@ -118,6 +118,46 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Searchable multi-select"
+    description="`[mode]` picks one shape, so `searchable` exists alongside it: on `multi` the trigger keeps its chips and grows an inline text field. Type to filter, Enter to toggle the highlighted option, Backspace on an empty query to drop the last chip. The panel stays open so you can pick several matches without retyping."
+  >
+    <ngwr-doc-snippet [code]="snippets.searchableMulti">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select mode="multi" searchable placeholder="Filter categories" [(ngModel)]="categories">
+          @for (c of allCategories; track c) {
+            <wr-option [value]="c">{{ c }}</wr-option>
+          }
+        </wr-select>
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ categories() | json }}</span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Server-side search"
+    description="`(searchChange)` is the hook when the options live somewhere else: it emits the debounced query, you dispatch, and the results come back through `[options]` with `[loading]` driving the panel's progress row. Add `serverSearch` so the built-in client-side filter stays out of the way — otherwise a ranked or fuzzy match whose label doesn't contain the query would be hidden again. The demo below fakes 700 ms of latency."
+  >
+    <ngwr-doc-code [code]="snippets.serverSearch" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.serverSearchTs" language="typescript" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
+        <wr-select
+          mode="search"
+          serverSearch
+          placeholder="Search a country"
+          [options]="serverResults()"
+          [loading]="serverPending()"
+          [(ngModel)]="serverPicked"
+          (searchChange)="onServerSearch($event)"
+        />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">
+          Picked: <code>{{ serverPicked() ?? '—' }}</code>
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Search mode — virtual scroll"
     description="For large `[options]` arrays, add `virtualScroll` so only ~one viewport of rows stays in the DOM. It engages on the data-array path only (falls back to the full render when static `<wr-option>` children are projected); rows are navigated via `aria-activedescendant` and selected by value. Type to filter, Arrow / Home / End / Enter to pick. The list below holds 5,000 items."
   >
@@ -164,6 +204,10 @@
 
   <ngwr-doc-section title="Select API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Select outputs">
+    <ngwr-doc-api [rows]="outputsApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Option API">

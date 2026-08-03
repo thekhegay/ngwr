@@ -93,6 +93,29 @@ export class MyComponent {}`,
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
+    searchableMulti: `<!-- searchable is orthogonal to mode — this is multi + typeahead. -->
+<wr-select mode="multi" searchable placeholder="Filter categories" [(ngModel)]="categories">
+  @for (c of allCategories; track c) {
+    <wr-option [value]="c">{{ c }}</wr-option>
+  }
+</wr-select>`,
+    serverSearch: `<!-- Options live in the store; (searchChange) is the only wiring. -->
+<wr-select
+  mode="search"
+  serverSearch
+  placeholder="Search a country"
+  [options]="results()"
+  [loading]="pending()"
+  [(ngModel)]="picked"
+  (searchChange)="onSearch($event)"
+/>`,
+    serverSearchTs: `// (searchChange) is debounced by [debounceMs] and fires on every settled
+// change — including '' when the field is cleared, so the store can reset.
+onSearch(query: string): void {
+  this.store.dispatch(searchCountries({ query }));
+}
+
+// results()/pending() are plain store selectors.`,
     virtual: `<!-- 5,000 options via the [options] data array + virtualScroll:
      only ~one viewport of rows is ever in the DOM. -->
 <wr-select
@@ -133,6 +156,41 @@ export class MyComponent {}`,
 
   protected readonly country = signal<string | null>(null);
 
+  protected readonly allCategories = [
+    'Excavators',
+    'Loaders',
+    'Cranes',
+    'Dump trucks',
+    'Graders',
+    'Rollers',
+    'Bulldozers',
+    'Forklifts',
+  ];
+
+  protected readonly categories = signal<readonly string[]>(['Cranes']);
+
+  // Server-side search demo. Stands in for "dispatch an action, read the
+  // results back out of a store" — the (searchChange) output is the only wiring.
+  protected readonly serverResults = signal<readonly string[]>([]);
+  protected readonly serverPending = signal(false);
+  protected readonly serverPicked = signal<string | null>(null);
+  private serverTimer: ReturnType<typeof setTimeout> | null = null;
+
+  protected onServerSearch(query: string): void {
+    if (this.serverTimer) clearTimeout(this.serverTimer);
+    const q = query.trim().toLowerCase();
+    if (!q) {
+      this.serverResults.set([]);
+      this.serverPending.set(false);
+      return;
+    }
+    this.serverPending.set(true);
+    this.serverTimer = setTimeout(() => {
+      this.serverResults.set(this.countries.filter(c => c.toLowerCase().includes(q)));
+      this.serverPending.set(false);
+    }, 700);
+  }
+
   // 5,000-item array for the virtual-scroll demo (search mode, [options] path).
   protected readonly bigOptions = Array.from({ length: 5000 }, (_, i) => `Item ${String(i + 1).padStart(4, '0')}`);
   protected readonly bigPick = signal<string | null>(null);
@@ -159,6 +217,50 @@ export class MyComponent {}`,
       description: '**Deprecated** — alias for `[mode]="multi"`. Use `mode` instead.',
       type: 'boolean',
       default: 'false',
+    },
+    {
+      name: 'searchable',
+      description:
+        'Add a typeahead filter without changing the value shape — the multi-with-search combination. On `multi` the trigger keeps its chips and grows an inline field; on `single` it is the same as `mode="search"`. Ignored in `tag` mode.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'searchQuery',
+      description: 'The live query. Two-way bindable, so it can be owned or reset from outside.',
+      type: 'string',
+      default: "''",
+    },
+    {
+      name: 'options',
+      description: 'Dynamic option array (searchable selects). Each item is labelled by `[displayWith]`.',
+      type: 'readonly unknown[]',
+      default: '[]',
+    },
+    {
+      name: 'loading',
+      description: "Show the panel's progress row. For store-fed options; the async `[loader]` raises its own flag.",
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'serverSearch',
+      description:
+        "`[options]` is already query-scoped upstream — skip the built-in client-side filter so ranked or fuzzy matches aren't hidden again. Implied by `[loader]`.",
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'debounceMs',
+      description: 'Debounce applied to the `(searchChange)` output and the async `[loader]`.',
+      type: 'number',
+      default: '250',
+    },
+    {
+      name: 'minChars',
+      description: 'Minimum query length before the panel opens / the `[loader]` fires.',
+      type: 'number',
+      default: '0',
     },
     {
       name: 'clearable',
@@ -220,6 +322,34 @@ export class MyComponent {}`,
       description: 'Search mode — extra rows kept above/below the viewport.',
       type: 'number',
       default: '6',
+    },
+  ];
+
+  protected readonly outputsApi: readonly DocApiRow[] = [
+    {
+      name: '(searchChange)',
+      description:
+        "Debounced query, for server-side search. Fires on every settled change — including `''` when cleared, so a store can reset. `[minChars]` does not gate it.",
+      type: 'EventEmitter<string>',
+      default: '—',
+    },
+    {
+      name: '(searchQueryChange)',
+      description: 'Raw, undebounced query — the `[(searchQuery)]` half. Prefer `(searchChange)` for server calls.',
+      type: 'EventEmitter<string>',
+      default: '—',
+    },
+    {
+      name: '(valueChange)',
+      description: 'The `[(value)]` half. Bound automatically by `[formField]` / `[(ngModel)]`.',
+      type: 'EventEmitter<unknown>',
+      default: '—',
+    },
+    {
+      name: '(touch)',
+      description: 'Emitted on blur / commit so a bound field marks itself touched.',
+      type: 'EventEmitter<void>',
+      default: '—',
     },
   ];
 
