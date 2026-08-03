@@ -88,6 +88,9 @@ export class WrDialog {
       providers: [
         { provide: WR_DIALOG_DATA, useValue: options.data },
         { provide: WR_DIALOG_REF, useValue: dialogRef },
+        // Provided as its own token as well, so dialog content can reach for
+        // the familiar `inject(WrDialogRef)` and close itself.
+        { provide: WrDialogRef, useValue: dialogRef },
       ],
     });
 

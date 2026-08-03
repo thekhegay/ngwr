@@ -21,6 +21,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Closing from the content"
+    description="`[wrDialogClose]` covers close-on-click. When the dialog has to dismiss itself — after a save resolves, or when a store signal flips — inject its `WrDialogRef` and call `close(result)`."
+  >
+    <ngwr-doc-code [code]="snippets.selfClose" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Responsive (bottom-sheet)"
     description="With `responsive: true` — or app-wide via `provideWrResponsiveOverlays()` — the dialog slides up as a full-width bottom-sheet on small viewports and stays a centred modal on larger ones. Open this on a phone (or narrow the window) to see it dock to the bottom."
   >
@@ -36,5 +43,9 @@
 
   <ngwr-doc-section title="Layout directives">
     <ngwr-doc-api [rows]="directivesApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Available inside the dialog">
+    <ngwr-doc-api [rows]="injectablesApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

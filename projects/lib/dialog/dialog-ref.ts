@@ -14,12 +14,30 @@ import { Subject } from 'rxjs';
 /**
  * Handle returned by `WrDialog.open()`.
  *
- * Wraps the underlying `OverlayRef` and tracks the close result.
+ * Wraps the underlying `OverlayRef` and tracks the close result. It is also
+ * provided inside the dialog's own injector, so the projected content can
+ * inject it and close itself — the counterpart to `[wrDialogClose]` when the
+ * close is programmatic (after a save succeeds, say) rather than a click.
  *
  * @example
  * ```ts
+ * // Caller side.
  * const ref = dialog.open<ConfirmComponent, boolean>(ConfirmComponent);
  * const result = await ref.awaitClose(); // boolean | undefined
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Content side — the dialog closes itself.
+ * @Component({...})
+ * export class ConfirmComponent {
+ *   private readonly ref = inject(WrDialogRef);
+ *
+ *   save(): void {
+ *     this.store.save();
+ *     this.ref.close(true);
+ *   }
+ * }
  * ```
  */
 export class WrDialogRef<C, R = unknown> {
