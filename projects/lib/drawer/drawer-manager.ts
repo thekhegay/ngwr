@@ -9,7 +9,7 @@ import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
-import { EnvironmentInjector, Injector, PLATFORM_ID, Service, inject } from '@angular/core';
+import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterNextRender, inject } from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
@@ -130,10 +130,16 @@ export class WrDrawerManager {
       host.setAttribute('role', 'dialog');
       host.setAttribute('aria-modal', 'true');
       // Wire aria-labelledby to wrDrawerTitle's auto-id once content is in DOM.
-      queueMicrotask(() => {
-        const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
-        if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
-      });
+      // Has to wait for a render, not a microtask: attaching the portal only
+      // schedules change detection, so under zoneless CD a microtask runs while
+      // the content is still an empty view and the title id doesn't exist yet.
+      afterNextRender(
+        () => {
+          const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
+          if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
+        },
+        { injector: this.parentInjector }
+      );
       // Trap focus inside the drawer and move initial focus in.
       const trap = this.focusTrapFactory.create(host);
       drawerRef.focusTrap = trap;

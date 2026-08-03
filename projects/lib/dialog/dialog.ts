@@ -9,7 +9,7 @@ import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
-import { EnvironmentInjector, Service, Injector, PLATFORM_ID, inject } from '@angular/core';
+import { EnvironmentInjector, Service, Injector, PLATFORM_ID, afterNextRender, inject } from '@angular/core';
 
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
 
@@ -102,10 +102,16 @@ export class WrDialog {
       host.setAttribute('role', 'dialog');
       host.setAttribute('aria-modal', 'true');
       // Wire aria-labelledby to wrDialogTitle's auto-id once content is in DOM.
-      queueMicrotask(() => {
-        const titleEl = host.querySelector<HTMLElement>('[wrDialogTitle], [wr-dialog-title]');
-        if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
-      });
+      // Has to wait for a render, not a microtask: attaching the portal only
+      // schedules change detection, so under zoneless CD a microtask runs while
+      // the content is still an empty view and the title id doesn't exist yet.
+      afterNextRender(
+        () => {
+          const titleEl = host.querySelector<HTMLElement>('[wrDialogTitle], [wr-dialog-title]');
+          if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
+        },
+        { injector: this.parentInjector }
+      );
       // Trap focus inside the dialog and move initial focus in.
       const trap = this.focusTrapFactory.create(host);
       dialogRef.focusTrap = trap;
