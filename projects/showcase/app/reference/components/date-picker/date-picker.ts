@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrDatePicker } from 'ngwr/date-picker';
+import { type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
 
 import {
   DocApiComponent,
@@ -18,6 +18,7 @@ import {
   imports: [
     FormsModule,
     WrDatePicker,
+    WrDateRangePicker,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -36,6 +37,9 @@ export default class DatePickerPageComponent {
 
   protected readonly datetime = signal<Date | null>(null);
   protected readonly datetimeSeconds = signal<Date | null>(null);
+
+  protected readonly period = signal<WrDateRange | null>(null);
+  protected readonly window = signal<WrDateRange | null>(null);
 
   protected readonly today = new Date();
   protected readonly nextMonth = new Date(this.today.getFullYear(), this.today.getMonth() + 1, this.today.getDate());
@@ -90,6 +94,27 @@ export class MyComponent {
   [step]="5"
   [(ngModel)]="when"
 />`,
+
+    range: `import { type WrDateRange, WrDateRangePicker } from 'ngwr/date-picker';
+
+@Component({ imports: [WrDateRangePicker, FormsModule] })
+export class MyComponent {
+  protected readonly period = signal<WrDateRange | null>(null);
+}`,
+
+    rangeTemplate: `<wr-date-range-picker
+  [(ngModel)]="period"
+  startPlaceholder="From"
+  endPlaceholder="To"
+/>`,
+
+    rangeDateTime: `<!-- One time stepper per end; picking dates keeps the overlay open. -->
+<wr-date-range-picker
+  mode="datetime"
+  timeFormat="24h"
+  format="dd.MM.yyyy HH:mm"
+  [(ngModel)]="window"
+/>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -143,6 +168,71 @@ export class MyComponent {
     {
       name: 'readonly',
       description: 'Input is not typeable; trigger icon still opens the overlay.',
+      type: 'boolean',
+      default: 'false',
+    },
+  ];
+
+  protected readonly rangeApi: readonly DocApiRow[] = [
+    {
+      name: 'value',
+      description:
+        'The picked range as `[start, end]`. Either end may be `null` while half-picked; out-of-order ends are swapped on commit.',
+      type: 'WrDateRange | null',
+      default: 'null',
+    },
+    {
+      name: 'mode',
+      description: '`date` (default) renders a range calendar; `datetime` adds a time stepper per end.',
+      type: "'date' | 'datetime'",
+      default: "'date'",
+    },
+    {
+      name: 'format',
+      description:
+        'Display + parse format for both ends. When omitted, derived from `mode` (`shortDate` / `shortDateTime`).',
+      type: 'string | null',
+      default: 'null',
+    },
+    { name: 'startPlaceholder', description: 'Placeholder for the start input.', type: 'string', default: "''" },
+    { name: 'endPlaceholder', description: 'Placeholder for the end input.', type: 'string', default: "''" },
+    { name: 'separator', description: 'Glyph rendered between the two inputs.', type: 'string', default: "'–'" },
+    {
+      name: 'minDate',
+      description:
+        'Earliest selectable date, both ends. Named `minDate` because signal forms reserve `min` for the value type — here a range.',
+      type: 'Date | null',
+      default: 'null',
+    },
+    {
+      name: 'maxDate',
+      description: 'Latest selectable date, both ends.',
+      type: 'Date | null',
+      default: 'null',
+    },
+    {
+      name: 'dateFilter',
+      description: 'Predicate disabling individual dates.',
+      type: '(date: Date) => boolean',
+      default: 'null',
+    },
+    {
+      name: 'timeFormat',
+      description: 'Time-panel 12 / 24-hour format. Applies in `datetime` mode.',
+      type: "'auto' | '12h' | '24h'",
+      default: "'auto'",
+    },
+    {
+      name: 'showSeconds',
+      description: 'Render the seconds column on both time panels.',
+      type: 'boolean',
+      default: 'false',
+    },
+    { name: 'step', description: 'Minute / second step for the time panels.', type: 'number', default: '1' },
+    { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
+    {
+      name: 'readonly',
+      description: 'Inputs are not typeable; trigger icon still opens the overlay.',
       type: 'boolean',
       default: 'false',
     },

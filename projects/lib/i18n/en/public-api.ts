@@ -132,6 +132,11 @@ export const wrEn: WrI18nCatalog = {
     open: 'Open calendar',
     openTime: 'Open time picker',
     openDateTime: 'Open date and time picker',
+    openRange: 'Open range calendar',
+    rangeStart: 'Range start',
+    rangeEnd: 'Range end',
+    startTime: 'Start time',
+    endTime: 'End time',
   },
   spinner: {
     label: 'Loading',
