@@ -104,7 +104,7 @@ export class MyComponent {
 <!-- Cmd / Ctrl + click toggles individual selections. -->`,
 
     overlaySingle: `<!-- Combobox shape — opens an overlay containing the tree.
-     Form-bound via ControlValueAccessor. Replaces wr-tree-select. -->
+     A signal-forms native control (FormValueControl). Replaces wr-tree-select. -->
 <wr-tree
   openOn="overlay"
   [nodes]="folders"
@@ -152,7 +152,7 @@ export class MyComponent {
     {
       name: 'openOn',
       description:
-        '`inline` (default) renders the tree in place. `overlay` renders a combobox-style trigger that opens a popover containing the tree, with ControlValueAccessor. Replaces the standalone `wr-tree-select`.',
+        '`inline` (default) renders the tree in place. `overlay` renders a combobox-style trigger that opens a popover containing the tree — a signal-forms native control, so `[formField]` binds straight to its `value` model. Replaces the standalone `wr-tree-select`.',
       type: "'inline' | 'overlay'",
       default: "'inline'",
     },

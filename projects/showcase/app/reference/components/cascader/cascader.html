@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Cascader"
-  description="Multi-level select. Drills through hierarchical categories one column at a time; picking a leaf commits the full path. Implements `ControlValueAccessor` — model is `readonly T[]`."
+  description="Multi-level select. Drills through hierarchical categories one column at a time; picking a leaf commits the full path. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model (`readonly T[]`). `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through Angular's bridge."
   [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
   [labels]="['Component']"
 >
