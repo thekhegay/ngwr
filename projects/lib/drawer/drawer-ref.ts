@@ -12,35 +12,35 @@ import type { ComponentRef } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 
 /**
- * Handle returned by `WrDialog.open()`.
+ * Handle returned by `WrDrawerManager.open()`.
  *
  * Wraps the underlying `OverlayRef` and tracks the close result. It is also
- * provided inside the dialog's own injector, so the projected content can
- * inject it and close itself — the counterpart to `[wrDialogClose]` when the
+ * provided inside the drawer's own injector, so the projected content can
+ * inject it and close itself — the counterpart to `[wrDrawerClose]` when the
  * close is programmatic (after a save succeeds, say) rather than a click.
  *
  * @example
  * ```ts
  * // Caller side.
- * const ref = dialog.open<ConfirmComponent, boolean>(ConfirmComponent);
+ * const ref = drawers.open<ChatComponent, boolean>(ChatComponent, { position: 'right' });
  * const result = await ref.awaitClose(); // boolean | undefined
  * ```
  *
  * @example
  * ```ts
- * // Content side — the dialog closes itself.
+ * // Content side — the drawer closes itself.
  * @Component({...})
- * export class ConfirmComponent {
- *   private readonly ref = inject(WrDialogRef);
+ * export class ChatComponent {
+ *   private readonly ref = inject(WrDrawerRef);
  *
- *   save(): void {
- *     this.store.save();
+ *   send(): void {
+ *     this.store.send(this.draft());
  *     this.ref.close(true);
  *   }
  * }
  * ```
  */
-export class WrDialogRef<C, R = unknown> {
+export class WrDrawerRef<C, R = unknown> {
   /**
    * Emits the close result once and completes.
    *
@@ -62,17 +62,17 @@ export class WrDialogRef<C, R = unknown> {
 
   constructor(private readonly _overlayRef: OverlayRef) {}
 
-  /** The instantiated dialog component. */
+  /** The instantiated drawer component. */
   get componentInstance(): C {
     if (!this.componentRef) {
-      throw new Error('WrDialogRef: component not yet attached');
+      throw new Error('WrDrawerRef: component not yet attached');
     }
     return this.componentRef.instance;
   }
 
   private isClosed = false;
 
-  /** Close the dialog, optionally returning a result. */
+  /** Close the drawer, optionally returning a result. */
   close(result?: R): void {
     if (this.isClosed) return;
     this.isClosed = true;
@@ -104,7 +104,7 @@ export class WrDialogRef<C, R = unknown> {
     }
   }
 
-  /** Resolves with the close result when the dialog is dismissed. */
+  /** Resolves with the close result when the drawer is dismissed. */
   awaitClose(): Promise<R | undefined> {
     return new Promise(resolve => {
       this.closed.subscribe({

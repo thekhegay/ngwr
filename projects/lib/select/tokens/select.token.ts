@@ -42,8 +42,18 @@ export interface WrSelectContext {
    * no filter applied — options treat that as "show me".
    */
   readonly searchQuery: Signal<string>;
-  /** True only when `mode="search"`. Options gate filtering on this. */
+  /** True only when `mode="search"`. */
   readonly isSearch: Signal<boolean>;
+  /**
+   * True when a filter is active — `mode="search"` or `[searchable]`. Options
+   * gate self-hiding on this.
+   */
+  readonly isSearchable: Signal<boolean>;
+  /**
+   * False when the option list is already query-scoped upstream (`[loader]` or
+   * `[serverSearch]`), in which case options must NOT self-hide.
+   */
+  readonly clientFilter: Signal<boolean>;
   /** Is the given option value currently selected? Handles both single and multi. */
   isSelected(value: unknown): boolean;
   /**

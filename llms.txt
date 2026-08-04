@@ -74,10 +74,13 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 ## Common components (selector — import)
 
 - **Form** — `wr-btn` (ngwr/button), `wrInput` (ngwr/input), `wr-select`
-  (ngwr/select; modes single/multi/search/tag), `wr-checkbox` (form state is
-  `[(checked)]`; inside `<wr-checkbox-group>` the identity input is
-  `checkboxValue`, NOT `value`), `wr-switch`, `wr-slider`, `wr-input-number`,
-  `wr-input-otp`, `wr-date-picker` (date/time/datetime), `wr-file-upload`,
+  (ngwr/select; modes single/multi/search/tag, plus `searchable` for a
+  multi-with-typeahead and `(searchChange)` for server-side search),
+  `wr-checkbox` (form state is `[(checked)]`; inside `<wr-checkbox-group>` the
+  identity input is `checkboxValue`, NOT `value`), `wr-switch`, `wr-slider`,
+  `wr-input-number`, `wr-input-otp`, `wr-date-picker` (date/time/datetime) and
+  `wr-date-range-picker` (both in ngwr/date-picker; the range value is
+  `[start, end]`, hence a separate component), `wr-file-upload`,
   `wr-form-field`, `wr-color-picker`.
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, summary rows, CSV export, virtualized body),
@@ -89,9 +92,12 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-toolbar`, `wr-descriptions`, `wr-statistic`, `wr-lightbox`,
   `wr-pull-to-refresh`.
 - **Navigation** — `wr-tabs`, `wr-stepper`, `wr-breadcrumbs`, `wr-dropdown-menu`.
-- **Overlays** — `wr-drawer`, `wr-action-sheet`, `[wrPopover]` (directive; has a
+- **Overlays** — `wr-drawer` (or `WrDrawerManager.open()` to open a component as
+  a drawer from code), `wr-action-sheet`, `[wrPopover]` (directive; has a
   `tooltip` mode), `wr-command-palette`, `wr-context-menu`, `wr-popconfirm`.
-  (Dialog and toast are service-opened — inject `WrDialog` / `WrToast`.)
+  (Dialog and toast are service-opened — inject `WrDialog` / `WrToast`.
+  Content inside a service-opened dialog or drawer can `inject(WrDialogRef)` /
+  `inject(WrDrawerRef)` to close itself.)
 
 ## Patterns
 

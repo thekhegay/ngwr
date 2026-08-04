@@ -18,6 +18,29 @@
   height: 100dvh;
 }
 
+// `WrDrawerManager.open()` attaches the content component straight into the
+// overlay pane, so both class sets land on the same element and the panel's
+// `height: 100%` would otherwise win over the rule above.
+.wr-drawer-overlay--left.wr-drawer__panel,
+.wr-drawer-overlay--right.wr-drawer__panel {
+  height: 100vh;
+  height: 100dvh;
+}
+
+// …and that same flattening puts the content component's own host element
+// between the panel and the title / content / footer slots, so the panel's
+// column layout stops one level short: the footer wouldn't pin to the bottom
+// and the body wouldn't scroll. Pass the layout through the interposed host.
+.wr-drawer-overlay.wr-drawer__panel > * {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  // Let `wr-drawer__content`'s `overflow: auto` actually clip: a flex item
+  // defaults to `min-height: auto`, which refuses to shrink below its content.
+  min-height: 0;
+}
+
 .wr-drawer__panel {
   --wr-drawer-bg: var(--wr-color-surface);
   --wr-drawer-shadow: var(--wr-shadow-modal);

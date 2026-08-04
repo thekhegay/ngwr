@@ -66,14 +66,14 @@ export class WrOption {
   protected readonly active = computed(() => this.parent?.activeOptionId() === this.id);
 
   /**
-   * @internal — search mode only. True when the parent has a query that
+   * @internal — searchable selects only. True when the parent has a query that
    * the option's text content does not match (case-insensitive substring).
    * Hidden options stay in the DOM so registration order survives but
    * collapse via CSS.
    */
   protected readonly hidden = computed(() => {
     const parent = this.parent;
-    if (!parent?.isSearch()) return false;
+    if (!parent?.isSearchable() || !parent.clientFilter()) return false;
     const q = parent.searchQuery().trim().toLowerCase();
     if (!q) return false;
     const label = (this.host.nativeElement.textContent ?? '').trim().toLowerCase();

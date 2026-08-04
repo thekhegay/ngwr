@@ -1,0 +1,35 @@
+<wr-calendar
+  mode="range"
+  [range]="calendarRange()"
+  [min]="min()"
+  [max]="max()"
+  [dateFilter]="dateFilter()"
+  (rangeChange)="onRangeChange($event)"
+/>
+
+@if (withTime()) {
+  <div class="wr-date-range-panel__times">
+    <!-- A time picker is several inputs, not one control, so each end is a
+         labelled group rather than a <label>. -->
+    <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="startTimeLabel">
+      <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ startTimeLabel }}</span>
+      <wr-time-picker
+        [ngModel]="startTime()"
+        [format]="timeFormat()"
+        [showSeconds]="showSeconds()"
+        [step]="step()"
+        (ngModelChange)="onStartTimeChange($event)"
+      />
+    </div>
+    <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="endTimeLabel">
+      <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ endTimeLabel }}</span>
+      <wr-time-picker
+        [ngModel]="endTime()"
+        [format]="timeFormat()"
+        [showSeconds]="showSeconds()"
+        [step]="step()"
+        (ngModelChange)="onEndTimeChange($event)"
+      />
+    </div>
+  </div>
+}

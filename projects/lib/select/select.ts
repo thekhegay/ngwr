@@ -31,7 +31,7 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { type Observable, debounceTime, finalize, from, isObservable, of, switchMap } from 'rxjs';
+import { type Observable, debounce, finalize, from, isObservable, of, skip, switchMap, tap, timer } from 'rxjs';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
@@ -61,6 +61,11 @@ interface SelectedChip {
  * - `'tag'` — free-text + chips with `[separators]` / `[validate]` /
  *   `[allowDuplicates]`. Replaces `<wr-chips-input>`.
  *
+ * `[searchable]` is orthogonal to the mode — it adds the type-ahead filter to
+ * `single` / `multi` without changing the value shape, which is how you get a
+ * searchable multi-select. Server-side search hangs off the `(searchChange)` output
+ * plus `[options]` / `[loading]`.
+ *
  * A signal-forms native control: it implements `FormValueControl<unknown>`, so
  * `[formField]` binds straight to its `value` model — no
  * `ControlValueAccessor` in between. `[(value)]` works standalone, and classic
@@ -80,6 +85,16 @@ interface SelectedChip {
  *   <wr-option value="ts">TypeScript</wr-option>
  *   <wr-option value="ng">Angular</wr-option>
  * </wr-select>
+ *
+ * <!-- Multi + type-ahead, options from a store -->
+ * <wr-select
+ *   mode="multi"
+ *   searchable
+ *   [options]="results()"
+ *   [loading]="pending()"
+ *   [(value)]="categories"
+ *   (searchChange)="store.search($event)"
+ * />
  * ```
  *
  * The legacy `[multi]="true"` boolean is still accepted but is now an
@@ -162,6 +177,35 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Convenience — `effectiveMode() === 'search'`. Exposed via context for options. */
   readonly isSearch = computed(() => this.effectiveMode() === 'search');
 
+  /**
+   * Add a type-ahead filter without changing the value shape — the missing
+   * multi-with-search combination, since `[mode]` picks exactly one shape:
+   *
+   * ```html
+   * <wr-select mode="multi" searchable [(value)]="categories">…</wr-select>
+   * ```
+   *
+   * On `multi` the trigger keeps its chips and grows an inline text field (the
+   * shape `tag` mode already uses); on `single` it is equivalent to
+   * `mode="search"`. Every search input (`[options]`, `[loader]`,
+   * `[debounceMs]`, `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …)
+   * applies either way. Ignored in `tag` mode, which owns its own input.
+   * @default false
+   */
+  readonly searchable = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Filtering is active — either `mode="search"` or `[searchable]`. Exposed via
+   * context so each `<wr-option>` can self-hide non-matching rows.
+   */
+  readonly isSearchable = computed(() => this.isSearch() || (this.searchable() && !this.isTag()));
+
+  /** The trigger *is* the search input: `mode="search"`, or a searchable single. */
+  protected readonly isSearchTrigger = computed(() => this.isSearch() || (this.searchable() && !this.hasChips()));
+
+  /** Chips plus an inline search field — a searchable multi-select. */
+  protected readonly hasChipSearch = computed(() => this.searchable() && this.isMulti());
+
   /** WrSelectContext — resolved multi-selection flag for child options. */
   readonly multi = computed(() => this.effectiveMode() === 'multi' || this.effectiveMode() === 'tag');
 
@@ -172,10 +216,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   });
 
   /**
-   * Search-mode query. Empty string = no filter. Exposed via context so
+   * The live search query. Empty string = no filter. Exposed via context so
    * each `<wr-option>` can self-hide non-matching rows.
+   *
+   * Two-way bindable, so the query can be owned or reset from outside:
+   * `[(searchQuery)]="query"`. For server-side search prefer the debounced
+   * {@link searchChange} output — `searchQueryChange` fires on every keystroke.
    */
-  readonly searchQuery = signal('');
+  readonly searchQuery = model('');
 
   // Search-mode-only inputs (ignored in other modes)
 
@@ -196,6 +244,23 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * Observables, Promises, and plain arrays.
    */
   readonly loader = input<WrSelectSearchLoader<unknown> | null>(null);
+
+  /**
+   * The option list is already scoped to the query upstream — skip the built-in
+   * client-side label filter. Set it when `[options]` is fed from a server via
+   * the {@link searchChange} output; the async `[loader]` path implies it.
+   *
+   * Without this, a server that ranks or fuzzy-matches (returning rows whose
+   * labels don't literally contain the query) would have those rows hidden
+   * again on the client. @default false
+   */
+  readonly serverSearch = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Whether the built-in label filter runs. Exposed via context so each
+   * `<wr-option>` knows whether to self-hide. @internal
+   */
+  readonly clientFilter = computed(() => !this.loader() && !this.serverSearch());
 
   /** Search mode: debounce (ms) applied to the loader. @default 250 */
   readonly debounceMs = input(250, { transform: (v: unknown): number => Math.max(0, Number(v) || 0) });
@@ -244,11 +309,46 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly resolvedNoResults = useI18nText(this.noResultsText, 'select.noResults', 'No results');
   protected readonly resolvedLoading = useI18nText(this.loadingText, 'select.loading', 'Loading…');
 
+  /**
+   * Debounced search query, gated to searchable selects. Emits on every settled
+   * change — including the empty string when the field is cleared — so a
+   * store-backed option list can stay in sync and reset itself. `[debounceMs]`
+   * controls the delay; `[minChars]` does NOT gate it, for the same reason the
+   * `[loader]` path clears its results below that threshold.
+   *
+   * This is the hook for server-side search: dispatch on `(searchChange)`, feed
+   * the results back through `[options]` (plus `[serverSearch]`), and drive the
+   * panel's progress row with `[loading]`. Prefer it over the model's raw
+   * `(searchQueryChange)`, which fires on every keystroke.
+   *
+   * @example
+   * ```html
+   * <wr-select
+   *   mode="search"
+   *   serverSearch
+   *   [options]="results()"
+   *   [loading]="pending()"
+   *   (searchChange)="store.search($event)"
+   * />
+   * ```
+   */
+  readonly searchChange = output<string>();
+
+  /**
+   * Show the panel's progress row. Independent of `[loader]`, which raises and
+   * lowers its own flag — use this when the options come from a store fed by
+   * the {@link searchChange} output. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
   /** Search mode: results returned by the async loader. @internal */
   protected readonly loadedOptions = signal<readonly unknown[]>([]);
 
-  /** Search mode: true while the loader is in flight. @internal */
-  protected readonly loading = signal(false);
+  /** True while the async `[loader]` is in flight. @internal */
+  private readonly loaderLoading = signal(false);
+
+  /** Either flag shows the panel's progress row. @internal */
+  protected readonly isLoading = computed(() => this.loading() || this.loaderLoading());
 
   // Tag-mode-only inputs (ignored in other modes)
 
@@ -343,7 +443,11 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const list = this.registry();
     return arr.map<SelectedChip>(v => {
       const found = list.find(o => o.value === v);
-      return { value: v, label: found?.getLabel() ?? String(v) };
+      // Fall back to `displayWith` (defaults to `String`) rather than `String`
+      // directly: a searchable multi fed from `[options]` has no registered
+      // `<wr-option>` for a virtualized or unmounted row, and object items
+      // would otherwise render as "[object Object]".
+      return { value: v, label: found?.getLabel() ?? this.displayWith()(v) };
     });
   });
 
@@ -375,7 +479,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (size !== 'md') parts.push(`wr-select--${size}`);
     if (this.isMulti()) parts.push('wr-select--multi');
     if (this.isTag()) parts.push('wr-select--tag');
-    if (this.isSearch()) parts.push('wr-select--search');
+    if (this.isSearchTrigger()) parts.push('wr-select--search');
+    if (this.hasChipSearch()) parts.push('wr-select--searchable');
     if (this.isDisabled()) parts.push('wr-select--disabled');
     return parts.join(' ');
   });
@@ -401,11 +506,11 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * `dynamicOptions()` narrowed to the current search query. `dynamicOptions()`
    * is intentionally UNFILTERED (projected `<wr-option>` self-hide via CSS), so
    * the virtual path — which renders plain rows that can't self-hide — filters
-   * here. Loader results are already query-scoped upstream.
+   * here. Loader / `serverSearch` results are already query-scoped upstream.
    */
   protected readonly filteredDynamicOptions = computed<readonly unknown[]>(() => {
     const items = this.dynamicOptions();
-    if (this.loader()) return items;
+    if (!this.clientFilter()) return items;
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return items;
     const label = this.displayWith();
@@ -420,7 +525,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly virtualActive = computed<boolean>(
     () =>
       this.virtualScroll() &&
-      this.isSearch() &&
+      this.isSearchable() &&
       this.projectedOptions().length === 0 &&
       this.filteredDynamicOptions().length > 0
   );
@@ -501,7 +606,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly visibleCount = computed(() => {
     if (this.virtualActive()) return this.filteredDynamicOptions().length;
     const list = this.registry();
-    if (!this.isSearch()) return list.length;
+    if (!this.isSearchable() || !this.clientFilter()) return list.length;
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return list.length;
     let count = 0;
@@ -513,14 +618,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /** Search mode: show "no results" when the panel has nothing to offer. */
   protected readonly hasNoResults = computed(() => {
-    if (!this.isSearch() || !this.open() || this.loading()) return false;
+    if (!this.isSearchable() || !this.open() || this.isLoading()) return false;
     if (this.searchQuery().trim().length < this.minChars()) return false;
     return this.visibleCount() === 0;
   });
 
   /** Search mode: is this option hidden by the current query? @internal */
   private isOptionHidden(label: string): boolean {
-    if (!this.isSearch()) return false;
+    if (!this.isSearchable() || !this.clientFilter()) return false;
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return false;
     return !label.toLowerCase().includes(q);
@@ -528,7 +633,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   protected readonly panelTpl = viewChild.required('panelTpl', { read: TemplateRef });
 
-  /** Tag-mode inline input. Present only when `mode="tag"`. @internal */
+  /** The inline input inside a chip trigger — tag mode or a searchable multi. @internal */
   protected readonly tagInputEl = viewChild<ElementRef<HTMLInputElement>>('tagInput');
 
   /** Search-mode inline input. Present only when `mode="search"`. @internal */
@@ -542,6 +647,35 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     this.searchInputEl()?.nativeElement.focus();
   }
 
+  // Chip-trigger input dispatch. One inline input, two owners: tag mode
+  // commits a draft into chips, a searchable multi filters the panel.
+
+  protected onChipsInput(event: Event): void {
+    if (this.hasChipSearch()) this.onSearchInput(event);
+    else this.onTagInput(event);
+  }
+
+  protected onChipsKeydown(event: KeyboardEvent): void {
+    if (this.hasChipSearch()) this.onSearchKey(event);
+    else this.onTagKeydown(event);
+  }
+
+  protected onChipsFocus(): void {
+    // Tag mode has no panel to open.
+    if (this.hasChipSearch()) this.onSearchFocus();
+  }
+
+  protected onChipsPaste(event: ClipboardEvent): void {
+    // Splitting a paste into chips is tag-mode behaviour; a search query is
+    // pasted as-is.
+    if (!this.hasChipSearch()) this.onTagPaste(event);
+  }
+
+  protected onChipsBlur(): void {
+    if (this.hasChipSearch()) this.touch.emit();
+    else this.onTagBlur();
+  }
+
   // Search-mode handlers
 
   protected onSearchInput(event: Event): void {
@@ -549,11 +683,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
     if (!this.open()) this.open.set(true);
-    // A new filter re-tops the virtual window and cursor (the filtered array
-    // — hence every index — just changed under `activeIndex`).
+    // A new filter invalidates every index, so re-seed the cursor onto the first
+    // option that still matches. This must happen on BOTH paths: on the
+    // projected-`<wr-option>` path the registry keeps filtered-out options (they
+    // only self-hide via CSS), so a stale `activeIndex` would leave the cursor on
+    // a row the user can no longer see — and Enter would select it.
+    this.activeIndex.set(this.firstEnabled());
     if (this.virtualActive()) {
       this.scrollTop.set(0);
-      this.activeIndex.set(this.firstEnabled());
       this.vlistElement?.scrollTo({ top: 0 });
     }
   }
@@ -585,6 +722,24 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         return;
       }
     }
+    // Space belongs to the text field, not to the listbox. The button trigger
+    // uses it to pick the active option, but here swallowing it would make a
+    // multi-word query ("dump trucks") impossible to type.
+    if (event.key === ' ') return;
+
+    // Backspace on an empty query drops the last chip, matching tag mode. The
+    // button-trigger path only does this while closed, and a chip-search input
+    // keeps the panel open, so it never reaches that branch.
+    if (event.key === 'Backspace' && this.hasChipSearch() && this.searchQuery() === '' && this.hasSelection()) {
+      const chips = this.selectedChips();
+      const last = chips[chips.length - 1];
+      if (last) {
+        event.preventDefault();
+        this.removeChip(last.value, event);
+        return;
+      }
+    }
+
     // Otherwise route through the same keyboard plumbing as the button trigger.
     this.onTriggerKey(event);
   }
@@ -616,25 +771,51 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         this.closeOverlay();
         // Reset the search query when the panel closes so a re-open
         // doesn't carry a stale filter.
-        if (this.isSearch()) this.searchQuery.set('');
+        if (this.isSearchable()) this.searchQuery.set('');
       }
     });
 
-    // Async loader pipeline (search mode only). `switchMap` cancels
+    // One debounced query stream feeds both the async loader and the public
+    // `searchChange` output, so they fire on exactly the same cadence.
+    // `debounce(() => timer(...))` rather than `debounceTime(this.debounceMs())`:
+    // this runs in the constructor, where inputs aren't bound yet, so reading
+    // the input eagerly would pin the delay to the default and ignore
+    // `[debounceMs]` forever.
+    // `skip(1)` sits BEFORE the debounce so it drops the mount-time replay of the
+    // empty query and nothing else. Downstream of `debounce` it would instead
+    // drop the first *settled* emission — and when a fast typist's first
+    // keystrokes coalesce with that initial `''`, the dropped emission is their
+    // query, not the replay.
+    const debouncedQuery = toObservable(this.searchQuery).pipe(
+      skip(1),
+      debounce(() => timer(this.debounceMs()))
+    );
+
+    debouncedQuery.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(query => {
+      if (this.isSearchable()) this.searchChange.emit(query);
+    });
+
+    // Async loader pipeline (searchable selects only). `switchMap` cancels
     // in-flight requests when a new keystroke arrives.
-    toObservable(this.searchQuery)
+    debouncedQuery
       .pipe(
-        debounceTime(this.debounceMs()),
         switchMap(query => {
           const loader = this.loader();
-          if (!loader || !this.isSearch() || query.length < this.minChars()) {
-            this.loading.set(false);
+          if (!loader || !this.isSearchable() || query.length < this.minChars()) {
+            this.loaderLoading.set(false);
             return of<readonly unknown[]>([]);
           }
-          this.loading.set(true);
+          this.loaderLoading.set(true);
           const result = loader(query);
           const source: Observable<readonly unknown[]> = isObservable(result) ? result : from(Promise.resolve(result));
-          return source.pipe(finalize(() => this.loading.set(false)));
+          // A loader can hand back a long-lived observable (a store selector,
+          // say) that emits and never completes — so the first value lowers the
+          // flag. `finalize` still covers completion, errors and cancellation,
+          // including a loader that completes without emitting.
+          return source.pipe(
+            tap(() => this.loaderLoading.set(false)),
+            finalize(() => this.loaderLoading.set(false))
+          );
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -658,7 +839,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       // Search mode: a value picked from a virtualized (or since-unmounted) row
       // has no registered `<wr-option>`, so derive its label from `displayWith`
       // — the same function that rendered the row.
-      this.selectedLabel.set(v != null && this.isSearch() ? this.displayWith()(v) : null);
+      this.selectedLabel.set(v != null && this.isSearchable() ? this.displayWith()(v) : null);
     });
 
     // Wire the virtual scroll listener + viewport/row measurement while the panel
@@ -760,7 +941,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (this.isDisabled()) return;
     if (this.hasChips()) {
       this.value.set([]);
-    } else if (this.isSearch()) {
+      // `isSearchTrigger()`, not `isSearch()` — a searchable single renders the
+      // same × and would otherwise fall through to the no-op below.
+    } else if (this.isSearchTrigger()) {
       this.value.set(null);
       this.searchQuery.set('');
     } else {
@@ -863,8 +1046,15 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         return;
       }
       // Multi mode: Backspace on closed trigger removes last chip. Tag
-      // mode has its own input handler — never reaches this branch.
-      if (event.key === 'Backspace' && this.isMulti() && this.hasSelection()) {
+      // mode has its own input handler — never reaches this branch. A
+      // searchable multi does, so only claim Backspace once its query is empty
+      // — otherwise it would eat a chip and a character at once.
+      if (
+        event.key === 'Backspace' &&
+        this.isMulti() &&
+        this.hasSelection() &&
+        (!this.hasChipSearch() || this.searchQuery() === '')
+      ) {
         event.preventDefault();
         const chips = this.selectedChips();
         const last = chips[chips.length - 1];
@@ -904,7 +1094,10 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
           break;
         }
         const list = this.registry();
-        if (idx >= 0 && idx < list.length && !list[idx].disabled) {
+        // Filtered-out options stay registered (they only self-hide via CSS), so
+        // the hidden check is load-bearing: without it Enter can commit a row
+        // that is not on screen.
+        if (idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel())) {
           const id = list[idx].id;
           const el = this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
           el?.click();

@@ -83,7 +83,49 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Date range"
+    description="`<wr-date-range-picker>` is its own component rather than another `[mode]`, because a range value is `[start, end]` — folding that into the single picker's `Date | null` would break `[formField]` inference everywhere it is already used. Everything else matches: same input skeleton, same overlay, same adapter formats. Two inputs share one range calendar; each end is independently typeable, and picking the second date closes the overlay."
+  >
+    <ngwr-doc-code [code]="snippets.range" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.rangeTemplate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-date-range-picker [(ngModel)]="period" startPlaceholder="From" endPlaceholder="To" />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">
+          Value: {{ period()?.[0]?.toLocaleDateString() ?? '—' }} → {{ period()?.[1]?.toLocaleDateString() ?? '—' }}
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Date range + time"
+    description='`mode="datetime"` adds one time stepper per end below the calendar. Picking dates does NOT close the overlay, and moving a date keeps the hours already set on that end.'
+  >
+    <ngwr-doc-code [code]="snippets.rangeDateTime" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-date-range-picker
+          mode="datetime"
+          timeFormat="24h"
+          format="dd.MM.yyyy HH:mm"
+          [(ngModel)]="window"
+          startPlaceholder="From"
+          endPlaceholder="To"
+        />
+        <span style="color: var(--wr-color-medium); font-size: 0.875rem">
+          Value: {{ window()?.[0]?.toLocaleString() ?? '—' }} → {{ window()?.[1]?.toLocaleString() ?? '—' }}
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Range picker API">
+    <ngwr-doc-api [rows]="rangeApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

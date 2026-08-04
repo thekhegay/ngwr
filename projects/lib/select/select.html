@@ -1,6 +1,7 @@
-@if (isSearch()) {
-  <!-- Search mode: a real text input drives a filtered overlay panel.
-       The wrapper isn't itself focusable — the input is the tabstop. -->
+@if (isSearchTrigger()) {
+  <!-- Search mode (or a searchable single): a real text input drives a filtered
+       overlay panel. The wrapper isn't itself focusable — the input is the
+       tabstop. -->
   <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
   <div class="wr-select__trigger wr-select__trigger--search" (click)="focusSearchInput()">
     <input
@@ -62,11 +63,13 @@
       <path d="m6 9 6 6 6-6" />
     </svg>
   </div>
-} @else if (isTag()) {
-  <!-- Tag mode: a focusable input lives inside, so the wrapper itself
-       only exists to host chips and forward whitespace clicks to the
-       input. Keyboard users tab straight into the input — no need for a
-       separate role. The click handler is a mouse-only convenience. -->
+} @else if (isTag() || hasChipSearch()) {
+  <!-- Chip trigger — tag mode, or a searchable multi. A focusable input lives
+       inside, so the wrapper itself only exists to host chips and forward
+       whitespace clicks to the input. Tag mode needs no role (users tab
+       straight into the input); the searchable multi is a real combobox, so it
+       carries the listbox wiring. The click handler is a mouse-only
+       convenience. -->
   <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
   <div
     class="wr-select__trigger wr-select__trigger--tag"
@@ -110,13 +113,21 @@
         #tagInput
         type="text"
         class="wr-select__tag-input"
-        [value]="draft()"
-        [disabled]="isDisabled() || atCapacity()"
+        autocomplete="off"
+        spellcheck="false"
+        [value]="hasChipSearch() ? searchQuery() : draft()"
+        [disabled]="isDisabled() || (isTag() && atCapacity())"
         [placeholder]="hasSelection() ? '' : resolvedPlaceholder()"
-        (input)="onTagInput($event)"
-        (keydown)="onTagKeydown($event)"
-        (paste)="onTagPaste($event)"
-        (blur)="onTagBlur()"
+        [attr.role]="hasChipSearch() ? 'combobox' : null"
+        [attr.aria-haspopup]="hasChipSearch() ? 'listbox' : null"
+        [attr.aria-expanded]="hasChipSearch() ? open() : null"
+        [attr.aria-controls]="hasChipSearch() ? listboxId : null"
+        [attr.aria-activedescendant]="hasChipSearch() && open() ? activeOptionId() || null : null"
+        (input)="onChipsInput($event)"
+        (keydown)="onChipsKeydown($event)"
+        (paste)="onChipsPaste($event)"
+        (focus)="onChipsFocus()"
+        (blur)="onChipsBlur()"
       />
     </span>
 
@@ -262,7 +273,7 @@
     [attr.id]="listboxId"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"
   >
-    @if (loading()) {
+    @if (isLoading()) {
       <div class="wr-select-panel__loading" aria-busy="true">{{ resolvedLoading() }}</div>
     }
 

@@ -27,6 +27,30 @@
   }
 }
 
+.wr-date-range-picker {
+  display: inline-block;
+
+  // Each end shares the group's width so the pair reads as one control.
+  &__input {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  &__separator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.25rem;
+    color: var(--wr-color-on-surface-muted);
+    user-select: none;
+  }
+
+  &--disabled {
+    .wr-date-range-picker__separator {
+      opacity: 0.5;
+    }
+  }
+}
+
 // Overlay pane — z-index isolation only. <wr-calendar> + the time panel
 // bring their own chrome.
 .wr-date-picker-overlay {
@@ -199,5 +223,43 @@
     border: 1px solid var(--wr-color-outline);
     border-top: 0;
     border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
+  }
+}
+
+// Range calendar + one time stepper per end, joined to the calendar the same
+// way the single datetime panel is.
+.wr-date-range-panel {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0;
+
+  > .wr-calendar {
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  &__times {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 1.25rem;
+    padding: 0.75rem;
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
+    border-top: 0;
+    border-radius: 0 0 var(--wr-border-radius-base) var(--wr-border-radius-base);
+  }
+
+  &__time {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__time-label {
+    color: var(--wr-color-on-surface-muted);
+    font-size: var(--wr-text-xs);
+    font-weight: 600;
   }
 }

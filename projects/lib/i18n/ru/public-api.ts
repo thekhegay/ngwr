@@ -120,6 +120,11 @@ export const wrRu: WrI18nCatalog = {
     open: 'Открыть календарь',
     openTime: 'Открыть выбор времени',
     openDateTime: 'Открыть выбор даты и времени',
+    openRange: 'Открыть календарь периода',
+    rangeStart: 'Начало периода',
+    rangeEnd: 'Конец периода',
+    startTime: 'Время начала',
+    endTime: 'Время окончания',
   },
   spinner: {
     label: 'Загрузка',

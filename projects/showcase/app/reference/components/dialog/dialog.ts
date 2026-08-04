@@ -43,6 +43,22 @@ const ok = await ref.awaitClose(); // result from <wr-btn wrDialogClose value>`,
   <wr-btn wrDialogClose>Cancel</wr-btn>
   <wr-btn color="danger" [wrDialogClose]="true">Delete</wr-btn>
 </div>`,
+    selfClose: `// Inside the opened component — close without a click.
+import { WR_DIALOG_DATA, WrDialogRef } from 'ngwr/dialog';
+
+@Component({...})
+export class EditUserComponent {
+  private readonly ref = inject(WrDialogRef);
+  protected readonly data = inject<EditUserData>(WR_DIALOG_DATA);
+
+  save(): void {
+    this.store.saveUser(this.form.value);
+    this.ref.close(true);            // the caller's awaitClose() resolves
+  }
+}
+
+// The class token already types the generics — no cast, no WR_DIALOG_REF needed:
+private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WR_DIALOG_REF);`,
     responsive: `// Per dialog — slides up as a bottom-sheet on small screens.
 dialog.open(ConfirmComponent, { responsive: true });
 
@@ -56,6 +72,28 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
       name: 'open(component, options?)',
       description: 'Opens a dialog. Returns a WrDialogRef.',
       type: '(component, WrDialogOptions) => WrDialogRef',
+      default: '—',
+    },
+  ];
+
+  protected readonly injectablesApi: readonly DocApiRow[] = [
+    {
+      name: 'WR_DIALOG_DATA',
+      description: "The data payload passed to open(). undefined when you didn't pass any.",
+      type: 'InjectionToken<D>',
+      default: '—',
+    },
+    {
+      name: 'WrDialogRef',
+      description: 'The open dialog’s own ref — call close(result) to dismiss it from the content.',
+      type: 'WrDialogRef<unknown, unknown>',
+      default: '—',
+    },
+    {
+      name: 'WR_DIALOG_REF',
+      description:
+        'The same ref under a second key, used by `[wrDialogClose]`. Prefer `inject(WrDialogRef)` — it already supports `{ optional: true }` and typed generics.',
+      type: 'InjectionToken<WrDialogRef<C, R>>',
       default: '—',
     },
   ];

@@ -1,0 +1,12 @@
+<h2 wrDrawerTitle>{{ data.thread }}</h2>
+<div wrDrawerContent>
+  <p style="margin: 0 0 0.75rem; color: var(--wr-color-medium); font-size: 0.875rem">
+    This panel was opened by `WrDrawerManager.open()`, so no `&lt;wr-drawer&gt;` markup exists in the page. Sending
+    closes the drawer from inside the content via `inject(WrDrawerRef)`.
+  </p>
+  <input wrInput placeholder="Write a message" [value]="draft()" (input)="onDraft($event)" />
+</div>
+<div wrDrawerFooter>
+  <wr-btn wrDrawerClose>Cancel</wr-btn>
+  <wr-btn color="primary" (click)="send()">Send</wr-btn>
+</div>

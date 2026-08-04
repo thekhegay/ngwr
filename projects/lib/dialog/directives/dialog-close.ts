@@ -27,10 +27,15 @@ import { WR_DIALOG_REF } from '../tokens';
 })
 export class WrDialogClose<R = unknown> {
   /**
-   * Value to pass to `close()`. When unset, the dialog closes with
-   * `undefined`.
+   * Value to pass to `close()`. When unset — or used as a bare attribute — the
+   * dialog closes with `undefined`.
    */
-  readonly result = input<R | undefined>(undefined, { alias: 'wrDialogClose' });
+  readonly result = input<R | undefined, R | undefined | ''>(undefined, {
+    alias: 'wrDialogClose',
+    // A bare `wrDialogClose` attribute arrives as the empty string; that means
+    // "no result", not a result of `''`. Matches `wrDrawerClose`.
+    transform: value => (value === '' ? undefined : value),
+  });
 
   private readonly ref = inject<WrDialogRef<unknown, R>>(WR_DIALOG_REF, { optional: true });
 
