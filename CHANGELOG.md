@@ -1,5 +1,15 @@
 # Changelog
 
+## [9.1.0](https://github.com/thekhegay/ngwr/compare/v9.0.1...v9.1.0) (2026-08-04)
+
+### Features
+
+* migration gaps ([#469](https://github.com/thekhegay/ngwr/issues/469)) ([d7cdb98](https://github.com/thekhegay/ngwr/commit/d7cdb98d1ebcbd3718ba719af05f692e21d85814))
+
+### Bug Fixes
+
+* seo canonical and social meta ([#468](https://github.com/thekhegay/ngwr/issues/468)) ([5892c32](https://github.com/thekhegay/ngwr/commit/5892c323cb69a88227a0aaff039c6c2e047a891a))
+
 ## [9.0.1](https://github.com/thekhegay/ngwr/compare/v9.0.0...v9.0.1) (2026-07-31)
 
 ### Bug Fixes
