@@ -1,6 +1,6 @@
 {
   "name": "ngwr",
-  "version": "9.0.1",
+  "version": "9.1.0",
   "license": "MIT",
   "description": "Signals-first Angular UI library: 100+ standalone, zoneless-ready components with native Signal Forms, SSR-safe rendering and CSS-variable theming.",
   "author": "Roman Khegay <rk@garuna.dev> (https://garuna.dev)",
