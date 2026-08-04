@@ -1,5 +1,5 @@
 import { JsonPipe } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrOption, WrOptionGroup, WrSelect } from 'ngwr/select';
@@ -176,6 +176,14 @@ onSearch(query: string): void {
   protected readonly serverPicked = signal<string | null>(null);
   private serverTimer: ReturnType<typeof setTimeout> | null = null;
 
+  constructor() {
+    // The fake request outlives navigation otherwise — it would write to signals
+    // of a destroyed page.
+    inject(DestroyRef).onDestroy(() => {
+      if (this.serverTimer) clearTimeout(this.serverTimer);
+    });
+  }
+
   protected onServerSearch(query: string): void {
     if (this.serverTimer) clearTimeout(this.serverTimer);
     const q = query.trim().toLowerCase();
@@ -258,7 +266,8 @@ onSearch(query: string): void {
     },
     {
       name: 'minChars',
-      description: 'Minimum query length before the panel opens / the `[loader]` fires.',
+      description:
+        'Minimum query length before the `[loader]` fires and before the empty-state shows. Does not gate opening the panel or `(searchChange)`.',
       type: 'number',
       default: '0',
     },

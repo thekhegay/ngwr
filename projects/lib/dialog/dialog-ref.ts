@@ -9,7 +9,7 @@ import type { ConfigurableFocusTrap } from '@angular/cdk/a11y';
 import type { OverlayRef } from '@angular/cdk/overlay';
 import type { ComponentRef } from '@angular/core';
 
-import { Subject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 
 /**
  * Handle returned by `WrDialog.open()`.
@@ -41,8 +41,15 @@ import { Subject } from 'rxjs';
  * ```
  */
 export class WrDialogRef<C, R = unknown> {
-  /** Emits the close result once and completes. */
-  readonly closed = new Subject<R | undefined>();
+  /**
+   * Emits the close result once and completes.
+   *
+   * A `ReplaySubject`, not a plain `Subject`, so the result survives a late
+   * subscriber: content can close itself before `open()` has even returned, and
+   * `awaitClose()` may be called long after the dismissal — both would otherwise
+   * see only `complete` and resolve `undefined`.
+   */
+  readonly closed = new ReplaySubject<R | undefined>(1);
 
   /** @internal */
   componentRef: ComponentRef<C> | null = null;
@@ -88,6 +95,9 @@ export class WrDialogRef<C, R = unknown> {
     const restore = this.previouslyFocused;
     this.previouslyFocused = null;
     this._overlayRef.dispose();
+    // Drop the destroyed component so a retained ref doesn't pin its instance,
+    // host element and view in memory.
+    this.componentRef = null;
     // Restore focus after disposal so the trigger is reachable again.
     if (restore && typeof restore.focus === 'function') {
       restore.focus();

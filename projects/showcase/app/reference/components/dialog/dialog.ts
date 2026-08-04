@@ -57,7 +57,7 @@ export class EditUserComponent {
   }
 }
 
-// Want the result typed without a cast? Inject the token instead:
+// The class token already types the generics — no cast, no WR_DIALOG_REF needed:
 private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WR_DIALOG_REF);`,
     responsive: `// Per dialog — slides up as a bottom-sheet on small screens.
 dialog.open(ConfirmComponent, { responsive: true });
@@ -91,7 +91,8 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
     },
     {
       name: 'WR_DIALOG_REF',
-      description: 'Same ref, as a token — inject it when you want the generics without a cast.',
+      description:
+        'The same ref under a second key, used by `[wrDialogClose]`. Prefer `inject(WrDialogRef)` — it already supports `{ optional: true }` and typed generics.',
       type: 'InjectionToken<WrDialogRef<C, R>>',
       default: '—',
     },

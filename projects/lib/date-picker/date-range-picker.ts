@@ -199,6 +199,21 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       const ref = this.panelRef();
       if (ref) ref.setInput('value', this.value() ?? [null, null]);
     });
+
+    // …and with every other input. Pushing these only at attach time meant a
+    // `[minDate]` (or filter, or time format) that changed while the popover was
+    // open silently kept the stale constraint until the next reopen.
+    effect(() => {
+      const ref = this.panelRef();
+      if (!ref) return;
+      ref.setInput('min', this.minDate());
+      ref.setInput('max', this.maxDate());
+      ref.setInput('dateFilter', this.dateFilter());
+      ref.setInput('withTime', this.isDateTime());
+      ref.setInput('timeFormat', this.timeFormat());
+      ref.setInput('showSeconds', this.showSeconds());
+      ref.setInput('step', this.step());
+    });
   }
 
   // Template handlers
@@ -211,8 +226,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.onRangeInput(event, 1);
   }
 
-  protected onBlur(): void {
-    this.touch.emit();
+  protected onBlur(event: FocusEvent): void {
+    // Moving between the two ends is still one interaction — only report the
+    // control as touched once focus actually leaves it, or tabbing from start to
+    // end would mark a bound field touched mid-entry.
+    const next = event.relatedTarget as Node | null;
+    if (!next || !this.host.nativeElement.contains(next)) this.touch.emit();
+
     // Typing leaves the ends in whatever order they were entered; settle it
     // here, once the user has stopped.
     const [start, end] = this.commitRange(this.current(), { normalise: true });
@@ -223,12 +243,14 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   /** Called by an input's click — opens the overlay if it isn't open already. */
   protected openOnInput(): void {
-    if (this.disabled() || this.overlayRef) return;
+    if (this.disabled() || this.readonly() || this.overlayRef) return;
     this.openOverlay();
   }
 
   protected toggleOverlay(): void {
-    if (this.disabled()) return;
+    // `readonly` blocks the calendar too — otherwise the inputs refuse typing
+    // while the popover happily edits the same value.
+    if (this.disabled() || this.readonly()) return;
     if (this.overlayRef) this.closeOverlay();
     else this.openOverlay();
   }
@@ -277,13 +299,6 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
     const ref = this.overlayRef.attach(new ComponentPortal(WrDateRangePanel));
     ref.setInput('value', this.value() ?? [null, null]);
-    ref.setInput('min', this.minDate());
-    ref.setInput('max', this.maxDate());
-    ref.setInput('dateFilter', this.dateFilter());
-    ref.setInput('withTime', this.isDateTime());
-    ref.setInput('timeFormat', this.timeFormat());
-    ref.setInput('showSeconds', this.showSeconds());
-    ref.setInput('step', this.step());
     this.panelRef.set(ref);
 
     ref.instance.changed.subscribe(next => {
@@ -313,8 +328,16 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       });
   }
 
-  private closeOverlay(): void {
+  /**
+   * Close the popover. `restoreFocus` returns focus to the start input — needed
+   * when the overlay is dismissed while focus lives inside it (picking the
+   * second date), because disposing then leaves focus on a removed element and
+   * the browser falls back to `<body>`.
+   */
+  private closeOverlay(restoreFocus = false): void {
+    const inside = this.overlayRef?.overlayElement.contains(this.host.nativeElement.ownerDocument.activeElement);
     this.dispose();
+    if (restoreFocus || inside) this.startEl().nativeElement.focus();
   }
 
   private dispose(): void {
@@ -338,8 +361,14 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    */
   private commitRange(next: WrDateRange, options: { normalise: boolean }): WrDateRange {
     const normalised = options.normalise ? this.normalise(next) : next;
-    this.lastValue = normalised;
-    this.value.set(normalised);
+    // Only write when a date actually moved. `normalise()` allocates a fresh
+    // tuple on every call and `model()` compares by reference, so an
+    // unconditional write would emit on every blur — enough to mark a bound
+    // `[formField]` dirty just by tabbing through the two inputs.
+    if (!this.sameRange(normalised, this.value())) {
+      this.lastValue = normalised;
+      this.value.set(normalised);
+    }
     // Only rewrite the text of an end whose date moved out from under it —
     // otherwise a half-typed date would be reformatted on every keystroke.
     if (!this.sameDate(normalised[0], this.parseText(this.startText()))) {
@@ -387,11 +416,18 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     return clock(a) - clock(b);
   }
 
+  /**
+   * Whether a typed date must be rejected. Covers `dateFilter` as well as the
+   * bounds — the calendar disables filtered days, so accepting them from the
+   * keyboard would make the two entry paths disagree.
+   */
   private isOutOfBounds(date: Date): boolean {
     const min = this.minDate();
     if (min && this.adapter.compareDate(date, min) < 0) return true;
     const max = this.maxDate();
     if (max && this.adapter.compareDate(date, max) > 0) return true;
+    const filter = this.dateFilter();
+    if (filter && !filter(date)) return true;
     return false;
   }
 

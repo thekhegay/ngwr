@@ -683,11 +683,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
     if (!this.open()) this.open.set(true);
-    // A new filter re-tops the virtual window and cursor (the filtered array
-    // — hence every index — just changed under `activeIndex`).
+    // A new filter invalidates every index, so re-seed the cursor onto the first
+    // option that still matches. This must happen on BOTH paths: on the
+    // projected-`<wr-option>` path the registry keeps filtered-out options (they
+    // only self-hide via CSS), so a stale `activeIndex` would leave the cursor on
+    // a row the user can no longer see — and Enter would select it.
+    this.activeIndex.set(this.firstEnabled());
     if (this.virtualActive()) {
       this.scrollTop.set(0);
-      this.activeIndex.set(this.firstEnabled());
       this.vlistElement?.scrollTo({ top: 0 });
     }
   }
@@ -778,11 +781,17 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     // this runs in the constructor, where inputs aren't bound yet, so reading
     // the input eagerly would pin the delay to the default and ignore
     // `[debounceMs]` forever.
-    const debouncedQuery = toObservable(this.searchQuery).pipe(debounce(() => timer(this.debounceMs())));
+    // `skip(1)` sits BEFORE the debounce so it drops the mount-time replay of the
+    // empty query and nothing else. Downstream of `debounce` it would instead
+    // drop the first *settled* emission — and when a fast typist's first
+    // keystrokes coalesce with that initial `''`, the dropped emission is their
+    // query, not the replay.
+    const debouncedQuery = toObservable(this.searchQuery).pipe(
+      skip(1),
+      debounce(() => timer(this.debounceMs()))
+    );
 
-    // `skip(1)` drops the initial replay of the empty query — mounting a select
-    // is not a search.
-    debouncedQuery.pipe(skip(1), takeUntilDestroyed(this.destroyRef)).subscribe(query => {
+    debouncedQuery.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(query => {
       if (this.isSearchable()) this.searchChange.emit(query);
     });
 
@@ -1085,7 +1094,10 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
           break;
         }
         const list = this.registry();
-        if (idx >= 0 && idx < list.length && !list[idx].disabled) {
+        // Filtered-out options stay registered (they only self-hide via CSS), so
+        // the hidden check is load-bearing: without it Enter can commit a row
+        // that is not on screen.
+        if (idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel())) {
           const id = list[idx].id;
           const el = this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
           el?.click();

@@ -62,9 +62,20 @@ export class WrDateRangePanel {
   /** The calendar's own range model shape — same tuple, narrower name. */
   protected readonly calendarRange = computed<WrCalendarRange>(() => this.value());
 
-  /** Time steppers need a concrete date; fall back to a parked time, then today. */
-  protected readonly startTime = computed(() => this.value()[0] ?? this.pendingStartTime() ?? this.adapter.today());
-  protected readonly endTime = computed(() => this.value()[1] ?? this.pendingEndTime() ?? this.adapter.today());
+  /**
+   * Midnight today. The steppers need a concrete date to render, but the
+   * fallback must NOT be the current wall clock: picking a date carries no time
+   * across until a stepper is touched, so a `14:37` default would display a time
+   * the commit never actually stores.
+   */
+  private readonly dayStart = computed(() => {
+    const t = this.adapter.today();
+    return this.adapter.createDate(this.adapter.getYear(t), this.adapter.getMonth(t), this.adapter.getDate(t));
+  });
+
+  /** Time steppers need a concrete date; fall back to a parked time, then midnight. */
+  protected readonly startTime = computed(() => this.value()[0] ?? this.pendingStartTime() ?? this.dayStart());
+  protected readonly endTime = computed(() => this.value()[1] ?? this.pendingEndTime() ?? this.dayStart());
 
   protected onRangeChange(range: WrCalendarRange): void {
     const [start, end] = range;

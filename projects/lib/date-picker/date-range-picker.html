@@ -15,7 +15,7 @@
     [readonly]="readonly()"
     (click)="openOnInput()"
     (input)="onStartInput($event)"
-    (blur)="onBlur()"
+    (blur)="onBlur($event)"
   />
   <span class="wr-date-range-picker__separator" aria-hidden="true">{{ separator() }}</span>
   <input
@@ -33,7 +33,7 @@
     [readonly]="readonly()"
     (click)="openOnInput()"
     (input)="onEndInput($event)"
-    (blur)="onBlur()"
+    (blur)="onBlur($event)"
   />
   <button
     type="button"

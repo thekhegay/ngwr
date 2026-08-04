@@ -95,7 +95,7 @@ export class ChatComponent {
   }
 }
 
-// Want the result typed without a cast? Inject the token instead:
+// The class token already types the generics — no cast, no WR_DRAWER_REF needed:
 private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF);`,
   };
 
@@ -167,7 +167,8 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF)
     },
     {
       name: 'WR_DRAWER_REF',
-      description: 'Same ref, as a token — inject it when you want the generics without a cast.',
+      description:
+        'The same ref under a second key, used by `[wrDrawerClose]`. Prefer `inject(WrDrawerRef)` — it already supports `{ optional: true }` and typed generics.',
       type: 'InjectionToken<WrDrawerRef<C, R>>',
       default: '—',
     },
