@@ -21,13 +21,20 @@
     border-radius: 0 var(--wr-input-group-radius) var(--wr-input-group-radius) 0;
     overflow: hidden;
     pointer-events: auto;
+    // Affixes are flex items of the group and shrink by default. Once the input
+    // asked for the remaining space this column got squeezed to ~20px while its
+    // buttons still demanded 24 — and `overflow: hidden` above quietly sliced
+    // the chevrons off. The column is a fixed-width control, not filler.
+    flex: 0 0 auto;
   }
 
   &__step {
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0 0.5rem;
+    // No inline padding: `min-width` below is the hit area, and 8px a side left
+    // the chevron 8px of a 24px box to draw in.
+    padding: 0;
     flex: 1 1 50%;
     min-height: 0;
     min-width: 1.5rem;
