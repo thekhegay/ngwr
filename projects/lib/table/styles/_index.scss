@@ -1,12 +1,20 @@
 @use '../../theme/styles' as theme;
 
 .wr-table {
+  --wr-table-bg: var(--wr-color-surface);
   --wr-table-border: var(--wr-color-outline);
   --wr-table-head-bg: rgba(var(--wr-color-outline-rgb), 0.25);
   --wr-table-row-hover: rgba(var(--wr-color-outline-rgb), 0.15);
+  // Head casing, so a design system can opt out without an override rule.
+  --wr-table-head-transform: uppercase;
+  --wr-table-head-letter-spacing: 0.04em;
 
   display: block;
   position: relative;
+  // The table paints its own surface. Sticky pinned cells already fill with
+  // --wr-color-surface, so leaving the table transparent let a page background
+  // show through the normal rows while the pinned ones stayed opaque.
+  background: var(--wr-table-bg);
   // Own stacking context so the loading overlay reliably outranks the sticky
   // pinned cells regardless of the surrounding page z-index.
   isolation: isolate;
@@ -50,8 +58,8 @@
     color: var(--wr-color-on-surface-muted);
     font-weight: 600;
     font-size: var(--wr-text-xs);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    letter-spacing: var(--wr-table-head-letter-spacing);
+    text-transform: var(--wr-table-head-transform);
     white-space: nowrap;
   }
 
@@ -203,7 +211,7 @@
   // Pinned footer cells need an opaque base (over the head tint) to stay sticky.
   &__foot-cell#{&}__td--pin-left,
   &__foot-cell#{&}__td--pin-right {
-    background-color: var(--wr-color-surface);
+    background-color: var(--wr-table-bg);
     background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
   }
 
@@ -221,14 +229,14 @@
   &__td--pin-left,
   &__td--pin-right {
     z-index: 1;
-    background-color: var(--wr-color-surface);
+    background-color: var(--wr-table-bg);
   }
 
   // Header cells lay the head tint over the opaque base so the row stays seamless.
   &__th--pin-left,
   &__th--pin-right {
     z-index: 2;
-    background-color: var(--wr-color-surface);
+    background-color: var(--wr-table-bg);
     background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
   }
 
@@ -392,7 +400,7 @@
   &__group-foot-row > &__foot-cell {
     border-top: 0;
     border-bottom: 1px solid var(--wr-table-border);
-    background-color: var(--wr-color-surface);
+    background-color: var(--wr-table-bg);
     background-image: linear-gradient(var(--wr-table-group-bg), var(--wr-table-group-bg));
   }
 
@@ -424,7 +432,7 @@
   }
 
   thead th:not(.wr-table__th--pin-left):not(.wr-table__th--pin-right) {
-    background-color: var(--wr-color-surface);
+    background-color: var(--wr-table-bg);
     background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
   }
 
@@ -456,7 +464,7 @@
   }
 
   tfoot .wr-table__foot-cell:not(.wr-table__td--pin-left):not(.wr-table__td--pin-right) {
-    background-color: var(--wr-color-surface);
+    background-color: var(--wr-table-bg);
     background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
   }
 
