@@ -312,6 +312,12 @@ export class WrPopover {
       this.overlayRef.overlayElement.setAttribute('role', 'tooltip');
     } else if (typeof content !== 'string') {
       this.overlayRef.attach(new TemplatePortal(content, this.vcr));
+      // Popover mode is a non-modal dialog: the docstring promised dialog
+      // semantics but nothing ever set a role, so a screen reader met an
+      // unnamed generic container. `aria-modal="false"` is explicit — focus is
+      // deliberately NOT trapped, the panel closes on outside click / Escape.
+      this.overlayRef.overlayElement.setAttribute('role', 'dialog');
+      this.overlayRef.overlayElement.setAttribute('aria-modal', 'false');
     }
     this.overlayRef.overlayElement.id = this.panelId;
 
