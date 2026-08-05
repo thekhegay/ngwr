@@ -34,6 +34,13 @@ export interface WrDrawerOptions<D = unknown> {
   readonly closeOnBackdropClick?: boolean;
   /** When `true`, the Escape key closes the drawer. @default true */
   readonly closeOnEscape?: boolean;
+  /**
+   * Render a dismiss (×) button in the panel's top-right corner. Set `false`
+   * when the content supplies its own close affordance. @default true
+   */
+  readonly closable?: boolean;
+  /** Accessible name for the dismiss button. Falls back to the `drawer.close` catalog key. */
+  readonly closeLabel?: string;
   /** Extra CSS class(es) added to the panel. */
   readonly panelClass?: string | readonly string[];
 }

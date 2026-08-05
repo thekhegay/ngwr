@@ -59,14 +59,17 @@ export class EditUserComponent {
 
 // The class token already types the generics — no cast, no WR_DIALOG_REF needed:
 private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WR_DIALOG_REF);`,
-    closeButton: `<!-- There is no built-in close (×) — dialogs close on backdrop click,
-     Escape, and whatever you mark with [wrDialogClose]. Add a corner × like
-     this when the design calls for one. -->
-<div wrDialogTitle style="display: flex; align-items: center; gap: 0.5rem">
-  <span style="flex: 1 1 auto">Edit user</span>
-  <wr-btn size="sm" icon="close" [attr.aria-label]="'Close'" wrDialogClose />
-</div>
-<div wrDialogContent>…</div>`,
+    closeButton: `// The × comes for free — nothing to add. It sits in the panel's top-right
+// corner, is labelled from the \`dialog.close\` i18n key, and the title row
+// reserves the gutter so a long heading wraps instead of running under it.
+dialog.open(EditUserComponent);
+
+// Turn it off when the content already owns its dismiss, or when the dialog
+// must be resolved through its own actions:
+dialog.open(EditUserComponent, { closable: false });
+
+// Override just the accessible name:
+dialog.open(EditUserComponent, { closeLabel: 'Discard changes' });`,
     responsive: `// Per dialog — slides up as a bottom-sheet on small screens.
 dialog.open(ConfirmComponent, { responsive: true });
 
@@ -80,6 +83,43 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
       name: 'open(component, options?)',
       description: 'Opens a dialog. Returns a WrDialogRef.',
       type: '(component, WrDialogOptions) => WrDialogRef',
+      default: '—',
+    },
+  ];
+
+  protected readonly optionsApi: readonly DocApiRow[] = [
+    { name: 'data', description: 'Payload exposed to the content via WR_DIALOG_DATA.', type: 'D', default: '—' },
+    { name: 'width', description: 'Panel width — any CSS length.', type: 'string', default: '—' },
+    { name: 'maxWidth', description: 'Panel maximum width.', type: 'string', default: '—' },
+    {
+      name: 'closeOnBackdropClick',
+      description: 'Close when the backdrop is clicked.',
+      type: 'boolean',
+      default: 'true',
+    },
+    { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
+    {
+      name: 'closable',
+      description: 'Show the built-in dismiss (×) in the top-right corner.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'closeLabel',
+      description: 'Accessible name for the dismiss button. Falls back to the dialog.close catalog key.',
+      type: 'string',
+      default: '—',
+    },
+    {
+      name: 'responsive',
+      description: 'Present as a bottom-sheet on small viewports. Undefined follows provideWrResponsiveOverlays().',
+      type: 'boolean',
+      default: '—',
+    },
+    {
+      name: 'panelClass',
+      description: 'Extra class(es) on the panel.',
+      type: 'string | readonly string[]',
       default: '—',
     },
   ];

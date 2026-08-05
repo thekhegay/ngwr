@@ -25,6 +25,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
 import type { WrDrawerPosition } from './interfaces';
@@ -103,12 +104,24 @@ export class WrDrawer {
   /** Close on Escape. @default true */
   readonly closeOnEscape = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Show a dismiss (×) button in the panel's top-right corner. Set `false` when
+   * the projected content supplies its own close affordance. @default true
+   */
+  readonly closable = input(true, { transform: coerceBooleanProperty });
+
+  /** Accessible name for the dismiss button. Falls back to `drawer.close`. */
+  readonly closeLabel = input<string | null>(null);
+
+  protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'drawer.close', 'Close drawer');
+
   protected readonly panelTpl = viewChild.required(TemplateRef);
 
   protected panelClass(): string {
     const parts = ['wr-drawer__panel', `wr-drawer__panel--${this.position()}`];
     if (this.rounded()) parts.push('wr-drawer__panel--rounded');
     if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
+    if (this.closable()) parts.push('wr-drawer__panel--closable');
     return parts.join(' ');
   }
 

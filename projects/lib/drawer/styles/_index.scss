@@ -31,7 +31,10 @@
 // between the panel and the title / content / footer slots, so the panel's
 // column layout stops one level short: the footer wouldn't pin to the bottom
 // and the body wouldn't scroll. Pass the layout through the interposed host.
-.wr-drawer-overlay.wr-drawer__panel > * {
+// `:not(.wr-drawer__close)` — the dismiss button is a direct child too, and it
+// is corner-positioned chrome, not the content column. Left in, `width: 100%`
+// stretched it across the whole panel.
+.wr-drawer-overlay.wr-drawer__panel > *:not(.wr-drawer__close) {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -47,6 +50,10 @@
 
   display: flex;
   flex-direction: column;
+  // Anchor for the corner dismiss button. The panel is the overlay pane itself
+  // for service drawers but a nested div for `<wr-drawer>`; without this the
+  // button would resolve against whichever happened to be positioned.
+  position: relative;
   width: 100%;
   height: 100%;
   background: var(--wr-drawer-bg);
@@ -132,6 +139,51 @@
     font-weight: 600;
     line-height: 1.5rem;
     border-bottom: 1px solid var(--wr-color-outline);
+  }
+
+  // Built-in dismiss (×) in the panel's top-right corner — rendered by the
+  // component template, appended by `WrDrawerManager` for service drawers.
+  &__close {
+    position: absolute;
+    // Centre on the title's first line: 1rem of padding, then a 1.5rem text box.
+    inset-block-start: 1.75rem;
+    inset-inline-end: 1.25rem;
+    transform: translateY(-50%);
+    z-index: 1;
+
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.25rem;
+    color: var(--wr-color-on-surface-muted);
+    cursor: pointer;
+    border-radius: var(--wr-border-radius-sm);
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
+
+    // Sized via font-size, not `--wr-icon-size`: the glyph is a bare
+    // `.wr-icon__svg`, which measures itself in `em`.
+    font-size: 1rem;
+    line-height: 0;
+
+    // `$positioned: true` — the default sets `position: relative` under
+    // `(pointer: coarse)`, which would drop the button out of the corner.
+    @include theme.touch-target($positioned: true);
+
+    &:hover {
+      color: var(--wr-color-on-surface);
+      background: var(--wr-color-hover);
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+  }
+
+  // Reserve the gutter so a long heading wraps instead of running under the ×.
+  &__panel--closable &__title {
+    padding-inline-end: 3rem;
   }
 
   &__content {

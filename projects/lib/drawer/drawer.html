@@ -12,6 +12,24 @@
         <span class="wr-drawer__grabber"></span>
       </div>
     }
+    @if (closable()) {
+      <button type="button" class="wr-drawer__close" [attr.aria-label]="resolvedCloseLabel()" (click)="open.set(false)">
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+    }
     <ng-content />
   </div>
 </ng-template>

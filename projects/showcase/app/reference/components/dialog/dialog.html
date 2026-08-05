@@ -28,10 +28,10 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Adding a close button"
-    description="Dialogs ship no built-in × — they close on backdrop click, Escape, and any element carrying `[wrDialogClose]`. That keeps the chrome yours, but it does mean a corner × is something you add. The title row is the place for it; `<wr-drawer>` takes the same shape with `[wrDrawerClose]`."
+    title="The close button"
+    description="Dialogs render a dismiss (×) in the top-right corner by default, on top of closing via backdrop click, Escape, and any element carrying `[wrDialogClose]`. Opt out per dialog with `closable: false`. `<wr-drawer>` and `WrDrawerManager` take the same `closable` / `closeLabel` pair."
   >
-    <ngwr-doc-code [code]="snippets.closeButton" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.closeButton" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -46,6 +46,10 @@
 
   <ngwr-doc-section title="Service API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDialogOptions">
+    <ngwr-doc-api [rows]="optionsApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Layout directives">
