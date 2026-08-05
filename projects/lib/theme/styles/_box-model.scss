@@ -1,0 +1,29 @@
+// Box model baseline for ngwr's own elements.
+//
+// `ngwr/reset` (which does set `box-sizing: border-box` globally) is opt-in by
+// design, and the umbrella `@use 'ngwr'` deliberately leaves it out — so a
+// consumer following the documented "import once, everything works" path lands
+// in a `content-box` world. Components can't assume otherwise, and several of
+// them did: any `.wr-*` element that pairs `width: 100%` with padding or a
+// border overflowed its container by exactly padding + border. Measured in a
+// stock Angular app on `@use 'ngwr'`:
+//
+//   .wr-btn--block                → 30px over (14+14 padding, 1+1 border)
+//   .wr-input (sm / md / lg)      → 18 / 26 / 34px over
+//   .wr-textarea__native          → 16 / 24 / 32px over
+//   .wr-input-group               → 2px over (border only)
+//
+// Which is where the stray horizontal scrollbars came from.
+//
+// Scoped to the `wr-` namespace so it can never change the box model of
+// consumer markup — that stays their call, via `ngwr/reset` or their own reset.
+//
+// `:where()` contributes zero specificity on purpose: this is a baseline, not an
+// override. `.wr-icon` and `.wr-spinner` declare `content-box` deliberately (the
+// declared size IS the glyph box) and keep winning without needing `!important`
+// or a particular load order.
+:where([class^='wr-'], [class*=' wr-']),
+:where([class^='wr-'], [class*=' wr-'])::before,
+:where([class^='wr-'], [class*=' wr-'])::after {
+  box-sizing: border-box;
+}
