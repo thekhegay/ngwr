@@ -11,6 +11,7 @@ export {
   type WrI18nMissingHandler,
 } from './i18n-config';
 export { WR_I18N_LOADER, type WrI18nLoader } from './i18n-loader';
+export { WR_I18N_BASE_CATALOGS, type WrI18nBaseCatalogs } from './i18n-base-catalogs';
 export {
   WrI18nStaticLoader,
   type WrI18nStaticCatalogs,

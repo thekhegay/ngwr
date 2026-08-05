@@ -39,21 +39,29 @@ bootstrapApplication(AppComponent, {
 // Then per-feature lazy load:
 i18n.registerScope('checkout');
 // → fetches /assets/i18n/checkout/{locale}.json`,
-    httpBuiltIns: `// IMPORTANT: the loader REPLACES the catalog, it does not extend it.
-// A JSON file with only your own keys leaves every ngwr built-in string
-// falling back to its hardcoded English default — silently, no warning.
+    httpBuiltIns: `// A loader REPLACES the catalog for a locale, it does not extend it — so a
+// JSON file holding only your own keys would leave every ngwr built-in label
+// on its hardcoded English fallback, silently.
 //
-// ngwr ships its catalogs as JSON for exactly this path, so merge them in:
-//   node_modules/ngwr/i18n/en.json
-//   node_modules/ngwr/i18n/ru.json
+// Register the shipped catalogs as a BASE and they fill in underneath:
+import { provideWrI18n, provideWrI18nBaseCatalogs, provideWrI18nHttpLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 
-// e.g. a tiny prebuild step
-import wrEn from 'ngwr/i18n/en.json' with { type: 'json' };
-import wrRu from 'ngwr/i18n/ru.json' with { type: 'json' };
-import { writeFileSync } from 'node:fs';
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(),
+    provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+    provideWrI18nBaseCatalogs({ ru: wrRu }),   // <- the one line
+    provideWrI18nHttpLoader({ path: '/assets/i18n/{locale}.json' }),
+  ],
+});
 
-writeFileSync('public/i18n/en.json', JSON.stringify({ ...wrEn, app: myEn }));
-writeFileSync('public/i18n/ru.json', JSON.stringify({ ...wrRu, app: myRu }));`,
+// Your /assets/i18n/ru.json now only needs YOUR keys. Yours always win;
+// the base is a floor, not an override. Pass only the locales you ship —
+// the rest stay out of the bundle.
+//
+// Prefer plain files? The same catalogs are published as JSON:
+//   node_modules/ngwr/i18n/{en,ru}.json`,
     missing: `provideWrI18n({
   defaultLocale: 'en',
   availableLocales: ['en', 'ru'],
