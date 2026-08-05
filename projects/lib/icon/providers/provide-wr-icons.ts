@@ -7,6 +7,7 @@
 
 import { type Provider, isDevMode } from '@angular/core';
 
+import { WrIconRegistry } from '../icon-registry';
 import type { WrIconDef } from '../interfaces';
 import { WR_ICONS } from '../tokens';
 import { validateIcon } from '../utils';
@@ -53,5 +54,12 @@ export function provideWrIcons(icons: WrIconDef[]): Provider[] {
   if (isDevMode()) {
     for (const icon of icons) validateIcon(icon);
   }
-  return [{ provide: WR_ICONS, useValue: icons, multi: true }];
+  return [
+    { provide: WR_ICONS, useValue: icons, multi: true },
+    // A registry link per registering level. Angular does not merge `multi`
+    // providers across injectors, so without this chain an element-level
+    // registration would shadow everything registered above it instead of
+    // adding to it.
+    WrIconRegistry,
+  ];
 }
