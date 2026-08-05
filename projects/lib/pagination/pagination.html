@@ -37,7 +37,7 @@
           [outlined]="!isCurrent(page)"
           [color]="isCurrent(page) ? 'primary' : null"
           [attr.aria-current]="isCurrent(page) ? 'page' : null"
-          [attr.aria-label]="`Go to page ${page}`"
+          [attr.aria-label]="goToPage({ page })"
           [disabled]="disabled()"
           (click)="goTo(page)"
         >
@@ -82,7 +82,7 @@
       (ngModelChange)="onSizeChange($event)"
     >
       @for (option of pageSizeOptions(); track option) {
-        <wr-option [value]="option">{{ option }} / page</wr-option>
+        <wr-option [value]="option">{{ perPage({ size: option }) }}</wr-option>
       }
     </wr-select>
   }
