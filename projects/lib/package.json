@@ -69,6 +69,7 @@
   },
   "exports": {
     "./schematics/*": "./schematics/*",
+    "./i18n/*.json": "./i18n/*.json",
     ".": {
       "sass": "./styles.scss"
     },
