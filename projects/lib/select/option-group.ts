@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
+import { randomId } from 'ngwr/utils';
+
 /**
  * Visually groups options under a label inside a `<wr-select>`.
  *
@@ -22,9 +24,15 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   selector: 'wr-option-group',
   templateUrl: './option-group.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-option-group', role: 'group' },
+  host: { class: 'wr-option-group', role: 'group', '[attr.aria-labelledby]': 'labelId' },
 })
 export class WrOptionGroup {
   /** Section heading shown above the options. */
   readonly label = input.required<string>();
+
+  /**
+   * `role="group"` alone announces an unnamed group — the visible heading has to
+   * be wired to it for the name to reach a screen reader.
+   */
+  protected readonly labelId = randomId('wr-option-group-label');
 }
