@@ -10,6 +10,12 @@
   box-sizing: content-box;
   width: var(--wr-icon-size);
   height: var(--wr-icon-size);
+  // Never let a flex parent squeeze it. Without this the default `flex-shrink: 1`
+  // wins over the declared width, so the same icon came out 16.03 / 15.59 /
+  // 12.39 / 12.75 px depending on how tight its row was — which is why affix
+  // icons, button icons and option icons all failed to line up with each other.
+  // `.wr-icon__svg` (bare inline SVGs) already had this; the component host did not.
+  flex: 0 0 auto;
   color: inherit;
   fill: currentColor;
   line-height: 0;
