@@ -34,7 +34,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { type Observable, debounce, finalize, from, isObservable, of, skip, switchMap, tap, timer } from 'rxjs';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
 
 import type { WrSelectMode, WrSelectSearchLoader, WrSelectTagValidator, WrSelectSize } from './interfaces';
 import { WrOption } from './option';
@@ -756,6 +756,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
@@ -1221,8 +1222,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         .subscribe(() => this.open.set(false));
     }
 
-    this.overlayRef
-      .outsidePointerEvents()
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;

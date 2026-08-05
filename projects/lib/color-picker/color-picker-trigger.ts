@@ -21,7 +21,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import { WrColorPicker } from './color-picker';
 import type { WrColorFormat } from './interfaces';
@@ -76,6 +76,7 @@ export class WrColorPickerTrigger {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -130,10 +131,10 @@ export class WrColorPickerTrigger {
     // Bridge the inner picker's `value` model back to our two-way [(value)].
     ref.instance.value.subscribe((next: string) => this.value.set(next));
 
-    // Outside-click → close (CDK's outsidePointerEvents only fires for clicks
-    // outside the overlay pane; we also need to ignore re-clicks on the host).
-    this.overlayRef
-      .outsidePointerEvents()
+    // Outside-click → close (the source only filters out the overlay pane, so
+    // the re-click on our own trigger still arrives here and has to be ignored).
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;

@@ -30,7 +30,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date-adapter';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import type { WrDateRange } from './interfaces';
 import { WrDateRangePanel } from './internal/date-range-panel';
@@ -135,6 +135,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -308,8 +309,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       if (!this.isDateTime() && committed[0] && committed[1]) this.closeOverlay();
     });
 
-    this.overlayRef
-      .outsidePointerEvents()
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
