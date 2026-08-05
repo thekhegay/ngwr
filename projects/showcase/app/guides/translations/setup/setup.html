@@ -19,6 +19,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Keep ngwr's own strings on the HTTP path"
+    description="The loader replaces the catalog rather than extending it, so a JSON file holding only your keys leaves every built-in label on its hardcoded English fallback — with no error to point at. The static loader avoids this by spreading `wrEn` / `wrRu`; on the HTTP path merge the JSON catalogs the package ships instead."
+  >
+    <ngwr-doc-code [code]="snippets.httpBuiltIns" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Missing-key handler"
     description="Override the default (returns the key) to surface gaps in the catalog during development."
   >

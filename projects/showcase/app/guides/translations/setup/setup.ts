@@ -39,6 +39,21 @@ bootstrapApplication(AppComponent, {
 // Then per-feature lazy load:
 i18n.registerScope('checkout');
 // → fetches /assets/i18n/checkout/{locale}.json`,
+    httpBuiltIns: `// IMPORTANT: the loader REPLACES the catalog, it does not extend it.
+// A JSON file with only your own keys leaves every ngwr built-in string
+// falling back to its hardcoded English default — silently, no warning.
+//
+// ngwr ships its catalogs as JSON for exactly this path, so merge them in:
+//   node_modules/ngwr/i18n/en.json
+//   node_modules/ngwr/i18n/ru.json
+
+// e.g. a tiny prebuild step
+import wrEn from 'ngwr/i18n/en.json' with { type: 'json' };
+import wrRu from 'ngwr/i18n/ru.json' with { type: 'json' };
+import { writeFileSync } from 'node:fs';
+
+writeFileSync('public/i18n/en.json', JSON.stringify({ ...wrEn, app: myEn }));
+writeFileSync('public/i18n/ru.json', JSON.stringify({ ...wrRu, app: myRu }));`,
     missing: `provideWrI18n({
   defaultLocale: 'en',
   availableLocales: ['en', 'ru'],
