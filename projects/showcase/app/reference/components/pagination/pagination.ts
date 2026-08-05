@@ -75,5 +75,30 @@ export class MyComponent {}`,
     },
     { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
     { name: 'ofLabel', description: 'Localised "of" word.', type: 'string', default: "'of'" },
+    {
+      name: 'label',
+      description:
+        'Accessible name for the `role="navigation"` host. Falls back to the `pagination.label` catalog key.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'prevLabel',
+      description: 'Previous-page button aria-label. Falls back to `pagination.prev`.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'nextLabel',
+      description: 'Next-page button aria-label. Falls back to `pagination.next`.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'itemsPerPageLabel',
+      description: 'Aria-label for the page-size dropdown. Falls back to `pagination.itemsPerPage`.',
+      type: 'string | null',
+      default: 'null',
+    },
   ];
 }

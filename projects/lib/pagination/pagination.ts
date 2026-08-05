@@ -10,7 +10,7 @@ import { Component, ViewEncapsulation, computed, input, model } from '@angular/c
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
 import { numAttr } from 'ngwr/utils';
 
@@ -41,7 +41,7 @@ type PageEntry = number | typeof ELLIPSIS;
   selector: 'wr-pagination',
   templateUrl: './pagination.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', role: 'navigation', 'aria-label': 'Pagination' },
+  host: { '[class]': 'classes()', role: 'navigation', '[attr.aria-label]': 'navLabel()' },
   imports: [FormsModule, WrButton, WrSelect, WrOption],
 })
 export class WrPagination {
@@ -94,6 +94,9 @@ export class WrPagination {
   /** "Items per page" label. Falls back to `pagination.itemsPerPage`. */
   readonly itemsPerPageLabel = input<string | null>(null);
 
+  /** Accessible name for the `role="navigation"` host. Falls back to `pagination.label`. */
+  readonly label = input<string | null>(null);
+
   /** Resolved labels. */
   protected readonly resolvedOf = useI18nText(this.ofLabel, 'pagination.of', 'of');
   protected readonly resolvedPrev = useI18nText(this.prevLabel, 'pagination.prev', 'Previous page');
@@ -103,6 +106,19 @@ export class WrPagination {
     'pagination.itemsPerPage',
     'Items per page'
   );
+
+  /**
+   * Page-size option text — interpolates `{{size}}`. Was the template literal
+   * `{{ option }} / page`, which no catalog could reach, so a Russian UI read
+   * "25 / page".
+   */
+  protected readonly perPage = useI18nFormatter('pagination.perPage', '{{size}} / page');
+
+  /** Per-page-button aria-label — interpolates `{{page}}`. */
+  protected readonly goToPage = useI18nFormatter('pagination.goToPage', 'Go to page {{page}}');
+
+  /** The nav landmark's own accessible name — was a hardcoded English literal. */
+  protected readonly navLabel = useI18nText(this.label, 'pagination.label', 'Pagination');
 
   /** Internal: total page count. */
   protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
