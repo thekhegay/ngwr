@@ -66,6 +66,12 @@ $dark-intents: (
   --wr-color-medium: #9aa6b8;
   --wr-color-medium-rgb: 154, 166, 184;
 
+  // Muted TEXT is its own token now (the light theme could not serve both text
+  // and fill from one value), so the dark canvas needs its own version too —
+  // otherwise it would inherit the light theme's dark ink. 7.64:1 here.
+  --wr-color-muted-text: #9aa6b8;
+  --wr-color-muted-text-rgb: 154, 166, 184;
+
   // Brand-color retune
   // The default primary (#3969e2) reads a touch dim on the deep
   // canvas. Bump the base + shade derivations so hover / focus rings

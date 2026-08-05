@@ -128,10 +128,21 @@ $contrast-light: #ffffff !default;
   // regardless of theme.
   --wr-color-overlay: rgba(var(--wr-color-backdrop-rgb), 0.45);
 
-  // De-emphasized text — `medium` dimmed to two canonical strengths so muted
+  // Muted TEXT, deliberately its own token rather than an alias of the `medium`
+  // intent. The two roles pull in opposite directions and cannot share a value:
+  // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a
+  // button fill it carries dark text and needs >= 4.5:1 the other way. The best
+  // candidate for either fails the other — the window closes around #6b7a8a
+  // (3.81 as text, 4.11 as fill). Aliasing them left secondary text at 2.69:1.
+  --wr-color-muted-text: #5f6c7d;
+  --wr-color-muted-text-rgb: 95, 108, 125;
+
+  // De-emphasized text — the muted ink dimmed to two canonical strengths so
   // labels / captions / placeholders read consistently. One place each.
-  --wr-color-text-muted: rgba(var(--wr-color-medium-rgb), 0.85);
-  --wr-color-text-faint: rgba(var(--wr-color-medium-rgb), 0.6);
+  // Only the full-opacity token above is AA-safe for body text; these two are
+  // decorative by design (0.85 reaches ~3.5:1, 0.6 ~2.3:1 on a light surface).
+  --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.85);
+  --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 0.6);
 
   // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
   // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the
@@ -169,8 +180,8 @@ $contrast-light: #ffffff !default;
   --wr-color-surface-rgb: var(--wr-color-white-rgb);
   --wr-color-on-surface: var(--wr-color-dark);
   --wr-color-on-surface-rgb: var(--wr-color-dark-rgb);
-  --wr-color-on-surface-muted: var(--wr-color-medium);
-  --wr-color-on-surface-muted-rgb: var(--wr-color-medium-rgb);
+  --wr-color-on-surface-muted: var(--wr-color-muted-text);
+  --wr-color-on-surface-muted-rgb: var(--wr-color-muted-text-rgb);
 
   // Solid hairline / divider colour. Distinct from `--wr-color-border` above,
   // which is deliberately translucent (`light` at 50%) so it reads on any
