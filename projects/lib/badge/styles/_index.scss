@@ -37,11 +37,17 @@
     --wr-badge-min-height: 1.125rem;
   }
 
+  // `lg` used to jump two steps on the axes that decide its footprint while the
+  // type only moved one — padding-x 6 → 8 → 12 and min-height 18 → 24 → 32,
+  // against a font of 10 → 12 → 14. Result: a third more badge for a sixth more
+  // text, which is why it read as oversized next to `md`. One step each:
+  // 6 → 8 → 10 and 18 → 24 → 30, holding min-height a constant 4px above the
+  // intrinsic `font-size + 2 × padding-y` at every size.
   &--lg {
     --wr-badge-padding-y: 0.375rem;
-    --wr-badge-padding-x: 0.75rem;
+    --wr-badge-padding-x: 0.625rem;
     --wr-badge-font-size: var(--wr-text-sm);
-    --wr-badge-min-height: 2rem;
+    --wr-badge-min-height: 1.875rem;
   }
 
   // Shape — default `rounded` keeps the small radius from the defaults
