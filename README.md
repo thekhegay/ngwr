@@ -71,6 +71,11 @@ The fastest way — pull in everything (theme tokens + all component styles):
 @use 'ngwr';
 ```
 
+Good for a spike, but it is every entry point at once — about **247 kB** of CSS
+(~30 kB over the wire), which on its own exceeds the 500 kB initial budget a
+fresh `ng new` ships with. For anything you intend to keep, opt in per component
+below and the sheet stays proportional to what you actually render.
+
 Prefer to opt in per-component? Each component has its own SCSS entry that pulls
 in the theme automatically:
 

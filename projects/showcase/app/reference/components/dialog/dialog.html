@@ -28,6 +28,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Adding a close button"
+    description="Dialogs ship no built-in × — they close on backdrop click, Escape, and any element carrying `[wrDialogClose]`. That keeps the chrome yours, but it does mean a corner × is something you add. The title row is the place for it; `<wr-drawer>` takes the same shape with `[wrDrawerClose]`."
+  >
+    <ngwr-doc-code [code]="snippets.closeButton" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Responsive (bottom-sheet)"
     description="With `responsive: true` — or app-wide via `provideWrResponsiveOverlays()` — the dialog slides up as a full-width bottom-sheet on small viewports and stays a centred modal on larger ones. Open this on a phone (or narrow the window) to see it dock to the bottom."
   >
