@@ -72,6 +72,14 @@
   &__label {
     flex: 0 1 auto;
     min-width: 0;
+
+    // Icon-only buttons project no content, but the label span is still in the
+    // template — as a zero-width flex item it kept claiming its share of `gap`
+    // and pushed the glyph off-centre by exactly gap/2. Taking it out of the
+    // flow removes the gap with it.
+    &:empty {
+      display: none;
+    }
   }
 
   // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px) so button,
