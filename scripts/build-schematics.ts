@@ -66,6 +66,16 @@ for (const [src, dst] of ASSETS) {
   info(`✓ Copied ${src} → ${to}`);
 }
 
+// The schematics are compiled to CommonJS (the Angular DevKit loads them with
+// `require`), but dist/lib/package.json declares `"type": "module"`, so Node
+// parsed these .js files as ESM and every schematic died with
+// "exports is not defined in ES module scope". A nested manifest scopes just
+// this folder back to CJS.
+const cjsManifest = resolve(DST, 'package.json');
+mkdirSync(dirname(cjsManifest), { recursive: true });
+writeFileSync(cjsManifest, `${JSON.stringify({ type: 'commonjs' }, null, 2)}\n`);
+info(`✓ Wrote schematics/package.json ({ "type": "commonjs" })`);
+
 // Auto-generated symbol → subpath map for `ng g ngwr:use`.
 const symbolMap = buildSymbolMap();
 const symbolMapPath = resolve(DST, 'use/symbol-map.json');
