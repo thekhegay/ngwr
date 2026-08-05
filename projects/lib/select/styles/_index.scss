@@ -270,6 +270,10 @@
   --wr-option-padding-y: 0.4375rem;
   --wr-option-padding-x: 0.625rem;
   --wr-option-gap: 0.1875rem;
+  // Space between an option's own bits — an icon or checkbox and its label.
+  // `--wr-option-gap` above is the panel's row rhythm, a different axis; without
+  // this one, a projected `<wr-icon>` sat flush against the text.
+  --wr-option-inline-gap: 0.5rem;
 
   display: flex;
   flex-direction: column;
@@ -292,6 +296,7 @@
     --wr-option-padding-y: 0.3125rem;
     --wr-option-padding-x: 0.5rem;
     --wr-option-gap: 0.125rem;
+    --wr-option-inline-gap: 0.375rem;
   }
 
   &--lg {
@@ -300,6 +305,7 @@
     --wr-option-padding-y: 0.5rem;
     --wr-option-padding-x: 0.75rem;
     --wr-option-gap: 0.25rem;
+    --wr-option-inline-gap: 0.625rem;
   }
 
   &__loading,
@@ -314,6 +320,7 @@
 .wr-option {
   display: flex;
   align-items: center;
+  gap: var(--wr-option-inline-gap, 0.5rem);
   padding: var(--wr-option-padding-y) var(--wr-option-padding-x);
   border-radius: var(--wr-border-radius-sm);
   color: var(--wr-color-on-surface);
@@ -399,6 +406,12 @@
     text-transform: uppercase;
   }
 
+  // A group needs a visible seam above it, or its label reads as one more dim
+  // option in the list. This only fired between two groups, so the common shape
+  // — loose options and then a group — got no divider at all. Match a preceding
+  // option too; deliberately not `* + &`, which would also draw a line under the
+  // search field, where the field's own border already does the job.
+  .wr-option + &,
   + .wr-option-group {
     border-top: 1px solid var(--wr-color-outline);
     margin-top: 0.25rem;
