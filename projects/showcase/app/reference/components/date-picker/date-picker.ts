@@ -128,8 +128,8 @@ export class MyComponent {
     {
       name: 'format',
       description:
-        'Display + parse format. Pass a named key or raw token string. When omitted, derived from `mode` (`shortDate` / `shortTime` / `shortDateTime`).',
-      type: "'shortDate' | 'shortTime' | 'shortDateTime' | string | null",
+        'Display + parse format. Pass a named key or raw token string. When omitted, derived from `mode` (`shortDate` / `time` / `shortDateTime`).',
+      type: 'WrDateFormat | string | null',
       default: 'null',
     },
     { name: 'placeholder', description: 'Placeholder text.', type: 'string', default: "''" },
