@@ -112,6 +112,18 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF)
     { name: 'hasBackdrop', description: 'Show the dimming backdrop.', type: 'boolean', default: 'true' },
     { name: 'closeOnBackdropClick', description: 'Close when backdrop is clicked.', type: 'boolean', default: 'true' },
     { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
+    {
+      name: 'closable',
+      description: 'Show the built-in dismiss (×) in the top-right corner.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'closeLabel',
+      description: 'Accessible name for the dismiss button. Falls back to the drawer.close catalog key.',
+      type: 'string | null',
+      default: 'null',
+    },
   ];
 
   protected readonly serviceApi: readonly DocApiRow[] = [
@@ -144,6 +156,18 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF)
     { name: 'hasBackdrop', description: 'Show the dimming backdrop.', type: 'boolean', default: 'true' },
     { name: 'closeOnBackdropClick', description: 'Close when backdrop is clicked.', type: 'boolean', default: 'true' },
     { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
+    {
+      name: 'closable',
+      description: 'Show the built-in dismiss (×) in the top-right corner.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: 'closeLabel',
+      description: 'Accessible name for the dismiss button. Falls back to the drawer.close catalog key.',
+      type: 'string',
+      default: '—',
+    },
     {
       name: 'panelClass',
       description: 'Extra class(es) on the panel.',

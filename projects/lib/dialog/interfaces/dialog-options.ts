@@ -15,6 +15,14 @@ export interface WrDialogOptions<D = unknown> {
   readonly closeOnBackdropClick?: boolean;
   /** When `true`, the Escape key closes the dialog. @default true */
   readonly closeOnEscape?: boolean;
+  /**
+   * Render a dismiss (×) button in the panel's top-right corner. Set `false`
+   * when the content supplies its own close affordance, or when the dialog must
+   * be resolved through its own actions. @default true
+   */
+  readonly closable?: boolean;
+  /** Accessible name for the dismiss button. Falls back to the `dialog.close` catalog key. */
+  readonly closeLabel?: string;
   /** Width applied to the panel — any valid CSS length. */
   readonly width?: string;
   /** Maximum width applied to the panel. */

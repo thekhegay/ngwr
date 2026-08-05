@@ -1,3 +1,4 @@
+export { wrAppendOverlayClose } from './wr-overlay-close';
 export { WrOutsideClick } from './wr-outside-click';
 export { WrOverlayContainer } from './wr-overlay-container';
 export { provideWrOverlay } from './provide-wr-overlay';

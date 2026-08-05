@@ -119,6 +119,12 @@ export const wrRu: WrI18nCatalog = {
   window: {
     close: 'Закрыть',
   },
+  dialog: {
+    close: 'Закрыть диалог',
+  },
+  drawer: {
+    close: 'Закрыть панель',
+  },
   datePicker: {
     open: 'Открыть календарь',
     openTime: 'Открыть выбор времени',

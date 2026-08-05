@@ -87,6 +87,58 @@
     border-bottom: 1px solid var(--wr-color-outline);
   }
 
+  // Built-in dismiss (×), parked in the panel's top-right corner. The service
+  // adds it — and `--closable` alongside it — unless `closable: false`.
+  &__close {
+    position: absolute;
+    // Centre on the title's first line: its text box starts one padding-y down
+    // and is 1.5rem tall.
+    inset-block-start: calc(var(--wr-dialog-padding-y) + 0.75rem);
+    inset-inline-end: var(--wr-dialog-padding-x);
+    transform: translateY(-50%);
+    z-index: 1;
+
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0.25rem;
+    color: var(--wr-color-on-surface-muted);
+    cursor: pointer;
+    border-radius: var(--wr-border-radius-sm);
+    transition:
+      color var(--wr-transition-base),
+      background var(--wr-transition-base);
+
+    // The glyph is a bare `.wr-icon__svg`, sized in `em` — so pin the font-size
+    // rather than `--wr-icon-size` (which only drives `<wr-icon>` hosts). Gives a
+    // deterministic 16px ✕ in a 24px box instead of inheriting whatever the
+    // surrounding text happens to be.
+    font-size: 1rem;
+    line-height: 0;
+
+    // `$positioned: true` — the default would set `position: relative` under
+    // `(pointer: coarse)` and drop the button out of the corner on touch.
+    @include theme.touch-target($positioned: true); // 16px glyph -> 44px tap area
+
+    &:hover {
+      color: var(--wr-color-on-surface);
+      background: var(--wr-color-hover);
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+  }
+
+  // Reserve the gutter so a long heading wraps instead of running under the ×.
+  // The modifier belongs to the panel block (`wr-dialog-panel`), which is the
+  // element the service tags; `wr-dialog__*` are the parts inside it.
+  .wr-dialog-panel--closable & {
+    &__title {
+      padding-inline-end: calc(var(--wr-dialog-padding-x) + 1.75rem);
+    }
+  }
+
   &__content {
     padding: var(--wr-dialog-padding-y) var(--wr-dialog-padding-x);
     overflow: auto;

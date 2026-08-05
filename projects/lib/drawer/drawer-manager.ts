@@ -11,7 +11,8 @@ import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterNextRender, inject } from '@angular/core';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WrI18n } from 'ngwr/i18n';
+import { WR_OVERLAY, wrAppendOverlayClose } from 'ngwr/overlay';
 
 import { WrDrawerRef } from './drawer-ref';
 import type { WrDrawerOptions, WrDrawerPosition } from './interfaces';
@@ -60,6 +61,7 @@ export class WrDrawerManager {
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly i18n = inject(WrI18n);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDrawerOptions<D> = {}): WrDrawerRef<C, R> {
     const position = options.position ?? DEFAULT_POSITION;
@@ -129,6 +131,12 @@ export class WrDrawerManager {
       const host = overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
       host.setAttribute('aria-modal', 'true');
+      // Built-in dismiss, same contract as WrDialog's `closable`.
+      if (options.closable !== false) {
+        host.classList.add('wr-drawer__panel--closable');
+        const label = options.closeLabel ?? this.i18n.t('drawer.close');
+        wrAppendOverlayClose(host, 'wr-drawer__close', label, () => drawerRef.close());
+      }
       // Wire aria-labelledby to wrDrawerTitle's auto-id once content is in DOM.
       // Has to wait for a render, not a microtask: attaching the portal only
       // schedules change detection, so under zoneless CD a microtask runs while

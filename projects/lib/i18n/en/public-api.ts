@@ -131,6 +131,12 @@ export const wrEn: WrI18nCatalog = {
   window: {
     close: 'Close',
   },
+  dialog: {
+    close: 'Close dialog',
+  },
+  drawer: {
+    close: 'Close drawer',
+  },
   datePicker: {
     open: 'Open calendar',
     openTime: 'Open time picker',

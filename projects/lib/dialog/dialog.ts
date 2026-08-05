@@ -11,7 +11,8 @@ import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Service, Injector, PLATFORM_ID, afterNextRender, inject } from '@angular/core';
 
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
+import { WrI18n } from 'ngwr/i18n';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrAppendOverlayClose, wrPresentAsSheet } from 'ngwr/overlay';
 
 import { WrDialogRef } from './dialog-ref';
 import type { WrDialogOptions } from './interfaces';
@@ -50,6 +51,7 @@ export class WrDialog {
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
+  private readonly i18n = inject(WrI18n);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const panelClasses: string[] = [DEFAULT_PANEL_CLASS];
@@ -101,6 +103,13 @@ export class WrDialog {
       const host = overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
       host.setAttribute('aria-modal', 'true');
+      // Built-in dismiss. Appended after the content portal so it paints above
+      // it, and marked on the panel so the title reserves the corner gutter.
+      if (options.closable !== false) {
+        host.classList.add('wr-dialog-panel--closable');
+        const label = options.closeLabel ?? this.i18n.t('dialog.close');
+        wrAppendOverlayClose(host, 'wr-dialog__close', label, () => dialogRef.close());
+      }
       // Wire aria-labelledby to wrDialogTitle's auto-id once content is in DOM.
       // Has to wait for a render, not a microtask: attaching the portal only
       // schedules change detection, so under zoneless CD a microtask runs while
