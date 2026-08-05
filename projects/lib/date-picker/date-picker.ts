@@ -58,7 +58,7 @@ import { WrTimePanel } from './internal/time-panel';
  * accepts both named keys (`'shortDate'`, `'mediumDateTime'`, …) and raw
  * token strings (`'dd.MM.yyyy'`, `'HH:mm'`). When `format` is left at the
  * default (`null`), the picker derives the right named key from `mode`:
- * `'date'` → `'shortDate'`, `'time'` → `'shortTime'`, `'datetime'` →
+ * `'date'` gives `'shortDate'`, `'time'` gives `'time'`, `'datetime'` gives
  * `'shortDateTime'`.
  *
  * @example
@@ -91,8 +91,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   /**
    * Format used for both display and parsing. When `null` (default), the
-   * format is derived from `mode` (`shortDate` / `shortTime` /
-   * `shortDateTime`). Pass a named key or raw token string to override.
+   * format is derived from `mode` (`shortDate` / `time` / `shortDateTime`).
+   * Pass a named key or raw token string to override.
    */
   readonly format = input<WrDateFormat | (string & {}) | null>(null);
 
@@ -157,7 +157,10 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     if (explicit) return explicit;
     const m = this.mode();
     if (m === 'datetime') return 'shortDateTime';
-    if (m === 'time') return 'shortTime';
+    // `time`, not `shortTime` — the latter is not a member of WrDateFormat, so
+    // adapters fell through to treating it as a raw token pattern. date-fns then
+    // threw on the unescaped letters; the native adapter degraded silently.
+    if (m === 'time') return 'time';
     return 'shortDate';
   });
 
