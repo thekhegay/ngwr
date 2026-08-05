@@ -12,8 +12,17 @@ import { getWorkspace } from '@schematics/angular/utility/workspace';
 
 import type { Schema } from './schema';
 
-/** Base peers, regardless of prompt answers. */
-const BASE_PEERS: readonly (readonly [string, string])[] = [['@angular/cdk', '>=22.0.0']];
+/**
+ * Base peers, regardless of prompt answers.
+ *
+ * `lucide` is here because the bootstrap snippet this schematic prints registers
+ * icons through the lucide adapter — leaving it out made the very first snippet
+ * a consumer pastes fail to resolve.
+ */
+const BASE_PEERS: readonly (readonly [string, string])[] = [
+  ['@angular/cdk', '>=22.0.0'],
+  ['lucide', '>=1.0.0'],
+];
 
 /** Extra peers contributed by the `dateAdapter` choice. */
 const DATE_ADAPTER_PEERS: Record<NonNullable<Schema['dateAdapter']>, readonly (readonly [string, string])[]> = {
@@ -146,11 +155,16 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
     const density = options.density ?? 'none';
     const theme = options.theme ?? 'none';
 
+    // `ngwr/icon` exports only WrIcon / provideWrIcons / svgIcon — there are no
+    // bare icon exports, so the old `{ plus, trash }` import did not compile.
+    // Icons come from an adapter (lucide / feather) or from svgIcon().
     const imports: string[] = [
       "import { provideWrOverlay } from 'ngwr/overlay';",
-      "import { provideWrIcons, plus, trash } from 'ngwr/icon';",
+      "import { provideWrIcons } from 'ngwr/icon';",
+      "import { lucideIcons } from 'ngwr/icon/adapters/lucide';",
+      "import { Plus, Trash2 } from 'lucide';",
     ];
-    const providers: string[] = ['provideWrOverlay()', 'provideWrIcons([plus, trash])'];
+    const providers: string[] = ['provideWrOverlay()', 'provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))'];
 
     const adapterCall = DATE_ADAPTER_PROVIDER[adapter];
     if (adapterCall) {

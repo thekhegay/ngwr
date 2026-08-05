@@ -53,6 +53,15 @@ npm install ngwr @angular/cdk
 yarn add ngwr @angular/cdk
 ```
 
+`@angular/cdk` is the only required peer. Add an icon set and a date library
+only if you use them — `lucide` (or `feather`) for the icon adapters, and
+`date-fns` or `luxon` for the calendar / date-picker adapters. The Quick start
+below registers a lucide icon, so it needs `lucide`:
+
+```shell
+pnpm add lucide
+```
+
 ## Styles
 
 The fastest way — pull in everything (theme tokens + all component styles):

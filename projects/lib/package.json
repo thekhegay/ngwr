@@ -68,6 +68,7 @@
     "migrations": "./schematics/migrations.json"
   },
   "exports": {
+    "./schematics/*": "./schematics/*",
     ".": {
       "sass": "./styles.scss"
     },

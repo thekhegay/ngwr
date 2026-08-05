@@ -299,8 +299,9 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 
 - `ng add ngwr` — prompts for styles / dateAdapter / density / theme, installs
   peers, prints a tailored bootstrap snippet.
-- `ng g ngwr:use WrFoo path/to/cmp.ts` — adds the import + splices it into the
-  component's `@Component` imports.
+- `ng g ngwr:use WrFoo --path path/to/cmp.ts` — adds the import + splices it into
+  the component's `@Component` imports. Only `symbol` is positional; `path` is a
+  named option, so passing it bare fails with `Unknown argument`.
 - `ng g ngwr:provider <name>` — splices a provider into bootstrap.
 - `ng g ngwr:icon-set` / `ngwr:component-style` / `ngwr:page` — icon barrel /
   per-component `@use` / starter pages.
