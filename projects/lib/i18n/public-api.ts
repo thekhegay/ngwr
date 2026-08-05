@@ -20,6 +20,7 @@ export {
 export { WrI18nHttpLoader, type WrI18nHttpLoaderConfig } from './loaders/http-loader';
 export {
   provideWrI18n,
+  provideWrI18nBaseCatalogs,
   provideWrI18nStaticLoader,
   provideWrI18nHttpLoader,
   type ProvideWrI18nOptions,
