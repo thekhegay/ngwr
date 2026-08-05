@@ -11,6 +11,7 @@ import { type Observable, firstValueFrom } from 'rxjs';
 
 import { WrStorage } from 'ngwr/storage';
 
+import { WR_I18N_BASE_CATALOGS } from './i18n-base-catalogs';
 import { WR_I18N_CONFIG, type WrI18nCatalog, type WrI18nParams } from './i18n-config';
 import { WR_I18N_LOADER } from './i18n-loader';
 
@@ -82,6 +83,13 @@ export class WrI18n {
   private readonly loader = inject(WR_I18N_LOADER);
   private readonly storage = inject(WrStorage);
 
+  /**
+   * Catalogs registered via `provideWrI18nBaseCatalogs()` — the floor under the
+   * loader's own catalogs, so ngwr's built-in strings survive an app that only
+   * ships its own keys. @internal
+   */
+  private readonly baseCatalogs = inject(WR_I18N_BASE_CATALOGS, { optional: true }) ?? [];
+
   /** Per-(locale,scope) catalogs, populated by `loadCatalog`. @internal */
   private readonly catalogs = new Map<string, WrI18nCatalog>();
 
@@ -148,6 +156,10 @@ export class WrI18n {
 
     let hit = scope ? walk(this.catalogs.get(cacheKey(lc, scope)) ?? null, key) : null;
     hit ??= walk(this.catalogs.get(cacheKey(lc, null)) ?? null, key);
+    // Base catalogs are the floor: consulted only once the loader's own catalogs
+    // have missed, so an app's keys always win, but ngwr's built-in strings are
+    // still there when the app's catalog doesn't carry them.
+    hit ??= this.walkBase(lc, key);
 
     if (hit === null) {
       // Fire a background load so a future read can resolve it.
@@ -163,6 +175,18 @@ export class WrI18n {
   }
 
   // Internals
+
+  /**
+   * Look a key up in the registered base catalogs, later contributions first so
+   * a feature can shadow an earlier one.
+   */
+  private walkBase(locale: string, key: string): string | null {
+    for (let i = this.baseCatalogs.length - 1; i >= 0; i--) {
+      const hit = walk(this.baseCatalogs[i][locale] ?? null, key);
+      if (hit !== null) return hit;
+    }
+    return null;
+  }
 
   private initialLocale(): string {
     if (this.config.storageKey) {
