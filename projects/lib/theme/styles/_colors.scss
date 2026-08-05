@@ -54,6 +54,14 @@ $contrast-light: #ffffff !default;
 // CSS variables
 
 :root {
+  // Declared here so the light token set also claims the light UA scheme.
+  // Without it the browser fell back to the OS preference, and an app running
+  // ngwr's LIGHT theme on a dark-mode machine got dark scrollbars and dark
+  // native controls (<textarea>, date/colour inputs) against light surfaces.
+  // `_dark.scss` still flips it to `dark` under [data-theme='dark'], which wins
+  // on specificity.
+  color-scheme: light;
+
   --wr-color-white: #ffffff;
   --wr-color-white-rgb: 255, 255, 255;
   --wr-color-black: #000000;
