@@ -136,6 +136,11 @@
     align-items: center;
     color: var(--wr-input-group-affix);
     padding: 0 var(--wr-input-group-padding-x);
+    // An adornment is fixed furniture; the field next to it is the elastic part.
+    // Left shrinkable, a `Ctrl K` hint got squeezed to 58px, wrapped onto two
+    // lines and dragged the whole group to 40px tall.
+    flex: 0 0 auto;
+    white-space: nowrap;
     user-select: none;
     font-weight: 500;
     font-family: var(--wr-font-family-base);
