@@ -1,5 +1,7 @@
 @use 'sass:color';
 
+@use 'colors';
+
 // Dark theme overrides — opt-in via `[data-theme="dark"]` on <html>.
 // Drive the toggle from `WrTheme` (provided automatically with
 // `provideWrTheme(...)`).
@@ -69,6 +71,9 @@ $dark-intents: (
   // canvas. Bump the base + shade derivations so hover / focus rings
   // stay visible against slate-900.
   --wr-color-primary: #5b85ff;
+  // Same reason as the loop above — the light primary pairs with white, but the
+  // lightened dark-theme primary only reaches 3.36:1 against it.
+  --wr-color-primary-contrast: #{colors.contrast(#5b85ff)};
   --wr-color-primary-rgb: 91, 133, 255;
   --wr-color-primary-light: #7a9eff;
   --wr-color-primary-dark: #2f56c9;
@@ -79,6 +84,9 @@ $dark-intents: (
   // shade set in dark too (generated, so no intent can silently drift).
   @each $name, $base in $dark-intents {
     --wr-color-#{$name}: #{$base};
+    // Re-derived, not inherited: the light-palette token would pair the wrong
+    // foreground with a re-tuned base.
+    --wr-color-#{$name}-contrast: #{colors.contrast($base)};
     --wr-color-#{$name}-rgb: #{color.channel($base, 'red')}, #{color.channel($base, 'green')}, #{color.channel($base, 'blue')};
     --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
     --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
