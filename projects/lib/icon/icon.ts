@@ -5,20 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import {
-  Component,
-  ElementRef,
-  EnvironmentInjector,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  isDevMode,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, isDevMode } from '@angular/core';
 
+import { WrIconRegistry } from './icon-registry';
 import type { WrIconDef, WrIconName } from './interfaces';
-import { WR_ICONS } from './tokens';
 
 /**
  * Renders a registered SVG icon.
@@ -48,42 +38,24 @@ export class WrIcon {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
-   * Merged view of every `WR_ICONS` multi-provider visible from this
-   * injector position — element-level first overlay, environment-level
-   * (app/lazy-route bootstrap) as the base.
+   * Every icon visible from this position, walked up the whole chain of
+   * registering injector levels.
    *
-   * Angular's default `inject(WR_ICONS)` only returns the **closest**
-   * injector's contribution; if a component declares its own
-   * `provideWrIcons(...)`, the root registration is **shadowed**, not
-   * appended. That contradicts the docstring's "each call adds to the
-   * registry" promise and silently breaks any page that overrides while
-   * still relying on root-registered icons.
+   * Angular's `inject(WR_ICONS)` returns only the **closest** injector's
+   * contribution — `multi` providers are not merged across levels — so a
+   * component that registers its own icons used to shadow, not extend, what an
+   * ancestor registered. {@link WrIconRegistry} is provided once per
+   * registering level and links to its parent, so nesting any number of levels
+   * now adds up, with the nearest registration winning a name collision.
    *
-   * We work around it by also asking the environment injector directly
-   * (`envInjector.get(WR_ICONS, null, …)`). When no element-level
-   * provider exists both calls return the same array reference and we
-   * skip the redundant pass. Otherwise we lay element on top of env so
-   * a page's local icons can override a root-registered name.
-   *
-   * One known limitation: multiple element-injector levels in between
-   * still shadow each other — but the showcase doesn't nest providers
-   * that deep, and the env+local merge fixes the dominant case.
+   * Optional: with no `provideWrIcons()` anywhere the map is simply empty and
+   * every name reports as unregistered.
    */
-  private readonly iconSets: readonly (readonly WrIconDef[])[] = (() => {
-    const local = inject(WR_ICONS, { optional: true }) ?? [];
-    const env = inject(EnvironmentInjector).get(WR_ICONS, null, { optional: true }) ?? [];
-    return local === env ? local : [...env, ...local];
-  })();
+  private readonly iconRegistry = inject(WrIconRegistry, { optional: true });
 
-  private readonly registry = computed(() => {
-    const map = new Map<WrIconName, WrIconDef>();
-    for (const set of this.iconSets) {
-      for (const icon of set) {
-        map.set(icon.name, icon);
-      }
-    }
-    return map;
-  });
+  private readonly registry = computed<ReadonlyMap<WrIconName, WrIconDef>>(
+    () => (this.iconRegistry?.resolve() ?? new Map()) as ReadonlyMap<WrIconName, WrIconDef>
+  );
 
   private readonly icon = computed(() => this.registry().get(this.name()));
 
