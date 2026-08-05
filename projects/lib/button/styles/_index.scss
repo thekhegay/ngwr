@@ -82,6 +82,28 @@
     }
   }
 
+  // Icon-only — square, at any density and any size.
+  //
+  // The height is intrinsic (`line-height + 2·padding-y + 2·border`), so nothing
+  // can be hardcoded and `aspect-ratio` has no definite axis to work from. Both
+  // axes reduce to the same expression instead: mirror the block padding on the
+  // inline axis, and give the icon box the line-height as its square. The glyph
+  // keeps its own `--wr-btn-icon-size` and centres inside that box.
+  //
+  // `block` is excluded — it is width:100% by contract, and squaring it would
+  // turn a full-width button into a giant tile.
+  &:has(> &__label:empty):not(&--block) {
+    padding-inline: calc(var(--wr-btn-padding-y) * var(--wr-density-y, 1));
+
+    .wr-btn__icon {
+      width: var(--wr-btn-line-height);
+      height: var(--wr-btn-line-height);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
   // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px) so button,
   // input and select line up in a row. Buttons keep a slightly wider padding-x
   // (12 / 14 / 18) than input/select; gap + icon step with the size.
