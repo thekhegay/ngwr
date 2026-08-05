@@ -1,5 +1,8 @@
 :root {
-  --wr-icon-size: 1.5rem;
+  // Relative to the surrounding text, not the root, so an icon dropped beside
+  // 14px copy comes out ~17px instead of a fixed 24px that dwarfs it. Components
+  // that want a specific size (button, input affixes) still set their own.
+  --wr-icon-size: 1.2em;
 }
 
 .wr-icon {
