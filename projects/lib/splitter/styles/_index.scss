@@ -19,7 +19,13 @@
 
   &__pane {
     flex-grow: 0;
-    flex-shrink: 0;
+    // Shrinkable on purpose. The two panes are sized in percentages that add up
+    // to 100, and the 4px divider sits between them — with `flex-shrink: 0` the
+    // row came to 100% + 4px and both panes hung over the container's edge.
+    // Shrinking splits that 4px between them and keeps the ratio the drag set.
+    // Safe to shrink: `min-width: 0` plus `overflow: auto` means content never
+    // props a pane open.
+    flex-shrink: 1;
     min-width: 0;
     min-height: 0;
     overflow: auto;
