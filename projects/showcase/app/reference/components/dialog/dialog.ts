@@ -59,6 +59,14 @@ export class EditUserComponent {
 
 // The class token already types the generics — no cast, no WR_DIALOG_REF needed:
 private readonly ref = inject<WrDialogRef<EditUserComponent, boolean>>(WR_DIALOG_REF);`,
+    closeButton: `<!-- There is no built-in close (×) — dialogs close on backdrop click,
+     Escape, and whatever you mark with [wrDialogClose]. Add a corner × like
+     this when the design calls for one. -->
+<div wrDialogTitle style="display: flex; align-items: center; gap: 0.5rem">
+  <span style="flex: 1 1 auto">Edit user</span>
+  <wr-btn size="sm" icon="close" [attr.aria-label]="'Close'" wrDialogClose />
+</div>
+<div wrDialogContent>…</div>`,
     responsive: `// Per dialog — slides up as a bottom-sheet on small screens.
 dialog.open(ConfirmComponent, { responsive: true });
 
