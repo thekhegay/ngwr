@@ -2,6 +2,11 @@
 
 .wr-pagination {
   display: block;
+  // Breathing room of its own. A pager almost always sits right under a table or
+  // list, and with a bare `display: block` and no padding its cells touched the
+  // content above and below. Padding rather than margin so it stays inside the
+  // component's own box and can't collapse into the consumer's spacing.
+  padding-block: 0.5rem;
 
   &--disabled {
     opacity: 0.6;
@@ -80,6 +85,13 @@
 
   &__size {
     min-width: 0;
+
+    // The 10rem floor on `.wr-select__trigger` is sized for a standalone field.
+    // Here the select only ever holds "20 / page", so the pager was reserving
+    // 160px for a ~75px label — the single widest thing in the control.
+    .wr-select__trigger {
+      min-width: 0;
+    }
   }
 
   // Size variants — set the cell size; each button gets the matching [size].
