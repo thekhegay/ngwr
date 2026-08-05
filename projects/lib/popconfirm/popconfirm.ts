@@ -10,7 +10,7 @@ import { ComponentPortal } from '@angular/cdk/portal';
 import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 
 import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './interfaces';
@@ -61,6 +61,7 @@ export class WrPopconfirm {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -109,8 +110,8 @@ export class WrPopconfirm {
     });
     ref.instance.cancelled.subscribe(() => this.dismiss());
 
-    this.overlayRef
-      .outsidePointerEvents()
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;

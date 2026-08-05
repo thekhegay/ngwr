@@ -31,7 +31,7 @@ import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date-adapter';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import { WrDateTimePanel } from './internal/date-time-panel';
 import { WrTimePanel } from './internal/time-panel';
@@ -134,6 +134,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -293,8 +294,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     else if (m === 'datetime') this.attachDateTime();
     else this.attachDate();
 
-    this.overlayRef
-      .outsidePointerEvents()
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;

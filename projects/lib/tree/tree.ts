@@ -31,7 +31,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 
@@ -187,6 +187,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -682,8 +683,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // container, so it must hold focus once the panel is attached.
     if (this.virtualized()) queueMicrotask(() => this.listElement?.focus());
 
-    this.overlayRef
-      .outsidePointerEvents()
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;

@@ -10,7 +10,7 @@ import { TemplatePortal } from '@angular/cdk/portal';
 import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -49,6 +49,7 @@ export class WrContextMenu {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -280,18 +281,17 @@ export class WrContextMenu {
     });
 
     // The right-click that opens the menu still has `mouseup` + `auxclick`
-    // events pending. CDK's `outsidePointerEvents()` listens to pointerdown
-    // / auxclick and would fire on those — closing the menu the instant
-    // the user lifts their finger. Two-part guard:
+    // events pending, and the outside-click source fires on `auxclick` — which
+    // would close the menu the instant the user lifts their finger. Two-part
+    // guard:
     //   1. Track the open timestamp.
     //   2. Ignore any outside events that arrive within a short window
     //      after the open (long enough to cover the original mouseup +
     //      auxclick, short enough that a deliberate second click is
     //      still respected).
     const openedAt = performance.now();
-    const ref = this.overlayRef;
-    ref
-      .outsidePointerEvents()
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (performance.now() - openedAt < 200) return;

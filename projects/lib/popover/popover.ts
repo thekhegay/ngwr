@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrPresentAsSheet } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
 import { numAttr } from 'ngwr/utils';
 
 import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './interfaces';
@@ -127,6 +127,7 @@ export class WrPopover {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly outsideClick = inject(WrOutsideClick);
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
@@ -321,8 +322,8 @@ export class WrPopover {
     }
     this.overlayRef.overlayElement.id = this.panelId;
 
-    this.overlayRef
-      .outsidePointerEvents()
+    this.outsideClick
+      .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (this.host.nativeElement.contains(event.target as Node)) return;
