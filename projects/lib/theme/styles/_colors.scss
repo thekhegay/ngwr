@@ -21,11 +21,10 @@ $base-colors: (
   dark: #0f172a,
 ) !default;
 
-// YIQ luminosity threshold (0–255) above which a color is treated as
-// "light" and pairs with dark text. Uses the classic Bootstrap formula —
-// it weights the green channel higher than blue, which matches human
-// perception of brightness far better than HSL lightness (HSL classes
-// pure blue as 50%-lightness even though it reads as dark).
+// Deprecated: the old YIQ brightness cut-off. No longer read — `_contrast()`
+// compares real WCAG contrast ratios, which needs no threshold. Kept declared
+// so `@use 'ngwr/theme' with ($contrast-threshold: …)` in an existing app still
+// compiles instead of erroring on an unknown variable.
 $contrast-threshold: 150 !default;
 
 // Dark text used on light backgrounds.
@@ -40,15 +39,56 @@ $contrast-light: #ffffff !default;
   @return color.channel($c, 'red'), color.channel($c, 'green'), color.channel($c, 'blue');
 }
 
+/** One channel, linearised per WCAG 2.x. */
+@function _linear($channel) {
+  $s: math.div($channel, 255);
+  @if $s <= 0.03928 {
+    @return math.div($s, 12.92);
+  }
+  @return math.pow(math.div($s + 0.055, 1.055), 2.4);
+}
+
+/** WCAG relative luminance of a colour. */
+@function _luminance($c) {
+  @return 0.2126 * _linear(color.channel($c, 'red')) + 0.7152 * _linear(color.channel($c, 'green')) + 0.0722 *
+    _linear(color.channel($c, 'blue'));
+}
+
+/** WCAG contrast ratio between two colours. */
+@function _ratio($a, $b) {
+  $la: _luminance($a);
+  $lb: _luminance($b);
+  $hi: math.max($la, $lb);
+  $lo: math.min($la, $lb);
+  @return math.div($hi + 0.05, $lo + 0.05);
+}
+
+/**
+ * Foreground that actually reads best on `$c` — whichever of the two candidates
+ * wins on WCAG contrast ratio.
+ *
+ * Was a YIQ brightness threshold, which is a brightness *estimate*, not the
+ * metric accessibility is judged by, and it mispicked on every mid-saturation
+ * colour: five of the nine shipped intents got white text below AA
+ * (success 3.33:1, medium 3.10:1, danger and info 3.68:1, secondary 3.99:1)
+ * where dark text would have cleared it (5.43 / 5.82 / 4.90 / 4.91 / 4.52).
+ * Comparing the real ratios needs no threshold to tune.
+ */
 @function _contrast($c) {
-  $r: color.channel($c, 'red');
-  $g: color.channel($c, 'green');
-  $b: color.channel($c, 'blue');
-  $yiq: math.div($r * 299 + $g * 587 + $b * 114, 1000);
-  @if $yiq >= $contrast-threshold {
+  @if _ratio($c, $contrast-dark) >= _ratio($c, $contrast-light) {
     @return $contrast-dark;
   }
   @return $contrast-light;
+}
+
+/**
+ * Public alias of {@link _contrast}. Any theme partial that re-tunes an intent
+ * has to re-derive its `-contrast` token too, otherwise the token stays baked
+ * from the light palette — which is how the dark theme ended up putting white
+ * text on its lightened primary at 3.36:1.
+ */
+@function contrast($c) {
+  @return _contrast($c);
 }
 
 // CSS variables
