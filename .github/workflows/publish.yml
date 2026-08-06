@@ -9,8 +9,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write   # tag + create release
-  id-token: write   # npm publish via Trusted Publisher OIDC
+  contents: write # tag + create release
+  id-token: write # npm publish via Trusted Publisher OIDC
 
 jobs:
   detect:
@@ -118,9 +118,16 @@ jobs:
   # to be a manual `workflow_dispatch`, and v8 and v9 shipped without anyone
   # remembering to link them.
   #
-  # Safe to run alongside `deploy.yml`: the snapshot is rebuilt from the OLD TAG
-  # rather than copied off the server, it rsyncs to a different directory, and
-  # neither deploy passes `--delete`, so the two cannot clobber each other.
+  # Runs alongside `deploy.yml` — the same release commit triggers both. They do
+  # not clobber each other: this rebuilds the snapshot from the OLD TAG rather
+  # than copying it off the server, and rsyncs it into `/vN/` while the site
+  # deploy targets the root. `deploy.yml` DOES pass `--delete`; what keeps it off
+  # the archives is its `--exclude=/v[0-9]*`, so that exclude is a safety
+  # interlock between these two workflows, not a tidiness preference.
+  #
+  # `deploy.yml` finishes first, so `/vN/` 404s for the few minutes until this
+  # job lands — and permanently if this job fails. Recover by re-running
+  # "Archive docs version" manually with the same tag and path.
   find-superseded-major:
     name: Find the major being superseded
     needs: [detect, publish]
@@ -145,8 +152,12 @@ jobs:
           fi
 
           prev=$(( ${BASH_REMATCH[1]} - 1 ))
-          # Highest tag of the previous major: the last docs that major ever had.
-          prev_tag=$(git tag --list "v${prev}.*" --sort=-v:refname | head -1)
+          # Highest STABLE tag of the previous major: the last docs that major
+          # ever shipped. Release candidates are filtered out because git's
+          # version sort ranks them ABOVE the release they precede —
+          # `--sort=-v:refname` puts v10.0.0-rc.2 before v10.0.0 — so without this
+          # the frozen record of a major would be its release-candidate docs.
+          prev_tag=$(git tag --list "v${prev}.*" --sort=-v:refname | grep -v -- '-rc\.' | head -1)
 
           if [[ -z "$prev_tag" ]]; then
             echo "No tags found for v${prev} — nothing to archive"
