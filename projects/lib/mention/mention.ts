@@ -243,21 +243,30 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   }
 
   private commit(item: T): void {
-    if (!this.state) return;
+    // Snapshot the state up front. `dispatchEvent` below re-enters this directive
+    // synchronously: the listener runs `detect()`, and because assigning
+    // `el.value` has already parked the caret at the end of the text — past the
+    // space appended here — `detect()` finds no trigger and calls `close()`,
+    // which nulls `this.state`. Reading `this.state` after that line threw
+    // `Cannot read properties of null`, so `wrMentionSelected` never fired.
+    const state = this.state;
+    if (!state) return;
+
     const el = this.host.nativeElement;
     const value = el.value;
     const caret = el.selectionStart ?? value.length;
     const valueFn = this.valueWith();
-    const inserted = valueFn ? valueFn(item, this.state.trigger) : `${this.state.trigger}${this.displayWith()(item)}`;
+    const inserted = valueFn ? valueFn(item, state.trigger) : `${state.trigger}${this.displayWith()(item)}`;
     const replacement = `${inserted} `;
-    const before = value.substring(0, this.state.startIndex);
+    const before = value.substring(0, state.startIndex);
     const after = value.substring(caret);
     const next = before + replacement + after;
+
     el.value = next;
     el.dispatchEvent(new Event('input', { bubbles: true }));
     const nextCaret = (before + replacement).length;
     el.setSelectionRange(nextCaret, nextCaret);
-    this.wrMentionSelected.emit({ item, trigger: this.state.trigger, query: this.state.query });
+    this.wrMentionSelected.emit({ item, trigger: state.trigger, query: state.query });
     this.close();
   }
 }
