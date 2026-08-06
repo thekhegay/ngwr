@@ -8,7 +8,17 @@ name: Archive docs version
 # fallback, or `/v9/anything` falls through to the ROOT index.html and serves
 # the current docs instead of the archived ones. One regex location covers every
 # past and future major, so no server change is needed per release:
-#   location ~ ^/(v[0-9]+)/ { try_files $uri $uri/ /$1/index.html; }
+#
+#   location ~ ^/(v[0-9]+(?:\.[0-9]+)*(?:-rc(?:\.[0-9]+)?)?)/ {
+#       try_files $uri $uri/ /$1/index.html =404;
+#   }
+#
+# Both halves of that are load-bearing. The optional octets and `-rc` suffix let
+# the same location serve a `v9.1.0` or `v9.0.0-rc` path, not just `v9`. The
+# `=404` terminator is what stops a miss inside an archive from re-entering this
+# same location forever — without it nginx gives up with "rewrite or internal
+# redirection cycle" and serves 500s in place of the archived page.
+#
 # (The older per-version form — `location /v7/ { … }` — works too but has to be
 # added by hand each time, which is exactly what the automation below removes.)
 
@@ -95,6 +105,66 @@ jobs:
           # The snapshot's own sitemap would invite exactly the indexing we
           # just turned off.
           rm -f dist/showcase/sitemap.xml
+
+      # Give the reader a way out, and stop the snapshot claiming to be current.
+      #
+      # An archived build's own version-switcher is frozen at the moment it was
+      # tagged, so it can never be right: /v9/ labels itself "v9 · latest" and
+      # offers only v7, because the v9 build has no idea v10 exists — and /v7/
+      # and /v8/ have no switcher at all, leaving no route back to the live docs
+      # from any page. Both are fixed the same way: hide the stale control and
+      # inject a banner that always points at the site root.
+      #
+      # Injected into the built HTML rather than authored in the app, for the
+      # same reason as the noindex above — these tags are already cut and cannot
+      # be given the markup retroactively. It names the version it IS (a frozen
+      # fact) and never the current one (which would go stale on the next
+      # major), and it carries its own styles so it does not depend on whatever
+      # token layer that release happened to ship.
+      #
+      # Appended after </body>'s content, i.e. outside the app root, so Angular
+      # hydration never sees it as unexpected DOM.
+      - name: Flag the snapshot as archived
+        env:
+          ARCHIVED_PATH: ${{ inputs.path }}
+        run: |
+          cat > "$RUNNER_TEMP/mark-archived.mjs" <<'SCRIPT'
+          import { readFileSync, writeFileSync } from 'node:fs';
+
+          const version = process.env.ARCHIVED_PATH;
+          const files = process.argv.slice(2);
+
+          const banner = `<style>
+          .wr-archived-banner{position:fixed;inset:auto 0 0 0;z-index:2147483647;display:flex;
+          flex-wrap:wrap;gap:.25rem .75rem;align-items:center;justify-content:center;
+          padding:.75rem 1rem;background:#1c1917;color:#fafaf9;border-top:1px solid #44403c;
+          text-align:center;font:500 .875rem/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif}
+          .wr-archived-banner b{color:#fbbf24}
+          .wr-archived-banner a{color:#fafaf9;text-decoration:underline;text-underline-offset:2px;
+          white-space:nowrap}
+          .wr-archived-banner a:hover{color:#fbbf24}
+          body{padding-bottom:5rem!important}
+          @media (max-width:560px){body{padding-bottom:9rem!important}}
+          .ngwr-header__version{display:none!important}
+          </style>
+          <div class="wr-archived-banner" role="note">
+          <span>You are reading the <b>${version}</b> documentation. This version is no longer maintained.</span>
+          <a href="https://ngwr.dev/">Go to the current docs</a>
+          </div>`;
+
+          let touched = 0;
+          for (const file of files) {
+            const html = readFileSync(file, 'utf8');
+            // Re-runs are expected (back-filling an existing archive), and a
+            // page with no </body> is not one we can safely patch.
+            if (html.includes('wr-archived-banner') || !html.includes('</body>')) continue;
+            writeFileSync(file, html.replace('</body>', () => `${banner}</body>`));
+            touched++;
+          }
+          console.log(`Banner added to ${touched} of ${files.length} pages`);
+          SCRIPT
+          find dist/showcase -name '*.html' -print0 \
+            | xargs -0 node "$RUNNER_TEMP/mark-archived.mjs"
 
       - uses: easingthemes/ssh-deploy@v6.0.3
         with:
