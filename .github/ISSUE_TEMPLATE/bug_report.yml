@@ -13,7 +13,7 @@ body:
     attributes:
       label: NGWR version
       description: Output of `npm ls ngwr` or the value in your `package.json`.
-      placeholder: '6.1.1'
+      placeholder: '10.0.0'
     validations:
       required: true
 
@@ -22,7 +22,7 @@ body:
     attributes:
       label: Angular version
       description: Output of `ng version` (or `@angular/core` from `package.json`).
-      placeholder: '21.2.13'
+      placeholder: '22.1.0'
     validations:
       required: true
 

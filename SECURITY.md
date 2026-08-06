@@ -7,9 +7,9 @@ only when the change is mechanical (no breaking surface).
 
 | Version | Supported |
 |---------|-----------|
-| 9.x     | ✅ Full — all security fixes |
-| 8.x     | ⚠️ Limited — mechanical fixes only, until the next major |
-| < 8.0   | ❌ Unsupported |
+| 10.x    | ✅ Full — all security fixes |
+| 9.x     | ⚠️ Limited — mechanical fixes only, until the next major |
+| < 9.0   | ❌ Unsupported |
 
 ## Reporting a vulnerability
 

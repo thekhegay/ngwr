@@ -42,7 +42,8 @@ export default class MigrationPageComponent {
 
   protected readonly snippets = {
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
-ng update ngwr@9`,
+# v10 itself ships no codemod; this still applies any pending v7–v9 migrations.
+ng update ngwr@10`,
 
     checkbox: `<!-- Inside <wr-checkbox-group>: the identity input was renamed. -->
 - <wr-checkbox value="autosave">Autosave</wr-checkbox>

@@ -7,20 +7,61 @@ touch-up.
 
 ```bash
 # Runs the version-matched migration for the major you land on.
-ng update ngwr@8
+ng update ngwr@10
 ```
 
 Sections are newest-first. If you are skipping a major, run each migration
-in order (`ngwr@7`, then `ngwr@8`, …) rather than jumping straight to the
+in order (`ngwr@7`, then `ngwr@8`, then `ngwr@9`, …) rather than jumping straight to the
 latest.
 
 ---
 
-## v8 → v9
+## v9 → v10
 
-> **Unreleased.** These changes are on `main` but not yet published, so
-> `ng update ngwr@9` only becomes available with the v9 release. The
-> codemod itself is already written and registered.
+Three breaking changes, all of them visual defaults. **There is no
+`ng update ngwr@10`** — and that is deliberate: nothing here can be rewritten
+mechanically, and an empty codemod would tell you your regressions were handled
+when they were not. Nothing errors at build time either, so the way to check
+this upgrade is to look at the pages, not the logs.
+
+### `--wr-color-*-contrast` picks foreground by WCAG ratio
+
+Five of the nine intents flip from white to dark text: `secondary`, `success`,
+`danger`, `info` and `medium`. All five failed WCAG AA before; all nine pass
+now, in both themes. If a design system depended on the old pairing, override
+`$contrast-dark` / `$contrast-light` or the base colours.
+
+### Table headers no longer force uppercase
+
+`--wr-table-head-transform` defaulted to `uppercase`, which rewrote every column
+title's casing; it now defaults to `none`, and the tracking moves with it. Your
+headers will render exactly as you wrote them — check for titles like
+`created at` that the transform used to mask. To keep the old look:
+
+```scss
+.wr-table {
+  --wr-table-head-transform: uppercase;
+  --wr-table-head-letter-spacing: 0.04em;
+}
+```
+
+### Tooltips follow the theme instead of inverting
+
+A tooltip used to be a light chip on a dark canvas and vice versa. It now uses
+`--wr-color-surface` / `--wr-color-on-surface` with the standard outline. To
+restore the inverted look:
+
+```scss
+.wr-tooltip {
+  --wr-tooltip-bg: var(--wr-color-on-surface);
+  --wr-tooltip-color: var(--wr-color-dark-contrast);
+  --wr-tooltip-border: transparent;
+}
+```
+
+---
+
+## v8 → v9
 
 Three breaking changes. One is auto-fixed; the other two need a manual
 pass, and both fail **silently** — no template error, no build error, the
