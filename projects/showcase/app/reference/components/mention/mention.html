@@ -69,6 +69,13 @@
     <ngwr-doc-api [rows]="typeRows" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Accessibility"
+    description="The field keeps its native `role=\`textbox\`` — it holds prose, and the mention is a fragment inside it, not the field's value. It is deliberately **not** a `combobox`: that role is disallowed on `<textarea>` and would drop `aria-multiline`, so a screen reader would stop reporting the field as multi-line for the whole editing session. Nothing here is configurable, and nothing is required of you."
+  >
+    <ngwr-doc-code [code]="snippets.a11y" language="angular-html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

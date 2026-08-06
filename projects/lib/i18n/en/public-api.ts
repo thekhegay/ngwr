@@ -134,6 +134,13 @@ export const wrEn: WrI18nCatalog = {
   dialog: {
     close: 'Close dialog',
   },
+  // Count-neutral on purpose: `wrInterpolate` does `{{name}}` substitution only,
+  // with no plural support, so "Matches available: 1" has to read correctly too.
+  mention: {
+    listbox: 'Mentions',
+    available: 'Matches available: {{count}}',
+    inserted: 'Inserted: {{label}}',
+  },
   drawer: {
     close: 'Close drawer',
   },

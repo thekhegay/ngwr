@@ -1,18 +1,22 @@
-@if (items().length === 0) {
-  <div class="wr-mention-panel__empty">No matches</div>
-} @else {
-  <ul class="wr-mention-panel__list" role="listbox">
-    @for (item of items(); track $index) {
-      <li
-        class="wr-mention-panel__option"
-        role="option"
-        [class.wr-mention-panel__option--active]="$index === activeIndex()"
-        [attr.aria-selected]="$index === activeIndex()"
-        (mouseenter)="hovered.emit($index)"
-        (mousedown)="onPick(item, $event)"
-      >
-        {{ displayWith()(item) }}
-      </li>
-    }
-  </ul>
-}
+<!--
+  No empty branch: `activate()` calls `close()` and returns before `open()` when
+  nothing matches, so the panel is never rendered with zero items. The "No
+  matches" `<div>` that used to live here was unreachable — and a hard-coded
+  English string besides. The zero-match case is announced through the
+  directive's live region instead.
+-->
+<ul class="wr-mention-panel__list" role="listbox" [attr.id]="listboxId()" [attr.aria-label]="listLabel()">
+  @for (item of items(); track $index) {
+    <li
+      class="wr-mention-panel__option"
+      role="option"
+      [attr.id]="optionId($index)"
+      [class.wr-mention-panel__option--active]="$index === activeIndex()"
+      [attr.aria-selected]="$index === activeIndex()"
+      (mouseenter)="hovered.emit($index)"
+      (mousedown)="onPick(item, $event)"
+    >
+      {{ displayWith()(item) }}
+    </li>
+  }
+</ul>

@@ -4,6 +4,25 @@
   pointer-events: auto;
 }
 
+// Polite live region the directive appends to `<body>`. It carries the two
+// things `role="textbox"` cannot express as ARIA state — how many suggestions
+// appeared, and what was inserted on commit — because `aria-expanded` is not a
+// supported state of textbox.
+//
+// Visually hidden rather than `display: none` / `visibility: hidden`, both of
+// which take the element out of the accessibility tree and silence it entirely.
+.wr-mention__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .wr-mention-panel {
   display: block;
   min-width: 12rem;
@@ -38,6 +57,10 @@
     }
   }
 
+  // Nothing renders this any more — the panel's empty branch was unreachable
+  // (`activate()` closes before opening when nothing matches) and has been
+  // removed. Kept because `.wr-*` classes are public API and deleting one is a
+  // breaking change for no gain; a consumer styling it simply sees no element.
   &__empty {
     padding: 0.5rem 0.75rem;
     color: var(--wr-color-on-surface-muted);

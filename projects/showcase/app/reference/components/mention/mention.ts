@@ -74,6 +74,24 @@ export class MyComponent {
   [triggers]="['#']"
   [(ngModel)]="text"
 ></textarea>`,
+    a11y: `<!-- What the directive renders. You write none of this. -->
+<textarea
+  wrMention
+  aria-autocomplete="list"      <!-- static: a permanent capability of the field, -->
+  aria-haspopup="listbox"       <!-- announced on focus before you type a trigger -->
+  aria-controls="wr-mention-listbox-1"
+  aria-activedescendant="wr-mention-listbox-1-opt-2"   <!-- only while open -->
+></textarea>
+
+<!-- In the overlay: -->
+<ul id="wr-mention-listbox-1" role="listbox" aria-label="Mentions">
+  <li id="wr-mention-listbox-1-opt-0" role="option" aria-selected="false">Ada Lovelace</li>
+  <li id="wr-mention-listbox-1-opt-2" role="option" aria-selected="true">Grace Hopper</li>
+</ul>
+
+<!-- Plus a polite live region on <body>, because aria-expanded is not a
+     supported state of role=textbox — so "a list appeared" and "X was
+     inserted" have nowhere else to go:  "Matches available: 4" -->`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
