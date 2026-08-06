@@ -5,10 +5,15 @@
   --wr-kbd-border-bottom: rgba(var(--wr-color-on-surface-rgb), 0.32);
   --wr-kbd-color: var(--wr-color-on-surface);
   --wr-kbd-radius: var(--wr-control-radius-md);
+  // The bevel — chunky bottom border plus drop shadow — is what sells the
+  // keycap, so it rides the size scale like every other dimension. It used to be
+  // fixed px while the cap grew 22 -> 28 -> 34px, so at `lg` the same 3px of
+  // depth read as a hairline under a third more keycap.
+  --wr-kbd-depth: 1px;
   // Shadow uses the always-black backdrop token, not `--wr-color-on-surface-rgb`
   // — the dark RGB flips to light in dark mode, which would turn the
-  // 1px drop-shadow into a top highlight.
-  --wr-kbd-shadow: 0 1px 0 rgba(var(--wr-color-backdrop-rgb), 0.25);
+  // drop-shadow into a top highlight.
+  --wr-kbd-shadow: 0 var(--wr-kbd-depth) 0 rgba(var(--wr-color-backdrop-rgb), 0.25);
 
   display: inline-flex;
   align-items: center;
@@ -23,7 +28,8 @@
   color: var(--wr-kbd-color);
   background: var(--wr-kbd-bg);
   border: 1px solid var(--wr-kbd-border);
-  border-bottom-width: 2px;
+  // `sm` / `md` keep their exact 2px; only `lg` moves.
+  border-bottom-width: calc(var(--wr-kbd-depth) + 1px);
   border-bottom-color: var(--wr-kbd-border-bottom);
   border-radius: var(--wr-kbd-radius);
   box-shadow: var(--wr-kbd-shadow);
@@ -48,6 +54,7 @@
   }
 
   &--lg {
+    --wr-kbd-depth: 2px;
     --wr-kbd-radius: var(--wr-control-radius-lg);
     min-width: 2.125rem;
     height: 2.125rem;
