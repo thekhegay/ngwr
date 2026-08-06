@@ -52,6 +52,16 @@ on:
         required: true
         type: string
 
+# Pinned read-only, and that matters most on the `workflow_call` path: a called
+# workflow otherwise inherits the CALLER's token, and publish.yml holds
+# `contents: write` + `id-token: write` for tagging and npm Trusted Publishing.
+# This job restores a pnpm cache — the very thing publish.yml disables so a
+# poisoned entry cannot reach its OIDC token — so inheriting that token would
+# reopen the hole one job below the comment explaining why it was closed.
+# Declaring the narrower set here drops both privileges for this workflow.
+permissions:
+  contents: read
+
 concurrency:
   group: archive-docs-${{ inputs.path }}
   cancel-in-progress: false
@@ -86,7 +96,22 @@ jobs:
 
       # Root the snapshot at the versioned path so its assets + router links
       # resolve under /<path>/.
-      - run: pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
+      #
+      # Through the wrapper, not a bare `ng build`: under `outputMode: 'static'`
+      # a route that throws while prerendering does NOT fail the build — it logs
+      # `ERROR …`, emits the broken page anyway and exits 0. scripts/build-showcase.ts
+      # is the only thing that turns that into a red build, and it forwards extra
+      # args straight through to `ng build showcase`. Without it an archive can
+      # publish content-less pages under a green check. Calling it directly rather
+      # than via `pnpm build:showcase`, because that script is a three-command
+      # chain and `--base-href` would land on the last one. The wrapper postdates
+      # some archivable tags, hence the fallback.
+      - run: |
+          if [[ -f scripts/build-showcase.ts ]]; then
+            pnpm exec tsx scripts/build-showcase.ts --base-href=/${{ inputs.path }}/
+          else
+            pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
+          fi
 
       # Keep superseded docs out of search results.
       #
