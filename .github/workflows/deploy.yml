@@ -3,16 +3,59 @@ name: Deploy showcase
 on:
   push:
     branches: [main]
+  # Deploy on demand — for a rollback, or to re-push the current main.
+  workflow_dispatch:
 
 concurrency:
   group: deploy-ngwr-showcase
   cancel-in-progress: false
 
 jobs:
+  # The site used to ship only on release commits, which quietly meant docs
+  # fixes could not reach ngwr.dev without an npm publish: the v8/v9 entries in
+  # the version switcher sat on main for a day, deployed nowhere, because no
+  # release happened in between. Docs are not the library and should not wait
+  # for its version bumps.
+  detect:
+    name: Decide whether to deploy
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+      reason: ${{ steps.check.outputs.reason }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # HEAD~1 has to exist to diff against.
+          fetch-depth: 2
+
+      - id: check
+        run: |
+          emit() { echo "deploy=$1" >> "$GITHUB_OUTPUT"; echo "reason=$2" >> "$GITHUB_OUTPUT"; echo "$2"; }
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            emit true "manual run"; exit 0
+          fi
+
+          subject=$(git log -1 --pretty=%s)
+          if [[ "$subject" == 'chore(release): v'* && "$subject" != *-rc.* ]]; then
+            emit true "stable release: $subject"; exit 0
+          fi
+          if [[ "$subject" == *-rc.* ]]; then
+            emit false "release candidate — not deployed"; exit 0
+          fi
+
+          # Merge commits diff against the first parent, i.e. main before the
+          # merge, which is exactly the set of files the merge introduced.
+          if git diff --name-only HEAD~1 HEAD | grep -q '^projects/showcase/'; then
+            emit true "showcase changed"; exit 0
+          fi
+
+          emit false "nothing that affects the site"
+
   deploy:
     name: Build & deploy showcase
-    # Only on stable releases (skip RCs and non-release commits).
-    if: "startsWith(github.event.head_commit.message, 'chore(release): v') && !contains(github.event.head_commit.message, '-rc.')"
+    needs: detect
+    if: needs.detect.outputs.deploy == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +78,17 @@ jobs:
       - uses: easingthemes/ssh-deploy@v6.0.3
         with:
           SCRIPT_BEFORE: ls
-          ARGS: '-rlgoDzvc -i'
+          # `--delete` because without it every hashed bundle ever built stays
+          # on the server forever: the box had accumulated 2728 `chunk-*.js`,
+          # 25 `main-*.js` and 15 `styles-*.css` — 106 MB of dead weight out of
+          # 188 MB total.
+          #
+          # `--exclude=/v[0-9]*` is what makes that safe. The archived docs
+          # (/v7/, /v8/, /v9/) live in this same directory but are NOT part of
+          # `dist/showcase`, so an unguarded `--delete` would wipe every frozen
+          # major on the next deploy. Verified with `--dry-run` against the live
+          # server: 2799 stale files matched, zero of them under an archive.
+          ARGS: '-rlgoDzvc -i --delete --exclude=/v[0-9]*'
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SOURCE: 'dist/showcase/'
           REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
