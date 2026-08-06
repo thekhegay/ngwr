@@ -14,10 +14,14 @@ name: Archive docs version
 #   }
 #
 # Both halves of that are load-bearing. The optional octets and `-rc` suffix let
-# the same location serve a `v9.1.0` or `v9.0.0-rc` path, not just `v9`. The
-# `=404` terminator is what stops a miss inside an archive from re-entering this
-# same location forever — without it nginx gives up with "rewrite or internal
-# redirection cycle" and serves 500s in place of the archived page.
+# the same location serve a `v9.1.0` or `v9.0.0-rc` path, not just `v9`.
+#
+# The `=404` terminator matters only when the snapshot itself is missing — a
+# half-finished archive job, or a wrong `path` input. `try_files` then re-enters
+# this same location hunting for a `/vN/index.html` that is not there, and nginx
+# aborts with "rewrite or internal redirection cycle": a 500 where 404 is the
+# honest answer. So if archived deep links 500, suspect the missing snapshot
+# first; the terminator turns that into a diagnosable 404 rather than causing it.
 #
 # (The older per-version form — `location /v7/ { … }` — works too but has to be
 # added by hand each time, which is exactly what the automation below removes.)
@@ -124,6 +128,20 @@ jobs:
       #
       # Appended after </body>'s content, i.e. outside the app root, so Angular
       # hydration never sees it as unexpected DOM.
+      #
+      # `position: sticky` rather than `fixed`, and this is load-bearing: a fixed
+      # bar reserves no space, and the showcase pins `html, body { height: 100% }`
+      # under `box-sizing: border-box`, so the obvious remedy — padding the body —
+      # reserves nothing either. The padding is spent inside the first viewport
+      # while the app root (`min-height: 100vh`) overflows past it, leaving the
+      # document's scroll bottom flush with the content and the bar painted over
+      # the footer, unreachable at any scroll position. Sticky sits in normal
+      # flow, so it reserves exactly its own height at whatever width it wraps to,
+      # and still pins to the bottom of the viewport while scrolling.
+      #
+      # z-index stays BELOW the CDK overlay container (1000): archived pages host
+      # live demos, and a bar above them would cover a drawer's or dialog's
+      # buttons and make the demo look broken.
       - name: Flag the snapshot as archived
         env:
           ARCHIVED_PATH: ${{ inputs.path }}
@@ -135,7 +153,7 @@ jobs:
           const files = process.argv.slice(2);
 
           const banner = `<style>
-          .wr-archived-banner{position:fixed;inset:auto 0 0 0;z-index:2147483647;display:flex;
+          .wr-archived-banner{position:sticky;bottom:0;z-index:999;display:flex;
           flex-wrap:wrap;gap:.25rem .75rem;align-items:center;justify-content:center;
           padding:.75rem 1rem;background:#1c1917;color:#fafaf9;border-top:1px solid #44403c;
           text-align:center;font:500 .875rem/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif}
@@ -143,8 +161,6 @@ jobs:
           .wr-archived-banner a{color:#fafaf9;text-decoration:underline;text-underline-offset:2px;
           white-space:nowrap}
           .wr-archived-banner a:hover{color:#fbbf24}
-          body{padding-bottom:5rem!important}
-          @media (max-width:560px){body{padding-bottom:9rem!important}}
           .ngwr-header__version{display:none!important}
           </style>
           <div class="wr-archived-banner" role="note">
