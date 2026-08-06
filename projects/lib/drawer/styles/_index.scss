@@ -51,9 +51,17 @@
   display: flex;
   flex-direction: column;
   // Anchor for the corner dismiss button. The panel is the overlay pane itself
-  // for service drawers but a nested div for `<wr-drawer>`; without this the
-  // button would resolve against whichever happened to be positioned.
-  position: relative;
+  // for service drawers but a nested div for `<wr-drawer>`.
+  //
+  // `!important` for the service case: CDK's `GlobalPositionStrategy` writes
+  // `position: static` inline onto the pane and re-applies it after attach, so
+  // neither a plain rule nor an imperative assignment survives. Harmless for the
+  // component case, where the panel is an ordinary div we own.
+  //
+  // A right-edge drawer hid this bug for a while — its top-right corner coincides
+  // with the viewport's, so the misplaced button looked correct. Any other side
+  // exposes it immediately.
+  position: relative !important;
   width: 100%;
   height: 100%;
   background: var(--wr-drawer-bg);
