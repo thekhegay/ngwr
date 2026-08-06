@@ -1,5 +1,84 @@
 # Changelog
 
+## [10.0.0](https://github.com/thekhegay/ngwr/compare/v9.1.0...v10.0.0) (2026-08-06)
+
+### ⚠ BREAKING CHANGES
+
+* **theme:** `--wr-color-*-contrast` now picks the foreground with the
+  better WCAG contrast ratio instead of guessing from a YIQ brightness
+  threshold, so five of the nine intents flip from white to dark text:
+  secondary (3.99:1 → 4.52:1), success (3.33 → 5.43), danger (3.68 → 4.90),
+  info (3.68 → 4.91) and medium (3.10 → 5.82). All five failed WCAG AA
+  before; all nine now pass in both themes. The dark theme also re-derives
+  `-contrast` for the intents it re-tunes, which lifts its lightened primary
+  from 3.36:1 to 5.37:1. Override `$contrast-dark` / `$contrast-light`, or
+  the base colours, to keep the old look. `$contrast-threshold` is no longer
+  read but stays declared so existing `@use ... with (...)` calls compile.
+* **table:** `--wr-table-head-transform` defaulted to `uppercase`, so
+  the library rewrote every column title's casing. Rendering the author's
+  text as written is the consumer's call, not ours. The default is now
+  `none`, and the tracking moves with it (`0.04em` exists to open up
+  capitals and looks wrong on sentence case). Both stay tokens, so the old
+  treatment is one rule: set `--wr-table-head-transform: uppercase` and
+  `--wr-table-head-letter-spacing: 0.04em` on `.wr-table`. Responsive card
+  mode now routes through the same tokens instead of hard-coding the
+  treatment, which is also a fix: opting out previously had no effect there.
+* **popover:** tooltips were a light chip on a dark canvas and vice
+  versa — a common convention, but next to every other ngwr surface it
+  reads as a foreign element. They now use `--wr-color-surface` /
+  `--wr-color-on-surface` with the standard outline, so a tooltip is dark
+  in the dark theme and light in the light one. Three new tokens carry it,
+  so restoring the inverted look is one rule rather than an override of
+  every tooltip declaration: set `--wr-tooltip-bg`,
+  `--wr-tooltip-color` and `--wr-tooltip-border` on `.wr-tooltip`.
+
+### Features
+
+* **dialog:** render a built-in close button, matched on drawer ([904fdde](https://github.com/thekhegay/ngwr/commit/904fdde37599043db6457a676e447ad1644b63eb))
+* **i18n:** let base catalogs fill in under the loader ([f79c7d0](https://github.com/thekhegay/ngwr/commit/f79c7d0edfb37d9a9517fdb0110dc156d21faafc))
+* **i18n:** ship the catalogs as json for the http loader path ([1b4db2e](https://github.com/thekhegay/ngwr/commit/1b4db2e1b921ddf9c5b0781b4f9f2196c5f37d00))
+* **mention:** announce the suggestion list to screen readers ([2692836](https://github.com/thekhegay/ngwr/commit/2692836e36a10c0da16a427ebda7238d21c81bb1))
+* **popover:** give the popover an arrow and cover every position ([9d68c88](https://github.com/thekhegay/ngwr/commit/9d68c881015dba75a42e6abd8cd81ceaa8ec69f1))
+
+### Bug Fixes
+
+* **badge:** bring the lg size back onto the scale ([387fe2c](https://github.com/thekhegay/ngwr/commit/387fe2cc077483df1507276d5946ec5086e955a1))
+* **badge:** centre the text in the badge box ([fd69f2d](https://github.com/thekhegay/ngwr/commit/fd69f2d2fa6f79ad24f11296fe37a945de855d95))
+* **button:** centre the glyph on icon-only buttons ([34128a1](https://github.com/thekhegay/ngwr/commit/34128a10c1575f96f0c0d073507a77f2d68746ac))
+* **button:** give the outlined light variant a readable label ([5474db3](https://github.com/thekhegay/ngwr/commit/5474db340ae0b034f8dc7fbcb3163095fea40217))
+* **button:** make icon-only buttons square ([5d6063e](https://github.com/thekhegay/ngwr/commit/5d6063ea70cd8c68d7fed7b137f04200ed05cec8))
+* **button:** match the icon's optical spacing to the declared spacing ([c60b8d1](https://github.com/thekhegay/ngwr/commit/c60b8d141825fe5473b44bf4ae819ce6ad00872d))
+* **date-picker:** use the real time format key so date-fns stops throwing ([6312074](https://github.com/thekhegay/ngwr/commit/6312074822250f5e9448d0007d56d26441db77e4))
+* **dialog:** anchor the close button to the panel, not the viewport ([f76a11a](https://github.com/thekhegay/ngwr/commit/f76a11acc7b1a221f221e710ebe463c07922504c))
+* **drawer:** let the grab handle be dragged with a mouse ([989e261](https://github.com/thekhegay/ngwr/commit/989e261a5942cdc901c7689a6f2aed2483eccdec))
+* **i18n:** export the base-catalog provider ([c4ac9a6](https://github.com/thekhegay/ngwr/commit/c4ac9a6842b5a66ec66988af07f7661faceb1edd))
+* **icon:** chain the icon registry so nested levels add up ([1c45cf7](https://github.com/thekhegay/ngwr/commit/1c45cf7b6095007e96104ae97f0f83e4734e084c))
+* **icon:** report an unknown icon instead of throwing from the effect ([a7ff86f](https://github.com/thekhegay/ngwr/commit/a7ff86f363eff7cf3beaa15cd94b7fee274080fb))
+* **icon:** scale the default icon size with the surrounding text ([2182f4a](https://github.com/thekhegay/ngwr/commit/2182f4ae2e7b6e1bc06535f18fdab0ea4b06a162))
+* **icon:** stop flex parents from squeezing the icon below its size ([1eefea9](https://github.com/thekhegay/ngwr/commit/1eefea9b61232422d3697dffb36f9a99dda30a34))
+* **input-number:** stop the stepper column from being squeezed ([ca551b9](https://github.com/thekhegay/ngwr/commit/ca551b9316e36bcbd4fd569d755e8d9b67a9b5af))
+* **input:** centre affix icons instead of pinning them to the top ([9dec93a](https://github.com/thekhegay/ngwr/commit/9dec93ad6fd4d3bcbcf00bce0c37cbcb3cb06350))
+* **input:** keep group affixes from shrinking and wrapping ([b44c871](https://github.com/thekhegay/ngwr/commit/b44c871e68105dce8a81f87e03cc179d867832f6))
+* **keyboard:** scale the keycap bevel with the key size ([91bdf7c](https://github.com/thekhegay/ngwr/commit/91bdf7c092daa92853509cfce0b50199a7c9c488))
+* **mention:** stop the commit handler crashing on its own input event ([233c941](https://github.com/thekhegay/ngwr/commit/233c9411d34920cfe4403c34c9be4dc26b786454))
+* **overlay:** close overlays on clicks that land outside the body ([66496d9](https://github.com/thekhegay/ngwr/commit/66496d9a89bf8bfcdb6c88aaf945b63e7a59e1fc))
+* **pagination:** pad the pager and size the page-size select to its label ([5783520](https://github.com/thekhegay/ngwr/commit/5783520a83908b2a24066fab77fdacda8a75079d))
+* **pagination:** route the page-size and aria strings through i18n ([2f5b5be](https://github.com/thekhegay/ngwr/commit/2f5b5be097f0341b584259446ac700e00a0a4030))
+* **popover:** expose dialog semantics on the popover panel ([c8145bb](https://github.com/thekhegay/ngwr/commit/c8145bbb12044e9591a6f8af1be38896fc9498be))
+* **popover:** let the tooltip follow the theme instead of inverting ([7fc9765](https://github.com/thekhegay/ngwr/commit/7fc97651356e66a6401d12060deabca479439be2))
+* **schematics:** make the shipped schematics loadable again ([e83bcd1](https://github.com/thekhegay/ngwr/commit/e83bcd1060e0fc7c63b298ce7d05cb72d68f2f01))
+* **select:** space out option content and mark groups as groups ([5cd46ca](https://github.com/thekhegay/ngwr/commit/5cd46cab5bdde9c6ca66db46f2c94dd53a1c3e8f))
+* **splitter:** let panes absorb the divider instead of overflowing ([5cfde39](https://github.com/thekhegay/ngwr/commit/5cfde392d2c525625ee15d093fb4a2f40d989665))
+* **table:** stop forcing uppercase on header cells ([00c6efa](https://github.com/thekhegay/ngwr/commit/00c6efad445ba9ee3a21f85653117e28fb73c677))
+* **tag:** line up the label with its adornment icon ([503f066](https://github.com/thekhegay/ngwr/commit/503f066e380c0bb100c80d7a8d5b35c7bf323ed6))
+* **theme:** activate the theme and density services from their providers ([9fb1c00](https://github.com/thekhegay/ngwr/commit/9fb1c00849a6bd13efa1641cb44f8a6e52d21ed4))
+* **theme:** declare the light color scheme and give the table a surface ([9869a8c](https://github.com/thekhegay/ngwr/commit/9869a8c07b6bb68dec85eefee5ac63b6df09e35a))
+* **theme:** derive the dark theme's missing surface and ink shades ([04447b0](https://github.com/thekhegay/ngwr/commit/04447b03546203f8fc898810f162ffb0deec272f))
+* **theme:** give muted text its own token so it clears wcag aa ([89a2a7e](https://github.com/thekhegay/ngwr/commit/89a2a7e0d0db7d1bcdaf14c2b096091720ce8f91))
+* **theme:** make wr elements border-box without the opt-in reset ([66b3956](https://github.com/thekhegay/ngwr/commit/66b39565a08b34b722d143793e8e9864bcce58b5))
+* **theme:** pick contrast text by wcag ratio, not a brightness guess ([22d0bc3](https://github.com/thekhegay/ngwr/commit/22d0bc3d5573f147fe763736fed925be51eb639f))
+* **waves:** paint a static grid until the canvas boots ([2fc3c1f](https://github.com/thekhegay/ngwr/commit/2fc3c1f1d4a557c5ec9206afd68c738e40c370a5))
+
 ## [9.1.0](https://github.com/thekhegay/ngwr/compare/v9.0.1...v9.1.0) (2026-08-04)
 
 ### Features
