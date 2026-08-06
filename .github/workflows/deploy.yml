@@ -57,6 +57,13 @@ jobs:
     needs: detect
     if: needs.detect.outputs.deploy == 'true'
     runs-on: ubuntu-latest
+    # Scopes the SSH secrets to this job instead of the whole repository, so a
+    # workflow added later cannot reach the production box just by naming them.
+    # Also gives the Deployments page a real history and puts a link to the live
+    # site on every deploying commit.
+    environment:
+      name: production
+      url: https://ngwr.dev
 
     steps:
       - uses: actions/checkout@v7
