@@ -155,6 +155,17 @@
     pointer-events: none;
   }
 
+  // A `<wr-icon>` carries a definite height (`--wr-icon-size`), and per flexbox a
+  // definite cross size cannot stretch — so the group's `align-items: stretch`
+  // degrades to `flex-start` and the glyph pins to the TOP of the field. It was
+  // always ~2px off and invisible; the icon default moving from a fixed 1.5rem to
+  // 1.2em made it 5.6px at md and 8.6px at lg, which is what made it obvious.
+  // Centre it explicitly, whether the icon IS the affix (`<wr-icon wrInputPrefix>`)
+  // or sits inside one.
+  .wr-icon {
+    align-self: center;
+  }
+
   &__affix--prefix + .wr-input {
     padding-left: 0.25rem;
   }

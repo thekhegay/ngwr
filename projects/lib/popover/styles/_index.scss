@@ -1,8 +1,85 @@
+@use 'sass:list';
+
 @use '../../theme/styles' as theme;
 @use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 
+// --- Arrow -----------------------------------------------------------------
+//
+// A small square rotated 45°, half tucked under the panel so only the tip shows.
+// Tooltip and popover share the geometry; the popover additionally carries the
+// panel's border on the two outward faces so the outline reads as continuous.
+//
+// Placement is driven by the resolved position modifier the directive puts on the
+// overlay host (`--top` means the panel sits ABOVE the trigger, so the arrow hangs
+// off the panel's BOTTOM edge). All 12 positions are covered — the hand-written
+// tooltip rules this replaces only handled 8, so `top-start` / `top-end` /
+// `bottom-start` / `bottom-end` tooltips have been shipping with no arrow at all.
+$_arrow: 6px;
+$_arrow-half: 3px;
+$_arrow-inset: 0.625rem; // distance from the panel corner for the -start / -end variants
+
+// edge = which side of the panel the arrow hangs off; align = where along that side.
+$_arrow-placement: (
+  top: (bottom, center),
+  top-start: (bottom, start),
+  top-end: (bottom, end),
+  bottom: (top, center),
+  bottom-start: (top, start),
+  bottom-end: (top, end),
+  left: (right, center),
+  left-start: (right, start),
+  left-end: (right, end),
+  right: (left, center),
+  right-start: (left, start),
+  right-end: (left, end),
+);
+
+/// Positions the arrow against `$edge`, offset outwards by `$pull`.
+@mixin _arrow-at($edge, $align, $pull) {
+  #{$edge}: -$pull;
+
+  @if $edge == bottom or $edge == top {
+    @if $align == center {
+      left: 50%;
+      margin-left: -$_arrow-half;
+    } @else if $align == start {
+      left: $_arrow-inset;
+    } @else {
+      right: $_arrow-inset;
+    }
+  } @else {
+    @if $align == center {
+      top: 50%;
+      margin-top: -$_arrow-half;
+    } @else if $align == start {
+      top: $_arrow-inset;
+    } @else {
+      bottom: $_arrow-inset;
+    }
+  }
+}
+
+/// The two faces of the rotated square that stay visible outside the panel.
+@mixin _arrow-border($edge) {
+  @if $edge == bottom {
+    border-right: 1px solid var(--wr-color-outline);
+    border-bottom: 1px solid var(--wr-color-outline);
+  } @else if $edge == top {
+    border-left: 1px solid var(--wr-color-outline);
+    border-top: 1px solid var(--wr-color-outline);
+  } @else if $edge == right {
+    border-top: 1px solid var(--wr-color-outline);
+    border-right: 1px solid var(--wr-color-outline);
+  } @else {
+    border-bottom: 1px solid var(--wr-color-outline);
+    border-left: 1px solid var(--wr-color-outline);
+  }
+}
+
 .wr-popover-overlay {
   > * {
+    // Containing block for the arrow below.
+    position: relative;
     display: block;
     min-width: 8rem;
     max-width: 22rem;
@@ -14,6 +91,36 @@
     color: var(--wr-color-on-surface);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
     transform-origin: top left;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: $_arrow;
+      height: $_arrow;
+      background: var(--wr-color-surface);
+      transform: rotate(45deg);
+    }
+  }
+
+  // Responsive bottom-sheet mode has no anchor to point at, so no arrow.
+  &.wr-overlay-sheet > *::after {
+    content: none;
+  }
+}
+
+@each $position, $spec in $_arrow-placement {
+  $edge: list.nth($spec, 1);
+  $align: list.nth($spec, 2);
+
+  // Pulled one extra pixel so the square's own border lines up flush with the
+  // panel's, instead of leaving the panel border showing across the arrow's base.
+  .wr-popover-overlay--#{$position} > *::after {
+    @include _arrow-at($edge, $align, $_arrow-half + 1px);
+    @include _arrow-border($edge);
+  }
+
+  .wr-tooltip-overlay--#{$position} .wr-tooltip::after {
+    @include _arrow-at($edge, $align, $_arrow-half);
   }
 }
 
@@ -28,12 +135,25 @@
 }
 
 .wr-tooltip {
+  // Follows the theme instead of inverting against it: on a dark canvas the
+  // tooltip is dark, on a light canvas light. It used to invert (a light chip on
+  // dark), which is a common convention but reads as a foreign element here.
+  //
+  // Both halves are tokens, so an app that wants the inverted look back needs one
+  // rule, not an override of every tooltip rule:
+  //   .wr-tooltip { --wr-tooltip-bg: var(--wr-color-on-surface);
+  //                 --wr-tooltip-color: var(--wr-color-dark-contrast); }
+  --wr-tooltip-bg: var(--wr-color-surface);
+  --wr-tooltip-color: var(--wr-color-on-surface);
+  --wr-tooltip-border: var(--wr-color-outline);
+
   position: relative;
   display: inline-block;
   max-width: 18rem;
   padding: 0.3125rem 0.5rem;
-  background: var(--wr-color-on-surface);
-  color: var(--wr-color-dark-contrast);
+  background: var(--wr-tooltip-bg);
+  color: var(--wr-tooltip-color);
+  border: 1px solid var(--wr-tooltip-border);
   border-radius: var(--wr-border-radius-sm);
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-text-xs);
@@ -42,56 +162,20 @@
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
   transform-origin: top left;
 
-  // Arrow
+  // Arrow — geometry from the shared placement loop at the top of this file.
   &::after {
     content: '';
     position: absolute;
-    width: 6px;
-    height: 6px;
-    background: var(--wr-color-on-surface);
+    width: $_arrow;
+    height: $_arrow;
+    background: var(--wr-tooltip-bg);
     transform: rotate(45deg);
   }
 }
 
-// Arrow placement is dictated by the overlay panel's position modifier
-// (the wr-tooltip-overlay--top|bottom|left|right class lives on the
-// portal host wrapping the tooltip).
-.wr-tooltip-overlay--top .wr-tooltip::after {
-  left: 50%;
-  bottom: -3px;
-  margin-left: -3px;
-}
-.wr-tooltip-overlay--bottom .wr-tooltip::after {
-  left: 50%;
-  top: -3px;
-  margin-left: -3px;
-}
-.wr-tooltip-overlay--left .wr-tooltip::after {
-  top: 50%;
-  right: -3px;
-  margin-top: -3px;
-}
-.wr-tooltip-overlay--left-start .wr-tooltip::after {
-  top: 0.625rem;
-  right: -3px;
-}
-.wr-tooltip-overlay--left-end .wr-tooltip::after {
-  bottom: 0.625rem;
-  right: -3px;
-}
-.wr-tooltip-overlay--right .wr-tooltip::after {
-  top: 50%;
-  left: -3px;
-  margin-top: -3px;
-}
-.wr-tooltip-overlay--right-start .wr-tooltip::after {
-  top: 0.625rem;
-  left: -3px;
-}
-.wr-tooltip-overlay--right-end .wr-tooltip::after {
-  bottom: 0.625rem;
-  left: -3px;
-}
+// Arrow placement for both modes is generated from `$_arrow-placement` at the top
+// of this file — the per-position rules that used to live here are emitted there,
+// byte-identical for the 8 positions they covered plus the 4 they missed.
 
 @media (prefers-reduced-motion: reduce) {
   .wr-tooltip {

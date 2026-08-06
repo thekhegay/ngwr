@@ -24,6 +24,7 @@ import {
   effect,
   inject,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 
@@ -149,6 +150,10 @@ interface WavePoint {
   host: {
     class: 'wr-waves',
     '[style.background-color]': 'backgroundColor()',
+    // Feeds the CSS stand-in grid (see waves.scss) so it matches the real
+    // spacing, and switches it off the moment the canvas has painted.
+    '[style.--wr-waves-x-gap.px]': 'xGap()',
+    '[class.wr-waves--painted]': 'painted()',
   },
 })
 export class WrWaves {
@@ -199,6 +204,17 @@ export class WrWaves {
   private bounding = { width: 0, height: 0, left: 0, top: 0 };
   private readonly mouse = { x: -10, y: 0, lx: 0, ly: 0, sx: 0, sy: 0, v: 0, vs: 0, a: 0, set: false };
   private rafId = 0;
+
+  /**
+   * Flips once the canvas has drawn, which retires the CSS stand-in grid.
+   *
+   * A canvas cannot be prerendered, so on an SSR'd or prerendered page this
+   * element is simply blank until the bundle has loaded and hydration has run —
+   * measured at ~2.8s on ngwr.dev's own home page. The stylesheet paints a static
+   * grid of the same colour and pitch in the meantime, straight from the
+   * prerendered HTML, and this hands over to the real thing.
+   */
+  protected readonly painted = signal(false);
 
   constructor() {
     if (!this.isBrowser) return;
@@ -363,6 +379,12 @@ export class WrWaves {
   private drawLines(): void {
     const ctx = this.ctx;
     if (!ctx) return;
+    // Retire the CSS stand-in: from here the canvas has real pixels. Set inside
+    // the draw rather than at the end of `boot()` so it can never switch the
+    // fallback off before something has actually been painted. Runs outside
+    // Angular (the rAF loop does), so `signal.set` schedules the one host-binding
+    // update it needs; every later call is a no-op on an unchanged value.
+    if (!this.painted()) this.painted.set(true);
     const { width, height } = this.bounding;
     ctx.clearRect(0, 0, width, height);
     ctx.beginPath();

@@ -5,9 +5,16 @@
   --wr-table-border: var(--wr-color-outline);
   --wr-table-head-bg: rgba(var(--wr-color-outline-rgb), 0.25);
   --wr-table-row-hover: rgba(var(--wr-color-outline-rgb), 0.15);
-  // Head casing, so a design system can opt out without an override rule.
-  --wr-table-head-transform: uppercase;
-  --wr-table-head-letter-spacing: 0.04em;
+  // Head casing. The library renders column titles as the author wrote them —
+  // forcing `uppercase` mutates their content, and a header written "ID" or
+  // "created at" is the consumer's decision to make, not ours. Both halves stay
+  // tokens, so opting back into the old treatment is one rule:
+  //   .wr-table { --wr-table-head-transform: uppercase;
+  //               --wr-table-head-letter-spacing: 0.04em; }
+  // The tracking moves with the casing on purpose — 0.04em is there to open up
+  // capitals and looks wrong on sentence case.
+  --wr-table-head-transform: none;
+  --wr-table-head-letter-spacing: var(--wr-tracking-normal);
 
   display: block;
   position: relative;
@@ -526,8 +533,11 @@
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    // Route through the same tokens as `&__th` instead of re-hard-coding the
+    // treatment — card mode used to ignore `--wr-table-head-transform` entirely,
+    // so a consumer who opted out still got capitals on mobile.
+    letter-spacing: var(--wr-table-head-letter-spacing);
+    text-transform: var(--wr-table-head-transform);
     text-align: left;
     white-space: nowrap;
   }

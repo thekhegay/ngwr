@@ -59,6 +59,15 @@
     --wr-icon-size: var(--wr-btn-icon-size);
     color: inherit;
     flex: 0 0 auto;
+
+    // Lucide and feather draw on a 24-unit grid with a 2-unit safe area, so a
+    // twelfth of the icon box is transparent on each side. `padding-x` sits
+    // outside that slack and `gap` inside it, so the declared numbers and the
+    // optical ones diverge — measured at md: 14.6px from the button edge to the
+    // first ink against 11.9px on the label side, and 8.7px to the label against
+    // a declared 6px gap. Reclaiming the slack makes the spacing look like what
+    // the tokens say.
+    margin-inline: calc(var(--wr-btn-icon-size) / -12);
   }
 
   &__spin {
@@ -101,6 +110,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      // No label to sit next to, so there is no optical gap to correct — and a
+      // negative margin here would pull the glyph off the square's centre.
+      margin-inline: 0;
     }
   }
 

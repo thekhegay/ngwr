@@ -19,12 +19,21 @@
   --wr-tag-padding-x: 0.5rem;
   --wr-tag-font-size: var(--wr-text-xs);
   --wr-tag-font-weight: 500;
-  --wr-tag-line-height: 1rem;
+  // `normal`, not a fixed `1rem`: a 16px line box against the font's own 15px
+  // content area leaves half a pixel of leading per side, Blink floors it, and
+  // the label paints 1px high — 3px above / 4px below, while an adornment icon
+  // sits dead centre at 4/4. That 0.5px split between icon and text centres is
+  // what reads as "the tag's alignment has drifted".
+  --wr-tag-line-height: normal;
+  // Zero leading would otherwise shrink the tag 22px -> 21px, so the box is
+  // floored explicitly instead of being an accident of the line height.
+  --wr-tag-min-height: 1.375rem;
 
   color: var(--wr-tag-color);
   background: var(--wr-tag-bg);
   border: 1px solid var(--wr-tag-border);
   border-radius: var(--wr-tag-radius);
+  min-height: var(--wr-tag-min-height);
   padding: calc(var(--wr-tag-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-tag-padding-x) * var(--wr-density-x, 1));
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-tag-font-size);

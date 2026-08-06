@@ -61,6 +61,19 @@
 
   display: flex;
   flex-direction: column;
+  // Containing block for the corner dismiss button — see `.wr-dialog__close`.
+  //
+  // `!important` is load-bearing, not laziness. Service-opened overlays use CDK's
+  // `GlobalPositionStrategy`, which positions `.cdk-global-overlay-wrapper` and
+  // writes `position: static` INLINE onto the pane — and here the pane IS the
+  // panel. Inline beats any ordinary rule, and setting it imperatively does not
+  // survive either: CDK re-applies the strategy after the overlay is attached.
+  //
+  // Layout-neutral: the pane stays a flex item of the wrapper and is centred
+  // exactly as before; `relative` with no offsets only establishes the containing
+  // block (and activates the `z-index` that `.cdk-overlay-pane` already declares,
+  // identically for every pane, so relative stacking is unchanged).
+  position: relative !important;
   min-width: var(--wr-dialog-min-width);
   max-width: calc(100vw - 2rem);
   max-height: calc(100vh - 2rem);

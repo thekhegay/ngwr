@@ -133,36 +133,40 @@ export class WrDrawer {
   private swipeStartY = 0;
   private swiping = false;
 
-  protected onSwipeStart(event: TouchEvent): void {
-    const touch = event.touches[0];
-    if (!touch) return;
-    this.swipeStartX = touch.clientX;
-    this.swipeStartY = touch.clientY;
+  // Pointer, not Touch. The handle has always advertised itself to a mouse with
+  // `cursor: grab`, but the gesture was bound to touch events only, so on a
+  // desktop it could not be dragged at all. Pointer Events cover touch, mouse and
+  // pen through one path — the same idiom `wr-splitter` already uses.
+
+  protected onSwipeStart(event: PointerEvent): void {
+    // Ignore secondary contacts of a multi-touch gesture.
+    if (!event.isPrimary) return;
+    this.swipeStartX = event.clientX;
+    this.swipeStartY = event.clientY;
     this.swiping = true;
+    // Capture, so the drag keeps reporting once the cursor leaves the 2.5rem
+    // grabber — without it a mouse drag dies the moment it slips off the handle.
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
   }
 
-  protected onSwipeMove(event: TouchEvent, panel: HTMLElement): void {
+  protected onSwipeMove(event: PointerEvent, panel: HTMLElement): void {
     if (!this.swiping) return;
-    const touch = event.touches[0];
-    if (!touch) return;
     const { axis, sign } = this.closeAxis();
-    const delta = axis === 'y' ? touch.clientY - this.swipeStartY : touch.clientX - this.swipeStartX;
-    // Only follow the finger when dragging toward the closing edge.
+    const delta = axis === 'y' ? event.clientY - this.swipeStartY : event.clientX - this.swipeStartX;
+    // Only follow the pointer when dragging toward the closing edge.
     if (delta * sign <= 0) {
       panel.style.transform = '';
       return;
     }
-    event.preventDefault();
     panel.style.transition = 'none';
     panel.style.transform = axis === 'y' ? `translateY(${delta}px)` : `translateX(${delta}px)`;
   }
 
-  protected onSwipeEnd(event: TouchEvent, panel: HTMLElement): void {
+  protected onSwipeEnd(event: PointerEvent, panel: HTMLElement): void {
     if (!this.swiping) return;
     this.swiping = false;
-    const touch = event.changedTouches[0];
     const { axis, sign } = this.closeAxis();
-    const delta = touch ? (axis === 'y' ? touch.clientY - this.swipeStartY : touch.clientX - this.swipeStartX) : 0;
+    const delta = axis === 'y' ? event.clientY - this.swipeStartY : event.clientX - this.swipeStartX;
     const panelSize = axis === 'y' ? panel.offsetHeight : panel.offsetWidth;
     if (delta * sign > panelSize * 0.3) {
       this.open.set(false); // keep the dragged offset as the overlay disposes

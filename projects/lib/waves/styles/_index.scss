@@ -4,6 +4,9 @@
 
 .wr-waves {
   --wr-waves-line-color: rgba(var(--wr-color-on-surface-rgb), 0.12);
+  // Mirrors the `xGap` input; the component publishes it so the stand-in below
+  // lands on the same pitch as the real grid.
+  --wr-waves-x-gap: 10px;
 
   position: absolute;
   inset: 0;
@@ -11,6 +14,24 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
+
+  // Stand-in grid, shown until the canvas has painted.
+  //
+  // A canvas cannot be prerendered, so on an SSR'd or prerendered page this
+  // element is blank until the JS bundle has loaded and hydrated — measured at
+  // ~2.8s on ngwr.dev's own home page, where it reads as the background hanging
+  // and then popping in. These are straight lines rather than the drifting
+  // curves, at the same colour and pitch, so the handover reads as the grid
+  // coming alive rather than as content appearing.
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--wr-waves-line-color) 0 1px,
+    transparent 1px var(--wr-waves-x-gap)
+  );
+
+  &--painted {
+    background-image: none;
+  }
 
   &__canvas {
     display: block;

@@ -14,10 +14,14 @@
   border-radius: var(--wr-badge-radius);
   font-size: var(--wr-badge-font-size);
   font-weight: var(--wr-badge-font-weight);
-  // line-height 1 + min-height: flex centres the tight glyph box vertically,
-  // instead of line-height baking in asymmetric leading (which left small
-  // sizes looking top-heavy).
-  line-height: 1;
+  // The flex line is centred exactly (`align-items` above), but the glyphs inside
+  // it were not: Blink floors the half-leading, so any odd
+  // `line-height − (ascent + descent)` paints the text box half a pixel high —
+  // measured 4px above / 5px below at md, 6/7 at lg. `normal` leaves no leading
+  // to round, and the min-heights below still fix the box, so the badge keeps its
+  // 18 / 24 / 30px sizes.
+  //
+  line-height: normal;
   white-space: nowrap;
 
   // Defaults — sized modifiers override these
