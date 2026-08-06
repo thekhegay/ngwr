@@ -219,11 +219,13 @@ smallest diff that satisfies the request. Concretely:
 `--provenance`), and a poisoned cache would hand it to attacker-controlled
 code. Don't re-add the cache.
 
-**Versioning.** **v8.0.0 shipped** (2026-06-30). Main is **v9-bound** — 41
-unreleased commits, three of them breaking (#432, #445, #459), plus a registered
-`migration-v9`. No 8.x minor exists or will. Don't bump the version
-pre-release — releases are maintainer-cut via tags (`pnpm release:prepare` /
-`release:body`).
+**Versioning.** **v10.0.0 shipped** (2026-08-06). Its three breaking changes are
+all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
+casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
+empty codemod would tell consumers their visual regressions were handled when
+they were not. Main is now v11-bound and has no unreleased commits. Don't bump
+the version by hand — releases are cut from Actions ("Release PR" → `bump`),
+which runs `release:prepare` / `release:body` and opens a `chore(release)` PR.
 
 **Dependencies.** Check with `pnpm outdated` (one shot — don't query packages
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
