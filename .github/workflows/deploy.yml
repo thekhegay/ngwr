@@ -11,51 +11,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # The site used to ship only on release commits, which quietly meant docs
-  # fixes could not reach ngwr.dev without an npm publish: the v8/v9 entries in
-  # the version switcher sat on main for a day, deployed nowhere, because no
-  # release happened in between. Docs are not the library and should not wait
-  # for its version bumps.
-  detect:
-    name: Decide whether to deploy
-    runs-on: ubuntu-latest
-    outputs:
-      deploy: ${{ steps.check.outputs.deploy }}
-      reason: ${{ steps.check.outputs.reason }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # HEAD~1 has to exist to diff against.
-          fetch-depth: 2
-
-      - id: check
-        run: |
-          emit() { echo "deploy=$1" >> "$GITHUB_OUTPUT"; echo "reason=$2" >> "$GITHUB_OUTPUT"; echo "$2"; }
-
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            emit true "manual run"; exit 0
-          fi
-
-          subject=$(git log -1 --pretty=%s)
-          if [[ "$subject" == 'chore(release): v'* && "$subject" != *-rc.* ]]; then
-            emit true "stable release: $subject"; exit 0
-          fi
-          if [[ "$subject" == *-rc.* ]]; then
-            emit false "release candidate — not deployed"; exit 0
-          fi
-
-          # Merge commits diff against the first parent, i.e. main before the
-          # merge, which is exactly the set of files the merge introduced.
-          if git diff --name-only HEAD~1 HEAD | grep -q '^projects/showcase/'; then
-            emit true "showcase changed"; exit 0
-          fi
-
-          emit false "nothing that affects the site"
-
   deploy:
     name: Build & deploy showcase
-    needs: detect
-    if: needs.detect.outputs.deploy == 'true'
+    # Stable releases only — RCs and ordinary commits do not ship. The site
+    # therefore always documents a version that exists on npm, instead of
+    # drifting ahead of it across the hundreds of commits that can land between
+    # releases. `workflow_dispatch` is the manual escape hatch: use it to
+    # re-push the current main or to roll back.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (startsWith(github.event.head_commit.message, 'chore(release): v') &&
+      !contains(github.event.head_commit.message, '-rc.'))
     runs-on: ubuntu-latest
     # Scopes the SSH secrets to this job instead of the whole repository, so a
     # workflow added later cannot reach the production box just by naming them.
