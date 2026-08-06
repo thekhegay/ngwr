@@ -4,10 +4,17 @@ name: Archive docs version
 # (e.g. /v7/) so the header version-switcher can link to frozen older docs.
 # Run once per archived major.
 #
-# Server prerequisite: an nginx location for the path with an SPA fallback —
-#   location /v7/ { try_files $uri $uri/ /v7/index.html; }
+# Server prerequisite: nginx has to route the versioned path with its own SPA
+# fallback, or `/v9/anything` falls through to the ROOT index.html and serves
+# the current docs instead of the archived ones. One regex location covers every
+# past and future major, so no server change is needed per release:
+#   location ~ ^/(v[0-9]+)/ { try_files $uri $uri/ /$1/index.html; }
+# (The older per-version form — `location /v7/ { … }` — works too but has to be
+# added by hand each time, which is exactly what the automation below removes.)
 
 on:
+  # Manual re-runs: re-archiving a major, or back-filling one that predates the
+  # automatic hook below.
   workflow_dispatch:
     inputs:
       tag:
@@ -16,6 +23,18 @@ on:
         type: string
       path:
         description: 'Versioned URL path / target subdir (e.g. v7)'
+        required: true
+        type: string
+  # Called by `publish.yml` when a major ships, to freeze the major it replaces.
+  # Same inputs, so the two paths cannot drift.
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Git tag to build (e.g. v9.1.0)'
+        required: true
+        type: string
+      path:
+        description: 'Versioned URL path / target subdir (e.g. v9)'
         required: true
         type: string
 

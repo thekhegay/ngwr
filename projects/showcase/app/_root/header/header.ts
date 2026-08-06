@@ -29,6 +29,14 @@ interface ActionLink {
   readonly label: string;
 }
 
+/** First major with an archived docs snapshot — nothing older was ever frozen. */
+const OLDEST_ARCHIVED_MAJOR = 7;
+
+/** Archived majors, newest first: v7 … v(current − 1). */
+function archivedMajors(current: number): readonly number[] {
+  return Array.from({ length: Math.max(0, current - OLDEST_ARCHIVED_MAJOR) }, (_, i) => current - 1 - i);
+}
+
 @Component({
   selector: 'ngwr-header',
   templateUrl: './header.html',
@@ -45,15 +53,19 @@ export class Header {
   protected readonly major = `v${String(inject(NGWR_VERSION_TOKEN)).split('.')[0]}`;
 
   /**
-   * Documentation versions, each a separate static deployment. The live site
-   * is `latest`; older majors are archived snapshots served from a versioned
-   * path (so these are full-page `href` links, not in-app routes).
+   * Documentation versions, each a separate static deployment. The live site is
+   * `latest`; older majors are archived snapshots served from a versioned path
+   * (so these are full-page `href` links, not in-app routes).
+   *
+   * Derived, not listed by hand. `publish.yml` freezes the superseded major on
+   * every major release, so the archives are exactly v7 … v(current − 1) — and a
+   * hand-written list is precisely what went wrong before: v8 and v9 were
+   * archived and deployed, but nobody added them here, so for two majors the
+   * snapshots existed on the server with nothing linking to them.
    */
   protected readonly docVersions: readonly { readonly label: string; readonly url: string }[] = [
     { label: `${this.major} · latest`, url: '/' },
-    { label: 'v9', url: '/v9/' },
-    { label: 'v8', url: '/v8/' },
-    { label: 'v7', url: '/v7/' },
+    ...archivedMajors(Number(this.major.slice(1))).map(v => ({ label: `v${v}`, url: `/v${v}/` })),
   ];
 
   /** Theme segmented — user choice (`auto` resolves via `prefers-color-scheme`). */

@@ -112,3 +112,57 @@ jobs:
         run: |
           tag=$([[ "${{ needs.detect.outputs.is_rc }}" == "true" ]] && echo "next" || echo "latest")
           npm publish --access public --provenance --tag "$tag"
+
+  # A major release replaces the docs at `/`, so the major it supersedes has to
+  # be frozen at `/vN/` — otherwise its documentation is simply gone. This used
+  # to be a manual `workflow_dispatch`, and v8 and v9 shipped without anyone
+  # remembering to link them.
+  #
+  # Safe to run alongside `deploy.yml`: the snapshot is rebuilt from the OLD TAG
+  # rather than copied off the server, it rsyncs to a different directory, and
+  # neither deploy passes `--delete`, so the two cannot clobber each other.
+  find-superseded-major:
+    name: Find the major being superseded
+    needs: [detect, publish]
+    if: needs.detect.outputs.is_rc == 'false'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.pick.outputs.tag }}
+      path: ${{ steps.pick.outputs.path }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Tags are the whole point of this job.
+          fetch-depth: 0
+
+      - id: pick
+        run: |
+          version="${{ needs.detect.outputs.version }}"
+          # Only a major bump supersedes anything — X.0.0 and nothing else.
+          if [[ ! "$version" =~ ^([0-9]+)\.0\.0$ ]]; then
+            echo "$version is not a major release — nothing to archive"
+            exit 0
+          fi
+
+          prev=$(( ${BASH_REMATCH[1]} - 1 ))
+          # Highest tag of the previous major: the last docs that major ever had.
+          prev_tag=$(git tag --list "v${prev}.*" --sort=-v:refname | head -1)
+
+          if [[ -z "$prev_tag" ]]; then
+            echo "No tags found for v${prev} — nothing to archive"
+            exit 0
+          fi
+
+          echo "Archiving $prev_tag to /v${prev}/"
+          echo "tag=$prev_tag"  >> "$GITHUB_OUTPUT"
+          echo "path=v$prev"    >> "$GITHUB_OUTPUT"
+
+  archive-superseded-major:
+    name: Archive the superseded major
+    needs: find-superseded-major
+    if: needs.find-superseded-major.outputs.tag != ''
+    uses: ./.github/workflows/archive-docs.yml
+    with:
+      tag: ${{ needs.find-superseded-major.outputs.tag }}
+      path: ${{ needs.find-superseded-major.outputs.path }}
+    secrets: inherit
