@@ -51,6 +51,8 @@ export class Header {
    */
   protected readonly docVersions: readonly { readonly label: string; readonly url: string }[] = [
     { label: `${this.major} · latest`, url: '/' },
+    { label: 'v9', url: '/v9/' },
+    { label: 'v8', url: '/v8/' },
     { label: 'v7', url: '/v7/' },
   ];
 
