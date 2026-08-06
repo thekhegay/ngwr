@@ -135,12 +135,25 @@ $_arrow-placement: (
 }
 
 .wr-tooltip {
+  // Follows the theme instead of inverting against it: on a dark canvas the
+  // tooltip is dark, on a light canvas light. It used to invert (a light chip on
+  // dark), which is a common convention but reads as a foreign element here.
+  //
+  // Both halves are tokens, so an app that wants the inverted look back needs one
+  // rule, not an override of every tooltip rule:
+  //   .wr-tooltip { --wr-tooltip-bg: var(--wr-color-on-surface);
+  //                 --wr-tooltip-color: var(--wr-color-dark-contrast); }
+  --wr-tooltip-bg: var(--wr-color-surface);
+  --wr-tooltip-color: var(--wr-color-on-surface);
+  --wr-tooltip-border: var(--wr-color-outline);
+
   position: relative;
   display: inline-block;
   max-width: 18rem;
   padding: 0.3125rem 0.5rem;
-  background: var(--wr-color-on-surface);
-  color: var(--wr-color-dark-contrast);
+  background: var(--wr-tooltip-bg);
+  color: var(--wr-tooltip-color);
+  border: 1px solid var(--wr-tooltip-border);
   border-radius: var(--wr-border-radius-sm);
   font-family: var(--wr-font-family-base);
   font-size: var(--wr-text-xs);
@@ -155,7 +168,7 @@ $_arrow-placement: (
     position: absolute;
     width: $_arrow;
     height: $_arrow;
-    background: var(--wr-color-on-surface);
+    background: var(--wr-tooltip-bg);
     transform: rotate(45deg);
   }
 }
