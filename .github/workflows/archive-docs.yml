@@ -46,6 +46,12 @@ jobs:
   archive:
     name: Build ${{ inputs.tag }} → /${{ inputs.path }}/
     runs-on: ubuntu-latest
+    # Same environment as `deploy.yml` — it reaches the same server with the
+    # same secrets, so it has to be scoped the same way. Without this the job
+    # cannot see them once they move off the repository level.
+    environment:
+      name: production
+      url: https://ngwr.dev/${{ inputs.path }}/
 
     steps:
       - uses: actions/checkout@v7
@@ -67,6 +73,28 @@ jobs:
       # Root the snapshot at the versioned path so its assets + router links
       # resolve under /<path>/.
       - run: pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
+
+      # Keep superseded docs out of search results.
+      #
+      # Archived majors are indexable exactly like the live site, so someone
+      # searching for a component can land on two-year-old documentation with
+      # nothing telling them so. `noindex, follow` drops the pages from the
+      # index while still letting crawlers walk the links, and it is applied to
+      # the built output rather than the source: the older tags this workflow
+      # checks out predate any such markup and cannot be changed retroactively.
+      #
+      # Deliberately not `canonical` to the current version — route paths move
+      # between majors, so a page-to-page mapping would silently point at the
+      # wrong page or a 404. Dropping from the index is the honest option.
+      - name: Mark the snapshot noindex
+        run: |
+          count=$(find dist/showcase -name '*.html' | wc -l)
+          find dist/showcase -name '*.html' -print0 | xargs -0 sed -i \
+            's|<head>|<head><meta name="robots" content="noindex, follow">|'
+          echo "Marked $count pages noindex"
+          # The snapshot's own sitemap would invite exactly the indexing we
+          # just turned off.
+          rm -f dist/showcase/sitemap.xml
 
       - uses: easingthemes/ssh-deploy@v6.0.3
         with:
