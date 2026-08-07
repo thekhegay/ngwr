@@ -31,6 +31,7 @@
  *   pnpm check:a11y --impact=all    # include minor/moderate
  */
 
+import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, relative, resolve } from 'node:path';
@@ -70,6 +71,10 @@ const FAILING_IMPACTS: readonly ImpactValue[] = ['serious', 'critical'];
  * fixed. A baselined rule fails only if it spreads to MORE routes than recorded —
  * so the debt cannot grow, and every fix should shrink a number here or delete a
  * line. A rule that stops appearing entirely is reported as ready to remove.
+ *
+ * It is currently `{}`: the ten rules it was seeded with have all been fixed, so
+ * any serious or critical violation now fails the build outright. Add an entry
+ * back only to land a gate ahead of a fix, never to silence one.
  */
 const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/a11y-baseline.json');
 type Baseline = Record<string, { readonly routes: number; readonly note: string }>;
@@ -111,7 +116,18 @@ async function analyse(file: string, findings: Map<string, Finding>): Promise<vo
   // `outside-only` lets us inject axe via `window.eval` without running the
   // page's own Angular bundles — the prerendered markup is what we want to
   // analyse, not whatever the app would do after hydration.
-  const dom = new JSDOM(readFileSync(file, 'utf8'), { pretendToBeVisual: true, runScripts: 'outside-only' });
+  const html = readFileSync(file, 'utf8');
+
+  // The builder emits a `<meta http-equiv="refresh">` stub for every redirect
+  // route. No user ever reads one — the browser leaves before paint — so auditing
+  // them only reports the stub's own bare `<html>` 22 times.
+  if (/<meta\s+http-equiv="refresh"/i.test(html)) return;
+
+  // A window per page, deliberately. Reusing one window and swapping its
+  // document is the obvious optimisation — it also degrades into an effective
+  // hang somewhere past the first few dozen pages, whether or not `axe.teardown()`
+  // runs between them. 211 short-lived windows finish in well under a minute.
+  const dom = new JSDOM(html, { pretendToBeVisual: true, runScripts: 'outside-only' });
   const { window } = dom;
 
   try {
@@ -205,4 +221,30 @@ async function main(): Promise<void> {
   process.exit(0);
 }
 
-void main();
+/**
+ * Runs the scan in a child process and retries once if that child is killed by a
+ * signal rather than exiting.
+ *
+ * 211 JSDOM windows, each compiling axe into its own V8 context, will very
+ * occasionally take the process down with SIGSEGV — roughly one run in six here.
+ * A crash carries no verdict, so treating it as a failure means a red build with
+ * no rule to point at; treating it as a pass would be worse. Only a signal death
+ * retries: a clean non-zero exit is a real violation and is forwarded as-is.
+ */
+function supervise(): void {
+  const args = [...process.execArgv, ...process.argv.slice(1)];
+  const env = { ...process.env, WR_A11Y_CHILD: '1' };
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const child = spawnSync(process.execPath, args, { stdio: 'inherit', env });
+    if (child.signal === null) process.exit(child.status ?? 1);
+    console.error(`\n⚠ axe run died on ${child.signal}${attempt === 1 ? ' — retrying once' : ''}.`);
+  }
+  process.exit(1);
+}
+
+if (process.env['WR_A11Y_CHILD']) {
+  void main();
+} else {
+  supervise();
+}
