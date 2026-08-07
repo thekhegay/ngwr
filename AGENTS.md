@@ -120,11 +120,13 @@ enlarges every control at once.
 | Build the library | `pnpm build:lib`                                                                                    |
 | Build the docs    | `pnpm build:showcase`                                                                               |
 | Lint everything   | `pnpm lint`                                                                                         |
+| a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
+| API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | Unit tests        | **None yet** — no `test` target in `angular.json`, no `*.spec.ts`, no runner installed (ROADMAP A1) |
 
 There is no test suite: `pnpm test` fails with `Cannot determine project or
 target for command.` Vitest via `ng test` is roadmap A1 — until then **`pnpm
-lint` + the two builds are the only gates**.
+lint`, the two builds, `check:api-docs` and `check:a11y` are the gates**.
 
 Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
 (`engine-strict=true` in `.npmrc` — an older pnpm is refused outright, and
@@ -146,9 +148,9 @@ pnpm lint; echo $?     # 0 = actually green
 Autofix most issues (prettier wrapping long template lines, etc.) with
 `pnpm exec ng lint <lib|showcase> --fix`.
 
-**CI gates on `pnpm lint` + `pnpm build:lib` + `pnpm build:showcase`** — all
-three must be green (a silently failed lint stage once slipped past and blocked
-a publish). The publish job re-runs `pnpm lint` + `pnpm build:lib` before
+**CI gates on `pnpm lint` + `pnpm check:api-docs` + `pnpm build:lib` +
+`pnpm build:showcase` + `pnpm check:a11y`** — all five must be green (a silently
+failed lint stage once slipped past and blocked a publish). The publish job re-runs `pnpm lint` + `pnpm build:lib` before
 shipping. Conventional-commit subjects are checked locally (commitlint
 `commit-msg` hook) and PR titles on CI.
 
@@ -271,8 +273,12 @@ catalog (`wrT`) so consuming apps can localize.
 
 **Accessibility.** Interactive components follow the WAI-ARIA APG patterns —
 correct roles/states, keyboard navigation, and focus management; overlays use the
-CDK a11y primitives (focus trap) plus live-region announcements. (a11y CI is
-roadmap A3.)
+CDK a11y primitives (focus trap) plus live-region announcements. `pnpm
+check:a11y` runs axe over the prerendered showcase and **fails on any serious or
+critical violation** — the baseline is empty, so a new one is a red build. A
+control with no projected text needs an `ariaLabel` input routed through the
+i18n catalog; an `aria-label` on a component's host element does not reach the
+native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
 `projects/showcase/app/reference/components/<name>/` for the main catalog (81
