@@ -33,10 +33,17 @@ export class MyComponent {}`,
     basic: `<wr-collapse title="Section title">
   Section body…
 </wr-collapse>`,
-    accordion: `<wr-collapse-group accordion>
+    accordion: `<!-- Either form works. \`<wr-accordion>\` is the shorthand: it is
+     \`<wr-collapse-group accordion>\` with the flag baked in. -->
+<wr-accordion>
   <wr-collapse title="A">…</wr-collapse>
   <wr-collapse title="B">…</wr-collapse>
   <wr-collapse title="C">…</wr-collapse>
+</wr-accordion>
+
+<wr-collapse-group accordion>
+  <wr-collapse title="A">…</wr-collapse>
+  <wr-collapse title="B">…</wr-collapse>
 </wr-collapse-group>`,
   };
 
