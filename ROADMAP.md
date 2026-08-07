@@ -60,7 +60,10 @@ ngwr a library people can bet on.
       service layer (LiveAnnouncer-style announcements, focus-trap utils).
       Colour contrast and target size need painted pixels — they belong to A5.
 - [ ] **A5. Visual regression** (M) — Playwright screenshot diffs across the
-      showcase, run at mobile viewports too.
+      showcase, run at mobile viewports too. It also owns the half of a11y that
+      `check:a11y` cannot see: that gate runs axe over unstyled prerendered HTML,
+      so `color-contrast` and `target-size` are disabled there. Running them
+      against a real browser found a systematic gap, recorded below.
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).
@@ -242,6 +245,18 @@ Open and researched, but explicitly not now.
 
 ## Breaking changes on the table
 
+- [ ] **Light-theme AA contrast on intents used as ink** — measured with axe in
+      a real browser on `/reference/components/button`: **16 violations in light
+      vs 1 in dark** (and the dark one is a disabled control, which WCAG
+      exempts). Every outlined variant fails, because the intent colour becomes
+      text on `--wr-color-surface`: warning `#ffba00` on white is **1.71:1**
+      against a required 4.5:1, medium 3.1, success 3.32, info 3.67, danger
+      3.68, secondary 3.99. `--wr-color-medium` as body text fails the same way
+      wherever it is used (doc `<code>` hints, footer links).
+      v10 fixed the inverse case — text ON a filled intent — so this is the half
+      that was never covered. The fix is a design call: an additive
+      `--wr-color-<intent>-ink` ramp (no break), or darkening the light-theme
+      intents (a visible rebrand, needs `migration-v11`).
 - [ ] **Colour role-rename** — component stylesheets are fully on the surface
       roles; what remains is **10 default values across 7 files** still naming
       `--wr-color-{white,dark,light}` (`click-spark.ts`, `fuzzy-text.ts`,
