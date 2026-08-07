@@ -59,4 +59,5 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
     ],
   },
   { title: 'Keyboard', url: ['/guides', 'keyboard'] },
+  { title: 'Content Security Policy', url: ['/guides', 'csp'] },
 ];

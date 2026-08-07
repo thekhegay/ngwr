@@ -23,6 +23,7 @@ export default [
   { path: guides.overlay, loadComponent: () => import('./overlay/overlay') },
   { path: guides.mobile, loadComponent: () => import('./mobile/mobile') },
   { path: guides.keyboard, loadComponent: () => import('./keyboard/keyboard') },
+  { path: guides.csp, loadComponent: () => import('./csp/csp') },
   // These three are multi-page clusters, but they deliberately do NOT declare
   // their own `data.sidebar`: the sidebar resolves from the deepest activated
   // route, so a child sidebar would replace the guides nav on entry. They nest

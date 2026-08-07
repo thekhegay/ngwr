@@ -190,8 +190,19 @@ nobody ships a free, complete Angular AI kit.
       `Directionality` into overlays / sliders / carousels, add a `dir="rtl"`
       toggle to the showcase. Table stakes for Material / PrimeNG / Kendo parity
       (MENA enterprise).
-- [ ] **G2. CSP audit** (S) — document nonce handling; verify no inline-style
-      violations from the animation / canvas components.
+- [x] **G2. CSP audit** (S) — documented at `/guides/csp`, verified by serving
+      the prerendered site under a policy with no escape hatches. The library
+      needs nothing unusual: no `eval`, no `new Function`, no `Worker`, no
+      WebAssembly, and the canvas / WebGL components only call `getContext`,
+      which CSP does not govern. The one real finding is that **27 entry points
+      declare a `styleUrl` that re-exports their own `styles/_index.scss`**, so
+      Angular injects a duplicate `<style>` — blocked under `style-src 'self'`,
+      but harmless because every one of those rules is also in the linked
+      stylesheet when the app does `@use 'ngwr'` (checked rule by rule). Under
+      SSR / prerendering Angular writes component CSS into the document itself,
+      so `ngCspNonce` on the app root cannot help — verified, the styles ship as
+      `<style ng-app-id="ng">` in the HTML. `'wasm-unsafe-eval'` is a docs-site
+      requirement (shiki's Oniguruma engine), not a library one.
 
 ## Deferred
 

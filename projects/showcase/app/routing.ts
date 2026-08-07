@@ -33,6 +33,7 @@ export const routes = {
     overlay: 'overlay',
     mobile: 'mobile',
     keyboard: 'keyboard',
+    csp: 'csp',
     tokens: 'tokens',
     translations: 'translations',
     typography: 'typography',
