@@ -17,6 +17,9 @@ export const DEFAULT_WR_BREAKPOINTS: WrBreakpointMap = Object.freeze({
   lg: 992,
   xl: 1200,
   xxl: 1400,
+  xga: 1600,
+  fhd: 1920,
+  rt: 2560,
 });
 
 /** DI token for the breakpoint map — override via {@link provideWrMedia}. */

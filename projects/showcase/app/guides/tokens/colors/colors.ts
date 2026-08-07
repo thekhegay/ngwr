@@ -118,12 +118,12 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-color-text-muted',
-      type: 'rgba(var(--wr-color-medium-rgb), 0.85)',
+      type: 'rgba(var(--wr-color-muted-text-rgb), 0.85)',
       description: 'De-emphasized text — muted labels, captions.',
     },
     {
       name: '--wr-color-text-faint',
-      type: 'rgba(var(--wr-color-medium-rgb), 0.6)',
+      type: 'rgba(var(--wr-color-muted-text-rgb), 0.6)',
       description: 'Faintest text — placeholders, disabled hints.',
     },
   ];
