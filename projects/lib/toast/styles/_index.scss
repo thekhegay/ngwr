@@ -1,7 +1,10 @@
 @use '../../theme/styles' as theme;
 
+// `info` mapped to `primary` before the `info` intent existed; alert has used
+// the real intent since it landed, so the same toast and alert read as two
+// different colours for the same meaning.
 $toast-colors: (
-  info: primary,
+  info: info,
   success: success,
   warning: warning,
   danger: danger,

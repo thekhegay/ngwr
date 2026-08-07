@@ -206,6 +206,9 @@
   }
 
   // --- Summary / footer row -------------------------------------------------
+  // `&__foot-cell--lead` is emitted on the selection / expand footer cells and
+  // carries no styles of its own — it exists as a public hook so consumers can
+  // target those two cells without matching on position.
   &__foot-cell {
     padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
     background: var(--wr-table-head-bg);
