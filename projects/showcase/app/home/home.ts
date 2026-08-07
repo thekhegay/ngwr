@@ -92,13 +92,13 @@ export default class HomeComponent {
   protected readonly snippet = `import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { WrBtn } from 'ngwr/button';
+import { WrButton } from 'ngwr/button';
 import { WrFormField } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
 
 @Component({
   selector: 'signup-card',
-  imports: [FormsModule, WrFormField, WrInput, WrBtn],
+  imports: [FormsModule, WrFormField, WrInput, WrButton],
   template: \`
     <wr-form-field label="Work email" required>
       <input wrInput type="email" [(ngModel)]="email" />

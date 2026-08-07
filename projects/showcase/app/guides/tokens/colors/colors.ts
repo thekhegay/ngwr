@@ -203,7 +203,7 @@ export default class TokensColorsPage {
     iterateScss: `/* Author an intent-aware component the way the lib itself does.
    \`$colors\` is \`map.keys($base-colors)\`, so it tracks the palette — rebrand
    with extra intents and your own component picks them up for free. */
-@use 'ngwr/theme/styles' as theme;
+@use 'ngwr/theme' as theme;
 
 .my-badge {
   @each $name in theme.$colors {

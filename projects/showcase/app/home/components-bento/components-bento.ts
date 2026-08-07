@@ -115,10 +115,10 @@ export class ComponentsBento {
   // Static content
   protected readonly emptyTitle = 'No projects yet';
   protected readonly emptyHint = 'Create your first project to get started.';
-  protected readonly codeSnippet = `import { WrBtn } from 'ngwr/button';
+  protected readonly codeSnippet = `import { WrButton } from 'ngwr/button';
 
 @Component({
-  imports: [WrBtn],
+  imports: [WrButton],
   template: \`<wr-btn color="primary">Save</wr-btn>\`,
 })
 export class Demo {}`;

@@ -69,13 +69,16 @@ export class AppComponent {}`,
   --wr-font-family-base: 'Inter', sans-serif;
 }`,
     overridePalette: `// Or override the whole palette at SCSS compile time.
-@use 'ngwr/theme/styles/colors' with (
+// Configuring a Sass map REPLACES it, so list every intent you want to exist —
+// an omitted key leaves \`--wr-color-<intent>\` undefined in light mode.
+@use 'ngwr/theme' with (
   $base-colors: (
     primary: #6366f1,
     secondary: #ec4899,
     success: #10b981,
     warning: #f59e0b,
     danger: #ef4444,
+    info: #3b82f6,
     light: #e5e7eb,
     medium: #6b7280,
     dark: #111827,
