@@ -102,6 +102,11 @@ export class WrDropdown {
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
+    // The host view carrying `[wrDropdown]` can be destroyed while the menu is
+    // open — a route change, or an `@if` around the trigger. The overlay lives
+    // in the CDK container, not in that view, so nothing removes it unless we do.
+    this.destroyRef.onDestroy(() => this.closeOverlay());
+
     effect(() => {
       if (this.isOpen()) {
         this.openOverlay();

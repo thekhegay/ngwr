@@ -765,6 +765,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
+    // A component destroyed while the panel is open takes its overlay with it.
+    // Without this the pane stays in the CDK container forever, and in sheet
+    // mode the block scroll strategy is never released, so the page can no
+    // longer scroll at all.
+    this.destroyRef.onDestroy(() => this.closeOverlay());
+
     effect(() => {
       if (this.open()) {
         this.openOverlay();

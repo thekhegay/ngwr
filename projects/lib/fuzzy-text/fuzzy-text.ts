@@ -121,6 +121,15 @@ export class WrFuzzyText {
 
   private teardown: (() => void) | undefined;
 
+  /**
+   * `init()` suspends on font loading, so the component can be destroyed while
+   * it is awaiting. At that moment `teardown` is still undefined, so the
+   * destroy hook has nothing to call — and everything the rest of `init()`
+   * starts (the rAF loop, the glitch timers, canvas listeners) would run for
+   * the life of the page. This flag lets the continuation bail out.
+   */
+  private destroyed = false;
+
   constructor() {
     if (!this.isBrowser) return;
 
@@ -152,7 +161,10 @@ export class WrFuzzyText {
       });
     });
 
-    this.destroyRef.onDestroy(() => this.teardown?.());
+    this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
+      this.teardown?.();
+    });
   }
 
   // Init / loop
@@ -175,6 +187,9 @@ export class WrFuzzyText {
     } catch {
       await document.fonts.ready;
     }
+
+    // Destroyed while the fonts were loading — nothing below may start.
+    if (this.destroyed) return;
 
     // Numeric font size for buffer maths.
     let numericFontSize: number;

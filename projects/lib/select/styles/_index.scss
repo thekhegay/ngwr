@@ -112,7 +112,8 @@
   &--tag &__trigger {
     flex-wrap: wrap;
     align-items: center;
-    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
+    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
     // Empty / single chip-row floor = single-mode height
     // (line-height + 2×padding-y + 2×1px border), so every size + density lines up.
     min-height: calc(var(--wr-select-line-height) + var(--wr-select-padding-y) * var(--wr-density-y, 1) * 2 + 2px);
@@ -134,7 +135,8 @@
     min-width: 0;
     border: 0;
     outline: 0;
-    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1)) calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
+    padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
     background: transparent;
     color: inherit;
     font: inherit;

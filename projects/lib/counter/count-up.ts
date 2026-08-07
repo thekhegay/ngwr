@@ -168,7 +168,15 @@ export class WrCountUp {
       if (this.trigger() === 'visible') this.setupViewportTrigger();
     });
 
-    this.destroyRef.onDestroy(() => this.cancel());
+    this.destroyRef.onDestroy(() => {
+      this.cancel();
+      // `cancel()` only stops timers and the rAF loop. The IntersectionObserver
+      // disconnects itself from inside its callback, which never fires if the
+      // host is destroyed before it ever scrolls into view — so it would keep
+      // observing a detached element for the life of the page.
+      this.observer?.disconnect();
+      this.observer = null;
+    });
   }
 
   // Scheduling

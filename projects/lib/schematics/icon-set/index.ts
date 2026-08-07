@@ -65,7 +65,10 @@ const SETS: Record<NonNullable<Schema['set']>, Readonly<Record<string, string>>>
 };
 
 /** Every icon this schematic knows how to map, merged across the curated sets. */
-const KNOWN_ICONS: Readonly<Record<string, string>> = Object.assign({}, ...Object.values(SETS));
+const KNOWN_ICONS: Readonly<Record<string, string>> = Object.values(SETS).reduce<Record<string, string>>(
+  (acc, set) => ({ ...acc, ...set }),
+  {}
+);
 
 /** Default fallback when neither `set` nor `icons` is supplied. */
 const DEFAULT_SET: NonNullable<Schema['set']> = 'basic';
