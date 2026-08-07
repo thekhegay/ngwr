@@ -22,7 +22,8 @@
  * of it invisible to every existing gate.
  *
  * Pages opt in to the generated data by replacing their hand-written array with
- * `API['WrFoo']`. Until a page does, the check keeps it honest.
+ * `API.WrFoo`. A page that keeps its own array is still checked, so the two
+ * cannot drift apart silently — the check exits non-zero on any disagreement.
  */
 
 import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
@@ -109,13 +110,13 @@ function entryOf(file: string): string {
 }
 
 /**
- * `[wrSpotlight].resetX` / `(touch)` / `[wrTilt]` / `.resetY` → `resetX` /
- * `touch` / `wrTilt` / `resetY`. Pages write a member several ways; the
- * comparison happens on the bare identifier.
+ * `[wrSpotlight].resetX` / `<wr-step>.label` / `(touch)` / `[wrTilt]` /
+ * `.resetY` → `resetX` / `label` / `touch` / `wrTilt` / `resetY`. Pages write a
+ * member several ways; the comparison happens on the bare identifier.
  */
 function bare(name: string): string {
   return name
-    .replace(/^\[[A-Za-z]+\]\./, '')
+    .replace(/^(?:\[[A-Za-z]+\]|<wr-[a-z-]+>)\./, '')
     // Repeated, not once: `[(position)]` is a banana-in-a-box, two layers deep.
     .replace(/^[[(]+/, '')
     .replace(/[\])]+$/, '')
@@ -123,7 +124,7 @@ function bare(name: string): string {
 }
 
 function isMember(name: string): boolean {
-  return /^(?:\[[A-Za-z]+\]\.)?[[(.]{0,2}[a-z][A-Za-z0-9]*[\])]{0,2}$/.test(name);
+  return /^(?:(?:\[[A-Za-z]+\]|<wr-[a-z-]+>)\.)?[[(.]{0,2}[a-z][A-Za-z0-9]*[\])]{0,2}$/.test(name);
 }
 
 /**
@@ -141,7 +142,7 @@ function isMember(name: string): boolean {
  * `[wrSpotlight].resetX / .resetY`), which reads as both of them undocumented
  * unless the slash is split.
  */
-function documentedMembers(src: string): string[] {
+function documentedMembers(src: string, requireDefault = false): string[] {
   // Split on the name rather than matching a whole `{…}` row: a description can
   // contain braces, and a row regex that assumes it cannot silently drops the
   // row — which then reads as an undocumented member.
@@ -153,6 +154,8 @@ function documentedMembers(src: string): string[] {
     const raw = parts[i] ?? '';
     const tail = (parts[i + 1] ?? '').split('},')[0] ?? '';
     const sub = /\bsub:\s*true/.test(tail);
+
+    if (requireDefault && !/\bdefault:/.test(tail)) continue;
 
     if (!sub) {
       // `<wr-list>` headings fail `isMember` on their own; `[wrAffixOffsetTop]`
@@ -210,7 +213,19 @@ function check(api: Map<string, ApiEntry>): number {
     }
 
     const names = documentedMembers(src);
+    // A page can mix the two: `api = API.WrTDirective` next to a hand-written
+    // table of the service's methods. The generated half documents its class in
+    // full, so count it before deciding anything is missing.
+    for (const m of src.matchAll(/\bAPI\.(Wr\w+)/g)) {
+      for (const r of api.get(m[1] ?? '')?.rows ?? []) names.push(r.name);
+    }
     const actual = new Set(found.rows.map(r => r.name).filter(isMember).map(bare));
+
+    // Held-to-existing is a narrower set than counted-as-documented: a page's
+    // tables also list variant values, CSS tokens and service methods, none of
+    // which are members. A row carrying `default:` is claiming to be an input,
+    // and that claim is what gets checked.
+    const claimed = documentedMembers(src, true);
 
     // A member counts as documented however the page writes it. But only a name
     // written BARE is held to existing: `[wrTilt]` in brackets is template
@@ -218,7 +233,7 @@ function check(api: Map<string, ApiEntry>): number {
     // is not a member of anything.
     const documented = new Set(names.map(bare));
     const missing = [...actual].filter(n => !documented.has(n));
-    const stale = [...new Set(names.filter(n => !n.startsWith('[') && !actual.has(bare(n))).map(bare))];
+    const stale = [...new Set(claimed.filter(n => !n.startsWith('[') && !actual.has(bare(n))).map(bare))];
 
     if (missing.length === 0 && stale.length === 0) continue;
     mismatched++;
@@ -239,9 +254,15 @@ function main(): void {
 
   if (mode === 'check') {
     console.log(`Comparing hand-written API tables against ${api.size} extracted classes\n`);
-    // Reporting only for now — the generated data is the fix, and pages migrate
-    // to it one at a time. Flip to a non-zero exit once the count reaches zero.
-    check(api);
+    const mismatched = check(api);
+    if (mismatched > 0) {
+      console.error(
+        `\n✘ Docs disagree with the source. Add the missing rows, or replace the page's` +
+          ` hand-written array with \`API.WrFoo\` and let \`pnpm gen:api-docs\` keep it current.`
+      );
+      process.exit(1);
+    }
+    console.log('\n✓ Every documented API matches the library source.');
     process.exit(0);
   }
 

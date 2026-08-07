@@ -34,7 +34,7 @@ const LIB = resolve(ROOT_PATH, 'projects/lib');
 
 /** `readonly foo = input<T>(…)` / `input.required<T>()` / `model<T>(…)` / `output<T>()`. */
 const MEMBER_RE =
-  /(?<doc>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?readonly\s+(?<name>\w+)\s*=\s*(?<kind>input|model|output)(?<required>\.required)?\s*(?:<(?<generic>[^;]*?)>)?\s*\((?<args>[\s\S]*?)\);/g;
+  /(?<doc>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?readonly\s+(?<name>\w+)\s*=\s*(?<kind>input|model|output)(?<required>\.required)?\s*(?:<(?<generic>[\s\S]*?)>)?\s*\((?<args>[\s\S]*?)\);/g;
 
 const CLASS_RE = /@(?<decorator>Component|Directive)\(\{(?<meta>[\s\S]*?)\}\)\s*export\s+class\s+(?<klass>\w+)/g;
 
@@ -142,6 +142,10 @@ function walk(dir: string, entry: string, acc: string[]): void {
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
     if (statSync(full).isDirectory()) {
+      // `internal/` is the library's own marker for code no consumer imports —
+      // the popover's text panel, the date-picker's clock. Documenting their
+      // inputs would invent public API that does not exist.
+      if (name === 'internal') continue;
       walk(full, entry, acc);
     } else if (name.endsWith('.ts') && !name.endsWith('.spec.ts')) {
       acc.push(full);
