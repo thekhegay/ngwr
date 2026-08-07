@@ -51,6 +51,19 @@ export class MyComponent {
   color?: string;
 }`;
 
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'data', description: 'Bars to render.', type: 'readonly WrBarChartDatum[]', default: '[]' },
+    { name: 'color', description: 'Bar fill.', type: 'string', default: "'var(--wr-color-primary)'" },
+    { name: 'showValues', description: 'Print each value above its bar.', type: 'boolean', default: 'true' },
+    { name: 'height', description: 'Chart height in pixels. Floored at 40.', type: 'number', default: '200' },
+    {
+      name: 'max',
+      description: 'Upper bound of the value axis. `0` scales to the largest datum.',
+      type: 'number',
+      default: '0',
+    },
+  ];
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrBarChartDatum', description: 'One bar of data.', type: 'interface' },
     { name: 'label', description: 'Category label under the bar.', type: 'string', required: true, sub: true },

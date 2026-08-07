@@ -15,7 +15,7 @@ import { WrResult } from './result';
  * @example
  * ```html
  * <wr-result-404>
- *   <button wrButton wrResultExtra>Back home</button>
+ *   <button wr-btn wrResultExtra>Back home</button>
  * </wr-result-404>
  * ```
  */

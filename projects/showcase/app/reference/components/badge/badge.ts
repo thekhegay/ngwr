@@ -56,4 +56,15 @@ export class MyComponent {}`,
     { name: 'shape', description: 'Corner treatment.', type: "'rounded' | 'pill' | 'squircle'", default: "'rounded'" },
     { name: 'outlined', description: 'Transparent fill, colored ring and text.', type: 'boolean', default: 'false' },
   ];
+
+  protected readonly tagApi: readonly DocApiRow[] = [
+    { name: 'color', description: 'Intent colour.', type: 'WrColor', default: "'primary'" },
+    { name: 'icon', description: 'Icon rendered beside the label.', type: 'WrIconName | null', default: 'null' },
+    { name: 'iconPosition', description: 'Which side the icon sits on.', type: `'start' | 'end'`, default: "'start'" },
+    { name: 'outlined', description: 'Transparent fill with a coloured ring.', type: 'boolean', default: 'false' },
+    { name: 'transparent', description: 'Drop the fill entirely.', type: 'boolean', default: 'false' },
+    { name: 'rounded', description: 'Pill radius instead of the default.', type: 'boolean', default: 'false' },
+    { name: 'hoverable', description: 'Add a hover affordance.', type: 'boolean', default: 'false' },
+    { name: 'loading', description: 'Swap the icon for a spinner.', type: 'boolean', default: 'false' },
+  ];
 }

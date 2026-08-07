@@ -16,14 +16,14 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * ```html
  * <wr-toolbar>
  *   <div wrToolbarStart>
- *     <button wrButton>Back</button>
+ *     <button wr-btn>Back</button>
  *     <strong>Items</strong>
  *   </div>
  *   <div wrToolbarCenter>
  *     <wr-segmented [(value)]="view" [options]="['grid', 'list']" />
  *   </div>
  *   <div wrToolbarEnd>
- *     <button wrButton color="primary">New</button>
+ *     <button wr-btn color="primary">New</button>
  *   </div>
  * </wr-toolbar>
  * ```
