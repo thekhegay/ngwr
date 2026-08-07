@@ -39,21 +39,28 @@ bootstrapApplication(AppComponent, {
 @use 'ngwr' as *;
 
 // Or per-entry-point if you bundle by component:
-@use 'ngwr/button/styles';
-@use 'ngwr/input/styles';
-@use 'ngwr/theme/styles';`,
+@use 'ngwr/button';
+@use 'ngwr/input';
+@use 'ngwr/theme';`,
 
-    paletteScss: `// Rebrand at compile time — override the SCSS palette before the @use.
+    paletteScss: `// Rebrand at compile time — configure the palette on the theme entry point.
 // NGWR re-derives -dark / -darker / -light / -lighter / -contrast variants.
-// The whole palette is ONE map, so pass \`$base-colors\` — not a variable
-// per intent. Keys you omit keep their defaults.
-@use 'ngwr/theme/styles/colors' with (
+//
+// The palette is ONE Sass map, and configuring a map REPLACES it — it is not
+// merged with the defaults. List every intent you want to exist: an omitted
+// key leaves \`--wr-color-<intent>\` undefined in light mode, which also breaks
+// everything derived from it (-soft, -contrast, -rgb).
+@use 'ngwr/theme' with (
   $base-colors: (
     primary: #6366f1,   // indigo-500
     secondary: #14b8a6, // teal-500
-    danger: #f43f5e,
-    warning: #f59e0b,
     success: #22c55e,
+    warning: #f59e0b,
+    danger: #f43f5e,
+    info: #3b82f6,
+    light: #cbd5e1,
+    medium: #8594a4,
+    dark: #0f172a,
   )
 );
 @use 'ngwr' as *;`,

@@ -18,12 +18,11 @@ import { Plus, Trash2 } from 'lucide';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
-import { provideWrToast } from 'ngwr/toast';
+import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
 import { provideWrDensity } from 'ngwr/density';
 import { provideWrTheme } from 'ngwr/theme';
-import { provideWrLoadingBar } from 'ngwr/loading-bar';
 
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
@@ -36,11 +35,10 @@ bootstrapApplication(AppComponent, {
     // ngwr ---------------------------------------------------------------
     provideWrOverlay(),
     provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 })),
-    provideWrToast(),
+    provideWrToastConfig({ position: 'top-end', duration: 4000 }),
     provideWrTheme({ defaultMode: 'auto' }),
     provideWrDensity({ defaultDensity: 'lg' }),
     provideWrDateAdapter(),
-    provideWrLoadingBar(),
     provideWrI18n(),
     provideWrI18nStaticLoader({ en: { /* … */ } }),
   ],
@@ -115,17 +113,24 @@ providers: [
   }),
 ],`,
 
-    loadingBar: `import { provideWrLoadingBar } from 'ngwr/loading-bar';
+    loadingBar: `import { WrLoadingBarComponent } from 'ngwr/loading-bar';
 
-// Router-aware progress bar. Auto-shows on NavigationStart, hides on
-// NavigationEnd/Cancel. Also exposes an imperative API via WrLoadingBar.
-providers: [provideWrLoadingBar({ color: 'primary', height: 2 })],`,
+// No provider to register — render the component once in your root template
+// and drive it through the injectable \`WrLoadingBar\` service.
+@Component({
+  selector: 'app-root',
+  imports: [WrLoadingBarComponent],
+  template: \`<wr-loading-bar color="var(--wr-color-primary)" height="2px" />\`,
+})
+export class AppComponent {
+  private readonly loading = inject(WrLoadingBar);
+}`,
 
-    cookie: `import { provideWrCookie } from 'ngwr/cookie';
+    cookie: `import { WrCookie } from 'ngwr/cookie';
 
-// Inject \`WrCookie\` anywhere — typed get / set / delete on document.cookie
-// with SSR-safe fallbacks.
-providers: [provideWrCookie()],`,
+// No provider to register — inject the service anywhere for typed
+// get / set / delete on document.cookie, with SSR-safe fallbacks.
+private readonly cookie = inject(WrCookie);`,
 
     storage: `import { provideWrStorage } from 'ngwr/storage';
 
