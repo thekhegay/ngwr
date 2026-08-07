@@ -50,13 +50,13 @@ export default class TokensDensityPage {
       name: '--wr-density-text',
       type: 'number',
       default: '1',
-      description: 'Scales font size for controls that opt in.',
+      description: 'Declared for consumers to read; no shipped component multiplies by it yet.',
     },
     {
       name: '--wr-density-gap',
       type: 'number',
       default: '1',
-      description: 'Scales the gap between adjacent controls / list items.',
+      description: 'Declared for consumers to read; no shipped component multiplies by it yet.',
     },
   ];
 

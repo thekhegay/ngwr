@@ -52,7 +52,10 @@ const PLAN: readonly CollisionPlan[] = [
     canonicalFile: path.join(lib, 'popconfirm', 'popconfirm.directive.ts'),
     canonicalNewFile: path.join(lib, 'popconfirm', 'popconfirm.ts'),
     internalAssetFiles: [
-      { from: path.join(lib, 'popconfirm', 'popconfirm.html'), to: path.join(lib, 'popconfirm', 'popconfirm-panel.html') },
+      {
+        from: path.join(lib, 'popconfirm', 'popconfirm.html'),
+        to: path.join(lib, 'popconfirm', 'popconfirm-panel.html'),
+      },
     ],
   },
   {

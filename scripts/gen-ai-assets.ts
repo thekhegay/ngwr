@@ -57,7 +57,11 @@ const exportsOf = (entryDir: string): string[] => {
   const out = new Set<string>();
   for (const match of read(join(entryDir, 'public-api.ts')).matchAll(/export\s+(?:type\s+)?\{([^}]+)\}/g)) {
     for (const symbol of match[1].split(',')) {
-      const name = symbol.trim().split(/\s+as\s+/).pop()?.trim();
+      const name = symbol
+        .trim()
+        .split(/\s+as\s+/)
+        .pop()
+        ?.trim();
       if (name) out.add(name);
     }
   }

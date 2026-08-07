@@ -51,7 +51,9 @@ if (!existsSync(ROUTES_JSON)) {
   exit(1);
 }
 
-const routes = Object.keys((JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> }).routes ?? {});
+const routes = Object.keys(
+  (JSON.parse(readFileSync(ROUTES_JSON, 'utf8')) as { routes?: Record<string, unknown> }).routes ?? {}
+);
 
 const htmlFor = (route: string): string => {
   const file = route === '/' ? join(DIST, 'index.html') : join(DIST, route.replace(/^\//, ''), 'index.html');

@@ -41,7 +41,7 @@ function buildSet({ name, dir }) {
     console.warn(`[icons:sets] ${name} — source missing: ${dir}`);
     return null;
   }
-  const files = readdirSync(abs).filter((f) => f.endsWith('.svg'));
+  const files = readdirSync(abs).filter(f => f.endsWith('.svg'));
   const out = {};
   for (const file of files.sort()) {
     const key = stripExt(file);

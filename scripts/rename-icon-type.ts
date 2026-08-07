@@ -39,7 +39,10 @@ const TRANSFORMS: readonly { readonly re: RegExp; readonly to: string }[] = [
   { re: /\bas WrIcon\b/g, to: 'as WrIconDef' },
   { re: /\btype WrIcon([,\s}])/g, to: 'type WrIconDef$1' },
   // export type { ..., WrIcon, ... }
-  { re: /\bexport type\s*\{([^}]*)\bWrIcon\b/g, to: (match: string) => match.replace(/\bWrIcon\b/, 'WrIconDef') as never },
+  {
+    re: /\bexport type\s*\{([^}]*)\bWrIcon\b/g,
+    to: (match: string) => match.replace(/\bWrIcon\b/, 'WrIconDef') as never,
+  },
   // Special: the import in icon.ts has `import type { WrIcon, WrIconName }`.
   // The first WrIcon is the type, second isn't. Use `type WrIcon` pattern
   // (handled above) OR a leading `{ WrIcon,` form:

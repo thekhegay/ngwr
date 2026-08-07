@@ -13,6 +13,6 @@
  * import or `require`, neither of which tree-shakes well in Angular builds.
  *
  * Distinct from `Version` exported by `@angular/core`, which reports the
- * loaded Angular runtime version (e.g. `'21.2.13'`), not ngwr's.
+ * loaded Angular runtime version (e.g. `'22.0.0'`), not ngwr's.
  */
 export const NGWR_VERSION = '10.0.0';
