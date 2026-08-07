@@ -186,7 +186,7 @@ export const routes = {
     wrTruncate: 'wr-truncate',
     wrMark: 'wr-mark',
     wrPlural: 'wr-plural',
-    range: 'range',
+    wrRange: 'wr-range',
   },
   services: {
     index: 'services',

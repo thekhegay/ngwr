@@ -12,8 +12,8 @@ import {
 } from '#core/components';
 
 @Component({
-  selector: 'ngwr-pipe-range-page',
-  templateUrl: './range.html',
+  selector: 'ngwr-pipe-wr-range-page',
+  templateUrl: './wr-range.html',
   imports: [WrRange, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class RangePipePageComponent {

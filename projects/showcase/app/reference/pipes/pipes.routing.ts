@@ -35,7 +35,10 @@ export default [
     loadComponent: () => import('./wr-plural/wr-plural'),
   },
   {
-    path: pipes.range,
-    loadComponent: () => import('./range/range'),
+    path: pipes.wrRange,
+    loadComponent: () => import('./wr-range/wr-range'),
   },
+  // The folder was the one unprefixed pipe route; `/reference/pipes/range` was
+  // published, so it keeps resolving.
+  { path: 'range', redirectTo: pipes.wrRange },
 ] satisfies Routes;

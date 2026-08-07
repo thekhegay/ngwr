@@ -10,6 +10,6 @@ export const PIPES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'wrMark', url: ['/reference/pipes', 'wr-mark'] },
   { title: 'wrNumber', url: ['/reference/pipes', 'wr-number'] },
   { title: 'wrPlural', url: ['/reference/pipes', 'wr-plural'] },
-  { title: 'wrRange', url: ['/reference/pipes', 'range'] },
+  { title: 'wrRange', url: ['/reference/pipes', 'wr-range'] },
   { title: 'wrTruncate', url: ['/reference/pipes', 'wr-truncate'] },
 ];
