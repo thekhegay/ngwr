@@ -5,12 +5,12 @@ import { WrPopover } from 'ngwr/popover';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-popover-page',
@@ -53,46 +53,5 @@ export class MyComponent {}`,
 </wr-btn>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'wrPopover',
-      description: 'Content. `TemplateRef` in popover mode, plain string in tooltip mode.',
-      type: 'TemplateRef | string',
-      required: true,
-    },
-    {
-      name: 'mode',
-      description:
-        '`popover` (default) for template content + click trigger, or `tooltip` for text content + hover/focus trigger.',
-      type: "'popover' | 'tooltip'",
-      default: "'popover'",
-    },
-    {
-      name: 'trigger',
-      description: 'Open trigger. Ignored in tooltip mode (always hover+focus).',
-      type: "'click' | 'hover'",
-      default: "'click'",
-    },
-    {
-      name: 'position',
-      description:
-        'Anchor side, with optional `-start`/`-end` edge alignment. Defaults differ by mode (`bottom` for popover, `top` for tooltip).',
-      type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'",
-      default: 'null',
-    },
-    {
-      name: 'showDelay',
-      description: 'Tooltip only — delay before showing, in ms.',
-      type: 'number',
-      default: '120',
-    },
-    {
-      name: 'hideDelay',
-      description: 'Tooltip only — delay before hiding, in ms.',
-      type: 'number',
-      default: '60',
-    },
-    { name: '(opened)', description: 'Fires after open.', type: 'EventEmitter<void>', default: '—' },
-    { name: '(closed)', description: 'Fires after close.', type: 'EventEmitter<void>', default: '—' },
-  ];
+  protected readonly api = API.WrPopover;
 }

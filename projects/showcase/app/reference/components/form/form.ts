@@ -13,6 +13,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-form-page',
@@ -53,6 +54,10 @@ export class MyComponent {}`,
   protected readonly api: readonly DocApiRow[] = [
     { name: 'hasError', description: 'Apply error coloring to label + input.', type: 'boolean', default: 'false' },
   ];
+
+  protected readonly fieldApi = API.WrFormField;
+
+  protected readonly errorApi = API.WrFormError;
 
   protected validate(): void {
     this.emailInvalid.set(!this.email().includes('@'));

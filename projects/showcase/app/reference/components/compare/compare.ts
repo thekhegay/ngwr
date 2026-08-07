@@ -10,6 +10,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-compare-page',
@@ -43,28 +44,9 @@ export class MyComponent {}`,
 </wr-compare>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: '[(position)]',
-      description: 'Divider position as a percentage (0–100). Two-way.',
-      type: 'number',
-      default: '50',
-    },
-    {
-      name: 'orientation',
-      description:
-        'Divider direction. `horizontal` = vertical line moving L/R; `vertical` = horizontal line moving U/D.',
-      type: "'horizontal' | 'vertical'",
-      default: "'horizontal'",
-    },
-    { name: 'showHandle', description: 'Show round drag handle on the divider.', type: 'boolean', default: 'true' },
-    { name: 'disabled', description: 'Disable interaction (divider stays put).', type: 'boolean', default: 'false' },
-    {
-      name: 'minPosition / maxPosition',
-      description: 'Clamp range for the divider.',
-      type: 'number',
-      default: '0 / 100',
-    },
+  protected readonly api = API.WrCompare;
+
+  protected readonly slotsApi: readonly DocApiRow[] = [
     {
       name: '[wrCompareBefore] / [wrCompareAfter]',
       description: 'Attributes marking the two pieces of projected content.',

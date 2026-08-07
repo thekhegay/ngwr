@@ -11,6 +11,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-command-palette-page',
@@ -95,44 +96,9 @@ export class AppShell {
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'items',
-      description: 'Commands to render. Items with the same `group` are bucketed.',
-      type: 'readonly WrCommandItem[]',
-      default: '[]',
-    },
-    {
-      name: '[(open)]',
-      description: 'Two-way bindable visibility. Set true to open programmatically.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'trigger',
-      description: 'Global hotkey that opens the palette. `null` disables auto-binding (you trigger manually).',
-      type: 'WrHotkeySpec | null',
-      default: "'mod+k'",
-    },
-    {
-      name: 'placeholder',
-      description: 'Search input placeholder.',
-      type: 'string',
-      default: "'Type a command or search…'",
-    },
-    { name: 'emptyText', description: 'Text when no items match the query.', type: 'string', default: "'No results'" },
-    {
-      name: 'closeOnPick',
-      description: 'Auto-close on `(picked)`. Set false to keep open.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: '(picked)',
-      description: "Emits the picked `WrCommandItem`. Runs after the item's own `action()` callback.",
-      type: 'EventEmitter<WrCommandItem>',
-      default: '—',
-    },
+  protected readonly api = API.WrCommandPalette;
+
+  protected readonly typesApi: readonly DocApiRow[] = [
     {
       name: 'WrCommandItem',
       description: '`{ id, label, description?, group?, icon?, keywords?, shortcut?, action? }`',

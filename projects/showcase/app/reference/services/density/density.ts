@@ -74,11 +74,13 @@ density.cycle();`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
+    { name: 'WrDensity', description: 'Injectable service.', type: 'service', default: '—' },
     {
       name: 'current',
       description: 'Active density signal. Read-only — use `set(d)` / `cycle()` to write.',
       type: 'Signal<WrDensityValue>',
       default: "'default'",
+      sub: true,
     },
     {
       name: 'set(density)',

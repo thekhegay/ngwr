@@ -11,6 +11,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-tree-page',
@@ -133,75 +134,13 @@ export class MyComponent {
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'nodes',
-      description: 'Tree data — array of WrTreeNode<TId>.',
-      type: 'readonly WrTreeNode[]',
-      default: '[]',
-    },
-    { name: '[(selected)]', description: 'Selected node ids (two-way).', type: 'readonly TId[]', default: '[]' },
-    { name: '[(expanded)]', description: 'Expanded node ids (two-way).', type: 'readonly TId[]', default: '[]' },
-    {
-      name: 'selectionMode',
-      description: 'Selection behavior.',
-      type: "'none' | 'single' | 'multi'",
-      default: "'single'",
-    },
-    { name: 'disabled', description: 'Disable the whole tree.', type: 'boolean', default: 'false' },
-    {
-      name: 'openOn',
-      description:
-        '`inline` (default) renders the tree in place. `overlay` renders a combobox-style trigger that opens a popover containing the tree — a signal-forms native control, so `[formField]` binds straight to its `value` model. Replaces the standalone `wr-tree-select`.',
-      type: "'inline' | 'overlay'",
-      default: "'inline'",
-    },
-    {
-      name: 'placeholder',
-      description: 'Overlay mode — placeholder shown on the trigger.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'clearable',
-      description: 'Overlay mode — show a clear-all (×) button when a node is selected.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'maxTagCount',
-      description: 'Overlay + multi mode — cap chips rendered before collapsing into `+N more`. `0` = render all.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'defaultExpandAll',
-      description: 'Overlay mode — auto-expand every parent on first open.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'virtualScroll',
-      description: 'Window the visible-node list — keep only ~one viewport of rows in the DOM (inline or overlay).',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rowHeight',
-      description: 'Uniform virtual row height (px). `0` auto-measures the first row (adapts to density / touch).',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'viewportHeight',
-      description: 'Virtual scroll viewport height — a number (px) or CSS length.',
-      type: 'number | string',
-      default: '288',
-    },
-    { name: 'overscan', description: 'Extra rows kept above/below the viewport.', type: 'number', default: '6' },
+  protected readonly api = API.WrTree;
+
+  protected readonly typesApi: readonly DocApiRow[] = [
     {
       name: 'WrTreeNode',
-      description: '{ id, label, children?, disabled? }',
+      description:
+        '`{ id, label, children?, disabled?, icon? }`. `id` is what `[(selected)]` / `[(expanded)]` carry; a node without `children` is a leaf.',
       type: 'interface',
       default: '—',
     },

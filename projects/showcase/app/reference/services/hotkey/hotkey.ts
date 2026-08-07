@@ -13,6 +13,7 @@ import {
   type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-svc-hotkey-page',
@@ -73,6 +74,8 @@ ngOnInit() {
       default: '—',
     },
   ];
+
+  protected readonly bindingApi = API.WrHotkeyBinding;
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
     {

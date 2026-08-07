@@ -78,6 +78,12 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
 
   protected readonly api: readonly DocApiRow[] = [
     {
+      name: 'WrLoadingBar',
+      description: 'Injectable service — the singleton every bar reads.',
+      type: 'service',
+      default: '—',
+    },
+    {
       name: 'start()',
       description: 'Open a slot. While at least one slot is open, the bar trickles asymptotically toward 90%.',
       type: '() => void',
@@ -100,18 +106,28 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
       description: 'Live progress signal `[0, 1]`. Useful for custom UIs.',
       type: 'Signal<number>',
       default: '0',
+      sub: true,
     },
     {
       name: 'state',
       description: 'Computed lifecycle: `idle` / `running` / `completing`.',
       type: 'Signal<WrLoadingState>',
       default: "'idle'",
+      sub: true,
     },
     {
       name: '<wr-loading-bar>',
-      description: 'Visual element. Reads the singleton service. Inputs: `color`, `height`.',
+      description: 'Visual element. Reads the singleton service.',
       type: 'component',
       default: '—',
     },
+    {
+      name: 'color',
+      description: 'Bar colour — any CSS colour value.',
+      type: 'string',
+      default: "'var(--wr-color-primary)'",
+      sub: true,
+    },
+    { name: 'height', description: 'Bar height.', type: 'string', default: "'2px'", sub: true },
   ];
 }

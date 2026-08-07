@@ -31,8 +31,8 @@ export const API = {
   ],
   // <[wrAffix]>
   WrAffix: [
-    { name: "offsetTop", description: "Pixels from the top of the scroll container when stuck.", type: "number", default: "0" },
-    { name: "(affixChange)", description: "—", type: "boolean" },
+    { name: "wrAffixOffsetTop", description: "Pixels from the top of the scroll container when stuck.", type: "number", default: "0" },
+    { name: "(wrAffixChange)", description: "—", type: "boolean" },
   ],
   // <wr-alert>
   WrAlert: [
@@ -200,6 +200,7 @@ export const API = {
     { name: "clearLabel", description: "Accessible name. Falls back to `select.clearSelection`, then `'Clear selection'`.", type: "string | null", default: "null" },
     { name: "options", description: "Root-level options. Each may have `children` for deeper levels.", type: "readonly WrCascaderOption<T>[]", required: true },
     { name: "placeholder", description: "Placeholder shown when no path is selected.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — a `role=\"combobox\"` with nothing selected and no placeholder otherwise has no name at all.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the cascader. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrCascaderSize", default: "'md'" },
     { name: "clearable", description: "Show a clear-all (×) button on the trigger when a path is selected.", type: "boolean", default: "true" },
@@ -212,6 +213,7 @@ export const API = {
   WrCheckbox: [
     { name: "id", description: "Stable id used to associate the native input with its label.", type: "string", default: "Randomly generated" },
     { name: "checkboxValue", description: "This checkbox's identity when inside a `<wr-checkbox-group>` — the value added to / removed from the group's array. Ignored in standalone mode. (Named `checkboxValue`, not `value`, because `FormCheckboxControl` reserves `value`.)", type: "unknown", default: "null" },
+    { name: "ariaLabel", description: "Accessible name for a checkbox used WITHOUT projected text — a selection cell in a table, say. The wrapping `<label>` names the control whenever content is projected; with none, the native input has no name, and an `aria-label` put on the host lands on a `<wr-checkbox>` element that no screen reader ever announces.", type: "string | null", default: "null" },
     { name: "checked", description: "Checked state — the form value. Bound by `[formField]`, two-way via `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`, where the group's array is the source of truth.", type: "boolean", default: "false" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "disabled", description: "Disable the checkbox. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
@@ -297,7 +299,7 @@ export const API = {
   ],
   // <[wrContextMenu]>
   WrContextMenu: [
-    { name: "menu", description: "Menu to open. Pass a `<wr-context-menu>` template reference.", type: "WrContextMenuPanel", required: true },
+    { name: "wrContextMenu", description: "Menu to open. Pass a `<wr-context-menu>` template reference.", type: "WrContextMenuPanel", required: true },
   ],
   // <wr-context-menu-item>
   WrContextMenuItem: [
@@ -353,18 +355,7 @@ export const API = {
     { name: "readonly", description: "Read-only — input not typeable, but the trigger icon still opens the overlay.", type: "boolean", default: "false" },
     { name: "value", description: "The picked Date. Bound by `[formField]`, or two-way via `[(value)]`.", type: "Date | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
-  ],
-  // <wr-date-range-panel>
-  WrDateRangePanel: [
-    { name: "value", description: "—", type: "WrDateRange", default: "[null, null]" },
-    { name: "min", description: "—", type: "Date | null", default: "null" },
-    { name: "max", description: "—", type: "Date | null", default: "null" },
-    { name: "dateFilter", description: "—", type: "((date: Date) => boolean) | null", default: "null" },
-    { name: "withTime", description: "—", type: "boolean", default: "false" },
-    { name: "timeFormat", description: "—", type: "'auto' | '12h' | '24h'", default: "'auto'" },
-    { name: "showSeconds", description: "—", type: "boolean", default: "false" },
-    { name: "step", description: "—", type: "number", default: "1" },
-    { name: "(changed)", description: "—", type: "WrDateRange" },
+    { name: "ariaLabel", description: "Accessible name of the text field. Falls back to the placeholder, then to the same catalog string the calendar button uses — the field is a `role=\"combobox\"`, and with an empty placeholder it had no name at all.", type: "string | null", default: "null" },
   ],
   // <wr-date-range-picker>
   WrDateRangePicker: [
@@ -383,17 +374,6 @@ export const API = {
     { name: "readonly", description: "Read-only — inputs not typeable, but the trigger icon still opens the overlay.", type: "boolean", default: "false" },
     { name: "value", description: "The picked range. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrDateRange | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
-  ],
-  // <wr-date-time-panel>
-  WrDateTimePanel: [
-    { name: "value", description: "—", type: "Date | null", default: "null" },
-    { name: "min", description: "—", type: "Date | null", default: "null" },
-    { name: "max", description: "—", type: "Date | null", default: "null" },
-    { name: "dateFilter", description: "—", type: "((date: Date) => boolean) | null", default: "null" },
-    { name: "timeFormat", description: "—", type: "'auto' | '12h' | '24h'", default: "'auto'" },
-    { name: "showSeconds", description: "—", type: "boolean", default: "false" },
-    { name: "step", description: "—", type: "number", default: "1" },
-    { name: "(changed)", description: "—", type: "Date" },
   ],
   // <wr-decrypt-text>
   WrDecryptText: [
@@ -424,7 +404,7 @@ export const API = {
   ],
   // <[wrDialogClose]>
   WrDialogClose: [
-    { name: "result", description: "Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.", type: "R | undefined, R | undefined | ''", default: "undefined" },
+    { name: "wrDialogClose", description: "Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.", type: "R | undefined, R | undefined | ''", default: "undefined" },
   ],
   // <[wrDialogFooter]>
   WrDialogFooter: [
@@ -464,7 +444,7 @@ export const API = {
   ],
   // <[wrDrawerClose]>
   WrDrawerClose: [
-    { name: "result", description: "Value to pass to `close()` for service-opened drawers. When unset — or used as a bare attribute — the drawer closes with `undefined`.", type: "R | undefined, R | undefined | ''", default: "undefined" },
+    { name: "wrDrawerClose", description: "Value to pass to `close()` for service-opened drawers. When unset — or used as a bare attribute — the drawer closes with `undefined`.", type: "R | undefined, R | undefined | ''", default: "undefined" },
   ],
   // <[wrDrawerFooter]>
   WrDrawerFooter: [
@@ -472,7 +452,7 @@ export const API = {
   ],
   // <[wrDropdown]>
   WrDropdown: [
-    { name: "menu", description: "Menu to open. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
+    { name: "wrDropdown", description: "Menu to open. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
     { name: "trigger", description: "How the menu opens.", type: "WrDropdownTrigger", default: "'click'" },
     { name: "position", description: "Where the menu anchors relative to the trigger.", type: "WrDropdownPosition", default: "'bottom-start'" },
     { name: "responsive", description: "Present the menu as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined, BooleanInput", default: "undefined" },
@@ -524,7 +504,7 @@ export const API = {
     { name: "hint", description: "Hint text shown below the control. Hidden when an error is visible.", type: "string", default: "''" },
     { name: "required", description: "Show a `*` next to the label.", type: "boolean", default: "false" },
     { name: "optional", description: "Show `(optional)` next to the label. Mutually exclusive with `required`.", type: "boolean", default: "false" },
-    { name: "controlId", description: "Force a specific id on the label's `for` attribute. Auto-generated otherwise.", type: "string", default: "`wr-form-field-${++uid}`" },
+    { name: "controlId", description: "Force a specific id on the label's `for` attribute. Auto-generated otherwise, and adopted by the projected `wrInput` unless that element already carries an `id` of its own.", type: "string", default: "`wr-form-field-${++uid}`" },
   ],
   // <wr-form-item>
   WrFormItem: [
@@ -622,6 +602,7 @@ export const API = {
     { name: "prefix", description: "Optional prefix label (e.g. `\"$\"`).", type: "string", default: "''" },
     { name: "suffix", description: "Optional suffix label (e.g. `\"kg\"`).", type: "string", default: "''" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder — inside a `<wr-form-field>` the projected `wrInput` picks up the label's id and needs neither, but standalone the text field has no name at all.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — values cannot be changed (steppers + typing disabled).", type: "boolean", default: "false" },
     { name: "value", description: "Numeric value (`null` when empty). Bound by `[formField]`, or two-way via `[(value)]`.", type: "number | null", default: "null" },
@@ -792,7 +773,7 @@ export const API = {
   ],
   // <[wrPopconfirm]>
   WrPopconfirm: [
-    { name: "message", description: "Confirmation message.", type: "string", required: true },
+    { name: "wrPopconfirm", description: "Confirmation message.", type: "string", required: true },
     { name: "position", description: "Anchor side.", type: "WrPopconfirmPosition", default: "'top'" },
     { name: "confirmText", description: "Label for the confirm button.", type: "string", default: "'Confirm'" },
     { name: "cancelText", description: "Label for the cancel button.", type: "string", default: "'Cancel'" },
@@ -811,7 +792,7 @@ export const API = {
   ],
   // <[wrPopover]>
   WrPopover: [
-    { name: "content", description: "Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.", type: "TemplateRef<unknown> | string", required: true },
+    { name: "wrPopover", description: "Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.", type: "TemplateRef<unknown> | string", required: true },
     { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover+focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host.", type: "'popover' | 'tooltip'", default: "'popover'" },
     { name: "trigger", description: "How the popover opens. Ignored in tooltip mode — tooltips are always hover+focus.", type: "'click' | 'hover'", default: "'click'" },
     { name: "position", description: "Anchor side.", type: "WrPopoverPosition | null", default: "'bottom' for popover, 'top' for tooltip" },
@@ -820,10 +801,6 @@ export const API = {
     { name: "responsive", description: "Popover mode only — present the panel as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it. Tooltips never become sheets.", type: "boolean | undefined, BooleanInput", default: "undefined" },
     { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
     { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
-  ],
-  // <wr-popover-text>
-  WrPopoverTextPanel: [
-    { name: "text", description: "—", type: "string", required: true },
   ],
   // <wr-progress>
   WrProgress: [
@@ -920,6 +897,7 @@ export const API = {
   WrSelect: [
     { name: "placeholder", description: "Placeholder shown when no option is selected. Falls back to `select.placeholder`.", type: "string | null", default: "null" },
     { name: "clearLabel", description: "Clear-selection (×) button aria-label. Falls back to `select.clearSelection`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — `role=\"combobox\"` on an empty trigger otherwise has no name at all, which is the common case before anything is selected.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the select. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "rounded", description: "Pill-shaped corners on the trigger.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSelectSize", default: "'md'" },
@@ -993,6 +971,7 @@ export const API = {
     { name: "orientation", description: "Layout direction. Drives CDK's `cdkDropListOrientation`.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
     { name: "disabled", description: "Disable all dragging.", type: "boolean", default: "false" },
     { name: "lockAxis", description: "Locked axis — restrict drag movement to one axis even diagonally.", type: "'x' | 'y' | undefined", default: "undefined" },
+    { name: "dragStartDelay", description: "Delay (ms) before a drag begins after the pointer goes down. The touch delay is the fix for the classic CDK touch snag: without it, the `touch-action: none` CDK puts on each item blocks scrolling the list on a phone. With a small touch delay, a quick swipe scrolls and a brief hold starts the drag; mouse stays instant. Pass a single number to apply one delay to both pointers.", type: "number | { touch: number; mouse: number }", default: "{ touch: 150, mouse: 0 }" },
     { name: "trackBy", description: "`trackBy` for the inner `@for`. Defaults to identity.", type: "(index: number, item: T) => unknown", default: "(_, item) => item" },
     { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices.", type: "WrSortableReorderEvent<T>" },
   ],
@@ -1179,7 +1158,7 @@ export const API = {
   ],
   // <[wrTableCell]>
   WrTableCell: [
-    { name: "columnKey", description: "Column key the template applies to.", type: "string", required: true },
+    { name: "wrTableCell", description: "Column key the template applies to.", type: "string", required: true },
   ],
   // <wr-table-filter>
   WrTableFilter: [
@@ -1217,6 +1196,7 @@ export const API = {
   // <wr-textarea>
   WrTextarea: [
     { name: "placeholder", description: "Native placeholder text.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder — the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.", type: "string | null", default: "null" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrTextareaSize", default: "'md'" },
     { name: "rows", description: "Visible row count.", type: "number", default: "3" },
     { name: "resizable", description: "Allow user resize via the corner grip.", type: "boolean", default: "true" },
@@ -1244,16 +1224,6 @@ export const API = {
     { name: "title", description: "—", type: "string", default: "''" },
     { name: "time", description: "—", type: "string", default: "''" },
     { name: "color", description: "—", type: "WrTimelineColor", default: "'primary'" },
-  ],
-  // <wr-time-picker>
-  WrTimePanel: [
-    { name: "format", description: "12 / 24-hour mode.", type: "'auto' | '12h' | '24h'", default: "'auto' (derived from the locale)" },
-    { name: "showSeconds", description: "Render a third column for seconds.", type: "boolean", default: "false" },
-    { name: "step", description: "Step applied to minutes / seconds steppers.", type: "number", default: "1" },
-    { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
-    { name: "readonly", description: "Read-only — values cannot be changed.", type: "boolean", default: "false" },
-    { name: "value", description: "Form value — the selected time as a `Date` (its date portion is preserved). A signal-forms native control: `[formField]` binds this directly, and `[(ngModel)]` / `[(value)]` bind it through Angular's bridge.", type: "Date | null", default: "null" },
-    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-toast-host>
   WrToastHost: [
@@ -1292,6 +1262,7 @@ export const API = {
     { name: "disabled", description: "Disable the whole tree. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "openOn", description: "Render shape.", type: "'inline' | 'overlay'", default: "'inline'" },
     { name: "placeholder", description: "Placeholder shown on the trigger when no node is selected.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name of the overlay trigger. Falls back to the placeholder, then to `select.label` — a `role=\"combobox\"` with nothing selected and no placeholder otherwise has no name at all.", type: "string | null", default: "null" },
     { name: "clearable", description: "Show a clear-all (×) button on the trigger when at least one node is selected.", type: "boolean", default: "true" },
     { name: "maxTagCount", description: "Cap on the number of chips rendered on the trigger before collapsing the rest into `+N more` (multi mode only). `0` = render every chip.", type: "number", default: "0" },
     { name: "defaultExpandAll", description: "Auto-expand every node that has children on first open of the overlay.", type: "boolean", default: "false" },
@@ -1319,6 +1290,7 @@ export const API = {
     { name: "variableSpeed", description: "Randomise typing speed per char between `min` and `max`.", type: "WrTypewriterVariableSpeed | undefined", default: "undefined" },
     { name: "reverseMode", description: "Reverse the string (type it backwards).", type: "boolean", default: "false" },
     { name: "startOnVisible", description: "Start typing only after the host enters the viewport.", type: "boolean", default: "false" },
+    { name: "(sentenceComplete)", description: "Emits with `(text, index)` when a string finishes typing.", type: "{ text: string; index: number }" },
   ],
   // <[wrTypography]>
   WrTypography: [
@@ -1377,6 +1349,8 @@ export const API = {
     { name: "showMaximize", description: "—", type: "boolean", default: "true" },
     { name: "showClose", description: "—", type: "boolean", default: "true" },
     { name: "(closed)", description: "—", type: "void" },
+    { name: "(moved)", description: "—", type: "{ readonly x: number; readonly y: number }" },
+    { name: "(resized)", description: "—", type: "{ readonly width: number; readonly height: number }" },
   ],
   // <wr-window-taskbar>
   WrWindowTaskbar: [
