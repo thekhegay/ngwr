@@ -106,6 +106,12 @@
   }
 }
 
+// Literal curves on purpose. `animation-timing-function` inside a keyframe is
+// resolved when the keyframe is parsed, not against the animated element, so a
+// `var(--wr-ease-*)` here silently evaluates to the element's own
+// animation-timing-function instead — verified in Chrome: the tokenised version
+// reports the element's `steps(4)` where a literal reports the curve. These two
+// are the only motion values in the library that cannot read the token layer.
 @keyframes wr-bounce {
   0%,
   100% {

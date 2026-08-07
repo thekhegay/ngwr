@@ -113,14 +113,20 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
       light / dark / high-contrast via `color-scheme`, and the optional
       `--mat-sys-*` interop map so ngwr drops into Material apps. This is the M3
       theming bar.
-- [ ] **D4. Motion tokens** (S, mostly shipped) — `--wr-duration-*` /
-      `--wr-ease-*` / `--wr-transition-*` live in
-      `theme/styles/_variables.scss` and are consumed by **51 stylesheets**,
-      documented at `/guides/tokens/motion`. Keep the shipped prefixes —
-      renaming public custom properties now would be a gratuitous break.
-      **Remaining:** the **8** stylesheets still hardcoding `cubic-bezier`
-      (circular-text, segmented, toast, marquee, dialog,
-      `styles/_animations.scss`, table, drag-drop).
+- [x] **D4. Motion tokens** (S) — `--wr-duration-*` / `--wr-ease-*` /
+      `--wr-transition-*` live in `theme/styles/_variables.scss`, documented at
+      `/guides/tokens/motion`, and every component stylesheet now reads them:
+      the last eight hardcoded `cubic-bezier` values (circular-text, segmented,
+      toast, marquee, dialog, table, drag-drop) are gone, verified in a browser
+      by overriding `--wr-ease-out` and watching the segmented thumb and the
+      dialog backdrop follow. The shipped prefixes are unchanged — renaming
+      public custom properties would be a gratuitous break.
+      **Two motion values stay literal on purpose:** the `wr-bounce` keyframes
+      in `styles/_animations.scss`, because `animation-timing-function` inside a
+      keyframe resolves at parse time and a `var()` there silently falls back to
+      the element's own timing function; and the `easing` input defaults on
+      `wr-split-text` / `wr-rotating-text`, because they feed the Web Animations
+      API, which does not resolve custom properties.
 
 ## E — DX, docs & distribution
 
