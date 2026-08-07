@@ -13,9 +13,13 @@
  * Layout produced under `dist/lib/schematics/`:
  *
  *   collection.json
- *   ng-add/
- *     index.js
+ *   migrations.json
+ *   package.json              — pins the folder to CommonJS
+ *   <generator>/              — ng-add, use, provider, icon-set,
+ *     index.js                  component-style, page
  *     schema.json
+ *   use/symbol-map.json       — generated from a public-api scan
+ *   migrations/v7 … v9/       — one dir per `ng update` migration
  *
  * Wired into `build:lib` so local builds and CI ship the same artifact.
  *

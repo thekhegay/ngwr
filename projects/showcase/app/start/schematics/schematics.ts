@@ -67,8 +67,8 @@ import { APP_ICONS } from './icons';
 providers: [provideWrIcons(APP_ICONS)],`,
 
     use: `# Add the import + splice into a component's @Component imports array.
-ng g ngwr:use WrButton src/app/pages/checkout/checkout.ts
-ng g ngwr:use WrSelect src/app/pages/checkout/checkout.ts
+ng g ngwr:use WrButton --path src/app/pages/checkout/checkout.ts
+ng g ngwr:use WrSelect --path src/app/pages/checkout/checkout.ts
 
 # 338 symbols recognized — every public Wr* export across the catalog.`,
 

@@ -18,7 +18,11 @@ const SYMBOL_MAP = require('./symbol-map.json') as Record<string, string>;
  * Add `import { WrFoo } from 'ngwr/<subpath>';` to the given component
  * file and splice `WrFoo` into the `@Component({ imports: [...] })`
  * array. Saves the subpath-lookup dance for newcomers — `ng g ngwr:use
- * WrButton src/app/my-page.ts`.
+ * WrButton --path src/app/my-page.ts`.
+ *
+ * Only `symbol` is positional (see schema.json); `path` is a named option, so
+ * the bare `ng g ngwr:use WrButton src/app/my-page.ts` form fails with
+ * `Unknown argument`.
  *
  * Regex-based on purpose to avoid pulling in the TS compiler as a runtime
  * dep. Covers the common standalone-component shape; an unusual file

@@ -30,14 +30,14 @@ function renderForm(dashName: string, pascalName: string): Rendered {
 import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
-import { WrFormField, WrLabel, WrErrorMessage } from 'ngwr/form';
+import { WrFormField } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
 
 @Component({
   selector: 'app-${dashName}',
   templateUrl: './${dashName}.html',
   styleUrl: './${dashName}.scss',
-  imports: [FormsModule, WrButton, WrFormField, WrLabel, WrErrorMessage, WrInput],
+  imports: [FormsModule, WrButton, WrFormField, WrInput],
 })
 export default class ${pascalName} {
   protected readonly name = signal('');
@@ -61,13 +61,11 @@ export default class ${pascalName} {
   const html = `<form class="${dashName}" (ngSubmit)="onSubmit()">
   <h1>${titleCase(pascalName)}</h1>
 
-  <wr-form-field>
-    <wr-label>Name</wr-label>
+  <wr-form-field label="Name" required>
     <input wrInput [(ngModel)]="name" name="name" required />
   </wr-form-field>
 
-  <wr-form-field>
-    <wr-label>Email</wr-label>
+  <wr-form-field label="Email" required>
     <input wrInput type="email" [(ngModel)]="email" name="email" required />
   </wr-form-field>
 
@@ -94,6 +92,7 @@ function renderTable(dashName: string, pascalName: string): Rendered {
   const ts = `import { Component, signal } from '@angular/core';
 
 import { WrTable } from 'ngwr/table';
+import type { WrTableColumns } from 'ngwr/table';
 import { WrPagination } from 'ngwr/pagination';
 
 interface Row {
@@ -109,7 +108,11 @@ interface Row {
   imports: [WrTable, WrPagination],
 })
 export default class ${pascalName} {
-  protected readonly columns = ['id', 'name', 'status'] as const;
+  protected readonly columns: WrTableColumns = {
+    id: { title: 'ID' },
+    name: { title: 'Name', sortable: true },
+    status: { title: 'Status' },
+  };
 
   protected readonly rows = signal<readonly Row[]>([
     { id: 1, name: 'Alpha', status: 'active' },
@@ -126,11 +129,11 @@ export default class ${pascalName} {
   const html = `<section class="${dashName}">
   <h1>${titleCase(pascalName)}</h1>
 
-  <wr-table [data]="rows()" [columns]="columns" />
+  <wr-table [columns]="columns" [items]="rows()" />
 
   <wr-pagination
-    [(page)]="page"
-    [pageSize]="pageSize()"
+    [(currentPage)]="page"
+    [(pageSize)]="pageSize"
     [total]="total()"
   />
 </section>
@@ -152,13 +155,12 @@ function renderDashboard(dashName: string, pascalName: string): Rendered {
 
 import { WrCard } from 'ngwr/card';
 import { WrStatistic } from 'ngwr/statistic';
-import { WrCountUp } from 'ngwr/counter';
 
 @Component({
   selector: 'app-${dashName}',
   templateUrl: './${dashName}.html',
   styleUrl: './${dashName}.scss',
-  imports: [WrCard, WrStatistic, WrCountUp],
+  imports: [WrCard, WrStatistic],
 })
 export default class ${pascalName} {
   protected readonly users = signal(1284);
@@ -172,21 +174,15 @@ export default class ${pascalName} {
 
   <div class="${dashName}__grid">
     <wr-card>
-      <wr-statistic title="Users">
-        <wr-count-up [to]="users()" />
-      </wr-statistic>
+      <wr-statistic label="Users" [value]="users()" />
     </wr-card>
 
     <wr-card>
-      <wr-statistic title="Revenue" prefix="$">
-        <wr-count-up [to]="revenue()" />
-      </wr-statistic>
+      <wr-statistic label="Revenue" prefix="$" [value]="revenue()" />
     </wr-card>
 
     <wr-card>
-      <wr-statistic title="Active">
-        <wr-count-up [to]="active()" />
-      </wr-statistic>
+      <wr-statistic label="Active" [value]="active()" />
     </wr-card>
   </div>
 </section>
