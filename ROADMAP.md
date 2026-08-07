@@ -161,10 +161,6 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
       composed from ngwr components and themed by D1. Proven adoption driver
       (shadcnblocks economy, Ant Pro, Tremor); virtually no Angular block
       ecosystem exists today.
-- [ ] **Docs chore: `/pipes/range` → `/pipes/wr-range`** (S) — the sole
-      unprefixed pipe folder; `app/routing.ts` still maps `range: 'range'`
-      beside six `wr-`-prefixed siblings. A docs-route rename with a redirect,
-      not a breaking change.
 
 ## F — AI components (`ngwr/ai`)
 
