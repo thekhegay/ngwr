@@ -26,7 +26,7 @@
 </div>
 
 @if (hasControls()) {
-  <h4 class="customize-title">Customize</h4>
+  <h3 class="customize-title">Customize</h3>
   <div class="controls">
     @for (ctrl of controls(); track ctrl.label) {
       <div class="chip" [attr.data-kind]="ctrl.kind">
@@ -34,7 +34,12 @@
 
         @switch (ctrl.kind) {
           @case ('select') {
-            <wr-select class="chip__select" [ngModel]="ctrl.signal()" (ngModelChange)="setStr(ctrl, $event)">
+            <wr-select
+              class="chip__select"
+              [ariaLabel]="ctrl.label"
+              [ngModel]="ctrl.signal()"
+              (ngModelChange)="setStr(ctrl, $event)"
+            >
               @for (opt of ctrl.options; track opt) {
                 <wr-option [value]="opt">{{ opt }}</wr-option>
               }
@@ -55,7 +60,12 @@
           }
 
           @case ('toggle') {
-            <wr-switch class="chip__toggle" [ngModel]="ctrl.signal()" (ngModelChange)="ctrl.signal.set($event)" />
+            <wr-switch
+              class="chip__toggle"
+              [ariaLabel]="ctrl.label"
+              [ngModel]="ctrl.signal()"
+              (ngModelChange)="ctrl.signal.set($event)"
+            />
           }
 
           @case ('text') {
@@ -63,6 +73,7 @@
               wrInput
               type="text"
               class="chip__text"
+              [attr.aria-label]="ctrl.label"
               [value]="ctrl.signal()"
               [placeholder]="ctrl.placeholder ?? ''"
               (input)="setStr(ctrl, inputValue($event))"
@@ -73,6 +84,7 @@
             <button
               type="button"
               class="chip__color"
+              [attr.aria-label]="ctrl.label"
               [value]="ctrl.signal()"
               (valueChange)="setStr(ctrl, $event)"
               [alpha]="ctrl.alpha ?? true"

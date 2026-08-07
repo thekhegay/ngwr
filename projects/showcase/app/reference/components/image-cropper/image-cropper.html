@@ -15,7 +15,7 @@
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
-        <input type="file" accept="image/*" (change)="onFileChange($event)" />
+        <input type="file" accept="image/*" aria-label="Choose an image to crop" (change)="onFileChange($event)" />
         <wr-image-cropper [src]="src()" (cropped)="onCropped($event)" />
         @if (previewUrl()) {
           <div>

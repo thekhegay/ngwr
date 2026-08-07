@@ -66,7 +66,7 @@
         <div class="ngwr-cbento__tile-body ngwr-cbento__payment">
           <wr-input-group>
             <span wrInputPrefix>$</span>
-            <input wrInput [ngModel]="payAmount()" (ngModelChange)="payAmount.set($event)" />
+            <input wrInput aria-label="Amount" [ngModel]="payAmount()" (ngModelChange)="payAmount.set($event)" />
           </wr-input-group>
           <wr-form-field>
             <input wrInput placeholder="Card holder" [ngModel]="payHolder()" (ngModelChange)="payHolder.set($event)" />
@@ -87,21 +87,21 @@
               <p wrTypography variant="small">Push notifications</p>
               <p wrTypography variant="caption" tone="medium">Real-time activity</p>
             </div>
-            <wr-switch [ngModel]="notifPush()" (ngModelChange)="notifPush.set($event)" />
+            <wr-switch ariaLabel="Push notifications" [ngModel]="notifPush()" (ngModelChange)="notifPush.set($event)" />
           </div>
           <div class="ngwr-cbento__setting">
             <div>
               <p wrTypography variant="small">Daily digest</p>
               <p wrTypography variant="caption" tone="medium">8:00 AM summary</p>
             </div>
-            <wr-switch [ngModel]="notifDigest()" (ngModelChange)="notifDigest.set($event)" />
+            <wr-switch ariaLabel="Daily digest" [ngModel]="notifDigest()" (ngModelChange)="notifDigest.set($event)" />
           </div>
           <div class="ngwr-cbento__setting">
             <div>
               <p wrTypography variant="small">Beta features</p>
               <p wrTypography variant="caption" tone="medium">Early access</p>
             </div>
-            <wr-switch [ngModel]="notifBeta()" (ngModelChange)="notifBeta.set($event)" />
+            <wr-switch ariaLabel="Beta features" [ngModel]="notifBeta()" (ngModelChange)="notifBeta.set($event)" />
           </div>
         </div>
       </article>
@@ -144,7 +144,7 @@
             <wr-avatar shape="circle" size="2.5rem" alt="Jamie M" class="ngwr-cbento__avatar-text">JM</wr-avatar>
             <wr-avatar shape="circle" size="2.5rem" alt="Alex K" class="ngwr-cbento__avatar-text">AK</wr-avatar>
             <wr-avatar shape="circle" size="2.5rem" alt="Riley T" class="ngwr-cbento__avatar-text">RT</wr-avatar>
-            <span class="ngwr-cbento__avatar-more" aria-label="4 more">+4</span>
+            <span role="img" class="ngwr-cbento__avatar-more" aria-label="4 more">+4</span>
           </div>
           <div class="ngwr-cbento__avatars-meta">
             <p wrTypography variant="small">8 collaborators</p>
@@ -224,15 +224,36 @@
         <div class="ngwr-cbento__tile-body ngwr-cbento__theme">
           <wr-segmented [options]="themeOptions" [ngModel]="theme.mode()" (ngModelChange)="onThemeChange($event)" />
           <div class="ngwr-cbento__swatches">
-            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-primary)" aria-label="primary"></span>
             <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-primary)"
+              aria-label="primary"
+            ></span>
+            <span
+              role="img"
               class="ngwr-cbento__swatch"
               style="background: var(--wr-color-secondary)"
               aria-label="secondary"
             ></span>
-            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-success)" aria-label="success"></span>
-            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-warning)" aria-label="warning"></span>
-            <span class="ngwr-cbento__swatch" style="background: var(--wr-color-danger)" aria-label="danger"></span>
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-success)"
+              aria-label="success"
+            ></span>
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-warning)"
+              aria-label="warning"
+            ></span>
+            <span
+              role="img"
+              class="ngwr-cbento__swatch"
+              style="background: var(--wr-color-danger)"
+              aria-label="danger"
+            ></span>
           </div>
         </div>
       </article>
