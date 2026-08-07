@@ -77,6 +77,10 @@
     gap: 0.125rem;
   }
 
+  &__error--hidden {
+    display: none;
+  }
+
   &__error {
     color: var(--wr-color-danger);
     font-size: var(--wr-text-sm);

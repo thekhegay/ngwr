@@ -6,8 +6,21 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, contentChild, forwardRef, input } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ViewEncapsulation,
+  computed,
+  contentChild,
+  effect,
+  forwardRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
+
+import { EMPTY, type Subscription } from 'rxjs';
 
 import { WR_FORM_FIELD, type WrFormFieldContext } from './tokens';
 
@@ -67,10 +80,40 @@ export class WrFormField implements WrFormFieldContext {
    */
   readonly controlId = input<string>(`wr-form-field-${++uid}`);
 
-  /** Projected `NgControl` — used to read touched / dirty / errors. */
+  /**
+   * Projected `NgControl` — used to read touched / dirty / errors.
+   *
+   * This catches `[formField]` too: Angular's Signal Forms directive provides
+   * `NgControl` via its interop shim, so both forms flavours land here.
+   */
   protected readonly ngControl = contentChild(NgControl);
 
+  /**
+   * Bumped on every event the projected control emits.
+   *
+   * `AbstractControl`'s `touched` / `dirty` / `errors` accessors are NOT
+   * reactive under classic forms — Angular reads them inside `untracked()`, and
+   * `errors` is a plain assigned field. A `computed` over them therefore caches
+   * its first value and never recomputes, which in a zoneless app means the
+   * error block never appears at all. `control.events` is the reactive source
+   * Angular does expose, so the computed depends on this counter instead.
+   * Signal Forms needs none of this — its interop getters read live signals —
+   * and harmlessly contributes no events.
+   */
+  private readonly revision = signal(0);
+
+  constructor() {
+    let sub: Subscription | null = null;
+    effect(() => {
+      const control = this.ngControl()?.control;
+      sub?.unsubscribe();
+      sub = (control?.events ?? EMPTY).subscribe(() => this.revision.update(n => n + 1));
+    });
+    inject(DestroyRef).onDestroy(() => sub?.unsubscribe());
+  }
+
   protected readonly errors = computed(() => {
+    this.revision();
     const c = this.ngControl();
     if (!c) return null;
     if (!c.touched && !c.dirty) return null;
@@ -82,6 +125,12 @@ export class WrFormField implements WrFormFieldContext {
     return !!errs && Object.keys(errs).length > 0;
   });
 
+  /** @internal Read by the projected `<wr-form-error>` children to decide which of them renders. */
+  readonly errorKeys = computed<readonly string[]>(() => Object.keys(this.errors() ?? {}));
+
+  /** @internal Read by the projected control so a screen reader is pointed at the message. */
+  readonly describedBy = computed(() => (this.hasError() ? `${this.controlId()}-errors` : null));
+
   protected readonly classes = computed(() => {
     const parts = ['wr-form-field'];
     if (this.hasError()) parts.push('wr-form-field--invalid');
@@ -91,8 +140,9 @@ export class WrFormField implements WrFormFieldContext {
 }
 
 /**
- * One error message tied to a validator key. Renders only when the
- * parent form-field has a matching error in `control.errors`.
+ * One error message tied to a validator key. Renders only when the parent
+ * form-field has a matching error in `control.errors`, and only once the
+ * control is touched or dirty.
  *
  * @example
  * ```html
@@ -108,6 +158,7 @@ export class WrFormField implements WrFormFieldContext {
     class: 'wr-form-error wr-form-field__error',
     role: 'alert',
     '[attr.data-key]': 'key() ?? null',
+    '[class.wr-form-field__error--hidden]': '!visible()',
   },
 })
 export class WrFormError {
@@ -117,4 +168,24 @@ export class WrFormError {
    * plain inline-error usage inside `<wr-form-item>`.
    */
   readonly key = input<string>();
+
+  private readonly field = inject(WR_FORM_FIELD, { optional: true });
+
+  /**
+   * Whether this message is the one the current error calls for.
+   *
+   * The parent projects every `<wr-form-error>` through a single
+   * `<ng-content select>`, which cannot filter — so each message decides for
+   * itself. Without this, one invalid control rendered "Email is required."
+   * and "That isn't a valid email." side by side, which is what the docs have
+   * always described as gated behaviour.
+   *
+   * A keyless message always shows: that is the plain inline-error usage inside
+   * `<wr-form-item>`, which has no error discovery at all.
+   */
+  protected readonly visible = computed(() => {
+    const key = this.key();
+    if (!key || !this.field) return true;
+    return this.field.errorKeys().includes(key);
+  });
 }

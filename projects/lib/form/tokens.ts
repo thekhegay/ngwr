@@ -19,6 +19,15 @@ import { InjectionToken, type Signal } from '@angular/core';
 export interface WrFormFieldContext {
   /** Id the field's `<label for>` points at. */
   readonly controlId: Signal<string>;
+
+  /**
+   * Validator keys currently in error, once the control is touched or dirty.
+   * Empty when the field is valid or has not been interacted with.
+   */
+  readonly errorKeys: Signal<readonly string[]>;
+
+  /** Id of the element listing the visible messages, or `null` when there are none. */
+  readonly describedBy: Signal<string | null>;
 }
 
 /** Present only inside a `<wr-form-field>`; inject with `{ optional: true }`. */
