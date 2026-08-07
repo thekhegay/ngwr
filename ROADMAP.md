@@ -37,8 +37,9 @@ Two notes on the order, then it stands as written:
 
 ## A — Trust & hardening
 
-The catalog is 127 entry points gated by lint + build only. This theme is what
-makes ngwr a library people can bet on.
+The catalog is 127 entry points. Lint, both builds, the a11y sweep and the API
+drift check gate it today; unit tests are the hole. This theme is what makes
+ngwr a library people can bet on.
 
 - [ ] **A1. Test foundation** (XL, spans a cycle) — vitest via `ng test` (Karma
       is gone; vitest is the blessed runner), CI-gated. Order: utils /
@@ -48,11 +49,16 @@ makes ngwr a library people can bet on.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-- [ ] **A3. a11y CI** (L) — axe-core sweep over every showcase route plus an
-      APG-pattern conformance pass per component. The 2026-08-07 audit found
-      naming and focus-management defects an automated pass would have caught
-      the day they landed. Expose the service layer too (LiveAnnouncer-style
-      announcements, focus-trap utils).
+- [x] **A3. a11y CI** (L) — `pnpm check:a11y` runs axe-core over all 211
+      prerendered pages and fails CI on any serious or critical violation. The
+      seeded baseline is empty: the ten rules it started with are fixed, which
+      cost `ariaLabel` inputs on switch / checkbox / select / tree / cascader /
+      date-picker / input-number / textarea, a real `<label for>` link from
+      `<wr-form-field>` to its projected `wrInput`, a valid grid in the
+      calendar, and structural fixes to descriptions and file-upload.
+      **Remaining:** the APG-pattern conformance pass per component, and the
+      service layer (LiveAnnouncer-style announcements, focus-trap utils).
+      Colour contrast and target size need painted pixels — they belong to A5.
 - [ ] **A5. Visual regression** (M) — Playwright screenshot diffs across the
       showcase, run at mobile viewports too.
 
@@ -127,10 +133,13 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
       schema for community blocks + theme presets. This stack drove shadcn's
       20%→56% rise; Taiga has an MCP server, nobody in Angular has the full
       stack. Builds directly on E3.
-- [ ] **E3. API reference auto-extraction** (L) — generate the per-component
-      type tables from JSDoc instead of maintaining them by hand. The
-      2026-08-07 audit found four pages with no input table at all and several
-      with wrong defaults, which is what hand-maintenance costs.
+- [x] **E3. API reference auto-extraction** (L) — `pnpm gen:api-docs` reads the
+      library's JSDoc into `#core/generated/api`, and `pnpm check:api-docs`
+      fails CI when a page's table disagrees with the source. Every showcase
+      page now matches: the pages that were a second hand-maintained copy read
+      `API.WrFoo`, and the ones that legitimately document interfaces, CSS
+      variables or service methods keep their own tables and are checked
+      against the source anyway.
 - [ ] **E4. Playground embeds** (M) — StackBlitz per component page.
 - [ ] **E5. `ngwr/kit` standalone utilities** (M) — publish the internal signal
       utils / positioning / density / hotkey / storage helpers as a zero-dep
