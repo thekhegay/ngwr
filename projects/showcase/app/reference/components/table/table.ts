@@ -20,6 +20,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 interface Row extends Record<string, unknown> {
   name: string;
@@ -285,57 +286,30 @@ export class MyComponent {}`,
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'columns',
-      description: 'Column definitions, keyed by row property name.',
-      type: 'WrTableColumns',
-      required: true,
-    },
-    {
-      name: 'items',
-      description: 'Row items. null/undefined = loading.',
-      type: 'readonly Record<string, unknown>[] | null',
-      default: 'null',
-    },
-    { name: 'loading', description: 'Show a spinner overlay.', type: 'boolean', default: 'false' },
-    {
-      name: 'reorderable',
-      description: 'Enable drag-to-reorder on the column headers.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'columnOrder',
-      description: 'Two-way column order (array of keys); pinned columns stay anchored.',
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'rowSelection',
-      description: "Selection mode — 'single' or 'multiple' (adds a leading checkbox column).",
-      type: "'single' | 'multiple' | null",
-      default: 'null',
-    },
-    {
-      name: 'rowKey',
-      description: 'Identify a row for selection — a property name or a function.',
-      type: 'string | ((row) => unknown) | null',
-      default: 'null',
-    },
-    { name: 'selection', description: 'Two-way selected row keys.', type: 'readonly unknown[]', default: '[]' },
-    {
-      name: 'expanded',
-      description: 'Two-way expanded row keys (needs a wrTableExpand template).',
-      type: 'readonly unknown[]',
-      default: '[]',
-    },
+  protected readonly api = API.WrTable;
+
+  protected readonly templatesApi: readonly DocApiRow[] = [
     {
       name: '<ng-template wrTableExpand>',
       description: 'Detail template revealed when a row expands (let-row).',
       type: 'directive',
       default: '—',
     },
+    {
+      name: '<ng-template wrTableGroupHeader>',
+      description: 'Custom band label template (let-value, let-count, let-toggle, …).',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrTableCell]',
+      description: 'Per-column cell template. The attribute value is the column key it overrides.',
+      type: 'directive',
+      default: '—',
+    },
+  ];
+
+  protected readonly methodsApi: readonly DocApiRow[] = [
     {
       name: 'exportCsv(options?)',
       description: 'Download the rows as a CSV file (options: filename, selectedOnly, delimiter).',
@@ -349,82 +323,11 @@ export class MyComponent {}`,
       default: '—',
     },
     {
-      name: 'groupBy',
-      description: 'Group rows under collapsible bands — a property name or a function. Runs after pagination.',
-      type: 'string | ((row) => unknown) | null',
-      default: 'null',
-    },
-    {
-      name: 'collapsedGroups',
-      description: 'Two-way collapsed group values (keyed by value; survives paging).',
-      type: 'readonly unknown[]',
-      default: '[]',
-    },
-    {
-      name: 'groupSummary',
-      description: "Repeat each column's `summary` as a per-group subtotal row.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'showGroupCount',
-      description: 'Show the page-scoped row-count badge in each group band.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: '<ng-template wrTableGroupHeader>',
-      description: 'Custom band label template (let-value, let-count, let-toggle, …).',
-      type: 'directive',
-      default: '—',
-    },
-    {
       name: 'collapseAllGroups() / expandAllGroups()',
       description: 'Collapse or expand every group on the current page.',
       type: '() => void',
       default: '—',
     },
-    { name: 'sort', description: 'Two-way bindable sort array.', type: 'readonly WrTableSortState[]', default: '[]' },
-    {
-      name: '(filterChange)',
-      description: 'Fires when a column filter changes.',
-      type: 'EventEmitter<WrTableFilterChange>',
-      default: '—',
-    },
-    {
-      name: 'pageSize',
-      description: 'Rows per page. `0` disables client-side pagination.',
-      type: 'number',
-      default: '0',
-    },
-    { name: 'page', description: 'Two-way bindable 1-based current page.', type: 'number', default: '1' },
-    {
-      name: 'totalItems',
-      description:
-        'Server-side total. When set, the table renders the pager but does NOT slice `items` (you handle paging).',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'virtualScroll',
-      description:
-        'Window the body — keep only ~one viewport of rows in the DOM. Falls back to the full render while grouping / expansion / responsive / a pager is active.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rowHeight',
-      description: 'Uniform virtual row height (px). `0` auto-measures the first row.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'viewportHeight',
-      description: 'Virtual scroll viewport height — a number (px) or CSS length. Applied as max-height.',
-      type: 'number | string',
-      default: '480',
-    },
-    { name: 'overscan', description: 'Extra rows kept above/below the viewport.', type: 'number', default: '6' },
     {
       name: 'scrollToRow(index, behavior?)',
       description: 'Scroll a row index to the top of the virtual viewport.',
@@ -432,6 +335,10 @@ export class MyComponent {}`,
       default: '—',
     },
   ];
+
+  protected readonly filterApi = API.WrTableFilter;
+
+  protected readonly sortApi = API.WrTableSort;
 
   protected onFilter(change: WrTableFilterChange): void {
     if (change.key === 'role') {

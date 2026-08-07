@@ -8,12 +8,12 @@ import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-dropdown-page',
@@ -59,26 +59,7 @@ export class MyComponent {}`,
     disabled: `<wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: '[wrDropdown]',
-      description: 'Menu component to open.',
-      type: 'WrDropdownMenu',
-      required: true,
-    },
-    { name: 'trigger', description: 'How the menu opens.', type: "'click' | 'hover'", default: "'click'" },
-    {
-      name: 'position',
-      description: 'Anchor side.',
-      type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right'",
-      default: "'bottom-start'",
-    },
-    { name: '(opened)', description: 'Fires after the menu opens.', type: 'EventEmitter<void>', default: '—' },
-    { name: '(closed)', description: 'Fires after the menu closes.', type: 'EventEmitter<void>', default: '—' },
-  ];
+  protected readonly api = API.WrDropdown;
 
-  protected readonly itemApi: readonly DocApiRow[] = [
-    { name: 'icon', description: 'Optional leading icon.', type: 'WrIconName | null', default: 'null' },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly itemApi = API.WrDropdownItem;
 }

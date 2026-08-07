@@ -161,6 +161,13 @@ protected readonly launchDate = new Date(Date.now() + 1000 * 60 * 60 * 36);`;
       sub: true,
     },
     { name: 'tickMs', description: 'Tick interval in milliseconds.', type: 'number', default: '1000', sub: true },
+    {
+      name: '(countdownEnd)',
+      description: 'Emits once when the target time is reached.',
+      type: 'EventEmitter<void>',
+      default: '—',
+      sub: true,
+    },
   ];
 
   protected onLive(): void {

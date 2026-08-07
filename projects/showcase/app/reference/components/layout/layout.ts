@@ -74,10 +74,44 @@ export default class LayoutPageComponent {
     },
     {
       name: '<wr-layout-sider>',
-      description:
-        'Collapsible side panel. `[(collapsed)]`, `width`, `collapsedWidth`, `reverse`. `toggle()` flips collapsed state.',
+      description: 'Collapsible side panel. `toggle()` flips the collapsed state.',
       type: 'component',
       default: '—',
+    },
+    {
+      name: '[(collapsed)]',
+      description: 'Two-way bindable collapsed state.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    {
+      name: 'width',
+      description: 'Width when expanded. Any CSS length.',
+      type: 'string',
+      default: "'16rem'",
+      sub: true,
+    },
+    {
+      name: 'collapsedWidth',
+      description: 'Width when collapsed. Any CSS length; `0` fully hides it.',
+      type: 'string',
+      default: "'4rem'",
+      sub: true,
+    },
+    {
+      name: 'reverse',
+      description: 'Place the sider on the right edge instead of the left.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
+    {
+      name: '(collapsedChanged)',
+      description: 'Emits whenever `collapsed` changes, alongside the two-way binding.',
+      type: 'EventEmitter<boolean>',
+      default: '—',
+      sub: true,
     },
     {
       name: '<wr-layout-content>',

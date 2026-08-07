@@ -12,6 +12,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-cascader-page',
@@ -115,41 +116,9 @@ locations: WrCascaderOption[] = [
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'options',
-      description: 'Root-level options. Each may include `children` to define deeper levels.',
-      type: 'WrCascaderOption<T>[]',
-      default: '— (required)',
-      required: true,
-    },
-    { name: 'placeholder', description: 'Shown when no path is selected.', type: 'string', default: "''" },
-    { name: 'disabled', description: 'Disable the cascader.', type: 'boolean', default: 'false' },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: "'sm' | 'md' | 'lg'",
-      default: "'md'",
-    },
-    {
-      name: 'clearable',
-      description: 'Show a clear-all (×) button when something is selected.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'changeOnSelect',
-      description: 'Commit a path on every click (parents too). When `false`, only leaves commit.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'separator', description: 'Joiner between labels in the trigger.', type: 'string', default: "'/'" },
-    {
-      name: 'ngModel / formControl',
-      description: 'Bound value is the full path as `readonly T[]`. Empty array when nothing is selected.',
-      type: 'readonly T[]',
-      default: '[]',
-    },
+  protected readonly api = API.WrCascader;
+
+  protected readonly typesApi: readonly DocApiRow[] = [
     {
       name: 'WrCascaderOption<T>',
       description:
@@ -157,14 +126,17 @@ locations: WrCascaderOption[] = [
       type: 'interface',
       default: '—',
     },
+  ];
+
+  protected readonly cssApi: readonly DocApiRow[] = [
     {
-      name: 'CSS — --wr-cascader-col-width',
+      name: '--wr-cascader-col-width',
       description: 'Width of each column in the panel.',
       type: 'length',
       default: '12rem',
     },
     {
-      name: 'CSS — --wr-cascader-max-height',
+      name: '--wr-cascader-max-height',
       description: 'Max height per column before scrolling.',
       type: 'length',
       default: '16rem',

@@ -83,11 +83,13 @@ export class MyComponent {
       default: '0.92',
     },
     { name: '(cropped)', description: 'Emits a Blob after each drag end.', type: 'EventEmitter<Blob>', default: '—' },
+    { name: 'Readable state', description: 'Signals and methods on the component instance.', type: 'members' },
     {
       name: 'cropRect',
       description: 'Computed crop rect in source-image pixel coordinates.',
       type: 'Signal<WrCropRect>',
       default: '—',
+      sub: true,
     },
     {
       name: 'toBlob() / toDataUrl()',

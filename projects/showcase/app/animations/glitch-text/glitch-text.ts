@@ -4,7 +4,6 @@ import { WrGlitchText } from 'ngwr/glitch-text';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   type DocControl,
   DocPageComponent,
@@ -12,6 +11,7 @@ import {
   DocSectionComponent,
   ReactbitsCredit,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-glitch-text-page',
@@ -54,21 +54,5 @@ export default class GlitchTextPage {
     install: `import { WrGlitchText } from 'ngwr/glitch-text';`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'text',
-      description: 'Text to glitch. Populates `data-text` for the pseudo clones.',
-      type: 'string',
-      default: '— (required)',
-      required: true,
-    },
-    { name: 'speed', description: 'Time multiplier — higher = slower glitching.', type: 'number', default: '1' },
-    {
-      name: 'enableShadows',
-      description: 'Show the red / cyan colour-split shadows.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'enableOnHover', description: 'Only glitch on hover (idle until then).', type: 'boolean', default: 'true' },
-  ];
+  protected readonly api = API.WrGlitchText;
 }

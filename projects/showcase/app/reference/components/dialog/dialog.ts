@@ -88,39 +88,56 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
   ];
 
   protected readonly optionsApi: readonly DocApiRow[] = [
-    { name: 'data', description: 'Payload exposed to the content via WR_DIALOG_DATA.', type: 'D', default: '—' },
-    { name: 'width', description: 'Panel width — any CSS length.', type: 'string', default: '—' },
-    { name: 'maxWidth', description: 'Panel maximum width.', type: 'string', default: '—' },
+    {
+      name: 'WrDialogOptions',
+      description: 'Second argument of `open()`. Every field is optional.',
+      type: 'interface',
+      default: '—',
+    },
+    {
+      name: 'data',
+      description: 'Payload exposed to the content via WR_DIALOG_DATA.',
+      type: 'D',
+      default: '—',
+      sub: true,
+    },
+    { name: 'width', description: 'Panel width — any CSS length.', type: 'string', default: '—', sub: true },
+    { name: 'maxWidth', description: 'Panel maximum width.', type: 'string', default: '—', sub: true },
     {
       name: 'closeOnBackdropClick',
       description: 'Close when the backdrop is clicked.',
       type: 'boolean',
       default: 'true',
+      sub: true,
     },
-    { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
+    { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true', sub: true },
     {
       name: 'closable',
       description: 'Show the built-in dismiss (×) in the top-right corner.',
       type: 'boolean',
       default: 'true',
+      sub: true,
     },
     {
       name: 'closeLabel',
       description: 'Accessible name for the dismiss button. Falls back to the dialog.close catalog key.',
       type: 'string',
       default: '—',
+      sub: true,
     },
     {
       name: 'responsive',
       description: 'Present as a bottom-sheet on small viewports. Undefined follows provideWrResponsiveOverlays().',
       type: 'boolean',
       default: '—',
+      sub: true,
     },
     {
       name: 'panelClass',
       description: 'Extra class(es) on the panel.',
       type: 'string | readonly string[]',
       default: '—',
+      sub: true,
     },
   ];
 
@@ -149,17 +166,26 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
   protected readonly directivesApi: readonly DocApiRow[] = [
     { name: '[wrDialogTitle]', description: 'Styles the title row.', type: 'directive', default: '—' },
     { name: '[wrDialogContent]', description: 'Styles the scrollable body.', type: 'directive', default: '—' },
+    { name: '[wrDialogFooter]', description: 'Styles the footer.', type: 'directive', default: '—' },
     {
-      name: '[wrDialogFooter]',
-      description: 'Styles the footer; align="start" | "center" | "end" (default end).',
+      name: 'align',
+      description: 'Footer alignment.',
+      type: "'start' | 'center' | 'end'",
+      default: "'end'",
+      sub: true,
+    },
+    {
+      name: '[wrDialogClose]',
+      description: 'Closes the dialog when clicked.',
       type: 'directive',
       default: '—',
     },
     {
-      name: '[wrDialogClose]="value?"',
-      description: 'Closes the dialog when clicked; optional value becomes the close result.',
-      type: 'directive',
-      default: '—',
+      name: 'wrDialogClose',
+      description: 'Value passed to `close()`. Bare attribute closes with `undefined`.',
+      type: 'R | undefined',
+      default: 'undefined',
+      sub: true,
     },
   ];
 

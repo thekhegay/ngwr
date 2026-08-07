@@ -11,6 +11,7 @@ import {
   type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-svc-i18n-page',
@@ -37,11 +38,13 @@ export default class I18nServicePage {
   }
 
   protected readonly api: readonly DocApiRow[] = [
+    { name: 'WrI18n', description: 'Injectable service.', type: 'service', default: '—' },
     {
       name: 'locale',
       description: 'Active locale signal. Read-only — use `use(locale)` to write.',
       type: 'Signal<string>',
       default: 'defaultLocale',
+      sub: true,
     },
     {
       name: 'use(locale)',
@@ -74,6 +77,8 @@ export default class I18nServicePage {
       default: '—',
     },
   ];
+
+  protected readonly directiveApi = API.WrTDirective;
 
   /** Providers that wire the service up. Previously only documented in the guide. */
   protected readonly providerApi: readonly DocApiRow[] = [
