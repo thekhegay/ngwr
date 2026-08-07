@@ -37,7 +37,7 @@
 }
 
 // Mention option rows
-.wr-mention__option:focus-visible {
+.wr-mention-panel__option:focus-visible {
   @include focus-ring;
 }
 
@@ -64,13 +64,7 @@
 }
 
 // Stepper step headers
-.wr-stepper__step:focus-visible {
-  @include focus-ring;
-}
-
-// Toast close/copy
-.wr-toast__close:focus-visible,
-.wr-toast__copy:focus-visible {
+.wr-stepper__header:focus-visible {
   @include focus-ring;
 }
 

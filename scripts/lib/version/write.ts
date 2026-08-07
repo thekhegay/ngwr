@@ -27,9 +27,6 @@ export function writeVersion(next: string): void {
   writeFileSync(LIB_PKG_PATH, `${JSON.stringify(pkg, null, 2)}\n`);
 
   const versionTs = readFileSync(LIB_VERSION_PATH, 'utf8');
-  const updated = versionTs.replace(
-    /export const NGWR_VERSION = '[^']*';/,
-    `export const NGWR_VERSION = '${next}';`,
-  );
+  const updated = versionTs.replace(/export const NGWR_VERSION = '[^']*';/, `export const NGWR_VERSION = '${next}';`);
   writeFileSync(LIB_VERSION_PATH, updated);
 }

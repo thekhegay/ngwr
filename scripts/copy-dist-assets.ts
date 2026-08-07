@@ -6,10 +6,11 @@
  */
 
 /**
- * Copies repository-level publishing assets (README, LICENSE + llms.txt) into
- * the lib's ng-packagr output so `dist/lib` is publish-ready out of the box.
- * `llms.txt` ships an agent/LLM quick-ref so tools that install ngwr can
- * orient themselves straight from `node_modules/ngwr`.
+ * Copies repository-level publishing assets (README, LICENSE, llms.txt and the
+ * generated llms-full.txt) into the lib's ng-packagr output so `dist/lib` is
+ * publish-ready out of the box. The two `llms*.txt` files ship an agent/LLM
+ * quick-ref so tools that install ngwr can orient themselves straight from
+ * `node_modules/ngwr`.
  *
  * Wired into the `build:lib` script so local builds and CI produce the same
  * tarball — no separate "copy" step needed in the publish workflow.

@@ -23,8 +23,13 @@ import { ROOT_PATH } from './paths/root';
 
 const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
 
-/** Matches `export { WrFoo, WrBar as Baz, type Quux } from './…';` and bare-export forms. */
-const EXPORT_RE = /export\s*(?:type\s*)?\{([^}]+)\}/g;
+/**
+ * Matches `export { WrFoo, WrBar as Baz, type Quux } from './…';` and bare-export
+ * forms. The leading `type` is captured so type-only blocks can be skipped: this
+ * map feeds `ng g ngwr:use`, which splices the symbol into a component's
+ * `imports: [...]` array — a type there does not compile.
+ */
+const EXPORT_RE = /export\s*(type\s*)?\{([^}]+)\}/g;
 const SYMBOL_RE = /\b(Wr[A-Z][A-Za-z0-9_]*)\b/g;
 
 /** Sub-directories that aren't actual public entry-points (no ng-package.json). */
@@ -44,9 +49,18 @@ function symbolsIn(entry: string): readonly string[] {
   const source = readFileSync(file, 'utf8');
   const out = new Set<string>();
   for (const match of source.matchAll(EXPORT_RE)) {
-    const body = match[1];
-    for (const sym of body.matchAll(SYMBOL_RE)) {
-      out.add(sym[1]);
+    // `export type { … }` — every member is a type, skip the block.
+    if (match[1]) continue;
+
+    for (const member of match[2].split(',')) {
+      const trimmed = member.trim();
+      // `export { WrFoo, type WrFooSize }` — inline type members skipped too.
+      if (!trimmed || /^type\s/.test(trimmed)) continue;
+      // An alias re-export (`WrFoo as Bar`) publishes the alias, not the source.
+      const published = trimmed.split(/\s+as\s+/).pop() ?? trimmed;
+      const sym = SYMBOL_RE.exec(published);
+      SYMBOL_RE.lastIndex = 0;
+      if (sym) out.add(sym[1]);
     }
   }
   // Also catch single-line `export { WrFoo } from '...';` and `export * …`.

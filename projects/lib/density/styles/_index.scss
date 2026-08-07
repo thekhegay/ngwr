@@ -11,6 +11,8 @@
 :root {
   --wr-density-y: 1;
   --wr-density-x: 1;
+  // `-text` and `-gap` are declared for consumers to read; no shipped
+  // component multiplies by either yet. `-y` / `-x` are the live ones.
   --wr-density-text: 1;
   --wr-density-gap: 1;
 }
