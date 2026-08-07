@@ -28,8 +28,11 @@ const BASE_PEERS: readonly (readonly [string, string])[] = [
 const DATE_ADAPTER_PEERS: Record<NonNullable<Schema['dateAdapter']>, readonly (readonly [string, string])[]> = {
   none: [],
   native: [],
-  'date-fns': [['date-fns', '>=3.0.0 || >=4.0.0']],
-  luxon: [['luxon', '>=3.0.0']],
+  // Keep these identical to `peerDependencies` in projects/lib/package.json.
+  // They had drifted to `>=` unions, which reduce to an uncapped `>=3.0.0` and
+  // would happily install a future major the library does not support.
+  'date-fns': [['date-fns', '^3.0.0 || ^4.0.0']],
+  luxon: [['luxon', '^3.0.0']],
 };
 
 /** Adapter classes named in the next-steps snippet for each choice. */

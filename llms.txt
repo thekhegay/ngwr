@@ -55,7 +55,7 @@ Add from their entry points as needed:
 ## Schematics — let `ng` wire it
 
 - `ng add ngwr` — installs peers, adds `@use 'ngwr'` to styles, prints provider setup.
-- `ng g ngwr:use WrFoo src/app/x.ts` — adds the import + splices `WrFoo` into that
+- `ng g ngwr:use WrFoo --path src/app/x.ts` — adds the import + splices `WrFoo` into that
   component's `@Component` imports.
 - `ng g ngwr:provider <overlay|icons|toast|i18n|date-adapter|density|theme|…>` —
   adds the matching `provideWr*()` to bootstrap.

@@ -7,18 +7,23 @@
     "symbol": {
       "type": "string",
       "description": "Class name to import — e.g. `WrButton`, `WrSelect`, `WrFormField`.",
-      "$default": { "$source": "argv", "index": 0 },
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
       "x-prompt": "Class name to import (e.g. WrButton)?"
     },
     "path": {
       "type": "string",
       "format": "path",
-      "description": "Component file to edit. When omitted, uses the file passed via argv[1] or prompts."
+      "description": "Component file to edit. Named option, not positional. When omitted, the schematic prints a copy-pasteable snippet instead of editing a file."
     },
     "project": {
       "type": "string",
       "description": "Target Angular project. Defaults to the workspace default.",
-      "$default": { "$source": "projectName" }
+      "$default": {
+        "$source": "projectName"
+      }
     }
   },
   "required": ["symbol"]

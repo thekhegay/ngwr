@@ -19,15 +19,30 @@ interface ProviderSpec {
   readonly extras?: readonly (readonly [string, string])[];
 }
 
+// Every entry here has to name a factory that `ngwr` actually exports, with a
+// call that type-checks. `ngwr/loading-bar` and `ngwr/cookie` used to be listed
+// too, but neither ships a provider — they expose the injectable services
+// `WrLoadingBar` / `WrCookie` and need no bootstrap wiring at all, so offering
+// to splice a provider for them only ever produced code that would not compile.
 const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   overlay: { subpath: 'ngwr/overlay', factory: 'provideWrOverlay', call: 'provideWrOverlay()' },
   icons: {
+    // `ngwr/icon` exports only WrIcon / provideWrIcons / svgIcon — there are no
+    // bare icon exports. Icons come from an adapter, exactly as `ng add` wires them.
     subpath: 'ngwr/icon',
     factory: 'provideWrIcons',
-    call: 'provideWrIcons([plus, trash])',
-    extras: [['plus, trash', 'ngwr/icon']],
+    call: 'provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2 }))',
+    extras: [
+      ['lucideIcons', 'ngwr/icon/adapters/lucide'],
+      ['Plus, Trash2', 'lucide'],
+    ],
   },
-  toast: { subpath: 'ngwr/toast', factory: 'provideWrToast', call: 'provideWrToast()' },
+  // `provideWrToastConfig` takes a required config object, so the call cannot be bare.
+  toast: {
+    subpath: 'ngwr/toast',
+    factory: 'provideWrToastConfig',
+    call: 'provideWrToastConfig({})',
+  },
   i18n: { subpath: 'ngwr/i18n', factory: 'provideWrI18n', call: 'provideWrI18n()' },
   'date-adapter': {
     subpath: 'ngwr/date-adapter',
@@ -35,12 +50,6 @@ const PROVIDERS: Record<ProviderName, ProviderSpec> = {
     call: 'provideWrDateAdapter()',
   },
   density: { subpath: 'ngwr/density', factory: 'provideWrDensity', call: 'provideWrDensity()' },
-  'loading-bar': {
-    subpath: 'ngwr/loading-bar',
-    factory: 'provideWrLoadingBar',
-    call: 'provideWrLoadingBar()',
-  },
-  cookie: { subpath: 'ngwr/cookie', factory: 'provideWrCookie', call: 'provideWrCookie()' },
   storage: { subpath: 'ngwr/storage', factory: 'provideWrStorage', call: 'provideWrStorage()' },
   theme: { subpath: 'ngwr/theme', factory: 'provideWrTheme', call: 'provideWrTheme()' },
 };
@@ -60,9 +69,11 @@ function provider(options: Schema): Rule {
     let next = original;
 
     next = ensureImport(next, spec.factory, spec.subpath);
-    if (options.name === 'icons') {
-      next = ensureImport(next, 'plus', 'ngwr/icon');
-      next = ensureImport(next, 'trash', 'ngwr/icon');
+    // Drive the extra imports off `extras` rather than special-casing a provider
+    // name here: the two used to drift apart, and the hard-coded branch was
+    // emitting icon names that `ngwr/icon` has never exported.
+    for (const [symbols, subpath] of spec.extras ?? []) {
+      next = ensureImport(next, symbols, subpath);
     }
     next = ensureProviderCall(next, spec.call);
 
@@ -135,10 +146,18 @@ function escapeRegExp(value: string): string {
 }
 
 function printSnippet(spec: ProviderSpec): string {
+  // This runs when no bootstrap file could be resolved, so the snippet is all the
+  // user gets — it has to include `extras`, or the printed code references symbols
+  // it never imports. That was exactly the gap `extras` was declared to close.
+  const imports = [
+    `  import { ${spec.factory} } from '${spec.subpath}';`,
+    ...(spec.extras ?? []).map(([symbols, subpath]) => `  import { ${symbols} } from '${subpath}';`),
+  ].join('\n');
+
   return `
 ngwr:provider — copy this into your bootstrap:
 
-  import { ${spec.factory} } from '${spec.subpath}';
+${imports}
 
   bootstrapApplication(AppComponent, {
     providers: [/* …, */ ${spec.call}],

@@ -6,34 +6,48 @@
   "properties": {
     "name": {
       "type": "string",
-      "enum": [
-        "overlay",
-        "icons",
-        "toast",
-        "i18n",
-        "date-adapter",
-        "density",
-        "loading-bar",
-        "cookie",
-        "storage",
-        "theme"
-      ],
+      "enum": ["overlay", "icons", "toast", "i18n", "date-adapter", "density", "storage", "theme"],
       "description": "Provider to add.",
-      "$default": { "$source": "argv", "index": 0 },
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
       "x-prompt": {
         "message": "Which provider?",
         "type": "list",
         "items": [
-          { "value": "overlay", "label": "overlay — required for every overlay-backed component" },
-          { "value": "icons", "label": "icons — register a tree-shaken icon set" },
-          { "value": "toast", "label": "toast — global toast service" },
-          { "value": "i18n", "label": "i18n — Transloco-class translation core" },
-          { "value": "date-adapter", "label": "date-adapter — calendar / date-picker plumbing" },
-          { "value": "density", "label": "density — sm / md / lg scale" },
-          { "value": "loading-bar", "label": "loading-bar — router-aware progress bar" },
-          { "value": "cookie", "label": "cookie — wr cookie service" },
-          { "value": "storage", "label": "storage — swappable engine + TTL" },
-          { "value": "theme", "label": "theme — light/dark/auto mode" }
+          {
+            "value": "overlay",
+            "label": "overlay — required for every overlay-backed component"
+          },
+          {
+            "value": "icons",
+            "label": "icons — register a tree-shaken icon set"
+          },
+          {
+            "value": "toast",
+            "label": "toast — global toast service"
+          },
+          {
+            "value": "i18n",
+            "label": "i18n — Transloco-class translation core"
+          },
+          {
+            "value": "date-adapter",
+            "label": "date-adapter — calendar / date-picker plumbing"
+          },
+          {
+            "value": "density",
+            "label": "density — sm / md / lg scale"
+          },
+          {
+            "value": "storage",
+            "label": "storage — swappable engine + TTL"
+          },
+          {
+            "value": "theme",
+            "label": "theme — light/dark/auto mode"
+          }
         ]
       }
     },
@@ -45,7 +59,9 @@
     "project": {
       "type": "string",
       "description": "Target Angular project.",
-      "$default": { "$source": "projectName" }
+      "$default": {
+        "$source": "projectName"
+      }
     }
   },
   "required": ["name"]

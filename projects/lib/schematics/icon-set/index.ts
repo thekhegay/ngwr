@@ -11,27 +11,61 @@ import { getWorkspace } from '@schematics/angular/utility/workspace';
 import type { Schema } from './schema';
 
 /**
- * Curated common icon sets. Identifiers match `ngwr/icon` exports — kept
- * short on purpose so the generated file stays readable.
+ * Curated icon sets, as `<name used in templates>` → `<lucide export>`.
+ *
+ * These used to be bare identifiers imported straight from `ngwr/icon`, which
+ * never compiled: that entry point exports only `WrIcon`, `provideWrIcons` and
+ * `svgIcon`, never the icons themselves. Icons come from an adapter, so the
+ * generated file registers them through `lucideIcons()` — the same wiring
+ * `ng add ngwr` produces.
  */
-const SETS: Record<NonNullable<Schema['set']>, readonly string[]> = {
-  basic: ['checkmark', 'close', 'add', 'edit', 'trash', 'search', 'copy'],
-  navigation: [
-    'chevronDown',
-    'chevronLeft',
-    'chevronRight',
-    'chevronUp',
-    'arrowBack',
-    'arrowForward',
-    'arrowTop',
-    'arrowBottom',
-    'menu',
-    'dotsHorizontal',
-    'dotsVertical',
-  ],
-  forms: ['eye', 'eyeOff', 'lock', 'lockOpened', 'calendar', 'time', 'filter', 'checkmark', 'close'],
-  feedback: ['alert', 'alertCircle', 'infoCircleOutline', 'checkmarkCircle', 'closeCircle', 'warning', 'bell'],
+const SETS: Record<NonNullable<Schema['set']>, Readonly<Record<string, string>>> = {
+  basic: {
+    checkmark: 'Check',
+    close: 'X',
+    add: 'Plus',
+    edit: 'Pencil',
+    trash: 'Trash2',
+    search: 'Search',
+    copy: 'Copy',
+  },
+  navigation: {
+    'chevron-down': 'ChevronDown',
+    'chevron-left': 'ChevronLeft',
+    'chevron-right': 'ChevronRight',
+    'chevron-up': 'ChevronUp',
+    'arrow-back': 'ArrowLeft',
+    'arrow-forward': 'ArrowRight',
+    'arrow-top': 'ArrowUp',
+    'arrow-bottom': 'ArrowDown',
+    menu: 'Menu',
+    'dots-horizontal': 'MoreHorizontal',
+    'dots-vertical': 'MoreVertical',
+  },
+  forms: {
+    eye: 'Eye',
+    'eye-off': 'EyeOff',
+    lock: 'Lock',
+    'lock-opened': 'LockOpen',
+    calendar: 'Calendar',
+    time: 'Clock',
+    filter: 'Filter',
+    checkmark: 'Check',
+    close: 'X',
+  },
+  feedback: {
+    alert: 'TriangleAlert',
+    'alert-circle': 'CircleAlert',
+    'info-circle': 'Info',
+    'checkmark-circle': 'CircleCheck',
+    'close-circle': 'CircleX',
+    warning: 'TriangleAlert',
+    bell: 'Bell',
+  },
 };
+
+/** Every icon this schematic knows how to map, merged across the curated sets. */
+const KNOWN_ICONS: Readonly<Record<string, string>> = Object.assign({}, ...Object.values(SETS));
 
 /** Default fallback when neither `set` nor `icons` is supplied. */
 const DEFAULT_SET: NonNullable<Schema['set']> = 'basic';
@@ -51,17 +85,29 @@ function iconSet(options: Schema): Rule {
     const fileName = (options.name ?? 'icons').replace(/\.ts$/, '');
     const filePath = `${dirPath}/${fileName}.ts`;
 
-    // Build the deduped icon list — set + explicit icons, or default fallback.
-    const fromSet = options.set ? (SETS[options.set] ?? []) : [];
-    const fromList = options.icons
+    // Build the deduped icon map — set + explicit icons, or default fallback.
+    const fromSet = options.set ? (SETS[options.set] ?? {}) : {};
+    const requested = options.icons
       ? options.icons
           .split(',')
           .map(s => s.trim())
           .filter(Boolean)
       : [];
 
-    const icons = unique([...fromSet, ...fromList]);
-    if (icons.length === 0) icons.push(...SETS[DEFAULT_SET]);
+    // schema.json promises unknown names are "flagged but not blocked" — actually do it.
+    const unknown = requested.filter(name => !(name in KNOWN_ICONS));
+    if (unknown.length > 0) {
+      context.logger.warn(
+        `ngwr:icon-set: no lucide mapping for ${unknown.join(', ')} — skipped. ` +
+          `Known names: ${Object.keys(KNOWN_ICONS).sort().join(', ')}.`
+      );
+    }
+
+    const picked: Record<string, string> = { ...fromSet };
+    for (const name of requested) {
+      if (name in KNOWN_ICONS) picked[name] = KNOWN_ICONS[name];
+    }
+    if (Object.keys(picked).length === 0) Object.assign(picked, SETS[DEFAULT_SET]);
 
     if (tree.exists(filePath)) {
       context.logger.warn(
@@ -71,25 +117,32 @@ function iconSet(options: Schema): Rule {
     }
 
     const exportName = options.exportName ?? 'APP_ICONS';
-    const importList = icons.join(', ');
-    const arrayList = icons.join(', ');
 
-    tree.create(filePath, renderFile(importList, exportName, arrayList));
-    context.logger.info(`✓ Created ${filePath} with ${icons.length} icons.`);
+    tree.create(filePath, renderFile(picked, exportName));
+    context.logger.info(`✓ Created ${filePath} with ${Object.keys(picked).length} icons.`);
     context.logger.info(printWiringHint(fileName, exportName));
 
     return tree;
   };
 }
 
-function renderFile(importList: string, exportName: string, arrayList: string): string {
+function renderFile(icons: Readonly<Record<string, string>>, exportName: string): string {
+  const names = Object.keys(icons);
+  // Two icon names can share one glyph (alert / warning), so the import list is
+  // deduped while the map keeps both keys.
+  const imports = [...new Set(names.map(n => icons[n]))].sort().join(', ');
+  const entries = names.map(n => `  '${n}': ${icons[n]},`).join('\n');
+
   return `/**
  * Tree-shaken ngwr icon set. Generated by \`ng g ngwr:icon-set\`.
  * Edit freely — re-running with --name=<other> writes a separate file.
  */
-import { ${importList} } from 'ngwr/icon';
+import { lucideIcons } from 'ngwr/icon/adapters/lucide';
+import { ${imports} } from 'lucide';
 
-export const ${exportName} = [${arrayList}] as const;
+export const ${exportName} = lucideIcons({
+${entries}
+});
 `;
 }
 
@@ -104,10 +157,6 @@ Next step — wire the set into bootstrap:
     providers: [provideWrIcons(${exportName})],
   });
 `;
-}
-
-function unique<T>(list: readonly T[]): T[] {
-  return Array.from(new Set(list));
 }
 
 export default iconSet;
