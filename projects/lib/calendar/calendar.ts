@@ -50,7 +50,9 @@ const COLS = 7;
   encapsulation: ViewEncapsulation.None,
   host: {
     '[class]': 'classes()',
-    role: 'grid',
+    // No `role="grid"` here: the host also wraps the nav header, and a grid may
+    // only own rows. The role sits on `.wr-calendar__body`, which is the day
+    // matrix and nothing else.
     '(keydown)': 'onKeyDown($event)',
   },
 })

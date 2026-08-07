@@ -70,6 +70,15 @@ export class WrCheckbox implements FormCheckboxControl {
   readonly checkboxValue = input<unknown>(null);
 
   /**
+   * Accessible name for a checkbox used WITHOUT projected text — a selection
+   * cell in a table, say. The wrapping `<label>` names the control whenever
+   * content is projected; with none, the native input has no name, and an
+   * `aria-label` put on the host lands on a `<wr-checkbox>` element that no
+   * screen reader ever announces.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  /**
    * Checked state — the form value. Bound by `[formField]`, two-way via
    * `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`,
    * where the group's array is the source of truth.

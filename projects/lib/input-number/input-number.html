@@ -8,6 +8,7 @@
     type="text"
     inputmode="decimal"
     autocomplete="off"
+    [attr.aria-label]="resolvedAriaLabel()"
     spellcheck="false"
     [value]="text()"
     [placeholder]="placeholder()"

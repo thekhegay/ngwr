@@ -3,11 +3,11 @@
     type="button"
     class="wr-tree__trigger"
     role="combobox"
+    [attr.aria-label]="resolvedAriaLabel()"
     [disabled]="disabled()"
     [attr.aria-haspopup]="'tree'"
     [attr.aria-expanded]="open()"
     [attr.aria-controls]="panelId"
-    [attr.aria-multiselectable]="isMulti() ? 'true' : null"
     (click)="onTriggerClick()"
     (blur)="onBlur()"
   >
@@ -118,6 +118,7 @@
   <ul
     class="wr-tree__list"
     role="tree"
+    [attr.aria-multiselectable]="isMulti() ? 'true' : null"
     [class.wr-tree__list--virtual]="virtualized()"
     [attr.tabindex]="virtualized() ? 0 : null"
     [attr.aria-activedescendant]="activeRowId()"

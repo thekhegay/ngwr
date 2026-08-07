@@ -6,8 +6,10 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, contentChild, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, contentChild, forwardRef, input } from '@angular/core';
 import { NgControl } from '@angular/forms';
+
+import { WR_FORM_FIELD, type WrFormFieldContext } from './tokens';
 
 let uid = 0;
 
@@ -37,8 +39,15 @@ let uid = 0;
   templateUrl: './form-field.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
+  providers: [
+    {
+      provide: WR_FORM_FIELD,
+      // eslint-disable-next-line @angular-eslint/no-forward-ref
+      useExisting: forwardRef(() => WrFormField),
+    },
+  ],
 })
-export class WrFormField {
+export class WrFormField implements WrFormFieldContext {
   /** Label text shown above the control. */
   readonly label = input<string>('');
 
@@ -51,7 +60,11 @@ export class WrFormField {
   /** Show `(optional)` next to the label. Mutually exclusive with `required`. @default false */
   readonly optional = input(false, { transform: coerceBooleanProperty });
 
-  /** Force a specific id on the label's `for` attribute. Auto-generated otherwise. */
+  /**
+   * Force a specific id on the label's `for` attribute. Auto-generated
+   * otherwise, and adopted by the projected `wrInput` unless that element
+   * already carries an `id` of its own.
+   */
   readonly controlId = input<string>(`wr-form-field-${++uid}`);
 
   /** Projected `NgControl` — used to read touched / dirty / errors. */

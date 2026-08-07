@@ -42,7 +42,7 @@
                 [ngModel]="allSelected()"
                 [indeterminate]="someSelected()"
                 (ngModelChange)="toggleAll($event)"
-                [attr.aria-label]="resolvedSelectAllLabel()"
+                [ariaLabel]="resolvedSelectAllLabel()"
               />
             }
           </th>
@@ -123,7 +123,7 @@
                       [ngModel]="groupChecked(entry.group.rows)"
                       [indeterminate]="groupIndeterminate(entry.group.rows)"
                       (ngModelChange)="toggleGroupSelection(entry.group.rows, $event)"
-                      [attr.aria-label]="resolvedSelectGroupLabel()"
+                      [ariaLabel]="resolvedSelectGroupLabel()"
                     />
                   }
                   @if (groupTemplate(); as tpl) {
@@ -210,7 +210,7 @@
                     size="sm"
                     [ngModel]="isRowSelected(entry.row)"
                     (ngModelChange)="toggleRow(entry.row, $event)"
-                    [attr.aria-label]="resolvedSelectRowLabel()"
+                    [ariaLabel]="resolvedSelectRowLabel()"
                   />
                 </td>
               }

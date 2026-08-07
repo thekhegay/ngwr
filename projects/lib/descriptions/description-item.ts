@@ -14,7 +14,8 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
 @Component({
   selector: 'wr-description-item',
   template:
-    '<dt class="wr-descriptions__label">{{ label() }}</dt><dd class="wr-descriptions__value"><ng-content /></dd>',
+    '<div class="wr-descriptions__label" role="term">{{ label() }}</div>' +
+    '<div class="wr-descriptions__value" role="definition"><ng-content /></div>',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-descriptions__row' },
 })
