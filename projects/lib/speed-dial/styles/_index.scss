@@ -61,14 +61,25 @@
 
   &__action-wrap {
     position: absolute;
+    // `visibility` is what actually hides the collapsed actions from keyboard
+    // and assistive tech — `opacity: 0` alone leaves them focusable and
+    // announced, so a closed dial still had its items in the tab order.
+    // Delayed to the end of the close so the fade is still visible.
     transition:
       transform var(--wr-duration-base) var(--wr-ease-spring),
-      opacity var(--wr-duration-base) var(--wr-ease-out);
+      opacity var(--wr-duration-base) var(--wr-ease-out),
+      visibility 0s linear var(--wr-duration-base);
+    visibility: hidden;
     opacity: 0;
     pointer-events: none;
   }
 
   &--open &__action-wrap {
+    transition:
+      transform var(--wr-duration-base) var(--wr-ease-spring),
+      opacity var(--wr-duration-base) var(--wr-ease-out),
+      visibility 0s;
+    visibility: visible;
     opacity: 1;
     pointer-events: auto;
   }

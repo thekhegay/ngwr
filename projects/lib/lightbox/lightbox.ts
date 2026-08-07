@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -94,9 +95,18 @@ export class WrLightbox {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  private focusTrap: ConfigurableFocusTrap | null = null;
+  private previouslyFocused: HTMLElement | null = null;
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
+    // Destroying the component while the viewer is open removes the projected
+    // content (the portal uses this component's ViewContainerRef) but leaves the
+    // overlay pane and its full-screen backdrop behind, with page scroll still
+    // blocked. Dispose the overlay explicitly.
+    this.destroyRef.onDestroy(() => this.closeOverlay());
+
     effect(() => {
       if (this.open()) this.openOverlay();
       else this.closeOverlay();
@@ -174,6 +184,14 @@ export class WrLightbox {
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
+    // The viewer declares role="dialog" + aria-modal="true", which promises the
+    // rest of the page is inert. Without a focus trap that promise is a lie:
+    // Tab walks straight out of the viewer into the page behind the backdrop.
+    const active = document.activeElement;
+    this.previouslyFocused = active instanceof HTMLElement ? active : null;
+    this.focusTrap = this.focusTrapFactory.create(this.overlayRef.overlayElement);
+    void this.focusTrap.focusInitialElementWhenReady();
+
     this.overlayRef
       .backdropClick()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -192,7 +210,14 @@ export class WrLightbox {
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
+    this.focusTrap?.destroy();
+    this.focusTrap = null;
+    const restore = this.previouslyFocused;
+    this.previouslyFocused = null;
     this.overlayRef.dispose();
     this.overlayRef = null;
+    // Send focus back where it came from, or it lands on <body> and the user
+    // has to tab from the top of the page again.
+    if (restore && typeof restore.focus === 'function') restore.focus();
   }
 }
