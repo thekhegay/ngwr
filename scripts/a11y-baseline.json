@@ -1,0 +1,42 @@
+{
+  "aria-allowed-attr": {
+    "routes": 5,
+    "note": "date-picker input carries aria-haspopup/expanded without a combobox role"
+  },
+  "aria-prohibited-attr": {
+    "routes": 1,
+    "note": "aria-label on a decorative <span> in the home bento"
+  },
+  "aria-required-children": {
+    "routes": 1,
+    "note": "wr-calendar declares role=\"grid\" without row children"
+  },
+  "button-name": {
+    "routes": 23,
+    "note": "icon-only demo buttons in the showcase"
+  },
+  "definition-list": {
+    "routes": 1,
+    "note": "wr-descriptions emits dt/dd wrappers a <dl> may not contain"
+  },
+  "dlitem": {
+    "routes": 1,
+    "note": "same wr-descriptions structure, seen from the item side"
+  },
+  "html-has-lang": {
+    "routes": 22,
+    "note": "router redirect stubs, not real pages — generated markup"
+  },
+  "label": {
+    "routes": 24,
+    "note": "demos using <wr-switch> with no projected text; pass the new ariaLabel input"
+  },
+  "link-name": {
+    "routes": 188,
+    "note": "showcase header logo link has no text — give the <a> an aria-label"
+  },
+  "nested-interactive": {
+    "routes": 1,
+    "note": "file-upload keeps its <input type=file> inside the role=button zone; needs a structural move"
+  }
+}

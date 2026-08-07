@@ -151,6 +151,18 @@ export const wrRu: WrI18nCatalog = {
   rating: {
     label: 'Рейтинг',
   },
+  gauge: {
+    label: 'Индикатор',
+  },
+  progress: {
+    label: 'Прогресс',
+  },
+  meterGroup: {
+    label: 'Шкала',
+  },
+  knob: {
+    label: 'Значение',
+  },
   speedDial: {
     label: 'Действия',
   },

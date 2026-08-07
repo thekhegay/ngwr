@@ -1,6 +1,7 @@
 <div
   class="wr-knob__surface"
   role="slider"
+  [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-valuemin]="min()"
   [attr.aria-valuemax]="max()"
   [attr.aria-valuenow]="value()"

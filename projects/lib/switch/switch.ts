@@ -38,6 +38,13 @@ export type WrSwitchSize = 'sm' | 'md' | 'lg';
   host: { '[class]': 'classes()' },
 })
 export class WrSwitch implements FormCheckboxControl {
+  /**
+   * Accessible name for a switch used WITHOUT projected text. The wrapping
+   * `<label>` names the control whenever content is projected; with none, the
+   * label is empty and the input has no name at all.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
   /** Stable id used to associate the native input with its label. */
   readonly id = input<string>(randomId('wr-switch'));
 

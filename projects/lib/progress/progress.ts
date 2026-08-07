@@ -8,6 +8,7 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import type { WrColor } from 'ngwr/theme';
 
 /**
@@ -30,10 +31,16 @@ import type { WrColor } from 'ngwr/theme';
     'aria-valuemin': '0',
     'aria-valuemax': '100',
     '[attr.aria-valuenow]': 'clamped()',
+    '[attr.aria-label]': 'resolvedAriaLabel()',
     '[class]': 'classes()',
   },
 })
 export class WrProgress {
+  /** Accessible name — `role="progressbar"` needs one. Falls back to `progress.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'progress.label', 'Progress');
+
   /**
    * Bar color.
    *

@@ -8,6 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 /**
@@ -29,6 +30,11 @@ import { clamp } from 'ngwr/utils';
   host: { class: 'wr-gauge' },
 })
 export class WrGauge {
+  /** Accessible name — the role needs one. Falls back to `gauge.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'gauge.label', 'Gauge');
+
   readonly value = input.required<number>();
   readonly min = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
   readonly max = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });

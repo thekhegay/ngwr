@@ -162,6 +162,18 @@ export const wrEn: WrI18nCatalog = {
   rating: {
     label: 'Rating',
   },
+  gauge: {
+    label: 'Gauge',
+  },
+  progress: {
+    label: 'Progress',
+  },
+  meterGroup: {
+    label: 'Meter',
+  },
+  knob: {
+    label: 'Value',
+  },
   speedDial: {
     label: 'Actions',
   },

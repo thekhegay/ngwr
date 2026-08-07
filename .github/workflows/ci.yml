@@ -41,3 +41,8 @@ jobs:
       - run: pnpm build:lib
 
       - run: pnpm build:showcase
+
+      # Needs the prerendered output, so it runs last. Gated against
+      # scripts/a11y-baseline.json: known violations are held, anything new
+      # or newly widespread fails.
+      - run: pnpm check:a11y
