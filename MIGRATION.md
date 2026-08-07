@@ -264,7 +264,7 @@ the codemod.
 After running `ng update ngwr@7`, sanity-check:
 
 - [ ] **Imports compile**: `tsc --noEmit` (or `ng build`) has no `cannot
-    find name 'WrXxxComponent'` errors.
+find name 'WrXxxComponent'` errors.
 - [ ] **Re-export aliases**: if you re-export a v6 class under its old
       name (`export { WrButtonComponent as MyButton }`), update to the
       v7 class.

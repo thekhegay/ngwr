@@ -70,7 +70,7 @@ them through the catalog.
       styles; built on the existing overlay plumbing.
 - [x] **M3. Touch interaction pass** (L) — **shipped (7.x + #439).** 44px
       touch targets via a `touch-target` mixin gated on `@media (pointer:
-    coarse)`, applied to overlay close buttons (alert, lightbox) and dense
+coarse)`, applied to overlay close buttons (alert, lightbox) and dense
       controls (select chips, tree / cascader toggles, toast actions); a
       `touch` density preset (y 1.7 / x 1.25 / gap 1.5); swipe-to-close on
       drawer (grab handle), lightbox (down) and toast (sideways), swipe-nav on
