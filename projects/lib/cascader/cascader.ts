@@ -191,6 +191,12 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
+    // Same contract as wr-select / wr-dropdown / wr-lightbox: an overlay lives in
+    // the CDK container, not in this component's view, so destroying the
+    // component while the panel is open would strand the pane and its scroll
+    // strategy.
+    this.destroyRef.onDestroy(() => this.closeOverlay());
+
     effect(() => {
       if (this.open()) {
         this.openOverlay();
