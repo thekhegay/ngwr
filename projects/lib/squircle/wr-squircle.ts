@@ -48,7 +48,7 @@ function maskToRadii(mask: WrSquircleCornerMask, r: number): WrSquircleCorners {
  *
  * @example
  * ```html
- * <button wrButton wrSquircle [radius]="16">Save</button>
+ * <button wr-btn wrSquircle [radius]="16">Save</button>
  * <wr-tag wrSquircle>v2.0</wr-tag>
  * <div wrSquircle [radius]="32" [smoothing]="0.8">…</div>
  * <div wrSquircle [borderWidth]="2" borderColor="var(--wr-color-primary)">…</div>

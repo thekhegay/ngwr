@@ -19,8 +19,8 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
  * <wr-page-header title="Settings" subtitle="Manage your workspace">
  *   <nav wrPageHeaderBreadcrumbs>…</nav>
  *   <div wrPageHeaderActions>
- *     <button wrButton>Invite</button>
- *     <button wrButton color="primary">Save</button>
+ *     <button wr-btn>Invite</button>
+ *     <button wr-btn color="primary">Save</button>
  *   </div>
  *   <div wrPageHeaderExtra>
  *     <wr-tag>v2.4</wr-tag>

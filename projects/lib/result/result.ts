@@ -16,11 +16,11 @@ import type { WrResultStatus } from './interfaces';
  * @example
  * ```html
  * <wr-result status="success" title="Submitted!" description="We'll be in touch.">
- *   <button wrButton color="primary" wrResultExtra>Continue</button>
+ *   <button wr-btn color="primary" wrResultExtra>Continue</button>
  * </wr-result>
  *
  * <wr-result status="empty" title="No projects yet">
- *   <button wrButton wrResultExtra>Create one</button>
+ *   <button wr-btn wrResultExtra>Create one</button>
  * </wr-result>
  * ```
  *

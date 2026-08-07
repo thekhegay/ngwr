@@ -33,7 +33,7 @@ export class MyComponent {}`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'color', description: 'Tint color.', type: 'WrColor', default: "'dark'" },
+    { name: 'color', description: 'Tint color.', type: 'WrColor', default: "'light'" },
     { name: 'animated', description: 'Run the shimmer animation.', type: 'boolean', default: 'true' },
   ];
 }

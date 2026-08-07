@@ -44,6 +44,15 @@ export class MyComponent {
   color?: string;
 }`;
 
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'series', description: 'One entry per line.', type: 'readonly WrLineSeries[]', default: '[]' },
+    { name: 'xLabels', description: 'Labels along the x axis.', type: 'readonly string[]', default: '[]' },
+    { name: 'height', description: 'Chart height in pixels. Floored at 80.', type: 'number', default: '240' },
+    { name: 'showGrid', description: 'Draw horizontal grid lines.', type: 'boolean', default: 'true' },
+    { name: 'showLegend', description: 'Render the series legend.', type: 'boolean', default: 'true' },
+    { name: 'showDots', description: 'Mark each data point.', type: 'boolean', default: 'true' },
+  ];
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrLineSeries', description: 'One plotted line.', type: 'interface' },
     { name: 'label', description: 'Legend label.', type: 'string', required: true, sub: true },

@@ -80,7 +80,12 @@ export default class FuzzyTextPage {
       type: 'string',
       default: "'inherit'",
     },
-    { name: 'color', description: 'Text colour. Ignored if `[gradient]` is set.', type: 'string', default: "'#fff'" },
+    {
+      name: 'color',
+      description: 'Text colour. Ignored if `[gradient]` is set.',
+      type: 'string',
+      default: "'inherit'",
+    },
     {
       name: 'gradient',
       description: 'Optional horizontal gradient stops (2+ colours).',

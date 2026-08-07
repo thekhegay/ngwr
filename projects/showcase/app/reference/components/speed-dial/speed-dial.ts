@@ -42,7 +42,7 @@ export default class SpeedDialPageComponent {
 
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrSpeedDialAction', description: 'Per-button action shown when the dial expands.', type: 'interface' },
-    { name: 'id', description: 'Stable identifier, emitted via (action).', type: 'string', required: true, sub: true },
+    { name: 'id', description: 'Stable identifier for the action.', type: 'string', required: true, sub: true },
     { name: 'label', description: 'Tooltip / accessible label.', type: 'string', required: true, sub: true },
     { name: 'icon', description: 'Button icon.', type: 'WrIconName', sub: true },
   ];

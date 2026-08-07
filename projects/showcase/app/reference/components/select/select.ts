@@ -221,12 +221,6 @@ onSearch(query: string): void {
       default: "'single'",
     },
     {
-      name: 'multi',
-      description: '**Deprecated** — alias for `[mode]="multi"`. Use `mode` instead.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
       name: 'searchable',
       description:
         'Add a typeahead filter without changing the value shape — the multi-with-search combination. On `multi` the trigger keeps its chips and grows an inline field; on `single` it is the same as `mode="search"`. Ignored in `tag` mode.',

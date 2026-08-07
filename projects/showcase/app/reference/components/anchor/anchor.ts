@@ -38,6 +38,22 @@ export default class AnchorPageComponent {
   children?: readonly WrAnchorLink[];
 }`;
 
+  protected readonly api: readonly DocApiRow[] = [
+    { name: 'links', description: 'Entries rendered in the rail.', type: 'readonly WrAnchorLink[]', default: '[]' },
+    {
+      name: 'offset',
+      description: 'Pixels subtracted when scrolling to a target — clears a sticky header.',
+      type: 'number',
+      default: '0',
+    },
+    {
+      name: 'hitArea',
+      description: 'Height in pixels of the band at the top of the viewport that marks a section active.',
+      type: 'number',
+      default: '80',
+    },
+  ];
+
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrAnchorLink', description: 'One entry in the rail.', type: 'interface' },
     { name: 'id', description: 'Target element id (without #).', type: 'string', required: true, sub: true },

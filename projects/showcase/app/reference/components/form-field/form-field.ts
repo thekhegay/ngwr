@@ -119,7 +119,7 @@ export class MyComponent {}`,
     {
       kind: 'Validator',
       title: 'WrValidators',
-      url: ['/reference/validators', 'email'],
+      url: ['/reference/validators'],
       description:
         'The error-key contract — every `WrValidators.*` member has a stable key for `<wr-form-error key="…">`.',
     },
