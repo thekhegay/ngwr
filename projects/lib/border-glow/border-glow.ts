@@ -11,17 +11,7 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
-import {
-  Component,
-  DestroyRef,
-  ElementRef,
-  PLATFORM_ID,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-} from '@angular/core';
+import { Component, ElementRef, PLATFORM_ID, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
@@ -186,7 +176,6 @@ export class WrBorderGlow {
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly platform = inject(WrPlatform);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** Inline CSS variable bag — recomputed when colour / radius / sensitivity inputs change. */
@@ -222,9 +211,9 @@ export class WrBorderGlow {
     if (!this.isBrowser) return;
 
     // Auto-sweep on mount — fires once when `animated` is true.
-    effect(() => {
+    effect(onCleanup => {
       if (!this.animated()) return;
-      this.runAutoSweep();
+      onCleanup(this.runAutoSweep());
     });
   }
 
@@ -260,10 +249,10 @@ export class WrBorderGlow {
   }
 
   /** One-shot perimeter sweep: in → around → out, mirroring the reactbits behaviour. */
-  private runAutoSweep(): void {
+  private runAutoSweep(): () => void {
     // Reduced motion: skip the decorative mount sweep. The pointer-driven
     // glow stays — it maps 1:1 to the cursor with no autonomous motion.
-    if (this.platform.prefersReducedMotion()) return;
+    if (this.platform.prefersReducedMotion()) return () => undefined;
     const host = this.el.nativeElement;
     const ANGLE_START = 110;
     const ANGLE_END = 465;
@@ -306,12 +295,16 @@ export class WrBorderGlow {
       onEnd: () => host.classList.remove('wr-border-glow--sweeping'),
     });
 
-    this.destroyRef.onDestroy(() => {
+    // Returned rather than registered on `destroyRef`: this method runs from an
+    // effect, so registering there stacked one more teardown per re-run and none
+    // of them fired until the component died. The caller ties it to the effect's
+    // own cleanup instead.
+    return () => {
       cancelA();
       cancelB();
       cancelC();
       cancelD();
       host.classList.remove('wr-border-glow--sweeping');
-    });
+    };
   }
 }
