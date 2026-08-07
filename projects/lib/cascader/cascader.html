@@ -19,7 +19,7 @@
     <span
       class="wr-cascader__clear"
       role="button"
-      aria-label="Clear selection"
+      [attr.aria-label]="resolvedClearLabel()"
       tabindex="-1"
       (click)="clearSelection($event)"
       (keydown.enter)="clearSelection($event)"

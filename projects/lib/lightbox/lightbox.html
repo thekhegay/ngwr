@@ -35,7 +35,7 @@
     <button
       type="button"
       class="wr-lightbox-viewer__close"
-      aria-label="Close preview"
+      [attr.aria-label]="resolvedCloseLabel()"
       (click)="onClose()"
       (keydown.enter)="onClose()"
       (keydown.space)="onClose()"

@@ -8,6 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
 import type { WrAlertType } from './interfaces';
@@ -35,6 +36,11 @@ import type { WrAlertType } from './interfaces';
   },
 })
 export class WrAlert {
+  /** Accessible name. Falls back to `alert.close`, then `'Close alert'`. */
+  readonly closeLabel = input<string | null>(null);
+
+  protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'alert.close', 'Close alert');
+
   /**
    * Optional headline shown at the top of the alert.
    *

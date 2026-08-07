@@ -24,6 +24,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
 /**
@@ -54,6 +55,11 @@ import { WR_OVERLAY } from 'ngwr/overlay';
   },
 })
 export class WrLightbox {
+  /** Accessible name. Falls back to `image.close`, then `'Close preview'`. */
+  readonly closeLabel = input<string | null>(null);
+
+  protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'image.close', 'Close preview');
+
   /** Image source. */
   readonly src = input.required<string>();
 
