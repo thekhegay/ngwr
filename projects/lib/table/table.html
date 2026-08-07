@@ -42,7 +42,7 @@
                 [ngModel]="allSelected()"
                 [indeterminate]="someSelected()"
                 (ngModelChange)="toggleAll($event)"
-                aria-label="Select all rows"
+                [attr.aria-label]="resolvedSelectAllLabel()"
               />
             }
           </th>
@@ -56,6 +56,7 @@
             cdkDrag
             [cdkDragDisabled]="!reorderable() || !!col.column.pin"
             class="wr-table__th"
+            [attr.aria-sort]="ariaSortFor(col.key, col.column.sortable)"
             [class.wr-table__th--draggable]="reorderable() && !col.column.pin"
             [class.wr-table__th--pin-left]="col.column.pin === 'left'"
             [class.wr-table__th--pin-right]="col.column.pin === 'right'"
@@ -68,7 +69,12 @@
               <span class="wr-table__title">{{ col.column.title }}</span>
 
               @if (col.column.sortable) {
-                <button type="button" class="wr-table__sort-btn" aria-label="Sort column" (click)="cycleSort(col.key)">
+                <button
+                  type="button"
+                  class="wr-table__sort-btn"
+                  [attr.aria-label]="resolvedSortLabel()"
+                  (click)="cycleSort(col.key)"
+                >
                   <wr-table-sort [direction]="directionFor(col.key)" />
                 </button>
               }
@@ -117,7 +123,7 @@
                       [ngModel]="groupChecked(entry.group.rows)"
                       [indeterminate]="groupIndeterminate(entry.group.rows)"
                       (ngModelChange)="toggleGroupSelection(entry.group.rows, $event)"
-                      aria-label="Select group"
+                      [attr.aria-label]="resolvedSelectGroupLabel()"
                     />
                   }
                   @if (groupTemplate(); as tpl) {
@@ -125,7 +131,7 @@
                       type="button"
                       class="wr-table__group-toggle wr-table__group-toggle--icon"
                       [attr.aria-expanded]="!entry.group.collapsed"
-                      aria-label="Toggle group"
+                      [attr.aria-label]="resolvedToggleGroupLabel()"
                       (click)="toggleGroupCollapse(entry.group.value)"
                     >
                       <svg
@@ -204,7 +210,7 @@
                     size="sm"
                     [ngModel]="isRowSelected(entry.row)"
                     (ngModelChange)="toggleRow(entry.row, $event)"
-                    aria-label="Select row"
+                    [attr.aria-label]="resolvedSelectRowLabel()"
                   />
                 </td>
               }
@@ -215,7 +221,7 @@
                     class="wr-table__expand-btn"
                     [class.wr-table__expand-btn--open]="isExpanded(entry.row)"
                     [attr.aria-expanded]="isExpanded(entry.row)"
-                    aria-label="Toggle row details"
+                    [attr.aria-label]="resolvedExpandRowLabel()"
                     (click)="toggleExpand(entry.row)"
                   >
                     <svg
@@ -269,7 +275,7 @@
           }
         } @empty {
           <tr>
-            <td class="wr-table__empty" [attr.colspan]="totalCols()">No data</td>
+            <td class="wr-table__empty" [attr.colspan]="totalCols()">{{ resolvedEmptyLabel() }}</td>
           </tr>
         }
         @if (virtualized() && virtualWindow().padBottom > 0) {

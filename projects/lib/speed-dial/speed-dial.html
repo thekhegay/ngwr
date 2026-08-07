@@ -3,6 +3,7 @@
   class="wr-speed-dial__trigger"
   [attr.aria-expanded]="open()"
   aria-haspopup="menu"
+  [attr.aria-label]="resolvedTriggerLabel()"
   [disabled]="disabled()"
   (click)="onTrigger()"
 >

@@ -83,6 +83,12 @@ export class WrIcon {
       }
 
       this.host.nativeElement.innerHTML = icon.data;
+
+      // Every hand-written inline SVG in the library carries aria-hidden;
+      // registered icons went in without it, so a decorative glyph could be
+      // announced — usually as a bare "graphic" beside the label it decorates.
+      // Consumers that need a name put it on the interactive host instead.
+      this.host.nativeElement.querySelector('svg')?.setAttribute('aria-hidden', 'true');
     });
   }
 }

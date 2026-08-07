@@ -8,6 +8,7 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, DestroyRef, NgZone, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
 
@@ -44,8 +45,10 @@ export class WrBackTop {
   /** Pixel offset subtracted from the scroll target — for sticky headers. @default 0 */
   readonly offset = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
 
-  /** Accessible label for the button. @default 'Back to top' */
-  readonly ariaLabel = input<string>('Back to top');
+  /** Accessible label for the button. Falls back to `backTop.label`, then `'Back to top'`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'backTop.label', 'Back to top');
 
   protected readonly visible = signal(false);
 

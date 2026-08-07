@@ -39,6 +39,12 @@ export const wrRu: WrI18nCatalog = {
     loading: 'Загрузка…',
     sort: 'Сортировать столбец',
     filter: 'Фильтр столбца',
+    selectAll: 'Выбрать все строки',
+    selectRow: 'Выбрать строку',
+    expandRow: 'Показать детали строки',
+    selectGroup: 'Выбрать группу',
+    toggleGroup: 'Свернуть группу',
+    noMatches: 'Ничего не найдено',
   },
   select: {
     placeholder: 'Выберите…',
@@ -69,11 +75,6 @@ export const wrRu: WrI18nCatalog = {
     dropZone: 'или перетащите файлы сюда',
     dropZoneLabel: 'Зона загрузки файлов — нажмите или перетащите',
     removeFile: 'Удалить файл',
-    invalid: 'Неподдерживаемый тип файла',
-    tooBig: 'Файл слишком большой',
-  },
-  upload: {
-    drop: 'Перетащите файлы или нажмите для выбора',
     invalid: 'Неподдерживаемый тип файла',
     tooBig: 'Файл слишком большой',
   },
@@ -148,6 +149,9 @@ export const wrRu: WrI18nCatalog = {
   },
   rating: {
     label: 'Рейтинг',
+  },
+  speedDial: {
+    label: 'Действия',
   },
   result: {
     notFound: 'Извините, страница не найдена.',

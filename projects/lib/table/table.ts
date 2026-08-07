@@ -29,6 +29,7 @@ import {
 import { FormsModule } from '@angular/forms';
 
 import { WrCheckbox } from 'ngwr/checkbox';
+import { useI18nText } from 'ngwr/i18n';
 import { WrPagination } from 'ngwr/pagination';
 import { WrSpinner } from 'ngwr/spinner';
 
@@ -189,6 +190,35 @@ export class WrTable {
 
   /** Two-way bindable sort array. Order in array = application order. */
   readonly sort = model<readonly WrTableSortState[]>([]);
+
+  /** Text shown when there are no rows. Falls back to `table.empty`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** Accessible name of a column's sort button. Falls back to `table.sort`. */
+  readonly sortLabel = input<string | null>(null);
+
+  /** Accessible name of the select-all checkbox. Falls back to `table.selectAll`. */
+  readonly selectAllLabel = input<string | null>(null);
+
+  /** Accessible name of a row's select checkbox. Falls back to `table.selectRow`. */
+  readonly selectRowLabel = input<string | null>(null);
+
+  /** Accessible name of a row's expand toggle. Falls back to `table.expandRow`. */
+  readonly expandRowLabel = input<string | null>(null);
+
+  /** Accessible name of a group band's select checkbox. Falls back to `table.selectGroup`. */
+  readonly selectGroupLabel = input<string | null>(null);
+
+  /** Accessible name of a group band's collapse toggle. Falls back to `table.toggleGroup`. */
+  readonly toggleGroupLabel = input<string | null>(null);
+
+  protected readonly resolvedEmptyLabel = useI18nText(this.emptyLabel, 'table.empty', 'No data');
+  protected readonly resolvedSortLabel = useI18nText(this.sortLabel, 'table.sort', 'Sort column');
+  protected readonly resolvedSelectAllLabel = useI18nText(this.selectAllLabel, 'table.selectAll', 'Select all rows');
+  protected readonly resolvedSelectRowLabel = useI18nText(this.selectRowLabel, 'table.selectRow', 'Select row');
+  protected readonly resolvedExpandRowLabel = useI18nText(this.expandRowLabel, 'table.expandRow', 'Toggle row details');
+  protected readonly resolvedSelectGroupLabel = useI18nText(this.selectGroupLabel, 'table.selectGroup', 'Select group');
+  protected readonly resolvedToggleGroupLabel = useI18nText(this.toggleGroupLabel, 'table.toggleGroup', 'Toggle group');
 
   /** Fires whenever a column's filter selection changes. */
   readonly filterChange = output<WrTableFilterChange>();
@@ -934,6 +964,17 @@ export class WrTable {
 
   protected directionFor(key: string): WrTableSortDirection {
     return this.sort().find(s => s.key === key)?.direction ?? null;
+  }
+
+  /**
+   * `aria-sort` for a column header, per the WAI-ARIA table pattern. Only a
+   * sortable column gets the attribute at all: on a plain column it would claim
+   * the header is sortable when it is not.
+   */
+  protected ariaSortFor(key: string, sortable: boolean | undefined): 'ascending' | 'descending' | 'none' | null {
+    if (!sortable) return null;
+    const dir = this.directionFor(key);
+    return dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : 'none';
   }
 
   protected cycleSort(key: string): void {

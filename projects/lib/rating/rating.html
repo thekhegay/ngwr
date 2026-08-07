@@ -1,7 +1,7 @@
 <div
   class="wr-rating__row"
   role="slider"
-  [attr.aria-label]="ariaLabel()"
+  [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-valuemin]="0"
   [attr.aria-valuemax]="count()"
   [attr.aria-valuenow]="value() ?? 0"

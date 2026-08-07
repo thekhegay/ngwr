@@ -9,6 +9,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ViewEncapsulation, computed, effect, input, model, output, signal } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 /**
@@ -66,8 +67,10 @@ export class WrRating implements FormValueControl<number | null> {
   /** Control size — scales the icons + gaps. @default 'md' */
   readonly size = input<WrRatingSize>('md');
 
-  /** Accessible label. @default 'Rating' */
-  readonly ariaLabel = input<string>('Rating');
+  /** Accessible label. Falls back to `rating.label`, then `'Rating'`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'rating.label', 'Rating');
 
   /** The rating. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<number | null>(null);

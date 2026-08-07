@@ -7,6 +7,7 @@
     [class.wr-segmented__option--selected]="isSelected(option)"
     [disabled]="disabled() || !!option.disabled"
     [attr.aria-pressed]="isSelected(option)"
+    [attr.aria-label]="option.label ? null : (option.ariaLabel ?? option.value)"
     (click)="select(option)"
   >
     @if (option.icon) {

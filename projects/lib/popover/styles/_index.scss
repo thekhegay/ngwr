@@ -20,18 +20,54 @@ $_arrow-inset: 0.625rem; // distance from the panel corner for the -start / -end
 
 // edge = which side of the panel the arrow hangs off; align = where along that side.
 $_arrow-placement: (
-  top: (bottom, center),
-  top-start: (bottom, start),
-  top-end: (bottom, end),
-  bottom: (top, center),
-  bottom-start: (top, start),
-  bottom-end: (top, end),
-  left: (right, center),
-  left-start: (right, start),
-  left-end: (right, end),
-  right: (left, center),
-  right-start: (left, start),
-  right-end: (left, end),
+  top: (
+    bottom,
+    center,
+  ),
+  top-start: (
+    bottom,
+    start,
+  ),
+  top-end: (
+    bottom,
+    end,
+  ),
+  bottom: (
+    top,
+    center,
+  ),
+  bottom-start: (
+    top,
+    start,
+  ),
+  bottom-end: (
+    top,
+    end,
+  ),
+  left: (
+    right,
+    center,
+  ),
+  left-start: (
+    right,
+    start,
+  ),
+  left-end: (
+    right,
+    end,
+  ),
+  right: (
+    left,
+    center,
+  ),
+  right-start: (
+    left,
+    start,
+  ),
+  right-end: (
+    left,
+    end,
+  ),
 );
 
 /// Positions the arrow against `$edge`, offset outwards by `$pull`.
