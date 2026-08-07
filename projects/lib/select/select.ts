@@ -97,8 +97,6 @@ interface SelectedChip {
  * />
  * ```
  *
- * The legacy `[multi]="true"` boolean is still accepted but is now an
- * alias for `[mode]="'multi'"` — prefer the explicit mode.
  *
  * @see https://ngwr.dev/reference/components/select
  */
@@ -159,8 +157,8 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    *
    * - `'single'` (default) — one value, no input. Classic dropdown.
    * - `'multi'` — array value, chips on the trigger.
-   * - `'search'` *(planned)* — type-ahead with sync filter or async loader.
-   * - `'tag'` *(planned)* — free-text + chips with optional `allowCreate`.
+   * - `'search'` — type-ahead with sync filter or async loader.
+   * - `'tag'` — free-text + chips.
    *
    */
   readonly mode = input<WrSelectMode | null>(null);

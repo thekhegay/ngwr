@@ -196,7 +196,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Currently focused row's index in the flattened visible list. */
   protected readonly focusedIndex = signal(0);
 
-  /** Resolved ARIA labels — pick up live locale changes via re-render. */
+  /** Resolved ARIA labels — resolved once at construction, so a runtime locale switch needs a re-create. */
   protected readonly clearLabel = readI18nText('tree.clearSelection', 'Clear selection');
   protected readonly expandLabel = readI18nText('tree.expand', 'Expand');
   protected readonly collapseLabel = readI18nText('tree.collapse', 'Collapse');

@@ -18,7 +18,7 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  * ```html
  * <wr-form-item [hasError]="form.controls.email.invalid">
  *   <label>Email</label>
- *   <wr-input formControlName="email" />
+ *   <input wrInput formControlName="email" />
  *   <wr-form-error>Invalid email</wr-form-error>
  * </wr-form-item>
  * ```

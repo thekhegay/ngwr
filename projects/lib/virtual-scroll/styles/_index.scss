@@ -11,7 +11,7 @@
     width: 100%;
     height: 100%;
     // CDK already sets `overflow: auto`; just add a discreet scrollbar
-    // skin via the platform defaults — no custom thumb so we match the
+    // skin via the platform defaults — a discreet custom thumb that still matches the
     // host application's chrome.
     scrollbar-width: thin;
 
