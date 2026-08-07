@@ -5,12 +5,12 @@ import { WrSlider } from 'ngwr/slider';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-slider-page',
@@ -43,22 +43,5 @@ export class MyComponent {
     range: `<wr-slider [(ngModel)]="priceRange" range min="0" max="1000" step="50" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'min', description: 'Lower bound.', type: 'number', default: '0' },
-    { name: 'max', description: 'Upper bound.', type: 'number', default: '100' },
-    { name: 'step', description: 'Step size used by drag and keyboard.', type: 'number', default: '1' },
-    {
-      name: 'range',
-      description: 'Render two thumbs. Value shape becomes `[low, high]`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
-    {
-      name: 'showLabel',
-      description: 'Render the current value below the track.',
-      type: 'boolean',
-      default: 'true',
-    },
-  ];
+  protected readonly api = API.WrSlider;
 }

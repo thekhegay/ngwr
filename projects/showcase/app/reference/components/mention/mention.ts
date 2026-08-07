@@ -11,6 +11,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 type User = WrMentionItem & {
   readonly label: string;
@@ -94,46 +95,7 @@ export class MyComponent {
      inserted" have nowhere else to go:  "Matches available: 4" -->`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'wrMentionItems',
-      description: 'Items to filter against the typed query.',
-      type: 'readonly WrMentionItem[]',
-      default: '[]',
-    },
-    {
-      name: 'triggers',
-      description: 'Trigger characters that open the panel.',
-      type: 'readonly string[]',
-      default: "['@']",
-    },
-    {
-      name: 'displayWith',
-      description: 'Maps an item to its display label.',
-      type: '(item) => string',
-      default: 'item.label',
-    },
-    {
-      name: 'valueWith',
-      // eslint-disable-next-line no-template-curly-in-string
-      description: 'Text to insert on commit. Default: `${trigger}${displayWith(item)}`.',
-      type: '((item, trigger) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'filterWith',
-      description: 'Custom filter predicate.',
-      type: '((query, item) => boolean) | null',
-      default: 'null',
-    },
-    { name: 'maxResults', description: 'Cap on items shown in the panel.', type: 'number', default: '8' },
-    {
-      name: '(wrMentionSelected)',
-      description: 'Emits `{ item, trigger, query }` on commit.',
-      type: 'EventEmitter<WrMentionCommit>',
-      default: '—',
-    },
-  ];
+  protected readonly api = API.WrMention;
 
   protected readonly typeSnippet = `interface WrMentionItem {
   label: string;

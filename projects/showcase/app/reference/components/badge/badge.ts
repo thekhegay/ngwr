@@ -14,6 +14,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-badge-page',
@@ -50,12 +51,7 @@ export class MyComponent {}`,
 <wr-tag color="warning" loading>Saving</wr-tag>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'color', description: 'Color variant.', type: 'WrColor', default: "'primary'" },
-    { name: 'size', description: 'Size variant.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-    { name: 'shape', description: 'Corner treatment.', type: "'rounded' | 'pill' | 'squircle'", default: "'rounded'" },
-    { name: 'outlined', description: 'Transparent fill, colored ring and text.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly api = API.WrBadge;
 
   protected readonly tagApi: readonly DocApiRow[] = [
     { name: 'color', description: 'Intent colour.', type: 'WrColor', default: "'primary'" },

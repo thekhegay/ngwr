@@ -8,12 +8,12 @@ import { WR_COLORS } from 'ngwr/theme';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-button-page',
@@ -65,26 +65,5 @@ export class MyComponent {}`,
 </wr-btn>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'color', description: 'Color variant. Omit for neutral default.', type: 'WrColor | null', default: 'null' },
-    { name: 'size', description: 'Size variant.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-    { name: 'icon', description: 'Icon shown beside the label.', type: 'WrIconName | null', default: 'null' },
-    { name: 'iconPosition', description: 'Where the icon sits.', type: "'start' | 'end'", default: "'start'" },
-    { name: 'outlined', description: 'Outlined style.', type: 'boolean', default: 'false' },
-    {
-      name: 'shape',
-      description: 'Corner treatment. For squircle, wrap with `[wrSquircle]` instead.',
-      type: "'rounded' | 'pill'",
-      default: "'rounded'",
-    },
-    { name: 'block', description: 'Stretch to parent width.', type: 'boolean', default: 'false' },
-    { name: 'loading', description: 'Show a spinner overlaying the label.', type: 'boolean', default: 'false' },
-    {
-      name: 'isDisabledWhenLoading',
-      description: 'Block pointer events while loading.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'disabled', description: 'Disable the button.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly api = API.WrButton;
 }

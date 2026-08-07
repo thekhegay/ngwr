@@ -5,12 +5,12 @@ import { WrInputNumber } from 'ngwr/input-number';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-input-number-page',
@@ -51,26 +51,5 @@ export class MyComponent {
     noSteppers: `<wr-input-number [(ngModel)]="value" [showSteppers]="false" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'min', description: 'Minimum allowed value.', type: 'number', default: '-Infinity' },
-    { name: 'max', description: 'Maximum allowed value.', type: 'number', default: 'Infinity' },
-    {
-      name: 'step',
-      description: 'Step applied by stepper buttons and arrow keys (Shift = ×10).',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'decimals',
-      description: 'Fixed number of decimals shown on blur. `null` keeps the entered precision.',
-      type: 'number | null',
-      default: 'null',
-    },
-    { name: 'showSteppers', description: 'Render the ▲▼ stepper column.', type: 'boolean', default: 'true' },
-    { name: 'prefix', description: 'Optional prefix label (e.g. `"$"`).', type: 'string', default: "''" },
-    { name: 'suffix', description: 'Optional suffix label (e.g. `"kg"`).', type: 'string', default: "''" },
-    { name: 'placeholder', description: 'Placeholder shown when empty.', type: 'string', default: "''" },
-    { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
-    { name: 'readonly', description: 'Values cannot be changed.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly api = API.WrInputNumber;
 }

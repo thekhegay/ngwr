@@ -12,6 +12,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-select-page',
@@ -203,130 +204,7 @@ onSearch(query: string): void {
   protected readonly bigOptions = Array.from({ length: 5000 }, (_, i) => `Item ${String(i + 1).padStart(4, '0')}`);
   protected readonly bigPick = signal<string | null>(null);
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'placeholder', description: 'Shown when no option is chosen.', type: 'string', default: "''" },
-    { name: 'disabled', description: 'Disable the select.', type: 'boolean', default: 'false' },
-    { name: 'rounded', description: 'Pill-shaped trigger.', type: 'boolean', default: 'false' },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: "'sm' | 'md' | 'lg'",
-      default: "'md'",
-    },
-    {
-      name: 'mode',
-      description:
-        'Behavior mode. `single` (default), `multi` (chips + array value), `search` (typeahead filter — replaces `wr-autocomplete`), `tag` (free-text chips — replaces `wr-chips-input`).',
-      type: "'single' | 'multi' | 'search' | 'tag'",
-      default: "'single'",
-    },
-    {
-      name: 'searchable',
-      description:
-        'Add a typeahead filter without changing the value shape — the multi-with-search combination. On `multi` the trigger keeps its chips and grows an inline field; on `single` it is the same as `mode="search"`. Ignored in `tag` mode.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'searchQuery',
-      description: 'The live query. Two-way bindable, so it can be owned or reset from outside.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'options',
-      description: 'Dynamic option array (searchable selects). Each item is labelled by `[displayWith]`.',
-      type: 'readonly unknown[]',
-      default: '[]',
-    },
-    {
-      name: 'loading',
-      description: "Show the panel's progress row. For store-fed options; the async `[loader]` raises its own flag.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'serverSearch',
-      description:
-        "`[options]` is already query-scoped upstream — skip the built-in client-side filter so ranked or fuzzy matches aren't hidden again. Implied by `[loader]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'debounceMs',
-      description: 'Debounce applied to the `(searchChange)` output and the async `[loader]`.',
-      type: 'number',
-      default: '250',
-    },
-    {
-      name: 'minChars',
-      description:
-        'Minimum query length before the `[loader]` fires and before the empty-state shows. Does not gate opening the panel or `(searchChange)`.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'clearable',
-      description: 'Show a clear-all (×) button on the trigger (multi mode only).',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'maxItems',
-      description: 'Cap on the number of selected items (multi mode). `0` = unlimited.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'maxTagCount',
-      description: 'Cap on chips rendered before collapsing the rest into `+N more`. `0` = render all.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'separators',
-      description: 'Tag mode only — keys/characters that commit the draft into a chip.',
-      type: 'readonly string[]',
-      default: "['Enter', ',']",
-    },
-    {
-      name: 'allowDuplicates',
-      description: 'Tag mode only — allow the same value to appear more than once.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'validate',
-      description: 'Tag mode only — `(value, existing) => boolean`. Return `false` to silently reject.',
-      type: 'WrSelectTagValidator | null',
-      default: 'null',
-    },
-    {
-      name: 'virtualScroll',
-      description:
-        'Search mode — window the `[options]` panel (keeps ~one viewport in the DOM). Falls back to the full render when `<wr-option>` children are projected.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rowHeight',
-      description: 'Search mode — uniform virtual row height (px). `0` auto-measures the first row.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'viewportHeight',
-      description: 'Search mode — virtual scroll viewport height (number px or CSS length).',
-      type: 'number | string',
-      default: '256',
-    },
-    {
-      name: 'overscan',
-      description: 'Search mode — extra rows kept above/below the viewport.',
-      type: 'number',
-      default: '6',
-    },
-  ];
+  protected readonly api = API.WrSelect;
 
   protected readonly outputsApi: readonly DocApiRow[] = [
     {

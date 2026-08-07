@@ -11,6 +11,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-file-upload-page',
@@ -58,43 +59,7 @@ export class MyComponent {
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'multiple', description: 'Allow multiple files.', type: 'boolean', default: 'false' },
-    {
-      name: 'accept',
-      description: 'Accepted types (MIME or extensions, comma-separated).',
-      type: 'string',
-      default: "''",
-    },
-    { name: 'maxSize', description: 'Max bytes per file. `0` disables the check.', type: 'number', default: '0' },
-    {
-      name: 'maxFiles',
-      description: 'Max files in multi mode. `0` disables the check.',
-      type: 'number',
-      default: '0',
-    },
-    { name: 'showList', description: 'Render the picked-files list.', type: 'boolean', default: 'true' },
-    {
-      name: 'pickLabel',
-      description: 'Primary call-to-action label.',
-      type: 'string',
-      default: "'Click to browse'",
-    },
-    {
-      name: 'dropLabel',
-      description: 'Secondary instruction below the CTA.',
-      type: 'string',
-      default: "'or drop files here'",
-    },
-    { name: 'helperText', description: 'Optional helper text below the labels.', type: 'string', default: "''" },
-    { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
-    {
-      name: '(rejected)',
-      description: 'Emitted with files rejected by type / size / count.',
-      type: 'readonly WrFileUploadRejection[]',
-      default: '—',
-    },
-  ];
+  protected readonly api = API.WrFileUpload;
 
   protected readonly typeSnippet = `interface WrFileUploadRejection {
   file: File;

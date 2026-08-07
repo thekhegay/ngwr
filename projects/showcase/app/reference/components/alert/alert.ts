@@ -7,12 +7,12 @@ import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-alert-page',
@@ -43,33 +43,5 @@ export class MyComponent {}`,
     noIcon: `<wr-alert title="Plain" message="No leading icon." [icon]="false" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'title', description: 'Optional headline.', type: 'string | null', default: 'null' },
-    {
-      name: 'type',
-      description: 'Visual variant.',
-      type: "'info' | 'success' | 'warning' | 'danger' | 'neutral' | 'offline'",
-      default: "'info'",
-    },
-    { name: 'message', description: 'Optional secondary message.', type: 'string | null', default: 'null' },
-    {
-      name: 'iconName',
-      description: 'Override the default per-type icon with any ngwr icon name.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
-    {
-      name: 'icon',
-      description: 'Show a leading status icon matching the `type`. Pass `false` to hide.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'closeable', description: 'Show a close button.', type: 'boolean', default: 'false' },
-    {
-      name: '(closed)',
-      description: 'Fires when the close button is clicked.',
-      type: 'EventEmitter<void>',
-      default: '—',
-    },
-  ];
+  protected readonly api = API.WrAlert;
 }

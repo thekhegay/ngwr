@@ -4,12 +4,12 @@ import { WrPagination } from 'ngwr/pagination';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-pagination-page',
@@ -48,57 +48,5 @@ export class MyComponent {}`,
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'currentPage', description: 'Current page (1-based). Two-way bindable.', type: 'number', default: '1' },
-    { name: 'pageSize', description: 'Items per page. Two-way bindable.', type: 'number', default: '10' },
-    { name: 'total', description: 'Total item count.', type: 'number', default: '0' },
-    {
-      name: 'pageSizeOptions',
-      description: 'Choices in the size dropdown.',
-      type: 'readonly number[]',
-      default: '[10, 20, 50, 100]',
-    },
-    { name: 'showSizeChanger', description: 'Render the page-size dropdown.', type: 'boolean', default: 'false' },
-    { name: 'showTotal', description: 'Render the "X–Y of Z" label.', type: 'boolean', default: 'false' },
-    {
-      name: 'align',
-      description: 'Horizontal alignment.',
-      type: "'start' | 'center' | 'end'",
-      default: "'start'",
-    },
-    { name: 'size', description: 'Size variant.', type: "'sm' | 'md' | 'lg'", default: "'sm'" },
-    {
-      name: 'shape',
-      description: 'Cell corner treatment. `square` flattens corners for a numeric grid look.',
-      type: "'rounded' | 'square'",
-      default: "'rounded'",
-    },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    { name: 'ofLabel', description: 'Localised "of" word.', type: 'string', default: "'of'" },
-    {
-      name: 'label',
-      description:
-        'Accessible name for the `role="navigation"` host. Falls back to the `pagination.label` catalog key.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'prevLabel',
-      description: 'Previous-page button aria-label. Falls back to `pagination.prev`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextLabel',
-      description: 'Next-page button aria-label. Falls back to `pagination.next`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'itemsPerPageLabel',
-      description: 'Aria-label for the page-size dropdown. Falls back to `pagination.itemsPerPage`.',
-      type: 'string | null',
-      default: 'null',
-    },
-  ];
+  protected readonly api = API.WrPagination;
 }

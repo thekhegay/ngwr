@@ -5,12 +5,12 @@ import { WrEmpty } from 'ngwr/empty';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-empty-page',
@@ -40,18 +40,5 @@ export class MyComponent {}`,
 </wr-empty>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'icon',
-      type: `WrIconName | null`,
-      default: `'folder'`,
-      description: 'Icon name above the title. `null` hides it.',
-    },
-    {
-      name: 'title',
-      type: 'string',
-      default: `'No data'`,
-      description: 'Headline shown below the icon.',
-    },
-  ];
+  protected readonly api = API.WrEmpty;
 }

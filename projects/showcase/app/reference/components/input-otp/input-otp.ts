@@ -11,6 +11,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-input-otp-page',
@@ -48,24 +49,7 @@ export class MyComponent {
     alpha: `<wr-input-otp [(ngModel)]="alphaNumeric" mode="alphanumeric" length="8" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'length', description: 'Number of cells. Clamped to `[1, 20]`.', type: 'number', default: '6' },
-    {
-      name: 'mode',
-      description: 'Character set per cell.',
-      type: "'numeric' | 'alphanumeric' | 'text'",
-      default: "'numeric'",
-    },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: "'sm' | 'md' | 'lg'",
-      default: "'md'",
-    },
-    { name: 'mask', description: 'Hide typed characters (`type="password"`).', type: 'boolean', default: 'false' },
-    { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
-    { name: 'placeholder', description: 'Character shown in empty cells.', type: 'string', default: "'•'" },
-  ];
+  protected readonly api = API.WrInputOtp;
 
   protected readonly events: readonly DocApiRow[] = [
     {

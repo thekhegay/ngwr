@@ -11,6 +11,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-radio-page',
@@ -57,17 +58,7 @@ export class MyComponent {}`,
 </wr-radio-group>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'id', description: 'Stable id for the native input.', type: 'string', default: 'auto' },
-    { name: 'value', description: 'Value contributed when this radio is selected.', type: 'unknown', required: true },
-    { name: 'size', description: 'Control size.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-    {
-      name: 'disabled',
-      description: 'Disable just this option (the group can also disable all).',
-      type: 'boolean',
-      default: 'false',
-    },
-  ];
+  protected readonly api = API.WrRadio;
 
   protected readonly groupApi: readonly DocApiRow[] = [
     {

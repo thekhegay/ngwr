@@ -10,6 +10,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-meter-group-page',
@@ -39,32 +40,7 @@ export default class MeterGroupPageComponent {
   [max]="100"
 />`;
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'segments',
-      type: 'readonly WrMeterSegment[]',
-      default: '[]',
-      description: 'Ordered list of `{ label, value, color? }` slices. Negative `value` is clamped to zero.',
-    },
-    {
-      name: 'max',
-      type: 'number',
-      default: '0',
-      description: 'Explicit total. When `0`, the bar fills to the sum of segment values.',
-    },
-    {
-      name: 'showLegend',
-      type: 'boolean',
-      default: 'true',
-      description: 'Render the labelled legend underneath the bar.',
-    },
-    {
-      name: 'showValues',
-      type: 'boolean',
-      default: 'true',
-      description: "Show each segment's percent value alongside the label.",
-    },
-  ];
+  protected readonly api = API.WrMeterGroup;
 
   protected readonly segmentApi: readonly DocApiRow[] = [
     { name: 'label', type: 'string', default: '—', description: 'Legend label.' },

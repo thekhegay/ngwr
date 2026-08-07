@@ -5,12 +5,12 @@ import { WrCounter, WrCountUp } from 'ngwr/counter';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-counter-page',
@@ -52,54 +52,5 @@ export class MyComponent {}`,
     countDown: `<wr-count-up [from]="60" [to]="0" direction="down" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'value',
-      type: 'number',
-      default: '—',
-      description: 'Target number. Required.',
-    },
-    {
-      name: 'mode',
-      type: `'odometer' | 'tween'`,
-      default: `'odometer'`,
-      description: 'Animation style — rolling digits or eased count-up.',
-    },
-    {
-      name: 'duration',
-      type: 'number',
-      default: '900',
-      description: 'Animation duration in ms.',
-    },
-    {
-      name: 'decimals',
-      type: 'number',
-      default: '0',
-      description: 'Fixed number of decimal places.',
-    },
-    {
-      name: 'minIntegerDigits',
-      type: 'number',
-      default: '0',
-      description: 'Pad the integer part to at least this many digits.',
-    },
-    {
-      name: 'prefix',
-      type: 'string',
-      default: `''`,
-      description: 'Static prefix (e.g. `$`).',
-    },
-    {
-      name: 'suffix',
-      type: 'string',
-      default: `''`,
-      description: 'Static suffix (e.g. `%`).',
-    },
-    {
-      name: 'grouping',
-      type: 'boolean',
-      default: 'true',
-      description: 'Group thousands via `Intl.NumberFormat`.',
-    },
-  ];
+  protected readonly api = API.WrCounter;
 }

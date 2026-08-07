@@ -5,12 +5,12 @@ import { WrTextarea } from 'ngwr/textarea';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-textarea-page',
@@ -41,13 +41,5 @@ export class MyComponent {}`,
     fixed: `<wr-textarea [resizable]="false" [(ngModel)]="text" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'placeholder', description: 'Placeholder text.', type: 'string', default: "''" },
-    { name: 'size', description: 'Control size.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-    { name: 'rows', description: 'Visible row count.', type: 'number', default: '3' },
-    { name: 'resizable', description: 'Allow user resize via the native handle.', type: 'boolean', default: 'true' },
-    { name: 'readonly', description: 'Read-only state.', type: 'boolean', default: 'false' },
-    { name: 'autosize', description: 'Grow to fit content.', type: 'boolean', default: 'false' },
-    { name: 'maxRows', description: 'Cap autosize at this many rows.', type: 'number | null', default: 'null' },
-  ];
+  protected readonly api = API.WrTextarea;
 }

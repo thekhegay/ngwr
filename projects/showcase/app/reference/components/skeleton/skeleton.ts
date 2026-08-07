@@ -5,12 +5,12 @@ import { WR_COLORS } from 'ngwr/theme';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-skeleton-page',
@@ -32,8 +32,5 @@ export class MyComponent {}`,
     static: `<wr-skeleton [animated]="false" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'color', description: 'Tint color.', type: 'WrColor', default: "'light'" },
-    { name: 'animated', description: 'Run the shimmer animation.', type: 'boolean', default: 'true' },
-  ];
+  protected readonly api = API.WrSkeleton;
 }

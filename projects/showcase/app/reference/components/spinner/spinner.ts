@@ -4,12 +4,12 @@ import { WrSpinner } from 'ngwr/spinner';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-spinner-page',
@@ -31,7 +31,5 @@ export class MyComponent {}`,
 </div>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'size', description: 'Size variant (em-based).', type: "'sm' | 'md' | 'lg'", default: "'md'" },
-  ];
+  protected readonly api = API.WrSpinner;
 }

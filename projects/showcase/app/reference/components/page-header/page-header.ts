@@ -5,12 +5,12 @@ import { WrPageHeader } from 'ngwr/page-header';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-page-header-page',
@@ -33,14 +33,5 @@ export default class PageHeaderPageComponent {
   </div>
 </wr-page-header>`;
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'title', description: 'Primary title shown as an h1.', type: 'string', default: "''" },
-    { name: 'subtitle', description: 'Secondary line below the title.', type: 'string', default: "''" },
-    {
-      name: 'responsive',
-      description: 'Stack title and actions when narrow.',
-      type: 'boolean',
-      default: 'false',
-    },
-  ];
+  protected readonly api = API.WrPageHeader;
 }

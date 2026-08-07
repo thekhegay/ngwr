@@ -11,6 +11,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-date-picker-page',
@@ -117,61 +118,7 @@ export class MyComponent {
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'mode',
-      description:
-        'Picker behavior. `date` (default) renders a calendar, `time` renders an HH:MM[:SS] stepper, `datetime` stacks both.',
-      type: "'date' | 'time' | 'datetime'",
-      default: "'date'",
-    },
-    {
-      name: 'format',
-      description:
-        'Display + parse format. Pass a named key or raw token string. When omitted, derived from `mode` (`shortDate` / `time` / `shortDateTime`).',
-      type: 'WrDateFormat | string | null',
-      default: 'null',
-    },
-    { name: 'placeholder', description: 'Placeholder text.', type: 'string', default: "''" },
-    {
-      name: 'min',
-      description: 'Earliest selectable date. Ignored in `time` mode.',
-      type: 'Date | null',
-      default: 'null',
-    },
-    {
-      name: 'max',
-      description: 'Latest selectable date. Ignored in `time` mode.',
-      type: 'Date | null',
-      default: 'null',
-    },
-    {
-      name: 'dateFilter',
-      description: 'Predicate disabling individual dates. Ignored in `time` mode.',
-      type: '(date: Date) => boolean',
-      default: 'null',
-    },
-    {
-      name: 'timeFormat',
-      description: 'Time-panel 12 / 24-hour format. Applies in `time` + `datetime` modes.',
-      type: "'auto' | '12h' | '24h'",
-      default: "'auto'",
-    },
-    {
-      name: 'showSeconds',
-      description: 'Render the seconds column on the time panel.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'step', description: 'Minute / second step for the time panel.', type: 'number', default: '1' },
-    { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
-    {
-      name: 'readonly',
-      description: 'Input is not typeable; trigger icon still opens the overlay.',
-      type: 'boolean',
-      default: 'false',
-    },
-  ];
+  protected readonly api = API.WrDatePicker;
 
   protected readonly rangeApi: readonly DocApiRow[] = [
     {

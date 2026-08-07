@@ -11,6 +11,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-burger-page',
@@ -43,16 +44,7 @@ export default class BurgerPage {
   style="--wr-burger-size: 3rem; --wr-burger-color-opened: var(--wr-color-danger);"
 />`;
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'open',
-      description: 'Two-way bindable open state. Drives the hamburger ↔ close morph.',
-      type: 'model<boolean>',
-      default: 'false',
-    },
-    { name: 'label', description: 'Accessible label for the toggle button.', type: 'string', default: "'Toggle menu'" },
-    { name: 'disabled', description: 'Disable the toggle.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly api = API.WrBurger;
 
   protected readonly tokens: readonly DocApiRow[] = [
     { name: '--wr-burger-size', description: 'Button square size.', type: 'length', default: '2.5rem' },

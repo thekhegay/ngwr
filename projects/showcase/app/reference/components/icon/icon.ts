@@ -6,12 +6,12 @@ import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-icon-page',
@@ -42,7 +42,5 @@ provideWrIcons([
 ]);`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'name', description: 'Registered icon name.', type: 'string', required: true },
-  ];
+  protected readonly api = API.WrIcon;
 }

@@ -7,12 +7,12 @@ import { WR_COLORS } from 'ngwr/theme';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-progress-page',
@@ -43,8 +43,5 @@ export class MyComponent {}`,
 <wr-slider [(ngModel)]="value" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'color', description: 'Bar color.', type: 'WrColor', default: "'primary'" },
-    { name: 'value', description: 'Progress value, clamped to [0, 100].', type: 'number', default: '0' },
-  ];
+  protected readonly api = API.WrProgress;
 }

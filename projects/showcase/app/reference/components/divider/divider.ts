@@ -5,12 +5,12 @@ import { WR_COLORS } from 'ngwr/theme';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-divider-page',
@@ -38,15 +38,5 @@ export class MyComponent {}`,
     longText: `<wr-divider>Continued from the previous chapter — see appendix B for derivations</wr-divider>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'color', description: 'Line color.', type: 'WrColor | null', default: 'null' },
-    { name: 'type', description: 'Line style.', type: "'solid' | 'dashed' | 'dotted'", default: "'solid'" },
-    { name: 'width', description: 'Line width in pixels.', type: 'number', default: '1' },
-    {
-      name: 'align',
-      description: 'Label position. Ignored when no content is projected.',
-      type: "'start' | 'center' | 'end'",
-      default: "'center'",
-    },
-  ];
+  protected readonly api = API.WrDivider;
 }
