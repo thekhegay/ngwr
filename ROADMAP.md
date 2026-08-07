@@ -74,7 +74,15 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       other styled Angular lib has yet. **Blocks C3.** Do not start it before
       A1 / A5 have coverage — it churns DOM and BEM classes that are public API.
 - [ ] **B3. `WR_FORM_ERRORS` provider** (M) — centralized, i18n-aware validation
-      messages; `wr-form-field` renders them automatically.
+      messages; `wr-form-field` renders them automatically. **Groundwork
+      landed:** scoping this turned up three shipping defects in
+      `<wr-form-field>` and they are fixed — `<wr-form-error key>` was never
+      matched (every message rendered at once), the error state never
+      recomputed under classic reactive forms because `AbstractControl`'s
+      accessors are read inside `untracked()`, and neither `aria-invalid` nor
+      `aria-describedby` was wired. The remaining work is the provider itself:
+      a message catalog keyed by validator, resolved through `ngwr/i18n` with
+      `validation.*` defaults in both shipped locales.
 - [ ] **B4. Schema-driven `wr-form`** (L, stretch, soft-depends on B3) —
       generate a form from a typed field schema; pairs with Signal Forms'
       schema API.

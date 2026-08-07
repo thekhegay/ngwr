@@ -12,7 +12,7 @@
 <div class="wr-form-field__control"><ng-content /></div>
 
 @if (hasError()) {
-  <div class="wr-form-field__errors">
+  <div class="wr-form-field__errors" [attr.id]="describedBy()">
     <ng-content select="wr-form-error" />
   </div>
 } @else if (hint()) {

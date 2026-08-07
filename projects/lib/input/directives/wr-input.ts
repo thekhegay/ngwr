@@ -35,7 +35,12 @@ import type { WrInputSize } from '../interfaces';
  */
 @Directive({
   selector: 'input[wrInput], textarea[wrInput]',
-  host: { '[class]': 'classes()', '[attr.id]': 'resolvedId()' },
+  host: {
+    '[class]': 'classes()',
+    '[attr.id]': 'resolvedId()',
+    '[attr.aria-invalid]': 'ariaInvalid()',
+    '[attr.aria-describedby]': 'describedBy()',
+  },
 })
 export class WrInput {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -54,6 +59,17 @@ export class WrInput {
    * referenced an id that existed nowhere and the input had no label at all.
    */
   protected readonly resolvedId = computed(() => this.ownId ?? this.field?.controlId() ?? null);
+
+  /**
+   * Announced state, taken from the surrounding `<wr-form-field>`.
+   *
+   * The field renders the message but cannot reach the projected control, so
+   * the control reads back: without this the error is visible on screen and
+   * invisible to a screen reader, which never learns the field is invalid or
+   * what the message says.
+   */
+  protected readonly ariaInvalid = computed(() => (this.field?.describedBy() ? 'true' : null));
+  protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
 
   /**
    * Control size. Named `wrSize` (not `size`) so it never clashes with the
