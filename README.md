@@ -1,4 +1,4 @@
-# <img src="https://ngwr.dev/assets/images/logo.svg" alt="ngwr logo" height="32px">
+# <img src="https://ngwr.dev/images/logo.svg" alt="ngwr logo" height="32px">
 
 [![ngwr website](https://img.shields.io/badge/ngwr.dev-3969e2)](https://ngwr.dev)
 [![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23f51c6a)](https://www.npmjs.com/package/ngwr)
