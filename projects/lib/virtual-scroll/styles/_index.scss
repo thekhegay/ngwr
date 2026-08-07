@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Fixed-size virtual scroll wrapper. Most of the layout work is done by
 // CDK's `<cdk-virtual-scroll-viewport>`; this stylesheet just makes the
 // host a block-level container and tames default overflow behaviour.

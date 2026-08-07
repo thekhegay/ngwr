@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Star border (reactbits port). Two oversized radial-gradient "comets"
 // sweep along the top and bottom edges of the rounded container; the
 // projected content sits on a token-themed inner panel above them.

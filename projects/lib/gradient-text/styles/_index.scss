@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Animated gradient text (reactbits port). The gradient is shared between
 // the text fill (via `background-clip: text`) and an optional outer ring.
 // Both layers use the same animation, so the ring + text stay in sync.

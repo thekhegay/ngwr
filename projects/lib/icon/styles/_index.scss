@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 :root {
   // Relative to the surrounding text, not the root, so an icon dropped beside
   // 14px copy comes out ~17px instead of a fixed 24px that dwarfs it. Components

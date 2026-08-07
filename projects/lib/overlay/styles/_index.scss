@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Shared presentation styles for responsive (bottom-sheet) overlays.
 // Added to a component's overlay panel (`wr-dialog-panel`,
 // `wr-select-overlay`, …) when `provideWrResponsiveOverlays()` or a

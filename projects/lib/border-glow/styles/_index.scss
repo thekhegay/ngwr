@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Cursor-tracked border glow — ports the reactbits.dev BorderGlow effect.
 // All visual state is driven by two custom properties the component writes:
 //   --wr-border-glow-edge-proximity   0..100, scales with pointer-to-edge distance

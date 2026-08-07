@@ -1,2 +1,2 @@
 export { WrAvatar } from './avatar';
-export type { WrAvatarSize } from './interfaces';
+export type { WrAvatarSize, WrAvatarShape } from './interfaces';
