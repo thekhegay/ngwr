@@ -34,6 +34,36 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Messages without markup"
+    description="With no `<wr-form-error>` projected, the field renders the message the validator reports — resolved from the `ngwr/i18n` `validation.*` catalog, so it is already localized. Submit to see it."
+  >
+    <ngwr-doc-snippet [code]="snippets.auto">
+      <form
+        [formGroup]="autoForm"
+        (ngSubmit)="submitAuto()"
+        style="display: flex; flex-direction: column; gap: 1rem; max-width: 24rem"
+      >
+        <wr-form-field label="Handle" required>
+          <input wrInput formControlName="handle" placeholder="ada" />
+        </wr-form-field>
+
+        <wr-form-field label="Age">
+          <input wrInput formControlName="age" type="number" placeholder="18" />
+        </wr-form-field>
+
+        <button wr-btn type="submit" color="primary" style="align-self: flex-start">Submit</button>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="App-wide overrides"
+    description="`provideWrFormErrors()` replaces only the keys you name. A projected `<wr-form-error key>` still wins over it — per-field copy beats app-wide copy."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Optional marker" description="Use `optional` for the inverse — fields users can skip.">
     <ngwr-doc-snippet [code]="snippets.optional">
       <form [formGroup]="form" style="max-width: 24rem">

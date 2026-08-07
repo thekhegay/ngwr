@@ -14,6 +14,11 @@
 @if (hasError()) {
   <div class="wr-form-field__errors" [attr.id]="describedBy()">
     <ng-content select="wr-form-error" />
+    @for (message of autoMessages(); track message.key) {
+      <div class="wr-form-error wr-form-field__error" role="alert" [attr.data-key]="message.key">
+        {{ message.text }}
+      </div>
+    }
   </div>
 } @else if (hint()) {
   <small class="wr-form-field__hint">{{ hint() }}</small>
