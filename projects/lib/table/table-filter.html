@@ -1,4 +1,4 @@
-<button type="button" class="wr-table-filter__trigger" [wrDropdown]="menu" aria-label="Filter column">
+<button type="button" class="wr-table-filter__trigger" [wrDropdown]="menu" [attr.aria-label]="resolvedFilterLabel()">
   <svg
     class="wr-icon__svg"
     xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +55,7 @@
           <span class="wr-table-filter__title">{{ item.title }}</span>
         </button>
       } @empty {
-        <div class="wr-table-filter__empty">No matches</div>
+        <div class="wr-table-filter__empty">{{ resolvedNoMatchesLabel() }}</div>
       }
     </div>
 

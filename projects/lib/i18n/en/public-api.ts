@@ -51,6 +51,12 @@ export const wrEn: WrI18nCatalog = {
     loading: 'Loading…',
     sort: 'Sort column',
     filter: 'Filter column',
+    selectAll: 'Select all rows',
+    selectRow: 'Select row',
+    expandRow: 'Toggle row details',
+    selectGroup: 'Select group',
+    toggleGroup: 'Toggle group',
+    noMatches: 'No matches',
   },
   select: {
     placeholder: 'Select…',
@@ -81,11 +87,6 @@ export const wrEn: WrI18nCatalog = {
     dropZone: 'or drop files here',
     dropZoneLabel: 'File upload drop zone — click or drop files',
     removeFile: 'Remove file',
-    invalid: 'Unsupported file type',
-    tooBig: 'File too large',
-  },
-  upload: {
-    drop: 'Drop files here or click to browse',
     invalid: 'Unsupported file type',
     tooBig: 'File too large',
   },
@@ -159,6 +160,9 @@ export const wrEn: WrI18nCatalog = {
   },
   rating: {
     label: 'Rating',
+  },
+  speedDial: {
+    label: 'Actions',
   },
   result: {
     notFound: 'Sorry, the page you visited does not exist.',

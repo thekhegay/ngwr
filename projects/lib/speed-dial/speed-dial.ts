@@ -8,6 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
 import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
@@ -39,6 +40,14 @@ import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
 })
 export class WrSpeedDial {
   readonly actions = input<readonly WrSpeedDialAction[]>([]);
+
+  /**
+   * Accessible name of the trigger. Falls back to `speedDial.label`, then
+   * `'Actions'` — the trigger is icon-only, so without this it has no name at all.
+   */
+  readonly triggerLabel = input<string | null>(null);
+
+  protected readonly resolvedTriggerLabel = useI18nText(this.triggerLabel, 'speedDial.label', 'Actions');
 
   /** Direction the actions fan out. @default 'up' */
   readonly direction = input<WrSpeedDialDirection>('up');

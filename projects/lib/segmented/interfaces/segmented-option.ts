@@ -17,5 +17,12 @@ export interface WrSegmentedOption<T = unknown> {
   readonly value: T;
   readonly label?: string;
   readonly icon?: WrIconName;
+
+  /**
+   * Accessible name for an icon-only option. Without a `label` the button has
+   * no text at all, so assistive tech announced nothing; when this is omitted
+   * the option's `value` is used as a last resort.
+   */
+  readonly ariaLabel?: string;
   readonly disabled?: boolean;
 }

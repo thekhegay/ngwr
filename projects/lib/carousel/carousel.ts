@@ -19,6 +19,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
+
 import { WrCarouselSlide } from './carousel-slide';
 
 /**
@@ -44,6 +46,23 @@ import { WrCarouselSlide } from './carousel-slide';
 })
 export class WrCarousel {
   /** Active slide index. Two-way bindable. @default 0 */
+  /** Accessible name of the previous-slide button. Falls back to `carousel.prev`. */
+  readonly prevLabel = input<string | null>(null);
+
+  /** Accessible name of the next-slide button. Falls back to `carousel.next`. */
+  readonly nextLabel = input<string | null>(null);
+
+  /** Accessible name of the dot group. Falls back to `carousel.pagination`. */
+  readonly paginationLabel = input<string | null>(null);
+
+  protected readonly resolvedPrevLabel = useI18nText(this.prevLabel, 'carousel.prev', 'Previous slide');
+  protected readonly resolvedNextLabel = useI18nText(this.nextLabel, 'carousel.next', 'Next slide');
+  protected readonly resolvedPaginationLabel = useI18nText(
+    this.paginationLabel,
+    'carousel.pagination',
+    'Carousel pagination'
+  );
+
   readonly active = model(0);
 
   /** Show prev / next arrow buttons. @default true */

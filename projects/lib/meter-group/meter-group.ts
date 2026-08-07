@@ -61,6 +61,12 @@ export class WrMeterGroup {
     return sum > 0 ? sum : 1;
   });
 
+  /**
+   * Sum of the segments, for `aria-valuenow`. `role="progressbar"` without it
+   * announces no value at all, so the bar was invisible to assistive tech.
+   */
+  protected readonly totalValue = computed(() => this.segments().reduce((acc, s) => acc + Math.max(0, s.value), 0));
+
   protected readonly slices = computed(() =>
     this.segments().map((segment, i) => ({
       label: segment.label,

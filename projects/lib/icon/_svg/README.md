@@ -19,12 +19,12 @@ Reference SVGs from popular icon libraries, kept locally for redesign work.
 Each subdirectory is **gitignored** so the repo stays lean (~48 MB total
 otherwise). Re-fetch with `pnpm icons:fetch` (or by hand — see below).
 
-| Set         | Style                        | Count | Source                                                    |
-| ----------- | ---------------------------- | ----- | --------------------------------------------------------- |
-| Lucide      | 24px stroke                  | 1714  | https://github.com/lucide-icons/lucide                    |
-| Phosphor    | regular + fill weights       | 3024  | https://github.com/phosphor-icons/core                    |
-| Tabler      | outline + filled             | 6146  | https://github.com/tabler/tabler-icons                    |
-| Heroicons   | 24-outline / -solid, 20s, 16s | 1288  | https://github.com/tailwindlabs/heroicons                 |
+| Set       | Style                         | Count | Source                                    |
+| --------- | ----------------------------- | ----- | ----------------------------------------- |
+| Lucide    | 24px stroke                   | 1714  | https://github.com/lucide-icons/lucide    |
+| Phosphor  | regular + fill weights        | 3024  | https://github.com/phosphor-icons/core    |
+| Tabler    | outline + filled              | 6146  | https://github.com/tabler/tabler-icons    |
+| Heroicons | 24-outline / -solid, 20s, 16s | 1288  | https://github.com/tailwindlabs/heroicons |
 
 ### Re-fetch by hand
 
@@ -55,12 +55,12 @@ rm -rf /tmp/_ngwr-icons-fetch
 
 ## Licenses
 
-| Set        | License    |
-| ---------- | ---------- |
-| Lucide     | ISC        |
-| Phosphor   | MIT        |
-| Tabler     | MIT        |
-| Heroicons  | MIT        |
+| Set       | License |
+| --------- | ------- |
+| Lucide    | ISC     |
+| Phosphor  | MIT     |
+| Tabler    | MIT     |
+| Heroicons | MIT     |
 
 LICENSE files aren't committed — re-attach them if you redistribute originals
 as-is. Redrawn icons are your own work and don't need attribution.

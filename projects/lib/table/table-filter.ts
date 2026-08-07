@@ -8,6 +8,7 @@
 import { Component, ViewEncapsulation, computed, input, output, signal } from '@angular/core';
 
 import { WrDropdown, WrDropdownMenu } from 'ngwr/dropdown';
+import { useI18nText } from 'ngwr/i18n';
 
 import type { WrTableFilterItem } from './interfaces';
 
@@ -25,6 +26,15 @@ import type { WrTableFilterItem } from './interfaces';
 })
 export class WrTableFilter {
   /** Available filter options. */
+  /** Accessible name of the filter trigger. Falls back to `table.filter`. */
+  readonly filterLabel = input<string | null>(null);
+
+  /** Text shown when the search finds nothing. Falls back to `table.noMatches`. */
+  readonly noMatchesLabel = input<string | null>(null);
+
+  protected readonly resolvedFilterLabel = useI18nText(this.filterLabel, 'table.filter', 'Filter column');
+  protected readonly resolvedNoMatchesLabel = useI18nText(this.noMatchesLabel, 'table.noMatches', 'No matches');
+
   readonly items = input.required<readonly WrTableFilterItem[]>();
 
   /** Fires whenever the selection changes. */

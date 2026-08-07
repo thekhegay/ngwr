@@ -1,4 +1,17 @@
-<div class="wr-gauge__surface" [style.width.px]="size()">
+<!--
+  The dial is drawn in an aria-hidden <svg> and the printed value is optional, so
+  with `showValue` off the component had no accessible representation at all.
+  `role="meter"` plus the value attributes make it readable either way.
+-->
+<div
+  class="wr-gauge__surface"
+  [style.width.px]="size()"
+  role="meter"
+  [attr.aria-valuemin]="min()"
+  [attr.aria-valuemax]="max()"
+  [attr.aria-valuenow]="value()"
+  [attr.aria-valuetext]="value() + suffix()"
+>
   <svg [attr.viewBox]="viewBox" aria-hidden="true">
     <path
       [attr.d]="trackPath()"

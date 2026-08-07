@@ -15,12 +15,22 @@
 </div>
 
 @if (showArrows() && count() > 1) {
-  <button type="button" class="wr-carousel__nav wr-carousel__nav--prev" aria-label="Previous slide" (click)="prev()">
+  <button
+    type="button"
+    class="wr-carousel__nav wr-carousel__nav--prev"
+    [attr.aria-label]="resolvedPrevLabel()"
+    (click)="prev()"
+  >
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
       <path d="M9 2 L4 7 L9 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
     </svg>
   </button>
-  <button type="button" class="wr-carousel__nav wr-carousel__nav--next" aria-label="Next slide" (click)="next()">
+  <button
+    type="button"
+    class="wr-carousel__nav wr-carousel__nav--next"
+    [attr.aria-label]="resolvedNextLabel()"
+    (click)="next()"
+  >
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
       <path d="M5 2 L10 7 L5 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
     </svg>
@@ -28,7 +38,7 @@
 }
 
 @if (showDots() && count() > 1) {
-  <div class="wr-carousel__dots" role="group" aria-label="Carousel pagination">
+  <div class="wr-carousel__dots" role="group" [attr.aria-label]="resolvedPaginationLabel()">
     @for (slide of slides(); track $index) {
       <button
         type="button"

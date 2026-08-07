@@ -1,4 +1,10 @@
-<div class="wr-meter-group__bar" role="progressbar" [attr.aria-valuemin]="0" [attr.aria-valuemax]="resolvedMax()">
+<div
+  class="wr-meter-group__bar"
+  role="progressbar"
+  [attr.aria-valuemin]="0"
+  [attr.aria-valuemax]="resolvedMax()"
+  [attr.aria-valuenow]="totalValue()"
+>
   @for (slice of slices(); track $index) {
     <span
       class="wr-meter-group__slice"

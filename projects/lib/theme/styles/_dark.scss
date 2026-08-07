@@ -38,7 +38,8 @@ $_dark: #e6ebf3;
   // Text
   // Softer than pure-white — easier on the eyes for long reading.
   --wr-color-dark: #{$_dark};
-  --wr-color-dark-rgb: #{color.channel($_dark, 'red')}, #{color.channel($_dark, 'green')}, #{color.channel($_dark, 'blue')};
+  --wr-color-dark-rgb:
+    #{color.channel($_dark, 'red')}, #{color.channel($_dark, 'green')}, #{color.channel($_dark, 'blue')};
   // `*-contrast` values are baked at SCSS compile time from the light
   // palette, so they don't auto-flip when `--wr-color-dark` /
   // `--wr-color-white` are reassigned for dark mode. Tooltip-style
@@ -63,7 +64,8 @@ $_dark: #e6ebf3;
   // divider on cards / inputs without shouting — matches what Vercel
   // and shadcn ship for the same job.
   --wr-color-light: #{$_light};
-  --wr-color-light-rgb: #{color.channel($_light, 'red')}, #{color.channel($_light, 'green')}, #{color.channel($_light, 'blue')};
+  --wr-color-light-rgb:
+    #{color.channel($_light, 'red')}, #{color.channel($_light, 'green')}, #{color.channel($_light, 'blue')};
   // The baked contrast pairs with the LIGHT value (#cbd5e1 → dark text);
   // the dark surface above needs light text instead.
   --wr-color-light-contrast: #e6ebf3;
@@ -89,7 +91,8 @@ $_dark: #e6ebf3;
   // Lifted from slate-400 → slate-300-ish for better legibility on
   // the deeper canvas.
   --wr-color-medium: #{$_medium};
-  --wr-color-medium-rgb: #{color.channel($_medium, 'red')}, #{color.channel($_medium, 'green')}, #{color.channel($_medium, 'blue')};
+  --wr-color-medium-rgb:
+    #{color.channel($_medium, 'red')}, #{color.channel($_medium, 'green')}, #{color.channel($_medium, 'blue')};
   // This block shipped base + rgb only, so contrast and all four shades still
   // came from the light palette's slate. Ink token, plain shades.
   --wr-color-medium-contrast: #{colors.contrast($_medium)};
@@ -125,7 +128,8 @@ $_dark: #e6ebf3;
     // Re-derived, not inherited: the light-palette token would pair the wrong
     // foreground with a re-tuned base.
     --wr-color-#{$name}-contrast: #{colors.contrast($base)};
-    --wr-color-#{$name}-rgb: #{color.channel($base, 'red')}, #{color.channel($base, 'green')}, #{color.channel($base, 'blue')};
+    --wr-color-#{$name}-rgb:
+      #{color.channel($base, 'red')}, #{color.channel($base, 'green')}, #{color.channel($base, 'blue')};
     --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
     --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
     --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
