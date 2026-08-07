@@ -28,6 +28,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import type { WrCascaderOption } from './interfaces';
@@ -79,6 +80,11 @@ export type WrCascaderSize = 'sm' | 'md' | 'lg';
   host: { '[class]': 'classes()' },
 })
 export class WrCascader<T = string> implements FormValueControl<unknown> {
+  /** Accessible name. Falls back to `select.clearSelection`, then `'Clear selection'`. */
+  readonly clearLabel = input<string | null>(null);
+
+  protected readonly resolvedClearLabel = useI18nText(this.clearLabel, 'select.clearSelection', 'Clear selection');
+
   /** Root-level options. Each may have `children` for deeper levels. */
   readonly options = input.required<readonly WrCascaderOption<T>[]>();
 

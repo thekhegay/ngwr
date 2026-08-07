@@ -83,6 +83,11 @@ function matches(item: WrCommandItem, query: string): boolean {
   imports: [WrIcon],
 })
 export class WrCommandPalette {
+  /** Accessible name. Falls back to `commandPalette.label`, then `'Command palette'`. */
+  readonly paletteLabel = input<string | null>(null);
+
+  protected readonly resolvedPaletteLabel = useI18nText(this.paletteLabel, 'commandPalette.label', 'Command palette');
+
   /** Items shown in the palette. */
   readonly items = input<readonly WrCommandItem[]>([]);
 

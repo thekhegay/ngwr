@@ -58,7 +58,7 @@
   </div>
 
   @if (closeable()) {
-    <button type="button" class="wr-alert__close" aria-label="Close alert" (click)="onClose()">
+    <button type="button" class="wr-alert__close" [attr.aria-label]="resolvedCloseLabel()" (click)="onClose()">
       <svg
         class="wr-icon__svg"
         xmlns="http://www.w3.org/2000/svg"

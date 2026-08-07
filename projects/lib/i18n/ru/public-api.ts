@@ -64,6 +64,7 @@ export const wrRu: WrI18nCatalog = {
     removeItem: 'Удалить {{label}}',
   },
   commandPalette: {
+    label: 'Палитра команд',
     placeholder: 'Введите команду или поиск…',
     noResults: 'Ничего не найдено',
   },

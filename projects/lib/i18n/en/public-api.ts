@@ -76,6 +76,7 @@ export const wrEn: WrI18nCatalog = {
     removeItem: 'Remove {{label}}',
   },
   commandPalette: {
+    label: 'Command palette',
     placeholder: 'Type a command or search…',
     noResults: 'No results',
   },
