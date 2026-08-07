@@ -115,7 +115,15 @@
     letter-spacing: 0.04em;
   }
 
-  // Day grid
+  // Day grid. `__body` exists so the weekday row and the week rows share a
+  // `role="grid"` parent; it repeats the host's column gap so the two-sibling
+  // layout it replaced renders identically.
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   &__grid {
     display: flex;
     flex-direction: column;

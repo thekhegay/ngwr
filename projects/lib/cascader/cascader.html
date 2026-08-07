@@ -2,6 +2,7 @@
   type="button"
   class="wr-cascader__trigger"
   role="combobox"
+  [attr.aria-label]="resolvedAriaLabel()"
   [disabled]="disabled()"
   [attr.aria-haspopup]="'menu'"
   [attr.aria-expanded]="open()"

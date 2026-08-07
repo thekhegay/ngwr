@@ -1,12 +1,16 @@
 <wr-input-group>
+  <!--
+    A plain textbox, per the APG date-picker-dialog pattern: `aria-haspopup` and
+    `aria-expanded` are not permitted on `textbox` and belong to the trigger
+    button below, which is the thing that opens the dialog.
+  -->
   <input
     #input
     wrInput
     type="text"
     autocomplete="off"
     spellcheck="false"
-    [attr.aria-haspopup]="'dialog'"
-    [attr.aria-expanded]="overlayOpen()"
+    [attr.aria-label]="resolvedAriaLabel()"
     [value]="text()"
     [placeholder]="placeholder()"
     [disabled]="disabled()"
@@ -20,6 +24,8 @@
     wrInputSuffix
     class="wr-date-picker__trigger"
     [attr.aria-label]="triggerLabel()"
+    [attr.aria-haspopup]="'dialog'"
+    [attr.aria-expanded]="overlayOpen()"
     [disabled]="disabled()"
     (click)="toggleOverlay()"
   >

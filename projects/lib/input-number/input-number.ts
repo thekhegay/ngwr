@@ -96,6 +96,21 @@ export class WrInputNumber implements FormValueControl<number | null> {
   /** Placeholder shown when the input is empty. */
   readonly placeholder = input<string>('');
 
+  /**
+   * Accessible name for the field. Falls back to the placeholder — inside a
+   * `<wr-form-field>` the projected `wrInput` picks up the label's id and needs
+   * neither, but standalone the text field has no name at all.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = computed(() => {
+    // Not `??`: an empty placeholder is no name at all, so it must fall through.
+    const explicit = this.ariaLabel();
+    if (explicit) return explicit;
+    const placeholder = this.placeholder();
+    return placeholder ? placeholder : null;
+  });
+
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 

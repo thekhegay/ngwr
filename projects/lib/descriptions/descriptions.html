@@ -1,6 +1,14 @@
 @if (title()) {
   <div class="wr-descriptions__title">{{ title() }}</div>
 }
-<dl class="wr-descriptions__list">
+<!--
+  A plain <div> with ARIA term/definition roles on the item, not a <dl>:
+  the rows are their own component, so the real DOM is
+  `<dl><wr-description-item><dt>…` — which the HTML content model forbids and
+  which breaks the term/definition association in AT. `role="term"` /
+  `role="definition"` carry the same semantics with no required parent, so they
+  survive the component boundary (and `display: contents` on the row).
+-->
+<div class="wr-descriptions__list">
   <ng-content />
-</dl>
+</div>

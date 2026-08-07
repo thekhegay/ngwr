@@ -30,7 +30,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
+import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
@@ -128,6 +128,22 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   /** Placeholder shown on the trigger when no node is selected. */
   readonly placeholder = input<string>('');
+
+  /**
+   * Accessible name of the overlay trigger. Falls back to the placeholder, then
+   * to `select.label` — a `role="combobox"` with nothing selected and no
+   * placeholder otherwise has no name at all.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  private readonly labelText = useI18nText(this.ariaLabel, 'select.label', 'Select');
+  protected readonly resolvedAriaLabel = computed(() => {
+    // Not `??`: an empty placeholder must fall through to the catalog string.
+    const explicit = this.ariaLabel();
+    if (explicit) return explicit;
+    const placeholder = this.placeholder();
+    return placeholder ? placeholder : this.labelText();
+  });
 
   /** Show a clear-all (×) button on the trigger when at least one node is selected. @default true */
   readonly clearable = input(true, { transform: coerceBooleanProperty });

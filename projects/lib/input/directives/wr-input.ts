@@ -6,7 +6,9 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Directive, computed, input } from '@angular/core';
+import { Directive, ElementRef, computed, inject, input } from '@angular/core';
+
+import { WR_FORM_FIELD } from 'ngwr/form';
 
 import type { WrInputSize } from '../interfaces';
 
@@ -33,9 +35,26 @@ import type { WrInputSize } from '../interfaces';
  */
 @Directive({
   selector: 'input[wrInput], textarea[wrInput]',
-  host: { '[class]': 'classes()' },
+  host: { '[class]': 'classes()', '[attr.id]': 'resolvedId()' },
 })
 export class WrInput {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly field = inject(WR_FORM_FIELD, { optional: true });
+
+  /**
+   * Read once, at construction: a static `id=""` in the template is already on
+   * the element by the time a directive is instantiated, and it must win over
+   * the field's generated one.
+   */
+  private readonly ownId = this.host.nativeElement.getAttribute('id');
+
+  /**
+   * Adopts the surrounding `<wr-form-field>`'s `controlId`, so the label it
+   * already rendered actually points at this element. Without this the `for`
+   * referenced an id that existed nowhere and the input had no label at all.
+   */
+  protected readonly resolvedId = computed(() => this.ownId ?? this.field?.controlId() ?? null);
+
   /**
    * Control size. Named `wrSize` (not `size`) so it never clashes with the
    * native `<input size>` attribute. @default 'md'

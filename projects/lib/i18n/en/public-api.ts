@@ -59,6 +59,7 @@ export const wrEn: WrI18nCatalog = {
     noMatches: 'No matches',
   },
   select: {
+    label: 'Select',
     placeholder: 'Select…',
     empty: 'No options',
     clearSelection: 'Clear selection',

@@ -124,6 +124,22 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly resolvedPlaceholder = useI18nText(this.placeholder, 'select.placeholder', '');
   protected readonly resolvedClear = useI18nText(this.clearLabel, 'select.clearSelection', 'Clear selection');
 
+  /**
+   * Accessible name of the trigger. Falls back to the placeholder, then to
+   * `select.label` — `role="combobox"` on an empty trigger otherwise has no name
+   * at all, which is the common case before anything is selected.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  private readonly labelText = useI18nText(this.ariaLabel, 'select.label', 'Select');
+  protected readonly resolvedAriaLabel = computed(() => {
+    // Not `??`: an empty placeholder must fall through to the catalog string.
+    const explicit = this.ariaLabel();
+    if (explicit) return explicit;
+    const placeholder = this.resolvedPlaceholder();
+    return placeholder ? placeholder : this.labelText();
+  });
+
   /** Per-chip ARIA label — interpolates `{{label}}`. @internal */
   protected readonly chipRemoveLabel = useI18nFormatter('select.removeItem', 'Remove {{label}}');
 

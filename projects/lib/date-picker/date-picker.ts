@@ -29,7 +29,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter, type WrDateFormat } from 'ngwr/date-adapter';
-import { readI18nText } from 'ngwr/i18n';
+import { readI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
@@ -173,6 +173,22 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   private readonly labelDate = readI18nText('datePicker.open', 'Open calendar');
   private readonly labelTime = readI18nText('datePicker.openTime', 'Open time picker');
   private readonly labelDateTime = readI18nText('datePicker.openDateTime', 'Open date and time picker');
+
+  /**
+   * Accessible name of the text field. Falls back to the placeholder, then to
+   * the same catalog string the calendar button uses — the field is a
+   * `role="combobox"`, and with an empty placeholder it had no name at all.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  private readonly fieldLabel = useI18nText(this.ariaLabel, 'datePicker.open', 'Open calendar');
+  protected readonly resolvedAriaLabel = computed(() => {
+    // Not `??`: an empty placeholder must fall through to the catalog string.
+    const explicit = this.ariaLabel();
+    if (explicit) return explicit;
+    const placeholder = this.placeholder();
+    return placeholder ? placeholder : this.fieldLabel();
+  });
 
   protected readonly triggerLabel = computed(() => {
     const m = this.mode();

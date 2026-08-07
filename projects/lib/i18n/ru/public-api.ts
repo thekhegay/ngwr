@@ -47,6 +47,7 @@ export const wrRu: WrI18nCatalog = {
     noMatches: 'Ничего не найдено',
   },
   select: {
+    label: 'Выбрать',
     placeholder: 'Выберите…',
     empty: 'Нет вариантов',
     clearSelection: 'Очистить выбор',

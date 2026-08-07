@@ -92,6 +92,22 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   readonly placeholder = input<string>('');
 
   /**
+   * Accessible name of the trigger. Falls back to the placeholder, then to
+   * `select.label` — a `role="combobox"` with nothing selected and no
+   * placeholder otherwise has no name at all.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  private readonly labelText = useI18nText(this.ariaLabel, 'select.label', 'Select');
+  protected readonly resolvedAriaLabel = computed(() => {
+    // Not `??`: an empty placeholder must fall through to the catalog string.
+    const explicit = this.ariaLabel();
+    if (explicit) return explicit;
+    const placeholder = this.placeholder();
+    return placeholder ? placeholder : this.labelText();
+  });
+
+  /**
    * Disable the cascader. Bound automatically from the field's disabled state
    * when used with `[formField]`.
    *

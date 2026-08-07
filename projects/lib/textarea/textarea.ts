@@ -58,6 +58,21 @@ export class WrTextarea implements FormValueControl<string> {
   /** Native placeholder text. @default '' */
   readonly placeholder = input<string>('');
 
+  /**
+   * Accessible name for the field. Falls back to the placeholder — the native
+   * `<textarea>` lives inside the component, so a `<label for>` outside cannot
+   * reach it.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = computed(() => {
+    // Not `??`: an empty placeholder is no name at all, so it must fall through.
+    const explicit = this.ariaLabel();
+    if (explicit) return explicit;
+    const placeholder = this.placeholder();
+    return placeholder ? placeholder : null;
+  });
+
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrTextareaSize>('md');
 
