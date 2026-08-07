@@ -6,6 +6,6 @@
  */
 
 /**
- * Native input `type` values supported by `<wr-input>`.
+ * Native input `type` values supported by ``input[wrInput]``.
  */
 export type WrInputType = 'text' | 'number' | 'password' | 'email' | 'search' | 'tel' | 'url';

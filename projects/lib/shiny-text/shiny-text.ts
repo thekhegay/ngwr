@@ -63,12 +63,10 @@ export class WrShinyText {
   /** Time for the bright stripe to traverse the text, in seconds. @default 2 */
   readonly speed = input(2, { transform: numAttr(2) });
 
-  /** Base text colour (outside the bright stripe). @default '#b5b5b5' */
-  /** Base text colour. When unset, the theme decides. */
+  /** Base text colour outside the bright stripe. Unset falls back to `--wr-shiny-text-base`. */
   readonly color = input<string | null>(null);
 
-  /** Bright stripe colour. @default '#ffffff' */
-  /** Sweep highlight colour. When unset, the theme decides. */
+  /** Sweep highlight colour. Unset falls back to the theme token. */
   readonly shineColor = input<string | null>(null);
 
   /** Gradient angle in degrees. @default 120 */

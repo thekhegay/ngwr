@@ -109,7 +109,7 @@ export class WrTable {
   /** Column definitions, keyed by row property name. */
   readonly columns = input.required<WrTableColumns>();
 
-  /** Row items. `null`/`undefined` → loading skeleton. */
+  /** Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. */
   readonly items = input<readonly Record<string, unknown>[] | null | undefined>(null);
 
   /** Show the loading spinner overlay. @default false */
@@ -887,10 +887,11 @@ export class WrTable {
    * Covers the current `items`, so in server-side mode (`totalItems` set) it
    * exports the current page, while client-side pagination exports every page.
    *
+   * Returns the string; use `exportCsv()` when you want it downloaded as a file.
+   *
    * @example
-   * ```html
-   * <wr-table #table [columns]="columns" [items]="rows" />
-   * <wr-btn (click)="table.exportCsv({ filename: 'users.csv' })">Export</wr-btn>
+   * ```ts
+   * const csv = this.table().toCsv({ delimiter: ';' });
    * ```
    */
   toCsv(options: WrTableCsvOptions = {}): string {

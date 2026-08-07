@@ -41,11 +41,11 @@ export default class FormComponent {
 export class MyComponent {}`,
     basic: `<wr-form-item>
   <label>Email</label>
-  <wr-input type="email" [(ngModel)]="email" />
+  <input wrInput type="email" [(ngModel)]="email" />
 </wr-form-item>`,
     error: `<wr-form-item [hasError]="invalid()">
   <label>Email</label>
-  <wr-input type="email" [(ngModel)]="email" />
+  <input wrInput type="email" [(ngModel)]="email" />
   <wr-form-error>Please enter a valid email.</wr-form-error>
 </wr-form-item>`,
   };

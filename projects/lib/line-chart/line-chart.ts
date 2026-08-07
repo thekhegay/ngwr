@@ -24,7 +24,7 @@ const FALLBACK_COLORS = [
  *
  * @example
  * ```html
- * <wr-lineChart
+ * <wr-line-chart
  *   [series]="[
  *     { label: 'Visits', data: [12, 18, 9, 22, 30, 27, 35] },
  *     { label: 'Signups', data: [3, 5, 4, 8, 11, 9, 14], color: 'var(--wr-color-success)' }

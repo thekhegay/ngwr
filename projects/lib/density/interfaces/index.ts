@@ -1,7 +1,7 @@
 /** Density scale. Components multiply their paddings by the matching multiplier. */
 type WrDensityValue = 'sm' | 'md' | 'lg' | 'touch';
 
-/** Configuration for {@link WrDensityValueService}. */
+/** Configuration for {@link WrDensity}. */
 interface WrDensityConfig {
   /** Initial density used when no persisted value is present. @default 'md' */
   readonly defaultDensity: WrDensityValue;
