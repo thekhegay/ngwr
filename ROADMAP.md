@@ -76,16 +76,21 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       over the official primitives": less a11y logic to own, and a story no
       other styled Angular lib has yet. **Blocks C3.** Do not start it before
       A1 / A5 have coverage — it churns DOM and BEM classes that are public API.
-- [ ] **B3. `WR_FORM_ERRORS` provider** (M) — centralized, i18n-aware validation
-      messages; `wr-form-field` renders them automatically. **Groundwork
-      landed:** scoping this turned up three shipping defects in
-      `<wr-form-field>` and they are fixed — `<wr-form-error key>` was never
-      matched (every message rendered at once), the error state never
-      recomputed under classic reactive forms because `AbstractControl`'s
-      accessors are read inside `untracked()`, and neither `aria-invalid` nor
-      `aria-describedby` was wired. The remaining work is the provider itself:
-      a message catalog keyed by validator, resolved through `ngwr/i18n` with
-      `validation.*` defaults in both shipped locales.
+- [x] **B3. `WR_FORM_ERRORS` provider** (M) — `provideWrFormErrors()` registers
+      app-wide validation copy, and `<wr-form-field>` renders a message for
+      every error the markup does not already answer. Resolution order is
+      projected `<wr-form-error key>` → app catalog → `ngwr/i18n`
+      `validation.*` → a built-in English sentence, so a form with **no
+      configuration at all** shows the right localized message with the
+      validator's payload interpolated (`Не короче 4 символов.` /
+      `Enter at least 4 characters.`). 18 keys ship in en and ru, covering
+      every Angular built-in and every `WrValidators` key.
+      Scoping it also turned up three shipping defects in `<wr-form-field>`,
+      all fixed first: `<wr-form-error key>` was never matched (every message
+      rendered at once), the error state never recomputed under classic
+      reactive forms because `AbstractControl`'s accessors are read inside
+      `untracked()`, and neither `aria-invalid` nor `aria-describedby` was
+      wired.
 - [ ] **B4. Schema-driven `wr-form`** (L, stretch, soft-depends on B3) —
       generate a form from a typed field schema; pairs with Signal Forms'
       schema API.

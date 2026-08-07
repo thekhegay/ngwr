@@ -12,6 +12,7 @@ import {
   ViewEncapsulation,
   computed,
   contentChild,
+  contentChildren,
   effect,
   forwardRef,
   inject,
@@ -22,9 +23,73 @@ import { NgControl } from '@angular/forms';
 
 import { EMPTY, type Subscription } from 'rxjs';
 
+import { WrI18n } from 'ngwr/i18n';
+
+import { WR_FORM_ERRORS, WR_FORM_ERROR_FALLBACKS, type WrFormErrorMessage } from './form-errors';
 import { WR_FORM_FIELD, type WrFormFieldContext } from './tokens';
 
 let uid = 0;
+
+/** A message is either literal text or a function over the validator's payload. */
+function render(message: WrFormErrorMessage, key: string, error: unknown, label: string): string {
+  return typeof message === 'function' ? message({ key, error, label }) : message;
+}
+
+/** Validator payloads are plain objects; anything else interpolates nothing. */
+function toParams(error: unknown): Record<string, unknown> | undefined {
+  return error && typeof error === 'object' ? (error as Record<string, unknown>) : undefined;
+}
+
+/**
+ * One error message tied to a validator key. Renders only when the parent
+ * form-field has a matching error in `control.errors`, and only once the
+ * control is touched or dirty.
+ *
+ * @example
+ * ```html
+ * <wr-form-error key="required">This field is required.</wr-form-error>
+ * <wr-form-error key="email">That doesn't look right.</wr-form-error>
+ * ```
+ */
+@Component({
+  selector: 'wr-form-error',
+  template: `<ng-content />`,
+  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'wr-form-error wr-form-field__error',
+    role: 'alert',
+    '[attr.data-key]': 'key() ?? null',
+    '[class.wr-form-field__error--hidden]': '!visible()',
+  },
+})
+export class WrFormError {
+  /**
+   * Validator key this message corresponds to (e.g. `'required'`).
+   * Optional — without a key the message always renders, which is the
+   * plain inline-error usage inside `<wr-form-item>`.
+   */
+  readonly key = input<string>();
+
+  private readonly field = inject(WR_FORM_FIELD, { optional: true });
+
+  /**
+   * Whether this message is the one the current error calls for.
+   *
+   * The parent projects every `<wr-form-error>` through a single
+   * `<ng-content select>`, which cannot filter — so each message decides for
+   * itself. Without this, one invalid control rendered "Email is required."
+   * and "That isn't a valid email." side by side, which is what the docs have
+   * always described as gated behaviour.
+   *
+   * A keyless message always shows: that is the plain inline-error usage inside
+   * `<wr-form-item>`, which has no error discovery at all.
+   */
+  protected readonly visible = computed(() => {
+    const key = this.key();
+    if (!key || !this.field) return true;
+    return this.field.errorKeys().includes(key);
+  });
+}
 
 /**
  * Wraps a label + control + hint + error messages into a single block —
@@ -131,61 +196,59 @@ export class WrFormField implements WrFormFieldContext {
   /** @internal Read by the projected control so a screen reader is pointed at the message. */
   readonly describedBy = computed(() => (this.hasError() ? `${this.controlId()}-errors` : null));
 
+  /**
+   * Render a catalog message for any error the markup does not already answer.
+   *
+   * On by default: a field with no `<wr-form-error>` at all is the common case,
+   * and an empty error block helps nobody. Turn it off for a field whose copy is
+   * entirely hand-written. @default true
+   */
+  readonly autoErrors = input(true, { transform: coerceBooleanProperty });
+
+  private readonly projectedErrors = contentChildren(WrFormError);
+  private readonly appMessages = inject(WR_FORM_ERRORS);
+  private readonly i18n = inject(WrI18n, { optional: true });
+
+  /**
+   * Errors with no projected `<wr-form-error key>` to answer them, resolved to
+   * text: the app catalog first, then the `validation.*` i18n keys, then a
+   * built-in English sentence. Per-field markup always wins — it is the most
+   * specific thing the author wrote.
+   */
+  protected readonly autoMessages = computed<readonly { key: string; text: string }[]>(() => {
+    if (!this.autoErrors()) return [];
+    const errors = this.errors();
+    if (!errors) return [];
+
+    const claimed = new Set(
+      this.projectedErrors()
+        .map(e => e.key())
+        .filter(Boolean)
+    );
+
+    return Object.entries(errors)
+      .filter(([key]) => !claimed.has(key))
+      .map(([key, error]) => ({ key, text: this.resolve(key, error) }))
+      .filter(m => m.text.length > 0);
+  });
+
+  private resolve(key: string, error: unknown): string {
+    const app = this.appMessages[key];
+    if (app !== undefined) return render(app, key, error, this.label());
+
+    // `t()` reads the service's revision signal, so this recomputes on a locale
+    // switch; a miss returns the key itself, which is the documented signal.
+    const translated = this.i18n?.t(`validation.${key}`, toParams(error));
+    if (translated && translated !== `validation.${key}`) return translated;
+
+    const fallback = WR_FORM_ERROR_FALLBACKS[key];
+    return fallback === undefined ? '' : render(fallback, key, error, this.label());
+  }
+
   protected readonly classes = computed(() => {
     const parts = ['wr-form-field'];
     if (this.hasError()) parts.push('wr-form-field--invalid');
     if (this.required()) parts.push('wr-form-field--required');
     return parts.join(' ');
-  });
-}
-
-/**
- * One error message tied to a validator key. Renders only when the parent
- * form-field has a matching error in `control.errors`, and only once the
- * control is touched or dirty.
- *
- * @example
- * ```html
- * <wr-form-error key="required">This field is required.</wr-form-error>
- * <wr-form-error key="email">That doesn't look right.</wr-form-error>
- * ```
- */
-@Component({
-  selector: 'wr-form-error',
-  template: `<ng-content />`,
-  encapsulation: ViewEncapsulation.None,
-  host: {
-    class: 'wr-form-error wr-form-field__error',
-    role: 'alert',
-    '[attr.data-key]': 'key() ?? null',
-    '[class.wr-form-field__error--hidden]': '!visible()',
-  },
-})
-export class WrFormError {
-  /**
-   * Validator key this message corresponds to (e.g. `'required'`).
-   * Optional — without a key the message always renders, which is the
-   * plain inline-error usage inside `<wr-form-item>`.
-   */
-  readonly key = input<string>();
-
-  private readonly field = inject(WR_FORM_FIELD, { optional: true });
-
-  /**
-   * Whether this message is the one the current error calls for.
-   *
-   * The parent projects every `<wr-form-error>` through a single
-   * `<ng-content select>`, which cannot filter — so each message decides for
-   * itself. Without this, one invalid control rendered "Email is required."
-   * and "That isn't a valid email." side by side, which is what the docs have
-   * always described as gated behaviour.
-   *
-   * A keyless message always shows: that is the plain inline-error usage inside
-   * `<wr-form-item>`, which has no error discovery at all.
-   */
-  protected readonly visible = computed(() => {
-    const key = this.key();
-    if (!key || !this.field) return true;
-    return this.field.errorKeys().includes(key);
   });
 }

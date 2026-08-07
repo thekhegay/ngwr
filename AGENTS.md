@@ -104,7 +104,11 @@ straight to the component's `value` / `checked` model. `ControlValueAccessor` is
 forms still work: Angular 22 synthesises the accessor for a signal-forms
 control. Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
 New value controls: implement `FormValueControl`, expose `value` as a `model()`,
-plus a `touch` output and a `disabled` input.
+plus a `touch` output and a `disabled` input. Validation copy is centralized:
+`<wr-form-field>` resolves a message per error key through
+`provideWrFormErrors()` → the `ngwr/i18n` `validation.*` catalog → a built-in
+fallback, so a field needs no `<wr-form-error>` markup unless it wants
+field-specific wording.
 
 **Responsive / touch.** Adaptive components take a `responsive` opt-in modifier
 (container-query reflow). Touch ergonomics use the `touch-target` SCSS mixin

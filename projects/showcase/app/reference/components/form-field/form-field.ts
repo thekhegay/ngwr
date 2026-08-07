@@ -44,6 +44,19 @@ export default class FormFieldPage {
     bio: new FormControl('', { nonNullable: true }),
   });
 
+  /** Zero-config demo: no `<wr-form-error>` at all, messages come from the catalog. */
+  protected readonly autoForm = new FormGroup({
+    handle: new FormControl('', {
+      nonNullable: true,
+      validators: [this.required, Validators.minLength(4)],
+    }),
+    age: new FormControl('', { nonNullable: true, validators: [Validators.min(18)] }),
+  });
+
+  protected submitAuto(): void {
+    this.autoForm.markAllAsTouched();
+  }
+
   protected submit(): void {
     this.form.markAllAsTouched();
   }
@@ -71,6 +84,26 @@ export class MyComponent {}`,
 
 <!-- Errors only render after the control is touched OR dirty,
      so the user doesn't see red on first paint. -->`,
+    auto: `<!-- No <wr-form-error> at all. wr-form-field renders the message the
+     validator reports, from the ngwr/i18n \`validation.*\` catalog. -->
+<wr-form-field label="Handle" required>
+  <input wrInput formControlName="handle" />
+</wr-form-field>
+
+<wr-form-field label="Age">
+  <input wrInput formControlName="age" type="number" />
+</wr-form-field>`,
+    provider: `import { provideWrFormErrors } from 'ngwr/form';
+
+bootstrapApplication(App, {
+  providers: [
+    provideWrFormErrors({
+      // Only the keys you name — the rest keep resolving through the catalog.
+      required: 'Please fill this in.',
+      minlength: ({ error }) => \`At least \${(error as { requiredLength: number }).requiredLength} characters.\`,
+    }),
+  ],
+});`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
