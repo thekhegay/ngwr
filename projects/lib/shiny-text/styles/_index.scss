@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Shimmering text (reactbits port). Clips an animated linear gradient to
 // the text via `background-clip: text`.
 //

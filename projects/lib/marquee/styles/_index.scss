@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Endless marquee (reactbits LogoLoop port).
 // Vars driven from component inputs:
 //   --wr-marquee-gap         gap between items (px)

@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Circular text (reactbits port). Each char is absolutely positioned at
 // the spinner's centre, then transformed `rotate() translateY(-radius)`
 // so it lands on the perimeter of a circle of constant radius. The host

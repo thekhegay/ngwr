@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Wave-field background (reactbits port). The host fills its nearest
 // positioned ancestor; the line colour is theme-aware via
 // `--wr-waves-line-color` unless `[lineColor]` overrides it.

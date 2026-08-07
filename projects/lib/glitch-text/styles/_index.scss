@@ -1,3 +1,8 @@
+// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
+// design token this stylesheet references. Sass deduplicates `@use` per
+// compilation, so the umbrella sheet still emits the theme only once.
+@use '../../theme/styles' as theme;
+
 // Glitch text (reactbits port). Two pseudo-element clones of the text
 // are offset by ±5px and tinted with `text-shadow` (red / cyan).
 // A clip-path keyframe slices random horizontal bands of each clone.
