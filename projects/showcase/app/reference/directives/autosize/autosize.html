@@ -11,7 +11,15 @@
   <ngwr-doc-section title="Usage">
     <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <textarea wrInput wrAutosize minRows="2" maxRows="8" style="width: 100%" [(ngModel)]="textareaValue"></textarea>
+      <textarea
+        wrInput
+        wrAutosize
+        minRows="2"
+        maxRows="8"
+        aria-label="Autosizing textarea"
+        style="width: 100%"
+        [(ngModel)]="textareaValue"
+      ></textarea>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

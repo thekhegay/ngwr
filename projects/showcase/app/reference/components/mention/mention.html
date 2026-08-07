@@ -16,6 +16,7 @@
     <ngwr-doc-snippet code="">
       <textarea
         wrMention
+        aria-label="Message with @mentions"
         [wrMentionItems]="users"
         [displayWith]="userDisplay"
         [(ngModel)]="basicText"
@@ -44,6 +45,7 @@
     <ngwr-doc-snippet code="">
       <textarea
         wrMention
+        aria-label="Message with # and @ triggers"
         [wrMentionItems]="tags"
         [triggers]="['#']"
         [(ngModel)]="multiText"

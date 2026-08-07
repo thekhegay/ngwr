@@ -23,7 +23,7 @@
   <ngwr-doc-section title="Autosize" description="Grows with content. Combine with maxRows to cap height.">
     <ngwr-doc-snippet [code]="snippets.autosize">
       <div style="width: 100%">
-        <wr-textarea autosize [maxRows]="6" [(ngModel)]="autoText" />
+        <wr-textarea autosize ariaLabel="Autosizing notes" [maxRows]="6" [(ngModel)]="autoText" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
