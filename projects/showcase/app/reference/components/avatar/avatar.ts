@@ -4,12 +4,12 @@ import { WrAvatar } from 'ngwr/avatar';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 const SAMPLE_URL = 'https://avatars.githubusercontent.com/u/9893827?v=4';
 
@@ -37,25 +37,5 @@ export class MyComponent {}`,
     initials: `<wr-avatar [size]="48" shape="circle">RK</wr-avatar>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'url',
-      description: 'Image URL. When unset, only projected content shows.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'alt', description: 'Alt text for the image.', type: 'string', default: "'Avatar'" },
-    {
-      name: 'size',
-      description: 'Box size. Accepts number, px, or rem string.',
-      type: 'WrAvatarSize',
-      default: "'6rem'",
-    },
-    {
-      name: 'shape',
-      description: 'Corner treatment.',
-      type: "'rounded' | 'square' | 'circle' | 'squircle'",
-      default: "'rounded'",
-    },
-  ];
+  protected readonly api = API.WrAvatar;
 }

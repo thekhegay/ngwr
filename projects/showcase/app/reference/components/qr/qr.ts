@@ -6,12 +6,12 @@ import { WrQr } from 'ngwr/qr';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-qr-page',
@@ -41,19 +41,5 @@ export class MyComponent {}`,
     icon: `<wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="40" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'value', description: 'Text or URL to encode.', type: 'string', required: true },
-    { name: 'level', description: 'Error correction level.', type: "'L' | 'M' | 'Q' | 'H'", default: "'M'" },
-    { name: 'size', description: 'Side length in pixels.', type: 'number', default: '160' },
-    { name: 'padding', description: 'Outer quiet-zone padding in pixels.', type: 'number', default: '10' },
-    { name: 'color', description: 'Module (dot) color.', type: 'string', default: "'#000000'" },
-    { name: 'bgColor', description: 'Background color.', type: 'string', default: "'#ffffff'" },
-    {
-      name: 'iconUrl',
-      description: 'Optional image overlay in the center. Use level="H" when set.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'iconSize', description: 'Center icon size in logical pixels.', type: 'number', default: '42' },
-  ];
+  protected readonly api = API.WrQr;
 }

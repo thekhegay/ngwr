@@ -6,12 +6,12 @@ import { WrSquircle, WrSquircleHost } from 'ngwr/squircle';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-squircle-page',
@@ -43,17 +43,5 @@ export default class SquirclePageComponent {
 <img wrSquircle [radius]="32" src="avatar.jpg" alt="" />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'radius', description: 'Corner radius in pixels.', type: 'number', default: '12' },
-    { name: 'smoothing', description: '0 = rounded rect, 1 = full smooth corner.', type: 'number', default: '1' },
-    { name: 'enabled', description: 'Apply the squircle clip-path.', type: 'boolean', default: 'true' },
-    { name: 'borderWidth', description: 'Border ring thickness in px (0 = none).', type: 'number', default: '0' },
-    { name: 'borderColor', description: 'Border ring colour.', type: 'string', default: "'currentColor'" },
-    {
-      name: 'corners',
-      description: 'Which corners to squircle.',
-      type: "'all' | 'left' | 'right' | 'top' | 'bottom' | 'none'",
-      default: "'all'",
-    },
-  ];
+  protected readonly api = API.WrSquircle;
 }

@@ -10,6 +10,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-collapse-page',
@@ -47,11 +48,7 @@ export class MyComponent {}`,
 </wr-collapse-group>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'title', description: 'Header text.', type: 'string', required: true },
-    { name: 'open', description: 'Open state. Two-way bindable.', type: 'boolean', default: 'false' },
-    { name: 'disabled', description: 'Disable the header.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly api = API.WrCollapse;
 
   protected readonly groupApi: readonly DocApiRow[] = [
     {

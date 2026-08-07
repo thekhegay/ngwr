@@ -13,6 +13,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-segmented-page',
@@ -52,22 +53,7 @@ export class MyComponent {}`,
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'options',
-      description: 'Segments to render.',
-      type: 'readonly WrSegmentedOption[]',
-      required: true,
-    },
-    { name: 'value', description: 'Selected value. Two-way bindable.', type: 'T | null', default: 'null' },
-    { name: 'disabled', description: 'Disable the whole control.', type: 'boolean', default: 'false' },
-    {
-      name: 'size',
-      description: 'Control size; shares the `--wr-control-*` contract.',
-      type: `'sm' | 'md' | 'lg'`,
-      default: `'md'`,
-    },
-  ];
+  protected readonly api = API.WrSegmented;
 
   protected readonly typeSnippet = `interface WrSegmentedOption<T = unknown> {
   value: T;

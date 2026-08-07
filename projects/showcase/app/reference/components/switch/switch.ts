@@ -5,12 +5,12 @@ import { WrSwitch } from 'ngwr/switch';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-switch-page',
@@ -37,16 +37,5 @@ export class MyComponent {}`,
     disabled: `<wr-switch [disabled]="true">Disabled</wr-switch>`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'checked',
-      description: 'Checked state. Two-way `model` — bind `[(checked)]`, `[formField]` or `[(ngModel)]`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    { name: 'size', description: 'Control size.', type: `'sm' | 'md' | 'lg'`, default: `'md'` },
-    { name: 'id', description: 'Input id, linked to the label.', type: 'string', default: 'auto-generated' },
-    { name: '(touch)', description: 'Emits when the control is blurred.', type: 'void' },
-  ];
+  protected readonly api = API.WrSwitch;
 }

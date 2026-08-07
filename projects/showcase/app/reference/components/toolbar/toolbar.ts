@@ -5,12 +5,12 @@ import { WrToolbar } from 'ngwr/toolbar';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-toolbar-page',
@@ -32,7 +32,5 @@ export default class ToolbarPageComponent {
   <div wrToolbarEnd><wr-btn color="primary">New</wr-btn></div>
 </wr-toolbar>`;
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'responsive', description: 'Stack zones when the box is narrow.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly api = API.WrToolbar;
 }

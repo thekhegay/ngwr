@@ -4,12 +4,12 @@ import { WrLightbox } from 'ngwr/lightbox';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 const LANDSCAPE = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80';
 const LANDSCAPE_THUMB = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=320&q=70';
@@ -46,37 +46,5 @@ export class MyComponent {}`,
     disabled: `<wr-lightbox src="/photo.jpg" alt="No-zoom thumbnail" disablePreview />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'src',
-      description: 'Full-size image URL. Shown in the lightbox.',
-      type: 'string',
-      default: '— (required)',
-    },
-    {
-      name: 'preview',
-      description: 'Optional thumbnail URL. Falls back to `src` when omitted.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'alt', description: 'Alt text — applied to both thumb and full image.', type: 'string', default: "''" },
-    {
-      name: 'caption',
-      description: 'Optional caption rendered below the full image in the viewer.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'aspectRatio',
-      description: 'Reserve thumbnail space before load to prevent layout shift. Pair with a width.',
-      type: 'string | number | null',
-      default: 'null',
-    },
-    {
-      name: 'disablePreview',
-      description: 'Disable the click-to-zoom behaviour. The thumb still renders.',
-      type: 'boolean',
-      default: 'false',
-    },
-  ];
+  protected readonly api = API.WrLightbox;
 }

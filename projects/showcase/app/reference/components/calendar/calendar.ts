@@ -5,12 +5,12 @@ import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-calendar-page',
@@ -60,23 +60,5 @@ export class MyComponent {
 />`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'mode', description: 'Selection mode.', type: "'single' | 'range'", default: "'single'" },
-    { name: 'date', description: 'Two-way bound single date.', type: 'Date | null', default: 'null' },
-    {
-      name: 'range',
-      description: 'Two-way bound `[start, end]` tuple.',
-      type: '[Date, Date]',
-      default: '[null, null]',
-    },
-    { name: 'min', description: 'Earliest selectable date (inclusive).', type: 'Date | null', default: 'null' },
-    { name: 'max', description: 'Latest selectable date (inclusive).', type: 'Date | null', default: 'null' },
-    {
-      name: 'dateFilter',
-      description: 'Predicate — return `false` to disable specific days.',
-      type: '(date: Date) => boolean',
-      default: 'null',
-    },
-    { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
-  ];
+  protected readonly api = API.WrCalendar;
 }

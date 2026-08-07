@@ -10,6 +10,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 function makeHeatmap(): readonly WrHeatmapDatum[] {
   const out: WrHeatmapDatum[] = [];
@@ -58,31 +59,7 @@ export class MyComponent {
   value: number;
 }`;
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'data', description: 'Value per day.', type: 'readonly WrHeatmapDatum[]', default: '[]' },
-    {
-      name: 'endDate',
-      description: 'Last day of the grid. `null` uses today.',
-      type: 'string | Date | null',
-      default: 'null',
-    },
-    { name: 'weeks', description: 'Number of week columns. Floored at 4.', type: 'number', default: '53' },
-    { name: 'cellSize', description: 'Cell edge in pixels. Floored at 4.', type: 'number', default: '11' },
-    { name: 'cellGap', description: 'Gap between cells in pixels.', type: 'number', default: '2' },
-    {
-      name: 'color',
-      description: 'Colour of the most intense cell.',
-      type: 'string',
-      default: "'var(--wr-color-primary)'",
-    },
-    {
-      name: 'emptyColor',
-      description: 'Colour of a day with no data.',
-      type: 'string',
-      default: "'rgba(var(--wr-color-light-rgb), 0.5)'",
-    },
-    { name: 'showLabels', description: 'Render month and weekday labels.', type: 'boolean', default: 'true' },
-  ];
+  protected readonly api = API.WrCalendarHeatmap;
 
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrHeatmapDatum', description: 'One contribution cell.', type: 'interface' },

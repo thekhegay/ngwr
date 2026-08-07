@@ -11,6 +11,7 @@ import {
   DocSectionComponent,
   DocSnippetComponent,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-checkbox-page',
@@ -67,39 +68,7 @@ export class MyComponent {}`,
     this.perms.set(s.includes(p) ? s.filter(x => x !== p) : [...s, p]);
   }
 
-  protected readonly api: readonly DocApiRow[] = [
-    { name: 'id', description: 'Stable id for the native input.', type: 'string', default: 'auto' },
-    {
-      name: 'checked',
-      description: 'Checked state — the form value (two-way; [formField] / [(ngModel)] also bind it).',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'checkboxValue',
-      description: 'Identity inside <wr-checkbox-group>. (Named checkboxValue — FormCheckboxControl reserves `value`.)',
-      type: 'unknown',
-      default: 'null',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted on blur so a bound field can mark itself touched.',
-      type: 'OutputRef<void>',
-      default: '—',
-    },
-    {
-      name: 'size',
-      description: 'Control size, shares the --wr-control-* contract.',
-      type: "'sm' | 'md' | 'lg'",
-      default: "'md'",
-    },
-    {
-      name: 'indeterminate',
-      description: 'Show the mixed state (a dash) for a partly-checked "select all". Visual only, controlled.',
-      type: 'boolean',
-      default: 'false',
-    },
-  ];
+  protected readonly api = API.WrCheckbox;
 
   protected readonly groupApi: readonly DocApiRow[] = [
     { name: '—', description: 'Provides itself via WR_CHECKBOX_GROUP to children.', type: '—', default: '—' },
