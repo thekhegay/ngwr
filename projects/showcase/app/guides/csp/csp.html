@@ -1,0 +1,81 @@
+<ngwr-doc-page
+  title="Content Security Policy"
+  description="What ngwr needs from a CSP, why a strict `style-src` is usually fine, and the one case where you need a nonce."
+  [keywords]="['csp', 'content security policy', 'nonce', 'unsafe-inline', 'security']"
+>
+  <ngwr-doc-section title="The short version">
+    <p wrTypography>
+      The library itself asks for nothing unusual. It contains no <code>eval</code>, no <code>new Function</code>, no
+      <code>Worker</code> and no WebAssembly, and the canvas and WebGL components only call <code>getContext</code> —
+      which a CSP does not govern. A client-rendered app that imports ngwr's stylesheet runs under a policy with no
+      escape hatches at all:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.clientRendered" language="bash" />
+
+    <p wrTypography variant="small" tone="medium">
+      The part that does the work is the stylesheet import. Twenty-seven entry points — the animation and canvas
+      components, plus <code>card</code>, <code>cascader</code>, <code>list</code>, <code>lightbox</code>,
+      <code>loading-bar</code>, <code>virtual-scroll</code>, <code>drag-drop</code> and <code>breadcrumbs</code> —
+      declare a <code>styleUrl</code> that re-exports the same <code>styles/_index.scss</code> you get from
+      <code>&#64;use</code>. Angular injects that copy at runtime, and a strict <code>style-src</code> blocks the
+      injection. It does not matter, because the identical CSS is already in your linked stylesheet:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="If you don't import the stylesheet"
+    description="Then the runtime injection is the only copy, and it needs a nonce."
+  >
+    <p wrTypography>
+      Those twenty-seven components render unstyled under <code>style-src 'self'</code> if their CSS never reached your
+      stylesheet. Give Angular a nonce and it stamps every style it injects:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.nonce" language="angular-ts" />
+
+    <p wrTypography variant="small" tone="medium">
+      Importing the stylesheet is the better answer: it is one line, it is the documented install path anyway, and it
+      keeps the CSS out of your JavaScript bundle.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Server-rendered and prerendered apps"
+    description="The nonce has to come from whatever renders the response — the app root attribute is too late."
+  >
+    <p wrTypography>
+      Under SSR or prerendering, Angular does not inject component styles from client code. It writes them into the
+      document as <code>&lt;style ng-app-id="ng"&gt;</code>, so the browser has already parsed — and, under a strict
+      policy, refused — them before your bundle runs. An <code>ngCspNonce</code> attribute on the app root cannot
+      retroactively allow them; the nonce must be minted per response by the renderer.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.ssr" language="bash" />
+
+    <p wrTypography variant="small" tone="medium">
+      A statically prerendered site has no per-response step to mint a nonce in, so a nonce there is a fixed string in a
+      cacheable file — which buys nothing. Hashes or <code>'unsafe-inline'</code> for <code>style-src</code> are the
+      honest options. This is Angular's behaviour, not ngwr's: it applies to your own component styles the same way.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Directive by directive">
+    <ngwr-doc-api [rows]="directives" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="This site">
+    <ngwr-doc-code [code]="snippets.docsSite" language="bash" />
+
+    <p wrTypography variant="small" tone="medium">
+      ngwr.dev is prerendered, which is where the <code>style-src</code> relaxation comes from, and it highlights code
+      with shiki — whose Oniguruma engine is a WebAssembly module. Neither applies to the library: nothing you install
+      from <code>ngwr</code> pulls in a highlighter, and <code>'wasm-unsafe-eval'</code> is never needed to run the
+      components. If you add a highlighter to your own app, that dependency's CSP cost is yours to take on.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>
