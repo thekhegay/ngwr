@@ -28,10 +28,20 @@
       <small>{{ helperText() }}</small>
     }
   </div>
+  <!--
+    The real <input type="file"> is never operated directly — the zone above is
+    the control, and it forwards clicks here. Left exposed it nests one
+    interactive element inside another (the zone is role="button"), which is a
+    nested-interactive violation and puts two tab stops where users see one.
+    aria-hidden must be paired with tabindex="-1", or hiding a focusable element
+    is itself a violation.
+  -->
   <input
     #picker
     class="wr-file-upload__picker"
     type="file"
+    aria-hidden="true"
+    tabindex="-1"
     [attr.accept]="accept() || null"
     [attr.multiple]="multiple() ? '' : null"
     [disabled]="disabled()"

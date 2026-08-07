@@ -1,6 +1,7 @@
 <div
   class="wr-meter-group__bar"
   role="progressbar"
+  [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-valuemin]="0"
   [attr.aria-valuemax]="resolvedMax()"
   [attr.aria-valuenow]="totalValue()"

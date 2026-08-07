@@ -19,6 +19,7 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 const ARC_START = -135; // 7 o'clock
@@ -51,6 +52,11 @@ const ARC_SWEEP = ARC_END - ARC_START;
   host: { '[class]': 'classes()' },
 })
 export class WrKnob implements FormValueControl<number> {
+  /** Accessible name — the role needs one. Falls back to `knob.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'knob.label', 'Value');
+
   /** Minimum allowed value. @default 0 */
   readonly min = input<number | undefined>(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
 

@@ -12,7 +12,13 @@
 
 <ul class="wr-speed-dial__actions" role="menu">
   @for (action of actions(); track action.id) {
-    <li class="wr-speed-dial__action-wrap" [style.--wr-speed-dial-i]="$index + 1">
+    <!--
+      role="none" is load-bearing: role="menu" on the <ul> strips the implicit
+      list semantics from its children, so an unroled <li> sits between the menu
+      and its menuitem and breaks the required menu -> menuitem parentage.
+      Marking it presentational restores the direct relationship.
+    -->
+    <li class="wr-speed-dial__action-wrap" role="none" [style.--wr-speed-dial-i]="$index + 1">
       <button
         type="button"
         class="wr-speed-dial__action"

@@ -7,6 +7,7 @@
   class="wr-gauge__surface"
   [style.width.px]="size()"
   role="meter"
+  [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-valuemin]="min()"
   [attr.aria-valuemax]="max()"
   [attr.aria-valuenow]="value()"

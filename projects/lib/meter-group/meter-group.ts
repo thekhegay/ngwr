@@ -8,6 +8,8 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
+
 import type { WrMeterSegment } from './interfaces';
 
 const FALLBACK_COLORS = [
@@ -43,6 +45,11 @@ const FALLBACK_COLORS = [
   host: { class: 'wr-meter-group' },
 })
 export class WrMeterGroup {
+  /** Accessible name — the role needs one. Falls back to `meterGroup.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'meterGroup.label', 'Meter');
+
   readonly segments = input<readonly WrMeterSegment[]>([]);
 
   /** Explicit total. When `0` (default), `max = sum(values)`. @default 0 */

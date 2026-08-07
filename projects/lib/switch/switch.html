@@ -4,6 +4,7 @@
     type="checkbox"
     role="switch"
     [id]="id()"
+    [attr.aria-label]="ariaLabel()"
     [checked]="checked()"
     [disabled]="disabled()"
     (change)="onInputChange($event)"
