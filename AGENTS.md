@@ -10,9 +10,12 @@ in the repo_.
 
 A pnpm + Angular CLI monorepo with two projects:
 
-- **`projects/lib/`** — the published package (`ngwr`). Every subfolder is a
-  **tree-shakable secondary entry point** consumed as `ngwr/<name>` — 127 of
-  them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Built with
+- **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **127**
+  of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
+  `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
+  points, and four are nested (`ngwr/i18n/{en,ru}`,
+  `ngwr/icon/adapters/{lucide,feather}`). Built with
   **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
   docs, and where components are dogfooded. Docs are organised into five
@@ -223,7 +226,7 @@ code. Don't re-add the cache.
 all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
 casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
 empty codemod would tell consumers their visual regressions were handled when
-they were not. Main is now v11-bound and has no unreleased commits. Don't bump
+they were not. Main is now v11-bound. Don't bump
 the version by hand — releases are cut from Actions ("Release PR" → `bump`),
 which runs `release:prepare` / `release:body` and opens a `chore(release)` PR.
 

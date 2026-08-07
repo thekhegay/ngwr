@@ -1,9 +1,10 @@
 # Migration guide
 
-Every major ships an `ng update` codemod that rewrites your templates,
+Most majors ship an `ng update` codemod that rewrites your templates,
 TypeScript and stylesheets in place. Commit first, run the migration, then
 review with `git diff` — a handful of edge cases always need a manual
-touch-up.
+touch-up. Not every major has one: v10's breaking changes are purely visual and
+carry no codemod, as its section below explains.
 
 ```bash
 # Runs the version-matched migration for the major you land on.
@@ -16,7 +17,7 @@ latest.
 
 ---
 
-## v9 → v10
+## v9 to v10
 
 Three breaking changes, all of them visual defaults. **There is no
 `ng update ngwr@10`** — and that is deliberate: nothing here can be rewritten
@@ -61,7 +62,7 @@ restore the inverted look:
 
 ---
 
-## v8 → v9
+## v8 to v9
 
 Three breaking changes. One is auto-fixed; the other two need a manual
 pass, and both fail **silently** — no template error, no build error, the
@@ -119,7 +120,7 @@ usage is unaffected — only exhaustive `switch`es over `WrColor` and
 
 ---
 
-## v7 → v8
+## v7 to v8
 
 Three breaking changes. `ng update ngwr@8` auto-fixes density and
 pagination, and warns — with file paths — about the two removed
@@ -171,7 +172,7 @@ that uses them so you can swap them out by hand.
 
 ---
 
-## v6 → v7
+## v6 to v7
 
 v7 aligned the library with the current
 [Angular style guide](https://angular.dev/style-guide) and
@@ -185,26 +186,26 @@ the SCSS `@use` paths — ≥ 95 % of the work.
 
 ### Class names
 
-| v6                            | v7                       |
-| ----------------------------- | ------------------------ |
-| `WrButtonComponent`           | `WrButton`               |
-| `WrButtonGroupComponent`      | `WrButtonGroup`          |
-| `WrCheckboxComponent`         | `WrCheckbox`             |
-| `WrToastService`              | `WrToast`                |
-| `WrThemeService`              | `WrTheme`                |
-| `WrTypographyDirective`       | `WrTypography`           |
-| `WrBytesPipe`                 | `WrBytes`                |
-| _… every other component / directive / pipe / service follows the same rule_ ||
+| v6                                                                           | v7              |
+| ---------------------------------------------------------------------------- | --------------- |
+| `WrButtonComponent`                                                          | `WrButton`      |
+| `WrButtonGroupComponent`                                                     | `WrButtonGroup` |
+| `WrCheckboxComponent`                                                        | `WrCheckbox`    |
+| `WrToastService`                                                             | `WrToast`       |
+| `WrThemeService`                                                             | `WrTheme`       |
+| `WrTypographyDirective`                                                      | `WrTypography`  |
+| `WrBytesPipe`                                                                | `WrBytes`       |
+| _… every other component / directive / pipe / service follows the same rule_ |                 |
 
 ### File names
 
-| v6                            | v7                       |
-| ----------------------------- | ------------------------ |
-| `button.component.ts`         | `button.ts`              |
-| `button.component.html`       | `button.html`            |
-| `button.component.scss`       | `button.scss`            |
-| `toast.service.ts`            | `toast.ts`               |
-| `tooltip.directive.ts`        | `tooltip.ts`             |
+| v6                      | v7            |
+| ----------------------- | ------------- |
+| `button.component.ts`   | `button.ts`   |
+| `button.component.html` | `button.html` |
+| `button.component.scss` | `button.scss` |
+| `toast.service.ts`      | `toast.ts`    |
+| `tooltip.directive.ts`  | `tooltip.ts`  |
 
 Tests stay on `.spec.ts`.
 
@@ -236,23 +237,23 @@ A handful of packages had two classes that would collapse to the same
 bare name. The consumer-facing class keeps the bare name; the other gets
 a descriptive label:
 
-| v6                            | v7                              | Reason                                      |
-| ----------------------------- | ------------------------------- | ------------------------------------------- |
-| `WrPopconfirmComponent`       | `WrPopconfirmPanel`             | `WrPopconfirmDirective` → `WrPopconfirm`    |
-| `WrToastComponent`            | `WrToastItem`                   | `WrToastService` → `WrToast`                |
-| `WrContextMenuComponent`      | `WrContextMenuPanel`            | `WrContextMenuDirective` → `WrContextMenu`  |
-| `WrSquircleComponent`         | `WrSquircleHost`                | `WrSquircleDirective` → `WrSquircle`        |
-| `WrMetaDirective`             | `WrMetaBinding`                 | `WrMetaService` → `WrMeta`                  |
-| `WrHotkeyDirective`           | `WrHotkeyBinding`               | `WrHotkeyService` → `WrHotkey`              |
+| v6                       | v7                   | Reason                                     |
+| ------------------------ | -------------------- | ------------------------------------------ |
+| `WrPopconfirmComponent`  | `WrPopconfirmPanel`  | `WrPopconfirmDirective` → `WrPopconfirm`   |
+| `WrToastComponent`       | `WrToastItem`        | `WrToastService` → `WrToast`               |
+| `WrContextMenuComponent` | `WrContextMenuPanel` | `WrContextMenuDirective` → `WrContextMenu` |
+| `WrSquircleComponent`    | `WrSquircleHost`     | `WrSquircleDirective` → `WrSquircle`       |
+| `WrMetaDirective`        | `WrMetaBinding`      | `WrMetaService` → `WrMeta`                 |
+| `WrHotkeyDirective`      | `WrHotkeyBinding`    | `WrHotkeyService` → `WrHotkey`             |
 
 ### Type renames
 
 These were data types that collided with a class once the suffix dropped:
 
-| v6 type    | v7 type           | Class that took the old name |
-| ---------- | ----------------- | ---------------------------- |
-| `WrIcon`   | `WrIconDef`       | `WrIcon` (component)         |
-| `WrTableSort` | `WrTableSortState` | `WrTableSort` (directive) |
+| v6 type       | v7 type            | Class that took the old name |
+| ------------- | ------------------ | ---------------------------- |
+| `WrIcon`      | `WrIconDef`        | `WrIcon` (component)         |
+| `WrTableSort` | `WrTableSortState` | `WrTableSort` (directive)    |
 
 Usage sites in your code (`provideWrIcons([{ … } satisfies WrIconDef])`,
 `signal<readonly WrTableSortState[]>([])`) are automatically rewritten by
@@ -263,7 +264,7 @@ the codemod.
 After running `ng update ngwr@7`, sanity-check:
 
 - [ ] **Imports compile**: `tsc --noEmit` (or `ng build`) has no `cannot
-      find name 'WrXxxComponent'` errors.
+    find name 'WrXxxComponent'` errors.
 - [ ] **Re-export aliases**: if you re-export a v6 class under its old
       name (`export { WrButtonComponent as MyButton }`), update to the
       v7 class.
