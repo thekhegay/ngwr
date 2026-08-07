@@ -117,8 +117,13 @@ function extractFile(file: string, entry: string): ApiEntry[] {
       const generic = g['generic']?.trim();
       const type = generic ?? (kind === 'output' ? 'void' : inferType(initial, g['args'] ?? ''));
 
+      // `{ alias: 'wrAffixChange' }` is the name a template writes, and the only
+      // one a consumer ever sees — the property name is an implementation detail.
+      const alias = /\balias:\s*'([^']+)'/.exec(g['args'] ?? '')?.[1];
+      const publicName = alias ?? name;
+
       const row: ApiRow = {
-        name: kind === 'output' ? `(${name})` : name,
+        name: kind === 'output' ? `(${publicName})` : publicName,
         description: description || '—',
         type,
         ...(required ? { required: true } : {}),

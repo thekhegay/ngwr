@@ -28,7 +28,7 @@
 import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { type ApiEntry, extractApi } from './lib/extract-api';
+import { type ApiEntry, type ApiRow, extractApi } from './lib/extract-api';
 import { ROOT_PATH } from './lib/paths/root';
 
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
@@ -108,20 +108,94 @@ function entryOf(file: string): string {
   return parts[parts.length - 2] ?? '';
 }
 
+/**
+ * `[wrSpotlight].resetX` / `(touch)` / `[wrTilt]` / `.resetY` → `resetX` /
+ * `touch` / `wrTilt` / `resetY`. Pages write a member several ways; the
+ * comparison happens on the bare identifier.
+ */
+function bare(name: string): string {
+  return name
+    .replace(/^\[[A-Za-z]+\]\./, '')
+    // Repeated, not once: `[(position)]` is a banana-in-a-box, two layers deep.
+    .replace(/^[[(]+/, '')
+    .replace(/[\])]+$/, '')
+    .replace(/^\./, '');
+}
+
+function isMember(name: string): boolean {
+  return /^(?:\[[A-Za-z]+\]\.)?[[(.]{0,2}[a-z][A-Za-z0-9]*[\])]{0,2}$/.test(name);
+}
+
+/**
+ * Member names a page documents, from every table on it.
+ *
+ * Two shapes have to be handled or the report fills with noise.
+ *
+ * `sub: true` marks a row indented under the one above it, and what that means
+ * depends entirely on the parent: under `<wr-list>` the sub-rows are the
+ * component's inputs, under `WrMarqueeImage` they are fields of an interface,
+ * and under `variant` they are the allowed values of that one input. Only the
+ * first kind is a member, so the parent row decides.
+ *
+ * And one row often covers two members (`text / texts`,
+ * `[wrSpotlight].resetX / .resetY`), which reads as both of them undocumented
+ * unless the slash is split.
+ */
+function documentedMembers(src: string): string[] {
+  // Split on the name rather than matching a whole `{…}` row: a description can
+  // contain braces, and a row regex that assumes it cannot silently drops the
+  // row — which then reads as an undocumented member.
+  const parts = src.split(/name:\s*'([^']+)'/);
+  const out: string[] = [];
+  let parent = '';
+
+  for (let i = 1; i < parts.length; i += 2) {
+    const raw = parts[i] ?? '';
+    const tail = (parts[i + 1] ?? '').split('},')[0] ?? '';
+    const sub = /\bsub:\s*true/.test(tail);
+
+    if (!sub) {
+      // `<wr-list>` headings fail `isMember` on their own; `[wrAffixOffsetTop]`
+      // passes it, and should — bracket form is how a page writes an input.
+      parent = raw;
+    } else if (!/^<wr-[a-z-]+>$|^\[wr[A-Za-z]+\]$/.test(parent)) {
+      // Indented under a type or under another input — an interface field or an
+      // allowed value, not a member.
+      continue;
+    }
+
+    for (const piece of raw.split('/')) {
+      const name = piece.trim();
+      if (isMember(name)) out.push(name);
+    }
+  }
+
+  return out;
+}
+
 function check(api: Map<string, ApiEntry>): number {
-  // The primary class of an entry point is the one named after the folder —
-  // `button/` → `WrButton`. Matching on selector fails here, because the button's
-  // selector is `wr-btn` while `wr-button-group` looks like a folder match.
+  // An entry point is compared as a whole, not class by class: `layout/`
+  // documents `WrLayout` + header + sider + content + footer on one page, and
+  // `table/` documents the column and cell directives alongside the table. The
+  // page's own tables are one flat pool of names, so the source side has to be
+  // one too, or every sibling directive reads as undocumented drift.
+  const byEntry = new Map<string, { readonly primary: string; readonly rows: ApiRow[] }>();
   const pascal = (entry: string): string =>
     `Wr${entry
       .split('-')
       .map(p => p.charAt(0).toUpperCase() + p.slice(1))
       .join('')}`;
 
-  const byEntry = new Map<string, ApiEntry>();
   for (const e of api.values()) {
-    if (e.klass === pascal(e.entry)) byEntry.set(e.entry, e);
-    else if (!byEntry.has(e.entry)) byEntry.set(e.entry, e);
+    const found = byEntry.get(e.entry);
+    if (!found) {
+      byEntry.set(e.entry, { primary: e.klass, rows: [...e.rows] });
+      continue;
+    }
+    found.rows.push(...e.rows);
+    // The class named after the folder is the page's headline, whatever order
+    // the files were walked in.
+    if (e.klass === pascal(e.entry)) byEntry.set(e.entry, { primary: e.klass, rows: found.rows });
   }
 
   let mismatched = 0;
@@ -135,24 +209,20 @@ function check(api: Map<string, ApiEntry>): number {
       continue;
     }
 
-    // Pages legitimately document things that are not inputs of this component:
-    // interface shapes (`WrAnchorLink`, `label`), CSS custom properties, sibling
-    // selectors (`<wr-card-header>`, `[wrTilt]`) and methods. Only rows that
-    // look like a plain member name are comparable.
-    const isMember = (n: string): boolean =>
-      /^\(?[a-z][A-Za-z0-9]*\)?$/.test(n) && !n.includes('(') === !n.endsWith(')');
+    const names = documentedMembers(src);
+    const actual = new Set(found.rows.map(r => r.name).filter(isMember).map(bare));
 
-    const documented = new Set(
-      [...src.matchAll(/name:\s*'([^']+)'/g)].map(m => m[1] ?? '').filter(n => /^\(?[a-z][A-Za-z0-9]*\)?$/.test(n))
-    );
-    const actual = new Set(found.rows.map(r => r.name).filter(isMember));
-
-    const missing = [...actual].filter(n => !documented.has(n) && !documented.has(n.replace(/[()]/g, '')));
-    const stale = [...documented].filter(n => !actual.has(n) && !actual.has(`(${n})`));
+    // A member counts as documented however the page writes it. But only a name
+    // written BARE is held to existing: `[wrTilt]` in brackets is template
+    // syntax, and pages use it to document the directive's own selector, which
+    // is not a member of anything.
+    const documented = new Set(names.map(bare));
+    const missing = [...actual].filter(n => !documented.has(n));
+    const stale = [...new Set(names.filter(n => !n.startsWith('[') && !actual.has(bare(n))).map(bare))];
 
     if (missing.length === 0 && stale.length === 0) continue;
     mismatched++;
-    console.log(`  ${relative(ROOT_PATH, file)}  (${found.klass})`);
+    console.log(`  ${relative(ROOT_PATH, file)}  (${found.primary})`);
     if (missing.length) console.log(`      missing:  ${missing.join(', ')}`);
     if (stale.length) console.log(`      unknown:  ${stale.join(', ')}`);
   }
