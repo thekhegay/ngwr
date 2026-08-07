@@ -1,21 +1,21 @@
-# Roadmap — v9
+# Roadmap — v11
 
 > Living document. v7.0.0–v7.3.0 shipped 2026-06-12…2026-06-25; **v8.0.0
-> shipped 2026-06-30**. **v9.0.0 is the next release** — main already carries
-> three breaking changes since v8.0.0 (#432 `info` colour, #445 lucide verbatim
-> icon names, #459 checkbox `value` → `checkboxValue`) and a registered
-> `migration-v9` codemod, so nothing shipped as an 8.x minor and none will.
-> Sizes: S / M / L / XL.
+> shipped 2026-06-30**; **v9.0.0 / v9.1.0** followed, and **v10.0.0 shipped
+> 2026-08-06**. Sizes: S / M / L / XL.
 >
-> **Status (2026-07-31):** the released version is **8.0.0**; main carries **41
-> unreleased commits**, three of them breaking. Nothing below marked "merged to
-> main" is installable yet — **cutting v9.0.0 is the next action**,
-> and it is also what publishes the docs (`deploy.yml` fires only on a
-> `chore(release): v*` commit, so A4's static prerendering — merged
-> 2026-07-15 — has never gone live). Complete since v8.0.0: **theme M (M1–M7)**,
-> **B1** Signal Forms-native controls, **C1** Table v2, **C2** virtual scroll in
-> the overlay pickers, **A4** SSR / prerender, plus the docs IA refactor to
-> start / guides / reference (#433).
+> **Status (2026-08-07):** the released version is **10.0.0** and it is
+> installable — the release backlog this document was written around is gone.
+> Everything below marked "merged to main" has shipped. v10's three breaking
+> changes were all CSS/token-level (WCAG contrast on `--wr-color-*-contrast`,
+> table header casing, tooltip theming), so it deliberately carries **no
+> `migration-v10`** codemod: nothing there can be rewritten mechanically, and an
+> empty codemod would tell consumers their visual regressions were handled when
+> they were not. The static prerendered docs are live on ngwr.dev, and past
+> majors are archived under `/v7/`, `/v8/`, `/v9/`.
+>
+> **The forward scope for v11 is not decided yet** — the unchecked items below
+> are a backlog, not a plan.
 >
 > **v8.0.0** shipped early with a deliberately small breaking set: density
 > values renamed (`compact|default|comfortable` → `sm|md|lg`, `touch` unchanged,
@@ -70,7 +70,7 @@ them through the catalog.
       styles; built on the existing overlay plumbing.
 - [x] **M3. Touch interaction pass** (L) — **shipped (7.x + #439).** 44px
       touch targets via a `touch-target` mixin gated on `@media (pointer:
-      coarse)`, applied to overlay close buttons (alert, lightbox) and dense
+    coarse)`, applied to overlay close buttons (alert, lightbox) and dense
       controls (select chips, tree / cascader toggles, toast actions); a
       `touch` density preset (y 1.7 / x 1.25 / gap 1.5); swipe-to-close on
       drawer (grab handle), lightbox (down) and toast (sideways), swipe-nav on
@@ -97,7 +97,7 @@ them through the catalog.
       scroll-driven edge fade. Driven by container queries (not viewport) so
       they adapt inside any layout; falls back through the breakpoints API.
 - [x] **M6. Pull-to-refresh + mobile niceties** (M) — **shipped (#442 haptics,
-      #443 pull-to-refresh, #444 action-sheet) — unreleased, ships in v9.0.0.**
+      #443 pull-to-refresh, #444 action-sheet) — shipped in v9.0.0.**
       `WrHaptics` (`ngwr/platform`) wraps the Vibration API,
       `<wr-pull-to-refresh>` and `<wr-action-sheet>` are their own entry points.
 - [x] **M7. Mobile docs polish** (M) — **shipped (#446).** Per-demo phone-frame
@@ -145,8 +145,7 @@ theme is what makes ngwr a library people can bet on.
 Both stabilized in Angular 22 — this moved from "strategic bet" to "the
 adoption window is open now".
 
-- [x] **B1. Signal Forms-native controls** (XL, flagship) — **merged to main,
-      unreleased — ships in v9.0.0.** All 16 public value controls (plus the
+- [x] **B1. Signal Forms-native controls** (XL, flagship) — **shipped in v9.0.0.** All 16 public value controls (plus the
       internal time panel) implement `FormValueControl` / `FormCheckboxControl`,
       and `ControlValueAccessor` is gone from the library entirely
       (`NG_VALUE_ACCESSOR`: 0 hits repo-wide). `wr-segmented` and `wr-calendar`
@@ -172,7 +171,7 @@ adoption window is open now".
 
 Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
 
-- [x] **C1. Table v2** (XL) — **merged to main, unreleased — ships in
+- [x] **C1. Table v2** (XL) — **shipped in
       v9.0.0**, one PR per feature: column pin (#447) / resize (#448) /
       drag-reorder (#449), row selection (#450), expandable rows (#451),
       summary/footer rows (#452), CSV export (#453), row grouping (#454),
@@ -184,7 +183,7 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
       Deferred: **Excel (.xlsx)** export (needs a third-party dependency —
       CSV is dependency-free) and the stretch "pro table" preset.
 - [x] **C2. Virtual scroll in overlay pickers** (M) — **merged to main,
-      unreleased — ships in v9.0.0**; the v7 regression is closed. `wr-tree`
+      shipped in v9.0.0**; the v7 regression is closed. `wr-tree`
       (#456) and `wr-select` search mode (#457) window their lists with
       hand-rolled spacer-row virtualization (same shape as `wr-table`, not the
       CDK viewport, which cannot host `<tr>` / role-owned list children), and
@@ -203,8 +202,8 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
       build on the Aria `Combobox` primitive after B2.
 - [ ] **C4. Input mask** (M) — cheaper than it reads: `ngx-mask@^22.1.0` is
       already a workspace dependency and `wr-input`'s JSDoc already documents
-      composing with it, so the open question is *own it or bless it*, not
-      *build it from scratch*. ngx-mask's download numbers prove the demand.
+      composing with it, so the open question is _own it or bless it_, not
+      _build it from scratch_. ngx-mask's download numbers prove the demand.
       Phone-international / card presets later (Taiga's fintech inputs are
       loved).
 - [ ] **C5. Tree-table mode** (M) — tree rows inside `wr-table`
@@ -217,13 +216,13 @@ Gaps ranked by demand evidence from competitor issue trackers and roadmaps.
       the primitive. Completes dropdown/context-menu into a menu family.
 - [ ] **C8. Transfer (dual listbox)** (M) and **Tour / onboarding** (M) —
       spotlight steps anchored to elements, on existing overlay + affix.
-- [ ] **C9. Charts round-out** (L) — area / scatter / radar; unified legends
-      + theming. Differentiator is theme-token integration + dashboard
+- [ ] **C9. Charts round-out** (L) — area / scatter / radar; unified legends + theming. Differentiator is theme-token integration + dashboard
       blocks, not chart-engine breadth — do not build an engine.
 - [ ] **C10. Rich text editor** (XL, evaluate for v10) — the biggest single
       component gap across free Angular libs (Taiga wraps ProseMirror;
       PrimeNG is rebuilding theirs). Likely a ProseMirror-based
       `ngwr/editor`. Validate demand before committing.
+
 ## D — Theming & visuals
 
 - [ ] **D1. Theme presets + builder** (L) — algorithmic palette from a seed
@@ -323,7 +322,7 @@ nobody ships a free, complete Angular AI kit.
 ## Breaking — shipped in v8.0 / landed for v9 / still deferred
 
 v8.0.0 shipped only the three small renames/removals below. Three more are
-already on main for **v9.0.0** (unreleased); the rest travels on to **v10**
+shipped in **v9.0.0**; the rest travelled on to **v10**
 with the Angular 23 baseline.
 
 - [x] **Density values renamed** — **shipped in v8.** `compact|default|comfortable`
@@ -336,7 +335,7 @@ with the Angular 23 baseline.
       `wrReveal` directive, `ngwr/directives`) and `WrScrambleText`
       (`<wr-scramble-text>`, `ngwr/scramble-text`) deleted.
 
-**Landed on main for v9.0.0 (unreleased):**
+**Shipped in v9.0.0:**
 
 - [x] **`<wr-checkbox>` `value` → `checkboxValue`** (#459) — `FormCheckboxControl`
       reserves `value` for the form value, so the boolean state is the `checked`
@@ -383,55 +382,22 @@ up an item.
 
 ## Suggested starting order
 
-Re-prioritised 2026-07-31 against HEAD. The library's problem right now is not
-a missing feature — it is that a cycle's worth of finished work is unreleased.
+Rewritten 2026-08-07. The previous ordering existed to unblock a stalled release
+and is spent: v10.0.0 shipped, the docs are live and archived per major, and the
+whole "finished work is unreleased" premise is gone.
 
-1. **Cut v9.0.0. Today.** Nothing else is close. Main has 41 unreleased commits
-   — the entire signal-forms migration, all of Table v2, both picker
-   virtualizations, the M6/M7 mobile work, the docs IA refactor — and no user
-   can install any of it. Worse, `deploy.yml` fires only on a
-   `chore(release): v*` head commit, so the static-prerendered docs merged
-   2026-07-15 have never shipped: ngwr.dev still serves a JS shell, which means
-   A4 and the whole E2 adoption thesis deliver *zero* value today.
-   `migration-v9` is already written and registered.
-2. **Land the doc pass in the release PR** — README size figures, the version
-   table, the ngwr.dev link migration, and the `AGENTS.md` / `llms.txt` forms
-   paragraphs (which still describe `ControlValueAccessor`, i.e. actively
-   instruct agents to write code the library rejects). It is E2's own
-   maintenance debt; ship it with the release so it all lands at once.
-3. **Decide the v9 scope question explicitly, in the release PR body.** This
-   doc used to assume v9 = Angular 23 + B2, but Angular 23 is ~Nov 2026 and
-   there are three breaking changes on main *now*. Recommended: cut v9 as a
-   small breaking release (the v8 pattern) and retarget Angular 23 + B2 to
-   **v10**. Optionally fold the colour role-rename in first — eight default
-   values plus a `WR_COLORS` trim, and `migration-v9` already exists to carry
-   the rule. One fewer major later for about a day of work.
-4. **B3 `WR_FORM_ERRORS`** (M) — do it next because B1 *just* landed and the
-   forms surface is the freshest code in the repo. Small, unblocked, and it is
-   what makes `wr-form-field` self-sufficient; today the headline feature still
-   makes consumers hand-write every error message.
-5. **A1 test foundation** (XL, start now, runs through the cycle) — 127 entry
-   points, zero tests. The credibility gap, and the prerequisite that makes B2
-   survivable. Order as A1 says: utils / validators / pipes / services first,
-   then interaction tests on select, date-picker, dialog, popover, toast.
-6. **C4 input mask** (M) — the cheapest closure of a proven-demand gap.
-   `ngx-mask` is already a workspace dependency and `wr-input`'s own docs
-   already describe composing with it, so the work is a decision plus a guide
-   page. Build first-party only if the composition genuinely breaks.
-7. **B2 `@angular/aria` swap** (XL) — schedule for **v10** and pair it with
-   **A5**. Last big breaking item, unblocks C3, retires a pile of a11y logic.
-   Not before A1/A5: it moves DOM and BEM classes consumers style against.
-8. **G1 RTL** (L) — start as a background sweep any time. Mechanical,
-   parallelizable, fully unblocked, and the one remaining hard "we can't adopt
-   this" blocker for a whole market segment.
-9. **E3, then E2's MCP server** — in that order, deliberately. The MCP server
-   should serve *generated* API data, not the 81 hand-maintained tables; doing
-   E2 first bakes the drift in.
-10. **Clear the small deferred pile in one afternoon** — D4's 8 hardcoded
-    `cubic-bezier`s, D3's squircle graduate-or-cut decision, G2's CSP audit,
-    E8's `provideWrConfig()`. Four items off the board, all S, all unblocked.
+**The v11 scope is deliberately not set here.** Picking it is a product decision,
+not a backlog sort, so this section lists only what is objectively still open —
+in the order the debt compounds, not in the order it must be done.
 
-Then **F1 → F2** as the v10 marquee, once A1 gives it a floor to build on.
+1. **A1. A test suite.** Still the largest structural gap: there is no `test`
+   target, no `*.spec.ts` and no runner, so `pnpm lint` plus the two builds are
+   the only gates. Every item below is cheaper and safer once this exists.
+2. **A3. Accessibility in CI.** The 2026-08-07 audit found naming and
+   focus-management defects that an automated axe pass would have caught the day
+   they landed.
+3. **The remaining backlog** — A5, B3, C4–C6, C8–C10, D1–D4, E2–E9, F1, F2,
+   G1, G2 — is unblocked and unordered.
 
 ## Non-goals (researched, rejected)
 

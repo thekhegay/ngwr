@@ -1,15 +1,15 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 127 entry points — 105 of them components and directives — built on
+> 127 secondary entry points, 186 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
 This file orients AI agents and LLMs that consume ngwr. For exact, current
 component APIs, read the bundled TypeScript types
-(`node_modules/ngwr/types/ngwr-<name>.d.ts`). Note: **ngwr.dev is a single-page
-app** — fetching its routes returns a JS shell, not text. Use the
-machine-readable resources listed at the bottom instead.
+(`node_modules/ngwr/types/ngwr-<name>.d.ts`). ngwr.dev is prerendered, so
+fetching a route returns real HTML you can read; the machine-readable resources
+listed at the bottom are still the faster path for bulk API lookups.
 
 ## Install
 
