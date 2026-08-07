@@ -133,10 +133,18 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
 - [ ] **E2. AI-legibility stack** (M–L, highest leverage for adoption) —
       `llms.txt` / `llms-full.txt`, `AGENTS.md` and the `ng update` codemods
       already ship, and the docs are prerendered, so crawlers and agents get
-      real HTML with section links and highlighted code. **Remaining:**
-      per-component markdown export, an **ngwr MCP server** (search / docs /
-      examples / install via schematics), agent skills, and an open registry
-      schema for community blocks + theme presets. This stack drove shadcn's
+      real HTML with section links and highlighted code. `llms-full.txt` is now
+      accurate and gated by `pnpm check:llms` — it had been reporting 123 of 127
+      entry points (the nested ones were invisible), shipping four descriptions
+      scraped off the wrong element, and naming a type or a token in six import
+      lines. **Remaining:** per-component markdown export, an **ngwr MCP
+      server** (search / docs / examples / install via schematics), agent
+      skills, and an open registry schema for community blocks + theme presets.
+      On the MCP server, note the finding that killed the first design pass:
+      `dist/lib/types/ngwr-<entry>.d.ts` (892 KB, already in the tarball)
+      already carries every class summary, `@example` and input description, so
+      a second copy has to justify itself on top of that — and a hand-rolled
+      JSON-RPC server on the Trusted-Publisher release path wants A1 first. This stack drove shadcn's
       20%→56% rise; Taiga has an MCP server, nobody in Angular has the full
       stack. Builds directly on E3.
 - [x] **E3. API reference auto-extraction** (L) — `pnpm gen:api-docs` reads the

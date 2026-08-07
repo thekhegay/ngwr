@@ -42,6 +42,10 @@ jobs:
       # table that no longer matches the JSDoc it was copied from fails here.
       - run: pnpm check:api-docs
 
+      # Same lane: llms-full.txt ships to npm and to ngwr.dev, and nothing else
+      # in CI looks at it. The floors are set AT the current catalog size.
+      - run: pnpm check:llms
+
       - run: pnpm build:lib
 
       - run: pnpm build:showcase
