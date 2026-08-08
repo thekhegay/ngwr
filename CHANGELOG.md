@@ -1,5 +1,52 @@
 # Changelog
 
+## [10.1.0](https://github.com/thekhegay/ngwr/compare/v10.0.0...v10.1.0) (2026-08-08)
+
+### Features
+
+* **a11y:** gate ci on axe-core over the prerendered showcase ([8e001b5](https://github.com/thekhegay/ngwr/commit/8e001b5d53c54ed69c0223f83de790de78733621))
+* **docs:** generate api tables from the library jsdoc ([99696ea](https://github.com/thekhegay/ngwr/commit/99696eae7f5f28a23c5d30f178b9c025c23a62a0))
+* **docs:** serve every docs page as markdown at .md ([ddb5967](https://github.com/thekhegay/ngwr/commit/ddb5967984ca5dd40b21639215e9ba0ee0e3b7cf))
+* **event-calendar:** add month, week and day event views ([50e7bb6](https://github.com/thekhegay/ngwr/commit/50e7bb6e8788b3ebbabf88a3ae734cae5d5e4bcc))
+* **form:** resolve validation messages from a central catalog ([aff858e](https://github.com/thekhegay/ngwr/commit/aff858e5d308760be214679677d3251f0ca54ae3))
+* **table:** render a row hierarchy as a treegrid ([ecb8bc4](https://github.com/thekhegay/ngwr/commit/ecb8bc42473fc367e270144ab351475f66dea9f8))
+* **tour:** add a guided product tour ([e25bc03](https://github.com/thekhegay/ngwr/commit/e25bc037563e3bb18cbe0005b0c7fef6c5d400d9))
+* **transfer:** add a dual listbox picker ([cb3fbfb](https://github.com/thekhegay/ngwr/commit/cb3fbfb188b1d7cae10a7394f94a1fce6d879e10))
+* **validators:** add a group-level equality validator ([493c57d](https://github.com/thekhegay/ngwr/commit/493c57d902f5377f8dea8a6adbd1a9325be3e288))
+
+### Bug Fixes
+
+* **a11y:** give every unnamed control an accessible name ([ee0805e](https://github.com/thekhegay/ngwr/commit/ee0805e46b201ea8fa75d5f0c63bbdd1ad4af16d))
+* **a11y:** name every control and route built-in strings through i18n ([bca2916](https://github.com/thekhegay/ngwr/commit/bca2916abcc09f81f38890b46427724dbb37d96a))
+* **a11y:** route the remaining built-in labels through the catalog ([f4ca63f](https://github.com/thekhegay/ngwr/commit/f4ca63f9482457e4be8c91a8626c1bc783b83500))
+* **ci:** drop inherited write scopes and gate archive builds on prerender ([acf20a7](https://github.com/thekhegay/ngwr/commit/acf20a7b24dd27e9d229ab5355b2f5b03dd0d45c))
+* **ci:** make the archived-docs banner reserve space instead of covering content ([b4039f1](https://github.com/thekhegay/ngwr/commit/b4039f1fca45c18b7c71494d81cfe49694729310))
+* **ci:** never archive a release candidate as a major's frozen docs ([dbb8483](https://github.com/thekhegay/ngwr/commit/dbb8483f659a7ff107299289f02222e82d7ca1bf))
+* **docs:** make llms-full.txt describe the real catalog ([49eca2e](https://github.com/thekhegay/ngwr/commit/49eca2e213cb6358aa93953f885bd395e311b5a4))
+* **docs:** read input aliases and skip internal components ([2088595](https://github.com/thekhegay/ngwr/commit/208859564eb769abf52647cd10a353c904fdb5b5))
+* **docs:** stop the api drift check reporting false positives ([b6759e2](https://github.com/thekhegay/ngwr/commit/b6759e2ccc3ee7cc5fa48b244c87740cb51f225e))
+* **form:** render the error message the validator actually reports ([04ba81a](https://github.com/thekhegay/ngwr/commit/04ba81a6928e2758cb453eaddd3174e5bbe2cd8e))
+* **i18n:** default the loader so components work without a provider ([0ba3694](https://github.com/thekhegay/ngwr/commit/0ba36945eac4efeabee97e35b7c36f96d260b296))
+* **lib:** dispose overlays and observers on destroy, trap focus in lightbox ([08c3ab3](https://github.com/thekhegay/ngwr/commit/08c3ab3b631567f38153909c31322a1f366d58fe))
+* **lib:** export public types and stop offering types to ngwr:use ([9ccf8e9](https://github.com/thekhegay/ngwr/commit/9ccf8e9810ffcf7eb026ea19f53be7ea14442060))
+* **lib:** stop stranding overlays and stacking teardowns per effect run ([c8a2f0b](https://github.com/thekhegay/ngwr/commit/c8a2f0b6ddf4b9c8e111c6a68085e8b509d53381))
+* **media:** mirror the full scss breakpoint scale in the typescript map ([115b291](https://github.com/thekhegay/ngwr/commit/115b2915aeaef10dcb1cd58e8a5eb0e2dd4d861c))
+* **schematics:** generate code against the real component api ([4382ea8](https://github.com/thekhegay/ngwr/commit/4382ea857959e6cc7b4182cd70c902c7ec7a848f))
+* **showcase:** label the demo controls axe flagged ([9f7480f](https://github.com/thekhegay/ngwr/commit/9f7480f4948d6046927c2d7d25cb4601ce2a6e5e))
+* **showcase:** list the archived v8 and v9 docs in the version switcher ([26d0afb](https://github.com/thekhegay/ngwr/commit/26d0afb65024e711dab9fab0f0db415a067006f5))
+* **showcase:** switch code blocks to the high-contrast shiki themes ([575e5f2](https://github.com/thekhegay/ngwr/commit/575e5f26e086604a14ab5dcfbe88c9a342ac120b))
+* **showcase:** use the muted role and ink ramp for low-contrast text ([b319af4](https://github.com/thekhegay/ngwr/commit/b319af45b9b843025853fcecefe1402759952258))
+* **styles:** make every entry point carry the theme tokens it references ([c4f4c94](https://github.com/thekhegay/ngwr/commit/c4f4c94cb1dbaef23a764a6ceacbae6b1ee8c88a))
+* **styles:** scope the cdk drag classes to the component that themes them ([502f021](https://github.com/thekhegay/ngwr/commit/502f02194e43d069e8be4bc4c62b0961548495da))
+* **table:** clamp the virtual window so a shrinking list cannot blank the body ([5aea62d](https://github.com/thekhegay/ngwr/commit/5aea62d51c52d0bb2f1bd044a240ca1183608a96))
+* **tabs:** seed active from the tab's real key ([197f8e6](https://github.com/thekhegay/ngwr/commit/197f8e64f543dc6ad22efe420125ac1e83e8eaeb))
+* **theme:** add an ink ramp so intents clear aa as text ([b75d951](https://github.com/thekhegay/ngwr/commit/b75d951c819594bbb49212283d0b9d03b588279d))
+* **theme:** keep the dark ink ramp inside the srgb gamut ([c931744](https://github.com/thekhegay/ngwr/commit/c931744d4ea4b5ad112b727c5b4fe3adabc643e4))
+
+### Reverts
+
+* **ci:** deploy the site on stable releases only ([26145ba](https://github.com/thekhegay/ngwr/commit/26145bad692478988d17d844a906a594dc7b20ab))
+
 ## [10.0.0](https://github.com/thekhegay/ngwr/compare/v9.1.0...v10.0.0) (2026-08-06)
 
 ### ⚠ BREAKING CHANGES
