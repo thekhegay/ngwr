@@ -1,0 +1,105 @@
+@use '../../theme/styles' as theme;
+
+.wr-transfer {
+  --wr-transfer-pane-width: 14rem;
+  --wr-transfer-pane-height: 15rem;
+
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-on-surface);
+
+  &--disabled {
+    opacity: 0.6;
+  }
+
+  &__pane {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 var(--wr-transfer-pane-width);
+    min-width: 0;
+    border: 1px solid var(--wr-color-outline);
+    @include theme.smooth-br(var(--wr-border-radius-base));
+    background: var(--wr-color-surface);
+    overflow: hidden;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    border-bottom: 1px solid var(--wr-color-outline);
+    background: rgba(var(--wr-color-outline-rgb), 0.25);
+  }
+
+  &__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--wr-text-sm);
+    font-weight: var(--wr-font-weight-medium);
+  }
+
+  &__count {
+    flex: 0 0 auto;
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-on-surface-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__search {
+    padding: 0.5rem 0.625rem;
+    border-bottom: 1px solid var(--wr-color-outline);
+  }
+
+  &__list {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    overflow-y: auto;
+    max-height: var(--wr-transfer-pane-height);
+  }
+
+  &__item {
+    padding: 0.25rem 0.375rem;
+    border-radius: var(--wr-border-radius-sm);
+
+    &:hover {
+      background: var(--wr-color-hover);
+    }
+
+    &--disabled:hover {
+      background: transparent;
+    }
+  }
+
+  &__empty {
+    padding: 1rem 0.375rem;
+    text-align: center;
+    font-size: var(--wr-text-sm);
+    color: var(--wr-color-on-surface-muted);
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+  }
+
+  &__move .wr-icon__svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  // No container query here on purpose: `@container` only styles DESCENDANTS, so
+  // a rule that reflows `.wr-transfer` itself could never match its own query.
+  // Doing it properly means the house `responsive` opt-in modifier (a wrapper
+  // that establishes the container) — not yet shipped for this component.
+}

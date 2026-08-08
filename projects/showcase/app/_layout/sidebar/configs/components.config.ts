@@ -93,6 +93,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Slider', url: ['/reference/components', 'slider'] },
       { title: 'Switch', url: ['/reference/components', 'switch'] },
       { title: 'Textarea', url: ['/reference/components', 'textarea'] },
+      { title: 'Transfer', url: ['/reference/components', 'transfer'] },
     ],
   },
   {

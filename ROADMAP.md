@@ -5,7 +5,7 @@
 > Sizes: S / M / L / XL.
 >
 > **State (2026-08-07):** v10.0.0 is released and installable. The catalog is
-> **127 secondary entry points / 193 component and directive classes**, gated by
+> **128 secondary entry points / 194 component and directive classes**, gated by
 > `pnpm lint` + `build:lib` + `build:showcase` — there is still no test suite
 > (0 `*.spec.ts`, no `test` target). Docs are prerendered and live, with past
 > majors archived under `/v7/`, `/v8/`, `/v9/`.
@@ -37,7 +37,7 @@ Two notes on the order, then it stands as written:
 
 ## A — Trust & hardening
 
-The catalog is 127 entry points. Lint, both builds, the a11y sweep and the API
+The catalog is 128 entry points. Lint, both builds, the a11y sweep and the API
 drift check gate it today; unit tests are the hole. This theme is what makes
 ngwr a library people can bet on.
 
@@ -133,8 +133,14 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       anchoring first.
 - [ ] **C6. Event calendar / scheduler** (XL) — month / week / day event views
       with drag. (PrimeNG + Kendo 2026 roadmaps.)
-- [ ] **C8. Transfer (dual listbox)** (M) and **Tour / onboarding** (M) —
-      spotlight steps anchored to elements, on the existing overlay + affix.
+- [ ] **C8. Tour / onboarding** (M) — spotlight steps anchored to elements, on
+      the existing overlay + affix. **Transfer shipped:** `ngwr/transfer` is the
+      dual listbox — `[items]` is the full set and `[(value)]` is the RIGHT pane,
+      with the per-pane ticks kept as transient staging so a form never sees a
+      half-made choice. Signal-forms native, searchable, i18n'd in en/ru.
+      Its panes are a plain `<ul>` of checkboxes, not a `role="listbox"` of
+      `role="option"` rows: an option may not contain an interactive control, and
+      the axe gate rejected the dressed-up version.
 
 **Virtual scrolling, for reference:** `wr-table`, `wr-tree` and `wr-select`
 (search mode) window with hand-rolled spacer rows. **Cascader is deferred** — it

@@ -1,0 +1,54 @@
+<ngwr-doc-page
+  title="Transfer"
+  description="Dual listbox — two panes and the buttons that move rows between them. The RIGHT pane is the value."
+  [keywords]="['transfer', 'dual listbox', 'picklist', 'shuttle', 'wr-transfer']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="`[items]` is the full set; `[(value)]` holds the values that ended up on the right, and everything else stays on the left. Ticking a row only stages it — the move commits when you press an arrow, so the value never contains a half-made choice. A `disabled` item can be neither ticked nor swept up by the header checkbox."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-transfer [items]="permissions" [(value)]="granted" />
+        <p style="margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          Value: {{ granted() | json }}
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Search and titles"
+    description="`searchable` puts a filter above each pane; it narrows what you see and what the header checkbox sweeps, never what is already chosen. `sourceTitle` / `targetTitle` name the panes — both fall back to the `ngwr/i18n` catalog, so they are localized without being set."
+  >
+    <ngwr-doc-code [code]="snippets.searchable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-transfer
+          searchable
+          sourceTitle="All permissions"
+          targetTitle="Granted"
+          [items]="permissions"
+          [(value)]="searchGranted"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In a form"
+    description="A Signal Forms native control — `[formField]` binds straight to `value`, with no `ControlValueAccessor` in between. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and `(touch)` fires on every committed move so a bound field marks itself touched."
+  >
+    <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

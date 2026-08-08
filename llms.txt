@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 127 secondary entry points, 186 component and directive classes, built on
+> 128 secondary entry points, 186 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -81,7 +81,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-input-number`, `wr-input-otp`, `wr-date-picker` (date/time/datetime) and
   `wr-date-range-picker` (both in ngwr/date-picker; the range value is
   `[start, end]`, hence a separate component), `wr-file-upload`,
-  `wr-form-field`, `wr-color-picker`.
+  `wr-form-field`, `wr-color-picker`, `wr-transfer` (dual listbox; the value
+  is the RIGHT pane).
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, tree rows (`childrenKey`), summary rows,
   CSV export, virtualized body),
