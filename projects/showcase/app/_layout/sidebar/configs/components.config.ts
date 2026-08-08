@@ -34,6 +34,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
     title: 'Data',
     children: [
       { title: 'Drag & Drop', url: ['/reference/components', 'drag-drop'] },
+      { title: 'Event Calendar', url: ['/reference/components', 'event-calendar'] },
       { title: 'Pagination', url: ['/reference/components', 'pagination'] },
       { title: 'Table', url: ['/reference/components', 'table'] },
       { title: 'Tree', url: ['/reference/components', 'tree'] },

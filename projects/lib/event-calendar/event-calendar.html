@@ -1,0 +1,263 @@
+<!--
+  Two grids, one rule: a chip always lives inside the `role="gridcell"` where it
+  STARTS, and reaches out from there — `calc()` widths for day-spanning bands,
+  percentage heights for timed chips. A floating events layer would read better
+  in the template and would leave `role="row"` owning something other than
+  cells, which is exactly what the axe gate rejects.
+-->
+@if (!hideHeader()) {
+  <div class="wr-event-calendar__header">
+    <div class="wr-event-calendar__nav">
+      <button
+        wr-btn
+        type="button"
+        size="sm"
+        outlined
+        class="wr-event-calendar__step"
+        [attr.aria-label]="previousLabel"
+        (click)="step(-1)"
+      >
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+      </button>
+      <button wr-btn type="button" size="sm" outlined (click)="goToday()">{{ todayLabel }}</button>
+      <button
+        wr-btn
+        type="button"
+        size="sm"
+        outlined
+        class="wr-event-calendar__step"
+        [attr.aria-label]="nextLabel"
+        (click)="step(1)"
+      >
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </button>
+    </div>
+
+    <h2 class="wr-event-calendar__title">{{ title() }}</h2>
+
+    @if (switcher().length > 1) {
+      <wr-btn-group>
+        @for (item of switcher(); track item.view) {
+          <button
+            wr-btn
+            type="button"
+            size="sm"
+            [outlined]="view() !== item.view"
+            [color]="view() === item.view ? 'primary' : null"
+            [attr.aria-pressed]="view() === item.view"
+            (click)="setView(item.view)"
+          >
+            {{ item.label }}
+          </button>
+        }
+      </wr-btn-group>
+    }
+  </div>
+}
+
+@if (view() === 'month') {
+  <div
+    role="grid"
+    class="wr-event-calendar__grid wr-event-calendar__grid--month"
+    [attr.aria-label]="resolvedAriaLabel()"
+  >
+    <div role="row" class="wr-event-calendar__row">
+      @for (name of weekdayNames(); track $index) {
+        <div role="columnheader" class="wr-event-calendar__weekday">{{ name }}</div>
+      }
+    </div>
+
+    @for (week of weeks(); track week.key; let w = $index) {
+      <div role="row" class="wr-event-calendar__row">
+        @for (cell of week.days; track cell.key; let c = $index) {
+          @let index = w * 7 + c;
+          <div
+            role="gridcell"
+            class="wr-event-calendar__cell wr-event-calendar__cell--day"
+            [class.wr-event-calendar__cell--muted]="!cell.inMonth"
+            [class.wr-event-calendar__cell--today]="cell.isToday"
+            [attr.aria-label]="cell.label"
+            [attr.tabindex]="isCursor(index, -1) ? 0 : -1"
+            [attr.data-cell-date]="stamp(cell.date)"
+            [attr.data-cell-minutes]="-1"
+            [attr.data-cell-index]="`${index}:-1`"
+            (click)="onCellClick(cell.date, -1)"
+            (keydown)="onGridKeyDown($event)"
+          >
+            <span class="wr-event-calendar__daynum" aria-hidden="true">{{ cell.day }}</span>
+
+            @for (chip of cell.bands; track chip.key) {
+              <ng-container
+                [ngTemplateOutlet]="band"
+                [ngTemplateOutletContext]="{ $implicit: chip, offset: '1.75rem' }"
+              />
+            }
+
+            @if (cell.hidden > 0) {
+              <button
+                type="button"
+                class="wr-event-calendar__more"
+                [style.--wr-event-calendar-lane]="maxLanes()"
+                (click)="openDay(cell.date); $event.stopPropagation()"
+              >
+                {{ moreLabel({ count: cell.hidden }) }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <div
+    role="grid"
+    class="wr-event-calendar__grid wr-event-calendar__grid--time"
+    [style.--wr-event-calendar-cols]="columns().length"
+    [attr.aria-label]="resolvedAriaLabel()"
+  >
+    <div role="row" class="wr-event-calendar__row">
+      <div role="columnheader" class="wr-event-calendar__gutter" [attr.aria-label]="timeLabel"></div>
+      @for (column of columns(); track column.key) {
+        <div
+          role="columnheader"
+          class="wr-event-calendar__colhead"
+          [class.wr-event-calendar__colhead--today]="column.isToday"
+        >
+          <span class="wr-event-calendar__colhead-weekday">{{ column.weekday }}</span>
+          <span class="wr-event-calendar__colhead-day">{{ column.day }}</span>
+        </div>
+      }
+    </div>
+
+    @if (hasAllDay()) {
+      <div role="row" class="wr-event-calendar__row wr-event-calendar__row--allday">
+        <div role="rowheader" class="wr-event-calendar__gutter">{{ allDayLabel }}</div>
+        @for (cell of allDayCells(); track cell.key; let c = $index) {
+          <div
+            role="gridcell"
+            class="wr-event-calendar__cell wr-event-calendar__cell--allday"
+            [attr.aria-label]="cell.label"
+            [attr.tabindex]="isCursor(c, -1) ? 0 : -1"
+            [attr.data-cell-date]="stamp(cell.date)"
+            [attr.data-cell-minutes]="-1"
+            [attr.data-cell-index]="`${c}:-1`"
+            (click)="onCellClick(cell.date, -1)"
+            (keydown)="onGridKeyDown($event)"
+          >
+            @for (chip of cell.bands; track chip.key) {
+              <ng-container [ngTemplateOutlet]="band" [ngTemplateOutletContext]="{ $implicit: chip, offset: '0rem' }" />
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @for (row of rows(); track row.key) {
+      <div role="row" class="wr-event-calendar__row" [class.wr-event-calendar__row--major]="row.major">
+        <div role="rowheader" class="wr-event-calendar__gutter">{{ row.label }}</div>
+        @for (cell of row.cells; track cell.key; let c = $index) {
+          <div
+            role="gridcell"
+            class="wr-event-calendar__cell wr-event-calendar__cell--slot"
+            [class.wr-event-calendar__cell--major]="row.major"
+            [attr.aria-label]="cell.label"
+            [attr.tabindex]="isCursor(c, row.minutes) ? 0 : -1"
+            [attr.data-cell-date]="stamp(cell.date)"
+            [attr.data-cell-minutes]="row.minutes"
+            [attr.data-cell-index]="`${c}:${row.minutes}`"
+            (click)="onCellClick(cell.date, row.minutes)"
+            (keydown)="onGridKeyDown($event)"
+          >
+            @for (chip of cell.chips; track chip.key) {
+              <button
+                type="button"
+                class="wr-event-calendar__chip wr-event-calendar__chip--time"
+                [class.wr-event-calendar__chip--dragging]="dragging() === chip.event.id"
+                [class.wr-event-calendar__chip--continues-before]="chip.continuesBefore"
+                [class.wr-event-calendar__chip--continues-after]="chip.continuesAfter"
+                [style.--wr-event-calendar-color]="`var(--wr-color-${chip.event.color ?? 'primary'})`"
+                [style.top.%]="chip.top"
+                [style.height.%]="chip.height"
+                [style.left.%]="chip.left"
+                [style.width.%]="chip.width"
+                [attr.aria-label]="chipLabel(chip.event)"
+                (click)="onChipClick(chip.event); $event.stopPropagation()"
+                (keydown)="onChipKeyDown($event, chip.event)"
+                (pointerdown)="onChipPointerDown($event, chip.event, 'move')"
+              >
+                <span class="wr-event-calendar__chip-time" aria-hidden="true">{{ chipTime(chip.event) }}</span>
+                @if (chipTemplate(); as tpl) {
+                  <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: chip.event }" />
+                } @else {
+                  <span class="wr-event-calendar__chip-title" aria-hidden="true">{{ chip.event.title }}</span>
+                }
+
+                @if (canDrag(chip.event) && !chip.continuesAfter) {
+                  <!--
+                    A grab area, not a control: the same resize is on the keyboard
+                    as `Alt` + arrows on the chip itself, so exposing a second
+                    focusable thing here would add a tab stop that leads nowhere.
+                  -->
+                  <span
+                    class="wr-event-calendar__resize"
+                    aria-hidden="true"
+                    (pointerdown)="onChipPointerDown($event, chip.event, 'resize')"
+                  ></span>
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- One chip shape for both day-spanning cases: month cells and the all-day band. -->
+<ng-template #band let-chip let-offset="offset">
+  <button
+    type="button"
+    class="wr-event-calendar__chip wr-event-calendar__chip--band"
+    [class.wr-event-calendar__chip--dragging]="dragging() === chip.event.id"
+    [class.wr-event-calendar__chip--continues-before]="chip.continuesBefore"
+    [class.wr-event-calendar__chip--continues-after]="chip.continuesAfter"
+    [style.--wr-event-calendar-color]="`var(--wr-color-${chip.event.color ?? 'primary'})`"
+    [style.--wr-event-calendar-span]="chip.span"
+    [style.--wr-event-calendar-lane]="chip.lane"
+    [style.--wr-event-calendar-offset]="offset"
+    [attr.aria-label]="chipLabel(chip.event)"
+    (click)="onChipClick(chip.event); $event.stopPropagation()"
+    (keydown)="onChipKeyDown($event, chip.event)"
+    (pointerdown)="onChipPointerDown($event, chip.event, 'move')"
+  >
+    @if (chipTemplate(); as tpl) {
+      <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: chip.event }" />
+    } @else {
+      <span class="wr-event-calendar__chip-title" aria-hidden="true">{{ chip.event.title }}</span>
+    }
+  </button>
+</ng-template>

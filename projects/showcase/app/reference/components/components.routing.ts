@@ -325,6 +325,10 @@ export default [
     loadComponent: () => import('./textarea/textarea'),
   },
   {
+    path: components['event-calendar'],
+    loadComponent: () => import('./event-calendar/event-calendar'),
+  },
+  {
     path: components.transfer,
     loadComponent: () => import('./transfer/transfer'),
   },
