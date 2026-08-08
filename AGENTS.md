@@ -191,12 +191,22 @@ custom properties are public too.
 by `provideWrTheme()`): intent colors
 `--wr-color-{primary,secondary,success,warning,danger,info,light,medium,dark}`,
 each with `-contrast / -light / -lighter / -dark / -darker / -rgb`, plus the
-soft set (`-soft / -soft-border / -soft-contrast / -active`) and semantic role
-aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
+soft set (`-soft / -soft-border / -soft-contrast / -active`), `-ink` and semantic
+role aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
 `--wr-border-radius-{sm,base,lg,pill}`, `--wr-text-*`, `--wr-font-weight-*`,
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
 `scripts/check-color-parity.ts` (in `pnpm lint`) fails the build if they drift.
+
+**Two directions, two tokens — do not mix them up.** `-contrast` is the label ON
+a filled intent; `-ink` is the intent used AS text on `--wr-color-surface` or on
+its own `-soft` tint. Painting a bare `--wr-color-<intent>` as text fails WCAG AA
+in the light theme for every intent but `primary` (warning is 1.71:1), so
+outlined / ghost / tinted variants take `-ink`. Both are `color-mix`es toward
+`--wr-color-dark`, which itself flips per theme, so one declaration darkens in
+light and lightens in dark. For muted prose the role alias
+`--wr-color-on-surface-muted` is the answer — NOT the `medium` intent, which is a
+fill colour and reads at 3.10:1.
 
 **SSR-safe.** Components must render under SSR / hydration: zoneless,
 signals-only, and **no constructor-time DOM access** (guard with
