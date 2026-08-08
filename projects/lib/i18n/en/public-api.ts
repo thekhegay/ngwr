@@ -59,6 +59,15 @@ export const wrEn: WrI18nCatalog = {
     toggleGroup: 'Toggle group',
     noMatches: 'No matches',
   },
+  transfer: {
+    source: 'Available',
+    target: 'Selected',
+    search: 'Search',
+    empty: 'Nothing here',
+    toTarget: 'Move to selected',
+    toSource: 'Move to available',
+    count: '{{checked}} / {{total}}',
+  },
   validation: {
     required: 'This field is required.',
     requiredTrue: 'This field must be checked.',

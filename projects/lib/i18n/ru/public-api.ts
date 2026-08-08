@@ -47,6 +47,15 @@ export const wrRu: WrI18nCatalog = {
     toggleGroup: 'Свернуть группу',
     noMatches: 'Ничего не найдено',
   },
+  transfer: {
+    source: 'Доступно',
+    target: 'Выбрано',
+    search: 'Поиск',
+    empty: 'Пусто',
+    toTarget: 'Перенести в выбранные',
+    toSource: 'Вернуть в доступные',
+    count: '{{checked}} / {{total}}',
+  },
   validation: {
     required: 'Обязательное поле.',
     requiredTrue: 'Нужно поставить отметку.',

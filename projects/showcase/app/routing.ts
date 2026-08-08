@@ -130,6 +130,7 @@ export const routes = {
     tabs: 'tabs',
     typography: 'typography',
     textarea: 'textarea',
+    transfer: 'transfer',
     toast: 'toast',
     tree: 'tree',
     select: 'select',

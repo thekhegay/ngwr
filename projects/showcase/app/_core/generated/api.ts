@@ -1257,6 +1257,20 @@ export const API = {
   WrToolbar: [
     { name: "responsive", description: "Stack the zones vertically when the toolbar's own box is too narrow to fit them in a row (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
   ],
+  // <wr-transfer>
+  WrTransfer: [
+    { name: "items", description: "Every row, in either pane. Membership of the right pane is `value`.", type: "readonly WrTransferItem[]", default: "[]" },
+    { name: "value", description: "Values currently in the RIGHT pane. Two-way bindable; bound automatically by `[formField]` / `[(ngModel)]`.", type: "readonly unknown[]", default: "[]" },
+    { name: "(touch)", description: "Emitted on blur / commit so a bound field marks itself touched.", type: "void" },
+    { name: "disabled", description: "Disable the whole control.", type: "boolean", default: "false" },
+    { name: "searchable", description: "Show a filter box above each pane.", type: "boolean", default: "false" },
+    { name: "sourceTitle", description: "Heading above the left pane. Falls back to `transfer.source`.", type: "string | null", default: "null" },
+    { name: "targetTitle", description: "Heading above the right pane. Falls back to `transfer.target`.", type: "string | null", default: "null" },
+    { name: "searchPlaceholder", description: "Placeholder in both filter boxes. Falls back to `transfer.search`.", type: "string | null", default: "null" },
+    { name: "emptyText", description: "Shown in a pane with no rows. Falls back to `transfer.empty`.", type: "string | null", default: "null" },
+    { name: "toTargetLabel", description: "Accessible name of the move-right button. Falls back to `transfer.toTarget`.", type: "string | null", default: "null" },
+    { name: "toSourceLabel", description: "Accessible name of the move-left button. Falls back to `transfer.toSource`.", type: "string | null", default: "null" },
+  ],
   // <wr-tree>
   WrTree: [
     { name: "nodes", description: "Tree data.", type: "readonly WrTreeNode<TId>[]", default: "[]" },

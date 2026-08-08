@@ -325,6 +325,10 @@ export default [
     loadComponent: () => import('./textarea/textarea'),
   },
   {
+    path: components.transfer,
+    loadComponent: () => import('./transfer/transfer'),
+  },
+  {
     path: components.timeline,
     loadComponent: () => import('./timeline/timeline'),
   },

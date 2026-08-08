@@ -1,0 +1,117 @@
+<!--
+  Two panes and the buttons between them. Each pane is a PLAIN `<ul>` of
+  checkboxes, deliberately: dressing it as a `role="listbox"` of `role="option"`
+  rows reads better in the abstract but is invalid — an option may not contain an
+  interactive control, and the axe gate says so. The checkbox is the thing the
+  user operates, so it is the thing the semantics should describe; the pane
+  heading names the group.
+-->
+@for (pane of panes; track pane) {
+  @let state = pane === 'source' ? source() : target();
+  @let title = pane === 'source' ? resolvedSourceTitle() : resolvedTargetTitle();
+
+  <div class="wr-transfer__pane" [class.wr-transfer__pane--target]="pane === 'target'">
+    <div class="wr-transfer__head">
+      <wr-checkbox
+        size="sm"
+        [checked]="state.allChecked"
+        [indeterminate]="state.someChecked"
+        [disabled]="disabled() || state.rows.length === 0"
+        [ariaLabel]="title"
+        (checkedChange)="toggleAll(pane, $event)"
+      />
+      <span class="wr-transfer__title">{{ title }}</span>
+      <span class="wr-transfer__count">{{
+        countLabel({ checked: state.checkedCount, total: state.rows.length })
+      }}</span>
+    </div>
+
+    @if (searchable()) {
+      <div class="wr-transfer__search">
+        <input
+          wrInput
+          wrSize="sm"
+          type="search"
+          [placeholder]="resolvedSearch()"
+          [disabled]="disabled()"
+          [attr.aria-label]="`${title} — ${resolvedSearch()}`"
+          (input)="onSearch(pane, $event)"
+        />
+      </div>
+    }
+
+    <ul class="wr-transfer__list" [attr.aria-label]="title">
+      @for (item of state.rows; track item.value) {
+        <li class="wr-transfer__item" [class.wr-transfer__item--disabled]="item.disabled">
+          <wr-checkbox
+            size="sm"
+            [checked]="isChecked(pane, item)"
+            [disabled]="disabled() || !!item.disabled"
+            (checkedChange)="toggle(pane, item, $event)"
+            (touch)="touch.emit()"
+          >
+            {{ item.label }}
+          </wr-checkbox>
+        </li>
+      } @empty {
+        <li class="wr-transfer__empty">{{ resolvedEmpty() }}</li>
+      }
+    </ul>
+  </div>
+
+  <!-- The buttons live between the panes, so they are emitted after the first. -->
+  @if (pane === 'source') {
+    <div class="wr-transfer__actions">
+      <button
+        wr-btn
+        type="button"
+        size="sm"
+        color="primary"
+        outlined
+        class="wr-transfer__move"
+        [disabled]="!canMoveRight()"
+        [attr.aria-label]="resolvedToTarget()"
+        (click)="moveRight()"
+      >
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </button>
+      <button
+        wr-btn
+        type="button"
+        size="sm"
+        color="primary"
+        outlined
+        class="wr-transfer__move"
+        [disabled]="!canMoveLeft()"
+        [attr.aria-label]="resolvedToSource()"
+        (click)="moveLeft()"
+      >
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+      </button>
+    </div>
+  }
+}
