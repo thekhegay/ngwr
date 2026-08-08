@@ -16,7 +16,7 @@
 
   &--error {
     > label {
-      color: var(--wr-color-danger);
+      color: var(--wr-color-danger-ink);
     }
 
     .wr-input,
@@ -29,7 +29,7 @@
 
 .wr-form-error {
   display: block;
-  color: var(--wr-color-danger);
+  color: var(--wr-color-danger-ink);
   font-size: var(--wr-text-xs);
   line-height: 1rem;
 }
@@ -51,7 +51,7 @@
   }
 
   &__required {
-    color: var(--wr-color-danger);
+    color: var(--wr-color-danger-ink);
   }
 
   &__optional {
@@ -82,7 +82,7 @@
   }
 
   &__error {
-    color: var(--wr-color-danger);
+    color: var(--wr-color-danger-ink);
     font-size: var(--wr-text-sm);
     line-height: 1.25;
   }

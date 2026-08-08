@@ -48,15 +48,15 @@
   }
 
   &--success &__icon {
-    color: var(--wr-color-success);
+    color: var(--wr-color-success-ink);
   }
 
   &--warning &__icon {
-    color: var(--wr-color-warning);
+    color: var(--wr-color-warning-ink);
   }
 
   &--error &__icon {
-    color: var(--wr-color-danger);
+    color: var(--wr-color-danger-ink);
   }
 
   &--info &__icon {

@@ -75,13 +75,13 @@
       --wr-tag-border: var(--wr-color-#{$name});
 
       &.wr-tag--outlined {
-        --wr-tag-color: var(--wr-color-#{$name});
+        --wr-tag-color: var(--wr-color-#{$name}-ink);
         --wr-tag-bg: rgba(var(--wr-color-#{$name}-rgb), 0.06);
         --wr-tag-border: rgba(var(--wr-color-#{$name}-rgb), 0.25);
       }
 
       &.wr-tag--transparent {
-        --wr-tag-color: var(--wr-color-#{$name});
+        --wr-tag-color: var(--wr-color-#{$name}-ink);
         --wr-tag-bg: rgba(var(--wr-color-#{$name}-rgb), 0.1);
         --wr-tag-border: transparent;
       }

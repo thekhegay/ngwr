@@ -40,11 +40,11 @@
     font-variant-numeric: tabular-nums;
 
     &--up {
-      color: var(--wr-color-success);
+      color: var(--wr-color-success-ink);
     }
 
     &--down {
-      color: var(--wr-color-danger);
+      color: var(--wr-color-danger-ink);
     }
 
     &--flat {
