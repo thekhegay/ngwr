@@ -50,17 +50,18 @@ theme is what makes ngwr a library people can bet on.
       cover. `tsconfig.lib.json` excludes them, so nothing ships to npm.
       **Covered:** the pure-logic layer — `ngwr/utils` (math, guards, keyboard
       predicates, debounce / throttle on fake timers, `randomId`),
-      `ngwr/validators` (all ten) and `ngwr/pipes` (bytes, truncate, range,
+      `ngwr/validators` (all eleven) and `ngwr/pipes` (bytes, truncate, range,
       plural, mark). 83 specs.
       Two findings on the first run, both now pinned by a spec: `randomId`'s
       random segment can start with a digit, so it is the PREFIX that keeps the
       id a valid CSS selector; and **`WrValidators.match` reports nothing on a
       mismatched INITIAL value** — Angular runs a control's validators in its
       own constructor, before it has a parent, so `control.parent?.get(...)`
-      finds nothing and the group reports itself valid until the field is
-      edited. Hand-typed forms never see it; a form prefilled from a server
-      record does. Needs either a group-level variant or a documented
-      revalidate step.
+      finds nothing and the group reports itself valid. Closed by
+      `WrValidators.matchFields` (see B3 below), which narrowed the finding on
+      the way: `formControlName` revalidates when it binds, so a RENDERED form
+      corrects itself on its first change detection — the window belongs to
+      whatever reads validity before that.
       The service layer followed — `parseHotkeySpec` / `matchesHotkey` and
       `WrI18n` + `wrInterpolate` — plus the first COMPONENT spec, `wr-tabs`,
       which sets the pattern for the rest: a tiny host that uses the component
@@ -76,7 +77,7 @@ theme is what makes ngwr a library people can bet on.
       symptom was a two-way binding holding a key the consumer had never heard
       of. Fixed by seeding from `contentChildren` once inputs are bound.
       `wr-select` followed — the first overlay component under test, and the
-      one B2 rewrites first. 138 specs.
+      one B2 rewrites first. 178 specs.
       It turned up the more serious of the two bugs so far: **no ngwr component
       would render in an app that had never called `provideWrI18n()`.** Every
       component routes its built-in strings through `useI18nText`, which injects
@@ -138,8 +139,19 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       `validation.*` → a built-in English sentence, so a form with **no
       configuration at all** shows the right localized message with the
       validator's payload interpolated (`Не короче 4 символов.` /
-      `Enter at least 4 characters.`). 18 keys ship in en and ru, covering
-      every Angular built-in and every `WrValidators` key.
+      `Enter at least 4 characters.`). 19 keys ship in en and ru, covering
+      every Angular built-in and every `WrValidators` key — and a spec now
+      fails the build if a validator ever ships a key with no copy, because a
+      missing entry renders an EMPTY error block rather than nothing at all.
+      **`WrValidators.matchFields` joined the set**: the group-level
+      counterpart to `match`, added because `match` cannot report a mismatch
+      until something revalidates the control it is on. Pure and group-only —
+      it never writes to a child, which was the tempting shortcut: mirroring
+      the error down strands it on a control the group later removes, and
+      inverts the event order so the child settles before the parent has
+      assigned its own errors. `<wr-form-field>` reads only the control
+      projected into it, so the documented shape is to run BOTH: `matchFields`
+      on the group for correctness, `match` on the child for the message.
       Scoping it also turned up three shipping defects in `<wr-form-field>`,
       all fixed first: `<wr-form-error key>` was never matched (every message
       rendered at once), the error state never recomputed under classic

@@ -1,0 +1,53 @@
+<ngwr-doc-page
+  title="matchFields"
+  description="Every named control must hold the same value — the group-level counterpart to match, with no ordering hole."
+  [keywords]="['matchFields', 'match', 'confirm', 'password', 'cross-field', 'validator', 'wr-validators']"
+  [labels]="['Validator']"
+>
+  <ngwr-doc-section
+    title="Live demo"
+    description="This form is prefilled with two values that disagree. `form.errors` carries the group-level result from the moment the group was constructed — before any rendering. `confirm.errors` carries `match`&#39;s result too, because `formControlName` revalidated the control when it bound; construct the same group without rendering it and only the group-level one is there."
+  >
+    <ngwr-doc-snippet code="">
+      <div
+        [formGroup]="form"
+        style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 20rem"
+      >
+        <input wrInput formControlName="password" placeholder="password" type="password" />
+        <input wrInput formControlName="confirm" placeholder="confirm" type="password" />
+        <code style="font-size: 0.8125rem">form.errors: {{ form.errors | json }}</code>
+        <code style="font-size: 0.8125rem">form.valid: {{ form.valid }}</code>
+        <code style="font-size: 0.8125rem">confirm.errors: {{ form.controls.confirm.errors | json }}</code>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Usage">
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why this exists"
+    description="Angular runs a control's validators inside the control's own constructor, before it has been attached to a parent. A cross-field validator on the CHILD — like `match` — therefore looks up a sibling that is not reachable yet, returns null, and is never re-run by the act of joining the group. `formControlName` revalidates when it binds, so a rendered form corrects itself on its first change detection; anything that reads validity before that does not. A route guard or resolver checking `form.valid`, a form built and submitted from a service, a spec — all see a group that is plainly mismatched and plainly valid. A validator on the GROUP has no such window: Angular attaches the children and aggregates their values before it runs the group\'s own validators, so it is right the moment the group exists."
+  />
+
+  <ngwr-doc-section
+    title="Pair it with match"
+    description="`<wr-form-field>` renders messages for the one control projected into it, so a group-level error is not something it can show. Run both: `matchFields` on the group makes the form correct from the first frame, and `match` on the confirm control supplies the per-field sentence once the field is touched. They do not conflict — different error keys, different hosts."
+  >
+    <ngwr-doc-code [code]="pairing" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Paths and arity"
+    description="Names are `AbstractControl.get()` paths, so nested groups and `FormArray` indexes work with no special handling. Pass more than two names and every one is compared against the first."
+  >
+    <ngwr-doc-code [code]="nested" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

@@ -146,8 +146,9 @@ sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
-`ngwr/pipes`), part of the service layer (`ngwr/hotkey`, `ngwr/i18n`) and two
-components (`wr-tabs`, `wr-select`) — 138 specs. The rest of the components are unwritten, so
+`ngwr/pipes`), the validation-copy contract (`ngwr/form`), part of the service
+layer (`ngwr/hotkey`, `ngwr/i18n`) and two components (`wr-tabs`, `wr-select`)
+— 178 specs. The rest of the components are unwritten, so
 **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`, `check:llms` and
 `check:a11y` are the gates** and a green run still does not mean a component
 behaves.
