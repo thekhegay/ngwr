@@ -311,9 +311,16 @@ sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
 
 **AI assets.** `llms-full.txt` regenerates from library source on every build
-(`scripts/gen-ai-assets.ts`), and `sitemap.xml` from the prerendered route list
-after `build:showcase` (`scripts/gen-sitemap.ts`) — so a new entry point or
-route is picked up automatically. `llms-full.txt` is **gitignored** — it exists
+(`scripts/gen-ai-assets.ts`); `sitemap.xml` and the per-page **markdown twins**
+regenerate from the prerendered route list after `build:showcase`
+(`scripts/gen-sitemap.ts`, `scripts/gen-md-docs.ts`) — so a new entry point or
+route is picked up automatically. The twins are what `/reference/components/select.md`
+serves: the same page as markdown, converted from the prerendered HTML rather
+than from `app/` so it cannot drift, with the live demos dropped and their
+source blocks kept. Each page advertises its own via
+`<link rel="alternate" type="text/markdown">` (`MetaService.setMarkdownAlternate()`),
+and `ngwr-doc-code` reflects `data-language` purely so the export can fence a
+block correctly — a bound `[language]` does not reach the DOM on its own. `llms-full.txt` is **gitignored** — it exists
 in the working tree (~35 KB) but is untracked and rewritten on every build.
 Never hand-edit it; edit `scripts/gen-ai-assets.ts`. Only the curated
 [`llms.txt`](llms.txt) and this file are hand-maintained: update them when the

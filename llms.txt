@@ -132,6 +132,12 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 - This quick-ref: https://ngwr.dev/llms.txt
 - Full reference (every entry point + selector + description):
   https://ngwr.dev/llms-full.txt
+- **One page as markdown — append `.md` to any docs URL.**
+  `https://ngwr.dev/reference/components/select` also serves
+  `https://ngwr.dev/reference/components/select.md`: the same page as markdown,
+  prose and code samples and API tables, without the site chrome. Prefer it over
+  `llms-full.txt` when you already know which component you need. Each HTML page
+  advertises its twin as `<link rel="alternate" type="text/markdown">`.
 - All site URLs (for crawlers): https://ngwr.dev/sitemap.xml
 - Source, README, per-component `.d.ts` types: https://github.com/thekhegay/ngwr
   (installed at `node_modules/ngwr/types/ngwr-<name>.d.ts`; the package also

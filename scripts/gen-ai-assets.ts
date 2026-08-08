@@ -313,6 +313,9 @@ function render(entries: readonly Entry[]): string {
 > Generated from the library source: every entry point with its import path,
 > selector(s), public exports, and description. For exact input / output
 > signatures read the bundled \`.d.ts\` types. Concise quick-ref: /llms.txt
+>
+> One component at a time: every docs page also ships as markdown at the same
+> URL plus \`.md\` — e.g. https://ngwr.dev/reference/components/select.md
 `;
 
   for (const entry of entries) {

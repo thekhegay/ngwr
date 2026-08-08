@@ -83,6 +83,7 @@ export class DocPageComponent {
 
   constructor() {
     this.meta.setCanonicalURL();
+    this.meta.setMarkdownAlternate();
 
     effect(() => {
       this.meta.setTitle([this.title(), this.resolvedCategory()]);

@@ -125,6 +125,26 @@ export class MetaService {
     this.meta.updateTag({ property: 'og:url', content: canonical });
   }
 
+  /**
+   * Advertise the page's markdown twin — `<link rel="alternate" type="text/markdown">`
+   * pointing at the same URL plus `.md`, written by `scripts/gen-md-docs.ts`.
+   *
+   * An agent that lands on the HTML should be able to find the cheap version of
+   * the same page without guessing the convention, which is the whole reason the
+   * export exists. Only doc pages have a twin, so this is opt-in per page rather
+   * than folded into {@link setCanonicalURL}.
+   */
+  setMarkdownAlternate(): void {
+    let link = this.doc.head.querySelector<HTMLLinkElement>('link[rel="alternate"][type="text/markdown"]');
+    if (!link) {
+      link = this.doc.createElement('link');
+      link.setAttribute('rel', 'alternate');
+      link.setAttribute('type', 'text/markdown');
+      this.doc.head.appendChild(link);
+    }
+    link.setAttribute('href', `${siteUrl(this.currentPath())}.md`);
+  }
+
   /** Current route path, without origin, query or fragment. */
   private currentPath(): string {
     try {
