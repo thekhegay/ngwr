@@ -14,6 +14,7 @@ import {
   afterNextRender,
   computed,
   contentChildren,
+  effect,
   forwardRef,
   inject,
   input,
@@ -100,8 +101,11 @@ export class WrTabs implements WrTabsContext {
     this.active.set(key);
   }
 
-  register({ key }: { key: string; routerLink: unknown }): void {
-    if (this.active() === null) this.active.set(key);
+  register(): void {
+    // Deliberately a no-op. A `WrTab` calls this from its own constructor,
+    // where its `key` signal input is not bound yet — so it would report the
+    // generated default and this parent would write THAT into `active`. The
+    // effect below seeds from `tabs()`, by which point the inputs are real.
   }
 
   unregister(): void {
@@ -117,6 +121,17 @@ export class WrTabs implements WrTabsContext {
   protected readonly canScrollEnd = signal(false);
 
   constructor() {
+    // Seed `active` with the first tab's key, once the content children exist
+    // and their inputs are bound. Without this the model writes back a
+    // generated id like `wr-tab-b1crta5aix0v`: the strip still highlighted the
+    // right tab, because `activeTab()` falls back to `tabs[0]`, so the only
+    // visible symptom was a two-way binding holding a key the consumer had
+    // never heard of.
+    effect(() => {
+      const tabs = this.tabs();
+      if (tabs.length > 0 && this.active() === null) this.active.set(tabs[0].key());
+    });
+
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
       this.updateFades();
