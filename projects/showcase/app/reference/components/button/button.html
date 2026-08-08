@@ -58,14 +58,14 @@
           margin-bottom: 1.25rem;
         "
       >
-        <code style="font-size: 0.75rem; color: var(--wr-color-medium)">rounded</code>
+        <code style="font-size: 0.75rem; color: var(--wr-color-on-surface-muted)">rounded</code>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
           <wr-btn color="primary">Primary</wr-btn>
           <wr-btn color="primary" outlined>Outlined</wr-btn>
           <wr-btn>Default</wr-btn>
         </div>
 
-        <code style="font-size: 0.75rem; color: var(--wr-color-medium)">pill</code>
+        <code style="font-size: 0.75rem; color: var(--wr-color-on-surface-muted)">pill</code>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
           <wr-btn color="primary" shape="pill">Primary</wr-btn>
           <wr-btn color="primary" outlined shape="pill">Outlined</wr-btn>
@@ -77,9 +77,15 @@
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
         @for (s of shapes; track s) {
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center">
-            <code style="font-size: 0.75rem; color: var(--wr-color-medium); min-width: 5rem; display: inline-block">{{
-              s
-            }}</code>
+            <code
+              style="
+                font-size: 0.75rem;
+                color: var(--wr-color-on-surface-muted);
+                min-width: 5rem;
+                display: inline-block;
+              "
+              >{{ s }}</code
+            >
             @for (c of colors; track c) {
               <wr-btn [color]="c" [shape]="s">{{ c }}</wr-btn>
             }

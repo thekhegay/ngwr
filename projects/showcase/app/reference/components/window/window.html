@@ -19,7 +19,7 @@
     <ngwr-doc-snippet code="">
       <wr-btn (click)="openBasic()">Open window</wr-btn>
       @if (lastProgrammaticResult(); as result) {
-        <small style="display: block; margin-top: 0.75rem; color: var(--wr-color-medium)">
+        <small style="display: block; margin-top: 0.75rem; color: var(--wr-color-on-surface-muted)">
           afterClosed() resolved with: <code>{{ result }}</code>
         </small>
       }
@@ -55,7 +55,7 @@
     <ngwr-doc-code [code]="snippets.persist" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-btn (click)="openPersisted()">Open persisted window</wr-btn>
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)"
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
         >Move/resize, close it, click again — same spot.</small
       >
     </ngwr-doc-snippet>
@@ -80,7 +80,7 @@
       <wr-btn (click)="openTaskbarDemo('Inbox')">Open inbox</wr-btn>
       <wr-btn (click)="openTaskbarDemo('Editor')">Open editor</wr-btn>
       <wr-btn (click)="openTaskbarDemo('Logs')">Open logs</wr-btn>
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)"
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
         >Click minimize on any of them — they land in the strip at the bottom of the page.</small
       >
     </ngwr-doc-snippet>

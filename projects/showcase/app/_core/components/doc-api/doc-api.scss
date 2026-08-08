@@ -24,7 +24,7 @@
 
   th {
     background: rgba(var(--wr-color-light-rgb), 0.25);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-weight: 600;
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -61,7 +61,7 @@
 }
 
 .none {
-  color: var(--wr-color-medium);
+  color: var(--wr-color-on-surface-muted);
 }
 
 // Sub-row of a primary row — indented + visually connected by a corner

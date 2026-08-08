@@ -16,7 +16,7 @@
     <ngwr-doc-snippet code="<wr-input-otp [(ngModel)]='code' (completed)='onCompleted($event)' />">
       <wr-input-otp [(ngModel)]="code" (completed)="onCompleted($event)" />
       @if (lastCompleted(); as value) {
-        <p style="margin: 0.75rem 0 0; font-size: 0.8125rem; color: var(--wr-color-medium)">
+        <p style="margin: 0.75rem 0 0; font-size: 0.8125rem; color: var(--wr-color-on-surface-muted)">
           completed: <code>{{ value }}</code>
         </p>
       }

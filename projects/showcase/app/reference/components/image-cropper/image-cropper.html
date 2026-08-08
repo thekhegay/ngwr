@@ -19,7 +19,9 @@
         <wr-image-cropper [src]="src()" (cropped)="onCropped($event)" />
         @if (previewUrl()) {
           <div>
-            <small style="display: block; color: var(--wr-color-medium); margin-bottom: 0.25rem">Preview</small>
+            <small style="display: block; color: var(--wr-color-on-surface-muted); margin-bottom: 0.25rem"
+              >Preview</small
+            >
             <img
               [src]="previewUrl()"
               alt="Cropped preview"

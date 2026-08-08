@@ -39,7 +39,7 @@
 
   wr-badge.wr-badge--light {
     background: rgba(var(--wr-color-light-rgb), 0.4);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   wr-badge.wr-badge--danger {
@@ -68,7 +68,7 @@
   }
 
   margin: 0;
-  color: var(--wr-color-medium);
+  color: var(--wr-color-on-surface-muted);
   font-size: 1.125rem;
   font-weight: 400;
   line-height: 1.625rem;

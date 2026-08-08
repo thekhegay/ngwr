@@ -108,7 +108,7 @@
       // so `/components/button` also lights up "Components" in the nav.
       &--active,
       &--active:hover {
-        --ngwr-header-nav-link-color: var(--wr-color-medium);
+        --ngwr-header-nav-link-color: var(--wr-color-on-surface-muted);
         --ngwr-header-nav-link-bg: rgba(var(--wr-color-light-rgb), 0.3);
       }
     }
@@ -206,7 +206,7 @@
       cursor: pointer;
       font: inherit;
 
-      --ngwr-header-action-icon-color: var(--wr-color-medium);
+      --ngwr-header-action-icon-color: var(--wr-color-on-surface-muted);
 
       &:hover,
       &[aria-expanded='true'] {
@@ -385,7 +385,7 @@
 
       &--active,
       &--active:hover {
-        color: var(--wr-color-medium);
+        color: var(--wr-color-on-surface-muted);
         background: rgba(var(--wr-color-light-rgb), 0.3);
       }
     }
@@ -486,7 +486,7 @@
   //  border: 1px solid var(--ngwr-header-border);
   //  border-radius: var(--wr-border-radius-base);
   //  background: rgba(var(--wr-color-light-rgb), 0.35);
-  //  color: var(--wr-color-medium);
+  //  color: var(--wr-color-on-surface-muted);
   //  font-size: var(--wr-text-sm);
   //  cursor: pointer;
   //  transition:
@@ -519,7 +519,7 @@
   //  border: 1px solid var(--wr-color-light);
   //  border-radius: var(--wr-border-radius-sm);
   //  background: var(--wr-color-white);
-  //  color: var(--wr-color-medium);
+  //  color: var(--wr-color-on-surface-muted);
   //  font-family: var(--wr-font-family-base);
   //  font-size: var(--wr-text-xs);
   //  font-weight: var(--wr-font-weight-medium);

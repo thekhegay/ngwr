@@ -11,7 +11,7 @@
     // No padding here — rows (`__top`, `__bottom`) carry their own
     // padding so each can have a different rhythm without an outer
     // container squeezing them.
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: 0.875rem;
     line-height: 1.5;
   }
@@ -55,7 +55,7 @@
 
   &__tagline {
     margin: 0;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: 0.875rem;
   }
 
@@ -92,7 +92,7 @@
       gap: 0.5rem;
 
       a {
-        color: var(--wr-color-medium);
+        color: var(--wr-color-on-surface-muted);
         text-decoration: none;
         font-size: 0.875rem;
         transition: color var(--wr-transition-base);
@@ -138,11 +138,11 @@
   }
 
   &__copyright {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
   }
 
   &__version {
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     text-decoration: none;
     transition: color var(--wr-transition-base);
 

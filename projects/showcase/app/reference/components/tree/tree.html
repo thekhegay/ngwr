@@ -15,7 +15,7 @@
     <ngwr-doc-code [code]="snippets.single" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-tree [nodes]="folders" [(selected)]="singleSelected" [(expanded)]="expanded" />
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Selected: {{ singleSelected().join(', ') || '(none)' }}
       </small>
     </ngwr-doc-snippet>
@@ -28,7 +28,7 @@
     <ngwr-doc-code [code]="snippets.multi" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-tree [nodes]="folders" [(selected)]="multiSelected" selectionMode="multi" />
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Selected: {{ multiSelected().join(', ') || '(none)' }}
       </small>
     </ngwr-doc-snippet>
@@ -47,7 +47,7 @@
         placeholder="Pick a folder"
         [(ngModel)]="comboSingle"
       />
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Picked: {{ comboSingle() || '(none)' }}
       </small>
     </ngwr-doc-snippet>
@@ -68,7 +68,7 @@
         placeholder="Pick folders"
         [(ngModel)]="comboMulti"
       />
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Picked: {{ comboMulti().join(', ') || '(none)' }}
       </small>
     </ngwr-doc-snippet>
@@ -87,7 +87,7 @@
         virtualScroll
         [viewportHeight]="320"
       />
-      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">
+      <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Picked: {{ bigPick().join(', ') || '(none)' }}
       </small>
     </ngwr-doc-snippet>

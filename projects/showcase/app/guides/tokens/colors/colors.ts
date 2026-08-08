@@ -145,7 +145,7 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-color-on-surface-muted',
-      type: 'var(--wr-color-medium)',
+      type: 'var(--wr-color-muted-text)',
       description: 'Secondary / muted text on a surface.',
     },
   ];

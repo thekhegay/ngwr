@@ -34,7 +34,7 @@
   // Leading icon shared by groups + links.
   &__icon {
     flex: 0 0 auto;
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     transition: color var(--wr-transition-base);
   }
 
@@ -77,7 +77,7 @@
     &-chevron {
       --wr-icon-size: 1rem;
       flex: 0 0 auto;
-      color: var(--wr-color-medium);
+      color: var(--wr-color-on-surface-muted);
       transition: transform var(--wr-transition-base);
     }
 
@@ -209,7 +209,10 @@
     }
 
     &--disabled {
-      color: rgba(var(--wr-color-medium-rgb), 0.7);
+      // Muted role at 0.8, not the `medium` intent at 0.7: the old pair
+      // composited to 2.10:1. WCAG exempts disabled controls, but 3.54:1 is
+      // still legible, and the state already reads from the missing hover.
+      color: rgba(var(--wr-color-on-surface-muted-rgb), 0.8);
       pointer-events: none;
       cursor: default;
 
@@ -224,7 +227,7 @@
     padding: 0.0625rem 0.375rem;
     border-radius: var(--wr-border-radius-pill);
     background: rgba(var(--wr-color-light-rgb), 0.6);
-    color: var(--wr-color-medium);
+    color: var(--wr-color-on-surface-muted);
     font-size: 0.5625rem;
     font-weight: 600;
     text-transform: uppercase;
