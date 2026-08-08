@@ -72,6 +72,16 @@ export default class TokensColorsPage {
     },
   ];
 
+  /** The intent used as text on the page surface, not on a filled intent. */
+  protected readonly inkTokens: readonly DocApiRow[] = [
+    {
+      name: '--wr-color-{intent}-ink',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 50–93%, var(--wr-color-dark))',
+      description:
+        'The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the measured minimum — primary 93%, secondary 80%, danger 77%, info 76%, success 72%, medium 69%, warning 50%. Warning travels furthest because a yellow readable on white is not yellow. `light-ink` is `--wr-color-on-surface` (a surface tone has no readable darkening) and `dark-ink` is `--wr-color-dark`.',
+    },
+  ];
+
   /** Semantic neutral tokens — not per-intent, one place each. */
   protected readonly neutralTokens: readonly DocApiRow[] = [
     {

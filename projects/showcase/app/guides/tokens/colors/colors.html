@@ -89,6 +89,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Ink — the intent as text"
+    description="`-contrast` is the label ON a filled intent; `-ink` is the intent used AS text. Mixing them up is how the light theme ended up failing AA on every outlined variant."
+  >
+    <ngwr-doc-api [rows]="inkTokens" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Semantic neutrals"
     description="Theme-aware tokens for the chrome around your content — surfaces, dividers, scrims, and muted text. These are not per-intent; there is one canonical token for each job, and most are built on the flipping `light` / `medium` channels so they adapt to dark mode automatically."
   >

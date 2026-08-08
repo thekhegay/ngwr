@@ -109,7 +109,11 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 - **Icons** — register via `provideWrIcons`, render `<wr-icon name="check" />`.
 - **i18n** — `{{ 'key' | wrT }}` (pipe from `ngwr/i18n`).
 - **Theme** — CSS custom properties `--wr-color-*`, `--wr-border-radius-*`, … set
-  by `provideWrTheme()`.
+  by `provideWrTheme()`. Two contrast tokens per intent, easy to confuse:
+  `--wr-color-<intent>-contrast` is the label ON a filled intent;
+  `--wr-color-<intent>-ink` is the intent used AS text on a surface or its own
+  `-soft` tint. A bare `--wr-color-<intent>` as text fails WCAG AA in light. For
+  muted prose use `--wr-color-on-surface-muted`, not the `medium` intent.
 - **Mobile** — overlays collapse to sheets (`provideWrResponsiveOverlays()`), a
   `responsive` input reflows layout components, a `touch` density preset enlarges
   controls, and `WrHaptics` (ngwr/platform) fires vibration feedback.
