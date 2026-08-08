@@ -59,6 +59,18 @@ export const wrEn: WrI18nCatalog = {
     toggleGroup: 'Toggle group',
     noMatches: 'No matches',
   },
+  eventCalendar: {
+    today: 'Today',
+    previous: 'Previous',
+    next: 'Next',
+    month: 'Month',
+    week: 'Week',
+    day: 'Day',
+    time: 'Time',
+    allDay: 'All day',
+    label: 'Calendar',
+    more: '+{{count}} more',
+  },
   tour: {
     next: 'Next',
     back: 'Back',

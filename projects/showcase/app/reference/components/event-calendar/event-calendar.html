@@ -1,0 +1,114 @@
+<ngwr-doc-page
+  title="Event calendar"
+  description="Month, week and day views of a set of events — draggable, resizable, keyboard-operable."
+  [keywords]="['calendar', 'scheduler', 'events', 'agenda', 'wr-event-calendar']"
+  [labels]="['Component', 'Standalone']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Register a date adapter"
+    description="Every date calculation and every label goes through `WrDateAdapter`, the same one the calendar and the date pickers use. Register one at bootstrap or the calendar has no way to name a month."
+  >
+    <ngwr-doc-code [code]="snippets.provider" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Views"
+    description="One component covers all three views. `view` and `date` are two-way bindable, so the built-in header is a convenience rather than the only way to navigate — bind them and drive the calendar from your own toolbar, or set `hideHeader`."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="html" />
+    <ngwr-doc-snippet code="">
+      <wr-event-calendar style="width: 100%" [events]="events()" [(view)]="view" [(date)]="anchor" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Events"
+    description="`end` is exclusive: an event running 09:00–10:00 does not overlap one that starts at 10:00, and a single all-day event ends at midnight the next day. That one rule makes adjacency and overlap the same comparison in every view. `color` takes any intent, and `editable: false` pins an individual event while the rest of the calendar stays draggable."
+  >
+    <ngwr-doc-code [code]="snippets.events" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Drag to move and resize"
+    description="`events` is an input and the calendar never writes to it. A drag emits `eventChange` with where the event *would* land and stops there — apply it to your own state and the new position renders on the next pass. So ignoring the output cancels the drag, an optimistic update is a single `update`, and a server rejection needs no rollback path inside the component. Drag a chip below, or focus one and hold `Alt` with the arrow keys."
+  >
+    <ngwr-doc-code [code]="snippets.editable" language="html" />
+    <ngwr-doc-code [code]="snippets.apply" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        <wr-event-calendar
+          editable
+          view="week"
+          [events]="events()"
+          [dayStartHour]="8"
+          [dayEndHour]="19"
+          [(date)]="anchor"
+          (eventChange)="apply($event)"
+          (eventClick)="note(`clicked — ${$event.title}`)"
+        />
+        <p style="margin: 0; font-size: 0.875rem; color: var(--wr-color-on-surface-muted)">
+          Last output: {{ lastChange() }}
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The time grid"
+    description="`dayStartHour` and `dayEndHour` trim the visible band — a calendar that opens on 3am dead space wastes most of its height. `slotMinutes` sets both the row height and the drag snap, so a 15-minute grid drags in 15-minute steps."
+  >
+    <ngwr-doc-code [code]="snippets.time" language="html" />
+    <ngwr-doc-snippet code="">
+      <wr-event-calendar
+        style="width: 100%"
+        [events]="events()"
+        [views]="[]"
+        [slotMinutes]="15"
+        [dayStartHour]="9"
+        [dayEndHour]="14"
+        [(view)]="weekView"
+        [(date)]="anchor"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Creating from empty space"
+    description="Clicking anywhere that is not a chip emits `slotClick` with the slot the user pointed at — a whole day in month view and the all-day band, the pointed-at row otherwise. From the keyboard it is `Enter` on an empty cell."
+  >
+    <ngwr-doc-code [code]="snippets.slot" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Custom chip contents"
+    description="`wrCalendarEvent` replaces what a chip renders. Position, sizing and drag stay with the calendar, so a custom template cannot break the geometry."
+  >
+    <ngwr-doc-code [code]="snippets.template" language="html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keyboard"
+    description="The grid is a single tab stop with a roving cursor, so tabbing through a month does not mean tabbing through 42 cells."
+  >
+    <ul>
+      <li><strong>Arrow keys</strong> — move by a day left and right, by a week or a slot up and down.</li>
+      <li><strong>Home / End</strong> — first and last day of the row.</li>
+      <li>
+        <strong>Enter</strong> — on an empty cell emits `slotClick`; on a cell holding events focuses the first chip.
+      </li>
+      <li><strong>Escape</strong> — from a chip, back to its cell.</li>
+      <li>
+        <strong>Alt + arrows</strong> — on a focused chip, move the event. The keyboard equivalent of the drag, emitting
+        the same `eventChange`.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

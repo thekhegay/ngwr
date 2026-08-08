@@ -469,6 +469,23 @@ export const API = {
     { name: "icon", description: "Icon name shown above the title.", type: "WrIconName | null", default: "'folder'" },
     { name: "title", description: "Headline. Falls back to `empty.noData` from WrI18n, then `'No data'`.", type: "string | null", default: "null" },
   ],
+  // <wr-event-calendar>
+  WrEventCalendar: [
+    { name: "events", description: "Everything to render. Never mutated — see `eventChange`.", type: "readonly WrCalendarEvent[]", default: "[]" },
+    { name: "view", description: "Which span is shown. Two-way bindable.", type: "WrCalendarView", default: "'month'" },
+    { name: "date", description: "Any date inside the shown span. Two-way bindable.", type: "Date", default: "new Date()" },
+    { name: "views", description: "Which buttons the view switcher offers. Empty hides it.", type: "readonly WrCalendarView[]", default: "['month', 'week', 'day']" },
+    { name: "editable", description: "Allow dragging chips to move and resize them.", type: "boolean", default: "false" },
+    { name: "slotMinutes", description: "Minutes per row in the time views — also the drag snap.", type: "number", default: "30" },
+    { name: "dayStartHour", description: "First hour the time views show.", type: "number", default: "0" },
+    { name: "dayEndHour", description: "First hour they do NOT show, exclusive.", type: "number", default: "24" },
+    { name: "maxLanes", description: "Lanes a month cell shows before collapsing the rest into “+N more”.", type: "number", default: "3" },
+    { name: "hideHeader", description: "Hide the built-in header — supply your own navigation instead.", type: "boolean", default: "false" },
+    { name: "(eventClick)", description: "A chip was activated.", type: "WrCalendarEvent" },
+    { name: "(slotClick)", description: "Empty space was activated — the slot the user pointed at.", type: "WrCalendarSlot" },
+    { name: "(eventChange)", description: "A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.", type: "WrCalendarEventChange" },
+    { name: "ariaLabel", description: "Accessible name of the grid; overridable for a page with several.", type: "string | null", default: "null" },
+  ],
   // <wr-falling-text>
   WrFallingText: [
     { name: "text", description: "Text to render. Words are separated by spaces.", type: "string", required: true },

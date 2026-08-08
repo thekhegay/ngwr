@@ -47,6 +47,18 @@ export const wrRu: WrI18nCatalog = {
     toggleGroup: 'Свернуть группу',
     noMatches: 'Ничего не найдено',
   },
+  eventCalendar: {
+    today: 'Сегодня',
+    previous: 'Назад',
+    next: 'Вперёд',
+    month: 'Месяц',
+    week: 'Неделя',
+    day: 'День',
+    time: 'Время',
+    allDay: 'Весь день',
+    label: 'Календарь',
+    more: 'ещё {{count}}',
+  },
   tour: {
     next: 'Далее',
     back: 'Назад',

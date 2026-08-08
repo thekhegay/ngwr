@@ -5,7 +5,7 @@
 > Sizes: S / M / L / XL.
 >
 > **State (2026-08-07):** v10.0.0 is released and installable. The catalog is
-> **129 secondary entry points / 195 component and directive classes**, gated by
+> **130 secondary entry points / 196 component and directive classes**, gated by
 > `pnpm lint` + `build:lib` + `build:showcase` — there is still no test suite
 > (0 `*.spec.ts`, no `test` target). Docs are prerendered and live, with past
 > majors archived under `/v7/`, `/v8/`, `/v9/`.
@@ -19,7 +19,7 @@ everything under [Deferred](#deferred) is explicitly not now.
 2. ~~**D4** — Motion tokens~~ *(shipped)*
 3. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
 4. ~~**C5** — Tree-table mode~~ (shipped)
-5. **C6** — Event calendar / scheduler
+5. ~~**C6** — Event calendar / scheduler~~ *(shipped)*
 6. ~~**C8** — Transfer + Tour~~ *(shipped)*
 7. ~~**B3** — `WR_FORM_ERRORS` provider~~ *(shipped)*
 8. **B2** — Rebuild internals on `@angular/aria`
@@ -37,7 +37,7 @@ Two notes on the order, then it stands as written:
 
 ## A — Trust & hardening
 
-The catalog is 129 entry points. Lint, both builds, the a11y sweep and the API
+The catalog is 130 entry points. Lint, both builds, the a11y sweep and the API
 drift check gate it today; unit tests are the hole. This theme is what makes
 ngwr a library people can bet on.
 
@@ -131,8 +131,25 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       `virtualScroll` — the window is a pure function of a pixel offset, so
       expanding mid-list slides rows under the viewport and needs scroll
       anchoring first.
-- [ ] **C6. Event calendar / scheduler** (XL) — month / week / day event views
-      with drag. (PrimeNG + Kendo 2026 roadmaps.)
+- [x] **C6. Event calendar / scheduler** (XL) — `ngwr/event-calendar` ships
+      month / week / day in one component, with drag to move and resize.
+      `events` is an input the calendar never writes to: a drag emits
+      `eventChange` with where the event *would* land and stops. Ignoring the
+      output cancels the drag, an optimistic update is one `update`, and a
+      rejected server write needs no rollback path inside the component.
+      Every chip lives inside the `role="gridcell"` where it starts and reaches
+      out with a `calc()` width or a percentage height. That is the load-bearing
+      decision: a floating events layer reads better in a template and leaves
+      `role="row"` owning something other than cells, which the axe gate
+      rejects — and it forces pixel measurement, where cell-relative units need
+      none. Bands pack into lanes per week by interval-graph colouring, so a
+      long event holds ONE lane across a whole week instead of stair-stepping,
+      and splits at the week boundary into segments that drop their outer
+      rounding. Drag targets are read with `elementFromPoint` rather than
+      geometry — the dragged chip goes `pointer-events: none`, and no layout
+      assumption can put the drop in the wrong cell. Keyboard parity throughout:
+      one tab stop with a roving cursor, and `Alt` + arrows move an event,
+      emitting the same `eventChange` as the pointer.
 - [x] **C8. Transfer + Tour** (M) — both shipped. `ngwr/transfer` is the dual
       listbox: `[items]` is the full set and `[(value)]` is the RIGHT pane, with
       the per-pane ticks kept as transient staging so a form never sees a
