@@ -20,7 +20,17 @@ let instance: Promise<HighlighterCore> | null = null;
 
 export function getHighlighter(): Promise<HighlighterCore> {
   instance ??= createHighlighterCore({
-    themes: [import('shiki/themes/github-light.mjs'), import('shiki/themes/github-dark.mjs')],
+    // The high-contrast pair, not the plain one. Measured against the code
+    // block's own background — `rgba(--wr-color-light, 0.2)`, which composites
+    // to #f5f7f9 in light and #101727 in dark, NOT the page white — every
+    // foreground in `github-light` that renders as text on it failed WCAG AA:
+    // variable #e36209 at 3.25, keyword #d73a49 4.26, tag #22863a 4.31, comment
+    // #6a737d 4.48. `github-dark` missed on the same comment grey at 3.72. The
+    // high-contrast siblings clear it with room: worst token 4.69 and 8.44.
+    themes: [
+      import('shiki/themes/github-light-high-contrast.mjs'),
+      import('shiki/themes/github-dark-high-contrast.mjs'),
+    ],
     langs: [
       import('shiki/langs/angular-html.mjs'),
       import('shiki/langs/angular-ts.mjs'),

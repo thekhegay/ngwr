@@ -141,7 +141,11 @@ $contrast-light: #ffffff !default;
   // labels / captions / placeholders read consistently. One place each.
   // Only the full-opacity token above is AA-safe for body text; these two are
   // decorative by design (0.85 reaches ~3.5:1, 0.6 ~2.3:1 on a light surface).
-  --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.85);
+  // 0.95, not 0.85: the role itself is 5.35:1 on the light surface, but wrapping
+  // it at 0.85 composited to #778291 — 3.90:1, under the AA bar. 0.95 is the
+  // most softening that still clears it (4.81), which leaves this token barely
+  // distinguishable from the flat role it wraps.
+  --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.95);
   --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 0.6);
 
   // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable

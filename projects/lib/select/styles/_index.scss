@@ -200,7 +200,9 @@
     padding: 0.125rem 0.25rem 0.125rem 0.5rem;
     border-radius: 999px;
     background: var(--wr-color-primary-soft);
-    color: var(--wr-color-primary);
+    // `-ink`, not the raw intent: the chip paints the hue on its own soft tint,
+    // where the base lands at 4.17:1.
+    color: var(--wr-color-primary-ink);
     font-size: var(--wr-text-sm);
     line-height: 1.4;
     user-select: none;

@@ -69,9 +69,12 @@ ngwr a library people can bet on.
       statistic deltas, result icons) failed AA, warning worst at 1.71:1.
       `/reference/components/button` went from 16 violations to 2, and both
       survivors are `<wr-btn disabled>` — WCAG exempts inactive controls, and
-      axe cannot see it because `disabled` sits on a custom element. Remaining
-      and NOT ngwr's: the docs code blocks use shiki's `github-light`, whose
-      syntax palette lands at 4.25:1.
+      axe cannot see it because `disabled` sits on a custom element. The docs
+      code blocks followed: shiki's `github-light` / `github-dark` failed on
+      four and one token colour respectively against the block's own tinted
+      background, so both were swapped for their `-high-contrast` siblings.
+      Ten routes now measure zero in both themes apart from those two disabled
+      buttons.
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).

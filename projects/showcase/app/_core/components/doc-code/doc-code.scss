@@ -77,7 +77,8 @@
   line-height: var(--ngwr-doc-code-line-height);
 }
 
-// Shiki ships both `github-light` and `github-dark` palettes as CSS vars
+// Shiki ships both `github-light-high-contrast` and `github-dark-high-contrast`
+// palettes as CSS vars
 // (`--shiki-light` / `--shiki-dark`) per token. Toggle which one wins
 // against the active theme so syntax highlighting tracks the rest of
 // the UI instead of staying stuck on light colors over the dark canvas.
