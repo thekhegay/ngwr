@@ -146,13 +146,17 @@ sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
-`ngwr/pipes`), part of the service layer (`ngwr/hotkey`, `ngwr/i18n`) and ONE
-component (`wr-tabs`) — 122 specs. The rest of the components are unwritten, so
+`ngwr/pipes`), part of the service layer (`ngwr/hotkey`, `ngwr/i18n`) and two
+components (`wr-tabs`, `wr-select`) — 138 specs. The rest of the components are unwritten, so
 **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`, `check:llms` and
 `check:a11y` are the gates** and a green run still does not mean a component
 behaves.
 
-**Writing a component spec:** copy `projects/lib/tabs/tabs.spec.ts`. A tiny
+**Writing a component spec:** copy `projects/lib/tabs/tabs.spec.ts`, or
+`projects/lib/select/select.spec.ts` for one with an overlay — that panel
+renders into the overlay container, not the fixture, so options are queried off
+`document` and the spec provides `provideWrOverlay()` to keep its container out
+of the next file's. A tiny
 `@Component` host uses the component the way a consumer would, and the
 assertions read the RENDERED DOM — roles, ARIA state, and the `.wr-*` classes,
 which are public API. A spec that reaches into component internals passes
