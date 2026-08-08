@@ -245,6 +245,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 - **Tree-shaken icons.** `provideWrIcons(lucideIcons({ plus: Plus }))` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
 - **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` / raw WebGL — no GSAP, no `motion/react`, no `matter-js`, no `ogl`.
 - **Motion respects the OS.** Every animation component short-circuits to its final state under `prefers-reduced-motion`.
+- **Legible to agents.** Every docs page also serves as markdown at the same URL plus `.md` — [reference/components/select.md](https://ngwr.dev/reference/components/select.md) is that page's prose, code samples and API tables without the site chrome. The whole catalog is at [llms-full.txt](https://ngwr.dev/llms-full.txt), a quick-ref at [llms.txt](https://ngwr.dev/llms.txt).
 
 ## Contributing
 

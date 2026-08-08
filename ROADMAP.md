@@ -193,9 +193,18 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
       accurate and gated by `pnpm check:llms` — it had been reporting 123 of 127
       entry points (the nested ones were invisible), shipping four descriptions
       scraped off the wrong element, and naming a type or a token in six import
-      lines. **Remaining:** per-component markdown export, an **ngwr MCP
-      server** (search / docs / examples / install via schematics), agent
-      skills, and an open registry schema for community blocks + theme presets.
+      lines. **Per-component markdown export shipped:** every docs page also
+      serves at the same URL plus `.md` (190 pages, ~450 KB), converted from the
+      prerendered HTML by `scripts/gen-md-docs.ts` — so it cannot drift from
+      what shipped, and a floor check fails the build if it thins out. Live
+      demos are dropped and their source blocks kept; each HTML page advertises
+      its twin as `<link rel="alternate" type="text/markdown">`. One caveat that
+      is not in this repo's hands: nginx on the box needs `text/markdown md;` in
+      its `mime.types` for a browser to render a twin inline instead of
+      downloading it — agents fetching bytes are unaffected either way.
+      **Remaining:** an **ngwr MCP server** (search / docs / examples / install
+      via schematics), agent skills, and an open registry schema for community
+      blocks + theme presets.
       On the MCP server, note the finding that killed the first design pass:
       `dist/lib/types/ngwr-<entry>.d.ts` (892 KB, already in the tarball)
       already carries every class summary, `@example` and input description, so

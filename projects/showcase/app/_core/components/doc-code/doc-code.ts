@@ -33,6 +33,10 @@ import { copyToClipboard, stripIndent } from '#core/utils';
   styleUrl: './doc-code.scss',
   host: {
     '[attr.data-empty]': 'tabs().length === 0 ? "" : null',
+    // Reflected for `scripts/gen-md-docs.ts`, which fences the block by it. A
+    // static `language="ts"` already lands in the DOM; a bound one does not,
+    // and every snippet binds it — so read the active tab instead of the input.
+    '[attr.data-language]': 'activeTab()?.language ?? null',
   },
   providers: [provideWrIcons(lucideIcons({ copy: Copy, check: Check }))],
 })
