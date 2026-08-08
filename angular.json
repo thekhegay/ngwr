@@ -39,6 +39,15 @@
               "projects/lib/**/*.html"
             ]
           }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "runner": "vitest",
+            "tsConfig": "projects/lib/tsconfig.spec.json",
+            "buildTarget": "lib:build:development",
+            "include": ["**/*.spec.ts"]
+          }
         }
       }
     },

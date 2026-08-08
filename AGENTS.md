@@ -137,12 +137,19 @@ enlarges every control at once.
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
-| Unit tests        | **None yet** — no `test` target in `angular.json`, no `*.spec.ts`, no runner installed (ROADMAP A1) |
+| Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
-There is no test suite: `pnpm test` fails with `Cannot determine project or
-target for command.` Vitest via `ng test` is roadmap A1 — until then **`pnpm
-lint`, the two builds, `check:api-docs`, `check:llms` and `check:a11y` are the
-gates**.
+`pnpm test` runs **vitest** through Angular's `@angular/build:unit-test`
+builder — no `vitest.config.ts` and no `@analogjs/*`: the target lives in
+`angular.json` (`lib:test`) with `projects/lib/tsconfig.spec.json`, and specs
+sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
+`tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
+
+Coverage today is the **pure-logic layer only** — `ngwr/utils`,
+`ngwr/validators`, `ngwr/pipes` (83 specs). Component and overlay interaction
+tests are the rest of ROADMAP A1, so **`pnpm lint`, `pnpm test`, the two builds,
+`check:api-docs`, `check:llms` and `check:a11y` are the gates** and a green run
+still does not mean a component behaves.
 
 Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
 (`engine-strict=true` in `.npmrc` — an older pnpm is refused outright, and
@@ -164,9 +171,9 @@ pnpm lint; echo $?     # 0 = actually green
 Autofix most issues (prettier wrapping long template lines, etc.) with
 `pnpm exec ng lint <lib|showcase> --fix`.
 
-**CI gates on `pnpm lint` + `pnpm check:api-docs` + `pnpm check:llms` +
-`pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:a11y`** — all six must be green (a silently
+**CI gates on `pnpm lint` + `pnpm test` + `pnpm check:api-docs` +
+`pnpm check:llms` + `pnpm build:lib` +
+`pnpm build:showcase` + `pnpm check:a11y`** — all seven must be green (a silently
 failed lint stage once slipped past and blocked a publish). The publish job re-runs `pnpm lint` + `pnpm build:lib` before
 shipping. Conventional-commit subjects are checked locally (commitlint
 `commit-msg` hook) and PR titles on CI.
@@ -379,16 +386,20 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 
 ## Verifying changes
 
-`pnpm lint` + `pnpm build:lib` + `pnpm build:showcase` are the real gates —
-Angular `strictTemplates` type-checks templates, so most wiring errors surface
-at build. `build:showcase` also prerenders every route in Node and **fails on
+`pnpm lint` + `pnpm test` + `pnpm build:lib` + `pnpm build:showcase` are the
+real gates — Angular `strictTemplates` type-checks templates, so most wiring
+errors surface at build, and `pnpm test` covers the pure-logic layer. `build:showcase` also prerenders every route in Node and **fails on
 prerender errors** (`scripts/build-showcase.ts` greps the worker log, because
 the Angular builder itself exits 0 on them), so it doubles as the SSR smoke
 test. For runtime behavior, run `pnpm dev` and exercise it.
 
 Caveat for headless / backgrounded browser tabs: timers are throttled and WAAPI
 animations pause, so screenshots can come back blank and wall-clock-dependent
-checks flake. Verify gesture / animation _logic_ by calling component methods
+checks flake. A hidden pane goes further — `innerWidth`/`innerHeight` read 0,
+which silently poisons every `getBoundingClientRect` comparison and makes
+`document.elementFromPoint` return `null` for everything. Check `innerWidth`
+before trusting a layout measurement, and stub `elementFromPoint` when what you
+are testing is hit-test logic rather than the compositor. Verify gesture / animation _logic_ by calling component methods
 directly (e.g. via `ng.getComponent(el)` / `ng.getDirectives(el)` in dev mode)
 rather than relying on timing. Touch _feel_ ultimately needs a real device.
 

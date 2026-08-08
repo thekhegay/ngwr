@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "ng serve --o",
-    "test": "ng test",
+    "test": "ng test lib",
+  "test:watch": "ng test lib --watch",
     "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors",
     "check:colors": "tsx scripts/check-color-parity.ts",
     "check:a11y": "tsx scripts/check-a11y.ts",
@@ -85,6 +86,7 @@
     "stylelint-scss": "^7.2.0",
     "tsx": "^4.23.9",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.66.0"
+    "typescript-eslint": "^8.66.0",
+    "vitest": "^4.1.10"
   }
 }
