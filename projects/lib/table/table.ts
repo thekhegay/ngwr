@@ -594,8 +594,15 @@ export class WrTable {
     const h = this.effRowH();
     const vp = this.viewportPx() || this.fallbackViewportPx();
     const over = this.overscan();
-    const first = Math.floor(this.scrollTop() / h);
-    const count = Math.ceil(vp / h);
+    // Clamp `first` to the last row: the window is a pure function of a pixel
+    // offset, so if the row list shrinks while the user is scrolled deep — a
+    // consumer filtering `items`, or a future hierarchy collapsing — `start`
+    // overshoots `end` and `slice` returns nothing, leaving a blank body under a
+    // spacer the old length's worth of pixels tall.
+    const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
+    // `+ 1` covers the partial row at the viewport's bottom edge: at overscan 0
+    // with the scroll resting mid-row, `ceil(vp / h)` alone stops one row short.
+    const count = Math.ceil(vp / h) + 1;
     const start = Math.max(0, first - over);
     const end = Math.min(total, first + count + over);
     return { start, end, padTop: start * h, padBottom: (total - end) * h };
