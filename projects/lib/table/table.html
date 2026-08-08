@@ -15,6 +15,7 @@
     [class.wr-table__table--fixed]="fixedLayoutActive()"
     [style.--wr-table-row-h.px]="virtualized() ? effRowH() : null"
     [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
+    [attr.role]="treeMode() ? 'treegrid' : null"
   >
     <colgroup>
       @if (rowSelection()) {
@@ -202,7 +203,13 @@
             <tr
               class="wr-table__tr"
               [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)"
+              [class.wr-table__tr--child]="entry.depth > 0"
               [attr.aria-rowindex]="virtualized() ? windowStart() + i + 2 : null"
+              [attr.aria-level]="treeMode() ? entry.depth + 1 : null"
+              [attr.aria-posinset]="treeMode() ? entry.posinset : null"
+              [attr.aria-setsize]="treeMode() ? entry.setsize : null"
+              [attr.aria-expanded]="entry.open"
+              [style.--wr-table-depth]="treeMode() ? entry.depth : null"
             >
               @if (rowSelection()) {
                 <td class="wr-table__td wr-table__td--select">
@@ -251,6 +258,36 @@
                   [style.right.px]="rightPin(col.key)"
                   [attr.data-label]="col.column.title"
                 >
+                  @if (treeMode() && col.key === treeColumnKey()) {
+                    <span class="wr-table__tree-lead">
+                      @if (entry.parent) {
+                        <button
+                          type="button"
+                          class="wr-table__tree-toggle"
+                          [class.wr-table__tree-toggle--open]="entry.open"
+                          [attr.aria-expanded]="entry.open"
+                          [attr.aria-label]="resolvedToggleRowLabel()"
+                          (click)="toggleTreeRow(entry.row)"
+                        >
+                          <svg
+                            class="wr-icon__svg wr-table__tree-icon"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="m9 18 6-6-6-6" />
+                          </svg>
+                        </button>
+                      } @else {
+                        <span class="wr-table__tree-toggle wr-table__tree-toggle--leaf" aria-hidden="true"></span>
+                      }
+                    </span>
+                  }
                   @if (templateFor(col.key); as tpl) {
                     <ng-container
                       [ngTemplateOutlet]="tpl"

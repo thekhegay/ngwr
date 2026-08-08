@@ -284,6 +284,18 @@ export class MyComponent {}`,
   [columns]="columns"
   [items]="rows"
 />`,
+    tree: `<!-- \`childrenKey\` names the child array; \`items\` becomes the roots.
+     Open state reuses \`[(expanded)]\` and identity reuses \`rowKey\`. -->
+<wr-table
+  rowKey="id"
+  childrenKey="reports"
+  treeColumn="name"
+  rowSelection="multiple"
+  [columns]="orgColumns"
+  [items]="org"
+  [(expanded)]="openRows"
+  [(selection)]="picked"
+/>`,
   };
 
   protected readonly api = API.WrTable;
@@ -476,4 +488,49 @@ interface WrTableGroupContext {
     { name: 'index', description: '0-based index of the group on the current page.', type: 'number', sub: true },
     { name: 'toggle', description: 'Collapse / expand this group.', type: '() => void', sub: true },
   ];
+
+  // --- Tree mode ------------------------------------------------------------
+  protected readonly orgColumns: WrTableColumns = {
+    name: { title: 'Team / person' },
+    head: { title: 'Reports to' },
+    headcount: { title: 'Headcount', summary: 'sum' },
+  };
+
+  protected readonly org: readonly Record<string, unknown>[] = [
+    {
+      id: 'eng',
+      name: 'Engineering',
+      head: '—',
+      headcount: 0,
+      reports: [
+        {
+          id: 'eng-web',
+          name: 'Web platform',
+          head: 'Ada',
+          headcount: 0,
+          reports: [
+            { id: 'p-rk', name: 'Roman', head: 'Ada', headcount: 1 },
+            { id: 'p-mia', name: 'Mia', head: 'Ada', headcount: 1 },
+          ],
+        },
+        {
+          id: 'eng-infra',
+          name: 'Infrastructure',
+          head: 'Grace',
+          headcount: 0,
+          reports: [{ id: 'p-lev', name: 'Lev', head: 'Grace', headcount: 1 }],
+        },
+      ],
+    },
+    {
+      id: 'design',
+      name: 'Design',
+      head: '—',
+      headcount: 0,
+      reports: [{ id: 'p-noa', name: 'Noa', head: 'Ivan', headcount: 1 }],
+    },
+  ];
+
+  protected readonly openRows = signal<readonly unknown[]>(['eng']);
+  protected readonly picked = signal<readonly unknown[]>([]);
 }

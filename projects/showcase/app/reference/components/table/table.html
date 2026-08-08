@@ -219,6 +219,27 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Tree rows"
+    description="Set `childrenKey` to the property (or a function) holding each row&#39;s children and `items` becomes the roots. The forest is flattened into the same `&lt;tbody&gt;`, so child rows are ordinary `&lt;tr&gt;`s — column pin, resize, drag-reorder and `[wrTableCell]` templates all keep working at every depth. Open state reuses `[(expanded)]` and identity reuses `rowKey`. `treeColumn` picks which column carries the indent and chevron; without it the first rendered column does. `pageSize` pages the roots, selection and the summary row see every node, and the table announces itself as a `treegrid` with `aria-level` / `aria-posinset` / `aria-setsize` per row. Grouping and `[wrTableExpand]` detail rows are refused rather than half-supported — both own the row&#39;s disclosure."
+  >
+    <ngwr-doc-code [code]="snippets.tree" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table
+          rowKey="id"
+          childrenKey="reports"
+          treeColumn="name"
+          rowSelection="multiple"
+          [columns]="orgColumns"
+          [items]="org"
+          [(expanded)]="openRows"
+          [(selection)]="picked"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />
     <ngwr-doc-api [rows]="typeRows" />

@@ -83,7 +83,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `[start, end]`, hence a separate component), `wr-file-upload`,
   `wr-form-field`, `wr-color-picker`.
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
-  expandable rows, grouping, summary rows, CSV export, virtualized body),
+  expandable rows, grouping, tree rows (`childrenKey`), summary rows,
+  CSV export, virtualized body),
   `wr-pagination`, `wr-tree`, `wr-virtual-scroll`, `wr-sortable-list`
   (drag-to-reorder).
 - **Feedback** — `wr-alert`, `wr-result`, `wr-empty`, `wr-skeleton`,

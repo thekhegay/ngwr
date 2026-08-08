@@ -42,6 +42,7 @@ export const wrRu: WrI18nCatalog = {
     selectAll: 'Выбрать все строки',
     selectRow: 'Выбрать строку',
     expandRow: 'Показать детали строки',
+    toggleRow: 'Показать вложенные строки',
     selectGroup: 'Выбрать группу',
     toggleGroup: 'Свернуть группу',
     noMatches: 'Ничего не найдено',

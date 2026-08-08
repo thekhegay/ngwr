@@ -18,7 +18,7 @@ everything under [Deferred](#deferred) is explicitly not now.
 1. **E2** — AI-legibility stack
 2. **D4** — Motion tokens
 3. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
-4. **C5** — Tree-table mode
+4. ~~**C5** — Tree-table mode~~ (shipped)
 5. **C6** — Event calendar / scheduler
 6. **C8** — Transfer + Tour
 7. **B3** — `WR_FORM_ERRORS` provider
@@ -111,10 +111,26 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
 - [ ] **C3. Combobox / autocomplete proper** (M, **hard-blocked on B2**) —
       free-text input + suggestions is a different ARIA pattern than
       select-with-search; build on the Aria `Combobox` primitive.
-- [ ] **C5. Tree-table mode** (M) — tree rows inside `wr-table`
-      (expand/collapse hierarchy). Tree-select already ships as
-      `wr-tree openOn="overlay"`. (Material #14159 open for years; standard in
-      PrimeNG / NG-ZORRO / Kendo.)
+- [x] **C5. Tree-table mode** (M) — `childrenKey` on `wr-table` makes `items`
+      the roots and flattens the forest into the same `<tbody>`, so child rows
+      are ordinary `<tr>`s and column pin / resize / drag-reorder plus
+      `[wrTableCell]` templates keep working at every depth. Open state reuses
+      `[(expanded)]`, identity reuses `rowKey`; `treeColumn` picks the indented
+      column. Selection, CSV and the summary row walk the whole forest, while
+      select-all sweeps the VISIBLE nodes. The table announces `role="treegrid"`
+      with `aria-level` / `aria-posinset` / `aria-setsize` / `aria-expanded` per
+      row, emitted only in tree mode so the flat table's markup is untouched.
+      **Refused, not half-supported:** `groupBy` (a forest has no flat list to
+      bucket) and `[wrTableExpand]` detail rows (both own the row's disclosure).
+      **Deferred, with reasons:** cascade selection — unlike a group band a
+      parent is itself a selectable row, so "parent checked" and "every
+      descendant checked" are different states and the design review could not
+      settle the semantics; a treegrid keyboard cursor — a `keydown` on
+      `<table>` bubbles up from every interior checkbox, sort button and cell
+      template, so it needs a focus model rather than a handler; and tree +
+      `virtualScroll` — the window is a pure function of a pixel offset, so
+      expanding mid-list slides rows under the viewport and needs scroll
+      anchoring first.
 - [ ] **C6. Event calendar / scheduler** (XL) — month / week / day event views
       with drag. (PrimeNG + Kendo 2026 roadmaps.)
 - [ ] **C8. Transfer (dual listbox)** (M) and **Tour / onboarding** (M) —
