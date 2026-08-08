@@ -62,6 +62,10 @@ export class WrTab {
 
   constructor() {
     if (this.parent) {
+      // Both calls run with the input signals still on their defaults — a
+      // constructor is too early for `key()` to be the consumer's value. The
+      // parent tracks tabs through `contentChildren` and seeds `active` from
+      // there; these stay as the declared lifecycle contract.
       this.parent.register({ key: this.key(), routerLink: this.routerLink() });
       this.destroyRef.onDestroy(() => this.parent?.unregister(this.key()));
     }
