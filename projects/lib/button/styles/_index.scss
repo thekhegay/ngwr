@@ -197,12 +197,12 @@
       }
 
       &.wr-btn--outlined {
-        // `light` is a surface tone by definition — a hair off the page
-        // background in either theme — so using it as the label color lands at
-        // 1.4:1 and the button reads as blank. Borrow the page's own ink there;
-        // the border still carries the intent. Every other intent is a real hue
-        // and clears 4.7:1 as its own label color.
-        --wr-btn-color: #{if($name == light, var(--wr-color-on-surface), var(--wr-color-#{$name}))};
+        // `-ink` is the intent darkened (light) / lightened (dark) until it
+        // clears 4.5:1 as its own label — the base hue does not: in light,
+        // warning as a label is 1.71:1. `--wr-color-light-ink` resolves to the
+        // page's own ink, which is why the `light` special case is gone; the
+        // border still carries the intent.
+        --wr-btn-color: var(--wr-color-#{$name}-ink);
         --wr-btn-bg: transparent;
         --wr-btn-border: rgba(var(--wr-color-#{$name}-rgb), 0.4);
 

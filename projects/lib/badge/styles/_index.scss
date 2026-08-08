@@ -87,7 +87,7 @@
 
     @each $name in theme.$colors {
       &.wr-badge--#{$name} {
-        color: var(--wr-color-#{$name});
+        color: var(--wr-color-#{$name}-ink);
       }
     }
   }

@@ -214,6 +214,44 @@ $contrast-light: #ffffff !default;
     --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
     --wr-color-#{$name}-active: rgba(var(--wr-color-#{$name}-rgb), 0.2);
   }
+
+  // `-ink`: the intent used as TEXT on `--wr-color-surface`.
+  //
+  // v10 fixed the opposite direction — `-contrast`, the label ON a filled
+  // intent. The inverse was never covered, and the light theme fails WCAG AA
+  // everywhere an outlined / bordered variant paints the hue as its own label:
+  // warning lands at 1.71:1 against a 4.5 bar, medium 3.10, success 3.33,
+  // danger and info 3.68, secondary 3.99. Dark passes on all of them, because
+  // its bases were retuned lighter for a dark canvas and that happens to be the
+  // accessible direction.
+  //
+  // Same recipe as `-soft-contrast`: mixing toward `--wr-color-dark` darkens in
+  // light and lightens in dark from ONE declaration, because that token itself
+  // flips. The share is per intent rather than uniform — warning has to travel
+  // furthest (a yellow readable on white is not yellow), and forcing every
+  // intent to warning's share would drag primary to near-navy for no reason.
+  // Each is the measured minimum that clears 4.5:1 in BOTH themes on the surface
+  // and on the tag's 6% / 10% tints, with 3pp of headroom.
+  $ink-mix: (
+    primary: 93%,
+    secondary: 80%,
+    success: 72%,
+    warning: 50%,
+    danger: 77%,
+    info: 76%,
+    medium: 69%,
+  );
+
+  @each $name, $share in $ink-mix {
+    --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-dark));
+  }
+
+  // `light` is a surface tone by definition — a hair off the page background in
+  // either theme — so there is no darkening that keeps it recognisable AND
+  // readable. It borrows the page's own ink; the border still carries the
+  // intent. `dark` already IS the ink.
+  --wr-color-light-ink: var(--wr-color-on-surface);
+  --wr-color-dark-ink: var(--wr-color-dark);
 }
 
 // Public SCSS list
