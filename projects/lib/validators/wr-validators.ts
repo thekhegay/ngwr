@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { isDevMode } from '@angular/core';
 import { type AbstractControl, type ValidationErrors, type ValidatorFn } from '@angular/forms';
 
 function stringValue(control: AbstractControl): string {
@@ -66,8 +67,11 @@ function toMs(value: unknown): number {
 }
 
 /**
- * Bundled `ValidatorFn`s — pure functions, no DOM, no DI. Mirrors the
- * API shape of Angular's built-in `Validators` so it composes cleanly:
+ * Bundled `ValidatorFn`s — pure functions, no DOM, no DI. (`matchFields` keeps
+ * one bit of per-instance state, a latch so its dev-mode misconfiguration
+ * warning fires once rather than on every validation run; it is never read as
+ * part of the result.) Mirrors the API shape of Angular's built-in
+ * `Validators` so it composes cleanly:
  *
  * ```ts
  * import { Validators } from '@angular/forms';
@@ -192,12 +196,129 @@ export const WrValidators = {
    * Value must equal a sibling control's value (e.g. confirm-password).
    * The target lookup uses `control.parent.get(name)`, so it works
    * inside `FormGroup` and nested groups.
+   *
+   * **It cannot report a mismatch until something revalidates the control.**
+   * Angular runs a control's validators inside the control's own constructor,
+   * before the control has a parent — so the lookup finds nothing and this
+   * returns `null`, and attaching the control to a group does not re-run it.
+   *
+   * `formControlName` revalidates when it binds, so a group rendered through
+   * the reactive-forms directives corrects itself on its first change
+   * detection. The window is open for everything that reads validity BEFORE
+   * that: a route guard or resolver checking `form.valid`, a form built and
+   * submitted from a service, a unit test. Such a group reports itself valid
+   * with two values that plainly disagree.
+   *
+   * Put {@link WrValidators.matchFields} on the group to close it, and keep
+   * this one on the child for the per-field message. They do not conflict —
+   * different error keys, different hosts.
+   *
+   * @see WrValidators.matchFields
    */
   match: (targetName: string): ValidatorFn => {
     return (control: AbstractControl): ValidationErrors | null => {
       const target = control.parent?.get(targetName);
       if (!target) return null;
       return control.value === target.value ? null : { match: { target: targetName } };
+    };
+  },
+
+  /**
+   * Every named control must hold the same value — the group-level counterpart
+   * to {@link WrValidators.match}. Attach it to the group that OWNS the fields,
+   * not to one of its children.
+   *
+   * Unlike `match` this has no ordering hole: Angular attaches the children and
+   * aggregates their values BEFORE it runs the group's own validators, so a
+   * group built from a record whose fields already disagree is invalid the
+   * moment it exists — no revalidation step, and nothing that depends on the
+   * form having been rendered.
+   *
+   * Names are `AbstractControl.get()` paths, so `'billing.zip'` reaches into a
+   * nested group. `null`, `undefined` and `''` all count as the same empty
+   * value; everything else is compared with `===`, so two equal `Date`s are NOT
+   * equal — compare a derived primitive instead. **Disabled controls are
+   * skipped**, which makes the rule compare exactly what `group.value`
+   * contains, and the error names only the controls it actually compared.
+   *
+   * A name that resolves to nothing, or to a group or an array rather than a
+   * leaf control, turns the whole check off and warns once per validator
+   * instance in dev — never a partial comparison of the names that did
+   * resolve, and never an error the user has no way to satisfy.
+   *
+   * The error lands on the GROUP, and `<wr-form-field>` only reads the one
+   * control projected into it — so pair this with `match` for a per-field
+   * message, or render it yourself from `form.hasError('matchFields')`.
+   *
+   * @example
+   * ```ts
+   * new FormGroup(
+   *   {
+   *     password: new FormControl(''),
+   *     confirm: new FormControl('', [WrValidators.match('password')]),
+   *   },
+   *   { validators: [WrValidators.matchFields('password', 'confirm')] },
+   * );
+   * ```
+   */
+  matchFields: (first: string, second: string, ...rest: readonly string[]): ValidatorFn => {
+    // Frozen because the payload hands these names out: a consumer who mutated
+    // the array would be editing the validator's own configuration, and a
+    // `push` of a name that resolves to nothing switches the check OFF — the
+    // form then goes valid with two values that plainly disagree.
+    const fields: readonly string[] = Object.freeze([first, second, ...rest]);
+
+    // Per-instance, never module-level: a shared latch is process-wide state
+    // under SSR, where one request's warning would silence every later one.
+    let warned = false;
+
+    const warn = (message: string): void => {
+      if (!isDevMode() || warned) return;
+      warned = true;
+      // `warn`, not `error`: a prerender worker forwards app console errors as
+      // `ERROR …` and `scripts/build-showcase.ts` fails the build on them —
+      // and adding the control later is a legitimate pattern, not a red build.
+      // Reported rather than thrown for the same reason.
+      // eslint-disable-next-line no-console -- a silent pass is the very bug this validator removes
+      console.warn(`[NGWR] matchFields: ${message} — the check did not run.`);
+    };
+
+    return (group: AbstractControl): ValidationErrors | null => {
+      const compared: string[] = [];
+      const values: unknown[] = [];
+
+      for (const name of fields) {
+        const found = group.get(name);
+        if (!found) {
+          warn(`no control at "${name}". Names are AbstractControl.get() paths, relative to this group`);
+          return null;
+        }
+
+        // A group or an array RESOLVES, so it slips past the check above and
+        // would then be compared by reference against another container —
+        // never equal, whatever the user types. `'billing'` instead of
+        // `'billing.zip'` is the easy mistake, and it makes a form that can
+        // never be submitted and says nothing about why.
+        if ('controls' in found) {
+          warn(`"${name}" is a group or an array; name a leaf control, e.g. "${name}.<field>"`);
+          return null;
+        }
+
+        // A disabled control is absent from `group.value` and its own
+        // validators do not run; blocking a form on a value the user cannot
+        // edit is not a rule anyone can satisfy.
+        if (found.disabled) continue;
+
+        compared.push(name);
+        values.push((found.value as unknown) ?? '');
+      }
+
+      if (values.length < 2) return null;
+      // A fresh array, and only the names that actually took part: naming a
+      // disabled control would point the reader at something they cannot edit.
+      // No control VALUES — this guards passwords, and error objects reach the
+      // DOM, logs and error reporters.
+      return values.every(v => v === values[0]) ? null : { matchFields: { fields: [...compared] } };
     };
   },
 

@@ -103,6 +103,7 @@ export const wrEn: WrI18nCatalog = {
     cvc: 'Enter the {{length}}-digit security code.',
     iban: 'Enter a valid IBAN.',
     match: 'The two values do not match.',
+    matchFields: 'These fields do not match.',
     oneOf: 'Choose one of the allowed values.',
     minDate: 'Choose a later date.',
     maxDate: 'Choose an earlier date.',

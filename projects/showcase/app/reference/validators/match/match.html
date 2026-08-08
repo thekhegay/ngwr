@@ -26,6 +26,11 @@
     description="Cross-field equality (password confirmation) is awkward with built-ins — every project ends up hand-writing the same group-level validator. This one reads the sibling control by name."
   />
 
+  <ngwr-doc-section
+    title="It cannot see a mismatch that was there from the start"
+    description="A control runs its validators inside its own constructor, before it has been attached to a parent — so the sibling lookup finds nothing and this returns null, and joining the group does not re-run it. `formControlName` revalidates when it binds, so a form rendered through the reactive-forms directives corrects itself on its first change detection. The window is open for whatever reads validity FIRST — a route guard or resolver checking `form.valid`, a form built and submitted from a service, a unit test. Put `matchFields` on the group to close it and keep this one on the child for the per-field message; they use different error keys and do not conflict."
+  />
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

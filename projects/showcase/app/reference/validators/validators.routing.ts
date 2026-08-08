@@ -13,6 +13,7 @@ export default [
   { path: v.cvc, loadComponent: () => import('./cvc/cvc') },
   { path: v.iban, loadComponent: () => import('./iban/iban') },
   { path: v.match, loadComponent: () => import('./match/match') },
+  { path: v.matchFields, loadComponent: () => import('./match-fields/match-fields') },
   { path: v.oneOf, loadComponent: () => import('./one-of/one-of') },
   { path: v.minDate, loadComponent: () => import('./min-date/min-date') },
   { path: v.maxDate, loadComponent: () => import('./max-date/max-date') },

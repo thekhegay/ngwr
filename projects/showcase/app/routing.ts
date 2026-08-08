@@ -272,6 +272,7 @@ export const routes = {
     cvc: 'cvc',
     iban: 'iban',
     match: 'match',
+    matchFields: 'match-fields',
     oneOf: 'one-of',
     minDate: 'min-date',
     maxDate: 'max-date',

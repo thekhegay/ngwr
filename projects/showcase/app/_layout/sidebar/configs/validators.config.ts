@@ -6,6 +6,7 @@ export const VALIDATORS_SIDEBAR: readonly SidebarGroup[] = [
     title: 'Cross-control',
     children: [
       { title: 'match', url: ['/reference/validators', 'match'] },
+      { title: 'matchFields', url: ['/reference/validators', 'match-fields'] },
       { title: 'oneOf', url: ['/reference/validators', 'one-of'] },
     ],
   },

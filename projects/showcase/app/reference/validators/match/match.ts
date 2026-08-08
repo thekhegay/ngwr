@@ -66,9 +66,22 @@ const form = new FormGroup({
       type: '{ match: { target } }',
       default: '—',
     },
+    {
+      name: 'initial values',
+      description:
+        'Cannot report a mismatch until something revalidates the control — a control runs its validators before it has a parent, so the sibling lookup finds nothing. `formControlName` revalidates when it binds; a guard or a service reading `form.valid` first does not. Put `matchFields` on the group to close that window.',
+      type: '—',
+      default: '—',
+    },
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Validator',
+      title: 'matchFields',
+      url: ['/reference/validators', 'match-fields'],
+      description: 'The group-level counterpart — reports a mismatch that was there from the start.',
+    },
     {
       kind: 'Component',
       title: 'wr-input',

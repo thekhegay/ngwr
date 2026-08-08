@@ -154,7 +154,7 @@ bootstrapApplication(App, {
       title: 'WrValidators',
       url: ['/reference/validators'],
       description:
-        'The error-key contract — every `WrValidators.*` member has a stable key for `<wr-form-error key="…">`.',
+        'The error-key contract — every `WrValidators.*` member keys its error under its own name. `matchFields` is the one that lands on the GROUP, which this component does not read.',
     },
   ];
 }
