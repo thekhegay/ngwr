@@ -82,8 +82,11 @@ one component folder. Reach for them instead of hand-rolling:
   `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`), and
   `ngwr/validators` (`WrValidators`).
 - **`wr-table` is the data workhorse** — column pin / resize / drag-reorder, row
-  selection, expandable rows, summary rows, CSV export, grouping and a
-  virtualized body are all opt-in inputs on the one component. Excel (`.xlsx`)
+  selection, expandable rows, summary rows, CSV export, grouping, **tree rows**
+  (`childrenKey` makes `items` the roots and the table announces a `treegrid`)
+  and a virtualized body are all opt-in inputs on the one component. Three pairs
+  are refused rather than half-supported: tree + `groupBy`, tree +
+  `[wrTableExpand]`, tree + `virtualScroll`. Excel (`.xlsx`)
   export is deliberately NOT shipped (would need a third-party dep). Don't
   hand-roll selection checkboxes or a CSV writer.
 - **Virtual scrolling** — `wr-table`, `wr-tree` and `wr-select` (search mode)

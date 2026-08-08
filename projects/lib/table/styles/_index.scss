@@ -130,6 +130,65 @@
   // which lives in `<body>` — see the rule at the end of this file.
 
 
+  // --- Tree rows ------------------------------------------------------------
+  // Depth lives on the `<tr>` as `--wr-table-depth` and is spent inside the tree
+  // column's cell, not as a lead column: a new column would break `columnOrder`
+  // indexes and the pin measurements, and a child would stop being an ordinary
+  // `<tr>` going through the same cell loop.
+  &__tree-lead {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-inline-end: 0.25rem;
+    padding-inline-start: calc(var(--wr-table-depth, 0) * var(--wr-table-indent, 1.25rem));
+  }
+
+  &__tree-toggle {
+    appearance: none;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: var(--wr-border-radius-sm);
+    color: var(--wr-color-on-surface-muted);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--wr-color-hover);
+      color: var(--wr-color-on-surface);
+    }
+
+    // A leaf keeps the slot so labels line up down a column, but is not a
+    // button and is hidden from assistive tech.
+    &--leaf {
+      cursor: default;
+      visibility: hidden;
+    }
+  }
+
+  &__tree-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    transition: transform var(--wr-transition-base);
+  }
+
+  &__tree-toggle--open &__tree-icon,
+  &__tree-toggle--open .wr-table__tree-icon {
+    transform: rotate(90deg);
+  }
+
+  // Card mode stacks label / value with `justify-content: space-between`, so an
+  // extra inline child would strand the chevron mid-row. Fold the lead into the
+  // value side instead.
+  &--responsive &__tree-lead {
+    margin-inline-end: 0.375rem;
+  }
+
   // --- Row selection --------------------------------------------------------
   &__th--select,
   &__td--select {

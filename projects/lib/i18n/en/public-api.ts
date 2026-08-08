@@ -54,6 +54,7 @@ export const wrEn: WrI18nCatalog = {
     selectAll: 'Select all rows',
     selectRow: 'Select row',
     expandRow: 'Toggle row details',
+    toggleRow: 'Toggle child rows',
     selectGroup: 'Select group',
     toggleGroup: 'Toggle group',
     noMatches: 'No matches',

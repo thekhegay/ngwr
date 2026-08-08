@@ -58,8 +58,27 @@ const WR_TABLE_UNGROUPED = Symbol('wr-table-ungrouped');
 /** One `<tbody>` row descriptor. Not exported — same precedent as the tree's flat node. */
 type RenderRow =
   | { readonly kind: 'group'; readonly id: string; readonly group: WrTableGroupContext }
-  | { readonly kind: 'row'; readonly id: string; readonly row: Record<string, unknown> }
+  | {
+      readonly kind: 'row';
+      readonly id: string;
+      readonly row: Record<string, unknown>;
+      /** 0 for a flat table and for every root; +1 per level in tree mode. */
+      readonly depth: number;
+      /** Whether this row owns a child array — drives the toggle vs the spacer. */
+      readonly parent: boolean;
+      /** Open state, `null` for a leaf (so `aria-expanded` is omitted entirely). */
+      readonly open: boolean | null;
+      /** 1-based position among its siblings, for `aria-posinset`. */
+      readonly posinset: number;
+      /** Sibling count, for `aria-setsize`. */
+      readonly setsize: number;
+    }
   | { readonly kind: 'group-foot'; readonly id: string; readonly summaries: ReadonlyMap<string, unknown> };
+
+/** A flat row descriptor with the tree fields at their flat-table defaults. */
+function flatRow(row: Record<string, unknown>, id: string, posinset: number, setsize: number): RenderRow {
+  return { kind: 'row', id, row, depth: 0, parent: false, open: null, posinset, setsize };
+}
 
 /**
  * Data table with sortable / filterable headers and custom cell templates.
@@ -169,6 +188,49 @@ export class WrTable {
   readonly groupBy = input<string | ((row: Record<string, unknown>) => unknown) | null>(null);
 
   /**
+   * Render the rows as a hierarchy: names the property (or computes the array)
+   * holding each row's children. `items` then means the ROOTS, and the forest is
+   * flattened depth-first into the same `<tbody>` — child rows are ordinary
+   * `<tr>`s going through the same cell loop, so column pin / resize /
+   * drag-reorder and `[wrTableCell]` templates keep working at every depth.
+   *
+   * Open state reuses the `expanded` model and row identity reuses `rowKey`, so
+   * a tree needs no second key space. Everything collapsed is the default.
+   *
+   * **Mutually exclusive with `groupBy`** — a forest has no flat list to bucket,
+   * so grouping wins and the hierarchy is ignored while it is set. Also
+   * mutually exclusive with `[wrTableExpand]` detail rows: both own the row's
+   * disclosure affordance.
+   *
+   * `pageSize` pages the ROOTS; a root brings its open descendants with it.
+   *
+   * @example
+   * ```html
+   * <wr-table
+   *   rowKey="id"
+   *   childrenKey="reports"
+   *   treeColumn="name"
+   *   [columns]="columns"
+   *   [items]="org"
+   *   [(expanded)]="open"
+   * />
+   * ```
+   */
+  readonly childrenKey = input<
+    string | ((row: Record<string, unknown>) => readonly Record<string, unknown>[] | null | undefined) | null
+  >(null);
+
+  /**
+   * Which column carries the indent and the expand toggle. Keyed, not
+   * positional, so it survives a `columnOrder` drag. Defaults to whichever
+   * column renders first.
+   */
+  readonly treeColumn = input<string | null>(null);
+
+  /** Accessible name of a parent row's expand toggle. Falls back to `table.toggleRow`. */
+  readonly toggleRowLabel = input<string | null>(null);
+
+  /**
    * Two-way bindable collapsed group values (the values `groupBy` returns).
    * Keyed by value, so a collapsed group stays collapsed across page changes and
    * re-sorts. Empty (the default) shows every group expanded.
@@ -217,6 +279,7 @@ export class WrTable {
   protected readonly resolvedSelectAllLabel = useI18nText(this.selectAllLabel, 'table.selectAll', 'Select all rows');
   protected readonly resolvedSelectRowLabel = useI18nText(this.selectRowLabel, 'table.selectRow', 'Select row');
   protected readonly resolvedExpandRowLabel = useI18nText(this.expandRowLabel, 'table.expandRow', 'Toggle row details');
+  protected readonly resolvedToggleRowLabel = useI18nText(this.toggleRowLabel, 'table.toggleRow', 'Toggle child rows');
   protected readonly resolvedSelectGroupLabel = useI18nText(this.selectGroupLabel, 'table.selectGroup', 'Select group');
   protected readonly resolvedToggleGroupLabel = useI18nText(this.toggleGroupLabel, 'table.toggleGroup', 'Toggle group');
 
@@ -563,6 +626,7 @@ export class WrTable {
     () =>
       this.virtualScroll() &&
       this.groupBy() === null && // group bands / subtotals are variable height
+      !this.treeMode() && // expanding re-anchors the window; needs scroll anchoring first
       !this.expandable() && // an injected detail <tr> desyncs uniform offsets
       !this.responsive() && // card mode has no uniform row height
       this.pageSize() === 0 && // a visible pager owns chunking — the pager wins
@@ -650,9 +714,19 @@ export class WrTable {
   }
 
   /** Keys of the rows on the current page — the select-all scope. */
-  private readonly pageRowKeys = computed<readonly unknown[]>(() =>
-    (this.visibleItems() ?? []).map(row => this.rowKeyOf(row))
-  );
+  /**
+   * Scope of the header select-all: the rows currently ON SCREEN. In tree mode
+   * that is every VISIBLE node — a collapsed subtree is not on screen and is not
+   * swept in, which keeps the checkbox honest about what it just did.
+   */
+  private readonly pageRowKeys = computed<readonly unknown[]>(() => {
+    if (this.treeMode()) {
+      return this.renderRows()
+        .filter((entry): entry is Extract<RenderRow, { kind: 'row' }> => entry.kind === 'row')
+        .map(entry => this.rowKeyOf(entry.row));
+    }
+    return (this.visibleItems() ?? []).map(row => this.rowKeyOf(row));
+  });
 
   protected isRowSelected(row: Record<string, unknown>): boolean {
     return this.selectionSet().has(this.rowKeyOf(row));
@@ -704,7 +778,105 @@ export class WrTable {
   private readonly expandTpl = contentChild(WrTableExpand);
 
   /** Whether the expand column shows (a `[wrTableExpand]` template was projected). */
-  protected readonly expandable = computed<boolean>(() => !!this.expandTpl());
+  /**
+   * Tree mode is on when `childrenKey` is set AND grouping is not. Grouping wins
+   * deliberately: `groupBy` buckets a flat list and a forest has none, so rather
+   * than half-support the pair the hierarchy is ignored while a group is set.
+   */
+  protected readonly treeMode = computed<boolean>(() => this.childrenKey() !== null && this.groupBy() === null);
+
+  /** Detail rows and tree rows both own the row's disclosure — tree mode wins. */
+  protected readonly expandable = computed<boolean>(() => !this.treeMode() && !!this.expandTpl());
+
+  /** The column that carries the indent + toggle — named, else whichever renders first. */
+  protected readonly treeColumnKey = computed<string | null>(() =>
+    this.treeMode() ? (this.treeColumn() ?? this.displayColumns()[0]?.key ?? null) : null
+  );
+
+  /** This row's children, whatever shape `childrenKey` names. */
+  private childrenOf(row: Record<string, unknown>): readonly Record<string, unknown>[] {
+    const ck = this.childrenKey();
+    if (ck === null) return [];
+    const raw = typeof ck === 'function' ? ck(row) : row[ck];
+    return Array.isArray(raw) ? (raw as readonly Record<string, unknown>[]) : [];
+  }
+
+  /**
+   * Depth-first flatten of the forest, descending only into open parents.
+   * `seen` is path-scoped rather than global: the same row legitimately appearing
+   * under two parents is fine, a row appearing under itself is a cycle and would
+   * otherwise hang the walk.
+   */
+  private flattenForest(roots: readonly Record<string, unknown>[]): readonly RenderRow[] {
+    const open = new Set(this.expanded());
+    const out: RenderRow[] = [];
+
+    const walk = (
+      rows: readonly Record<string, unknown>[],
+      depth: number,
+      prefix: string,
+      seen: ReadonlySet<unknown>
+    ): void => {
+      rows.forEach((row, i) => {
+        const key = this.rowKeyOf(row);
+        if (seen.has(key)) return;
+        const children = this.childrenOf(row);
+        const parent = children.length > 0;
+        const isOpen = parent && open.has(key);
+        out.push({
+          kind: 'row',
+          id: `${prefix}r${i}`,
+          row,
+          depth,
+          parent,
+          open: parent ? isOpen : null,
+          posinset: i + 1,
+          setsize: rows.length,
+        });
+        if (isOpen) walk(children, depth + 1, `${prefix}r${i}-`, new Set(seen).add(key));
+      });
+    };
+
+    walk(roots, 0, '', new Set());
+    return out;
+  }
+
+  /** Every node in the forest, depth-first — what selection and CSV must see. */
+  private allTreeRows(): readonly Record<string, unknown>[] {
+    const out: Record<string, unknown>[] = [];
+    const walk = (rows: readonly Record<string, unknown>[], seen: ReadonlySet<unknown>): void => {
+      for (const row of rows) {
+        const key = this.rowKeyOf(row);
+        if (seen.has(key)) continue;
+        out.push(row);
+        const children = this.childrenOf(row);
+        if (children.length > 0) walk(children, new Set(seen).add(key));
+      }
+    };
+    walk(this.items() ?? [], new Set());
+    return out;
+  }
+
+  /** Open / close one parent row. */
+  protected toggleTreeRow(row: Record<string, unknown>): void {
+    const key = this.rowKeyOf(row);
+    const open = this.expanded();
+    this.expanded.set(open.includes(key) ? open.filter(k => k !== key) : [...open, key]);
+  }
+
+  /** Open every parent in the forest. */
+  expandAllRows(): void {
+    this.expanded.set(
+      this.allTreeRows()
+        .filter(row => this.childrenOf(row).length > 0)
+        .map(row => this.rowKeyOf(row))
+    );
+  }
+
+  /** Close every parent. */
+  collapseAllRows(): void {
+    this.expanded.set([]);
+  }
 
   /** Leading control columns — selection + expand. */
   protected readonly leadingCols = computed<number>(() => (this.rowSelection() ? 1 : 0) + (this.expandable() ? 1 : 0));
@@ -739,7 +911,9 @@ export class WrTable {
 
   /** Per-column footer values, computed over `items` (the current page in server mode). */
   private readonly summaries = computed<ReadonlyMap<string, unknown>>(() => {
-    const rows = this.items() ?? [];
+    // Every node in tree mode, not just the roots — a headcount that ignored
+    // children would be wrong in the obvious way.
+    const rows = this.datasetRows();
     const map = new Map<string, unknown>();
     for (const [key, col] of Object.entries(this.columns())) {
       if (col.summary !== undefined) map.set(key, this.computeSummary(col.summary, rows, key));
@@ -794,7 +968,9 @@ export class WrTable {
     const buckets = this.groupBuckets();
 
     if (this.groupBy() === null) {
-      return buckets[0].rows.map((row, i) => ({ kind: 'row', id: `r${i}`, row }) as const);
+      const roots = buckets[0].rows;
+      if (this.treeMode()) return this.flattenForest(roots);
+      return roots.map((row, i) => flatRow(row, `r${i}`, i + 1, roots.length));
     }
 
     const collapsed = new Set(this.collapsedGroups());
@@ -819,7 +995,7 @@ export class WrTable {
       };
       out.push({ kind: 'group', id: `g${gi}`, group });
       if (isCollapsed) return;
-      bucket.rows.forEach((row, ri) => out.push({ kind: 'row', id: `g${gi}r${ri}`, row }));
+      bucket.rows.forEach((row, ri) => out.push(flatRow(row, `g${gi}r${ri}`, ri + 1, bucket.rows.length)));
       if (summaryCols.length) {
         const summaries = new Map<string, unknown>();
         for (const [key, col] of summaryCols) summaries.set(key, this.computeSummary(col.summary!, bucket.rows, key));
@@ -905,7 +1081,7 @@ export class WrTable {
     const delimiter = options.delimiter ?? ',';
     const escapeFormulas = options.escapeFormulas ?? true;
     const cols = this.displayColumns();
-    const rows = options.selectedOnly ? this.selectedRows() : (this.items() ?? []);
+    const rows = options.selectedOnly ? this.selectedRows() : this.datasetRows();
     const text = (value: unknown): string => {
       if (value == null) return '';
       if (typeof value === 'string') return value;
@@ -942,9 +1118,18 @@ export class WrTable {
     setTimeout(() => URL.revokeObjectURL(url));
   }
 
+  /**
+   * Every row of the dataset. Flat that is `items`; in tree mode it is the whole
+   * forest depth-first, so selection, CSV and the grand summary count children
+   * instead of silently reporting roots only.
+   */
+  private datasetRows(): readonly Record<string, unknown>[] {
+    return this.treeMode() ? this.allTreeRows() : (this.items() ?? []);
+  }
+
   private selectedRows(): readonly Record<string, unknown>[] {
     const keys = new Set(this.selection());
-    return (this.items() ?? []).filter(row => keys.has(this.rowKeyOf(row)));
+    return this.datasetRows().filter(row => keys.has(this.rowKeyOf(row)));
   }
 
   private computeSummary(kind: WrTableSummary, rows: readonly Record<string, unknown>[], key: string): unknown {
