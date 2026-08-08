@@ -7,8 +7,10 @@
 //   .cdk-drag-preview     — floating preview that follows the cursor
 //   .cdk-drag-placeholder — empty slot left at the source position
 //   .cdk-drag-animating   — in the post-drop settle animation
-// We theme them so the default look matches the rest of the lib; apps
-// can override `.cdk-drag-preview` etc. per drop list.
+// Every one of them is qualified with a `.wr-sortable-list*` class. Bare
+// `.cdk-drag-*` rules are global, and a UI library has no business restyling
+// a consumer's own CDK drop lists — nor `wr-table`'s column drag, which was
+// picking up this component's dashed placeholder and lift shadow.
 
 .wr-sortable-list {
   display: block;
@@ -71,7 +73,11 @@
 
 // CDK overlays applied by drag-drop
 
-.cdk-drag-preview {
+// The preview is a CLONE of the dragged row that CDK moves to `document.body`,
+// so an ancestor selector cannot reach it — but the clone keeps the row's own
+// class, which can. Verified on a real drag: the preview lands in `<body>`
+// carrying `cdk-drag wr-sortable-list__item cdk-drag-preview`.
+.cdk-drag-preview.wr-sortable-list__item {
   box-sizing: border-box;
   color: var(--wr-color-on-surface);
   font-family: var(--wr-font-family-base);
@@ -86,7 +92,8 @@
   // CDK sets pointer-events to none on the preview; we keep visuals only.
 }
 
-.cdk-drag-placeholder {
+// The placeholder stays in the list, so scoping by ancestor is enough here.
+.wr-sortable-list .cdk-drag-placeholder {
   opacity: 0.35;
   // Subtle dashed outline so users see where the item came from.
   background: rgba(var(--wr-color-outline-rgb), 0.6);
@@ -95,7 +102,13 @@
   outline-offset: -1px;
 }
 
-.cdk-drag-animating {
+// Also the preview, not a row in the list: CDK keeps `cdk-drag-preview` on the
+// clone and adds `cdk-drag-animating` while it flies back to the drop slot.
+// Verified on a real drop — the element carries
+// `cdk-drag wr-sortable-list__item cdk-drag-preview cdk-drag-animating` and sits
+// in `<body>`. It has to come after the preview rule, which sets
+// `transition: none` at the same specificity.
+.cdk-drag-animating.wr-sortable-list__item {
   transition: transform 0.18s var(--wr-ease-spring);
 }
 

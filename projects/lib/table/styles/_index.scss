@@ -126,9 +126,9 @@
     opacity: 0.35;
   }
 
-  .cdk-drag-animating {
-    transition: transform 0.18s var(--wr-ease-out);
-  }
+  // NOTE: `.cdk-drag-animating` is NOT here. CDK puts it on the preview clone,
+  // which lives in `<body>` — see the rule at the end of this file.
+
 
   // --- Row selection --------------------------------------------------------
   &__th--select,
@@ -764,4 +764,40 @@
       background: var(--wr-color-primary-soft);
     }
   }
+}
+
+// The dragged header's preview is a clone CDK moves to `document.body`, so it
+// leaves `.wr-table` behind and no ancestor selector reaches it — the clone's
+// own `wr-table__th` class does. Declared here rather than inherited: until the
+// drag-drop entry point's rules were scoped, this preview silently wore
+// `wr-sortable-list`'s lift shadow, and scoping them without this would have
+// left the column preview with no chrome at all.
+.cdk-drag-preview.wr-table__th {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  // Every value has to resolve in `<body>`: the `--wr-table-*` tokens are
+  // declared on `.wr-table`, which the preview has left, so they are passed with
+  // the same defaults that block sets. `--wr-density-*` and `--wr-color-*` are
+  // root-level and resolve as-is.
+  padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+  background: var(--wr-table-head-bg, rgba(var(--wr-color-outline-rgb), 0.25));
+  color: var(--wr-color-on-surface-muted);
+  font-family: var(--wr-font-family-base);
+  font-weight: 600;
+  font-size: var(--wr-text-xs);
+  letter-spacing: var(--wr-table-head-letter-spacing, var(--wr-tracking-normal));
+  text-transform: var(--wr-table-head-transform, none);
+  white-space: nowrap;
+  border-radius: var(--wr-border-radius-sm);
+  box-shadow: 0 8px 12px rgba(var(--wr-color-backdrop-rgb), 0.24);
+  // The preview must track the cursor 1:1 — never animate its transform.
+  transition: none;
+}
+
+// The settle animation after a drop. Same element as the rule above — CDK adds
+// `cdk-drag-animating` to the preview while it flies back to the drop slot — so
+// it must come after it to beat that `transition: none` at equal specificity.
+.cdk-drag-animating.wr-table__th {
+  transition: transform 0.18s var(--wr-ease-out);
 }
