@@ -75,9 +75,21 @@ theme is what makes ngwr a library people can bet on.
       the right tab — `activeTab()` falls back to `tabs[0]` — so the only
       symptom was a two-way binding holding a key the consumer had never heard
       of. Fixed by seeding from `contentChildren` once inputs are bound.
-      **Remaining:** the rest of the services, then interaction tests for the
-      top overlay + form components (select, date-picker, dialog, popover,
-      toast). A2 (CDK test harnesses) and B2 both wait on that second half.
+      `wr-select` followed — the first overlay component under test, and the
+      one B2 rewrites first. 138 specs.
+      It turned up the more serious of the two bugs so far: **no ngwr component
+      would render in an app that had never called `provideWrI18n()`.** Every
+      component routes its built-in strings through `useI18nText`, which injects
+      `WrI18n` OPTIONALLY — but `WrI18n` is `providedIn: 'root'`, so an optional
+      inject still constructs it, and construction died on `NG0201: No provider
+      found for WR_I18N_LOADER`. The `if (!i18n)` fallback branch in the helpers
+      was therefore unreachable: i18n was documented as optional and was in fact
+      mandatory. `WR_I18N_LOADER` now defaults to a loader serving an empty
+      catalog, so every lookup misses, `t()` returns the key, and the component
+      falls through to its English default — which is what the helpers always
+      meant to do.
+      **Remaining:** the rest of the services, then date-picker, dialog, popover
+      and toast. A2 (CDK test harnesses) and B2 both wait on that second half.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
