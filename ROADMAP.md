@@ -37,15 +37,33 @@ Two notes on the order, then it stands as written:
 
 ## A — Trust & hardening
 
-The catalog is 130 entry points. Lint, both builds, the a11y sweep and the API
-drift check gate it today; unit tests are the hole. This theme is what makes
-ngwr a library people can bet on.
+The catalog is 130 entry points. Lint, unit tests, both builds, the a11y sweep
+and the API drift check gate it today — the hole is now the SHAPE of the test
+suite, not its absence: pure logic is covered, component behaviour is not. This
+theme is what makes ngwr a library people can bet on.
 
-- [ ] **A1. Test foundation** (XL, spans a cycle) — vitest via `ng test` (Karma
-      is gone; vitest is the blessed runner), CI-gated. Order: utils /
-      validators / pipes / services first (pure logic), then interaction tests
-      for the top overlay + form components (select, date-picker, dialog,
-      popover, toast).
+- [ ] **A1. Test foundation** (XL, spans a cycle) — **runner landed and
+      CI-gated.** `pnpm test` is `ng test lib`: vitest through Angular's own
+      `@angular/build:unit-test` builder, so there is no `vitest.config.ts` and
+      no `@analogjs/*` — the target is in `angular.json` with
+      `projects/lib/tsconfig.spec.json`, and specs sit next to the code they
+      cover. `tsconfig.lib.json` excludes them, so nothing ships to npm.
+      **Covered:** the pure-logic layer — `ngwr/utils` (math, guards, keyboard
+      predicates, debounce / throttle on fake timers, `randomId`),
+      `ngwr/validators` (all ten) and `ngwr/pipes` (bytes, truncate, range,
+      plural, mark). 83 specs.
+      Two findings on the first run, both now pinned by a spec: `randomId`'s
+      random segment can start with a digit, so it is the PREFIX that keeps the
+      id a valid CSS selector; and **`WrValidators.match` reports nothing on a
+      mismatched INITIAL value** — Angular runs a control's validators in its
+      own constructor, before it has a parent, so `control.parent?.get(...)`
+      finds nothing and the group reports itself valid until the field is
+      edited. Hand-typed forms never see it; a form prefilled from a server
+      record does. Needs either a group-level variant or a documented
+      revalidate step.
+      **Remaining:** services, then interaction tests for the top overlay +
+      form components (select, date-picker, dialog, popover, toast). A2 (CDK
+      test harnesses) and B2 both wait on that second half.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.

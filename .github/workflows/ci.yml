@@ -38,6 +38,10 @@ jobs:
 
       - run: pnpm lint
 
+      # Runs before the builds: a unit failure is cheaper to read than a broken
+      # bundle, and these are pure-logic specs that need nothing built first.
+      - run: pnpm test
+
       # Reads the library source only, so it runs before the builds: a docs
       # table that no longer matches the JSDoc it was copied from fails here.
       - run: pnpm check:api-docs
