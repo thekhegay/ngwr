@@ -10,7 +10,7 @@
         <wr-speed-dial [actions]="actions" direction="up" (pick)="onPick($event)" />
       </div>
       @if (lastPick()) {
-        <small style="display: block; text-align: center; color: var(--wr-color-medium)"
+        <small style="display: block; text-align: center; color: var(--wr-color-on-surface-muted)"
           >Picked: {{ lastPick() }}</small
         >
       }

@@ -12,7 +12,9 @@
           Press <wr-kbd>⌘</wr-kbd><wr-kbd>/</wr-kbd> (or <wr-kbd>Ctrl</wr-kbd><wr-kbd>/</wr-kbd>) anywhere on this page.
         </div>
         @if (lastHotkey()) {
-          <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-medium)">{{ lastHotkey() }}</small>
+          <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">{{
+            lastHotkey()
+          }}</small>
         }
       </div>
     </ngwr-doc-snippet>

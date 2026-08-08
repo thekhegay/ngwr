@@ -14,7 +14,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.standalone">
       <wr-checkbox [(checked)]="agree">I agree to the terms</wr-checkbox>
-      <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: {{ agree() }}</span>
+      <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ agree() }}</span>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -29,7 +29,9 @@
           <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
           <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
         </wr-checkbox-group>
-        <span style="color: var(--wr-color-medium); font-size: 0.875rem">Value: [{{ features().join(', ') }}]</span>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"
+          >Value: [{{ features().join(', ') }}]</span
+        >
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

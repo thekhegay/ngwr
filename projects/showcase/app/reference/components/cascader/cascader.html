@@ -13,7 +13,7 @@
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
         <wr-cascader [options]="locations" [(ngModel)]="picked" placeholder="Pick a location" />
-        <span style="color: var(--wr-color-medium); font-size: 0.875rem"> Value: {{ picked() | json }} </span>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem"> Value: {{ picked() | json }} </span>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -26,7 +26,9 @@
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 30rem">
         <wr-cascader [options]="locations" [(ngModel)]="pickedAny" changeOnSelect placeholder="Pick any level" />
-        <span style="color: var(--wr-color-medium); font-size: 0.875rem"> Value: {{ pickedAny() | json }} </span>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Value: {{ pickedAny() | json }}
+        </span>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
