@@ -1,0 +1,66 @@
+/**
+ * @license
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
+ */
+
+import { Component, InjectionToken, ViewEncapsulation, computed, inject } from '@angular/core';
+
+import { WrButton } from 'ngwr/button';
+import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
+
+import type { WrTourStep } from './interfaces';
+
+/** What the popup needs from the running tour, without importing the service (cycle). */
+export interface WrTourController {
+  readonly index: () => number;
+  readonly total: () => number;
+  readonly step: () => WrTourStep | null;
+  next(): void;
+  prev(): void;
+  stop(): void;
+}
+
+/** Provided by `WrTour` when it attaches the popup portal. */
+export const WR_TOUR_STEP = new InjectionToken<WrTourController>('WR_TOUR_STEP');
+
+/**
+ * The card a tour shows next to the spotlit element. Rendered by `WrTour` into
+ * a CDK overlay — not something you place yourself.
+ *
+ * @see https://ngwr.dev/reference/services/tour
+ */
+@Component({
+  selector: 'wr-tour-popup',
+  templateUrl: './tour-popup.html',
+  encapsulation: ViewEncapsulation.None,
+  host: { class: 'wr-tour-popup', role: 'dialog', 'aria-modal': 'true', '[attr.aria-label]': 'ariaLabel()' },
+  imports: [WrButton],
+})
+export class WrTourPopup {
+  protected readonly tour = inject(WR_TOUR_STEP);
+
+  // `readI18nText`, not `useI18nText`: these have no consumer-facing input to
+  // forward, and the popup is rebuilt for every step, so resolving once at
+  // construction is enough.
+  protected readonly nextLabel = readI18nText('tour.next', 'Next');
+  protected readonly backLabel = readI18nText('tour.back', 'Back');
+  protected readonly doneLabel = readI18nText('tour.done', 'Done');
+  protected readonly skipLabel = readI18nText('tour.skip', 'Skip tour');
+
+  /** `Step {{current}} of {{total}}` — also the dialog's accessible name. */
+  protected readonly progress = useI18nFormatter('tour.progress', 'Step {{current}} of {{total}}');
+
+  protected readonly isLast = computed(() => this.tour.index() >= this.tour.total() - 1);
+  protected readonly isFirst = computed(() => this.tour.index() <= 0);
+
+  protected readonly progressText = computed(() =>
+    this.progress({ current: this.tour.index() + 1, total: this.tour.total() })
+  );
+
+  protected readonly ariaLabel = computed(() => {
+    const title = this.tour.step()?.title;
+    return title ? `${title} — ${this.progressText()}` : this.progressText();
+  });
+}

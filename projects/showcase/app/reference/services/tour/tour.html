@@ -1,0 +1,44 @@
+<ngwr-doc-page
+  title="WrTour"
+  description="Guided product tour — a spotlight over one element at a time plus a popup explaining it."
+  [keywords]="['tour', 'onboarding', 'walkthrough', 'spotlight', 'wr-tour']"
+  [labels]="['Service']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Run a tour"
+    description="Steps are data, not markup: `start()` takes an array and the service owns the overlay, the cut-out, focus and the keyboard. Escape ends the tour and focus returns where it began. The demo below has a deliberate fourth step pointing at an element that is not on the page — it is skipped rather than shown floating, which is what keeps a tour alive when a feature sits behind a flag or a permission."
+  >
+    <ngwr-doc-code [code]="snippets.start" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 26rem">
+        <input wrInput data-tour="search" placeholder="Search people" />
+        <div data-tour="filter" style="display: flex; gap: 0.5rem">
+          <button wr-btn type="button" size="sm" outlined>Admins</button>
+          <button wr-btn type="button" size="sm" outlined>Editors</button>
+        </div>
+        <button wr-btn type="button" data-tour="save" color="primary" style="align-self: flex-start">
+          Save changes
+        </button>
+
+        <button wr-btn type="button" color="secondary" style="align-self: flex-start" (click)="start()">
+          {{ tour.active() ? 'Tour running…' : 'Show me around' }}
+        </button>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reading the state"
+    description="Progress is exposed as signals, so a template can show its own progress bar or a “resume tour” affordance without subscribing to anything."
+  >
+    <ngwr-doc-code [code]="snippets.state" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

@@ -1,0 +1,63 @@
+@use '../../theme/styles' as theme;
+
+// The cut-out. A bare box sized to the spotlit element, dimming everything
+// around it with one enormous spread shadow — the target itself is never
+// covered, so it stays readable and clickable.
+.wr-tour__spotlight {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  border-radius: var(--wr-border-radius-base);
+  box-shadow: 0 0 0 9999px rgba(var(--wr-color-backdrop-rgb), 0.55);
+  transition:
+    top var(--wr-transition-base),
+    left var(--wr-transition-base),
+    width var(--wr-transition-base),
+    height var(--wr-transition-base);
+}
+
+.wr-tour-popup {
+  display: block;
+  max-width: 20rem;
+  padding: 1rem;
+  background: var(--wr-color-surface);
+  color: var(--wr-color-on-surface);
+  border: 1px solid var(--wr-color-outline);
+  @include theme.smooth-br(var(--wr-border-radius-base));
+  box-shadow: 0 12px 24px rgba(var(--wr-color-backdrop-rgb), 0.24);
+  font-family: var(--wr-font-family-base);
+
+  &__progress {
+    margin: 0 0 0.375rem;
+    font-size: var(--wr-text-xs);
+    color: var(--wr-color-on-surface-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__title {
+    margin: 0 0 0.375rem;
+    font-size: var(--wr-text-base);
+    font-weight: var(--wr-font-weight-semibold);
+  }
+
+  &__content {
+    margin: 0 0 0.875rem;
+    font-size: var(--wr-text-sm);
+    line-height: var(--wr-leading-normal);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__spacer {
+    flex: 1 1 auto;
+  }
+}
+
+// The popup rides above the cut-out.
+.wr-tour-overlay {
+  z-index: 1001;
+}

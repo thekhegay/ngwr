@@ -1,0 +1,24 @@
+@let step = tour.step();
+
+<p class="wr-tour-popup__progress">{{ progressText() }}</p>
+
+@if (step?.title; as title) {
+  <h2 class="wr-tour-popup__title">{{ title }}</h2>
+}
+
+<p class="wr-tour-popup__content">{{ step?.content }}</p>
+
+<div class="wr-tour-popup__actions">
+  <button wr-btn type="button" size="sm" color="medium" outlined (click)="tour.stop()">
+    {{ skipLabel }}
+  </button>
+
+  <span class="wr-tour-popup__spacer"></span>
+
+  @if (!isFirst()) {
+    <button wr-btn type="button" size="sm" outlined (click)="tour.prev()">{{ backLabel }}</button>
+  }
+  <button wr-btn type="button" size="sm" color="primary" (click)="tour.next()">
+    {{ isLast() ? doneLabel : nextLabel }}
+  </button>
+</div>

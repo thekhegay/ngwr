@@ -47,6 +47,13 @@ export const wrRu: WrI18nCatalog = {
     toggleGroup: 'Свернуть группу',
     noMatches: 'Ничего не найдено',
   },
+  tour: {
+    next: 'Далее',
+    back: 'Назад',
+    done: 'Готово',
+    skip: 'Пропустить',
+    progress: 'Шаг {{current}} из {{total}}',
+  },
   transfer: {
     source: 'Доступно',
     target: 'Выбрано',

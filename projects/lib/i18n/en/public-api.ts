@@ -59,6 +59,13 @@ export const wrEn: WrI18nCatalog = {
     toggleGroup: 'Toggle group',
     noMatches: 'No matches',
   },
+  tour: {
+    next: 'Next',
+    back: 'Back',
+    done: 'Done',
+    skip: 'Skip tour',
+    progress: 'Step {{current}} of {{total}}',
+  },
   transfer: {
     source: 'Available',
     target: 'Selected',

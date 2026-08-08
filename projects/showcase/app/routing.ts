@@ -204,6 +204,7 @@ export const routes = {
     clipboard: 'clipboard',
     cookie: 'cookie',
     loadingBar: 'loading-bar',
+    tour: 'tour',
   },
   utils: {
     index: 'utils',

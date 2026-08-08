@@ -5,7 +5,7 @@
 > Sizes: S / M / L / XL.
 >
 > **State (2026-08-07):** v10.0.0 is released and installable. The catalog is
-> **128 secondary entry points / 194 component and directive classes**, gated by
+> **129 secondary entry points / 195 component and directive classes**, gated by
 > `pnpm lint` + `build:lib` + `build:showcase` — there is still no test suite
 > (0 `*.spec.ts`, no `test` target). Docs are prerendered and live, with past
 > majors archived under `/v7/`, `/v8/`, `/v9/`.
@@ -16,12 +16,12 @@ The sequence to work in. Everything not listed here is open but unscheduled;
 everything under [Deferred](#deferred) is explicitly not now.
 
 1. **E2** — AI-legibility stack
-2. **D4** — Motion tokens
+2. ~~**D4** — Motion tokens~~ *(shipped)*
 3. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
 4. ~~**C5** — Tree-table mode~~ (shipped)
 5. **C6** — Event calendar / scheduler
-6. **C8** — Transfer + Tour
-7. **B3** — `WR_FORM_ERRORS` provider
+6. ~~**C8** — Transfer + Tour~~ *(shipped)*
+7. ~~**B3** — `WR_FORM_ERRORS` provider~~ *(shipped)*
 8. **B2** — Rebuild internals on `@angular/aria`
 9. **B4** — Schema-driven `wr-form`
 10. **D1** — Theme presets + builder
@@ -37,7 +37,7 @@ Two notes on the order, then it stands as written:
 
 ## A — Trust & hardening
 
-The catalog is 128 entry points. Lint, both builds, the a11y sweep and the API
+The catalog is 129 entry points. Lint, both builds, the a11y sweep and the API
 drift check gate it today; unit tests are the hole. This theme is what makes
 ngwr a library people can bet on.
 
@@ -133,14 +133,21 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       anchoring first.
 - [ ] **C6. Event calendar / scheduler** (XL) — month / week / day event views
       with drag. (PrimeNG + Kendo 2026 roadmaps.)
-- [ ] **C8. Tour / onboarding** (M) — spotlight steps anchored to elements, on
-      the existing overlay + affix. **Transfer shipped:** `ngwr/transfer` is the
-      dual listbox — `[items]` is the full set and `[(value)]` is the RIGHT pane,
-      with the per-pane ticks kept as transient staging so a form never sees a
-      half-made choice. Signal-forms native, searchable, i18n'd in en/ru.
-      Its panes are a plain `<ul>` of checkboxes, not a `role="listbox"` of
+- [x] **C8. Transfer + Tour** (M) — both shipped. `ngwr/transfer` is the dual
+      listbox: `[items]` is the full set and `[(value)]` is the RIGHT pane, with
+      the per-pane ticks kept as transient staging so a form never sees a
+      half-made choice. Signal-forms native, searchable, i18n'd in en/ru. Its
+      panes are a plain `<ul>` of checkboxes, not a `role="listbox"` of
       `role="option"` rows: an option may not contain an interactive control, and
       the axe gate rejected the dressed-up version.
+      `ngwr/tour` is the onboarding walkthrough — `WrTour.start([...])` takes
+      steps as data and owns the overlay, the cut-out, focus and the keyboard.
+      The spotlight is one element with a 9999px spread shadow rather than a
+      clip-path polygon: everything outside dims, the target is untouched, and a
+      reflow only moves a box. **A step whose target is missing is skipped, not
+      floated** — a tour has to survive a feature sitting behind a flag or a
+      permission, and skipping carries the direction so a dead step can't trap
+      the run between two ends.
 
 **Virtual scrolling, for reference:** `wr-table`, `wr-tree` and `wr-select`
 (search mode) window with hand-rolled spacer rows. **Cascader is deferred** — it

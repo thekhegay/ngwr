@@ -7,6 +7,7 @@ const services = routes.services;
 export default [
   { path: '', pathMatch: 'full', redirectTo: services.clipboard },
   { path: services.theme, loadComponent: () => import('./theme/theme') },
+  { path: services.tour, loadComponent: () => import('./tour/tour') },
   { path: services.scroll, loadComponent: () => import('./scroll/scroll') },
   { path: services.hotkey, loadComponent: () => import('./hotkey/hotkey') },
   { path: services.media, loadComponent: () => import('./media/media') },
