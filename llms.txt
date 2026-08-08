@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 128 secondary entry points, 186 component and directive classes, built on
+> 129 secondary entry points, 187 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -51,6 +51,10 @@ Add from their entry points as needed:
 - `provideWrI18n(...)` + `provideWrI18nStaticLoader(...)` — localization.
 - `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date-adapter-fns`
   or `ngwr/date-adapter-luxon`).
+
+Injected rather than provided: `WrTour` (`ngwr/tour`) runs a guided onboarding
+tour — `tour.start([{ target: '[data-tour="save"]', content: '…' }])` spotlights
+one element at a time; a step whose target is missing is skipped, not floated.
 
 ## Schematics — let `ng` wire it
 

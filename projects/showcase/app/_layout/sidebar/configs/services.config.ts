@@ -14,4 +14,5 @@ export const SERVICES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'WrScroll', url: ['/reference/services', 'scroll'] },
   { title: 'WrStorage', url: ['/reference/services', 'storage'] },
   { title: 'WrTheme', url: ['/reference/services', 'theme'] },
+  { title: 'WrTour', url: ['/reference/services', 'tour'] },
 ];
