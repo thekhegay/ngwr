@@ -61,8 +61,9 @@ const form = new FormGroup({
     },
     {
       name: 'error key',
-      description: "On mismatch: `{ match: { name: 'password' } }`. Empty value passes.",
-      type: '{ match: { name } }',
+      description:
+        "On mismatch: `{ match: { target: 'password' } }`. There is no empty guard — a filled value against an empty one reports.",
+      type: '{ match: { target } }',
       default: '—',
     },
   ];
