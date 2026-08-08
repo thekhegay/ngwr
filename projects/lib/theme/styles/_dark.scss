@@ -51,8 +51,16 @@ $_dark: #e6ebf3;
   // palette's near-black ink, so `.wr-btn--dark:hover` painted itself almost
   // black while keeping the near-black `-contrast` text. `dark` is an INK token,
   // so unlike `light` below its shades mean exactly what they say.
-  --wr-color-dark-light: #{color.adjust($_dark, $lightness: 5%)};
-  --wr-color-dark-lighter: #{color.adjust($_dark, $lightness: 10%)};
+  // `color.scale`, not `color.adjust`, for the two lighter steps. In dark mode
+  // `dark` IS the near-white ink (#e6ebf3, L 92.7%), so `adjust(+10%)` asks for
+  // L 102.7% — out of gamut. Sass then cannot emit rgb and falls back to legacy
+  // comma-hsl with an out-of-range lightness, which browsers clamp: the token
+  // silently became pure white instead of a controlled step. `scale` moves a
+  // percentage of the REMAINING headroom, so it approaches white without ever
+  // leaving the gamut. 70% reproduces the previous `-light` to within a rounding
+  // step; 85% is the distinct step beyond it.
+  --wr-color-dark-light: #{color.scale($_dark, $lightness: 70%)};
+  --wr-color-dark-lighter: #{color.scale($_dark, $lightness: 85%)};
   --wr-color-dark-dark: #{color.adjust($_dark, $lightness: -5%)};
   --wr-color-dark-darker: #{color.adjust($_dark, $lightness: -10%)};
 
