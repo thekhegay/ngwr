@@ -234,5 +234,18 @@ export default tsEslint.config(
     rules: {
       '@angular-eslint/template/prefer-self-closing-tags': 'off',
     },
+  },
+  // Specs. A component spec's host is a throwaway that has to declare its
+  // template inline — putting it in a `.html` file next to the code under test
+  // would ship a fake component into the docs and the package. Selector
+  // conventions and the JSDoc rules do not apply to a host that exists for one
+  // `describe` block either.
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@angular-eslint/component-max-inline-declarations': 'off',
+      '@angular-eslint/component-selector': 'off',
+      '@angular-eslint/prefer-standalone': 'off',
+    },
   }
 );
