@@ -145,11 +145,20 @@ builder — no `vitest.config.ts` and no `@analogjs/*`: the target lives in
 sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
-Coverage today is the **pure-logic layer only** — `ngwr/utils`,
-`ngwr/validators`, `ngwr/pipes` (83 specs). Component and overlay interaction
-tests are the rest of ROADMAP A1, so **`pnpm lint`, `pnpm test`, the two builds,
-`check:api-docs`, `check:llms` and `check:a11y` are the gates** and a green run
-still does not mean a component behaves.
+Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
+`ngwr/pipes`), part of the service layer (`ngwr/hotkey`, `ngwr/i18n`) and ONE
+component (`wr-tabs`) — 122 specs. The rest of the components are unwritten, so
+**`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`, `check:llms` and
+`check:a11y` are the gates** and a green run still does not mean a component
+behaves.
+
+**Writing a component spec:** copy `projects/lib/tabs/tabs.spec.ts`. A tiny
+`@Component` host uses the component the way a consumer would, and the
+assertions read the RENDERED DOM — roles, ARIA state, and the `.wr-*` classes,
+which are public API. A spec that reaches into component internals passes
+straight through the kind of change that actually breaks people. `*.spec.ts` has
+an eslint override for the inline-template and selector rules, since a host that
+exists for one `describe` should not ship a `.html` file.
 
 Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
 (`engine-strict=true` in `.npmrc` — an older pnpm is refused outright, and

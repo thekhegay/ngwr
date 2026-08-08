@@ -61,9 +61,23 @@ theme is what makes ngwr a library people can bet on.
       edited. Hand-typed forms never see it; a form prefilled from a server
       record does. Needs either a group-level variant or a documented
       revalidate step.
-      **Remaining:** services, then interaction tests for the top overlay +
-      form components (select, date-picker, dialog, popover, toast). A2 (CDK
-      test harnesses) and B2 both wait on that second half.
+      The service layer followed — `parseHotkeySpec` / `matchesHotkey` and
+      `WrI18n` + `wrInterpolate` — plus the first COMPONENT spec, `wr-tabs`,
+      which sets the pattern for the rest: a tiny host that uses the component
+      the way a consumer would, asserting against the rendered DOM (roles, ARIA
+      state and the `.wr-*` classes, all public API) rather than component
+      internals. 122 specs.
+      That first component spec immediately paid for itself: **`<wr-tabs>` wrote
+      a generated id back through `[(active)]`** when no tab was pre-selected.
+      `WrTab` reported its key from its own constructor, where a signal input is
+      still on its default, so the parent seeded `active` with
+      `wr-tab-b1crta5aix0v` instead of `overview`. The strip still highlighted
+      the right tab — `activeTab()` falls back to `tabs[0]` — so the only
+      symptom was a two-way binding holding a key the consumer had never heard
+      of. Fixed by seeding from `contentChildren` once inputs are bound.
+      **Remaining:** the rest of the services, then interaction tests for the
+      top overlay + form components (select, date-picker, dialog, popover,
+      toast). A2 (CDK test harnesses) and B2 both wait on that second half.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
