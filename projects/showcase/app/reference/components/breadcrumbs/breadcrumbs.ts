@@ -117,7 +117,7 @@ export default class BreadcrumbsPage {
       name: 'CSS — --wr-breadcrumbs-link-color',
       description: 'Link colour.',
       type: 'color',
-      default: 'var(--wr-color-primary)',
+      default: 'var(--wr-color-primary-ink)',
     },
     {
       name: 'CSS — --wr-breadcrumbs-current-color',

@@ -52,7 +52,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--wr-color-success-contrast);
             font-weight: 600;
           "
         >
@@ -73,7 +73,13 @@
           type="button"
           wrSquircle
           [radius]="16"
-          style="padding: 0.5rem 1rem; background: var(--wr-color-primary); color: white; border: 0; font-weight: 600"
+          style="
+            padding: 0.5rem 1rem;
+            background: var(--wr-color-primary);
+            color: var(--wr-color-primary-contrast);
+            border: 0;
+            font-weight: 600;
+          "
         >
           Smooth button
         </button>
@@ -83,7 +89,7 @@
           style="
             padding: 0.25rem 0.75rem;
             background: rgba(var(--wr-color-success-rgb), 0.15);
-            color: var(--wr-color-success);
+            color: var(--wr-color-success-ink);
             font-size: 0.875rem;
             font-weight: 600;
           "
@@ -100,7 +106,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--wr-color-warning-contrast);
             font-weight: 600;
           "
         >
@@ -127,7 +133,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--wr-color-primary);
+            color: var(--wr-color-primary-ink);
             font-weight: 600;
           "
         >

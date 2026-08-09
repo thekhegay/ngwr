@@ -42,7 +42,7 @@
     }
 
     &--active {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
       background: var(--wr-color-primary-soft);
       pointer-events: none;
 
@@ -165,7 +165,7 @@
     }
 
     &:hover {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
       background: rgba(var(--wr-color-primary-rgb), 0.06);
 
       .wr-sidebar__icon {
@@ -174,7 +174,7 @@
     }
 
     &--active {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
       background: var(--wr-color-primary-soft);
       pointer-events: none;
 
