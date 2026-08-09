@@ -65,7 +65,7 @@
     "angular-eslint": "^22.1.0",
     "axe-core": "^4.13.0",
     "bootstrap-icons": "^1.13.1",
-    "conventional-changelog": "^8.1.0",
+    "conventional-changelog": "^8.1.1",
     "conventional-changelog-conventionalcommits": "^10.2.1",
     "date-fns": "^4.4.0",
     "eslint": "^10.8.0",
