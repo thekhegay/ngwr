@@ -11,7 +11,7 @@ import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Service, Injector, PLATFORM_ID, afterNextRender, inject } from '@angular/core';
 
-import { WrI18n } from 'ngwr/i18n';
+import { readI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, wrAppendOverlayClose, wrPresentAsSheet } from 'ngwr/overlay';
 
 import { WrDialogRef } from './dialog-ref';
@@ -51,7 +51,11 @@ export class WrDialog {
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
-  private readonly i18n = inject(WrI18n);
+  // `readI18nText`, not a bare `i18n.t()`: `t()` hands back the KEY on a miss,
+  // so an app that never configured i18n gave its dismiss button the accessible
+  // name "dialog.close". axe cannot catch that — a name IS present — and a
+  // screen reader reads it out verbatim.
+  private readonly closeFallback = readI18nText('dialog.close', 'Close dialog');
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const panelClasses: string[] = [DEFAULT_PANEL_CLASS];
@@ -107,7 +111,7 @@ export class WrDialog {
       // it, and marked on the panel so the title reserves the corner gutter.
       if (options.closable !== false) {
         host.classList.add('wr-dialog-panel--closable');
-        const label = options.closeLabel ?? this.i18n.t('dialog.close');
+        const label = options.closeLabel ?? this.closeFallback;
         wrAppendOverlayClose(host, 'wr-dialog__close', label, () => dialogRef.close());
       }
       // Wire aria-labelledby to wrDialogTitle's auto-id once content is in DOM.
