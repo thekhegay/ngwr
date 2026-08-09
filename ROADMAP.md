@@ -338,7 +338,14 @@ theme is what makes ngwr a library people can bet on.
       projection trap, so the label lives in an `<ng-template>` that either
       branch stamps. Both paths are covered, and re-introducing either defect
       fails specs.
-      **Remaining:** the rest of the components — seventeen of eighty-one have
+      `wr-alert` closed the batch, 12 specs, and the contract worth pinning
+      there is that it does NOT use one live region: a danger alert interrupts
+      (`role="alert"` / `assertive`), a warning is assertive without
+      interrupting, everything else waits its turn — and all of it goes away on
+      dismiss, so a closed alert does not leave an empty announcer behind. Its
+      dismiss button was already resolved correctly through `useI18nText`, so
+      no repeat of the drawer/dialog defect here.
+      **Remaining:** the rest of the components — eighteen of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
