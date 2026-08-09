@@ -265,7 +265,17 @@ theme is what makes ngwr a library people can bet on.
       Worth recording how nearly the diagnosis went wrong: the first check read
       the `popover` attribute off the PANE, which does not carry it, and
       concluded the top layer was not involved. It was the wrapper.
-      **Remaining:** the components — six of eighty-one have specs.
+      **Components started:** the three checkbox-shaped form controls first,
+      because they are `FormValueControl` / `FormCheckboxControl` implementations
+      where the BINDING is the contract — `wr-checkbox` (+ group), `wr-radio`
+      (+ group) and `wr-switch`, 27 specs. Nothing was broken in them; the point
+      is the documented trap in `<wr-checkbox>` now has a guard that fails when
+      it reappears. Group membership is `checkboxValue`, never `value` (which
+      `FormCheckboxControl` reserves), and a stray `value="x"` leaves every box
+      in the group on the default identity `null`, so they all toggle as one
+      control. Mutating the identity to `null` fails two specs.
+      **Remaining:** the rest of the components — nine of eighty-one have
+      specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
