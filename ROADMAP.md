@@ -141,8 +141,39 @@ theme is what makes ngwr a library people can bet on.
       mutation-verified; one of them, typing-with-the-popup-open, exists because
       a surviving mutation showed the arrow guard was untested and every
       keystroke would have routed into the grid.
-      **Remaining:** the rest of the services, and the second picker
-      (`wr-date-range-picker`), which still has the same half-kept ARIA contract.
+      `wr-date-range-picker` then got the same contract across BOTH its fields —
+      panel role / name / id, `aria-controls`, and focus that returns to the
+      field or button that opened the popup rather than always the start input.
+      It had no tests at all; it has 30 now, and writing them is what found the
+      rest. Four value-layer defects, each reproduced before it was touched: the
+      time steppers were bound through `[ngModel]`, whose deferred first write
+      lost its race with the panel's echo guard under zoneless CD, so a range
+      bound to 16:00–17:00 opened showing **00:00** on both ends and the first
+      click committed midnight over the real value; raising a same-day start past
+      the end sorted mid-edit, so the start stepper froze and each further click
+      pushed the END up instead; tabbing from the start field to the end field
+      sorted too, moving the just-typed start date into the field being tabbed
+      into; and the first blur on an untouched picker wrote `[null, null]` over
+      the `null` it was bound to, marking a `[formField]` dirty and flipping a
+      consumer's `@if` to truthy with nothing picked. The unifying rule, already
+      written in this file for typing, now applies everywhere: an edit to one end
+      is never reordered while the user is still on it — ordering settles when
+      the interaction ends (focus leaves the pair, or the popup closes).
+      A third `wr-calendar` defect surfaced the same way, and it is the worst of
+      the lot: arrow keys moved the ring onto days `min` / `dateFilter` had
+      closed off. Those cells render natively `disabled` AND carry the grid's
+      only `tabindex="0"`, so `[minDate]` alone left **zero tabbable cells** —
+      tab out of the calendar once and there was no way back in. Navigation now
+      skips in the direction of travel, which also matters: probing forward
+      first, as the seeding helper does, would bounce an ArrowLeft over a
+      disabled weekend back onto the day it started from.
+      **Still open, deliberately:** only the two range endpoints carry
+      `aria-selected`, so the extent of a 30-day range is invisible to a screen
+      reader — changing that announces 30 selected cells and is a design call,
+      not a patch; and changing `[format]` at runtime leaves both pickers' text
+      stale, which is shared and pre-existing, so fixing it in one would only
+      create a new divergence.
+      **Remaining:** the rest of the services.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship

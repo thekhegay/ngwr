@@ -211,6 +211,8 @@ export const wrEn: WrI18nCatalog = {
     panel: 'Choose date',
     panelTime: 'Choose time',
     panelDateTime: 'Choose date and time',
+    panelRange: 'Choose date range',
+    panelRangeDateTime: 'Choose date and time range',
     rangeStart: 'Range start',
     rangeEnd: 'Range end',
     startTime: 'Start time',
