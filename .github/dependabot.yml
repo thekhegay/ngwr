@@ -8,6 +8,20 @@ updates:
       time: '13:00'
       timezone: 'Asia/Almaty'
     open-pull-requests-limit: 10
+    # Two bumps that would open a green-looking PR and land a red build.
+    #
+    # TypeScript is pinned at ~6.0.3 because Angular 22's peer range is
+    # `typescript >=6.0 <6.1`. 7.0 is out, and without this it arrives as an
+    # ordinary weekly PR — no group claims it, so it looks like a lone chore.
+    #
+    # @types/node tracks the RUNTIME, and .nvmrc pins Node 24 while `engines`
+    # allows `>=26`. Typing against 26 while CI runs 24 does not fail: it
+    # type-checks APIs that are not there, which is worse than failing.
+    ignore:
+      - dependency-name: 'typescript'
+        versions: ['>=6.1']
+      - dependency-name: '@types/node'
+        versions: ['>=26']
     assignees:
       - 'thekhegay'
     labels:
