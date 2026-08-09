@@ -345,7 +345,16 @@ theme is what makes ngwr a library people can bet on.
       dismiss, so a closed alert does not leave an empty announcer behind. Its
       dismiss button was already resolved correctly through `useI18nText`, so
       no repeat of the drawer/dialog defect here.
-      **Remaining:** the rest of the components — eighteen of eighty-one have
+      `wr-input-number` added 13 more, aimed at the thing that usually escapes
+      a number field: the three ways in — typing, the steppers and the arrow
+      keys — agreeing about the bounds, since a value clamped for the buttons
+      but not for the keyboard lets a form submit what the control calls
+      impossible. Nothing broken. Two contracts worth having written down
+      because they look like bugs until you read them: an emptied field is
+      `null` and not `0` (a required check has to tell them apart), and
+      unparseable text LEAVES the committed number alone rather than clearing
+      it — the same rule `wr-date-picker` follows for a partial date.
+      **Remaining:** the rest of the components — nineteen of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
