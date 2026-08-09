@@ -160,6 +160,15 @@ seconds. The rest of the components are unwritten, so
 `check:a11y` are the gates** and a green run still does not mean a component
 behaves.
 
+**Deferred DOM work needs `afterNextRender`, not `queueMicrotask`.** Under
+zoneless CD the scheduler runs change detection in a MACROTASK, so a microtask
+queued from an event handler runs BEFORE the DOM reflects the signal you just
+set. `wr-calendar` moved its roving focus that way and left real focus on the
+previous cell while the ring moved on. Note the testing trap that hid it: a
+synchronous `fixture.detectChanges()` updates the DOM before the microtask, so
+the bug disappears in the test and survives in the app. Reproduce this class of
+thing with `await fixture.whenStable()` alone.
+
 **Writing a component spec:** copy `projects/lib/tabs/tabs.spec.ts`, or
 `projects/lib/dialog/dialog.spec.ts` / `projects/lib/toast/toast.spec.ts` for a
 SERVICE that mounts into an overlay, or `projects/lib/select/select.spec.ts` for

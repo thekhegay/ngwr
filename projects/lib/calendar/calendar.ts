@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
   ElementRef,
+  Injector,
   ViewEncapsulation,
   afterNextRender,
   computed,
@@ -80,6 +81,7 @@ export class WrCalendar {
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   /** Currently displayed month (any date inside it). */
   protected readonly viewDate = signal(this.adapter.today());
@@ -151,9 +153,15 @@ export class WrCalendar {
   });
 
   constructor() {
-    // Initial focus: selected date if any, else today. Also snap viewDate to that month.
+    // Initial focus: selected date if any, else today. Also snap viewDate to
+    // that month.
+    //
+    // Stepped onto an ENABLED day, because the roving tabindex puts the grid's
+    // only `tabindex="0"` on this cell: seed it on a disabled one — which is
+    // exactly what a `min` in the future does to "today" — and the sole tab
+    // stop is an unfocusable button, leaving the grid unreachable by keyboard.
     afterNextRender(() => {
-      const initial = this.date() ?? this.range()[0] ?? this.adapter.today();
+      const initial = this.nearestEnabled(this.date() ?? this.range()[0] ?? this.adapter.today());
       this.focusedDate.set(initial);
       this.viewDate.set(initial);
     });
@@ -405,7 +413,30 @@ export class WrCalendar {
     if (!this.adapter.isSameMonth(next, this.viewDate())) {
       this.viewDate.set(next);
     }
-    queueMicrotask(() => this.focusActiveCell());
+    // `afterNextRender`, NOT `queueMicrotask`. Under zoneless CD the scheduler
+    // runs change detection in a macrotask, so a microtask fires FIRST — the
+    // `--focused` class is still on the cell we just left, and this focuses
+    // that one. The ring moved and real focus did not, permanently: a screen
+    // reader kept announcing the previous day.
+    afterNextRender(() => this.focusActiveCell(), { injector: this.injector });
+  }
+
+  /**
+   * The first selectable day at or after `candidate`, else the first before it,
+   * else `candidate` unchanged when everything nearby is closed off. Bounded at
+   * a year each way so a pathological `dateFilter` cannot spin.
+   */
+  private nearestEnabled(candidate: Date): Date {
+    if (!this.isDisabled(candidate)) return candidate;
+
+    for (const step of [1, -1] as const) {
+      let probe = candidate;
+      for (let i = 0; i < 366; i++) {
+        probe = this.adapter.addDays(probe, step);
+        if (!this.isDisabled(probe)) return probe;
+      }
+    }
+    return candidate;
   }
 
   private focusActiveCell(): void {

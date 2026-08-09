@@ -118,9 +118,23 @@ theme is what makes ngwr a library people can bet on.
       the newest rather than dismissing the oldest, `position` moves the whole
       shared stack, and `provideWrToastConfig`'s signature now accepts the
       single-label override its JSDoc had always promised.
-      **Still open:** focus is deliberately not moved into the date picker's
-      calendar on open — the other half of the APG dialog pattern, judged too
-      large for a contract fix.
+      Taking the focus half on then turned up **two shipped defects in
+      `wr-calendar` that had nothing to do with the picker**, both reproduced
+      before anything was changed. (1) Arrow-key navigation moved the focus RING
+      but not real focus: `focusActiveCell()` was queued with `queueMicrotask`,
+      and under zoneless CD the scheduler runs in a MACROTASK, so the microtask
+      fired while `--focused` was still on the cell just left. Measured
+      ArrowRight from the 15th: ring 16, `activeElement` 15, permanently — the
+      ring said one day and a screen reader said another. Worth recording how
+      nearly it was missed: a first probe that called `detectChanges()`
+      synchronously showed ring and focus agreeing, because that updates the DOM
+      before the microtask, which never happens in a real app. (2) The roving
+      tabindex was seeded without checking the day was selectable, so a `min` in
+      the future put the grid's ONLY `tabindex="0"` on a disabled button and
+      dropped the whole grid out of the tab order. Both fixed, both pinned, and
+      both guards verified by reverting the fix and watching them fail.
+      **Still open:** moving focus into the popup on open — the remaining half —
+      now that its two prerequisites are sound.
       **Remaining:** the rest of the services, and the second picker
       (`wr-date-range-picker`). A2 (CDK test harnesses) and B2 both wait on this
       half, which is now mostly done.
