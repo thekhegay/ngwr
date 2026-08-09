@@ -165,6 +165,27 @@ describe('WrWindowManager', () => {
       expect([second > first, third > second]).toEqual([true, true]);
     });
 
+    it('writes the z-index onto the overlay host, not only onto the window', () => {
+      const first = manager.open(Body, { id: 'a' });
+      const second = manager.open(Body, { id: 'b' });
+      TestBed.tick();
+
+      first.focus();
+      TestBed.tick();
+
+      // `.wr-window` sits inside its own CDK wrapper, and that wrapper is a
+      // stacking context — a z-index written inside it can never order one
+      // window against another. The host is the element that competes.
+      //
+      // jsdom paints nothing, so this asserts the wiring; the behaviour itself
+      // was measured in Chromium with `elementFromPoint` over the overlap:
+      // before the fix, clicking the older window raised its z from 1001 to
+      // 1003 and the hit test still returned the newer one.
+      const hostZ = (ref: typeof first): number => Number(ref._overlayRef.hostElement.style.zIndex);
+
+      expect(hostZ(first)).toBeGreaterThan(hostZ(second));
+    });
+
     it('steps the spawn offset so two windows do not sit exactly on top of each other', () => {
       const a = manager.nextStartOffset();
       const b = manager.nextStartOffset();

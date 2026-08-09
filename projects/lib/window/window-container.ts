@@ -112,6 +112,21 @@ export class WrWindowContainer<C> {
       effect(() => this.ref._rawWidth.set(w.width_()));
       effect(() => this.ref._rawHeight.set(w.height_()));
       effect(() => this.ref._z.set(w.z()));
+
+      // The z-index has to land on the OVERLAY HOST, not only on `.wr-window`.
+      // Each window sits in its own CDK global wrapper, and that wrapper is
+      // `position: fixed` with a numeric `z-index` — which makes it a stacking
+      // context. A z-index written INSIDE it therefore only orders things
+      // against its own siblings, never against another window: the wrappers
+      // all carry the same z and stack by DOM order, so the most recently
+      // opened window painted on top for good. `bringToFront()` raised the
+      // number and nothing moved — measured in Chromium, `elementFromPoint` in
+      // the overlap kept returning the newer window after the older one's title
+      // bar was clicked.
+      effect(() => {
+        const host = this.ref._overlayRef?.hostElement;
+        if (host) host.style.zIndex = String(w.z());
+      });
     });
 
     // 4. Seed the title signal from config.

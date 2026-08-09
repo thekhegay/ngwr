@@ -240,17 +240,31 @@ theme is what makes ngwr a library people can bet on.
       which the restore then clamped to `minHeight` and handed back as a stub.
       The window knew the right numbers all along — `saveLayout` was reading the
       effective signals instead of the raw ones.
-      **One finding recorded, not fixed:** `bringToFront()` looks inert across
-      windows. The CDK sets `popover="manual"` on every overlay host and ngwr
-      never opts out of `usePopover`, so hosts enter the TOP LAYER, where paint
-      order is entry order and a z-index on a descendant (`.wr-window`) cannot
-      restack them — clicking an older window raises its `z` but not the window.
-      The mechanism is confirmed from the CDK source; the visible consequence is
-      NOT, because the browser pane available here reports a 0x0 viewport and
-      every layout measurement in it is worthless. It needs a real browser, and
-      the fix is a component-level choice (opt those overlays out of
-      `usePopover`, or re-enter the top layer on focus) that should not be
-      bolted onto a test change.
+      **`bringToFront()` was inert, and is now fixed** — measured, not reasoned.
+      A unit suite cannot see this at all (jsdom paints nothing), and the
+      in-app browser pane reports a 0x0 viewport, which poisons every layout
+      read. Playwright was already a dependency for `check:contrast`, so the
+      answer was a real headless Chromium over `dist/showcase`: open two
+      overlapping windows, hit-test the overlap with `elementFromPoint`, click
+      the older window's title bar, hit-test again. Its `z` went 1001 to 1003,
+      above the other window's 1002, and the hit test kept returning the NEWER
+      window. Focus-follows-click — the core promise of a window manager — did
+      nothing.
+      Two causes, stacked, and the first one alone was not enough. Each window's
+      z-index was written on `.wr-window`, which sits INSIDE its own CDK wrapper;
+      that wrapper is `position: fixed` with a numeric z-index, so it is a
+      stacking context and nothing written inside it can order one window
+      against another. Moving the z-index onto the overlay host fixed the
+      numbers and changed nothing on screen — because the hosts are also
+      `popover="manual"` and live in the TOP LAYER, which orders strictly by
+      entry and ignores z-index entirely. Window overlays now pass
+      `usePopover: false`: the top layer's "last opened wins" is right for a
+      menu or a modal and exactly wrong for windows. It also fixes the ordering
+      against modals, since a dialog stays in the top layer and now sits above
+      every window rather than below whichever one opened after it.
+      Worth recording how nearly the diagnosis went wrong: the first check read
+      the `popover` attribute off the PANE, which does not carry it, and
+      concluded the top layer was not involved. It was the wrapper.
       **Remaining:** the components — six of eighty-one have specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.

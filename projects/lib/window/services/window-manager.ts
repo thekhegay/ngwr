@@ -149,6 +149,15 @@ export class WrWindowManager {
       positionStrategy: this.overlay.position().global(),
       panelClass: 'wr-window-overlay',
       hasBackdrop: false,
+      // OUT of the top layer, deliberately. The CDK puts overlay hosts there by
+      // default (`popover="manual"`), and the top layer orders strictly by
+      // ENTRY: whatever opened last paints on top and no z-index can change it.
+      // That is right for a menu or a modal and exactly wrong for a window
+      // manager, whose whole job is letting the user decide which window is in
+      // front. It also fixes the ordering against modals: a dialog stays in the
+      // top layer, so it now sits above every window instead of below whichever
+      // window happened to open after it.
+      usePopover: false,
     });
 
     const id = config.id ?? randomId('wr-window');
