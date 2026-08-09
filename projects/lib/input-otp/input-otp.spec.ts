@@ -1,0 +1,150 @@
+import { Component, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { WrInputOtp } from './input-otp';
+
+@Component({
+  imports: [WrInputOtp],
+  template: `<wr-input-otp [(value)]="code" [length]="length()" [disabled]="disabled()" />`,
+})
+class Host {
+  readonly code = signal('');
+  readonly length = signal(6);
+  readonly disabled = signal(false);
+}
+
+/**
+ * One logical value spread over N boxes, which is where the interesting
+ * behaviour lives: typing has to walk forward, Backspace has to walk back, and
+ * a pasted code has to fill everything at once rather than landing entirely in
+ * the box that happened to have focus.
+ */
+describe('WrInputOtp', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const boxes = (): HTMLInputElement[] => [...root().querySelectorAll<HTMLInputElement>('input')];
+  const code = (): string => fixture.componentInstance.code();
+
+  const typeInto = (index: number, char: string): void => {
+    const box = boxes()[index];
+    box.focus();
+    box.value = char;
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  const press = (index: number, key: string): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    boxes()[index].focus();
+    boxes()[index].dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders one box per digit, named for a screen reader', () => {
+    expect(boxes()).toHaveLength(6);
+    expect(boxes().map(b => b.getAttribute('aria-label'))).toEqual([
+      'Digit 1',
+      'Digit 2',
+      'Digit 3',
+      'Digit 4',
+      'Digit 5',
+      'Digit 6',
+    ]);
+  });
+
+  it('groups the boxes so they announce as one control', () => {
+    const host = root().querySelector('wr-input-otp')!;
+    expect(host.getAttribute('role')).toBe('group');
+    expect(host.getAttribute('aria-label')).toBeTruthy();
+  });
+
+  it('follows a custom length', () => {
+    fixture.componentInstance.length.set(4);
+    fixture.detectChanges();
+
+    expect(boxes()).toHaveLength(4);
+  });
+
+  it('collects typed digits into one value and walks focus forward', () => {
+    typeInto(0, '1');
+    expect(document.activeElement).toBe(boxes()[1]);
+
+    typeInto(1, '2');
+    typeInto(2, '3');
+
+    expect(code()).toBe('123');
+    expect(document.activeElement).toBe(boxes()[3]);
+  });
+
+  it('does not walk past the last box', () => {
+    for (let i = 0; i < 6; i++) typeInto(i, String(i + 1));
+
+    expect(code()).toBe('123456');
+    expect(document.activeElement).toBe(boxes()[5]);
+  });
+
+  it('spreads a pasted code across the boxes', () => {
+    const box = boxes()[0];
+    box.focus();
+    // jsdom implements neither `ClipboardEvent` nor `DataTransfer`, so the
+    // event is a plain one with the payload attached by hand. `getData('text')`
+    // is what the handler asks for; a browser aliases it to `text/plain`.
+    const event = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'clipboardData', {
+      value: { getData: (type: string) => (type === 'text' || type === 'text/plain' ? '482913' : '') },
+    });
+    box.dispatchEvent(event);
+    fixture.detectChanges();
+
+    // Pasting is how most people enter a code they were sent. Landing the whole
+    // string in one box makes the control unusable for exactly that path.
+    expect(code()).toBe('482913');
+    expect(boxes().map(b => b.value)).toEqual(['4', '8', '2', '9', '1', '3']);
+  });
+
+  it('walks back on Backspace from an empty box', () => {
+    typeInto(0, '1');
+    typeInto(1, '2');
+
+    // Focus is on box 2 and it is empty: Backspace steps back and clears the
+    // digit behind it, which is what makes correcting a typo one keystroke.
+    press(2, 'Backspace');
+
+    expect(document.activeElement).toBe(boxes()[1]);
+  });
+
+  it('moves between boxes with the arrows', () => {
+    press(0, 'ArrowRight');
+    expect(document.activeElement).toBe(boxes()[1]);
+
+    press(1, 'ArrowLeft');
+    expect(document.activeElement).toBe(boxes()[0]);
+  });
+
+  it('renders an externally written value into the boxes', () => {
+    fixture.componentInstance.code.set('9182');
+    fixture.detectChanges();
+
+    expect(boxes().map(b => b.value)).toEqual(['9', '1', '8', '2', '', '']);
+  });
+
+  it('disables every box at once', () => {
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+
+    expect(boxes().every(b => b.disabled)).toBe(true);
+  });
+});
