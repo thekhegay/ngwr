@@ -1,5 +1,18 @@
 # Changelog
 
+## [10.2.0](https://github.com/thekhegay/ngwr/compare/v10.1.0...v10.2.0) (2026-08-09)
+
+### Features
+
+* **a11y:** gate contrast and target size in a real browser ([e98dd3b](https://github.com/thekhegay/ngwr/commit/e98dd3bada3267901e8de0a86a0023f58c419f46))
+
+### Bug Fixes
+
+* **alert:** use the ink ramp so the title clears aa as text ([25ede35](https://github.com/thekhegay/ngwr/commit/25ede35c270ad23f8005db1050fc2d94a41902d3))
+* **theme:** move intent text onto the ink and contrast tokens ([5664654](https://github.com/thekhegay/ngwr/commit/5664654f9af0aed44a6adb30b574bef7aa64f0f4))
+* **theme:** pick pure black for the contrast ramp ([3ded269](https://github.com/thekhegay/ngwr/commit/3ded26930dbd477e3a63775d456ed9f5247b72e6))
+* **theme:** recalibrate the ink ramp against the soft tints ([0235f75](https://github.com/thekhegay/ngwr/commit/0235f75c2b2cf9981876f8667c1ba9c565ca7315))
+
 ## [10.1.0](https://github.com/thekhegay/ngwr/compare/v10.0.0...v10.1.0) (2026-08-08)
 
 ### Features
