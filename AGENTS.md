@@ -312,9 +312,12 @@ one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 `@angular-devkit/*`, `@schematics/angular`) patches independently of the
 **framework** (`@angular/core` et al.) — bump only the train that moved.
 Dependabot (grouped) handles the PRs. **TypeScript is pinned on purpose** at
-`~6.0.3` — Angular 22's peer range is `typescript >=6.0 <6.1`. Dependabot has
-grouping rules but no `ignore` entry, so a 6.1 bump will sail through and break
-the build. Don't take it.
+`~6.0.3` — Angular 22's peer range is `typescript >=6.0 <6.1`, and TypeScript 7
+is out. `.github/dependabot.yml` now carries an `ignore` for it, and one for
+`@types/node` `>=26` (`.nvmrc` pins Node 24, so newer types describe APIs the
+runtime does not have — which type-checks clean instead of failing). If either
+appears in a PR anyway, it came from somewhere other than the bot; don't take
+it.
 
 **Docs prose.** In changelogs / docs, write "from X to Y" — not "X → Y" (no
 arrow) — for version and before/after descriptions.
