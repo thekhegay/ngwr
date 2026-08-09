@@ -28,7 +28,15 @@ $base-colors: (
 $contrast-threshold: 150 !default;
 
 // Dark text used on light backgrounds.
-$contrast-dark: #171616 !default;
+//
+// Pure black, not a near-black. `_contrast()` does not blend — it picks
+// whichever of these two candidates scores higher against the fill — so this
+// value IS the ceiling for every intent whose label comes out dark, and a
+// softer black spends contrast that cannot be recovered anywhere else.
+// Measured: #171616 cost between 0.74 and 1.95 across the ramp, and left
+// `secondary` clearing AA by 0.02 when 5.26:1 was available. On a saturated
+// chip the two are hard to tell apart; the ratio is not.
+$contrast-dark: #000000 !default;
 
 // Light text used on dark backgrounds.
 $contrast-light: #ffffff !default;

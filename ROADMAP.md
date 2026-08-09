@@ -143,9 +143,16 @@ theme is what makes ngwr a library people can bet on.
       count 10 -> 7 routes light, 4 -> 3 dark. What is left is three kinds of
       thing, none of them a token swap: WCAG-exempt disabled controls; a
       measurement artefact where `wr-squircle` paints its fill on a `::before`
-      that no contrast checker can see; and `wr-badge--secondary`, where the
-      `-contrast` ramp itself clears AA by 0.02 and wants the same re-derivation
-      `-ink` just had.
+      that no contrast checker can see; and `wr-badge--secondary`, which led to the
+      `-contrast` ramp being re-derived too — differently, because that token
+      PICKS rather than blends: `_contrast()` returns whichever of
+      `$contrast-dark` / `$contrast-light` beats the fill, so those two values
+      are the ceiling. `$contrast-dark` was `#171616`, a near-black, which cost
+      between 0.74 and 1.95 across the ramp; pure black put every intent at its
+      theoretical maximum (`secondary` 4.52 -> 5.26, `danger` 4.90 -> 5.70,
+      `primary` dark 5.37 -> 6.24). One case is irreducible: `primary` in the
+      LIGHT theme at 4.89:1, where white already wins and pure white is the
+      ceiling — only changing the primary fill moves it.
       **Baselined, both needing a design call rather than a patch:**
       `wr-carousel`'s dots are 8×8 with 14px centres where WCAG 2.5.8 wants 24
       (the `touch-target` mixin does not help — it is gated on

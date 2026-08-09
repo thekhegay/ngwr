@@ -237,6 +237,15 @@ reports the intent measured against itself. Any component that paints through a
 pseudo-element, a gradient, or an SVG is unmeasurable this way; check those by
 hand rather than believing the number.
 
+**`-contrast` picks, it does not blend.** `_contrast()` returns whichever of
+`$contrast-dark` / `$contrast-light` scores higher against the fill, so those two
+values ARE the ceiling for every intent — there is no share to tune, and a
+"softer" black spends contrast that nothing else can recover. Both are now the
+extremes (`#000` / `#fff`), which puts every intent at its theoretical maximum.
+The one that cannot be improved further is `primary` in the LIGHT theme at
+4.89:1: white already wins there and pure white is the ceiling, so the only
+lever left is the primary fill itself.
+
 **The `-ink` ramp is calibrated, not eyeballed.** Each intent's share in
 `$ink-mix` (`theme/styles/_colors.scss`) is the most saturated value that still
 reaches **5.0:1 against that intent's own `-soft` tint**, in both themes — the
