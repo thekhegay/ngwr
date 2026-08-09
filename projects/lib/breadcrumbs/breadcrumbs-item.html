@@ -1,15 +1,38 @@
-<a
-  [class]="rootClass()"
-  [routerLink]="routerLink()"
-  [attr.href]="!isRouter() ? href() : null"
-  [attr.aria-current]="isLink() ? null : 'page'"
-  [attr.role]="isLink() ? null : 'text'"
-  [attr.tabindex]="isLink() ? null : -1"
-  [attr.target]="external() && !isRouter() ? '_blank' : null"
-  [attr.rel]="external() && !isRouter() ? 'noreferrer noopener' : null"
->
+<!--
+  The label lives in a template rather than inside each branch below. A default
+  `<ng-content />` written into two `@if` branches fills only ONE of them — the
+  last in static order — and the other renders empty, with no template error and
+  nothing in the console. This component has been broken exactly that way
+  before; stamping one template from either branch keeps two anchors and one
+  projection.
+-->
+<ng-template #label>
   @if (icon(); as i) {
     <wr-icon class="wr-breadcrumbs__icon" [name]="i" />
   }
   <ng-content />
-</a>
+</ng-template>
+
+@if (isRouter()) {
+  <!--
+    Only ROUTER crumbs get `RouterLink`. Applied unconditionally it owns the
+    anchor's `href` and writes null into it whenever `routerLink` is null —
+    which silently turned every `href`-based crumb, a documented input, into
+    text that navigates nowhere.
+  -->
+  <a [class]="rootClass()" [routerLink]="routerLink()">
+    <ng-container [ngTemplateOutlet]="label" />
+  </a>
+} @else {
+  <a
+    [class]="rootClass()"
+    [attr.href]="href()"
+    [attr.aria-current]="isLink() ? null : 'page'"
+    [attr.role]="isLink() ? null : 'text'"
+    [attr.tabindex]="isLink() ? null : -1"
+    [attr.target]="external() ? '_blank' : null"
+    [attr.rel]="external() ? 'noreferrer noopener' : null"
+  >
+    <ng-container [ngTemplateOutlet]="label" />
+  </a>
+}

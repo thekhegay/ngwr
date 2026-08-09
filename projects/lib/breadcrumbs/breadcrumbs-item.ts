@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -27,7 +28,7 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
   selector: 'wr-breadcrumbs-item',
   templateUrl: './breadcrumbs-item.html',
   encapsulation: ViewEncapsulation.None,
-  imports: [RouterLink, WrIcon],
+  imports: [NgTemplateOutlet, RouterLink, WrIcon],
   host: { class: 'wr-breadcrumbs__item', role: 'listitem' },
 })
 export class WrBreadcrumbsItem {

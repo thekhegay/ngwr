@@ -327,7 +327,18 @@ theme is what makes ngwr a library people can bet on.
       control with a role but no tabindex is usually just disabled. Left as a
       lead with the method written down, not as a patch applied on a noisy
       detector.
-      **Remaining:** the rest of the components — sixteen of eighty-one have
+      `wr-breadcrumbs` was written next precisely BECAUSE of the projection
+      trap recorded in AGENTS.md — and the spec found a different defect
+      instead. `RouterLink` was bound unconditionally on the single anchor, so
+      the directive was always live and owned the `href`, writing null into it
+      whenever `routerLink` was null: every crumb given the documented `href`
+      input rendered as text that navigates nowhere. Confirmed by removing the
+      binding and watching the assertion pass. The anchor is now two branches,
+      RouterLink only on the router one — which walks straight into the
+      projection trap, so the label lives in an `<ng-template>` that either
+      branch stamps. Both paths are covered, and re-introducing either defect
+      fails specs.
+      **Remaining:** the rest of the components — seventeen of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
