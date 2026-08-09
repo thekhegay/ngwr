@@ -309,7 +309,25 @@ theme is what makes ngwr a library people can bet on.
       the browser's own handling of its disabled state. Verified the same way it
       was found: 7 focusable controls where there were 0, Tab moves between
       them, and Enter moves `aria-current` from page 1 to page 2.
-      **Remaining:** the rest of the components — fourteen of eighty-one have
+      Then the two disclosure / toggle patterns, `wr-collapse` (+ accordion
+      group) and `wr-segmented`, 22 specs — `aria-expanded` moving with the
+      panel, `aria-controls` pointing at a region that actually exists, exactly
+      one `aria-pressed` segment, and the sliding thumb correctly hidden.
+      **A lead worth recording, deliberately NOT acted on.** After the button
+      fix, the obvious question was whether anything else in the library is
+      clickable but unreachable. The first sweep drove a browser over 154 routes
+      looking for elements with a click listener and no way in, and reported
+      zero — which turned out to be zero for the wrong reason: `jsaction` is a
+      HYDRATION marker and Angular strips it once the page hydrates, so by the
+      time the sweep looked there was nothing left to find. Caught it by undoing
+      the button fix in the live DOM and watching the sweep still report clean.
+      Scanning the prerendered HTML instead does work — 193 files, 14329 click
+      listeners — but the signal needs judgement rather than a mass fix: a
+      `tabindex="-1"` grid cell is a correct roving-tabindex pattern, and a
+      control with a role but no tabindex is usually just disabled. Left as a
+      lead with the method written down, not as a patch applied on a noisy
+      detector.
+      **Remaining:** the rest of the components — sixteen of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
