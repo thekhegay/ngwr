@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
@@ -48,6 +48,12 @@ import { WR_BUTTON_GROUP } from './tokens';
     '[class]': 'classes()',
     '[attr.disabled]': 'nativeDisabled()',
     '[attr.aria-busy]': 'loading() ? "true" : null',
+    // The three below apply ONLY to the `<wr-btn>` element form — see
+    // `isCustomHost`. A native `<button>` / `<a>` already has all of it.
+    '[attr.role]': 'hostRole()',
+    '[attr.tabindex]': 'hostTabIndex()',
+    '[attr.aria-disabled]': 'hostAriaDisabled()',
+    '(keydown)': 'onHostKeydown($event)',
   },
   imports: [WrIcon, WrSpinner],
 })
@@ -111,10 +117,55 @@ export class WrButton {
     this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded')
   );
 
-  protected readonly nativeDisabled = computed<'' | null>(() => {
-    const off = this.disabled() || (this.loading() && this.isDisabledWhenLoading());
-    return off ? '' : null;
-  });
+  private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * Whether this instance is the `<wr-btn>` ELEMENT rather than the attribute
+   * form on a native `<button>` / `<a>`.
+   *
+   * The element form is documented as first-class and is what the pagination,
+   * event-calendar and popconfirm chrome use — but a custom element has no
+   * button semantics of its own. It was rendering with no `role`, no
+   * `tabindex` and no keyboard activation, so it was invisible to assistive
+   * tech and unreachable by Tab. Measured in Chromium against the built site:
+   * the whole `wr-pagination` subtree, 26 elements, contained ZERO focusable
+   * nodes and sixty Tab presses never entered it. axe cannot see this — an
+   * unknown element with no role simply is not an interactive control to it,
+   * which is the same blind spot that lets `disabled` pass unnoticed on a
+   * custom element.
+   */
+  private readonly isCustomHost = this.hostEl.nativeElement.tagName === 'WR-BTN';
+
+  private readonly isOff = computed(() => this.disabled() || (this.loading() && this.isDisabledWhenLoading()));
+
+  protected readonly nativeDisabled = computed<'' | null>(() => (this.isOff() ? '' : null));
+
+  protected readonly hostRole = computed<'button' | null>(() => (this.isCustomHost ? 'button' : null));
+
+  /** Out of the tab order while off — `disabled` is inert on a custom element. */
+  protected readonly hostTabIndex = computed<'0' | null>(() => (this.isCustomHost && !this.isOff() ? '0' : null));
+
+  protected readonly hostAriaDisabled = computed<'true' | null>(() =>
+    this.isCustomHost && this.isOff() ? 'true' : null
+  );
+
+  /**
+   * Enter and Space activate a button. A native one does this for free; a
+   * custom element does not, so without this the element form could be focused
+   * (once it had a tabindex) and still not be operable.
+   *
+   * `preventDefault` on Space is not optional — it scrolls the page otherwise.
+   * The pointer path needs no guard here: `.wr-btn[disabled]` already sets
+   * `pointer-events: none`.
+   */
+  protected onHostKeydown(event: KeyboardEvent): void {
+    if (!this.isCustomHost) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+
+    event.preventDefault();
+    if (this.isOff()) return;
+    this.hostEl.nativeElement.click();
+  }
 
   protected readonly classes = computed(() => {
     const parts = ['wr-btn'];

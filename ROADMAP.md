@@ -285,7 +285,31 @@ theme is what makes ngwr a library people can bet on.
       exist at all (a paste has to be a plain `Event` with the payload attached
       by hand), and `getData('text')` is NOT aliased to `text/plain` the way a
       browser aliases it.
-      **Remaining:** the rest of the components — twelve of eighty-one have
+      **Writing the pagination spec then found the worst defect of the run, in
+      the library's most-used component.** `wr-btn` has two host forms —
+      `<button wr-btn>` and the bare `<wr-btn>` element, both documented, the
+      element form used by the pagination, event-calendar and popconfirm chrome
+      and by 25 showcase demos. A custom element has no button semantics of its
+      own, and the component supplied none: no `role`, no `tabindex`, no
+      Enter/Space. Measured in Chromium against the built site, the entire
+      `wr-pagination` subtree — 26 elements — contained **zero** focusable
+      nodes, and sixty Tab presses never entered it. The control was completely
+      unreachable by keyboard, and `disabled` was decoration: inert on a custom
+      element, doing nothing but styling.
+      `check:a11y` was silent about all of it and was right to be: an unknown
+      element with no role is not an interactive control to axe, so there was
+      nothing for it to fault. That is the same blind spot recorded earlier for
+      `disabled` on a custom element, and it is worth stating plainly — the
+      structural gate cannot see a control it does not recognise AS a control.
+      The element form now carries `role="button"`, a `tabindex` it drops while
+      off, `aria-disabled` (since the `disabled` attribute cannot speak for
+      itself there), and Enter/Space activation with `preventDefault` so Space
+      does not scroll the page. Native hosts are deliberately left alone — a
+      `<button>` already has all of it, and a stamped `tabindex` would override
+      the browser's own handling of its disabled state. Verified the same way it
+      was found: 7 focusable controls where there were 0, Tab moves between
+      them, and Enter moves `aria-current` from page 1 to page 2.
+      **Remaining:** the rest of the components — fourteen of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
