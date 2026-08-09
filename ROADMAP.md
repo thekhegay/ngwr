@@ -104,7 +104,29 @@ theme is what makes ngwr a library people can bet on.
       **Remaining:** the APG-pattern conformance pass per component, and the
       service layer (LiveAnnouncer-style announcements, focus-trap utils).
       Colour contrast and target size need painted pixels — they belong to A5.
-- [ ] **A5. Visual regression** (M) — Playwright screenshot diffs across the
+- [ ] **A5. Visual regression** (M) — **the painted-a11y half landed:**
+      `pnpm check:contrast` (`scripts/check-contrast.ts`) drives a real Chromium
+      over every prerendered route in BOTH themes and runs the two rules JSDOM
+      cannot answer, `color-contrast` and `target-size`, gated against
+      `scripts/contrast-baseline.json`. It found, on its first full pass, that
+      **`wr-alert` still painted the bare intent as its title** — the exact
+      failure the `-ink` ramp exists to prevent, and the exact number the ramp
+      was built from: warning at 1.71:1, success 3.33, info 3.68, all in the
+      light theme, all shipped in v10.1.0. Fixed. Showcase chrome had three more
+      of the same shape: the active sidebar link at 4.28:1 on 190 routes, the
+      `required` badge in every API table at 3.12:1, and the grid guide's demo
+      cells. Two things the harness needed to be trustworthy: emulate
+      `prefers-reduced-motion`, or an animation caught mid-flight reports a
+      frame rather than a design; and print axe's OWN measured ratio, because a
+      `color-mix` computes to `color(srgb 0.19 0.41 0.77)` and hand-rolled
+      maths that assumes 0–255 turns it into nonsense.
+      **Baselined, both needing a design call rather than a patch:**
+      `wr-carousel`'s dots are 8×8 with 14px centres where WCAG 2.5.8 wants 24
+      (the `touch-target` mixin does not help — it is gated on
+      `pointer: coarse`, and 2.5.8 applies to every pointer), and the token
+      gallery labels every shade of a ramp with `{intent}-contrast`, which is
+      calibrated for the base shade only.
+      **Remaining:** Playwright screenshot diffs across the
       showcase, run at mobile viewports too. It also owns the half of a11y that
       `check:a11y` cannot see: that gate runs axe over unstyled prerendered HTML,
       so `color-contrast` and `target-size` are disabled there. Running them

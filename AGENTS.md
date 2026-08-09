@@ -135,6 +135,7 @@ enlarges every control at once.
 | Build the docs    | `pnpm build:showcase`                                                                               |
 | Lint everything   | `pnpm lint`                                                                                         |
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
+| Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — the rules JSDOM cannot answer)         |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
@@ -187,7 +188,7 @@ Autofix most issues (prettier wrapping long template lines, etc.) with
 
 **CI gates on `pnpm lint` + `pnpm test` + `pnpm check:api-docs` +
 `pnpm check:llms` + `pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:a11y`** — all seven must be green (a silently
+`pnpm build:showcase` + `pnpm check:a11y` + `pnpm check:contrast`** — all eight must be green (a silently
 failed lint stage once slipped past and blocked a publish). The publish job re-runs `pnpm lint` + `pnpm build:lib` before
 shipping. Conventional-commit subjects are checked locally (commitlint
 `commit-msg` hook) and PR titles on CI.
@@ -318,6 +319,20 @@ choose them deliberately and don't rename them on a whim.
 **Strings & i18n.** Never hard-code user-facing text. Expose overridable `*Label`
 inputs and route built-in strings (including ARIA labels) through the `ngwr/i18n`
 catalog (`wrT`) so consuming apps can localize.
+
+**Two a11y gates, and they see different things.** `pnpm check:a11y` runs axe in
+JSDOM over the prerendered HTML: no stylesheets, no layout, so it turns
+`color-contrast` and `target-size` OFF and answers the structural half — names,
+roles, ARIA validity, references. `pnpm check:contrast` (`scripts/check-contrast.ts`)
+answers exactly those two, in a real Chromium with real CSS, in BOTH themes,
+against `scripts/contrast-baseline.json`. It reports axe's own measured ratio
+rather than re-deriving one — a `color-mix` result computes to
+`color(srgb 0.19 0.41 0.77)`, whose components are 0–1, and hand-rolled maths
+that assumes 0–255 silently produces nonsense. It emulates
+`prefers-reduced-motion`, without which an animation caught mid-flight
+(`opacity: 0`, `blur(10px)`) reports a failure that describes one frame.
+`--filter=<substring>` narrows it to a route while you iterate; the full sweep
+is minutes.
 
 **Accessibility.** Interactive components follow the WAI-ARIA APG patterns —
 correct roles/states, keyboard navigation, and focus management; overlays use the

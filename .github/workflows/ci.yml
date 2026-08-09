@@ -58,3 +58,11 @@ jobs:
       # scripts/a11y-baseline.json, which is now empty — any serious or
       # critical violation fails.
       - run: pnpm check:a11y
+
+      # The other half of that gate: `check:a11y` runs in JSDOM, which has no
+      # stylesheets, so it turns `color-contrast` and `target-size` off. This
+      # one drives a real Chromium over both themes and answers exactly those
+      # two. It is the slowest step by far — a browser, 193 routes, twice — so
+      # it runs last of all, after everything cheaper has had its say.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm check:contrast
