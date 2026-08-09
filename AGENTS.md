@@ -311,7 +311,7 @@ which runs `release:prepare` / `release:body` and opens a `chore(release)` PR.
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 `@angular-devkit/*`, `@schematics/angular`) patches independently of the
 **framework** (`@angular/core` et al.) — bump only the train that moved.
-Dependabot (grouped) handles the PRs. **TypeScript is pinned on purpose** at
+Dependabot (grouped, checked daily) handles the PRs. **TypeScript is pinned on purpose** at
 `~6.0.3` — Angular 22's peer range is `typescript >=6.0 <6.1`, and TypeScript 7
 is out. `.github/dependabot.yml` now carries an `ignore` for it, and one for
 `@types/node` `>=26` (`.nvmrc` pins Node 24, so newer types describe APIs the

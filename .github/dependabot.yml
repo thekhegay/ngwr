@@ -3,8 +3,12 @@ version: 2
 updates:
   - package-ecosystem: 'npm'
     directory: '/'
+    # Daily. The grouping below is what keeps that from being noisy — Angular,
+    # eslint and the `@types/*` each arrive as ONE pull request however many
+    # packages moved, so a daily cadence mostly means the same weekly volume,
+    # just noticed sooner.
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
       time: '13:00'
       timezone: 'Asia/Almaty'
     open-pull-requests-limit: 10
@@ -49,7 +53,7 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
       time: '13:00'
       timezone: 'Asia/Almaty'
     assignees:
