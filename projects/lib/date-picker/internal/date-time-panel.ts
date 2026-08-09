@@ -36,6 +36,13 @@ export class WrDateTimePanel {
   readonly showSeconds = input(false);
   readonly step = input(1);
 
+  /**
+   * Forwarded to the calendar only: a datetime panel opened from the keyboard
+   * lands on the day grid, never on the hours field. Picking the date first is
+   * the order the panel is laid out in, and the time fields are one Tab away.
+   */
+  readonly autoFocus = input(false);
+
   readonly changed = output<Date>();
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);

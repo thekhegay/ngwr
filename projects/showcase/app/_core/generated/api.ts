@@ -163,6 +163,7 @@ export const API = {
     { name: "min", description: "Min selectable date (inclusive).", type: "Date | null", default: "null" },
     { name: "max", description: "Max selectable date (inclusive).", type: "Date | null", default: "null" },
     { name: "dateFilter", description: "Predicate — return `false` to disable specific dates (e.g. weekends only).", type: "((date: Date) => boolean) | null", default: "null" },
+    { name: "autoFocus", description: "Move real focus onto the roving cell as soon as the grid is on screen. Off by default: a standalone `<wr-calendar>` sitting in a page must not steal focus on load. `wr-date-picker` turns it on for the popup it opens from its trigger, where the user asked to be taken to the calendar.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction entirely.", type: "boolean", default: "false" },
   ],
   // <wr-calendar-heatmap>

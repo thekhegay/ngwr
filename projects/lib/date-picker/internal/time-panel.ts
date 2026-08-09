@@ -8,7 +8,9 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  ElementRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -70,7 +72,14 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   /** Read-only — values cannot be changed. @default false */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Move focus onto the hours field once the panel is on screen. Off by
+   * default — see `WrCalendar.autoFocus` for why. @default false
+   */
+  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly locale = inject(WR_DATE_LOCALE);
 
   /**
@@ -94,6 +103,14 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   protected readonly effectiveDisabled = computed(() => this.disabled());
 
   constructor() {
+    // The hours field, not the increment button: a stepper is a shortcut, the
+    // number is the control. Deferred because the inputs are not in the DOM
+    // until the panel's first change-detection pass.
+    afterNextRender(() => {
+      if (!this.autoFocus()) return;
+      this.host.nativeElement.querySelector<HTMLInputElement>('.wr-time-picker__input')?.focus();
+    });
+
     // Mirror an external `value` write into the internal h/m/s state (the old
     // `writeValue` body). Guarded against the echo of our own `emit()` so a live
     // edit is never clobbered by re-deriving it.

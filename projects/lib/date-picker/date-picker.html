@@ -16,10 +16,12 @@
     [disabled]="disabled()"
     [readonly]="readonly()"
     (click)="openOnInput()"
+    (keydown)="onFieldKey($event)"
     (input)="onInput($event)"
     (blur)="onBlur()"
   />
   <button
+    #trigger
     type="button"
     wrInputSuffix
     class="wr-date-picker__trigger"

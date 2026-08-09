@@ -141,6 +141,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('input');
+  protected readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
 
   /** The picked Date. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<Date | null>(null);
@@ -153,6 +154,16 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
+
+  /**
+   * Where focus came from, captured as an explicit argument at open time —
+   * never read off `document.activeElement`, which by then may already be the
+   * pane. Every close path that took focus INTO the panel hands it back here.
+   */
+  private openedFrom: HTMLElement | null = null;
+
+  /** Whether the panel this open cycle should take focus. */
+  private autoFocusPanel = false;
 
   /** Resolved format — falls back to a mode-appropriate default. */
   protected readonly resolvedFormat = computed<string>(() => {
@@ -295,22 +306,74 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Called by the input's click — opens the overlay if it isn't open already. */
   protected openOnInput(): void {
     if (this.disabled() || this.overlayRef) return;
-    this.openOverlay();
+    // Deliberately WITHOUT focus: this click placed a caret in the text field,
+    // and yanking focus into the grid would throw away what the user just did.
+    // `Alt+ArrowDown` / `ArrowDown` are the keyboard way in — see onFieldKey.
+    this.openOverlay(this.inputEl().nativeElement, false);
   }
 
   protected toggleOverlay(): void {
     if (this.disabled()) return;
     if (this.overlayRef) {
+      // Focus is already on the trigger — nothing to restore.
       this.closeOverlay();
     } else {
-      this.openOverlay();
+      this.openOverlay(this.triggerEl()?.nativeElement ?? null, true);
     }
+  }
+
+  /**
+   * The keyboard route into the panel, per the APG date-picker pattern.
+   *
+   * `Alt+ArrowDown` opens and takes focus; a bare arrow moves focus in when the
+   * panel is ALREADY open, which is how someone who opened it by clicking the
+   * field gets to the grid. Every other key — characters, Backspace, the
+   * horizontal arrows, Home / End — is left to the field untouched, so typing a
+   * date keeps working exactly as before.
+   */
+  protected onFieldKey(event: KeyboardEvent): void {
+    if (this.disabled()) return;
+
+    const vertical = event.key === 'ArrowDown' || event.key === 'ArrowUp';
+    if (!vertical) return;
+
+    if (event.altKey && event.key === 'ArrowDown' && !this.overlayRef) {
+      event.preventDefault();
+      this.openOverlay(this.inputEl().nativeElement, true);
+      return;
+    }
+
+    if (this.overlayRef) {
+      event.preventDefault();
+      this.focusPanel();
+    }
+  }
+
+  /**
+   * Move focus into an already-mounted panel. A plain query is right HERE and
+   * wrong at mount time: the panel has settled, so there is no deferral to get
+   * wrong — and it keeps `autoFocus` as the single piece of panel API.
+   */
+  private focusPanel(): void {
+    const pane = this.overlayRef?.overlayElement;
+    const target =
+      pane?.querySelector<HTMLElement>('.wr-calendar__day--focused:not([disabled])') ??
+      pane?.querySelector<HTMLElement>('.wr-time-picker__input');
+    target?.focus();
+  }
+
+  /** Hand focus back to whatever opened the panel, if it is still on the page. */
+  private restoreFocus(): void {
+    const target = this.openedFrom?.isConnected ? this.openedFrom : this.inputEl().nativeElement;
+    target?.focus();
   }
 
   // Overlay
 
-  private openOverlay(): void {
+  private openOverlay(openedFrom: HTMLElement | null = null, autoFocus = false): void {
     if (this.overlayRef) return;
+    this.openedFrom = openedFrom;
+    this.autoFocusPanel = autoFocus;
 
     const positionStrategy = this.overlay
       .position()
@@ -375,6 +438,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('min', this.min());
     ref.setInput('max', this.max());
     ref.setInput('dateFilter', this.dateFilter());
+    ref.setInput('autoFocus', this.autoFocusPanel);
     ref.instance.date.subscribe(next => {
       if (!next) return;
       this.commit(next);
@@ -388,6 +452,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('format', this.timeFormat());
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
+    ref.setInput('autoFocus', this.autoFocusPanel);
     ref.setInput('value', this.value() ?? this.adapter.today());
     ref.instance.value.subscribe((next: Date | null) => {
       if (!next) return;
@@ -405,6 +470,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('timeFormat', this.timeFormat());
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
+    ref.setInput('autoFocus', this.autoFocusPanel);
     ref.instance.changed.subscribe(next => {
       this.commit(next);
       ref.setInput('value', next);
@@ -423,8 +489,20 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     this.value.set(next);
   }
 
+  /**
+   * Focus goes back to the opener only when it was still INSIDE the panel —
+   * dropped there, it would land on `<body>` and the next Tab would restart
+   * from the top of the page. When focus had already moved elsewhere (a click
+   * on another control, which is itself what closed us) it is left alone:
+   * stealing it back would fight the user for the caret.
+   */
   private closeOverlay(): void {
+    const pane = this.overlayRef?.overlayElement;
+    const inside = !!pane && pane.contains(document.activeElement);
+
     this.dispose();
+
+    if (inside) this.restoreFocus();
   }
 
   private dispose(): void {
@@ -434,6 +512,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     }
     this.dateRef.set(null);
     this.overlayOpen.set(false);
+    this.autoFocusPanel = false;
   }
 
   // Helpers
