@@ -148,14 +148,22 @@ sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/pipes`), the validation-copy contract (`ngwr/form`), part of the service
-layer (`ngwr/hotkey`, `ngwr/i18n`) and two components (`wr-tabs`, `wr-select`)
-— 178 specs. The rest of the components are unwritten, so
+layer (`ngwr/hotkey`, `ngwr/i18n`) and six components — `wr-tabs`, `wr-select`,
+`wr-dialog`, `wr-popover`, `wr-toast`, `wr-date-picker` — at 296 specs.
+
+**`pnpm test --filter <x>` is a TEST-NAME regex, not a file filter.** It is
+vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
+NAMES contain "dialog" and reports green. To run one file, pass its path to the
+builder's `include`; to be sure of a change, run the whole suite — it is
+seconds. The rest of the components are unwritten, so
 **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`, `check:llms` and
 `check:a11y` are the gates** and a green run still does not mean a component
 behaves.
 
 **Writing a component spec:** copy `projects/lib/tabs/tabs.spec.ts`, or
-`projects/lib/select/select.spec.ts` for one with an overlay — that panel
+`projects/lib/dialog/dialog.spec.ts` / `projects/lib/toast/toast.spec.ts` for a
+SERVICE that mounts into an overlay, or `projects/lib/select/select.spec.ts` for
+a component with an overlay — that panel
 renders into the overlay container, not the fixture, so options are queried off
 `document` and the spec provides `provideWrOverlay()` to keep its container out
 of the next file's. A tiny
