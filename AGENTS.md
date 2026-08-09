@@ -230,6 +230,16 @@ role aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
 `scripts/check-color-parity.ts` (in `pnpm lint`) fails the build if they drift.
 
+**The `-ink` ramp is calibrated, not eyeballed.** Each intent's share in
+`$ink-mix` (`theme/styles/_colors.scss`) is the most saturated value that still
+reaches **5.0:1 against that intent's own `-soft` tint**, in both themes — the
+soft tint being the darker of the two backgrounds `-ink` is documented for, and
+so the binding one. The 5.0 target is deliberate headroom over AA's 4.5: the
+first pass aimed at 4.5 exactly and left every intent between 4.59 and 4.83, so
+a slightly different background pushed it under (`wr-typography--code` measured
+4.24, `wr-tag--primary` 4.42). If you change a share, re-derive it — do not
+nudge it until one page looks right.
+
 **Two directions, two tokens — do not mix them up.** `-contrast` is the label ON
 a filled intent; `-ink` is the intent used AS text on `--wr-color-surface` or on
 its own `-soft` tint. Painting a bare `--wr-color-<intent>` as text fails WCAG AA

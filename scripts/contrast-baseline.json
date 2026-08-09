@@ -1,18 +1,18 @@
 {
   "color-contrast (light)": {
-    "routes": 11,
-    "note": "Three causes, all measured on 2026-08-08. (1) WCAG-exempt inactive controls axe cannot recognise, because `disabled` sits on a custom element: `<wr-btn disabled>` labels, `wr-calendar__day--out-of-month`. (2) The ink ramp sitting ON the AA line for small text over a 0.1 intent tint — `wr-tag--transparent` primary at 4.42:1 and 12px, avatar's demo initials at 4.01:1. `-ink` is the right token; the boundary is a systemic question about small text on tints and wants its own pass, not a per-site nudge. (3) Two spots still painting the BARE intent: `wr-badge`'s soft variant at 3.12:1, and the swatch grid on /guides/tokens/colors, which labels every shade of a ramp with `{intent}-contrast` — a token calibrated for the base shade only. Routes: /guides/tokens/colors, /guides/typography/code, /reference/components/{avatar,button,calendar,event-calendar,sidebar,slider,squircle,table}, /reference/services/meta."
+    "routes": 10,
+    "note": "Three causes, measured 2026-08-09 after the ink ramp was recalibrated. (1) WCAG-exempt inactive controls axe cannot recognise, because `disabled` sits on a custom element: `<wr-btn disabled>` labels, `wr-calendar__day--out-of-month`. (2) Two spots still painting the BARE intent as text: `wr-badge`'s soft variant at 3.12:1, and `wr-switch__text` / `wr-checkbox__text` using `medium`, which is a FILL colour. (3) The swatch grid on /guides/tokens/colors, which labels every shade of a ramp with `{intent}-contrast` \u2014 a token calibrated for the base shade only. The `-ink` ramp itself is no longer among them: recalibrating it against the `-soft` tint at 5.0:1 took its worst case from -0.26 to +0.20 and cut the cases sitting under +0.5 from 20 to 3."
   },
   "color-contrast (dark)": {
     "routes": 4,
-    "note": "The same three causes, on the pages where the dark theme also lands under 4.5: /guides/tokens/colors, /reference/components/{button,calendar,squircle}. Far fewer than light, which is the expected shape — the ink ramp lightens in dark, where the tints are darker."
+    "note": "The same three causes, on the pages where the dark theme also lands under 4.5: /guides/tokens/colors, /reference/components/{button,calendar,squircle}. Far fewer than light, which is the expected shape \u2014 the ink ramp lightens in dark, where the tints are darker."
   },
   "target-size (light)": {
     "routes": 1,
-    "note": "wr-carousel's pagination dots. Measured 8x8 CSS px with centres 14px apart (the active dot is 20x8). WCAG 2.5.8 wants 24x24 targets, or undersized ones whose 24px circles do not intersect; 14px centres fail both. Every fix changes how the component LOOKS — bigger dots, or ~24px centre spacing — so it is a design call, not a defect to patch quietly. The `touch-target` mixin does not help: it is gated on `@media (pointer: coarse)`, and 2.5.8 applies to every pointer."
+    "note": "wr-carousel's pagination dots. Measured 8x8 CSS px with centres 14px apart (the active dot is 20x8). WCAG 2.5.8 wants 24x24 targets, or undersized ones whose 24px circles do not intersect; 14px centres fail both. Every fix changes how the component LOOKS \u2014 bigger dots, or ~24px centre spacing \u2014 so it is a design call, not a defect to patch quietly. The `touch-target` mixin does not help: it is gated on `@media (pointer: coarse)`, and 2.5.8 applies to every pointer."
   },
   "target-size (dark)": {
     "routes": 1,
-    "note": "Same component and the same measurement as the light entry — the dots are not themed."
+    "note": "Same component and the same measurement as the light entry \u2014 the dots are not themed."
   }
 }

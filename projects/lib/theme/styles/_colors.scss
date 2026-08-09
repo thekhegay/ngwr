@@ -236,14 +236,27 @@ $contrast-light: #ffffff !default;
   // intent to warning's share would drag primary to near-navy for no reason.
   // Each is the measured minimum that clears 4.5:1 in BOTH themes on the surface
   // and on the tag's 6% / 10% tints, with 3pp of headroom.
+  // Calibrated against the `-soft` TINT, not the plain surface — it is the
+  // darker of the two backgrounds `-ink` is documented for, in both themes, so
+  // it is the binding one.
+  //
+  // Each share is the LARGEST (most saturated) value that still reaches 5.0:1
+  // there. Targeting AA's 4.5 exactly is what the first pass did, and it left
+  // every intent between 4.59 and 4.83 — inside rounding distance of the line.
+  // Anything that shifted the background a little then pushed it under:
+  // `wr-typography--code` measured 4.24 with `success-ink`, `wr-tag--primary`
+  // 4.42. Half a point of headroom absorbs that, for 2–7 points of share.
+  //
+  // Going further is not free: 5.25 costs 7–11 points and 5.5 up to 14, which
+  // on `primary` means 93% -> 79% and a visibly muddier blue.
   $ink-mix: (
-    primary: 93%,
-    secondary: 80%,
-    success: 72%,
-    warning: 50%,
-    danger: 77%,
-    info: 76%,
-    medium: 69%,
+    primary: 86%,
+    secondary: 75%,
+    success: 67%,
+    warning: 48%,
+    danger: 72%,
+    info: 71%,
+    medium: 65%,
   );
 
   @each $name, $share in $ink-mix {
