@@ -173,7 +173,41 @@ theme is what makes ngwr a library people can bet on.
       not a patch; and changing `[format]` at runtime leaves both pickers' text
       stale, which is shared and pre-existing, so fixing it in one would only
       create a new divergence.
-      **Remaining:** the rest of the services.
+      **The service layer is now covered too** — storage, theme, density,
+      media, clipboard, the hotkey dispatcher, the loading bar and the drawer
+      manager, at 440 specs. Writing them turned up eight defects, every one
+      reproduced before it was touched, and the pattern is that a service's
+      side effects are exactly what nothing was watching:
+      `WrStorage.watch(key, fallback)` dropped the fallback on `remove()` /
+      `clear()`, so it and `get()` disagreed about what an absent key means;
+      `WrHotkey` never released its document listeners when its injector died,
+      and a stale handle unbinding twice tore down the listener a LIVE binding
+      depended on; `WrClipboard`'s textarea fallback — the path every plain
+      `http://` origin takes — selected a node it then removed, dropping focus
+      to `<body>` on every copy; `WrLoadingBar` flashed to 100% on a stray
+      `complete()`, and a task starting inside its 220 ms hold kept
+      `progress` at 1 and then trickled BACKWARDS toward 0.9, which a
+      redirecting route guard hits on every navigation. Its worst was on the
+      live site: with no platform guard, the prerenderer ran the whole cycle
+      and serialized the bar at full width — **193 of 217 pages** shipped a
+      primary bar across the top of every cold load, now 0.
+      Two dismiss buttons were misnamed, and the second only surfaced because
+      the first was being fixed: `WrDrawerManager` announced the raw key
+      `"drawer.close"` where no catalog was configured, and `WrDialog`, already
+      patched for that case, resolved its label ONCE at injection — before any
+      async catalog had loaded — so a localized app got an English button on
+      every dialog forever. Both now resolve per open. axe cannot see either
+      one: a name is present, it is just the wrong one.
+      Two traps worth recording, both of the shape AGENTS.md already warns
+      about. jsdom's `textarea.select()` does NOT move focus while a real
+      browser's does, so the clipboard focus test passed for the wrong reason
+      until the stub was taught the real semantics. And an assertion that a
+      hotkey stops FIRING after teardown is not an assertion that its listener
+      was REMOVED — clearing the registry silences the handler while the leak
+      survives, so the guard has to count `addEventListener` against
+      `removeEventListener`.
+      **Remaining:** the overlay's outside-click helper, the window manager, and
+      the two platform services (`WrHaptics`, `WrVisualViewport`).
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship

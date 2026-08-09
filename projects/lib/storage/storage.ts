@@ -58,8 +58,17 @@ export class WrStorage {
   private readonly config = inject(WR_STORAGE_CONFIG);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  /** Per-key watchers. Shared so multiple `watch(k)` calls reuse one signal. */
-  private readonly watchers = new Map<string, WritableSignal<unknown>>();
+  /**
+   * Per-key watchers. Shared so multiple `watch(k)` calls reuse one signal.
+   *
+   * The fallback is kept alongside the signal because every refresh has to read
+   * the key the same way `watch` first did. Refreshing without it made `get` and
+   * `watch` disagree about what an ABSENT key means: after a `remove()` the
+   * signal went to `null` while `get(key, fallback)` still answered with the
+   * default, so a consumer watching `'theme'` with a `'light'` fallback got no
+   * theme at all rather than the light one.
+   */
+  private readonly watchers = new Map<string, { readonly sig: WritableSignal<unknown>; readonly fallback: unknown }>();
   private listenerInstalled = false;
 
   // Public API
@@ -149,7 +158,7 @@ export class WrStorage {
       this.engine.clear();
     }
     // Refresh every active watcher — they may have just been cleared.
-    for (const [k, sig] of this.watchers) sig.set(this.get(k));
+    for (const [k, entry] of this.watchers) entry.sig.set(this.get(k, entry.fallback));
   }
 
   /** All known keys under our prefix, with the prefix stripped. */
@@ -165,12 +174,12 @@ export class WrStorage {
    * `watch(k)` twice returns the same signal.
    */
   watch<T = unknown>(key: string, fallback: T | null = null): Signal<T | null> {
-    let sig = this.watchers.get(key) as WritableSignal<T | null> | undefined;
-    if (!sig) {
-      sig = signal<T | null>(this.get<T>(key, fallback));
-      this.watchers.set(key, sig);
-      this.installCrossTabListener();
-    }
+    const existing = this.watchers.get(key);
+    if (existing) return (existing.sig as WritableSignal<T | null>).asReadonly();
+
+    const sig = signal<T | null>(this.get<T>(key, fallback));
+    this.watchers.set(key, { sig: sig, fallback });
+    this.installCrossTabListener();
     return sig.asReadonly();
   }
 
@@ -181,8 +190,8 @@ export class WrStorage {
   }
 
   private notify(key: string): void {
-    const sig = this.watchers.get(key);
-    if (sig) sig.set(this.get(key));
+    const entry = this.watchers.get(key);
+    if (entry) entry.sig.set(this.get(key, entry.fallback));
   }
 
   private rawKeys(): string[] {
@@ -205,7 +214,7 @@ export class WrStorage {
       // `notify()` in `set`/`remove`/`clear`.
       if (event.key === null) {
         // Storage cleared from another tab.
-        for (const [k, sig] of this.watchers) sig.set(this.get(k));
+        for (const [k, entry] of this.watchers) entry.sig.set(this.get(k, entry.fallback));
         return;
       }
       const p = this.config.prefix;

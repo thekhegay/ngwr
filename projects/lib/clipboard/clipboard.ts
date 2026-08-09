@@ -117,8 +117,16 @@ export class WrClipboard {
 
   // Internals
 
-  /** Hidden-textarea + `execCommand('copy')` write. Synchronous, no permissions. */
+  /**
+   * Hidden-textarea + `execCommand('copy')` write. Synchronous, no permissions.
+   *
+   * `select()` takes focus, and the textarea is removed a moment later — so
+   * without putting focus back, every copy on a non-secure origin (plain
+   * `http://`, which is exactly where the async clipboard is missing) leaves
+   * focus on `<body>` and the user's next Tab restarts from the top of the page.
+   */
   private legacyWrite(text: string): boolean {
+    const previouslyFocused = this.doc.activeElement;
     const node = this.doc.createElement('textarea');
     node.value = text;
     node.setAttribute('readonly', '');
@@ -135,6 +143,12 @@ export class WrClipboard {
       return false;
     } finally {
       this.doc.body.removeChild(node);
+      // Guarded on `isConnected`: the copy handler may well have re-rendered
+      // whatever was focused, and focusing a detached node throws focus away
+      // just as thoroughly as not restoring it.
+      if (previouslyFocused instanceof HTMLElement && previouslyFocused.isConnected) {
+        previouslyFocused.focus();
+      }
     }
   }
 }

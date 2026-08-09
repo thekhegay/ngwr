@@ -134,7 +134,7 @@ export class WrDrawerManager {
       // Built-in dismiss, same contract as WrDialog's `closable`.
       if (options.closable !== false) {
         host.classList.add('wr-drawer__panel--closable');
-        const label = options.closeLabel ?? this.i18n.t('drawer.close');
+        const label = options.closeLabel ?? this.closeLabel();
         wrAppendOverlayClose(host, 'wr-drawer__close', label, () => drawerRef.close());
       }
       // Wire aria-labelledby to wrDrawerTitle's auto-id once content is in DOM.
@@ -169,5 +169,24 @@ export class WrDrawerManager {
     }
 
     return drawerRef;
+  }
+
+  /**
+   * The dismiss button's accessible name.
+   *
+   * Resolved per open, not once at injection: this is a root service, so a
+   * `readI18nText` field — which is what `WrDialog` uses — would be evaluated
+   * before an async catalog had loaded and then freeze that answer for the life
+   * of the app.
+   *
+   * The miss check is the point. `t()` hands back the KEY when the catalog has
+   * no entry, and `WrI18n` is root-provided with an empty catalog by default —
+   * so an app that never configured i18n got a button announced as
+   * "drawer.close, button". A name WAS present, which is exactly why the axe
+   * gate could not see it.
+   */
+  private closeLabel(): string {
+    const resolved = this.i18n.t('drawer.close');
+    return resolved === 'drawer.close' ? 'Close drawer' : resolved;
   }
 }
