@@ -38,6 +38,9 @@ import { WrDateRangePanel } from './internal/date-range-panel';
 /** Which end of the range an edit applies to. */
 type RangeEnd = 0 | 1;
 
+/** Per-instance popup ids, so `aria-controls` can point at one panel. */
+let rangePanelUid = 0;
+
 /**
  * Date-range picker — two text inputs sharing one range calendar.
  *
@@ -130,7 +133,17 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Read-only — inputs not typeable, but the trigger icon still opens the overlay. @default false */
+  /**
+   * Read-only — neither the inputs nor the calendar can change the value.
+   *
+   * Deliberately stricter than `wr-date-picker`, which still opens its popup
+   * while read-only: with two fields feeding one calendar there is no reading
+   * of "untypeable" that leaves the grid free to rewrite both ends. The doc
+   * used to promise the trigger still opened; the code has always refused, and
+   * refusing is the behaviour worth keeping.
+   *
+   * @default false
+   */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
@@ -140,6 +153,8 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly startEl = viewChild.required<ElementRef<HTMLInputElement>>('startInput');
+  protected readonly endEl = viewChild.required<ElementRef<HTMLInputElement>>('endInput');
+  protected readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
 
   /** The picked range. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<WrDateRange | null>(null);
@@ -154,6 +169,18 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
 
+  /**
+   * Which element opened the popup — captured as an argument, never read off
+   * `document.activeElement`, which by then may already be the pane. With TWO
+   * text inputs this is the whole point: "restore focus to the field" is
+   * ambiguous here, and the old code resolved it by always picking the START
+   * input, so closing from the end input threw the caret across the control.
+   */
+  private openedFrom: HTMLElement | null = null;
+
+  /** Whether the panel this open cycle should take focus. */
+  private autoFocusPanel = false;
+
   /** Resolved format — falls back to a mode-appropriate default. */
   protected readonly resolvedFormat = computed<string>(() =>
     this.format() ? String(this.format()) : this.mode() === 'datetime' ? 'shortDateTime' : 'shortDate'
@@ -164,6 +191,29 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   protected readonly triggerLabel = readI18nText('datePicker.openRange', 'Open range calendar');
   protected readonly startLabel = readI18nText('datePicker.rangeStart', 'Range start');
   protected readonly endLabel = readI18nText('datePicker.rangeEnd', 'Range end');
+
+  private readonly panelLabelRange = readI18nText('datePicker.panelRange', 'Choose date range');
+  private readonly panelLabelRangeDateTime = readI18nText(
+    'datePicker.panelRangeDateTime',
+    'Choose date and time range'
+  );
+
+  /**
+   * Accessible name of the popup. The trigger advertises
+   * `aria-haspopup="dialog"`, so the pane is a `role="dialog"` — and an unnamed
+   * dialog announces as a bare "dialog". Defaults to the catalog's
+   * `datePicker.panelRange*` string for the current `mode`.
+   */
+  readonly panelAriaLabel = input<string | null>(null);
+
+  /** Popup id — what the trigger's `aria-controls` points at while open. */
+  protected readonly panelId = `wr-date-range-picker-panel-${++rangePanelUid}`;
+
+  protected readonly resolvedPanelLabel = computed(() => {
+    const explicit = this.panelAriaLabel();
+    if (explicit) return explicit;
+    return this.isDateTime() ? this.panelLabelRangeDateTime : this.panelLabelRange;
+  });
 
   protected readonly classes = computed(() => {
     const parts = ['wr-date-range-picker', `wr-date-range-picker--${this.mode()}`];
@@ -232,28 +282,88 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     // control as touched once focus actually leaves it, or tabbing from start to
     // end would mark a bound field touched mid-entry.
     const next = event.relatedTarget as Node | null;
-    if (!next || !this.host.nativeElement.contains(next)) this.touch.emit();
+    const leaving = !next || !this.host.nativeElement.contains(next);
+    if (leaving) this.touch.emit();
 
     // Typing leaves the ends in whatever order they were entered; settle it
-    // here, once the user has stopped.
-    const [start, end] = this.commitRange(this.current(), { normalise: true });
+    // here, once the user has stopped — and moving from one end to the other is
+    // NOT stopping. Sorting on that hop took the start date the user had just
+    // typed and moved it into the field they were tabbing into, leaving the old
+    // end date under their cursor. Same rule the time steppers follow.
+    const [start, end] = this.commitRange(this.current(), { normalise: leaving });
     // Reformat to canonical on blur (cleans up `1/5/25` → `1/5/2025`).
     this.startText.set(this.display(start));
     this.endText.set(this.display(end));
   }
 
   /** Called by an input's click — opens the overlay if it isn't open already. */
-  protected openOnInput(): void {
+  protected openOnInput(end: RangeEnd): void {
     if (this.disabled() || this.readonly() || this.overlayRef) return;
-    this.openOverlay();
+    // Deliberately WITHOUT focus: this click placed a caret in one of the text
+    // fields, and pulling focus into the grid would throw that away.
+    // `Alt+ArrowDown` / `ArrowDown` are the keyboard way in — see onFieldKey.
+    this.openOverlay(this.fieldEl(end), false);
   }
 
   protected toggleOverlay(): void {
     // `readonly` blocks the calendar too — otherwise the inputs refuse typing
     // while the popover happily edits the same value.
     if (this.disabled() || this.readonly()) return;
-    if (this.overlayRef) this.closeOverlay();
-    else this.openOverlay();
+    if (this.overlayRef) {
+      // Focus is already on the trigger — nothing to restore.
+      this.closeOverlay();
+    } else {
+      this.openOverlay(this.triggerEl()?.nativeElement ?? null, true);
+    }
+  }
+
+  /**
+   * The keyboard route into the popup, per the APG date-picker pattern, and the
+   * only one either field has. `Alt+ArrowDown` opens and takes focus; a bare
+   * vertical arrow walks focus in when the popup is ALREADY open, which is how
+   * someone who opened it by clicking a field reaches the grid. Every other key
+   * belongs to the field, so typing a date keeps working with the popup open.
+   */
+  protected onFieldKey(event: KeyboardEvent, end: RangeEnd): void {
+    if (this.disabled() || this.readonly()) return;
+
+    const vertical = event.key === 'ArrowDown' || event.key === 'ArrowUp';
+    if (!vertical) return;
+
+    if (event.altKey && event.key === 'ArrowDown' && !this.overlayRef) {
+      event.preventDefault();
+      this.openOverlay(this.fieldEl(end), true);
+      return;
+    }
+
+    if (this.overlayRef) {
+      event.preventDefault();
+      this.focusPanel();
+    }
+  }
+
+  /** The input element for an end — the two are otherwise addressed by index. */
+  private fieldEl(end: RangeEnd): HTMLInputElement {
+    return end === 0 ? this.startEl().nativeElement : this.endEl().nativeElement;
+  }
+
+  /**
+   * Move focus into an already-mounted panel. A plain query is right HERE and
+   * wrong at mount time: the panel has settled, so there is no deferral to get
+   * wrong — and it keeps `autoFocus` as the single piece of panel API.
+   */
+  private focusPanel(): void {
+    const pane = this.overlayRef?.overlayElement;
+    const target =
+      pane?.querySelector<HTMLElement>('.wr-calendar__day--focused:not([disabled])') ??
+      pane?.querySelector<HTMLElement>('.wr-time-picker__input');
+    target?.focus();
+  }
+
+  /** Hand focus back to whatever opened the popup, if it is still on the page. */
+  private restoreFocus(): void {
+    const target = this.openedFrom?.isConnected ? this.openedFrom : this.startEl().nativeElement;
+    target.focus();
   }
 
   // Input parsing
@@ -277,8 +387,10 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
 
   // Overlay
 
-  private openOverlay(): void {
+  private openOverlay(openedFrom: HTMLElement | null = null, autoFocus = false): void {
     if (this.overlayRef) return;
+    this.openedFrom = openedFrom;
+    this.autoFocusPanel = autoFocus;
 
     const positionStrategy = this.overlay
       .position()
@@ -298,9 +410,24 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     });
     this.overlayOpen.set(true);
 
+    // The trigger promises `aria-haspopup="dialog"`; the pane is the element it
+    // points at, so the role, the name and the id all belong here. Non-modal on
+    // purpose — the two text fields stay reachable while the calendar is up,
+    // which is the whole interaction model.
+    const pane = this.overlayRef.overlayElement;
+    pane.id = this.panelId;
+    pane.setAttribute('role', 'dialog');
+    pane.setAttribute('aria-modal', 'false');
+    pane.setAttribute('aria-label', this.resolvedPanelLabel());
+
     const ref = this.overlayRef.attach(new ComponentPortal(WrDateRangePanel));
     ref.setInput('value', this.value() ?? [null, null]);
+    ref.setInput('autoFocus', this.autoFocusPanel);
     this.panelRef.set(ref);
+
+    // A stepper edit belongs to the end it was made on. Sorting it here is what
+    // made the start stepper stop responding once it passed the end.
+    ref.instance.timeChanged.subscribe(next => this.commitRange(next, { normalise: false }));
 
     ref.instance.changed.subscribe(next => {
       const committed = this.commitRange(next, { normalise: true });
@@ -324,21 +451,34 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
         if (event.key === 'Escape') {
           event.preventDefault();
           this.closeOverlay();
-          this.startEl().nativeElement.focus();
         }
       });
   }
 
   /**
-   * Close the popover. `restoreFocus` returns focus to the start input — needed
-   * when the overlay is dismissed while focus lives inside it (picking the
-   * second date), because disposing then leaves focus on a removed element and
-   * the browser falls back to `<body>`.
+   * Close the popover, handing focus back to whichever field or button opened
+   * it — but ONLY when focus was still inside the pane. Dropped there it would
+   * land on `<body>` and the next Tab would restart from the top of the page;
+   * moved on by the user, it must be left where they put it.
+   *
+   * There is deliberately no "always restore" escape hatch. Escape reaches this
+   * overlay from anywhere in the document (the CDK dispatches it to the topmost
+   * one), so forcing a restore would drag the caret backwards out of the field
+   * the user was actually typing in — into the one that happened to open the
+   * popup, possibly several Tab stops away.
    */
-  private closeOverlay(restoreFocus = false): void {
-    const inside = this.overlayRef?.overlayElement.contains(this.host.nativeElement.ownerDocument.activeElement);
+  private closeOverlay(): void {
+    const pane = this.overlayRef?.overlayElement;
+    const inside = !!pane && pane.contains(this.host.nativeElement.ownerDocument.activeElement);
+
     this.dispose();
-    if (restoreFocus || inside) this.startEl().nativeElement.focus();
+
+    // The interaction is over, so settle the ordering an in-progress time edit
+    // was allowed to leave inverted. Blur does the same for the text inputs;
+    // without this, closing by clicking outside never passes through one.
+    this.commitRange(this.current(), { normalise: true });
+
+    if (inside) this.restoreFocus();
   }
 
   private dispose(): void {
@@ -348,6 +488,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     }
     this.panelRef.set(null);
     this.overlayOpen.set(false);
+    this.autoFocusPanel = false;
   }
 
   // Commit
@@ -438,9 +579,19 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     return a.getTime() === b.getTime();
   }
 
+  /**
+   * `null` and `[null, null]` are the same VALUE — an empty range — and treating
+   * them as different is what let the FIRST blur on an untouched picker write
+   * `[null, null]` over the `null` it was bound to. No date had moved, but
+   * `model()` emitted: a bound `[formField]` went dirty from nothing but tabbing
+   * through, and a consumer's `@if (period())` flipped from empty to truthy with
+   * neither end picked. The write guard in `commitRange` is only as good as this
+   * comparison.
+   */
   private sameRange(a: WrDateRange | null, b: WrDateRange | null): boolean {
     if (a === b) return true;
-    if (!a || !b) return false;
-    return this.sameDate(a[0], b[0]) && this.sameDate(a[1], b[1]);
+    const [aStart, aEnd] = a ?? [null, null];
+    const [bStart, bEnd] = b ?? [null, null];
+    return this.sameDate(aStart, bStart) && this.sameDate(aEnd, bEnd);
   }
 }

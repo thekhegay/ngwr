@@ -373,9 +373,10 @@ export const API = {
     { name: "showSeconds", description: "Render the seconds column. Applies in `datetime` mode.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panels.", type: "number", default: "1" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
-    { name: "readonly", description: "Read-only — inputs not typeable, but the trigger icon still opens the overlay.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only — neither the inputs nor the calendar can change the value. Deliberately stricter than `wr-date-picker`, which still opens its popup while read-only: with two fields feeding one calendar there is no reading of \"untypeable\" that leaves the grid free to rewrite both ends. The doc used to promise the trigger still opened; the code has always refused, and refusing is the behaviour worth keeping.", type: "boolean", default: "false" },
     { name: "value", description: "The picked range. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrDateRange | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
   ],
   // <wr-decrypt-text>
   WrDecryptText: [

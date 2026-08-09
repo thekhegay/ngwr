@@ -385,16 +385,21 @@ export class WrCalendar {
     if (this.disabled()) return;
     const current = this.focusedDate();
     let next: Date | null = null;
+    // Which way the key travels, so a landing on a closed-off day can keep
+    // going instead of stopping on it. See `nearestEnabledToward`.
+    let dir: 1 | -1 = 1;
 
     switch (event.key) {
       case 'ArrowLeft':
         next = this.adapter.addDays(current, -1);
+        dir = -1;
         break;
       case 'ArrowRight':
         next = this.adapter.addDays(current, 1);
         break;
       case 'ArrowUp':
         next = this.adapter.addDays(current, -7);
+        dir = -1;
         break;
       case 'ArrowDown':
         next = this.adapter.addDays(current, 7);
@@ -403,6 +408,7 @@ export class WrCalendar {
         const dow = this.adapter.getDayOfWeek(current);
         const first = this.adapter.getFirstDayOfWeek();
         next = this.adapter.addDays(current, -((dow - first + 7) % 7));
+        dir = -1;
         break;
       }
       case 'End': {
@@ -413,6 +419,7 @@ export class WrCalendar {
       }
       case 'PageUp':
         next = event.shiftKey ? this.adapter.addYears(current, -1) : this.adapter.addMonths(current, -1);
+        dir = -1;
         break;
       case 'PageDown':
         next = event.shiftKey ? this.adapter.addYears(current, 1) : this.adapter.addMonths(current, 1);
@@ -426,6 +433,17 @@ export class WrCalendar {
 
     if (!next) return;
     event.preventDefault();
+
+    // The seed is routed through `nearestEnabled` for a reason, and navigation
+    // needs the same care: a cell renders `disabled` AND carries the grid's only
+    // `tabindex="0"`, so parking the ring on a closed-off day leaves zero
+    // tabbable cells — the user tabs out of the calendar and can never tab back
+    // in. Real focus splits from the ring too, because `.focus()` on a disabled
+    // button is a no-op. Reached by nothing more exotic than `[minDate]`.
+    const landing = this.nearestEnabledToward(next, dir);
+    if (!landing) return;
+    next = landing;
+
     this.focusedDate.set(next);
     if (!this.adapter.isSameMonth(next, this.viewDate())) {
       this.viewDate.set(next);
@@ -454,6 +472,24 @@ export class WrCalendar {
       }
     }
     return candidate;
+  }
+
+  /**
+   * The first selectable day at `candidate` or beyond it in `step`'s direction,
+   * else null when that whole direction is closed off — which is the answer for
+   * an ArrowLeft that would cross `min`: stay put.
+   *
+   * Direction matters. Reusing `nearestEnabled`, which probes forward first,
+   * would send an ArrowLeft over a disabled weekend straight back to the day it
+   * started from, so the ring could never cross the hole.
+   */
+  private nearestEnabledToward(candidate: Date, step: 1 | -1): Date | null {
+    let probe = candidate;
+    for (let i = 0; i < 366; i++) {
+      if (!this.isDisabled(probe)) return probe;
+      probe = this.adapter.addDays(probe, step);
+    }
+    return null;
   }
 
   private focusActiveCell(): void {

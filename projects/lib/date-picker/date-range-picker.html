@@ -11,12 +11,14 @@
     [placeholder]="startPlaceholder()"
     [disabled]="disabled()"
     [readonly]="readonly()"
-    (click)="openOnInput()"
+    (click)="openOnInput(0)"
+    (keydown)="onFieldKey($event, 0)"
     (input)="onStartInput($event)"
     (blur)="onBlur($event)"
   />
   <span class="wr-date-range-picker__separator" aria-hidden="true">{{ separator() }}</span>
   <input
+    #endInput
     wrInput
     type="text"
     autocomplete="off"
@@ -27,18 +29,26 @@
     [placeholder]="endPlaceholder()"
     [disabled]="disabled()"
     [readonly]="readonly()"
-    (click)="openOnInput()"
+    (click)="openOnInput(1)"
+    (keydown)="onFieldKey($event, 1)"
     (input)="onEndInput($event)"
     (blur)="onBlur($event)"
   />
+  <!--
+    `readonly` refuses to open the popup, so the trigger is disabled with it —
+    otherwise it stays a focusable button advertising `aria-haspopup="dialog"`
+    for a dialog it will never show.
+  -->
   <button
+    #trigger
     type="button"
     wrInputSuffix
     class="wr-date-picker__trigger"
     [attr.aria-label]="triggerLabel"
     [attr.aria-haspopup]="'dialog'"
     [attr.aria-expanded]="overlayOpen()"
-    [disabled]="disabled()"
+    [attr.aria-controls]="overlayOpen() ? panelId : null"
+    [disabled]="disabled() || readonly()"
     (click)="toggleOverlay()"
   >
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">

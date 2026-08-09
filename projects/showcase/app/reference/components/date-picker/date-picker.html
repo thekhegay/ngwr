@@ -144,6 +144,13 @@
       Every other key belongs to the text field: typing a date keeps working with the popup open. The popup is not modal
       and does not trap focus — Tab leaves it, and leaving closes nothing.
     </p>
+    <p>
+      <code>wr-date-range-picker</code> follows the same contract across both of its fields, and focus returns to the
+      one that opened the popup — closing from the end field does not throw the caret back to the start.
+      <code>readonly</code> is the one deliberate difference: the range picker refuses to open at all, because two
+      fields feeding one calendar leaves no reading of &ldquo;untypeable&rdquo; that still lets the grid rewrite both
+      ends.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

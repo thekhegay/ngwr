@@ -4,6 +4,7 @@
   [min]="min()"
   [max]="max()"
   [dateFilter]="dateFilter()"
+  [autoFocus]="autoFocus()"
   (rangeChange)="onRangeChange($event)"
 />
 
@@ -14,21 +15,21 @@
     <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="startTimeLabel">
       <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ startTimeLabel }}</span>
       <wr-time-picker
-        [ngModel]="startTime()"
+        [value]="startTime()"
         [format]="timeFormat()"
         [showSeconds]="showSeconds()"
         [step]="step()"
-        (ngModelChange)="onStartTimeChange($event)"
+        (valueChange)="onStartTimeChange($event)"
       />
     </div>
     <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="endTimeLabel">
       <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ endTimeLabel }}</span>
       <wr-time-picker
-        [ngModel]="endTime()"
+        [value]="endTime()"
         [format]="timeFormat()"
         [showSeconds]="showSeconds()"
         [step]="step()"
-        (ngModelChange)="onEndTimeChange($event)"
+        (valueChange)="onEndTimeChange($event)"
       />
     </div>
   </div>

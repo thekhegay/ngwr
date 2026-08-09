@@ -6,7 +6,6 @@
  */
 
 import { Component, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date-adapter';
@@ -25,6 +24,12 @@ import { WrTimePanel } from './time-panel';
  * preview); this panel only re-attaches the times so a datetime range keeps the
  * hours the user set while the dates move around.
  *
+ * The steppers bind `WrTimePanel`'s own `value` model, NOT `[ngModel]`. The
+ * classic-forms bridge defers its first write, and under zoneless change
+ * detection that write lost the race with the panel's own echo guard: a range
+ * bound to 16:00–17:00 opened showing 00:00 on both ends, and the first click
+ * on a stepper committed midnight-plus-one over the real value.
+ *
  * @internal
  */
 @Component({
@@ -32,7 +37,7 @@ import { WrTimePanel } from './time-panel';
   templateUrl: './date-range-panel.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-date-range-panel' },
-  imports: [FormsModule, WrCalendar, WrTimePanel],
+  imports: [WrCalendar, WrTimePanel],
 })
 export class WrDateRangePanel {
   readonly value = input<WrDateRange>([null, null]);
@@ -44,7 +49,25 @@ export class WrDateRangePanel {
   readonly showSeconds = input(false);
   readonly step = input(1);
 
+  /**
+   * Forwarded to the calendar only: a range panel opened from the keyboard
+   * lands on the day grid, never on a time field. Dates come first here — the
+   * steppers are for the range you have already drawn.
+   */
+  readonly autoFocus = input(false);
+
+  /** A range change from the CALENDAR — the picker is free to sort it. */
   readonly changed = output<WrDateRange>();
+
+  /**
+   * A range change from one of the TIME steppers, which must NOT be sorted while
+   * it is happening. The steppers are bound to positions, so sorting mid-edit
+   * moves the user's change to the other end: raising a same-day start past the
+   * end left the start stuck and pushed the END up instead, once per click, on
+   * the button the user was not pressing. Ordering is settled when the popup
+   * closes — the same rule the text inputs already follow for typing.
+   */
+  readonly timeChanged = output<WrDateRange>();
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
 
@@ -102,7 +125,7 @@ export class WrDateRangePanel {
       this.pendingStartTime.set(time);
       return;
     }
-    this.changed.emit([this.withTimeOf(start, time), end]);
+    this.timeChanged.emit([this.withTimeOf(start, time), end]);
   }
 
   protected onEndTimeChange(time: Date | null): void {
@@ -112,7 +135,7 @@ export class WrDateRangePanel {
       this.pendingEndTime.set(time);
       return;
     }
-    this.changed.emit([start, this.withTimeOf(end, time)]);
+    this.timeChanged.emit([start, this.withTimeOf(end, time)]);
   }
 
   /** `date`'s calendar day carrying `time`'s clock. Null date stays null. */

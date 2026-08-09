@@ -200,6 +200,8 @@ export const wrRu: WrI18nCatalog = {
     panel: 'Выбор даты',
     panelTime: 'Выбор времени',
     panelDateTime: 'Выбор даты и времени',
+    panelRange: 'Выбор периода',
+    panelRangeDateTime: 'Выбор периода и времени',
     rangeStart: 'Начало периода',
     rangeEnd: 'Конец периода',
     startTime: 'Время начала',
