@@ -26,6 +26,7 @@
     [attr.aria-label]="triggerLabel()"
     [attr.aria-haspopup]="'dialog'"
     [attr.aria-expanded]="overlayOpen()"
+    [attr.aria-controls]="overlayOpen() ? panelId : null"
     [disabled]="disabled()"
     (click)="toggleOverlay()"
   >

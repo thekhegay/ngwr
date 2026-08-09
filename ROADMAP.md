@@ -98,12 +98,29 @@ theme is what makes ngwr a library people can bet on.
       configured i18n, because it called `i18n.t()` bare where the rest of the
       library routes through `readI18nText(key, fallback)`. axe cannot see it —
       a name IS present — so only a spec was ever going to find it. Fixed.
-      Eight more suspected defects are recorded from that pass and still need
-      triage, the sharpest being that `wr-date-picker`'s trigger advertises
-      `aria-haspopup="dialog"` over a popup that is not a dialog, that
-      `wr-popover`'s `role="dialog"` panels have no accessible name and no way
-      to give them one, and that the toast stack's "Close all" is reachable only
-      by hovering.
+      The other eight suspected defects were each reproduced before anything was
+      touched — **seven held, one did not.** The one that did not is worth
+      recording: `wr-popover` was reported to leak a subscription per open,
+      because `openOverlay()` binds with `takeUntilDestroyed(this.destroyRef)`
+      while `closeOverlay()` only disposes the `OverlayRef`. CDK's
+      `OverlayRef.dispose()` completes `_keydownEvents` and
+      `_outsidePointerEvents` and removes the overlay from both dispatchers, so
+      the subscriptions end themselves. Reasoning from the ngwr side alone would
+      have "fixed" a non-bug.
+      The seven that held are fixed: `wr-popover`'s `role="dialog"` panel now
+      takes a name (new `ariaLabel` input, `popover.label` in both catalogs) and
+      its tooltip carries `role="tooltip"` once rather than twice nested;
+      `wr-date-picker`'s popup is now the dialog its trigger has always
+      advertised — `role="dialog"`, a mode-specific name, and `aria-controls`
+      wired to the panel; the toast stack expands on FOCUS as well as hover, so
+      "Close all" is no longer mouse-only; and three pieces of documentation
+      that contradicted the code were corrected to match it — `maxStack` queues
+      the newest rather than dismissing the oldest, `position` moves the whole
+      shared stack, and `provideWrToastConfig`'s signature now accepts the
+      single-label override its JSDoc had always promised.
+      **Still open:** focus is deliberately not moved into the date picker's
+      calendar on open — the other half of the APG dialog pattern, judged too
+      large for a contract fix.
       **Remaining:** the rest of the services, and the second picker
       (`wr-date-range-picker`). A2 (CDK test harnesses) and B2 both wait on this
       half, which is now mostly done.

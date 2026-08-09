@@ -29,7 +29,16 @@ export interface WrToastConfig {
   readonly showCloseAll: boolean;
   /** Minimum number of stacked toasts before "Close all" appears. @default 2 */
   readonly closeAllThreshold: number;
-  /** Maximum toasts visible at once. Oldest is dismissed when exceeded. `0` = unlimited. @default 5 */
+  /**
+   * Maximum toasts visible at once. `0` = unlimited.
+   *
+   * Nothing on screen is taken away to make room: once the cap is reached the
+   * *newest* toast waits in a queue, and queued toasts are promoted FIFO as
+   * visible ones dismiss. A queued toast's auto-dismiss countdown only starts
+   * when it becomes visible, so it can never expire unseen.
+   *
+   * @default 5
+   */
   readonly maxStack: number;
   /** Labels rendered in the UI. Keep short — meant to be overridden for i18n. */
   readonly labels: {

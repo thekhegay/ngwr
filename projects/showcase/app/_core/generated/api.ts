@@ -356,6 +356,7 @@ export const API = {
     { name: "value", description: "The picked Date. Bound by `[formField]`, or two-way via `[(value)]`.", type: "Date | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "ariaLabel", description: "Accessible name of the text field. Falls back to the placeholder, then to the same catalog string the calendar button uses — the field is a `role=\"combobox\"`, and with an empty placeholder it had no name at all.", type: "string | null", default: "null" },
+    { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the panel is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panel*` string for the current `mode`.", type: "string | null", default: "null" },
   ],
   // <wr-date-range-picker>
   WrDateRangePicker: [
@@ -817,6 +818,7 @@ export const API = {
     { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
     { name: "hideDelay", description: "Tooltip only — delay before hiding, in ms.", type: "number", default: "60" },
     { name: "responsive", description: "Popover mode only — present the panel as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it. Tooltips never become sheets.", type: "boolean | undefined, BooleanInput", default: "undefined" },
+    { name: "ariaLabel", description: "Popover mode only — accessible name of the panel. `role=\"dialog\"` with no name announces as a bare \"dialog\", so the catalog's `popover.label` is used when nothing is given. A popover has no universal name; whenever the panel has a heading or a purpose, pass it.", type: "string | null", default: "null" },
     { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
     { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
   ],

@@ -40,6 +40,14 @@ describe('WrToast', () => {
     el.dispatchEvent(new MouseEvent(type));
     tick();
   };
+  /** `focusin` / `focusout` bubble, which is how the host hears about focus
+   * landing on a button inside it. */
+  const focusEvent = (el: Element, type: 'focusin' | 'focusout'): void => {
+    el.dispatchEvent(new FocusEvent(type, { bubbles: true }));
+    tick();
+  };
+  const closeAll = (): HTMLButtonElement | null =>
+    document.querySelector<HTMLButtonElement>('.wr-toast-host__close-all');
 
   beforeEach(() => vi.useFakeTimers());
 
@@ -136,8 +144,9 @@ describe('WrToast', () => {
     });
 
     it('moves the whole existing stack when a later toast asks for another corner', () => {
-      // There is one host, so `position` is not really per-toast: the second
-      // call relocates the first toast too. Pinning the actual behaviour.
+      // There is one host, so `position` is not per-toast: the second call
+      // relocates the first toast too. `WrToastOptions.position` used to claim
+      // it applied "for this toast only"; its doc now says this outright.
       toast.show({ message: 'One' });
       tick();
       toast.show({ message: 'Two', position: 'bottom-end' });
@@ -285,7 +294,66 @@ describe('WrToast', () => {
       expect(document.querySelector('.wr-toast-host__close-all')).toBeNull();
 
       mouse(host()!, 'mouseenter');
-      expect(document.querySelector('.wr-toast-host__close-all')?.textContent?.trim()).toBe('Close all (2)');
+      expect(closeAll()?.textContent?.trim()).toBe('Close all (2)');
+    });
+
+    it('expands the stack when focus enters it, so "Close all" is keyboard-reachable', () => {
+      // The stack used to expand on `mouseenter` only, which made "Close all"
+      // mouse-only: a keyboard or screen-reader user could never reach it.
+      toast.show({ message: 'One', duration: 0 });
+      toast.show({ message: 'Two', duration: 0 });
+      tick();
+      expect(closeAll()).toBeNull();
+
+      focusEvent(actions(items()[0])[0], 'focusin');
+
+      expect(closeAll()?.textContent?.trim()).toBe('Close all (2)');
+    });
+
+    it('collapses again once focus leaves, on the same anti-flicker delay as the pointer', () => {
+      toast.show({ message: 'One', duration: 0 });
+      toast.show({ message: 'Two', duration: 0 });
+      tick();
+      focusEvent(actions(items()[0])[0], 'focusin');
+
+      focusEvent(actions(items()[0])[0], 'focusout');
+      vi.advanceTimersByTime(119);
+      tick();
+      expect(closeAll()).not.toBeNull();
+
+      vi.advanceTimersByTime(1);
+      tick();
+      expect(closeAll()).toBeNull();
+    });
+
+    it('stays expanded while focus moves between two toasts', () => {
+      // `focusout` on the old element fires before `focusin` on the new one, so
+      // a naive collapse would blink the stack shut mid-tab.
+      toast.show({ message: 'One', duration: 0 });
+      toast.show({ message: 'Two', duration: 0 });
+      tick();
+      focusEvent(actions(items()[0])[0], 'focusin');
+
+      focusEvent(actions(items()[0])[0], 'focusout');
+      focusEvent(actions(items()[1])[0], 'focusin');
+      vi.advanceTimersByTime(500);
+      tick();
+
+      expect(closeAll()).not.toBeNull();
+    });
+
+    it('keeps the stack expanded while focus is inside even after the pointer leaves', () => {
+      toast.show({ message: 'One', duration: 0 });
+      toast.show({ message: 'Two', duration: 0 });
+      tick();
+      mouse(host()!, 'mouseenter');
+      focusEvent(actions(items()[0])[0], 'focusin');
+
+      mouse(host()!, 'mouseleave');
+      vi.advanceTimersByTime(500);
+      tick();
+
+      expect(closeAll()).not.toBeNull();
     });
 
     it('clears everything through "Close all"', () => {
@@ -294,7 +362,7 @@ describe('WrToast', () => {
       tick();
       mouse(host()!, 'mouseenter');
 
-      document.querySelector<HTMLButtonElement>('.wr-toast-host__close-all')!.click();
+      closeAll()!.click();
       tick();
 
       expect(host()).toBeNull();
@@ -323,11 +391,11 @@ describe('WrToast', () => {
           showCopy: true,
           maxStack: 2,
           closeAllThreshold: 2,
-          // The docs say a single label can be overridden, but `Partial<WrToastConfig>`
-          // only makes the top-level fields optional — `labels` still has to be
-          // passed whole or the call does not type-check. The runtime merge does
-          // support a partial; the type does not.
-          labels: { close: 'Закрыть', copy: 'Копировать', copied: 'Скопировано', closeAll: 'Закрыть все' },
+          // A partial `labels` — `copied` is deliberately left to the default.
+          // The runtime merge always supported this, but the parameter was
+          // `Partial<WrToastConfig>`, which is shallow, so overriding a single
+          // string was a compile error. Passing a subset here is the guard.
+          labels: { close: 'Закрыть', copy: 'Копировать', closeAll: 'Закрыть все' },
         }),
       ]);
     });
@@ -368,9 +436,9 @@ describe('WrToast', () => {
     });
 
     it('caps the visible stack and queues the overflow instead of dropping it', () => {
-      // `maxStack`'s doc comment says the oldest is dismissed when the cap is
-      // exceeded; what actually happens is the opposite — the newest waits in a
-      // queue and the oldest keeps its place. Pinning the real behaviour.
+      // `maxStack`'s doc comment used to say the oldest was dismissed when the
+      // cap was exceeded; the opposite is true and is what consumers rely on —
+      // the newest waits in a queue and nothing on screen is yanked away.
       toast.show({ message: 'One', duration: 0 });
       toast.show({ message: 'Two', duration: 0 });
       toast.show({ message: 'Three', duration: 0 });

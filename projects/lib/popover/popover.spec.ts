@@ -28,6 +28,7 @@ import { WrPopover } from './popover';
       class="click-trigger"
       [wrPopover]="panel"
       [position]="position()"
+      [ariaLabel]="panelLabel()"
       (opened)="openCount.set(openCount() + 1)"
       (closed)="closeCount.set(closeCount() + 1)"
     >
@@ -46,6 +47,7 @@ import { WrPopover } from './popover';
 class Host {
   readonly tip = signal('Save changes');
   readonly position = signal<'top' | 'right' | null>(null);
+  readonly panelLabel = signal<string | null>(null);
   readonly openCount = signal(0);
   readonly closeCount = signal(0);
 }
@@ -140,17 +142,24 @@ describe('WrPopover', () => {
       expect(popoverPane()?.getAttribute('aria-modal')).toBe('false');
     });
 
-    it('ships the dialog without an accessible name — pinned, not endorsed', () => {
+    it('always gives the dialog an accessible name', () => {
       open();
-      // SUSPECTED DEFECT. `role="dialog"` with no `aria-label` /
-      // `aria-labelledby` is an unnamed dialog: a screen reader announces
-      // "dialog" and nothing else, and it is exactly what axe's
-      // `aria-dialog-name` rule (serious) flags. `pnpm check:a11y` does not
-      // catch it because the sweep never opens the panel. The directive has no
-      // input to supply a name either, so a consumer cannot fix it from
-      // outside. Pinned as-is so a fix is a deliberate, visible change here.
-      expect(popoverPane()?.getAttribute('aria-label')).toBeNull();
-      expect(popoverPane()?.getAttribute('aria-labelledby')).toBeNull();
+      // REGRESSION GUARD. The panel used to ship `role="dialog"` with neither
+      // `aria-label` nor `aria-labelledby` — an unnamed dialog, announced as
+      // "dialog" and nothing else, exactly what axe's `aria-dialog-name` rule
+      // (serious) flags. `pnpm check:a11y` never caught it because the sweep
+      // does not open the panel, and there was no input to supply a name from
+      // outside either. The catalog default (`popover.label`) now names it even
+      // when the consumer says nothing.
+      expect(popoverPane()?.getAttribute('aria-label')).toBe('Popover');
+    });
+
+    it('lets the consumer override the panel name', () => {
+      fixture.componentInstance.panelLabel.set('Order details');
+      fixture.detectChanges();
+      open();
+
+      expect(popoverPane()?.getAttribute('aria-label')).toBe('Order details');
     });
 
     it('carries the public overlay classes, including the resolved position', () => {
@@ -308,16 +317,19 @@ describe('WrPopover', () => {
       expect(tooltipPane()?.classList.contains('wr-tooltip-overlay--top')).toBe(true);
     });
 
-    it('stacks role="tooltip" twice, on the pane and on the text panel — pinned, not endorsed', () => {
+    it('carries role="tooltip" exactly once, on the pane aria-describedby points at', () => {
       enter(trigger('tip'));
       tick(120);
 
-      // SUSPECTED DEFECT. The directive sets `role="tooltip"` on the overlay
-      // pane, and the internal `wr-popover-text` host already carries one, so
-      // the open tooltip is a tooltip nested inside a tooltip. Only the outer
-      // one is referenced by `aria-describedby`; the inner is redundant and
-      // can be announced twice. One of the two should go.
-      expect(document.querySelectorAll('.wr-overlay-container [role="tooltip"]')).toHaveLength(2);
+      // REGRESSION GUARD. The role used to be set twice — once by the directive
+      // on the overlay pane and once by the internal `wr-popover-text` host —
+      // so an open tooltip was a tooltip nested inside a tooltip, announced
+      // twice. The pane is the one `aria-describedby` resolves to, so the
+      // inner host lost its role.
+      const roles = document.querySelectorAll('.wr-overlay-container [role="tooltip"]');
+      expect(roles).toHaveLength(1);
+      expect(roles[0]).toBe(tooltipPane());
+      expect(document.querySelector('.wr-overlay-container .wr-tooltip')?.getAttribute('role')).toBeNull();
     });
 
     it('points aria-describedby at the panel while it is showing', () => {
