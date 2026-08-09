@@ -135,7 +135,7 @@ enlarges every control at once.
 | Build the docs    | `pnpm build:showcase`                                                                               |
 | Lint everything   | `pnpm lint`                                                                                         |
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
-| Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — the rules JSDOM cannot answer)         |
+| Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — **nightly**, not a PR gate)            |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
@@ -188,7 +188,7 @@ Autofix most issues (prettier wrapping long template lines, etc.) with
 
 **CI gates on `pnpm lint` + `pnpm test` + `pnpm check:api-docs` +
 `pnpm check:llms` + `pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:a11y` + `pnpm check:contrast`** — all eight must be green (a silently
+`pnpm build:showcase` + `pnpm check:a11y`** — all seven must be green (a silently
 failed lint stage once slipped past and blocked a publish). The publish job re-runs `pnpm lint` + `pnpm build:lib` before
 shipping. Conventional-commit subjects are checked locally (commitlint
 `commit-msg` hook) and PR titles on CI.
@@ -333,6 +333,13 @@ that assumes 0–255 silently produces nonsense. It emulates
 (`opacity: 0`, `blur(10px)`) reports a failure that describes one frame.
 `--filter=<substring>` narrows it to a route while you iterate; the full sweep
 is minutes.
+
+It runs **nightly** (`.github/workflows/nightly.yml`), not on every PR: a
+browser and 386 page loads took the PR job from ~5 minutes to nearly 17, and
+what it catches is drift in painted colour rather than the kind of break a
+single PR needs told about mid-review. So a green PR says nothing about
+contrast — run it locally when you touch a token, a tint, or anything that
+paints text on an intent.
 
 **Accessibility.** Interactive components follow the WAI-ARIA APG patterns —
 correct roles/states, keyboard navigation, and focus management; overlays use the

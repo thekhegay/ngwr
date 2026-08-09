@@ -59,10 +59,10 @@ jobs:
       # critical violation fails.
       - run: pnpm check:a11y
 
-      # The other half of that gate: `check:a11y` runs in JSDOM, which has no
-      # stylesheets, so it turns `color-contrast` and `target-size` off. This
-      # one drives a real Chromium over both themes and answers exactly those
-      # two. It is the slowest step by far — a browser, 193 routes, twice — so
-      # it runs last of all, after everything cheaper has had its say.
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm check:contrast
+      # `pnpm check:contrast` is deliberately NOT here. It is the other half of
+      # the a11y gate — the rules JSDOM cannot answer — but it needs a browser
+      # and 386 page loads, which took this job from ~5 minutes to nearly 17.
+      # It runs nightly instead (nightly.yml), where the wall clock costs
+      # nobody anything. What it catches is a slow drift in painted colour, not
+      # the kind of break a single PR introduces and needs told about inside a
+      # review cycle.

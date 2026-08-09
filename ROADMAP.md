@@ -108,7 +108,10 @@ theme is what makes ngwr a library people can bet on.
       `pnpm check:contrast` (`scripts/check-contrast.ts`) drives a real Chromium
       over every prerendered route in BOTH themes and runs the two rules JSDOM
       cannot answer, `color-contrast` and `target-size`, gated against
-      `scripts/contrast-baseline.json`. It found, on its first full pass, that
+      `scripts/contrast-baseline.json`. It runs **nightly**, not per PR: a
+      browser and 386 page loads took the PR job from ~5 minutes to nearly 17,
+      and painted-colour drift is worth catching the next morning rather than
+      inside a review cycle. It found, on its first full pass, that
       **`wr-alert` still painted the bare intent as its title** — the exact
       failure the `-ink` ramp exists to prevent, and the exact number the ramp
       was built from: warning at 1.71:1, success 3.33, info 3.68, all in the
