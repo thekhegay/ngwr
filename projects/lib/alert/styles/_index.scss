@@ -19,7 +19,11 @@ $alert-colors: (
   // Defaults — overridden per variant below.
   --wr-alert-bg: var(--wr-color-info-soft);
   --wr-alert-border: var(--wr-color-info-soft-border);
-  --wr-alert-title: var(--wr-color-info);
+  // `-ink`, never the bare intent: this is the intent used AS TEXT on its own
+  // soft tint, and a bare `--wr-color-warning` there is 1.71:1 in the light
+  // theme. See the token note in AGENTS.md — `-contrast` is the other
+  // direction, a label ON a filled intent.
+  --wr-alert-title: var(--wr-color-info-ink);
   --wr-alert-message: var(--wr-color-on-surface);
   --wr-alert-close: var(--wr-color-info);
 
@@ -100,8 +104,8 @@ $alert-colors: (
     &--#{$variant} {
       --wr-alert-bg: var(--wr-color-#{$color}-soft);
       --wr-alert-border: var(--wr-color-#{$color}-soft-border);
-      --wr-alert-title: var(--wr-color-#{$color});
-      --wr-alert-close: var(--wr-color-#{$color});
+      --wr-alert-title: var(--wr-color-#{$color}-ink);
+      --wr-alert-close: var(--wr-color-#{$color}-ink);
     }
   }
 
