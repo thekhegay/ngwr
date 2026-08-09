@@ -15,8 +15,13 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
  *  - default — main label / body
  *  - `[wrListItemTrailing]` — meta value, action button, chevron
  *
- * Set `interactive` to get hover, cursor, keyboard activation, and the
- * appropriate ARIA role for click handling.
+ * Set `interactive` to get hover and cursor styles, a tab stop, and Enter /
+ * Space activation. The role stays `listitem`: the row lives inside a
+ * `<ul role="list">`, where a `button` or `option` child role would break the
+ * structure the container promises. That means an interactive row ANNOUNCES as
+ * a list item rather than as a control — deliberate, but worth knowing when the
+ * whole row is the only way to reach an action. Where the action needs to be
+ * announced as one, project a real button into `[wrListItemTrailing]`.
  *
  * @example
  * ```html

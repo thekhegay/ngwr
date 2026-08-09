@@ -354,7 +354,15 @@ theme is what makes ngwr a library people can bet on.
       `null` and not `0` (a required check has to tell them apart), and
       unparseable text LEAVES the committed number alone rather than clearing
       it — the same rule `wr-date-picker` follows for a partial date.
-      **Remaining:** the rest of the components — nineteen of eighty-one have
+      `wr-list` closed the night, 7 specs. Its interactive row turned out to
+      be sound — focusable, Enter/Space activated, silent while disabled — but
+      its JSDoc promised "the appropriate ARIA role for click handling" while
+      the role is hardcoded `listitem`. That is the right call, not a bug: the
+      row sits in a `<ul role="list">`, where a `button` or `option` child role
+      breaks the structure the container promises. The doc now says so, and
+      says what to do instead — project a real button into
+      `[wrListItemTrailing]` when the action itself must be announced as one.
+      **Remaining:** the rest of the components — twenty of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
