@@ -62,7 +62,7 @@
         background: rgba(var(--wr-color-light-rgb), 0.5);
 
         .ngwr-sidebar__icon {
-          color: var(--wr-color-primary);
+          color: var(--wr-color-primary-ink);
         }
       }
     }
@@ -130,17 +130,17 @@
       background: rgba(var(--wr-color-light-rgb), 0.5);
 
       .ngwr-sidebar__icon {
-        color: var(--wr-color-primary);
+        color: var(--wr-color-primary-ink);
       }
     }
 
     &--active {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
       background: rgba(var(--wr-color-primary-rgb), 0.1);
       pointer-events: none;
 
       .ngwr-sidebar__icon {
-        color: var(--wr-color-primary);
+        color: var(--wr-color-primary-ink);
       }
     }
   }
@@ -186,16 +186,19 @@
     }
 
     &:hover {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
       background: rgba(var(--wr-color-primary-rgb), 0.06);
 
       .ngwr-sidebar__icon {
-        color: var(--wr-color-primary);
+        color: var(--wr-color-primary-ink);
       }
     }
 
     &--active {
-      color: var(--wr-color-primary);
+      // `-ink`, not the bare intent: this is text on a primary TINT, and the
+      // bare token lands at 4.28:1 there — under AA by a hair, on every page,
+      // because one link is always active.
+      color: var(--wr-color-primary-ink);
       background: rgba(var(--wr-color-primary-rgb), 0.1);
       pointer-events: none;
 
@@ -204,7 +207,7 @@
       }
 
       .ngwr-sidebar__icon {
-        color: var(--wr-color-primary);
+        color: var(--wr-color-primary-ink);
       }
     }
 

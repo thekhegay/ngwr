@@ -40,8 +40,14 @@
   }
 
   &__cell {
-    background: rgba(var(--wr-color-primary-rgb), 0.15);
-    color: var(--wr-color-primary);
+    background: rgba(var(--wr-color-primary-rgb), 0.1);
+    // The role token, not an intent. 12px mono needs 4.5:1, and against this
+    // tint the ink ramp reaches 4.49 — AA by one hundredth, which is a coin
+    // toss the next token tweak decides rather than a margin. `-dark` clears
+    // it in the light theme and collapses to 2.5:1 in the dark one, because it
+    // is absolute where `-ink` is theme-relative. `on-surface` flips with the
+    // theme and leaves the blue where it belongs: in the fill.
+    color: var(--wr-color-on-surface);
     text-align: center;
     padding: 0.625rem 0.5rem;
     border-radius: var(--wr-border-radius-sm);
