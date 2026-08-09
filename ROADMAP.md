@@ -226,6 +226,31 @@ theme is what makes ngwr a library people can bet on.
       survivor was left alone on purpose: the defensive copy in `closeAll()`
       cannot be observed, since reading a signal already hands back an immutable
       array.
+      The window entry point gave up three more, all reproduced with numbers
+      before anything moved. `WrWindowRef._closed` was a plain `Subject`, so
+      `afterClosed()` resolved `undefined` for any caller that awaited it after
+      the window had already closed — two reads of one result disagreed, and a
+      saved document was indistinguishable from a dismissal. `WrDialogRef` had
+      solved that with a `ReplaySubject(1)` and a comment explaining why; the
+      window ref had not. And `saveLayout` snapshotted the geometry the STATE
+      imposes rather than the one the user chose: a maximized 720x480 editor
+      saved as `[0, 0, 1024, 768]`, so restoring re-maximized over
+      viewport-sized restore geometry and "Restore down" left it filling the
+      screen; a minimized window saved its collapsed header height of **40**,
+      which the restore then clamped to `minHeight` and handed back as a stub.
+      The window knew the right numbers all along — `saveLayout` was reading the
+      effective signals instead of the raw ones.
+      **One finding recorded, not fixed:** `bringToFront()` looks inert across
+      windows. The CDK sets `popover="manual"` on every overlay host and ngwr
+      never opts out of `usePopover`, so hosts enter the TOP LAYER, where paint
+      order is entry order and a z-index on a descendant (`.wr-window`) cannot
+      restack them — clicking an older window raises its `z` but not the window.
+      The mechanism is confirmed from the CDK source; the visible consequence is
+      NOT, because the browser pane available here reports a 0x0 viewport and
+      every layout measurement in it is worthless. It needs a real browser, and
+      the fix is a component-level choice (opt those overlays out of
+      `usePopover`, or re-enter the top layer on focus) that should not be
+      bolted onto a test change.
       **Remaining:** the components — six of eighty-one have specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.

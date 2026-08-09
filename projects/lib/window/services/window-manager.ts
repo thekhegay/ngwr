@@ -248,13 +248,20 @@ export class WrWindowManager {
    * matching components.
    */
   saveLayout(name: string): void {
+    // The RAW geometry, not the live one. `ref.x()` / `ref.width()` report what
+    // is on screen — a maximized window measures the viewport, a minimized one
+    // measures its collapsed header — so saving those threw away the size the
+    // user actually chose. Restoring then re-maximized over viewport-sized
+    // "restore" geometry, and "Restore down" left the window filling the screen
+    // with no way back; a minimized window came back from the taskbar as a stub
+    // clamped to `minHeight`. The window knows the real numbers all along.
     const snapshot = this._windows().map(ref => ({
       id: ref.id,
       state: ref.state(),
-      x: ref.x(),
-      y: ref.y(),
-      width: ref.width(),
-      height: ref.height(),
+      x: ref._rawX(),
+      y: ref._rawY(),
+      width: ref._rawWidth(),
+      height: ref._rawHeight(),
       title: ref.title(),
     }));
     this.storage.set(this.layoutKey(name), snapshot);

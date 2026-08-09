@@ -8,7 +8,7 @@
 import type { OverlayRef } from '@angular/cdk/overlay';
 import { type ComponentRef, type Signal, type WritableSignal, signal } from '@angular/core';
 
-import { Subject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 
 import type { WrWindowState, WrWindowBeforeCloseHook } from './interfaces';
 
@@ -40,7 +40,15 @@ export class WrWindowRef<C, R = unknown> {
   readonly id: string;
 
   /** @internal — emits the close result once and completes. */
-  readonly _closed = new Subject<R | undefined>();
+  /**
+   * A `ReplaySubject`, not a plain `Subject`, so the result survives a late
+   * subscriber — the same reasoning `WrDialogRef` already carries. A caller
+   * that holds the ref and awaits `afterClosed()` after any intervening
+   * `await` subscribes to an already-completed stream, and a plain Subject
+   * hands it nothing but `complete`: the promise resolved `undefined` and a
+   * saved result was indistinguishable from a dismissal.
+   */
+  readonly _closed = new ReplaySubject<R | undefined>(1);
 
   /** @internal — emits whenever the visual state changes. */
   readonly _stateChanged = new Subject<WrWindowState>();
@@ -65,6 +73,20 @@ export class WrWindowRef<C, R = unknown> {
   /** @internal */ readonly _width = signal(0);
   /** @internal */ readonly _height = signal(0);
   /** @internal */ readonly _z = signal(0);
+
+  /**
+   * The geometry the USER chose, as opposed to the one the current state
+   * imposes. `_x` and friends mirror the window's EFFECTIVE values — a
+   * maximized window reports the viewport, a minimized one reports its
+   * collapsed header height — which is right for anything drawing the window
+   * and wrong for anything persisting it.
+   *
+   * @internal
+   */
+  readonly _rawX = signal(0);
+  /** @internal */ readonly _rawY = signal(0);
+  /** @internal */ readonly _rawWidth = signal(0);
+  /** @internal */ readonly _rawHeight = signal(0);
   /** @internal */ readonly _title: WritableSignal<string> = signal('');
 
   /** Window state. */

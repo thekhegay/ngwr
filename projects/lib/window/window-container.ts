@@ -105,6 +105,12 @@ export class WrWindowContainer<C> {
       effect(() => this.ref._y.set(w.y()));
       effect(() => this.ref._width.set(w.width()));
       effect(() => this.ref._height.set(w.height()));
+      // Alongside the effective values, not instead of them: `saveLayout` needs
+      // the geometry a maximized or minimized window would go back to.
+      effect(() => this.ref._rawX.set(w.x_()));
+      effect(() => this.ref._rawY.set(w.y_()));
+      effect(() => this.ref._rawWidth.set(w.width_()));
+      effect(() => this.ref._rawHeight.set(w.height_()));
       effect(() => this.ref._z.set(w.z()));
     });
 

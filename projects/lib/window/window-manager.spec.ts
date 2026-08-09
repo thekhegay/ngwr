@@ -86,6 +86,54 @@ describe('WrWindowManager', () => {
     });
   });
 
+  describe('the close result', () => {
+    it('reaches a caller that awaits before the close', async () => {
+      const ref = manager.open<Body, string>(Body, { id: 'editor' });
+      TestBed.tick();
+
+      const awaited = ref.afterClosed();
+      void ref.close('saved');
+      TestBed.tick();
+
+      await expect(awaited).resolves.toBe('saved');
+    });
+
+    it('replays to a caller that awaits AFTER the close', async () => {
+      const ref = manager.open<Body, string>(Body, { id: 'editor' });
+      TestBed.tick();
+
+      await ref.close('saved');
+      TestBed.tick();
+
+      // A plain Subject hands a late subscriber nothing but `complete`, so the
+      // promise resolves `undefined` — the saved document is dropped and the
+      // caller cannot tell "saved" from "dismissed". `WrDialogRef` already uses
+      // a ReplaySubject for exactly this, with the reasoning in a comment.
+      await expect(ref.afterClosed()).resolves.toBe('saved');
+    });
+
+    it('gives every caller the same answer', async () => {
+      const ref = manager.open<Body, string>(Body, { id: 'editor' });
+      TestBed.tick();
+      await ref.close('saved');
+      TestBed.tick();
+
+      // No race required to see it: two reads of one result disagreeing is the
+      // whole bug in its smallest form.
+      await expect(Promise.all([ref.afterClosed(), ref.afterClosed()])).resolves.toEqual(['saved', 'saved']);
+    });
+
+    it('reports a dismissal as undefined', async () => {
+      const ref = manager.open<Body, string>(Body, { id: 'editor' });
+      TestBed.tick();
+
+      await ref.close();
+      TestBed.tick();
+
+      await expect(ref.afterClosed()).resolves.toBeUndefined();
+    });
+  });
+
   describe('singleton by id', () => {
     it('returns the open window instead of a duplicate', () => {
       const first = manager.open(Body, { id: 'settings', title: 'Settings' });
@@ -147,6 +195,39 @@ describe('WrWindowManager', () => {
       const saved = manager.readLayout('default');
       expect(saved).toHaveLength(1);
       expect(saved![0].id).toBe('editor');
+    });
+
+    it('saves the geometry the user chose, not the one the state imposes', () => {
+      const ref = manager.open(Body, { id: 'editor', x: 100, y: 100, width: 720, height: 480 });
+      TestBed.tick();
+      ref.maximize();
+      TestBed.tick();
+
+      manager.saveLayout('default');
+      const [snap] = manager.readLayout('default')!;
+
+      // Maximized, `ref.width()` reports the VIEWPORT — that is its job. Saving
+      // it throws away the 720x480 the user picked: restoring then re-maximizes
+      // over viewport-sized "restore" geometry and "Restore down" leaves the
+      // window filling the screen with no way back. The window still knows the
+      // real numbers; the snapshot just has to ask for them.
+      expect([snap.x, snap.y, snap.width, snap.height]).toEqual([100, 100, 720, 480]);
+      expect(snap.state).toBe('maximized');
+    });
+
+    it('saves the real size of a minimized window', () => {
+      const ref = manager.open(Body, { id: 'editor', x: 100, y: 100, width: 720, height: 480 });
+      TestBed.tick();
+      ref.minimize();
+      TestBed.tick();
+
+      const [snap] = (manager.saveLayout('default'), manager.readLayout('default')!);
+
+      // A minimized window measures its collapsed header. Saved, that height is
+      // clamped to `minHeight` on restore, so the taskbar hands back a stub
+      // instead of the window the user left.
+      expect([snap.width, snap.height]).toEqual([720, 480]);
+      expect(snap.state).toBe('minimized');
     });
 
     it('reports no layout before one is saved, and none after it is cleared', () => {
