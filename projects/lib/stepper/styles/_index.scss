@@ -69,7 +69,7 @@
 
     &:hover:not(:disabled) .wr-stepper__indicator {
       border-color: var(--wr-color-primary);
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
     }
   }
 
@@ -94,7 +94,7 @@
 
   &__header--active &__indicator {
     border-color: var(--wr-color-primary);
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
     background: var(--wr-color-primary-soft);
   }
 
@@ -114,7 +114,7 @@
   }
 
   &__header--active &__label {
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
   }
 
   &__optional,

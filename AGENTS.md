@@ -230,6 +230,13 @@ role aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
 `scripts/check-color-parity.ts` (in `pnpm lint`) fails the build if they drift.
 
+**A `::before` background is invisible to every contrast checker.** `wr-squircle`
+paints its content fill on a pseudo-element, so axe walks past it to the host's
+`background-color` — which for the bordered variant is the BORDER colour — and
+reports the intent measured against itself. Any component that paints through a
+pseudo-element, a gradient, or an SVG is unmeasurable this way; check those by
+hand rather than believing the number.
+
 **The `-ink` ramp is calibrated, not eyeballed.** Each intent's share in
 `$ink-mix` (`theme/styles/_colors.scss`) is the most saturated value that still
 reaches **5.0:1 against that intent's own `-soft` tint**, in both themes — the

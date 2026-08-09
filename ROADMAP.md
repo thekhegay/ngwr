@@ -135,6 +135,17 @@ theme is what makes ngwr a library people can bet on.
       sitting under +0.5 from **20 to 3**, for 2–7 points of share. Note this is
       a visible token shift: every intent painted as text is now slightly
       deeper.
+      **Per-site swaps followed** (2026-08-09): every remaining spot painting a
+      bare intent as text moved to `-ink`, and the hardcoded `white` labels on
+      filled intents moved to `-contrast` — 16 edits across typography, sidebar,
+      stepper, tabs, breadcrumbs, the doc-page labels and the squircle demo.
+      Failing cases 19 -> 14, thin ones 44 -> 36, and the contrast gate's own
+      count 10 -> 7 routes light, 4 -> 3 dark. What is left is three kinds of
+      thing, none of them a token swap: WCAG-exempt disabled controls; a
+      measurement artefact where `wr-squircle` paints its fill on a `::before`
+      that no contrast checker can see; and `wr-badge--secondary`, where the
+      `-contrast` ramp itself clears AA by 0.02 and wants the same re-derivation
+      `-ink` just had.
       **Baselined, both needing a design call rather than a patch:**
       `wr-carousel`'s dots are 8×8 with 14px centres where WCAG 2.5.8 wants 24
       (the `touch-target` mixin does not help — it is gated on

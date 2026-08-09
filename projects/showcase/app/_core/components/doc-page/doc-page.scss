@@ -43,8 +43,10 @@
   }
 
   wr-badge.wr-badge--danger {
+    // A soft tint, so the text is the intent-as-text case and wants `-ink`.
+    // The bare intent measured 3.12:1 against this background at 11px.
     background: rgba(var(--wr-color-danger-rgb), 0.12);
-    color: var(--wr-color-danger);
+    color: var(--wr-color-danger-ink);
   }
 }
 
