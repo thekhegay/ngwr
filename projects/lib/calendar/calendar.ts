@@ -76,6 +76,16 @@ export class WrCalendar {
   /** Predicate — return `false` to disable specific dates (e.g. weekends only). */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
 
+  /**
+   * Move real focus onto the roving cell as soon as the grid is on screen.
+   *
+   * Off by default: a standalone `<wr-calendar>` sitting in a page must not
+   * steal focus on load. `wr-date-picker` turns it on for the popup it opens
+   * from its trigger, where the user asked to be taken to the calendar.
+   * @default false
+   */
+  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+
   /** Disable interaction entirely. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
@@ -164,6 +174,13 @@ export class WrCalendar {
       const initial = this.nearestEnabled(this.date() ?? this.range()[0] ?? this.adapter.today());
       this.focusedDate.set(initial);
       this.viewDate.set(initial);
+
+      // A second, NESTED hook: the lines above only SET the signals, which
+      // schedules another change-detection pass — the `--focused` class and the
+      // `tabindex` are not in the DOM until that one has run.
+      if (this.autoFocus()) {
+        afterNextRender(() => this.focusActiveCell(), { injector: this.injector });
+      }
     });
 
     // Keep viewDate in sync when date / range changes externally to a

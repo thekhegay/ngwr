@@ -413,4 +413,177 @@ describe('WrDatePicker', () => {
     open(); // close
     expect(trigger().hasAttribute('aria-controls')).toBe(false);
   });
+
+  describe('focus, moving into the panel and back out', () => {
+    const ring = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-calendar__day--focused');
+
+    const keyOnField = (init: KeyboardEventInit): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init });
+      field().dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    it('moves focus to the roving day cell when opened from the trigger button', async () => {
+      trigger().focus();
+      open();
+      await fixture.whenStable();
+
+      // The disabled assertion is load bearing: jsdom will happily focus a
+      // disabled button, so asserting only `activeElement` would greenlight a
+      // seed that lands on an unselectable day.
+      expect(document.activeElement).toBe(ring());
+      expect((document.activeElement as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    it('leaves the caret alone when the panel is opened by clicking the field', async () => {
+      field().focus();
+      field().setSelectionRange(3, 3);
+      field().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // A click that placed a caret must not be overruled — this is the whole
+      // reason focus-on-open is split by open path rather than applied to both.
+      expect(calendar()).not.toBeNull();
+      expect(document.activeElement).toBe(field());
+      expect(field().selectionStart).toBe(3);
+    });
+
+    it('opens and takes focus on Alt+ArrowDown in the field', async () => {
+      field().focus();
+      const event = keyOnField({ key: 'ArrowDown', altKey: true });
+      await fixture.whenStable();
+
+      expect(calendar()).not.toBeNull();
+      expect(event.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(ring());
+    });
+
+    it('leaves a bare ArrowDown to the field while the panel is closed', () => {
+      field().focus();
+      const event = keyOnField({ key: 'ArrowDown' });
+
+      // Typing must keep working: the field owns its own keys.
+      expect(calendar()).toBeNull();
+      expect(event.defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(field());
+    });
+
+    it('leaves typing alone while the panel is open', async () => {
+      field().focus();
+      field().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // The vertical-arrow guard is what makes the open panel harmless to a
+      // typist. Drop it and EVERY key routes into `focusPanel()`: the caret
+      // jumps to the grid on the first character and the field becomes
+      // untypeable the moment it is open.
+      for (const key of ['1', 'Backspace', 'ArrowLeft', 'Home', '/']) {
+        const event = keyOnField({ key });
+        await fixture.whenStable();
+
+        expect({ key, prevented: event.defaultPrevented, focused: document.activeElement === field() }).toEqual({
+          key,
+          prevented: false,
+          focused: true,
+        });
+      }
+    });
+
+    it('walks focus into the calendar on ArrowDown once a field click has opened it', async () => {
+      field().focus();
+      field().click();
+      fixture.detectChanges();
+
+      const event = keyOnField({ key: 'ArrowDown' });
+      await fixture.whenStable();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(ring());
+    });
+
+    it('focuses the hours field, not its stepper, for a trigger-opened time picker', async () => {
+      fixture.componentInstance.mode.set('time');
+      fixture.detectChanges();
+      open();
+      await fixture.whenStable();
+
+      expect(timePanel()).not.toBeNull();
+      expect(document.activeElement).toBe(timeInput('Hours'));
+      expect(document.activeElement).not.toBe(stepper('Increment hours'));
+    });
+
+    it('lands on the day grid, not the hours field, in datetime mode', async () => {
+      fixture.componentInstance.mode.set('datetime');
+      fixture.detectChanges();
+      trigger().focus();
+      open();
+      await fixture.whenStable();
+
+      // Both panels are mounted here, so "focus went somewhere sensible" is not
+      // enough — the assertion has to name WHICH one won.
+      expect(document.activeElement).toBe(ring());
+      expect(document.activeElement).not.toBe(timeInput('Hours'));
+    });
+
+    it('hands focus back to the trigger after a day is picked', async () => {
+      trigger().focus();
+      open();
+      await fixture.whenStable();
+
+      day(20).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Never `<body>`: a close that drops focus restarts the next Tab from the
+      // top of the page.
+      expect(document.activeElement).toBe(trigger());
+      expect(document.activeElement).not.toBe(document.body);
+    });
+
+    it('hands focus back to the field when the field opened it', async () => {
+      field().focus();
+      field().click();
+      fixture.detectChanges();
+
+      day(20).click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(document.activeElement).toBe(field());
+    });
+
+    it('does not steal focus when an outside click closes the panel', async () => {
+      trigger().focus();
+      open();
+      await fixture.whenStable();
+
+      // The outside pointer has already put focus where the user wanted it.
+      const outside = document.createElement('input');
+      document.body.appendChild(outside);
+      outside.focus();
+      document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      document.dispatchEvent(new PointerEvent('click', { bubbles: true }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(document.activeElement).toBe(outside);
+      outside.remove();
+    });
+
+    it('leaves focus on the trigger when the trigger closes the panel again', async () => {
+      trigger().focus();
+      open();
+      await fixture.whenStable();
+
+      trigger().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(calendar()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+  });
 });

@@ -133,11 +133,18 @@ theme is what makes ngwr a library people can bet on.
       the future put the grid's ONLY `tabindex="0"` on a disabled button and
       dropped the whole grid out of the tab order. Both fixed, both pinned, and
       both guards verified by reverting the fix and watching them fail.
-      **Still open:** moving focus into the popup on open — the remaining half —
-      now that its two prerequisites are sound.
+      Focus now moves INTO the popup, split by how it was opened: the trigger
+      button and `Alt+ArrowDown` take focus to the roving cell, a click that
+      placed a caret in the text field does not — a bare `ArrowDown` is the way
+      in from there. Every close path hands focus back only if it was still
+      inside the panel, so a click on another control keeps it. The guards are
+      mutation-verified; one of them, typing-with-the-popup-open, exists because
+      a surviving mutation showed the arrow guard was untested and every
+      keystroke would have routed into the grid.
       **Remaining:** the rest of the services, and the second picker
-      (`wr-date-range-picker`). A2 (CDK test harnesses) and B2 both wait on this
-      half, which is now mostly done.
+      (`wr-date-range-picker`), which still has the same half-kept ARIA contract.
+      A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
+      done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.

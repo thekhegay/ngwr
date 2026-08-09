@@ -121,6 +121,31 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Keyboard and focus"
+    description="Which key opens the popup decides whether focus follows it in — a click that placed a caret in the text field is never overruled."
+  >
+    <ul>
+      <li>
+        <strong>The trigger button</strong> — opens and moves focus to the calendar's roving cell (the hours field in
+        `time` mode).
+      </li>
+      <li><strong>Alt + ArrowDown</strong> in the field — the keyboard equivalent, same destination.</li>
+      <li>
+        <strong>ArrowDown / ArrowUp</strong> in the field while the popup is already open — walks focus in. This is the
+        way in after opening by clicking the field, which deliberately leaves the caret where it was.
+      </li>
+      <li>
+        <strong>Escape</strong>, picking a day, or clicking away — closes, and hands focus back to whatever opened it,
+        provided focus was still inside the popup.
+      </li>
+    </ul>
+    <p>
+      Every other key belongs to the text field: typing a date keeps working with the popup open. The popup is not modal
+      and does not trap focus — Tab leaves it, and leaving closes nothing.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
