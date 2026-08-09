@@ -123,6 +123,18 @@ theme is what makes ngwr a library people can bet on.
       frame rather than a design; and print axe's OWN measured ratio, because a
       `color-mix` computes to `color(srgb 0.19 0.41 0.77)` and hand-rolled
       maths that assumes 0–255 turns it into nonsense.
+      **The ramp itself was then recalibrated** (2026-08-09) off a full audit —
+      every text node on the site whose colour IS an intent token, 2576
+      measurements over 193 routes × 2 themes, contrast from axe's own
+      `commons.color`. It showed `-ink` was not wrong but had no margin: the
+      original shares were picked to clear AA's 4.5 exactly, leaving every
+      intent between 4.59 and 4.83, so any background that was not pure surface
+      dropped it under. Re-derived against each intent's own `-soft` tint at
+      5.0:1 — the most saturated share that reaches it, in both themes — which
+      took the worst `-ink` case from **-0.26 to +0.20** and cut the cases
+      sitting under +0.5 from **20 to 3**, for 2–7 points of share. Note this is
+      a visible token shift: every intent painted as text is now slightly
+      deeper.
       **Baselined, both needing a design call rather than a patch:**
       `wr-carousel`'s dots are 8×8 with 14px centres where WCAG 2.5.8 wants 24
       (the `touch-target` mixin does not help — it is gated on
