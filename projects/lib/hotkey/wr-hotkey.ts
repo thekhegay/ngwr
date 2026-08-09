@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Service, NgZone, inject } from '@angular/core';
+import { DestroyRef, Service, NgZone, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
@@ -60,11 +60,23 @@ export class WrHotkey {
   private readonly doc = inject(DOCUMENT);
   private readonly zone = inject(NgZone);
   private readonly platform = inject(WrPlatform);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly isMac = (this.platform.userAgent ?? '').toLowerCase().includes('mac');
 
   /** Bindings grouped by listener target. */
   private readonly registries = new Map<EventTarget, Set<Binding>>();
+
+  constructor() {
+    // Every listener belongs to this injector. Provided at the root that is the
+    // whole application, but a route or component that provides its own
+    // `WrHotkey` used to leave its `keydown` listeners on the document after it
+    // was destroyed — still dispatching into handlers whose component was gone.
+    this.destroyRef.onDestroy(() => {
+      for (const target of [...this.listeners.keys()]) this.detach(target);
+      this.registries.clear();
+    });
+  }
 
   /** Register a binding. */
   bind(spec: WrHotkeySpec, handler: (event: KeyboardEvent) => void, options: WrHotkeyOptions = {}): WrHotkeyHandle {
@@ -83,8 +95,16 @@ export class WrHotkey {
 
     return {
       unbind: () => {
-        bucket?.delete(binding);
-        if (bucket?.size === 0) {
+        // Look the bucket up again rather than closing over it, and let
+        // `Set.delete` report whether this binding was still in it. The captured
+        // bucket could be a REPLACED one: unbind the last binding, register a
+        // new one for the same target, then call the old handle a second time —
+        // which is ordinary, a directive releasing on destroy and on an input
+        // change — and the stale empty set read as "nothing left here", taking
+        // the live binding's listener down with it.
+        const current = this.registries.get(target);
+        if (!current?.delete(binding)) return;
+        if (current.size === 0) {
           this.registries.delete(target);
           this.detach(target);
         }

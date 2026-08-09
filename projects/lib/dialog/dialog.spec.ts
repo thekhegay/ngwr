@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -231,6 +232,34 @@ describe('WrDialog', () => {
     // miss, so the bare call left a screen reader reading the key out verbatim
     // — and axe cannot catch it, because a name IS present.
     expect(dismiss()!.getAttribute('aria-label')).toBe('Close dialog');
+  });
+
+  it('lets a registered catalog win over the English fallback', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'] }),
+        provideWrI18nStaticLoader({ en: { dialog: { close: 'Zavrit' } } }),
+      ],
+    });
+    const dialogs = TestBed.inject(WrDialog);
+    // Let the loader land BEFORE the dialog opens — that gap is the whole
+    // subject here.
+    TestBed.tick();
+    await Promise.resolve();
+    await Promise.resolve();
+    TestBed.tick();
+
+    dialogs.open(Confirm);
+    TestBed.tick();
+    await Promise.resolve();
+
+    // The fallback used to be read once, at injection — and this service is
+    // root-provided, so it was constructed before any async catalog had loaded
+    // and then answered "Close dialog" for the life of the app. A localized
+    // application got an English dismiss button on every dialog.
+    expect(dismiss()!.getAttribute('aria-label')).toBe('Zavrit');
   });
 
   it('renders no dismiss button when closable is false', async () => {
