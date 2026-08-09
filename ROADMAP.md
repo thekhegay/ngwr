@@ -89,8 +89,24 @@ theme is what makes ngwr a library people can bet on.
       catalog, so every lookup misses, `t()` returns the key, and the component
       falls through to its English default — which is what the helpers always
       meant to do.
-      **Remaining:** the rest of the services, then date-picker, dialog, popover
-      and toast. A2 (CDK test harnesses) and B2 both wait on that second half.
+      **The four overlay / form components followed** (2026-08-09): `wr-dialog`,
+      `wr-popover`, `wr-toast` and `wr-date-picker`, +118 specs, suite now 296.
+      Each pins the contract B2 is about to churn — roles, ARIA state, the
+      `.wr-*` classes — rather than internals.
+      They paid for themselves immediately: **`WrDialog`'s dismiss button
+      announced the raw catalog key `dialog.close`** to anyone who had not
+      configured i18n, because it called `i18n.t()` bare where the rest of the
+      library routes through `readI18nText(key, fallback)`. axe cannot see it —
+      a name IS present — so only a spec was ever going to find it. Fixed.
+      Eight more suspected defects are recorded from that pass and still need
+      triage, the sharpest being that `wr-date-picker`'s trigger advertises
+      `aria-haspopup="dialog"` over a popup that is not a dialog, that
+      `wr-popover`'s `role="dialog"` panels have no accessible name and no way
+      to give them one, and that the toast stack's "Close all" is reachable only
+      by hovering.
+      **Remaining:** the rest of the services, and the second picker
+      (`wr-date-range-picker`). A2 (CDK test harnesses) and B2 both wait on this
+      half, which is now mostly done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.

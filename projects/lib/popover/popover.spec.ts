@@ -1,0 +1,397 @@
+import { Component, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+
+import { provideWrOverlay } from 'ngwr/overlay';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { WrPopover } from './popover';
+
+/**
+ * `[wrPopover]` renders its panel into a CDK overlay, so nothing it opens is
+ * reachable from the fixture — every query for a panel goes through the
+ * document. `provideWrOverlay()` keeps that container isolated so it cannot
+ * leak into the next spec file.
+ *
+ * The directive is really two components in one: `mode="popover"` (template
+ * content, click/hover trigger, dialog semantics) and `mode="tooltip"` (string
+ * content, hover+focus with delays, `aria-describedby`). Both host shapes are
+ * mounted here so the differences can be asserted side by side.
+ *
+ * Timers are faked because the tooltip's show/hide delays and the hover
+ * popover's grace period are the behaviour, not incidental timing.
+ */
+@Component({
+  imports: [WrPopover],
+  template: `
+    <button
+      type="button"
+      class="click-trigger"
+      [wrPopover]="panel"
+      [position]="position()"
+      (opened)="openCount.set(openCount() + 1)"
+      (closed)="closeCount.set(closeCount() + 1)"
+    >
+      Details
+    </button>
+
+    <button type="button" class="hover-trigger" [wrPopover]="panel" trigger="hover">Hover</button>
+
+    <button type="button" class="tip-trigger" [wrPopover]="tip()" mode="tooltip">Save</button>
+
+    <ng-template #panel>
+      <p class="panel-body">Anything you can render.</p>
+    </ng-template>
+  `,
+})
+class Host {
+  readonly tip = signal('Save changes');
+  readonly position = signal<'top' | 'right' | null>(null);
+  readonly openCount = signal(0);
+  readonly closeCount = signal(0);
+}
+
+describe('WrPopover', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const trigger = (kind: 'click' | 'hover' | 'tip'): HTMLButtonElement =>
+    root().querySelector<HTMLButtonElement>(`.${kind}-trigger`)!;
+
+  const popoverPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+  const tooltipPane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-tooltip-overlay');
+
+  /** Move the clock and let the resulting signal write reach the DOM. */
+  const tick = (ms: number): void => {
+    vi.advanceTimersByTime(ms);
+    fixture.detectChanges();
+  };
+
+  const enter = (el: HTMLElement): void => {
+    el.dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+  };
+
+  const leave = (el: HTMLElement, relatedTarget: EventTarget | null = null): void => {
+    el.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget }));
+    fixture.detectChanges();
+  };
+
+  const press = (key: string, target: EventTarget = document.body): void => {
+    target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+
+  describe('popover mode', () => {
+    const open = (): void => {
+      trigger('click').click();
+      fixture.detectChanges();
+    };
+
+    it('advertises a dialog on the trigger before anything is opened', () => {
+      expect(trigger('click').getAttribute('aria-haspopup')).toBe('dialog');
+      expect(trigger('click').getAttribute('aria-expanded')).toBe('false');
+      // Nothing to point at until the panel exists.
+      expect(trigger('click').getAttribute('aria-controls')).toBeNull();
+    });
+
+    it('renders no panel until it is opened', () => {
+      expect(popoverPane()).toBeNull();
+    });
+
+    it('opens on click and flips aria-expanded', () => {
+      open();
+      expect(trigger('click').getAttribute('aria-expanded')).toBe('true');
+      expect(popoverPane()).toBeTruthy();
+    });
+
+    it('puts the panel in the isolated overlay container, not in the fixture', () => {
+      open();
+      // `provideWrOverlay()` exists so ngwr panels cannot land in the same
+      // container as Material's or NG-ZORRO's.
+      expect(root().querySelector('.panel-body')).toBeNull();
+      expect(document.querySelector('.wr-overlay-container .panel-body')?.textContent).toContain(
+        'Anything you can render.'
+      );
+    });
+
+    it('names the open panel from the trigger', () => {
+      open();
+      expect(trigger('click').getAttribute('aria-controls')).toBe(popoverPane()?.id);
+      expect(popoverPane()?.id).toBeTruthy();
+    });
+
+    it('gives the panel non-modal dialog semantics', () => {
+      open();
+      // Non-modal is deliberate: focus is not trapped, and the panel dismisses
+      // on outside click / Escape rather than blocking the page.
+      expect(popoverPane()?.getAttribute('role')).toBe('dialog');
+      expect(popoverPane()?.getAttribute('aria-modal')).toBe('false');
+    });
+
+    it('ships the dialog without an accessible name — pinned, not endorsed', () => {
+      open();
+      // SUSPECTED DEFECT. `role="dialog"` with no `aria-label` /
+      // `aria-labelledby` is an unnamed dialog: a screen reader announces
+      // "dialog" and nothing else, and it is exactly what axe's
+      // `aria-dialog-name` rule (serious) flags. `pnpm check:a11y` does not
+      // catch it because the sweep never opens the panel. The directive has no
+      // input to supply a name either, so a consumer cannot fix it from
+      // outside. Pinned as-is so a fix is a deliberate, visible change here.
+      expect(popoverPane()?.getAttribute('aria-label')).toBeNull();
+      expect(popoverPane()?.getAttribute('aria-labelledby')).toBeNull();
+    });
+
+    it('carries the public overlay classes, including the resolved position', () => {
+      open();
+      // Consumers style the arrow and the panel off these — they are public API.
+      expect(popoverPane()?.classList.contains('wr-popover-overlay')).toBe(true);
+      expect(popoverPane()?.classList.contains('wr-popover-overlay--bottom')).toBe(true);
+    });
+
+    it('uses the requested position when one is given', () => {
+      fixture.componentInstance.position.set('right');
+      fixture.detectChanges();
+      open();
+      expect(popoverPane()?.classList.contains('wr-popover-overlay--right')).toBe(true);
+    });
+
+    it('toggles shut on a second click of the trigger', () => {
+      open();
+      trigger('click').click();
+      fixture.detectChanges();
+
+      expect(popoverPane()).toBeNull();
+      expect(trigger('click').getAttribute('aria-expanded')).toBe('false');
+      expect(trigger('click').getAttribute('aria-controls')).toBeNull();
+    });
+
+    it('closes on a click outside itself', () => {
+      open();
+      document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(popoverPane()).toBeNull();
+    });
+
+    it('stays open for a click inside the panel', () => {
+      open();
+      document
+        .querySelector<HTMLElement>('.panel-body')!
+        .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(popoverPane()).toBeTruthy();
+    });
+
+    it('closes on Escape from anywhere on the page', () => {
+      open();
+      // The host's own `keydown.escape` binding is tooltip-only; a popover is
+      // closed by the overlay's keyboard dispatcher, which is why this works
+      // with focus nowhere near the trigger.
+      press('Escape');
+
+      expect(popoverPane()).toBeNull();
+      expect(trigger('click').getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('emits opened and closed once each per cycle', () => {
+      open();
+      expect(fixture.componentInstance.openCount()).toBe(1);
+      expect(fixture.componentInstance.closeCount()).toBe(0);
+
+      press('Escape');
+      expect(fixture.componentInstance.openCount()).toBe(1);
+      expect(fixture.componentInstance.closeCount()).toBe(1);
+    });
+
+    it('ignores hover while the trigger is click-driven', () => {
+      enter(trigger('click'));
+      expect(popoverPane()).toBeNull();
+    });
+  });
+
+  describe('popover mode, hover trigger', () => {
+    it('opens the moment the pointer arrives — no delay on the way in', () => {
+      enter(trigger('hover'));
+      expect(popoverPane()).toBeTruthy();
+    });
+
+    it('ignores clicks once the trigger is hover-driven', () => {
+      enter(trigger('hover'));
+      trigger('hover').click();
+      fixture.detectChanges();
+
+      // A click must not toggle a hover popover shut — the pointer is still
+      // on the trigger, so it would immediately want to be open again.
+      expect(popoverPane()).toBeTruthy();
+    });
+
+    it('waits a beat after the pointer leaves so it can cross the gap to the panel', () => {
+      enter(trigger('hover'));
+      leave(trigger('hover'));
+
+      tick(119);
+      expect(popoverPane()).toBeTruthy();
+
+      tick(1);
+      expect(popoverPane()).toBeNull();
+    });
+
+    it('cancels the pending close when the pointer reaches the panel', () => {
+      enter(trigger('hover'));
+      const pane = popoverPane()!;
+      leave(trigger('hover'));
+      enter(pane);
+
+      tick(500);
+      expect(popoverPane()).toBeTruthy();
+    });
+
+    it('closes when the pointer leaves the panel itself', () => {
+      enter(trigger('hover'));
+      const pane = popoverPane()!;
+      leave(trigger('hover'));
+      enter(pane);
+      leave(pane);
+
+      tick(120);
+      expect(popoverPane()).toBeNull();
+    });
+
+    it('does not even schedule a close when the pointer leaves straight into the panel', () => {
+      enter(trigger('hover'));
+      // `relatedTarget` is where the pointer went. Landing inside the panel is
+      // not "leaving" at all, so no close is queued in the first place.
+      leave(trigger('hover'), popoverPane());
+      tick(500);
+
+      expect(popoverPane()).toBeTruthy();
+    });
+  });
+
+  describe('tooltip mode', () => {
+    it('describes the trigger instead of claiming a popup', () => {
+      // A tooltip is a label, not something the button owns — so no
+      // `aria-haspopup` and no `aria-expanded`, either open or closed.
+      expect(trigger('tip').getAttribute('aria-haspopup')).toBeNull();
+      expect(trigger('tip').getAttribute('aria-expanded')).toBeNull();
+      expect(trigger('tip').getAttribute('aria-describedby')).toBeNull();
+    });
+
+    it('opens on hover only after the show delay', () => {
+      enter(trigger('tip'));
+      tick(119);
+      expect(tooltipPane()).toBeNull();
+
+      tick(1);
+      expect(tooltipPane()).toBeTruthy();
+    });
+
+    it('renders the string as a tooltip panel in the overlay container', () => {
+      enter(trigger('tip'));
+      tick(120);
+
+      expect(tooltipPane()?.getAttribute('role')).toBe('tooltip');
+      expect(document.querySelector('.wr-overlay-container .wr-tooltip')?.textContent).toBe('Save changes');
+      expect(tooltipPane()?.classList.contains('wr-tooltip-overlay--top')).toBe(true);
+    });
+
+    it('stacks role="tooltip" twice, on the pane and on the text panel — pinned, not endorsed', () => {
+      enter(trigger('tip'));
+      tick(120);
+
+      // SUSPECTED DEFECT. The directive sets `role="tooltip"` on the overlay
+      // pane, and the internal `wr-popover-text` host already carries one, so
+      // the open tooltip is a tooltip nested inside a tooltip. Only the outer
+      // one is referenced by `aria-describedby`; the inner is redundant and
+      // can be announced twice. One of the two should go.
+      expect(document.querySelectorAll('.wr-overlay-container [role="tooltip"]')).toHaveLength(2);
+    });
+
+    it('points aria-describedby at the panel while it is showing', () => {
+      enter(trigger('tip'));
+      tick(120);
+
+      expect(trigger('tip').getAttribute('aria-describedby')).toBe(tooltipPane()?.id);
+    });
+
+    it('opens on focus, so keyboard users get the same hint', () => {
+      trigger('tip').dispatchEvent(new FocusEvent('focus'));
+      fixture.detectChanges();
+      tick(120);
+
+      expect(tooltipPane()).toBeTruthy();
+    });
+
+    it('hides after the hide delay on blur', () => {
+      trigger('tip').dispatchEvent(new FocusEvent('focus'));
+      tick(120);
+
+      trigger('tip').dispatchEvent(new FocusEvent('blur'));
+      fixture.detectChanges();
+      tick(59);
+      expect(tooltipPane()).toBeTruthy();
+
+      tick(1);
+      expect(tooltipPane()).toBeNull();
+      expect(trigger('tip').getAttribute('aria-describedby')).toBeNull();
+    });
+
+    it('hides after the pointer leaves', () => {
+      enter(trigger('tip'));
+      tick(120);
+
+      leave(trigger('tip'));
+      tick(60);
+      expect(tooltipPane()).toBeNull();
+    });
+
+    it('drops a pending show when the pointer leaves before the delay elapses', () => {
+      enter(trigger('tip'));
+      tick(50);
+      leave(trigger('tip'));
+
+      tick(500);
+      expect(tooltipPane()).toBeNull();
+    });
+
+    it('closes on Escape typed on the trigger', () => {
+      enter(trigger('tip'));
+      tick(120);
+
+      // WAI-ARIA requires Escape to dismiss a tooltip without moving focus —
+      // here the directive's own host binding does it, not the overlay.
+      press('Escape', trigger('tip'));
+      expect(tooltipPane()).toBeNull();
+    });
+
+    it('never opens for an empty string', () => {
+      fixture.componentInstance.tip.set('');
+      fixture.detectChanges();
+
+      enter(trigger('tip'));
+      tick(500);
+      expect(tooltipPane()).toBeNull();
+    });
+
+    it('ignores clicks — a tooltip is not a toggle', () => {
+      trigger('tip').click();
+      fixture.detectChanges();
+      tick(500);
+
+      expect(tooltipPane()).toBeNull();
+    });
+  });
+});
