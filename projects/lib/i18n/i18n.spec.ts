@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
+import { wrEn } from 'ngwr/i18n/en';
+import { wrRu } from 'ngwr/i18n/ru';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { WrI18n, wrInterpolate } from './i18n';
@@ -37,6 +39,29 @@ describe('wrInterpolate', () => {
 
   it('accepts dots and dashes in a placeholder name', () => {
     expect(wrInterpolate('{{a.b}} {{c-d}}', { 'a.b': 1, 'c-d': 2 })).toBe('1 2');
+  });
+});
+
+/** Every key in one catalog must exist in the other. */
+const flatKeys = (o: Record<string, unknown>, prefix = ''): string[] =>
+  Object.entries(o).flatMap(([k, v]) =>
+    v !== null && typeof v === 'object' ? flatKeys(v as Record<string, unknown>, `${prefix}${k}.`) : [`${prefix}${k}`]
+  );
+
+describe('the shipped catalogs', () => {
+  it('carry exactly the same keys in en and ru', () => {
+    // A key added to one locale and forgotten in the other resolves to the key
+    // ITSELF for those users — `t()` returns the key on a miss — so the UI
+    // quietly starts announcing `datePicker.panel` instead of a sentence.
+    // `form-errors.spec.ts` guards only the `validation.*` subtree; this is the
+    // whole catalog.
+    const en = flatKeys(wrEn);
+    const ru = flatKeys(wrRu);
+
+    expect({ missingFromRu: en.filter(k => !ru.includes(k)), missingFromEn: ru.filter(k => !en.includes(k)) }).toEqual({
+      missingFromRu: [],
+      missingFromEn: [],
+    });
   });
 });
 

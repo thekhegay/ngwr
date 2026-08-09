@@ -31,6 +31,7 @@ import { WrDatePicker } from './date-picker';
       [max]="max()"
       [dateFilter]="dateFilter()"
       [timeFormat]="timeFormat()"
+      [panelAriaLabel]="panelAriaLabel()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="touched.set(touched() + 1)"
@@ -45,6 +46,7 @@ class Host {
   readonly max = signal<Date | undefined>(undefined);
   readonly dateFilter = signal<((date: Date) => boolean) | null>(null);
   readonly timeFormat = signal<'auto' | '12h' | '24h'>('24h');
+  readonly panelAriaLabel = signal<string | null>(null);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -368,15 +370,47 @@ describe('WrDatePicker', () => {
     expect(calendar()).toBeTruthy();
   });
 
-  it('leaves the popup without a dialog role, despite aria-haspopup="dialog"', () => {
-    // Pinning what actually ships, not what it should be: the trigger promises a
-    // dialog, but the overlay content is a bare calendar — no `role="dialog"`,
-    // no accessible name on the popup, and focus is never moved into it on open.
-    // Escape does return focus to the field, so the pattern is half-implemented.
-    // Believed to be a defect; a rewrite should flip this expectation.
+  it('presents the popup as a named dialog, as aria-haspopup="dialog" promises', () => {
+    // The trigger advertised `aria-haspopup="dialog"` while the overlay content
+    // was a bare calendar — no `role="dialog"`, no accessible name on the popup,
+    // and no `aria-controls` tying the two together. The role, the name and the
+    // id now live on the overlay pane itself.
     open();
-    expect(document.querySelector('.wr-date-picker-overlay [role="dialog"]')).toBeNull();
-    expect(calendar()?.getAttribute('role')).toBeNull();
-    expect(document.activeElement).not.toBe(day(15));
+
+    const panel = document.querySelector<HTMLElement>('.wr-date-picker-overlay')!;
+    expect(panel.getAttribute('role')).toBe('dialog');
+    expect(panel.getAttribute('aria-label')).toBe('Choose date');
+    // Non-modal on purpose: focus is not trapped, and outside click / Escape close it.
+    expect(panel.getAttribute('aria-modal')).toBe('false');
+
+    expect(panel.id).toBeTruthy();
+    expect(trigger().getAttribute('aria-controls')).toBe(panel.id);
+  });
+
+  it('names the popup for the mode, and lets the host override it', () => {
+    fixture.componentInstance.mode.set('time');
+    fixture.componentInstance.format.set('HH:mm');
+    fixture.detectChanges();
+    open();
+
+    expect(document.querySelector('.wr-date-picker-overlay')?.getAttribute('aria-label')).toBe('Choose time');
+    open(); // close
+
+    fixture.componentInstance.panelAriaLabel.set('Delivery window');
+    fixture.detectChanges();
+    open();
+
+    expect(document.querySelector('.wr-date-picker-overlay')?.getAttribute('aria-label')).toBe('Delivery window');
+  });
+
+  it('drops aria-controls again once the popup is gone', () => {
+    // A dangling `aria-controls` points at nothing after the overlay is disposed.
+    expect(trigger().hasAttribute('aria-controls')).toBe(false);
+
+    open();
+    expect(trigger().hasAttribute('aria-controls')).toBe(true);
+
+    open(); // close
+    expect(trigger().hasAttribute('aria-controls')).toBe(false);
   });
 });

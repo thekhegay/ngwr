@@ -187,6 +187,12 @@ export const wrEn: WrI18nCatalog = {
   dialog: {
     close: 'Close dialog',
   },
+  // Deliberately generic: a popover panel has no universal name, and an unnamed
+  // `role="dialog"` announces as nothing at all. Override per instance with
+  // `[ariaLabel]`.
+  popover: {
+    label: 'Popover',
+  },
   // Count-neutral on purpose: `wrInterpolate` does `{{name}}` substitution only,
   // with no plural support, so "Matches available: 1" has to read correctly too.
   mention: {
@@ -202,6 +208,9 @@ export const wrEn: WrI18nCatalog = {
     openTime: 'Open time picker',
     openDateTime: 'Open date and time picker',
     openRange: 'Open range calendar',
+    panel: 'Choose date',
+    panelTime: 'Choose time',
+    panelDateTime: 'Choose date and time',
     rangeStart: 'Range start',
     rangeEnd: 'Range end',
     startTime: 'Start time',

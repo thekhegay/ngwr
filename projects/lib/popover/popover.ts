@@ -23,6 +23,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
 import { numAttr } from 'ngwr/utils';
 
@@ -119,6 +120,14 @@ export class WrPopover {
     transform: (v: BooleanInput): boolean | undefined => (v == null ? undefined : coerceBooleanProperty(v)),
   });
 
+  /**
+   * Popover mode only — accessible name of the panel. `role="dialog"` with no
+   * name announces as a bare "dialog", so the catalog's `popover.label` is used
+   * when nothing is given. A popover has no universal name; whenever the panel
+   * has a heading or a purpose, pass it.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
   /** Fires after the panel opens. */
   readonly opened = output<void>();
 
@@ -141,6 +150,8 @@ export class WrPopover {
 
   /** Auto-generated id for `aria-controls` / `aria-describedby`. */
   protected readonly panelId = `wr-popover-${++popoverUid}`;
+
+  private readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'popover.label', 'Popover');
 
   private readonly resolvedPosition = computed<WrPopoverPosition>(
     () => this.position() ?? (this.isTooltip() ? 'top' : 'bottom')
@@ -310,6 +321,10 @@ export class WrPopover {
       const text = typeof content === 'string' ? content : '';
       const ref = this.overlayRef.attach(new ComponentPortal(WrPopoverTextPanel, this.vcr));
       ref.setInput('text', text);
+      // The pane is the element `aria-describedby` points at (it carries
+      // `panelId`), so this is the role that has to be `tooltip` — the inner
+      // `wr-popover-text` host deliberately carries none, or the description
+      // would be a tooltip nested inside a tooltip.
       this.overlayRef.overlayElement.setAttribute('role', 'tooltip');
     } else if (typeof content !== 'string') {
       this.overlayRef.attach(new TemplatePortal(content, this.vcr));
@@ -319,6 +334,9 @@ export class WrPopover {
       // deliberately NOT trapped, the panel closes on outside click / Escape.
       this.overlayRef.overlayElement.setAttribute('role', 'dialog');
       this.overlayRef.overlayElement.setAttribute('aria-modal', 'false');
+      // A named dialog: `role="dialog"` with no name announces as a bare
+      // "dialog" and trips axe's `aria-dialog-name`.
+      this.overlayRef.overlayElement.setAttribute('aria-label', this.resolvedAriaLabel());
     }
     this.overlayRef.overlayElement.id = this.panelId;
 

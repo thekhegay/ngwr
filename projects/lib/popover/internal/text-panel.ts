@@ -18,7 +18,10 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
   selector: 'wr-popover-text',
   template: '{{ text() }}',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-tooltip', role: 'tooltip' },
+  // No `role="tooltip"` here on purpose: the overlay pane this is attached to
+  // is the element `aria-describedby` resolves to, and it carries the role.
+  // Setting it here too nested one tooltip inside another.
+  host: { class: 'wr-tooltip' },
 })
 export class WrPopoverTextPanel {
   readonly text = input.required<string>();

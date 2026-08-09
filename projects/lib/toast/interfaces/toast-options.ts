@@ -23,7 +23,11 @@ export interface WrToastOptions {
   readonly duration?: number;
   /** Show a close (×) button. @default true */
   readonly dismissible?: boolean;
-  /** Override the corner for this toast only. */
+  /**
+   * Corner this toast opens in. The whole stack shares one host, so this is
+   * not per-toast: passing a different corner relocates the toasts already on
+   * screen along with this one.
+   */
   readonly position?: WrToastPosition;
   /** Override the progress bar visibility for this toast only. */
   readonly showProgress?: boolean;

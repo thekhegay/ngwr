@@ -25,13 +25,15 @@ import { WR_TOAST_CONFIG } from './tokens';
  *       position: 'bottom-end',
  *       showCopy: true,
  *       maxStack: 3,
- *       labels: { close: 'Закрыть', copy: 'Копировать', copied: 'Скопировано', closeAll: 'Закрыть все' },
+ *       labels: { close: 'Закрыть' },
  *     }),
  *   ],
  * });
  * ```
  */
-export function provideWrToastConfig(config: Partial<WrToastConfig>): EnvironmentProviders {
+export function provideWrToastConfig(
+  config: Partial<Omit<WrToastConfig, 'labels'>> & { readonly labels?: Partial<WrToastConfig['labels']> }
+): EnvironmentProviders {
   const merged: WrToastConfig = {
     ...DEFAULT_TOAST_CONFIG,
     ...config,

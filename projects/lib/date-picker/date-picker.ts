@@ -36,6 +36,8 @@ import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 import { WrDateTimePanel } from './internal/date-time-panel';
 import { WrTimePanel } from './internal/time-panel';
 
+let panelUid = 0;
+
 /**
  * Unified date / time / date-time picker. Same `<input>` + popover skeleton
  * for every mode — the overlay content swaps based on `[mode]`:
@@ -174,6 +176,10 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   private readonly labelTime = readI18nText('datePicker.openTime', 'Open time picker');
   private readonly labelDateTime = readI18nText('datePicker.openDateTime', 'Open date and time picker');
 
+  private readonly panelLabelDate = readI18nText('datePicker.panel', 'Choose date');
+  private readonly panelLabelTime = readI18nText('datePicker.panelTime', 'Choose time');
+  private readonly panelLabelDateTime = readI18nText('datePicker.panelDateTime', 'Choose date and time');
+
   /**
    * Accessible name of the text field. Falls back to the placeholder, then to
    * the same catalog string the calendar button uses — the field is a
@@ -195,6 +201,26 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     if (m === 'time') return this.labelTime;
     if (m === 'datetime') return this.labelDateTime;
     return this.labelDate;
+  });
+
+  /**
+   * Accessible name of the popup. The trigger advertises
+   * `aria-haspopup="dialog"`, so the panel is a `role="dialog"` — and an unnamed
+   * dialog announces as a bare "dialog". Defaults to the catalog's
+   * `datePicker.panel*` string for the current `mode`.
+   */
+  readonly panelAriaLabel = input<string | null>(null);
+
+  /** Popup id — what the trigger's `aria-controls` points at while open. */
+  protected readonly panelId = `wr-date-picker-panel-${++panelUid}`;
+
+  protected readonly resolvedPanelLabel = computed(() => {
+    const explicit = this.panelAriaLabel();
+    if (explicit) return explicit;
+    const m = this.mode();
+    if (m === 'time') return this.panelLabelTime;
+    if (m === 'datetime') return this.panelLabelDateTime;
+    return this.panelLabelDate;
   });
 
   protected readonly classes = computed(() => {
@@ -302,6 +328,17 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: 'wr-date-picker-overlay',
     });
+
+    // The trigger promises `aria-haspopup="dialog"`; the pane is the element it
+    // points at, so the role, the name and the id all belong here. Non-modal on
+    // purpose — focus is not trapped, and the panel closes on outside click or
+    // Escape.
+    const pane = this.overlayRef.overlayElement;
+    pane.id = this.panelId;
+    pane.setAttribute('role', 'dialog');
+    pane.setAttribute('aria-modal', 'false');
+    pane.setAttribute('aria-label', this.resolvedPanelLabel());
+
     this.overlayOpen.set(true);
 
     // Dispatch by mode — pick the panel + wire its emissions.
