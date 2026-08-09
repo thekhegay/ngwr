@@ -56,6 +56,23 @@ updates:
       interval: 'daily'
       time: '13:00'
       timezone: 'Asia/Almaty'
+    # One PR for all the routine movement — `groups` does not cross ecosystems,
+    # so the npm groups above never covered these and every action arrived on
+    # its own.
+    #
+    # Minor and patch ONLY, deliberately. A major left in this batch would ride
+    # in behind a pile of harmless bumps and get merged unread, which is exactly
+    # what should not happen to it: `upload-artifact` 4 -> 7 crossed three
+    # majors, changed the runner's Node version and the module format, and
+    # needed the nightly actually run against it before it was safe. Majors
+    # still arrive alone, which is the point.
+    groups:
+      actions:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
     assignees:
       - 'thekhegay'
     labels:
