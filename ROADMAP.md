@@ -206,8 +206,27 @@ theme is what makes ngwr a library people can bet on.
       was REMOVED — clearing the registry silences the handler while the leak
       survives, so the guard has to count `addEventListener` against
       `removeEventListener`.
-      **Remaining:** the overlay's outside-click helper, the window manager, and
-      the two platform services (`WrHaptics`, `WrVisualViewport`).
+      Those last six followed — `WrOutsideClick`, the window manager, all three
+      platform services and the icon registry — which closes the service layer
+      at 501 specs. Only one defect left in them, and it was in the piece every
+      overlay in the library dismisses through: `WrOutsideClick` judges a click
+      by where the PRESS started, but a click activated by Enter or Space has no
+      `pointerdown` of its own. A press inside a panel that never produced a
+      click — a drag released off-window, a node removed under the finger, a
+      cancelled touch — left that origin behind, so the next keyboard activation
+      anywhere on the page read as "inside" and the panel refused to close, for
+      keyboard users only. Fixed by trusting a stored origin only when the click
+      really came from a pointer (`detail > 0`).
+      Two of the mutation checks survived here and BOTH were the tests' fault,
+      not redundant code: a two-deep overlay stack cannot tell "stop at the pane
+      that was clicked" from "skip it", because the containing pane is always
+      last — it takes three; and a watcher that unsubscribes ITSELF mid-walk
+      never exposes the missing snapshot, because splicing the last element
+      shifts nothing. A watcher that closes a DIFFERENT one does. A third
+      survivor was left alone on purpose: the defensive copy in `closeAll()`
+      cannot be observed, since reading a signal already hands back an immutable
+      array.
+      **Remaining:** the components — six of eighty-one have specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
