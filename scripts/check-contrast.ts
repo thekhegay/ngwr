@@ -218,7 +218,8 @@ async function main(): Promise<void> {
     exit(1);
   }
 
-  const all = routes().filter(route => route.includes(filter));
+  const everything = routes();
+  const all = everything.filter(route => route.includes(filter));
   if (all.length === 0) {
     err(`\n✘ contrast: no route matches "${filter}".\n`);
     exit(1);
@@ -291,8 +292,16 @@ async function main(): Promise<void> {
     }
   }
 
-  for (const [rule, entry] of Object.entries(baseline)) {
-    if (!findings.has(rule)) info(`  ✓ ${rule} no longer appears — drop it from the baseline (${entry.note})`);
+  // Only a FULL sweep may claim a baselined rule is gone. A filtered or
+  // truncated run has simply not looked at the routes it lives on, and telling
+  // someone to delete a baseline entry on that evidence is worse than silence.
+  // Compare against EVERY route, not the filtered list — `all` is already
+  // narrowed, so measuring against it would call any filtered run complete.
+  const complete = targets.length === everything.length && themes.length === THEMES.length;
+  if (complete) {
+    for (const [rule, entry] of Object.entries(baseline)) {
+      if (!findings.has(rule)) info(`  ✓ ${rule} no longer appears — drop it from the baseline (${entry.note})`);
+    }
   }
 
   if (failures.length > 0) {

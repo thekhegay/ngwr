@@ -1,0 +1,79 @@
+name: Nightly
+
+# The checks that are worth running, but not worth waiting for.
+#
+# `pnpm check:contrast` is the other half of the a11y gate: `check:a11y` runs
+# axe in JSDOM, which has no stylesheets, so it turns `color-contrast` and
+# `target-size` off and answers only the structural half. This one drives a real
+# Chromium over every prerendered route in both themes and answers exactly those
+# two rules — which costs a browser download and 386 page loads, and took the PR
+# job from ~5 minutes to nearly 17.
+#
+# Nightly is the right cadence for it. What it catches is drift in painted
+# colour: a token nudged, a tint restyled, a component switched off the `-ink`
+# ramp. That shows up the day after the change lands just as usefully as it
+# would inside a review cycle, and nobody sits waiting for it.
+#
+# Failure is the notification — GitHub mails the run to whoever watches Actions.
+# The full report is attached as an artifact so the numbers can be read without
+# re-running twenty minutes of browser.
+
+on:
+  schedule:
+    # 03:00 UTC. Late enough that a day's merges are all in, early enough that
+    # the result is waiting rather than competing with the morning's CI.
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  contrast:
+    name: Contrast & target size
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # No `version:` — the action reads the pinned pnpm from package.json's
+      # `packageManager` field. Single source of truth.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The gate reads `dist/showcase`, so the site has to exist first. This is
+      # the only reason the job is not just one command.
+      - run: pnpm build:showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # `--verbose` because nobody is watching this run: the log IS the report,
+      # and a baselined finding printed without its numbers is a line nobody can
+      # act on tomorrow morning.
+      #
+      # `shell: bash` is load bearing, not decoration. A pipeline reports the
+      # exit code of its LAST command, so `check:contrast | tee` would hand back
+      # tee's success and the job would go green over a real failure. Naming the
+      # shell explicitly is what gets `-o pipefail`; the default `bash -e {0}`
+      # does not set it.
+      # `2>&1` is not tidiness: `scripts/lib/log/{info,err}` both write to
+      # STDERR, so piping stdout alone captures pnpm's preamble and nothing
+      # else — an artifact that exists, weighs a few bytes, and says nothing.
+      - run: pnpm check:contrast --verbose 2>&1 | tee contrast-report.txt
+        shell: bash
+
+      # Kept even when the run is green — the trend is the point. A baselined
+      # count creeping up inside its allowance is invisible in a pass/fail.
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contrast-report
+          path: contrast-report.txt
+          retention-days: 30
