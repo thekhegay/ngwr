@@ -105,7 +105,16 @@ export class WrOutsideClick {
 
   private readonly onClick = (event: Event): void => {
     const target = eventTarget(event);
-    const origin = event.type === 'click' && this.pressOrigin ? this.pressOrigin : target;
+    // `detail > 0` means the click really came from a pointer press. A click
+    // activated by Enter or Space carries `detail: 0` and has no `pointerdown`
+    // of its own — so trusting a leftover origin there judged it by a press
+    // that belonged to something else entirely. A press inside the pane that
+    // never produced a click (a drag released off-window, a node removed under
+    // the finger, a cancelled touch) survives in `pressOrigin`, and the next
+    // keyboard activation anywhere on the page then read as "inside": the panel
+    // would not close, for keyboard users only.
+    const fromPointer = event.type === 'click' && (event as MouseEvent).detail > 0;
+    const origin = fromPointer && this.pressOrigin ? this.pressOrigin : target;
     this.pressOrigin = null;
 
     // Snapshot: a watcher that closes on this event unsubscribes synchronously,
