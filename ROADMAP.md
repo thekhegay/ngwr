@@ -274,7 +274,18 @@ theme is what makes ngwr a library people can bet on.
       `FormCheckboxControl` reserves), and a stray `value="x"` leaves every box
       in the group on the default identity `null`, so they all toggle as one
       control. Mutating the identity to `null` fails two specs.
-      **Remaining:** the rest of the components — nine of eighty-one have
+      Then the three value controls whose keyboard IS their contract —
+      `wr-rating`, `wr-slider` (single and range) and `wr-input-otp`, 37 specs.
+      The assertions sit on the ARIA a screen reader reads, not on the pixels: a
+      slider whose `aria-valuenow` never moves is silent however far the thumb
+      travels, and in `range` mode each thumb has to bound the OTHER
+      (`aria-valuemax` of the low thumb is the high value), or the announced room
+      is the whole track. Nothing was broken here either. Three jsdom gaps worth
+      knowing for the next component: `ClipboardEvent` and `DataTransfer` do not
+      exist at all (a paste has to be a plain `Event` with the payload attached
+      by hand), and `getData('text')` is NOT aliased to `text/plain` the way a
+      browser aliases it.
+      **Remaining:** the rest of the components — twelve of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
