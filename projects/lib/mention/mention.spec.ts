@@ -1,0 +1,294 @@
+import { Component, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+
+import { provideWrOverlay } from 'ngwr/overlay';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import type { WrMentionCommit, WrMentionItem } from './interfaces';
+import { WrMention } from './mention';
+
+const PEOPLE: readonly WrMentionItem[] = [
+  { id: 'ada', label: 'Ada Lovelace' },
+  { id: 'alan', label: 'Alan Turing' },
+  { id: 'grace', label: 'Grace Hopper' },
+  { id: 'linus', label: 'Linus Torvalds' },
+];
+
+const MANY: readonly WrMentionItem[] = Array.from({ length: 20 }, (_, i) => ({
+  id: `p${i}`,
+  label: `Person ${i}`,
+}));
+
+@Component({
+  imports: [WrMention],
+  template: ` <textarea wrMention [wrMentionItems]="items" [filterWith]="startsWith"></textarea> `,
+})
+class PrefixHost {
+  readonly items = PEOPLE;
+  readonly startsWith = (query: string, item: WrMentionItem): boolean =>
+    item.label.toLowerCase().startsWith(query.toLowerCase());
+}
+
+@Component({
+  imports: [WrMention],
+  template: `
+    <textarea
+      wrMention
+      [wrMentionItems]="items()"
+      [triggers]="triggers()"
+      [maxResults]="maxResults()"
+      (wrMentionSelected)="committed.set($event)"
+    ></textarea>
+  `,
+})
+class Host {
+  readonly items = signal(PEOPLE);
+  readonly triggers = signal<readonly string[]>(['@']);
+  readonly maxResults = signal(8);
+  readonly committed = signal<WrMentionCommit | null>(null);
+}
+
+/**
+ * The ARIA here is a set of deliberate decisions that each look wrong at a
+ * glance, and the source spells out why. The host stays a `textbox` and is NOT a
+ * combobox — the field holds prose and a mention is one fragment inside it, not
+ * the field's value; `role="combobox"` is also disallowed on `<textarea>` and
+ * would drop `aria-multiline` for the whole editing session.
+ *
+ * The sharpest distinction is between the two references. `aria-controls` is
+ * allowed to dangle — it names the panel's id even while the panel is closed,
+ * because gating it would mean gating `aria-autocomplete` too, and an
+ * unresolved `controls` is only a manual-review note to axe.
+ * `aria-activedescendant` is NOT allowed to dangle: naming an absent element is
+ * an author error, so it has to disappear the moment the panel does.
+ */
+describe('WrMention', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const field = (): HTMLTextAreaElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>('textarea')!;
+  const listbox = (): HTMLElement | null => document.querySelector<HTMLElement>('[role="listbox"]');
+  const optionLabels = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(o => o.textContent.trim());
+  const activeOption = (): HTMLElement | null =>
+    document.querySelector<HTMLElement>('[role="option"][aria-selected="true"]');
+
+  /** Type into the field the way a person does — value plus an `input` event. */
+  const type = (text: string): void => {
+    const el = field();
+    el.value = text;
+    el.selectionStart = el.selectionEnd = text.length;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  const press = (key: string): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    field().dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  describe('the field it attaches to', () => {
+    it('stays a textbox rather than becoming a combobox', () => {
+      // `role="combobox"` on a `<textarea>` is disallowed by ARIA in HTML, and
+      // it would also drop `aria-multiline` — a screen reader would stop
+      // reporting the field as multi-line for the whole session.
+      expect(field().getAttribute('role')).toBeNull();
+      expect(field().tagName).toBe('TEXTAREA');
+    });
+
+    it('advertises the capability permanently, not only while suggesting', () => {
+      // Static on purpose: ARIA says authors should not toggle
+      // `aria-autocomplete` to signal that suggestions are showing, and being
+      // static is what makes the feature discoverable on focus.
+      expect(field().getAttribute('aria-autocomplete')).toBe('list');
+      expect(field().getAttribute('aria-haspopup')).toBe('listbox');
+    });
+
+    it('names the panel through aria-controls even while it is closed', () => {
+      expect(listbox()).toBeNull();
+      // Allowed to dangle: gating it would mean gating `aria-autocomplete` too,
+      // and an unresolved `controls` is a manual-review note, never a violation.
+      expect(field().getAttribute('aria-controls')).toBeTruthy();
+    });
+
+    it('never names an absent active option', () => {
+      // The other half of the pair, and the strict one: `aria-activedescendant`
+      // pointing at an element that does not exist is an author error.
+      expect(field().getAttribute('aria-activedescendant')).toBeNull();
+    });
+  });
+
+  describe('opening', () => {
+    it('opens on the trigger character', () => {
+      type('hey @');
+
+      expect(listbox()).not.toBeNull();
+      expect(optionLabels().length).toBeGreaterThan(0);
+    });
+
+    it('stays shut for ordinary prose', () => {
+      type('just writing a sentence');
+
+      expect(listbox()).toBeNull();
+    });
+
+    it('points aria-activedescendant at a real option once open', () => {
+      type('hey @');
+
+      const active = field().getAttribute('aria-activedescendant');
+      expect(active).toBeTruthy();
+      expect(document.getElementById(active!)).not.toBeNull();
+    });
+
+    it('honours a custom trigger set', () => {
+      fixture.componentInstance.triggers.set(['#']);
+      fixture.detectChanges();
+
+      type('hey @');
+      expect(listbox()).toBeNull();
+
+      type('hey #');
+      expect(listbox()).not.toBeNull();
+    });
+  });
+
+  describe('filtering', () => {
+    it('narrows on the query typed after the trigger, matching anywhere in the label', () => {
+      type('hey @al');
+
+      // A SUBSTRING match, not a prefix one — "al" reaches "Alan" and also
+      // "TorvALds". That is the friendlier default for names, where people type
+      // the part they remember rather than the beginning.
+      expect(optionLabels()).toEqual(['Alan Turing', 'Linus Torvalds']);
+    });
+
+    it('narrows to one when the query is unambiguous', () => {
+      type('hey @grace');
+
+      expect(optionLabels()).toEqual(['Grace Hopper']);
+    });
+
+    it('takes a custom filter over the substring default', () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+      const prefixed = TestBed.createComponent(PrefixHost);
+      prefixed.detectChanges();
+
+      const el = (prefixed.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>('textarea')!;
+      el.value = 'hey @al';
+      el.selectionStart = el.selectionEnd = 7;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      prefixed.detectChanges();
+
+      // The same query, a prefix predicate: "TorvALds" no longer qualifies.
+      expect([...document.querySelectorAll<HTMLElement>('[role="option"]')].map(o => o.textContent.trim())).toEqual([
+        'Alan Turing',
+      ]);
+      prefixed.destroy();
+    });
+
+    it('matches without regard to case', () => {
+      type('hey @ADA');
+
+      expect(optionLabels()).toEqual(['Ada Lovelace']);
+    });
+
+    it('caps the list at maxResults', () => {
+      fixture.componentInstance.items.set(MANY);
+      fixture.detectChanges();
+
+      type('hey @Person');
+
+      // Twenty matches, eight shown. The cap is why this panel needs no
+      // virtualisation, and dropping it would put an unbounded list into the
+      // overlay.
+      expect(optionLabels()).toHaveLength(8);
+    });
+
+    it('respects a smaller cap', () => {
+      fixture.componentInstance.items.set(MANY);
+      fixture.componentInstance.maxResults.set(3);
+      fixture.detectChanges();
+
+      type('hey @Person');
+
+      expect(optionLabels()).toHaveLength(3);
+    });
+
+    it('closes again when nothing matches', () => {
+      type('hey @zzzz');
+
+      expect(listbox()).toBeNull();
+      expect(field().getAttribute('aria-activedescendant')).toBeNull();
+    });
+  });
+
+  describe('choosing', () => {
+    it('walks the list with the arrows', () => {
+      type('hey @');
+      const first = activeOption()!.textContent.trim();
+
+      press('ArrowDown');
+      expect(activeOption()!.textContent.trim()).not.toBe(first);
+
+      press('ArrowUp');
+      expect(activeOption()!.textContent.trim()).toBe(first);
+    });
+
+    it('commits on Enter and reports the trigger and query with the item', () => {
+      type('hey @al');
+      press('Enter');
+
+      const commit = fixture.componentInstance.committed();
+      // All three: the host needs the trigger to know WHICH kind of mention it
+      // was, and the query to know how much text to replace.
+      expect(commit?.item.label).toBe('Alan Turing');
+      expect(commit?.trigger).toBe('@');
+      expect(commit?.query).toBe('al');
+    });
+
+    it('inserts the mention into the field text', () => {
+      type('hey @al');
+      press('Enter');
+
+      expect(field().value).toContain('Alan Turing');
+      expect(field().value.startsWith('hey ')).toBe(true);
+    });
+
+    it('closes after committing', () => {
+      type('hey @al');
+      press('Enter');
+
+      expect(listbox()).toBeNull();
+      expect(field().getAttribute('aria-activedescendant')).toBeNull();
+    });
+
+    it('closes on Escape without committing', () => {
+      type('hey @al');
+      press('Escape');
+
+      expect(listbox()).toBeNull();
+      expect(fixture.componentInstance.committed()).toBeNull();
+    });
+
+    it('leaves Enter to the field when the panel is closed', () => {
+      type('just prose');
+      const event = press('Enter');
+
+      // A textarea's Enter is a newline. Swallowing it whenever the directive
+      // is attached would make the field unable to hold paragraphs.
+      expect(event.defaultPrevented).toBe(false);
+    });
+  });
+});
