@@ -422,7 +422,15 @@ theme is what makes ngwr a library people can bet on.
       panel keeps its `aria-activedescendant` targets — and `offsetParent` is
       not a visibility test in jsdom, which lays nothing out and reports null
       for everything.
-      **Remaining:** the rest of the components — twenty-four of eighty-one
+      The same audit was then run across the other multi-mode components.
+      `wr-popover` already exercises both of its shapes (`popover` and
+      `tooltip`); `wr-drawer` had no specs at all, so it got 14 — including all
+      four `position` values, which is a real mode axis rather than a style
+      flag: `bottom` is how the drawer doubles as a bottom sheet, and each side
+      lands its own `wr-drawer-overlay--*` class that consumer CSS targets.
+      Nothing broken there either, and its dismiss button was already resolving
+      its label correctly, so no repeat of the manager-path defect.
+      **Remaining:** the rest of the components — twenty-five of eighty-one
       have specs, and mode coverage inside them is its own axis.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
