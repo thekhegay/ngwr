@@ -1345,6 +1345,22 @@ theme is what makes ngwr a library people can bet on.
       `aria-hidden` and for going away with the directive, since it is a DOM node
       the directive appends by hand rather than a template element Angular cleans
       up.
+      **The flaky CI, properly diagnosed (2026-08-11)** — two red runs tonight,
+      both reporting `matchMedia must not be called during prerender` from
+      `WrPlatform.mediaSignal`, in files that never mention matchMedia. That
+      string is defined in exactly two places, both of them specs, and
+      `media.spec.ts` installed it with `vi.stubGlobal` and never took it back:
+      vitest only auto-restores globals when `unstubGlobals` is set, which this
+      suite does not set. So a throwing `matchMedia` outlived that file and killed
+      whichever file the worker picked up next — and since `WrPlatform` reads two
+      media queries in its FIELD INITIALIZERS, that is any spec mounting a
+      component that injects it. Tonight's additions made that most of them.
+      `platform.spec.ts` next door has called `vi.unstubAllGlobals()` in its
+      teardown all along, so the convention existed and one file sat outside it;
+      `media.spec.ts` does the same now. Reproducing it locally needs two files in
+      one worker, which the runner only does under load — the evidence is the
+      stack, the string's two definitions, and the sibling that already got it
+      right.
       **`wr-border-glow` and the window outputs (2026-08-11)** — the glow tracks
       the cursor with two numbers, an angle measured from the top clockwise and a
       proximity that is 0 at the centre and 1 at the perimeter, both written onto
