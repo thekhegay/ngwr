@@ -1099,7 +1099,33 @@ theme is what makes ngwr a library people can bet on.
       the same class of mistake as the calendar's `queueMicrotask`, and the spec
       reproduces it by putting the targets after the anchor in the host template,
       which is simply where they live in real markup.
-      **Remaining:** the rest of the components — sixty of eighty-one have
+      **`wr-empty`, `wr-spinner`, `wr-burger`, `wr-avatar` (2026-08-11)** — four
+      small components, four real bugs, and every one of them had its answer
+      already written somewhere else in the repo. `wr-empty` took an `icon` input
+      TYPED as a `WrIconName` and then ignored the name entirely: the template
+      drew a folder whatever you passed, so the library's own documented example,
+      `icon="search"`, rendered a folder. `<wr-alert>` had already solved this
+      exact problem with the right split — `icon` as a boolean toggle for the
+      built-in glyph, `iconName` delegating to `<wr-icon>` — so `wr-empty` now
+      matches it, and nothing that compiled before behaves differently
+      (`coerceBooleanProperty` reads any name as truthy, which is what "show the
+      folder" already meant).
+      That fix came with a second one visible only in a real browser: the two
+      branches of the same slot rendered at DIFFERENT sizes, 15px for the built-in
+      glyph against 18px for a delegated `<wr-icon>`, because the first is sized
+      by `.wr-icon__svg` at 1em and the second by `--wr-icon-size`. Alert's
+      stylesheet documents that trap in a comment, including the `color: inherit`
+      specificity fight; empty now carries the same two rules and both branches
+      measure 15px in the identical muted colour.
+      `wr-spinner` carried `aria-label="Loading"` as a hard-coded host attribute
+      while `spinner.label` sat translated in both shipped catalogs, unused — the
+      clearest form this recurring bug takes. `wr-burger` had the same string as
+      an input DEFAULT, overridable but never localised. And `wr-avatar` showed a
+      spinner until the image's `load` fired, with no `error` handler at all: a
+      broken URL spun forever, on top of the very initials that are projected for
+      that case. It falls back to them now, and a new URL after a failure is a new
+      attempt rather than a permanent fallback.
+      **Remaining:** the rest of the components — sixty-four of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
