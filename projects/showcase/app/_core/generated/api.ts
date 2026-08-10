@@ -26,6 +26,7 @@ export const API = {
     { name: "open", description: "Whether the sheet is open. Two-way.", type: "boolean", default: "false" },
     { name: "actions", description: "The rows to offer.", type: "readonly WrActionSheetAction[]", default: "[]" },
     { name: "title", description: "Optional bold heading above the rows.", type: "string", default: "''" },
+    { name: "titleFallback", description: "Name announced for the dialog when there is no visible `title`. Falls back to `actionSheet.label`, then `'Actions'` — it used to be that English string, written into the template of a component whose every other string comes from the caller.", type: "string | null", default: "null" },
     { name: "message", description: "Optional muted sub-heading under the title.", type: "string", default: "''" },
     { name: "(action)", description: "Fires with the chosen row (never fires on a dismiss).", type: "WrActionSheetAction" },
   ],
