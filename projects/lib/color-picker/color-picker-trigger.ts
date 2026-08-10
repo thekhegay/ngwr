@@ -50,7 +50,13 @@ import type { WrColorFormat } from './interfaces';
  */
 @Directive({
   selector: '[wrColorPickerTrigger]',
-  host: { '(click)': 'toggle()' },
+  host: {
+    '(click)': 'toggle()',
+    // The same two attributes `<wr-popover>`'s trigger carries: without them the
+    // button gave no hint that it opens anything, and never said it was open.
+    '[attr.aria-haspopup]': '"dialog"',
+    '[attr.aria-expanded]': 'isOpen()',
+  },
 })
 export class WrColorPickerTrigger {
   /** Two-way bindable colour value (hex string). */
@@ -81,7 +87,7 @@ export class WrColorPickerTrigger {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly isOpen = signal(false);
+  protected readonly isOpen = signal(false);
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
