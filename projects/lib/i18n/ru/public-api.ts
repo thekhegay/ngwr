@@ -156,8 +156,14 @@ export const wrRu: WrI18nCatalog = {
   anchor: {
     label: 'Содержание',
   },
+  avatar: {
+    alt: 'Аватар',
+  },
   backTop: {
     label: 'Наверх',
+  },
+  burger: {
+    label: 'Переключить меню',
   },
   calendar: {
     prevMonth: 'Предыдущий месяц',
