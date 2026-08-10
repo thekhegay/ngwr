@@ -145,6 +145,23 @@ export class WrFormField implements WrFormFieldContext {
    */
   readonly controlId = input<string>(`wr-form-field-${++uid}`);
 
+  // What a projected control reported it actually kept. `null` until one does — most
+  // controls simply adopt `controlId`, and only a control with its own `id` overrides
+  // it from the other direction.
+  private readonly adoptedId = signal<string | null>(null);
+
+  /**
+   * Id the `<label for>` renders. A control that came with its own `id` keeps it, so
+   * the label follows that instead of the generated one — otherwise `for` points at
+   * an element that is not in the document and the field is unlabelled.
+   */
+  protected readonly labelFor = computed(() => this.adoptedId() ?? this.controlId());
+
+  /** @internal `WrFormFieldContext` — see the token's docs. */
+  adoptControlId(id: string): void {
+    this.adoptedId.set(id);
+  }
+
   /**
    * Projected `NgControl` — used to read touched / dirty / errors.
    *

@@ -21,6 +21,15 @@ export interface WrFormFieldContext {
   readonly controlId: Signal<string>;
 
   /**
+   * The reverse direction, for the one case the paragraph above does not cover: a
+   * projected control that already carries its own `id` keeps it, and the label has
+   * to follow, or `for` names an element that does not exist and the field ends up
+   * with no label at all. Called during the control's construction, so the label's
+   * binding still resolves in the same render pass.
+   */
+  adoptControlId(id: string): void;
+
+  /**
    * Validator keys currently in error, once the control is touched or dirty.
    * Empty when the field is valid or has not been interacted with.
    */

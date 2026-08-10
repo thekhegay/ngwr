@@ -60,6 +60,13 @@ export class WrInput {
    */
   protected readonly resolvedId = computed(() => this.ownId ?? this.field?.controlId() ?? null);
 
+  constructor() {
+    // Tell the field which id actually stuck. Without this its `<label for>` keeps
+    // pointing at the generated id while this element answers to the author's own —
+    // a label referencing nothing, which is the same as having none.
+    if (this.ownId) this.field?.adoptControlId(this.ownId);
+  }
+
   /**
    * Announced state, taken from the surrounding `<wr-form-field>`.
    *
