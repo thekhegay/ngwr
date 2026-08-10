@@ -185,6 +185,7 @@ export const wrEn: WrI18nCatalog = {
     close: 'Close alert',
   },
   image: {
+    viewer: 'Image preview',
     open: 'Open preview',
     close: 'Close preview',
   },

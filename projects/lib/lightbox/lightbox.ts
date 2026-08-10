@@ -56,6 +56,9 @@ import { WR_OVERLAY } from 'ngwr/overlay';
 })
 export class WrLightbox {
   /** Accessible name. Falls back to `image.close`, then `'Close preview'`. */
+  /** Accessible name of the thumbnail button. Falls back to `alt`, then `image.open`. */
+  readonly openLabel = input<string | null>(null);
+
   readonly closeLabel = input<string | null>(null);
 
   protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'image.close', 'Close preview');
@@ -66,8 +69,31 @@ export class WrLightbox {
   /** Alt text. Required for a11y; falls back to an empty string. @default '' */
   readonly alt = input<string>('');
 
-  /** Optional preview src — shown until the full image loads. */
+  /**
+   * Lighter source for the THUMBNAIL — a small or blurred copy, so the grid does not
+   * pull full-size images. The viewer always shows `src`; the thumbnail does not swap
+   * to it later.
+   */
   readonly preview = input<string | null>(null);
+
+  // Both of these were hard-coded English literals in the template, next to a catalog
+  // that already carried `image.open` translated and unread. `useI18nText` already
+  // does the whole chain — a non-empty binding wins, then the catalog, then the
+  // English default — so the alt text (which describes the actual picture) is what
+  // gets forwarded, with `openLabel` ahead of it as the explicit override.
+  protected readonly resolvedOpenLabel = useI18nText(
+    computed(() => {
+      // Not `??`: an empty `openLabel` is no label at all, so it has to fall through
+      // to the alt text rather than winning as an empty string.
+      const explicit = this.openLabel();
+      if (explicit) return explicit;
+      return this.alt();
+    }),
+    'image.open',
+    'Open preview'
+  );
+
+  protected readonly resolvedViewerLabel = useI18nText(this.alt, 'image.viewer', 'Image preview');
 
   /** Disable the click-to-zoom lightbox. @default false */
   readonly disablePreview = input(false, { transform: coerceBooleanProperty });
@@ -170,7 +196,13 @@ export class WrLightbox {
     }
   }
 
-  protected onLoad(): void {
+  /**
+   * The thumbnail has settled, one way or the other. A failure counts: `--loading`
+   * animates a shimmer AND sets `opacity: 0` on the image, so a broken `src` with no
+   * error path left an invisible box shimmering for ever instead of showing its alt
+   * text.
+   */
+  protected onSettled(): void {
     this.loaded.set(true);
   }
 

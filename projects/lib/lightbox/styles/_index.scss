@@ -8,8 +8,10 @@
   position: relative;
   overflow: hidden;
   @include theme.smooth-br(var(--wr-lightbox-radius, var(--wr-border-radius-base)));
-  cursor: zoom-in;
   background: var(--wr-color-hover);
+  // No `cursor: zoom-in` here: `disablePreview` renders a plain thumbnail with no
+  // trigger and nothing to open, and the zoom cursor invited a click that did
+  // nothing. `&__trigger` carries it — that is the element that opens the viewer.
 
   // Reserve space before the image resolves so the box doesn't collapse to
   // 0 and shove the layout when the thumbnail pops in.

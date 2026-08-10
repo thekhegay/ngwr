@@ -673,10 +673,11 @@ export const API = {
   ],
   // <wr-lightbox>
   WrLightbox: [
-    { name: "closeLabel", description: "Accessible name. Falls back to `image.close`, then `'Close preview'`.", type: "string | null", default: "null" },
+    { name: "openLabel", description: "Accessible name of the thumbnail button. Falls back to `alt`, then `image.open`.", type: "string | null", default: "null" },
+    { name: "closeLabel", description: "—", type: "string | null", default: "null" },
     { name: "src", description: "Image source.", type: "string", required: true },
     { name: "alt", description: "Alt text. Required for a11y; falls back to an empty string.", type: "string", default: "''" },
-    { name: "preview", description: "Optional preview src — shown until the full image loads.", type: "string | null", default: "null" },
+    { name: "preview", description: "Lighter source for the THUMBNAIL — a small or blurred copy, so the grid does not pull full-size images. The viewer always shows `src`; the thumbnail does not swap to it later.", type: "string | null", default: "null" },
     { name: "disablePreview", description: "Disable the click-to-zoom lightbox.", type: "boolean", default: "false" },
     { name: "caption", description: "Caption shown under the full image in the lightbox.", type: "string", default: "''" },
     { name: "aspectRatio", description: "Reserve space before the image resolves by fixing the thumbnail's `aspect-ratio` (e.g. `'16 / 9'`, `'4 / 3'`, or a number like `1.5`). Prevents the layout jump when the intrinsic image size isn't known up front — pair it with a `width` and the box keeps its height from first paint.", type: "string | number | null", default: "null" },
