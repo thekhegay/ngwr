@@ -1,6 +1,6 @@
 <div class="wr-bar-chart__plot" [style.height.px]="height()">
   @for (bar of bars(); track $index) {
-    <div class="wr-bar-chart__column">
+    <div class="wr-bar-chart__column" role="img" [attr.aria-label]="bar.name">
       @if (showValues()) {
         <span class="wr-bar-chart__value">{{ bar.value }}</span>
       }
@@ -8,7 +8,8 @@
     </div>
   }
 </div>
-<div class="wr-bar-chart__labels">
+<!-- Named on the column above, so the visible label row is decoration here. -->
+<div class="wr-bar-chart__labels" aria-hidden="true">
   @for (bar of bars(); track $index) {
     <span class="wr-bar-chart__label">{{ bar.label }}</span>
   }
