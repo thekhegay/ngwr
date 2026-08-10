@@ -319,7 +319,7 @@ export const API = {
   ],
   // <wr-counter>
   WrCounter: [
-    { name: "value", description: "Target value.", type: "number", required: true },
+    { name: "value", description: "The number to show. Coerced like every other numeric input here — it was the only one without it, and `Intl.NumberFormat().format(NaN)` renders the literal text `NaN`.", type: "number, unknown", required: true },
     { name: "mode", description: "Animation mode.", type: "WrCounterMode", default: "'odometer'" },
     { name: "duration", description: "Duration (ms).", type: "number", default: "900" },
     { name: "decimals", description: "Fixed number of decimals.", type: "number", default: "0" },
