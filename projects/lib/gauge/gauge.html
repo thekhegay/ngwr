@@ -10,11 +10,12 @@
   [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-valuemin]="min()"
   [attr.aria-valuemax]="max()"
-  [attr.aria-valuenow]="value()"
-  [attr.aria-valuetext]="value() + suffix()"
+  [attr.aria-valuenow]="displayValue()"
+  [attr.aria-valuetext]="displayValue() + suffix()"
 >
   <svg [attr.viewBox]="viewBox" aria-hidden="true">
     <path
+      class="wr-gauge__track"
       [attr.d]="trackPath()"
       fill="none"
       [attr.stroke]="trackColor()"
@@ -22,6 +23,7 @@
       stroke-linecap="round"
     />
     <path
+      class="wr-gauge__value"
       [attr.d]="valuePath()"
       fill="none"
       [attr.stroke]="valueColor()"
@@ -31,7 +33,7 @@
   </svg>
   @if (showValue()) {
     <div class="wr-gauge__text">
-      {{ value() }}<span class="wr-gauge__suffix">{{ suffix() }}</span>
+      {{ displayValue() }}<span class="wr-gauge__suffix">{{ suffix() }}</span>
     </div>
   }
 </div>
