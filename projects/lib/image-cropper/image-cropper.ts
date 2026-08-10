@@ -130,6 +130,11 @@ export class WrImageCropper {
         URL.revokeObjectURL(this.previousObjectUrl);
         this.previousObjectUrl = null;
       }
+      // The crop is measured against the image that WAS showing, and `cropRect` is a
+      // public signal a consumer can read at any moment. Left in place it kept
+      // reporting a rect scaled to the previous image for the whole gap between a new
+      // `src` and its load event — long enough to crop the wrong thing.
+      this.resetGeometry();
       if (!src) {
         this.objectUrl.set(null);
         return;
@@ -149,6 +154,21 @@ export class WrImageCropper {
   }
 
   // Image load
+
+  /**
+   * Back to "nothing measured yet", which is also what an absent `src` means.
+   *
+   * `display` is the field that gates everything downstream — the crop UI renders on
+   * `display().w > 0` and `cropRect` returns zeros without it — so it is the only one
+   * a test can observe. The other two are reset for coherence: anything that learns to
+   * set `display` from elsewhere (a resize observer is the obvious candidate for this
+   * component) would otherwise resurrect a crop measured against the previous image.
+   */
+  private resetGeometry(): void {
+    this.natural.set({ w: 0, h: 0 });
+    this.display.set({ w: 0, h: 0 });
+    this.cropDisplay.set({ x: 0, y: 0, w: 0, h: 0 });
+  }
 
   protected onImageLoad(): void {
     const img = this.imgEl().nativeElement;
@@ -188,6 +208,9 @@ export class WrImageCropper {
   protected readonly handles: readonly WrCropHandle[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
   protected onPointerDown(handle: WrCropHandle, event: PointerEvent): void {
+    // Any pointerdown used to start a drag, so the right button moved the crop window and
+    // a second finger could take over a drag already in progress.
+    if (event.button !== 0 || !event.isPrimary) return;
     event.preventDefault();
     event.stopPropagation();
     this.active = handle;
