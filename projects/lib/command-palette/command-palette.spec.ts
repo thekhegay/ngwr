@@ -75,13 +75,20 @@ describe('WrCommandPalette', () => {
   };
 
   beforeEach(() => {
+    // jsdom does not implement `scrollIntoView` at all, so the component's call
+    // would throw. Teaching the prototype about it here keeps production code free
+    // of a guard that exists only for the test environment.
+    Element.prototype.scrollIntoView = (): undefined => undefined;
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
   });
 
-  afterEach(() => fixture.destroy());
+  afterEach(() => {
+    fixture.destroy();
+    delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
 
   it('renders the commands grouped, in the order the groups first appear', () => {
     expect(labels()).toEqual(['Open file', 'Save file', 'Undo']);
@@ -198,6 +205,51 @@ describe('WrCommandPalette', () => {
   it('leaves keys it does not own alone', () => {
     const event = press('a');
     expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('puts the caret in the search box once the panel exists', async () => {
+    // Deferred with `queueMicrotask`, which AGENTS.md warns about — but the warning
+    // is about a microtask queued from an EVENT HANDLER, where change detection is
+    // still a pending macrotask. This one is queued from an effect that already runs
+    // inside change detection, so it lands after the panel is in the DOM. Pinned
+    // because the distinction is easy to lose in a refactor.
+    fixture.componentInstance.open.set(false);
+    fixture.detectChanges();
+    fixture.componentInstance.open.set(true);
+    fixture.detectChanges();
+
+    await Promise.resolve();
+    expect(document.activeElement).toBe(input());
+  });
+
+  it('keeps the highlighted option on screen', () => {
+    // The body is a fixed-height scroller and the options are not focusable, so the
+    // browser moves nothing on its own: the arrows used to walk the highlight off
+    // the bottom edge and out of sight.
+    const spies = options().map(el => {
+      const spy = vi.fn();
+      el.scrollIntoView = spy;
+      return spy;
+    });
+
+    press('ArrowDown');
+    expect(spies[1]).toHaveBeenCalledWith({ block: 'nearest' });
+    expect(spies[0]).not.toHaveBeenCalled();
+
+    press('End');
+    expect(spies[2]).toHaveBeenCalled();
+  });
+
+  it('leaves the scroll position alone when the pointer is what moved', () => {
+    // Scrolling on hover would fight the pointer that caused the hover.
+    const spy = vi.fn();
+    options()[2].scrollIntoView = spy;
+
+    options()[2].dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(activeIndex()).toBe(2);
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('owns only children a listbox is allowed to own', () => {
