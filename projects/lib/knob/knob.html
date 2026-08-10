@@ -5,6 +5,7 @@
   [attr.aria-valuemin]="min()"
   [attr.aria-valuemax]="max()"
   [attr.aria-valuenow]="value()"
+  [attr.aria-readonly]="readonly() || null"
   [attr.aria-disabled]="disabled() || null"
   [attr.tabindex]="interactive() ? 0 : -1"
   [style.width.px]="size()"
@@ -14,6 +15,7 @@
   (pointerup)="onPointerUp($event)"
   (pointercancel)="onPointerUp($event)"
   (keydown)="onKeydown($event)"
+  (blur)="onBlur()"
 >
   <svg viewBox="0 0 100 100" aria-hidden="true">
     <path
