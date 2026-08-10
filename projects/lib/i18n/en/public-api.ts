@@ -147,6 +147,7 @@ export const wrEn: WrI18nCatalog = {
     tooBig: 'File too large',
   },
   popconfirm: {
+    label: 'Confirm action',
     confirm: 'Confirm',
     cancel: 'Cancel',
   },

@@ -25,6 +25,9 @@ import type { WrColor } from 'ngwr/theme';
 })
 export class WrPopconfirmPanel {
   readonly message = input.required<string>();
+
+  /** Id the anchoring directive points `aria-describedby` at. */
+  readonly messageId = input<string | null>(null);
   readonly confirmText = input<string>('Confirm');
   readonly cancelText = input<string>('Cancel');
   readonly confirmColor = input<WrColor>('primary');

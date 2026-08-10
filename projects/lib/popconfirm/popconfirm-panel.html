@@ -1,4 +1,4 @@
-<p class="wr-popconfirm__message">{{ message() }}</p>
+<p class="wr-popconfirm__message" [attr.id]="messageId()">{{ message() }}</p>
 
 <div class="wr-popconfirm__actions">
   <wr-btn size="sm" (click)="cancelled.emit()">{{ cancelText() }}</wr-btn>
