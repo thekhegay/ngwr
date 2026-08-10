@@ -293,6 +293,7 @@ export const API = {
   // <wr-compare>
   WrCompare: [
     { name: "position", description: "Divider position as a percentage (0–100). Two-way bindable.", type: "number", default: "50" },
+    { name: "ariaLabel", description: "Accessible name of the divider. Falls back to `compare.label`.", type: "string | null", default: "null" },
     { name: "orientation", description: "Divider direction: - `'horizontal'` — divider line is vertical, drags left/right. - `'vertical'` — divider line is horizontal, drags up/down.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
     { name: "showHandle", description: "Show the round drag handle on the divider.", type: "boolean", default: "true" },
     { name: "disabled", description: "Disable interaction (divider stays put).", type: "boolean", default: "false" },
