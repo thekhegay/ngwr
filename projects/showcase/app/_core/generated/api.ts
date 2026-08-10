@@ -265,7 +265,7 @@ export const API = {
   WrColorPicker: [
     { name: "alpha", description: "Render the alpha slider and emit 8-digit hex / `rgba()`.", type: "boolean", default: "true" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
-    { name: "format", description: "Output format produced by the control.", type: "WrColorFormat", default: "'hex'" },
+    { name: "format", description: "Format the control writes into `value`. See {@link WrColorFormat} — all three are accepted on the way in whichever one is set.", type: "WrColorFormat", default: "'hex'" },
     { name: "swatches", description: "Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row.", type: "readonly string[]", default: "[]" },
     { name: "value", description: "The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
