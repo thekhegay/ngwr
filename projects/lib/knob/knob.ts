@@ -161,9 +161,17 @@ export class WrKnob implements FormValueControl<number> {
 
   protected onPointerDown(event: PointerEvent): void {
     if (!this.interactive()) return;
+    // Any pointerdown used to start a drag, so the right button turned the dial;
+    // the same guard keeps a second finger out of a drag already in progress.
+    if (event.button !== 0 || !event.isPrimary) return;
     event.preventDefault();
     this.dragging = true;
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    const surface = event.currentTarget as HTMLElement;
+    surface.setPointerCapture(event.pointerId);
+    // `preventDefault` above also suppresses the click's default focus, so the
+    // arrows did nothing after a mouse drag until the dial was found again with
+    // Tab. `wr-slider` focuses its thumb for the same reason.
+    surface.focus();
     this.updateFromPointer(event);
   }
 

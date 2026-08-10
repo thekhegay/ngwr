@@ -71,11 +71,15 @@ describe('WrKnob', () => {
    * `getBoundingClientRect()` all zeros the dial's centre is the origin, so a
    * point straight up is dead centre of the 270° arc.
    */
-  const drag = (clientX: number, clientY: number): void => {
+  const drag = (clientX: number, clientY: number, { button = 0, isPrimary = true } = {}): void => {
     const el = surface();
     el.setPointerCapture = () => undefined;
     el.releasePointerCapture = () => undefined;
-    el.dispatchEvent(new MouseEvent('pointerdown', { clientX, clientY, bubbles: true, cancelable: true }));
+    const event = new MouseEvent('pointerdown', { clientX, clientY, bubbles: true, cancelable: true, button });
+    // `isPrimary` does not exist on `MouseEvent`, and reading it as `undefined`
+    // would make the primary-pointer guard reject every synthetic event.
+    Object.defineProperty(event, 'isPrimary', { value: isPrimary });
+    el.dispatchEvent(event);
     fixture.detectChanges();
   };
 
@@ -335,6 +339,22 @@ describe('WrKnob', () => {
     drag(0, -100);
     expect(value()).toBe(50);
     expect(surface().getAttribute('aria-valuenow')).toBe('50');
+  });
+
+  it('takes focus when the pointer grabs the dial', () => {
+    // `pointerdown` is prevented so the drag does not select text, which also
+    // suppresses the click's default focus — leaving the arrows dead until the dial
+    // was reached again with Tab.
+    drag(0, -100);
+    expect(document.activeElement).toBe(surface());
+  });
+
+  it('ignores a press that is not the primary button or pointer', () => {
+    drag(0, -100, { button: 2 });
+    expect(value()).toBe(0);
+
+    drag(0, -100, { isPrimary: false });
+    expect(value()).toBe(0);
   });
 
   it('ignores a drag when it is not interactive', () => {
