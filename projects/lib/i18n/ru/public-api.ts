@@ -173,6 +173,7 @@ export const wrRu: WrI18nCatalog = {
     close: 'Закрыть оповещение',
   },
   image: {
+    viewer: 'Просмотр изображения',
     open: 'Открыть превью',
     close: 'Закрыть превью',
   },

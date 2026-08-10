@@ -3,17 +3,19 @@
     class="wr-lightbox__thumb"
     [src]="preview() || src()"
     [alt]="alt()"
-    (load)="onLoad()"
+    (load)="onSettled()"
+    (error)="onSettled()"
     loading="lazy"
     decoding="async"
   />
 } @else {
-  <button type="button" class="wr-lightbox__trigger" [attr.aria-label]="alt() || 'Open preview'" (click)="onClick()">
+  <button type="button" class="wr-lightbox__trigger" [attr.aria-label]="resolvedOpenLabel()" (click)="onClick()">
     <img
       class="wr-lightbox__thumb"
       [src]="preview() || src()"
       [alt]="alt()"
-      (load)="onLoad()"
+      (load)="onSettled()"
+      (error)="onSettled()"
       loading="lazy"
       decoding="async"
     />
@@ -26,7 +28,7 @@
     class="wr-lightbox-viewer"
     role="dialog"
     aria-modal="true"
-    [attr.aria-label]="alt() || 'Image preview'"
+    [attr.aria-label]="resolvedViewerLabel()"
     (touchstart)="onViewerSwipeStart($event)"
     (touchmove)="onViewerSwipeMove($event, viewer)"
     (touchend)="onViewerSwipeEnd($event, viewer)"
@@ -55,7 +57,14 @@
         <path d="m6 6 12 12" />
       </svg>
     </button>
-    <img class="wr-lightbox-viewer__full" [src]="src()" [alt]="alt()" />
+    <!--
+      Styled `cursor: zoom-out`, which is a promise: clicking the image closes. A
+      REDUNDANT mouse affordance — the close button, Escape, the backdrop and
+      swipe-down all do the same thing and all reach a keyboard — so the image stays
+      out of the tab order rather than becoming a second close stop.
+    -->
+    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
+    <img class="wr-lightbox-viewer__full" [src]="src()" [alt]="alt()" (click)="onClose()" />
     @if (caption()) {
       <div class="wr-lightbox-viewer__caption">{{ caption() }}</div>
     }
