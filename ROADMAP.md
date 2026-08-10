@@ -430,7 +430,26 @@ theme is what makes ngwr a library people can bet on.
       lands its own `wr-drawer-overlay--*` class that consumer CSS targets.
       Nothing broken there either, and its dismiss button was already resolving
       its label correctly, so no repeat of the manager-path defect.
-      **Remaining:** the rest of the components — twenty-five of eighty-one
+      `wr-event-calendar` brought 18, aimed at the two rules its own template
+      comment spells out. The structural one: a chip lives INSIDE the
+      `role="gridcell"` it starts in and reaches out with a `calc()` width — a
+      floating events layer is simpler and would leave `role="row"` owning
+      something that is not a cell, which the axe gate rejects. The behavioural
+      one: `events` is an input the component NEVER mutates, so a drag or an
+      `Alt` + arrow emits `eventChange` and the host applies it — an unhandled
+      output is a cancelled drag, and the array must come back IDENTICAL rather
+      than merely equal. Both are easy to "improve" into something that looks
+      better and is wrong, and neither shows up on screen when broken.
+      Three of the first assertions were wrong about the component rather than
+      the reverse, and each is worth knowing: `role="rowheader"` is a legitimate
+      row child (the time gutter labels its row); a DAY holds more cells than a
+      month, because it is a grid of half-hour slots, so "narrower" has to be
+      measured in date columns; and `editable` defaults to false, so the move
+      path is refused until it is switched on — which meant the
+      "never mutates" spec was passing without running the code it described.
+      A surviving mutation then caught the missing half: nothing asserted the
+      REFUSAL in a read-only calendar. It does now.
+      **Remaining:** the rest of the components — twenty-six of eighty-one
       have specs, and mode coverage inside them is its own axis.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
