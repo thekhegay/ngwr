@@ -28,6 +28,42 @@ class Host {
   readonly size = signal<unknown>(null);
 }
 
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="multi" placeholder="Pick sizes" ariaLabel="Sizes" [(value)]="sizes">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+      <wr-option value="lg">Large</wr-option>
+    </wr-select>
+  `,
+})
+class MultiHost {
+  readonly sizes = signal<unknown>([]);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" placeholder="Find a size" ariaLabel="Size" [(value)]="size">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+      <wr-option value="lg">Large</wr-option>
+    </wr-select>
+  `,
+})
+class SearchHost {
+  readonly size = signal<unknown>(null);
+}
+
+@Component({
+  imports: [WrSelect],
+  template: `<wr-select mode="tag" placeholder="Add tags" ariaLabel="Tags" [(value)]="tags" />`,
+})
+class TagHost {
+  readonly tags = signal<unknown>([]);
+}
+
 describe('WrSelect', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -148,5 +184,256 @@ describe('WrSelect', () => {
   it('carries the public BEM classes', () => {
     expect(root().querySelector('.wr-select')).toBeTruthy();
     expect(trigger().classList.contains('wr-select__trigger')).toBe(true);
+  });
+});
+
+/**
+ * `[mode]` picks one of four value shapes, and until now every spec above ran in
+ * the default `single`. That gap is the reason this block exists: the sibling
+ * `wr-date-picker` shipped a real bug for months in the one MODE its suite never
+ * entered, while the covered modes stayed green.
+ */
+describe('WrSelect in multi mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<MultiHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const trigger = (): HTMLElement => root().querySelector<HTMLElement>('.wr-select__trigger')!;
+  const options = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const chips = (): string[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-select__chip-label')].map(c => c.textContent.trim());
+  const picked = (): unknown => fixture.componentInstance.sizes();
+
+  const open = (): void => {
+    trigger().click();
+    fixture.detectChanges();
+  };
+  const choose = (index: number): void => {
+    options()[index].click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(MultiHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('announces that several options may be chosen', () => {
+    open();
+    expect(document.querySelector('[role="listbox"]')!.getAttribute('aria-multiselectable')).toBe('true');
+  });
+
+  it('collects an ARRAY and stays open between picks', () => {
+    open();
+    choose(0);
+
+    // Closing after the first pick is the single-mode behaviour and would make
+    // choosing a second value take a second trip through the trigger.
+    expect(options().length).toBeGreaterThan(0);
+    choose(2);
+
+    expect(picked()).toEqual(['sm', 'lg']);
+  });
+
+  it('deselects on a second click', () => {
+    open();
+    choose(1);
+    choose(1);
+
+    expect(picked()).toEqual([]);
+  });
+
+  it('shows a chip per selected value, in selection order', () => {
+    open();
+    choose(2);
+    choose(0);
+
+    expect(chips()).toEqual(['Large', 'Small']);
+  });
+
+  it('marks every selected option, not just the last', () => {
+    open();
+    choose(0);
+    choose(1);
+
+    expect(options().map(o => o.getAttribute('aria-selected'))).toEqual(['true', 'true', 'false']);
+  });
+
+  it('removes a value from its chip', () => {
+    open();
+    choose(0);
+    choose(1);
+    trigger().click(); // close, so the chips are the only surface
+    fixture.detectChanges();
+
+    root().querySelector<HTMLElement>('.wr-select__chip-remove')!.click();
+    fixture.detectChanges();
+
+    expect(picked()).toEqual(['md']);
+  });
+
+  it('renders chips for a value written from outside', () => {
+    fixture.componentInstance.sizes.set(['md', 'lg']);
+    fixture.detectChanges();
+
+    expect(chips()).toEqual(['Medium', 'Large']);
+  });
+
+  it('carries the multi modifier class', () => {
+    expect(root().querySelector('wr-select')!.className).toContain('wr-select--multi');
+  });
+});
+
+describe('WrSelect in search mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SearchHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  /**
+   * An option that does not match hides itself with `wr-option--hidden` rather
+   * than leaving the DOM, so the panel keeps its `aria-activedescendant`
+   * targets. `offsetParent` is useless here — jsdom lays nothing out and
+   * reports null for everything.
+   */
+  const visibleOptions = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')]
+      .filter(o => !o.classList.contains('wr-option--hidden'))
+      .map(o => o.textContent.trim());
+
+  const type = (text: string): void => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(SearchHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('puts a real text field on the trigger', () => {
+    // Search mode replaces the button with an input — a `combobox` the user
+    // types into, not one they only open.
+    expect(field()).not.toBeNull();
+    expect(field().getAttribute('role')).toBe('combobox');
+  });
+
+  it('opens the panel as soon as typing starts', () => {
+    field().click();
+    fixture.detectChanges();
+    type('la');
+
+    expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+  });
+
+  it('narrows the options to what was typed', () => {
+    field().click();
+    fixture.detectChanges();
+    type('la');
+
+    expect(visibleOptions()).toEqual(['Large']);
+  });
+
+  it('shows everything again when the query is cleared', () => {
+    field().click();
+    fixture.detectChanges();
+    type('la');
+    type('');
+
+    expect(visibleOptions()).toHaveLength(3);
+  });
+
+  it('matches without regard to case', () => {
+    field().click();
+    fixture.detectChanges();
+    type('SMALL');
+
+    expect(visibleOptions()).toEqual(['Small']);
+  });
+
+  it('carries the search modifier class', () => {
+    expect(root().querySelector('wr-select')!.className).toContain('wr-select--search');
+  });
+});
+
+describe('WrSelect in tag mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TagHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input')!;
+  const chips = (): string[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-select__chip-label')].map(c => c.textContent.trim());
+  const tags = (): unknown => fixture.componentInstance.tags();
+
+  const enter = (text: string): void => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TagHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('commits free text as a tag on Enter', () => {
+    enter('angular');
+
+    expect(tags()).toEqual(['angular']);
+    expect(chips()).toEqual(['angular']);
+  });
+
+  it('clears the field after committing, ready for the next one', () => {
+    enter('angular');
+
+    // Left behind, the text is committed again on the next Enter.
+    expect(field().value).toBe('');
+  });
+
+  it('collects several tags in order', () => {
+    enter('angular');
+    enter('signals');
+
+    expect(tags()).toEqual(['angular', 'signals']);
+  });
+
+  it('ignores an empty commit', () => {
+    enter('   ');
+
+    expect(tags()).toEqual([]);
+  });
+
+  it('removes a tag from its chip', () => {
+    enter('angular');
+    enter('signals');
+
+    root().querySelector<HTMLElement>('.wr-select__chip-remove')!.click();
+    fixture.detectChanges();
+
+    expect(tags()).toEqual(['signals']);
+  });
+
+  it('renders chips for tags written from outside', () => {
+    fixture.componentInstance.tags.set(['a', 'b']);
+    fixture.detectChanges();
+
+    expect(chips()).toEqual(['a', 'b']);
+  });
+
+  it('carries the tag modifier class', () => {
+    expect(root().querySelector('wr-select')!.className).toContain('wr-select--tag');
   });
 });
