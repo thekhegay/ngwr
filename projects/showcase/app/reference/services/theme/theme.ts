@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrSegmented } from 'ngwr/segmented';
 import { WrTheme } from 'ngwr/theme';
@@ -16,15 +15,7 @@ import {
 @Component({
   selector: 'ngwr-svc-theme-page',
   templateUrl: './theme.html',
-  imports: [
-    FormsModule,
-    WrSegmented,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrSegmented, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class ThemeServicePageComponent {
   protected readonly themeService = inject(WrTheme);
@@ -35,8 +26,9 @@ export default class ThemeServicePageComponent {
     { label: 'auto', value: 'auto' },
   ] as const;
 
-  protected setTheme(mode: 'light' | 'dark' | 'auto'): void {
-    this.themeService.set(mode);
+  protected setTheme(mode: 'light' | 'dark' | 'auto' | null): void {
+    // `wr-segmented` can publish `null` for "nothing selected", which is not a theme.
+    if (mode) this.themeService.set(mode);
   }
 
   protected readonly snippets = {

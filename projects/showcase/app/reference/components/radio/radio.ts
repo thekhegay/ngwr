@@ -37,21 +37,21 @@ import { FormsModule } from '@angular/forms';
 
 @Component({ imports: [WrRadio, WrRadioGroup, FormsModule] })
 export class MyComponent {}`,
-    basic: `<wr-radio-group [(ngModel)]="size">
+    basic: `<wr-radio-group [(value)]="size">
   <wr-radio value="sm">Small</wr-radio>
   <wr-radio value="md">Medium</wr-radio>
   <wr-radio value="lg">Large</wr-radio>
 </wr-radio-group>`,
-    plans: `<wr-radio-group [(ngModel)]="plan">
+    plans: `<wr-radio-group [(value)]="plan">
   <wr-radio value="starter">Starter — $0/mo</wr-radio>
   <wr-radio value="pro">Pro — $9/mo</wr-radio>
   <wr-radio value="enterprise">Enterprise — custom</wr-radio>
 </wr-radio-group>`,
-    disabled: `<wr-radio-group [disabled]="true" [(ngModel)]="size">
+    disabled: `<wr-radio-group [disabled]="true" [(value)]="size">
   <wr-radio value="sm">Small</wr-radio>
   <wr-radio value="md">Medium</wr-radio>
 </wr-radio-group>`,
-    disabledOption: `<wr-radio-group [(ngModel)]="size">
+    disabledOption: `<wr-radio-group [(value)]="size">
   <wr-radio value="sm">Small</wr-radio>
   <wr-radio value="md">Medium</wr-radio>
   <wr-radio value="lg" disabled>Large</wr-radio>

@@ -33,7 +33,7 @@ export default class SwitchPageComponent {
 
 @Component({ imports: [WrSwitch, FormsModule] })
 export class MyComponent {}`,
-    basic: `<wr-switch [(ngModel)]="enabled">Notifications</wr-switch>`,
+    basic: `<wr-switch [(checked)]="enabled">Notifications</wr-switch>`,
     disabled: `<wr-switch [disabled]="true">Disabled</wr-switch>`,
   };
 

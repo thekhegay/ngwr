@@ -54,12 +54,12 @@ export class MyComponent {
   protected readonly color = signal('#3969e2');
 }`,
 
-    basic: `<wr-color-picker [(ngModel)]="color" />`,
+    basic: `<wr-color-picker [(value)]="color" />`,
 
-    opaque: `<wr-color-picker [(ngModel)]="color" [alpha]="false" />`,
+    opaque: `<wr-color-picker [(value)]="color" [alpha]="false" />`,
 
     swatches: `<wr-color-picker
-  [(ngModel)]="color"
+  [(value)]="color"
   [swatches]="['#3969e2', '#f51c6a', '#00a400', '#ffba00', '#fa383e', '#cbd5e1', '#8594a4', '#0f172a']"
 />`,
 

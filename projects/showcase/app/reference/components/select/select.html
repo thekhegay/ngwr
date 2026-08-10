@@ -11,7 +11,7 @@
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
-        <wr-select placeholder="Pick a size" [(ngModel)]="size">
+        <wr-select placeholder="Pick a size" [(value)]="size">
           <wr-option value="sm">Small</wr-option>
           <wr-option value="md">Medium</wr-option>
           <wr-option value="lg">Large</wr-option>
@@ -27,7 +27,7 @@
   >
     <ngwr-doc-snippet code='<wr-select responsive placeholder="Pick a size">…</wr-select>'>
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
-        <wr-select responsive placeholder="Pick a size" [(ngModel)]="respSize">
+        <wr-select responsive placeholder="Pick a size" [(value)]="respSize">
           <wr-option value="sm">Small</wr-option>
           <wr-option value="md">Medium</wr-option>
           <wr-option value="lg">Large</wr-option>
@@ -43,7 +43,7 @@
   <ngwr-doc-section title="Groups" description="Use <wr-option-group> to label sections of related options.">
     <ngwr-doc-snippet [code]="snippets.groups">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
-        <wr-select [(ngModel)]="framework">
+        <wr-select [(value)]="framework">
           <wr-option-group label="Frontend">
             <wr-option value="angular">Angular</wr-option>
             <wr-option value="react">React</wr-option>
@@ -73,7 +73,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.multi">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select mode="multi" placeholder="Pick tags" [(ngModel)]="tags">
+        <wr-select mode="multi" placeholder="Pick tags" [(value)]="tags">
           <wr-option value="typescript">TypeScript</wr-option>
           <wr-option value="angular">Angular</wr-option>
           <wr-option value="rxjs">RxJS</wr-option>
@@ -90,7 +90,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.multiOverflow">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(ngModel)]="manyTags">
+        <wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(value)]="manyTags">
           <wr-option value="typescript">TypeScript</wr-option>
           <wr-option value="angular">Angular</wr-option>
           <wr-option value="rxjs">RxJS</wr-option>
@@ -109,7 +109,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.search">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select mode="search" placeholder="Search a country" [(ngModel)]="country">
+        <wr-select mode="search" placeholder="Search a country" [(value)]="country">
           @for (c of countries; track c) {
             <wr-option [value]="c">{{ c }}</wr-option>
           }
@@ -127,7 +127,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.searchableMulti">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select mode="multi" searchable placeholder="Filter categories" [(ngModel)]="categories">
+        <wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
           @for (c of allCategories; track c) {
             <wr-option [value]="c">{{ c }}</wr-option>
           }
@@ -153,7 +153,7 @@
           placeholder="Search a country"
           [options]="serverResults()"
           [loading]="serverPending()"
-          [(ngModel)]="serverPicked"
+          [(value)]="serverPicked"
           (searchChange)="onServerSearch($event)"
         />
         <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
@@ -175,7 +175,7 @@
           virtualScroll
           placeholder="Search 5,000 items"
           [options]="bigOptions"
-          [(ngModel)]="bigPick"
+          [(value)]="bigPick"
         />
         <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
           Picked: <code>{{ bigPick() ?? '—' }}</code>
@@ -190,13 +190,13 @@
   >
     <ngwr-doc-snippet [code]="snippets.tag">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
-        <wr-select mode="tag" placeholder="Add a tag" [(ngModel)]="tags" />
+        <wr-select mode="tag" placeholder="Add a tag" [(value)]="tags" />
         <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ tags() | json }}</span>
 
         <wr-select
           mode="tag"
           placeholder="Add an email and press Enter or ,"
-          [(ngModel)]="recipients"
+          [(value)]="recipients"
           [separators]="['Enter', ',', ' ']"
           [validate]="isEmail"
           [maxItems]="5"

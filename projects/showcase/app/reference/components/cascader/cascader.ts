@@ -95,7 +95,7 @@ export default class CascaderPage {
 
   protected readonly snippets = {
     install: `import { WrCascader, type WrCascaderOption } from 'ngwr/cascader';`,
-    basic: `<wr-cascader [options]="locations" [(ngModel)]="picked" placeholder="Pick a location" />
+    basic: `<wr-cascader [options]="locations" [(value)]="picked" placeholder="Pick a location" />
 
 locations: WrCascaderOption[] = [
   {
@@ -110,7 +110,7 @@ locations: WrCascaderOption[] = [
 ];`,
     changeOnSelect: `<wr-cascader
   [options]="locations"
-  [(ngModel)]="picked"
+  [(value)]="picked"
   changeOnSelect
   placeholder="Pick any level"
 />`,

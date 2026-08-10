@@ -10,12 +10,12 @@
 
   <ngwr-doc-section
     title="Basic"
-    description="Drag the canvas, hue strip, alpha strip. Switch HEX / RGB / HSL tabs. Bound through `[(ngModel)]`."
+    description="Drag the canvas, hue strip, alpha strip. Switch HEX / RGB / HSL tabs. Bound through `[(value)]`."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 1rem; align-items: flex-start">
-        <wr-color-picker [(ngModel)]="basic" />
+        <wr-color-picker [(value)]="basic" />
         <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem">
           <span
             >Value: <code>{{ basic() }}</code></span
@@ -41,7 +41,7 @@
   >
     <ngwr-doc-code [code]="snippets.opaque" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-color-picker [(ngModel)]="opaque" [alpha]="false" />
+      <wr-color-picker [(value)]="opaque" [alpha]="false" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -51,7 +51,7 @@
   >
     <ngwr-doc-code [code]="snippets.swatches" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-color-picker [(ngModel)]="branded" [swatches]="palette" />
+      <wr-color-picker [(value)]="branded" [swatches]="palette" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

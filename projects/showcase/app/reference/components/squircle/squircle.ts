@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrSlider } from 'ngwr/slider';
 import { WrSquircle, WrSquircleHost } from 'ngwr/squircle';
@@ -17,7 +16,6 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-squircle-page',
   templateUrl: './squircle.html',
   imports: [
-    FormsModule,
     WrSlider,
     WrSquircle,
     WrSquircleHost,

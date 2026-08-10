@@ -30,7 +30,7 @@
             <input wrInput type="password" [ngModel]="signupConfirm()" (ngModelChange)="signupConfirm.set($event)" />
           </wr-form-field>
           <div class="ngwr-cbento__signin-row">
-            <wr-checkbox [ngModel]="agreeTerms()" (ngModelChange)="agreeTerms.set($event)">
+            <wr-checkbox [checked]="agreeTerms()" (checkedChange)="agreeTerms.set($event)">
               I agree to the terms
             </wr-checkbox>
           </div>
@@ -87,21 +87,21 @@
               <p wrTypography variant="small">Push notifications</p>
               <p wrTypography variant="caption" tone="medium">Real-time activity</p>
             </div>
-            <wr-switch ariaLabel="Push notifications" [ngModel]="notifPush()" (ngModelChange)="notifPush.set($event)" />
+            <wr-switch ariaLabel="Push notifications" [checked]="notifPush()" (checkedChange)="notifPush.set($event)" />
           </div>
           <div class="ngwr-cbento__setting">
             <div>
               <p wrTypography variant="small">Daily digest</p>
               <p wrTypography variant="caption" tone="medium">8:00 AM summary</p>
             </div>
-            <wr-switch ariaLabel="Daily digest" [ngModel]="notifDigest()" (ngModelChange)="notifDigest.set($event)" />
+            <wr-switch ariaLabel="Daily digest" [checked]="notifDigest()" (checkedChange)="notifDigest.set($event)" />
           </div>
           <div class="ngwr-cbento__setting">
             <div>
               <p wrTypography variant="small">Beta features</p>
               <p wrTypography variant="caption" tone="medium">Early access</p>
             </div>
-            <wr-switch ariaLabel="Beta features" [ngModel]="notifBeta()" (ngModelChange)="notifBeta.set($event)" />
+            <wr-switch ariaLabel="Beta features" [checked]="notifBeta()" (checkedChange)="notifBeta.set($event)" />
           </div>
         </div>
       </article>
@@ -222,7 +222,7 @@
           <p wrTypography variant="caption" tone="medium">Segmented drives the page theme</p>
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__theme">
-          <wr-segmented [options]="themeOptions" [ngModel]="theme.mode()" (ngModelChange)="onThemeChange($event)" />
+          <wr-segmented [options]="themeOptions" [value]="theme.mode()" (valueChange)="onThemeChange($event)" />
           <div class="ngwr-cbento__swatches">
             <span
               role="img"

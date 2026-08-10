@@ -11,7 +11,7 @@
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
       <div style="display: flex; flex-direction: column; gap: 0.75rem">
-        <wr-radio-group [(ngModel)]="size">
+        <wr-radio-group [(value)]="size">
           <wr-radio value="sm">Small</wr-radio>
           <wr-radio value="md">Medium</wr-radio>
           <wr-radio value="lg">Large</wr-radio>
@@ -23,7 +23,7 @@
 
   <ngwr-doc-section title="Plans (cards-style)">
     <ngwr-doc-snippet [code]="snippets.plans">
-      <wr-radio-group [(ngModel)]="plan">
+      <wr-radio-group [(value)]="plan">
         <wr-radio value="starter">Starter — $0/mo</wr-radio>
         <wr-radio value="pro">Pro — $9/mo</wr-radio>
         <wr-radio value="enterprise">Enterprise — custom</wr-radio>
@@ -33,7 +33,7 @@
 
   <ngwr-doc-section title="Disabled (whole group)">
     <ngwr-doc-snippet [code]="snippets.disabled">
-      <wr-radio-group disabled [(ngModel)]="size">
+      <wr-radio-group disabled [(value)]="size">
         <wr-radio value="sm">Small</wr-radio>
         <wr-radio value="md">Medium</wr-radio>
       </wr-radio-group>
@@ -42,7 +42,7 @@
 
   <ngwr-doc-section title="Disabled (single option)" description="Disable one option while the rest stay selectable.">
     <ngwr-doc-snippet [code]="snippets.disabledOption">
-      <wr-radio-group [(ngModel)]="size">
+      <wr-radio-group [(value)]="size">
         <wr-radio value="sm">Small</wr-radio>
         <wr-radio value="md">Medium</wr-radio>
         <wr-radio value="lg" disabled>Large</wr-radio>

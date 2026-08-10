@@ -47,12 +47,12 @@ import { FormsModule } from '@angular/forms';
 
 @Component({ imports: [WrSelect, WrOption, FormsModule] })
 export class MyComponent {}`,
-    basic: `<wr-select placeholder="Pick a size" [(ngModel)]="size">
+    basic: `<wr-select placeholder="Pick a size" [(value)]="size">
   <wr-option value="sm">Small</wr-option>
   <wr-option value="md">Medium</wr-option>
   <wr-option value="lg">Large</wr-option>
 </wr-select>`,
-    groups: `<wr-select [(ngModel)]="framework">
+    groups: `<wr-select [(value)]="framework">
   <wr-option-group label="Frontend">
     <wr-option value="angular">Angular</wr-option>
     <wr-option value="react">React</wr-option>
@@ -64,13 +64,13 @@ export class MyComponent {}`,
   </wr-option-group>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
-    multi: `<wr-select mode="multi" placeholder="Pick tags" [(ngModel)]="tags">
+    multi: `<wr-select mode="multi" placeholder="Pick tags" [(value)]="tags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
   <wr-option value="signals">Signals</wr-option>
 </wr-select>`,
-    multiOverflow: `<wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(ngModel)]="manyTags">
+    multiOverflow: `<wr-select mode="multi" [maxTagCount]="2" [maxItems]="6" [(value)]="manyTags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
@@ -78,24 +78,24 @@ export class MyComponent {}`,
   <wr-option value="cdk">CDK</wr-option>
   <wr-option value="ssr">SSR</wr-option>
 </wr-select>`,
-    tag: `<wr-select mode="tag" placeholder="Add a tag" [(ngModel)]="tags" />
+    tag: `<wr-select mode="tag" placeholder="Add a tag" [(value)]="tags" />
 
 <!-- With separators + validator + caps -->
 <wr-select
   mode="tag"
   placeholder="Add email and press Enter or ,"
-  [(ngModel)]="recipients"
+  [(value)]="recipients"
   [separators]="['Enter', ',', ' ']"
   [validate]="isEmail"
   [maxItems]="5"
 />`,
-    search: `<wr-select mode="search" placeholder="Search a country" [(ngModel)]="country">
+    search: `<wr-select mode="search" placeholder="Search a country" [(value)]="country">
   @for (c of countries; track c) {
     <wr-option [value]="c">{{ c }}</wr-option>
   }
 </wr-select>`,
     searchableMulti: `<!-- searchable is orthogonal to mode — this is multi + typeahead. -->
-<wr-select mode="multi" searchable placeholder="Filter categories" [(ngModel)]="categories">
+<wr-select mode="multi" searchable placeholder="Filter categories" [(value)]="categories">
   @for (c of allCategories; track c) {
     <wr-option [value]="c">{{ c }}</wr-option>
   }
@@ -107,7 +107,7 @@ export class MyComponent {}`,
   placeholder="Search a country"
   [options]="results()"
   [loading]="pending()"
-  [(ngModel)]="picked"
+  [(value)]="picked"
   (searchChange)="onSearch($event)"
 />`,
     serverSearchTs: `// (searchChange) is debounced by [debounceMs] and fires on every settled
@@ -124,7 +124,7 @@ onSearch(query: string): void {
   virtualScroll
   placeholder="Search 5,000 items"
   [options]="bigOptions"
-  [(ngModel)]="picked"
+  [(value)]="picked"
 />`,
   };
 

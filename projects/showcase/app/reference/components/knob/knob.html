@@ -8,8 +8,8 @@
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: center">
-        <wr-knob [(ngModel)]="value" />
-        <wr-knob [(ngModel)]="volume" suffix="%" valueColor="var(--wr-color-success)" />
+        <wr-knob [(value)]="value" />
+        <wr-knob [(value)]="volume" suffix="%" valueColor="var(--wr-color-success)" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

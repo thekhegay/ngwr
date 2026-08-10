@@ -39,18 +39,18 @@ import { FormsModule } from '@angular/forms';
 export class MyComponent {}`,
     standalone: `<!-- signal-forms native: [(checked)], [formField], or classic [(ngModel)] -->
 <wr-checkbox [(checked)]="agree">I agree</wr-checkbox>`,
-    group: `<wr-checkbox-group [(ngModel)]="features">
+    group: `<wr-checkbox-group [(value)]="features">
   <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
   <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
   <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
 </wr-checkbox-group>`,
     disabled: `<wr-checkbox [disabled]="true">Disabled</wr-checkbox>`,
     indeterminate: `<!-- A parent "select all": mixed when only some children are checked. -->
-<wr-checkbox [ngModel]="allChecked()" (ngModelChange)="toggleAll()" [indeterminate]="someChecked()">
+<wr-checkbox [checked]="allChecked()" (checkedChange)="toggleAll()" [indeterminate]="someChecked()">
   Select all
 </wr-checkbox>
 @for (p of permItems; track p) {
-  <wr-checkbox [ngModel]="perms().includes(p)" (ngModelChange)="togglePerm(p)">{{ p }}</wr-checkbox>
+  <wr-checkbox [checked]="perms().includes(p)" (checkedChange)="togglePerm(p)">{{ p }}</wr-checkbox>
 }`,
   };
 

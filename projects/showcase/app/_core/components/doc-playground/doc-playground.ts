@@ -92,12 +92,18 @@ export class DocPlaygroundComponent {
     return (event.target as HTMLInputElement).value;
   }
 
-  protected setStr(c: DocControl, v: string): void {
+  // `wr-select` publishes `unknown` and `wr-slider` publishes `number | [number,
+  // number]`, because either can be right for a consumer. Binding their own models
+  // rather than `ngModel` makes that width visible, so the narrowing lives here —
+  // where the control's `kind` already says what the value has to be.
+  protected setStr(c: DocControl, v: unknown): void {
+    if (typeof v !== 'string') return;
     if (c.kind === 'select' || c.kind === 'text' || c.kind === 'color') c.signal.set(v);
   }
 
-  protected setNum(c: DocControl, v: number): void {
-    if (c.kind === 'slider' && !Number.isNaN(v)) c.signal.set(v);
+  protected setNum(c: DocControl, v: number | readonly [number, number]): void {
+    if (typeof v !== 'number' || Number.isNaN(v)) return;
+    if (c.kind === 'slider') c.signal.set(v);
   }
 
   protected toggle(c: DocControl): void {

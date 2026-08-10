@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrProgress } from 'ngwr/progress';
 import { WrSlider } from 'ngwr/slider';
@@ -18,7 +17,6 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-progress-page',
   templateUrl: './progress.html',
   imports: [
-    FormsModule,
     WrProgress,
     WrSlider,
     DocPageComponent,
@@ -40,7 +38,7 @@ export class MyComponent {}`,
     basic: `<wr-progress [value]="42" />`,
     colors: `<wr-progress color="success" [value]="80" />`,
     interactive: `<wr-progress [value]="value()" />
-<wr-slider [(ngModel)]="value" />`,
+<wr-slider [(value)]="value" />`,
   };
 
   protected readonly api = API.WrProgress;

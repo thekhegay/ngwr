@@ -19,8 +19,8 @@
         <wr-segmented
           style="margin-top: 0.5rem"
           [options]="modeOptions"
-          [ngModel]="themeService.mode()"
-          (ngModelChange)="setTheme($event)"
+          [value]="themeService.mode()"
+          (valueChange)="setTheme($event)"
         />
       </div>
     </ngwr-doc-snippet>

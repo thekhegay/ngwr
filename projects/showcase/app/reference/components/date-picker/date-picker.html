@@ -11,7 +11,7 @@
   <ngwr-doc-section title="Basic" description="Default `shortDate` format follows the active locale.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker [(ngModel)]="basic" placeholder="Pick a date" />
+      <wr-date-picker [(value)]="basic" placeholder="Pick a date" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -21,7 +21,7 @@
   >
     <ngwr-doc-code [code]="snippets.format" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker [(ngModel)]="formatted" format="dd.MM.yyyy" placeholder="dd.MM.yyyy" />
+      <wr-date-picker [(value)]="formatted" format="dd.MM.yyyy" placeholder="dd.MM.yyyy" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -31,7 +31,7 @@
   >
     <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker [(ngModel)]="bounded" [min]="today" [max]="nextMonth" [dateFilter]="isWeekday" />
+      <wr-date-picker [(value)]="bounded" [min]="today" [max]="nextMonth" [dateFilter]="isWeekday" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -41,21 +41,21 @@
   >
     <ngwr-doc-code [code]="snippets.time" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker mode="time" [(ngModel)]="time" />
+      <wr-date-picker mode="time" [(value)]="time" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Time — 24-hour" description="`timeFormat='24h'` forces the locale-independent 24h layout.">
     <ngwr-doc-code [code]="snippets.time24" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker mode="time" timeFormat="24h" [(ngModel)]="time24" />
+      <wr-date-picker mode="time" timeFormat="24h" [(value)]="time24" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Time — seconds + step" description="`step` applies to both minutes and seconds.">
     <ngwr-doc-code [code]="snippets.timeSeconds" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker mode="time" timeFormat="24h" [showSeconds]="true" [step]="5" [(ngModel)]="timeSeconds" />
+      <wr-date-picker mode="time" timeFormat="24h" [showSeconds]="true" [step]="5" [(value)]="timeSeconds" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -65,7 +65,7 @@
   >
     <ngwr-doc-code [code]="snippets.datetime" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker mode="datetime" [(ngModel)]="datetime" placeholder="Pick date & time" />
+      <wr-date-picker mode="datetime" [(value)]="datetime" placeholder="Pick date & time" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -78,7 +78,7 @@
         timeFormat="24h"
         [showSeconds]="true"
         [step]="5"
-        [(ngModel)]="datetimeSeconds"
+        [(value)]="datetimeSeconds"
       />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -91,7 +91,7 @@
     <ngwr-doc-code [code]="snippets.rangeTemplate" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
-        <wr-date-range-picker [(ngModel)]="period" startPlaceholder="From" endPlaceholder="To" />
+        <wr-date-range-picker [(value)]="period" startPlaceholder="From" endPlaceholder="To" />
         <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
           Value: {{ period()?.[0]?.toLocaleDateString() ?? '—' }} → {{ period()?.[1]?.toLocaleDateString() ?? '—' }}
         </span>
@@ -110,7 +110,7 @@
           mode="datetime"
           timeFormat="24h"
           format="dd.MM.yyyy HH:mm"
-          [(ngModel)]="window"
+          [(value)]="window"
           startPlaceholder="From"
           endPlaceholder="To"
         />
