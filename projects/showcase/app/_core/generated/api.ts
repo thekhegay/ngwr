@@ -687,6 +687,7 @@ export const API = {
   // <wr-line-chart>
   WrLineChart: [
     { name: "series", description: "—", type: "readonly WrLineSeries[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart. The legend carries the series NAMES only — the numbers are nowhere in text — so without this the plot is nothing at all to a screen reader. Falls back to `lineChart.label`.", type: "string | null", default: "null" },
     { name: "xLabels", description: "Labels for the X axis (one per data point).", type: "readonly string[]", default: "[]" },
     { name: "height", description: "Chart pixel height.", type: "number", default: "240" },
     { name: "showGrid", description: "Show gridlines + axis ticks.", type: "boolean", default: "true" },
