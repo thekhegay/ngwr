@@ -1284,8 +1284,24 @@ theme is what makes ngwr a library people can bet on.
       off-by-one in a length is invisible in the rendered text (the extra index
       simply has no character); what shows it is WHEN the interval stops, so that
       is what the spec asserts.
+      **`wr-rotating-text` and `wr-marquee` (2026-08-11)** — the marquee named its
+      region `'Marquee'` and any unlabelled link `'link'`, both hard-coded
+      English, both now through the catalog. That is the SIXTH component tonight
+      with a built-in English string next to a catalog that covers everything
+      else, which is enough of a pattern to name: the rule in AGENTS.md is
+      followed almost everywhere, and where it is not, it is always a fallback —
+      the string nobody sees while writing the component, because it only appears
+      when an input is left unset.
+      `wr-rotating-text` needed no fix and has a spec anyway, for a reason worth
+      recording: its whole animated path is unreachable in jsdom, which implements
+      no Web Animations API, so `el.animate` throws before any assertion runs.
+      Every test in that file therefore runs under `prefers-reduced-motion`, which
+      is not a workaround — it is a path real users take, it makes each swap
+      synchronous, and it covers the state machine (next / previous / jumpTo /
+      reset, the loop boundaries, the auto timer, the grapheme split) that the
+      animation only decorates.
       **Remaining:** every one of the eighty-three component pages has a spec
-      behind it. What is left is the animations cluster — two of its twenty-one
+      behind it. What is left is the animations cluster — four of its twenty-one
       covered — and mode coverage inside a component that is already covered: a
       spec on `wr-table` says nothing about tree rows unless it exercises them.
       One gap closed and one dismissed since the last note: the palette now
