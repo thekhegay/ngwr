@@ -942,7 +942,38 @@ theme is what makes ngwr a library people can bet on.
       move, shift resizes, which handle is selected and how) is design, not a bug
       fix, and the same goes for a missing `(error)` path on the image, which
       today leaves a blank frame with no feedback.
-      **Remaining:** the rest of the components — forty-eight of eighty-one have
+      **`ngwr/date-adapter` was the highest-consequence thing left uncovered**
+      (2026-08-11) — it is what the calendar grid, both pickers and the range
+      panel compute with, so a wrong answer here is a wrong day everywhere at
+      once. Four defects, and two of them turned nonsense into confident results.
+      `parse` never range-checked anything. `new Date(2025, 12, 45)` does not fail
+      — it rolls forward into 2026 — and `isValid` is happy with what comes back,
+      so a text field turned `2025-13-01`, `2025-02-30` and `12:60` into plausible
+      dates. The clock parts are checked directly now, and the month and day by
+      comparing what the calendar returned, which catches every rollover including
+      a month of 12 or -1. `parse` also had no case for `MMM` / `MMMM`: they fell
+      through to a greedy `(.+)` the switch never read, so `11 Aug 2025` parsed as
+      **11 January** and said nothing. Month names are matched against the
+      locale's own list now, and an unknown name is a rejection rather than
+      January. The formatter mangled literal text, which is how the previous
+      defect surfaced. The one-letter tokens match letters inside words, so `'yyyy
+      [year]'` came out as `2025 [yeamr]` — the `a` in "year" read as a meridiem.
+      Single-quoted runs are emitted verbatim now, the way `DatePipe` and LDML do
+      it, with `''` for a real quote; unquoted letters are still tokens, and that
+      trade-off is pinned by a test so it reads as a decision. Last, `addDays`
+      added 86 400 000 ms. Where daylight saving applies a day can be 23 or 25
+      hours, so that drifts the wall clock and — across an autumn change — lands
+      back on the same calendar date, which makes a month grid repeat a day and
+      lose one. It moves the calendar day now. This is the one fix in the batch NO
+      test here can hold: the runner's timezone is `Asia/Almaty`, which has no
+      daylight saving, so millisecond and calendar arithmetic agree on every date
+      — the reason is written into the method and into the spec's docblock
+      instead, since a comment is the only place knowledge like that survives. Two
+      mutations survived and both were redundant code rather than weak tests: an
+      explicit month-range check the rollover comparison already covered, and a
+      month-name alternation in the parse regex whose answer actually comes from
+      the switch case. Both removed.
+      **Remaining:** the rest of the components — forty-nine of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
