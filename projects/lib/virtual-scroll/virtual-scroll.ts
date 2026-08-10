@@ -88,8 +88,27 @@ export class WrVirtualScroll<T = unknown> {
     return typeof h === 'number' ? `${h}px` : h;
   });
 
-  protected readonly resolvedMinBuffer = computed(() => this.minBufferPx() ?? this.itemSize() * 4);
-  protected readonly resolvedMaxBuffer = computed(() => this.maxBufferPx() ?? this.itemSize() * 8);
+  /**
+   * The two buffers, resolved as a PAIR. CDK requires `maxBufferPx >= minBufferPx` and
+   * throws `CDK virtual scroll: maxBufferPx must be greater than or equal to minBufferPx`
+   * outright otherwise — so resolving them independently meant that setting just one of
+   * them, the obvious thing to do, crashed the viewport on construction. Whichever a
+   * consumer gave is honoured and the other follows it.
+   */
+  private readonly buffers = computed<{ readonly min: number; readonly max: number }>(() => {
+    const size = this.itemSize();
+    const min = this.minBufferPx();
+    const max = this.maxBufferPx();
+    // Ordered so each branch narrows: a given minimum pushes the maximum up, a given
+    // maximum pulls the minimum down, and both given are simply sorted.
+    if (min !== undefined && max !== undefined) return { min: Math.min(min, max), max: Math.max(min, max) };
+    if (min !== undefined) return { min, max: Math.max(min, size * 8) };
+    if (max !== undefined) return { min: Math.min(size * 4, max), max };
+    return { min: size * 4, max: size * 8 };
+  });
+
+  protected readonly resolvedMinBuffer = computed(() => this.buffers().min);
+  protected readonly resolvedMaxBuffer = computed(() => this.buffers().max);
 
   /** Scroll a specific index into view. Mirrors the CDK API. */
   scrollToIndex(index: number, behavior: ScrollBehavior = 'auto'): void {
@@ -101,7 +120,11 @@ export class WrVirtualScroll<T = unknown> {
     this.viewport().scrollToOffset(offset, behavior);
   }
 
-  /** Manually trigger size recheck (e.g. after host resize outside ResizeObserver). */
+  /**
+   * Re-measure the viewport. CDK already watches the window with its `ViewportRuler`, so
+   * this is for a size change it cannot see — the host being resized by a layout the
+   * window never noticed, or a parent that was display:none until now.
+   */
   checkViewportSize(): void {
     this.viewport().checkViewportSize();
   }
