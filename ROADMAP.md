@@ -973,7 +973,22 @@ theme is what makes ngwr a library people can bet on.
       explicit month-range check the rollover comparison already covered, and a
       month-name alternation in the parse regex whose answer actually comes from
       the switch case. Both removed.
-      **Remaining:** the rest of the components — forty-nine of eighty-one have
+      **`ngwr/cookie` had exactly one defect, and it was the silent kind**
+      (2026-08-11). `SameSite=None` REQUIRES `Secure` — every modern browser drops
+      the cookie outright without it — so `set(k, v, { sameSite: 'None' })` wrote
+      a cookie that never existed and reported nothing. A cross-site cookie is
+      what the caller asked for, so `Secure` now comes with it. Everything else
+      about the service held up under test, which is worth recording too: the name
+      and value are both encoded, so a `;` or a `=` cannot break the jar; an empty
+      value is told apart from a missing one; a name is not confused with one that
+      merely starts the same way; a `Date` serialises as an HTTP-date and a number
+      as `Max-Age`, floored, never negative; and reads and writes are no-ops
+      rather than throws when `document.cookie` is unavailable. jsdom implements
+      `document.cookie` for real, which makes this one of the few browser APIs
+      testable here without a stub — though the ATTRIBUTES are read back off a
+      recording document, since jsdom does not enforce the rules a browser applies
+      to them.
+      **Remaining:** the rest of the components — fifty of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
