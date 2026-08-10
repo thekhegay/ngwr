@@ -796,7 +796,29 @@ theme is what makes ngwr a library people can bet on.
       affordance is REDUNDANT, since the close button, Escape, the backdrop and
       swipe-down all do the same thing and all reach a keyboard, so the image
       stays out of the tab order rather than becoming a second close stop.
-      **Remaining:** the rest of the components — forty-one of eighty-one have
+      **`ngwr/qr` was invisible** (2026-08-10). A QR code is content — it usually
+      encodes a URL — and it is painted into a `<canvas>`, which carries no
+      implicit role and no text alternative, so the component offered a screen
+      reader nothing at all. It now announces `role="img"` with a name: an
+      `ariaLabel` input over `qr.label`, and the docs say to name what the code is
+      FOR rather than leaving the generic fallback. The painting is the other
+      half, and jsdom cannot see any of it: `getContext('2d')` returns null there,
+      so `drawQrCode` bails at its first line and every assertion about pixels
+      would be a false signature. The geometry is covered against a RECORDING
+      context instead — a stub implementing only the two methods the generator
+      calls, which is what makes the coverage honest: the encoder is vendored, but
+      the bitmap size (`code.size * 10 + padding * 2`), the CSS box coming from
+      `size` rather than from the bitmap, the fill order, the quiet zone and the
+      error-level map are all this repo's, and each is a call the stub can count.
+      Higher redundancy needing a bigger code is the one observable proof the
+      `level` input reaches the encoder at all rather than being ignored. Two
+      things left recorded rather than changed. With an empty `value` the bitmap
+      is never sized, so a blank code keeps the canvas default of 300×150
+      stretched by CSS into a square — cosmetic, and only on a value nobody
+      renders on purpose. And `overlayIcon` insets its image by a hard-coded 10px
+      on each side while everything around it scales with the bitmap ratio, so a
+      small `iconSize` under a large `size` inverts the destination rectangle.
+      **Remaining:** the rest of the components — forty-two of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
