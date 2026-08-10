@@ -7,3 +7,5 @@ export { rgbToHsl } from './rgb-to-hsl';
 export { hslToRgb } from './hsl-to-rgb';
 export { parseHex } from './parse-hex';
 export { toHex } from './to-hex';
+export { parseColor } from './parse-color';
+export { formatColor } from './format-color';
