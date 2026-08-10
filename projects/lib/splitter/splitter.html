@@ -6,6 +6,7 @@
 <div
   class="wr-splitter__divider"
   role="separator"
+  [attr.aria-label]="resolvedDividerLabel()"
   [attr.aria-orientation]="orientation() === 'horizontal' ? 'vertical' : 'horizontal'"
   [attr.aria-valuemin]="minPosition()"
   [attr.aria-valuemax]="maxPosition()"
