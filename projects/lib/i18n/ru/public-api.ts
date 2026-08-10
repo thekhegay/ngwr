@@ -162,6 +162,9 @@ export const wrRu: WrI18nCatalog = {
     prevYear: 'Предыдущий год',
     nextYear: 'Следующий год',
   },
+  calendarHeatmap: {
+    label: 'Календарная тепловая карта',
+  },
   lineChart: {
     label: 'Линейный график',
   },

@@ -169,6 +169,7 @@ export const API = {
   // <wr-calendar-heatmap>
   WrCalendarHeatmap: [
     { name: "data", description: "—", type: "readonly WrHeatmapDatum[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the whole grid. Its cells are bare spans whose `title` a screen reader on a role-less element does not read, so the map used to be several hundred anonymous nodes with no name. Falls back to `calendarHeatmap.label`.", type: "string | null", default: "null" },
     { name: "endDate", description: "Last day to render.", type: "string | Date | null", default: "today" },
     { name: "weeks", description: "Number of weeks (columns) to render.", type: "number", default: "53" },
     { name: "cellSize", description: "Cell side in CSS pixels.", type: "number", default: "11" },

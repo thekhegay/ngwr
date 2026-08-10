@@ -6,7 +6,10 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
+
+import { WR_DATE_LOCALE } from 'ngwr/date-adapter';
+import { useI18nText } from 'ngwr/i18n';
 
 import type { WrHeatmapDatum } from './interfaces';
 
@@ -29,8 +32,8 @@ function parseInput(value: string | Date): Date {
   return value instanceof Date ? new Date(value) : new Date(`${value}T00:00:00`);
 }
 
-const WEEKDAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** Which rows carry a weekday label: three of seven, or they do not fit. */
+const LABELLED_ROWS = new Set([1, 3, 5]);
 
 /**
  * GitHub-style year-grid heatmap. One column per ISO week, one row per
@@ -53,6 +56,15 @@ const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 export class WrCalendarHeatmap {
   readonly data = input<readonly WrHeatmapDatum[]>([]);
 
+  /**
+   * Accessible name of the whole grid. Its cells are bare spans whose `title` a screen
+   * reader on a role-less element does not read, so the map used to be several hundred
+   * anonymous nodes with no name. Falls back to `calendarHeatmap.label`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'calendarHeatmap.label', 'Calendar heatmap');
+
   /** Last day to render. @default today */
   readonly endDate = input<string | Date | null>(null);
 
@@ -74,7 +86,28 @@ export class WrCalendarHeatmap {
   /** Show the weekday + month labels around the grid. @default true */
   readonly showLabels = input(true, { transform: coerceBooleanProperty });
 
-  protected readonly weekdayLabels = WEEKDAY_LABELS;
+  private readonly locale = inject(WR_DATE_LOCALE);
+
+  /**
+   * Weekday names from the locale rather than a hard-coded English list — the row order is
+   * Sunday-first, matching the grid's own alignment, so 7 Jan 2024 (a Sunday) is the
+   * reference. Rows without a label stay blank on purpose: seven labels do not fit.
+   */
+  protected readonly weekdayLabels = computed<readonly string[]>(() => {
+    const formatter = new Intl.DateTimeFormat(this.locale, { weekday: 'short' });
+    const sunday = new Date(2024, 0, 7);
+    return Array.from({ length: 7 }, (_, row) => {
+      if (!LABELLED_ROWS.has(row)) return '';
+      const day = new Date(sunday);
+      day.setDate(sunday.getDate() + row);
+      return formatter.format(day);
+    });
+  });
+
+  private readonly monthNames = computed<readonly string[]>(() => {
+    const formatter = new Intl.DateTimeFormat(this.locale, { month: 'short' });
+    return Array.from({ length: 12 }, (_, month) => formatter.format(new Date(2024, month, 15)));
+  });
 
   protected readonly cells = computed<readonly Cell[]>(() => {
     const end = this.endDate() ? parseInput(this.endDate()!) : new Date();
@@ -127,7 +160,7 @@ export class WrCalendarHeatmap {
         return true;
       })
       .map(cell => ({
-        label: MONTH_LABELS[new Date(`${cell.iso}T00:00:00`).getMonth()],
+        label: this.monthNames()[new Date(`${cell.iso}T00:00:00`).getMonth()],
         week: cell.week,
       }));
   });
