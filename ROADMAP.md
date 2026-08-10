@@ -553,10 +553,41 @@ theme is what makes ngwr a library people can bet on.
       `no-provider.spec.ts` already proves `TestBed.inject(WrI18n)` resolves with
       nothing configured. Dead code, not a defect — worth verifying every claim
       before spending a fix on it.
-      **Remaining:** the rest of the components — thirty-one of eighty-one
+      **`wr-transfer` was the richest single component yet** (2026-08-10) — five
+      defects, all in the gap between the staging boxes and what a pane is
+      SHOWING. The count under each heading and the header checkbox both read the
+      visible-and-enabled staged rows; the moves read the raw box. So staging
+      under one filter, refiltering and staging again moved BOTH rows while the
+      user saw one ticked — and because staging also outlives an external write
+      to `value`, the same value could land on the right twice. Both moves commit
+      `state.checked`, so one derivation feeds the count, the checkbox and the
+      transfer. `moveLeft` had the mirror bug and its mutation SURVIVED the first
+      pass: that one was a weak test, not redundant code, and the missing spec is
+      written. Three more: `value` was read with `.map` and no array guard, so the
+      null a classic-forms `reset()` writes threw outright — `wr-checkbox-group`
+      documents that exact hazard and normalises every read; unchecking filtered
+      with `!==` while `WrTransferItem['value']` is documented as SameValueZero,
+      so a `NaN`-valued row could never be unstaged (a `Set.delete` now does it,
+      as `moveLeft` already did); and select-all was enabled whenever a pane had
+      ROWS rather than enabled rows, so with every visible row disabled it drew
+      itself checked and staged nothing — a one-way `[checked]` is only written
+      back when the expression changes, and it stayed false. Its accessible name
+      was the pane heading, byte-identical to the list's own, so it now composes
+      `transfer.selectAll` with the title the way the pane's search box already
+      does. **A catalog guard came out of that key:** nothing compared `wrEn`
+      with `wrRu`, and a key added to one side only is invisible — `useI18nText`
+      reads "translation === key" as missing and quietly serves the English
+      default, so a Russian app renders English and no gate says a word. Both are
+      pinned at identical key sets (166) with no empty values, empty being the
+      worse case since it resolves as a real translation and reaches the DOM as a
+      nameless control.
+      **Remaining:** the rest of the components — thirty-two of eighty-one
       have specs, and mode coverage inside them is its own axis. The next batch is
-      scouted: `wr-transfer`, `wr-dropdown`, `wr-command-palette` and
-      `wr-splitter`, each with candidate defects not yet verified by hand.
+      scouted, with candidate defects not yet verified by hand: `wr-dropdown` (the
+      trigger's `id` host binding clobbers a consumer's own), `wr-command-palette`
+      (keyboard walks source order while the template renders grouped order, so
+      the highlight lands on the wrong row) and `wr-splitter` (a separator with no
+      accessible name, and `position` clamped only inside the handlers).
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
