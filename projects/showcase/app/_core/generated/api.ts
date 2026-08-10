@@ -727,7 +727,7 @@ export const API = {
     { name: "fadeOut", description: "Apply edge fade-out gradients.", type: "boolean", default: "false" },
     { name: "fadeOutColor", description: "CSS colour for the fade-out gradient. Defaults to the page background.", type: "string", default: "''" },
     { name: "scaleOnHover", description: "Scale individual items up on hover.", type: "boolean", default: "false" },
-    { name: "ariaLabel", description: "Accessible label for the carousel region.", type: "string", default: "'Marquee'" },
+    { name: "ariaLabel", description: "Accessible name for the region. Falls back to `marquee.label`, then `'Marquee'`.", type: "string | null", default: "null" },
   ],
   // <[wrMention]>
   WrMention: [
