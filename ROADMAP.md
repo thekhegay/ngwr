@@ -1336,11 +1336,21 @@ theme is what makes ngwr a library people can bet on.
       did not read it. Main went green again on the retry — the flake is
       order-dependent — but the sequence was wrong regardless. Read the checks,
       THEN merge.
+      **`wr-tilt-card` (2026-08-11)** — no defect, and a spec that is exact
+      anyway: the tilt is a `transform` written straight onto the host, so with a
+      stubbed 200×100 box every pointer position has one right answer. Worth
+      pinning because the two rotation axes are easy to swap and the mistake looks
+      fine in isolation — a card that tilts TOWARD the cursor instead of away from
+      it is still a card that tilts. The glare overlay is checked for its
+      `aria-hidden` and for going away with the directive, since it is a DOM node
+      the directive appends by hand rather than a template element Angular cleans
+      up.
       **Remaining:** every one of the eighty-three component pages has a spec
-      behind it. What is left is the animations cluster — twelve of its twenty-one
-      covered, the rest being the canvas and WebGL ones — and mode coverage inside
-      a component that is already covered: a spec on `wr-table` says nothing about
-      tree rows unless it exercises them.
+      behind it. What is left is the animations cluster — thirteen of its
+      twenty-one covered, the rest being the canvas and WebGL ones, where jsdom
+      has no context to draw into — and mode coverage inside a component that is
+      already covered: a spec on `wr-table` says nothing about tree rows unless it
+      exercises them.
       One gap closed and one dismissed since the last note: the palette now
       scrolls its active option into view (`scrollIntoView({ block: 'nearest' })`,
       keyboard only — doing it on hover would fight the pointer), and its
