@@ -58,28 +58,48 @@ export class WrMeterGroup {
   /** Show the labelled legend under the bar. @default true */
   readonly showLegend = input(true, { transform: coerceBooleanProperty });
 
-  /** Show each segment's percent value in the legend. @default true */
+  /** Show each segment's value in the legend, next to its label. @default true */
   readonly showValues = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * A segment's contribution, floored at `0` and with anything non-finite read
+   * as `0`. One `NaN` used to poison the whole bar: the sum is `NaN` as soon as
+   * one value is, so the total fell back to `1` and every OTHER segment was
+   * asked for a width of `value * 100`%, while `aria-valuenow` announced `NaN`.
+   */
+  private static amount(raw: number): number {
+    return Number.isFinite(raw) ? Math.max(0, raw) : 0;
+  }
 
   protected readonly resolvedMax = computed(() => {
     const explicit = this.max();
     if (explicit > 0) return explicit;
-    const sum = this.segments().reduce((acc, s) => acc + Math.max(0, s.value), 0);
+    const sum = this.segments().reduce((acc, s) => acc + WrMeterGroup.amount(s.value), 0);
     return sum > 0 ? sum : 1;
   });
 
   /**
    * Sum of the segments, for `aria-valuenow`. `role="progressbar"` without it
    * announces no value at all, so the bar was invisible to assistive tech.
+   *
+   * Capped at the total, because segments summing past an explicit `max` used
+   * to announce a value outside the range they were announced against.
    */
-  protected readonly totalValue = computed(() => this.segments().reduce((acc, s) => acc + Math.max(0, s.value), 0));
+  protected readonly totalValue = computed(() =>
+    Math.min(
+      this.resolvedMax(),
+      this.segments().reduce((acc, s) => acc + WrMeterGroup.amount(s.value), 0)
+    )
+  );
 
   protected readonly slices = computed(() =>
     this.segments().map((segment, i) => ({
       label: segment.label,
-      value: segment.value,
+      // The legend keeps a negative value visible — it is data the caller gave
+      // us — but not a non-finite one, which reads as the literal text `NaN`.
+      value: Number.isFinite(segment.value) ? segment.value : 0,
       color: segment.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
-      percent: (Math.max(0, segment.value) / this.resolvedMax()) * 100,
+      percent: (WrMeterGroup.amount(segment.value) / this.resolvedMax()) * 100,
     }))
   );
 }
