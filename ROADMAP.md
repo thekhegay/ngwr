@@ -842,13 +842,33 @@ theme is what makes ngwr a library people can bet on.
       the geometry box, not the ink, and Chromium accepts `getBBox({ stroke: true
       })` while ignoring the option — so both reported the same number whatever
       the stroke. The arithmetic settles it without a browser.
+      **`wr-compare` had the splitter's trio, again** (2026-08-11), which is now
+      three components deep: `position` clamped only inside the handlers, so an
+      external write reached the DOM as `aria-valuenow="150"` against a `valuemax`
+      of 100; no primary-button / primary-pointer guard, so the right button moved
+      the divider; and no focus on `pointerdown`, whose `preventDefault` also
+      suppresses the click's default focus, leaving the arrows dead after a mouse
+      drag. Its name was a hard-coded English `aria-label` in the template, the
+      fifth instance of that shape. And the pointer maths divided by
+      `getBoundingClientRect().width` with no zero guard: an unmeasured host puts
+      `Infinity` — or, at `clientX: 0`, `NaN` — straight into `aria-valuenow`. One
+      interaction between two of those fixes is worth recording, because it made
+      two mutations survive. Once the zero guard is in place, an unmeasured host
+      moves nothing whatever the button was, so the POSITION can no longer tell a
+      refused press from a permitted one; the guard test had to read
+      `preventDefault` and focus instead. A fix can mask the observability of
+      another fix, and a mutation is what says so. Left as a design call:
+      `role="slider"` sits on the wrapper that CONTAINS both projected layers,
+      while the visible divider and handle are `aria-hidden`. Moving the role onto
+      the divider is the APG shape and would change which element takes focus — a
+      visible change to a shipped component, not a bug fix.
       Scouted in the same pass and not yet verified by hand: `wr-compare`
       (`position` unclamped, no primary-pointer guard, no focus on pointerdown —
       the same trio `wr-splitter` had, and `role="slider"` on the wrapper that
       CONTAINS the projected content), `wr-donut-chart` and `wr-sparkline` (one
       NaN poisons the whole series, and neither chart has any accessible
       representation).
-      **Remaining:** the rest of the components — forty-three of eighty-one have
+      **Remaining:** the rest of the components — forty-four of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
