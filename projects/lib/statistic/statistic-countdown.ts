@@ -20,6 +20,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { numAttr } from 'ngwr/utils';
+
 // Helpers
 
 function toMs(value: Date | string | number): number {
@@ -111,10 +113,12 @@ export class WrStatisticCountdown {
   readonly endText = input<string | null>(null);
 
   /**
-   * Tick interval in ms. Drop to ~16 for `SSS` (millisecond display).
+   * Tick interval in ms. Drop to ~16 for `SSS` (millisecond display). Floored
+   * at one frame — `0` (or an unparseable value) asked `setInterval` to run as
+   * fast as the browser would allow, which is a busy loop, not a countdown.
    * @default 1000
    */
-  readonly tickMs = input(1000);
+  readonly tickMs = input(1000, { transform: (v: unknown): number => Math.max(16, numAttr(1000)(v)) });
 
   /** Fires once when the countdown crosses zero. */
   readonly countdownEnd = output<void>();
@@ -123,6 +127,18 @@ export class WrStatisticCountdown {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly targetMs = computed(() => toMs(this.target()));
+
+  /**
+   * Milliseconds left, or `null` when `target` does not parse to a date at all.
+   * `new Date('nope').getTime()` is `NaN`, and `NaN` propagated all the way to
+   * the screen as `NaN:NaN:NaN` — and, worse, `tick` compared it to `0` and so
+   * never fired `countdownEnd`, while a guard that only clamped the text would
+   * have fired it immediately for a target that was never reached.
+   */
+  private remainingMs(): number | null {
+    const target = this.targetMs();
+    return Number.isFinite(target) ? Math.max(0, target - Date.now()) : null;
+  }
 
   /** Remaining milliseconds (live signal). */
   protected readonly remaining = signal(0);
@@ -136,8 +152,8 @@ export class WrStatisticCountdown {
   constructor() {
     // Seed once synchronously so SSR / first paint shows a sane value.
     effect(() => {
-      const ms = Math.max(0, this.targetMs() - Date.now());
-      this.remaining.set(ms);
+      const ms = this.remainingMs();
+      this.remaining.set(ms ?? 0);
       this.finished.set(ms === 0);
     });
 
@@ -150,7 +166,8 @@ export class WrStatisticCountdown {
   }
 
   private tick(): void {
-    const ms = Math.max(0, this.targetMs() - Date.now());
+    const ms = this.remainingMs();
+    if (ms === null) return;
     this.remaining.set(ms);
     if (ms === 0 && !this.finished()) {
       this.finished.set(true);
