@@ -1,4 +1,6 @@
-@if (icon()) {
+@if (iconName(); as name) {
+  <wr-icon class="wr-empty__icon" [name]="name" />
+} @else if (icon()) {
   <svg
     class="wr-icon__svg wr-empty__icon"
     xmlns="http://www.w3.org/2000/svg"

@@ -5,10 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { type WrIconName } from 'ngwr/icon';
+import { WrIcon, type WrIconName } from 'ngwr/icon';
 
 /**
  * Empty-state placeholder. Drop into any container where the underlying
@@ -25,7 +26,7 @@ import { type WrIconName } from 'ngwr/icon';
  *
  * @example
  * ```html
- * <wr-empty icon="search" title="No results">
+ * <wr-empty iconName="search" title="No results">
  *   Try a different query or clear filters.
  *   <ng-container wrEmptyActions>
  *     <wr-btn (click)="reset()">Reset filters</wr-btn>
@@ -40,10 +41,27 @@ import { type WrIconName } from 'ngwr/icon';
   templateUrl: './empty.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-empty', role: 'status' },
+  imports: [WrIcon],
 })
 export class WrEmpty {
-  /** Icon name shown above the title. @default 'folder' */
-  readonly icon = input<WrIconName | null>('folder');
+  /**
+   * Render the built-in folder glyph. Pass `false` to show no icon at all.
+   * Ignored when `iconName` is set — the same contract as `<wr-alert>`.
+   *
+   * This used to be typed as an icon NAME, which it never was: whatever name
+   * you passed, the template drew the folder. Any truthy value still shows it,
+   * so nothing that compiled before behaves differently.
+   *
+   * @default true
+   */
+  readonly icon = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Show any registered ngwr icon instead of the built-in glyph.
+   *
+   * @default null
+   */
+  readonly iconName = input<WrIconName | null>(null);
 
   /** Headline. Falls back to `empty.noData` from WrI18n, then `'No data'`. */
   readonly title = input<string | null>(null);
