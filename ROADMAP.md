@@ -1125,7 +1125,47 @@ theme is what makes ngwr a library people can bet on.
       broken URL spun forever, on top of the very initials that are projected for
       that case. It falls back to them now, and a new URL after a failure is a new
       attempt rather than a permanent fallback.
-      **Remaining:** the rest of the components — sixty-four of eighty-one have
+      **`wr-color-picker` (2026-08-11)** — the pure colour maths already had a
+      spec; the COMPONENT did not, and the biggest thing it was hiding is a
+      `format` input that nothing read. It was declared, documented down to the
+      exact strings each format produces, and forwarded by
+      `[wrColorPickerTrigger]` through `setInput` — while every emit went through
+      `toHex`, so `format="rgba"` silently produced hex. It is implemented now
+      (`formatColor`), and with it the other half nobody would have noticed until
+      a form patch: the picker used to read incoming values with `parseHex` alone,
+      so the moment it emitted `rgba(…)` any external write of its own output
+      parsed as null and painted BLACK. `parseColor` reads all three formats, plus
+      the space-separated CSS spellings and `/ alpha`, and clamps out-of-range
+      channels the way CSS does.
+      Three smaller ones in the same pass. The drag had no button or pointer guard
+      — the recurring family in this codebase, now fixed in the fourth component —
+      and no `pointercancel` handler, which matters more than it sounds:
+      `pointercancel` is never followed by a `pointerup`, so the move listener
+      outlived the gesture and the surface kept repainting under a pointer that
+      was only hovering. And clicking a 6-digit preset swatch snapped a
+      translucent colour back to fully opaque, because `parseHex` reports "no
+      alpha given" as `a: 1` and the method's own comment claimed the opposite of
+      what the code did. The trigger, meanwhile, carried neither `aria-haspopup`
+      nor `aria-expanded`, both of which `<wr-popover>`'s trigger has had all
+      along.
+      Two mutation survivors were worth more than the fixes. One was a test that
+      proved nothing: re-feeding the picker its own last emit is skipped BY DESIGN
+      (`lastEmitted`), so a round-trip assertion written that way passes with the
+      parser removed — it has to be a value the picker never wrote. The other was
+      a cancelled drag moved to hue 360, which is hue 0, so the assertion compared
+      red to red. The third survivor was left alive on purpose and written down:
+      normalising a negative hue in `parseColor` is unobservable, because `% 360`
+      plus `hueToChannel`'s single wrap already absorb it — kept anyway, since
+      leaning on that second detail from outside is how a later change breaks
+      quietly.
+      Recorded, not fixed: the picker has no keyboard path to the three surfaces.
+      The SV square, the hue bar and the alpha bar are plain divs with pointer
+      handlers, so the only keyboard route to a colour is the RGB / HSL number
+      fields. The APG answer is `role="slider"` with arrow keys on each surface,
+      which `wr-knob` already demonstrates in this repo — a feature, not a defect
+      fix, so it belongs in a change the maintainer chose rather than in a test
+      PR.
+      **Remaining:** the rest of the components — sixty-five of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
