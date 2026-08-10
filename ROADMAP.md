@@ -449,7 +449,24 @@ theme is what makes ngwr a library people can bet on.
       "never mutates" spec was passing without running the code it described.
       A surviving mutation then caught the missing half: nothing asserted the
       REFUSAL in a read-only calendar. It does now.
-      **Remaining:** the rest of the components — twenty-six of eighty-one
+      `wr-context-menu` added 17 — the APG menu pattern through an overlay, so
+      `role="menu"` owning `menuitem` children, every item out of the tab order
+      because the menu roves focus itself, and the submenu contract:
+      `aria-haspopup` only on the item that has one, `aria-expanded` tracking
+      it, and Enter on a parent OPENING rather than activating — activate it and
+      the whole menu closes with the submenu unreachable from the keyboard.
+      Two testing notes worth keeping. Closing is deferred twice on purpose — a
+      microtask so the consumer's own `(click)` runs first, then 220 ms of exit
+      animation the directive holds the pane alive for — so `whenStable()` alone
+      never sees the close. And `whenStable()` under fake timers DEADLOCKS: the
+      stability check waits on a timer the fake clock has frozen, and the test
+      just times out. Flushing microtasks by hand and then advancing the clock
+      does the same job without it.
+      One assertion was rewritten rather than kept: a disabled item's POINTER
+      path is refused by `pointer-events: none`, which a dispatched `.click()`
+      bypasses by definition — so testing it would have been testing jsdom. The
+      keyboard refusal is in code and is what the spec now checks.
+      **Remaining:** the rest of the components — twenty-seven of eighty-one
       have specs, and mode coverage inside them is its own axis.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
