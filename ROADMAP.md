@@ -407,8 +407,23 @@ theme is what makes ngwr a library people can bet on.
       supposed to mean. One consequence worth naming: `wr-select` carries an
       `unknown` value by design, and `[ngModel]` had been hiding that behind
       `any` — the pagination handler now narrows it honestly.
+      The datetime lesson was then applied backwards, to a component that
+      already had specs. `wr-select` had 13 of them and **every one ran in the
+      default `single` mode** — `multi`, `search` and `tag`, three of the four
+      documented value shapes, had none. 21 specs later they do: an array value
+      that stays open between picks, chips that remove their own value,
+      `aria-multiselectable`, a trigger that becomes a real text field in search
+      mode, case-insensitive narrowing, and free text committing as a tag on
+      Enter with the field cleared behind it. Nothing was broken — but that is
+      the point of checking rather than assuming, since the same audit on
+      `wr-date-picker` found a shipped bug.
+      Worth recording for the next filter suite: an unmatched `<wr-option>`
+      hides itself with `wr-option--hidden` rather than leaving the DOM, so the
+      panel keeps its `aria-activedescendant` targets — and `offsetParent` is
+      not a visibility test in jsdom, which lays nothing out and reports null
+      for everything.
       **Remaining:** the rest of the components — twenty-four of eighty-one
-      have specs.
+      have specs, and mode coverage inside them is its own axis.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
