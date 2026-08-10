@@ -7,9 +7,10 @@
 
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, output } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 
@@ -33,9 +34,15 @@ import { WrPopconfirmPanel } from './popconfirm-panel';
  *
  * @see https://ngwr.dev/reference/components/popconfirm
  */
+let popconfirmUid = 0;
+
 @Directive({
   selector: '[wrPopconfirm]',
-  host: { '(click)': 'toggle($event)' },
+  host: {
+    '(click)': 'toggle($event)',
+    '[attr.aria-haspopup]': '"dialog"',
+    '[attr.aria-expanded]': 'isOpen()',
+  },
 })
 export class WrPopconfirm {
   /** Confirmation message. */
@@ -45,10 +52,25 @@ export class WrPopconfirm {
   readonly position = input<WrPopconfirmPosition>('top');
 
   /** Label for the confirm button. @default 'Confirm' */
-  readonly confirmText = input<string>('Confirm');
+  /** Confirm button text. Falls back to `popconfirm.confirm`. */
+  readonly confirmText = input<string | null>(null);
 
   /** Label for the cancel button. @default 'Cancel' */
-  readonly cancelText = input<string>('Cancel');
+  /** Cancel button text. Falls back to `popconfirm.cancel`. */
+  readonly cancelText = input<string | null>(null);
+
+  /**
+   * Accessible name of the confirmation dialog. `role="dialog"` with no name
+   * announces as a bare "dialog". Falls back to `popconfirm.label`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  // The catalog has carried these translated for as long as the component has
+  // existed; the labels were hard-coded English defaults, so a localized app got
+  // English buttons with the right strings sitting one file away.
+  private readonly resolvedConfirm = useI18nText(this.confirmText, 'popconfirm.confirm', 'Confirm');
+  private readonly resolvedCancel = useI18nText(this.cancelText, 'popconfirm.cancel', 'Cancel');
+  private readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'popconfirm.label', 'Confirm action');
 
   /** Color of the confirm button. @default 'primary' */
   readonly confirmColor = input<WrColor>('primary');
@@ -66,7 +88,11 @@ export class WrPopconfirm {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
 
+  /** @internal Public so the host bindings can read it. */
+  readonly isOpen = signal(false);
+
   private overlayRef: OverlayRef | null = null;
+  private readonly messageId = `wr-popconfirm-message-${++popconfirmUid}`;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
@@ -97,12 +123,31 @@ export class WrPopconfirm {
       panelClass: ['wr-popconfirm-overlay', `wr-popconfirm-overlay--${this.position()}`],
     });
 
+    // Non-modal by choice, like `wr-popover`: an outside click or Escape closes it,
+    // so trapping focus would only make it harder to leave. It still needs a role, a
+    // name and the question read out as its description.
+    const pane = this.overlayRef.overlayElement;
+    pane.setAttribute('role', 'dialog');
+    pane.setAttribute('aria-modal', 'false');
+    pane.setAttribute('aria-label', this.resolvedAriaLabel());
+    pane.setAttribute('aria-describedby', this.messageId);
+
     const portal = new ComponentPortal(WrPopconfirmPanel, this.vcr);
     const ref = this.overlayRef.attach(portal);
     ref.setInput('message', this.message());
-    ref.setInput('confirmText', this.confirmText());
-    ref.setInput('cancelText', this.cancelText());
+    ref.setInput('messageId', this.messageId);
+    ref.setInput('confirmText', this.resolvedConfirm());
+    ref.setInput('cancelText', this.resolvedCancel());
     ref.setInput('confirmColor', this.confirmColor());
+    // Render now rather than next frame: the buttons have to exist before focus can
+    // move to one, and a deferred focus is the class of bug this repo keeps finding.
+    ref.changeDetectorRef.detectChanges();
+    // Focus has to enter the panel — the overlay container sits at the end of
+    // `<body>`, so Tab from the trigger went to the next thing on the PAGE and the
+    // only way to confirm was unreachable. Cancel first: the action being confirmed
+    // is usually the destructive one.
+    pane.querySelector<HTMLElement>('.wr-popconfirm__actions wr-btn')?.focus();
+    this.isOpen.set(true);
 
     ref.instance.confirmed.subscribe(() => {
       this.confirmed.emit();
@@ -140,9 +185,15 @@ export class WrPopconfirm {
   }
 
   private dispose(): void {
-    if (this.overlayRef) {
-      this.overlayRef.dispose();
-      this.overlayRef = null;
-    }
+    if (!this.overlayRef) return;
+    // Focus lives inside the panel while it is open, and removing the panel would
+    // drop it to `<body>` — hand it back to the trigger instead, as `wr-dropdown`
+    // does on Escape. Only when focus is still IN there: if the user has already
+    // clicked elsewhere, taking it back would be stealing.
+    const returnFocus = this.overlayRef.overlayElement.contains(document.activeElement);
+    this.overlayRef.dispose();
+    this.overlayRef = null;
+    this.isOpen.set(false);
+    if (returnFocus) this.host.nativeElement.focus();
   }
 }

@@ -135,6 +135,7 @@ export const wrRu: WrI18nCatalog = {
     tooBig: 'Файл слишком большой',
   },
   popconfirm: {
+    label: 'Подтверждение действия',
     confirm: 'Подтвердить',
     cancel: 'Отмена',
   },
