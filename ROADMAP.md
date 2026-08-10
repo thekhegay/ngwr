@@ -1345,12 +1345,33 @@ theme is what makes ngwr a library people can bet on.
       `aria-hidden` and for going away with the directive, since it is a DOM node
       the directive appends by hand rather than a template element Angular cleans
       up.
+      **`wr-border-glow` and the window outputs (2026-08-11)** — the glow tracks
+      the cursor with two numbers, an angle measured from the top clockwise and a
+      proximity that is 0 at the centre and 1 at the perimeter, both written onto
+      the host for the stylesheet. Exact maths, now pinned, including the case
+      that reads wrong at a glance: at a diagonal the proximity follows whichever
+      axis runs out FIRST, not the average of the two, so a cursor near a long
+      edge is fully lit rather than half lit.
+      `<wr-window>`'s three outputs — `closed`, `moved`, `resized` — had no
+      documentation at all, so the API table rendered an em dash for each. They
+      are documented now, and the interesting half is what `moved` does NOT do: it
+      fires while the header is dragged and stays silent for `moveTo()` /
+      `center()` / the opening cascade. That is defensible — the caller already
+      knows where it put the window, and echoing it back double-counts for
+      anything persisting the position — but it was defensible and undocumented,
+      which is the same as undefined.
+      Two things checked and found already correct, worth recording so they are
+      not re-checked: every canvas component null-guards its `getContext` call,
+      and `wr-border-glow` / `wr-splash-cursor` clean up through `effect(onCleanup
+      => …)` rather than `DestroyRef` — which a grep for `onDestroy` reports as a
+      leak and which is not one.
       **Remaining:** every one of the eighty-three component pages has a spec
-      behind it. What is left is the animations cluster — thirteen of its
+      behind it. What is left is the animations cluster — fourteen of its
       twenty-one covered, the rest being the canvas and WebGL ones, where jsdom
       has no context to draw into — and mode coverage inside a component that is
       already covered: a spec on `wr-table` says nothing about tree rows unless it
-      exercises them.
+      exercises them. `<wr-window>` itself is `@internal`; its public surface is
+      `WrWindowManager`, which has had a spec since A1 started.
       One gap closed and one dismissed since the last note: the palette now
       scrolls its active option into view (`scrollIntoView({ block: 'nearest' })`,
       keyboard only — doing it on hover would fight the pointer), and its
