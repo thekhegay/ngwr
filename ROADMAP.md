@@ -1381,6 +1381,16 @@ theme is what makes ngwr a library people can bet on.
       and `wr-border-glow` / `wr-splash-cursor` clean up through `effect(onCleanup
       => …)` rather than `DestroyRef` — which a grep for `onDestroy` reports as a
       leak and which is not one.
+      **`WrScroll` (2026-08-11)** — the last service without a spec, and the one
+      two other components delegate to (`wr-anchor` and `wr-back-top` both call it
+      rather than touching `window.scrollTo`). jsdom cannot scroll, which is
+      exactly the right shape for this: what the service decides is the ARGUMENTS,
+      and those are what a caller depends on. Four mutations confirm the
+      arithmetic is load-bearing — the page's own `scrollY` added back to a
+      viewport-relative rect, the container's `scrollTop` and offset for a
+      scrollable box, the reduced-motion fallback to `auto`, and the `try`/`catch`
+      around `querySelector` that keeps a URL fragment like `#not a selector` from
+      throwing.
       **Remaining:** every one of the eighty-three component pages has a spec
       behind it. What is left is the animations cluster — fourteen of its
       twenty-one covered, the rest being the canvas and WebGL ones, where jsdom

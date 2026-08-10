@@ -150,7 +150,7 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/pipes`, the colour and squircle maths), the validation-copy contract
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
-`WrWindowManager` — `ngwr/scroll` is the gap) and EVERY component with a
+`WrWindowManager`, `ngwr/scroll`) and EVERY component with a
 page under `reference/components` — 124 spec files, ~1550 specs. What is still
 uncovered: seven of the animation components (the canvas and WebGL ones, where
 jsdom has no drawing context) and mode coverage inside components that are
