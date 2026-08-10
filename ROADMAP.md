@@ -517,8 +517,46 @@ theme is what makes ngwr a library people can bet on.
       intact, which left a shifted sextant boundary invisible, since swapping
       which channel carries the chroma moves the colour while leaving s and v at
       1. A surviving mutation said so; the hue itself is asserted now.
-      **Remaining:** the rest of the components — twenty-nine of eighty-one
-      have specs, and mode coverage inside them is its own axis.
+      **The two uncovered value controls followed** (2026-08-10) — `wr-textarea`
+      and `wr-knob`, at 879 specs — and the yield came from one method worth
+      naming: where two components are near-copies, whatever they DISAGREE about
+      is a bug in one of them. `wr-knob`, `wr-rating` and `wr-slider` share a
+      `role="slider"` template down to the `tabindex="interactive() ? 0 : -1"`
+      expression, and the knob had lost four things its siblings keep. It emitted
+      `touch` on pointer-up only, with no blur handler at all, so a keyboard user
+      could set a value and the bound field stayed untouched forever — every
+      validation message gated on touched simply never appeared. It never set
+      `aria-readonly` (rating does) nor carried a `--readonly` modifier, so a
+      read-only dial announced nothing and kept `cursor: grab`, reading as broken
+      rather than deliberate. Its step grid was anchored at ZERO rather than at
+      `min`, so with `min: 5, step: 10` the middle of the arc committed 60 — a
+      value the arrows can never reach — and neither path rounded, so three
+      presses at `step: 0.1` announced `aria-valuenow="0.30000000000000004"` and
+      printed it in the dial. `wr-slider`'s `snap` already solves both halves and
+      is now what the knob uses. Last, `radius = 50 - strokeWidth / 2 - 0.5` goes
+      negative past 99, and a negative radius is invalid in the SVG path grammar,
+      so the dial silently vanishes instead of clipping; floored at 1.
+      `wr-textarea`'s was a question of ownership rather than of ARIA: `autosize`
+      writes an inline `height` onto the native element, and the effect returned
+      early when it was switched off — so the field stayed frozen at the last
+      fitted size and `rows` silently stopped meaning anything. It now hands the
+      height back, and a fit whose frame outlived its reason (autosize toggled off
+      between the effect and the `requestAnimationFrame`) bails instead of writing
+      one. Two notes on method. My first fix guarded the release behind an
+      `autofitted` flag; a mutation survived, and rather than call the test weak
+      I checked — the flag changed no observable behaviour, and the full suite
+      plus the SSR prerender of every route were green without it, so the
+      defensive field went rather than staying on to be explained. And the recon
+      that found the grid and radius defects came from a subagent, which also
+      reported the no-provider branch of `useI18nText` treating `''` as a real
+      name: that one is unreachable, because `WrI18n` is root-provided and
+      `no-provider.spec.ts` already proves `TestBed.inject(WrI18n)` resolves with
+      nothing configured. Dead code, not a defect — worth verifying every claim
+      before spending a fix on it.
+      **Remaining:** the rest of the components — thirty-one of eighty-one
+      have specs, and mode coverage inside them is its own axis. The next batch is
+      scouted: `wr-transfer`, `wr-dropdown`, `wr-command-palette` and
+      `wr-splitter`, each with candidate defects not yet verified by hand.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
