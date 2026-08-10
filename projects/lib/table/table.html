@@ -40,9 +40,9 @@
             @if (rowSelection() === 'multiple') {
               <wr-checkbox
                 size="sm"
-                [ngModel]="allSelected()"
+                [checked]="allSelected()"
                 [indeterminate]="someSelected()"
-                (ngModelChange)="toggleAll($event)"
+                (checkedChange)="toggleAll($event)"
                 [ariaLabel]="resolvedSelectAllLabel()"
               />
             }
@@ -121,9 +121,9 @@
                     <wr-checkbox
                       class="wr-table__group-select"
                       size="sm"
-                      [ngModel]="groupChecked(entry.group.rows)"
+                      [checked]="groupChecked(entry.group.rows)"
                       [indeterminate]="groupIndeterminate(entry.group.rows)"
-                      (ngModelChange)="toggleGroupSelection(entry.group.rows, $event)"
+                      (checkedChange)="toggleGroupSelection(entry.group.rows, $event)"
                       [ariaLabel]="resolvedSelectGroupLabel()"
                     />
                   }
@@ -215,8 +215,8 @@
                 <td class="wr-table__td wr-table__td--select">
                   <wr-checkbox
                     size="sm"
-                    [ngModel]="isRowSelected(entry.row)"
-                    (ngModelChange)="toggleRow(entry.row, $event)"
+                    [checked]="isRowSelected(entry.row)"
+                    (checkedChange)="toggleRow(entry.row, $event)"
                     [ariaLabel]="resolvedSelectRowLabel()"
                   />
                 </td>

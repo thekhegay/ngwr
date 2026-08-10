@@ -26,7 +26,6 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrCheckbox } from 'ngwr/checkbox';
 import { useI18nText } from 'ngwr/i18n';
@@ -112,17 +111,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     '[class.wr-table--responsive]': 'responsive()',
     '[class.wr-table--virtual]': 'virtualized()',
   },
-  imports: [
-    NgTemplateOutlet,
-    FormsModule,
-    CdkDropList,
-    CdkDrag,
-    WrCheckbox,
-    WrPagination,
-    WrSpinner,
-    WrTableSort,
-    WrTableFilter,
-  ],
+  imports: [NgTemplateOutlet, CdkDropList, CdkDrag, WrCheckbox, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
 })
 export class WrTable {
   /** Column definitions, keyed by row property name. */

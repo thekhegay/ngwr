@@ -78,8 +78,8 @@
       class="wr-pagination__size"
       [attr.aria-label]="resolvedItemsPerPage()"
       [disabled]="disabled()"
-      [ngModel]="pageSize()"
-      (ngModelChange)="onSizeChange($event)"
+      [value]="pageSize()"
+      (valueChange)="onSizeChange($event)"
     >
       @for (option of pageSizeOptions(); track option) {
         <wr-option [value]="option">{{ perPage({ size: option }) }}</wr-option>

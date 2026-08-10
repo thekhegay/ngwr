@@ -326,6 +326,20 @@ describe('WrDatePicker', () => {
     expect(timeInput('Hours').value).toBe('10');
   });
 
+  it('opens the datetime steppers on the bound time, not on midnight', () => {
+    fixture.componentInstance.mode.set('datetime');
+    fixture.componentInstance.format.set('dd.MM.yyyy HH:mm');
+    fixture.componentInstance.picked.set(new Date(2025, 0, 5, 16, 40));
+    fixture.detectChanges();
+    open();
+
+    // Bound through `[ngModel]`, the panel showed 00:00 for a 16:40 value and
+    // the first click on a stepper committed midnight over it. The `time` mode
+    // path was already asserted and was fine — it feeds the panel directly —
+    // so only `datetime`, which went through the forms bridge, was affected.
+    expect([timeInput('Hours').value, timeInput('Minutes').value]).toEqual(['16', '40']);
+  });
+
   it('offers calendar and time together in datetime mode, and keeps the time when a day is picked', () => {
     fixture.componentInstance.mode.set('datetime');
     fixture.componentInstance.format.set('dd.MM.yyyy HH:mm');

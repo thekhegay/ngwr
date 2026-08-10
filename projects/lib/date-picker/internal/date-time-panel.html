@@ -9,10 +9,10 @@
 
 <div class="wr-date-time-panel__time">
   <wr-time-picker
-    [ngModel]="timeValue()"
+    [value]="timeValue()"
     [format]="timeFormat()"
     [showSeconds]="showSeconds()"
     [step]="step()"
-    (ngModelChange)="onTimeChange($event)"
+    (valueChange)="onTimeChange($event)"
   />
 </div>
