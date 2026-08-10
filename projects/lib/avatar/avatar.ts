@@ -5,8 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, computed, input, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, input, signal, untracked } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrSpinner } from 'ngwr/spinner';
 import { resolveCssSize, type ResolvedCssSize } from 'ngwr/utils';
 
@@ -47,11 +48,14 @@ export class WrAvatar {
   readonly url = input<string | null>(null);
 
   /**
-   * Alt text for the image.
+   * Alt text for the image. Falls back to `avatar.alt`, then `'Avatar'` — pass
+   * the person's name where you have it, since that is what a reader wants.
    *
-   * @default 'Avatar'
+   * @default null
    */
-  readonly alt = input<string>('Avatar');
+  readonly alt = input<string | null>(null);
+
+  protected readonly resolvedAlt = useI18nText(this.alt, 'avatar.alt', 'Avatar');
 
   /**
    * Corner treatment. `rounded` (default) is a soft rounded square,
@@ -69,6 +73,25 @@ export class WrAvatar {
   readonly size = input<WrAvatarSize>(DEFAULT_SIZE);
 
   protected readonly loaded = signal(false);
+
+  /**
+   * Whether the image failed. Without this the spinner spun forever on a broken
+   * URL — the one state where an avatar is guaranteed to have projected initials
+   * worth showing instead.
+   */
+  protected readonly failed = signal(false);
+
+  constructor() {
+    // A new URL is a new attempt: after a failure the fallback would otherwise
+    // stay put for an image that loads perfectly well.
+    effect(() => {
+      this.url();
+      untracked(() => {
+        this.loaded.set(false);
+        this.failed.set(false);
+      });
+    });
+  }
 
   protected readonly resolved = computed<ResolvedCssSize>(() => {
     const result = resolveCssSize(this.size(), { defaultValue: DEFAULT_SIZE });
@@ -91,5 +114,9 @@ export class WrAvatar {
 
   protected onImageLoad(): void {
     this.loaded.set(true);
+  }
+
+  protected onImageError(): void {
+    this.failed.set(true);
   }
 }
