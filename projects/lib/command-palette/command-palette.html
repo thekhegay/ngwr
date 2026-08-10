@@ -40,10 +40,19 @@
         @if (filtered().length === 0) {
           <div class="wr-command-palette__empty">{{ resolvedEmpty() }}</div>
         } @else {
-          @for (bucket of buckets(); track bucket.title) {
-            <div class="wr-command-palette__group">
+          @for (bucket of buckets(); track bucket.title; let groupIndex = $index) {
+            <!-- A listbox may only own `option` and `group` children, so a titled
+                 bucket is a labelled group and an untitled one leaves the tree with
+                 `role="none"`, promoting its options to the listbox's own. -->
+            <div
+              class="wr-command-palette__group"
+              [attr.role]="bucket.title ? 'group' : 'none'"
+              [attr.aria-labelledby]="bucket.title ? groupTitleId(groupIndex) : null"
+            >
               @if (bucket.title) {
-                <div class="wr-command-palette__group-title">{{ bucket.title }}</div>
+                <div class="wr-command-palette__group-title" [attr.id]="groupTitleId(groupIndex)">
+                  {{ bucket.title }}
+                </div>
               }
               @for (item of bucket.items; track item.id) {
                 <div
