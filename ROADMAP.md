@@ -1198,7 +1198,45 @@ theme is what makes ngwr a library people can bet on.
       the component is unusually well reasoned — the comments carry the arguments
       for deriving the resting height from `refreshing` rather than latching an
       edge — and the spec pins that reasoning rather than re-litigating it.
-      **Remaining:** the rest of the components — sixty-seven of eighty-one have
+      **The small display components (2026-08-11)** — `wr-badge`, `wr-card`,
+      `wr-divider`, `wr-skeleton`, `wr-result`, `wr-descriptions`, `wr-timeline`,
+      `wr-toolbar`, `wr-page-header`, `wr-layout`. Ten components, one bug, and
+      the spec is the point rather than the fix: these are
+      `ViewEncapsulation.None` components whose whole output is a class list and a
+      handful of roles, both of which consumers style and script against, and
+      neither of which anything was watching. The one bug is in `wr-layout-sider`,
+      whose `collapsedChanged` output is documented as firing "whenever
+      `collapsed` changes" and fired only from the imperative `toggle()` — so the
+      `[(collapsed)]` binding the docs lead with was silent. It emits from an
+      effect now, skipping the first read so the initial value is not reported as
+      a change, with the manual emit removed so a toggle produces exactly one
+      event.
+      Two things worth knowing for the next spec of this shape. Asserting
+      `className` as a STRING is wrong: a `[class]` binding is applied class by
+      class, so the DOM order is the diff order rather than the order the
+      component composed them in, and three of these specs failed on a reordering
+      that changes nothing a stylesheet can see. Compare the sorted class SET. And
+      the projection wrappers that always render (`__extra`, `__actions`,
+      `__breadcrumbs`, the toolbar's three zones) are collapsed by `:empty` in the
+      stylesheets rather than by `@if` — checked before assuming phantom spacing,
+      and it is handled everywhere it needs to be.
+      One verified negative, from a sweep rather than a report: every animation
+      component in the library honours `prefers-reduced-motion` — the JS-driven
+      ones through `WrPlatform.prefersReducedMotion()`, the CSS-driven ones
+      through a media query in their own stylesheet. The only one with no handling
+      at all is `wr-spotlight-card`, where a gradient tracks the cursor and no
+      content moves, so there is nothing to reduce. (A first pass of this sweep
+      reported eight components with no handling; the glob it used silently
+      dropped every component without an HTML file, which is most of them. The
+      number was wrong before it was checked.)
+      Recorded, not fixed: `<wr-divider>OR</wr-divider>` does not read its label.
+      `role="separator"` is Children Presentational per ARIA, so the projected
+      text is not exposed at all — a labelled divider in a login form is a
+      boundary with no word attached. The fix is either an `ariaLabel` input the
+      consumer has to repeat, or reading the projected text after render to name
+      the separator with it; both are decisions about public semantics rather than
+      defects to patch quietly.
+      **Remaining:** the rest of the components — seventy-seven of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
