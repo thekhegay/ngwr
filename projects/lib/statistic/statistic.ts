@@ -122,7 +122,10 @@ export class WrStatistic {
         maximumFractionDigits: this.precision(),
       }).format(n);
     }
-    return String(this.value() ?? '—');
+    // `numericValue` above already reads `''` as "no value"; rendering it
+    // verbatim put an empty card on screen instead of the placeholder.
+    const raw = this.value();
+    return raw === null || raw === undefined || raw === '' ? '—' : String(raw);
   });
 
   /**
