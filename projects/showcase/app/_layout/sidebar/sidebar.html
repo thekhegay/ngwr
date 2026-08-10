@@ -18,7 +18,13 @@
           <wr-icon class="ngwr-sidebar__group-chevron" name="chevron-down" size="14" />
         </button>
 
-        <div class="ngwr-sidebar__group-wrap" [attr.aria-hidden]="!isOpen(group.title)">
+        <!-- `inert` as well as `aria-hidden`: without it every link in a collapsed
+             group stayed in the tab order, invisible and unannounceable. -->
+        <div
+          class="ngwr-sidebar__group-wrap"
+          [attr.aria-hidden]="isOpen(group.title) ? null : 'true'"
+          [attr.inert]="isOpen(group.title) ? null : ''"
+        >
           <div class="ngwr-sidebar__group-body">
             <div class="ngwr-sidebar__group-inner">
               @if (group.children) {
