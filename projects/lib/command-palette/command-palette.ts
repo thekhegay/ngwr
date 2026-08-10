@@ -143,6 +143,16 @@ export class WrCommandPalette {
     return `${this.listboxId}-opt-${i}`;
   }
 
+  /**
+   * A `role="listbox"` may only own `option` and `group` children, so a titled
+   * bucket becomes a labelled group and an untitled one drops out of the tree
+   * entirely — leaving its options as the listbox's own children rather than as
+   * role-less wrappers ARIA has no rule for.
+   */
+  protected groupTitleId(index: number): string {
+    return `${this.listboxId}-group-${index}`;
+  }
+
   /** Id of the active option for `aria-activedescendant`. */
   protected readonly activeOptionId = computed<string | null>(() => {
     const i = this.activeIndex();
@@ -158,13 +168,22 @@ export class WrCommandPalette {
   private focusTrap: ConfigurableFocusTrap | null = null;
   private previouslyFocused: HTMLElement | null = null;
 
-  /** Flat filtered list — what keyboard navigation walks. */
-  protected readonly filtered = computed<readonly WrCommandItem[]>(() =>
-    this.items().filter(item => matches(item, this.query()))
+  /** Grouped view — what the template renders. */
+  protected readonly buckets = computed<readonly Bucket[]>(() =>
+    bucketize(this.items().filter(item => matches(item, this.query())))
   );
 
-  /** Grouped view — what the template renders. */
-  protected readonly buckets = computed<readonly Bucket[]>(() => bucketize(this.filtered()));
+  /**
+   * Flat list in RENDER order — what keyboard navigation walks, and what every
+   * index in this component means. Derived FROM the buckets rather than from the
+   * filter: `bucketize` collects each group as it first appears, so a flat
+   * source-order list disagrees with the screen the moment two groups interleave.
+   * It did, and one ArrowDown moved the highlight two rows while Enter fired the
+   * command below the one that looked selected.
+   */
+  protected readonly filtered = computed<readonly WrCommandItem[]>(() =>
+    this.buckets().flatMap(bucket => bucket.items)
+  );
 
   constructor() {
     // Bind / re-bind the global trigger whenever the spec changes.
@@ -175,11 +194,17 @@ export class WrCommandPalette {
       this.bindingHandle = this.hotkeys.bind(spec, () => this.open.update(v => !v), { allowInInput: true });
     });
 
-    // Reset query + active index whenever we open; focus the input.
+    // Reset query + active index whenever we open.
     effect(() => {
       if (!this.open()) return;
       this.query.set('');
       this.activeIndex.set(0);
+    });
+
+    // Sheet presentation, kept OUT of the reset above: reading `responsive()` there
+    // made the reset depend on it, so a `[responsive]` bound to a signal that
+    // flipped while the palette was open wiped whatever the user had typed.
+    effect(() => {
       this.presentAsSheet.set(wrPresentAsSheet(this.responsive(), this.responsiveConfig));
     });
 
@@ -221,7 +246,14 @@ export class WrCommandPalette {
       if (this.activeIndex() > max) this.activeIndex.set(max);
     });
 
-    this.destroyRef.onDestroy(() => this.bindingHandle?.unbind());
+    this.destroyRef.onDestroy(() => {
+      this.bindingHandle?.unbind();
+      // The trap is torn down in the close branch of the effect above, which never
+      // runs when the component itself goes away while still open — leaving a live
+      // trap holding the removed panel and its document listeners.
+      this.focusTrap?.destroy();
+      this.focusTrap = null;
+    });
   }
 
   // Template handlers
