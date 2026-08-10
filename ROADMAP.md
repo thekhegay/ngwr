@@ -1039,7 +1039,36 @@ theme is what makes ngwr a library people can bet on.
       yet", so it passed here and failed on CI with the counter still on 0.
       Wall-clock waiting produced two different wrong answers in one spec; the
       clock belongs to the test.
-      **Remaining:** the rest of the components — fifty-four of eighty-one have
+      **The KPI and meter family (2026-08-11)** — `wr-bar-chart`,
+      `wr-meter-group`, `wr-statistic` and `wr-statistic-countdown`, and the same
+      NaN story as the line chart turned up in the first two. A scale derived with
+      `Math.max(...values)` or a `reduce` over the values is `NaN` the moment ONE
+      datum is, so both fell back to their `1` divisor and asked every HEALTHY bar
+      for a height of `value * 100`% — one bad number did not lose its own bar, it
+      destroyed the chart around it, and printed the literal text `NaN` while it
+      was at it. Both now read a non-finite value as zero, and the meter's legend
+      keeps a NEGATIVE value visible (it is data the caller gave us) while giving
+      it no width.
+      The meter also announced a value outside the range it announced it against:
+      segments summing past an explicit `max` put `aria-valuenow` above
+      `aria-valuemax`, which is not a number a screen reader can turn into a
+      percentage. It is capped at the total now. And the bar chart had the
+      decoupling problem in its purest form — the values live in one row and the
+      labels in another, so a reader got three numbers and then three labels with
+      nothing joining them, and with `showValues` off the numbers were not in the
+      accessible tree at all. Each column is a named `role="img"` carrying "Mon:
+      10", with the visible label row hidden as the decoration it now is.
+      `wr-statistic` rendered an empty-string value verbatim — a labelled card
+      with nothing under it — while its own numeric path already treated `''` as
+      "no value"; that internal disagreement is what made it a bug rather than a
+      preference. The countdown had two: an unparsable `target` reached the screen
+      as `NaN:NaN:NaN`, and the naive fix would have been worse than the bug,
+      because clamping only the TEXT would have left `tick` comparing zero to zero
+      and firing `countdownEnd` for a target that was never reached. Its `tickMs`
+      was also the one numeric input in the entry point with no coercion, so `0` —
+      or anything unparsable, through NaN — asked `setInterval` to run as fast as
+      the browser allowed. Floored at one frame.
+      **Remaining:** the rest of the components — fifty-eight of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
