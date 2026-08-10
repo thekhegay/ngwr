@@ -71,6 +71,7 @@ export const wrRu: WrI18nCatalog = {
     target: 'Выбрано',
     search: 'Поиск',
     empty: 'Пусто',
+    selectAll: 'Выбрать все',
     toTarget: 'Перенести в выбранные',
     toSource: 'Вернуть в доступные',
     count: '{{checked}} / {{total}}',

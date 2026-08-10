@@ -1289,6 +1289,7 @@ export const API = {
     { name: "targetTitle", description: "Heading above the right pane. Falls back to `transfer.target`.", type: "string | null", default: "null" },
     { name: "searchPlaceholder", description: "Placeholder in both filter boxes. Falls back to `transfer.search`.", type: "string | null", default: "null" },
     { name: "emptyText", description: "Shown in a pane with no rows. Falls back to `transfer.empty`.", type: "string | null", default: "null" },
+    { name: "selectAllLabel", description: "Accessible name of each pane's select-all checkbox, composed with the pane heading. Falls back to `transfer.selectAll`.", type: "string | null", default: "null" },
     { name: "toTargetLabel", description: "Accessible name of the move-right button. Falls back to `transfer.toTarget`.", type: "string | null", default: "null" },
     { name: "toSourceLabel", description: "Accessible name of the move-left button. Falls back to `transfer.toSource`.", type: "string | null", default: "null" },
   ],

@@ -19,7 +19,15 @@ import type { WrTransferItem } from './interfaces';
 /** A pane's rows plus the header state derived from them. */
 interface PaneState {
   readonly rows: readonly WrTransferItem[];
+  /**
+   * The staged values this pane is actually SHOWING — visible and enabled. The
+   * staging signals can hold more than that (a filter change hides rows without
+   * unstaging them), and every consumer of the staged set has to agree on which
+   * one it means: the count, the header checkbox and the move all read this.
+   */
+  readonly checked: readonly unknown[];
   readonly checkedCount: number;
+  readonly enabledCount: number;
   readonly allChecked: boolean;
   readonly someChecked: boolean;
 }
@@ -91,6 +99,12 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   /** Shown in a pane with no rows. Falls back to `transfer.empty`. */
   readonly emptyText = input<string | null>(null);
 
+  /**
+   * Accessible name of each pane's select-all checkbox, composed with the pane
+   * heading. Falls back to `transfer.selectAll`.
+   */
+  readonly selectAllLabel = input<string | null>(null);
+
   /** Accessible name of the move-right button. Falls back to `transfer.toTarget`. */
   readonly toTargetLabel = input<string | null>(null);
 
@@ -101,6 +115,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   protected readonly resolvedTargetTitle = useI18nText(this.targetTitle, 'transfer.target', 'Selected');
   protected readonly resolvedSearch = useI18nText(this.searchPlaceholder, 'transfer.search', 'Search');
   protected readonly resolvedEmpty = useI18nText(this.emptyText, 'transfer.empty', 'Nothing here');
+  protected readonly resolvedSelectAll = useI18nText(this.selectAllLabel, 'transfer.selectAll', 'Select all');
   protected readonly resolvedToTarget = useI18nText(this.toTargetLabel, 'transfer.toTarget', 'Move to selected');
   protected readonly resolvedToSource = useI18nText(this.toSourceLabel, 'transfer.toSource', 'Move to available');
 
@@ -117,7 +132,15 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   private readonly sourceChecked = signal<readonly unknown[]>([]);
   private readonly targetChecked = signal<readonly unknown[]>([]);
 
-  private readonly valueSet = computed(() => new Set(this.value()));
+  // The value as a guaranteed array — a classic-forms binding can write null even
+  // though the type is `readonly unknown[]`, so normalise every read. Same hazard
+  // `wr-checkbox-group` guards; here an unguarded `.map` threw outright.
+  private readonly selected = computed<readonly unknown[]>(() => {
+    const v = this.value();
+    return Array.isArray(v) ? v : [];
+  });
+
+  private readonly valueSet = computed(() => new Set(this.selected()));
 
   protected readonly source = computed<PaneState>(() =>
     this.pane(
@@ -131,7 +154,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     this.pane(
       // Right-pane order follows `value`, not `items`: the order a user built is
       // the one they expect to read back.
-      this.value()
+      this.selected()
         .map(v => this.items().find(item => item.value === v))
         .filter((item): item is WrTransferItem => item !== undefined),
       this.targetQuery(),
@@ -157,7 +180,17 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     if (item.disabled) return;
     const box = pane === 'source' ? this.sourceChecked : this.targetChecked;
     const current = box();
-    box.set(checked ? [...current, item.value] : current.filter(v => v !== item.value));
+    if (checked) {
+      box.set([...current, item.value]);
+      return;
+    }
+    // A `Set` compares with SameValueZero, which is what `WrTransferItem['value']`
+    // is documented to use and what `isChecked`'s `includes` already does. A `!==`
+    // filter cannot remove `NaN` from its own list, so such a row drew itself
+    // unchecked while staying staged.
+    const next = new Set(current);
+    next.delete(item.value);
+    box.set([...next]);
   }
 
   /** Header checkbox — stages or clears every enabled row the filter shows. */
@@ -173,17 +206,21 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   }
 
   protected moveRight(): void {
-    const moving = this.sourceChecked();
+    // `source().checked`, not the raw staging box: rows a filter change hid are
+    // neither counted nor ticked any more, so moving them would transfer rows the
+    // pane never showed as chosen — and, since staging outlives an external write
+    // to `value`, could land the same value on the right twice.
+    const moving = this.source().checked;
     if (moving.length === 0) return;
-    this.value.set([...this.value(), ...moving]);
+    this.value.set([...this.selected(), ...moving]);
     this.sourceChecked.set([]);
     this.touch.emit();
   }
 
   protected moveLeft(): void {
-    const moving = new Set(this.targetChecked());
+    const moving = new Set(this.target().checked);
     if (moving.size === 0) return;
-    this.value.set(this.value().filter(v => !moving.has(v)));
+    this.value.set(this.selected().filter(v => !moving.has(v)));
     this.targetChecked.set([]);
     this.touch.emit();
   }
@@ -194,12 +231,14 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     const visible = q ? rows.filter(item => item.label.toLowerCase().includes(q)) : rows;
     const enabled = visible.filter(item => !item.disabled);
     const staged = new Set(checked);
-    const checkedCount = enabled.filter(item => staged.has(item.value)).length;
+    const shown = enabled.filter(item => staged.has(item.value)).map(item => item.value);
     return {
       rows: visible,
-      checkedCount,
-      allChecked: enabled.length > 0 && checkedCount === enabled.length,
-      someChecked: checkedCount > 0 && checkedCount < enabled.length,
+      checked: shown,
+      checkedCount: shown.length,
+      enabledCount: enabled.length,
+      allChecked: enabled.length > 0 && shown.length === enabled.length,
+      someChecked: shown.length > 0 && shown.length < enabled.length,
     };
   }
 }
