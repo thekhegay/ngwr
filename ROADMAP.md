@@ -879,13 +879,28 @@ theme is what makes ngwr a library people can bet on.
       spec had only been asserting the absence of `NaN`. It now pins the good
       segments' path against the SAME data with the bad datum removed, which is
       the only assertion that notices a rescale.
+      **`wr-sparkline` (2026-08-11)** — four, and the first was an inconsistency
+      with itself. A series with no spread divided by the `|| 1` fallback and
+      landed every point on `pad + h`, the bottom edge, so a steady series at 500
+      read as rock bottom; a series of ONE datum was already centred. Flat now
+      means the middle, which is what the single-datum branch had been saying all
+      along. A non-finite datum survived the scale — every `min`/`max` comparison
+      against a NaN is false — and `toFixed(2)` wrote the literal text `NaN` into
+      the path `d`; such data is dropped now rather than scaled. The svg was
+      neither hidden from assistive tech nor named, which is the one option that
+      helps nobody: a sparkline usually sits beside the number it summarises,
+      where announcing it again is noise, but it can also be the only thing
+      showing a trend — so it is `aria-hidden` by default and becomes a named
+      `role="img"` the moment a consumer says what it shows. And its `strokeWidth`
+      was documented as viewBox units while `vector-effect="non-scaling-stroke"`
+      makes it CSS pixels.
       Scouted in the same pass and not yet verified by hand: `wr-compare`
       (`position` unclamped, no primary-pointer guard, no focus on pointerdown —
       the same trio `wr-splitter` had, and `role="slider"` on the wrapper that
       CONTAINS the projected content), `wr-donut-chart` and `wr-sparkline` (one
       NaN poisons the whole series, and neither chart has any accessible
       representation).
-      **Remaining:** the rest of the components — forty-five of eighty-one have
+      **Remaining:** the rest of the components — forty-six of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
