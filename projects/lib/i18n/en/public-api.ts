@@ -174,6 +174,9 @@ export const wrEn: WrI18nCatalog = {
     prevYear: 'Previous year',
     nextYear: 'Next year',
   },
+  lineChart: {
+    label: 'Line chart',
+  },
   donutChart: {
     label: 'Donut chart',
   },

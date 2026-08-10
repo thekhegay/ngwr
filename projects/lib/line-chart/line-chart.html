@@ -10,7 +10,7 @@
   </ul>
 }
 
-<div class="wr-line-chart__plot" [style.height.px]="height()">
+<div class="wr-line-chart__plot" role="img" [attr.aria-label]="resolvedAriaLabel()" [style.height.px]="height()">
   <svg
     [attr.viewBox]="viewBox()"
     preserveAspectRatio="none"
@@ -20,6 +20,7 @@
     @if (showGrid()) {
       @for (tick of yTicks(); track tick.value) {
         <line
+          class="wr-line-chart__grid-line"
           [attr.x1]="padding.left"
           [attr.x2]="vbW - padding.right"
           [attr.y1]="tick.y"
@@ -29,6 +30,7 @@
           vector-effect="non-scaling-stroke"
         />
         <text
+          class="wr-line-chart__tick"
           [attr.x]="padding.left - 6"
           [attr.y]="tick.y + 4"
           text-anchor="end"
@@ -43,6 +45,7 @@
 
     @for (s of resolvedSeries(); track s.label) {
       <path
+        class="wr-line-chart__line"
         [attr.d]="pathFor(s)"
         fill="none"
         [attr.stroke]="s.color"
@@ -53,13 +56,14 @@
       />
       @if (showDots()) {
         @for (v of s.data; track $index; let i = $index) {
-          <circle [attr.cx]="pointX(i)" [attr.cy]="pointY(v)" r="3" [attr.fill]="s.color" />
+          <circle class="wr-line-chart__dot" [attr.cx]="pointX(i)" [attr.cy]="pointY(v)" r="3" [attr.fill]="s.color" />
         }
       }
     }
 
     @if (hovered !== null && hoverPoints().length > 0) {
       <line
+        class="wr-line-chart__crosshair"
         [attr.x1]="pointX(hovered)"
         [attr.x2]="pointX(hovered)"
         [attr.y1]="padding.top"

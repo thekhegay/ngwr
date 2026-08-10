@@ -8,6 +8,8 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ElementRef, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
+
 import type { WrLineSeries } from './interfaces';
 
 const FALLBACK_COLORS = [
@@ -44,6 +46,15 @@ const FALLBACK_COLORS = [
 export class WrLineChart {
   readonly series = input<readonly WrLineSeries[]>([]);
 
+  /**
+   * Accessible name of the chart. The legend carries the series NAMES only — the numbers
+   * are nowhere in text — so without this the plot is nothing at all to a screen reader.
+   * Falls back to `lineChart.label`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'lineChart.label', 'Line chart');
+
   /** Labels for the X axis (one per data point). */
   readonly xLabels = input<readonly string[]>([]);
 
@@ -72,7 +83,11 @@ export class WrLineChart {
   protected readonly resolvedSeries = computed(() =>
     this.series().map((s, i) => ({
       label: s.label,
-      data: s.data,
+      // Non-finite points are dropped, not scaled. `Math.min`/`Math.max` over the pooled
+      // data are both NaN as soon as one datum is, so every coordinate in EVERY series
+      // became `NaN` — invalid path geometry, and the whole chart vanished rather than the
+      // one bad point.
+      data: s.data.filter(v => Number.isFinite(v)),
       color: s.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
     }))
   );

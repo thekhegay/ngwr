@@ -162,6 +162,9 @@ export const wrRu: WrI18nCatalog = {
     prevYear: 'Предыдущий год',
     nextYear: 'Следующий год',
   },
+  lineChart: {
+    label: 'Линейный график',
+  },
   donutChart: {
     label: 'Круговая диаграмма',
   },
