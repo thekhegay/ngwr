@@ -1,7 +1,7 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrMedia } from './wr-media';
 
@@ -42,6 +42,16 @@ describe('WrMedia', () => {
       };
     });
   };
+
+  // `vi.stubGlobal` is NOT undone between files unless it is undone here: vitest
+  // only auto-restores globals when `unstubGlobals` is configured, and this suite
+  // does not set it. The server test below installs a matchMedia that THROWS, and
+  // leaving that behind means the next file to construct `WrPlatform` — which
+  // reads two media queries in its field initializers — dies with a prerender
+  // error from a file that never mentioned matchMedia. That is a red CI run whose
+  // stack points at innocent code, and it depends on file order, so it reproduces
+  // roughly half the time.
+  afterEach(() => vi.unstubAllGlobals());
 
   /** Move the viewport and fire `change` on every query whose answer flipped. */
   const resizeTo = (px: number): void => {
