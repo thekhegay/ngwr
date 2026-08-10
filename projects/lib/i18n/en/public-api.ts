@@ -250,6 +250,9 @@ export const wrEn: WrI18nCatalog = {
     startTime: 'Start time',
     endTime: 'End time',
   },
+  sidebar: {
+    label: 'Sidebar',
+  },
   spinner: {
     label: 'Loading',
   },

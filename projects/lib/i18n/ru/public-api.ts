@@ -239,6 +239,9 @@ export const wrRu: WrI18nCatalog = {
     startTime: 'Время начала',
     endTime: 'Время окончания',
   },
+  sidebar: {
+    label: 'Боковая панель',
+  },
   spinner: {
     label: 'Загрузка',
   },
