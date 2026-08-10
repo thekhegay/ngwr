@@ -1257,10 +1257,37 @@ theme is what makes ngwr a library people can bet on.
       and the reorder without pretending to test the gesture, and it caught
       nothing, which is the honest result for forty lines of well-scoped
       delegation.
-      **Remaining:** every one of the eighty-three component pages now has a spec
-      behind it. What is left is the animations cluster, which is its own list,
-      and mode coverage inside a component that is already covered — a spec on
-      `wr-table` says nothing about tree rows unless it exercises them.
+      **The animations cluster, first two (2026-08-11)** — `wr-typewriter` and
+      `wr-decrypt-text`, and the bug they share is one the rest of the library
+      gets right. Text is walked by CODE POINT everywhere in this codebase —
+      `blur-text`, `split-text`, `circular-text`, `speed-dial`, and
+      `rotating-text`, which goes as far as `Intl.Segmenter` with a fallback. Two
+      places did not. The typewriter reversed with `split('').reverse()`, which
+      reverses UTF-16 units: an emoji came out as two lone surrogates, so
+      `reverseMode` on any text with one typed replacement glyphs.
+      `wr-decrypt-text` had the same mistake three times over in five lines, and
+      the third was the interesting one. Its scramble pool was built with
+      `split('')` (halves of a surrogate pair as separate glyphs to pick from —
+      from the text itself AND from a custom `characters` alphabet), and a
+      revealed character was read back as `txt[i]` while `i` came from
+      `[...txt].map((ch, i) => …)`. Those are two different index spaces: past the
+      first astral character, every revealed position showed the WRONG glyph. The
+      fix for that one is to return `ch`, which the map already has. The same
+      confusion ran through six `txt.length` uses that size the reveal, so a
+      sequential pass over text with an emoji in it spent extra ticks on indices
+      with no character behind them.
+      Three mutation survivors, all weak tests rather than redundant code, and
+      each one instructive. A stubbed `Math.random()` fixed at 0 always picks
+      pool[0], so it can never see a bad pool entry — the test sweeps random
+      across the pool now. A surrogate-pair test that only exercises
+      `useOriginalCharsOnly` says nothing about the custom-alphabet branch. And an
+      off-by-one in a length is invisible in the rendered text (the extra index
+      simply has no character); what shows it is WHEN the interval stops, so that
+      is what the spec asserts.
+      **Remaining:** every one of the eighty-three component pages has a spec
+      behind it. What is left is the animations cluster — two of its twenty-one
+      covered — and mode coverage inside a component that is already covered: a
+      spec on `wr-table` says nothing about tree rows unless it exercises them.
       One gap closed and one dismissed since the last note: the palette now
       scrolls its active option into view (`scrollIntoView({ block: 'nearest' })`,
       keyboard only — doing it on hover would fight the pointer), and its
