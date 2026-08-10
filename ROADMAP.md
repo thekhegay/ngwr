@@ -501,6 +501,22 @@ theme is what makes ngwr a library people can bet on.
       anything, and two of them were green that way until the two that expected
       the panel to STILL be open failed and gave it away. Worth remembering that
       a negative assertion on a wrong selector is silently vacuous.
+      `wr-color-picker`'s pure `color/` folder got 21 — exact assertions and
+      round trips, which is what conversion code deserves: every one of these is
+      lossy in the middle (hue is undefined for grey, saturation for black), and
+      a formula that is merely close shows up as a handle drifting further from
+      the swatch on every drag. `#f80` expands by DOUBLING each digit, not
+      padding; `parseHex` returns null rather than throwing or falling back to
+      black, because its caller is usually a field mid-typing where "not valid
+      yet" is the normal state.
+      Two things this batch taught about the tests themselves. The scale is
+      fractions: `h` is degrees in `[0, 360)` but `s`, `l`, `v` and `a` are all
+      in `[0, 1]`, so white is `l = 1` — three assertions written in percentages
+      failed and were right to. And a round trip is only as strong as what it
+      compares: the hue-circle test checked saturation and value coming back
+      intact, which left a shifted sextant boundary invisible, since swapping
+      which channel carries the chroma moves the colour while leaving s and v at
+      1. A surviving mutation said so; the hue itself is asserted now.
       **Remaining:** the rest of the components — twenty-nine of eighty-one
       have specs, and mode coverage inside them is its own axis.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
