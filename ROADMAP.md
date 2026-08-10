@@ -988,7 +988,23 @@ theme is what makes ngwr a library people can bet on.
       testable here without a stub — though the ATTRIBUTES are read back off a
       recording document, since jsdom does not enforce the rules a browser applies
       to them.
-      **Remaining:** the rest of the components — fifty of eighty-one have
+      **`wr-line-chart` completed the chart family** (2026-08-11) and repeated two
+      of its siblings' faults while avoiding a third. `Math.min`/`Math.max` are
+      computed over the POOLED data of every series, so a single non-finite datum
+      made both NaN and every coordinate in EVERY series came out as `NaN` — the
+      whole chart vanished rather than the one bad point. Non-finite points are
+      dropped now, and the spec pins the harder half: the good series must draw
+      identically with the bad datum present and removed, which is what catches a
+      silent rescale rather than just the absence of `NaN`. Its `<svg>` was
+      neither hidden from assistive tech nor named, and here that matters more
+      than in the donut — the legend carries the series NAMES only, so the numbers
+      are nowhere in text; the plot is a named `role="img"` now. It had already
+      got the empty-legend guard right, which is why that one is absent from this
+      list. And, like the gauge before it, none of its SVG parts carried a class:
+      the gridlines, the ticks, the series paths, the dots and the crosshair are
+      all `.wr-line-chart__*` now, which is the public styling API a consumer is
+      expected to reach for.
+      **Remaining:** the rest of the components — fifty-one of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
