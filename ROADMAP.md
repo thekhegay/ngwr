@@ -862,13 +862,30 @@ theme is what makes ngwr a library people can bet on.
       while the visible divider and handle are `aria-hidden`. Moving the role onto
       the divider is the APG shape and would change which element takes focus — a
       visible change to a shipped component, not a bug fix.
+      **`wr-donut-chart` (2026-08-11)** — four, and the sharpest was arithmetic
+      rather than ARIA. `Math.max(0, NaN)` is NaN, and the running cumulative
+      carries it forward, so one non-finite datum wrote the literal text `NaN`
+      into its own arc's `d` AND every arc after it; worse, the same NaN reaching
+      `sum` collapsed `total` through its `sum > 0 ? sum : 1` fallback to 1,
+      silently rescaling every share that did survive. A `weight()` helper now
+      reads a non-finite or negative datum as nothing, in both places. The ring is
+      `aria-hidden` and the legend is optional, so with `showLegend: false` the
+      chart offered a screen reader nothing at all — it is `role="img"` with an
+      i18n-backed name now. The legend rendered an empty `<ul>` for empty
+      `segments`, which is still announced as a list of nothing. And `slices()`
+      carried a `percent` field the template never read, gone with it. The share
+      was also where a mutation survived: reverting the guard in `total` alone
+      changes every arc's angle while leaving the paths free of `NaN`, and the
+      spec had only been asserting the absence of `NaN`. It now pins the good
+      segments' path against the SAME data with the bad datum removed, which is
+      the only assertion that notices a rescale.
       Scouted in the same pass and not yet verified by hand: `wr-compare`
       (`position` unclamped, no primary-pointer guard, no focus on pointerdown —
       the same trio `wr-splitter` had, and `role="slider"` on the wrapper that
       CONTAINS the projected content), `wr-donut-chart` and `wr-sparkline` (one
       NaN poisons the whole series, and neither chart has any accessible
       representation).
-      **Remaining:** the rest of the components — forty-four of eighty-one have
+      **Remaining:** the rest of the components — forty-five of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
