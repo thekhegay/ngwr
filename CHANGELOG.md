@@ -1,5 +1,24 @@
 # Changelog
 
+## [10.2.1](https://github.com/thekhegay/ngwr/compare/v10.2.0...v10.2.1) (2026-08-10)
+
+### Features
+
+* **date-picker:** move focus into the popup it opens ([2ce8f31](https://github.com/thekhegay/ngwr/commit/2ce8f316c22d833f096386dad05d3bc2a2107a2d))
+
+### Bug Fixes
+
+* **a11y:** name overlay dialogs and reach close all by keyboard ([9849401](https://github.com/thekhegay/ngwr/commit/98494014475da06bf1df5b3f67813b29425095bb))
+* **breadcrumbs:** let a plain href render a real link ([c04b828](https://github.com/thekhegay/ngwr/commit/c04b828156524a9393e83ae9301e5144ba5a00d7))
+* **button:** give the element form real button semantics ([9e83ef7](https://github.com/thekhegay/ngwr/commit/9e83ef7c7929b67db1f5b0e8c2f6df7c45f6efe6))
+* **calendar:** move real focus with the roving tabindex ([53386c8](https://github.com/thekhegay/ngwr/commit/53386c81d6c5311b2ce81d5c5e7d4f38c64de93f))
+* **date-picker:** harden the range picker's focus, aria and editing ([53348e9](https://github.com/thekhegay/ngwr/commit/53348e923ea395514d4ad4f73d58b36a10e364e4))
+* **date-picker:** show the bound time in datetime mode ([f5ed23c](https://github.com/thekhegay/ngwr/commit/f5ed23ce66060d3563cea29dbc94f902310bb984))
+* **dialog:** give the dismiss button a real name without i18n ([1f47f4a](https://github.com/thekhegay/ngwr/commit/1f47f4afcf478303a73348c02716109f9fd01e08))
+* **dialog:** let tall content scroll instead of clipping the footer ([a0fa2da](https://github.com/thekhegay/ngwr/commit/a0fa2da9c88b759c59d1bea12982e16e4b60cdcd))
+* **window:** raise the clicked window above the others ([8eb5599](https://github.com/thekhegay/ngwr/commit/8eb5599793b353a2cae770b1152cd93ea84e1c51))
+* **window:** replay the close result and save the chosen geometry ([8c38d18](https://github.com/thekhegay/ngwr/commit/8c38d18660a805bd98cf84dc1b6a45080de95089))
+
 ## [10.2.0](https://github.com/thekhegay/ngwr/compare/v10.1.0...v10.2.0) (2026-08-09)
 
 ### Features
