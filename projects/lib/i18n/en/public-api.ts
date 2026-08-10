@@ -168,8 +168,14 @@ export const wrEn: WrI18nCatalog = {
   anchor: {
     label: 'Table of contents',
   },
+  avatar: {
+    alt: 'Avatar',
+  },
   backTop: {
     label: 'Back to top',
+  },
+  burger: {
+    label: 'Toggle menu',
   },
   calendar: {
     prevMonth: 'Previous month',
