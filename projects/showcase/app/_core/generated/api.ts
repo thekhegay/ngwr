@@ -796,8 +796,9 @@ export const API = {
   WrPopconfirm: [
     { name: "wrPopconfirm", description: "Confirmation message.", type: "string", required: true },
     { name: "position", description: "Anchor side.", type: "WrPopconfirmPosition", default: "'top'" },
-    { name: "confirmText", description: "Label for the confirm button.", type: "string", default: "'Confirm'" },
-    { name: "cancelText", description: "Label for the cancel button.", type: "string", default: "'Cancel'" },
+    { name: "confirmText", description: "Confirm button text. Falls back to `popconfirm.confirm`.", type: "string | null", default: "null" },
+    { name: "cancelText", description: "Cancel button text. Falls back to `popconfirm.cancel`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the confirmation dialog. `role=\"dialog\"` with no name announces as a bare \"dialog\". Falls back to `popconfirm.label`.", type: "string | null", default: "null" },
     { name: "confirmColor", description: "Color of the confirm button.", type: "WrColor", default: "'primary'" },
     { name: "(confirmed)", description: "Fires when the user clicks confirm.", type: "void" },
     { name: "(cancelled)", description: "Fires when the user clicks cancel or dismisses the overlay.", type: "void" },
@@ -805,6 +806,7 @@ export const API = {
   // <wr-popconfirm>
   WrPopconfirmPanel: [
     { name: "message", description: "—", type: "string", required: true },
+    { name: "messageId", description: "Id the anchoring directive points `aria-describedby` at.", type: "string | null", default: "null" },
     { name: "confirmText", description: "—", type: "string", default: "'Confirm'" },
     { name: "cancelText", description: "—", type: "string", default: "'Cancel'" },
     { name: "confirmColor", description: "—", type: "WrColor", default: "'primary'" },
