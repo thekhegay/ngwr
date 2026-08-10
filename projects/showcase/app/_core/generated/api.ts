@@ -48,6 +48,7 @@ export const API = {
   // <wr-anchor>
   WrAnchor: [
     { name: "links", description: "—", type: "readonly WrAnchorLink[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `anchor.label`, then `'Table of contents'` — it used to be that English string, hard-coded on the host, in a landmark a screen reader reads out on every page.", type: "string | null", default: "null" },
     { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
     { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
   ],
