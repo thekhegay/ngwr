@@ -1236,12 +1236,31 @@ theme is what makes ngwr a library people can bet on.
       consumer has to repeat, or reading the projected text after render to name
       the separator with it; both are decisions about public semantics rather than
       defects to patch quietly.
-      **Remaining:** four of the eighty-three component pages have no spec —
-      `action-sheet`, `drag-drop`, `keyboard`, `squircle` — plus the animations
-      cluster, which is a separate list. Mode coverage inside a covered component
-      is its own axis. (The count said eighty-one until it was recounted; two
-      pages document symbols that live inside another entry point, `button-group`
-      in `button/` and `form-field` in `form/`, and both of those are covered.)
+      **The last four component pages (2026-08-11)** — `action-sheet`,
+      `drag-drop`, `keyboard`, `squircle`. Every page under `reference/components`
+      now has a spec behind it. One fix: the action sheet wrote the literal string
+      `Actions` into its screen-reader-only dialog name, which is the fifth
+      instance of this exact bug found tonight, in a component whose every other
+      string comes from the caller.
+      The squircle's spec is the interesting one. Its path maths is a port of
+      `figma-squircle`, so asserting control points would only restate the
+      algorithm — the spec tests PROPERTIES instead: the path closes, every
+      coordinate is finite, radius 0 is exactly a rectangle, and a radius past the
+      corner budget draws the same shape as the budget itself. Three of the first
+      assertions were wrong about the code rather than the other way round (the
+      commands are RELATIVE and lower-case, so an uppercase `A`/`C` search finds
+      nothing and a raw coordinate scan means nothing), which is the argument for
+      reading an algorithm before asserting against it.
+      `wr-sortable-list` is a thin CDK wrapper, and a real drag needs layout that
+      jsdom does not have — so the spec emits the CDK's own `dropped` output
+      through the directive instance the template binds to. That tests the wiring
+      and the reorder without pretending to test the gesture, and it caught
+      nothing, which is the honest result for forty lines of well-scoped
+      delegation.
+      **Remaining:** every one of the eighty-three component pages now has a spec
+      behind it. What is left is the animations cluster, which is its own list,
+      and mode coverage inside a component that is already covered — a spec on
+      `wr-table` says nothing about tree rows unless it exercises them.
       One gap closed and one dismissed since the last note: the palette now
       scrolls its active option into view (`scrollIntoView({ block: 'nearest' })`,
       keyboard only — doing it on hover would fight the pointer), and its
