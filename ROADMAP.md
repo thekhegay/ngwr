@@ -894,13 +894,33 @@ theme is what makes ngwr a library people can bet on.
       `role="img"` the moment a consumer says what it shows. And its `strokeWidth`
       was documented as viewBox units while `vector-effect="non-scaling-stroke"`
       makes it CSS pixels.
+      **`wr-virtual-scroll` had a crash sitting behind one input** (2026-08-11).
+      CDK requires `maxBufferPx >= minBufferPx` and throws `CDK virtual scroll:
+      maxBufferPx must be greater than or equal to minBufferPx` outright otherwise
+      — and the two inputs were resolved INDEPENDENTLY, each falling back to its
+      own multiple of `itemSize`. So setting only `maxBufferPx`, which is the
+      obvious thing to do when you want a tighter buffer, left the derived minimum
+      of `itemSize * 4` above it and the viewport threw on construction. Setting
+      only `minBufferPx` above `itemSize * 8` did the same from the other side.
+      They resolve as a pair now: a given minimum pushes the maximum up, a given
+      maximum pulls the minimum down, and both given are simply sorted. Its spec
+      is deliberately the smallest of this batch, and the reason is worth writing
+      down: this component is a wrapper around a MEASURED CDK viewport, and jsdom
+      measures it at zero, so it renders an empty window. A row count would pin
+      the environment, not the component — the critic flagged exactly that shape
+      in the plan it was handed — so the template context is left unchecked and
+      said to be, while the buffers, the height coercion and the empty-list path
+      are covered. Left recorded: a virtualized list renders a handful of N rows
+      with no container role and no `aria-setsize`, so a screen reader is told
+      nothing about the total. The row template is the consumer's, which is what
+      makes this a design question rather than a patch.
       Scouted in the same pass and not yet verified by hand: `wr-compare`
       (`position` unclamped, no primary-pointer guard, no focus on pointerdown —
       the same trio `wr-splitter` had, and `role="slider"` on the wrapper that
       CONTAINS the projected content), `wr-donut-chart` and `wr-sparkline` (one
       NaN poisons the whole series, and neither chart has any accessible
       representation).
-      **Remaining:** the rest of the components — forty-six of eighty-one have
+      **Remaining:** the rest of the components — forty-seven of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
