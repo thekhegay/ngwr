@@ -14,7 +14,7 @@
          When there is no visible title, a screen-reader-only fallback keeps the
          dialog from being announced as unnamed. -->
     @if (!title()) {
-      <span class="wr-action-sheet__sr-only" wrDrawerTitle>Actions</span>
+      <span class="wr-action-sheet__sr-only" wrDrawerTitle>{{ resolvedTitleFallback() }}</span>
     }
 
     <div class="wr-action-sheet__group">

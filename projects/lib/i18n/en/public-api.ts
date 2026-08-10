@@ -202,6 +202,9 @@ export const wrEn: WrI18nCatalog = {
     next: 'Next slide',
     pagination: 'Carousel pagination',
   },
+  actionSheet: {
+    label: 'Actions',
+  },
   alert: {
     close: 'Close alert',
   },

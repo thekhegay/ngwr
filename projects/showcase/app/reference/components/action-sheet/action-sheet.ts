@@ -63,6 +63,12 @@ onPick(action: WrActionSheetAction): void {
     { name: 'title', description: 'Bold heading above the rows.', type: 'string', default: "''" },
     { name: 'message', description: 'Muted sub-heading under the title.', type: 'string', default: "''" },
     {
+      name: 'titleFallback',
+      description: 'Name announced for the dialog when there is no visible title. Falls back to `actionSheet.label`.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
       name: 'action',
       description: 'Fires with the chosen row (never on a dismiss).',
       type: 'output<WrActionSheetAction>',
