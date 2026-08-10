@@ -375,8 +375,18 @@ theme is what makes ngwr a library people can bet on.
       Neither component was broken. One more jsdom gap for the list: there is
       no `DataTransfer` and `input.files` is read-only, so both entry points
       are driven by attaching a `FileList`-shaped object to the event.
-      **Remaining:** the rest of the components — twenty-two of eighty-one have
-      specs.
+      `wr-tree` brought 17 more and no defects — the ARIA is properly built
+      (`role="tree"` / `treeitem`, `aria-level`, `aria-expanded`,
+      `aria-multiselectable`) and the roving cursor keeps the whole tree to one
+      tab stop. Two things the spec had to learn rather than assume: `openOn`
+      defaults to `inline`, so there is no combobox trigger unless you ask for
+      one; and inline selection is `[(selected)]`, while `[(value)]` — the
+      `FormValueControl` binding — is documented as meaningful in `overlay`
+      mode only. A spec written against `[(value)]` inline looks exactly like a
+      dead two-way binding, which is what it looked like here until the JSDoc
+      settled it.
+      **Remaining:** the rest of the components — twenty-three of eighty-one
+      have specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
