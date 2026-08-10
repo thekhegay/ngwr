@@ -21,6 +21,8 @@ import {
   untracked,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
+
 import { easeOutCubic } from './easing';
 import type { WrCounterMode } from './interfaces';
 
@@ -54,7 +56,13 @@ type Cell = { readonly kind: 'digit'; readonly fraction: number } | { readonly k
 })
 export class WrCounter {
   /** Target value. */
-  readonly value = input.required<number>();
+  /**
+   * The number to show. Coerced like every other numeric input here — it was the only one
+   * without it, and `Intl.NumberFormat().format(NaN)` renders the literal text `NaN`.
+   */
+  readonly value = input.required<number, unknown>({
+    transform: (v: unknown): number => coerceNumberProperty(v, 0),
+  });
 
   /** Animation mode. @default 'odometer' */
   readonly mode = input<WrCounterMode>('odometer');
@@ -84,6 +92,7 @@ export class WrCounter {
   private readonly current = signal<number>(0);
   private readonly locale = inject(LOCALE_ID);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
   private rafId: number | null = null;
 
   /** Tween-mode formatted output. */
@@ -137,7 +146,10 @@ export class WrCounter {
       // this effect each frame, cancelling + restarting the tween endlessly
       // (the wheels hang mid-roll and only snap once the restarts converge).
       const start = untracked(() => this.current());
-      if (!this.isBrowser) {
+      // Straight to the answer when there is nothing to animate for: no browser, or a
+      // reader who asked for less motion. `wr-scroll` already falls back the same way, and a
+      // component whose entire purpose is a count-up should be the first to honour it.
+      if (!this.isBrowser || this.platform.prefersReducedMotion()) {
         this.current.set(target);
         return;
       }
