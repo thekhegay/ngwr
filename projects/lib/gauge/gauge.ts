@@ -35,7 +35,14 @@ export class WrGauge {
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'gauge.label', 'Gauge');
 
-  readonly value = input.required<number>();
+  /**
+   * The reading. Coerced like every other numeric input here — it was the only one
+   * without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is
+   * invalid path geometry and drops the arc.
+   */
+  readonly value = input.required<number, unknown>({
+    transform: (v: unknown): number => coerceNumberProperty(v, 0),
+  });
   readonly min = input(0, { transform: (v: unknown): number => coerceNumberProperty(v, 0) });
   readonly max = input(100, { transform: (v: unknown): number => coerceNumberProperty(v, 100) });
 
@@ -58,7 +65,17 @@ export class WrGauge {
   // Geometry — semicircle in a 100×56 viewBox (centre at 50, 50).
   protected readonly cx = 50;
   protected readonly cy = 50;
-  protected readonly radius = computed(() => 50 - this.strokeWidth() / 2 - 0.5);
+  // A negative radius is invalid in the SVG path grammar, so the browser drops the arc
+  // and the dial vanishes — which a fat stroke reaches at 99. `wr-knob` floors it too.
+  protected readonly radius = computed(() => Math.max(1, 50 - this.strokeWidth() / 2 - 0.5));
+
+  /**
+   * The reading as it can actually be shown. Only `ratio` used to be clamped, so an
+   * over-range value drew a full bar while `aria-valuenow` announced the raw number
+   * against `aria-valuemax` — an invalid state for `role="meter"` — and the printed
+   * text disagreed with the bar as well.
+   */
+  protected readonly displayValue = computed(() => clamp(this.value(), this.min(), this.max()));
 
   protected readonly ratio = computed(() => {
     const range = this.max() - this.min();

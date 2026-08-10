@@ -556,7 +556,7 @@ export const API = {
   // <wr-gauge>
   WrGauge: [
     { name: "ariaLabel", description: "Accessible name — the role needs one. Falls back to `gauge.label`.", type: "string | null", default: "null" },
-    { name: "value", description: "—", type: "number", required: true },
+    { name: "value", description: "The reading. Coerced like every other numeric input here — it was the only one without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is invalid path geometry and drops the arc.", type: "number, unknown", required: true },
     { name: "min", description: "—", type: "number", default: "0" },
     { name: "max", description: "—", type: "number", default: "100" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "160" },
