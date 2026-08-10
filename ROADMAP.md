@@ -362,7 +362,20 @@ theme is what makes ngwr a library people can bet on.
       breaks the structure the container promises. The doc now says so, and
       says what to do instead — project a real button into
       `[wrListItemTrailing]` when the action itself must be announced as one.
-      **Remaining:** the rest of the components — twenty of eighty-one have
+      `wr-stepper` and `wr-file-upload` followed, 24 specs. The stepper's
+      contract is that `linear` REFUSES rather than greys: a disabled header is
+      the hint, `onHeaderClick` is the rule. Pinning that needed the trick
+      `date-picker.spec.ts` already documents — a real `.click()` on a
+      `<button disabled>` is swallowed by the DOM, so the guard never runs and
+      "the gate holds" passes for the wrong reason; dispatching the event
+      directly still reaches the Angular listener. Caught by a surviving
+      mutation, not by reading. The upload suite is all about refusals — wrong
+      type, too large, one too many — each of which has to reach the host WITH
+      a reason, since a silently dropped file looks like a broken upload.
+      Neither component was broken. One more jsdom gap for the list: there is
+      no `DataTransfer` and `input.files` is read-only, so both entry points
+      are driven by attaching a `FileList`-shaped object to the event.
+      **Remaining:** the rest of the components — twenty-two of eighty-one have
       specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
