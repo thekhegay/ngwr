@@ -1300,10 +1300,24 @@ theme is what makes ngwr a library people can bet on.
       synchronous, and it covers the state machine (next / previous / jumpTo /
       reset, the loop boundaries, the auto timer, the grapheme split) that the
       animation only decorates.
+      **The CSS-driven text effects (2026-08-11)** — `wr-gradient-text`,
+      `wr-circular-text`, `wr-star-border`, `wr-shiny-text`, `wr-glitch-text`,
+      `wr-spotlight-card`. Six components, no bugs, and specs anyway: each one's
+      entire output is a set of `--wr-*` custom properties and modifier classes
+      that a stylesheet reads, which is public API by the same rule as every other
+      BEM class here and was going unwatched. Two are worth singling out. The
+      glitch clones read `data-text` off the host while the visible text comes
+      from content — renaming either half breaks the effect and nothing else,
+      which is exactly the kind of silent break a spec is for. And
+      `wr-circular-text` places each character at `360/n` degrees and pushes it
+      out by the orbit radius; the spec asserts the four transforms exactly,
+      because the alternative reading of that maths (translate along a diagonal)
+      also looks plausible and is wrong.
       **Remaining:** every one of the eighty-three component pages has a spec
-      behind it. What is left is the animations cluster — four of its twenty-one
-      covered — and mode coverage inside a component that is already covered: a
-      spec on `wr-table` says nothing about tree rows unless it exercises them.
+      behind it. What is left is the animations cluster — ten of its twenty-one
+      covered, the rest being the canvas and WebGL ones — and mode coverage inside
+      a component that is already covered: a spec on `wr-table` says nothing about
+      tree rows unless it exercises them.
       One gap closed and one dismissed since the last note: the palette now
       scrolls its active option into view (`scrollIntoView({ block: 'nearest' })`,
       keyboard only — doing it on hover would fight the pointer), and its
