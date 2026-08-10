@@ -1,12 +1,14 @@
 <div
   class="wr-calendar-heatmap__grid"
+  role="img"
+  [attr.aria-label]="resolvedAriaLabel()"
   [style.--wr-heatmap-cell-size.px]="cellSize()"
   [style.--wr-heatmap-cell-gap.px]="cellGap()"
   [style.--wr-heatmap-columns]="columnCount()"
 >
   @if (showLabels()) {
     <div class="wr-calendar-heatmap__weekdays">
-      @for (label of weekdayLabels; track $index) {
+      @for (label of weekdayLabels(); track $index) {
         <span class="wr-calendar-heatmap__weekday">{{ label }}</span>
       }
     </div>
@@ -21,6 +23,7 @@
         [style.grid-column]="cell.week + 1"
         [style.grid-row]="cell.day + 1"
         [title]="`${cell.iso}: ${cell.value}`"
+        aria-hidden="true"
       ></span>
     }
   </div>

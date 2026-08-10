@@ -174,6 +174,9 @@ export const wrEn: WrI18nCatalog = {
     prevYear: 'Previous year',
     nextYear: 'Next year',
   },
+  calendarHeatmap: {
+    label: 'Calendar heatmap',
+  },
   lineChart: {
     label: 'Line chart',
   },
