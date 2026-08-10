@@ -466,7 +466,27 @@ theme is what makes ngwr a library people can bet on.
       path is refused by `pointer-events: none`, which a dispatched `.click()`
       bypasses by definition — so testing it would have been testing jsdom. The
       keyboard refusal is in code and is what the spec now checks.
-      **Remaining:** the rest of the components — twenty-seven of eighty-one
+      `wr-mention` closed the batch with 23, and it is the one component whose
+      ARIA was worth pinning line by line because every choice looks wrong until
+      the reasoning is read — all of which the source already carries in
+      comments. The host stays a `textbox` and is deliberately NOT a combobox:
+      the field holds prose and a mention is one fragment inside it, `role="combobox"`
+      is disallowed on `<textarea>`, and it would drop `aria-multiline` for the
+      whole editing session rather than just while the popup is up.
+      `aria-autocomplete` and `aria-haspopup` are STATIC, because they describe a
+      permanent capability that should be announced on focus.
+      The sharpest pair is the two references, and they have opposite rules:
+      `aria-controls` is allowed to dangle at a panel id that only exists while
+      open — gating it would mean gating `aria-autocomplete` too, and an
+      unresolved `controls` is a manual-review note to axe — while
+      `aria-activedescendant` naming an absent element is an author ERROR, so it
+      has to vanish the moment the panel does. Both directions are now pinned;
+      pointing `activedescendant` at the panel id instead fails three specs.
+      One expectation of mine was wrong and became a contract: the default
+      filter matches a SUBSTRING, not a prefix, so `@al` reaches "Alan" and also
+      "TorvALds" — friendlier for names, where people type the part they
+      remember. The `filterWith` override is covered alongside it.
+      **Remaining:** the rest of the components — twenty-eight of eighty-one
       have specs, and mode coverage inside them is its own axis.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
