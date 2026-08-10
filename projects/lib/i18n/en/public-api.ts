@@ -78,6 +78,9 @@ export const wrEn: WrI18nCatalog = {
     skip: 'Skip tour',
     progress: 'Step {{current}} of {{total}}',
   },
+  splitter: {
+    divider: 'Resize panes',
+  },
   transfer: {
     source: 'Available',
     target: 'Selected',

@@ -66,6 +66,9 @@ export const wrRu: WrI18nCatalog = {
     skip: 'Пропустить',
     progress: 'Шаг {{current}} из {{total}}',
   },
+  splitter: {
+    divider: 'Изменить размер областей',
+  },
   transfer: {
     source: 'Доступно',
     target: 'Выбрано',

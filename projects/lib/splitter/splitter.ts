@@ -6,8 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, inject, input, model } from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 /**
@@ -57,8 +58,29 @@ export class WrSplitter {
   /** Disable dragging. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Accessible name of the divider. A focusable `role="separator"` is an
+   * interactive widget, so it needs one — without it a screen reader reaching the
+   * divider announces nothing but "separator" and its number. Falls back to
+   * `splitter.divider`.
+   */
+  readonly dividerLabel = input<string | null>(null);
+
+  protected readonly resolvedDividerLabel = useI18nText(this.dividerLabel, 'splitter.divider', 'Resize panes');
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private dragging = false;
+
+  constructor() {
+    // `position` is a `model`, so `[(position)]` and a restored layout write into it
+    // directly; only the drag and the arrows clamped. Left alone, an out-of-range
+    // write reached the DOM as `aria-valuenow="150"` against a `valuemax` of 100 and
+    // sized a pane at `150%`.
+    effect(() => {
+      const clamped = clamp(this.position(), this.minPosition(), this.maxPosition());
+      if (clamped !== this.position()) this.position.set(clamped);
+    });
+  }
 
   protected readonly classes = computed(() => {
     const parts = ['wr-splitter', `wr-splitter--${this.orientation()}`];
@@ -73,9 +95,18 @@ export class WrSplitter {
 
   protected onPointerDown(event: PointerEvent): void {
     if (this.disabled()) return;
+    // Any pointerdown used to start a drag, so holding the RIGHT button over the
+    // divider and moving resized the panes; the same guard keeps a second finger
+    // from taking over a drag already in progress.
+    if (event.button !== 0 || !event.isPrimary) return;
     event.preventDefault();
     this.dragging = true;
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    const handle = event.currentTarget as HTMLElement;
+    handle.setPointerCapture(event.pointerId);
+    // `preventDefault` above also suppresses the click's default focus, so without
+    // this the arrows did nothing after a mouse drag until the user found the
+    // divider again with Tab. `wr-slider` focuses its thumb for the same reason.
+    handle.focus();
   }
 
   protected onPointerMove(event: PointerEvent): void {
