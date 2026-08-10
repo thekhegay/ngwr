@@ -1,7 +1,9 @@
 <button
+  #trigger
   type="button"
   class="wr-speed-dial__trigger"
   [attr.aria-expanded]="open()"
+  [attr.aria-controls]="menuId"
   aria-haspopup="menu"
   [attr.aria-label]="resolvedTriggerLabel()"
   [disabled]="disabled()"
@@ -10,7 +12,7 @@
   <wr-icon [name]="icon()" />
 </button>
 
-<ul class="wr-speed-dial__actions" role="menu">
+<ul class="wr-speed-dial__actions" role="menu" [attr.id]="menuId">
   @for (action of actions(); track action.id) {
     <!--
       role="none" is load-bearing: role="menu" on the <ul> strips the implicit
@@ -25,12 +27,13 @@
         role="menuitem"
         [attr.aria-label]="action.label"
         [title]="action.label"
+        [disabled]="disabled()"
         (click)="onPick(action)"
       >
         @if (action.icon) {
           <wr-icon [name]="action.icon" />
         } @else {
-          <span>{{ action.label.charAt(0) }}</span>
+          <span>{{ initial(action.label) }}</span>
         }
       </button>
     </li>

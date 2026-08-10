@@ -6,7 +6,17 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  ViewEncapsulation,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+  viewChild,
+} from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
@@ -31,11 +41,13 @@ import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
  *
  * @see https://ngwr.dev/reference/components/speed-dial
  */
+let menuUid = 0;
+
 @Component({
   selector: 'wr-speed-dial',
   templateUrl: './speed-dial.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { '[class]': 'classes()', '(keydown)': 'onKeydown($event)' },
   imports: [WrIcon],
 })
 export class WrSpeedDial {
@@ -71,6 +83,19 @@ export class WrSpeedDial {
   /** Fires when the user picks one of the actions. */
   readonly pick = output<WrSpeedDialAction>();
 
+  /** Id the trigger's `aria-controls` points at. */
+  protected readonly menuId = `wr-speed-dial-menu-${++menuUid}`;
+
+  protected readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
+
+  constructor() {
+    // A disabled trigger cannot be pressed, and the trigger is the only way to close
+    // the dial — so being disabled while open left it fanned out with no way back.
+    effect(() => {
+      if (this.disabled() && this.open()) this.open.set(false);
+    });
+  }
+
   protected readonly classes = computed(() => {
     const parts = ['wr-speed-dial', `wr-speed-dial--${this.direction()}`];
     if (this.open()) parts.push('wr-speed-dial--open');
@@ -86,8 +111,29 @@ export class WrSpeedDial {
 
   protected onPick(action: WrSpeedDialAction): void {
     if (this.disabled()) return;
-    this.pick.emit(action);
     this.open.set(false);
+    this.pick.emit(action);
+  }
+
+  /**
+   * `role="menu"` promises a way out, and the actions are ordinary buttons in the tab
+   * order — without this a keyboard user who opened the dial had to tab through every
+   * action to leave it.
+   */
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Escape' || !this.open()) return;
+    event.preventDefault();
+    this.open.set(false);
+    this.triggerEl()?.nativeElement.focus();
+  }
+
+  /**
+   * First GLYPH of the label, for an action with no icon. `charAt(0)` returns one
+   * UTF-16 code unit, which cuts an astral character (an emoji) in half and renders a
+   * replacement character.
+   */
+  protected initial(label: string): string {
+    return [...label][0] ?? '';
   }
 }
 
