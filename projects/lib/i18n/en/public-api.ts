@@ -175,6 +175,8 @@ export const wrEn: WrI18nCatalog = {
     nextYear: 'Next year',
   },
   carousel: {
+    label: 'Carousel',
+    goToSlide: 'Go to slide {{index}}',
     prev: 'Previous slide',
     next: 'Next slide',
     pagination: 'Carousel pagination',
