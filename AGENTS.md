@@ -147,9 +147,15 @@ sit **next to the code they cover** (`math/math.spec.ts`, not a `test/` tree).
 `tsconfig.lib.json` excludes `**/*.spec.ts`, so nothing ships to npm.
 
 Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
-`ngwr/pipes`), the validation-copy contract (`ngwr/form`), part of the service
-layer (`ngwr/hotkey`, `ngwr/i18n`) and six components — `wr-tabs`, `wr-select`,
-`wr-dialog`, `wr-popover`, `wr-toast`, `wr-date-picker` — at 296 specs.
+`ngwr/pipes`, the colour and squircle maths), the validation-copy contract
+(`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
+`ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
+`WrWindowManager` — `ngwr/scroll` is the gap) and EVERY component with a
+page under `reference/components` — 124 spec files, ~1550 specs. What is still
+uncovered: seven of the animation components (the canvas and WebGL ones, where
+jsdom has no drawing context) and mode coverage inside components that are
+covered — a spec on `wr-table` says nothing about tree rows unless it
+exercises them.
 
 **`pnpm test --filter <x>` is a TEST-NAME regex, not a file filter.** It is
 vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
