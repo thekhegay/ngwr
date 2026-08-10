@@ -72,6 +72,12 @@ export class MyComponent {
       default: '[]',
     },
     {
+      name: 'ariaLabel',
+      description: 'Accessible name for the navigation landmark. Falls back to the `sidebar.label` catalog key.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
       name: 'defaultGroupIcon',
       description: "Icon shown when a group's `icon` is omitted.",
       type: 'string',

@@ -978,6 +978,7 @@ export const API = {
   // <wr-sidebar>
   WrSidebar: [
     { name: "entries", description: "—", type: "readonly WrSidebarEntry[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `sidebar.label`, then `'Sidebar'` — a page with a sidebar AND a table of contents has two navigation landmarks, and an unnamed one is announced as just \"navigation\".", type: "string | null", default: "null" },
     { name: "defaultGroupIcon", description: "Default icon for entries without one.", type: "string", default: "'folder'" },
     { name: "defaultItemIcon", description: "Default icon for items without one.", type: "string", default: "'caret-forward'" },
     { name: "autoExpand", description: "Auto-expand the group containing the active route.", type: "boolean", default: "true" },
