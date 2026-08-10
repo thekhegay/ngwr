@@ -1004,7 +1004,18 @@ theme is what makes ngwr a library people can bet on.
       the gridlines, the ticks, the series paths, the dots and the crosshair are
       all `.wr-line-chart__*` now, which is the public styling API a consumer is
       expected to reach for.
-      **Remaining:** the rest of the components — fifty-one of eighty-one have
+      **`wr-calendar-heatmap` (2026-08-11)** — two, both about who can read it.
+      Its weekday and month labels were hard-coded English arrays, in a library
+      where `WR_DATE_LOCALE` is root-provided and needs no setup at all: a Russian
+      app got "Mon / Wed / Fri" and "Aug" in the middle of its own UI. They come
+      from `Intl.DateTimeFormat` on that locale now, with the deliberate blanks on
+      four of the seven rows preserved — seven labels do not fit, and a test pins
+      that so it reads as a choice. And the grid was several hundred bare
+      `<span>`s carrying a `title`, which a screen reader on a role-less element
+      does not read, with no name on the container either: it is a named
+      `role="img"` now with the cells taken out of the tree, which is the same
+      answer the gauge, the donut and the line chart arrived at.
+      **Remaining:** the rest of the components — fifty-two of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
