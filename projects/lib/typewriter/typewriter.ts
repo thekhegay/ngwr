@@ -191,7 +191,9 @@ export class WrTypewriter {
 
     const idx = this.currentTextIndex();
     const raw = arr[idx];
-    const target = this.reverseMode() ? raw.split('').reverse().join('') : raw;
+    // Reversed by CODE POINT: `split('')` reverses UTF-16 units, which turns an
+    // emoji into a pair of lone surrogates rather than typing it backwards.
+    const target = this.reverseMode() ? [...raw].reverse().join('') : raw;
     const displayed = this.displayed();
 
     // Reduced motion: show each sentence whole — no per-char typing or
