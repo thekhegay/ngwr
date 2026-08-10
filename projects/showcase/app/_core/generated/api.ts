@@ -851,6 +851,7 @@ export const API = {
     { name: "bgColor", description: "Background color of the canvas + host.", type: "string", default: "'#ffffff'" },
     { name: "iconUrl", description: "Optional image URL or data URL to overlay in the center.", type: "string | null", default: "null" },
     { name: "iconSize", description: "Center icon size in logical pixels.", type: "number", default: "42" },
+    { name: "ariaLabel", description: "Accessible name. A QR code is content — it usually encodes a URL — and a `<canvas>` carries no implicit role and no text alternative, so without a name it is nothing at all to a screen reader. Say what the code is FOR when you can. Falls back to `qr.label`.", type: "string | null", default: "null" },
   ],
   // <wr-radio>
   WrRadio: [

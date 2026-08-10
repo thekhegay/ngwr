@@ -9,6 +9,7 @@ import { isPlatformBrowser } from '@angular/common';
 import type { ElementRef } from '@angular/core';
 import { Component, PLATFORM_ID, ViewEncapsulation, effect, inject, input, viewChild } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { numAttr } from 'ngwr/utils';
 
 import { drawQrCode } from './generator';
@@ -55,6 +56,16 @@ export class WrQr {
 
   /** Center icon size in logical pixels. @default 42 */
   readonly iconSize = input(42, { transform: numAttr(42) });
+
+  /**
+   * Accessible name. A QR code is content — it usually encodes a URL — and a
+   * `<canvas>` carries no implicit role and no text alternative, so without a name it
+   * is nothing at all to a screen reader. Say what the code is FOR when you can.
+   * Falls back to `qr.label`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'qr.label', 'QR code');
 
   protected readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
   protected readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));

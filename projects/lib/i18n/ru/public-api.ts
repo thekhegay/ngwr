@@ -172,6 +172,9 @@ export const wrRu: WrI18nCatalog = {
   alert: {
     close: 'Закрыть оповещение',
   },
+  qr: {
+    label: 'QR-код',
+  },
   image: {
     viewer: 'Просмотр изображения',
     open: 'Открыть превью',
