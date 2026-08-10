@@ -8,6 +8,8 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
+
 /**
  * Animated menu toggle — three SVG strokes morph between a hamburger and a
  * close mark on `open`. Two-way bindable, so it pairs naturally with a
@@ -35,8 +37,13 @@ export class WrBurger {
   /** Two-way bindable open state. Drives the hamburger ↔ close morph. @default false */
   readonly open = model(false);
 
-  /** Accessible label for the toggle button. @default 'Toggle menu' */
-  readonly label = input('Toggle menu');
+  /**
+   * Accessible name for the toggle button. Falls back to `burger.label`, then
+   * `'Toggle menu'`.
+   */
+  readonly label = input<string | null>(null);
+
+  protected readonly resolvedLabel = useI18nText(this.label, 'burger.label', 'Toggle menu');
 
   /** Disable the toggle. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });

@@ -2,7 +2,7 @@
   type="button"
   class="wr-burger__btn"
   [attr.aria-expanded]="open()"
-  [attr.aria-label]="label()"
+  [attr.aria-label]="resolvedLabel()"
   [disabled]="disabled()"
   (click)="toggle()"
 >
