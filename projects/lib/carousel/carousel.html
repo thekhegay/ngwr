@@ -1,9 +1,9 @@
 <div
   #viewport
   class="wr-carousel__viewport"
+  role="group"
   aria-roledescription="carousel"
-  (mouseenter)="onMouseEnter()"
-  (mouseleave)="onMouseLeave()"
+  [attr.aria-label]="resolvedAriaLabel()"
   (touchstart)="onSwipeStart($event)"
   (touchmove)="onSwipeMove($event)"
   (touchend)="onSwipeEnd($event, viewport)"
@@ -45,7 +45,7 @@
         class="wr-carousel__dot"
         [class.wr-carousel__dot--active]="$index === active()"
         [attr.aria-current]="$index === active() ? 'true' : null"
-        [attr.aria-label]="`Go to slide ${$index + 1}`"
+        [attr.aria-label]="slideLabel({ index: $index + 1 })"
         (click)="goTo($index)"
       ></button>
     }

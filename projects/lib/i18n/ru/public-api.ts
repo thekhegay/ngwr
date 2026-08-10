@@ -163,6 +163,8 @@ export const wrRu: WrI18nCatalog = {
     nextYear: 'Следующий год',
   },
   carousel: {
+    label: 'Карусель',
+    goToSlide: 'Перейти к слайду {{index}}',
     prev: 'Предыдущий слайд',
     next: 'Следующий слайд',
     pagination: 'Пагинация карусели',
