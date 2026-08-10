@@ -5,11 +5,21 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
-import { DOCUMENT, EnvironmentInjector, Injector, PLATFORM_ID, Service, computed, inject, signal } from '@angular/core';
+import {
+  DOCUMENT,
+  DestroyRef,
+  EnvironmentInjector,
+  Injector,
+  PLATFORM_ID,
+  Service,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { WR_OVERLAY } from 'ngwr/overlay';
 
@@ -75,6 +85,7 @@ export class WrTour {
   private readonly cursor = signal(-1);
 
   private overlayRef: OverlayRef | null = null;
+  private focusTrap: ConfigurableFocusTrap | null = null;
   private spotlight: HTMLElement | null = null;
   private detachKeydown: (() => void) | null = null;
   private detachReposition: (() => void) | null = null;
@@ -91,6 +102,26 @@ export class WrTour {
 
   /** The step being shown, or `null` when idle. */
   readonly step = computed<WrTourStep | null>(() => this.steps()[this.cursor()] ?? null);
+
+  // Whether any step AFTER the current one can actually be shown. Settled once per
+  // move, in `goTo`, because reachability is a DOM question and not a signal.
+  private readonly noStepAfter = signal(false);
+
+  /**
+   * Whether this is the last step the user will see. Not `index() === total() - 1`:
+   * a trailing step whose target is missing is skipped, so comparing against the
+   * raw count left the primary button reading "Next" on the final card and then
+   * ending the tour when it was pressed.
+   */
+  readonly isLast = computed(() => this.noStepAfter());
+
+  constructor() {
+    // Everything this service owns lives OUTSIDE its own injector: a CDK overlay, a
+    // div appended to `document.body`, a document keydown listener and two window
+    // listeners. Nothing removes them when the injector goes, so a tour running at
+    // teardown left its cut-out on the page.
+    inject(DestroyRef).onDestroy(() => this.stop());
+  }
 
   /**
    * Begin a tour. Restarts if one is already running. A no-op under SSR — a
@@ -145,7 +176,17 @@ export class WrTour {
 
     this.teardownStep();
     this.cursor.set(i);
+    this.noStepAfter.set(!this.anyResolvableAfter(i));
     this.openStep(steps[i]);
+  }
+
+  /** Whether the tour has a step past `index` that can actually be shown. */
+  private anyResolvableAfter(index: number): boolean {
+    const steps = this.steps();
+    for (let i = index + 1; i < steps.length; i += 1) {
+      if (this.resolve(steps[i]) !== null) return true;
+    }
+    return false;
   }
 
   private resolve(step: WrTourStep): HTMLElement | null {
@@ -196,11 +237,16 @@ export class WrTour {
     );
     const ref = this.overlayRef.attach(portal);
 
-    const trap = this.focusTrapFactory.create(ref.location.nativeElement as HTMLElement);
-    void trap.focusInitialElementWhenReady();
+    // Kept on the instance, not in a local: a trap registers with CDK's
+    // `FocusTrapManager` and installs a capture-phase document focus listener, so an
+    // undestroyed one leaks per STEP and every tour left a stack of them behind.
+    this.focusTrap = this.focusTrapFactory.create(ref.location.nativeElement as HTMLElement);
+    void this.focusTrap.focusInitialElementWhenReady();
 
     const onKey = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
+      // The listener is on the document, so a step shown over a dialog would see the
+      // Escape that dialog just handled and close the tour too.
+      if (event.key === 'Escape' && !event.defaultPrevented) {
         event.preventDefault();
         this.stop();
       }
@@ -229,6 +275,8 @@ export class WrTour {
   }
 
   private teardownStep(): void {
+    this.focusTrap?.destroy();
+    this.focusTrap = null;
     this.detachKeydown?.();
     this.detachKeydown = null;
     this.detachReposition?.();
