@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, input, model, output, untracked } from '@angular/core';
 
 /**
  * Collapsible side panel. Lives inside a row `<wr-layout>` next to a
@@ -48,6 +48,23 @@ export class WrLayoutSider {
   /** Emits whenever `collapsed` changes (in addition to the two-way `[(collapsed)]`). */
   readonly collapsedChanged = output<boolean>();
 
+  constructor() {
+    // The output is documented as firing whenever `collapsed` CHANGES, and it
+    // only ever fired from `toggle()` — so a `[(collapsed)]` write, which is the
+    // documented way to drive this, was silent. Emitting from an effect covers
+    // both, and skipping the first run keeps the initial value from reading as a
+    // change.
+    let first = true;
+    effect(() => {
+      const collapsed = this.collapsed();
+      if (first) {
+        first = false;
+        return;
+      }
+      untracked(() => this.collapsedChanged.emit(collapsed));
+    });
+  }
+
   protected readonly classes = computed(() => {
     const parts = ['wr-layout-sider'];
     if (this.collapsed()) parts.push('wr-layout-sider--collapsed');
@@ -57,8 +74,8 @@ export class WrLayoutSider {
 
   /** Imperative toggle helper — `[(collapsed)]` still works alongside this. */
   toggle(): void {
-    const next = !this.collapsed();
-    this.collapsed.set(next);
-    this.collapsedChanged.emit(next);
+    // No emit here: the effect above owns that, so a toggle and an external
+    // write produce exactly one event each rather than two and none.
+    this.collapsed.set(!this.collapsed());
   }
 }
