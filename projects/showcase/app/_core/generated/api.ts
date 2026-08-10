@@ -1007,8 +1007,9 @@ export const API = {
   // <wr-sparkline>
   WrSparkline: [
     { name: "data", description: "—", type: "readonly number[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name. A sparkline usually sits beside the number it summarises, where announcing it again is noise — so it is `aria-hidden` by default and becomes a named `role=\"img\"` only when a consumer says what it shows.", type: "string | null", default: "null" },
     { name: "color", description: "Stroke colour.", type: "string", default: "`var(--wr-color-primary)`" },
-    { name: "strokeWidth", description: "Stroke width in viewBox units.", type: "number", default: "1.5" },
+    { name: "strokeWidth", description: "Line thickness in CSS pixels — `vector-effect=\"non-scaling-stroke\"` keeps it at that width whatever the box is stretched to, so it is NOT in viewBox units.", type: "number", default: "1.5" },
     { name: "showArea", description: "Fill the area below the line.", type: "boolean", default: "false" },
     { name: "showTip", description: "Show a dot at the last data point.", type: "boolean", default: "true" },
     { name: "width", description: "CSS width.", type: "string", default: "'8rem'" },
