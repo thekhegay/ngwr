@@ -694,6 +694,28 @@ theme is what makes ngwr a library people can bet on.
       sites while the `nullSignal()` shim that would make them reactive is used by
       none: whether that is a decision or drift is a library-wide question, not a
       tour one.
+      **The docs stopped teaching the anti-pattern** (2026-08-10). Every demo and
+      every copyable snippet bound its ngwr control with `[(ngModel)]` — the
+      binding AGENTS.md calls an anti-pattern on these controls, and the one three
+      shipped bugs came from — so the first thing a reader copied was the wrong
+      shape. 157 bindings across 30 pages now use the control's own two-way model:
+      `[(value)]`, or `[(checked)]` for `wr-checkbox` and `wr-switch`. Scope was
+      drawn at the element: `ngModel` on a native `<input>` / `<textarea>`
+      (including one carrying `wrInput`, `wrMention` or `wrAutosize`) is ordinary
+      Angular and stays, and the v9 migration page keeps its `ngModel` because
+      documenting that it still works is the page's whole job. Thirteen pages then
+      had a dead `FormsModule` import, removed — and a naive substring sweep first
+      tried to take `ReactiveFormsModule` from eighteen validator pages with it,
+      which is the kind of thing a word boundary is for. **The conversion paid for
+      itself in type errors.** `ngModel` types its value as `any`, so it had been
+      hiding four real mismatches that `strictTemplates` reported the moment the
+      real models were bound: `wr-select` publishes `unknown`, `wr-slider`
+      publishes `number | [number, number]` because either thumb count can be
+      right, and `wr-segmented` publishes `T | null` for "nothing selected". The
+      narrowing now lives in the four page handlers, where the demo already knows
+      which shape it wants, rather than being papered over by an accessor. Two
+      descriptions that still advertised `[(ngModel)]` as the way in — `wr-tree`'s
+      overlay mode and `wr-color-picker` — now match the code beside them.
       **Remaining:** the rest of the components — thirty-eight of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
