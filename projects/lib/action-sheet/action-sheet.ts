@@ -8,6 +8,7 @@
 import { Component, ViewEncapsulation, computed, inject, input, model, output } from '@angular/core';
 
 import { WrDrawer, WrDrawerTitle } from 'ngwr/drawer';
+import { useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 import { WrHaptics } from 'ngwr/platform';
 
@@ -58,6 +59,16 @@ export class WrActionSheet {
 
   /** Optional bold heading above the rows. */
   readonly title = input<string>('');
+
+  /**
+   * Name announced for the dialog when there is no visible `title`. Falls back to
+   * `actionSheet.label`, then `'Actions'` — it used to be that English string,
+   * written into the template of a component whose every other string comes from
+   * the caller.
+   */
+  readonly titleFallback = input<string | null>(null);
+
+  protected readonly resolvedTitleFallback = useI18nText(this.titleFallback, 'actionSheet.label', 'Actions');
 
   /** Optional muted sub-heading under the title. */
   readonly message = input<string>('');

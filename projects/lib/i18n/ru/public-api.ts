@@ -190,6 +190,9 @@ export const wrRu: WrI18nCatalog = {
     next: 'Следующий слайд',
     pagination: 'Пагинация карусели',
   },
+  actionSheet: {
+    label: 'Действия',
+  },
   alert: {
     close: 'Закрыть оповещение',
   },
