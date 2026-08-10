@@ -1,4 +1,4 @@
-<div class="wr-donut-chart__surface" [style.width.px]="size()">
+<div class="wr-donut-chart__surface" role="img" [attr.aria-label]="resolvedAriaLabel()" [style.width.px]="size()">
   <svg viewBox="0 0 100 100" aria-hidden="true">
     @for (slice of slices(); track $index) {
       <path [attr.d]="slice.path" [attr.fill]="slice.color" />
@@ -16,7 +16,7 @@
   }
 </div>
 
-@if (showLegend()) {
+@if (showLegend() && slices().length > 0) {
   <ul class="wr-donut-chart__legend">
     @for (slice of slices(); track $index) {
       <li class="wr-donut-chart__legend-item">

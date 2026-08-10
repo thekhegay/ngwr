@@ -8,7 +8,18 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
+
 import type { WrDonutSegment } from './interfaces';
+
+/**
+ * A segment's contribution to the ring. `Math.max(0, NaN)` is NaN, and the running total
+ * carries it forward — so one non-finite datum used to take out its own arc AND every arc
+ * after it, writing the literal text `NaN` into the path `d`.
+ */
+function weight(value: number): number {
+  return Number.isFinite(value) ? Math.max(0, value) : 0;
+}
 
 const FALLBACK_COLORS = [
   'var(--wr-color-primary)',
@@ -42,6 +53,15 @@ const FALLBACK_COLORS = [
 export class WrDonutChart {
   readonly segments = input<readonly WrDonutSegment[]>([]);
 
+  /**
+   * Accessible name of the chart. The ring is `aria-hidden` and the legend is optional,
+   * so with `showLegend: false` this is the only thing a screen reader gets. Falls back
+   * to `donutChart.label`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'donutChart.label', 'Donut chart');
+
   /** Diameter in CSS pixels. @default 200 */
   readonly size = input(200, { transform: (v: unknown): number => Math.max(48, coerceNumberProperty(v, 200)) });
 
@@ -70,7 +90,7 @@ export class WrDonutChart {
   });
 
   protected readonly total = computed(() => {
-    const sum = this.segments().reduce((acc, s) => acc + Math.max(0, s.value), 0);
+    const sum = this.segments().reduce((acc, s) => acc + weight(s.value), 0);
     return sum > 0 ? sum : 1;
   });
 
@@ -79,7 +99,7 @@ export class WrDonutChart {
     const total = this.total();
     let cumulative = 0;
     return this.segments().map((s, i) => {
-      const value = Math.max(0, s.value);
+      const value = weight(s.value);
       const startAngle = (cumulative / total) * Math.PI * 2;
       cumulative += value;
       const endAngle = (cumulative / total) * Math.PI * 2;

@@ -174,6 +174,9 @@ export const wrEn: WrI18nCatalog = {
     prevYear: 'Previous year',
     nextYear: 'Next year',
   },
+  donutChart: {
+    label: 'Donut chart',
+  },
   compare: {
     label: 'Comparison divider',
   },
