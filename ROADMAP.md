@@ -385,7 +385,29 @@ theme is what makes ngwr a library people can bet on.
       mode only. A spec written against `[(value)]` inline looks exactly like a
       dead two-way binding, which is what it looked like here until the JSDoc
       settled it.
-      **Remaining:** the rest of the components — twenty-three of eighty-one
+      `wr-table` brought 17 specs aimed at what breaks silently: the role a
+      hierarchy announces (`treegrid`, not a plain table) and the mode pairs the
+      component refuses rather than half-supports. "Grouping wins over tree" is
+      a decision — `groupBy` buckets a flat list and a forest has none — and
+      flipping it would render a hierarchy as a shuffled flat table with no
+      error anywhere.
+      **Writing it turned up the same defect a third time, in the sibling panel
+      the range-picker fix did not touch.** `wr-date-picker` in `datetime` mode
+      showed **00:00** for a value bound to 16:40, so the first stepper click
+      committed midnight over it — identical to the range bug, same cause
+      (`[ngModel]` on a signal-forms control, whose deferred first write loses
+      the race under zoneless CD), and invisible to the existing specs because
+      the assertions on the hours were all in `time` mode, which feeds the panel
+      directly. That is the useful lesson: covering a component is not covering
+      its MODES, and the untested mode was the one on the fragile path.
+      With three confirmed bugs from one pattern, the remaining uses went too —
+      the table's three row checkboxes and the pagination size select. The
+      library now imports **no `FormsModule` in any runtime component**, which
+      is what "`ControlValueAccessor` is gone from the library" was always
+      supposed to mean. One consequence worth naming: `wr-select` carries an
+      `unknown` value by design, and `[ngModel]` had been hiding that behind
+      `any` — the pagination handler now narrows it honestly.
+      **Remaining:** the rest of the components — twenty-four of eighty-one
       have specs.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.

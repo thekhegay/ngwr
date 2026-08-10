@@ -7,7 +7,6 @@
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
@@ -42,7 +41,7 @@ type PageEntry = number | typeof ELLIPSIS;
   templateUrl: './pagination.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()', role: 'navigation', '[attr.aria-label]': 'navLabel()' },
-  imports: [FormsModule, WrButton, WrSelect, WrOption],
+  imports: [WrButton, WrSelect, WrOption],
 })
 export class WrPagination {
   /** Currently displayed page (1-based). Two-way bindable. */
@@ -190,10 +189,16 @@ export class WrPagination {
     this.currentPage.set(page);
   }
 
-  protected onSizeChange(size: number): void {
-    if (this.disabled() || size === this.pageSize()) return;
-    this.pageSize.set(size);
-    const cap = Math.max(1, Math.ceil(this.total() / size));
+  /**
+   * `wr-select` carries an `unknown` value by design, so the size arrives
+   * untyped and is narrowed here. It used to arrive as `any` through
+   * `[ngModel]`, which hid the coercion rather than removing the need for it.
+   */
+  protected onSizeChange(size: unknown): void {
+    const next = Number(size);
+    if (this.disabled() || !Number.isFinite(next) || next <= 0 || next === this.pageSize()) return;
+    this.pageSize.set(next);
+    const cap = Math.max(1, Math.ceil(this.total() / next));
     if (this.currentPage() > cap) this.currentPage.set(cap);
   }
 }

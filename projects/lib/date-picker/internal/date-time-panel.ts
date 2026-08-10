@@ -6,7 +6,6 @@
  */
 
 import { Component, ViewEncapsulation, computed, inject, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrCalendar } from 'ngwr/calendar';
 import { WrDateAdapter } from 'ngwr/date-adapter';
@@ -25,7 +24,7 @@ import { WrTimePanel } from './time-panel';
   templateUrl: './date-time-panel.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-date-time-panel' },
-  imports: [FormsModule, WrCalendar, WrTimePanel],
+  imports: [WrCalendar, WrTimePanel],
 })
 export class WrDateTimePanel {
   readonly value = input<Date | null>(null);
