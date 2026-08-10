@@ -1404,9 +1404,9 @@ export const API = {
     { name: "showMinimize", description: "—", type: "boolean", default: "true" },
     { name: "showMaximize", description: "—", type: "boolean", default: "true" },
     { name: "showClose", description: "—", type: "boolean", default: "true" },
-    { name: "(closed)", description: "—", type: "void" },
-    { name: "(moved)", description: "—", type: "{ readonly x: number; readonly y: number }" },
-    { name: "(resized)", description: "—", type: "{ readonly width: number; readonly height: number }" },
+    { name: "(closed)", description: "Fires when the window closes — from the header button or from `close()`.", type: "void" },
+    { name: "(moved)", description: "Fires while the header is DRAGGED, once per pointer move. Programmatic moves (`moveTo`, `center`, the initial cascade) are silent: the caller already knows where it put the window, and echoing those back would double-count for a consumer persisting the position.", type: "{ readonly x: number; readonly y: number }" },
+    { name: "(resized)", description: "Fires while an edge is DRAGGED, and once when a snap target is applied.", type: "{ readonly width: number; readonly height: number }" },
   ],
   // <wr-window-taskbar>
   WrWindowTaskbar: [

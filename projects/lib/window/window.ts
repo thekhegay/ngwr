@@ -200,8 +200,18 @@ export class WrWindow {
   readonly showMaximize = input(true, { transform: coerceBooleanProperty });
   readonly showClose = input(true, { transform: coerceBooleanProperty });
 
+  /** Fires when the window closes — from the header button or from `close()`. */
   readonly closed = output<void>();
+
+  /**
+   * Fires while the header is DRAGGED, once per pointer move. Programmatic moves
+   * (`moveTo`, `center`, the initial cascade) are silent: the caller already knows
+   * where it put the window, and echoing those back would double-count for a
+   * consumer persisting the position.
+   */
   readonly moved = output<{ readonly x: number; readonly y: number }>();
+
+  /** Fires while an edge is DRAGGED, and once when a snap target is applied. */
   readonly resized = output<{ readonly width: number; readonly height: number }>();
 
   private readonly manager = inject(WrWindowManager);
