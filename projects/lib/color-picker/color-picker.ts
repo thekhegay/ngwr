@@ -13,12 +13,29 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { clamp } from 'ngwr/utils';
 
-import { hslToRgb, hsvToRgb, parseHex, rgbToHsl, rgbToHsv, toHex, type WrHsl, type WrRgb } from './color';
+import {
+  formatColor,
+  hslToRgb,
+  hsvToRgb,
+  parseColor,
+  parseHex,
+  rgbToHsl,
+  rgbToHsv,
+  toHex,
+  type WrHsl,
+  type WrRgb,
+} from './color';
 import type { WrColorFormat } from './interfaces';
 
 type Tab = 'hex' | 'rgb' | 'hsl';
 
 type Edges = 'sv' | 'hue' | 'alpha';
+
+/** Whether a hex string carries its own alpha (`#rgba` or `#rrggbbaa`). */
+function hasAlphaDigits(hex: string): boolean {
+  const digits = hex.trim().replace(/^#/, '').length;
+  return digits === 4 || digits === 8;
+}
 
 /**
  * Inline colour picker — HSV canvas, hue slider, optional alpha slider, HEX
@@ -58,7 +75,10 @@ export class WrColorPicker implements FormValueControl<string> {
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Output format produced by the control. @default 'hex' */
+  /**
+   * Format the control writes into `value`. See {@link WrColorFormat} — all
+   * three are accepted on the way in whichever one is set. @default 'hex'
+   */
   readonly format = input<WrColorFormat>('hex');
 
   /** Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. @default [] */
@@ -82,8 +102,11 @@ export class WrColorPicker implements FormValueControl<string> {
   /** RGB view of the current colour, computed lazily. */
   protected readonly rgb = computed<WrRgb>(() => hsvToRgb({ h: this.h(), s: this.s(), v: this.v(), a: this.a() }));
 
-  /** Canonical hex (used by the input field and by drag emits). */
+  /** Canonical hex — what the HEX field shows, whatever `format` emits. */
   protected readonly hex = computed(() => toHex(this.rgb(), this.alpha()));
+
+  /** The colour as the consumer asked for it; this is what `value` receives. */
+  protected readonly formatted = computed(() => formatColor(this.rgb(), this.format(), this.alpha()));
 
   /** SV canvas background colour (full-saturation hue). */
   protected readonly hueCss = computed(() => `hsl(${this.h()}, 100%, 50%)`);
@@ -125,17 +148,17 @@ export class WrColorPicker implements FormValueControl<string> {
     return parts.join(' ');
   });
 
-  /** Last hex we pushed into `value`; lets the sync effect ignore our own writes. */
-  private lastEmittedHex: string | null = null;
+  /** Last string we pushed into `value`; lets the sync effect ignore our own writes. */
+  private lastEmitted: string | null = null;
 
   constructor() {
     // External writes (via `[formField]` / `[(value)]`) flow the incoming hex
     // string back into the HSV source of truth. Our own emits are skipped via
-    // `lastEmittedHex` so dragging keeps its continuous (unquantised) values.
+    // `lastEmitted` so dragging keeps its continuous (unquantised) values.
     effect(() => {
       const value = this.value();
-      if (value === this.lastEmittedHex) return;
-      const rgb = parseHex(value) ?? { r: 0, g: 0, b: 0, a: 1 };
+      if (value === this.lastEmitted) return;
+      const rgb = parseColor(value) ?? { r: 0, g: 0, b: 0, a: 1 };
       const hsv = rgbToHsv(rgb);
       this.h.set(hsv.h);
       this.s.set(hsv.s);
@@ -149,6 +172,9 @@ export class WrColorPicker implements FormValueControl<string> {
 
   protected onPointerDown(event: PointerEvent, surface: Edges): void {
     if (this.disabled()) return;
+    // Primary button, primary pointer: a right-click used to open the context
+    // menu AND start a drag, and a second finger used to fight the first one.
+    if (event.button !== 0 || !event.isPrimary) return;
     event.preventDefault();
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
@@ -158,11 +184,16 @@ export class WrColorPicker implements FormValueControl<string> {
       target.releasePointerCapture(e.pointerId);
       target.removeEventListener('pointermove', update);
       target.removeEventListener('pointerup', cleanup);
+      target.removeEventListener('pointercancel', cleanup);
       this.touch.emit();
     };
 
     target.addEventListener('pointermove', update);
     target.addEventListener('pointerup', cleanup);
+    // `pointercancel` never sends a `pointerup` after it, so without this the
+    // move listener outlived the drag: a cancelled gesture left the surface
+    // repainting the colour under a pointer that was only hovering.
+    target.addEventListener('pointercancel', cleanup);
     this.updateFromEvent(event, target, surface);
   }
 
@@ -211,9 +242,9 @@ export class WrColorPicker implements FormValueControl<string> {
   }
 
   private emitWithoutHexSync(): void {
-    const hex = this.hex();
-    this.lastEmittedHex = hex;
-    this.value.set(hex);
+    const next = this.formatted();
+    this.lastEmitted = next;
+    this.value.set(next);
   }
 
   // Tab + channel handlers
@@ -250,10 +281,13 @@ export class WrColorPicker implements FormValueControl<string> {
     if (this.disabled()) return;
     const rgb = parseHex(hex);
     if (!rgb) return;
-    this.applyRgb(rgb);
+    // A 6-digit swatch says nothing about alpha, and `parseHex` reports the
+    // absence as `1` — so picking a preset used to silently snap a translucent
+    // colour back to fully opaque.
+    this.applyRgb(hasAlphaDigits(hex) ? rgb : { ...rgb, a: this.a() });
   }
 
-  /** Push an RGB triple into the HSV source of truth (preserving the current alpha if the swap removes it). */
+  /** Push an RGB triple into the HSV source of truth. */
   private applyRgb(rgb: WrRgb): void {
     const hsv = rgbToHsv(rgb);
     this.h.set(hsv.h);
