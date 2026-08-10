@@ -20,7 +20,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp } from 'ngwr/utils';
+import { clamp, round } from 'ngwr/utils';
 
 const ARC_START = -135; // 7 o'clock
 const ARC_END = 135; // 5 o'clock — 270° sweep total
@@ -108,13 +108,16 @@ export class WrKnob implements FormValueControl<number> {
   protected readonly classes = computed(() => {
     const parts = ['wr-knob'];
     if (this.disabled()) parts.push('wr-knob--disabled');
+    if (this.readonly()) parts.push('wr-knob--readonly');
     return parts.join(' ');
   });
 
   // Geometry — drawn into a 100×100 viewBox, scaled by `size`.
   protected readonly cx = 50;
   protected readonly cy = 50;
-  protected readonly radius = computed(() => 50 - this.strokeWidth() / 2 - 0.5);
+  // A negative radius is invalid in the SVG path grammar, so the browser drops
+  // the arc and the dial vanishes — which a fat stroke reaches at 99.
+  protected readonly radius = computed(() => Math.max(1, 50 - this.strokeWidth() / 2 - 0.5));
 
   /** Ratio of the filled arc — `0` at min, `1` at max. */
   protected readonly ratio = computed(() => {
@@ -176,6 +179,16 @@ export class WrKnob implements FormValueControl<number> {
     this.touch.emit();
   }
 
+  /**
+   * A bound field learns it may show its validation copy from `touch`, and
+   * pointer-up cannot be the only source: a knob reached by Tab and moved with
+   * the arrows would leave the field untouched forever. `wr-rating`, whose
+   * template this one otherwise mirrors, emits on blur for exactly this reason.
+   */
+  protected onBlur(): void {
+    this.touch.emit();
+  }
+
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive()) return;
     const step = event.shiftKey ? this.step() * 10 : this.step();
@@ -199,7 +212,23 @@ export class WrKnob implements FormValueControl<number> {
         return;
     }
     event.preventDefault();
-    this.commit(clamp(next, this.minValue(), this.maxValue()));
+    this.commit(this.snap(next));
+  }
+
+  /**
+   * Nearest step, measured FROM `min`. A grid anchored at zero offers values the
+   * arrows can never reach whenever `min` is not a multiple of `step` — with
+   * `min: 5, step: 10` the middle of the arc used to commit 60, off a grid whose
+   * points are 5, 15, … 55, 65. Rounded at six decimals because a tenth is not a
+   * binary fraction: three arrow presses at `step: 0.1` otherwise announce
+   * `aria-valuenow="0.30000000000000004"` and print it in the dial. Same shape as
+   * `wr-slider`'s `snap`, deliberately — including Home / End, so a range that is
+   * not a whole number of steps stops at the last reachable value.
+   */
+  private snap(value: number): number {
+    const min = this.minValue();
+    const stepped = Math.round((value - min) / this.step()) * this.step() + min;
+    return clamp(round(stepped, 6), min, this.maxValue());
   }
 
   // Internals
@@ -216,8 +245,7 @@ export class WrKnob implements FormValueControl<number> {
     const ratio = (angle - ARC_START) / ARC_SWEEP;
     const range = this.maxValue() - this.minValue();
     const raw = this.minValue() + ratio * range;
-    const stepped = Math.round(raw / this.step()) * this.step();
-    this.commit(clamp(stepped, this.minValue(), this.maxValue()));
+    this.commit(this.snap(raw));
   }
 
   private commit(next: number): void {

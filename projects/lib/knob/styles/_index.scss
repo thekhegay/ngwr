@@ -51,6 +51,13 @@
     font-weight: var(--wr-font-weight-medium);
   }
 
+  // A read-only dial still reads its value out, so it keeps the visual and only
+  // stops inviting the drag — `cursor: grab` on something that cannot move is
+  // the part that looks broken. Matches `wr-rating--readonly`.
+  &--readonly &__surface {
+    cursor: default;
+  }
+
   &--disabled &__surface {
     cursor: not-allowed;
     opacity: 0.65;
