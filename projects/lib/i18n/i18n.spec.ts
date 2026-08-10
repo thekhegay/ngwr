@@ -152,3 +152,40 @@ describe('WrI18n', () => {
     expect(greeting()).toBe('Привет, Ada');
   });
 });
+
+/**
+ * The two shipped catalogs have to describe the same keys. A key added to `wrEn`
+ * alone is invisible: `useI18nText` treats "translation === key" as missing and
+ * quietly substitutes the component's English default, so a Russian app renders
+ * English with nothing anywhere reporting a gap — and no build gate compares the
+ * two files.
+ */
+describe('the shipped catalogs', () => {
+  const keysOf = (node: unknown, prefix = ''): string[] =>
+    Object.entries(node as Record<string, unknown>).flatMap(([key, value]) =>
+      value !== null && typeof value === 'object' ? keysOf(value, `${prefix}${key}.`) : [`${prefix}${key}`]
+    );
+
+  it('cover exactly the same keys in both locales', () => {
+    const en = keysOf(wrEn);
+    const ru = keysOf(wrRu);
+
+    expect(en.length).toBeGreaterThan(100);
+    expect([...ru].sort()).toEqual([...en].sort());
+  });
+
+  it('leave no value empty, in either locale', () => {
+    // An empty string resolves as a real translation rather than a miss, so it
+    // reaches the DOM — as a nameless button, in the aria cases.
+    for (const [locale, catalog] of [
+      ['en', wrEn],
+      ['ru', wrRu],
+    ] as const) {
+      const empty = keysOf(catalog).filter(key => {
+        const value = key.split('.').reduce<unknown>((node, part) => (node as Record<string, unknown>)[part], catalog);
+        return typeof value === 'string' && value.trim() === '';
+      });
+      expect(empty, `${locale} has empty values`).toEqual([]);
+    }
+  });
+});
