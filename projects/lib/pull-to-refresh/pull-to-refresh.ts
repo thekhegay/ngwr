@@ -69,7 +69,7 @@ import { numAttr } from 'ngwr/utils';
     '(touchstart)': 'onTouchStart($event)',
     '(touchmove)': 'onTouchMove($event)',
     '(touchend)': 'onTouchEnd()',
-    '(touchcancel)': 'onTouchEnd()',
+    '(touchcancel)': 'onTouchCancel()',
   },
   imports: [WrSpinner],
 })
@@ -124,6 +124,10 @@ export class WrPullToRefresh {
 
   protected onTouchStart(event: TouchEvent): void {
     if (this.disabled() || this.refreshing()) return;
+    // A second finger arriving mid-pull would re-read `touches[0]` — the first
+    // finger, at its CURRENT position — as the new origin, collapsing the pull
+    // the user is halfway through.
+    if (event.touches.length > 1) return;
     const touch = event.touches[0];
     if (!touch) return;
     // A pull only begins when the scroller is already at the top.
@@ -159,6 +163,17 @@ export class WrPullToRefresh {
     this.distance.set(Math.min(dy * 0.5, this.thresholdPx() * 1.75));
     // A light tap the instant the pull arms, so it's felt without looking.
     if (!wasArmed && this.armed()) this.haptics.impact('light');
+  }
+
+  /**
+   * A cancelled touch is an ABANDONED pull, not a completed one — the system took
+   * the gesture away (a call, a notification, a palm on the bezel). Routing it
+   * through `onTouchEnd` refreshed the list on an interruption the user did not
+   * ask for and could not take back.
+   */
+  protected onTouchCancel(): void {
+    this.dragging.set(false);
+    this.canPull = false;
   }
 
   protected onTouchEnd(): void {
