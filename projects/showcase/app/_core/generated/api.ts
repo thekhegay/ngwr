@@ -425,6 +425,7 @@ export const API = {
   // <wr-donut-chart>
   WrDonutChart: [
     { name: "segments", description: "—", type: "readonly WrDonutSegment[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart. The ring is `aria-hidden` and the legend is optional, so with `showLegend: false` this is the only thing a screen reader gets. Falls back to `donutChart.label`.", type: "string | null", default: "null" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "200" },
     { name: "thickness", description: "Inner-ring thickness as a percent of radius (0–100). `0` = solid pie.", type: "number", default: "30" },
     { name: "showLegend", description: "Show the legend under the chart.", type: "boolean", default: "true" },

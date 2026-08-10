@@ -162,6 +162,9 @@ export const wrRu: WrI18nCatalog = {
     prevYear: 'Предыдущий год',
     nextYear: 'Следующий год',
   },
+  donutChart: {
+    label: 'Круговая диаграмма',
+  },
   compare: {
     label: 'Разделитель сравнения',
   },
