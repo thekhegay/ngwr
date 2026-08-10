@@ -1015,7 +1015,28 @@ theme is what makes ngwr a library people can bet on.
       does not read, with no name on the container either: it is a named
       `role="img"` now with the cells taken out of the tree, which is the same
       answer the gauge, the donut and the line chart arrived at.
-      **Remaining:** the rest of the components — fifty-two of eighty-one have
+      **`wr-counter` and `wr-progress` (2026-08-11)** — one clean, one not, and
+      both now pinned. The counter is the component whose entire purpose is a
+      900ms animation, and it was the one component in the library that did not
+      honour `prefers-reduced-motion`: `wr-scroll` already falls back to instant
+      through `WrPlatform.prefersReducedMotion`, so the convention existed and
+      this was simply outside it. It jumps straight to the value now, the same
+      branch the server already took. Its `value` was also the only numeric input
+      here without coercion, and `Intl.NumberFormat().format(NaN)` renders the
+      literal text `NaN` — which is what a reader saw. `wr-progress` had nothing
+      wrong with it, and its spec is worth having for exactly that reason: the
+      bar's width and `aria-valuenow` are the same clamped number, and a change
+      that clamps one without the other shows a full bar announcing 300. Three
+      mutations confirm the spec would catch it. Two notes on testing an
+      animation. jsdom does schedule `requestAnimationFrame`, but on a cadence
+      that is not ours to assume, so the counter's spec polls until the rendered
+      text stops changing rather than sleeping for a fixed time — the first
+      version slept 320ms and caught the tween half way, at 949 of 1234. And the
+      odometer's visible markup carries no readable text at all (ten digits per
+      column, one picked by a transform), so `.wr-counter__sr-only` is what both
+      assistive tech and the prerendered HTML actually get, and that is what the
+      spec reads.
+      **Remaining:** the rest of the components — fifty-four of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
