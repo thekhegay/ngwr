@@ -1165,7 +1165,40 @@ theme is what makes ngwr a library people can bet on.
       which `wr-knob` already demonstrates in this repo — a feature, not a defect
       fix, so it belongs in a change the maintainer chose rather than in a test
       PR.
-      **Remaining:** the rest of the components — sixty-five of eighty-one have
+      **`wr-sidebar` and `wr-pull-to-refresh` (2026-08-11)** — the sidebar's
+      headline feature did not work at all. "Active route auto-expands its
+      containing group" matched by building `/${child.url.join('/')}`, while the
+      documented entry shape carries the leading slash on the first segment (`url:
+      ['/settings', 'profile']`) — so the path came out as `//settings/profile`,
+      which no URL equals, and the group never opened for anyone following the
+      example. The comparison was also a bare `startsWith`, so a group owning
+      `/tab` claimed `/tabs` and, since the first match wins, the group that
+      actually owned the route stayed shut. Both fixed, and the second one is
+      where the first mutation run earned its keep: my test had the prefix
+      backwards (`/table` against `/tabs`, which never collided) and passed with
+      the guard removed.
+      Three more in the same component. `defaultOpen` was re-seeded on every
+      `entries` emission, so any later change to the array — a badge count, a
+      filtered list — re-opened a group the reader had deliberately collapsed; it
+      seeds once per group now, the same shape as the `lastAutoUrl` guard that
+      already existed for the URL case. The group-body ids were built from the
+      title alone, which collides between two sidebars on one page and produces
+      `wr-sidebar-group-data-&-charts` for a title with punctuation in it — an id
+      no selector can address, sitting in `aria-controls`. And the host carried
+      `role="navigation"` with a `<nav>` immediately inside it: two nested
+      landmarks over the same list, neither named. One landmark now, named through
+      `sidebar.label`.
+      `wr-pull-to-refresh` had the `pointercancel` bug in its touch spelling, and
+      worse: `touchcancel` was wired straight to the release handler, so an
+      interruption — an incoming call, a notification, a palm on the bezel —
+      RELOADED the list on the reader's behalf at whatever pull they had reached.
+      A cancelled gesture is an abandoned one. Its `touchstart` also re-read
+      `touches[0]` when a second finger arrived, taking the first finger's CURRENT
+      position as a new origin and collapsing the pull in progress. The rest of
+      the component is unusually well reasoned — the comments carry the arguments
+      for deriving the resting height from `refreshing` rather than latching an
+      edge — and the spec pins that reasoning rather than re-litigating it.
+      **Remaining:** the rest of the components — sixty-seven of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
