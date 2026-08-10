@@ -148,7 +148,14 @@ export class WrTextarea implements FormValueControl<string> {
   constructor() {
     // Autosize: re-fit whenever value or autosize toggles.
     effect(() => {
-      if (!this.autosize() || !this.isBrowser) return;
+      if (!this.isBrowser) return;
+      if (!this.autosize()) {
+        // Hand the height back. Left behind, the field stays frozen at whatever
+        // was last fitted and `rows` silently stops meaning anything, which reads
+        // as the input having done nothing.
+        this.releaseHeight();
+        return;
+      }
       // Read `value` to register dependency
       this.value();
       requestAnimationFrame(() => this.autofit());
@@ -214,10 +221,20 @@ export class WrTextarea implements FormValueControl<string> {
     (event.target as HTMLElement).releasePointerCapture(event.pointerId);
   }
 
+  private releaseHeight(): void {
+    const el = this.native()?.nativeElement;
+    if (!el) return;
+    el.style.height = '';
+    el.style.overflowY = '';
+  }
+
   private autofit(): void {
     const el = this.native()?.nativeElement;
     if (!el) return;
-
+    // A frame can outlive the reason it was scheduled: toggling `autosize` off
+    // between the effect and the frame would otherwise fit a height nobody asked
+    // for, and `releaseHeight` has already run by then.
+    if (!this.autosize()) return;
     el.style.height = 'auto';
 
     const maxRows = this.maxRows();
