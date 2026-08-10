@@ -53,70 +53,75 @@ describe('WrCounter', () => {
   };
 
   /**
-   * Let the `requestAnimationFrame` tween run out. Polled rather than slept for a fixed
-   * time: jsdom schedules frames on a timer whose cadence is not ours to assume, so this
-   * waits for the rendered text to stop changing.
+   * Run the `requestAnimationFrame` tween to its end, deterministically.
+   *
+   * An earlier version of this polled real time until the rendered text stopped changing,
+   * which is a trap: "not changing yet" and "finished" look identical, so on a slower
+   * machine it returned with the counter still on 0 — green here, red on CI. Faking the
+   * clock and the frame callback removes the machine from the question entirely.
    */
-  const finish = async (): Promise<void> => {
-    let previous = '';
-    for (let i = 0; i < 40; i += 1) {
-      await new Promise<void>(resolve => setTimeout(resolve, 25));
-      fixture.detectChanges();
-      const now = root().textContent ?? '';
-      if (now === previous && i > 2) return;
-      previous = now;
-    }
+  const finish = (): void => {
+    vi.advanceTimersByTime(400);
     fixture.detectChanges();
   };
 
-  beforeEach(() => mount());
+  beforeEach(() => {
+    // `performance` and `requestAnimationFrame` are both faked: the tick reads the first and
+    // is scheduled by the second, so faking one without the other stalls the tween.
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+    });
+    mount();
+  });
+
   afterEach(() => {
     fixture.destroy();
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
-  it('lands on the value it was given', async () => {
-    await finish();
+  it('lands on the value it was given', () => {
+    finish();
     expect(anyText()).toContain('1,234');
   });
 
-  it('reaches a new value when one arrives', async () => {
-    await finish();
+  it('reaches a new value when one arrives', () => {
+    finish();
     fixture.componentInstance.value.set(9876);
     fixture.detectChanges();
-    await finish();
+    finish();
 
     expect(anyText()).toContain('9,876');
   });
 
-  it('formats with the decimals, prefix and suffix it was given', async () => {
+  it('formats with the decimals, prefix and suffix it was given', () => {
     fixture.componentInstance.decimals.set(2);
     fixture.componentInstance.prefix.set('$');
     fixture.componentInstance.suffix.set(' USD');
     fixture.componentInstance.value.set(9.5);
     fixture.detectChanges();
-    await finish();
+    finish();
 
     expect(anyText()).toContain('$9.50 USD');
   });
 
-  it('carries the real value in text in odometer mode', async () => {
+  it('carries the real value in text in odometer mode', () => {
     // The rolling strip renders every digit 0-9 per column, so without this node a screen
     // reader would read all ten and the prerendered HTML would ship the same noise.
     fixture.componentInstance.mode.set('odometer');
     fixture.componentInstance.value.set(42);
     fixture.detectChanges();
-    await finish();
+    finish();
 
     expect(srText()).toBe('42');
   });
 
-  it('shows a number rather than the word NaN', async () => {
+  it('shows a number rather than the word NaN', () => {
     // `Intl.NumberFormat().format(NaN)` is the literal text `NaN`, and `value` was the only
     // numeric input here with no coercion.
     fixture.componentInstance.value.set(Number.NaN);
     fixture.detectChanges();
-    await finish();
+    finish();
 
     expect(anyText()).not.toContain('NaN');
   });
