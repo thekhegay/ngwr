@@ -1241,14 +1241,15 @@ theme is what makes ngwr a library people can bet on.
       cluster, which is a separate list. Mode coverage inside a covered component
       is its own axis. (The count said eighty-one until it was recounted; two
       pages document symbols that live inside another entry point, `button-group`
-      in `button/` and `form-field` in `form/`, and both of those are covered.) One gap closed and one
-      dismissed since the last note: the palette now scrolls its active option
-      into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
-      on hover would fight the pointer), and its `queueMicrotask` focus is NOT the
-      trap AGENTS.md warns about: that warning is about a microtask queued from an
-      EVENT HANDLER, where change detection is still a pending macrotask, while
-      this one is queued from an effect already running inside change detection.
-      Pinned by a spec rather than refactored on suspicion.
+      in `button/` and `form-field` in `form/`, and both of those are covered.)
+      One gap closed and one dismissed since the last note: the palette now
+      scrolls its active option into view (`scrollIntoView({ block: 'nearest' })`,
+      keyboard only — doing it on hover would fight the pointer), and its
+      `queueMicrotask` focus is NOT the trap AGENTS.md warns about: that warning
+      is about a microtask queued from an EVENT HANDLER, where change detection is
+      still a pending macrotask, while this one is queued from an effect already
+      running inside change detection. Pinned by a spec rather than refactored on
+      suspicion.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
