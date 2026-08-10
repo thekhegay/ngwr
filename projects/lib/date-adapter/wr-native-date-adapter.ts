@@ -30,9 +30,14 @@ const INTL_OPTIONS: Readonly<Record<WrDateFormat, Intl.DateTimeFormatOptions>> =
 };
 
 /** Recognised tokens, longest first so `MMMM` matches before `MMM`. */
-const TOKEN_RE = /yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|H|hh|h|mm|ss|a/g;
-
-const MS_PER_DAY = 86_400_000;
+/**
+ * Every token, with single-quoted runs taken FIRST so they win.
+ *
+ * Without that, the one-letter tokens match letters inside literal text: `'yyyy [year]'`
+ * came out as `2025 [yeamr]`, because the `a` in "year" was read as the meridiem token.
+ * Quote literals the way `DatePipe` and LDML do — `'at'` — and `''` for a real quote.
+ */
+const PART_RE = /'([^']*)'|yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|H|hh|h|mm|ss|a/g;
 
 function pad(n: number, width = 2): string {
   return String(Math.abs(n)).padStart(width, '0');
@@ -152,7 +157,14 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   }
 
   addDays(date: Date, amount: number): Date {
-    return new Date(date.getTime() + amount * MS_PER_DAY);
+    // A calendar day, not 86 400 000 ms. Where daylight saving applies a day can be 23 or
+    // 25 hours long, so millisecond arithmetic drifts the wall clock and — across an
+    // autumn change — lands back on the same calendar date, which makes a month grid
+    // repeat a day and lose one. Not observable in a fixed-offset timezone, which is why
+    // the reason lives here rather than only in a test.
+    const d = this.clone(date);
+    d.setDate(d.getDate() + amount);
+    return d;
   }
 
   setTime(date: Date, hours: number, minutes: number, seconds: number): Date {
@@ -259,7 +271,10 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     const monthNames = this.getMonthNames('long');
     const monthShort = this.getMonthNames('short');
 
-    return pattern.replace(TOKEN_RE, token => {
+    return pattern.replace(PART_RE, (part, quoted?: string) => {
+      // A quoted run is emitted as-is; `''` is how a single quote is written.
+      if (quoted !== undefined) return quoted === '' ? "'" : quoted;
+      const token = part;
       switch (token) {
         case 'yyyy':
           return pad(year, 4);
@@ -298,10 +313,17 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
 
   private parseWithTokens(value: string, pattern: string): Date | null {
     const tokens: string[] = [];
+    const monthLong = this.getMonthNames('long');
+    const monthShort = this.getMonthNames('short');
     const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = escaped.replace(TOKEN_RE, token => {
-      tokens.push(token);
-      return tokenToRegex(token);
+    const regex = escaped.replace(PART_RE, (part, quoted?: string) => {
+      if (quoted !== undefined) {
+        // Literal text matches itself and captures nothing, so the token indices stay
+        // aligned with the groups below.
+        return quoted === '' ? "'" : quoted;
+      }
+      tokens.push(part);
+      return tokenToRegex(part);
     });
 
     const match = new RegExp(`^${regex}$`).exec(value);
@@ -332,6 +354,14 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
         case 'M':
           month = n - 1;
           break;
+        case 'MMM':
+        case 'MMMM': {
+          const names = token === 'MMM' ? monthShort : monthLong;
+          const found = names.findIndex(name => name.toLowerCase() === raw.toLowerCase());
+          if (found < 0) return null;
+          month = found;
+          break;
+        }
         case 'dd':
         case 'd':
           day = n;
@@ -361,8 +391,19 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
       hours = (hour12 % 12) + (isPm ? 12 : 0);
     }
 
+    // `new Date(2025, 12, 45)` does not fail — it rolls forward into the next year — and
+    // `isValid` is happy with the result, so a text field turned nonsense into a confident
+    // wrong answer. The clock parts are range-checked directly; the month and the day are
+    // checked by comparing what came back, which catches every rollover including a month
+    // of 12 or -1.
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) return null;
+
     const out = new Date(year, month, day, hours, minutes, seconds);
-    return this.isValid(out) ? out : null;
+    if (!this.isValid(out)) return null;
+    // The day is range-checked by construction: anything the calendar rolled over comes
+    // back as a different month or a different day.
+    if (out.getMonth() !== month || out.getDate() !== day) return null;
+    return out;
   }
 }
 
