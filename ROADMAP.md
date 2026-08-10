@@ -625,11 +625,53 @@ theme is what makes ngwr a library people can bet on.
       `MouseEvent` reads `isPrimary` as `undefined` and the guard rejects it. That
       turned the button test green for the wrong reason until the helper defined
       the property explicitly.
-      **Remaining:** the rest of the components — thirty-five of eighty-one
-      have specs, and mode coverage inside them is its own axis. Two known gaps
-      left in the covered ones, both jsdom-blind: the palette never scrolls its
-      active option into view, and neither it nor `wr-dropdown` has moved its
-      deferred focus off `queueMicrotask` onto `afterNextRender`.
+      **`wr-popconfirm` turned out to have been skipped by the overlay-a11y
+      sweep** (2026-08-10). It is a confirmation dialog and announced itself as
+      nothing at all: no role, no name, no description, so a screen reader met a
+      generic container where the question should be. Worse for a keyboard user,
+      focus never entered the panel — and the overlay container sits at the end of
+      `<body>`, so Tab from the trigger went to the next thing on the PAGE and the
+      only way to confirm was effectively unreachable. It now opens as a named
+      non-modal `role="dialog"` describing its own message, lands focus on Cancel
+      (the safe choice when the action being confirmed is the destructive one),
+      and hands focus back to the trigger — but only when focus is still inside
+      the panel, so a dismissal by clicking elsewhere leaves the user where they
+      went. That last distinction is what a surviving mutation asked for, and it
+      was a weak test rather than redundant code.
+      **And the two catalog keys it never read**: `popconfirm.confirm` /
+      `popconfirm.cancel` have sat in both catalogs, translated, since the
+      component shipped, while the labels were hard-coded English input defaults —
+      so every popconfirm in a Russian app read "Confirm" / "Cancel" with the
+      right strings one file away. One claim of mine was refuted in passing and is
+      worth recording: Escape does NOT depend on focus being inside the overlay.
+      `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
+      which keeps a single document listener and routes to the topmost overlay.
+      **A label pointing at nothing** (`ngwr/input`, same day): `WrInput` adopts
+      the field's `controlId` so `<label for>` reaches it, and correctly lets a
+      control's own static `id` win — but the label went on pointing at the
+      generated id, so a consumer who gave their input an `id` ended up with a
+      `for` referencing an element not in the document, i.e. no label at all. The
+      id still travels field → control, because the field renders its label before
+      it can see what was projected and SSR needs a render-time binding; the fix
+      is a one-shot announcement the other way (`adoptControlId`) that only the
+      label's `for` reads. Found by a subagent, and it also caught that my own
+      spec's NAME promised the label check while its body asserted only the
+      input's id — the vacuous-assertion shape this file keeps warning about, this
+      time in my own test.
+      **Remaining:** the rest of the components — thirty-seven of eighty-one have
+      specs, and mode coverage inside them is its own axis. One gap closed and one
+      dismissed since the last note: the palette now scrolls its active option
+      into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
+      on hover would fight the pointer), and its `queueMicrotask` focus is NOT the
+      trap AGENTS.md warns about: that warning is about a microtask queued from an
+      EVENT HANDLER, where change detection is still a pending macrotask, while
+      this one is queued from an effect already running inside change detection.
+      Pinned by a spec rather than refactored on suspicion.
+      Scouted and not yet verified by hand: `wr-speed-dial` (a `role="menu"` with
+      no menu keyboard contract at all, and a dial that cannot be closed once
+      `[disabled]` flips true while it is open) and `wr-carousel` (`active` never
+      reconciled against the slide count, `setInterval` autoplay with no platform
+      guard so it runs during prerender, and pause on mouse only).
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
