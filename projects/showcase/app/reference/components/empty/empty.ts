@@ -32,7 +32,7 @@ export default class EmptyPageComponent {
 @Component({ imports: [WrEmpty] })
 export class MyComponent {}`,
     basic: `<wr-empty />`,
-    custom: `<wr-empty icon="search" title="No results">
+    custom: `<wr-empty iconName="search" title="No results">
   Try a different query or clear filters.
   <ng-container wrEmptyActions>
     <wr-btn (click)="reset()">Reset filters</wr-btn>

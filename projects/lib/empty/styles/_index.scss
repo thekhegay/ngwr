@@ -19,6 +19,16 @@
     color: var(--wr-color-on-surface-muted);
     opacity: 0.6;
     margin-bottom: 0.25rem;
+    // The built-in glyph is sized by `.wr-icon__svg` at 1em; a custom
+    // `<wr-icon>` sizes through this var instead, so without it the two
+    // branches of the same slot rendered at different sizes (15px vs 18px).
+    --wr-icon-size: 1em;
+  }
+
+  // `<wr-icon>` sets `color: inherit` on its own host at equal specificity; the
+  // type selector wins it back so a custom icon stays as muted as the default.
+  wr-icon.wr-empty__icon {
+    color: var(--wr-color-on-surface-muted);
   }
 
   &__title {
