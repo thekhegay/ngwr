@@ -165,6 +165,9 @@ export const wrEn: WrI18nCatalog = {
     increment: 'Increment',
     decrement: 'Decrement',
   },
+  anchor: {
+    label: 'Table of contents',
+  },
   backTop: {
     label: 'Back to top',
   },

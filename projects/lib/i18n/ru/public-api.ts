@@ -153,6 +153,9 @@ export const wrRu: WrI18nCatalog = {
     increment: 'Увеличить',
     decrement: 'Уменьшить',
   },
+  anchor: {
+    label: 'Содержание',
+  },
   backTop: {
     label: 'Наверх',
   },
