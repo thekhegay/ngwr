@@ -1313,8 +1313,31 @@ theme is what makes ngwr a library people can bet on.
       out by the orbit radius; the spec asserts the four transforms exactly,
       because the alternative reading of that maths (translate along a diagonal)
       also looks plausible and is wrong.
+      **`wr-split-text` and `wr-blur-text` (2026-08-11)** — both split their text
+      into one span per character or word, and neither gave a screen reader
+      anything to read but that list of fragments. The library already has the
+      answer twice over: `wr-rotating-text` and `wr-decrypt-text` both carry the
+      real string in a screen-reader-only span with the animated pieces
+      `aria-hidden`. Two of four doing it is what makes this a defect rather than
+      a preference; all four do it now.
+      One process failure worth writing down, because it is mine and it reached
+      main. The `wr-circular-text` spec stubbed `Element.animate` — which jsdom
+      does not implement, so it is an assignment, not a spy, and
+      `vi.restoreAllMocks()` does not undo it. The patch leaked into whichever
+      file vitest happened to run next, which made the suite pass locally and fail
+      on CI purely on file order, and the failure surfaced in an unrelated spec
+      (`media.spec.ts`, complaining about `matchMedia` during prerender). The fix
+      is to capture the property descriptor and restore it in `afterEach`, plus
+      `fixture?.destroy()` so a failed mount reports its own error instead of a
+      TypeError in teardown. Three consecutive full-suite runs to confirm, since
+      one green run proves nothing about an order-dependent leak.
+      And the merge that let it through: the PR was merged in the same command
+      that printed its checks, so a `fail` line scrolled past into a merge that
+      did not read it. Main went green again on the retry — the flake is
+      order-dependent — but the sequence was wrong regardless. Read the checks,
+      THEN merge.
       **Remaining:** every one of the eighty-three component pages has a spec
-      behind it. What is left is the animations cluster — ten of its twenty-one
+      behind it. What is left is the animations cluster — twelve of its twenty-one
       covered, the rest being the canvas and WebGL ones — and mode coverage inside
       a component that is already covered: a spec on `wr-table` says nothing about
       tree rows unless it exercises them.
