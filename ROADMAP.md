@@ -766,7 +766,37 @@ theme is what makes ngwr a library people can bet on.
       host that a real browser generates when the pointer reaches a child — so the
       spec asserts the listener now lives on the host, which is the fix, and says
       so.
-      **Remaining:** the rest of the components — forty of eighty-one have
+      **`wr-lightbox` closed the scouted batch** (2026-08-10) with five, and its
+      overlay work was already careful — focus trap, focus restore, Escape,
+      backdrop click — so all five sat in the surface around it. The open image is
+      styled `cursor: zoom-out`, which is a promise that clicking it closes the
+      viewer, the most common way anyone dismisses a lightbox; nothing listened,
+      so the cursor was the only part that worked. Neither `<img>` had an
+      `(error)` handler while `--loading` both animates a shimmer AND sets
+      `opacity: 0` on the thumbnail, so a broken `src` left an invisible box
+      shimmering for ever instead of showing its alt text. `image.open` had been
+      sitting in both catalogs, translated and unread, next to a hard-coded
+      English literal in the template — the same shape as `popconfirm.confirm` —
+      and the viewer's own fallback name had no key at all. `cursor: zoom-in` sat
+      on the host unconditionally, so a `disablePreview` thumbnail that opens
+      nothing still invited the click. And `preview` was documented as "shown
+      until the full image loads", which never happens: the thumbnail is always
+      `preview() || src()` and does not swap, so the doc now describes the lighter
+      thumbnail source it actually is. Three things this one taught about the
+      process. `nullSignal()` — the shim for "`useI18nText` with no input to
+      forward" — is not exported from `ngwr/i18n`, which is the real reason
+      nothing uses it; the label resolves through `useI18nText(this.alt, …)`
+      instead, since a non-empty binding already wins over the catalog. Two of my
+      mutations survived and split cleanly: one was my own targeting error (the
+      template renders TWO images, and I removed the `(error)` from the branch the
+      spec does not exercise, so the spec now checks both), the other a genuinely
+      weak test (I had added an `openLabel` input and never asserted it). And the
+      linter was right to object to a click handler on an `<img>`: the resolution
+      is the repo's existing escape hatch with the reason written out — the
+      affordance is REDUNDANT, since the close button, Escape, the backdrop and
+      swipe-down all do the same thing and all reach a keyboard, so the image
+      stays out of the tab order rather than becoming a second close stop.
+      **Remaining:** the rest of the components — forty-one of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
@@ -775,10 +805,6 @@ theme is what makes ngwr a library people can bet on.
       EVENT HANDLER, where change detection is still a pending macrotask, while
       this one is queued from an effect already running inside change detection.
       Pinned by a spec rather than refactored on suspicion.
-      Scouted and not yet verified by hand: `wr-lightbox`
-      (`cursor: zoom-out` on the opened image promises a click-to-close that does
-      not exist, and no `(error)` handler leaves a broken src shimmering forever
-      at `opacity: 0`).
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
