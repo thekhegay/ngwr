@@ -1,8 +1,10 @@
 @use '../../theme/styles' as theme;
 @use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
 
-// `.wr-dropdown` is the inline trigger marker; the menu and overlay live
-// in the CDK overlay portal and so are separate blocks, not elements.
+// The directive marks its host `.wr-dropdown-trigger` — `.wr-dropdown` below is
+// reachable only if a consumer applies it by hand, which is why it stays: the
+// `.wr-*` names are public API. The menu and overlay live in the CDK overlay
+// portal and so are separate blocks, not elements.
 
 .wr-dropdown {
   cursor: pointer;
@@ -104,6 +106,10 @@
     color: var(--wr-color-on-surface-muted);
     cursor: not-allowed;
     opacity: 0.6;
+    // The item's own `disabled` guards only the KEYBOARD path; the host element is
+    // where a consumer binds `(click)`, and nothing stopped a real click reaching
+    // it. `wr-btn` and `wr-checkbox` disable their pointer the same way.
+    pointer-events: none;
 
     &:hover {
       background: transparent;

@@ -96,8 +96,16 @@ export class WrDropdown {
   /** @internal Public so host bindings can read it. */
   readonly isOpen = signal(false);
 
-  /** Auto-generated id for `aria-labelledby` wiring on the menu. */
-  protected readonly triggerId = `wr-dropdown-trigger-${++triggerUid}`;
+  /**
+   * Id the menu names itself after. The trigger is the CONSUMER's own element, so
+   * an `id` they already put there wins: overwriting it broke `<label for>`,
+   * `document.getElementById` and any `aria-labelledby` aimed at that button from
+   * elsewhere in their app. The generated one is only a fallback so the menu has
+   * something to reference.
+   */
+  // `.id` rather than `getAttribute`: it is always a string, and an empty one is no
+  // id at all, so it falls through to the generated fallback.
+  protected readonly triggerId = this.host.nativeElement.id || `wr-dropdown-trigger-${++triggerUid}`;
 
   private overlayRef: OverlayRef | null = null;
 
