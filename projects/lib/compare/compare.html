@@ -1,7 +1,7 @@
 <div
   class="wr-compare__surface"
   role="slider"
-  aria-label="Comparison divider"
+  [attr.aria-label]="resolvedAriaLabel()"
   [attr.aria-orientation]="orientation()"
   [attr.aria-valuemin]="minPosition()"
   [attr.aria-valuemax]="maxPosition()"

@@ -174,6 +174,9 @@ export const wrEn: WrI18nCatalog = {
     prevYear: 'Previous year',
     nextYear: 'Next year',
   },
+  compare: {
+    label: 'Comparison divider',
+  },
   carousel: {
     label: 'Carousel',
     goToSlide: 'Go to slide {{index}}',

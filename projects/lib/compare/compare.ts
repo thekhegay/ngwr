@@ -6,8 +6,9 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, inject, input, model } from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 /**
@@ -41,6 +42,11 @@ export class WrCompare {
   /** Divider position as a percentage (0–100). Two-way bindable. @default 50 */
   readonly position = model(50);
 
+  /** Accessible name of the divider. Falls back to `compare.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'compare.label', 'Comparison divider');
+
   /**
    * Divider direction:
    * - `'horizontal'` — divider line is vertical, drags left/right.
@@ -62,6 +68,16 @@ export class WrCompare {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private dragging = false;
 
+  constructor() {
+    // `position` is a `model`, so `[(position)]` and a restored layout write into it
+    // directly while only the handlers clamped — an out-of-range write reached the DOM
+    // as `aria-valuenow="150"` against a `valuemax` of 100.
+    effect(() => {
+      const clamped = clamp(this.position(), this.minPosition(), this.maxPosition());
+      if (clamped !== this.position()) this.position.set(clamped);
+    });
+  }
+
   protected readonly classes = computed(() => {
     const parts = ['wr-compare', `wr-compare--${this.orientation()}`];
     if (this.disabled()) parts.push('wr-compare--disabled');
@@ -82,9 +98,16 @@ export class WrCompare {
 
   protected onPointerDown(event: PointerEvent): void {
     if (this.disabled()) return;
+    // Any pointerdown used to start a drag, so the right button moved the divider; the
+    // same guard keeps a second finger out of a drag already in progress.
+    if (event.button !== 0 || !event.isPrimary) return;
     event.preventDefault();
     this.dragging = true;
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    const surface = event.currentTarget as HTMLElement;
+    surface.setPointerCapture(event.pointerId);
+    // `preventDefault` above also suppresses the click's default focus, so the arrows
+    // did nothing after a mouse drag until the divider was found again with Tab.
+    surface.focus();
     this.updateFromPointer(event);
   }
 
@@ -119,10 +142,13 @@ export class WrCompare {
 
   private updateFromPointer(event: PointerEvent): void {
     const rect = this.host.nativeElement.getBoundingClientRect();
-    const raw =
-      this.orientation() === 'horizontal'
-        ? ((event.clientX - rect.left) / rect.width) * 100
-        : ((event.clientY - rect.top) / rect.height) * 100;
+    const horizontal = this.orientation() === 'horizontal';
+    const extent = horizontal ? rect.width : rect.height;
+    // A host that has not been laid out — hidden, detached, or a pane the browser has
+    // throttled — measures 0, and dividing by it puts `Infinity` or `NaN` straight into
+    // `aria-valuenow`. There is no meaningful position to compute, so keep the current one.
+    if (extent <= 0) return;
+    const raw = horizontal ? ((event.clientX - rect.left) / extent) * 100 : ((event.clientY - rect.top) / extent) * 100;
     this.position.set(clamp(raw, this.minPosition(), this.maxPosition()));
   }
 }

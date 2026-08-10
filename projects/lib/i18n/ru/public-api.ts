@@ -162,6 +162,9 @@ export const wrRu: WrI18nCatalog = {
     prevYear: 'Предыдущий год',
     nextYear: 'Следующий год',
   },
+  compare: {
+    label: 'Разделитель сравнения',
+  },
   carousel: {
     label: 'Карусель',
     goToSlide: 'Перейти к слайду {{index}}',
