@@ -740,7 +740,33 @@ theme is what makes ngwr a library people can bet on.
       instead of carrying `tabindex="-1"` under a roving cursor. Implementing that
       or dropping the menu roles for a plain group of buttons are both real
       options; picking one is not a bug fix.
-      **Remaining:** the rest of the components — thirty-nine of eighty-one have
+      **`wr-carousel` was the last of the scouted batch** (2026-08-10) and had
+      seven, clustered around autoplay — content that moves on its own owes the
+      most promises. `setInterval` ran with no platform guard, so the prerender
+      started it too: work nobody will see, on a slide index that then gets
+      serialized. The pause listeners sat on `.wr-carousel__viewport` while the
+      arrows and dots are its SIBLINGS, so a slide could change under a cursor
+      that was aiming at an arrow; they are on the host now, which is also where
+      `focusin` / `focusout` went — WCAG 2.2.2 asks for a way to stop moving
+      content, and hovering is not one for someone who never touches a mouse.
+      `active` was a bare `model` that nothing reconciled against the slide count,
+      so a filtered list left it pointing past the end and translated the track
+      into blank space with no dot lit. `aria-roledescription="carousel"` sat on a
+      role-less div, where it is simply dropped — `wr-carousel-slide` had this
+      right all along, with `role="group"` beside it. The dot labels were a
+      hard-coded English template while the three labels around them routed
+      through the catalog, so a localized app got two languages in one pagination
+      strip; and the docblock for `active` had drifted one declaration up, which
+      is why its row in the published API table read "—". Two notes on proving it.
+      The i18n one only bites under a real catalog: without a provider a lookup
+      falls back to the same English string, so the first version of that spec
+      passed whether the wiring existed or not, exactly as the popconfirm labels
+      did. And the hover fix cannot be shown the way a user experiences it —
+      `mouseenter` does not bubble, and jsdom will not synthesize the enter on the
+      host that a real browser generates when the pointer reaches a child — so the
+      spec asserts the listener now lives on the host, which is the fix, and says
+      so.
+      **Remaining:** the rest of the components — forty of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
@@ -749,9 +775,7 @@ theme is what makes ngwr a library people can bet on.
       EVENT HANDLER, where change detection is still a pending macrotask, while
       this one is queued from an effect already running inside change detection.
       Pinned by a spec rather than refactored on suspicion.
-      Scouted and not yet verified by hand: `wr-carousel` (`active` never
-      reconciled against the slide count, `setInterval` autoplay with no platform
-      guard so it runs during prerender, and pause on mouse only) and `wr-lightbox`
+      Scouted and not yet verified by hand: `wr-lightbox`
       (`cursor: zoom-out` on the opened image promises a click-to-close that does
       not exist, and no `(error)` handler leaves a broken src shimmering forever
       at `opacity: 0`).
