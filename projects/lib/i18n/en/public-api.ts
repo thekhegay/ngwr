@@ -184,6 +184,9 @@ export const wrEn: WrI18nCatalog = {
   alert: {
     close: 'Close alert',
   },
+  qr: {
+    label: 'QR code',
+  },
   image: {
     viewer: 'Image preview',
     open: 'Open preview',

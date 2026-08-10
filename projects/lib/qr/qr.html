@@ -4,4 +4,4 @@
   different structures, which breaks hydration; a bare canvas costs nothing
   and matches how the other canvas-backed components behave.
 -->
-<canvas #canvas></canvas>
+<canvas #canvas role="img" [attr.aria-label]="resolvedAriaLabel()"></canvas>
