@@ -71,7 +71,7 @@ export const API = {
   // <wr-avatar>
   WrAvatar: [
     { name: "url", description: "Image URL. When unset, only projected content (e.g. initials) renders.", type: "string | null", default: "null" },
-    { name: "alt", description: "Alt text for the image.", type: "string", default: "'Avatar'" },
+    { name: "alt", description: "Alt text for the image. Falls back to `avatar.alt`, then `'Avatar'` — pass the person's name where you have it, since that is what a reader wants.", type: "string | null", default: "null" },
     { name: "shape", description: "Corner treatment. `rounded` (default) is a soft rounded square, `circle` is the classic profile avatar, `squircle` is the iOS look.", type: "WrAvatarShape", default: "'rounded'" },
     { name: "size", description: "Box size. See {@link WrAvatarSize} for accepted values.", type: "WrAvatarSize", default: "'6rem'" },
   ],
@@ -136,7 +136,7 @@ export const API = {
   // <wr-burger>
   WrBurger: [
     { name: "open", description: "Two-way bindable open state. Drives the hamburger ↔ close morph.", type: "boolean", default: "false" },
-    { name: "label", description: "Accessible label for the toggle button.", type: "string", default: "'Toggle menu'" },
+    { name: "label", description: "Accessible name for the toggle button. Falls back to `burger.label`, then `'Toggle menu'`.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the toggle.", type: "boolean", default: "false" },
   ],
   // <wr-btn, button[wr-btn], a[wr-btn]>
@@ -474,7 +474,8 @@ export const API = {
   ],
   // <wr-empty>
   WrEmpty: [
-    { name: "icon", description: "Icon name shown above the title.", type: "WrIconName | null", default: "'folder'" },
+    { name: "icon", description: "Render the built-in folder glyph. Pass `false` to show no icon at all. Ignored when `iconName` is set — the same contract as `<wr-alert>`. This used to be typed as an icon NAME, which it never was: whatever name you passed, the template drew the folder. Any truthy value still shows it, so nothing that compiled before behaves differently.", type: "boolean", default: "true" },
+    { name: "iconName", description: "Show any registered ngwr icon instead of the built-in glyph.", type: "WrIconName | null", default: "null" },
     { name: "title", description: "Headline. Falls back to `empty.noData` from WrI18n, then `'No data'`.", type: "string | null", default: "null" },
   ],
   // <wr-event-calendar>
@@ -1032,6 +1033,7 @@ export const API = {
   // <wr-spinner>
   WrSpinner: [
     { name: "size", description: "Size variant. Em-based — scales with surrounding font-size.", type: "WrSpinnerSize", default: "'md'" },
+    { name: "ariaLabel", description: "Accessible name for the live region. Falls back to `spinner.label`, then `'Loading'` — which the host used to carry as a hard-coded attribute, while the catalog had the translated key for it all along.", type: "string | null", default: "null" },
   ],
   // <wr-splash-cursor>
   WrSplashCursor: [
