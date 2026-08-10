@@ -1,7 +1,9 @@
+<!-- The readable text, once: the pieces below are per-character spans. -->
+<span class="wr-split-text__sr-only">{{ text() }}</span>
 @for (p of pieces(); track $index) {
   @if (p.kind === 'piece') {
-    <span class="wr-split-text__piece">{{ p.text }}</span>
+    <span class="wr-split-text__piece" aria-hidden="true">{{ p.text }}</span>
   } @else {
-    <span class="wr-split-text__space">{{ p.text }}</span>
+    <span class="wr-split-text__space" aria-hidden="true">{{ p.text }}</span>
   }
 }

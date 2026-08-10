@@ -9,6 +9,19 @@
   overflow-wrap: break-word;
   will-change: transform, opacity;
 
+  // Same shape as `wr-rotating-text`: the animated pieces are per-character
+  // spans, which a screen reader may read out one letter at a time, so the real
+  // string is carried once here and the pieces are taken out of the tree.
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   &__piece {
     display: inline-block;
     will-change: transform, opacity;
