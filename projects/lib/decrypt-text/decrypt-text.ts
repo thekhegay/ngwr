@@ -60,6 +60,19 @@ function computeOrder(len: number, dir: WrDecryptTextRevealDirection): readonly 
   return order.slice(0, len);
 }
 
+/**
+ * How many characters the animation walks — CODE POINTS, not UTF-16 units.
+ *
+ * Every index in this component (`revealedIndices`, the sequential order, the
+ * per-character render) counts the same way `[...txt]` does. Using `txt.length`
+ * for the total counted an emoji twice, so a sequential reveal spent extra ticks
+ * on indices past the end of the text and the "everything revealed" test never
+ * lined up with what was on screen.
+ */
+function charCount(txt: string): number {
+  return [...txt].length;
+}
+
 function fillAllIndices(len: number): Set<number> {
   const s = new Set<number>();
   for (let i = 0; i < len; i++) s.add(i);
@@ -273,10 +286,10 @@ export class WrDecryptText {
   private triggerReverse(): void {
     const txt = this.text();
     if (this.sequential()) {
-      this.reverseOrder = computeOrder(txt.length, this.revealDirection()).slice().reverse();
+      this.reverseOrder = computeOrder(charCount(txt), this.revealDirection()).slice().reverse();
       this.reversePointer = 0;
     }
-    const all = fillAllIndices(txt.length);
+    const all = fillAllIndices(charCount(txt));
     this.revealedIndices.set(all);
     this.displayText.set(this.shuffle(txt, all));
     this.direction.set('reverse');
@@ -319,8 +332,8 @@ export class WrDecryptText {
     const revealed = this.revealedIndices();
 
     if (seq && dir === 'forward') {
-      if (revealed.size < txt.length) {
-        const nextIdx = this.nextSequentialIndex(revealed, txt.length);
+      if (revealed.size < charCount(txt)) {
+        const nextIdx = this.nextSequentialIndex(revealed, charCount(txt));
         const next = new Set(revealed);
         next.add(nextIdx);
         this.revealedIndices.set(next);
@@ -364,8 +377,8 @@ export class WrDecryptText {
 
     if (!seq && dir === 'reverse') {
       let current = revealed;
-      if (current.size === 0) current = fillAllIndices(txt.length);
-      const removeCount = Math.max(1, Math.ceil(txt.length / Math.max(1, max)));
+      if (current.size === 0) current = fillAllIndices(charCount(txt));
+      const removeCount = Math.max(1, Math.ceil(charCount(txt) / Math.max(1, max)));
       const next = removeRandomIndices(current, removeCount);
       this.revealedIndices.set(next);
       this.displayText.set(this.shuffle(txt, next));
@@ -398,14 +411,20 @@ export class WrDecryptText {
   }
 
   private shuffle(txt: string, revealed: ReadonlySet<number>): string {
+    // Every index here counts CODE POINTS, because that is what `[...txt]`
+    // produces and what `revealed` was built against. `split('')` counts UTF-16
+    // units instead, so an emoji in the text (or in a custom alphabet) put half a
+    // surrogate pair in the pool; and reading the revealed character back as
+    // `txt[i]` mixed the two index spaces, so every character after the first
+    // astral one revealed as the WRONG one.
     const pool = this.useOriginalCharsOnly()
-      ? Array.from(new Set(txt.split(''))).filter(ch => ch !== ' ')
-      : this.characters().split('');
+      ? Array.from(new Set([...txt])).filter(ch => ch !== ' ')
+      : [...this.characters()];
     if (pool.length === 0) return txt;
     return [...txt]
       .map((ch, i) => {
         if (ch === ' ') return ' ';
-        if (revealed.has(i)) return txt[i];
+        if (revealed.has(i)) return ch;
         return pool[Math.floor(Math.random() * pool.length)];
       })
       .join('');
