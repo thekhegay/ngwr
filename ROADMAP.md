@@ -1236,8 +1236,12 @@ theme is what makes ngwr a library people can bet on.
       consumer has to repeat, or reading the projected text after render to name
       the separator with it; both are decisions about public semantics rather than
       defects to patch quietly.
-      **Remaining:** the rest of the components — seventy-seven of eighty-one have
-      specs, and mode coverage inside them is its own axis. One gap closed and one
+      **Remaining:** four of the eighty-three component pages have no spec —
+      `action-sheet`, `drag-drop`, `keyboard`, `squircle` — plus the animations
+      cluster, which is a separate list. Mode coverage inside a covered component
+      is its own axis. (The count said eighty-one until it was recounted; two
+      pages document symbols that live inside another entry point, `button-group`
+      in `button/` and `form-field` in `form/`, and both of those are covered.) One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
       on hover would fight the pointer), and its `queueMicrotask` focus is NOT the
