@@ -17,6 +17,12 @@ export interface WrTourController {
   readonly index: () => number;
   readonly total: () => number;
   readonly step: () => WrTourStep | null;
+  /**
+   * Whether this is the last step the user will actually see — the service looks
+   * ahead for a reachable one, because a trailing step whose target is missing gets
+   * skipped and the raw count would call the final card "Next".
+   */
+  readonly isLast: () => boolean;
   next(): void;
   prev(): void;
   stop(): void;
@@ -52,7 +58,10 @@ export class WrTourPopup {
   /** `Step {{current}} of {{total}}` — also the dialog's accessible name. */
   protected readonly progress = useI18nFormatter('tour.progress', 'Step {{current}} of {{total}}');
 
-  protected readonly isLast = computed(() => this.tour.index() >= this.tour.total() - 1);
+  // From the service, not `index() >= total() - 1`: a trailing step whose target is
+  // missing gets skipped, so the raw count called the final card "Next" and then
+  // ended the tour when it was pressed.
+  protected readonly isLast = computed(() => this.tour.isLast());
   protected readonly isFirst = computed(() => this.tour.index() <= 0);
 
   protected readonly progressText = computed(() =>

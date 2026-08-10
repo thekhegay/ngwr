@@ -5,7 +5,13 @@
 // covered, so it stays readable and clickable.
 .wr-tour__spotlight {
   position: fixed;
-  z-index: 1000;
+  // Below CDK's `.cdk-overlay-container` (1000), deliberately. Both are fixed
+  // children of `<body>`, so at equal z-index the DOM order decides — and the
+  // service appends a fresh cut-out on every step while the container stays put, so
+  // from the second step on the dimming shadow painted OVER the tour's own card.
+  // `.wr-tour-overlay { z-index: 1001 }` cannot help: it sits on the pane INSIDE the
+  // container, whose own stacking context scopes it.
+  z-index: 999;
   pointer-events: none;
   border-radius: var(--wr-border-radius-base);
   box-shadow: 0 0 0 9999px rgba(var(--wr-color-backdrop-rgb), 0.55);
