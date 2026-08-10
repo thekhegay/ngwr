@@ -1068,7 +1068,38 @@ theme is what makes ngwr a library people can bet on.
       was also the one numeric input in the entry point with no coercion, so `0` —
       or anything unparsable, through NaN — asked `setInterval` to run as fast as
       the browser allowed. Floored at one frame.
-      **Remaining:** the rest of the components — fifty-eight of eighty-one have
+      **`wr-anchor` and `wr-back-top` (2026-08-11)** — and one of the two findings
+      here is about the GATE, not the component. `wr-back-top` marked itself
+      `aria-hidden="true"` while hidden, which does nothing whatsoever to the tab
+      order: a keyboard user tabbed into a 44px button they could not see and a
+      screen reader could not name. `pnpm check:a11y` cannot see this — axe in
+      JSDOM has no layout, so nothing measures as focusable and
+      `aria-hidden-focus` passes vacuously. Confirmed instead in a real Chromium
+      through Playwright, where `focus()` landed on the button and axe 4.13
+      reported the rule as SERIOUS. The fix is `inert`, chosen by testing all
+      three variants in that browser: `inert` alone and `inert` + `aria-hidden`
+      both satisfy axe and both actually refuse focus, while `aria-hidden` alone
+      does neither.
+      The same probe found the SHOWCASE doing it too — every collapsed sidebar
+      group, on every one of the 192 pages, kept its links tabbable. Same fix.
+      Worth writing down as a rule rather than two fixes: a hidden-but-present
+      container needs `inert`, and the PR gate will never tell you otherwise.
+      `wr-back-top` had a second, smaller bug in plain sight — its `<ng-content
+      />` sat NEXT TO the built-in arrow instead of wrapping it, so the documented
+      custom-icon example rendered two glyphs in one circle. `<ng-content>` with
+      the arrow as fallback content is the whole fix.
+      `wr-anchor` carried `aria-label="Table of contents"` as a static host
+      attribute — hard-coded English in a landmark, unoverridable and
+      untranslatable, in a library whose catalog already had a key for everything
+      else. It routes through `anchor.label` now. Its scroll spy also ran its
+      first pass in the CONSTRUCTOR, before the headings it looks up by id exist
+      (they are further down the same page, so they render after the list):
+      `getElementById` returned null for every one of them and the page sat with
+      nothing highlighted until the reader scrolled. Moved to `afterNextRender` —
+      the same class of mistake as the calendar's `queueMicrotask`, and the spec
+      reproduces it by putting the targets after the anchor in the host template,
+      which is simply where they live in real markup.
+      **Remaining:** the rest of the components — sixty of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
