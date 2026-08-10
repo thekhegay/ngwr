@@ -914,13 +914,35 @@ theme is what makes ngwr a library people can bet on.
       with no container role and no `aria-setsize`, so a screen reader is told
       nothing about the total. The row template is the consumer's, which is what
       makes this a design question rather than a patch.
-      Scouted in the same pass and not yet verified by hand: `wr-compare`
-      (`position` unclamped, no primary-pointer guard, no focus on pointerdown —
-      the same trio `wr-splitter` had, and `role="slider"` on the wrapper that
-      CONTAINS the projected content), `wr-donut-chart` and `wr-sparkline` (one
-      NaN poisons the whole series, and neither chart has any accessible
-      representation).
-      **Remaining:** the rest of the components — forty-seven of eighty-one have
+      **`wr-image-cropper` closed the batch** (2026-08-11) with two fixes and the
+      batch's largest recorded gap. The crop is measured against the image that
+      WAS showing, and `cropRect` is a public signal, so leaving the geometry in
+      place across a `src` change had it reporting a rect scaled to the PREVIOUS
+      image for the whole gap between the new source and its load event — long
+      enough for a consumer to read it and crop the wrong thing. And
+      `onPointerDown` accepted any button and any pointer, the fourth component in
+      this cycle with that exact hole after splitter, knob and compare. Testing it
+      needed one deliberate stub and it is worth explaining. Everything else here
+      is measured, and jsdom measures nothing — `getBoundingClientRect()` is zeros
+      and `naturalWidth` is 0 — so a real load leaves `display` at 0 and the crop
+      UI never renders at all. Giving the `<img>` the two numbers `onImageLoad`
+      actually reads is the smallest stub that makes the crop maths observable,
+      and it buys the thing worth pinning: `cropRect` converts display pixels to
+      SOURCE pixels, which is the value a consumer acts on. A mutation survived
+      and is redundant-for-behaviour rather than a weak test: `display` gates
+      everything downstream, so clearing `cropDisplay` and `natural` alongside it
+      changes nothing a test can see. They are reset anyway, for coherence, and
+      the reason is written into the method — anything that later learns to set
+      `display` from elsewhere (a resize observer being the obvious candidate for
+      this component) would otherwise resurrect a crop belonging to the previous
+      image. **Its biggest problem is left open on purpose:** the crop window and
+      its eight handles are pointer-only — not focusable, no role, no name — so
+      the entire interaction is unavailable from a keyboard, and there is no APG
+      pattern for an image cropper to copy. Choosing the keyboard model (arrows
+      move, shift resizes, which handle is selected and how) is design, not a bug
+      fix, and the same goes for a missing `(error)` path on the image, which
+      today leaves a blank frame with no feedback.
+      **Remaining:** the rest of the components — forty-eight of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
