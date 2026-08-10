@@ -1046,6 +1046,7 @@ export const API = {
     { name: "minPosition", description: "Minimum allowed position.", type: "number", default: "0" },
     { name: "maxPosition", description: "Maximum allowed position.", type: "number", default: "100" },
     { name: "disabled", description: "Disable dragging.", type: "boolean", default: "false" },
+    { name: "dividerLabel", description: "Accessible name of the divider. A focusable `role=\"separator\"` is an interactive widget, so it needs one — without it a screen reader reaching the divider announces nothing but \"separator\" and its number. Falls back to `splitter.divider`.", type: "string | null", default: "null" },
   ],
   // <wr-split-text>
   WrSplitText: [
