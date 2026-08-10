@@ -658,7 +658,43 @@ theme is what makes ngwr a library people can bet on.
       spec's NAME promised the label check while its body asserted only the
       input's id — the vacuous-assertion shape this file keeps warning about, this
       time in my own test.
-      **Remaining:** the rest of the components — thirty-seven of eighty-one have
+      **`wr-tour` came next, and its cut-out was painting over its own card**
+      (2026-08-10) — five defects, four of them lifecycle. The per-step
+      `ConfigurableFocusTrap` was created into a LOCAL and never destroyed, so
+      every step left a live `FocusTrapManager` registration and a capture-phase
+      document focus listener behind it. The document-level Escape handler did not
+      check `defaultPrevented`, so a step shown over a dialog closed both on one
+      press. The service is root-provided and owns a CDK overlay, a div appended
+      to `document.body`, a document keydown listener and two window listeners,
+      with no destroy hook — a tour running at teardown left its cut-out on the
+      page. And `isLast` compared `index()` against the RAW step count, while a
+      step whose target is missing gets skipped: the final card read "Next" and
+      pressing it ended the tour, so the service now looks ahead for a reachable
+      step and the popup asks it. The progress line still counts every step the
+      tour was given, which is truthful about its length and deliberately left
+      alone. **The fifth was a stacking-context mistake** and the most interesting
+      to measure. `.wr-tour__spotlight` and CDK's `.cdk-overlay-container` are
+      both `position: fixed` children of `<body>` at `z-index: 1000`, so DOM order
+      decides — and the service appends a fresh cut-out on every step while the
+      container stays put. From the SECOND step on the dimming shadow painted over
+      the tour's own card. `.wr-tour-overlay { z-index: 1001 }` reads like the
+      guard against exactly that and cannot be: it sits on the pane INSIDE the
+      container, whose stacking context scopes it. Fixed by putting the cut-out
+      under the container at 999. Measuring it took two attempts, and the first
+      was wrong in a way AGENTS.md already warns about: the dimming is a
+      `box-shadow`, and shadows are not hit-testable, so `elementFromPoint`
+      reported the card on top in both orders and looked like a refutation. Giving
+      the same element a solid background over the card — same element, same
+      stacking position — answered it: cut-out wins at 1000, card wins at 999. One
+      of the six suspicions was refuted by the code's own reasoning rather than by
+      a measurement. `readI18nText` freezes a label at construction, which is the
+      shape of the `WrDialog` bug above — but the tour popup is rebuilt for every
+      step and says so in a comment, so it resolves after the catalog has loaded.
+      Worth recording that the helper is used by SEVEN components across 24 call
+      sites while the `nullSignal()` shim that would make them reactive is used by
+      none: whether that is a decision or drift is a library-wide question, not a
+      tour one.
+      **Remaining:** the rest of the components — thirty-eight of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
@@ -669,9 +705,12 @@ theme is what makes ngwr a library people can bet on.
       Pinned by a spec rather than refactored on suspicion.
       Scouted and not yet verified by hand: `wr-speed-dial` (a `role="menu"` with
       no menu keyboard contract at all, and a dial that cannot be closed once
-      `[disabled]` flips true while it is open) and `wr-carousel` (`active` never
+      `[disabled]` flips true while it is open), `wr-carousel` (`active` never
       reconciled against the slide count, `setInterval` autoplay with no platform
-      guard so it runs during prerender, and pause on mouse only).
+      guard so it runs during prerender, and pause on mouse only) and `wr-lightbox`
+      (`cursor: zoom-out` on the opened image promises a click-to-close that does
+      not exist, and no `(error)` handler leaves a broken src shimmering forever
+      at `opacity: 0`).
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
