@@ -1027,15 +1027,18 @@ theme is what makes ngwr a library people can bet on.
       wrong with it, and its spec is worth having for exactly that reason: the
       bar's width and `aria-valuenow` are the same clamped number, and a change
       that clamps one without the other shows a full bar announcing 300. Three
-      mutations confirm the spec would catch it. Two notes on testing an
-      animation. jsdom does schedule `requestAnimationFrame`, but on a cadence
-      that is not ours to assume, so the counter's spec polls until the rendered
-      text stops changing rather than sleeping for a fixed time — the first
-      version slept 320ms and caught the tween half way, at 949 of 1234. And the
-      odometer's visible markup carries no readable text at all (ten digits per
-      column, one picked by a transform), so `.wr-counter__sr-only` is what both
+      mutations confirm the spec would catch it.
+      Two notes on testing an animation, the second learned the hard way. The
+      odometer's visible markup carries no readable text at all — ten digits per
+      column, one picked by a transform — so `.wr-counter__sr-only` is what
       assistive tech and the prerendered HTML actually get, and that is what the
-      spec reads.
+      spec reads. And the tween is driven with FAKE timers, faking `performance`
+      and `requestAnimationFrame` together: a first version slept 320ms of real
+      time and caught the tween half way at 949 of 1234, and a second polled until
+      the text stopped changing — which cannot tell "finished" from "not started
+      yet", so it passed here and failed on CI with the counter still on 0.
+      Wall-clock waiting produced two different wrong answers in one spec; the
+      clock belongs to the test.
       **Remaining:** the rest of the components — fifty-four of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
