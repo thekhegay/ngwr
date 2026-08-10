@@ -269,18 +269,22 @@ export class WrCommandPalette {
       case 'ArrowDown':
         event.preventDefault();
         if (list.length > 0) this.activeIndex.set((this.activeIndex() + 1) % list.length);
+        this.revealActive();
         break;
       case 'ArrowUp':
         event.preventDefault();
         if (list.length > 0) this.activeIndex.set((this.activeIndex() - 1 + list.length) % list.length);
+        this.revealActive();
         break;
       case 'Home':
         event.preventDefault();
         this.activeIndex.set(0);
+        this.revealActive();
         break;
       case 'End':
         event.preventDefault();
         this.activeIndex.set(Math.max(0, list.length - 1));
+        this.revealActive();
         break;
       case 'Enter': {
         event.preventDefault();
@@ -329,6 +333,23 @@ export class WrCommandPalette {
   }
 
   // Internals
+
+  /**
+   * Keep the highlighted option on screen. The body is a fixed-height scroller and
+   * the options are not focusable, so nothing moves it on the browser's behalf —
+   * arrow keys walked the highlight straight off the bottom and out of sight.
+   * Keyboard only: doing it on hover would fight the pointer that caused it.
+   * `wr-select` and `wr-tree` keep the same promise through their own
+   * `ensureVisible`; theirs is index maths because they are virtualized.
+   */
+  private revealActive(): void {
+    if (!this.isBrowser) return;
+    const id = this.activeOptionId();
+    if (!id) return;
+    // Ids are position-based and stable, so the element is findable straight away —
+    // no need to wait for change detection to re-mark the active row.
+    this.panelEl()?.nativeElement.querySelector<HTMLElement>(`#${id}`)?.scrollIntoView({ block: 'nearest' });
+  }
 
   private commit(item: WrCommandItem): void {
     item.action?.();
