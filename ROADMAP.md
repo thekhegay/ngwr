@@ -612,6 +612,18 @@ theme is what makes ngwr a library people can bet on.
       would have been a false signature on a repair. `dialog-scroll.spec.ts`
       therefore guards the RULE and says so in its own docblock; only a browser
       run can guard the behaviour.
+      **The defect class is closed, so nobody needs to sweep it again**
+      (verified after v10.2.1): exactly three services take a consumer's
+      `ComponentType` and so interpose a host — dialog, drawer, window, and
+      `ComponentType<` appears nowhere else in the library. `WrDrawerManager`
+      already carried the identical rule with the identical `:not(…__close)`
+      exemption (`drawer/styles/_index.scss`), which makes the dialog the
+      omission rather than the fix a novelty. `WrWindowManager` is immune by
+      shape rather than by patch: `.wr-window__body` IS the scroller and the
+      interposed host lands INSIDE it, so nothing has to shrink — in the dialog
+      the scroll area sat BELOW the host, which is what forced the host to pass a
+      bounded height down. Worth keeping that distinction: the trap needs the
+      host to be an ANCESTOR of the scroller, not merely present.
       **Remaining:** Playwright screenshot diffs across the
       showcase, run at mobile viewports too. It also owns the half of a11y that
       `check:a11y` cannot see: that gate runs axe over unstyled prerendered HTML,
