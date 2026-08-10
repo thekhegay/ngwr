@@ -589,6 +589,29 @@ theme is what makes ngwr a library people can bet on.
       `pointer: coarse`, and 2.5.8 applies to every pointer), and the token
       gallery labels every shade of a ramp with `{intent}-contrast`, which is
       calibrated for the base shade only.
+      **A layout defect reached an app before any gate saw it** (2026-08-10),
+      which is the clearest argument yet for the half of this item still open.
+      `WrDialog` mounts the consumer's component BETWEEN `.wr-dialog-panel` and
+      the dialog's parts, so that host was the panel's only flex item — and with
+      `overflow: visible` its automatic minimum size is its content height, so it
+      refused to shrink. The panel clipped it at `max-height` and
+      `[wrDialogContent]` never became a scroll area: on an 883px viewport the
+      host measured 1098 and the footer's buttons sat at 1102, unreachable, with
+      no scrollbar anywhere. Nothing in the library could be blamed from the
+      outside and nothing in an app could fix it — the host is inserted by the
+      service, so the consumer has no element to style between panel and content.
+      Fixed by making that host a shrinkable flex column
+      (`> *:not(.wr-dialog__close)`), verified in Chromium across tall content, a
+      dialog shorter than the screen, no title / no footer, the narrow-viewport
+      sheet, a consumer's own `:host` box, and a dialog over a dialog.
+      Both halves of the rule are load-bearing and measured to be: `min-height: 0`
+      alone leaves the footer 861px past the fold. The gate lesson is the sharp
+      part — a vitest + jsdom spec shaped like "the content scrolls" passes
+      identically before and after, because jsdom lays nothing out at all
+      (`getBoundingClientRect()` is zeros, `scrollHeight === clientHeight`), so it
+      would have been a false signature on a repair. `dialog-scroll.spec.ts`
+      therefore guards the RULE and says so in its own docblock; only a browser
+      run can guard the behaviour.
       **Remaining:** Playwright screenshot diffs across the
       showcase, run at mobile viewports too. It also owns the half of a11y that
       `check:a11y` cannot see: that gate runs axe over unstyled prerendered HTML,
