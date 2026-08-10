@@ -716,7 +716,31 @@ theme is what makes ngwr a library people can bet on.
       which shape it wants, rather than being papered over by an accessor. Two
       descriptions that still advertised `[(ngModel)]` as the way in — `wr-tree`'s
       overlay mode and `wr-color-picker` — now match the code beside them.
-      **Remaining:** the rest of the components — thirty-eight of eighty-one have
+      **`wr-speed-dial` followed** (2026-08-10), five defects, and one of the
+      recon's claims was already handled better than the report thought: the
+      collapsed actions are hidden with `visibility`, not `opacity`, with a
+      comment in the stylesheet saying that is what takes them out of the tab
+      order and the accessibility tree together. What was missing is the rest of
+      what `role="menu"` promises. Escape did nothing, and since the actions are
+      ordinary buttons in the tab order a keyboard user who opened the dial had to
+      tab through every one to leave it; Escape now closes and returns focus to
+      the trigger. The trigger advertised `aria-haspopup="menu"` and toggled
+      `aria-expanded` but named no `aria-controls`, so the relationship existed
+      only visually. The action buttons stayed enabled while the dial was disabled
+      — clicks landed on a handler that silently refused, which is a control that
+      looks live and does nothing — and a dial disabled WHILE open could never be
+      closed again, because the trigger is the only way to close it and a disabled
+      trigger cannot be pressed. Last, the iconless fallback glyph was
+      `label.charAt(0)`, one UTF-16 code unit, which cuts an astral character in
+      half: a 🚀 label rendered as a replacement character. My first test for it
+      used ⭐, which lives in the BMP and survives `charAt` — the test passed and
+      proved nothing until the emoji was moved outside it. What is NOT fixed, and
+      is a design call rather than a patch: the dial declares `role="menu"`
+      without APG's arrow-key navigation, and its items are in the tab order
+      instead of carrying `tabindex="-1"` under a roving cursor. Implementing that
+      or dropping the menu roles for a plain group of buttons are both real
+      options; picking one is not a bug fix.
+      **Remaining:** the rest of the components — thirty-nine of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
@@ -725,9 +749,7 @@ theme is what makes ngwr a library people can bet on.
       EVENT HANDLER, where change detection is still a pending macrotask, while
       this one is queued from an effect already running inside change detection.
       Pinned by a spec rather than refactored on suspicion.
-      Scouted and not yet verified by hand: `wr-speed-dial` (a `role="menu"` with
-      no menu keyboard contract at all, and a dial that cannot be closed once
-      `[disabled]` flips true while it is open), `wr-carousel` (`active` never
+      Scouted and not yet verified by hand: `wr-carousel` (`active` never
       reconciled against the slide count, `setInterval` autoplay with no platform
       guard so it runs during prerender, and pause on mouse only) and `wr-lightbox`
       (`cursor: zoom-out` on the opened image promises a click-to-close that does
