@@ -1,4 +1,12 @@
-<svg [attr.viewBox]="viewBox" [style.width]="width()" [style.height]="height()" preserveAspectRatio="none">
+<svg
+  [attr.viewBox]="viewBox"
+  [style.width]="width()"
+  [style.height]="height()"
+  [attr.role]="ariaLabel() ? 'img' : null"
+  [attr.aria-label]="ariaLabel()"
+  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
+  preserveAspectRatio="none"
+>
   @if (showArea() && areaPath()) {
     <path class="wr-sparkline__area" [attr.d]="areaPath()" [attr.fill]="color()" fill-opacity="0.15" stroke="none" />
   }

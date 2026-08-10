@@ -29,10 +29,21 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 export class WrSparkline {
   readonly data = input<readonly number[]>([]);
 
+  /**
+   * Accessible name. A sparkline usually sits beside the number it summarises, where
+   * announcing it again is noise — so it is `aria-hidden` by default and becomes a
+   * named `role="img"` only when a consumer says what it shows.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
   /** Stroke colour. @default `var(--wr-color-primary)` */
   readonly color = input<string>('var(--wr-color-primary)');
 
-  /** Stroke width in viewBox units. @default 1.5 */
+  /**
+   * Line thickness in CSS pixels — `vector-effect="non-scaling-stroke"` keeps it at
+   * that width whatever the box is stretched to, so it is NOT in viewBox units.
+   * @default 1.5
+   */
   readonly strokeWidth = input(1.5, {
     transform: (v: unknown): number => Math.max(0.1, coerceNumberProperty(v, 1.5)),
   });
@@ -56,7 +67,10 @@ export class WrSparkline {
 
   /** Mapped `{ x, y }` points for the path. */
   protected readonly points = computed(() => {
-    const data = this.data();
+    // Non-finite data is dropped rather than scaled: every `min`/`max` comparison
+    // against a NaN is false, so it survived into the scale and `toFixed(2)` wrote the
+    // literal text `NaN` into the path `d` — invalid geometry, and the line vanishes.
+    const data = this.data().filter(v => Number.isFinite(v));
     if (data.length === 0) return [] as readonly { x: number; y: number }[];
     if (data.length === 1) return [{ x: this.vbW / 2, y: this.vbH / 2 }];
 
@@ -66,10 +80,16 @@ export class WrSparkline {
       if (v < min) min = v;
       if (v > max) max = v;
     }
-    const span = max - min || 1;
     const pad = this.padding;
     const w = this.vbW - pad * 2;
     const h = this.vbH - pad * 2;
+    // A series with no spread has no shape, and dividing by the old `|| 1` fallback
+    // pinned every point to `pad + h` — the bottom edge — so a steady series at 500
+    // read as rock bottom. Centred instead, which is what a lone datum already does.
+    if (max === min) {
+      return data.map((_, i) => ({ x: pad + (i / (data.length - 1)) * w, y: this.vbH / 2 }));
+    }
+    const span = max - min;
     return data.map((v, i) => ({
       x: pad + (i / (data.length - 1)) * w,
       y: pad + h - ((v - min) / span) * h,
