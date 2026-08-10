@@ -581,13 +581,55 @@ theme is what makes ngwr a library people can bet on.
       pinned at identical key sets (166) with no empty values, empty being the
       worse case since it resolves as a real translation and reaches the DOM as a
       nameless control.
-      **Remaining:** the rest of the components — thirty-two of eighty-one
-      have specs, and mode coverage inside them is its own axis. The next batch is
-      scouted, with candidate defects not yet verified by hand: `wr-dropdown` (the
-      trigger's `id` host binding clobbers a consumer's own), `wr-command-palette`
-      (keyboard walks source order while the template renders grouped order, so
-      the highlight lands on the wrong row) and `wr-splitter` (a separator with no
-      accessible name, and `position` clamped only inside the handlers).
+      **The scouted batch landed** (2026-08-10) — palette, dropdown, splitter,
+      ten more defects at 946 specs, and every one of them had been guessed by a
+      read-only subagent and then confirmed by hand before a line was changed.
+      `wr-command-palette`'s was the worst of the three: keyboard navigation
+      walked the flat SOURCE order while the template rendered the GROUPED order,
+      and `bucketize` collects each group as it first appears — so with two
+      interleaved groups one ArrowDown moved the highlight two rows and Enter
+      fired the command below the one that looked selected. One inversion fixed
+      all of it: the flat list is now derived FROM the buckets, so navigation
+      order IS render order and the five symptoms share one cause. Three more
+      there: its `role="listbox"` owned plain `div` wrappers, which ARIA has no
+      rule for (a titled bucket is a labelled `group` now, an untitled one leaves
+      the tree with `role="none"`); the reset-on-open effect also read
+      `responsive()`, so a bound signal flipping mid-search re-ran the body and
+      wiped what had been typed; and the focus trap was destroyed only in the
+      CLOSE branch, so a component torn down while open left a live trap holding a
+      detached panel.
+      `wr-dropdown` clobbered the consumer's own `id` — the trigger is THEIR
+      element, and the generated id exists only so the menu can name itself, which
+      their value does just as well; it broke `<label for>`, `getElementById` and
+      any `aria-labelledby` aimed at that button. Its disabled item was worse than
+      it looked: `disabled` guards the KEYBOARD path only, and a real pointer
+      click lands on the host element, where a consumer binds `(click)` — so a
+      disabled Delete deleted. The fix is `pointer-events: none`, as `wr-btn` and
+      `wr-checkbox` already do, which jsdom cannot prove (no stylesheets), so that
+      one is a labelled rule guard plus a Chromium measurement: the hit test lands
+      on the item before the fix and on its menu ancestor after.
+      `wr-splitter` had four, three of them shared with a sibling: a focusable
+      `role="separator"` with no accessible name and no way to give one (now
+      `dividerLabel` + `splitter.divider`); `position` clamped only inside the
+      handlers, so an outside write produced `aria-valuenow="150"` against a
+      `valuemax` of 100 and a pane sized `150%`; no focus on `pointerdown`, whose
+      `preventDefault` also suppresses the click's default focus, leaving the
+      arrows dead after a mouse drag until the divider was found again with Tab;
+      and no primary-button guard, so holding the RIGHT button on the divider and
+      moving resized the panes. `wr-slider` already focuses its thumb and `drawer`
+      already guards `isPrimary`, so the last two went into `wr-knob` as well
+      rather than being left in the sibling.
+      One trap worth recording, because I walked into it: adding
+      `!event.isPrimary` makes the whole pointer path unreachable under jsdom,
+      which has no `PointerEvent` at all — a spec driving the drag with a
+      `MouseEvent` reads `isPrimary` as `undefined` and the guard rejects it. That
+      turned the button test green for the wrong reason until the helper defined
+      the property explicitly.
+      **Remaining:** the rest of the components — thirty-five of eighty-one
+      have specs, and mode coverage inside them is its own axis. Two known gaps
+      left in the covered ones, both jsdom-blind: the palette never scrolls its
+      active option into view, and neither it nor `wr-dropdown` has moved its
+      deferred focus off `queueMicrotask` onto `afterNextRender`.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
