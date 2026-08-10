@@ -486,7 +486,22 @@ theme is what makes ngwr a library people can bet on.
       filter matches a SUBSTRING, not a prefix, so `@al` reaches "Alan" and also
       "TorvALds" — friendlier for names, where people type the part they
       remember. The `filterWith` override is covered alongside it.
-      **Remaining:** the rest of the components — twenty-eight of eighty-one
+      `wr-cascader` added 18. Its value is the whole PATH rather than the node
+      — picking Berlin means `['eu', 'de', 'ber']`, and a consumer reading only
+      the last segment loses the context that made it meaningful — and a branch
+      is navigation rather than a choice, so nothing commits on the way down
+      unless `changeOnSelect` says otherwise. Every option is its own tab stop
+      here rather than a roving cursor, which is the documented reason virtual
+      scrolling is deferred for this component; the spec pins that shape so it
+      reads as a decision instead of an oversight.
+      One of my own selectors was wrong in an instructive way: the panel is
+      `wr-cascader-panel`, its own block, not `wr-cascader__panel` — it lives in
+      the overlay rather than inside the host. A `querySelector` that never
+      matches makes every "and it closed" assertion pass without looking at
+      anything, and two of them were green that way until the two that expected
+      the panel to STILL be open failed and gave it away. Worth remembering that
+      a negative assertion on a wrong selector is silently vacuous.
+      **Remaining:** the rest of the components — twenty-nine of eighty-one
       have specs, and mode coverage inside them is its own axis.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
