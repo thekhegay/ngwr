@@ -32,7 +32,8 @@ const reducedMotion = {
  */
 describe('WrCircularText', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
-  let animations: { effect: Keyframe[] | null; options: KeyframeAnimationOptions | undefined }[];
+  let animations: { effect: Keyframe[] | null; options: KeyframeAnimationOptions | undefined }[] = [];
+  let animateBefore: PropertyDescriptor | undefined;
 
   const chars = (): HTMLElement[] => [
     ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-circular-text__char'),
@@ -40,6 +41,21 @@ describe('WrCircularText', () => {
 
   const mount = async (providers: unknown[] = []): Promise<void> => {
     animations = [];
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: providers as never[] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    // `Element.animate` does not exist in jsdom, so this is an assignment rather
+    // than a spy — and it therefore has to be undone BY HAND. Leaving it in place
+    // leaks into whichever file vitest runs next, which is how this spec turned a
+    // green local run into a red CI one: the order differs, so the damage lands
+    // somewhere else each time.
+    animateBefore = Object.getOwnPropertyDescriptor(Element.prototype, 'animate');
     Element.prototype.animate = function (keyframes: Keyframe[] | null, options?: KeyframeAnimationOptions) {
       animations.push({ effect: keyframes, options });
       return {
@@ -50,18 +66,15 @@ describe('WrCircularText', () => {
       } as unknown as Animation;
     };
 
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: providers as never[] });
-    fixture = TestBed.createComponent(Host);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-  };
-
-  beforeEach(async () => mount());
+    await mount();
+  });
 
   afterEach(() => {
-    fixture.destroy();
+    // `fixture` is only set once `mount` gets that far; tearing down a fixture
+    // that was never created hides the real failure behind a TypeError.
+    fixture?.destroy();
+    if (animateBefore) Object.defineProperty(Element.prototype, 'animate', animateBefore);
+    else delete (Element.prototype as Partial<Element>).animate;
     vi.restoreAllMocks();
   });
 
@@ -97,6 +110,7 @@ describe('WrCircularText', () => {
   });
 
   it('does not spin at all for someone who asked for less motion', async () => {
+    animations.length = 0;
     await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
 
     expect(animations).toEqual([]);
