@@ -28,6 +28,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { numAttr } from 'ngwr/utils';
 
 import type { WrMarqueeNode, WrMarqueeItem } from './interfaces';
@@ -75,7 +76,7 @@ function isNode(item: WrMarqueeItem): item is WrMarqueeNode {
     '[style.--wr-marquee-height.px]': 'itemHeight()',
     '[style.--wr-marquee-fade-color]': 'fadeOutColor() || null',
     '[attr.role]': '"region"',
-    '[attr.aria-label]': 'ariaLabel()',
+    '[attr.aria-label]': 'resolvedAriaLabel()',
   },
 })
 export class WrMarquee {
@@ -111,8 +112,20 @@ export class WrMarquee {
   /** Scale individual items up on hover. @default false */
   readonly scaleOnHover = input(false, { transform: coerceBooleanProperty });
 
-  /** Accessible label for the carousel region. @default 'Marquee' */
-  readonly ariaLabel = input('Marquee');
+  /**
+   * Accessible name for the region. Falls back to `marquee.label`, then
+   * `'Marquee'`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'marquee.label', 'Marquee');
+
+  /**
+   * Name used for an item that links somewhere but carries no text of its own.
+   * Falls back to `marquee.link`, then `'link'` — a bare `'link'` in English was
+   * what a screen reader announced for every unlabelled logo in the strip.
+   */
+  protected readonly resolvedLinkLabel = useI18nText(signal(null).asReadonly(), 'marquee.link', 'link');
 
   private readonly trackEl = viewChild.required<ElementRef<HTMLElement>>('track');
 
