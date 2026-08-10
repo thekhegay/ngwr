@@ -34,6 +34,10 @@ import { WrScroll } from 'ngwr/scroll';
   host: {
     '[class]': 'classes()',
     '[attr.aria-hidden]': '!visible()',
+    // `aria-hidden` alone left a 44px button that focus still landed on: invisible
+    // (opacity 0) but in the tab order, and unannounceable once it got there.
+    // `inert` is what actually takes it out of both.
+    '[attr.inert]': "visible() ? null : ''",
   },
 })
 export class WrBackTop {
