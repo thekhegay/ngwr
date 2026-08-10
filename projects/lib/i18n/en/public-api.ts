@@ -83,6 +83,7 @@ export const wrEn: WrI18nCatalog = {
     target: 'Selected',
     search: 'Search',
     empty: 'Nothing here',
+    selectAll: 'Select all',
     toTarget: 'Move to selected',
     toSource: 'Move to available',
     count: '{{checked}} / {{total}}',
