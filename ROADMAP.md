@@ -818,7 +818,37 @@ theme is what makes ngwr a library people can bet on.
       renders on purpose. And `overlayIcon` insets its image by a hard-coded 10px
       on each side while everything around it scales with the bitmap ratio, so a
       small `iconSize` under a large `size` inverts the destination rectangle.
-      **Remaining:** the rest of the components — forty-two of eighty-one have
+      **`wr-gauge` repeated its own sibling's bug** (2026-08-10). It shares the
+      arc maths with `wr-knob` down to `radius = 50 - strokeWidth / 2 - 0.5`, and
+      the knob was floored earlier this cycle for going negative past 99 — a
+      negative radius is invalid in the SVG path grammar, so the browser drops the
+      arc and the dial vanishes. The gauge still had the unfloored version. Three
+      more: only the DRAWN ratio was clamped, so an over-range value painted a
+      full bar while `aria-valuenow` announced the raw number against
+      `aria-valuemax` — an invalid state for `role="meter"` — and the printed text
+      disagreed with the bar too; `value` was the only numeric input here with no
+      `coerceNumberProperty`, so a NaN reached the path's `d` as the literal text
+      `NaN`; and neither `<path>` carried a BEM class, while the knob names its
+      equivalents `.wr-knob__track` / `.wr-knob__value`, which left the gauge's
+      arcs unstylable through the public class API. Recorded rather than fixed,
+      because it is a visual trade rather than a defect with one answer: `viewBox`
+      is the constant `0 0 100 56` while `strokeWidth` is an input, and the arc's
+      round cap is centred on y = 50 with radius `strokeWidth / 2`, so anything
+      past 12 puts part of the cap outside the viewport, where SVG clips it.
+      Growing the box makes the gauge taller as the stroke fattens; capping the
+      stroke silently ignores the input; moving the arc up changes every existing
+      rendering. Two attempts to MEASURE the clipping both failed instructively
+      and are worth remembering: `getBoundingClientRect()` on an SVG path reports
+      the geometry box, not the ink, and Chromium accepts `getBBox({ stroke: true
+      })` while ignoring the option — so both reported the same number whatever
+      the stroke. The arithmetic settles it without a browser.
+      Scouted in the same pass and not yet verified by hand: `wr-compare`
+      (`position` unclamped, no primary-pointer guard, no focus on pointerdown —
+      the same trio `wr-splitter` had, and `role="slider"` on the wrapper that
+      CONTAINS the projected content), `wr-donut-chart` and `wr-sparkline` (one
+      NaN poisons the whole series, and neither chart has any accessible
+      representation).
+      **Remaining:** the rest of the components — forty-three of eighty-one have
       specs, and mode coverage inside them is its own axis. One gap closed and one
       dismissed since the last note: the palette now scrolls its active option
       into view (`scrollIntoView({ block: 'nearest' })`, keyboard only — doing it
