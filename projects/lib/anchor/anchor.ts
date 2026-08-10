@@ -6,8 +6,19 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, DestroyRef, NgZone, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  NgZone,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { WrScroll } from 'ngwr/scroll';
 
@@ -38,10 +49,19 @@ import type { WrAnchorLink } from './interfaces';
   selector: 'wr-anchor',
   templateUrl: './anchor.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-anchor', role: 'navigation', 'aria-label': 'Table of contents' },
+  host: { class: 'wr-anchor', role: 'navigation', '[attr.aria-label]': 'resolvedAriaLabel()' },
 })
 export class WrAnchor {
   readonly links = input<readonly WrAnchorLink[]>([]);
+
+  /**
+   * Accessible name for the navigation landmark. Falls back to `anchor.label`,
+   * then `'Table of contents'` — it used to be that English string, hard-coded
+   * on the host, in a landmark a screen reader reads out on every page.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'anchor.label', 'Table of contents');
 
   /** Pixel offset subtracted on scroll — for sticky headers. @default 0 */
   readonly offset = input(0, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 0)) });
@@ -84,9 +104,12 @@ export class WrAnchor {
       if (active !== this.activeId()) this.zone.run(() => this.activeId.set(active));
     };
     this.zone.runOutsideAngular(() => window.addEventListener('scroll', handler, { passive: true }));
-    // Initial pass.
-    handler();
     this.destroyRef.onDestroy(() => window.removeEventListener('scroll', handler));
+    // The first pass has to wait for a render: the targets are elsewhere on the
+    // page and are usually rendered AFTER this list, so a constructor-time pass
+    // found nothing by `getElementById` and left the page with no highlight at
+    // all until the reader happened to scroll.
+    afterNextRender(() => handler());
   }
 
   protected onClick(id: string, event: MouseEvent): void {
