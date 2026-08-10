@@ -12,12 +12,43 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 
 import { filter, map, startWith } from 'rxjs';
 
+import { useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
 
 import type { WrSidebarEntry, WrSidebarGroup, WrSidebarItem } from './interfaces';
 
 function isGroup(entry: WrSidebarEntry): entry is WrSidebarGroup {
   return 'children' in entry;
+}
+
+/**
+ * Instance counter for the group-body ids. Deterministic under prerender, unlike
+ * `randomId()`, and unique across sidebars — a title-only id collided between two
+ * sidebars on one page, and `aria-controls` then pointed at the wrong body.
+ */
+let sidebarUid = 0;
+
+/**
+ * A `routerLink` segment array as an absolute path.
+ *
+ * The documented form carries the leading slash on the FIRST segment
+ * (`['/settings', 'profile']`), and prefixing another one produced
+ * `//settings/profile` — a path no URL ever equals, which is why auto-expand
+ * never fired for anyone following the example. Both forms normalise here.
+ */
+function routePath(segments: readonly (string | number)[]): string {
+  return `/${segments.join('/')}`.replace(/\/{2,}/g, '/');
+}
+
+/**
+ * Whether `url` is `route` or something below it. A bare `startsWith` matched a
+ * SIBLING whose path merely began the same way, so visiting `/table` expanded the
+ * group that owns `/tabs`.
+ */
+function matchesRoute(url: string, route: string): boolean {
+  if (!url.startsWith(route)) return false;
+  const rest = url.slice(route.length);
+  return rest === '' || rest.startsWith('/') || rest.startsWith('?') || rest.startsWith('#');
 }
 
 /**
@@ -46,11 +77,20 @@ function isGroup(entry: WrSidebarEntry): entry is WrSidebarGroup {
   selector: 'wr-sidebar',
   templateUrl: './sidebar.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-sidebar', role: 'navigation' },
+  host: { class: 'wr-sidebar', role: 'navigation', '[attr.aria-label]': 'resolvedAriaLabel()' },
   imports: [RouterLink, RouterLinkActive, WrIcon],
 })
 export class WrSidebar {
   readonly entries = input<readonly WrSidebarEntry[]>([]);
+
+  /**
+   * Accessible name for the navigation landmark. Falls back to `sidebar.label`,
+   * then `'Sidebar'` — a page with a sidebar AND a table of contents has two
+   * navigation landmarks, and an unnamed one is announced as just "navigation".
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'sidebar.label', 'Sidebar');
 
   /** Default icon for entries without one. @default 'folder' */
   readonly defaultGroupIcon = input<string>('folder');
@@ -64,6 +104,11 @@ export class WrSidebar {
   protected readonly isGroup = isGroup;
 
   private readonly opened = signal<ReadonlySet<string>>(new Set());
+
+  /** Group titles already seeded from `defaultOpen`, so it seeds once and not again. */
+  private readonly seeded = new Set<string>();
+
+  private readonly uid = ++sidebarUid;
 
   private readonly router = inject(Router);
   private readonly currentUrl = toSignal(
@@ -79,14 +124,19 @@ export class WrSidebar {
   private lastAutoUrl: string | null = null;
 
   constructor() {
-    // Seed defaultOpen groups.
+    // Seed `defaultOpen` groups — once per group, not once per `entries` emission.
+    // Re-seeding meant any later change to the array (a badge count, a filtered
+    // list) re-opened a group the user had deliberately collapsed.
     effect(() => {
-      const seeded = new Set<string>();
+      const fresh: string[] = [];
       for (const entry of this.entries()) {
-        if (isGroup(entry) && entry.defaultOpen) seeded.add(entry.title);
+        if (isGroup(entry) && entry.defaultOpen && !this.seeded.has(entry.title)) {
+          this.seeded.add(entry.title);
+          fresh.push(entry.title);
+        }
       }
-      if (seeded.size > 0) {
-        this.opened.update(prev => new Set([...prev, ...seeded]));
+      if (fresh.length > 0) {
+        this.opened.update(prev => new Set([...prev, ...fresh]));
       }
     });
 
@@ -110,9 +160,18 @@ export class WrSidebar {
     return this.opened().has(title);
   }
 
-  /** Stable id for the group body, referenced by the toggle's `aria-controls`. */
+  /**
+   * Stable id for the group body, referenced by the toggle's `aria-controls`.
+   * Scoped to this sidebar and stripped of anything that is not id-safe: a title
+   * like `Data & charts` used to produce `wr-sidebar-group-data-&-charts`, which
+   * no selector can address.
+   */
   protected groupBodyId(title: string): string {
-    return `wr-sidebar-group-${title.replace(/\s+/g, '-').toLowerCase()}`;
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    return `wr-sidebar-${this.uid}-group-${slug}`;
   }
 
   protected toggleGroup(title: string): void {
@@ -135,7 +194,7 @@ export class WrSidebar {
   private findGroupForUrl(url: string): string | null {
     for (const entry of this.entries()) {
       if (!isGroup(entry)) continue;
-      const hit = entry.children.some(child => url.startsWith(`/${child.url.join('/')}`));
+      const hit = entry.children.some(child => matchesRoute(url, routePath(child.url)));
       if (hit) return entry.title;
     }
     return null;

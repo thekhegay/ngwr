@@ -1,4 +1,6 @@
-<nav class="wr-sidebar__inner">
+<!-- A div, not a <nav>: the host already IS the navigation landmark, and two
+     nested ones announce the same list twice. -->
+<div class="wr-sidebar__inner">
   @for (entry of entries(); track entry.title) {
     @if (!isGroup(entry)) {
       <a
@@ -81,4 +83,4 @@
       </section>
     }
   }
-</nav>
+</div>
