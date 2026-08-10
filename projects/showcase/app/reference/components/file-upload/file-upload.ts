@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrFileUpload, type WrFileUploadRejection } from 'ngwr/file-upload';
 
@@ -17,7 +16,6 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-file-upload-page',
   templateUrl: './file-upload.html',
   imports: [
-    FormsModule,
     WrFileUpload,
     DocPageComponent,
     DocSectionComponent,
@@ -41,17 +39,17 @@ export default class FileUploadPageComponent {
   protected readonly snippets = {
     install: `import { WrFileUpload } from 'ngwr/file-upload';
 
-@Component({ imports: [WrFileUpload, FormsModule] })
+@Component({ imports: [WrFileUpload] })
 export class MyComponent {
   protected readonly files = signal<readonly File[] | null>(null);
 }`,
 
-    single: `<wr-file-upload [(ngModel)]="file" />`,
+    single: `<wr-file-upload [(value)]="file" />`,
 
-    multi: `<wr-file-upload [(ngModel)]="files" [multiple]="true" [maxFiles]="5" />`,
+    multi: `<wr-file-upload [(value)]="files" [multiple]="true" [maxFiles]="5" />`,
 
     constrained: `<wr-file-upload
-  [(ngModel)]="avatar"
+  [(value)]="avatar"
   accept=".png,.jpg,image/webp"
   [maxSize]="2 * 1024 * 1024"
   helperText="PNG, JPG or WebP, up to 2 MB"

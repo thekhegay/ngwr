@@ -24,7 +24,7 @@
   >
     <ngwr-doc-snippet [code]="snippets.group">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
-        <wr-checkbox-group [(ngModel)]="features">
+        <wr-checkbox-group [(value)]="features">
           <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
           <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
           <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
@@ -42,12 +42,12 @@
   >
     <ngwr-doc-snippet [code]="snippets.indeterminate">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
-        <wr-checkbox [ngModel]="allChecked()" (ngModelChange)="toggleAll()" [indeterminate]="someChecked()">
+        <wr-checkbox [checked]="allChecked()" (checkedChange)="toggleAll()" [indeterminate]="someChecked()">
           Select all
         </wr-checkbox>
         <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-left: 1.5rem">
           @for (p of permItems; track p) {
-            <wr-checkbox [ngModel]="perms().includes(p)" (ngModelChange)="togglePerm(p)">{{ p }}</wr-checkbox>
+            <wr-checkbox [checked]="perms().includes(p)" (checkedChange)="togglePerm(p)">{{ p }}</wr-checkbox>
           }
         </div>
       </div>
@@ -58,7 +58,7 @@
     <ngwr-doc-snippet [code]="snippets.disabled">
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
         <wr-checkbox [disabled]="true">Disabled</wr-checkbox>
-        <wr-checkbox [disabled]="true" [(ngModel)]="agree">Disabled (checked)</wr-checkbox>
+        <wr-checkbox [disabled]="true" [(checked)]="agree">Disabled (checked)</wr-checkbox>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

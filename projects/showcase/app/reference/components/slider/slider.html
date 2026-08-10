@@ -10,27 +10,27 @@
 
   <ngwr-doc-section title="Single value" description="The default. Bind a `number` through any form mechanism.">
     <ngwr-doc-code [code]="snippets.single" language="angular-html" />
-    <ngwr-doc-snippet code="<wr-slider [(ngModel)]='volume' min='0' max='100' />">
-      <wr-slider [(ngModel)]="volume" min="0" max="100" />
+    <ngwr-doc-snippet code="<wr-slider [(value)]='volume' min='0' max='100' />">
+      <wr-slider [(value)]="volume" min="0" max="100" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Range" description="Set `range` to render two thumbs. The bound value is `[low, high]`.">
     <ngwr-doc-code [code]="snippets.range" language="angular-html" />
-    <ngwr-doc-snippet code="<wr-slider [(ngModel)]='priceRange' range min='0' max='1000' step='50' />">
-      <wr-slider [(ngModel)]="priceRange" range min="0" max="1000" step="50" />
+    <ngwr-doc-snippet code="<wr-slider [(value)]='priceRange' range min='0' max='1000' step='50' />">
+      <wr-slider [(value)]="priceRange" range min="0" max="1000" step="50" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Step" description="The thumb snaps to the nearest multiple of `step`.">
-    <ngwr-doc-snippet code="<wr-slider [(ngModel)]='stepped' min='0' max='100' step='25' />">
-      <wr-slider [(ngModel)]="stepped" min="0" max="100" step="25" />
+    <ngwr-doc-snippet code="<wr-slider [(value)]='stepped' min='0' max='100' step='25' />">
+      <wr-slider [(value)]="stepped" min="0" max="100" step="25" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled">
-    <ngwr-doc-snippet code="<wr-slider [(ngModel)]='volume' disabled />">
-      <wr-slider [(ngModel)]="volume" disabled />
+    <ngwr-doc-snippet code="<wr-slider [(value)]='volume' disabled />">
+      <wr-slider [(value)]="volume" disabled />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

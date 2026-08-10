@@ -11,7 +11,7 @@
   <ngwr-doc-section title="Basic">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-rating [(ngModel)]="basic" />
+      <wr-rating [(value)]="basic" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -21,21 +21,21 @@
   >
     <ngwr-doc-code [code]="snippets.halves" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-rating [(ngModel)]="halves" step="0.5" />
+      <wr-rating [(value)]="halves" step="0.5" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Custom count">
     <ngwr-doc-code [code]="snippets.tenStar" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-rating [(ngModel)]="tenStar" [count]="10" />
+      <wr-rating [(value)]="tenStar" [count]="10" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Read-only" description="Use to display an existing rating without interaction.">
     <ngwr-doc-code [code]="snippets.readonlyDemo" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-rating [ngModel]="readonlyValue()" step="0.5" [readonly]="true" />
+      <wr-rating [value]="readonlyValue()" step="0.5" [readonly]="true" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

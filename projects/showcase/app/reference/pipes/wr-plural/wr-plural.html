@@ -11,7 +11,7 @@
   <ngwr-doc-section title="Live demo" description="Drag the count — English two-form vs Russian three-form.">
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 18rem">
-        <wr-slider [min]="0" [max]="25" [ngModel]="count()" (ngModelChange)="count.set($event)" />
+        <wr-slider [min]="0" [max]="25" [value]="count()" (valueChange)="setCount($event)" />
         <code style="font-size: 0.875rem">{{ count() | wrPlural: en }}</code>
         <code style="font-size: 0.875rem">{{ count() | wrPlural: ru : { locale: 'ru' } }}</code>
       </div>

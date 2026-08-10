@@ -148,7 +148,8 @@ export class Demo {}`;
     this.toast.show({ type: 'success', message: 'Now following Roman Kim.' });
   }
 
-  protected onThemeChange(mode: WrThemeMode): void {
-    this.theme.set(mode);
+  protected onThemeChange(mode: WrThemeMode | null): void {
+    // `wr-segmented` can publish `null` for "nothing selected", which is not a theme.
+    if (mode) this.theme.set(mode);
   }
 }

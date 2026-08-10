@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrInputOtp } from 'ngwr/input-otp';
 
@@ -16,15 +15,7 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-input-otp-page',
   templateUrl: './input-otp.html',
-  imports: [
-    FormsModule,
-    WrInputOtp,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrInputOtp, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class InputOtpPageComponent {
   protected code = '';
@@ -36,17 +27,17 @@ export default class InputOtpPageComponent {
   protected readonly snippets = {
     install: `import { WrInputOtp } from 'ngwr/input-otp';
 
-@Component({ imports: [WrInputOtp, FormsModule] })
+@Component({ imports: [WrInputOtp] })
 export class MyComponent {
   protected code = '';
   protected verify(code: string) { /* … */ }
 }`,
 
-    basic: `<wr-input-otp [(ngModel)]="code" length="6" (completed)="verify($event)" />`,
+    basic: `<wr-input-otp [(value)]="code" length="6" (completed)="verify($event)" />`,
 
-    masked: `<wr-input-otp [(ngModel)]="secret" mask />`,
+    masked: `<wr-input-otp [(value)]="secret" mask />`,
 
-    alpha: `<wr-input-otp [(ngModel)]="alphaNumeric" mode="alphanumeric" length="8" />`,
+    alpha: `<wr-input-otp [(value)]="alphaNumeric" mode="alphanumeric" length="8" />`,
   };
 
   protected readonly api = API.WrInputOtp;

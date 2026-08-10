@@ -21,7 +21,7 @@ bootstrapApplication(AppComponent, {
   ],
 });`,
     overlaysInput: `<!-- Or opt in one overlay at a time, without the global provider -->
-<wr-select responsive [(ngModel)]="size">…</wr-select>
+<wr-select responsive [(value)]="size">…</wr-select>
 
 // Dialog is service-opened, so pass it as an option:
 this.dialog.open(EditProfile, { responsive: true });`,

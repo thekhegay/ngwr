@@ -35,10 +35,10 @@ import { FormsModule } from '@angular/forms';
 
 @Component({ imports: [WrTextarea, FormsModule] })
 export class MyComponent {}`,
-    basic: `<wr-textarea placeholder="Notes" [(ngModel)]="text" />`,
+    basic: `<wr-textarea placeholder="Notes" [(value)]="text" />`,
     rows: `<wr-textarea [rows]="5" />`,
-    autosize: `<wr-textarea autosize [maxRows]="6" [(ngModel)]="text" />`,
-    fixed: `<wr-textarea [resizable]="false" [(ngModel)]="text" />`,
+    autosize: `<wr-textarea autosize [maxRows]="6" [(value)]="text" />`,
+    fixed: `<wr-textarea [resizable]="false" [(value)]="text" />`,
   };
 
   protected readonly api = API.WrTextarea;

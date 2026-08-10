@@ -36,7 +36,7 @@
 
   <ngwr-doc-section
     title="Combobox mode — single"
-    description='`openOn="overlay"` turns the tree into a `<wr-select>`-style trigger that opens a popover. Form-bound via `[(ngModel)]` / `[formControl]`. Replaces the standalone `wr-tree-select`.'
+    description='`openOn="overlay"` turns the tree into a `<wr-select>`-style trigger that opens a popover. Bind the `value` model with `[(value)]` or `[formField]`; classic `[(ngModel)]` / `[formControl]` keep working. Replaces the standalone `wr-tree-select`.'
   >
     <ngwr-doc-code [code]="snippets.overlaySingle" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -45,7 +45,7 @@
         [nodes]="folders"
         selectionMode="single"
         placeholder="Pick a folder"
-        [(ngModel)]="comboSingle"
+        [(value)]="comboSingle"
       />
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Picked: {{ comboSingle() || '(none)' }}
@@ -66,7 +66,7 @@
         [maxTagCount]="2"
         [defaultExpandAll]="true"
         placeholder="Pick folders"
-        [(ngModel)]="comboMulti"
+        [(value)]="comboMulti"
       />
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)">
         Picked: {{ comboMulti().join(', ') || '(none)' }}

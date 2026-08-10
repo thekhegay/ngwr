@@ -37,8 +37,8 @@
             <wr-select
               class="chip__select"
               [ariaLabel]="ctrl.label"
-              [ngModel]="ctrl.signal()"
-              (ngModelChange)="setStr(ctrl, $event)"
+              [value]="ctrl.signal()"
+              (valueChange)="setStr(ctrl, $event)"
             >
               @for (opt of ctrl.options; track opt) {
                 <wr-option [value]="opt">{{ opt }}</wr-option>
@@ -49,8 +49,8 @@
           @case ('slider') {
             <wr-slider
               class="chip__slider"
-              [ngModel]="ctrl.signal()"
-              (ngModelChange)="setNum(ctrl, $event)"
+              [value]="ctrl.signal()"
+              (valueChange)="setNum(ctrl, $event)"
               [min]="ctrl.min"
               [max]="ctrl.max"
               [step]="ctrl.step ?? (ctrl.precision ? 0.1 : 1)"
@@ -63,8 +63,8 @@
             <wr-switch
               class="chip__toggle"
               [ariaLabel]="ctrl.label"
-              [ngModel]="ctrl.signal()"
-              (ngModelChange)="ctrl.signal.set($event)"
+              [checked]="ctrl.signal()"
+              (checkedChange)="ctrl.signal.set($event)"
             />
           }
 

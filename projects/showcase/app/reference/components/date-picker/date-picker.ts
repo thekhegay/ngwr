@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
 
@@ -17,7 +16,6 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-date-picker-page',
   templateUrl: './date-picker.html',
   imports: [
-    FormsModule,
     WrDatePicker,
     WrDateRangePicker,
     DocPageComponent,
@@ -54,38 +52,38 @@ bootstrapApplication(AppComponent, {
   providers: [provideWrDateAdapter()],
 });
 
-@Component({ imports: [WrDatePicker, FormsModule] })
+@Component({ imports: [WrDatePicker] })
 export class MyComponent {
   protected readonly picked = signal<Date | null>(null);
 }`,
 
-    basic: `<wr-date-picker [(ngModel)]="picked" placeholder="Pick a date" />`,
+    basic: `<wr-date-picker [(value)]="picked" placeholder="Pick a date" />`,
 
-    format: `<wr-date-picker [(ngModel)]="picked" format="dd.MM.yyyy" />`,
+    format: `<wr-date-picker [(value)]="picked" format="dd.MM.yyyy" />`,
 
     bounds: `<wr-date-picker
-  [(ngModel)]="picked"
+  [(value)]="picked"
   [min]="today"
   [max]="nextMonth"
   [dateFilter]="isWeekday"
 />`,
 
     time: `<!-- Time-only: HH:MM stepper with optional AM/PM -->
-<wr-date-picker mode="time" [(ngModel)]="picked" />`,
+<wr-date-picker mode="time" [(value)]="picked" />`,
 
-    time24: `<wr-date-picker mode="time" timeFormat="24h" [(ngModel)]="picked" />`,
+    time24: `<wr-date-picker mode="time" timeFormat="24h" [(value)]="picked" />`,
 
     timeSeconds: `<wr-date-picker
   mode="time"
   timeFormat="24h"
   [showSeconds]="true"
   [step]="5"
-  [(ngModel)]="picked"
+  [(value)]="picked"
 />`,
 
     datetime: `<!-- Date + time: calendar above, stepper below. Picking a date keeps the
      overlay open so the user can set the time next. -->
-<wr-date-picker mode="datetime" [(ngModel)]="when" />`,
+<wr-date-picker mode="datetime" [(value)]="when" />`,
 
     datetimeSeconds: `<wr-date-picker
   mode="datetime"
@@ -93,18 +91,18 @@ export class MyComponent {
   timeFormat="24h"
   [showSeconds]="true"
   [step]="5"
-  [(ngModel)]="when"
+  [(value)]="when"
 />`,
 
     range: `import { type WrDateRange, WrDateRangePicker } from 'ngwr/date-picker';
 
-@Component({ imports: [WrDateRangePicker, FormsModule] })
+@Component({ imports: [WrDateRangePicker] })
 export class MyComponent {
   protected readonly period = signal<WrDateRange | null>(null);
 }`,
 
     rangeTemplate: `<wr-date-range-picker
-  [(ngModel)]="period"
+  [(value)]="period"
   startPlaceholder="From"
   endPlaceholder="To"
 />`,
@@ -114,7 +112,7 @@ export class MyComponent {
   mode="datetime"
   timeFormat="24h"
   format="dd.MM.yyyy HH:mm"
-  [(ngModel)]="window"
+  [(value)]="window"
 />`,
   };
 

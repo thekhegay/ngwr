@@ -38,9 +38,9 @@ export class MyComponent {
   protected volume = 35;
 }`,
 
-    single: `<wr-slider [(ngModel)]="volume" min="0" max="100" />`,
+    single: `<wr-slider [(value)]="volume" min="0" max="100" />`,
 
-    range: `<wr-slider [(ngModel)]="priceRange" range min="0" max="1000" step="50" />`,
+    range: `<wr-slider [(value)]="priceRange" range min="0" max="1000" step="50" />`,
   };
 
   protected readonly api = API.WrSlider;

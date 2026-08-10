@@ -10,7 +10,7 @@
 
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
-      <wr-switch [(ngModel)]="enabled">Notifications</wr-switch>
+      <wr-switch [(checked)]="enabled">Notifications</wr-switch>
       <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ enabled() }}</span>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -18,7 +18,7 @@
   <ngwr-doc-section title="Disabled">
     <ngwr-doc-snippet [code]="snippets.disabled">
       <wr-switch disabled>Off</wr-switch>
-      <wr-switch disabled [(ngModel)]="enabled">On + disabled</wr-switch>
+      <wr-switch disabled [(checked)]="enabled">On + disabled</wr-switch>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

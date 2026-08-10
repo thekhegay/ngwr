@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrRating } from 'ngwr/rating';
 
@@ -15,15 +14,7 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-rating-page',
   templateUrl: './rating.html',
-  imports: [
-    FormsModule,
-    WrRating,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrRating, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class RatingPageComponent {
   protected readonly basic = signal<number | null>(3);
@@ -34,18 +25,18 @@ export default class RatingPageComponent {
   protected readonly snippets = {
     install: `import { WrRating } from 'ngwr/rating';
 
-@Component({ imports: [WrRating, FormsModule] })
+@Component({ imports: [WrRating] })
 export class MyComponent {
   protected readonly score = signal<number | null>(0);
 }`,
 
-    basic: `<wr-rating [(ngModel)]="score" />`,
+    basic: `<wr-rating [(value)]="score" />`,
 
-    halves: `<wr-rating [(ngModel)]="score" step="0.5" />`,
+    halves: `<wr-rating [(value)]="score" step="0.5" />`,
 
-    tenStar: `<wr-rating [(ngModel)]="score" [count]="10" />`,
+    tenStar: `<wr-rating [(value)]="score" [count]="10" />`,
 
-    readonlyDemo: `<wr-rating [ngModel]="4.5" step="0.5" [readonly]="true" />`,
+    readonlyDemo: `<wr-rating [value]="4.5" step="0.5" [readonly]="true" />`,
   };
 
   protected readonly api = API.WrRating;

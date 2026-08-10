@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrPlural } from 'ngwr/pipes';
 import { WrSlider } from 'ngwr/slider';
@@ -17,7 +16,6 @@ import {
   selector: 'ngwr-pipe-wr-plural-page',
   templateUrl: './wr-plural.html',
   imports: [
-    FormsModule,
     WrPlural,
     WrSlider,
     DocPageComponent,
@@ -29,6 +27,12 @@ import {
 })
 export default class WrPluralPipePage {
   protected readonly count = signal(1);
+
+  // `wr-slider` publishes `number | [number, number]` — one thumb or two. This demo
+  // has one, and narrowing here beats a cast in the template.
+  protected setCount(value: number | readonly [number, number]): void {
+    if (typeof value === 'number') this.count.set(value);
+  }
 
   protected readonly en = { one: 'comment', other: 'comments' } as const;
   protected readonly ru = { one: 'файл', few: 'файла', other: 'файлов' } as const;

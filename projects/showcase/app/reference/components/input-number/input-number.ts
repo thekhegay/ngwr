@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrInputNumber } from 'ngwr/input-number';
 
@@ -16,7 +15,6 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-input-number-page',
   templateUrl: './input-number.html',
   imports: [
-    FormsModule,
     WrInputNumber,
     DocPageComponent,
     DocSectionComponent,
@@ -35,20 +33,20 @@ export default class InputNumberPageComponent {
   protected readonly snippets = {
     install: `import { WrInputNumber } from 'ngwr/input-number';
 
-@Component({ imports: [WrInputNumber, FormsModule] })
+@Component({ imports: [WrInputNumber] })
 export class MyComponent {
   protected readonly value = signal<number | null>(0);
 }`,
 
-    basic: `<wr-input-number [(ngModel)]="value" />`,
+    basic: `<wr-input-number [(value)]="value" />`,
 
-    bounded: `<wr-input-number [(ngModel)]="value" [min]="0" [max]="100" [step]="5" />`,
+    bounded: `<wr-input-number [(value)]="value" [min]="0" [max]="100" [step]="5" />`,
 
-    price: `<wr-input-number [(ngModel)]="price" prefix="$" [decimals]="2" />`,
+    price: `<wr-input-number [(value)]="price" prefix="$" [decimals]="2" />`,
 
-    weight: `<wr-input-number [(ngModel)]="weight" suffix="kg" [decimals]="1" [step]="0.1" />`,
+    weight: `<wr-input-number [(value)]="weight" suffix="kg" [decimals]="1" [step]="0.1" />`,
 
-    noSteppers: `<wr-input-number [(ngModel)]="value" [showSteppers]="false" />`,
+    noSteppers: `<wr-input-number [(value)]="value" [showSteppers]="false" />`,
   };
 
   protected readonly api = API.WrInputNumber;

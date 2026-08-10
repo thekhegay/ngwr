@@ -74,24 +74,22 @@ ng g ngwr:use WrSelect --path src/app/pages/checkout/checkout.ts
 
     useBefore: `// Before: src/app/pages/checkout/checkout.ts
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.html',
-  imports: [FormsModule],
+  imports: [],
 })
 export class CheckoutPage {}`,
 
     useAfter: `// After running \`ng g ngwr:use WrButton …\`:
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { WrButton } from 'ngwr/button';
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.html',
-  imports: [FormsModule, WrButton],
+  imports: [WrButton],
 })
 export class CheckoutPage {}`,
 

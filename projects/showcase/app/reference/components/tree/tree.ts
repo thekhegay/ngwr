@@ -111,7 +111,7 @@ export class MyComponent {
   [nodes]="folders"
   selectionMode="single"
   placeholder="Pick a folder"
-  [(ngModel)]="picked"
+  [(value)]="picked"
 />`,
 
     overlayMulti: `<wr-tree
@@ -121,7 +121,7 @@ export class MyComponent {
   [maxTagCount]="2"
   [defaultExpandAll]="true"
   placeholder="Pick folders"
-  [(ngModel)]="picked"
+  [(value)]="picked"
 />`,
 
     virtual: `<!-- 5,000+ nodes; only ~one viewport of rows stays in the DOM. -->

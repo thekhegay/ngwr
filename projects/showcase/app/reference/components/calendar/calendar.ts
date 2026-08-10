@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
 
@@ -15,15 +14,7 @@ import { API } from '#core/generated/api';
 @Component({
   selector: 'ngwr-calendar-page',
   templateUrl: './calendar.html',
-  imports: [
-    FormsModule,
-    WrCalendar,
-    DocPageComponent,
-    DocSectionComponent,
-    DocSnippetComponent,
-    DocCodeComponent,
-    DocApiComponent,
-  ],
+  imports: [WrCalendar, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
 })
 export default class CalendarPageComponent {
   protected readonly single = signal<Date | null>(new Date());
@@ -43,7 +34,7 @@ bootstrapApplication(AppComponent, {
 });
 
 // In any component
-@Component({ imports: [WrCalendar, FormsModule] })
+@Component({ imports: [WrCalendar] })
 export class MyComponent {
   protected readonly picked = signal<Date | null>(new Date());
 }`,
