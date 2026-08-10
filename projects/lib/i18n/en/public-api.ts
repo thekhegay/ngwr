@@ -230,6 +230,10 @@ export const wrEn: WrI18nCatalog = {
   },
   // Count-neutral on purpose: `wrInterpolate` does `{{name}}` substitution only,
   // with no plural support, so "Matches available: 1" has to read correctly too.
+  marquee: {
+    label: 'Marquee',
+    link: 'link',
+  },
   mention: {
     listbox: 'Mentions',
     available: 'Matches available: {{count}}',
