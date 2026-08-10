@@ -87,6 +87,37 @@
   color: var(--wr-color-on-surface);
 
   animation: wr-dialog-enter 0.2s ease-out;
+
+  // The component the service mounts sits BETWEEN this panel and the dialog's
+  // own parts, and it is the panel's only flex item. Left a plain block it keeps
+  // `min-height: auto` — whose automatic minimum size under flexbox is its
+  // content height — so it refuses to shrink, the panel clips it with
+  // `overflow: hidden`, and `[wrDialogContent]` never becomes a scroll area
+  // because no bounded height reaches it. Measured in Chromium at an 883px
+  // viewport: an 842px panel around a 1732px host, footer 858px below the fold,
+  // no scrollbar. The rule has to live here — the host is inserted by the
+  // service, so a consumer owns no element between panel and content.
+  //
+  // Both declarations are load-bearing: `min-height: 0` alone shrinks the host
+  // but, still a block, lets its children overflow visibly (footer measured
+  // 861px past the fold). The flex column is what bounds the content's track.
+  //
+  // `display: contents` fixes the scrolling identically and is deliberately NOT
+  // used — it removes the host's box, and with it every `:host` style the
+  // consumer set on their own dialog component, a break they would never connect
+  // to an ngwr upgrade. This does out-specify their `:host { display: … }`, which
+  // is the point (a block host is the bug); `!important` keeps their layout and
+  // still scrolls, since `min-height: 0` bounds a grid track just as well.
+  //
+  // `:not()` because the built-in dismiss is a panel child too. Absolutely
+  // positioned, it is not a flex item — so the flex properties skip it anyway,
+  // but `display: flex` would re-lay-out the icon inside it.
+  > *:not(.wr-dialog__close) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
 }
 
 .wr-dialog {
