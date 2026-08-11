@@ -245,6 +245,11 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Live calendar ref while the date popover is open — lets the panel track
    * the typed value in real time (not just on reopen). */
   private readonly dateRef = signal<ComponentRef<WrCalendar> | null>(null);
+  private readonly timeRef = signal<ComponentRef<WrTimePanel> | null>(null);
+  private readonly dateTimeRef = signal<ComponentRef<WrDateTimePanel> | null>(null);
+
+  /** The last value an open panel handed us, so the live push never echoes it back. */
+  private lastFromPanel: Date | null = null;
 
   /** Last value we pushed into the model ourselves — lets the sync effect
    * skip the echo of our own edits (so a live keystroke's raw text is never
@@ -274,6 +279,42 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     effect(() => {
       const ref = this.dateRef();
       if (ref) ref.setInput('date', this.value());
+    });
+
+    // …and the constraints with it. Pushing these only at attach time meant a
+    // `[min]` (or `[max]`, or the filter) that changed while the popover was open
+    // kept the stale constraint until the next reopen — `wr-date-range-picker`
+    // carries the same effect under a comment saying exactly that.
+    effect(() => {
+      const ref = this.dateRef();
+      if (!ref) return;
+      ref.setInput('min', this.min());
+      ref.setInput('max', this.max());
+      ref.setInput('dateFilter', this.dateFilter());
+    });
+
+    effect(() => {
+      const ref = this.timeRef();
+      if (!ref) return;
+      ref.setInput('format', this.timeFormat());
+      ref.setInput('showSeconds', this.showSeconds());
+      ref.setInput('step', this.step());
+    });
+
+    // The datetime panel had no live sync at all: a date typed into the field
+    // while it was open never reached it, so the next stepper click emitted the
+    // panel's own stale value and silently undid the typing.
+    effect(() => {
+      const ref = this.dateTimeRef();
+      if (!ref) return;
+      const value = this.value();
+      if (value !== this.lastFromPanel) ref.setInput('value', value);
+      ref.setInput('min', this.min());
+      ref.setInput('max', this.max());
+      ref.setInput('dateFilter', this.dateFilter());
+      ref.setInput('timeFormat', this.timeFormat());
+      ref.setInput('showSeconds', this.showSeconds());
+      ref.setInput('step', this.step());
     });
   }
 
@@ -454,8 +495,10 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('step', this.step());
     ref.setInput('autoFocus', this.autoFocusPanel);
     ref.setInput('value', this.value() ?? this.adapter.today());
+    this.timeRef.set(ref);
     ref.instance.value.subscribe((next: Date | null) => {
       if (!next) return;
+      this.lastFromPanel = next;
       this.commit(next);
     });
   }
@@ -471,7 +514,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('showSeconds', this.showSeconds());
     ref.setInput('step', this.step());
     ref.setInput('autoFocus', this.autoFocusPanel);
+    this.dateTimeRef.set(ref);
     ref.instance.changed.subscribe(next => {
+      this.lastFromPanel = next;
       this.commit(next);
       ref.setInput('value', next);
     });
@@ -511,6 +556,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       this.overlayRef = null;
     }
     this.dateRef.set(null);
+    this.timeRef.set(null);
+    this.dateTimeRef.set(null);
     this.overlayOpen.set(false);
     this.autoFocusPanel = false;
   }
