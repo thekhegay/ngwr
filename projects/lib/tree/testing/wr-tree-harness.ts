@@ -451,6 +451,11 @@ export class WrTreeHarness extends ContentContainerComponentHarness {
    * ArrowRight on the cursor row — the APG's one key with two jobs: it OPENS a closed
    * branch, and on an already-open one it steps into the first child. A leaf ignores
    * it.
+   *
+   * These two send the PHYSICAL key, because that is what a keyboard has. Under
+   * `dir="rtl"` the tree follows the indent and swaps the pair, so a spec exercising
+   * an RTL tree opens with {@link collapseActive} and closes with this one. The
+   * names describe the LTR job, which is the one worth naming.
    */
   async expandActive(): Promise<void> {
     await this.press(TestKey.RIGHT_ARROW);
@@ -459,6 +464,9 @@ export class WrTreeHarness extends ContentContainerComponentHarness {
   /**
    * ArrowLeft on the cursor row — CLOSES an open branch, and on anything else steps
    * out to the parent row. A root-level leaf ignores it.
+   *
+   * Physical, and mirrored by the component under `dir="rtl"` — see
+   * {@link expandActive}.
    */
   async collapseActive(): Promise<void> {
     await this.press(TestKey.LEFT_ARROW);

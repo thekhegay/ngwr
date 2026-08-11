@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -370,6 +373,212 @@ describe('WrTree with defaultExpandAll', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.expanded()).toEqual(['src', 'app']);
+  });
+});
+
+@Component({
+  imports: [WrTree],
+  template: `
+    <wr-tree
+      [nodes]="nodes()"
+      [(expanded)]="expanded"
+      [virtualScroll]="virtual()"
+      [rowHeight]="32"
+      [viewportHeight]="200"
+    />
+  `,
+})
+class DirHost {
+  readonly nodes = signal(NODES);
+  readonly expanded = signal<readonly string[]>([]);
+  readonly virtual = signal(false);
+}
+
+/**
+ * Reading direction and the expand / collapse arrows.
+ *
+ * The APG gives ArrowRight the job of opening a branch because the arrows follow
+ * the INDENT, and the indent grows rightward. Under `dir="rtl"` it grows the
+ * other way, so the pair swaps — and until it did, an RTL user could not open a
+ * tree at all: ArrowRight only ever closed something already closed, silently.
+ *
+ * Every case below is a pair pressing the SAME key in both directions and
+ * expecting opposite outcomes. Asserting only the RTL half cannot tell "mirrors
+ * correctly" from "always opens on ArrowLeft".
+ */
+describe('WrTree arrow keys follow the reading direction', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DirHost>>;
+
+  const mount = (direction: Direction, virtual = false): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        // `Directionality` reads the document once at construction, so a fake is
+        // the honest way to put the component in an RTL page.
+        { provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } },
+      ],
+    });
+    fixture = TestBed.createComponent(DirHost);
+    fixture.componentInstance.virtual.set(virtual);
+    fixture.detectChanges();
+  };
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const list = (): HTMLElement => root().querySelector<HTMLElement>('[role="tree"]')!;
+  const rows = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="treeitem"]')];
+  const labels = (): string[] => rows().map(r => r.textContent.replace(/\s+/g, ' ').trim());
+  const expanded = (): readonly string[] => fixture.componentInstance.expanded();
+  const press = (key: string): void => {
+    list().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+  /** Label of the row the cursor is on, whichever pattern is carrying it. */
+  const cursorLabel = (): string | null => {
+    const active = list().getAttribute('aria-activedescendant');
+    const row = active
+      ? rows().find(r => r.getAttribute('id') === active)
+      : rows().find(r => r.getAttribute('tabindex') === '0');
+    return row ? row.textContent.replace(/\s+/g, ' ').trim() : null;
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('opens the branch under the cursor on ArrowRight in LTR', () => {
+    mount('ltr');
+
+    press('ArrowRight');
+
+    expect(expanded()).toEqual(['src']);
+  });
+
+  it('leaves it shut on ArrowRight in RTL — there that is the CLOSING key', () => {
+    mount('rtl');
+
+    press('ArrowRight');
+
+    expect(expanded()).toEqual([]);
+  });
+
+  it('opens the branch under the cursor on ArrowLeft in RTL', () => {
+    mount('rtl');
+
+    press('ArrowLeft');
+
+    expect(expanded()).toEqual(['src']);
+  });
+
+  it('leaves it shut on ArrowLeft in LTR', () => {
+    mount('ltr');
+
+    press('ArrowLeft');
+
+    expect(expanded()).toEqual([]);
+  });
+
+  it('closes an open branch on ArrowLeft in LTR', () => {
+    mount('ltr');
+    fixture.componentInstance.expanded.set(['src']);
+    fixture.detectChanges();
+
+    press('ArrowLeft');
+
+    expect(expanded()).toEqual([]);
+  });
+
+  it('closes an open branch on ArrowRight in RTL', () => {
+    mount('rtl');
+    fixture.componentInstance.expanded.set(['src']);
+    fixture.detectChanges();
+
+    press('ArrowRight');
+
+    expect(expanded()).toEqual([]);
+  });
+
+  it('steps INTO an already-open branch with the opening key, in each direction', () => {
+    // The APG's second job for the opening key: on an open branch it moves the
+    // cursor to the first child rather than toggling anything.
+    mount('ltr');
+    fixture.componentInstance.expanded.set(['src']);
+    fixture.detectChanges();
+    press('ArrowRight');
+    expect(cursorLabel()).toBe('app');
+    expect(expanded()).toEqual(['src']);
+
+    mount('rtl');
+    fixture.componentInstance.expanded.set(['src']);
+    fixture.detectChanges();
+    press('ArrowLeft');
+    expect(cursorLabel()).toBe('app');
+    expect(expanded()).toEqual(['src']);
+  });
+
+  it('steps OUT to the parent with the closing key, in each direction', () => {
+    mount('ltr');
+    fixture.componentInstance.expanded.set(['src']);
+    fixture.detectChanges();
+    press('ArrowDown'); // onto `app`, a closed branch at depth 1
+    press('ArrowLeft'); // closed already, so this walks out instead
+    expect(cursorLabel()).toBe('src');
+
+    mount('rtl');
+    fixture.componentInstance.expanded.set(['src']);
+    fixture.detectChanges();
+    press('ArrowDown');
+    press('ArrowRight');
+    expect(cursorLabel()).toBe('src');
+  });
+
+  it('keeps Up / Down on the block axis — `dir` governs the inline one', () => {
+    mount('ltr');
+    press('ArrowDown');
+    expect(cursorLabel()).toBe('README.md');
+
+    mount('rtl');
+    press('ArrowDown');
+    expect(cursorLabel()).toBe('README.md');
+  });
+
+  it('keeps Home / End semantic — first and last, not leftmost and rightmost', () => {
+    mount('rtl');
+
+    press('End');
+    expect(cursorLabel()).toBe('node_modules');
+    press('Home');
+    expect(cursorLabel()).toBe('src');
+  });
+
+  describe('with the list windowed', () => {
+    it('mirrors on the aria-activedescendant path too, not only the rendered one', () => {
+      // Same handler, but the cursor lives in `aria-activedescendant` instead of a
+      // roving tabindex — worth pinning, because a fix applied to only one of the
+      // two shapes looks complete from the outside.
+      mount('rtl', true);
+      expect(list().getAttribute('aria-activedescendant')).toBeTruthy();
+
+      press('ArrowLeft');
+      expect(expanded()).toEqual(['src']);
+      expect(labels()).toContain('app');
+
+      press('ArrowLeft');
+      expect(cursorLabel()).toBe('app');
+    });
+
+    it('mirrors the other way in LTR, on the same path', () => {
+      mount('ltr', true);
+      expect(list().getAttribute('aria-activedescendant')).toBeTruthy();
+
+      press('ArrowLeft');
+      expect(expanded()).toEqual([]);
+
+      press('ArrowRight');
+      expect(expanded()).toEqual(['src']);
+      expect(labels()).toContain('app');
+
+      press('ArrowRight');
+      expect(cursorLabel()).toBe('app');
+    });
   });
 });
 

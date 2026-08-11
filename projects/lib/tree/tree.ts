@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -208,6 +209,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  /**
+   * Ambient reading direction. Optional so a bare `TestBed` — or a consumer who
+   * never set a direction — needs no provider; `Directionality` is root-provided
+   * anyway, and a missing one simply reads as `ltr`.
+   *
+   * Read at keystroke time rather than cached, so a runtime `dir` flip needs no
+   * subscription to `change`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
 
   /** Currently focused row's index in the flattened visible list. */
   protected readonly focusedIndex = signal(0);
@@ -531,6 +541,24 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     this.toggleExpanded(node.id);
   }
 
+  /**
+   * Map a physical arrow onto the expand / collapse axis.
+   *
+   * The APG gives ArrowRight the job of opening a branch and ArrowLeft the job
+   * of closing it because the arrows follow the INDENT, and the indent grows
+   * rightward. Under `dir="rtl"` it grows leftward, so the two swap — without
+   * this an RTL user cannot open a node at all.
+   *
+   * Up / Down travel the block axis and Home / End name a semantic position
+   * (first / last), so all four are returned untouched in both directions.
+   */
+  private inlineKey(key: string): string {
+    if (this.dir?.value !== 'rtl') return key;
+    if (key === 'ArrowRight') return 'ArrowLeft';
+    if (key === 'ArrowLeft') return 'ArrowRight';
+    return key;
+  }
+
   protected onKeydown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const flat = this.flat();
@@ -538,7 +566,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     const current = flat[i];
     if (!current) return;
 
-    switch (event.key) {
+    // The cursor move is identical in both render shapes — `focusIndex()` owns
+    // the roving-tabindex / `aria-activedescendant` split — so mirroring here
+    // covers the windowed tree too.
+    switch (this.inlineKey(event.key)) {
       case 'ArrowDown':
         event.preventDefault();
         this.focusIndex(Math.min(flat.length - 1, i + 1));
