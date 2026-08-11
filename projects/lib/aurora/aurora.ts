@@ -168,7 +168,7 @@ function hexToRgb01(hex: string): [number, number, number] {
  */
 @Component({
   selector: 'wr-aurora',
-  template: '<canvas #canvas class="wr-aurora__canvas"></canvas>',
+  template: '<canvas #canvas class="wr-aurora__canvas" aria-hidden="true"></canvas>',
   styleUrl: './aurora.scss',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-aurora' },

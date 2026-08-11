@@ -37,7 +37,7 @@ import { createFluidSimulation } from './fluid';
  */
 @Component({
   selector: 'wr-splash-cursor',
-  template: '<canvas #canvas class="wr-splash-cursor__canvas"></canvas>',
+  template: '<canvas #canvas class="wr-splash-cursor__canvas" aria-hidden="true"></canvas>',
   styleUrl: './splash-cursor.scss',
   encapsulation: ViewEncapsulation.None,
   host: {
