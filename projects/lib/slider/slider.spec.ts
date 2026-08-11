@@ -1,5 +1,10 @@
+import { Directionality } from '@angular/cdk/bidi';
+import type { Type } from '@angular/core';
 import { Component, signal } from '@angular/core';
+import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -187,6 +192,167 @@ describe('WrSlider', () => {
       // would silently get them backwards.
       const [low, high] = range.componentInstance.span();
       expect(low).toBeLessThanOrEqual(high);
+    });
+  });
+
+  /**
+   * Under `dir="rtl"` the track is drawn the other way round: the minimum sits
+   * on the RIGHT. Everything that names a side of the screen — the horizontal
+   * arrows, the offset a pointer is measured by, and therefore which thumb a
+   * track click grabs — has to follow it; everything that names a VALUE must
+   * not. Every case here is a pair, because a suite that only asserts the RTL
+   * half cannot tell "mirrors" from "always goes the other way".
+   */
+  describe('reading direction', () => {
+    type Direction = 'ltr' | 'rtl';
+
+    /**
+     * `Directionality` reads the document once, at construction, so a spec that
+     * wants RTL provides the answer rather than trying to stage a document. The
+     * DOM is left with no `dir` at all — nothing here reads one.
+     */
+    const mount = <T>(host: Type<T>, direction: Direction): ComponentFixture<T> => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } }],
+      });
+      const mounted = TestBed.createComponent(host);
+      mounted.detectChanges();
+      return mounted;
+    };
+
+    const pressOn = (target: ComponentFixture<Host>, key: string, init: KeyboardEventInit = {}): number => {
+      const el = (target.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="slider"]')!;
+      el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }));
+      target.detectChanges();
+      return target.componentInstance.amount() as number;
+    };
+
+    /**
+     * jsdom has no layout, so the track measures 0×0 and every ratio the
+     * component takes divides by zero. A stubbed rect is what makes the pointer
+     * maths — the thing under test — measurable at all: a 200px track pinned at
+     * x 0, where `clientX: 150` is three quarters along it in LTR and one
+     * quarter along it in RTL.
+     */
+    const trackOf = (target: ComponentFixture<unknown>, width = 200): HTMLElement => {
+      const track = (target.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-slider__track')!;
+      track.getBoundingClientRect = (): DOMRect =>
+        ({ left: 0, right: width, width, top: 0, bottom: 8, height: 8, x: 0, y: 0 }) as DOMRect;
+      return track;
+    };
+
+    const clickTrack = (target: ComponentFixture<unknown>, clientX: number): void => {
+      trackOf(target).dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, cancelable: true, clientX }));
+      target.detectChanges();
+    };
+
+    it('sends ArrowRight toward the visual right, which in RTL is the lower end', () => {
+      expect(pressOn(mount(Host, 'ltr'), 'ArrowRight')).toBe(51);
+      expect(pressOn(mount(Host, 'rtl'), 'ArrowRight')).toBe(49);
+    });
+
+    it('sends ArrowLeft the other way, in both directions', () => {
+      expect(pressOn(mount(Host, 'ltr'), 'ArrowLeft')).toBe(49);
+      expect(pressOn(mount(Host, 'rtl'), 'ArrowLeft')).toBe(51);
+    });
+
+    it('mirrors the Shift stride with the arrow it is holding', () => {
+      expect(pressOn(mount(Host, 'ltr'), 'ArrowRight', { shiftKey: true })).toBe(60);
+      expect(pressOn(mount(Host, 'rtl'), 'ArrowRight', { shiftKey: true })).toBe(40);
+    });
+
+    // The block axis is not what `dir` governs — flipping ↑ / ↓ would be a bug
+    // only a Hebrew-speaking user ever reports.
+    it('leaves the vertical arrows alone', () => {
+      expect(pressOn(mount(Host, 'ltr'), 'ArrowUp')).toBe(51);
+      expect(pressOn(mount(Host, 'rtl'), 'ArrowUp')).toBe(51);
+      expect(pressOn(mount(Host, 'ltr'), 'ArrowDown')).toBe(49);
+      expect(pressOn(mount(Host, 'rtl'), 'ArrowDown')).toBe(49);
+    });
+
+    // PageUp / PageDown name a stride, not a side, so they follow ↑ / ↓.
+    it('leaves PageUp and PageDown alone', () => {
+      expect(pressOn(mount(Host, 'ltr'), 'PageUp')).toBe(60);
+      expect(pressOn(mount(Host, 'rtl'), 'PageUp')).toBe(60);
+      expect(pressOn(mount(Host, 'ltr'), 'PageDown')).toBe(40);
+      expect(pressOn(mount(Host, 'rtl'), 'PageDown')).toBe(40);
+    });
+
+    // Home / End mean first / last — a semantic position, not a physical one.
+    it('keeps Home on the min and End on the max', () => {
+      expect(pressOn(mount(Host, 'ltr'), 'Home')).toBe(0);
+      expect(pressOn(mount(Host, 'rtl'), 'Home')).toBe(0);
+      expect(pressOn(mount(Host, 'ltr'), 'End')).toBe(100);
+      expect(pressOn(mount(Host, 'rtl'), 'End')).toBe(100);
+    });
+
+    it('measures a pointer from the edge the track starts at', () => {
+      const ltr = mount(Host, 'ltr');
+      clickTrack(ltr, 150);
+      expect(ltr.componentInstance.amount()).toBe(75);
+
+      // Same pixel, mirrored track: three quarters from the right is 25.
+      const rtl = mount(Host, 'rtl');
+      clickTrack(rtl, 150);
+      expect(rtl.componentInstance.amount()).toBe(25);
+    });
+
+    it('grabs the thumb that is nearest ON SCREEN, so the pick mirrors too', () => {
+      const ltr = mount(RangeHost, 'ltr');
+      clickTrack(ltr, 180);
+      expect(ltr.componentInstance.span()).toEqual([20, 90]);
+
+      // In RTL the upper thumb is the one on the LEFT, so the very same click
+      // near the right edge is nearest the LOWER end.
+      const rtl = mount(RangeHost, 'rtl');
+      clickTrack(rtl, 180);
+      expect(rtl.componentInstance.span()).toEqual([10, 80]);
+    });
+
+    it('still refuses to let the ends cross, whichever key raises the low one', () => {
+      const lowThumb = (target: ComponentFixture<RangeHost>): HTMLElement =>
+        (target.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-slider__thumb--low')!;
+
+      const walk = (target: ComponentFixture<RangeHost>, key: string): [number, number] => {
+        target.componentInstance.span.set([79, 80]);
+        target.detectChanges();
+        for (let i = 0; i < 4; i++) {
+          lowThumb(target).dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+          target.detectChanges();
+        }
+        return target.componentInstance.span();
+      };
+
+      expect(walk(mount(RangeHost, 'ltr'), 'ArrowRight')).toEqual([80, 80]);
+      // ← is the raising key in RTL, and it stops at the neighbour just the same.
+      expect(walk(mount(RangeHost, 'rtl'), 'ArrowLeft')).toEqual([80, 80]);
+    });
+
+    it('paints its parts on the inline axis, so the track mirrors from CSS alone', () => {
+      // Not a pair: this is the reason there is no direction in the drawing
+      // code at all. `inset-inline-start` IS `left` in LTR and the right edge
+      // in RTL, so a physical `left` here would leave the thumb painted at the
+      // wrong end of a track whose keyboard had already been mirrored.
+      const painted = mount(Host, 'ltr');
+      const thumb = (painted.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-slider__thumb--low')!;
+      const fill = (painted.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-slider__fill')!;
+
+      expect(thumb.style.getPropertyValue('inset-inline-start')).toBe('50%');
+      expect(thumb.style.getPropertyValue('left')).toBe('');
+      expect(fill.style.getPropertyValue('width')).toBe('50%');
+      expect(fill.style.getPropertyValue('left')).toBe('');
+    });
+
+    it('needs no provider at all when nobody set a direction', () => {
+      // `optional: true` — a consumer that never thought about `dir` must not
+      // have to provide anything, and a bare TestBed must still behave as LTR.
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      const bare = TestBed.createComponent(Host);
+      bare.detectChanges();
+
+      expect(pressOn(bare, 'ArrowRight')).toBe(51);
     });
   });
 });

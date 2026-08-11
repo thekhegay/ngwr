@@ -1,6 +1,9 @@
+import { Directionality } from '@angular/cdk/bidi';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { WrSlider, type WrSliderValue } from 'ngwr/slider';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -348,6 +351,72 @@ describe('WrSliderHarness', () => {
       await (await slider.getLowThumb()).toMax();
 
       expect(fixture.componentInstance.span()).toEqual([80, 80]);
+    });
+  });
+
+  describe('reading direction', () => {
+    /**
+     * Re-mount the same host under `dir="rtl"`. `Directionality` reads the
+     * document once, at construction, so the spec provides the answer instead of
+     * trying to stage a document — which is also why the harness cannot sniff
+     * one: nothing writes `dir` to the DOM.
+     */
+    const remountRtl = (): void => {
+      fixture.destroy();
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<'ltr' | 'rtl'>() } }],
+      });
+      fixture = TestBed.createComponent(Host);
+      fixture.detectChanges();
+      loader = TestbedHarnessEnvironment.loader(fixture);
+    };
+
+    it('means the same thing under dir="rtl", where the component swaps ← and →', async () => {
+      remountRtl();
+      const slider = await volume();
+
+      // The component mirrors its horizontal arrows onto the visual track, so a
+      // harness pressing `ArrowRight` here would step DOWN while every LTR spec
+      // in this file stayed green. `stepUp` is the block axis for that reason.
+      await slider.stepUp();
+      expect(await slider.getValue()).toBe(51);
+      expect(fixture.componentInstance.volume()).toBe(51);
+
+      await slider.stepDown();
+      await slider.stepDown();
+      expect(fixture.componentInstance.volume()).toBe(49);
+    });
+
+    it('walks to a value under dir="rtl" as well — the fine stretch is not mirrored either', async () => {
+      remountRtl();
+      const slider = await volume();
+
+      // `setValue` strides with PageUp / PageDown and finishes on single steps.
+      // With the horizontal arrows that last stretch marched away from the
+      // target until the thumb pinned against a bound.
+      await slider.setValue(73);
+
+      expect(await slider.getValue()).toBe(73);
+      expect(fixture.componentInstance.volume()).toBe(73);
+    });
+
+    it('still reads and jumps the same way, because those never named a side', async () => {
+      remountRtl();
+      const slider = await volume();
+
+      expect([await slider.getMin(), await slider.getValue(), await slider.getMax()]).toEqual([0, 50, 100]);
+
+      await slider.toMax();
+      expect(fixture.componentInstance.volume()).toBe(100);
+      await slider.toMin();
+      expect(fixture.componentInstance.volume()).toBe(0);
+
+      // DOM order, not visual order: the low thumb is the first one in the
+      // markup in both directions, whichever screen edge it is painted at.
+      const span = await loader.getAllHarnesses(WrSliderHarness.with({ range: true }));
+      expect(await (await span[0].getLowThumb()).getValue()).toBe(20);
+      expect(await (await span[0].getHighThumb()).getValue()).toBe(80);
     });
   });
 });

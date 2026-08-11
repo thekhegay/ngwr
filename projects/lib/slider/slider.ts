@@ -5,9 +5,21 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import type { ElementRef } from '@angular/core';
-import { Component, ViewEncapsulation, computed, effect, input, model, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { clamp, round } from 'ngwr/utils';
@@ -27,6 +39,11 @@ import type { WrSliderValue } from './interfaces';
  *
  * Keyboard: ← / → adjust by `step`; ↑ / ↓ same; Shift+arrow by `step × 10`;
  * Home / End jump to min / max; PageUp / PageDown by `step × 10`.
+ *
+ * Reading direction: the arrows follow the VISUAL track, so under `dir="rtl"`
+ * → moves toward the lower end and ← toward the higher one, and a drag reads
+ * its ratio from the right edge. ↑ / ↓, PageUp / PageDown and Home / End are
+ * unchanged — they name a value, not a side of the screen.
  *
  * @example
  * ```html
@@ -96,6 +113,18 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
 
   protected readonly track = viewChild.required<ElementRef<HTMLElement>>('track');
 
+  /**
+   * Ambient reading direction. Optional so a bare `TestBed` — or any consumer
+   * that never set a direction — needs no provider; `Directionality` is
+   * root-provided, so `null` only ever means "nobody asked", which is LTR.
+   *
+   * Nothing caches a direction-derived value: the thumbs are painted with
+   * `inset-inline-start`, so the track mirrors from CSS alone, and `isRtl()` is
+   * read inside the event handlers. A runtime flip therefore needs no
+   * subscription to `Directionality.change`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-slider'];
     if (this.range()) parts.push('wr-slider--range');
@@ -106,7 +135,8 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   protected readonly lowPercent = computed(() => this.percentOf(this.low()));
   protected readonly highPercent = computed(() => this.percentOf(this.high()));
 
-  protected readonly fillLeft = computed(() => (this.range() ? this.lowPercent() : 0));
+  /** Offset of the fill from the track's START edge — the left one in LTR, the right one in RTL. */
+  protected readonly fillStart = computed(() => (this.range() ? this.lowPercent() : 0));
   protected readonly fillWidth = computed(() =>
     this.range() ? this.highPercent() - this.lowPercent() : this.lowPercent()
   );
@@ -162,15 +192,22 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     const big = event.shiftKey || event.key === 'PageUp' || event.key === 'PageDown' ? 10 : 1;
     const delta = this.step() * big;
     const current = thumb === 'low' ? this.low() : this.high();
+    // The horizontal arrows name a SIDE of the track, so they follow the
+    // reading direction; every other key names a value and does not.
+    const inline = this.isRtl() ? -delta : delta;
     let next: number | null = null;
 
     switch (event.key) {
       case 'ArrowRight':
+        next = current + inline;
+        break;
+      case 'ArrowLeft':
+        next = current - inline;
+        break;
       case 'ArrowUp':
       case 'PageUp':
         next = current + delta;
         break;
-      case 'ArrowLeft':
       case 'ArrowDown':
       case 'PageDown':
         next = current - delta;
@@ -192,19 +229,40 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
 
   // Internals
 
-  private updateFromEvent(event: PointerEvent, thumb: 'low' | 'high'): void {
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
+  }
+
+  /**
+   * The value under a pointer, measured along the track's INLINE axis.
+   *
+   * The offset is taken from whichever edge the track starts at — the left one
+   * in LTR, the right one in RTL — so the whole component needs the direction
+   * in exactly one place. Measuring from `rect.left` regardless would read 0 at
+   * the visual maximum of a mirrored track.
+   */
+  private valueAt(event: PointerEvent): number {
     const rect = this.track().nativeElement.getBoundingClientRect();
-    const ratio = clamp((event.clientX - rect.left) / rect.width, 0, 1);
-    const raw = this.minValue() + ratio * (this.maxValue() - this.minValue());
-    this.setThumb(thumb, raw);
+    const offset = this.isRtl() ? rect.right - event.clientX : event.clientX - rect.left;
+    const ratio = clamp(offset / rect.width, 0, 1);
+    return this.minValue() + ratio * (this.maxValue() - this.minValue());
+  }
+
+  private updateFromEvent(event: PointerEvent, thumb: 'low' | 'high'): void {
+    this.setThumb(thumb, this.valueAt(event));
     this.emitChange();
   }
 
+  /**
+   * Which thumb a track click grabs: the one nearest the pointer ON SCREEN.
+   *
+   * Value distance is the same thing as visual distance once {@link valueAt}
+   * has mirrored the ratio — in RTL the low thumb is the RIGHT one, and a click
+   * near the right edge lands close to `low` in value space too.
+   */
   private nearestThumb(event: PointerEvent): 'low' | 'high' {
     if (!this.range()) return 'low';
-    const rect = this.track().nativeElement.getBoundingClientRect();
-    const ratio = clamp((event.clientX - rect.left) / rect.width, 0, 1);
-    const raw = this.minValue() + ratio * (this.maxValue() - this.minValue());
+    const raw = this.valueAt(event);
     return Math.abs(raw - this.low()) <= Math.abs(raw - this.high()) ? 'low' : 'high';
   }
 

@@ -1,11 +1,16 @@
 <div #track class="wr-slider__track" (pointerdown)="onTrackPointerDown($event)">
-  <span class="wr-slider__fill" [style.left.%]="fillLeft()" [style.width.%]="fillWidth()"></span>
+  <!--
+    Positioned on the INLINE axis, not with `left`: `inset-inline-start` is the
+    same edge in LTR and mirrors under `dir="rtl"`, so the track paints itself
+    the right way round without the component reading a direction to draw.
+  -->
+  <span class="wr-slider__fill" [style.inset-inline-start.%]="fillStart()" [style.width.%]="fillWidth()"></span>
 
   <button
     type="button"
     class="wr-slider__thumb wr-slider__thumb--low"
     role="slider"
-    [style.left.%]="lowPercent()"
+    [style.inset-inline-start.%]="lowPercent()"
     [disabled]="disabled()"
     [attr.aria-valuemin]="min()"
     [attr.aria-valuemax]="range() ? high() : max()"
@@ -20,7 +25,7 @@
       type="button"
       class="wr-slider__thumb wr-slider__thumb--high"
       role="slider"
-      [style.left.%]="highPercent()"
+      [style.inset-inline-start.%]="highPercent()"
       [disabled]="disabled()"
       [attr.aria-valuemin]="low()"
       [attr.aria-valuemax]="max()"
