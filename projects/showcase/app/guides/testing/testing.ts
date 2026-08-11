@@ -34,6 +34,11 @@ import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrSwitchHarness } from 'ngwr/switch/testing';
 
+// The overlay ones — panels that render outside your fixture.
+import { WrDialogHarness } from 'ngwr/dialog/testing';
+import { WrOptionHarness, WrSelectHarness } from 'ngwr/select/testing';
+import { WrToastHarness } from 'ngwr/toast/testing';
+
 // The environment comes from the CDK, which is already a peer dependency.
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';`,
 
@@ -76,9 +81,53 @@ await loader.getHarness(WrSwitchHarness.with({ label: 'Dark mode', on: false }))
 
     overlay: `// A component that renders into an overlay is NOT inside the fixture, so load
 // it from the document root instead.
-import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+const rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);
 
-const rootLoader = TestbedHarnessEnvironment.documentRootLoader(fixture);`,
+it('confirms before deleting', async () => {
+  await (await loader.getHarness(WrButtonHarness.with({ text: 'Delete' }))).click();
+
+  const dialog = await rootLoader.getHarness(WrDialogHarness);
+  expect(await dialog.getTitleText()).toBe('Delete item');
+
+  // A dialog is a content CONTAINER: harnesses resolve inside it, so a second
+  // dialog's buttons can't be picked up by mistake.
+  await (await dialog.getHarness(WrButtonHarness.with({ text: 'Confirm' }))).click();
+
+  const toast = await rootLoader.getHarness(WrToastHarness.with({ type: 'success' }));
+  expect(await toast.getMessage()).toBe('Item deleted');
+});`,
+
+    select: `it('picks a size', async () => {
+  const select = await loader.getHarness(WrSelectHarness);
+
+  await select.open();
+  expect(await select.getOptionLabels()).toEqual(['Small', 'Medium', 'Large']);
+
+  await select.selectOption({ text: 'Medium' });
+  expect(await select.getValueText()).toBe('Medium');
+});
+
+it('filters as you type', async () => {
+  const select = await loader.getHarness(WrSelectHarness);
+
+  await select.open();
+  await select.typeSearch('la');
+
+  // Filtered-out options stay in the DOM and collapse via CSS — the harness
+  // drops them, so this is the list a user can actually reach.
+  expect(await select.getOptionLabels()).toEqual(['Large']);
+});
+
+it('builds up a multi selection', async () => {
+  const select = await loader.getHarness(WrSelectHarness);
+
+  await select.selectOption({ text: 'Small' });
+  await select.selectOption({ text: 'Large' });
+  expect(await select.getChipLabels()).toEqual(['Small', 'Large']);
+
+  await select.removeChip('Small');
+  expect(await select.getChipLabels()).toEqual(['Large']);
+});`,
 
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
@@ -199,6 +248,180 @@ export class MyWidgetHarness extends ComponentHarness {
     },
   ];
 
+  protected readonly selectApi: readonly DocApiRow[] = [
+    {
+      name: 'open() / close()',
+      description:
+        '`open()` throws rather than resolving quietly when no panel appears — a tag-mode select has none, and a `minChars` select opens on the query.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    { name: 'isOpen()', description: 'Whether the panel is showing.', type: 'Promise<boolean>', default: '—' },
+    {
+      name: 'getValueText()',
+      description:
+        "The trigger's current selection: the chip labels joined by `', '`, the single label, or the search input's text.",
+      type: 'Promise<string>',
+      default: '—',
+    },
+    {
+      name: 'getPlaceholder()',
+      description: 'The placeholder, or `null` when a selection is hiding it.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getOptions(filters?)',
+      description:
+        'The options a user can actually reach — filtered-out ones are dropped. Throws while the panel is closed. Filters: `text`, `selected`, `disabled`.',
+      type: 'Promise<WrOptionHarness[]>',
+      default: '—',
+    },
+    {
+      name: 'getOptionLabels()',
+      description: 'Those options as plain strings, in DOM order.',
+      type: 'Promise<string[]>',
+      default: '—',
+    },
+    {
+      name: 'selectOption(filters)',
+      description: 'Open if needed, then click the first matching option.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'typeSearch(query)',
+      description: "Replace a search or tag select's query.",
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getChipLabels() / removeChip(label)',
+      description: 'The visible chips in multi and tag modes. The `+N more` overflow chip is not one of them.',
+      type: 'Promise<string[]> | Promise<void>',
+      default: '—',
+    },
+    { name: 'clear()', description: 'Click the clear (×) control.', type: 'Promise<void>', default: '—' },
+    {
+      name: 'getNoResultsText() / isLoading()',
+      description: "The panel's empty and async-loading rows.",
+      type: 'Promise<string | null> | Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'isMultiple() / isDisabled() / focus()',
+      description: 'Mode and state.',
+      type: 'Promise<boolean> | Promise<void>',
+      default: '—',
+    },
+  ];
+
+  protected readonly optionApi: readonly DocApiRow[] = [
+    { name: 'getText()', description: "The option's label, trimmed.", type: 'Promise<string>', default: '—' },
+    {
+      name: 'isSelected() / isDisabled() / isActive()',
+      description:
+        '`isActive` is the keyboard cursor, not focus — a virtualized panel moves it with `aria-activedescendant`.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'isHidden()',
+      description:
+        'Whether a search query filtered this option out. It stays in the DOM so registration order survives.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    { name: 'click()', description: 'Click the option.', type: 'Promise<void>', default: '—' },
+  ];
+
+  protected readonly dialogApi: readonly DocApiRow[] = [
+    {
+      name: 'getTitleText() / getContentText()',
+      description: 'The `[wrDialogTitle]` and `[wrDialogContent]` text, or `null` when the dialog projects neither.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getHarness(…)',
+      description:
+        'Inherited from `ContentContainerComponentHarness` — resolves any harness INSIDE this dialog, so a stacked dialog cannot answer instead.',
+      type: 'Promise<T>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / isModal()',
+      description:
+        'Set on the OVERLAY element, not on your component — a consumer looking for them on their own host would not find them.',
+      type: 'Promise<string | null> | Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'isClosable() / getCloseLabel() / close()',
+      description: 'The built-in dismiss button. `close()` throws on a dialog opened `closable: false`.',
+      type: 'Promise<boolean> | Promise<string | null> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'sendEscape()',
+      description: 'Press Escape. A dialog opened `closeOnEscape: false` ignores it — assert, do not assume.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'isFocusTrapped()',
+      description: 'Whether focus is inside the dialog, where the trap should hold it.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+  ];
+
+  protected readonly toastApi: readonly DocApiRow[] = [
+    {
+      name: 'getMessage() / getTitle()',
+      description: 'The two text lines. `getTitle()` is `null` for a toast shown without one.',
+      type: 'Promise<string> | Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getType()',
+      description: 'The intent, from the `wr-toast--*` modifier.',
+      type: 'Promise<WrToastType | null>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / getLiveLevel()',
+      description:
+        'How urgently the toast announces itself: `alert` / `assertive` for danger, `status` / `assertive` for warning, `status` / `polite` otherwise.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'isDismissible() / dismiss()',
+      description: 'The close button. `dismiss()` throws on a toast shown `dismissible: false`.',
+      type: 'Promise<boolean> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'hasCopyAction() / copy()',
+      description: 'The copy button, present only with `showCopy: true`.',
+      type: 'Promise<boolean> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'hasProgressBar()',
+      description: 'Whether the auto-dismiss bar is showing — it needs both `showProgress` and a non-zero duration.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'hover() / mouseAway()',
+      description: 'Hovering is what pauses the auto-dismiss timer.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+  ];
+
   protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
     {
       title: 'wr-btn',
@@ -223,6 +446,24 @@ export class MyWidgetHarness extends ComponentHarness {
       kind: 'Component',
       description: 'The `role="switch"` control behind WrSwitchHarness.',
       url: ['/reference/components', 'switch'],
+    },
+    {
+      title: 'wr-select',
+      kind: 'Component',
+      description: 'Single, multi, tag and search — one harness covers all four.',
+      url: ['/reference/components', 'select'],
+    },
+    {
+      title: 'WrDialog',
+      kind: 'Service',
+      description: 'Opens the panel WrDialogHarness drives.',
+      url: ['/reference/components', 'dialog'],
+    },
+    {
+      title: 'WrToast',
+      kind: 'Service',
+      description: 'Shows the toasts WrToastHarness reads.',
+      url: ['/reference/components', 'toast'],
     },
   ];
 }
