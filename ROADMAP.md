@@ -1560,6 +1560,19 @@ theme is what makes ngwr a library people can bet on.
       which is what `wr-date-range-picker` already does under a comment naming
       this exact bug. The value push carries an echo guard so a panel is never
       handed back the value it just emitted.
+      The last two from `wr-select`, both in the combination its own docs
+      advertise (`[options]` alongside projected `<wr-option>` children). The
+      keyboard cursor walks the registry, and registration is CREATION order —
+      projected children are created before the panel renders its own rows — so
+      opening highlighted the THIRD row on screen and ArrowDown went to the last.
+      The cursor now walks a view of the registry sorted by
+      `compareDocumentPosition`; value lookups keep the raw list, since they do
+      not care about order. And a group whose every option was filtered out kept
+      its heading and its divider above the "No results" row, because filtering
+      lives entirely on the option: one `:has()` rule collapses the group with its
+      contents. That one is CSS, so no jsdom spec can see it — verified in
+      Chromium against the component's real shape (a group with one visible option
+      measures 36px, one with only hidden options measures 0).
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
