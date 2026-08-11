@@ -1391,13 +1391,21 @@ theme is what makes ngwr a library people can bet on.
       scrollable box, the reduced-motion fallback to `auto`, and the `try`/`catch`
       around `querySelector` that keeps a URL fragment like `#not a selector` from
       throwing.
-      **Remaining:** every one of the eighty-three component pages has a spec
-      behind it. What is left is the animations cluster — fourteen of its
-      twenty-one covered, the rest being the canvas and WebGL ones, where jsdom
-      has no context to draw into — and mode coverage inside a component that is
-      already covered: a spec on `wr-table` says nothing about tree rows unless it
-      exercises them. `<wr-window>` itself is `@internal`; its public surface is
-      `WrWindowManager`, which has had a spec since A1 started.
+      **`WrConfetti` and `wr-click-spark` (2026-08-11)** — the confetti service is
+      public API and had no spec; it does now, and the case worth having is the
+      one jsdom provides for free: `getContext('2d')` returning null is a real
+      browser state, and the service has to put its canvas up, find no context,
+      and stop without throwing or leaving a frame loop spinning. It does.
+      `wr-click-spark`'s canvas was the inconsistency — the confetti canvas is
+      `aria-hidden`, this one was not, and both are decoration painted over
+      someone else's content. One attribute.
+      **Remaining:** every component page and every service now has a spec behind
+      it. What is left is five of the animation components — `aurora`,
+      `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
+      where jsdom has no context to draw into and a spec could only assert that
+      they do not throw — and mode coverage inside components that are already
+      covered: a spec on `wr-table` says nothing about tree rows unless it
+      exercises them. That second axis is now the real remaining work.
       One gap closed and one dismissed since the last note: the palette now
       scrolls its active option into view (`scrollIntoView({ block: 'nearest' })`,
       keyboard only — doing it on hover would fight the pointer), and its
