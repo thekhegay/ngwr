@@ -1627,8 +1627,24 @@ theme is what makes ngwr a library people can bet on.
       INSIDE one dialog. Toast needed a library change: both actions were
       `.wr-toast__action`, so `dismiss()` had no stable target — they now carry
       `--copy` / `--close` modifiers.
-      **Next:** date-picker (calendar panel per mode), dropdown / popover, drawer,
-      and `wr-table`, whose harness is a row / cell tree rather than one class.
+      The third batch adds `ngwr/{date-picker,dropdown,popover,drawer,table}/testing`
+      — twelve entry points, ~330 harness specs. Two findings from it are worth
+      keeping: the select's scoping lesson generalizes (every panel is scoped by
+      the id its trigger publishes, and a two-instances-open case is the only thing
+      that catches a leak — the SINGLE-element query and the LIST query are
+      separate code paths, and the list one leaked while the single one was
+      covered), and `[wrPopover]` needed a `wr-popover-trigger` marker class,
+      because popover-mode content is bound (`[wrPopover]="tpl"`), which leaves
+      nothing in the DOM and a closed tooltip publishes no ARIA either — so there
+      was nothing to find a trigger by. Mutation testing also corrected the
+      library's own documentation: select-all on a virtualized table selects the
+      whole dataset, not the window (`pageRowKeys` reads the render list before
+      windowing), and `aria-setsize` counts the row itself.
+      **Next:** the remaining overlay families (context-menu, popconfirm,
+      command-palette, cascader, tree, mention), the plain form controls
+      (radio, textarea, input-number, input-otp, slider, rating, file-upload),
+      and `wr-form-field` — after which "does ngwr ship a harness for X" stops
+      needing a caveat.
 - [x] **A3. a11y CI** (L) — `pnpm check:a11y` runs axe-core over all 211
       prerendered pages and fails CI on any serious or critical violation. The
       seeded baseline is empty: the ten rules it started with are fixed, which

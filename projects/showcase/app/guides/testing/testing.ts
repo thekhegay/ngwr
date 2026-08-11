@@ -129,6 +129,108 @@ it('builds up a multi selection', async () => {
   expect(await select.getChipLabels()).toEqual(['Large']);
 });`,
 
+    dropdown: `it('renames from the menu', async () => {
+  const menu = await loader.getHarness(WrDropdownHarness.with({ text: 'Actions' }));
+
+  await menu.open();
+  expect(await menu.getItemTexts()).toEqual(['Rename', 'Duplicate', 'Delete']);
+
+  // Focus starts on the first ENABLED item and the arrows skip the rest.
+  expect(await menu.getFocusedItemText()).toBe('Rename');
+
+  await menu.clickItem({ text: 'Rename' });
+  // Picking does not close the menu — there is no close-on-select.
+  expect(await menu.isOpen()).toBe(true);
+});`,
+
+    datePicker: `// A picker needs a date adapter, the same one your app provides.
+TestBed.configureTestingModule({
+  providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })],
+});
+
+it('picks a departure date', async () => {
+  const picker = await loader.getHarness(WrDatePickerHarness);
+
+  await picker.open();
+  expect(await picker.getPanelHeader()).toBe('January 2025');
+  expect(await picker.getWeekdayLabels()).toEqual(['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']);
+
+  await picker.selectDay(20);
+  expect(await picker.getValueText()).toBe('20.01.2025');
+});
+
+it('reads the state of a day cell', async () => {
+  const picker = await loader.getHarness(WrDatePickerHarness);
+  await picker.open();
+
+  const day = await picker.getDay(15);
+  expect(await day.isSelected()).toBe(true);
+  expect(await day.isToday()).toBe(false);
+
+  // selectDay() refuses a disabled cell instead of clicking into the void.
+  await expect(picker.selectDay(5)).rejects.toThrow(/disabled/);
+});
+
+it('sets a time and steps it', async () => {
+  const picker = await loader.getHarness(WrDatePickerHarness);   // mode="datetime"
+  await picker.open();
+
+  await picker.setTime({ hours: 9, minutes: 30 });
+  await picker.stepTime('minutes', 1);
+  expect(await picker.getTime()).toBe('09:31');
+});`,
+
+    popover: `it('explains itself on hover', async () => {
+  const tip = await loader.getHarness(WrPopoverHarness.with({ mode: 'tooltip' }));
+
+  await tip.open();                       // hover, focus or click — whichever this one takes
+  expect(await tip.getContentText()).toBe('Save changes');
+  expect(await tip.getRole()).toBe('tooltip');
+
+  await tip.close();
+});`,
+
+    drawer: `it('closes the drawer', async () => {
+  const drawer = await rootLoader.getHarness(WrDrawerHarness);
+
+  expect(await drawer.getTitleText()).toBe('Filters');
+  expect(await drawer.getPosition()).toBe('end');
+  expect(await drawer.isLabelledByTitle()).toBe(true);
+
+  await drawer.close();
+});`,
+
+    table: `it('sorts, selects and expands', async () => {
+  const table = await loader.getHarness(WrTableHarness);
+
+  expect(await table.getHeaderTexts()).toEqual(['Name', 'Role']);
+  expect(await table.getCellTexts()).toEqual([
+    ['Ada', 'admin'],
+    ['Grace', 'user'],
+  ]);
+
+  await table.sortByColumn('Name');
+  expect(await table.getSortDirection('Name')).toBe('ascending');
+
+  const [first] = await table.getRows();
+  await first.select();
+  expect(await first.isSelected()).toBe(true);
+  expect(await table.isPartiallySelected()).toBe(true);
+
+  await first.toggleExpand();
+  expect(await table.getDetailTexts()).toEqual(['Joined 2024']);
+});
+
+it('announces a tree', async () => {
+  const table = await loader.getHarness(WrTableHarness);   // childrenKey set
+
+  expect(await table.getRole()).toBe('treegrid');
+
+  const [root] = await table.getRows();
+  expect(await root.getLevel()).toBe(1);
+  expect(await root.isExpandable()).toBe(true);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -422,6 +524,392 @@ export class MyWidgetHarness extends ComponentHarness {
     },
   ];
 
+  protected readonly dropdownApi: readonly DocApiRow[] = [
+    {
+      name: 'open() / openByKeyboard() / close()',
+      description:
+        '`open()` hovers then clicks, so it works whatever the `trigger` mode is. `openByKeyboard()` is the third route — the component takes ArrowDown in every mode.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'isOpen() / getTriggerText()',
+      description: 'The trigger publishes `aria-controls` only while its menu is up, which is what `isOpen()` reads.',
+      type: 'Promise<boolean> | Promise<string>',
+      default: '—',
+    },
+    {
+      name: 'getItems(filters?) / getItemTexts()',
+      description:
+        'The menu is in the overlay, scoped to this dropdown by its menu id. Filters: `text`, `disabled`, `icon`.',
+      type: 'Promise<WrDropdownItemHarness[]> | Promise<string[]>',
+      default: '—',
+    },
+    {
+      name: 'clickItem(filters)',
+      description:
+        'Open if needed, then click the first match. Picking does NOT close the menu — there is no close-on-select.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getFocusedItemText()',
+      description:
+        'Where the roving focus is now. It starts on the first ENABLED item and the arrows step over disabled ones.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getMenuRole() / isMenuLabelledByTrigger()',
+      description: 'The menu announces `menu` and names itself from the trigger.',
+      type: 'Promise<string | null> | Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'clickTrigger() / hoverTrigger() / mouseAwayFromTrigger()',
+      description: 'One gesture at a time, when you want to assert that a mode ignores the other.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+  ];
+
+  protected readonly dropdownItemApi: readonly DocApiRow[] = [
+    { name: 'getText()', description: 'The label, without a leading icon.', type: 'Promise<string>', default: '—' },
+    {
+      name: 'getRole() / isDisabled() / isFocused()',
+      description: 'Role, state and whether the roving focus is on it.',
+      type: 'Promise<string | null> | Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'hasIcon() / getIconName()',
+      description: 'The leading icon, if the item has one.',
+      type: 'Promise<boolean> | Promise<string | null>',
+      default: '—',
+    },
+    { name: 'click()', description: 'Click the item.', type: 'Promise<void>', default: '—' },
+  ];
+
+  protected readonly datePickerApi: readonly DocApiRow[] = [
+    {
+      name: 'open() / close() / isOpen()',
+      description:
+        "`close()` toggles this picker's own trigger rather than sending Escape, which would go to whichever overlay opened last.",
+      type: 'Promise<void> | Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'getValueText() / setValueText(text) / clear()',
+      description:
+        'The text in the field. Typing is how a user enters a date, so `setValueText` goes through the input.',
+      type: 'Promise<string> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getPanelHeader() / getView() / getWeekdayLabels()',
+      description:
+        '`getView()` is `day` / `month` / `year`; the header reads `January 2025`, `2025` or `2016 – 2027` to match.',
+      type: 'Promise<string> | Promise<string[]>',
+      default: '—',
+    },
+    {
+      name: 'next() / previous() / zoomOut()',
+      description:
+        'One step means what the nav button says it means: a month in the day view, a year in the month view, twelve years in the year view.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'selectMonth(month) / selectYear(year)',
+      description: 'Pick from the zoomed-out views. A month takes a 0-based index or the label the locale renders.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getDays(filters?) / getDay(n) / selectDay(n)',
+      description:
+        '`selectDay` refuses a disabled cell instead of clicking into the void. Filters: `text`, `selected`, `disabled`, `today`, `outOfMonth`, `inRange`.',
+      type: 'Promise<WrDatePickerDayHarness[]> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getTime() / setTime(fields) / stepTime(unit, ±1) / toggleMeridiem()',
+      description: 'The `time` and `datetime` modes only. Ordering settles on blur, not per keystroke.',
+      type: 'Promise<string> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getMode() / isDisabled() / isReadonly() / focus() / blur() / isFocused()',
+      description: 'Mode and field state. A readonly picker still opens; a readonly RANGE picker does not.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly datePickerDayApi: readonly DocApiRow[] = [
+    {
+      name: 'getDayOfMonth() / getText()',
+      description: 'The number the cell shows.',
+      type: 'Promise<number> | Promise<string>',
+      default: '—',
+    },
+    {
+      name: 'isSelected() / isDisabled() / isToday() / isInRange()',
+      description: 'Cell state, read from ARIA and the `wr-calendar__day--*` modifiers.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'isOutOfMonth()',
+      description: "Whether this is a neighbouring month's padding cell — those are real, clickable days.",
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'isActive()',
+      description:
+        'The roving tab stop, which is NOT the same as selected. At most one cell answers true, and after a month step none does.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+  ];
+
+  protected readonly dateRangeApi: readonly DocApiRow[] = [
+    {
+      name: 'getStartText() / getEndText() / getSeparator()',
+      description: 'The two fields and the separator between them.',
+      type: 'Promise<string>',
+      default: '—',
+    },
+    {
+      name: 'setStartText(text) / setEndText(text) / clear()',
+      description: 'Type into one end without disturbing the other.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'focus(end) / blur(end) / isFocused(end) / getPlaceholder(end)',
+      description: "Every per-end method takes `'start'` or `'end'`.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getTime(end) / setTime(end, fields) / stepTime(end, unit, ±1) / toggleMeridiem(end)',
+      description: 'A datetime range renders one stepper per end — stepping one must not drag the other with it.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Everything on the day grid',
+      description: 'The panel methods above are shared: both pickers extend the same base.',
+      type: '—',
+      default: '—',
+    },
+  ];
+
+  protected readonly popoverApi: readonly DocApiRow[] = [
+    {
+      name: 'getMode()',
+      description:
+        'Read from ARIA, not from the `mode` input: a bound `[mode]` never reaches the DOM. It gates what `open()` does and which attribute names the panel.',
+      type: "Promise<'popover' | 'tooltip'>",
+      default: '—',
+    },
+    {
+      name: 'open(timeout?) / close(timeout?)',
+      description:
+        'Performs the gesture this instance takes, then WAITS: both modes have show / hide delays, so an immediate assertion would read the frame before.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'waitUntilOpen(timeout?) / waitUntilClosed(timeout?)',
+      description: 'The wait on its own, for when you drove the gesture yourself.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'click() / hover() / mouseAway() / focus() / blur() / sendEscape()',
+      description: 'One gesture, no waiting — assert that a click-mode popover ignores a hover.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getContentText() / getDescriptionText()',
+      description:
+        'The panel text. A tooltip also names its trigger through `aria-describedby`, which is what a screen reader reads — `getDescriptionText()` follows that reference.',
+      type: 'Promise<string> | Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / getLabel() / isModal()',
+      description: '`tooltip` in tooltip mode, `dialog` in popover mode.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getPosition() / isSheet()',
+      description: 'The placement modifier, and whether it collapsed to a bottom sheet on a small viewport.',
+      type: 'Promise<WrPopoverPosition | null> | Promise<boolean>',
+      default: '—',
+    },
+  ];
+
+  protected readonly drawerApi: readonly DocApiRow[] = [
+    {
+      name: 'isOpen()',
+      description: "Whether this drawer's pane is attached to the document — a disposed pane is not open.",
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'getTitleText() / getContentText()',
+      description: 'The `[wrDrawerTitle]` and `[wrDrawerContent]` text.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getPosition() / isSheet() / isRounded() / hasSafeArea() / hasHandle()',
+      description: 'Which edge it came from and how it is presented.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / isModal() / isLabelledByTitle()',
+      description:
+        'Written onto the OVERLAY element by both flavours, not onto your markup. `isLabelledByTitle()` resolves the reference rather than trusting that one is present.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isClosable() / getCloseLabel() / close() / sendEscape()',
+      description: '`close()` throws on a drawer opened `closable: false`; Escape is a separate opt-out.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'hasBackdrop() / clickBackdrop()',
+      description: 'The backdrop belonging to THIS drawer, not whichever one is on top.',
+      type: 'Promise<boolean> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'isFocusTrapped()',
+      description: 'Whether focus is inside the drawer, where the trap should hold it.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+  ];
+
+  protected readonly tableApi: readonly DocApiRow[] = [
+    {
+      name: 'getRole() / isTree()',
+      description:
+        'A flat table sets no role and announces the native `table`. `childrenKey` makes it a `treegrid` — and that role is the only place the hierarchy exists for a screen reader; the indent is decoration.',
+      type: "Promise<'treegrid' | 'table'>",
+      default: '—',
+    },
+    {
+      name: 'getHeaderCells(filters?) / getHeaderTexts()',
+      description:
+        'Columns are addressed by their header TITLE — the `columns` key never reaches the DOM. The selection and expand headers are not columns.',
+      type: 'Promise<WrTableHeaderCellHarness[]> | Promise<string[]>',
+      default: '—',
+    },
+    {
+      name: 'sortByColumn(title) / getSortDirection(title)',
+      description:
+        'One step of none → ascending → descending. `<wr-table>` publishes the intent and never reorders `items` itself, so a spec expecting rows to move has to sort the data too.',
+      type: 'Promise<void> | Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getRows(filters?) / getCellTexts()',
+      description:
+        'The rows RENDERED, in order — which for a virtualized body is the window, not the dataset. Group bands, subtotals, detail rows and the empty row are not rows.',
+      type: 'Promise<WrTableRowHarness[]> | Promise<string[][]>',
+      default: '—',
+    },
+    {
+      name: 'hasSelectAll() / isAllSelected() / isPartiallySelected() / toggleSelectAll()',
+      description:
+        "Its scope is the render list: a collapsed group's rows are out, a virtualized table's off-window rows are IN. While the selection is partial the box reads unchecked, so one click selects everything.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getGroupLabels() / isGroupCollapsed(label) / toggleGroup(label)',
+      description:
+        'The built-in bands. A `[wrTableGroupHeader]` template replaces the label with your own markup, and then this list is empty.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getDetailTexts()',
+      description:
+        'Each open detail row. A detail row sits NEXT TO its row, so it is neither a row nor one of its cells.',
+      type: 'Promise<string[]>',
+      default: '—',
+    },
+    {
+      name: 'getFooterTexts() / getEmptyText() / isLoading() / isVirtual() / getAriaRowCount()',
+      description:
+        '`isVirtual()` answers what actually happened: `virtualScroll` is a request the table drops whenever the layout stops being uniform.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly tableRowApi: readonly DocApiRow[] = [
+    {
+      name: 'getCells(filters?) / getCellTexts()',
+      description: "The row's cells, lead cells excluded so they line up with the header list.",
+      type: 'Promise<WrTableCellHarness[]> | Promise<string[]>',
+      default: '—',
+    },
+    {
+      name: 'isSelectable() / isSelected() / toggleSelection() / select() / deselect()',
+      description: '`select` and `deselect` are no-ops when the row is already there.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isExpandable() / isExpanded() / toggleExpand()',
+      description: "Both the `[wrTableExpand]` detail row and a tree row's children.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getLevel() / getPosInSet() / getSetSize() / getRowIndex()',
+      description:
+        'What a tree row announces. `aria-setsize` counts the sibling set INCLUDING this row, and `aria-posinset` is per sibling group, not per flat list.',
+      type: 'Promise<number | null>',
+      default: '—',
+    },
+  ];
+
+  protected readonly tableCellApi: readonly DocApiRow[] = [
+    { name: 'getText()', description: 'The cell text, whitespace collapsed.', type: 'Promise<string>', default: '—' },
+    {
+      name: 'getColumnTitle()',
+      description: 'Which column this cell belongs to — useful when a filter or a drag has moved the columns.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getPin()',
+      description: 'Whether the column is pinned, and to which edge.',
+      type: "Promise<'left' | 'right' | null>",
+      default: '—',
+    },
+    {
+      name: 'Header cells add: isSortable() / sort() / getSortDirection() / isFilterable()',
+      description: '`isFilterable()` needs a NON-EMPTY `filterItems` — an empty array renders no control.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
   protected readonly seeAlso: readonly DocSeeAlsoLink[] = [
     {
       title: 'wr-btn',
@@ -433,7 +921,7 @@ export class MyWidgetHarness extends ComponentHarness {
       title: '[wrInput]',
       kind: 'Directive',
       description: 'The directive WrInputHarness drives.',
-      url: ['/reference/directives', 'input'],
+      url: ['/reference/components', 'input'],
     },
     {
       title: 'wr-checkbox',
@@ -464,6 +952,30 @@ export class MyWidgetHarness extends ComponentHarness {
       kind: 'Service',
       description: 'Shows the toasts WrToastHarness reads.',
       url: ['/reference/components', 'toast'],
+    },
+    {
+      title: 'wr-table',
+      kind: 'Component',
+      description: 'Sorting, selection, tree rows — the harness family mirrors them.',
+      url: ['/reference/components', 'table'],
+    },
+    {
+      title: 'wr-date-picker',
+      kind: 'Component',
+      description: 'Date, time and datetime in one component.',
+      url: ['/reference/components', 'date-picker'],
+    },
+    {
+      title: '[wrDropdown]',
+      kind: 'Directive',
+      description: 'The trigger WrDropdownHarness drives.',
+      url: ['/reference/components', 'dropdown'],
+    },
+    {
+      title: '[wrPopover]',
+      kind: 'Directive',
+      description: 'Popover and tooltip modes behind one harness.',
+      url: ['/reference/components', 'popover'],
     },
   ];
 }
