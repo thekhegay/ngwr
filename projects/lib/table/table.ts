@@ -452,16 +452,25 @@ export class WrTable {
     effect(() => {
       const active = this.virtualized();
       this.displayColumns(); // re-run on a structural column change
+      // Both view queries are read TRACKED, and that is the whole point: a
+      // constructor effect's first run happens before the view's first update
+      // pass, so reading them inside `untracked` meant this ran once against an
+      // empty DOM — no header cells to freeze, no row to measure — and never
+      // again on a statically-configured table. The row height then silently
+      // stayed on the 40px fallback and the column widths were never captured.
+      const cells = this.headerCells();
+      const scroll = this.scrollEl();
       if (!active) {
         this.virtualFixed.set(false);
         return;
       }
       if (!isPlatformBrowser(this.platformId)) return;
+      if (cells.length === 0 || !scroll) return; // the view is not up yet; this re-runs when it is
       untracked(() => {
         this.freezeColumnWidths(); // captured while still auto-layout = natural widths
         this.virtualFixed.set(true); // now fixed, with those exact widths (no jump)
         if (this.rowHeight() === 0) {
-          const row = this.scrollEl()?.nativeElement.querySelector('.wr-table__tr') as HTMLElement | null;
+          const row = scroll.nativeElement.querySelector<HTMLElement>('.wr-table__tr');
           const h = row?.offsetHeight ?? 0;
           if (h > 0) this.measuredRowPx.set(h);
         }
