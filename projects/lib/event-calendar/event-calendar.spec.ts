@@ -87,6 +87,56 @@ describe('WrEventCalendar', () => {
 
   afterEach(() => fixture.destroy());
 
+  describe('the weekday headings', () => {
+    // `getDayOfWeekNames()` is documented as "Names ordered from
+    // `getFirstDayOfWeek()` onwards" — already rotated by every adapter. The month
+    // header rotated it a SECOND time, and the week/day header indexed that
+    // first-day-ordered array with an absolute Sunday-based weekday number. Both
+    // are no-ops in en-US, where the week starts on Sunday, and both are one day
+    // out everywhere else — so this suite runs under en-GB.
+    let gb: ReturnType<typeof TestBed.createComponent<Host>>;
+
+    const mountGb = (view: WrCalendarView): void => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter({ locale: 'en-GB' })] });
+      gb = TestBed.createComponent(Host);
+      gb.componentInstance.view.set(view);
+      gb.detectChanges();
+    };
+
+    /** What the browser itself calls that day, in the same style the header uses. */
+    const shortName = (date: Date): string => new Intl.DateTimeFormat('en-GB', { weekday: 'short' }).format(date);
+
+    afterEach(() => gb?.destroy());
+
+    it('names the month columns after the days they actually contain', () => {
+      mountGb('month');
+      const el = gb.nativeElement as HTMLElement;
+      const headings = [...el.querySelectorAll('.wr-event-calendar__weekday')].map(n => n.textContent.trim());
+      const firstCell = [...el.querySelectorAll<HTMLElement>('[role="gridcell"]')][0];
+      // `data-cell-date` is `startOfDay(date).getTime()` — a timestamp, not an ISO string.
+      const stamp = Number(firstCell.getAttribute('data-cell-date'));
+
+      expect(headings.length).toBe(7);
+      expect(headings[0]).toBe(shortName(new Date(stamp)));
+    });
+
+    it('names each week column after the date under it', () => {
+      mountGb('week');
+      const el = gb.nativeElement as HTMLElement;
+      const columns = [...el.querySelectorAll('.wr-event-calendar__colhead')];
+      const days = [...el.querySelectorAll<HTMLElement>('[role="gridcell"][data-cell-date]')];
+      const stamps = [...new Set(days.map(d => Number(d.getAttribute('data-cell-date'))))].sort((a, b) => a - b);
+
+      expect(columns.length).toBe(7);
+      expect(stamps.length).toBe(7);
+      columns.forEach((column, i) => {
+        const weekday = column.querySelector('.wr-event-calendar__colhead-weekday')!.textContent.trim();
+        expect(weekday, new Date(stamps[i]).toDateString()).toBe(shortName(new Date(stamps[i])));
+      });
+    });
+  });
+
   describe('the grid structure, in every view', () => {
     const views: readonly WrCalendarView[] = ['month', 'week', 'day'];
 

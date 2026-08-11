@@ -334,11 +334,13 @@ export class WrEventCalendar {
     }
   });
 
-  protected readonly weekdayNames = computed(() => {
-    const names = this.adapter.getDayOfWeekNames('short');
-    const first = this.adapter.getFirstDayOfWeek();
-    return Array.from({ length: DAYS_PER_WEEK }, (_, i) => names[(first + i) % DAYS_PER_WEEK]);
-  });
+  /**
+   * The adapter contract is "names ordered from `getFirstDayOfWeek()` onwards",
+   * so the list is ALREADY rotated. Rotating it again here put every column one
+   * day out for every locale whose week does not start on Sunday — invisible in
+   * en-US, wrong everywhere else. `wr-calendar` consumes the same call directly.
+   */
+  protected readonly weekdayNames = computed(() => this.adapter.getDayOfWeekNames('short'));
 
   protected readonly switcher = computed(() => this.views().map(view => ({ view, label: this.viewLabels[view] })));
 
@@ -376,10 +378,13 @@ export class WrEventCalendar {
 
   protected readonly columns = computed<readonly ColumnHeader[]>(() => {
     const weekdays = this.adapter.getDayOfWeekNames('short');
+    const first = this.adapter.getFirstDayOfWeek();
     return this.days().map(date => ({
       key: this.iso(date),
       date,
-      weekday: weekdays[this.adapter.getDayOfWeek(date)],
+      // `weekdays` is indexed from the week's first day; `getDayOfWeek` is
+      // absolute (0 = Sunday). Mixing the two spaces named Monday "Tue".
+      weekday: weekdays[(this.adapter.getDayOfWeek(date) - first + DAYS_PER_WEEK) % DAYS_PER_WEEK],
       day: String(this.adapter.getDate(date)),
       label: this.adapter.format(date, 'longDate'),
       isToday: this.adapter.isSameDay(date, this.adapter.today()),
