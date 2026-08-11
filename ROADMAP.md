@@ -1986,8 +1986,31 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
       ~80. Worth pairing with a pass over the catalog: **44 of 101 keys are
       still unread by any component**, and a locale pack multiplies only what is
       actually wired up.
-- [ ] **E8. Global defaults provider** (S–M) — `provideWrConfig()` for component
-      defaults (sizes, shapes, icons), the NzConfigService lesson.
+- [x] **E8. Global defaults provider** (S–M) — `provideWrConfig()` ships in a new
+      `ngwr/config` entry point. `size` on all nine form controls plus `rounded` on
+      input / input-group / input-number / select, resolved through
+      `useConfigValue(this.size, c => c.button?.size, 'md')` — the same shape as
+      `useI18nText`, so there is one precedence order in the library rather than
+      two: bound value, then config, then the component's own fallback.
+      The NzConfigService lesson is the design, not a footnote: a bound value ALWAYS
+      wins, and a bound `false` beats a configured `true`, so nothing has to be
+      re-stated to escape a global. The invariant that made it safe to ship is that
+      with no config provided every component renders byte-identically — an input's
+      literal default moved to `null`, so any read left unresolved would have
+      rendered nothing, and that is what the verifiers hunted for.
+      **Two keys were designed out, and the reasons are worth keeping.** No `color`:
+      the library's own chrome binds `[color]="isCurrent ? 'primary' : null"`
+      (pagination, the event-calendar view switcher) where `null` means neutral, and
+      `useConfigValue` reads `null` as unset — a configured intent would have
+      repainted every one of those buttons. Nothing in `WrColor` means "no intent",
+      so it cannot be made safe without a sentinel, and a sentinel is a worse API
+      than no key. No `button.shape`: it is three-valued (`rounded` / `pill` /
+      `squircle`), its type lives in `ngwr/button` which imports `ngwr/config`
+      (a cycle ng-packagr refuses), and the boolean `rounded` that was tried instead
+      both lost `squircle` and inverted the component's own vocabulary.
+      **Remaining, if it is ever wanted:** icons (the roadmap's third example) and
+      the display components. Neither is blocked; the form controls are where a
+      global default earns its keep.
 - [ ] **E9. Blocks** (L) — `ng g @ngwr/blocks:auth|dashboard|landing|settings`
       composed from ngwr components and themed by D1. Proven adoption driver
       (shadcnblocks economy, Ant Pro, Tremor); virtually no Angular block

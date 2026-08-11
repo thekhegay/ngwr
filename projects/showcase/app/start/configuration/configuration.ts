@@ -22,6 +22,7 @@ import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
 import { provideWrDensity } from 'ngwr/density';
+import { provideWrConfig } from 'ngwr/config';
 import { provideWrTheme } from 'ngwr/theme';
 
 import { AppComponent } from './app/app';
@@ -38,6 +39,7 @@ bootstrapApplication(AppComponent, {
     provideWrToastConfig({ position: 'top-end', duration: 4000 }),
     provideWrTheme({ defaultMode: 'auto' }),
     provideWrDensity({ defaultDensity: 'lg' }),
+    provideWrConfig({ button: { size: 'sm' }, input: { size: 'sm' } }),
     provideWrDateAdapter(),
     provideWrI18n(),
     provideWrI18nStaticLoader({ en: { /* … */ } }),
@@ -90,6 +92,22 @@ providers: [provideWrDateAdapter({ adapter: WrDateFnsAdapter })],
 // Or Luxon:
 import { WrLuxonAdapter } from 'ngwr/date-adapter-luxon';
 providers: [provideWrDateAdapter({ adapter: WrLuxonAdapter })],`,
+
+    config: `import { provideWrConfig } from 'ngwr/config';
+
+// App-wide component defaults. Every field is a DEFAULT, not an override: a value
+// bound on the element always wins, so a config is never something a template has
+// to fight its way out of.
+provideWrConfig({
+  button: { size: 'sm', color: 'primary' },
+  input: { size: 'sm' },
+  select: { size: 'sm', rounded: true },
+  checkbox: { size: 'sm' },
+});
+
+// <wr-btn>Save</wr-btn>              -> small, primary
+// <wr-btn size="lg">Save</wr-btn>    -> large; the binding wins
+// <wr-select [rounded]="false" />    -> square again; \`false\` is a value, not an absence`,
 
     density: `import { provideWrDensity } from 'ngwr/density';
 

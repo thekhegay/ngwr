@@ -47,6 +47,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Component defaults"
+    description="`provideWrConfig()` sets the size, shape and intent a component falls back to when a template says nothing. A bound value always wins, so nothing has to be re-stated to escape it — and a bound `false` turns a configured `true` back off, because `false` is a value rather than an absence."
+  >
+    <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Density"
     description="One knob for app-wide sizing. Pick a preset or supply per-axis multipliers."
   >
