@@ -2009,7 +2009,7 @@ nobody ships a free, complete Angular AI kit.
 
 ## G — Reach
 
-- [ ] **G1. RTL / bidi** (L) — **the CSS half landed.** 44 stylesheets swept to
+- [x] **G1. RTL / bidi** (L) — **shipped.** 44 stylesheets swept to
       logical properties, and `pnpm check:rtl` now fails the build on a physical
       `margin-left` / `text-align: right` / `inset` that carries no reason. It is
       a "say why" gate, not a ban: an animation's travel, a centring pair with a
@@ -2049,11 +2049,22 @@ nobody ships a free, complete Angular AI kit.
       ArrowUp still increases. Looking also caught what no gate could: code blocks
       were being bidi-reordered, so `foo();` rendered as `;foo()` — snippets and
       inline `<code>` are pinned LTR now.
-      **Remaining, and precisely:** four components still take arrow keys along the
-      inline axis without asking which way that points — `calendar` and
-      `event-calendar` (a day step), `input-otp` (box to box) and
-      `context-menu` (ArrowRight opens a submenu, which should be ArrowLeft in
-      RTL). None is blocked; they are the same shape of fix as the nine above.
+      The last four followed: `calendar` and `event-calendar` step a day the way
+      the grid points, `input-otp` walks its boxes along the visual strip, and a
+      `context-menu` submenu now opens on the arrow that points the way the panes
+      actually cascade — ArrowLeft under RTL, which is where the CDK has already
+      put the child. Each has an LTR twin case, and each mirror was mutation-tested
+      by removing the flip and watching the twin fail.
+      That closes G1 as it was written: the sweep, the wiring, the toggle. What is
+      NOT covered, and is worth writing down rather than discovering later: the
+      logical-property guard only reads `projects/lib`, so the showcase can still
+      drift; no gate renders anything under `dir="rtl"`, so an RTL regression in
+      LAYOUT would pass CI exactly as this batch's slider centring bug did until it
+      was measured in a browser; and Arabic / Hebrew typography (font stack, digit
+      shaping, `letter-spacing` on joined scripts) has not been looked at at all.
+      A `dir="rtl"` pass in `check:contrast`'s nightly Chromium is the cheapest way
+      to close the middle one, since that job already loads every page in a real
+      browser.
       Table stakes for Material / PrimeNG / Kendo parity (MENA enterprise).
 - [x] **G2. CSP audit** (S) — documented at `/guides/csp`, verified by serving
       the prerendered site under a policy with no escape hatches. The library
