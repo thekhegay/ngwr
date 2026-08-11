@@ -1535,6 +1535,22 @@ theme is what makes ngwr a library people can bet on.
       tracked and working correctly. Worth remembering as a rule: a constructor
       effect that reads a `viewChild` inside `untracked` is reading `undefined`
       and will not be told when that changes.
+      Two interaction bugs in `wr-event-calendar`, both about a coordinate
+      measured against the wrong thing. The roving cursor was written by arrow
+      keys ONLY, while focus also moves on a click, a Tab onto a chip and Escape
+      out of one — so the first arrow after any of those read a cell nobody was
+      standing on and threw focus back to it, usually the top-left of the grid. It
+      follows `focusin` now. And a drag read its origin THROUGH the chip: the
+      `--dragging` rule that takes the chip out of the hit test is bound to a
+      signal that is not set yet at `pointerdown`, so `elementFromPoint` reported
+      the chip and `closest()` climbed to the cell it STARTS in — never the cell
+      under the pointer. A chip reaching past its own cell then jumped by the grab
+      offset instead of moving by the drag distance. The origin is measured with
+      the chip hidden for exactly that one call. Testing it needed
+      `elementFromPoint` stubbed — jsdom does not implement it at all, undefined
+      rather than null-returning — and the stub returns the CHIP while the chip is
+      still hit-testable, which is the behaviour under test rather than a
+      convenience.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
