@@ -57,6 +57,32 @@ class SearchHost {
 }
 
 @Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" placeholder="Find a size" ariaLabel="Size" [minChars]="3" [(value)]="size">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+    </wr-select>
+  `,
+})
+class MinCharsHost {
+  readonly size = signal<unknown>(null);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select responsive placeholder="Pick a size" ariaLabel="Size" [(value)]="size">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+    </wr-select>
+  `,
+})
+class SheetHost {
+  readonly size = signal<unknown>(null);
+}
+
+@Component({
   imports: [WrSelect],
   template: `<wr-select mode="tag" placeholder="Add tags" ariaLabel="Tags" [(value)]="tags" />`,
 })
@@ -435,5 +461,98 @@ describe('WrSelect in tag mode', () => {
 
   it('carries the tag modifier class', () => {
     expect(root().querySelector('wr-select')!.className).toContain('wr-select--tag');
+  });
+});
+
+describe('WrSelect with a minimum query length', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<MinCharsHost>>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('[role="listbox"]');
+  const type = (text: string): void => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(MinCharsHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the panel shut on focus alone', () => {
+    // The input is documented as the "minimum query length before the panel
+    // opens", and nothing gated the open — so focusing popped an empty bordered
+    // box, with the "no results" row gated on the same threshold and therefore
+    // absent to explain it.
+    field().dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+
+    expect(panel()).toBeNull();
+  });
+
+  it('keeps it shut until the query is long enough', () => {
+    type('sm');
+    expect(panel()).toBeNull();
+
+    type('sma');
+    expect(panel()).not.toBeNull();
+  });
+
+  it('closes again when the query drops back under the threshold', () => {
+    type('sma');
+    expect(panel()).not.toBeNull();
+
+    type('sm');
+    expect(panel()).toBeNull();
+  });
+});
+
+describe('WrSelect as a bottom sheet', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
+  let width: number;
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
+
+  beforeEach(() => {
+    // `wrPresentAsSheet` decides on `window.innerWidth` against a 640px default.
+    width = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { value: 390, configurable: true });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(SheetHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    Object.defineProperty(window, 'innerWidth', { value: width, configurable: true });
+  });
+
+  it('dims behind the sheet with the class that has the styles', () => {
+    // The sheet asked for a `wr-select-backdrop` that no stylesheet defines, and
+    // naming a custom class also drops CDK's own dark default — so the scrim was
+    // invisible while still swallowing every click meant for the page behind it.
+    // `wr-dropdown` and `wr-popover` both use the shared class, and this
+    // component's stylesheet already imports it.
+    trigger().click();
+    fixture.detectChanges();
+
+    const backdrop = document.querySelector('.cdk-overlay-backdrop');
+    expect(backdrop).not.toBeNull();
+    expect(backdrop!.classList.contains('wr-overlay-backdrop')).toBe(true);
+  });
+
+  it('presents the panel as a sheet', () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(document.querySelector('.wr-overlay-sheet')).not.toBeNull();
   });
 });
