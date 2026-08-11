@@ -1676,13 +1676,21 @@ theme is what makes ngwr a library people can bet on.
       neither `[wrContextMenu]` nor `[wrPopconfirm]` published `aria-controls`, so
       no screen reader — and nothing else — could tell which panel a trigger owned.
       All four are fixed, additively, with the component's own spec extended.
-      **Still uncovered, and worth being precise about:** the display and layout
-      components that are nonetheless interactive — tabs, stepper, carousel,
-      pagination, segmented, collapse, transfer, splitter, calendar,
-      event-calendar, window, tour, lightbox, image-cropper, knob, color-picker,
-      speed-dial, action-sheet, virtual-scroll — plus the charts and the animation
-      set. None is blocked; they are simply a sixth batch, and the marginal value
-      per harness is lower now that everything a form or an overlay does is covered.
+      The sixth batch took the navigation and disclosure set —
+      `ngwr/{tabs,stepper,carousel,pagination,segmented,collapse,transfer}/testing`
+      — for **33** covered entry points and ~2630 specs in the suite. Writing them
+      found two more library bugs, both in `wr-tabs` and both about `disabled`
+      meaning nothing to an `<a>`: a disabled ROUTER tab navigated on click
+      (`aria-disabled` and a negative tabindex keep it off the keyboard path, and
+      nothing stopped a pointer), and the roving `tabindex="0"` followed `active`
+      without checking `disabled`, so a host pointing `active` at a disabled key
+      rendered a tab stop no Tab press could reach — leaving the strip with none at
+      all. The first fix is worth remembering: `preventDefault()` does NOT stop
+      `RouterLink`, which navigates from its own handler, so the working answer is
+      to withhold the commands (`[routerLink]="disabled ? null : link"`).
+      **Still uncovered:** splitter, calendar, event-calendar, window, tour,
+      lightbox, image-cropper, knob, color-picker, speed-dial, action-sheet,
+      virtual-scroll, plus the charts and the animation set. None is blocked.
 - [x] **A3. a11y CI** (L) — `pnpm check:a11y` runs axe-core over all 211
       prerendered pages and fails CI on any serious or critical violation. The
       seeded baseline is empty: the ten rules it started with are fixed, which

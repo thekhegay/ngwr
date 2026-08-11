@@ -444,6 +444,96 @@ it('announces the hierarchy', async () => {
   expect(await field.isLabelLinkedToControl()).toBe(true);
 });`,
 
+    tabs: `it('switches tabs', async () => {
+  const tabs = await loader.getHarness(WrTabsHarness);
+
+  expect(await tabs.getTabLabels()).toEqual(['Overview', 'Details', 'Locked']);
+  expect(await tabs.getSelectedLabel()).toBe('Overview');
+
+  await tabs.select({ label: 'Details' });
+  expect(await tabs.getSelectedLabel()).toBe('Details');
+
+  // The panel has to be the one THIS tab names, or a screen reader lands nowhere.
+  const details = (await tabs.getTabs({ label: 'Details' }))[0];
+  expect(await details.isPanelBound()).toBe(true);
+});
+
+it('walks focus without moving the selection', async () => {
+  const tabs = await loader.getHarness(WrTabsHarness);
+
+  await tabs.focusTabStop();
+  await tabs.pressArrowRight();
+
+  // Two different questions. A strip that answered the selection for both would
+  // look right in a test and be dead to a keyboard user.
+  expect(await tabs.getFocusedLabel()).toBe('Details');
+  expect(await tabs.getSelectedLabel()).toBe('Overview');
+});`,
+
+    stepper: `it('walks the steps', async () => {
+  const stepper = await loader.getHarness(WrStepperHarness);
+
+  expect(await stepper.getStepLabels()).toEqual(['Cart', 'Address', 'Payment']);
+  expect(await stepper.getActiveLabel()).toBe('Cart');
+
+  await stepper.next();
+  expect(await stepper.getActiveLabel()).toBe('Address');
+  expect(await stepper.getCompletedLabels()).toEqual(['Cart']);
+
+  // A linear stepper refuses a jump, and says so rather than doing nothing.
+  expect(await stepper.canGoTo(2)).toBe(false);
+  await expect(stepper.goTo(2)).rejects.toThrow();
+});`,
+
+    pagination: `it('pages through', async () => {
+  const pager = await loader.getHarness(WrPaginationHarness);
+
+  expect(await pager.getCurrentPage()).toBe(1);
+  expect(await pager.isPreviousDisabled()).toBe(true);
+
+  // The gaps are not pages. \`getStrip()\` shows them for what they are.
+  expect(await pager.getPages()).toEqual([1, 2, 3, 4, 5, 10]);
+  expect(await pager.getStrip()).toEqual([1, 2, 3, 4, 5, '…', 10]);
+
+  await pager.goToPage(10);
+  expect(await pager.isNextDisabled()).toBe(true);
+
+  // The page-size control is a wr-select, so compose its harness rather than
+  // querying a panel that already has one.
+  await pager.setPageSize(50);
+  expect(await pager.getPageSize()).toBe(50);
+});`,
+
+    collapse: `it('opens one panel at a time', async () => {
+  const group = await loader.getHarness(WrCollapseGroupHarness);
+
+  await group.openPanel({ title: 'Shipping' });
+  expect(await group.getOpenTitles()).toEqual(['Shipping']);
+
+  // Accordion mode: opening the next one closes the first.
+  await group.openPanel({ title: 'Payment' });
+  expect(await group.getOpenTitles()).toEqual(['Payment']);
+
+  const shipping = await group.getPanel({ title: 'Shipping' });
+  expect(await shipping.isOpen()).toBe(false);
+  expect(await shipping.isRegionBound()).toBe(true);
+});`,
+
+    transfer: `it('moves a row across', async () => {
+  const transfer = await loader.getHarness(WrTransferHarness);
+  const source = await transfer.getPane('source');
+
+  await (await source.getItem({ label: 'Write' })).check();
+  expect(await transfer.canMoveTo('target')).toBe(true);
+
+  await transfer.moveTo('target');
+  expect(await (await transfer.getPane('target')).getItemLabels()).toEqual(['Write']);
+
+  // Nothing staged, so the button is disabled — and the harness refuses rather
+  // than pressing it and resolving as if something had happened.
+  await expect(transfer.moveTo('target')).rejects.toThrow(/nothing staged/);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -1665,6 +1755,244 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'WrFormItemHarness: getLabel() / isInvalid() / getErrorTexts()',
       description: 'The same three questions for `<wr-form-item>`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly tabsApi: readonly DocApiRow[] = [
+    {
+      name: 'getTabLabels() / getTabs(filters?) / getSelectedLabel() / select(filters) / selectByIndex(i)',
+      description:
+        '`select()` verifies the tab actually became selected and throws if it did not — a disabled content tab fires no click at all, and a router strip may navigate somewhere else entirely. Filters: `label`, `selected`, `disabled`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getTabStopLabels() / isRoving() / getFocusedLabel() / focusTabStop()',
+      description:
+        'The roving tab stop, which is NOT the selection once focus has moved. A strip that answered one for the other would look correct in a test and be dead to a keyboard user. A disabled tab is never a tab stop, even when it is the active one.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'pressArrowRight() / pressArrowLeft() / pressHome() / pressEnd()',
+      description:
+        'Sent at the `role="tablist"` strip, which owns the handler. The arrows mirror under `dir="rtl"`; Home and End do not.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'isRouterMode() / getRole() / getOrientation() / getSize() / getFades()',
+      description: "Shape and chrome. `getFades()` reads the edge fades from the strip's scroll metrics.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'A tab adds: getLabel() / isSelected() / isDisabled() / isTabStop() / isLink() / getHref() / getPanelId() / isPanelBound() / getPanelText()',
+      description:
+        '`isPanelBound()` walks the `aria-controls` / `aria-labelledby` round trip both ways — a panel wired to the wrong header is invisible to a sighted user and fatal to a screen-reader one.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly stepperApi: readonly DocApiRow[] = [
+    {
+      name: 'getStepLabels() / getSteps(filters?) / getActiveLabel() / getActiveIndex() / getCompletedLabels()',
+      description: 'The steps and where the flow is. Filters: `label`, `active`, `completed`, `disabled`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'next() / previous() / goTo(i) / goToLabel(label) / canGoTo(i)',
+      description:
+        'A LINEAR stepper refuses a jump, so `canGoTo()` answers first and `goTo()` throws rather than silently doing nothing.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getActiveStepText() / getStepTexts()',
+      description: 'The content of the active step, and of each.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isLinear() / getOrientation() / isResponsive() / getListRole() / getTabStopLabels() / getFocusedLabel()',
+      description: 'Shape, and the roving tab stop again.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'A step adds: getLabel() / getDescription() / isOptional() / getAccessibleName() / isActive() / isCompleted() / isReachable() / select()',
+      description: '`isReachable()` is the linear question per step; `select()` respects it.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly carouselApi: readonly DocApiRow[] = [
+    {
+      name: 'getSlideCount() / getSlideTexts() / getActiveIndex() / getActiveSlideText()',
+      description: 'What is on show.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'next() / previous() / goTo(i)',
+      description:
+        'Next stays next in both directions — only the travel mirrors under `dir="rtl"`. A drag is pointer-driven and jsdom has no layout, so there is no drag method: the buttons and the keyboard are the honest paths.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'hasDots() / getDotCount() / getDotLabels() / hasArrows() / getPreviousLabel() / getNextLabel()',
+      description: 'The controls, including their accessible names.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'hover() / mouseAway()',
+      description: 'What pauses and resumes autoplay.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / getRoleDescription() / getSlideRoleDescriptions() / getAccessibleName() / getTrackOffsetPercent()',
+      description:
+        'What the carousel announces. The track offset is the one geometric answer, read from the inline style rather than measured.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly paginationApi: readonly DocApiRow[] = [
+    {
+      name: 'getPages() / getStrip() / getCurrentPage() / getTotalPages()',
+      description:
+        '`getPages()` is the numbers only; `getStrip()` shows the ellipsis gaps for what they are. A gap is a `<span>`, not a page, and counting it as one is the classic pager bug.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'goToPage(n) / goToFirst() / goToLast() / next() / previous()',
+      description: 'Moving. `aria-current` is what says where you landed.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'isNextDisabled() / isPreviousDisabled() / isDisabled()',
+      description: 'The ends, and the whole control.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'hasPageSizeChanger() / getPageSizeSelect() / getPageSize() / setPageSize(n)',
+      description:
+        'The size control is a `wr-select`, so `getPageSizeSelect()` hands back `WrSelectHarness` rather than re-querying a panel that already has a harness.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'hasTotal() / getTotalText() / getLabel() / getSize() / isResponsive()',
+      description: 'The surrounding copy and chrome.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly segmentedApi: readonly DocApiRow[] = [
+    {
+      name: 'getOptionLabels() / getOptions(filters?) / getSelectedLabel() / getSelectedIndex() / select(filters) / selectAt(i)',
+      description: 'The options and the choice. Filters: `label`, `selected`, `disabled`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getTabStopLabels() / getFocusedLabel()',
+      description: 'The roving tab stop, separate from the selection as everywhere else.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getThumbIndex() / getThumbCount() / isThumbVisible() / isThumbTransitionEnabled()',
+      description:
+        'The sliding thumb is decoration, so these read what is actually there — its index comes from the inline custom property the component writes, not from a measured position jsdom does not have.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / getAccessibleName() / getSize() / isDisabled()',
+      description: 'Shape and state.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly collapseApi: readonly DocApiRow[] = [
+    {
+      name: 'Group: getPanelTitles() / getPanels(filters?) / getPanel(filters) / getPanelAt(i) / getOpenTitles()',
+      description: 'The accordion. Filters: `title`, `open`, `disabled`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Group: openPanel(filters) / closePanel(filters) / closeAll() / getFocusedTitle()',
+      description: 'In accordion mode opening one closes the rest — assert that, it is the interesting behaviour.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Panel: isOpen() / open() / close() / toggle() / getContentText()',
+      description:
+        "Open and closed come from the header's `aria-expanded`, never from a measured height — the animation is invisible in jsdom, and a harness that measured it would answer about a frame.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Panel: getRegionId() / isRegionBound() / isContentHidden()',
+      description: 'The `aria-controls` pairing between header and region, checked in both directions.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly transferApi: readonly DocApiRow[] = [
+    {
+      name: 'getPane(side)',
+      description:
+        "The two panes are symmetric, so the API takes a side — `'source'` or `'target'` — rather than duplicating every method.",
+      type: 'Promise<WrTransferPaneHarness>',
+      default: '—',
+    },
+    {
+      name: 'canMoveTo(side) / moveTo(side) / moveAllTo(side) / getMoveLabel(side)',
+      description:
+        '`moveTo()` refuses a disabled button instead of pressing it: a native disabled `<button>` swallows the click before Angular sees it, so the call would otherwise resolve having moved nothing. The error names the pane that is empty.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Pane: getItemLabels() / getItems(filters?) / getItem(filters) / getCheckedLabels() / getEmptyText()',
+      description: 'The rows a pane is showing. Filters: `label`, `checked`, `disabled`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Pane: toggleSelectAll() / checkAll() / uncheckAll() / isAllChecked() / isPartiallyChecked() / isSelectAllDisabled()',
+      description: 'Select-all is scoped to what the pane is SHOWING — a search narrows it.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Pane: hasSearch() / search(query) / getSearchValue() / getCountText() / getTitle() / getListRole()',
+      description: 'The per-pane search and header. `search()` throws when `searchable` is off.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'An item adds: getLabel() / isChecked() / isDisabled() / toggle() / check() / uncheck()',
+      description: '`check` and `uncheck` are no-ops when the row is already there; a disabled row refuses.',
       type: 'Promise<…>',
       default: '—',
     },

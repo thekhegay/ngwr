@@ -408,6 +408,68 @@
     <ngwr-doc-api [rows]="formFieldApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Tabs" description="Focus and selection are different questions.">
+    <ngwr-doc-code [code]="snippets.tabs" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      A tab strip roves focus, so "which tab is active" has two answers, and a harness that gave the selection for both
+      would look right in every test while the strip was dead to a keyboard user. Both are exposed. The other thing
+      worth asserting is the panel pairing: <code>isPanelBound()</code> walks the <code>aria-controls</code> /
+      <code>aria-labelledby</code> round trip in both directions, because a panel wired to the wrong header looks fine
+      and reads as nothing.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrTabsHarness / WrTabHarness" description="`ngwr/tabs/testing`">
+    <ngwr-doc-api [rows]="tabsApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Stepper" description="A linear flow refuses a jump.">
+    <ngwr-doc-code [code]="snippets.stepper" language="typescript" />
+
+    <ngwr-doc-api [rows]="stepperApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrCarouselHarness" description="`ngwr/carousel/testing`">
+    <p wrTypography>
+      Next stays next in both reading directions — only the travel mirrors. There is deliberately no drag method: a drag
+      is pointer-driven and a unit test has no layout, so one would write the wrong slide index and report success.
+    </p>
+
+    <ngwr-doc-api [rows]="carouselApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Pagination" description="The gaps are not pages.">
+    <ngwr-doc-code [code]="snippets.pagination" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>getPages()</code> is the numbers a user can reach; <code>getStrip()</code> shows the ellipsis gaps for what
+      they are. Counting a gap as a page is the classic pager bug, and it is why these are two methods rather than one.
+      The page-size control is a <code>wr-select</code>, so the harness hands back <code>WrSelectHarness</code> instead
+      of re-querying a panel that already has one.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrPaginationHarness" description="`ngwr/pagination/testing`">
+    <ngwr-doc-api [rows]="paginationApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrSegmentedHarness" description="`ngwr/segmented/testing`">
+    <ngwr-doc-api [rows]="segmentedApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Collapse" description="Open is an ARIA state, not a measured height.">
+    <ngwr-doc-code [code]="snippets.collapse" language="typescript" />
+
+    <ngwr-doc-api [rows]="collapseApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Transfer" description="Two symmetric panes, one side argument.">
+    <ngwr-doc-code [code]="snippets.transfer" language="typescript" />
+
+    <ngwr-doc-api [rows]="transferApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Writing one for your own component">
     <p wrTypography>
       The same base class is available to you. If your app wraps an ngwr control in something of its own, a harness for
