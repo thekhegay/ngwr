@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input, model, output } from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
+import { useConfigValue } from 'ngwr/config';
 import { randomId } from 'ngwr/utils';
 
 /**
@@ -56,8 +57,14 @@ export class WrSwitch implements FormCheckboxControl {
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
-  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
-  readonly size = input<WrSwitchSize>('md');
+  /**
+   * Control size — shares the `--wr-control-*` contract. Unset falls back to the
+   * `switch.size` app default from `provideWrConfig()`. @default 'md'
+   */
+  readonly size = input<WrSwitchSize | null>(null);
+
+  /** `size`, then the app config, then `md`. @internal */
+  protected readonly resolvedSize = useConfigValue(this.size, c => c.switch?.size, 'md');
 
   /** On / off state. Bound by `[formField]`, or two-way via `[(checked)]`. */
   readonly checked = model<boolean>(false);
@@ -67,7 +74,7 @@ export class WrSwitch implements FormCheckboxControl {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-switch'];
-    const size = this.size();
+    const size = this.resolvedSize();
     if (size !== 'md') parts.push(`wr-switch--${size}`);
     if (this.checked()) parts.push('wr-switch--checked');
     if (this.disabled()) parts.push('wr-switch--disabled');

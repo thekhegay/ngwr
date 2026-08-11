@@ -5,9 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Directive, ElementRef, computed, inject, input } from '@angular/core';
 
+import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD } from 'ngwr/form';
 
 import type { WrInputSize } from '../interfaces';
@@ -80,18 +81,36 @@ export class WrInput {
 
   /**
    * Control size. Named `wrSize` (not `size`) so it never clashes with the
-   * native `<input size>` attribute. @default 'md'
+   * native `<input size>` attribute. Unset, it falls back to
+   * `provideWrConfig({ input: { size } })`. @default 'md'
    */
-  readonly wrSize = input<WrInputSize>('md');
+  readonly wrSize = input<WrInputSize | null>(null);
 
-  /** Pill-shaped corners. @default false */
-  readonly rounded = input(false, { transform: coerceBooleanProperty });
+  /**
+   * Pill-shaped corners. Unset, it falls back to
+   * `provideWrConfig({ input: { rounded } })`; `[rounded]="false"` turns a
+   * configured `true` back off. @default false
+   */
+  readonly rounded = input<boolean | null, BooleanInput>(null, {
+    // Null-preserving: the plain `coerceBooleanProperty` folds `null` into `false`,
+    // which would make "not set" and "set to false" the same value — and a config
+    // default nothing could ever supply. A valueless `rounded` attribute still
+    // arrives as `''` and still coerces to `true`.
+    transform: (v: BooleanInput): boolean | null => (v == null ? null : coerceBooleanProperty(v)),
+  });
+
+  // `null` as each input's own default, not `'md'` / `false`: with a literal sitting
+  // there, "the template said nothing" and "the template said md" are the same value,
+  // so no app-wide default could ever apply. The effective default is the last
+  // argument below, which is where the old inline one moved to.
+  protected readonly resolvedSize = useConfigValue(this.wrSize, c => c.input?.size, 'md');
+  protected readonly resolvedRounded = useConfigValue(this.rounded, c => c.input?.rounded, false);
 
   protected readonly classes = computed(() => {
     const parts = ['wr-input'];
-    const size = this.wrSize();
+    const size = this.resolvedSize();
     if (size !== 'md') parts.push(`wr-input--${size}`);
-    if (this.rounded()) parts.push('wr-input--rounded');
+    if (this.resolvedRounded()) parts.push('wr-input--rounded');
     return parts.join(' ');
   });
 }

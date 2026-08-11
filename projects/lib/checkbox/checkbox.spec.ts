@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { WrCheckbox } from './checkbox';
+import { WrCheckbox, type WrCheckboxSize } from './checkbox';
 import { WrCheckboxGroup } from './checkbox-group';
 
 @Component({
@@ -41,6 +42,14 @@ class Host {
 class GroupHost {
   readonly picked = signal<unknown[]>([]);
   readonly groupDisabled = signal(false);
+}
+
+@Component({
+  imports: [WrCheckbox],
+  template: `<wr-checkbox [size]="size()">Accept terms</wr-checkbox>`,
+})
+class SizeHost {
+  readonly size = signal<WrCheckboxSize | null>(null);
 }
 
 /**
@@ -203,5 +212,57 @@ describe('WrCheckboxGroup', () => {
     // The failure this guards is the `value`-instead-of-`checkboxValue` one: a
     // shared identity makes the whole group move as a single control.
     expect(inputs().map(i => i.checked)).toEqual([true, false, false]);
+  });
+});
+
+/**
+ * `provideWrConfig()` is a FALLBACK, not an override: the app-wide `checkbox.size`
+ * applies only where the template said nothing, and a bound `[size]` still wins.
+ * The first test is the invariant the whole change rests on — with no config the
+ * box renders exactly what it always did, which for `md` is no modifier at all.
+ */
+describe('WrCheckbox + provideWrConfig', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
+
+  const mount = (providers: EnvironmentProviders[] = []): HTMLElement => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers });
+    fixture = TestBed.createComponent(SizeHost);
+    fixture.detectChanges();
+    return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-checkbox')!;
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('renders the md default with no modifier class when nothing is configured', () => {
+    expect(mount().className).toBe('wr-checkbox');
+  });
+
+  it('takes the configured size when the template binds none', () => {
+    expect(mount([provideWrConfig({ checkbox: { size: 'lg' } })]).className).toBe('wr-checkbox wr-checkbox--lg');
+  });
+
+  it('lets a bound size beat the configured one', () => {
+    const host = mount([provideWrConfig({ checkbox: { size: 'lg' } })]);
+    fixture.componentInstance.size.set('sm');
+    fixture.detectChanges();
+
+    expect(host.classList.contains('wr-checkbox--sm')).toBe(true);
+    expect(host.classList.contains('wr-checkbox--lg')).toBe(false);
+  });
+
+  it('lets an explicitly bound `md` beat the configured size', () => {
+    const host = mount([provideWrConfig({ checkbox: { size: 'lg' } })]);
+    fixture.componentInstance.size.set('md');
+    fixture.detectChanges();
+
+    // The size counterpart of `[rounded]="false"`: `md` is the one bound value
+    // that renders as the ABSENCE of a class, so an implementation that treats it
+    // as "not set" looks identical to a correct one in every other test here.
+    expect(host.className).toBe('wr-checkbox');
+  });
+
+  it('ignores a config that names other components', () => {
+    expect(mount([provideWrConfig({ switch: { size: 'lg' } })]).className).toBe('wr-checkbox');
   });
 });

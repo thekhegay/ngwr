@@ -1,4 +1,4 @@
-<wr-input-group>
+<wr-input-group [rounded]="resolvedRounded()">
   @if (prefix(); as p) {
     <span wrInputPrefix>{{ p }}</span>
   }
@@ -8,6 +8,8 @@
     type="text"
     inputmode="decimal"
     autocomplete="off"
+    [wrSize]="resolvedSize()"
+    [rounded]="resolvedRounded()"
     [attr.aria-label]="resolvedAriaLabel()"
     spellcheck="false"
     [value]="text()"

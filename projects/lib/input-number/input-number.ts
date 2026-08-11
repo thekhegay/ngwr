@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
   LOCALE_ID,
@@ -20,7 +20,8 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix } from 'ngwr/input';
+import { useConfigValue } from 'ngwr/config';
+import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, type WrInputSize } from 'ngwr/input';
 import { clamp, round } from 'ngwr/utils';
 
 /** Round to `decimals` places, avoiding common float artefacts (`1.005 → 1.01`). */
@@ -86,6 +87,45 @@ export class WrInputNumber implements FormValueControl<number | null> {
 
   /** Render the ▲▼ stepper column. @default true */
   readonly showSteppers = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Control size — forwarded to the field, and shares the `--wr-control-*`
+   * contract. Unset falls back to the `inputNumber.size` app default from
+   * `provideWrConfig()`, then to the `input.size` one, then to `md`. @default 'md'
+   */
+  readonly size = input<WrInputSize | null>(null);
+
+  /**
+   * Pill-shaped corners. Unset falls back to the `inputNumber.rounded` app default
+   * from `provideWrConfig()`, then to the `input.rounded` one;
+   * `[rounded]="false"` turns a configured `true` back off. @default false
+   */
+  readonly rounded = input<boolean | null, BooleanInput>(null, {
+    // Null-preserving: the plain `coerceBooleanProperty` folds `null` into
+    // `false`, which would make "not set" and "set to false" the same value —
+    // and a config default nothing could ever supply.
+    transform: (v: BooleanInput): boolean | null => (v == null ? null : coerceBooleanProperty(v)),
+  });
+
+  /**
+   * `size`, then the app config, then `md` — bound to the field's `[wrSize]`.
+   *
+   * The chrome this control is built from resolves the same pair for itself, so
+   * the config lookup falls through to `input.*` rather than stopping at
+   * `inputNumber.*`: binding a value down always wins there, and an unchained
+   * lookup would therefore SUPPRESS an `input.size` an app had set — the field
+   * inside a number input would be the one `[wrInput]` in the app that ignored it.
+   * Chained, the specific key wins where it is set and the general one still
+   * applies where it is not.
+   */
+  protected readonly resolvedSize = useConfigValue(this.size, c => c.inputNumber?.size ?? c.input?.size, 'md');
+
+  /** `rounded`, then the app config, then `false` — bound to the group AND the field. */
+  protected readonly resolvedRounded = useConfigValue(
+    this.rounded,
+    c => c.inputNumber?.rounded ?? c.input?.rounded,
+    false
+  );
 
   /** Optional prefix label (e.g. `"$"`). */
   readonly prefix = input<string>('');

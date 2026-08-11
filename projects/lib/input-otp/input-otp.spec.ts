@@ -1,12 +1,14 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, signal } from '@angular/core';
+import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { provideWrConfig } from 'ngwr/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrInputOtp } from './input-otp';
+import type { WrInputOtpSize } from './interfaces';
 
 @Component({
   imports: [WrInputOtp],
@@ -199,5 +201,106 @@ describe('WrInputOtp under dir="rtl"', () => {
 
     press(2, 'End');
     expect(document.activeElement).toBe(boxes()[5]);
+  });
+});
+
+/**
+ * One host that binds `[size]` and one binding of `null` inside it, because the
+ * only thing that makes an app-wide default safe is that a template can still
+ * override it. A shorter `length` is in here too: the strip is sized ONCE, on the
+ * host, and every box reads that through the cascade — a per-box resolution would
+ * be the thing that silently sizes only some of them.
+ */
+@Component({
+  imports: [WrInputOtp],
+  template: `<wr-input-otp [size]="size()" [length]="length()" />`,
+})
+class ConfigHost {
+  readonly size = signal<WrInputOtpSize | null>(null);
+  readonly length = signal(6);
+}
+
+describe('WrInputOtp defaults from provideWrConfig', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+
+  const mount = (providers: EnvironmentProviders[] = []): ConfigHost => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers });
+    fixture = TestBed.createComponent(ConfigHost);
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  };
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-input-otp')!;
+  const boxes = (): HTMLInputElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input'),
+  ];
+
+  afterEach(() => fixture.destroy());
+
+  it('renders exactly as before when no config is provided', () => {
+    // The invariant the whole change rests on: an unbound strip is `md`, which
+    // means no modifier class at all.
+    mount();
+
+    expect(host().className).toBe('wr-input-otp');
+  });
+
+  it('takes the configured size when the template binds none', () => {
+    mount([provideWrConfig({ inputOtp: { size: 'sm' } })]);
+
+    expect(host().className).toBe('wr-input-otp wr-input-otp--sm');
+  });
+
+  it('lets a bound size beat the configured one', () => {
+    const instance = mount([provideWrConfig({ inputOtp: { size: 'sm' } })]);
+    instance.size.set('lg');
+    fixture.detectChanges();
+
+    expect(host().classList.contains('wr-input-otp--lg')).toBe(true);
+    expect(host().classList.contains('wr-input-otp--sm')).toBe(false);
+  });
+
+  it('lets a bound `md` turn a configured size back to the default', () => {
+    // `md` is the value that renders NO modifier, so it is this control's
+    // equivalent of the bound `false` that has to escape a configured `true`:
+    // treated as an absence it would fall straight back to the config.
+    const instance = mount([provideWrConfig({ inputOtp: { size: 'lg' } })]);
+    instance.size.set('md');
+    fixture.detectChanges();
+
+    expect(host().className).toBe('wr-input-otp');
+  });
+
+  it('sizes the whole strip from one resolution, whatever the length', () => {
+    const instance = mount([provideWrConfig({ inputOtp: { size: 'lg' } })]);
+    instance.length.set(4);
+    fixture.detectChanges();
+
+    // The size lives on the host as `--wr-input-otp-size` and friends; a box
+    // carries no size class of its own, so all four follow by cascade.
+    expect(host().classList.contains('wr-input-otp--lg')).toBe(true);
+    expect(boxes()).toHaveLength(4);
+    expect(boxes().every(box => box.className === 'wr-input-otp__cell')).toBe(true);
+  });
+
+  it('goes back to the config when a binding is cleared', () => {
+    const instance = mount([provideWrConfig({ inputOtp: { size: 'sm' } })]);
+    instance.size.set('lg');
+    fixture.detectChanges();
+    expect(host().classList.contains('wr-input-otp--lg')).toBe(true);
+
+    instance.size.set(null);
+    fixture.detectChanges();
+    expect(host().classList.contains('wr-input-otp--sm')).toBe(true);
+  });
+
+  it('ignores a config that names other components', () => {
+    // Including `input`, whose key governs `[wrInput]` fields — the boxes are
+    // plain inputs of this control's own, not `[wrInput]`s, so they must not
+    // follow it.
+    mount([provideWrConfig({ input: { size: 'sm' }, inputNumber: { size: 'lg' } })]);
+
+    expect(host().className).toBe('wr-input-otp');
   });
 });
