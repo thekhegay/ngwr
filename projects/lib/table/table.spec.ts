@@ -59,6 +59,17 @@ class Host {
   readonly collapsedGroups = signal<readonly unknown[]>([]);
 }
 
+@Component({
+  imports: [WrTable],
+  template: ` <wr-table [columns]="columns()" [items]="items()" rowKey="id" virtualScroll [viewportHeight]="200" /> `,
+})
+class VirtualHost {
+  readonly columns = signal(COLUMNS);
+  readonly items = signal<readonly Record<string, unknown>[]>(
+    Array.from({ length: 100 }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, role: 'user' }))
+  );
+}
+
 /**
  * `wr-table` is the library's data workhorse and most of its surface is opt-in
  * modes. What this suite pins is the part that is easy to break silently: the
@@ -347,5 +358,64 @@ describe('WrTable', () => {
 
   it('carries the public BEM classes', () => {
     expect(root().querySelector('wr-table')!.className).toContain('wr-table');
+  });
+});
+
+describe('WrTable with virtual scrolling on from the start', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<VirtualHost>>;
+  let rowHeight: PropertyDescriptor | undefined;
+  let cellWidth: PropertyDescriptor | undefined;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const spacers = (): number[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-table__spacer td')].map(td => Number.parseInt(td.style.height, 10));
+
+  beforeEach(() => {
+    // jsdom lays nothing out, so the two measurements the component makes have to
+    // be handed to it. 56px rows are the `lg` density; the 40px fallback is what
+    // the component reaches for when it never manages to measure.
+    rowHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
+    cellWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, get: () => 56 });
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 120 });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(VirtualHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (rowHeight) Object.defineProperty(HTMLElement.prototype, 'offsetHeight', rowHeight);
+    if (cellWidth) Object.defineProperty(HTMLElement.prototype, 'offsetWidth', cellWidth);
+  });
+
+  it('measures the row it actually rendered, rather than falling back', () => {
+    // The activation effect read its view queries inside `untracked()`, so its
+    // one run happened before the view existed and nothing re-ran it: the table
+    // sized every spacer with the 40px fallback while the rows were 56px, and the
+    // scrollbar lied by a third.
+    const total = spacers().reduce((a, b) => a + b, 0);
+    const rendered = root().querySelectorAll('tbody tr:not(.wr-table__spacer)').length;
+
+    expect(rendered).toBeGreaterThan(0);
+    expect(total + rendered * 56).toBe(100 * 56);
+  });
+
+  it('freezes the natural column widths before switching to fixed layout', () => {
+    // Captured while the table is still auto-layout, so turning on `table-layout:
+    // fixed` cannot make the columns jump.
+    // Fixed layout is a class, not an inline style — `.wr-table__table--fixed`
+    // is public API the stylesheet hangs `table-layout: fixed` on.
+    const table = root().querySelector<HTMLElement>('table')!;
+    expect(table.classList.contains('wr-table__table--fixed')).toBe(true);
+
+    const cols = [...root().querySelectorAll<HTMLElement>('col')];
+    expect(cols.length).toBeGreaterThan(0);
+    expect(
+      cols.every(col => col.style.width === '120px'),
+      cols.map(c => c.style.width).join()
+    ).toBe(true);
   });
 });
