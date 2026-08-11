@@ -15,7 +15,11 @@
         <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem">
           <wr-btn size="sm" [disabled]="loading()" (click)="reload()">Refresh programmatically</wr-btn>
         </div>
+        <!-- The component is the scroll container here, and these rows are plain
+             text — so nothing inside can take the focus on its behalf. A real list
+             of links or buttons would not need this. -->
         <wr-pull-to-refresh
+          tabindex="0"
           style="height: 16rem; border: 1px solid var(--wr-color-outline); border-radius: var(--wr-border-radius-base)"
           [refreshing]="loading()"
           (refresh)="reload()"

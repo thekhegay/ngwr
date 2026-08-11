@@ -19,7 +19,7 @@
   @if (lastHtml(); as html) {
     <div class="html" [innerHTML]="html"></div>
   } @else {
-    <pre class="fallback"><code>{{ normalized() }}</code></pre>
+    <pre class="fallback" tabindex="0"><code>{{ normalized() }}</code></pre>
   }
 
   <button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
