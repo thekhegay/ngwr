@@ -2009,12 +2009,30 @@ nobody ships a free, complete Angular AI kit.
 
 ## G — Reach
 
-- [ ] **G1. RTL / bidi** (L) — still close to a total gap: **4** stylesheets use
-      logical properties against **44** using physical left/right, and there is
-      no `Directionality` anywhere. Sweep to logical properties, wire CDK
-      `Directionality` into overlays / sliders / carousels, add a `dir="rtl"`
-      toggle to the showcase. Table stakes for Material / PrimeNG / Kendo parity
-      (MENA enterprise).
+- [ ] **G1. RTL / bidi** (L) — **the CSS half landed.** 44 stylesheets swept to
+      logical properties, and `pnpm check:rtl` now fails the build on a physical
+      `margin-left` / `text-align: right` / `inset` that carries no reason. It is
+      a "say why" gate, not a ban: an animation's travel, a centring pair with a
+      physical `translateX(-50%)`, and geometry the TypeScript measures with
+      `getBoundingClientRect().left` are all correctly physical, and each such
+      declaration now carries a `// rtl-ok: <reason>` marker. Roughly a third of
+      the 126 declarations were KEEP — the sweep's value was as much in deciding
+      that as in the rewrites.
+      Safety rested on one invariant, checked mechanically rather than by eye: in
+      LTR a logical property is exactly equivalent to the physical one it
+      replaces, so every changed line had to be an equivalence — and the riskiest
+      file (popover, where an interpolated `#{$edge}` became an `@if`) was
+      confirmed by compiling both revisions and diffing the normalised CSS. It is
+      byte-identical.
+      **Still open, and it is the half that makes RTL actually work:** nothing
+      reads `Directionality` yet. Overlays need `direction` on the `OverlayConfig`
+      so the CDK mirrors placement; slider, carousel and the roving-focus
+      components need it for their keyboard maths; the showcase needs a
+      `dir="rtl"` toggle so any of this is reviewable. One concrete bug is already
+      known and belongs to that half: CDK's `_getOffset` does NOT flip `offsetX`
+      under RTL, so `WR_POPOVER_POSITIONS`' ±8px gaps push a `left`/`right` panel
+      INTO its trigger instead of away from it.
+      Table stakes for Material / PrimeNG / Kendo parity (MENA enterprise).
 - [x] **G2. CSP audit** (S) — documented at `/guides/csp`, verified by serving
       the prerendered site under a policy with no escape hatches. The library
       needs nothing unusual: no `eval`, no `new Function`, no `Worker`, no
