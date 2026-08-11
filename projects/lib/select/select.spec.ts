@@ -83,6 +83,20 @@ class SheetHost {
 }
 
 @Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" placeholder="Find a size" ariaLabel="Size" [options]="dynamic" [(value)]="size">
+      <wr-option value="a">Projected A</wr-option>
+      <wr-option value="b">Projected B</wr-option>
+    </wr-select>
+  `,
+})
+class MixedHost {
+  readonly dynamic = ['Dyn One', 'Dyn Two'];
+  readonly size = signal<unknown>(null);
+}
+
+@Component({
   imports: [WrSelect],
   template: `<wr-select mode="tag" placeholder="Add tags" ariaLabel="Tags" [(value)]="tags" />`,
 })
@@ -554,5 +568,54 @@ describe('WrSelect as a bottom sheet', () => {
     fixture.detectChanges();
 
     expect(document.querySelector('.wr-overlay-sheet')).not.toBeNull();
+  });
+});
+
+describe('WrSelect with both dynamic and projected options', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<MixedHost>>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const rows = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const activeLabel = (): string | null => {
+    const id = field().getAttribute('aria-activedescendant');
+    return id ? (document.getElementById(id)?.textContent?.trim() ?? null) : null;
+  };
+  const press = (key: string): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(MixedHost);
+    fixture.detectChanges();
+    field().dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders the dynamic options above the projected ones', () => {
+    expect(rows().map(r => r.textContent.trim())).toEqual(['Dyn One', 'Dyn Two', 'Projected A', 'Projected B']);
+  });
+
+  it('starts the cursor on the first row on screen', () => {
+    // The cursor walks the registry, and registration is CREATION order —
+    // projected children are created before the panel's own rows, so opening
+    // used to highlight the THIRD row and ArrowDown went to the last.
+    expect(activeLabel()).toBe('Dyn One');
+  });
+
+  it('moves the cursor in the order the rows appear', () => {
+    press('ArrowDown');
+    expect(activeLabel()).toBe('Dyn Two');
+
+    press('ArrowDown');
+    expect(activeLabel()).toBe('Projected A');
+
+    press('ArrowUp');
+    expect(activeLabel()).toBe('Dyn Two');
   });
 });
