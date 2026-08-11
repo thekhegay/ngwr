@@ -474,7 +474,17 @@ export class WrEventCalendar {
   protected onChipPointerDown(event: PointerEvent, chipEvent: WrCalendarEvent, kind: 'move' | 'resize'): void {
     if (!this.canDrag(chipEvent) || event.button !== 0) return;
 
+    // Hide the chip from the hit test for exactly this measurement. The
+    // `--dragging` rule that does it for the rest of the gesture is bound to a
+    // signal that is not set yet, so `elementFromPoint` returned the chip itself
+    // and `closest()` climbed to the cell the chip STARTS in — never the cell
+    // under the pointer. A chip wide or tall enough to reach past its own cell
+    // then jumped by the grab offset instead of moving by the drag distance.
+    const chip = event.currentTarget as HTMLElement;
+    const pointerEvents = chip.style.pointerEvents;
+    chip.style.pointerEvents = 'none';
     const cell = this.cellUnder(event.clientX, event.clientY);
+    chip.style.pointerEvents = pointerEvents;
     if (!cell) return;
 
     // The chip must stop swallowing hit-tests, or `elementFromPoint` reports
@@ -628,6 +638,19 @@ export class WrEventCalendar {
     event.preventDefault();
     this.cursor.set(next);
     this.focusCursor(event.currentTarget as HTMLElement);
+  }
+
+  /**
+   * Keep the roving cursor on the cell that actually has focus.
+   *
+   * The cursor was only ever written by an arrow key, while focus moves for three
+   * other reasons — a click, a Tab onto a chip, Escape out of one — so the next
+   * arrow read a coordinate nobody was standing on and threw focus back to it,
+   * usually the top-left of the grid.
+   */
+  protected onCellFocus(day: number, minutes: number): void {
+    const [d, m] = this.cursor();
+    if (d !== day || m !== minutes) this.cursor.set([day, minutes]);
   }
 
   protected isCursor(day: number, minutes: number): boolean {

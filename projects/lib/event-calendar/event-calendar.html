@@ -105,6 +105,7 @@
             [attr.data-cell-date]="stamp(cell.date)"
             [attr.data-cell-minutes]="-1"
             [attr.data-cell-index]="`${index}:-1`"
+            (focusin)="onCellFocus(index, -1)"
             (click)="onCellClick(cell.date, -1)"
             (keydown)="onGridKeyDown($event)"
           >
@@ -165,6 +166,7 @@
             [attr.data-cell-date]="stamp(cell.date)"
             [attr.data-cell-minutes]="-1"
             [attr.data-cell-index]="`${c}:-1`"
+            (focusin)="onCellFocus(c, -1)"
             (click)="onCellClick(cell.date, -1)"
             (keydown)="onGridKeyDown($event)"
           >
@@ -189,6 +191,7 @@
             [attr.data-cell-date]="stamp(cell.date)"
             [attr.data-cell-minutes]="row.minutes"
             [attr.data-cell-index]="`${c}:${row.minutes}`"
+            (focusin)="onCellFocus(c, row.minutes)"
             (click)="onCellClick(cell.date, row.minutes)"
             (keydown)="onGridKeyDown($event)"
           >

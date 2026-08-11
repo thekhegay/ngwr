@@ -87,6 +87,98 @@ describe('WrEventCalendar', () => {
 
   afterEach(() => fixture.destroy());
 
+  describe('dragging a chip', () => {
+    /**
+     * jsdom hit-tests nothing — `elementFromPoint` is null for every coordinate —
+     * so the hit test is stubbed, and stubbed HONESTLY: the stub returns whatever
+     * sits at the coordinate, and returns the CHIP when the chip is still
+     * hit-testable, which is precisely the behaviour that made the origin wrong.
+     */
+    const dragChip = (title: string, grabOver: HTMLElement, dropOver: HTMLElement): void => {
+      const chip = chipFor(title)!;
+      const at = new Map<number, HTMLElement>([
+        [10, grabOver],
+        [20, dropOver],
+      ]);
+      // jsdom does not implement `elementFromPoint` AT ALL — it is undefined here,
+      // not merely null-returning — so the property is installed and removed.
+      const original = Object.getOwnPropertyDescriptor(Document.prototype, 'elementFromPoint');
+      document.elementFromPoint = (x: number): Element | null => {
+        const cell = at.get(x) ?? null;
+        // While the chip can take a hit test, it is what the browser reports.
+        if (chip.style.pointerEvents !== 'none' && x === 10) return chip;
+        return cell;
+      };
+
+      const down = new Event('pointerdown', { bubbles: true, cancelable: true });
+      Object.assign(down, { clientX: 10, clientY: 0, button: 0, isPrimary: true, pointerId: 1 });
+      chip.dispatchEvent(down);
+      fixture.detectChanges();
+
+      const up = new Event('pointerup', { bubbles: true, cancelable: true });
+      Object.assign(up, { clientX: 20, clientY: 0, button: 0, isPrimary: true, pointerId: 1 });
+      chip.dispatchEvent(up);
+      fixture.detectChanges();
+
+      if (original) Object.defineProperty(document, 'elementFromPoint', original);
+      else delete (document as Partial<Document>).elementFromPoint;
+    };
+
+    it('measures the grab from the cell under the pointer, not the chip own cell', () => {
+      // A chip reaches past the cell it starts in (a band spans days with a
+      // `calc()` width). Reading the origin THROUGH the chip always returned its
+      // starting cell, so the drop moved the event by the grab offset instead of
+      // by the distance dragged.
+      setView('week');
+      const dayCells = cells().filter(c => c.getAttribute('data-cell-date'));
+      const grab = dayCells[1];
+      const drop = dayCells[2];
+
+      dragChip('Standup', grab, drop);
+
+      const change = fixture.componentInstance.changed();
+      expect(change).not.toBeNull();
+      const grabbedOn = Number(grab.getAttribute('data-cell-date'));
+      const droppedOn = Number(drop.getAttribute('data-cell-date'));
+      const moved = change!.start.getTime() - AT(14, 9).getTime();
+
+      // One cell of travel, whatever the chip happened to start on.
+      expect(moved).toBe(droppedOn - grabbedOn);
+    });
+  });
+
+  describe('the roving cursor', () => {
+    const cellAt = (index: number): HTMLElement => cells()[index];
+    const arrow = (key: string, from: HTMLElement): void => {
+      from.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+    };
+
+    it('follows the cell that takes focus, so the next arrow starts from there', () => {
+      // The cursor was written by arrow keys ONLY, while focus also moves on a
+      // click, a Tab onto a chip and Escape out of one — so the first arrow after
+      // any of those threw focus back to wherever the cursor had been left,
+      // usually the top-left of the grid.
+      const target = cellAt(10);
+      target.focus();
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(target);
+
+      arrow('ArrowRight', target);
+
+      expect(document.activeElement).toBe(cellAt(11));
+    });
+
+    it('hands the single tab stop to the focused cell', () => {
+      const target = cellAt(8);
+      target.focus();
+      fixture.detectChanges();
+
+      const stops = cells().filter(c => c.getAttribute('tabindex') === '0');
+      expect(stops).toEqual([target]);
+    });
+  });
+
   describe('the weekday headings', () => {
     // `getDayOfWeekNames()` is documented as "Names ordered from
     // `getFirstDayOfWeek()` onwards" — already rotated by every adapter. The month
