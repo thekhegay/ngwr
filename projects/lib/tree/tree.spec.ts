@@ -195,6 +195,184 @@ describe('WrTree', () => {
   });
 });
 
+@Component({
+  imports: [WrTree],
+  template: `
+    <wr-tree
+      openOn="overlay"
+      [nodes]="nodes()"
+      [defaultExpandAll]="true"
+      [(expanded)]="expanded"
+      placeholder="Pick a file"
+    />
+  `,
+})
+class ExpandAllHost {
+  readonly nodes = signal(NODES);
+  readonly expanded = signal<readonly string[]>([]);
+}
+
+describe('WrTree row semantics', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const rows = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="treeitem"]'),
+  ];
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.expanded.set(['src']);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('tells each row where it sits, in the plain shape as well as the virtual one', () => {
+    // The rendered list is flat in both shapes — there is no `role="group"` — so the
+    // set a row belongs to only exists in these two attributes. They used to be
+    // gated behind `virtualScroll`, which made the same tree announce positions
+    // with windowing on and nothing with it off.
+    // Counted within the SIBLING GROUP, not the flat list — `app` is the 1st of
+    // `src`'s 2 children even though it is the 2nd row on screen. That is what
+    // ARIA asks for, and it is the whole reason the attributes are needed when
+    // the DOM cannot express the nesting.
+    const all = rows();
+    expect(all.map(r => r.textContent.trim().split('\n')[0])).toHaveLength(5);
+    expect(all.map(r => r.getAttribute('aria-posinset'))).toEqual(['1', '1', '2', '2', '3']);
+    expect(all.map(r => r.getAttribute('aria-setsize'))).toEqual(['3', '2', '2', '3', '3']);
+  });
+
+  it('still reports depth alongside it', () => {
+    expect(rows()[0].getAttribute('aria-level')).toBe('1');
+    expect(rows()[1].getAttribute('aria-level')).toBe('2');
+  });
+});
+
+describe('WrTree keyboard cursor', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const rows = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="treeitem"]')];
+  const rowFor = (label: string): HTMLElement => rows().find(r => r.textContent.includes(label))!;
+  const tabbable = (): HTMLElement[] => rows().filter(r => r.getAttribute('tabindex') === '0');
+  const toggleIn = (row: HTMLElement): void => {
+    row.querySelector<HTMLButtonElement>('.wr-tree__toggle')!.click();
+    fixture.detectChanges();
+  };
+  const press = (key: string): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    root().querySelector('[role="tree"]')!.dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.expanded.set(['src', 'app']);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps exactly one tab stop when the list shrinks under the cursor', () => {
+    // The cursor is a raw index that only grew. Collapsing a branch ABOVE it left
+    // it past the end of the list, and since the tab stop is handed out by
+    // identity, the tree ended up with none at all — no way back in with Tab.
+    rowFor('README.md').click();
+    fixture.detectChanges();
+    expect(tabbable().length).toBe(1);
+
+    toggleIn(rowFor('src'));
+
+    expect(rows().length).toBe(3);
+    expect(tabbable().length).toBe(1);
+  });
+
+  it('still answers the arrow keys after that', () => {
+    // `onKeydown` bails when the row under the cursor does not exist, so a stale
+    // index made every key a no-op — silently, since nothing moves either way.
+    rowFor('README.md').click();
+    fixture.detectChanges();
+    toggleIn(rowFor('src'));
+
+    expect(press('ArrowDown').defaultPrevented).toBe(true);
+    expect(press('ArrowUp').defaultPrevented).toBe(true);
+  });
+});
+
+describe('WrTree with defaultExpandAll', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ExpandAllHost>>;
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="combobox"]')!;
+  const rows = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="treeitem"]')];
+  const toggleIn = (row: HTMLElement): void => {
+    row.querySelector<HTMLButtonElement>('.wr-tree__toggle')!.click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(ExpandAllHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('opens the whole tree on the first open', () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.expanded()).toEqual(['src', 'app']);
+    expect(rows().length).toBeGreaterThan(3);
+  });
+
+  it('can be collapsed all the way back, by hand', () => {
+    // The effect read `expanded()` inside its own guard, so it re-ran the moment
+    // the last branch closed and expanded everything again: the tree could be
+    // collapsed one branch at a time but never fully, and the input's own doc
+    // scopes it to "first open".
+    trigger().click();
+    fixture.detectChanges();
+
+    const branch = (id: string): HTMLElement => rows().find(r => r.textContent.includes(id))!;
+    toggleIn(branch('app'));
+    expect(fixture.componentInstance.expanded()).toEqual(['src']);
+
+    toggleIn(branch('src'));
+    expect(fixture.componentInstance.expanded()).toEqual([]);
+  });
+
+  it('does not re-inflate a collapse the host writes', () => {
+    trigger().click();
+    fixture.detectChanges();
+
+    fixture.componentInstance.expanded.set([]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.expanded()).toEqual([]);
+  });
+
+  it('expands again the next time it opens', () => {
+    trigger().click();
+    fixture.detectChanges();
+    fixture.componentInstance.expanded.set([]);
+    fixture.detectChanges();
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.expanded()).toEqual(['src', 'app']);
+  });
+});
+
 describe('WrTree in overlay mode', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<OverlayHost>>;
 

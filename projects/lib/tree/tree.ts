@@ -212,6 +212,20 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Currently focused row's index in the flattened visible list. */
   protected readonly focusedIndex = signal(0);
 
+  /**
+   * The cursor as the DOM sees it, clamped to the list that exists RIGHT NOW.
+   *
+   * The raw index is only ever written when a row is focused, and nothing shrank
+   * it when the list did: collapsing a branch above the cursor left the index
+   * past the end, which gave the tree zero rows with `tabindex="0"` (no way back
+   * in with Tab) and made every arrow key a no-op, because `onKeydown` bails when
+   * `flat[i]` is undefined.
+   */
+  protected readonly cursorIndex = computed(() => {
+    const last = Math.max(0, this.flat().length - 1);
+    return Math.min(this.focusedIndex(), last);
+  });
+
   /** Resolved ARIA labels — resolved once at construction, so a runtime locale switch needs a re-create. */
   protected readonly clearLabel = readI18nText('tree.clearSelection', 'Clear selection');
   protected readonly expandLabel = readI18nText('tree.expand', 'Expand');
@@ -368,7 +382,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    */
   protected readonly activeRowId = computed(() => {
     if (!this.virtualized()) return null;
-    const i = this.focusedIndex();
+    const i = this.cursorIndex();
     const { start, end } = this.virtualWindow();
     return i >= start && i < end ? this.rowId(i) : null;
   });
@@ -394,16 +408,27 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     }
   }
 
+  /** Whether this OPEN has already auto-expanded; reset when the panel closes. */
+  private didExpandAll = false;
+
   constructor() {
     // Drive the overlay open/close in response to the `open` signal.
     effect(() => {
       if (!this.isOverlay()) return;
       if (this.open()) {
         this.openOverlay();
-        if (this.defaultExpandAll() && this.expanded().length === 0) {
-          this.expanded.set(this.collectExpandableIds(this.nodes()));
+        // Once per OPEN, which is what the input documents. Reading `expanded()`
+        // as part of the guard made it a dependency of this effect, so closing
+        // the last branch re-ran it and inflated the tree again — collapsible one
+        // branch at a time, never all the way.
+        if (this.defaultExpandAll() && !this.didExpandAll) {
+          this.didExpandAll = true;
+          untracked(() => {
+            if (this.expanded().length === 0) this.expanded.set(this.collectExpandableIds(this.nodes()));
+          });
         }
       } else {
+        this.didExpandAll = false;
         this.closeOverlay();
       }
     });
@@ -509,7 +534,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   protected onKeydown(event: KeyboardEvent): void {
     if (this.disabled()) return;
     const flat = this.flat();
-    const i = this.focusedIndex();
+    const i = this.cursorIndex();
     const current = flat[i];
     if (!current) return;
 
@@ -720,7 +745,14 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
+    // Hand the focus back before the panel it lives in disappears. The keyboard
+    // path in virtual mode focuses the list itself, so closing left the document
+    // focused on `<body>` and the next Tab started from the top of the page —
+    // `wr-dropdown` returns focus to its own trigger for the same reason.
+    const active = this.host.nativeElement.ownerDocument.activeElement;
+    const inPanel = active instanceof Node && this.overlayRef.overlayElement.contains(active);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (inPanel) this.host.nativeElement.querySelector<HTMLElement>('.wr-tree__trigger')?.focus();
   }
 }

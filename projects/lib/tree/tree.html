@@ -127,6 +127,10 @@
     (keydown)="onKeydown($event)"
   >
     @if (virtualized() && virtualWindow().padTop > 0) {
+      <!-- `aria-setsize` / `aria-posinset` in BOTH shapes: the list is flat with no
+           `role="group"` either way, so the set a row belongs to is never expressed
+           by the DOM. Gated behind the virtual flag, the same tree announced a
+           position with windowing on and nothing with it off. -->
       <li
         class="wr-tree__spacer"
         role="presentation"
@@ -143,16 +147,16 @@
         role="treeitem"
         [attr.id]="virtualized() ? rowId(entry.index) : null"
         [class.wr-tree__row--selected]="selectedSet().has(entry.node.id)"
-        [class.wr-tree__row--active]="virtualized() && entry.index === focusedIndex()"
+        [class.wr-tree__row--active]="virtualized() && entry.index === cursorIndex()"
         [class.wr-tree__row--disabled]="entry.node.disabled"
         [attr.aria-level]="entry.depth + 1"
-        [attr.aria-setsize]="virtualized() ? entry.setsize : null"
-        [attr.aria-posinset]="virtualized() ? entry.posinset : null"
+        [attr.aria-setsize]="entry.setsize"
+        [attr.aria-posinset]="entry.posinset"
         [attr.aria-expanded]="entry.hasChildren ? expandedSet().has(entry.node.id) : null"
         [attr.aria-selected]="selectionMode() === 'none' ? null : selectedSet().has(entry.node.id)"
         [attr.aria-disabled]="entry.node.disabled || disabled() || null"
         [attr.data-tree-index]="entry.index"
-        [attr.tabindex]="virtualized() ? null : entry.index === focusedIndex() ? 0 : -1"
+        [attr.tabindex]="virtualized() ? null : entry.index === cursorIndex() ? 0 : -1"
         [style.--wr-tree-depth]="entry.depth"
         (click)="onRowClick(entry, $event)"
       >
