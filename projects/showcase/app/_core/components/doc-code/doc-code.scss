@@ -75,6 +75,13 @@
   overflow-x: auto;
   font-size: var(--ngwr-doc-code-font-size);
   line-height: var(--ngwr-doc-code-line-height);
+  // Source code reads left-to-right whatever the surrounding UI does. Without
+  // this the RTL toggle mirrors the snippets too, and a line like
+  // `import { WrSlider } from 'ngwr/slider';` renders with its semicolon at the
+  // start — bidi reordering applied to something that is not prose.
+  // rtl-ok: a code block is LTR by definition, not by reading order
+  direction: ltr;
+  text-align: left;
 }
 
 // Shiki ships both `github-light-high-contrast` and `github-dark-high-contrast`
