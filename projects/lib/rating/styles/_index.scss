@@ -47,6 +47,16 @@
     // `--wr-rating-fill` is set per-slot from the component (0..1).
     clip-path: inset(0 calc((1 - var(--wr-rating-fill, 0)) * 100%) 0 0);
     transition: clip-path var(--wr-transition-base);
+
+    // `inset()` names physical sides and has no logical form, so the trimmed edge
+    // has to be moved by hand. The row is `inline-flex`, so under `dir="rtl"` it
+    // is mirrored and a star fills from its INLINE-start edge — the right one.
+    // Left alone, a half star paints the half an RTL reader reaches LAST, and
+    // since the component already commits the correct value there, the picture
+    // would be the only thing still inverted.
+    [dir='rtl'] & {
+      clip-path: inset(0 0 0 calc((1 - var(--wr-rating-fill, 0)) * 100%));
+    }
   }
 
   // Sizes — scale the icon glyph + the gap between slots.

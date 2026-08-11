@@ -1,6 +1,9 @@
+import { Directionality } from '@angular/cdk/bidi';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { WrRating } from 'ngwr/rating';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -51,6 +54,26 @@ describe('WrRatingHarness', () => {
     };
     const stars = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-rating__slot');
     stars.forEach(star => vi.spyOn(star, 'getBoundingClientRect').mockReturnValue(box));
+  };
+
+  /**
+   * Rebuild the fixture as a right-to-left app.
+   *
+   * Both halves are needed and they answer different questions: the component
+   * injects `Directionality`, while the harness reads the COMPUTED `direction` —
+   * which comes from the `dir` attribute, so a provider alone would leave the
+   * harness aiming the LTR way at a mirrored row.
+   */
+  const rebuildRtl = (): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<'ltr' | 'rtl'>() } }],
+    });
+    fixture = TestBed.createComponent(Host);
+    (fixture.nativeElement as HTMLElement).setAttribute('dir', 'rtl');
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+    layOutStars();
   };
 
   beforeEach(() => {
@@ -357,5 +380,39 @@ describe('WrRatingHarness', () => {
     await fifth.click();
 
     expect(await locked.getValue()).toBe(1);
+  });
+
+  it('picks the same star under dir="rtl", where the row is mirrored', async () => {
+    // `click()` aims at the star's inline-END edge, and under `dir="rtl"` that is
+    // the PHYSICAL left one — the component measures the pointer from the right.
+    // Aimed at the physical right edge regardless, this reads ratio 0 and commits
+    // 2, one star fewer, which is the kind of off-by-one a spec blames on the
+    // component. Same star, same call, same answer in both directions.
+    rebuildRtl();
+    const overall = await ratingFor('Overall');
+    const [, , third] = await overall.getItems();
+
+    await third.click();
+
+    expect(fixture.componentInstance.score()).toBe(3);
+  });
+
+  it('sets a value from the keyboard under dir="rtl"', async () => {
+    // The reason `setValue` walks with `ArrowUp` rather than `ArrowRight`: the
+    // inline arrows follow visual order, so `ArrowRight` DECREMENTS a mirrored
+    // row. Driven that way this walk never leaves 0, and the harness reports a
+    // readonly-or-disabled rating — naming a cause that is not the one.
+    rebuildRtl();
+    const overall = await ratingFor('Overall');
+
+    await overall.setValue(3);
+
+    expect(fixture.componentInstance.score()).toBe(3);
+
+    await overall.stepUp();
+    expect(fixture.componentInstance.score()).toBe(4);
+
+    await overall.stepDown();
+    expect(fixture.componentInstance.score()).toBe(3);
   });
 });
