@@ -40,7 +40,20 @@ jobs:
 
       # Runs before the builds: a unit failure is cheaper to read than a broken
       # bundle, and these are pure-logic specs that need nothing built first.
-      - run: pnpm test
+      # `test:coverage` rather than `test` so the suite runs ONCE — instrumenting
+      # it costs a fraction of what a second full run would.
+      - run: pnpm test:coverage
+
+      # Publishes the lcov the step above wrote. `fail_ci_if_error: false` on
+      # purpose: a fork PR gets no secrets, so the upload is skipped there, and a
+      # coverage report that could not be delivered is not a reason to fail a
+      # build that passed. The badge is the signal; CI stays about correctness.
+      - uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # The builder writes per-project, so the path carries the project name.
+          files: ./coverage/lib/lcov.info
+          fail_ci_if_error: false
 
       # Reads the library source only, so it runs before the builds: a docs
       # table that no longer matches the JSDoc it was copied from fails here.
