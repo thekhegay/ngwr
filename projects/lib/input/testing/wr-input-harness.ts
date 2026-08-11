@@ -49,8 +49,13 @@ export class WrInputHarness extends ComponentHarness {
   /**
    * Type a value in, the way a user would as far as the framework can tell.
    *
-   * `input` and `change` are both dispatched: signal-forms controls listen to the
-   * first, classic `[(ngModel)]` to the second.
+   * `input` is the one that carries the value — a signal-forms control listens to
+   * it, and so does Angular's `DefaultValueAccessor`, which is what `[(ngModel)]`
+   * and a reactive form bind through (its listeners are `input`, `blur` and the
+   * two composition events; `change` is NOT among them). `change` is dispatched
+   * after it for the consumer's own `(change)` handler: a browser defers that
+   * event to the commit — blur, or Enter — which a harness write never reaches, so
+   * a spec binding it would otherwise never see it fire.
    */
   async setValue(value: string): Promise<void> {
     const host = await this.host();
