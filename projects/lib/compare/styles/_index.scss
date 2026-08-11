@@ -74,8 +74,7 @@
   }
 
   &--vertical &__divider {
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     height: 2px;
     transform: translateY(-50%);
   }

@@ -93,6 +93,9 @@
       content: '';
       position: absolute;
       top: 50%;
+      // rtl-ok: centred with a physical `translate(-50%, -50%)` below, so the
+      // pair must stay physical — mirroring only this half would shift the
+      // hit area off the control by its own width under `dir="rtl"`.
       left: 50%;
       width: 100%;
       height: 100%;

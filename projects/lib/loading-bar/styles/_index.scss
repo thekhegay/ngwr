@@ -6,8 +6,7 @@
 .wr-loading-bar {
   position: fixed;
   top: 0;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   z-index: var(--wr-z-top, 9999);
   pointer-events: none;
 

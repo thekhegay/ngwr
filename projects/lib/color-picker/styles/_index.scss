@@ -94,6 +94,11 @@
     height: var(--wr-color-picker-thumb-size);
     transform: translate(-50%, -50%);
     top: 0;
+    // The template overrides this with `[style.left.%]`, computed in color-picker.ts
+    // from `(event.clientX - rect.left) / rect.width` — a physical-pixel measurement
+    // against the SV panel and the two gradient tracks, which are painted `to right`
+    // and do not flip.
+    // rtl-ok: canvas geometry in physical pixels, centred by the physical translate
     left: 0;
     border-radius: 50%;
     border: 2px solid #fff;
@@ -194,7 +199,7 @@
   }
 
   &__field--wide input {
-    text-align: left;
+    text-align: start;
     text-transform: lowercase;
     padding: 0.3125rem 0.5rem;
     font-size: var(--wr-text-sm);

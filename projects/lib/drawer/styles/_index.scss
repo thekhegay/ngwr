@@ -85,24 +85,41 @@
 
   // Rounded leading corners
   // The edge facing the viewport interior. Common bottom-sheet styling.
+  //
+  // Every radius below is keyed off `position`, a PHYSICAL input
+  // (`left | right | top | bottom`) naming a viewport edge — a `--left` drawer
+  // is on the physical left in either direction, and the CDK
+  // `GlobalPositionStrategy` that places it calls `.left()` / `.right()`. So the
+  // corners it softens are physical: made logical, a `--left` panel in RTL would
+  // round the edge against the viewport instead of the one facing the content.
   &--rounded.wr-drawer__panel--bottom {
+    // rtl-ok: symmetric pair on the block-start edge — identical under RTL
     border-top-left-radius: var(--wr-border-radius-lg);
+    // rtl-ok: symmetric pair on the block-start edge — identical under RTL
     border-top-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--top {
+    // rtl-ok: symmetric pair on the block-end edge — identical under RTL
     border-bottom-left-radius: var(--wr-border-radius-lg);
+    // rtl-ok: symmetric pair on the block-end edge — identical under RTL
     border-bottom-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--left {
+    // rtl-ok: physical `position` — inner edge of a physically left-anchored panel
     border-top-right-radius: var(--wr-border-radius-lg);
+    // rtl-ok: physical `position` — inner edge of a physically left-anchored panel
     border-bottom-right-radius: var(--wr-border-radius-lg);
   }
   &--rounded.wr-drawer__panel--right {
+    // rtl-ok: physical `position` — inner edge of a physically right-anchored panel
     border-top-left-radius: var(--wr-border-radius-lg);
+    // rtl-ok: physical `position` — inner edge of a physically right-anchored panel
     border-bottom-left-radius: var(--wr-border-radius-lg);
   }
 
-  // Safe-area padding on the trailing edge
+  // Safe-area padding on the trailing edge. `env(safe-area-inset-*)` is defined
+  // per physical screen edge — the notch does not move when the text does — so
+  // the padding that clears it stays physical as well.
   &--safe-area.wr-drawer__panel--bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -110,9 +127,11 @@
     padding-top: env(safe-area-inset-top);
   }
   &--safe-area.wr-drawer__panel--left {
+    // rtl-ok: pairs with the physical `env(safe-area-inset-left)` screen inset
     padding-left: env(safe-area-inset-left);
   }
   &--safe-area.wr-drawer__panel--right {
+    // rtl-ok: pairs with the physical `env(safe-area-inset-right)` screen inset
     padding-right: env(safe-area-inset-right);
   }
 }

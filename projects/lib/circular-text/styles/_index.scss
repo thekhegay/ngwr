@@ -33,10 +33,12 @@
   &__char {
     position: absolute;
     top: 50%;
+    // rtl-ok: centred on the spinner's midpoint by a physical margin-left/-top pair plus a per-char translateY()
     left: 50%;
     display: inline-block;
     // Pre-shift by -50% so the char's centre sits at the spinner centre
     // before the per-char `rotate translateY(-radius)` runs.
+    // rtl-ok: the negative half of the `left: 50%` centring pair, symmetric with `margin-top`
     margin-left: -0.5em;
     margin-top: -0.5em;
     line-height: 1;

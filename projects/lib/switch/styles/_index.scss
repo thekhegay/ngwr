@@ -55,14 +55,16 @@
   &__thumb {
     position: absolute;
     top: 50%;
-    left: calc((var(--wr-switch-track-height) - var(--wr-switch-thumb-size)) / 2);
+    inset-inline-start: calc((var(--wr-switch-track-height) - var(--wr-switch-thumb-size)) / 2);
     transform: translateY(-50%);
     width: var(--wr-switch-thumb-size);
     height: var(--wr-switch-thumb-size);
     background: var(--wr-switch-thumb);
     border-radius: 50%;
     box-shadow: var(--wr-shadow-xs);
-    transition: left var(--wr-transition-base);
+    // Follows the property above — a `transition: left` would no longer name the
+    // property that moves, and the thumb would snap instead of glide.
+    transition: inset-inline-start var(--wr-transition-base);
   }
 
   // Sizes — track, thumb, label font + line-height scale together.
@@ -86,7 +88,7 @@
     --wr-switch-bg: var(--wr-switch-bg-checked);
 
     .wr-switch__thumb {
-      left: calc(
+      inset-inline-start: calc(
         var(--wr-switch-track-width) - var(--wr-switch-thumb-size) -
           ((var(--wr-switch-track-height) - var(--wr-switch-thumb-size)) / 2)
       );

@@ -74,6 +74,12 @@
 }
 
 @keyframes wr-lightbox-shimmer {
+  // `background-position` offsets are physical by spec — there is no logical
+  // form to convert to, so nothing here is being suppressed. The sweep is also
+  // aesthetic choreography rather than layout, and the gradient it rides
+  // (`--loading::after`) is symmetric about its midpoint, so a sweep that keeps
+  // running left-to-right under RTL reads as a highlight, not a broken layout.
+  // rtl-ok: background-position has no logical equivalent — see above
   from {
     background-position: 200% 0;
   }
@@ -108,7 +114,7 @@
     --wr-icon-size: 1.25rem;
     position: absolute;
     top: 1rem;
-    right: 1rem;
+    inset-inline-end: 1rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;

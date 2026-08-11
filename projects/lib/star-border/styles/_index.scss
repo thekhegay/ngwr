@@ -39,11 +39,13 @@
 
     &--bottom {
       bottom: -12px;
+      // rtl-ok: the comet's off-screen start mark — `wr-star-border-bottom` sweeps it by `translate(-100%, 0%)`
       right: -250%;
     }
 
     &--top {
       top: -12px;
+      // rtl-ok: the comet's off-screen start mark — `wr-star-border-top` sweeps it by `translate(100%, 0%)`
       left: -250%;
       animation-name: wr-star-border-top;
     }

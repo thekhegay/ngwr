@@ -53,13 +53,13 @@
   flex: 0 0 auto;
   min-height: 0;
   background: var(--wr-color-surface);
-  border-right: 1px solid var(--wr-color-outline);
+  border-inline-end: 1px solid var(--wr-color-outline);
   transition: width var(--wr-transition-base);
   overflow: hidden;
 
   &--reverse {
     order: 1;
-    border-right: 0;
-    border-left: 1px solid var(--wr-color-outline);
+    border-inline-end: 0;
+    border-inline-start: 1px solid var(--wr-color-outline);
   }
 }

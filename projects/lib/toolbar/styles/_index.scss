@@ -51,7 +51,7 @@
 
     &--end {
       flex: 0 0 auto;
-      margin-left: auto;
+      margin-inline-start: auto;
     }
   }
 
@@ -64,7 +64,7 @@
     &::before {
       content: '';
       position: absolute;
-      left: -0.5rem;
+      inset-inline-start: -0.5rem;
       top: 50%;
       transform: translateY(-50%);
       height: 1.25rem;
@@ -82,7 +82,7 @@
   }
 
   .wr-toolbar--responsive .wr-toolbar__zone--end {
-    margin-left: 0;
+    margin-inline-start: 0;
   }
 
   // The vertical hairline dividers are a horizontal-row affordance — drop them

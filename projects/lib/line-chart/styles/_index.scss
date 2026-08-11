@@ -77,7 +77,13 @@
     display: flex;
     gap: 0.25rem;
     margin-top: 0.25rem;
+    // These two mirror `padding.left` / `padding.right` in line-chart.ts, which are
+    // SVG viewBox coordinates (`[attr.x1]="padding.left"`). SVG geometry is absolute
+    // and does not flip with `direction`, so the label strip has to stay on the same
+    // physical axis as the axis it labels.
+    // rtl-ok: physical SVG gutter — must track the y-axis the TS draws at x=36
     padding-left: 36px;
+    // rtl-ok: the other half of that same physical SVG gutter pair
     padding-right: 16px;
   }
 

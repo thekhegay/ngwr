@@ -71,17 +71,35 @@ $_arrow-placement: (
 );
 
 /// Positions the arrow against `$edge`, offset outwards by `$pull`.
+///
+/// `left` / `right` name the panel edge in LTR terms only. Every side-anchored
+/// and `-start` / `-end` entry in `WR_POPOVER_POSITIONS` is expressed as CDK
+/// `originX: start | end` — plain `top` / `bottom` use `center`, which mirrors
+/// to itself — and CDK resolves start / end against `Directionality`. So under
+/// `dir="rtl"` the panel lands on the mirrored side of the trigger while the
+/// modifier class keeps its requested name (it is set from the `position` input,
+/// and there are no fallback positions to change it), and the arrow has to
+/// travel with the panel. Same for the `-start` / `-end` alignment along a
+/// horizontal edge.
 @mixin _arrow-at($edge, $align, $pull) {
-  #{$edge}: -$pull;
+  @if $edge == left {
+    inset-inline-start: -$pull;
+  } @else if $edge == right {
+    inset-inline-end: -$pull;
+  } @else {
+    #{$edge}: -$pull;
+  }
 
   @if $edge == bottom or $edge == top {
     @if $align == center {
-      left: 50%;
-      margin-left: -$_arrow-half;
+      // Both halves of the centring pair go logical together, so the arrow
+      // stays on the midpoint whichever way the axis runs.
+      inset-inline-start: 50%;
+      margin-inline-start: -$_arrow-half;
     } @else if $align == start {
-      left: $_arrow-inset;
+      inset-inline-start: $_arrow-inset;
     } @else {
-      right: $_arrow-inset;
+      inset-inline-end: $_arrow-inset;
     }
   } @else {
     @if $align == center {
@@ -96,18 +114,30 @@ $_arrow-placement: (
 }
 
 /// The two faces of the rotated square that stay visible outside the panel.
+///
+/// These stay physical, and it is not an oversight. Which two borders paint is
+/// decided by `transform: rotate(45deg)`, not by reading order: the rotation
+/// turns the right border into the down-right face and the bottom one into the
+/// down-left face, so `right + bottom` is what outlines a tip pointing DOWN.
+/// Swapping only the inline half would paint two faces that are tucked under
+/// the panel. A mirrored arrow needs the rotation mirrored as well — more than
+/// a property rewrite, so it is left for the RTL pass that owns the TS side.
 @mixin _arrow-border($edge) {
   @if $edge == bottom {
+    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
     border-right: 1px solid var(--wr-color-outline);
     border-bottom: 1px solid var(--wr-color-outline);
   } @else if $edge == top {
+    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
     border-left: 1px solid var(--wr-color-outline);
     border-top: 1px solid var(--wr-color-outline);
   } @else if $edge == right {
     border-top: 1px solid var(--wr-color-outline);
+    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
     border-right: 1px solid var(--wr-color-outline);
   } @else {
     border-bottom: 1px solid var(--wr-color-outline);
+    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
     border-left: 1px solid var(--wr-color-outline);
   }
 }
@@ -126,6 +156,7 @@ $_arrow-placement: (
     font-family: var(--wr-font-family-base);
     color: var(--wr-color-on-surface);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+    // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
     transform-origin: top left;
 
     &::after {
@@ -196,6 +227,7 @@ $_arrow-placement: (
   line-height: 1rem;
   box-shadow: var(--wr-shadow-overlay);
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+  // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
   transform-origin: top left;
 
   // Arrow — geometry from the shared placement loop at the top of this file.

@@ -30,6 +30,7 @@
   // The drag + resize handlers write those signals on every pointer
   // move; animating each tick makes the window lag behind the cursor.
   animation: wr-window-in var(--wr-window-anim-duration) var(--wr-ease-out, ease-out);
+  // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
   transform-origin: top left;
 
   &--closed,
@@ -66,7 +67,9 @@
     display: flex;
     align-items: center;
     height: var(--wr-window-chrome-height);
-    padding: 0 0.25rem 0 0.75rem;
+    padding-block: 0;
+    // Roomy where the title starts, tight where the action cluster ends.
+    padding-inline: 0.75rem 0.25rem;
     background: var(--wr-window-chrome-bg);
     color: var(--wr-window-chrome-color);
     cursor: grab;
@@ -93,7 +96,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    padding-right: 0.375rem;
+    padding-inline-end: 0.375rem;
     font-size: var(--wr-text-xs);
 
     &:empty {
@@ -147,11 +150,14 @@
     }
     .wr-window__title {
       text-align: center;
-      padding-right: 5rem; // counterbalance the cluster on the left
+      // Counterbalance the cluster, which `row-reverse` parks on the opposite
+      // edge. `row-reverse` resolves against `dir`, so under RTL the dots move
+      // to the other edge and this gutter has to follow them.
+      padding-inline-end: 5rem;
     }
     .wr-window__chrome-actions {
       gap: 0.5rem;
-      padding-left: 0.5rem;
+      padding-inline-start: 0.5rem; // gap from the edge the cluster is parked on
     }
     .wr-window__chrome-action {
       width: 0.875rem; // 14px — bigger than the prior 12px to match native
@@ -242,21 +248,26 @@
 
     &--t {
       top: -2px;
-      left: 0;
-      right: 0;
+      inset-inline: 0;
       height: var(--wr-window-handle-size);
       cursor: ns-resize;
     }
     &--b {
       bottom: -2px;
-      left: 0;
-      right: 0;
+      inset-inline: 0;
       height: var(--wr-window-handle-size);
       cursor: ns-resize;
     }
+
+    // The six side / corner grips stay physical, deliberately. `startResize`
+    // maps `edges.l` to `nextX = startX + dx` against the host's own
+    // `[style.left.px]`, and the `ew-` / `nwse-` cursors name screen
+    // directions — mirror a grip and the west edge would grow the window away
+    // from the pointer while the cursor still promised the opposite.
     &--l {
       top: 0;
       bottom: 0;
+      // rtl-ok: west grip — paired with the physical `left` the resize math writes
       left: -2px;
       width: var(--wr-window-handle-size);
       cursor: ew-resize;
@@ -264,6 +275,7 @@
     &--r {
       top: 0;
       bottom: 0;
+      // rtl-ok: east grip — paired with the physical `left` + width the resize math writes
       right: -2px;
       width: var(--wr-window-handle-size);
       cursor: ew-resize;
@@ -271,6 +283,7 @@
 
     &--tl {
       top: -2px;
+      // rtl-ok: north-west grip — `nwse-resize` names a screen diagonal
       left: -2px;
       width: 14px;
       height: 14px;
@@ -278,6 +291,7 @@
     }
     &--tr {
       top: -2px;
+      // rtl-ok: north-east grip — `nesw-resize` names a screen diagonal
       right: -2px;
       width: 14px;
       height: 14px;
@@ -285,6 +299,7 @@
     }
     &--bl {
       bottom: -2px;
+      // rtl-ok: south-west grip — `nesw-resize` names a screen diagonal
       left: -2px;
       width: 14px;
       height: 14px;
@@ -292,6 +307,7 @@
     }
     &--br {
       bottom: -2px;
+      // rtl-ok: south-east grip — `nwse-resize` names a screen diagonal
       right: -2px;
       width: 14px;
       height: 14px;
@@ -311,6 +327,10 @@
   border-radius: var(--wr-border-radius-base);
   transition: all 0.12s ease;
 
+  // rtl-ok: the `inset` shorthands below paint physical screen regions, not
+  // reading-order ones. `detectSnapTarget` picks `left` from `clientX <= 12`
+  // and `applySnap` answers with `x = 0`, so the hint has to cover the same
+  // half of the viewport the window is about to jump into.
   &[data-target='top'] {
     inset: 0;
   }
@@ -337,6 +357,7 @@
 // Window taskbar — strip of restore tabs for minimized windows.
 .wr-window-taskbar {
   position: fixed;
+  // rtl-ok: centred with a physical translateX, so the pair must stay physical
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--wr-z-window, 1100);
@@ -370,7 +391,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+    padding-block: 0.25rem;
+    // Roomy where the title starts, tight against the trailing close button.
+    padding-inline: 0.75rem 0.5rem;
     border-radius: var(--wr-border-radius-sm);
     color: var(--wr-color-on-surface);
     font-family: inherit;

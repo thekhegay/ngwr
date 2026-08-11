@@ -57,8 +57,8 @@
       height: var(--wr-pagination-cell, 2rem);
       padding-top: 0;
       padding-bottom: 0;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
+      padding-inline-start: 0.5rem;
+      padding-inline-end: 0.5rem;
     }
   }
 
@@ -115,12 +115,12 @@
     border-radius: 0;
   }
   &--square &__nav .wr-btn:first-child {
-    border-top-left-radius: var(--wr-border-radius-sm);
-    border-bottom-left-radius: var(--wr-border-radius-sm);
+    border-start-start-radius: var(--wr-border-radius-sm);
+    border-end-start-radius: var(--wr-border-radius-sm);
   }
   &--square &__nav .wr-btn:last-child {
-    border-top-right-radius: var(--wr-border-radius-sm);
-    border-bottom-right-radius: var(--wr-border-radius-sm);
+    border-start-end-radius: var(--wr-border-radius-sm);
+    border-end-end-radius: var(--wr-border-radius-sm);
   }
 }
 

@@ -72,6 +72,7 @@
 
   &__spin {
     position: absolute;
+    // rtl-ok: centred with a physical translate(-50%, -50%), so the pair must stay physical
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -228,17 +229,17 @@
 
   > .wr-btn {
     border-radius: 0;
-    margin-left: -1px;
+    margin-inline-start: -1px;
 
     &:first-child {
-      margin-left: 0;
-      border-top-left-radius: var(--wr-btn-radius);
-      border-bottom-left-radius: var(--wr-btn-radius);
+      margin-inline-start: 0;
+      border-start-start-radius: var(--wr-btn-radius);
+      border-end-start-radius: var(--wr-btn-radius);
     }
 
     &:last-child {
-      border-top-right-radius: var(--wr-btn-radius);
-      border-bottom-right-radius: var(--wr-btn-radius);
+      border-start-end-radius: var(--wr-btn-radius);
+      border-end-end-radius: var(--wr-btn-radius);
     }
 
     &:hover,
@@ -256,6 +257,10 @@
   // seam there and let the raised border own it cleanly.
   @each $name in theme.$colors {
     > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
+      // `box-shadow` offsets are physical by spec — there is no logical form to
+      // convert to. The seam lands on the wrong edge under RTL; fixing it needs a
+      // `[dir]` rule or a real border, which is beyond a property-level rewrite.
+      // rtl-ok: box-shadow has no logical equivalent — see above
       box-shadow: inset -1px 0 0 rgba(var(--wr-color-black-rgb), 0.2);
 
       &:hover,
