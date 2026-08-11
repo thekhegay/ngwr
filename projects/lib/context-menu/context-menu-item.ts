@@ -174,15 +174,30 @@ export class WrContextMenuItem {
     this.host.nativeElement.click();
   }
 
-  /** @internal Right-arrow opens the submenu. */
+  /**
+   * @internal The arrow that walks INTO a submenu, which is the one pointing the
+   * way the menu cascades: right in LTR, left in RTL. The panes mirror with the
+   * reading direction (the CDK flips their placement), so a fixed ArrowRight
+   * would ask an RTL user to press toward the parent to open the child.
+   */
   protected onArrowRight(event: Event): void {
+    if (this.isRtl()) return this.closeFromKey(event);
+    this.openFromKey(event);
+  }
+
+  /** @internal The arrow that walks back OUT — the mirror of {@link onArrowRight}. */
+  protected onArrowLeft(event: Event): void {
+    if (this.isRtl()) return this.openFromKey(event);
+    this.closeFromKey(event);
+  }
+
+  private openFromKey(event: Event): void {
     if (this.disabled() || !this.submenu()) return;
     event.preventDefault();
     this.scheduleOpen(0);
   }
 
-  /** @internal Left-arrow closes the submenu (if open). */
-  protected onArrowLeft(event: Event): void {
+  private closeFromKey(event: Event): void {
     if (!this.submenu() || !this.submenuOpen) return;
     event.preventDefault();
     this.scheduleClose(0);
