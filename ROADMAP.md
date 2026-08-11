@@ -1468,8 +1468,8 @@ theme is what makes ngwr a library people can bet on.
       **Mode coverage, first haul (2026-08-11)** — the second axis, audited by
       fanning agents over the five biggest components' UNTESTED modes and then
       having a skeptic re-derive each claim from the code. Twenty findings came
-      back. Every one was re-verified here before anything was touched, and the
-      first five are fixed.
+      back, and all twenty are now fixed. Every one was re-verified here before
+      anything was touched, and the first five are fixed.
       `wr-event-calendar` labelled every column with the wrong day outside en-US,
       twice over. `getDayOfWeekNames()` is documented as "names ordered from
       `getFirstDayOfWeek()` onwards" — already rotated — and the month header
@@ -1573,6 +1573,17 @@ theme is what makes ngwr a library people can bet on.
       contents. That one is CSS, so no jsdom spec can see it — verified in
       Chromium against the component's real shape (a group with one visible option
       measures 36px, one with only hidden options measures 0).
+      The twentieth and last: `wr-table`'s column filter counted its ticked boxes
+      with a `computed` over an array whose REFERENCE never changes. The items
+      belong to the consumer — the column definition hands the same array back on
+      every render — and the component flips `selected` on those objects in place,
+      which is the documented contract and also invisible to every signal. So the
+      count memoised zero: the badge never appeared and the trigger never went
+      active however many boxes were ticked, while the checkboxes themselves
+      updated, because a template expression is re-read and a `computed` is not. A
+      version signal bumped on each change is the whole fix, and the rule worth
+      keeping is the general one: if a component mutates data it does not own,
+      nothing downstream of a `computed` will hear about it.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
