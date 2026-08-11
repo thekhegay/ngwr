@@ -54,7 +54,15 @@ import type { WrFuzzyTextDirection } from './interfaces';
  */
 @Component({
   selector: 'wr-fuzzy-text',
-  template: '<canvas #canvas></canvas>',
+  // The text is drawn into the canvas as PIXELS, so without the first span there is
+  // nothing for a screen reader to read at all — the same layer `wr-rotating-text`
+  // and `wr-decrypt-text` carry. Hidden inline rather than through a class: this
+  // entry point ships no stylesheet, and a consumer who imported none would
+  // otherwise see the text twice.
+  template:
+    '<span class="wr-fuzzy-text__sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;' +
+    'clip-path:inset(50%);white-space:nowrap">{{ text() }}</span>' +
+    '<canvas #canvas aria-hidden="true"></canvas>',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-fuzzy-text', style: 'color: var(--wr-color-dark)' },
 })

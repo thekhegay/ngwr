@@ -1451,6 +1451,20 @@ theme is what makes ngwr a library people can bet on.
       Worth repeating after any change to a scroll container or an overflow rule —
       it is a scratch script, not a gate, because 193 pages × 2 themes × the full
       rule set is minutes of browser time and the PR job is already at five.
+      **The canvas cluster (2026-08-11)** — `wr-aurora`, `wr-waves`,
+      `wr-splash-cursor`, `wr-fuzzy-text`, `wr-falling-text`, the last five
+      without specs. jsdom refuses every drawing context, which turned out to be
+      the right question rather than an obstacle: a refused context is a real
+      browser answer (old hardware, a blocklisted driver, a headless run) and each
+      component has to put its canvas up and stop. They all do. The fixes are
+      about what a reader gets instead of the drawing: `wr-fuzzy-text` painted its
+      TEXT into the canvas as pixels with nothing readable anywhere, so a 404
+      headline was an empty element to a screen reader — it now carries the same
+      screen-reader-only layer as `wr-rotating-text`, hidden inline rather than by
+      a class because that entry point ships no stylesheet and a consumer
+      importing none would otherwise see the text twice. The three purely
+      decorative canvases are `aria-hidden` now, matching `wr-confetti` and
+      `wr-click-spark`.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,

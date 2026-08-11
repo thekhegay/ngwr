@@ -144,7 +144,7 @@ interface WavePoint {
  */
 @Component({
   selector: 'wr-waves',
-  template: '<canvas #canvas class="wr-waves__canvas"></canvas>',
+  template: '<canvas #canvas class="wr-waves__canvas" aria-hidden="true"></canvas>',
   styleUrl: './waves.scss',
   encapsulation: ViewEncapsulation.None,
   host: {
