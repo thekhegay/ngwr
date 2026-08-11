@@ -99,6 +99,7 @@ export class WrOption {
           value: this.value(),
           disabled: this.disabled(),
           getLabel: () => this.host.nativeElement.textContent?.trim() ?? '',
+          host: this.host.nativeElement,
         });
         onCleanup(() => unreg());
       });

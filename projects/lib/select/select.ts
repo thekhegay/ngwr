@@ -423,6 +423,33 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Registered options (insertion order). Internal — distinct from the public `[options]` input. */
   private readonly registry = signal<readonly WrSelectOptionRegistration[]>([]);
 
+  /**
+   * The registry in DOM order — the list the keyboard cursor walks.
+   *
+   * `registry` is CREATION order, and projected `<wr-option>` children are created
+   * before the panel renders its own `[options]` rows, so with both in play the
+   * cursor moved in an order the eye could not follow: opening highlighted the
+   * third row on screen and ArrowDown went to the last. Value lookups keep reading
+   * `registry` — they do not care about order — and a registration with no element
+   * keeps its place, since the sort is stable.
+   */
+  protected readonly orderedRegistry = computed<readonly WrSelectOptionRegistration[]>(() => {
+    const list = this.registry();
+    if (list.length < 2) return list;
+    return [...list].sort((a, b) => {
+      if (!a.host || !b.host || a.host === b.host) return 0;
+      const relation = a.host.compareDocumentPosition(b.host);
+      // `compareDocumentPosition` returns a BITMASK — a node can be both
+      // following and contained — so masking is the API's own idiom, not a
+      // cleverness to be rewritten as a comparison.
+      /* eslint-disable no-bitwise -- reading the flags of a DOM bitmask */
+      if (relation & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+      if (relation & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+      /* eslint-enable no-bitwise */
+      return 0;
+    });
+  });
+
   /** Keyboard cursor index into `options`. -1 = none. */
   protected readonly activeIndex = signal(-1);
 
@@ -436,7 +463,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       const { start, end } = this.virtualWindow();
       return idx >= start && idx < end ? this.virtualRowId(idx) : null;
     }
-    const list = this.registry();
+    const list = this.orderedRegistry();
     return idx >= 0 && idx < list.length ? list[idx].id : null;
   });
 
@@ -740,7 +767,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (event.key === 'Enter' && this.freeText() && this.open()) {
       const q = this.searchQuery().trim();
       const idx = this.activeIndex();
-      const list = this.registry();
+      const list = this.orderedRegistry();
       const hasActive = this.virtualActive()
         ? idx >= 0 && idx < this.filteredDynamicOptions().length
         : idx >= 0 && idx < list.length && !list[idx].disabled && !this.isOptionHidden(list[idx].getLabel());
@@ -1130,7 +1157,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
           if (idx >= 0 && idx < list.length) this.selectOption(list[idx]);
           break;
         }
-        const list = this.registry();
+        const list = this.orderedRegistry();
         // Filtered-out options stay registered (they only self-hide via CSS), so
         // the hidden check is load-bearing: without it Enter can commit a row
         // that is not on screen.
@@ -1154,7 +1181,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       this.ensureVisible(this.activeIndex());
       return;
     }
-    const list = this.registry();
+    const list = this.orderedRegistry();
     let selectedIdx = -1;
     if (this.isMulti()) {
       const arr = this.asArray(this.value());
@@ -1176,7 +1203,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       this.ensureVisible(i);
       return;
     }
-    const list = this.registry();
+    const list = this.orderedRegistry();
     if (list.length === 0) return;
     let i = this.activeIndex();
     let attempts = list.length;

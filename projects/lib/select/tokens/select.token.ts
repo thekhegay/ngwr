@@ -17,6 +17,14 @@ export interface WrSelectOptionRegistration {
    * read it at call time once Angular has settled the projected content.
    */
   readonly getLabel: () => string;
+  /**
+   * The option's own element, when it has one. The keyboard cursor walks the
+   * registry, and registration order is CREATION order — projected children are
+   * created before the panel renders its own `[options]` rows — so without this
+   * the cursor moved in a different order from the one on screen. Optional: a
+   * registration that cannot supply an element simply keeps its place.
+   */
+  readonly host?: HTMLElement;
 }
 
 /**

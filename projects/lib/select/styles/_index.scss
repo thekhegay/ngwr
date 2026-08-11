@@ -401,6 +401,14 @@
   flex-direction: column;
   gap: var(--wr-option-gap);
 
+  // A group whose every option is filtered out has nothing left but its heading.
+  // Filtering lives entirely on the option (`.wr-option--hidden`), so without
+  // this the labels of empty groups stayed on screen — with their dividers —
+  // above a "No results" row.
+  &:not(:has(.wr-option:not(.wr-option--hidden))) {
+    display: none;
+  }
+
   &__label {
     padding: 0.5rem 0.625rem 0.25rem;
     color: var(--wr-color-on-surface-muted);
