@@ -1604,17 +1604,31 @@ theme is what makes ngwr a library people can bet on.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-      **First batch shipped:** `ngwr/{button,input,checkbox,switch}/testing`,
-      each its own nested entry point (so a spec import pulls nothing into the
-      app bundle), plus the `/guides/testing` page. Every harness answers what
-      the control DOES rather than how it is built — `isDisabled()` reads both
-      `disabled` and `aria-disabled` because the element form needs both, and
-      `getColor()` matches `WR_COLORS` rather than "the first `wr-btn--*` class",
-      which would answer `icon` as readily as `primary`. `setValue` dispatches
-      `input` AND `change`, or the harness would work for signal-forms consumers
-      and silently not for `[(ngModel)]` ones.
-      **Next:** the overlay components (select, dialog, toast, date-picker),
-      which need `documentRootLoader` and a panel harness per mode.
+      **Shipped so far:** the form controls
+      (`ngwr/{button,input,checkbox,switch}/testing`) and the overlay ones
+      (`ngwr/{select,dialog,toast}/testing`) — seven nested entry points, so a
+      spec import pulls nothing into the app bundle — plus the
+      `/guides/testing` page. Every harness answers what the control DOES rather
+      than how it is built: `isDisabled()` reads both `disabled` and
+      `aria-disabled` because the element form needs both, `getColor()` matches
+      `WR_COLORS` rather than "the first `wr-btn--*` class" (which would answer
+      `icon` as readily as `primary`), and `setValue` dispatches `input` AND
+      `change`, or the harness would work for signal-forms consumers and silently
+      not for `[(ngModel)]` ones.
+      The overlay three are where the design decisions are. A select's options
+      are a template portal in the shared overlay container, NOT descendants of
+      the select — so `WrSelectHarness` reaches them through the document root
+      scoped by the trigger's `aria-controls` id; a query by `.wr-select-panel`
+      answers with whichever select opened first, which a two-select spec now
+      pins. `getOptions()` drops the options a client-side search filtered out
+      (they stay in the DOM so registration order survives a query) and throws
+      while the panel is closed rather than answering `[]`. `WrDialogHarness` is
+      a `ContentContainerComponentHarness`, so a consumer's own harnesses resolve
+      INSIDE one dialog. Toast needed a library change: both actions were
+      `.wr-toast__action`, so `dismiss()` had no stable target — they now carry
+      `--copy` / `--close` modifiers.
+      **Next:** date-picker (calendar panel per mode), dropdown / popover, drawer,
+      and `wr-table`, whose harness is a row / cell tree rather than one class.
 - [x] **A3. a11y CI** (L) — `pnpm check:a11y` runs axe-core over all 211
       prerendered pages and fails CI on any serious or critical violation. The
       seeded baseline is empty: the ten rules it started with are fixed, which

@@ -60,9 +60,37 @@
     <ngwr-doc-code [code]="snippets.overlay" language="typescript" />
 
     <p wrTypography variant="small" tone="medium">
-      Harnesses for the overlay components are the next batch; until they land, query the panel through the document and
-      the <code>.wr-*</code> classes, which are public API and will not be renamed under you.
+      Two loaders, one fixture: <code>loader()</code> for your own template, <code>documentRootLoader()</code> for
+      anything the overlay owns. A harness looked up in the wrong one simply does not find its component, which is why
+      the error you get is "failed to find element" rather than something about overlays.
     </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Driving a select" description="Options live in the panel, not in the select.">
+    <ngwr-doc-code [code]="snippets.select" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>WrSelectHarness</code> itself is found with the normal fixture loader — it is an element in your template.
+      Only its options are in the overlay, and the harness reaches them for you, scoped by the id the trigger publishes
+      as <code>aria-controls</code>. That scoping is not decoration: the overlay container is shared, so a query by
+      class would happily answer with a different select's options.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrSelectHarness" description="`ngwr/select/testing`">
+    <ngwr-doc-api [rows]="selectApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrOptionHarness" description="`ngwr/select/testing`">
+    <ngwr-doc-api [rows]="optionApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDialogHarness" description="`ngwr/dialog/testing`">
+    <ngwr-doc-api [rows]="dialogApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrToastHarness" description="`ngwr/toast/testing`">
+    <ngwr-doc-api [rows]="toastApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="WrButtonHarness" description="`ngwr/button/testing`">
