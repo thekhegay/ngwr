@@ -344,7 +344,13 @@ export class WrTable {
     if (!items) return items;
     const size = this.pageSize();
     if (size <= 0 || this.totalItems() !== null) return items;
-    const start = (this.page() - 1) * size;
+    // Clamped, because `page` is a model the host owns and the data can shrink
+    // under it — a filter or a delete used to leave the table showing an empty
+    // slice with no way back except paging by hand. The pager clamps its own
+    // number; this covers the case where the data drops below one page and the
+    // pager is not even rendered.
+    const lastPage = Math.max(1, Math.ceil(items.length / size));
+    const start = (Math.min(this.page(), lastPage) - 1) * size;
     return items.slice(start, start + size);
   });
 
@@ -708,14 +714,15 @@ export class WrTable {
    * that is every VISIBLE node — a collapsed subtree is not on screen and is not
    * swept in, which keeps the checkbox honest about what it just did.
    */
-  private readonly pageRowKeys = computed<readonly unknown[]>(() => {
-    if (this.treeMode()) {
-      return this.renderRows()
-        .filter((entry): entry is Extract<RenderRow, { kind: 'row' }> => entry.kind === 'row')
-        .map(entry => this.rowKeyOf(entry.row));
-    }
-    return (this.visibleItems() ?? []).map(row => this.rowKeyOf(row));
-  });
+  private readonly pageRowKeys = computed<readonly unknown[]>(() =>
+    // `renderRows()` in EVERY mode, not only tree: it is the list that reaches the
+    // screen. Reading `visibleItems()` outside tree mode swept in the rows of a
+    // COLLAPSED group — invisible rows, silently selected, which is exactly what
+    // the paragraph above promises does not happen.
+    this.renderRows()
+      .filter((entry): entry is Extract<RenderRow, { kind: 'row' }> => entry.kind === 'row')
+      .map(entry => this.rowKeyOf(entry.row))
+  );
 
   protected isRowSelected(row: Record<string, unknown>): boolean {
     return this.selectionSet().has(this.rowKeyOf(row));

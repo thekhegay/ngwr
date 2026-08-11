@@ -41,6 +41,9 @@ const FOREST = [
       [rowSelection]="rowSelection()"
       [groupBy]="groupBy()"
       [childrenKey]="childrenKey()"
+      [pageSize]="pageSize()"
+      [(page)]="page"
+      [(collapsedGroups)]="collapsedGroups"
     />
   `,
 })
@@ -51,6 +54,9 @@ class Host {
   readonly rowSelection = signal<'single' | 'multiple' | null>(null);
   readonly groupBy = signal<string | null>(null);
   readonly childrenKey = signal<string | null>(null);
+  readonly pageSize = signal(0);
+  readonly page = signal(1);
+  readonly collapsedGroups = signal<readonly unknown[]>([]);
 }
 
 /**
@@ -275,6 +281,67 @@ describe('WrTable', () => {
       expect(first).toContain('Ada');
       expect(first).toContain('Linus');
       expect(bodyRows().length).toBeGreaterThan(3);
+    });
+  });
+
+  describe('paging', () => {
+    beforeEach(() => {
+      fixture.componentInstance.items.set(
+        Array.from({ length: 7 }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, role: 'user' }))
+      );
+      fixture.componentInstance.pageSize.set(3);
+      fixture.detectChanges();
+    });
+
+    it('slices the page it was asked for', () => {
+      expect(cellTexts().map(c => c[0])).toEqual(['Row 1', 'Row 2', 'Row 3']);
+
+      fixture.componentInstance.page.set(3);
+      fixture.detectChanges();
+      expect(cellTexts().map(c => c[0])).toEqual(['Row 7']);
+    });
+
+    it('still shows rows when the data shrinks under the current page', () => {
+      // `page` is a model the host owns and a filter can shrink `items` beneath
+      // it. The slice used to run off the end and render nothing at all — an
+      // empty table with no hint that the fix is to page backwards.
+      fixture.componentInstance.page.set(3);
+      fixture.detectChanges();
+
+      fixture.componentInstance.items.set([{ id: 1, name: 'Only', role: 'user' }]);
+      fixture.detectChanges();
+
+      expect(cellTexts().map(c => c[0])).toEqual(['Only']);
+    });
+  });
+
+  describe('select-all scope', () => {
+    beforeEach(() => {
+      fixture.componentInstance.rowSelection.set('multiple');
+      fixture.componentInstance.groupBy.set('role');
+      fixture.detectChanges();
+    });
+
+    it('takes only the rows on screen when a group is collapsed', () => {
+      // The scope is documented as "the rows currently ON SCREEN", and outside
+      // tree mode it read the page slice instead — so a collapsed group's rows
+      // were selected invisibly, and the header box claimed everything.
+      fixture.componentInstance.collapsedGroups.set(['admin']);
+      fixture.detectChanges();
+
+      const header = root().querySelector<HTMLInputElement>('thead input[type="checkbox"]')!;
+      header.click();
+      fixture.detectChanges();
+
+      expect([...fixture.componentInstance.selection()].sort()).toEqual([2]);
+    });
+
+    it('takes them all again once the group is open', () => {
+      const header = root().querySelector<HTMLInputElement>('thead input[type="checkbox"]')!;
+      header.click();
+      fixture.detectChanges();
+
+      expect([...fixture.componentInstance.selection()].sort()).toEqual([1, 2, 3]);
     });
   });
 
