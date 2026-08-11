@@ -1510,6 +1510,19 @@ theme is what makes ngwr a library people can bet on.
       while still swallowing every click meant for the page behind it.
       `wr-dropdown` and `wr-popover` both use the shared `wr-overlay-backdrop`,
       which select's own stylesheet already imports for exactly this.
+      Two more, both about a number nobody clamped. `wr-table` sliced its page
+      with a `page` model the HOST owns, and a filter or a delete can shrink
+      `items` beneath it — the slice ran off the end and the table rendered
+      nothing, with no hint that the way out was to page backwards.
+      `wr-pagination` had the matching half: it pulled the page back when the page
+      SIZE changed through its own control, and never when `total` shrank, so it
+      sat on "page 7" of a two-page set. Both are fixed on their own terms,
+      because they fail separately — when the data drops below one page the pager
+      is not even rendered, so the table has to hold its own slice honest. And the
+      header select-all read the page slice outside tree mode, sweeping in the
+      rows of a COLLAPSED group: invisible rows, silently selected, against the
+      paragraph directly above it promising "the rows currently on screen". It
+      reads the render model in every mode now.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
