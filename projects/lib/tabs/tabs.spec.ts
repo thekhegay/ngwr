@@ -135,6 +135,19 @@ describe('WrTabs', () => {
     expect((disabled as HTMLButtonElement).disabled).toBe(true);
   });
 
+  it('keeps the tab stop off a disabled tab, even when it is the active one', () => {
+    // The roving tabindex follows `active`, and a host is free to point `active` at
+    // a disabled key. Left alone that rendered `<button disabled tabindex="0">` —
+    // a tab stop no Tab press can reach, so the strip had none at all. jsdom
+    // happily focuses a disabled button, which is why only the attribute tells the
+    // truth here.
+    fixture.componentInstance.active.set('three');
+    fixture.detectChanges();
+
+    expect(tabs()[2].getAttribute('tabindex')).toBe('-1');
+    expect(tabs().filter(t => t.getAttribute('tabindex') === '0')).toHaveLength(0);
+  });
+
   it('carries the public BEM classes', () => {
     // These are public API — consumers style against them.
     expect(root().querySelector('.wr-tabs')).toBeTruthy();
