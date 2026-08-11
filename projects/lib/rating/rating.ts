@@ -5,8 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, effect, input, model, output, signal } from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useI18nText } from 'ngwr/i18n';
@@ -23,6 +24,10 @@ import { clamp } from 'ngwr/utils';
  *
  * Keyboard: `←` / `→` bump by `step`, `Home` / `End` jump to 0 / max.
  * Clicking the current value clears it (toggle off).
+ *
+ * The stars sit on the inline axis, so under `dir="rtl"` the row is mirrored and
+ * both halves of the input mirror with it: `→` walks toward the low end, and a
+ * click is measured from the star's inline-start (right) edge.
  *
  * @example
  * ```html
@@ -88,6 +93,17 @@ export class WrRating implements FormValueControl<number | null> {
 
   protected readonly slots = computed(() => Array.from({ length: this.count() }, (_, i) => i));
 
+  /**
+   * Reading direction, for the two places it changes the answer: the arrows and
+   * the pointer ratio inside a star.
+   *
+   * `optional` because a consumer who never set a direction should not have to
+   * provide anything — `Directionality` is root-provided, so this only resolves
+   * to `null` in a bare `TestBed`, where LTR is the right assumption. Read per
+   * interaction rather than cached, so a runtime flip needs no subscription.
+   */
+  private readonly directionality = inject(Directionality, { optional: true });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-rating'];
     const size = this.size();
@@ -138,13 +154,23 @@ export class WrRating implements FormValueControl<number | null> {
     const max = this.count();
     const step = this.step();
     const current = this.value() ?? 0;
+    // Arrows follow VISUAL order (WAI-ARIA APG). The row lays its stars along the
+    // inline axis, so under `dir="rtl"` the first star is the RIGHTMOST one and
+    // `→` walks down the scale. Up / Down are the block axis and never flip;
+    // Home / End mean first / last, a semantic position rather than a physical
+    // one, so they don't either.
+    const inline = this.isRtl() ? -step : step;
     let next: number | null;
     switch (event.key) {
       case 'ArrowRight':
+        next = clamp(current + inline, 0, max);
+        break;
       case 'ArrowUp':
         next = clamp(current + step, 0, max);
         break;
       case 'ArrowLeft':
+        next = clamp(current - inline, 0, max);
+        break;
       case 'ArrowDown':
         next = clamp(current - step, 0, max);
         break;
@@ -171,11 +197,27 @@ export class WrRating implements FormValueControl<number | null> {
 
   // Internals
 
+  /** Whether the row reads right-to-left. */
+  private isRtl(): boolean {
+    return this.directionality?.value === 'rtl';
+  }
+
+  /**
+   * How far into the star the pointer sits, `0` to `1`, measured from its
+   * INLINE-start edge — the left one in LTR, the right one in RTL, where the row
+   * is mirrored. Taken from `rect.left` alone it reads 1 exactly where an RTL
+   * user sees the start of the star, which inverts every half step.
+   */
+  private inlineRatio(clientX: number, rect: DOMRect): number {
+    const offset = this.isRtl() ? rect.right - clientX : clientX - rect.left;
+    return clamp(offset / rect.width, 0, 1);
+  }
+
   /** Convert a mouse position over slot `index` to a snapped value. */
   private computeValue(event: MouseEvent, index: number): number {
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
-    const ratio = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    const ratio = this.inlineRatio(event.clientX, rect);
     const raw = index + ratio;
     const step = this.step();
     const snapped = Math.ceil(raw / step) * step;

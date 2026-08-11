@@ -1,5 +1,8 @@
+import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -83,6 +86,23 @@ describe('WrKnob', () => {
     fixture.detectChanges();
   };
 
+  /**
+   * Rebuild the fixture inside an app with a reading direction — the
+   * `Directionality` an ngwr component injects, plus the document's own `dir`,
+   * so the pair of specs at the bottom hold whichever of the two anyone later
+   * reaches for.
+   */
+  const withDir = (direction: 'ltr' | 'rtl'): void => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<'ltr' | 'rtl'>() } }],
+    });
+    document.documentElement.dir = direction;
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  };
+
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({});
@@ -90,7 +110,10 @@ describe('WrKnob', () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => fixture.destroy());
+  afterEach(() => {
+    document.documentElement.removeAttribute('dir');
+    fixture.destroy();
+  });
 
   it('presents itself as a slider with a range and a position', () => {
     expect(surface().getAttribute('aria-valuemin')).toBe('0');
@@ -362,5 +385,54 @@ describe('WrKnob', () => {
     fixture.detectChanges();
     drag(0, -100);
     expect(value()).toBe(0);
+  });
+
+  it('turns the same way on ArrowRight under dir="rtl" as under ltr', () => {
+    // A dial is not reading order. The arc is SVG geometry in a fixed viewBox and
+    // `dir` mirrors no part of it: the minimum stays at 7 o'clock and the maximum
+    // at 5 o'clock, so the value still rises toward the visual RIGHT. Arrows
+    // follow visual order — which here means NOT flipping them, or `→` would
+    // drive the handle away from the side it visibly travels toward. Hence a twin
+    // that asserts the same outcome rather than the opposite one: that agreement
+    // is the finding.
+    // Start mid-range, deliberately. From the default 0 — which IS `min` — a
+    // flipped implementation decrements into the clamp and comes back up to the
+    // same 1 the correct one reaches, so the walk agrees for the wrong reason and
+    // the spec passes over an inverted dial. 50 is clear of both stops, so every
+    // press is visible in the answer.
+    const walk = (): number => {
+      fixture.componentInstance.volume.set(50);
+      fixture.detectChanges();
+      press('ArrowRight');
+      press('ArrowRight');
+      press('ArrowLeft');
+      return value();
+    };
+
+    withDir('ltr');
+    const ltr = walk();
+
+    withDir('rtl');
+
+    expect([ltr, walk()]).toEqual([51, 51]);
+  });
+
+  it('maps a drag to the same angle under dir="rtl" as under ltr', () => {
+    // The pointer maths is an angle about the dial's centre, not a ratio along
+    // the inline axis, so there is no inline-start edge to measure from and
+    // nothing to mirror.
+    //
+    // Dragged OFF the vertical axis, deliberately: straight up is dx = 0, the one
+    // point where mirroring x changes nothing, so `drag(0, -100)` reads 50 in both
+    // directions whether or not the dial mirrors. Up-and-right is 45° into the
+    // sweep — 67 upright, 33 mirrored — so the agreement below is evidence.
+    withDir('ltr');
+    drag(100, -100);
+    const ltr = value();
+
+    withDir('rtl');
+    drag(100, -100);
+
+    expect([ltr, value()]).toEqual([67, 67]);
   });
 });

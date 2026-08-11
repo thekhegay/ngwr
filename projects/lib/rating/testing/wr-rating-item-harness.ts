@@ -103,14 +103,14 @@ export class WrRatingItemHarness extends ComponentHarness {
    * component's toggle-off, not an accident of this harness.
    *
    * Needs real layout: the component snaps the value from where the pointer sits
-   * inside the star, so this aims at the star's trailing edge. In jsdom every
+   * inside the star, so this aims at the star's inline-END edge. In jsdom every
    * element is 0×0 and a pointer position over one cannot mean anything — this
    * throws rather than committing the `NaN` such a click computes. Reach for
    * `WrRatingHarness.setValue()` there, which drives the keyboard.
    */
   async click(): Promise<void> {
     const { width, height } = await this.box();
-    await (await this.host()).click(width, height / 2);
+    await (await this.host()).click(await this.inlineEndX(width), height / 2);
   }
 
   /**
@@ -136,7 +136,24 @@ export class WrRatingItemHarness extends ComponentHarness {
    */
   async hover(): Promise<void> {
     const { left, top, width, height } = await this.box();
-    await (await this.host()).dispatchEvent('mousemove', { clientX: left + width, clientY: top + height / 2 });
+    const clientX = left + (await this.inlineEndX(width));
+    await (await this.host()).dispatchEvent('mousemove', { clientX, clientY: top + height / 2 });
+  }
+
+  /**
+   * The x, relative to the star's own box, that lands on its inline-END edge —
+   * the far side of the star, where the rating reads a whole one.
+   *
+   * The component measures the pointer from the star's inline-START edge, which
+   * is the right one once `dir="rtl"` mirrors the row; aiming at the physical
+   * right edge there reads ratio 0 and picks one star FEWER. So the side is asked
+   * for rather than assumed: `direction` is a computed style, which the harness
+   * can read in every environment — jsdom included, where it inherits from an
+   * ancestor `dir` attribute like any other browser.
+   */
+  private async inlineEndX(width: number): Promise<number> {
+    const direction = await (await this.host()).getCssValue('direction');
+    return direction === 'rtl' ? 0 : width;
   }
 
   /** The star's box, or a failure that names the reason it has none. */

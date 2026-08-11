@@ -1,5 +1,8 @@
+import { Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -45,6 +48,40 @@ describe('WrRating', () => {
     slider().dispatchEvent(event);
     fixture.detectChanges();
     return event;
+  };
+
+  /**
+   * Rebuild the fixture under a reading direction.
+   *
+   * `Directionality` reads the document once, at construction, so a fake is the
+   * honest way to say "this app is RTL" — and the component injects it
+   * `optional`, which is why every other spec in this file needs no provider at
+   * all.
+   */
+  const withDir = (direction: 'ltr' | 'rtl'): void => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<'ltr' | 'rtl'>() } }],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  };
+
+  /** A star's box — jsdom computes none, and a pointer position needs one. */
+  const SLOT_RECT = { x: 100, y: 0, left: 100, right: 120, top: 0, bottom: 20, width: 20, height: 20 };
+
+  /**
+   * Click a star at `ratio` across its box, measured from the PHYSICAL left edge —
+   * the same screen point in either direction, which is the whole point of the
+   * pair of specs below.
+   */
+  const clickSlot = (index: number, ratio: number): void => {
+    const slot = root().querySelectorAll<HTMLElement>('.wr-rating__slot')[index];
+    slot.getBoundingClientRect = (): DOMRect => ({ ...SLOT_RECT, toJSON: () => SLOT_RECT });
+    const clientX = SLOT_RECT.left + ratio * SLOT_RECT.width;
+    slot.dispatchEvent(new MouseEvent('click', { clientX, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
   };
 
   beforeEach(() => {
@@ -172,6 +209,76 @@ describe('WrRating', () => {
     // user on a star.
     const event = press('Tab');
     expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('steps up on ArrowRight in LTR, where the first star is on the left', () => {
+    withDir('ltr');
+
+    press('ArrowRight');
+    expect(score()).toBe(1);
+
+    press('ArrowLeft');
+    expect(score()).toBe(0);
+  });
+
+  it('steps DOWN on ArrowRight under dir="rtl", where the row is mirrored', () => {
+    // Arrows follow VISUAL order (WAI-ARIA APG). The stars lie on the inline
+    // axis, so in RTL the first one is the RIGHTMOST — and `→` walks toward it,
+    // which is toward zero. The twin above is what makes this assertion mean
+    // "mirrors" rather than "always goes left".
+    withDir('rtl');
+    fixture.componentInstance.score.set(3);
+    fixture.detectChanges();
+
+    press('ArrowRight');
+    expect(score()).toBe(2);
+
+    press('ArrowLeft');
+    expect(score()).toBe(3);
+  });
+
+  it('does not flip the block axis or the ends', () => {
+    // `dir` governs the INLINE axis only. Up / Down are the block axis, and
+    // Home / End mean first / last — a semantic position, not a physical one —
+    // so both directions must produce exactly the same walk.
+    const walk = (): (number | null)[] => {
+      const seen: (number | null)[] = [];
+      for (const key of ['ArrowUp', 'ArrowDown', 'End', 'Home']) {
+        press(key);
+        seen.push(score());
+      }
+      return seen;
+    };
+
+    withDir('ltr');
+    const ltr = walk();
+    expect(ltr).toEqual([1, 0, 5, 0]);
+
+    withDir('rtl');
+    expect(walk()).toEqual(ltr);
+  });
+
+  it('reads a click from the star own left edge in LTR', () => {
+    withDir('ltr');
+    fixture.componentInstance.step.set(0.5);
+    fixture.detectChanges();
+
+    // A quarter of the way into star three is its leading half: two and a half.
+    clickSlot(2, 0.25);
+    expect(score()).toBe(2.5);
+  });
+
+  it('reads a click from the star own right edge under dir="rtl"', () => {
+    withDir('rtl');
+    fixture.componentInstance.step.set(0.5);
+    fixture.detectChanges();
+
+    // The same screen point, on a mirrored row: a quarter in from the left is
+    // three quarters into a star that starts on the right, so it is the star's
+    // trailing half — three, where LTR reads two and a half. Measured from
+    // `rect.left` alone, an RTL half star is inverted the whole way across.
+    clickSlot(2, 0.25);
+    expect(score()).toBe(3);
   });
 
   it('carries a name, defaulting to the catalog string', () => {

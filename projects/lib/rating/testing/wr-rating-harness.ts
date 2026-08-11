@@ -156,11 +156,16 @@ export class WrRatingHarness extends ComponentHarness {
   /**
    * Set the rating, from the keyboard.
    *
-   * `Home` first, then one `ArrowRight` per step — the step is not in the DOM, so
+   * `Home` first, then one `ArrowUp` per step — the step is not in the DOM, so
    * the only honest way to reach a value is to walk to it and watch where the
    * rating lands. (The top of the range takes `End` instead of walking there.) A
    * host counting value changes therefore sees the intermediate ones, which is what
    * a keyboard user produces too.
+   *
+   * The BLOCK-axis arrow, deliberately: the stars lie on the inline axis, so
+   * `ArrowRight` raises the value in LTR and lowers it under `dir="rtl"`, where
+   * the arrows follow visual order. `ArrowUp` means "more" in both, so a spec
+   * written against this harness reads the same either way.
    *
    * Throws rather than settling for a near miss: on a value outside `[0, max]`, on
    * one the step cannot land on (`2.5` on a whole-star rating), and on a rating
@@ -183,7 +188,7 @@ export class WrRatingHarness extends ComponentHarness {
     } else {
       let current = await this.getValue();
       while (current < value) {
-        await row.sendKeys(TestKey.RIGHT_ARROW);
+        await row.sendKeys(TestKey.UP_ARROW);
         const next = await this.getValue();
         // Standing still means the rating is not listening; the check below says why.
         if (next === current) break;
@@ -218,19 +223,20 @@ export class WrRatingHarness extends ComponentHarness {
   }
 
   /**
-   * Bump the rating up by one step — one `ArrowRight`.
+   * Bump the rating up by one step — one `ArrowUp`, the arrow that means "more"
+   * in both reading directions (see {@link setValue}).
    *
    * The step is the rating's, not this harness's, so this is also how a spec finds
    * out what it is: clear the rating, step up once, read the value.
    * Already at the top, this does nothing; the value clamps rather than wrapping.
    */
   async stepUp(): Promise<void> {
-    await (await this.row()).sendKeys(TestKey.RIGHT_ARROW);
+    await (await this.row()).sendKeys(TestKey.UP_ARROW);
   }
 
-  /** Bump the rating down by one step — one `ArrowLeft`. Clamps at `0`. */
+  /** Bump the rating down by one step — one `ArrowDown`. Clamps at `0`. */
   async stepDown(): Promise<void> {
-    await (await this.row()).sendKeys(TestKey.LEFT_ARROW);
+    await (await this.row()).sendKeys(TestKey.DOWN_ARROW);
   }
 
   /**
