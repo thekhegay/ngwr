@@ -56,7 +56,7 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
  * Discovery is by `ng-package.json`, which is what ng-packagr itself builds
  * from — a directory scan one level deep misses the four nested ones
  * (`i18n/{en,ru}`, `icon/adapters/{lucide,feather}`) and reports 123 where the
- * package publishes 137. `projects/lib/ng-package.json` is the PRIMARY entry
+ * package publishes 142. `projects/lib/ng-package.json` is the PRIMARY entry
  * point and is excluded: its key would be the empty string and its import
  * specifier a bare `ngwr`.
  */
@@ -336,9 +336,9 @@ function render(entries: readonly Entry[]): string {
  * to prevent — `gen-sitemap.ts` learned that when a rename emptied the sitemap.
  * Raise these when the catalog grows; a drop is a bug worth failing on.
  */
-const MIN_ENTRIES = 137;
+const MIN_ENTRIES = 142;
 const MIN_DESCRIBED = 117;
-const MIN_WITH_EXPORTS = 137;
+const MIN_WITH_EXPORTS = 142;
 
 function check(entries: readonly Entry[]): number {
   const problems: string[] = [];
