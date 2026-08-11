@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
@@ -110,9 +111,27 @@ export class WrCarousel {
   protected readonly dragX = signal(0);
   protected readonly dragging = signal(false);
 
+  private readonly dir = inject(Directionality, { optional: true });
+
+  /**
+   * Reading direction of the track. `Directionality` is root-provided, so this
+   * always resolves — `optional` only guards a consumer who has deliberately
+   * torn the provider out. It reads the document once at construction; a
+   * subtree that overrides the direction does it with the CDK's `Dir`
+   * directive, which writes `valueSignal`, so `trackStyle` re-renders instead
+   * of leaving the track parked on the old side.
+   */
+  private readonly isRtl = computed(() => this.dir?.valueSignal() === 'rtl');
+
   /** CSS transform for the track — the per-slide offset plus any live drag. */
   protected readonly trackStyle = computed(() => {
-    const base = -this.active() * 100;
+    // `translateX` is PHYSICAL while the slides are laid out on the inline axis:
+    // under `dir="rtl"` the flex track runs right-to-left, so slide 1 sits to the
+    // LEFT of slide 0 and reaching it means moving the track the other way. Left
+    // unsigned, every RTL carousel translated itself off into blank space.
+    const base = (this.isRtl() ? 1 : -1) * this.active() * 100;
+    // The drag stays physical on purpose: it is the finger's own displacement,
+    // and the track follows the finger in both directions.
     const drag = this.dragX();
     return drag === 0 ? `translateX(${base}%)` : `translateX(calc(${base}% + ${drag}px))`;
   });
@@ -178,7 +197,9 @@ export class WrCarousel {
   }
 
   // Swipe navigation — the track follows the finger; releasing past ~20% of the
-  // viewport advances a slide (left = next, right = prev), otherwise snaps back.
+  // viewport advances a slide, otherwise snaps back. Which way that is follows
+  // the reading direction: dragging toward the inline start (left in LTR, right
+  // in RTL) pulls the next slide into view.
 
   private swipeStartX = 0;
 
@@ -204,7 +225,13 @@ export class WrCarousel {
     this.dragX.set(0);
     this.paused.set(false);
     const threshold = (viewport.offsetWidth || 0) * 0.2;
-    if (dx <= -threshold) this.next();
-    else if (dx >= threshold) this.prev();
+    // `dx` is a physical delta. The next slide sits to the physical RIGHT in LTR
+    // and to the LEFT in RTL, so the drag that pulls it into view — and with it
+    // the sign that advances — turns around with the direction. The buttons keep
+    // their semantics either way; only the gesture is physical.
+    const advance = this.isRtl() ? dx >= threshold : dx <= -threshold;
+    const retreat = this.isRtl() ? dx <= -threshold : dx >= threshold;
+    if (advance) this.next();
+    else if (retreat) this.prev();
   }
 }

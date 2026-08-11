@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
@@ -84,6 +85,17 @@ export class WrTabs implements WrTabsContext {
 
   protected readonly tabs = contentChildren(WrTab);
 
+  private readonly dir = inject(Directionality, { optional: true });
+
+  /**
+   * Reading direction of the strip. `Directionality` is root-provided, so this
+   * always resolves — `optional` only guards a consumer who has deliberately
+   * torn the provider out. It reads the document once at construction; a
+   * subtree that overrides the direction does it with the CDK's `Dir`
+   * directive, which writes `valueSignal`, so the read stays reactive.
+   */
+  private readonly isRtl = computed(() => this.dir?.valueSignal() === 'rtl');
+
   /** When any child has a routerLink, the whole strip switches to router mode. */
   protected readonly isRouter = computed(() => this.tabs().some(t => t.routerLink() !== null));
 
@@ -150,8 +162,20 @@ export class WrTabs implements WrTabsContext {
     const el = this.stripRef()?.nativeElement;
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth;
-    this.canScrollStart.set(el.scrollLeft > 1);
-    this.canScrollEnd.set(max > 1 && el.scrollLeft < max - 1);
+    // Distance from the INLINE start, which is what the two fades mean.
+    // `scrollLeft` is 0 at the inline start in BOTH directions and counts away
+    // from it — up in LTR, DOWN into negatives under `dir="rtl"` (the CSSOM
+    // model every engine Angular 22 supports now implements; the legacy
+    // "reversed"/"normal" RTL conventions are gone). Read raw, the RTL value
+    // said "never scrolled from the start, always more to come" at every
+    // position: the end fade was pinned on and the start fade never appeared.
+    //
+    // Clamped rather than `Math.abs`, because an elastic overscroll reports a
+    // value of the WRONG sign at the start edge — a rubber-band past the start
+    // is still the start, and `abs` would light the start fade there in LTR too.
+    const scrolled = this.isRtl() ? Math.max(-el.scrollLeft, 0) : Math.max(el.scrollLeft, 0);
+    this.canScrollStart.set(scrolled > 1);
+    this.canScrollEnd.set(max > 1 && scrolled < max - 1);
   }
 
   protected onTabClick(tab: WrTab): void {
@@ -175,15 +199,24 @@ export class WrTabs implements WrTabsContext {
     if (tabs.length === 0) return;
     const active = this.activeTab();
     const idx = active ? tabs.indexOf(active) : -1;
+    // The two neighbours in DOM order, wrapping at the ends.
+    const forward = idx < tabs.length - 1 ? idx + 1 : 0;
+    const backward = idx > 0 ? idx - 1 : tabs.length - 1;
+    const rtl = this.isRtl();
     let nextIdx: number;
 
     switch (event.key) {
+      // Arrow keys follow VISUAL order (WAI-ARIA APG). The strip is mirrored
+      // under `dir="rtl"`, so ArrowRight moves toward the visual right, which is
+      // the PREVIOUS tab there.
       case 'ArrowRight':
-        nextIdx = idx < tabs.length - 1 ? idx + 1 : 0;
+        nextIdx = rtl ? backward : forward;
         break;
       case 'ArrowLeft':
-        nextIdx = idx > 0 ? idx - 1 : tabs.length - 1;
+        nextIdx = rtl ? forward : backward;
         break;
+      // Home / End name a position in the tab list — first and last — not a
+      // physical edge, so they read the same in both directions.
       case 'Home':
         nextIdx = 0;
         break;

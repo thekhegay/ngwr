@@ -64,19 +64,22 @@
       transform: translateY(-50%) scale(1.05);
     }
 
-    // The track moves on a physical axis — `carousel.ts` builds
-    // `translateX(-index * 100%)` and the swipe reads a signed `clientX` delta
-    // (`dx <= -threshold` advances). Until that motion is direction-aware the
-    // arrows must stay on the physical ends they steer toward, or "next" would
-    // point away from where the track travels.
+    // The track's motion is direction-aware now — `carousel.ts` signs its
+    // `translateX` and its swipe threshold from `Directionality` — so the arrows
+    // follow the reading direction too. "Previous" is where the earlier slides
+    // are, which is the inline start in both directions.
     &--prev {
-      // rtl-ok: steers a physically-moving track (see the note above)
-      left: 0.75rem;
+      inset-inline-start: 0.75rem;
     }
 
     &--next {
-      // rtl-ok: steers a physically-moving track (see the note above)
-      right: 0.75rem;
+      inset-inline-end: 0.75rem;
+    }
+
+    // The chevrons are drawn pointing physically left and right, so they turn
+    // around with the strip: going BACK is going right for an RTL reader.
+    [dir='rtl'] & svg {
+      transform: scaleX(-1);
     }
   }
 

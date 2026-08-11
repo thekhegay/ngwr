@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -51,10 +54,42 @@ describe('WrCarousel', () => {
     fixture.detectChanges();
   };
 
-  const mount = (platform = 'browser'): void => {
+  const mount = (platform = 'browser', dir: Direction = 'ltr'): void => {
     TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: platform }] });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PLATFORM_ID, useValue: platform },
+        // `Directionality` resolves the document's direction when it is constructed,
+        // so a fake is the only way to test the other one without writing
+        // `document.dir` and leaking it into whatever runs next.
+        {
+          provide: Directionality,
+          useValue: { value: dir, valueSignal: signal(dir), change: new Subject<Direction>() },
+        },
+      ],
+    });
     fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  };
+
+  /**
+   * jsdom implements neither `TouchEvent` nor layout, so a touch is a plain event
+   * carrying the one field the component reads, and the viewport's width — which
+   * sets the 20% swipe threshold — is declared.
+   */
+  const touch = (type: string, clientX?: number): Event => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { touches: clientX === undefined ? [] : [{ clientX }] });
+    return event;
+  };
+
+  /** Drag the track `dx` physical pixels and release. Threshold is 60px of 300. */
+  const swipe = (dx: number): void => {
+    const el = viewport();
+    Object.defineProperty(el, 'offsetWidth', { value: 300, configurable: true });
+    el.dispatchEvent(touch('touchstart', 100));
+    el.dispatchEvent(touch('touchmove', 100 + dx));
+    el.dispatchEvent(touch('touchend'));
     fixture.detectChanges();
   };
 
@@ -124,6 +159,95 @@ describe('WrCarousel', () => {
     fixture.componentInstance.active.set(9);
     fixture.detectChanges();
     expect(active()).toBe(2);
+  });
+
+  /**
+   * The track is moved with a PHYSICAL `translateX` while the slides are laid out
+   * on the inline axis, so the sign has to follow the reading direction. Both
+   * directions are asserted for every case: an RTL assertion on its own cannot
+   * tell "mirrors correctly" from "always goes left".
+   *
+   * What does NOT mirror is the buttons — `next` is the next slide in both
+   * directions. Only the physical motion under them turns around.
+   */
+  describe('reading direction', () => {
+    it('moves the track toward the far side of the strip — ltr', () => {
+      mount('browser', 'ltr');
+
+      click(next());
+      expect(active()).toBe(1);
+      expect(track().style.transform).toBe('translateX(-100%)');
+    });
+
+    it('moves the track toward the far side of the strip — rtl', () => {
+      // Mirrored, the flex track runs right-to-left: slide 1 sits to the LEFT of
+      // slide 0, so reaching it means moving the track the other way. Unsigned,
+      // this translated the carousel off into blank space.
+      mount('browser', 'rtl');
+
+      click(next());
+      expect(active()).toBe(1);
+      expect(track().style.transform).toBe('translateX(100%)');
+    });
+
+    it('keeps the buttons semantic — prev is the earlier slide either way', () => {
+      for (const dir of ['ltr', 'rtl'] as const) {
+        mount('browser', dir);
+
+        click(prev()); // wraps backwards off the first slide
+        expect(active(), dir).toBe(2);
+        click(next());
+        expect(active(), dir).toBe(0);
+      }
+    });
+
+    it('advances on a swipe toward the next slide — ltr', () => {
+      mount('browser', 'ltr');
+
+      swipe(-120); // the next slide is off to the right, so the finger drags left
+      expect(active()).toBe(1);
+
+      swipe(120);
+      expect(active()).toBe(0);
+
+      swipe(-20); // under the 20% threshold — snaps back
+      expect(active()).toBe(0);
+    });
+
+    it('advances on a swipe toward the next slide — rtl', () => {
+      // Mirrored, the next slide is off to the LEFT instead, so it is a rightward
+      // drag that pulls it into view.
+      mount('browser', 'rtl');
+
+      swipe(120);
+      expect(active()).toBe(1);
+
+      swipe(-120);
+      expect(active()).toBe(0);
+
+      swipe(20);
+      expect(active()).toBe(0);
+    });
+
+    it('drags the track WITH the finger in both directions — the offset is not mirrored', () => {
+      // The one physical quantity that must NOT flip. `dragX` is the finger's own
+      // displacement, so 30px of rightward travel is 30px of rightward track
+      // travel whichever way the strip reads; signing it would drag the track
+      // away from the touch. Only the SETTLED offset (the base) is direction-aware.
+      for (const dir of ['ltr', 'rtl'] as const) {
+        mount('browser', dir);
+        const el = viewport();
+        Object.defineProperty(el, 'offsetWidth', { value: 300, configurable: true });
+
+        el.dispatchEvent(touch('touchstart', 100));
+        el.dispatchEvent(touch('touchmove', 130));
+        fixture.detectChanges();
+        expect(track().style.transform, dir).toBe('translateX(calc(0% + 30px))');
+
+        el.dispatchEvent(touch('touchend'));
+        fixture.detectChanges();
+      }
+    });
   });
 
   describe('autoplay', () => {

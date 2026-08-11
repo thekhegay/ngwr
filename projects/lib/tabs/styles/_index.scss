@@ -57,13 +57,23 @@
     --wr-tabs-fade: 1.5rem;
     --wr-tabs-fade-start: 0px;
     --wr-tabs-fade-end: 0px;
+    // A gradient has no logical direction keyword, so the axis is a variable the
+    // RTL rule below turns around. The two stops are LOGICAL — `updateFades()`
+    // measures the distance from the inline start — and the inline start is the
+    // right edge under `dir="rtl"`, so the gradient has to run the other way for
+    // the fade to land on the edge that still has tabs behind it.
+    --wr-tabs-fade-axis: to right;
     mask-image: linear-gradient(
-      to right,
+      var(--wr-tabs-fade-axis),
       transparent 0,
       #000 var(--wr-tabs-fade-start),
       #000 calc(100% - var(--wr-tabs-fade-end)),
       transparent 100%
     );
+
+    [dir='rtl'] & {
+      --wr-tabs-fade-axis: to left;
+    }
   }
 
   &--fade-start &__strip {
