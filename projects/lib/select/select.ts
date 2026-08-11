@@ -630,6 +630,17 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     return count;
   });
 
+  /**
+   * Whether the panel may be open at all. `minChars` is documented as the
+   * "minimum query length before the panel OPENS", and nothing gated the open —
+   * so a picker with `[minChars]="3"` popped a panel on focus and showed an empty
+   * bordered box for the first two keystrokes (with the "no results" row itself
+   * gated on the same threshold, there was nothing in it to explain the box).
+   */
+  protected readonly meetsMinChars = computed(
+    () => !this.isSearchable() || this.searchQuery().trim().length >= this.minChars()
+  );
+
   /** Search mode: show "no results" when the panel has nothing to offer. */
   protected readonly hasNoResults = computed(() => {
     if (!this.isSearchable() || !this.open() || this.isLoading()) return false;
@@ -696,7 +707,11 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (this.isDisabled()) return;
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
-    if (!this.open()) this.open.set(true);
+    if (this.meetsMinChars()) {
+      if (!this.open()) this.open.set(true);
+    } else if (this.open()) {
+      this.open.set(false);
+    }
     // A new filter invalidates every index, so re-seed the cursor onto the first
     // option that still matches. This must happen on BOTH paths: on the
     // projected-`<wr-option>` path the registry keeps filtered-out options (they
@@ -711,6 +726,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   protected onSearchFocus(): void {
     if (this.isDisabled()) return;
+    if (!this.meetsMinChars()) return;
     if (!this.open()) {
       this.seedActiveIndex();
       this.open.set(true);
@@ -1228,7 +1244,11 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       width: asSheet ? '100%' : undefined,
       minWidth: asSheet ? undefined : this.host.nativeElement.getBoundingClientRect().width,
       hasBackdrop: asSheet,
-      backdropClass: asSheet ? 'wr-select-backdrop' : undefined,
+      // `wr-overlay-backdrop`, not a name of our own: that class is what carries
+      // the dim and the blur (overlay/styles), and this stylesheet already
+      // imports it for exactly this. A custom class also REPLACES the CDK
+      // default, so the sheet had an invisible scrim that still ate clicks.
+      backdropClass: asSheet ? 'wr-overlay-backdrop' : undefined,
       panelClass: asSheet ? ['wr-select-overlay', 'wr-overlay-sheet'] : 'wr-select-overlay',
     });
 
