@@ -214,7 +214,19 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   /** @internal */
   protected onCaretMove(event: KeyboardEvent): void {
-    if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'Enter' || event.key === 'Tab') return;
+    // Every key `onKeydown` already consumed, Escape included: its keyup would
+    // re-detect at a caret that is still sitting inside the mention and reopen the
+    // panel Escape had just dismissed. A synthetic keydown-only Escape hides that
+    // — the real gesture is a pair, and the second half undid the first.
+    if (
+      event.key === 'ArrowUp' ||
+      event.key === 'ArrowDown' ||
+      event.key === 'Enter' ||
+      event.key === 'Tab' ||
+      event.key === 'Escape'
+    ) {
+      return;
+    }
     this.detect();
   }
 
