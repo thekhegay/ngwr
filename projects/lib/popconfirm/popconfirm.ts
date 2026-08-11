@@ -39,9 +39,18 @@ let popconfirmUid = 0;
 @Directive({
   selector: '[wrPopconfirm]',
   host: {
+    // Marks the trigger the way `[wrPopover]` and `[wrDropdown]` mark theirs. The
+    // question is normally BOUND (`[wrPopconfirm]="question"`), which leaves no
+    // attribute in the DOM at all, so without this there is nothing to find a
+    // trigger by once the panel is shut.
+    class: 'wr-popconfirm-trigger',
     '(click)': 'toggle($event)',
     '[attr.aria-haspopup]': '"dialog"',
     '[attr.aria-expanded]': 'isOpen()',
+    // Names the dialog this trigger opened, as every other overlay trigger in the
+    // catalog does. `aria-haspopup="dialog"` promises a dialog and `aria-expanded`
+    // says it is showing; without the id, which one is left to guess.
+    '[attr.aria-controls]': 'isOpen() ? panelId : null',
   },
 })
 export class WrPopconfirm {
@@ -92,7 +101,13 @@ export class WrPopconfirm {
   readonly isOpen = signal(false);
 
   private overlayRef: OverlayRef | null = null;
-  private readonly messageId = `wr-popconfirm-message-${++popconfirmUid}`;
+
+  private readonly uid = ++popconfirmUid;
+
+  /** @internal Public so the host binding can read it. */
+  protected readonly panelId = `wr-popconfirm-${this.uid}`;
+
+  private readonly messageId = `wr-popconfirm-message-${this.uid}`;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
@@ -127,6 +142,7 @@ export class WrPopconfirm {
     // so trapping focus would only make it harder to leave. It still needs a role, a
     // name and the question read out as its description.
     const pane = this.overlayRef.overlayElement;
+    pane.id = this.panelId;
     pane.setAttribute('role', 'dialog');
     pane.setAttribute('aria-modal', 'false');
     pane.setAttribute('aria-label', this.resolvedAriaLabel());
