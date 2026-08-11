@@ -11,7 +11,7 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **156**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **157**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
   points, and thirty are nested — `ngwr/i18n/{en,ru}`,
@@ -73,6 +73,15 @@ one component folder. Reach for them instead of hand-rolling:
 - **i18n** (`ngwr/i18n`) — the `wrT` pipe + `[wrT]` directive, `WrI18n` service,
   `provideWrI18n()` + `provideWrI18nStaticLoader()`; ngwr's own catalogs at
   `ngwr/i18n/{ru,en}`.
+- **Component defaults** (`ngwr/config`) — `provideWrConfig({ button: { size: 'sm' } })`
+  sets what a component falls back to when a template says nothing. A bound value
+  always WINS (config is a default, never an override — the NG-ZORRO
+  `NzConfigService` lesson), and a bound `false` beats a configured `true`, so
+  nothing has to be re-stated to escape it. Components read theirs with
+  `useConfigValue(this.size, c => c.button?.size, 'md')`, the same shape as
+  `useI18nText`. Adding a key means widening `WrConfig` AND resolving it at the
+  component — an input whose default moved to `null` and is still read raw renders
+  nothing.
 - **Density** (`ngwr/density`) — `provideWrDensity()`, the `[wrDensity]`
   directive, `WrDensity` service; values sm / md / lg / touch
   drive the `--wr-density-*` multipliers.
@@ -228,7 +237,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (156 entry points):
+library where an internal tool exists. The catalog is large (157 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -353,7 +362,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (156 entry points) and **deliberately consolidated** —
+The catalog is large (157 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).

@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 156 secondary entry points, 188 component and directive classes, built on
+> 157 secondary entry points, 188 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -48,6 +48,10 @@ Add from their entry points as needed:
 - `provideWrIcons(lucideIcons({ check: Check }))` — icon registry (`ngwr/icon`,
   adapters under `ngwr/icon/adapters/*`).
 - `provideWrTheme()` — `--wr-*` design tokens. `provideWrDensity()` — sizing.
+- `provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } })`
+  (`ngwr/config`) — app-wide component DEFAULTS. A value bound on the element always
+  wins, and a bound `false` beats a configured `true`, so a config never has to be
+  escaped. Covers `size` / `rounded` on the form controls plus `color` on the button.
 - `provideWrI18n(...)` + `provideWrI18nStaticLoader(...)` — localization.
 - `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date-adapter-fns`
   or `ngwr/date-adapter-luxon`).
