@@ -1663,9 +1663,26 @@ theme is what makes ngwr a library people can bet on.
       `WrInputHarness.setValue`'s stated reason for dispatching `change` was wrong
       (it is for a consumer's own `(change)` handler, which a browser defers to the
       commit a harness write never reaches). Fixed in the harness and the guide.
-      **Next:** the remaining overlay families (context-menu, popconfirm,
-      command-palette, cascader, tree, mention) and `wr-form-field` — after which
-      "does ngwr ship a harness for X" stops needing a caveat.
+      The fifth batch closes the list the item was written for:
+      `ngwr/{context-menu,popconfirm,command-palette,cascader,tree,form}/testing`
+      plus `mention` — **26** covered entry points, ~740 harness specs. Every form
+      control, every overlay and both data views now have one.
+      Writing them found four defects in the LIBRARY, which is the argument for
+      harnesses on its own: `[wrMention]` dismissed its panel on Escape's keydown
+      and reopened it on the keyup, so Escape did not work in a real browser at all
+      (a synthetic keydown-only test hides it — the CDK sends real pairs);
+      `wr-context-menu-item`'s `aria-expanded` went stale because it was bound to a
+      plain field and only refreshed when unrelated work dirtied the view; and
+      neither `[wrContextMenu]` nor `[wrPopconfirm]` published `aria-controls`, so
+      no screen reader — and nothing else — could tell which panel a trigger owned.
+      All four are fixed, additively, with the component's own spec extended.
+      **Still uncovered, and worth being precise about:** the display and layout
+      components that are nonetheless interactive — tabs, stepper, carousel,
+      pagination, segmented, collapse, transfer, splitter, calendar,
+      event-calendar, window, tour, lightbox, image-cropper, knob, color-picker,
+      speed-dial, action-sheet, virtual-scroll — plus the charts and the animation
+      set. None is blocked; they are simply a sixth batch, and the marginal value
+      per harness is lower now that everything a form or an overlay does is covered.
 - [x] **A3. a11y CI** (L) — `pnpm check:a11y` runs axe-core over all 211
       prerendered pages and fails CI on any serious or critical violation. The
       seeded baseline is empty: the ten rules it started with are fixed, which

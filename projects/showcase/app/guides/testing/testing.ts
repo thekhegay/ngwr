@@ -29,15 +29,22 @@ import {
 export default class TestingGuidePageComponent {
   protected readonly snippets = {
     install: `// The harnesses live beside the components they drive, one entry point each.
+// 26 so far: every form control, every overlay, and both data views.
 import { WrButtonHarness } from 'ngwr/button/testing';
-import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
-import { WrSwitchHarness } from 'ngwr/switch/testing';
+import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
+import { WrRadioGroupHarness } from 'ngwr/radio/testing';
+import { WrFormFieldHarness } from 'ngwr/form/testing';
 
 // The overlay ones — panels that render outside your fixture.
+import { WrSelectHarness } from 'ngwr/select/testing';
 import { WrDialogHarness } from 'ngwr/dialog/testing';
-import { WrOptionHarness, WrSelectHarness } from 'ngwr/select/testing';
-import { WrToastHarness } from 'ngwr/toast/testing';
+import { WrContextMenuHarness } from 'ngwr/context-menu/testing';
+import { WrCommandPaletteHarness } from 'ngwr/command-palette/testing';
+
+// The data views come as families.
+import { WrTableHarness, WrTableRowHarness } from 'ngwr/table/testing';
+import { WrTreeHarness, WrTreeNodeHarness } from 'ngwr/tree/testing';
 
 // The environment comes from the CDK, which is already a peer dependency.
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';`,
@@ -319,6 +326,122 @@ it('moves the far end of a range first', async () => {
 
   await upload.removeFileNamed('notes.txt');
   expect(await upload.getFileCount()).toBe(0);
+});`,
+
+    contextMenu: `it('copies from the context menu', async () => {
+  const menu = await loader.getHarness(WrContextMenuHarness);
+
+  await menu.open();                        // a real \`contextmenu\` event, not a click
+  expect(await menu.getItemTexts()).toEqual(['Copy', 'Cut', 'Paste']);
+
+  await menu.clickItem({ text: 'Copy' });
+  expect(await menu.isOpen()).toBe(false);
+});
+
+it('walks into a submenu', async () => {
+  const menu = await loader.getHarness(WrContextMenuHarness);
+  await menu.open();
+
+  const [more] = await menu.getItems({ hasSubmenu: true });
+  await more.openSubmenu();
+  expect(await more.isSubmenuOpen()).toBe(true);
+
+  await more.clickSubmenuItem({ text: 'As PNG' });
+});`,
+
+    popconfirm: `it('asks before deleting', async () => {
+  const ask = await loader.getHarness(WrPopconfirmHarness);
+
+  await ask.open();
+  expect(await ask.getMessage()).toBe('Delete this item?');
+  expect(await ask.getActionLabels()).toEqual(['Cancel', 'Delete']);
+
+  await ask.confirm();
+  expect(await ask.isOpen()).toBe(false);
+  expect(host.deleted()).toBe(true);
+});`,
+
+    palette: `it('runs a command', async () => {
+  const palette = await loader.getHarness(WrCommandPaletteHarness);
+
+  await palette.open();
+  await palette.setQuery('set');
+  expect(await palette.getItemLabels()).toEqual(['Settings', 'Set theme']);
+
+  await palette.moveToNextItem();
+  expect(await palette.getActiveItemLabel()).toBe('Set theme');
+
+  // The query field owns the list through aria-activedescendant, so the
+  // highlighted row is announced without focus ever leaving the input.
+  expect(await palette.isActiveItemAnnounced()).toBe(true);
+
+  await palette.runActiveItem();
+});`,
+
+    cascader: `it('picks a path', async () => {
+  const cascader = await loader.getHarness(WrCascaderHarness);
+
+  await cascader.open();
+  expect(await cascader.getColumnCount()).toBe(1);
+
+  // Each column is one level, and opening a parent is what creates the next.
+  await cascader.selectPath(['Europe', 'Portugal', 'Lisbon']);
+
+  expect(await cascader.getValueText()).toBe('Europe / Portugal / Lisbon');
+  expect(await cascader.isOpen()).toBe(false);
+});`,
+
+    tree: `it('expands and selects', async () => {
+  const tree = await loader.getHarness(WrTreeHarness);
+
+  const root = await tree.getNode({ label: 'src' });
+  expect(await root.isExpandable()).toBe(true);
+  await root.expand();
+
+  expect(await tree.getNodeLabels()).toEqual(['src', 'app', 'main.ts', 'README.md']);
+
+  await tree.selectNode({ label: 'main.ts' });
+  expect(await tree.getSelectedLabels()).toEqual(['main.ts']);
+});
+
+it('announces the hierarchy', async () => {
+  const tree = await loader.getHarness(WrTreeHarness);
+  const app = await tree.getNode({ label: 'app' });
+
+  expect(await app.getLevel()).toBe(2);
+  // Per SIBLING GROUP, not per flat list — 'app' and 'main.ts' are the two
+  // children of 'src'.
+  expect(await app.getSetSize()).toBe(2);
+  expect(await app.getPosInSet()).toBe(1);
+});`,
+
+    mention: `it('mentions a teammate', async () => {
+  const mention = await loader.getHarness(WrMentionHarness);
+
+  await mention.type('hey @ad');
+  expect(await mention.isOpen()).toBe(true);
+  expect(await mention.getOptionLabels()).toEqual(['Ada Lovelace']);
+
+  await mention.commit();
+  expect(await mention.getValue()).toBe('hey @ada ');
+});`,
+
+    formField: `it('shows a message the app never wrote', async () => {
+  const field = await loader.getHarness(WrFormFieldHarness);
+  const email = await loader.getHarness(WrInputHarness);
+
+  await email.setValue('nope');
+  await email.blur();
+
+  // No <wr-form-error> in the template: the copy comes from the i18n catalog
+  // through provideWrFormErrors(), which is the whole point of the component.
+  expect(await field.getErrorText('email')).toBeTruthy();
+  expect(await field.isInvalid()).toBe(true);
+
+  // And the control is actually wired to it — a message nothing points at is
+  // decoration a screen reader never reads.
+  expect(await field.getAnnouncedDescription()).toBe(await field.getErrorText('email'));
+  expect(await field.isLabelLinkedToControl()).toBe(true);
 });`,
 
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
@@ -1267,6 +1390,281 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'focus() / isFocused()',
       description: 'Focus goes to the ZONE, which is the tab stop — the picker is `aria-hidden` and `tabindex="-1"`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly contextMenuApi: readonly DocApiRow[] = [
+    {
+      name: 'open() / rightClick() / openByLongPress() / close() / closeByOutsidePress()',
+      description:
+        'A context menu opens on a real `contextmenu` event, so `open()` sends one rather than clicking. The close paths WAIT for the pane to be disposed — it lingers for its exit animation, and a harness that returned early would report a menu that is on its way out as gone.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'isOpen()',
+      description:
+        "Read from the target's `aria-controls`, not from whether a pane exists: during the exit animation both are true of the DOM and only one is true of the component.",
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'getItems(filters?) / getItemTexts() / clickItem(filters)',
+      description: 'Filters: `text`, `disabled`, `hasSubmenu`. Dividers are not items and never appear here.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getDividerCount()',
+      description:
+        'Counted by `role="separator"`, so a separator you wrote yourself counts too — the role is what tells a screen reader where one group ends.',
+      type: 'Promise<number>',
+      default: '—',
+    },
+    {
+      name: 'getMenuRole() / getMenuText() / getTargetText()',
+      description: 'The menu announces `menu`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'An item adds: hasSubmenu() / isSubmenuOpen() / openSubmenu() / openSubmenuByHover() / closeSubmenu() / getSubmenuItems() / clickSubmenuItem()',
+      description:
+        'Each submenu is its own overlay pane, scoped by the id its parent item publishes — so the same harness walks any depth without the panes reading each other.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly popconfirmApi: readonly DocApiRow[] = [
+    {
+      name: 'open() / close() / confirm() / cancel() / sendEscape() / clickOutside()',
+      description:
+        'Four ways out, and they are not equivalent: confirm emits `confirmed`, the other three emit `cancelled`.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getMessage() / getConfirmText() / getCancelText() / getActionLabels()',
+      description: 'The copy, including whatever the i18n catalog resolved the button labels to.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / isModal() / getLabel() / getDescriptionText()',
+      description:
+        'A popconfirm is a NON-modal dialog that names itself and has the question as its description — it deliberately does not trap focus, so the description is how a screen-reader user hears the question.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getConfirmColor() / getPosition() / getFocusedActionLabel() / isTriggerFocused()',
+      description: 'Intent, placement and where focus sits.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly paletteApi: readonly DocApiRow[] = [
+    {
+      name: 'open() / close() / pressTrigger() / pressHotkey() / clickBackdrop()',
+      description: 'Every route in and out, including the hotkey the palette owns.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'setQuery(text) / getQuery() / getPlaceholder()',
+      description: 'The search field drives the list.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getItems(filters?) / getItemLabels() / runItem(filters) / getGroups() / getGroupTitles()',
+      description: 'The results as filtered, grouped the way the palette groups them.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getActiveItem() / getActiveItemLabel() / getActiveItemIndex() / moveToNextItem() / moveToPreviousItem() / moveToFirstItem() / moveToLastItem() / runActiveItem()',
+      description: 'The highlighted row and the arrow-key walk.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isActiveItemAnnounced() / isSearchWiredToList()',
+      description:
+        'The palette keeps focus in the input and points at the highlighted row with `aria-activedescendant`. These two check that link holds — without it a screen-reader user hears nothing as the arrows move.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / isModal() / getLabel() / isPresentedAsSheet() / getEmptyText() / focus() / blur() / isSearchInputFocused()',
+      description: 'Shape, state and focus.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly cascaderApi: readonly DocApiRow[] = [
+    {
+      name: 'getColumns() / getColumnCount() / getColumn(i) / getColumnLabels()',
+      description:
+        'One column per level, and which columns exist depends on what is open — that relationship IS the component. A column harness answers its options and its active one.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'selectPath(labels) / getOption(path) / getActiveTrail()',
+      description:
+        '`selectPath` walks level by level, opening each parent before reaching for the next — the same order a user does it in.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'open() / close() / clickTrigger() / clear() / focus() / blur() / isFocused()',
+      description: 'The trigger.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getValueText() / getPlaceholder() / getAccessibleName() / isDisabled() / isOpen()',
+      description: 'What the trigger shows and announces.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getPopupRole() / getPanelRole() / getPanelId() / isPanelWiredToTrigger()',
+      description:
+        "The panel reference the harness itself relies on: one cascader cannot answer with another's options while both are open.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly treeApi: readonly DocApiRow[] = [
+    {
+      name: 'getNodes(filters?) / getNodeLabels() / getNode(filters)',
+      description:
+        'The VISIBLE nodes in order. While the tree is virtualized this is the window, not the dataset — the spacer rows are not nodes.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'selectNode(filters) / getSelectedLabels() / expandAll() / clear()',
+      description: 'Selection and bulk expansion.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'focusNext() / focusPrevious() / focusFirst() / focusLast() / expandActive() / collapseActive() / selectActive() / getActiveNodeLabel()',
+      description:
+        'The keyboard walk. While virtual the tree moves a cursor with `aria-activedescendant` rather than real focus, which is why these are named for the ACTIVE node.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isOverlay() / isOpen() / open() / close() / getValueText() / getChipLabels() / getOverflowText() / removeChip(label)',
+      description: 'The select-like shape, for a tree used as a picker.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / isMultiple() / getSelectionMode() / isVirtual() / isDisabled()',
+      description: 'Shape and mode.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'A node adds: getLabel() / getLevel() / getPosInSet() / getSetSize() / getIndex() / isExpandable() / isExpanded() / expand() / collapse() / isSelected() / isDisabled() / isActive() / click() / ctrlClick()',
+      description:
+        "`aria-setsize` counts the node's SIBLING GROUP including itself and `aria-posinset` is its place in that group — neither is a position in the flat list, and reading them that way is a classic tree bug.",
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly mentionApi: readonly DocApiRow[] = [
+    {
+      name: 'type(text) / setValue(text) / getValue() / clear()',
+      description:
+        'Typing is the only way in: the panel opens off a trigger character the directive detects at the caret, so a value written straight to the field does not open anything.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getOptions(filters?) / getOptionLabels() / pick(filters)',
+      description: 'The suggestions, capped at `maxResults`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'nextOption() / previousOption() / getActiveOptionLabel() / getActiveOptionIndex() / getActiveOptionId() / commit() / commitWithTab()',
+      description: 'The arrow walk and the two commit keys, which insert the mention into the field.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'dismiss() / blur() / isOpen()',
+      description:
+        'Escape dismisses without picking. Note the harness sends a real keydown AND keyup pair, which is what a browser does — and what exposed a bug where the keyup reopened the panel Escape had just closed.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getAutocomplete() / getPopupRole() / getListboxRole() / getListboxLabel() / getStatusMessage()',
+      description: 'The combobox wiring the field publishes while the panel is up.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly formFieldApi: readonly DocApiRow[] = [
+    {
+      name: 'getErrors() / getErrorTexts() / getErrorText(key)',
+      description:
+        'The messages the field is SHOWING, by validator key. `getErrorText` throws rather than answering `null`, and its message says which of the two happened: the key is not in error, or its copy resolved to nothing.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getSuppressedErrorKeys() / hasEmptyErrorBlock()',
+      description:
+        'Keys in error with no copy to show. That combination is the failure this component exists to prevent — a field that knows it is invalid and cannot say why.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getLabel() / isRequired() / isOptional() / getHint()',
+      description: 'The surrounding copy.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isLabelLinkedToControl() / getLabelFor() / getControlId()',
+      description:
+        'A real `<label for>` link to the projected control. An `aria-label` on the wrapper does NOT reach the native control inside it, so this link is why the field is nameable at all.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getDescribedByIds() / getAnnouncedDescription()',
+      description:
+        'What the control points at, resolved to text: the hint and the error a screen reader will actually read. A message nothing references is decoration.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isInvalid() / isControlInvalid() / focusControl() / blurControl()',
+      description:
+        'Two different questions: what the field PAINTS, and what the control announces through `aria-invalid`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'WrFormItemHarness: getLabel() / isInvalid() / getErrorTexts()',
+      description: 'The same three questions for `<wr-form-item>`.',
       type: 'Promise<…>',
       default: '—',
     },
