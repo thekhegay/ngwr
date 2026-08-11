@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 157 secondary entry points, 188 component and directive classes, built on
+> 164 secondary entry points, 188 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -131,13 +131,14 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 26 entry points so far, covering every form control,
-  every overlay and both data views: the form controls (`button`, `input`, `textarea`, `checkbox`, `switch`,
-  `radio`, `select`, `input-number`, `input-otp`, `slider`, `rating`,
-  `file-upload`, `form` for `<wr-form-field>`), the overlays (`date-picker`,
-  `dropdown`, `popover`, `dialog`, `drawer`, `toast`, `context-menu`,
-  `popconfirm`, `command-palette`, `cascader`, `mention`) and the data views
-  (`table`, `tree`).
+  `ngwr/<name>/testing`. 33 entry points so far, covering every form control, every
+  overlay, both data views and the navigation / disclosure set (`tabs`, `stepper`,
+  `carousel`, `pagination`, `segmented`, `collapse`, `transfer`): the form controls
+  (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
+  `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `form` for
+  `<wr-form-field>`), the overlays (`date-picker`, `dropdown`, `popover`, `dialog`,
+  `drawer`, `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`,
+  `mention`) and the data views (`table`, `tree`).
   Load them with `TestbedHarnessEnvironment` and narrow with
   `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's markup.
   Dialog, toast and a service-opened drawer render outside the fixture — load

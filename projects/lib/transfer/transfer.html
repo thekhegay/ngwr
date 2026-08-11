@@ -68,7 +68,7 @@
         size="sm"
         color="primary"
         outlined
-        class="wr-transfer__move"
+        class="wr-transfer__move wr-transfer__move--to-target"
         [disabled]="!canMoveRight()"
         [attr.aria-label]="resolvedToTarget()"
         (click)="moveRight()"
@@ -93,7 +93,7 @@
         size="sm"
         color="primary"
         outlined
-        class="wr-transfer__move"
+        class="wr-transfer__move wr-transfer__move--to-source"
         [disabled]="!canMoveLeft()"
         [attr.aria-label]="resolvedToSource()"
         (click)="moveLeft()"
