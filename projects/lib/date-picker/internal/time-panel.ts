@@ -172,7 +172,11 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   // Typed-input handlers
 
   protected onHoursInput(event: Event): void {
-    const n = Number((event.target as HTMLInputElement).value);
+    const raw = (event.target as HTMLInputElement).value;
+    // An emptied box is someone mid-retype, not a request for zero: `Number('')`
+    // is 0, so committing here rewrote the field they had just cleared.
+    if (!raw.trim()) return;
+    const n = Number(raw);
     if (Number.isNaN(n)) return;
     if (this.is12h()) {
       const h12 = clamp(Math.trunc(n), 1, 12) % 12;
@@ -184,14 +188,22 @@ export class WrTimePanel implements FormValueControl<Date | null> {
   }
 
   protected onMinutesInput(event: Event): void {
-    const n = Number((event.target as HTMLInputElement).value);
+    const raw = (event.target as HTMLInputElement).value;
+    // An emptied box is someone mid-retype, not a request for zero: `Number('')`
+    // is 0, so committing here rewrote the field they had just cleared.
+    if (!raw.trim()) return;
+    const n = Number(raw);
     if (Number.isNaN(n)) return;
     this.minutes.set(clamp(Math.trunc(n), 0, 59));
     this.emit();
   }
 
   protected onSecondsInput(event: Event): void {
-    const n = Number((event.target as HTMLInputElement).value);
+    const raw = (event.target as HTMLInputElement).value;
+    // An emptied box is someone mid-retype, not a request for zero: `Number('')`
+    // is 0, so committing here rewrote the field they had just cleared.
+    if (!raw.trim()) return;
+    const n = Number(raw);
     if (Number.isNaN(n)) return;
     this.seconds.set(clamp(Math.trunc(n), 0, 59));
     this.emit();

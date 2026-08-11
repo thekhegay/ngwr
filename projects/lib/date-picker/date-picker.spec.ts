@@ -221,6 +221,38 @@ describe('WrDatePicker', () => {
     expect(calendar()).toBeTruthy();
   });
 
+  it('waits for a number rather than reading an emptied time box as zero', () => {
+    // `Number('')` is 0, not NaN, so clearing the minutes to retype them committed
+    // 00 and the padded display wrote it straight back into the box the user had
+    // just cleared — retyping a time was impossible.
+    fixture.componentInstance.mode.set('time');
+    fixture.detectChanges();
+    open();
+
+    const box = timeInput('Minutes');
+    expect(box.value).toBe('30');
+
+    box.value = '';
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(picked()?.getMinutes()).toBe(30);
+    expect(timeInput('Minutes').value).toBe('');
+  });
+
+  it('takes the number once it is typed', () => {
+    fixture.componentInstance.mode.set('time');
+    fixture.detectChanges();
+    open();
+
+    const box = timeInput('Minutes');
+    box.value = '45';
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(picked()?.getMinutes()).toBe(45);
+  });
+
   it('refuses a day rejected by dateFilter', () => {
     fixture.componentInstance.dateFilter.set(date => date.getDate() !== 20);
     fixture.detectChanges();
@@ -229,6 +261,25 @@ describe('WrDatePicker', () => {
     expect(day(20).getAttribute('aria-disabled')).toBe('true');
     clickThrough(day(20));
     expect(picked()?.getDate()).toBe(15);
+  });
+
+  it('refuses a typed date rejected by dateFilter, as well as a clicked one', () => {
+    // The grid disables filtered days, so accepting them from the keyboard let the
+    // two entry paths disagree — the range picker carries this check with a
+    // comment saying exactly that; the single picker had only min / max.
+    fixture.componentInstance.dateFilter.set(date => date.getDate() !== 20);
+    fixture.detectChanges();
+
+    type('20.01.2025');
+    expect(picked()?.getDate()).toBe(15);
+  });
+
+  it('still commits a typed date the filter allows', () => {
+    fixture.componentInstance.dateFilter.set(date => date.getDate() !== 20);
+    fixture.detectChanges();
+
+    type('21.01.2025');
+    expect(picked()?.getDate()).toBe(21);
   });
 
   it('commits a typed date that parses', () => {

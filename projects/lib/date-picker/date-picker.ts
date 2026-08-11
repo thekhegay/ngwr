@@ -523,6 +523,11 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     if (min && this.adapter.compareDate(date, min) < 0) return true;
     const max = this.max();
     if (max && this.adapter.compareDate(date, max) > 0) return true;
+    // Covers `dateFilter` as well as the bounds — the calendar disables filtered
+    // days, so accepting them from the keyboard made the two entry paths
+    // disagree. Same check, same reason, as `wr-date-range-picker`.
+    const filter = this.dateFilter();
+    if (filter && !filter(date)) return true;
     return false;
   }
 
