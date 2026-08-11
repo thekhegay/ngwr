@@ -282,6 +282,36 @@ describe('WrDatePicker', () => {
     expect(picked()?.getDate()).toBe(21);
   });
 
+  it('takes a constraint that arrives while the panel is open', () => {
+    // The bounds were pushed once, at attach — so a `[min]` that changed while
+    // the popover was open kept the stale constraint until the next reopen, and
+    // the grid went on offering days the model would refuse.
+    open();
+    expect(day(5).getAttribute('aria-disabled')).not.toBe('true');
+
+    fixture.componentInstance.min.set(new Date(2025, 0, 10));
+    fixture.detectChanges();
+
+    expect(day(5).getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it('shows a typed date in the datetime panel it has open', () => {
+    // Nothing pushed the field's value into the datetime panel, so the panel kept
+    // its own stale copy — and the next stepper click emitted that copy, silently
+    // undoing what had just been typed.
+    fixture.componentInstance.mode.set('datetime');
+    fixture.componentInstance.format.set('dd.MM.yyyy HH:mm');
+    fixture.detectChanges();
+    open();
+
+    type('20.01.2025 10:30');
+    stepper('Increment hours').click();
+    fixture.detectChanges();
+
+    expect(picked()?.getDate()).toBe(20);
+    expect(picked()?.getHours()).toBe(11);
+  });
+
   it('commits a typed date that parses', () => {
     type('20.01.2025');
     expect(picked()?.getDate()).toBe(20);
