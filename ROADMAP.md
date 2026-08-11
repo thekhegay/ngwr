@@ -1465,6 +1465,34 @@ theme is what makes ngwr a library people can bet on.
       importing none would otherwise see the text twice. The three purely
       decorative canvases are `aria-hidden` now, matching `wr-confetti` and
       `wr-click-spark`.
+      **Mode coverage, first haul (2026-08-11)** — the second axis, audited by
+      fanning agents over the five biggest components' UNTESTED modes and then
+      having a skeptic re-derive each claim from the code. Twenty findings came
+      back. Every one was re-verified here before anything was touched, and the
+      first five are fixed.
+      `wr-event-calendar` labelled every column with the wrong day outside en-US,
+      twice over. `getDayOfWeekNames()` is documented as "names ordered from
+      `getFirstDayOfWeek()` onwards" — already rotated — and the month header
+      rotated it AGAIN, while the week/day header indexed that first-day-ordered
+      array with an absolute Sunday-based weekday number. Both are no-ops in
+      en-US, which is why they survived: the spec's adapter had no locale. Under
+      en-GB the header reads Tue over a Monday column, in both views, and now it
+      does not. `wr-calendar` next door consumes the same call with no rotation,
+      and `startOfWeek` in the very same file converts the index spaces correctly
+      — the convention was understood everywhere except these two lines.
+      `wr-tree` gave up three. `defaultExpandAll` read `expanded()` inside its own
+      guard, so the effect re-ran the moment the last branch closed and inflated
+      the tree again — collapsible one branch at a time, never all the way,
+      against an input whose own doc says "on first open". The roving cursor was a
+      raw index that only grew: collapsing a branch ABOVE it left it past the end
+      of the list, which handed out zero `tabindex="0"` rows (no way back in with
+      Tab) and made every arrow key a silent no-op, since `onKeydown` bails when
+      the row under the cursor does not exist. And `aria-posinset` /
+      `aria-setsize` were gated behind the virtual-scroll flag although the
+      rendered list is flat in both shapes with no `role="group"` — the same tree
+      announced a position with windowing on and nothing with it off. Closing the
+      overlay also dropped focus on `<body>`; it returns to the trigger now, the
+      way `wr-dropdown` already did.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
