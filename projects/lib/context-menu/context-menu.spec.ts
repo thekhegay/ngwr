@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -245,5 +248,75 @@ describe('WrContextMenu', () => {
       expect(picked()).toBe('nested');
       expect(menus()).toHaveLength(0);
     });
+  });
+});
+
+/**
+ * Submenu panes mirror with the reading direction — the CDK flips their placement
+ * — so the arrow that walks INTO a submenu is the one pointing the way the menu
+ * cascades. Under `dir="rtl"` that is ArrowLeft, and the LTR twins of these two
+ * cases are 'opens on the right arrow' and 'closes the submenu on the left arrow'
+ * above.
+ */
+describe('WrContextMenu under dir="rtl"', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const target = (): HTMLElement => root().querySelector<HTMLElement>('.wr-context-menu-host')!;
+  const menus = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-context-menu')];
+  const itemFor = (label: string): HTMLElement | undefined =>
+    [...document.querySelectorAll<HTMLElement>('.wr-context-menu-item')].find(i => i.textContent?.trim() === label);
+
+  const rightClick = (): void => {
+    target().dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
+    fixture.detectChanges();
+  };
+  const press = (el: HTMLElement, key: string): void => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+  const settle = async (): Promise<void> => {
+    vi.advanceTimersByTime(400);
+    await Promise.resolve();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+
+  it('opens the submenu on the left arrow, which is the way it cascades', async () => {
+    rightClick();
+    press(itemFor('More')!, 'ArrowLeft');
+    await settle();
+
+    expect(menus().length).toBeGreaterThanOrEqual(2);
+    expect(itemFor('More')!.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('closes it again on the right arrow', async () => {
+    rightClick();
+    press(itemFor('More')!, 'ArrowLeft');
+    await settle();
+    expect(menus().length).toBeGreaterThanOrEqual(2);
+
+    press(itemFor('More')!, 'ArrowRight');
+    await settle();
+
+    expect(itemFor('More')!.getAttribute('aria-expanded')).toBe('false');
   });
 });
