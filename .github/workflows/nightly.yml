@@ -2,12 +2,24 @@ name: Nightly
 
 # The checks that are worth running, but not worth waiting for.
 #
+# Two jobs, both needing a real browser over every prerendered route, which is
+# what keeps them out of the PR gate.
+#
 # `pnpm check:contrast` is the other half of the a11y gate: `check:a11y` runs
 # axe in JSDOM, which has no stylesheets, so it turns `color-contrast` and
 # `target-size` off and answers only the structural half. This one drives a real
 # Chromium over every prerendered route in both themes and answers exactly those
 # two rules — which costs a browser download and 386 page loads, and took the PR
 # job from ~5 minutes to nearly 17.
+#
+# `pnpm check:rtl-layout` is the other half of the RTL gate, for the same shape of
+# reason. `check:rtl` reads SOURCE and catches a physical CSS property with no
+# stated reason; it cannot see what a page does once painted. Nothing else in CI
+# ever renders a page right-to-left, and the one bug the RTL sweep shipped was
+# exactly that kind: a thumb centred with `translate(-50%)` against an inset that
+# had become logical, sitting a whole thumb-width past its own value under
+# `dir="rtl"`. This job loads every route in both directions and fails when a box
+# escapes the viewport in RTL that does not in LTR.
 #
 # Nightly is the right cadence for it. What it catches is drift in painted
 # colour: a token nudged, a tint restyled, a component switched off the `-ink`
@@ -76,4 +88,39 @@ jobs:
         with:
           name: contrast-report
           path: contrast-report.txt
+          retention-days: 30
+
+  rtl-layout:
+    name: RTL layout
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The gate reads `dist/showcase`, so the site has to exist first.
+      - run: pnpm build:showcase
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # `--verbose` for the same reason the contrast job passes it: nobody is
+      # watching, so the log is the report, and the per-route numbers are what
+      # make a new finding readable tomorrow morning. `shell: bash` for
+      # `-o pipefail`, or `tee` would hand back its own success over a failure.
+      - run: pnpm check:rtl-layout --verbose 2>&1 | tee rtl-layout-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rtl-layout-report
+          path: rtl-layout-report.txt
           retention-days: 30

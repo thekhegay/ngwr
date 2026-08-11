@@ -2062,9 +2062,16 @@ nobody ships a free, complete Angular AI kit.
       LAYOUT would pass CI exactly as this batch's slider centring bug did until it
       was measured in a browser; and Arabic / Hebrew typography (font stack, digit
       shaping, `letter-spacing` on joined scripts) has not been looked at at all.
-      A `dir="rtl"` pass in `check:contrast`'s nightly Chromium is the cheapest way
-      to close the middle one, since that job already loads every page in a real
-      browser.
+      The middle one is now closed: `pnpm check:rtl-layout` (nightly, alongside
+      `check:contrast`) loads every route in both directions and fails when a box
+      escapes the viewport in RTL that does not in LTR. It measures element rects
+      rather than `scrollWidth`, and that is the whole trick — a document's scroll
+      origin is its inline START, so content pushed past that edge is unreachable
+      overflow the browser never counts. Under RTL that edge is the RIGHT one,
+      exactly where a surviving physical `left` pushes things, so the obvious
+      measurement reports zero on a visibly broken page. The first version of the
+      script did precisely that and passed a deliberately broken build; it took
+      injecting a 600px offset to find out.
       Table stakes for Material / PrimeNG / Kendo parity (MENA enterprise).
 - [x] **G2. CSP audit** (S) — documented at `/guides/csp`, verified by serving
       the prerendered site under a policy with no escape hatches. The library
