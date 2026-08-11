@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
@@ -90,6 +91,7 @@ export class WrCalendar {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
 
@@ -389,7 +391,7 @@ export class WrCalendar {
     // going instead of stopping on it. See `nearestEnabledToward`.
     let dir: 1 | -1 = 1;
 
-    switch (event.key) {
+    switch (this.inlineKey(event.key)) {
       case 'ArrowLeft':
         next = this.adapter.addDays(current, -1);
         dir = -1;
@@ -500,5 +502,20 @@ export class WrCalendar {
   /** Used by the template's `track` expression. */
   protected trackByTime(_: number, date: Date): number {
     return date.getTime();
+  }
+
+  /**
+   * The key as the GRID sees it.
+   *
+   * Arrow keys follow visual order, and a calendar grid mirrors under
+   * `dir="rtl"`: the day to the visual right of today is yesterday. Only the
+   * inline pair swaps — Up/Down step a week either way, and PageUp/PageDown and
+   * Home/End are semantic rather than physical.
+   */
+  private inlineKey(key: string): string {
+    if (this.dir?.value !== 'rtl') return key;
+    if (key === 'ArrowRight') return 'ArrowLeft';
+    if (key === 'ArrowLeft') return 'ArrowRight';
+    return key;
   }
 }
