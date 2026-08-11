@@ -70,11 +70,11 @@
 
     <p wrTypography variant="small" tone="medium">
       Which is which follows the component, not the panel. A dialog, a toast and a service-opened drawer have no element
-      in your template at all, so they come from <code>documentRootLoader()</code>. A select, a date picker, a dropdown
-      and a popover ARE elements in your template — the normal <code>loader()</code> finds them, and the harness reaches
-      into the overlay for you, scoped to that one instance by the id its trigger publishes. Two of them open at once
-      cannot answer for each other; a hand-written <code>document.querySelector('.wr-select-panel')</code> can, and
-      quietly will.
+      in your template at all, so they come from <code>documentRootLoader()</code>. A select, a date picker, a dropdown,
+      a popover, a context menu, a popconfirm, a cascader and a mention ARE elements in your template — the normal
+      <code>loader()</code> finds them, and the harness reaches into the overlay for you, scoped to that one instance by
+      the id its trigger publishes. Two of them open at once cannot answer for each other; a hand-written
+      <code>document.querySelector('.wr-select-panel')</code> can, and quietly will.
     </p>
   </ngwr-doc-section>
 
@@ -306,6 +306,106 @@
 
   <ngwr-doc-section title="WrFileUploadHarness" description="`ngwr/file-upload/testing`">
     <ngwr-doc-api [rows]="uploadApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Context menus" description="Opened by a right-click, closed on a timer.">
+    <ngwr-doc-code [code]="snippets.contextMenu" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Two things about this component would trip a hand-written spec. It opens on a real
+      <code>contextmenu</code> event, not a click — and its pane stays in the DOM through an exit animation, so "is a
+      pane present" is not the same question as "is the menu open". The harness reads the target's
+      <code>aria-controls</code> for the second one, and its close methods wait for the pane to actually be disposed.
+      Submenus each get their own overlay pane, scoped by the id their parent item publishes, so one harness walks any
+      depth.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrContextMenuHarness" description="`ngwr/context-menu/testing`">
+    <ngwr-doc-api [rows]="contextMenuApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Popconfirm" description="Four ways out, and they mean different things.">
+    <ngwr-doc-code [code]="snippets.popconfirm" language="typescript" />
+
+    <ngwr-doc-api [rows]="popconfirmApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Command palette">
+    <ngwr-doc-code [code]="snippets.palette" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Focus never leaves the query field: the highlighted row is published with
+      <code>aria-activedescendant</code>, which is what a screen reader announces as the arrows move.
+      <code>isActiveItemAnnounced()</code> checks that link holds — the arrows can look right in a test while a
+      screen-reader user hears nothing at all.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrCommandPaletteHarness" description="`ngwr/command-palette/testing`">
+    <ngwr-doc-api [rows]="paletteApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Cascader" description="One column per level.">
+    <ngwr-doc-code [code]="snippets.cascader" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Which columns exist depends on what is open, so the columns are the component rather than a detail of it.
+      <code>selectPath()</code> walks level by level the way a user does, opening each parent before reaching for the
+      next.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrCascaderHarness" description="`ngwr/cascader/testing`">
+    <ngwr-doc-api [rows]="cascaderApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Trees" description="Levels, sibling groups, and a window.">
+    <ngwr-doc-code [code]="snippets.tree" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>aria-setsize</code> counts a node's sibling group including itself, and <code>aria-posinset</code> is its
+      place in that group — neither is a position in the flat list of visible rows, and reading them that way is the
+      classic tree bug. While the tree is virtualized <code>getNodes()</code> is the WINDOW, not the dataset, and the
+      keyboard methods are named for the ACTIVE node because a virtual tree moves a cursor with
+      <code>aria-activedescendant</code> rather than real focus.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrTreeHarness / WrTreeNodeHarness" description="`ngwr/tree/testing`">
+    <ngwr-doc-api [rows]="treeApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Mentions" description="The panel comes from what you typed.">
+    <ngwr-doc-code [code]="snippets.mention" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Typing is the only way in — the directive detects a trigger character at the caret, so a value written straight to
+      the field opens nothing. The harness sends real keydown and keyup pairs, which is what a browser does; writing it
+      that way is what surfaced a bug where Escape's keyup reopened the panel its keydown had just dismissed.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrMentionHarness" description="`ngwr/mention/testing`">
+    <ngwr-doc-api [rows]="mentionApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Form fields" description="Where the validation copy actually comes from.">
+    <ngwr-doc-code [code]="snippets.formField" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>&lt;wr-form-field&gt;</code> resolves a message per error key through
+      <a routerLink="/reference/components/form">provideWrFormErrors()</a>, then the <code>ngwr/i18n</code>
+      <code>validation.*</code> catalog, then a built-in fallback — so a field needs no
+      <code>&lt;wr-form-error&gt;</code> markup to say something useful. The two questions worth asserting are whether a
+      message is showing AND whether the control points at it: a message nothing references is decoration a screen
+      reader never reads, which is what <code>getAnnouncedDescription()</code> and <code>hasEmptyErrorBlock()</code> are
+      for.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrFormFieldHarness" description="`ngwr/form/testing`">
+    <ngwr-doc-api [rows]="formFieldApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Writing one for your own component">
