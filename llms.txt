@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 130 secondary entry points, 188 component and directive classes, built on
+> 134 secondary entry points, 188 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -126,6 +126,11 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 - **Large datasets** — `virtualScroll` is an opt-in input on `wr-table`,
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
+- **Testing** — CDK component harnesses ship beside the components they drive:
+  `ngwr/button/testing`, `ngwr/input/testing`, `ngwr/checkbox/testing`,
+  `ngwr/switch/testing`. Load them with `TestbedHarnessEnvironment` and narrow
+  with `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's
+  markup. Guide: https://ngwr.dev/guides/testing
 - **Scheduling** — `wr-event-calendar` covers month / week / day in one
   component. `events` is an input the calendar never writes to: a drag emits
   `eventChange` with the proposed start / end, and you apply it. Event `end` is
