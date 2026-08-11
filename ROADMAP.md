@@ -1423,6 +1423,16 @@ theme is what makes ngwr a library people can bet on.
       --filter=sidebar`. Predates tonight — the file was last touched on
       2026-08-09 — and it is a reminder that `check:a11y` turns `color-contrast`
       OFF, so only the nightly or a browser sees this class of thing.
+      The full nightly sweep was then run to confirm it (193 routes × 2 themes)
+      and found one more thing over baseline: `wr-event-calendar`'s event chips
+      are 20px tall, under WCAG 2.5.8's 24px, and the spacing exception does not
+      rescue them because stacked chips sit closer than 24px apart. Raising them
+      fits one fewer event per month cell before the overflow indicator appears —
+      a density decision about the component, so it is baselined with that
+      reasoning written down, alongside the carousel dots that were already there
+      for the same kind of reason. The contrast counts in the baseline were
+      tightened to what the sweep now measures (5 light, 2 dark, down from 6 and
+      3) so the next drift is visible instead of hiding under a stale ceiling.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
