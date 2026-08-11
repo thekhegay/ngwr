@@ -1,6 +1,12 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
+import { CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
+import { Subject } from 'rxjs';
+
+import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { WrTableColumns } from './interfaces';
@@ -417,5 +423,161 @@ describe('WrTable with virtual scrolling on from the start', () => {
       cols.every(col => col.style.width === '120px'),
       cols.map(c => c.style.width).join()
     ).toBe(true);
+  });
+});
+
+const HEADER_COLUMNS: WrTableColumns = {
+  name: { title: 'Name', pin: 'left' },
+  role: { title: 'Role', resizable: true },
+  city: { title: 'City' },
+};
+
+@Component({
+  imports: [WrTable],
+  template: `<wr-table [columns]="columns()" [items]="items()" rowKey="id" reorderable />`,
+})
+class DirHost {
+  readonly columns = signal(HEADER_COLUMNS);
+  readonly items = signal<readonly Record<string, unknown>[]>(ROWS);
+}
+
+/**
+ * The two header gestures that travel the inline axis.
+ *
+ * A resize is `startWidth + (clientX - startX)` and a drop slot is an index the
+ * CDK sweeps left-to-right; both read the same physical axis the layout has
+ * already mirrored, so under `dir="rtl"` a drag away from the pointer shrinks
+ * the column and the pin guard protects the column at the wrong end of the
+ * header.
+ *
+ * Every case is a pair — the SAME gesture in both directions, expecting
+ * opposite outcomes. One direction alone cannot tell "mirrors" from "always
+ * grows leftward".
+ */
+describe('WrTable header gestures follow the reading direction', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<DirHost>>;
+  let cellWidth: PropertyDescriptor | undefined;
+
+  const mount = (direction: Direction): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        // `Directionality` reads the document once at construction, so a fake is
+        // the honest way to put the component in an RTL page.
+        { provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } },
+      ],
+    });
+    fixture = TestBed.createComponent(DirHost);
+    fixture.detectChanges();
+  };
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  /** Rendered width of the `role` column — 2nd of three, no lead `<col>` here. */
+  const roleWidth = (): string => [...root().querySelectorAll<HTMLElement>('col')][1].style.width;
+
+  /** Grab the resize handle at x=200 and let go `dx` px away from there. */
+  const dragHandle = (dx: number): void => {
+    const handle = root().querySelector<HTMLElement>('.wr-table__resize-handle')!;
+    handle.dispatchEvent(new PointerEvent('pointerdown', { clientX: 200, bubbles: true, cancelable: true }));
+    handle.dispatchEvent(new PointerEvent('pointermove', { clientX: 200 + dx, bubbles: true }));
+    handle.dispatchEvent(new PointerEvent('pointerup', { clientX: 200 + dx, bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  /**
+   * The predicate the CDK asks before letting a drop land in a slot, read off
+   * the `cdkDropList` it is bound to. Driving a real drag needs layout jsdom
+   * does not do, and this is the exact seam `SingleAxisSortStrategy` calls.
+   */
+  const dropAllowed = (slot: number): boolean =>
+    fixture.debugElement.query(By.directive(CdkDropList)).injector.get(CdkDropList).sortPredicate(slot, null!, null!);
+
+  beforeEach(() => {
+    // jsdom lays nothing out, so the header width the drag starts from has to be
+    // handed over; pointer capture is a real-browser API it does not implement.
+    cellWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 120 });
+    // jsdom has no pointer capture; the table calls it during a column drag.
+    Object.defineProperty(HTMLElement.prototype, 'setPointerCapture', { configurable: true, value: noop });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (cellWidth) Object.defineProperty(HTMLElement.prototype, 'offsetWidth', cellWidth);
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>)['setPointerCapture'];
+  });
+
+  describe('column resize', () => {
+    it('grows the column as the pointer moves right, in LTR', () => {
+      mount('ltr');
+
+      dragHandle(40);
+
+      expect(roleWidth()).toBe('160px');
+    });
+
+    it('shrinks it on the same rightward drag in RTL', () => {
+      // The grip sits on the column's inline-END edge, which is its PHYSICAL
+      // left in RTL — so rightward travel is travel back across the column.
+      mount('rtl');
+
+      dragHandle(40);
+
+      expect(roleWidth()).toBe('80px');
+    });
+
+    it('shrinks the column as the pointer moves left, in LTR', () => {
+      mount('ltr');
+
+      dragHandle(-40);
+
+      expect(roleWidth()).toBe('80px');
+    });
+
+    it('grows it on the same leftward drag in RTL', () => {
+      mount('rtl');
+
+      dragHandle(-40);
+
+      expect(roleWidth()).toBe('160px');
+    });
+
+    it('still refuses to shrink below the floor, in both directions', () => {
+      // The 48px minimum is a physical size, not a direction — it holds either
+      // way round.
+      mount('ltr');
+      dragHandle(-500);
+      expect(roleWidth()).toBe('48px');
+
+      mount('rtl');
+      dragHandle(500);
+      expect(roleWidth()).toBe('48px');
+    });
+  });
+
+  describe('column reorder', () => {
+    // `name` is pinned and first in DOM order, so it owns the LEFTMOST slot in
+    // LTR and the RIGHTMOST one in RTL. The CDK always sweeps left-to-right.
+    it('guards the leftmost slot in LTR, and leaves the far one open', () => {
+      mount('ltr');
+
+      expect(dropAllowed(0)).toBe(false);
+      expect(dropAllowed(2)).toBe(true);
+    });
+
+    it('guards the rightmost slot in RTL instead', () => {
+      mount('rtl');
+
+      expect(dropAllowed(0)).toBe(true);
+      expect(dropAllowed(2)).toBe(false);
+    });
+
+    it('leaves the unpinned middle open either way — the mirror is not a shuffle', () => {
+      mount('ltr');
+      expect(dropAllowed(1)).toBe(true);
+
+      mount('rtl');
+      expect(dropAllowed(1)).toBe(true);
+    });
   });
 });

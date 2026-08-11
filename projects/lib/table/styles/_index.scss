@@ -91,12 +91,11 @@
   &__resize-handle {
     position: absolute;
     top: 0;
-    // `table.ts` starts a resize from `event.clientX` and applies
-    // `startWidth + (clientX - startX)`, so the grab edge has to stay on the
-    // physical side a growing width extends toward. Flip this only together with
-    // that sign, once the drag maths itself reads `Directionality`.
-    // rtl-ok: paired with the physical clientX drag maths in table.ts
-    right: 0;
+    // The grab edge is the side a growing width extends toward, and `table.ts`
+    // now signs that travel from `Directionality` (`resizeDelta()`): rightward
+    // in LTR, leftward in RTL. The two are a pair — flipping one without the
+    // other leaves the grip standing still while the column resizes.
+    inset-inline-end: 0;
     z-index: 1;
     width: 0.5rem;
     height: 100%;
@@ -108,8 +107,9 @@
       content: '';
       position: absolute;
       inset: 20% 0.1875rem;
-      // rtl-ok: pins the grip bar to the handle's own physical edge, above
-      left: auto;
+      // Cancels the inline-START inset so the grip bar hugs the handle's own
+      // grab edge, whichever physical side that lands on.
+      inset-inline-start: auto;
       width: 2px;
       border-radius: 1px;
       background: var(--wr-color-outline);
