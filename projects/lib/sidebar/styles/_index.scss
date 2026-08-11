@@ -49,6 +49,15 @@
       .wr-sidebar__icon {
         color: var(--wr-color-primary);
       }
+
+      // The badge measured 3.97:1 on the active row. Its own outline wash over
+      // the primary tint is what broke the pairing: `-ink` is calibrated against
+      // `-soft` ITSELF, so the fix is to let the row's tint show through and
+      // inherit the colour that was calibrated for it.
+      .wr-sidebar__badge {
+        color: inherit;
+        background: transparent;
+      }
     }
 
     &--disabled {
@@ -177,6 +186,13 @@
       color: var(--wr-color-primary-ink);
       background: var(--wr-color-primary-soft);
       pointer-events: none;
+
+      // Same reasoning as the flat entry above: `-ink` on the row's own tint is
+      // the calibrated pairing, and the badge's wash is what pushed it under.
+      .wr-sidebar__badge {
+        color: inherit;
+        background: transparent;
+      }
 
       &::before {
         background: var(--wr-color-primary);
