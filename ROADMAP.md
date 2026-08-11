@@ -1523,6 +1523,18 @@ theme is what makes ngwr a library people can bet on.
       rows of a COLLAPSED group: invisible rows, silently selected, against the
       paragraph directly above it promising "the rows currently on screen". It
       reads the render model in every mode now.
+      `wr-table`'s virtual scrolling never measured anything on the shape the docs
+      lead with. The activation effect read its two view queries inside
+      `untracked()`, and a constructor effect's first run happens BEFORE the
+      view's first update pass — so it ran once against an empty DOM (no header
+      cells to freeze, no row to measure) and, tracking nothing that would change,
+      never ran again. A table with `virtualScroll` set from the start therefore
+      sized every spacer with the 40px fallback while its rows were 56, and the
+      scrollbar was off by a third. Reading the queries TRACKED is the whole fix;
+      the effect below it was already the control case, reading `scrollEl()`
+      tracked and working correctly. Worth remembering as a rule: a constructor
+      effect that reads a `viewChild` inside `untracked` is reading `undefined`
+      and will not be told when that changes.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
