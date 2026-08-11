@@ -1433,6 +1433,24 @@ theme is what makes ngwr a library people can bet on.
       for the same kind of reason. The contrast counts in the baseline were
       tightened to what the sweep now measures (5 light, 2 dark, down from 6 and
       3) so the next drift is visible instead of hiding under a stale ceiling.
+      **A full-rule browser audit (2026-08-11)** — the two gates between them
+      leave a gap nobody was looking through. `check:a11y` runs every rule but in
+      JSDOM, so it turns OFF the three that need layout (`color-contrast`,
+      `target-size`, `scrollable-region-focusable`); the nightly runs a real
+      browser but only the first two. Nothing checked the third, and nothing
+      checked the OTHER rules against real layout. Running the whole axe rule set
+      in Chromium over all 193 routes found exactly one class of failure: code
+      blocks. Every `<pre>` on the site scrolls horizontally when a line is long,
+      and a scrollable region that cannot take focus cannot be scrolled by
+      keyboard at all — Shiki does not add `tabindex`, and the unstyled fallback
+      did not either. Both do now, plus three demo containers on the affix, scroll
+      and pull-to-refresh pages whose content is inert text with nothing focusable
+      inside to stand in for them.
+      The sweep is now clean at serious and critical for all 193 routes in BOTH
+      themes, which is a stronger statement than either gate makes on its own.
+      Worth repeating after any change to a scroll container or an overflow rule —
+      it is a scratch script, not a gate, because 193 pages × 2 themes × the full
+      rule set is minutes of browser time and the PR job is already at five.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,

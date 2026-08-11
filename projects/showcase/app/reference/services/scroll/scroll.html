@@ -14,8 +14,11 @@
           <button wr-btn size="sm" outlined type="button" (click)="scrollToSection('three')">Section three</button>
           <button wr-btn size="sm" outlined type="button" (click)="scrollToTop()">Page top (offset 80)</button>
         </div>
+        <!-- `tabindex="0"`: a region that scrolls has to be reachable by keyboard,
+             or its content can only be read with a pointer. -->
         <div
           #scrollBox
+          tabindex="0"
           style="
             height: 18rem;
             overflow-y: auto;

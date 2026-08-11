@@ -84,7 +84,11 @@ export class DocCodeComponent {
         },
         defaultColor: false,
       });
-      return this.sanitizer.bypassSecurityTrustHtml(html);
+      // A code block wider than its column scrolls, and a scrollable region that
+      // cannot take focus cannot be scrolled by keyboard at all. Shiki does not
+      // add this, and `check:a11y` cannot see it — the rule is style-dependent, so
+      // the JSDOM sweep turns it off and only a real browser reports it.
+      return this.sanitizer.bypassSecurityTrustHtml(html.replace('<pre ', '<pre tabindex="0" '));
     },
   });
 

@@ -15,7 +15,10 @@
 
   <ngwr-doc-section title="Demo (scroll inside the box)">
     <ngwr-doc-snippet code="">
+      <!-- `tabindex="0"`: a region that scrolls has to be reachable by keyboard,
+           or its content can only be read with a pointer. -->
       <div
+        tabindex="0"
         style="
           width: 100%;
           height: 18rem;
