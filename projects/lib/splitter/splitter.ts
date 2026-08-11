@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
@@ -69,6 +70,9 @@ export class WrSplitter {
   protected readonly resolvedDividerLabel = useI18nText(this.dividerLabel, 'splitter.divider', 'Resize panes');
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  // Optional on purpose: `Directionality` is root-provided, so a consumer never has to
+  // supply it — and a bare `TestBed` does not either.
+  private readonly dir = inject(Directionality, { optional: true });
   private dragging = false;
 
   constructor() {
@@ -114,8 +118,10 @@ export class WrSplitter {
     const rect = this.host.nativeElement.getBoundingClientRect();
     const raw =
       this.orientation() === 'horizontal'
-        ? ((event.clientX - rect.left) / rect.width) * 100
-        : ((event.clientY - rect.top) / rect.height) * 100;
+        ? this.inlineFraction(event.clientX, rect) * 100
+        : // The vertical split is laid out on the BLOCK axis, which `dir` does not
+          // touch — measured from the top in both directions.
+          ((event.clientY - rect.top) / rect.height) * 100;
     this.position.set(clamp(raw, this.minPosition(), this.maxPosition()));
   }
 
@@ -130,16 +136,42 @@ export class WrSplitter {
     const step = event.shiftKey ? 10 : 1;
     let next: number | null = null;
     if (this.orientation() === 'horizontal') {
-      if (event.key === 'ArrowLeft') next = this.position() - step;
-      else if (event.key === 'ArrowRight') next = this.position() + step;
+      // Arrows follow the VISUAL axis (WAI-ARIA APG). Under `dir="rtl"` the start pane
+      // is the one on the RIGHT, so the visual right is the low end of the range and
+      // ArrowRight has to shrink the position rather than grow it — otherwise the
+      // divider walks away from the key the user is pressing.
+      const inline = this.isRtl() ? -step : step;
+      if (event.key === 'ArrowLeft') next = this.position() - inline;
+      else if (event.key === 'ArrowRight') next = this.position() + inline;
     } else {
+      // Block axis: unaffected by `dir`.
       if (event.key === 'ArrowUp') next = this.position() - step;
       else if (event.key === 'ArrowDown') next = this.position() + step;
     }
+    // Home/End are semantic — first/last, not left/right — so they never mirror.
     if (event.key === 'Home') next = this.minPosition();
     else if (event.key === 'End') next = this.maxPosition();
     if (next === null) return;
     event.preventDefault();
     this.position.set(clamp(next, this.minPosition(), this.maxPosition()));
+  }
+
+  /**
+   * Fraction of the host's width measured from the INLINE-START edge — the left edge in
+   * LTR, the right edge in RTL, which is where `flex-direction: row` puts the start pane
+   * whose size `position` is. Counted from `rect.left` in both, a drag under `dir="rtl"`
+   * read 0 where the start pane was widest and inverted the whole gesture.
+   */
+  private inlineFraction(clientX: number, rect: DOMRect): number {
+    return this.isRtl() ? (rect.right - clientX) / rect.width : (clientX - rect.left) / rect.width;
+  }
+
+  /**
+   * Read per event rather than cached: nothing this component renders is derived from the
+   * direction — `flex-direction: row` mirrors the panes on its own — so there is no stale
+   * value for `Directionality.change` to invalidate.
+   */
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
   }
 }
