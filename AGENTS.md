@@ -152,7 +152,7 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
 page under `reference/components` — 124 spec files, ~1550 specs. What is still
-uncovered: seven of the animation components (the canvas and WebGL ones, where
+uncovered: five of the animation components (the canvas and WebGL ones, where
 jsdom has no drawing context) and mode coverage inside components that are
 covered — a spec on `wr-table` says nothing about tree rows unless it
 exercises them.
