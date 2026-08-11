@@ -7,10 +7,11 @@
 
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { randomId } from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -36,6 +37,7 @@ import type { WrContextMenuPanel } from './context-menu-panel';
   selector: '[wrContextMenu]',
   host: {
     class: 'wr-context-menu-host',
+    '[attr.aria-controls]': 'openMenuId()',
     '(contextmenu)': 'onContextMenu($event)',
     '(pointerdown)': 'onPointerDown($event)',
     '(pointermove)': 'onPointerMove($event)',
@@ -53,6 +55,24 @@ export class WrContextMenu {
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Id of the menu element while this trigger's menu is open, published on the
+   * host as `aria-controls`. The pane is portalled into the overlay container, a
+   * sibling of the whole app, so this reference is the ONLY link between a
+   * trigger and the menu it opened — for a screen reader, and for anything else
+   * that has to find it. Cleared on close, which is also what tells an open
+   * trigger from a closing one: the pane itself lingers for the exit animation.
+   *
+   * A signal, not a plain field: host bindings re-run only when something they
+   * READ has changed, and this one flips outside change detection (from a
+   * pointer handler, and from `onDestroy`). Held as a plain string it published
+   * the id on open — the overlay attach happens to dirty the host view — and
+   * then kept it forever, so the trigger still pointed at a menu that was gone.
+   *
+   * @internal
+   */
+  protected readonly openMenuId = signal<string | null>(null);
 
   private overlayRef: OverlayRef | null = null;
   private closingTimer: ReturnType<typeof setTimeout> | null = null;
@@ -231,6 +251,17 @@ export class WrContextMenu {
     pane.style.bottom = 'auto';
     pane.style.margin = '0';
 
+    // Name the menu we just opened so the host can point at it. The id is
+    // minted per OPEN rather than living on the panel: `closeOverlay()` keeps
+    // the previous pane in the DOM for its exit animation, so a re-open would
+    // otherwise leave two elements answering to the same id — with the dying
+    // one first in document order.
+    const menuEl = pane.querySelector<HTMLElement>('.wr-context-menu');
+    if (menuEl) {
+      menuEl.id = randomId('wr-context-menu');
+      this.openMenuId.set(menuEl.id);
+    }
+
     const sync = (): void => {
       pane.style.top = `${y - window.scrollY}px`;
       pane.style.left = `${x - window.scrollX}px`;
@@ -313,6 +344,10 @@ export class WrContextMenu {
   private closeOverlay(): void {
     if (!this.overlayRef) return;
     this.cancelLeaveTimer();
+    // Drop the reference immediately: the pane below stays in the DOM until the
+    // exit animation has played, and a trigger still pointing at a menu on its
+    // way out reads as open.
+    this.openMenuId.set(null);
     if (WrContextMenu.activeRoot === this) WrContextMenu.activeRoot = null;
     // Submenu panes live in the CDK overlay container, not inside the
     // root pane's view — destroyRef cascade through portal detach

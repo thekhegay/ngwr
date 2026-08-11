@@ -17,10 +17,12 @@ import {
   computed,
   inject,
   input,
+  signal,
 } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WR_OVERLAY } from 'ngwr/overlay';
+import { randomId } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -61,6 +63,7 @@ const SUBMENU_TRANSITION_MS = 220;
     '[attr.aria-disabled]': 'disabled() ? true : null',
     '[attr.aria-haspopup]': 'submenu() ? "menu" : null',
     '[attr.aria-expanded]': 'submenu() ? (submenuOpen ? "true" : "false") : null',
+    '[attr.aria-controls]': 'submenuId()',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave($event)',
     '(click)': 'onClick()',
@@ -101,6 +104,22 @@ export class WrContextMenuItem {
   private openTimer: ReturnType<typeof setTimeout> | null = null;
   private closeTimer: ReturnType<typeof setTimeout> | null = null;
   protected submenuOpen = false;
+
+  /**
+   * Id of the submenu's menu element while it is open, published on the item as
+   * `aria-controls` — the same contract the root trigger keeps (see
+   * {@link WrContextMenu}). Each submenu pane is its own overlay in the shared
+   * container, so `aria-haspopup` / `aria-expanded` say that a submenu EXISTS
+   * and is showing, and this says WHICH one.
+   *
+   * A signal, not a plain field like `submenuOpen`: host bindings re-run only
+   * when something they read has changed, and this flips outside change
+   * detection. Writing it is also what now refreshes `aria-expanded` next to
+   * it, which used to depend on some unrelated work dirtying the view.
+   *
+   * @internal
+   */
+  protected readonly submenuId = signal<string | null>(null);
 
   /**
    * Global registry of open submenus keyed by the host element of the
@@ -258,6 +277,14 @@ export class WrContextMenuItem {
     const pane = this.submenuRef.overlayElement;
     requestAnimationFrame(() => pane.classList.add('wr-context-menu-overlay--open'));
 
+    // Name the pane's menu so the item can point at it — minted per open for
+    // the same reason the root does it (a closing pane outlives its close).
+    const menuEl = pane.querySelector<HTMLElement>('.wr-context-menu');
+    if (menuEl) {
+      menuEl.id = randomId('wr-context-menu');
+      this.submenuId.set(menuEl.id);
+    }
+
     // Track mouse entering / leaving the submenu so we don't auto-close
     // when the cursor crosses the gap between item and submenu pane.
     pane.addEventListener('mouseenter', this.onSubmenuEnter);
@@ -339,6 +366,7 @@ export class WrContextMenuItem {
     if (!ref) return;
     this.submenuRef = null;
     this.submenuOpen = false;
+    this.submenuId.set(null);
     WrContextMenuItem.openSubmenus.delete(this.host.nativeElement);
 
     const pane = ref.overlayElement;
