@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 149 secondary entry points, 188 component and directive classes, built on
+> 156 secondary entry points, 188 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -126,19 +126,25 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 - **Large datasets** — `virtualScroll` is an opt-in input on `wr-table`,
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
-- **Testing** — CDK component harnesses ship beside the components they drive,
-  nineteen entry points so far: every form control (`button`, `input`, `textarea`,
-  `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
-  `rating`, `file-upload`), every overlay (`date-picker`, `dropdown`, `popover`,
-  `dialog`, `drawer`, `toast`) and `table` — each at `ngwr/<name>/testing`.
+- **Testing** — CDK component harnesses ship beside the components they drive, at
+  `ngwr/<name>/testing`. 26 entry points so far, covering every form control,
+  every overlay and both data views: the form controls (`button`, `input`, `textarea`, `checkbox`, `switch`,
+  `radio`, `select`, `input-number`, `input-otp`, `slider`, `rating`,
+  `file-upload`, `form` for `<wr-form-field>`), the overlays (`date-picker`,
+  `dropdown`, `popover`, `dialog`, `drawer`, `toast`, `context-menu`,
+  `popconfirm`, `command-palette`, `cascader`, `mention`) and the data views
+  (`table`, `tree`).
   Load them with `TestbedHarnessEnvironment` and narrow with
   `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's markup.
   Dialog, toast and a service-opened drawer render outside the fixture — load
   those from `documentRootLoader()`; everything else is an element in your
   template, and where its panel is in the overlay the harness reaches it for you,
-  scoped to that instance. Some are families: `WrTableHarness` + row / cell /
-  header-cell, `WrRadioGroupHarness` + `WrRadioHarness`, `WrSliderHarness` +
-  thumb, `WrInputOtpHarness` + box, `WrRatingHarness` + item.
+  scoped to that instance by the id the trigger publishes.
+  Many are families: `WrTableHarness` + row / cell / header-cell, `WrTreeHarness`
+  + node, `WrCascaderHarness` + column / option, `WrCommandPaletteHarness` +
+  group / item, `WrRadioGroupHarness` + radio, `WrSliderHarness` + thumb,
+  `WrInputOtpHarness` + box, `WrRatingHarness` + item, `WrContextMenuHarness` +
+  item (submenus included), `WrMentionHarness` + option.
   A unit test has no layout, so anything a mouse would drag (slider, rating,
   file-upload's drop zone) is driven by the KEYBOARD or by real events, never by
   coordinates. Guide: https://ngwr.dev/guides/testing

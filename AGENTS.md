@@ -11,14 +11,17 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **149**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **156**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and twenty-three are nested — `ngwr/i18n/{en,ru}`,
+  points, and thirty are nested — `ngwr/i18n/{en,ru}`,
   `ngwr/icon/adapters/{lucide,feather}` and the CDK test harnesses, which now cover
-  nineteen entry points: `ngwr/{button,input,textarea,checkbox,switch,radio,select,
-  input-number,input-otp,slider,rating,file-upload,date-picker,dropdown,popover,
-  dialog,drawer,toast,table}/testing`. Built with
+  **twenty-six** entry points: every form control (`button`, `input`, `textarea`,
+  `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
+  `rating`, `file-upload`, `form`), every overlay (`date-picker`, `dropdown`,
+  `popover`, `dialog`, `drawer`, `toast`, `context-menu`, `popconfirm`,
+  `command-palette`, `cascader`, `mention`) and the two data views (`table`,
+  `tree`) — each at `ngwr/<name>/testing`. Built with
   **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
   docs, and where components are dogfooded. Docs are organised into five
@@ -225,7 +228,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (149 entry points):
+library where an internal tool exists. The catalog is large (156 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -350,7 +353,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (149 entry points) and **deliberately consolidated** —
+The catalog is large (156 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).
