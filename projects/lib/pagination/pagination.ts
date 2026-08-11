@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input, model } from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, input, model, untracked } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
@@ -194,6 +194,18 @@ export class WrPagination {
    * untyped and is narrowed here. It used to arrive as `any` through
    * `[ngModel]`, which hid the coercion rather than removing the need for it.
    */
+  constructor() {
+    // A shrinking `total` must not leave the pager on a page that no longer
+    // exists: it only ever pulled back when the SIZE changed through its own
+    // control, so a filtered list left "page 7 of 2" pointing at nothing.
+    effect(() => {
+      const cap = this.totalPages();
+      untracked(() => {
+        if (this.currentPage() > cap) this.currentPage.set(cap);
+      });
+    });
+  }
+
   protected onSizeChange(size: unknown): void {
     const next = Number(size);
     if (this.disabled() || !Number.isFinite(next) || next <= 0 || next === this.pageSize()) return;

@@ -147,6 +147,36 @@ describe('WrPagination', () => {
     expect(pageButtons().every(b => (b.getAttribute('aria-label') ?? '').length > 1)).toBe(true);
   });
 
+  it('pulls the page back when the total shrinks under it', () => {
+    // It only ever clamped when the page SIZE changed through its own control, so
+    // a filtered list left it on "page 7" of a two-page set — and, bound to a
+    // table, pointing at an empty slice.
+    fixture.componentInstance.page.set(7);
+    fixture.detectChanges();
+    expect(page()).toBe(7);
+
+    fixture.componentInstance.total.set(20);
+    fixture.detectChanges();
+
+    expect(page()).toBe(2);
+  });
+
+  it('leaves a page that is still in range alone', () => {
+    fixture.componentInstance.page.set(3);
+    fixture.componentInstance.total.set(50);
+    fixture.detectChanges();
+
+    expect(page()).toBe(3);
+  });
+
+  it('never falls below the first page, even with nothing to show', () => {
+    fixture.componentInstance.page.set(5);
+    fixture.componentInstance.total.set(0);
+    fixture.detectChanges();
+
+    expect(page()).toBe(1);
+  });
+
   it('shows a size changer only when asked', () => {
     expect(root().querySelector('wr-select')).toBeNull();
 
