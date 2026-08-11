@@ -1399,6 +1399,15 @@ theme is what makes ngwr a library people can bet on.
       `wr-click-spark`'s canvas was the inconsistency — the confetti canvas is
       `aria-hidden`, this one was not, and both are decoration painted over
       someone else's content. One attribute.
+      **Tree rows in `wr-table` (2026-08-11)** — the first bite of the second
+      axis. The table's spec already pinned that a forest announces `treegrid` and
+      that tree + `groupBy` is refused rather than half-supported; what it did not
+      touch was EXPANDING, which is the feature itself. Now covered: `aria-level`
+      / `aria-posinset` on each row (which is what a treegrid announces instead of
+      the visual indent), `aria-expanded` absent on a leaf rather than `false`
+      (which promises a subtree that does not exist), opening one level at a time
+      rather than the whole subtree, and collapsing a root taking its descendants
+      with it however deep they were.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
