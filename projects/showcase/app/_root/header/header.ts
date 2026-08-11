@@ -1,5 +1,6 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { isPlatformBrowser } from '@angular/common';
-import { Component, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Component, DOCUMENT, DestroyRef, ElementRef, PLATFORM_ID, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { ChevronDown, Settings } from 'lucide';
@@ -48,6 +49,8 @@ export class Header {
   protected readonly theme = inject(WrTheme);
   protected readonly density = inject(WrDensity);
   protected readonly primary = inject(PrimaryColor);
+  protected readonly directionality = inject(Directionality);
+  private readonly document = inject(DOCUMENT);
 
   /** Current major (e.g. `v8`) shown on the version-switcher trigger. */
   protected readonly major = `v${String(inject(NGWR_VERSION_TOKEN)).split('.')[0]}`;
@@ -73,6 +76,23 @@ export class Header {
     { value: 'auto', label: 'Auto' },
     { value: 'light', label: 'Light' },
     { value: 'dark', label: 'Dark' },
+  ];
+
+  /**
+   * Direction segmented — the switch that makes RTL reviewable at all.
+   *
+   * Both halves have to move together or the toggle lies. `dir` on the document
+   * is what mirrors the CSS (every logical property resolves against it), and
+   * `Directionality` is what the components read for their keyboard and pointer
+   * maths — a slider's arrows, a tree's expand key, a table's column drag. The
+   * CDK's ambient instance reads the document ONCE, in its constructor, so
+   * flipping the attribute alone would mirror the layout and leave every
+   * interaction facing the old way. Writing its `valueSignal` is the documented
+   * way to move the other half.
+   */
+  protected readonly directionOptions: readonly WrSegmentedOption<Direction>[] = [
+    { value: 'ltr', label: 'LTR' },
+    { value: 'rtl', label: 'RTL' },
   ];
 
   /** Density segmented — sm / md / lg (the `touch` step is omitted here). */
@@ -112,6 +132,16 @@ export class Header {
 
   protected onDensityChange(density: WrDensityValue | null): void {
     if (density) this.density.set(density);
+  }
+
+  protected onDirectionChange(direction: Direction | null): void {
+    if (!direction) return;
+
+    this.document.documentElement.dir = direction;
+    this.directionality.valueSignal.set(direction);
+    // Components that cache a direction-derived value listen to `change` rather
+    // than reading the signal, so a write alone would leave those stale.
+    this.directionality.change.emit(direction);
   }
 
   /**

@@ -2024,14 +2024,36 @@ nobody ships a free, complete Angular AI kit.
       file (popover, where an interpolated `#{$edge}` became an `@if`) was
       confirmed by compiling both revisions and diffing the normalised CSS. It is
       byte-identical.
-      **Still open, and it is the half that makes RTL actually work:** nothing
-      reads `Directionality` yet. Overlays need `direction` on the `OverlayConfig`
-      so the CDK mirrors placement; slider, carousel and the roving-focus
-      components need it for their keyboard maths; the showcase needs a
-      `dir="rtl"` toggle so any of this is reviewable. One concrete bug is already
-      known and belongs to that half: CDK's `_getOffset` does NOT flip `offsetX`
-      under RTL, so `WR_POPOVER_POSITIONS`' ±8px gaps push a `left`/`right` panel
-      INTO its trigger instead of away from it.
+      **The logic half landed too.** Nine components now read `Directionality`:
+      slider, splitter, compare, rating, tabs, carousel, tree and table mirror
+      their keyboard and pointer maths, and `knob` deliberately does NOT — a
+      rotary control's clockwise-to-increase is physical convention, which is now
+      pinned by spec so nobody "fixes" it later. Overlays needed nothing at all:
+      the CDK already defaults `OverlayConfig.direction` to the ambient
+      `Directionality`, so placement mirrors for free — an hour saved by reading
+      `_overlay-module-chunk.mjs` before writing the wiring it did not need.
+      What overlays DID need was `wrMirrorOffsets` (`ngwr/overlay`): the CDK
+      mirrors a position's anchors but adds `offsetX` to the final PHYSICAL x, so
+      the 8px that held a popover clear of its trigger pulled it 8px INTO the
+      trigger once the panel moved sides. Four components were wrong the same way
+      — popover, popconfirm, context-menu submenus, tour — and all four now pass
+      their tables through it.
+      The showcase has a **Direction** control next to Theme and Density. It
+      writes both halves, which is the only honest way: `dir` on the document
+      mirrors the CSS, and `Directionality.valueSignal` moves the logic, because
+      the CDK's ambient instance reads the document once in its constructor and
+      would otherwise leave every interaction facing the old way. Verified in a
+      real browser: under RTL the slider thumb centres on its own value again
+      (a mid-transition reading said otherwise, and WAAPI throttling in a
+      background tab was the reason, not the CSS), and ArrowRight DECREASES while
+      ArrowUp still increases. Looking also caught what no gate could: code blocks
+      were being bidi-reordered, so `foo();` rendered as `;foo()` — snippets and
+      inline `<code>` are pinned LTR now.
+      **Remaining, and precisely:** four components still take arrow keys along the
+      inline axis without asking which way that points — `calendar` and
+      `event-calendar` (a day step), `input-otp` (box to box) and
+      `context-menu` (ArrowRight opens a submenu, which should be ArrowLeft in
+      RTL). None is blocked; they are the same shape of fix as the nine above.
       Table stakes for Material / PrimeNG / Kendo parity (MENA enterprise).
 - [x] **G2. CSP audit** (S) — documented at `/guides/csp`, verified by serving
       the prerendered site under a policy with no escape hatches. The library

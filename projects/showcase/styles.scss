@@ -122,3 +122,14 @@ button {
     color: var(--wr-color-on-surface-muted);
   }
 }
+
+// Code is left-to-right whatever the interface language is — it is not prose, and
+// bidi reordering turns `foo();` into `;foo()`. `isolate` is the inline half of
+// that: without it a snippet inside an RTL paragraph is reordered relative to the
+// text around it even with its own `direction` set.
+code,
+kbd,
+samp {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
