@@ -64,6 +64,15 @@
       anything the overlay owns. A harness looked up in the wrong one simply does not find its component, which is why
       the error you get is "failed to find element" rather than something about overlays.
     </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Which is which follows the component, not the panel. A dialog, a toast and a service-opened drawer have no element
+      in your template at all, so they come from <code>documentRootLoader()</code>. A select, a date picker, a dropdown
+      and a popover ARE elements in your template — the normal <code>loader()</code> finds them, and the harness reaches
+      into the overlay for you, scoped to that one instance by the id its trigger publishes. Two of them open at once
+      cannot answer for each other; a hand-written <code>document.querySelector('.wr-select-panel')</code> can, and
+      quietly will.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Driving a select" description="Options live in the panel, not in the select.">
@@ -107,6 +116,99 @@
 
   <ngwr-doc-section title="WrSwitchHarness" description="`ngwr/switch/testing`">
     <ngwr-doc-api [rows]="switchApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Driving a dropdown" description="Three ways in, and only one of them is a click.">
+    <ngwr-doc-code [code]="snippets.dropdown" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>open()</code> hovers and then clicks, so it works whatever <code>trigger</code> is set to — which is what
+      you want most of the time. When the point of the test IS the mode, drive the single gestures
+      (<code>hoverTrigger()</code>, <code>clickTrigger()</code>) and assert that the other one does nothing.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDropdownHarness" description="`ngwr/dropdown/testing`">
+    <ngwr-doc-api [rows]="dropdownApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDropdownItemHarness" description="`ngwr/dropdown/testing`">
+    <ngwr-doc-api [rows]="dropdownItemApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Driving a date picker" description="A field, a calendar grid and a time stepper.">
+    <ngwr-doc-code [code]="snippets.datePicker" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Day cells are addressed by their number, and the harness answers with a cell harness rather than a boolean soup:
+      selected, disabled, today, in-range and the roving tab stop are separate questions, and conflating the last two is
+      the mistake worth guarding against — a range picker has two selected ends and only one tab stop.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDatePickerHarness" description="`ngwr/date-picker/testing`">
+    <ngwr-doc-api [rows]="datePickerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDatePickerDayHarness" description="`ngwr/date-picker/testing`">
+    <ngwr-doc-api [rows]="datePickerDayApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDateRangePickerHarness" description="`ngwr/date-picker/testing`">
+    <ngwr-doc-api [rows]="dateRangeApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Popovers and tooltips" description="Same directive, two shapes.">
+    <ngwr-doc-code [code]="snippets.popover" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Both shapes have show and hide delays, so <code>open()</code> and <code>close()</code> wait for the panel to
+      actually arrive or go instead of handing you the frame before. That is also why the harness reads the mode from
+      ARIA rather than from the <code>mode</code> input: a bound <code>[mode]</code> never reaches the DOM, and the mode
+      decides which gesture opens it and which attribute names the panel.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrPopoverHarness" description="`ngwr/popover/testing`">
+    <ngwr-doc-api [rows]="popoverApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Drawers and sheets" description="Element or service — one harness.">
+    <ngwr-doc-code [code]="snippets.drawer" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      A drawer can be an element in your template or opened from <code>WrDrawerManager</code>; either way the pane lands
+      in the overlay, so the harness comes from <code>documentRootLoader()</code>. The role, the modality and the
+      <code>aria-labelledby</code> link are written onto that pane rather than onto your markup — looking for them on
+      your own host is why they seem to be missing.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrDrawerHarness" description="`ngwr/drawer/testing`">
+    <ngwr-doc-api [rows]="drawerApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Driving a table" description="A family of harnesses, because a table is a tree.">
+    <ngwr-doc-code [code]="snippets.table" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Columns are addressed by their header title — the <code>columns</code> key never reaches the DOM, so it would be a
+      name only your spec could see. Two caveats worth knowing before you assert: sorting publishes an intent and does
+      not reorder <code>items</code> (your app does that), and a virtualized body renders a WINDOW, so
+      <code>getRows()</code> is the window while <code>getAriaRowCount()</code> is the total.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrTableHarness" description="`ngwr/table/testing`">
+    <ngwr-doc-api [rows]="tableApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrTableRowHarness" description="`ngwr/table/testing`">
+    <ngwr-doc-api [rows]="tableRowApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrTableCellHarness / WrTableHeaderCellHarness" description="`ngwr/table/testing`">
+    <ngwr-doc-api [rows]="tableCellApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Writing one for your own component">
