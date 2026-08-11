@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
@@ -24,7 +25,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
+import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrMirrorOffsets, wrPresentAsSheet } from 'ngwr/overlay';
 import { numAttr } from 'ngwr/utils';
 
 import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './interfaces';
@@ -142,6 +143,7 @@ export class WrPopover {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly vcr = inject(ViewContainerRef);
@@ -294,7 +296,7 @@ export class WrPopover {
       : this.overlay
           .position()
           .flexibleConnectedTo(this.host)
-          .withPositions(WR_POPOVER_POSITIONS[position])
+          .withPositions(wrMirrorOffsets(WR_POPOVER_POSITIONS[position], this.isRtl()))
           .withPush(true);
 
     const overlayClass = tooltip
@@ -404,5 +406,16 @@ export class WrPopover {
       clearTimeout(this.hoverCloseTimer);
       this.hoverCloseTimer = null;
     }
+  }
+
+  /**
+   * Whether the app reads right-to-left.
+   *
+   * Optional inject: `Directionality` is root-provided, so this is never null in
+   * an app — but a bare `TestBed` that provides nothing should still get a
+   * component that works, and defaulting to LTR is the honest fallback.
+   */
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
   }
 }
