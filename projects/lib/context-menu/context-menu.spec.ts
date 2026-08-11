@@ -118,6 +118,19 @@ describe('WrContextMenu', () => {
     expect(items().every(i => i.closest('[role="menu"]') !== null)).toBe(true);
   });
 
+  it('points the target at the menu it opened, and lets go on close', async () => {
+    rightClick();
+
+    // The pane is portalled into the overlay container, so nothing nests the
+    // menu under the target — this reference is the only link between them.
+    expect(target().getAttribute('aria-controls')).toBe(menus()[0].id);
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    await settle();
+
+    expect(target().hasAttribute('aria-controls')).toBe(false);
+  });
+
   it('keeps every item out of the tab order, since the menu roves focus', () => {
     rightClick();
 
