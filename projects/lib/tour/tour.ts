@@ -6,6 +6,7 @@
  */
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
@@ -21,7 +22,7 @@ import {
   signal,
 } from '@angular/core';
 
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, wrMirrorOffsets } from 'ngwr/overlay';
 
 import type { WrTourPlacement, WrTourStep } from './interfaces';
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
@@ -75,6 +76,7 @@ const CONNECTED: Record<
 @Service()
 export class WrTour {
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly injector = inject(EnvironmentInjector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
@@ -216,11 +218,14 @@ export class WrTour {
       .position()
       .flexibleConnectedTo(target)
       .withPositions(
-        FALLBACKS[placement].map(side => ({
-          ...CONNECTED[side],
-          offsetY: side === 'bottom' ? 12 : side === 'top' ? -12 : 0,
-          offsetX: side === 'right' ? 12 : side === 'left' ? -12 : 0,
-        }))
+        wrMirrorOffsets(
+          FALLBACKS[placement].map(side => ({
+            ...CONNECTED[side],
+            offsetY: side === 'bottom' ? 12 : side === 'top' ? -12 : 0,
+            offsetX: side === 'right' ? 12 : side === 'left' ? -12 : 0,
+          })),
+          this.isRtl()
+        )
       )
       .withPush(true);
 
@@ -285,5 +290,16 @@ export class WrTour {
     this.overlayRef = null;
     this.spotlight?.remove();
     this.spotlight = null;
+  }
+
+  /**
+   * Whether the app reads right-to-left.
+   *
+   * Optional inject: `Directionality` is root-provided, so this is never null in
+   * an app — but a bare `TestBed` that provides nothing should still get a
+   * component that works, and defaulting to LTR is the honest fallback.
+   */
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
   }
 }

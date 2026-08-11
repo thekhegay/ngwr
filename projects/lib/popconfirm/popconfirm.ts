@@ -5,13 +5,14 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOutsideClick, wrMirrorOffsets } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 
 import { WR_POPCONFIRM_POSITIONS, type WrPopconfirmPosition } from './interfaces';
@@ -92,6 +93,7 @@ export class WrPopconfirm {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
@@ -129,7 +131,7 @@ export class WrPopconfirm {
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo(this.host)
-      .withPositions(WR_POPCONFIRM_POSITIONS[this.position()])
+      .withPositions(wrMirrorOffsets(WR_POPCONFIRM_POSITIONS[this.position()], this.isRtl()))
       .withPush(true);
 
     this.overlayRef = this.overlay.create({
@@ -211,5 +213,16 @@ export class WrPopconfirm {
     this.overlayRef = null;
     this.isOpen.set(false);
     if (returnFocus) this.host.nativeElement.focus();
+  }
+
+  /**
+   * Whether the app reads right-to-left.
+   *
+   * Optional inject: `Directionality` is root-provided, so this is never null in
+   * an app — but a bare `TestBed` that provides nothing should still get a
+   * component that works, and defaulting to LTR is the honest fallback.
+   */
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
   }
 }

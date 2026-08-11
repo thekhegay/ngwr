@@ -1,9 +1,13 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { WrPopoverPosition } from './interfaces';
 import { WrPopover } from './popover';
 
 /**
@@ -46,7 +50,7 @@ import { WrPopover } from './popover';
 })
 class Host {
   readonly tip = signal('Save changes');
-  readonly position = signal<'top' | 'right' | null>(null);
+  readonly position = signal<WrPopoverPosition | null>(null);
   readonly panelLabel = signal<string | null>(null);
   readonly openCount = signal(0);
   readonly closeCount = signal(0);
@@ -174,6 +178,16 @@ describe('WrPopover', () => {
       fixture.detectChanges();
       open();
       expect(popoverPane()?.classList.contains('wr-popover-overlay--right')).toBe(true);
+    });
+
+    it('keeps a side-placed panel clear of its trigger', () => {
+      fixture.componentInstance.position.set('left');
+      fixture.detectChanges();
+      open();
+
+      // The 8px gap in WR_POPOVER_POSITIONS reaches the DOM as the CDK's own
+      // transform, which is what makes the RTL twin below assertable at all.
+      expect(popoverPane()?.getAttribute('style')).toContain('translateX(-8px)');
     });
 
     it('toggles shut on a second click of the trigger', () => {
@@ -405,5 +419,53 @@ describe('WrPopover', () => {
 
       expect(tooltipPane()).toBeNull();
     });
+  });
+});
+
+/**
+ * The CDK mirrors a connected position's anchors under `dir="rtl"` — a `start`
+ * origin resolves to the trigger's right edge — but it adds `offsetX` to the
+ * final PHYSICAL x without mirroring it. Left alone, the 8px that held a
+ * side-placed panel clear of its trigger pulls it 8px INTO the trigger once the
+ * panel has moved to the other side, which is why `wrMirrorOffsets` exists.
+ */
+describe('WrPopover under dir="rtl"', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('turns the gap around, so the panel still sits clear of the trigger', () => {
+    fixture.componentInstance.position.set('left');
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.click-trigger')!.click();
+    fixture.detectChanges();
+
+    // The LTR twin of this case asserts translateX(-8px). Same placement, same
+    // table, mirrored offset — an unmirrored one would read -8 here and overlap.
+    expect(pane()?.getAttribute('style')).toContain('translateX(8px)');
+  });
+
+  it('leaves the block axis alone', () => {
+    fixture.componentInstance.position.set('bottom');
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.click-trigger')!.click();
+    fixture.detectChanges();
+
+    // `dir` governs the inline axis only: a panel below its trigger stays below.
+    expect(pane()?.getAttribute('style')).toContain('translateY(8px)');
   });
 });

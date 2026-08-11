@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type ConnectedPosition, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
@@ -21,7 +22,7 @@ import {
 } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
-import { WR_OVERLAY } from 'ngwr/overlay';
+import { WR_OVERLAY, wrMirrorOffsets } from 'ngwr/overlay';
 import { randomId } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
@@ -96,6 +97,7 @@ export class WrContextMenuItem {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
@@ -261,7 +263,7 @@ export class WrContextMenuItem {
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo(this.host)
-      .withPositions(positions)
+      .withPositions(wrMirrorOffsets(positions, this.isRtl()))
       .withPush(true);
 
     this.submenuRef = this.overlay.create({
@@ -388,5 +390,16 @@ export class WrContextMenuItem {
     }
     pane.classList.remove('wr-context-menu-overlay--open');
     setTimeout(() => ref.dispose(), SUBMENU_TRANSITION_MS);
+  }
+
+  /**
+   * Whether the app reads right-to-left.
+   *
+   * Optional inject: `Directionality` is root-provided, so this is never null in
+   * an app — but a bare `TestBed` that provides nothing should still get a
+   * component that works, and defaulting to LTR is the honest fallback.
+   */
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
   }
 }
