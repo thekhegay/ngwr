@@ -1493,6 +1493,23 @@ theme is what makes ngwr a library people can bet on.
       announced a position with windowing on and nothing with it off. Closing the
       overlay also dropped focus on `<body>`; it returns to the trigger now, the
       way `wr-dropdown` already did.
+      Four more from the same haul. `wr-date-picker` let the KEYBOARD commit a day
+      its own calendar disables: `isOutOfBounds` checked `min` / `max` and never
+      `dateFilter`, while the range picker next door carries that clause under a
+      comment saying why ("accepting them from the keyboard would make the two
+      entry paths disagree"). And its time panel read an emptied box as zero —
+      `Number('')` is 0, not NaN — so clearing the minutes to retype them
+      committed `00` and the padded display wrote it straight back into the field:
+      retyping a time was impossible. All three handlers wait for a number now.
+      `wr-select` opened its panel on focus with `[minChars]` set, against the
+      input's own documentation, showing an empty bordered box for the first
+      keystrokes — the "no results" row is gated on the same threshold, so there
+      was not even a line of text to explain it. And the responsive bottom sheet
+      asked for a `wr-select-backdrop` that no stylesheet anywhere defines; naming
+      a custom class also replaces CDK's dark default, so the scrim was invisible
+      while still swallowing every click meant for the page behind it.
+      `wr-dropdown` and `wr-popover` both use the shared `wr-overlay-backdrop`,
+      which select's own stylesheet already imports for exactly this.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
