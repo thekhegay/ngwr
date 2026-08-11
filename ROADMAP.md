@@ -1464,11 +1464,12 @@ theme is what makes ngwr a library people can bet on.
       a class because that entry point ships no stylesheet and a consumer
       importing none would otherwise see the text twice. The three purely
       decorative canvases are `aria-hidden` now, matching `wr-confetti` and
-      `wr-click-spark`. **Mode coverage, first haul (2026-08-11)** — the second
-      axis, audited by fanning agents over the five biggest components' UNTESTED
-      modes and then Twenty findings came back. Every one was re-verified here —
-      read in the source, reproduced by a failing test — before anything was
-      touched, and all twenty are fixed, each with a spec that fails without it.
+      `wr-click-spark`.
+      **Mode coverage (2026-08-11)** — the second axis, audited by fanning agents
+      over the five biggest components' UNTESTED modes and then having a skeptic
+      re-derive every claim from the source. Twenty findings came back. Each one
+      was re-verified here — read in the code, then reproduced by a test that
+      fails without the fix — and all twenty are fixed.
       `wr-event-calendar` labelled every column with the wrong day outside en-US,
       twice over. `getDayOfWeekNames()` is documented as "names ordered from
       `getFirstDayOfWeek()` onwards" — already rotated — and the month header
