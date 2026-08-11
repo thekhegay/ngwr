@@ -1604,6 +1604,17 @@ theme is what makes ngwr a library people can bet on.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
+      **First batch shipped:** `ngwr/{button,input,checkbox,switch}/testing`,
+      each its own nested entry point (so a spec import pulls nothing into the
+      app bundle), plus the `/guides/testing` page. Every harness answers what
+      the control DOES rather than how it is built — `isDisabled()` reads both
+      `disabled` and `aria-disabled` because the element form needs both, and
+      `getColor()` matches `WR_COLORS` rather than "the first `wr-btn--*` class",
+      which would answer `icon` as readily as `primary`. `setValue` dispatches
+      `input` AND `change`, or the harness would work for signal-forms consumers
+      and silently not for `[(ngModel)]` ones.
+      **Next:** the overlay components (select, dialog, toast, date-picker),
+      which need `documentRootLoader` and a panel harness per mode.
 - [x] **A3. a11y CI** (L) — `pnpm check:a11y` runs axe-core over all 211
       prerendered pages and fails CI on any serious or critical violation. The
       seeded baseline is empty: the ten rules it started with are fixed, which

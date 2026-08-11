@@ -1,0 +1,94 @@
+<ngwr-doc-page
+  title="Testing"
+  description="CDK test harnesses for ngwr components — drive a button, a field or a checkbox from your own specs without reaching into ngwr's markup."
+  [keywords]="['testing', 'harness', 'cdk', 'vitest', 'jest', 'TestbedHarnessEnvironment', 'spec']"
+>
+  <ngwr-doc-section title="What a harness is for">
+    <p wrTypography>
+      A spec that queries <code>.wr-btn__label</code> by hand is a spec that breaks when the library moves a
+      <code>&lt;span&gt;</code>. A harness is the supported way to drive a component: it exposes what the control DOES —
+      click it, read its label, ask whether it is disabled — and absorbs the markup underneath. These are
+      <a href="https://material.angular.dev/cdk/testing/overview" target="_blank" rel="noreferrer noopener"
+        >Angular CDK component harnesses</a
+      >, so if you have used Material's, these behave identically.
+    </p>
+
+    <p wrTypography>
+      They ship beside the components they drive, one entry point each, and they are not part of the runtime bundle —
+      importing <code>ngwr/button/testing</code> from a spec pulls nothing into your app.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.install" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Your first harness test" description="Load a harness from the fixture, then talk to it.">
+    <ngwr-doc-code [code]="snippets.first" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Every harness method is <code>async</code>. That is the CDK's contract, not a quirk of ngwr: the same harness code
+      has to work in a unit test and in a real browser over WebDriver, where nothing can be read synchronously. Await
+      each call and you never need <code>detectChanges()</code> between them — the environment flushes for you.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Finding the right one" description="`with()` narrows the query.">
+    <ngwr-doc-code [code]="snippets.filters" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>getHarness</code> throws when nothing matches, which is usually what you want in a spec — a silent
+      <code>null</code> turns into a confusing failure three lines later. Use <code>getAllHarnesses</code> when zero is
+      a legitimate answer, and <code>getHarnessOrNull</code> when you mean to check.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="A form, end to end">
+    <ngwr-doc-code [code]="snippets.form" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>setValue</code> dispatches <code>input</code> and <code>change</code>. ngwr's value controls are Signal
+      Forms native and listen to the first; a classic <code>[(ngModel)]</code> setup listens to the second. Dispatching
+      only one would give you a harness that works in some consumers' specs and not others.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Components that render into an overlay">
+    <p wrTypography>
+      A dialog, a select panel or a toast is not inside your fixture — it lands in the overlay container, which is a
+      sibling of it. Load those from the document root:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.overlay" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Harnesses for the overlay components are the next batch; until they land, query the panel through the document and
+      the <code>.wr-*</code> classes, which are public API and will not be renamed under you.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrButtonHarness" description="`ngwr/button/testing`">
+    <ngwr-doc-api [rows]="buttonApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrInputHarness" description="`ngwr/input/testing`">
+    <ngwr-doc-api [rows]="inputApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrCheckboxHarness" description="`ngwr/checkbox/testing`">
+    <ngwr-doc-api [rows]="checkboxApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrSwitchHarness" description="`ngwr/switch/testing`">
+    <ngwr-doc-api [rows]="switchApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Writing one for your own component">
+    <p wrTypography>
+      The same base class is available to you. If your app wraps an ngwr control in something of its own, a harness for
+      the wrapper keeps your specs as stable as ours:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.own" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="seeAlso" />
+</ngwr-doc-page>
