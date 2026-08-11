@@ -1408,6 +1408,21 @@ theme is what makes ngwr a library people can bet on.
       (which promises a subtree that does not exist), opening one level at a time
       rather than the whole subtree, and collapsing a root taking its descendants
       with it however deep they were.
+      **A contrast failure the PR gate cannot see (2026-08-11)** — found by
+      running axe in a real Chromium over the pages this batch touched, rather
+      than by adding another spec. `.wr-sidebar__badge` on the ACTIVE row measured
+      3.97:1 (#5f6c7d on #d6dfec), and the cause is the token system being used
+      one step off: the badge keeps `--wr-color-on-surface-muted`, which is
+      calibrated against the SURFACE, while on that row it sits on the primary
+      tint. The first fix — swapping in `--wr-color-primary-ink`, the token
+      calibrated for exactly that background — still measured under 4.5, because
+      the badge paints its own outline wash OVER the tint, so the pairing `-ink`
+      was calibrated for was not the pairing on screen. Dropping the wash on the
+      active row (the tint already reads as a pill) puts it back on the calibrated
+      pair: zero violations in both themes, confirmed with `check:contrast
+      --filter=sidebar`. Predates tonight — the file was last touched on
+      2026-08-09 — and it is a reminder that `check:a11y` turns `color-contrast`
+      OFF, so only the nightly or a browser sees this class of thing.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
