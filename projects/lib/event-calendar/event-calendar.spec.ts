@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { provideWrDateFnsAdapter } from 'ngwr/date-adapter-fns';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -413,5 +416,64 @@ describe('WrEventCalendar', () => {
 
   it('carries the public BEM classes', () => {
     expect(root().querySelector('wr-event-calendar')!.className).toContain('wr-event-calendar');
+  });
+});
+
+/**
+ * The month grid mirrors under `dir="rtl"`, so the cell to the visual right of
+ * the cursor is the EARLIER day. Its LTR twin is 'follows the cell that takes
+ * focus' above, where ArrowRight from cell 10 lands on 11.
+ */
+describe('WrEventCalendar under dir="rtl"', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const cells = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="gridcell"]')];
+
+  const arrow = (key: string, from: HTMLElement): void => {
+    from.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrDateFnsAdapter(),
+        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('walks to the earlier day on the arrow pointing at the visual right', () => {
+    const target = cells()[10];
+    target.focus();
+    fixture.detectChanges();
+
+    arrow('ArrowRight', target);
+    expect(document.activeElement).toBe(cells()[9]);
+  });
+
+  it('walks to the later day on the arrow pointing at the visual left', () => {
+    const target = cells()[10];
+    target.focus();
+    fixture.detectChanges();
+
+    arrow('ArrowLeft', target);
+    expect(document.activeElement).toBe(cells()[11]);
+  });
+
+  it('leaves the week step on the block axis', () => {
+    const target = cells()[10];
+    target.focus();
+    fixture.detectChanges();
+
+    // Down is a week later in both directions — seven cells on, not seven back.
+    arrow('ArrowDown', target);
+    expect(document.activeElement).toBe(cells()[17]);
   });
 });

@@ -1,8 +1,11 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { Subject } from 'rxjs';
+
 import { provideWrDateFnsAdapter } from 'ngwr/date-adapter-fns';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCalendar } from './calendar';
 import type { WrCalendarRange } from './interfaces';
@@ -185,5 +188,57 @@ describe('WrCalendar autoFocus', () => {
     // real focus moving to it on load.
     expect(cell()).not.toBeNull();
     expect(document.activeElement).not.toBe(cell());
+  });
+});
+
+/**
+ * A calendar grid mirrors under `dir="rtl"`, so the day to the visual right of
+ * today is YESTERDAY and ArrowRight has to walk back. The LTR twin of each case
+ * lives in the keyboard describe above (ArrowRight from the 15th lands on the
+ * 16th); a mirrored one that lands on the 14th is the whole point.
+ */
+describe('WrCalendar under dir="rtl"', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const grid = (): HTMLElement => root().querySelector<HTMLElement>('[role="grid"]')!;
+  const ring = (): string | undefined => root().querySelector('.wr-calendar__day--focused')?.textContent?.trim();
+
+  const press = async (key: string): Promise<void> => {
+    grid().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrDateFnsAdapter(),
+        { provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('walks back a day on the arrow pointing at the visual right', async () => {
+    await press('ArrowRight');
+    expect(ring()).toBe('14');
+  });
+
+  it('walks forward a day on the arrow pointing at the visual left', async () => {
+    await press('ArrowLeft');
+    expect(ring()).toBe('16');
+  });
+
+  it('leaves the week step alone, because Up and Down are the block axis', async () => {
+    await press('ArrowDown');
+    expect(ring()).toBe('22');
+
+    await press('ArrowUp');
+    expect(ring()).toBe('15');
   });
 });

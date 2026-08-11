@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
 import type { TemplateRef } from '@angular/core';
@@ -218,6 +219,7 @@ export class WrEventCalendar {
 
   private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
   private readonly document = inject(DOCUMENT);
+  private readonly dir = inject(Directionality, { optional: true });
   private readonly chipTpl = contentChild(WrCalendarEventTemplate);
 
   protected readonly todayLabel = readI18nText('eventCalendar.today', 'Today');
@@ -561,7 +563,7 @@ export class WrEventCalendar {
     let days = 0;
     let minutes = 0;
 
-    switch (event.key) {
+    switch (this.inlineKey(event.key)) {
       case 'ArrowLeft':
         days = -1;
         break;
@@ -601,7 +603,7 @@ export class WrEventCalendar {
     const inTime = this.view() !== 'month';
     let next: readonly [number, number];
 
-    switch (event.key) {
+    switch (this.inlineKey(event.key)) {
       case 'ArrowLeft':
         next = [Math.max(0, day - 1), minutes];
         break;
@@ -880,5 +882,20 @@ export class WrEventCalendar {
 
   private iso(date: Date): string {
     return `${this.adapter.getYear(date)}-${this.adapter.getMonth(date) + 1}-${this.adapter.getDate(date)}`;
+  }
+
+  /**
+   * The key as the grid SEES it.
+   *
+   * A day step follows visual order, so under `dir="rtl"` ArrowRight goes back a
+   * day. Up/Down move by week or by row and never flip; Home/End are semantic.
+   * Both key handlers route through here — the grid nav and the `Alt`+arrow drag,
+   * which moves an event and would otherwise reschedule it the wrong way.
+   */
+  private inlineKey(key: string): string {
+    if (this.dir?.value !== 'rtl') return key;
+    if (key === 'ArrowRight') return 'ArrowLeft';
+    if (key === 'ArrowLeft') return 'ArrowRight';
+    return key;
   }
 }
