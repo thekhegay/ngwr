@@ -18,10 +18,10 @@ $gutter: var(--wr-grid-gutter);
 .container,
 .container-fluid {
   width: 100%;
-  padding-right: calc(#{$gutter} * 0.5);
-  padding-left: calc(#{$gutter} * 0.5);
-  margin-left: auto;
-  margin-right: auto;
+  padding-inline-end: calc(#{$gutter} * 0.5);
+  padding-inline-start: calc(#{$gutter} * 0.5);
+  margin-inline-start: auto;
+  margin-inline-end: auto;
 }
 
 @each $name, $max-width in bp.$container-widths {

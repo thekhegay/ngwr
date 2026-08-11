@@ -48,9 +48,15 @@
     box-shadow: 0 0 0 1px rgba(var(--wr-color-black-rgb), 0.15);
     box-sizing: border-box;
 
-    // Position each handle by its edge / corner.
+    // Position each handle by its edge / corner. The whole set stays physical:
+    // handles are compass-named (`n`/`e`/`s`/`w`) and `applyResize` grows the
+    // crop from a raw `clientX` delta — `handle.includes('e')` adds `dx` to the
+    // width — so an `--e` handle mirrored to the west edge would resize away
+    // from the pointer. The crop window it anchors is placed by `[style.left.px]`
+    // from the same physical geometry.
     &--n,
     &--s {
+      // rtl-ok: centred with a physical translateX, so the pair must stay physical
       left: 50%;
       transform: translateX(-50%);
       cursor: ns-resize;
@@ -72,33 +78,39 @@
     }
 
     &--e {
+      // rtl-ok: cropper geometry — the east handle resizes by a physical `clientX` delta, so it must stay east
       right: -0.4375rem;
     }
 
     &--w {
+      // rtl-ok: cropper geometry — the west handle resizes by a physical `clientX` delta, so it must stay west
       left: -0.4375rem;
     }
 
     &--ne {
       top: -0.4375rem;
+      // rtl-ok: cropper geometry — corner handle; its `e` axis is driven by a physical `clientX` delta
       right: -0.4375rem;
       cursor: nesw-resize;
     }
 
     &--nw {
       top: -0.4375rem;
+      // rtl-ok: cropper geometry — corner handle; its `w` axis is driven by a physical `clientX` delta
       left: -0.4375rem;
       cursor: nwse-resize;
     }
 
     &--se {
       bottom: -0.4375rem;
+      // rtl-ok: cropper geometry — corner handle; its `e` axis is driven by a physical `clientX` delta
       right: -0.4375rem;
       cursor: nwse-resize;
     }
 
     &--sw {
       bottom: -0.4375rem;
+      // rtl-ok: cropper geometry — corner handle; its `w` axis is driven by a physical `clientX` delta
       left: -0.4375rem;
       cursor: nesw-resize;
     }

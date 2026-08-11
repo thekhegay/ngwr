@@ -33,6 +33,10 @@
   font-family: var(--wr-font-family-base);
   // Match popover / popconfirm / context-menu open feel.
   animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+  // `transform-origin` has no logical keyword form, and the corner it names is
+  // the scale-in choreography of `wr-overlay-in`, shared with popover /
+  // popconfirm / context-menu. Mirroring it needs a direction-aware rule.
+  // rtl-ok: animation origin, no logical keyword form exists
   transform-origin: top left;
 }
 
@@ -50,12 +54,16 @@
     padding-top: 0.25rem;
   }
 
+  // The gap sits on the pane edge that faces the trigger. `left` / `right` map
+  // to CDK `originX: 'start' | 'end'` (see `WR_DROPDOWN_POSITIONS`), which
+  // `FlexibleConnectedPositionStrategy` already resolves against the ambient
+  // `Directionality` — so the padding has to follow the same axis, logically.
   &--left {
-    padding-right: 0.25rem;
+    padding-inline-end: 0.25rem;
   }
 
   &--right {
-    padding-left: 0.25rem;
+    padding-inline-start: 0.25rem;
   }
 }
 
@@ -78,7 +86,7 @@
   font: inherit;
   font-size: var(--wr-text-sm);
   line-height: 1.25rem;
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
   cursor: pointer;
   user-select: none;

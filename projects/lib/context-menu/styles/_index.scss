@@ -19,6 +19,11 @@
   // open feel is consistent across all overlay families.
   opacity: 0;
   transform: scale(0.96);
+  // `transform-origin` has no logical keyword form, and this corner is the one
+  // the directive pins to the pointer — it writes `top` / `left` inline from
+  // `pageX`/`pageY`, physical pixels. Origin and those coordinates are one pair;
+  // mirroring the menu around the cursor is a TS change, not a rename.
+  // rtl-ok: animation origin tied to the pointer coords the directive writes
   transform-origin: top left;
   transition:
     opacity var(--wr-overlay-duration) var(--wr-overlay-ease),
@@ -94,7 +99,7 @@
     width: 0.8125rem;
     height: 0.8125rem;
     color: var(--wr-color-on-surface-muted);
-    margin-left: 0.25rem;
+    margin-inline-start: 0.25rem;
   }
 
   &--has-submenu:hover &__chevron,

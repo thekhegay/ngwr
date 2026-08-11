@@ -10,6 +10,13 @@
   z-index: 1000;
   pointer-events: none;
   top: 0;
+  // Kept verbatim from CDK's prebuilt sheet on purpose. The box is a fixed,
+  // full-viewport rect (`width`/`height: 100%`), so start/end is a no-op in both
+  // directions — and an app that also loads CDK's own prebuilt CSS would then
+  // hold `left: 0` from CDK next to `inset-inline-start: 0` from here, which in
+  // RTL over-constrains the same rect for no gain. Fidelity to the source we
+  // mirror is worth more than a rename that changes nothing.
+  // rtl-ok: re-emitted CDK rule; full-viewport box, identical under RTL
   left: 0;
   width: 100%;
   height: 100%;

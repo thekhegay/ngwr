@@ -94,6 +94,11 @@
   // cursor follow the `resize` direction.
   &__resize {
     position: absolute;
+    // `textarea.ts` starts the drag from `event.clientX` and applies
+    // `startWidth + (clientX - startX)`, so the grip has to sit on the physical
+    // side a growing width extends toward. Flip it only together with that sign,
+    // once the drag maths itself reads `Directionality`.
+    // rtl-ok: paired with the physical clientX drag maths in textarea.ts
     right: 0.25rem;
     bottom: 0.25rem;
     display: inline-flex;

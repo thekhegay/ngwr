@@ -88,7 +88,7 @@
     &::before {
       content: '';
       position: absolute;
-      left: 0.34375rem;
+      inset-inline-start: 0.34375rem;
       top: 1rem;
       bottom: -1.25rem;
       width: 1.5px;
@@ -119,7 +119,7 @@
       position: absolute;
       // Dot centre: margin-top 0.125rem + half of the 0.75rem dot = 0.5rem.
       top: 0.5rem;
-      left: 50%;
+      inset-inline-start: 50%;
       width: calc(100% + 2rem);
       height: 1.5px;
       background: var(--wr-color-outline);

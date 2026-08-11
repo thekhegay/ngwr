@@ -49,6 +49,13 @@
     position: absolute;
     top: var(--wr-segmented-padding);
     bottom: var(--wr-segmented-padding);
+    // The slide is `--wr-segmented-thumb-index` driving `translateX` below, which has
+    // no logical form and would still travel rightward under RTL — so converting only
+    // this anchor would park the thumb at the right edge and then push it off the
+    // track. Both halves have to move together (a `[dir]` rule flipping the transform's
+    // sign, or a direction-aware offset from segmented.ts), which is beyond a
+    // property-level rewrite. Worth a second opinion when the TS side of G1 lands.
+    // rtl-ok: anchor half of an anchor + physical `translateX` pair — see above
     left: var(--wr-segmented-padding);
     width: calc((100% - 2 * var(--wr-segmented-padding)) / var(--wr-segmented-thumb-count));
     transform: translateX(calc(100% * var(--wr-segmented-thumb-index)));

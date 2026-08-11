@@ -26,6 +26,10 @@ $toast-colors: (
   // Safe-area: fold each inset into the matching padding side so toasts clear
   // notches / the home indicator / rounded corners on mobile, whichever edge
   // the host is anchored to. env() is 0 without insets, so desktop stays 1rem.
+  // `env(safe-area-inset-left/right)` report the device's own edges and do NOT
+  // flip with direction, so each inset must stay on the side it describes. The
+  // 1rem base is equal on both sides, so the shorthand reads the same either way.
+  // rtl-ok: physical shorthand carrying physical `env()` insets
   padding: calc(1rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right))
     calc(1rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left));
   pointer-events: none;
@@ -57,8 +61,7 @@ $toast-colors: (
     .wr-toast {
       --wr-toast-i: var(--wr-toast-stack-index, 0);
       position: absolute;
-      left: 1rem;
-      right: 1rem;
+      inset-inline: 1rem;
       width: auto;
       max-width: calc(100% - 2rem);
       transition:
@@ -98,31 +101,33 @@ $toast-colors: (
 
   &--top {
     top: 0;
+    // rtl-ok: centred with a physical translateX, so the pair must stay physical
     left: 50%;
     transform: translateX(-50%);
   }
   &--top-start {
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
   }
   &--top-end {
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
   }
   &--bottom {
     bottom: 0;
+    // rtl-ok: centred with a physical translateX, so the pair must stay physical
     left: 50%;
     transform: translateX(-50%);
     flex-direction: column-reverse;
   }
   &--bottom-start {
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     flex-direction: column-reverse;
   }
   &--bottom-end {
     bottom: 0;
-    right: 0;
+    inset-inline-end: 0;
     flex-direction: column-reverse;
   }
 }
@@ -143,7 +148,7 @@ $toast-colors: (
   border: 1px solid var(--wr-toast-border);
   // Capture horizontal swipe-to-dismiss; let vertical scroll pass through.
   touch-action: pan-y;
-  border-left: 3px solid var(--wr-toast-accent);
+  border-inline-start: 3px solid var(--wr-toast-accent);
   @include theme.smooth-br(var(--wr-border-radius-base));
   box-shadow: var(--wr-shadow-overlay);
   font-family: var(--wr-font-family-base);
@@ -201,9 +206,13 @@ $toast-colors: (
   &__progress {
     position: absolute;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     height: 2px;
     width: 100%;
+    // `transform-origin` has no logical keyword, and the drain is a physical
+    // `scaleX`. Flipping the bar to drain from the reader's start needs a
+    // direction-aware rule, not a property rename.
+    // rtl-ok: origin is one half of a physical scaleX pair
     transform-origin: left;
     background: var(--wr-toast-accent);
     animation: wr-toast-progress linear forwards;

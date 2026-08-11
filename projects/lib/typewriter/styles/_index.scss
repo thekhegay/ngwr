@@ -15,7 +15,7 @@
 
   &__cursor {
     display: inline-block;
-    margin-left: 1px;
+    margin-inline-start: 1px;
     animation: wr-typewriter-blink var(--wr-typewriter-cursor-blink) ease-in-out infinite alternate;
   }
 }

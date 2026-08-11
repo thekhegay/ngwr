@@ -167,12 +167,12 @@
   }
 
   &__affix--prefix + .wr-input {
-    padding-left: 0.25rem;
+    padding-inline-start: 0.25rem;
   }
 
   .wr-input:has(+ &__affix--suffix),
   .wr-input:has(+ wr-password-toggle) {
-    padding-right: 0.25rem;
+    padding-inline-end: 0.25rem;
   }
 
   &__toggle {

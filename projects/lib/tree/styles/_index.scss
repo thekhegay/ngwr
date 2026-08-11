@@ -19,7 +19,7 @@
     align-items: center;
     gap: 0.375rem;
     padding: 0.3125rem 0.5rem;
-    padding-left: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
+    padding-inline-start: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
     border-radius: var(--wr-border-radius-sm);
     cursor: pointer;
     user-select: none;
@@ -156,7 +156,7 @@
     font-size: var(--wr-tree-trigger-font-size);
     line-height: var(--wr-tree-trigger-line-height);
     cursor: pointer;
-    text-align: left;
+    text-align: start;
     transition:
       border-color var(--wr-transition-base),
       box-shadow var(--wr-transition-base);
@@ -243,7 +243,9 @@
     align-items: center;
     gap: 0.125rem;
     max-width: 100%;
-    padding: 0.125rem 0.25rem 0.125rem 0.5rem;
+    // Roomier on the label side, tighter where the remove (×) sits.
+    padding-block: 0.125rem;
+    padding-inline: 0.5rem 0.25rem;
     border-radius: 999px;
     background: var(--wr-color-primary-soft);
     color: var(--wr-color-primary);

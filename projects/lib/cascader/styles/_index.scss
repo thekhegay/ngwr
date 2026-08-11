@@ -57,7 +57,7 @@
     font-size: var(--wr-cascader-font-size);
     line-height: var(--wr-cascader-line-height);
     cursor: pointer;
-    text-align: left;
+    text-align: start;
     transition:
       border-color var(--wr-transition-base),
       box-shadow var(--wr-transition-base);
@@ -163,7 +163,7 @@
     gap: 0.125rem;
 
     + .wr-cascader__col {
-      border-left: 1px solid var(--wr-color-outline);
+      border-inline-start: 1px solid var(--wr-color-outline);
     }
   }
 

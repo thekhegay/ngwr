@@ -19,9 +19,14 @@
     padding-top: env(safe-area-inset-top);
   }
   &--safe-area.wr-speed-dial--left {
+    // Pads toward the physical fan direction below, and
+    // `env(safe-area-inset-right)` names the device's own edge — it does not
+    // flip with direction, so it has to stay on the side it describes.
+    // rtl-ok: physical fan direction, physical `env()` inset
     padding-right: env(safe-area-inset-right);
   }
   &--safe-area.wr-speed-dial--right {
+    // rtl-ok: same pair as above — physical fan direction, physical inset.
     padding-left: env(safe-area-inset-left);
   }
 
@@ -90,11 +95,13 @@
   &--up {
     .wr-speed-dial__actions {
       bottom: 100%;
+      // rtl-ok: centred with a physical translateX, so the pair must stay physical
       left: 50%;
       transform: translateX(-50%);
     }
     .wr-speed-dial__action-wrap {
       bottom: 0;
+      // rtl-ok: centred with a physical translate(-50%, …), so the pair must stay physical
       left: 50%;
       transform: translate(-50%, 0.5rem);
     }
@@ -107,11 +114,13 @@
   &--down {
     .wr-speed-dial__actions {
       top: 100%;
+      // rtl-ok: centred with a physical translateX, so the pair must stay physical
       left: 50%;
       transform: translateX(-50%);
     }
     .wr-speed-dial__action-wrap {
       top: 0;
+      // rtl-ok: centred with a physical translate(-50%, …), so the pair must stay physical
       left: 50%;
       transform: translate(-50%, -0.5rem);
     }
@@ -123,11 +132,18 @@
 
   &--left {
     .wr-speed-dial__actions {
+      // The anchor and the fan offset are one pair — the actions travel on a
+      // physical `translateX` (`translate(calc(-1 * $offset), -50%)` below,
+      // which no logical property can mirror). Flip only the anchor and the
+      // dial fans back over its own trigger in RTL. A direction-aware fan is a
+      // TS/`Directionality` change, out of scope for this CSS sweep.
+      // rtl-ok: anchor paired with a physical translateX fan
       right: 100%;
       top: 50%;
       transform: translateY(-50%);
     }
     .wr-speed-dial__action-wrap {
+      // rtl-ok: same anchor/transform pair as above.
       right: 0;
       top: 50%;
       transform: translate(0.5rem, -50%);
@@ -140,11 +156,15 @@
 
   &--right {
     .wr-speed-dial__actions {
+      // Anchor paired with the physical `translate($offset, -50%)` fan below —
+      // see `--left` for why converting one half breaks the other.
+      // rtl-ok: anchor paired with a physical translateX fan
       left: 100%;
       top: 50%;
       transform: translateY(-50%);
     }
     .wr-speed-dial__action-wrap {
+      // rtl-ok: same anchor/transform pair as above.
       left: 0;
       top: 50%;
       transform: translate(-0.5rem, -50%);
