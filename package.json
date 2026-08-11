@@ -11,6 +11,7 @@
     "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl",
     "check:colors": "tsx scripts/check-color-parity.ts",
     "check:rtl": "tsx scripts/check-rtl.ts",
+    "check:rtl-layout": "tsx scripts/check-rtl-layout.ts",
     "check:a11y": "tsx scripts/check-a11y.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
     "gen:api-docs": "tsx scripts/gen-api-docs.ts",
