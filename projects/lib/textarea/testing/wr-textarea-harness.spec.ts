@@ -3,6 +3,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 
+import { provideWrConfig } from 'ngwr/config';
 import { WrTextarea } from 'ngwr/textarea';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -263,5 +264,46 @@ describe('WrTextareaHarness', () => {
 
     await fixture.whenStable();
     expect(fixture.componentInstance.legacy).toBe('old school');
+  });
+});
+
+@Component({
+  imports: [WrTextarea],
+  template: `
+    <wr-textarea placeholder="Unbound" />
+    <wr-textarea placeholder="Bound" size="lg" />
+  `,
+})
+class ConfigHost {}
+
+/**
+ * `getSize()` reads the rendered `wr-textarea--*` class, not the component's input,
+ * which is what lets it stay right when the size comes from `provideWrConfig()`
+ * rather than from the template — a consumer whose app sets a global `sm` sees `sm`
+ * here without restating it on every field.
+ */
+describe('WrTextareaHarness under provideWrConfig', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  const sizeAt = async (placeholder: string): Promise<string> =>
+    (await loader.getHarness(WrTextareaHarness.with({ placeholder }))).getSize();
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrConfig({ textarea: { size: 'sm' } })] });
+    fixture = TestBed.createComponent(ConfigHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reports the configured size for a field that binds none', async () => {
+    expect(await sizeAt('Unbound')).toBe('sm');
+  });
+
+  it('reports what the template bound where it bound one', async () => {
+    expect(await sizeAt('Bound')).toBe('lg');
   });
 });

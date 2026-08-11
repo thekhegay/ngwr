@@ -5,8 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+
+import { useConfigValue } from 'ngwr/config';
 
 /**
  * Container for `<input wrInput>` + `[wrInputPrefix]` / `[wrInputSuffix]` /
@@ -35,12 +37,27 @@ import { Component, ViewEncapsulation, computed, input } from '@angular/core';
   host: { '[class]': 'classes()' },
 })
 export class WrInputGroup {
-  /** Pill-shaped corners. @default false */
-  readonly rounded = input(false, { transform: coerceBooleanProperty });
+  /**
+   * Pill-shaped corners. Unset, it falls back to
+   * `provideWrConfig({ input: { rounded } })` — the same key the inner `[wrInput]`
+   * reads. @default false
+   */
+  readonly rounded = input<boolean | null, BooleanInput>(null, {
+    // Null-preserving, like `[wrInput]`'s: the plain `coerceBooleanProperty` folds
+    // `null` into `false`, which would make "not set" and "set to false" the same
+    // value — and a config default nothing could ever supply.
+    transform: (v: BooleanInput): boolean | null => (v == null ? null : coerceBooleanProperty(v)),
+  });
+
+  // `input.rounded`, and deliberately not a key of its own: the group owns the visible
+  // border once it wraps an input, which drops its own chrome. Resolving one and not
+  // the other would put a pill radius on the element nobody can see and leave the
+  // corner the user does see square.
+  protected readonly resolvedRounded = useConfigValue(this.rounded, c => c.input?.rounded, false);
 
   protected readonly classes = computed(() => {
     const parts = ['wr-input-group'];
-    if (this.rounded()) parts.push('wr-input-group--rounded');
+    if (this.resolvedRounded()) parts.push('wr-input-group--rounded');
     return parts.join(' ');
   });
 }

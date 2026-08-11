@@ -8,6 +8,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
+import { useConfigValue } from 'ngwr/config';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { randomId } from 'ngwr/utils';
 
@@ -49,8 +50,15 @@ export class WrRadio {
    */
   readonly icon = input<WrIconName | null>(null);
 
-  /** Control size — shares the `--wr-control-*` contract. @default 'md' */
-  readonly size = input<WrRadioSize>('md');
+  /**
+   * Control size — shares the `--wr-control-*` contract. Set per option (the
+   * group has no `size`); unset falls back to the `radio.size` app default from
+   * `provideWrConfig()`. @default 'md'
+   */
+  readonly size = input<WrRadioSize | null>(null);
+
+  /** `size`, then the app config, then `md`. @internal */
+  protected readonly resolvedSize = useConfigValue(this.size, c => c.radio?.size, 'md');
 
   /**
    * Disable just this option. The group can also be disabled as a whole via
@@ -75,7 +83,7 @@ export class WrRadio {
 
   protected readonly classes = computed(() => {
     const parts = ['wr-radio'];
-    const size = this.size();
+    const size = this.resolvedSize();
     if (size !== 'md') parts.push(`wr-radio--${size}`);
     if (this.checked()) parts.push('wr-radio--checked');
     if (this.isDisabled()) parts.push('wr-radio--disabled');

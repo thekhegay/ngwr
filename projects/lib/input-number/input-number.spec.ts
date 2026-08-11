@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrConfig } from 'ngwr/config';
+import type { WrInputSize } from 'ngwr/input';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrInputNumber } from './input-number';
@@ -179,5 +181,151 @@ describe('WrInputNumber', () => {
   it('leaves keys it does not own to the field', () => {
     // Typing a digit must not be swallowed by the stepper handler.
     expect(press('7').defaultPrevented).toBe(false);
+  });
+});
+
+/**
+ * Two controls: one that binds `[size]` / `[rounded]` — because the only thing
+ * that makes an app-wide default safe is that a template can still override it —
+ * and one that writes `rounded` as a bare attribute, which is a value the author
+ * typed rather than an absence.
+ *
+ * Both inputs are FORWARDED to the chrome (`<wr-input-group>` + `[wrInput]`), so
+ * every assertion here reads the classes that chrome renders.
+ */
+@Component({
+  imports: [WrInputNumber],
+  template: `
+    <wr-input-number [size]="size()" [rounded]="rounded()" />
+    <wr-input-number rounded />
+  `,
+})
+class ConfigHost {
+  readonly size = signal<WrInputSize | null>(null);
+  readonly rounded = signal<boolean | null>(null);
+}
+
+describe('WrInputNumber defaults from provideWrConfig', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ConfigHost>>;
+
+  const mount = (providers: EnvironmentProviders[] = []): ConfigHost => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers });
+    fixture = TestBed.createComponent(ConfigHost);
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  };
+
+  /** The chrome of one of the two controls — `0` binds, `1` carries the attribute. */
+  const chrome = (index: number): { field: HTMLInputElement; group: HTMLElement } => {
+    const control = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('wr-input-number')][index];
+    return { field: control.querySelector('input')!, group: control.querySelector('wr-input-group')! };
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('renders exactly as before when no config is provided', () => {
+    // The invariant the whole change rests on: an unbound field is `md` and
+    // square, which means no modifier class on either half of the chrome.
+    mount();
+
+    expect(chrome(0).field.className).toBe('wr-input');
+    expect(chrome(0).group.className).toBe('wr-input-group');
+  });
+
+  it('takes the configured size when the template binds none', () => {
+    mount([provideWrConfig({ inputNumber: { size: 'sm' } })]);
+
+    expect(chrome(0).field.classList.contains('wr-input--sm')).toBe(true);
+  });
+
+  it('rounds both halves of the chrome from the config, not just one', () => {
+    mount([provideWrConfig({ inputNumber: { rounded: true } })]);
+
+    // The group owns the visible border, the field owns the text inset — a pill
+    // resolved on only one of them leaves the corner the user sees square.
+    expect(chrome(0).group.classList.contains('wr-input-group--rounded')).toBe(true);
+    expect(chrome(0).field.classList.contains('wr-input--rounded')).toBe(true);
+  });
+
+  it('lets a bound size beat the configured one', () => {
+    const instance = mount([provideWrConfig({ inputNumber: { size: 'sm' } })]);
+    instance.size.set('lg');
+    fixture.detectChanges();
+
+    expect(chrome(0).field.classList.contains('wr-input--lg')).toBe(true);
+    expect(chrome(0).field.classList.contains('wr-input--sm')).toBe(false);
+  });
+
+  it('lets a bound `false` turn a configured `rounded` back off', () => {
+    // The case that decides whether the config is escapable at all: `false` is a
+    // value, not an absence, so it must not fall through to the configured `true`.
+    const instance = mount([provideWrConfig({ inputNumber: { rounded: true } })]);
+    instance.rounded.set(false);
+    fixture.detectChanges();
+
+    expect(chrome(0).group.classList.contains('wr-input-group--rounded')).toBe(false);
+    expect(chrome(0).field.classList.contains('wr-input--rounded')).toBe(false);
+  });
+
+  it('still reads a bare `rounded` attribute as true', () => {
+    // The transform maps only `null` / `undefined` to "not set". A valueless
+    // attribute arrives as `''`, which is a value the author wrote.
+    mount();
+
+    expect(chrome(1).group.classList.contains('wr-input-group--rounded')).toBe(true);
+  });
+
+  it('falls back to the `input` key where `inputNumber` says nothing', () => {
+    // The field IS a `[wrInput]`, and that directive resolves `input.size` for
+    // itself. Since this control binds the value down — and a bound value wins —
+    // an unchained lookup would make this the one field in the app that ignored
+    // an app-wide `input.size`.
+    mount([provideWrConfig({ input: { size: 'sm', rounded: true } })]);
+
+    expect(chrome(0).field.classList.contains('wr-input--sm')).toBe(true);
+    expect(chrome(0).group.classList.contains('wr-input-group--rounded')).toBe(true);
+  });
+
+  it('lets a binding escape the general `input` key too, not just `inputNumber`', () => {
+    // The chain reads TWO keys, so escapability has to hold at both of them — and
+    // the general one is the harder half: the value travels down to a
+    // `<wr-input-group>` / `[wrInput]` that resolves `input.*` for itself, so a
+    // bound `false` has to beat the configured `true` in the CHROME as well. Get
+    // that wrong and the pill survives on the element the user actually sees.
+    const instance = mount([provideWrConfig({ input: { size: 'sm', rounded: true } })]);
+    instance.size.set('lg');
+    instance.rounded.set(false);
+    fixture.detectChanges();
+
+    expect(chrome(0).field.classList.contains('wr-input--lg')).toBe(true);
+    expect(chrome(0).field.classList.contains('wr-input--sm')).toBe(false);
+    expect(chrome(0).field.classList.contains('wr-input--rounded')).toBe(false);
+    expect(chrome(0).group.classList.contains('wr-input-group--rounded')).toBe(false);
+  });
+
+  it('prefers `inputNumber` over `input` when both are configured', () => {
+    mount([provideWrConfig({ input: { size: 'sm' }, inputNumber: { size: 'lg' } })]);
+
+    expect(chrome(0).field.classList.contains('wr-input--lg')).toBe(true);
+    expect(chrome(0).field.classList.contains('wr-input--sm')).toBe(false);
+  });
+
+  it('goes back to the config when a binding is cleared', () => {
+    const instance = mount([provideWrConfig({ inputNumber: { size: 'sm' } })]);
+    instance.size.set('lg');
+    fixture.detectChanges();
+    expect(chrome(0).field.classList.contains('wr-input--lg')).toBe(true);
+
+    instance.size.set(null);
+    fixture.detectChanges();
+    expect(chrome(0).field.classList.contains('wr-input--sm')).toBe(true);
+  });
+
+  it('ignores a config that names other components', () => {
+    mount([provideWrConfig({ inputOtp: { size: 'sm' }, select: { rounded: true } })]);
+
+    expect(chrome(0).field.className).toBe('wr-input');
+    expect(chrome(0).group.className).toBe('wr-input-group');
   });
 });
