@@ -1551,6 +1551,15 @@ theme is what makes ngwr a library people can bet on.
       rather than null-returning — and the stub returns the CHIP while the chip is
       still hit-testable, which is the behaviour under test rather than a
       convenience.
+      `wr-date-picker` pushed everything but the date into its panels ONCE, at
+      attach. `ComponentRef.setInput` is a write, not a binding, so a `[min]` that
+      changed while the popover was open kept the stale constraint until the next
+      reopen, and the datetime panel — whose ref was not even stored — never saw a
+      value typed into the field, so the next stepper click emitted its own stale
+      copy and silently undid the typing. Every panel now gets a live effect,
+      which is what `wr-date-range-picker` already does under a comment naming
+      this exact bug. The value push carries an echo guard so a panel is never
+      handed back the value it just emitted.
       **Remaining:** every component page and every service now has a spec behind
       it. What is left is five of the animation components — `aurora`,
       `falling-text`, `fuzzy-text`, `splash-cursor`, `waves`, all canvas or WebGL,
