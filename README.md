@@ -4,6 +4,7 @@
 [![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23f51c6a)](https://www.npmjs.com/package/ngwr)
 [![angular peer](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
 [![ci](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/ci.yml?branch=main&label=ci)](https://github.com/thekhegay/ngwr/actions/workflows/ci.yml)
+[![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
 **NGWR** is a modern Angular UI library — standalone components, signals-first,

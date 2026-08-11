@@ -1,0 +1,40 @@
+# Codecov reads this from the default branch. Kept deliberately small: the badge
+# and a non-blocking PR check are all this repo wants from the service — the gates
+# that can fail a build live in `pnpm lint` / `pnpm test` and in ci.yml.
+coverage:
+  status:
+    # `auto` compares against the base commit rather than a fixed number, so the
+    # target moves with the project instead of needing a hand-edit every time a
+    # batch of specs lands. The threshold is the honest part: a percent of drift
+    # is noise (one refactor moves it), a bigger drop is worth a comment.
+    project:
+      default:
+        target: auto
+        threshold: 1%
+        informational: true
+    # Patch coverage — the lines a PR touched — informational for the same reason.
+    # A PR that adds a component with no spec should be told so, not blocked: the
+    # spec often lands with the docs page in the next commit.
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+        informational: true
+
+# One comment per PR, updated in place rather than appended to.
+comment:
+  layout: 'condensed_header, diff, condensed_files'
+  behavior: default
+  require_changes: true
+
+ignore:
+  # Specs are excluded from `tsconfig.lib.json` and never ship to npm, so counting
+  # them as covered source would only inflate the number.
+  - '**/*.spec.ts'
+  # Barrels and ng-packagr entry files are re-exports with nothing to execute.
+  - '**/index.ts'
+  - '**/public-api.ts'
+  # The docs site is not the library. `lib:test` never instruments it, but naming
+  # it here keeps a future runner change from quietly moving the number.
+  - 'projects/showcase/**'
+  - 'scripts/**'
