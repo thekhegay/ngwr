@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
@@ -12,6 +13,7 @@ import {
   ViewEncapsulation,
   computed,
   effect,
+  inject,
   input,
   model,
   output,
@@ -51,6 +53,8 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
   host: { '[class]': 'classes()', role: 'group', 'aria-label': 'Verification code' },
 })
 export class WrInputOtp implements FormValueControl<string> {
+  private readonly dir = inject(Directionality, { optional: true });
+
   /** Number of cells to render. Clamped to `[1, 20]`. @default 6 */
   readonly length = input(6, {
     transform: (v: unknown): number => Math.max(1, Math.min(20, coerceNumberProperty(v, 6))),
@@ -139,7 +143,7 @@ export class WrInputOtp implements FormValueControl<string> {
 
   protected onKeyDown(event: KeyboardEvent, index: number): void {
     const target = event.target as HTMLInputElement;
-    switch (event.key) {
+    switch (this.inlineKey(event.key)) {
       case 'Backspace':
         if (target.value === '') {
           event.preventDefault();
@@ -228,5 +232,19 @@ export class WrInputOtp implements FormValueControl<string> {
       default:
         return one;
     }
+  }
+
+  /**
+   * The key as the strip SEES it.
+   *
+   * The boxes run along the inline axis, so under `dir="rtl"` the box to the
+   * visual right of the caret is the PREVIOUS one. Home/End stay semantic (first
+   * and last box), and Backspace is not a direction at all.
+   */
+  private inlineKey(key: string): string {
+    if (this.dir?.value !== 'rtl') return key;
+    if (key === 'ArrowRight') return 'ArrowLeft';
+    if (key === 'ArrowLeft') return 'ArrowRight';
+    return key;
   }
 }

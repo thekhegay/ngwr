@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -146,5 +149,55 @@ describe('WrInputOtp', () => {
     fixture.detectChanges();
 
     expect(boxes().every(b => b.disabled)).toBe(true);
+  });
+});
+
+/**
+ * Under `dir="rtl"` the boxes run right-to-left, so the arrow keys have to follow
+ * the visual strip rather than the index: pressing toward the visual right must
+ * reach the PREVIOUS box. Each case has an LTR twin above it in the main
+ * describe, which is what makes the pair meaningful — a spec that only checked
+ * RTL could not tell "mirrors" from "always walks left".
+ */
+describe('WrInputOtp under dir="rtl"', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const boxes = (): HTMLInputElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input'),
+  ];
+
+  const press = (index: number, key: string): void => {
+    boxes()[index].focus();
+    boxes()[index].dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: Directionality, useValue: { value: 'rtl', change: new Subject<Direction>() } }],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('walks toward the visual right by going back a box', () => {
+    press(2, 'ArrowRight');
+    expect(document.activeElement).toBe(boxes()[1]);
+  });
+
+  it('walks toward the visual left by going forward a box', () => {
+    press(2, 'ArrowLeft');
+    expect(document.activeElement).toBe(boxes()[3]);
+  });
+
+  it('keeps Home and End on the first and last box, which are semantic', () => {
+    press(2, 'Home');
+    expect(document.activeElement).toBe(boxes()[0]);
+
+    press(2, 'End');
+    expect(document.activeElement).toBe(boxes()[5]);
   });
 });
