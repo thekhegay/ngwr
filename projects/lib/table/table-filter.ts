@@ -50,7 +50,21 @@ export class WrTableFilter {
     return all.filter(i => i.title.toLowerCase().includes(q));
   });
 
-  protected readonly selectedCount = computed(() => this.items().filter(i => i.selected).length);
+  /**
+   * Bumped on every selection change.
+   *
+   * `items` belongs to the CONSUMER — the column definition hands the same array
+   * back on every render — and this component flips `selected` on those objects in
+   * place. No signal sees a property mutation, so `selectedCount` memoised its
+   * first answer: the count badge never appeared and the `--active` class never
+   * arrived, however many boxes were ticked.
+   */
+  private readonly selectionVersion = signal(0);
+
+  protected readonly selectedCount = computed(() => {
+    this.selectionVersion();
+    return this.items().filter(i => i.selected).length;
+  });
 
   protected readonly classes = computed(() => {
     const parts = ['wr-table-filter'];
@@ -64,11 +78,13 @@ export class WrTableFilter {
 
   protected onToggle(item: WrTableFilterItem): void {
     item.selected = !item.selected;
+    this.selectionVersion.update(v => v + 1);
     this.emitSelected();
   }
 
   protected onReset(): void {
     for (const item of this.items()) item.selected = false;
+    this.selectionVersion.update(v => v + 1);
     this.selectionChange.emit([]);
   }
 
