@@ -65,6 +65,12 @@ let popoverUid = 0;
 @Directive({
   selector: '[wrPopover]',
   host: {
+    // Marks the trigger the way `[wrDropdown]` marks its own. Popover-mode
+    // content is a `TemplateRef`, so it is always bound as `[wrPopover]="…"`,
+    // which leaves no attribute in the DOM at all, and a closed tooltip
+    // publishes no ARIA either — so without this there is nothing to find a
+    // trigger by. (Only the static string form, `wrPopover="text"`, would be.)
+    class: 'wr-popover-trigger',
     '[attr.aria-haspopup]': 'isTooltip() ? null : "dialog"',
     '[attr.aria-expanded]': 'isTooltip() ? null : isOpen()',
     '[attr.aria-controls]': '!isTooltip() && isOpen() ? panelId : null',
