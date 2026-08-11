@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { DOCUMENT, NgTemplateOutlet, isPlatformBrowser } from '@angular/common';
@@ -375,6 +376,21 @@ export class WrTable {
   private readonly headerCells = viewChildren<ElementRef<HTMLElement>>('thCell');
 
   /**
+   * Ambient reading direction, for the two header gestures that travel the
+   * inline axis: the resize drag and the CDK's drop-slot index.
+   *
+   * Optional so a bare `TestBed` — or a consumer who never set a direction —
+   * needs no provider; `Directionality` is root-provided anyway, and a missing
+   * one reads as `ltr`. Read per gesture rather than cached, so a runtime `dir`
+   * flip needs no subscription to `change`.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
+
+  private isRtl(): boolean {
+    return this.dir?.value === 'rtl';
+  }
+
+  /**
    * Columns in render order — declaration order, overridden by `columnOrder`
    * once reordered; new keys append, removed keys drop out. Pin and resize
    * measurement key off this, so it must equal the rendered order.
@@ -595,9 +611,22 @@ export class WrTable {
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
   }
 
+  /**
+   * Pointer travel along the INLINE axis since the drag started, in px.
+   *
+   * The grip sits on each column's inline-END edge, so a column grows as the
+   * pointer moves away from that column's start: rightward in LTR, leftward in
+   * RTL. Signed here once rather than sprinkled through the width maths — and
+   * this sign is the pair of `inset-inline-end` on `.wr-table__resize-handle`,
+   * so the two must move together.
+   */
+  private resizeDelta(clientX: number): number {
+    return this.isRtl() ? this.resizeStartX - clientX : clientX - this.resizeStartX;
+  }
+
   protected onResizeMove(event: PointerEvent): void {
     if (this.resizeKey === null) return;
-    const width = Math.max(48, this.resizeStartWidth + (event.clientX - this.resizeStartX));
+    const width = Math.max(48, this.resizeStartWidth + this.resizeDelta(event.clientX));
     this.resizeWidths.set(new Map(this.resizeWidths()).set(this.resizeKey, width));
   }
 
@@ -705,8 +734,23 @@ export class WrTable {
   /**
    * Keep pinned columns anchored — a drop can't land on a pinned column's slot,
    * so a scrollable column can't be dragged into the frozen region at either edge.
+   *
+   * The index the CDK hands over is a slot in the pointer sweep it does along
+   * the header, and that sweep is always left-to-right (`SingleAxisSortStrategy`
+   * caches item rects sorted by `clientRect.left`). `displayColumns()` is DOM
+   * order, which under `dir="rtl"` runs the other way — so without the mirror
+   * the guard is asked about the column at the opposite end of the header, and
+   * a drop lands on the pinned one it was meant to protect.
+   *
+   * The drop event itself needs no such mapping: `previousIndex` /
+   * `currentIndex` come from `getItemIndex`, which the CDK already un-mirrors
+   * back to DOM order.
    */
-  protected readonly sortPredicate = (index: number): boolean => !this.displayColumns()[index]?.column.pin;
+  protected readonly sortPredicate = (index: number): boolean => {
+    const cols = this.displayColumns();
+    const slot = this.isRtl() ? cols.length - 1 - index : index;
+    return !cols[slot]?.column.pin;
+  };
 
   // --- Row selection --------------------------------------------------------
 
