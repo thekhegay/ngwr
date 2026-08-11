@@ -33,7 +33,8 @@ function sameValue(actual: WrSliderValue, expected: WrSliderValue): boolean {
  * width: a positive one writes the slider's MAX and `clientX: 0` writes `NaN`,
  * neither of them the value asked for. The keyboard is both the accessible path
  * and the only honest one here; {@link WrSliderThumbHarness.setValue} spells out
- * what the walk costs.
+ * what the walk costs, and {@link WrSliderThumbHarness} why every one of those
+ * presses is on the block axis, which `dir` does not turn around.
  *
  * The `step` is deliberately not readable: the component publishes it nowhere in
  * the DOM (ARIA has no attribute for it), so a spec that needs the number should
@@ -179,12 +180,12 @@ export class WrSliderHarness extends ComponentHarness {
     await highThumb.setValue(high);
   }
 
-  /** One step up (`ArrowRight`). Single-thumb only. A disabled slider does not move. */
+  /** One step up (`ArrowUp`). Single-thumb only. A disabled slider does not move. */
   async stepUp(): Promise<void> {
     return (await this.single('stepUp')).stepUp();
   }
 
-  /** One step down (`ArrowLeft`). Single-thumb only. A disabled slider does not move. */
+  /** One step down (`ArrowDown`). Single-thumb only. A disabled slider does not move. */
   async stepDown(): Promise<void> {
     return (await this.single('stepDown')).stepDown();
   }

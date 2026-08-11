@@ -38,6 +38,11 @@
     top: 50%;
     width: var(--wr-slider-thumb-size);
     height: var(--wr-slider-thumb-size);
+    // The inline half of the centring pair follows the inset it centres:
+    // `slider.html` positions the thumb with `inset-inline-start`, which is the
+    // RIGHT edge under `dir="rtl"`, so a fixed `-50%` would drag the thumb — and
+    // the 44px tap area pinned to it — a whole thumb-width past its own value.
+    // The block half is symmetric and stays put.
     transform: translate(-50%, -50%);
     appearance: none;
     background: var(--wr-slider-thumb);
@@ -59,6 +64,16 @@
     &:active {
       cursor: grabbing;
       transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    // Mirrored last, and with the `:active` pair spelled out, so the RTL rules
+    // outrank the LTR ones they replace at every state.
+    [dir='rtl'] & {
+      transform: translate(50%, -50%);
+
+      &:active {
+        transform: translate(50%, -50%) scale(1.1);
+      }
     }
   }
 

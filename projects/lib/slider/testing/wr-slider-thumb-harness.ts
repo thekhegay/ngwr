@@ -24,6 +24,15 @@ const MAX_PRESSES = 1000;
  * Every write here is a KEY PRESS, because a drag is not something a unit test
  * can perform — see {@link setValue}.
  *
+ * Every press is on the BLOCK axis — `ArrowUp` / `ArrowDown`, `PageUp` /
+ * `PageDown`, `Home` / `End` — so the harness means the same thing in both
+ * reading directions. That is not a detail: the component's ← / → follow the
+ * VISUAL track, so under `dir="rtl"` a right-arrow LOWERS the value, and a
+ * harness that pressed it would have `stepUp()` stepping down while every LTR
+ * spec stayed green. It cannot detect the direction to compensate either —
+ * `Directionality` is injected, not published to the DOM — so it stays on the
+ * axis `dir` does not govern.
+ *
  * @example
  * ```ts
  * const upper = await slider.getHighThumb();
@@ -104,14 +113,19 @@ export class WrSliderThumbHarness extends ComponentHarness {
     return (await this.host()).isFocused();
   }
 
-  /** One step up (`ArrowRight`; `ArrowUp` is the same). A disabled thumb does not move. */
+  /**
+   * One step up (`ArrowUp`). A disabled thumb does not move.
+   *
+   * `ArrowRight` is the same key press in an LTR slider and the OPPOSITE one in
+   * an RTL slider, so the vertical arrow is the one that means "up" everywhere.
+   */
   async stepUp(): Promise<void> {
-    return this.press(TestKey.RIGHT_ARROW);
+    return this.press(TestKey.UP_ARROW);
   }
 
-  /** One step down (`ArrowLeft`; `ArrowDown` is the same). A disabled thumb does not move. */
+  /** One step down (`ArrowDown`; `ArrowLeft` only agrees in LTR — see {@link stepUp}). */
   async stepDown(): Promise<void> {
-    return this.press(TestKey.LEFT_ARROW);
+    return this.press(TestKey.DOWN_ARROW);
   }
 
   /** Ten steps up (`PageUp`; `Shift`+arrow is the same stride). */
@@ -257,7 +271,10 @@ export class WrSliderThumbHarness extends ComponentHarness {
   /** The key that moves the thumb one stride in `direction`. */
   private strideKey(direction: 1 | -1, striding: boolean): TestKey {
     if (striding) return direction === 1 ? TestKey.PAGE_UP : TestKey.PAGE_DOWN;
-    return direction === 1 ? TestKey.RIGHT_ARROW : TestKey.LEFT_ARROW;
+    // The vertical arrows, for the reason {@link stepUp} gives: the horizontal
+    // pair swaps meaning under `dir="rtl"`, which would send the fine stretch of
+    // the walk away from its target.
+    return direction === 1 ? TestKey.UP_ARROW : TestKey.DOWN_ARROW;
   }
 
   /**
