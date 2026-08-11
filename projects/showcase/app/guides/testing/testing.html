@@ -45,9 +45,12 @@
     <ngwr-doc-code [code]="snippets.form" language="typescript" />
 
     <p wrTypography variant="small" tone="medium">
-      <code>setValue</code> dispatches <code>input</code> and <code>change</code>. ngwr's value controls are Signal
-      Forms native and listen to the first; a classic <code>[(ngModel)]</code> setup listens to the second. Dispatching
-      only one would give you a harness that works in some consumers' specs and not others.
+      <code>setValue</code> dispatches <code>input</code> and then <code>change</code>. The first is the one that
+      carries the value: ngwr's value controls are Signal Forms native and listen to it, and so does Angular's
+      <code>DefaultValueAccessor</code>, which is what <code>[(ngModel)]</code> and a reactive form bind through — its
+      listeners are <code>input</code>, <code>blur</code> and the two composition events, and <code>change</code> is not
+      one of them. <code>change</code> follows for your own <code>(change)</code> handler, which a browser would defer
+      to the commit that a harness write never reaches.
     </p>
   </ngwr-doc-section>
 
@@ -209,6 +212,100 @@
 
   <ngwr-doc-section title="WrTableCellHarness / WrTableHeaderCellHarness" description="`ngwr/table/testing`">
     <ngwr-doc-api [rows]="tableCellApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Radio groups" description="The value lives on the group, not the radio.">
+    <ngwr-doc-code [code]="snippets.radio" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      The one thing worth pinning in a radio spec is that the tab stop and the selection are different questions. A
+      group with nothing picked yet is still reachable by keyboard — its first enabled option carries the tab stop — and
+      once an option is picked the tab stop moves onto it. A harness that answered "the checked one" for both would look
+      right in every test and be wrong for every keyboard user.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrRadioGroupHarness / WrRadioHarness" description="`ngwr/radio/testing`">
+    <ngwr-doc-api [rows]="radioApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrTextareaHarness" description="`ngwr/textarea/testing`">
+    <p wrTypography>
+      For the <code>&lt;wr-textarea&gt;</code> component. A native <code>&lt;textarea wrInput&gt;</code> is the
+      <code>[wrInput]</code> directive instead, and <code>WrInputHarness</code> covers that one.
+    </p>
+
+    <ngwr-doc-api [rows]="textareaApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Numbers, and the gap between text and value">
+    <ngwr-doc-code [code]="snippets.number" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      A number field shows a string and holds a number, and mid-type the two disagree — a separator, a prefix, a lone
+      minus sign. So the harness asks them separately: <code>getValueText()</code> is what a user sees and
+      <code>getValue()</code> is the number, which THROWS rather than guessing when the field holds something the
+      control has not accepted. If your app sets its own <code>LOCALE_ID</code>, pass it:
+      <code>getValue('de-DE')</code>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrInputNumberHarness" description="`ngwr/input-number/testing`">
+    <ngwr-doc-api [rows]="numberApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="One-time codes" description="Typed, pasted, or backspaced away.">
+    <ngwr-doc-code [code]="snippets.otp" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Pasting is how most people deliver a code, so <code>paste()</code> drives the real <code>paste</code> event rather
+      than typing character by character. One caveat the harness cannot paper over: the assembled code is what the BOXES
+      hold, and a value the boxes cannot accept — a letter in numeric mode — leaves the bound model holding something
+      the harness cannot see. Assert the model as well when a write comes from outside the control.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrInputOtpHarness / WrInputOtpBoxHarness" description="`ngwr/input-otp/testing`">
+    <ngwr-doc-api [rows]="otpApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Sliders" description="Driven by the keyboard, and that is not a shortcut.">
+    <ngwr-doc-code [code]="snippets.slider" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      A unit test has no layout: every element measures 0×0, so a drag computed from an offset resolves to a bound — or
+      to <code>NaN</code> when the offset is zero. A coordinate-driven <code>setValue</code> would therefore write the
+      wrong number and report success. The harness walks the value with the keys instead (the accessible path a real
+      user with no mouse takes), takes the ten-step stride before single steps, and throws if it settles anywhere but
+      the value you asked for — a <code>max</code> that is not a whole number of steps from <code>min</code> is not
+      reachable, and you should hear about it rather than get a silent 99.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrSliderHarness / WrSliderThumbHarness" description="`ngwr/slider/testing`">
+    <ngwr-doc-api [rows]="sliderApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Ratings">
+    <ngwr-doc-code [code]="snippets.rating" language="typescript" />
+
+    <ngwr-doc-api [rows]="ratingApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="File uploads" description="Real drag events, and a real FileList.">
+    <ngwr-doc-code [code]="snippets.upload" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      <code>FileList</code> has no constructor, so files are delivered through a <code>DataTransfer</code> — which is
+      also what a real drop carries. <code>dropFiles()</code> plays the whole gesture (<code>dragenter</code>,
+      <code>dragover</code>, <code>drop</code>) rather than the last event of it, because a component that stopped
+      disarming its drop zone would pass a drop-only test. Focus goes to the zone, not to the hidden picker: the picker
+      is <code>aria-hidden</code> and out of the tab order.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrFileUploadHarness" description="`ngwr/file-upload/testing`">
+    <ngwr-doc-api [rows]="uploadApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Writing one for your own component">

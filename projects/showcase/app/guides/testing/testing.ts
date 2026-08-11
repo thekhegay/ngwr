@@ -231,6 +231,96 @@ it('announces a tree', async () => {
   expect(await root.isExpandable()).toBe(true);
 });`,
 
+    radio: `it('answers the size question', async () => {
+  const group = await loader.getHarness(WrRadioGroupHarness);
+
+  expect(await group.getRadioLabels()).toEqual(['Small', 'Medium', 'Large']);
+  expect(await group.getSelectedLabel()).toBeNull();
+
+  // Nothing is picked yet, so the tab stop is option one — NOT the selection.
+  expect(await group.getTabStopLabel()).toBe('Small');
+
+  await group.select({ label: 'Large' });
+  expect(await group.getSelectedLabel()).toBe('Large');
+  expect(await group.getTabStopLabel()).toBe('Large');
+});`,
+
+    number: `it('clamps at the maximum', async () => {
+  const qty = await loader.getHarness(WrInputNumberHarness);
+
+  await qty.setValue(3);
+  expect(await qty.getValue()).toBe(3);
+
+  await qty.increment();                    // step is 1, max is 4
+  await qty.increment();
+  expect(await qty.getValue()).toBe(4);
+  expect(await qty.isIncrementDisabled()).toBe(true);
+});
+
+it('separates the field text from the value', async () => {
+  const price = await loader.getHarness(WrInputNumberHarness);
+
+  await price.setValueText('1 234,5');      // mid-type, not committed
+  expect(await price.getValueText()).toBe('1 234,5');
+  expect(await price.getValue()).toBe(1234.5);
+});`,
+
+    otp: `it('takes a pasted code', async () => {
+  const otp = await loader.getHarness(WrInputOtpHarness);
+
+  await otp.paste('123456');
+  expect(await otp.getValue()).toBe('123456');
+  expect(await otp.isComplete()).toBe(true);
+
+  await otp.backspace();
+  expect(await otp.getBoxValues()).toEqual(['1', '2', '3', '4', '5', '']);
+  expect(await otp.getFocusedIndex()).toBe(5);
+});`,
+
+    slider: `it('moves the slider', async () => {
+  const slider = await loader.getHarness(WrSliderHarness);
+
+  // Keyboard-driven on purpose: a unit test has no layout, so a drag would write
+  // the wrong number or NaN. This is the accessible path anyway.
+  await slider.setValue(70);
+  expect(await slider.getValue()).toBe(70);
+
+  await slider.stepUp();
+  await slider.toMax();
+  expect(await slider.getValue()).toBe(await slider.getMax());
+});
+
+it('moves the far end of a range first', async () => {
+  const slider = await loader.getHarness(WrSliderHarness);   // range
+
+  await slider.setRange(90, 95);
+  expect(await slider.getValue()).toEqual([90, 95]);
+});`,
+
+    rating: `it('takes a rating', async () => {
+  const rating = await loader.getHarness(WrRatingHarness);
+
+  await rating.setValue(4);
+  expect(await rating.getValue()).toBe(4);
+
+  const items = await rating.getItems();
+  expect(await items[3].isFilled()).toBe(true);
+  expect(await items[4].isFilled()).toBe(false);
+
+  await rating.clear();
+  expect(await rating.getValue()).toBe(0);
+});`,
+
+    upload: `it('takes a dropped file and drops a rejected one', async () => {
+  const upload = await loader.getHarness(WrFileUploadHarness);
+
+  await upload.dropFiles([new File(['hello'], 'notes.txt', { type: 'text/plain' })]);
+  expect(await upload.getFileNames()).toEqual(['notes.txt']);
+
+  await upload.removeFileNamed('notes.txt');
+  expect(await upload.getFileCount()).toBe(0);
+});`,
+
     own: `import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 export class MyWidgetHarness extends ComponentHarness {
@@ -273,7 +363,8 @@ export class MyWidgetHarness extends ComponentHarness {
     { name: 'getValue()', description: 'The current value.', type: 'Promise<string>', default: '—' },
     {
       name: 'setValue(value)',
-      description: 'Type a value in. Dispatches `input` AND `change`, so signal forms and `[(ngModel)]` both hear it.',
+      description:
+        "Type a value in. `input` carries the value — signal forms AND `[(ngModel)]` both listen to that one. `change` follows it for a consumer's own `(change)` handler, which a browser would only fire on commit.",
       type: 'Promise<void>',
       default: '—',
     },
@@ -905,6 +996,277 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'Header cells add: isSortable() / sort() / getSortDirection() / isFilterable()',
       description: '`isFilterable()` needs a NON-EMPTY `filterItems` — an empty array renders no control.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly radioApi: readonly DocApiRow[] = [
+    {
+      name: 'getRadios(filters?) / getRadioLabels()',
+      description: 'The options in DOM order, scoped to THIS group. Filters: `label`, `value`, `checked`, `disabled`.',
+      type: 'Promise<WrRadioHarness[]> | Promise<string[]>',
+      default: '—',
+    },
+    {
+      name: 'getSelectedRadio() / getSelectedLabel() / select(filters)',
+      description:
+        '`select()` throws if the option is still unchecked after the click — which is what a disabled option does, silently.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getTabStopLabel() / focusTabStop() / getFocusedLabel()',
+      description:
+        'The roving tab stop is the CHECKED option, or the first enabled one while the question is unanswered — not the same thing, and the difference is what a keyboard user feels.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getName()',
+      description:
+        'Read off the radios, because that is where a bound `[name]` lands. A literal `name="size"` also survives on the group element — do not "simplify" a lookup into that trap.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getAccessibleName()',
+      description:
+        '`aria-labelledby` first, then `aria-label` — the order the name computation uses. They are not interchangeable.',
+      type: 'Promise<string | null>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / isDisabled()',
+      description: '`radiogroup`. The group counts as disabled only when every option is.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'One radio: getLabel() / getValue() / isChecked() / isDisabled() / getSize() / hasIcon() / isLabelBound() / check() / focus() / blur() / isFocused()',
+      description:
+        '`getLabel()` is the text only — an icon lives in the dot, and a consumer icon carrying a `<title>` would otherwise join the label.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly textareaApi: readonly DocApiRow[] = [
+    {
+      name: 'getValue() / setValue(text) / clear()',
+      description:
+        'The `<textarea>` value never reaches its text content, so this is the property. A write refuses on a disabled or readonly field instead of pretending.',
+      type: 'Promise<string> | Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getLabel() / getPlaceholder()',
+      description: "`getLabel()` answers `null`, not `''`, for a field with neither an `ariaLabel` nor a placeholder.",
+      type: 'Promise<string | null> | Promise<string>',
+      default: '—',
+    },
+    {
+      name: 'isDisabled() / isReadonly() / isInvalid()',
+      description:
+        'Read off the native element, where the form and a screen reader read them. A native `aria-invalid="false"` wins over one on the wrapper rather than falling through to it.',
+      type: 'Promise<boolean>',
+      default: '—',
+    },
+    {
+      name: 'isAutosizing() / hasFittedHeight() / getRows() / getSize() / getResizeDirection()',
+      description:
+        'Autosize is reported as the handover it is: whether the component has written a height at all. jsdom has no layout, so a harness that claimed to measure one would be lying.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'focus() / blur() / isFocused()',
+      description: 'Focus lands on the native element inside the wrapper.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly numberApi: readonly DocApiRow[] = [
+    {
+      name: 'getValue(locale?) / getValueText()',
+      description:
+        'Two different questions. The text is what the field shows — a separator, a prefix, a half-typed number; `getValue()` parses it and THROWS when the field holds something the control has not accepted yet.',
+      type: 'Promise<number | null> | Promise<string>',
+      default: '—',
+    },
+    {
+      name: 'setValue(n) / setValueText(text) / clear()',
+      description: '`setValueText` is the mid-type state; `setValue` is the committed one.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'increment() / decrement() / isIncrementDisabled() / isDecrementDisabled() / hasSteppers()',
+      description: 'The buttons, including how they disable at a bound.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'stepUp() / stepDown()',
+      description: 'The keyboard path — ArrowUp / ArrowDown on the field, which works with no steppers rendered.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getPrefix() / getSuffix() / getPlaceholder() / getAriaLabel()',
+      description: 'The decorations around the field, which are part of why the text is not the value.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isDisabled() / isReadonly() / focus() / blur() / isFocused()',
+      description: 'State and focus.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly otpApi: readonly DocApiRow[] = [
+    {
+      name: 'getValue() / getBoxValues() / isComplete() / getLength()',
+      description:
+        'The code assembled from the boxes. It can differ from the bound model: a value the boxes cannot hold (a letter in numeric mode) leaves the model holding what the harness cannot see.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'setValue(code) / type(text) / paste(code) / backspace() / clear()',
+      description:
+        '`paste` drives the real `paste` event, which is how a user delivers a code from an SMS. `clear()` skips boxes that are already empty, so it does not drag focus through the control or re-fire `touch`.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getBoxes(filters?) / getBox(i) / getFocusedIndex() / moveFocus(i)',
+      description: 'Per-box access. Filters: `value`, `empty`, `focused`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isMasked() / getInputMode() / getSize() / getPlaceholder() / getLabel() / isDisabled()',
+      description: 'How the control presents itself, including the keyboard a phone will show.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'focus() / blur()',
+      description: '`blur()` blurs the box that HAS focus, not box zero.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+  ];
+
+  protected readonly sliderApi: readonly DocApiRow[] = [
+    {
+      name: 'setValue(n) / setRange(low, high)',
+      description:
+        'Keyboard-driven, and not a shortcut: a unit test has no layout, so a coordinate write produces a bound or `NaN`. The walk takes the ten-step stride first, then single steps, and THROWS if it settles anywhere but the value asked for — including a `max` that is not a whole number of steps from `min`.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getValue()',
+      description: 'A number, or a `[low, high]` tuple on a range slider.',
+      type: 'Promise<number | [number, number]>',
+      default: '—',
+    },
+    {
+      name: 'stepUp() / stepDown() / toMin() / toMax()',
+      description: 'One press each — arrows, Home and End.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getThumbs() / getLowThumb() / getHighThumb()',
+      description:
+        'A thumb harness carries the ARIA range trio, its label, its role and `largeStepUp/Down`. On a range slider each thumb bounds the other, which is why `setRange` moves the far end first.',
+      type: 'Promise<WrSliderThumbHarness[]>',
+      default: '—',
+    },
+    {
+      name: 'isRange() / isDisabled() / getMin() / getMax() / getLabelText() / focus() / isFocused()',
+      description: 'Shape and state.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly ratingApi: readonly DocApiRow[] = [
+    {
+      name: 'setValue(n) / clear() / stepUp() / stepDown()',
+      description: 'Picking by click (clicks need no coordinates) and the keyboard path.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getValue() / getMax() / getCount() / getFills()',
+      description: '`getFills()` is the per-item fill fraction — how a half rating actually renders.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getItems()',
+      description:
+        'An item harness answers `getFill()`, `isFilled()`, `isPartiallyFilled()`, `isInteractive()`, and drives `click()`, `clickHalf()` and `hover()`.',
+      type: 'Promise<WrRatingItemHarness[]>',
+      default: '—',
+    },
+    {
+      name: 'unhover()',
+      description: 'Ends a hover preview, which otherwise leaves the control showing a value it does not hold.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getRole() / getLabel() / getSize() / isReadonly() / isDisabled() / isFocusable() / focus() / blur() / isFocused()',
+      description: 'Shape, state and focus.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly uploadApi: readonly DocApiRow[] = [
+    {
+      name: 'selectFiles(files)',
+      description:
+        'Goes through the hidden `<input type="file">` — the one method that reaches past the zone, because `FileList` cannot be constructed by hand and the CDK has no file API.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'dropFiles(files) / dragOver() / dragLeave() / isDragging()',
+      description:
+        'A real drag: `dragenter`, `dragover`, then `drop`, each carrying a `DataTransfer`. The zone is reachable by class even though coordinates are not.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getFileNames() / getFileSizes() / getFileCount()',
+      description: 'The rendered list. Sizes are as SHOWN (`4.9 KB`) — the byte count never reaches the DOM.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'removeFile(i) / removeFileNamed(name)',
+      description: 'By index or by an EXACT name — a substring match would take `backup-a.png` when asked for `a.png`.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getLabel() / getPickText() / getDropText() / getHelperText() / getAccept() / isMultiple() / isDisabled()',
+      description: '`accept` and `multiple` are read off the picker; everything else off the zone.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'focus() / isFocused()',
+      description: 'Focus goes to the ZONE, which is the tab stop — the picker is `aria-hidden` and `tabindex="-1"`.',
       type: 'Promise<…>',
       default: '—',
     },

@@ -1640,11 +1640,32 @@ theme is what makes ngwr a library people can bet on.
       library's own documentation: select-all on a virtualized table selects the
       whole dataset, not the window (`pageRowKeys` reads the render list before
       windowing), and `aria-setsize` counts the row itself.
+      The fourth batch adds the plain form controls —
+      `ngwr/{radio,textarea,input-number,input-otp,slider,rating,file-upload}/testing`
+      — for **nineteen** covered entry points and ~510 harness specs. What this
+      batch taught, all of it from mutation testing rather than from review:
+      **jsdom has no layout, so a pointer-driven write is a lie, not a limitation.**
+      A slider `setValue` computed from an offset resolves to a bound (or to `NaN`
+      when the offset is 0) and REPORTS SUCCESS. Every such control is driven by
+      the keyboard instead — the accessible path anyway — and the walk now asserts
+      its landing: with `max=100 step=3` the thumb stops at 99, and `setValue(100)`
+      used to resolve silently on the wrong number.
+      **Two questions, not one.** A number field shows a string and holds a number,
+      and mid-type they disagree; an OTP's assembled code can differ from the bound
+      model when a box cannot hold what was written. Both are now separate methods
+      that say so.
+      **The tab stop is not the selection.** A radio group with nothing picked still
+      has a tab stop (option one), and `getAccessibleName()` shipped resolving
+      `aria-label` before `aria-labelledby` — backwards, in the one method whose job
+      is checking a11y wiring.
+      One correction to batch 1 came out of it: Angular's `DefaultValueAccessor`
+      listens to `input`, `blur` and the composition events — NOT `change` — so
+      `WrInputHarness.setValue`'s stated reason for dispatching `change` was wrong
+      (it is for a consumer's own `(change)` handler, which a browser defers to the
+      commit a harness write never reaches). Fixed in the harness and the guide.
       **Next:** the remaining overlay families (context-menu, popconfirm,
-      command-palette, cascader, tree, mention), the plain form controls
-      (radio, textarea, input-number, input-otp, slider, rating, file-upload),
-      and `wr-form-field` — after which "does ngwr ship a harness for X" stops
-      needing a caveat.
+      command-palette, cascader, tree, mention) and `wr-form-field` — after which
+      "does ngwr ship a harness for X" stops needing a caveat.
 - [x] **A3. a11y CI** (L) — `pnpm check:a11y` runs axe-core over all 211
       prerendered pages and fails CI on any serious or critical violation. The
       seeded baseline is empty: the ten rules it started with are fixed, which
