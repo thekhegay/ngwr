@@ -9,7 +9,7 @@
   @if (showCopy()) {
     <button
       type="button"
-      class="wr-toast__action"
+      class="wr-toast__action wr-toast__action--copy"
       [attr.aria-label]="justCopied() ? labels().copied : labels().copy"
       [title]="justCopied() ? labels().copied : labels().copy"
       (click)="onCopy()"
@@ -50,7 +50,7 @@
   @if (dismissible()) {
     <button
       type="button"
-      class="wr-toast__action"
+      class="wr-toast__action wr-toast__action--close"
       [attr.aria-label]="labels().close"
       [title]="labels().close"
       (click)="dismissed.emit()"
