@@ -206,6 +206,52 @@ describe('WrTable', () => {
       expect(table().getAttribute('role')).toBeNull();
     });
 
+    it('describes where each row sits in the hierarchy', () => {
+      // Depth and position are what a treegrid announces INSTEAD of the visual
+      // indent, so they have to be on the row rather than in the cell padding.
+      const rows = bodyRows();
+      expect(rows[0].getAttribute('aria-level')).toBe('1');
+      expect(rows[0].getAttribute('aria-posinset')).toBe('1');
+      expect(rows[0].getAttribute('aria-expanded')).toBe('false');
+      expect(rows[1].getAttribute('aria-posinset')).toBe('2');
+    });
+
+    it('says nothing about expansion for a row with no children', () => {
+      // `aria-expanded="false"` on a leaf promises a subtree that is not there.
+      expect(bodyRows()[1].getAttribute('aria-expanded')).toBeNull();
+      expect(bodyRows()[1].querySelector('.wr-table__tree-toggle--leaf')).not.toBeNull();
+    });
+
+    it('opens a branch on click, one level at a time', () => {
+      const toggle = (): HTMLButtonElement => bodyRows()[0].querySelector<HTMLButtonElement>('.wr-table__tree-toggle')!;
+
+      toggle().click();
+      fixture.detectChanges();
+
+      // The grandchild stays hidden: opening `src` reveals its children, not its
+      // whole subtree.
+      expect(cellTexts().map(c => c[0])).toEqual(['src', 'app', 'styles.css', 'README.md']);
+      expect(bodyRows()[0].getAttribute('aria-expanded')).toBe('true');
+      expect(bodyRows()[1].getAttribute('aria-level')).toBe('2');
+    });
+
+    it('opens the level below that, and closes the whole branch again', () => {
+      const toggleIn = (index: number): HTMLButtonElement =>
+        bodyRows()[index].querySelector<HTMLButtonElement>('.wr-table__tree-toggle')!;
+
+      toggleIn(0).click();
+      fixture.detectChanges();
+      toggleIn(1).click();
+      fixture.detectChanges();
+      expect(cellTexts().map(c => c[0])).toEqual(['src', 'app', 'main.ts', 'styles.css', 'README.md']);
+      expect(bodyRows()[2].getAttribute('aria-level')).toBe('3');
+
+      // Collapsing the root takes the descendants with it, however deep they were.
+      toggleIn(0).click();
+      fixture.detectChanges();
+      expect(cellTexts().map(c => c[0])).toEqual(['src', 'README.md']);
+    });
+
     it('lets grouping win, rather than half-supporting the pair', () => {
       fixture.componentInstance.groupBy.set('role');
       fixture.detectChanges();
