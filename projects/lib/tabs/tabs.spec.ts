@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -138,5 +141,136 @@ describe('WrTabs', () => {
     expect(strip().classList.contains('wr-tabs__strip')).toBe(true);
     expect(tabs()[0].classList.contains('wr-tabs__tab')).toBe(true);
     expect(tabs()[0].classList.contains('wr-tabs__tab--active')).toBe(true);
+  });
+});
+
+/**
+ * Reading direction. `Directionality` resolves the document's direction when it is
+ * constructed, so the honest way to test the other one is to provide a fake —
+ * writing `document.dir` mid-file would leak into whatever runs after it.
+ *
+ * Every case here is a PAIR. On its own, an RTL assertion cannot tell "mirrors
+ * correctly" from "always goes left", so each direction states the outcome the
+ * other one contradicts — except Home / End, which name a position in the list
+ * rather than an edge of it and so must agree.
+ */
+describe('WrTabs under a reading direction', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-tabs')!;
+  const strip = (): HTMLElement => root().querySelector<HTMLElement>('[role="tablist"]')!;
+  const selected = (): string | undefined =>
+    [...root().querySelectorAll<HTMLElement>('[role="tab"]')]
+      .find(t => t.getAttribute('aria-selected') === 'true')
+      ?.textContent?.trim();
+
+  const mount = (dir: Direction): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: Directionality,
+          useValue: { value: dir, valueSignal: signal(dir), change: new Subject<Direction>() },
+        },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  };
+
+  const key = (name: string): void => {
+    strip().dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  /** The strip's scroll metrics — jsdom lays nothing out, so they are declared. */
+  const scrolledBy = (scrollLeft: number): void => {
+    const el = strip();
+    Object.defineProperty(el, 'scrollWidth', { value: 400, configurable: true });
+    Object.defineProperty(el, 'clientWidth', { value: 200, configurable: true });
+    Object.defineProperty(el, 'scrollLeft', { value: scrollLeft, configurable: true });
+    el.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+  };
+
+  const fades = (): { start: boolean; end: boolean } => ({
+    start: host().classList.contains('wr-tabs--fade-start'),
+    end: host().classList.contains('wr-tabs--fade-end'),
+  });
+
+  it('walks the arrows in visual order — ltr', () => {
+    mount('ltr');
+
+    // The enabled tabs are One, Two, Four; Three is disabled and skipped.
+    key('ArrowRight');
+    expect(selected()).toBe('Two');
+
+    key('ArrowLeft');
+    expect(selected()).toBe('One');
+  });
+
+  it('walks the arrows in visual order — rtl', () => {
+    // The APG puts arrow keys on the VISUAL axis, and the strip is mirrored here:
+    // ArrowRight moves toward the visual right, which is the PREVIOUS tab — so
+    // from the first tab it wraps to the last rather than landing on 'Two'.
+    mount('rtl');
+
+    key('ArrowRight');
+    expect(selected()).toBe('Four');
+
+    key('ArrowLeft');
+    expect(selected()).toBe('One');
+  });
+
+  it('leaves Home and End alone — they name a position, not an edge', () => {
+    for (const dir of ['ltr', 'rtl'] as const) {
+      mount(dir);
+
+      key('End');
+      expect(selected(), dir).toBe('Four');
+
+      key('Home');
+      expect(selected(), dir).toBe('One');
+    }
+  });
+
+  it('fades the edge it has scrolled away from — ltr', () => {
+    mount('ltr');
+
+    scrolledBy(0);
+    expect(fades()).toEqual({ start: false, end: true });
+
+    // Scrolled to the far end: 400 of content in a 200 viewport.
+    scrolledBy(200);
+    expect(fades()).toEqual({ start: true, end: false });
+  });
+
+  it('fades the edge it has scrolled away from — rtl', () => {
+    // Same two positions, opposite raw values: an RTL strip starts at its physical
+    // right and `scrollLeft` counts DOWN from 0. Read literally that said "still at
+    // the start, more to come" everywhere, so the end fade was pinned on and the
+    // start fade never appeared.
+    mount('rtl');
+
+    scrolledBy(0);
+    expect(fades()).toEqual({ start: false, end: true });
+
+    scrolledBy(-200);
+    expect(fades()).toEqual({ start: true, end: false });
+  });
+
+  it('treats an elastic overscroll past the start as the start, in both directions', () => {
+    // A rubber-band past the inline start reports a `scrollLeft` of the sign the
+    // OTHER direction uses, so reading the magnitude alone lights the start fade
+    // while the strip is still sitting at its start — in LTR too, which is a
+    // behaviour change for consumers who never set a direction at all.
+    mount('ltr');
+    scrolledBy(-20);
+    expect(fades(), 'ltr').toEqual({ start: false, end: true });
+
+    mount('rtl');
+    scrolledBy(20);
+    expect(fades(), 'rtl').toEqual({ start: false, end: true });
   });
 });
