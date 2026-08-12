@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { DestroyRef, Directive, effect, inject, input } from '@angular/core';
+import { DestroyRef, Directive, effect, inject, input, untracked } from '@angular/core';
 
 import type { WrMetaConfig, WrMetaHandle } from './interfaces';
 import { WrMeta } from './wr-meta';
@@ -32,8 +32,15 @@ export class WrMetaBinding {
   constructor() {
     effect(() => {
       const next = this.wrMeta();
-      this.handle?.pop();
-      this.handle = this.metaService.push(next);
+      // Only the INPUT is read reactively. `push` / `pop` write the service's
+      // layer stack and then re-apply, and applying reads that same stack through
+      // `resolved()` — so without this the effect depends on a signal it writes
+      // and re-runs forever. `WrMeta.bind()` guards the identical pair the same
+      // way; this directive was missing it.
+      untracked(() => {
+        this.handle?.pop();
+        this.handle = this.metaService.push(next);
+      });
     });
     inject(DestroyRef).onDestroy(() => this.handle?.pop());
   }
