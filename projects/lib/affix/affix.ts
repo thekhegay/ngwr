@@ -7,11 +7,22 @@
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject, input, output } from '@angular/core';
+import {
+  DestroyRef,
+  Directive,
+  ElementRef,
+  Injector,
+  PLATFORM_ID,
+  afterNextRender,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 
 /**
  * Stick-on-scroll directive. Combines native CSS `position: sticky` with
- * an `IntersectionObserver`-driven `--affixed` state class, so consumers
+ * an `IntersectionObserver`-driven `wr-affix--active` state class, so consumers
  * can style the element differently while it's pinned (e.g. add a
  * shadow, change the background, shrink the height).
  *
@@ -58,6 +69,12 @@ export class WrAffix {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  /**
+   * `afterNextRender`'s callback is not an injection context, and the observer
+   * cannot exist before the sentinel it watches — so the effect that rebuilds it
+   * is handed the injector explicitly.
+   */
+  private readonly injector = inject(Injector);
 
   constructor() {
     if (!this.isBrowser) return;
@@ -84,25 +101,42 @@ export class WrAffix {
       // element already renders as, so that first entry is silent.
       let affixed = false;
 
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          const next = !entry.isIntersecting;
-          if (next === affixed) return;
+      let observer: IntersectionObserver | null = null;
 
-          affixed = next;
-          el.classList.toggle('wr-affix--active', next);
-          this.affixChange.emit(next);
+      // `rootMargin` is fixed for an observer's lifetime, so a changed offset means
+      // a NEW observer. Without this the two halves of the offset drifted apart:
+      // `[style.top.px]` is a live binding, so a header that animates its offset
+      // pinned at the new line while still flipping state at the old one.
+      // Re-observing re-delivers the current state, which the transition guard
+      // above absorbs when nothing has actually changed.
+      effect(
+        onCleanup => {
+          const offset = this.offsetTop();
+
+          observer = new IntersectionObserver(
+            ([entry]) => {
+              const next = !entry.isIntersecting;
+              if (next === affixed) return;
+
+              affixed = next;
+              el.classList.toggle('wr-affix--active', next);
+              this.affixChange.emit(next);
+            },
+            {
+              // Trigger when the sentinel's top crosses the offset line.
+              rootMargin: `-${offset}px 0px 0px 0px`,
+              threshold: [0],
+            }
+          );
+          observer.observe(sentinel);
+
+          onCleanup(() => observer?.disconnect());
         },
-        {
-          // Trigger when the sentinel's top crosses the offset line.
-          rootMargin: `-${this.offsetTop()}px 0px 0px 0px`,
-          threshold: [0],
-        }
+        { injector: this.injector }
       );
-      observer.observe(sentinel);
 
       this.destroyRef.onDestroy(() => {
-        observer.disconnect();
+        observer?.disconnect();
         sentinel.remove();
         el.classList.remove('wr-affix--active');
       });
