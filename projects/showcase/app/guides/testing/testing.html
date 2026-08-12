@@ -470,6 +470,27 @@
     <ngwr-doc-api [rows]="transferApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Markdown" description="A rendered document, read the way a reader sees it.">
+    <ngwr-doc-code [code]="snippets.markdown" language="typescript" />
+
+    <p wrTypography>
+      The harness answers in terms of the DOCUMENT rather than the markup that produced it — headings with their level
+      and id, links with their <code>href</code> and <code>rel</code>, task items with their checked state. That is
+      deliberate: the parser has its own spec, and a harness that re-asserted the tree would test the same thing twice
+      while missing the half that only the DOM can answer.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Two details worth copying if you write something similar. Prose reads exclude the hidden task-state labels, so an
+      assertion on an item's text does not have to know that <code>Done:</code> is spliced in front of it — the state is
+      a field of its own instead. And a code block's text is read exactly, never trimmed: a snippet's leading
+      indentation and blank lines are its content, and a harness that collapsed them would pass on a component that had
+      destroyed them.
+    </p>
+
+    <ngwr-doc-api [rows]="markdownApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Writing one for your own component">
     <p wrTypography>
       The same base class is available to you. If your app wraps an ngwr control in something of its own, a harness for

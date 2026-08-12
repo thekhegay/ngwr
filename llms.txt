@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 164 secondary entry points, 188 component and directive classes, built on
+> 166 secondary entry points, 188 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -100,7 +100,9 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-spinner`.
 - **Layout / Display** — `wr-card`, `wr-carousel`, `wr-collapse`, `wr-splitter`,
   `wr-toolbar`, `wr-descriptions`, `wr-statistic`, `wr-lightbox`,
-  `wr-pull-to-refresh`.
+  `wr-pull-to-refresh`, `wr-markdown` (renders markdown as DOM, never as HTML —
+  raw HTML in the source is escaped; `[streaming]` for a partial document;
+  `provideWrMarkdownHighlighter()` takes coloured spans, not markup).
 - **Navigation** — `wr-tabs`, `wr-stepper`, `wr-breadcrumbs`, `wr-dropdown-menu`.
 - **Overlays** — `wr-drawer` (or `WrDrawerManager.open()` to open a component as
   a drawer from code), `wr-action-sheet`, `[wrPopover]` (directive; has a
@@ -131,7 +133,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 33 entry points so far, covering every form control, every
+  `ngwr/<name>/testing`. 34 entry points so far, covering every form control, every
   overlay, both data views and the navigation / disclosure set (`tabs`, `stepper`,
   `carousel`, `pagination`, `segmented`, `collapse`, `transfer`): the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,

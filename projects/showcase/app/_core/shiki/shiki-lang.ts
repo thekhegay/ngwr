@@ -20,4 +20,5 @@ export type ShikiLang =
   | 'html'
   | 'scss'
   | 'bash'
-  | 'diff';
+  | 'diff'
+  | 'markdown';

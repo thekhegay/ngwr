@@ -41,6 +41,10 @@ export function getHighlighter(): Promise<HighlighterCore> {
       import('shiki/langs/scss.mjs'),
       import('shiki/langs/bash.mjs'),
       import('shiki/langs/diff.mjs'),
+      // For the `markdown` page, which documents a markdown renderer and so
+      // shows markdown SOURCE. Its embedded languages are declared lazily by the
+      // grammar, so this is one 65 KB chunk rather than the whole bundle.
+      import('shiki/langs/markdown.mjs'),
     ],
     engine: createOnigurumaEngine(import('shiki/wasm')),
   });

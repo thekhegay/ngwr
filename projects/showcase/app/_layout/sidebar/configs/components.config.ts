@@ -54,6 +54,7 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Image Cropper', url: ['/reference/components', 'image-cropper'] },
       { title: 'Keyboard', url: ['/reference/components', 'keyboard'] },
       { title: 'Lightbox', url: ['/reference/components', 'lightbox'] },
+      { title: 'Markdown', url: ['/reference/components', 'markdown'] },
       { title: 'QR', url: ['/reference/components', 'qrcode'] },
       { title: 'Statistic', url: ['/reference/components', 'statistic'] },
       { title: 'Timeline', url: ['/reference/components', 'timeline'] },

@@ -106,6 +106,7 @@ export const routes = {
     inputOtp: 'input-otp',
     keyboard: 'keyboard',
     knob: 'knob',
+    markdown: 'markdown',
     mention: 'mention',
     meterGroup: 'meter-group',
     pageHeader: 'page-header',
