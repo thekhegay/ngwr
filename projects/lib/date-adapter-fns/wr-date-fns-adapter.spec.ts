@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { setDefaultOptions } from 'date-fns';
 import { enGB } from 'date-fns/locale/en-GB';
 import { WrDateAdapter } from 'ngwr/date-adapter';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideWrDateFnsAdapter } from './provide-wr-date-fns-adapter';
 import { WrDateFnsAdapter } from './wr-date-fns-adapter';
@@ -15,10 +15,14 @@ import { WrDateFnsAdapter } from './wr-date-fns-adapter';
  * place the two adapters genuinely disagree is pinned with the reason — a silent divergence
  * is the whole failure mode this file exists to catch.
  *
- * Two hazards are NOT observable in this runner and are worth stating rather than faking:
- * `Asia/Almaty` has no daylight saving, so calendar math and millisecond math agree on every
- * date here; and date-fns formats/parses in the system time zone, so nothing below says
- * anything about a zone-crossing value.
+ * The runner does NOT pin a time zone — it inherits the machine's, which is `Asia/Almaty`
+ * locally and `UTC` on CI, and NEITHER observes daylight saving. So calendar math and
+ * millisecond math agree on every date the rest of this file uses, and an `addDays` written
+ * as `+ 86_400_000` would pass all of it. The 'daylight saving' block below therefore asks
+ * for a zone that HAS a transition rather than declaring the hazard unobservable.
+ *
+ * What stays untestable here: date-fns formats and parses in the system time zone, so nothing
+ * below says anything about a value written in one zone and read back in another.
  */
 describe('WrDateFnsAdapter', () => {
   let adapter: WrDateFnsAdapter;
@@ -26,6 +30,21 @@ describe('WrDateFnsAdapter', () => {
   const at = (y: number, m: number, d: number, h = 0, min = 0, s = 0): Date => new Date(y, m, d, h, min, s);
   const iso = (date: Date): string =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+  /**
+   * Runs `fn` with the process time zone switched. Node re-reads `process.env.TZ` on the next
+   * `Date` operation, so this really does move the clock the adapter sees — it is not a stub.
+   */
+  const inTimeZone = <T>(tz: string, fn: () => T): T => {
+    const previous = process.env['TZ'];
+    process.env['TZ'] = tz;
+    try {
+      return fn();
+    } finally {
+      if (previous === undefined) delete process.env['TZ'];
+      else process.env['TZ'] = previous;
+    }
+  };
 
   /** A second adapter under a different locale, without disturbing the one under test. */
   const withLocale = (locale: string): WrDateFnsAdapter => {
@@ -58,6 +77,23 @@ describe('WrDateFnsAdapter', () => {
   });
 
   describe('identity and accessors', () => {
+    it('answers the current instant, clock included', () => {
+      // `today()` seeds the date picker's "today" cell AND the time picker's initial value, so
+      // a `startOfDay` here would silently reset every time field to midnight — and a picker
+      // showing the right DAY hides it. Frozen rather than bracketed against `Date.now()`, so
+      // the millisecond is asserted exactly instead of "somewhere in this tick".
+      vi.useFakeTimers();
+      try {
+        const now = new Date(2025, 7, 11, 13, 45, 5, 250);
+        vi.setSystemTime(now);
+
+        expect(adapter.today().getTime()).toBe(now.getTime());
+        expect(adapter.today()).not.toBe(adapter.today());
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
     it('clones without aliasing', () => {
       const original = at(2025, 7, 11, 13, 45, 5);
       const copy = adapter.clone(original);
@@ -198,6 +234,47 @@ describe('WrDateFnsAdapter', () => {
       adapter.clone(original).setFullYear(1999);
 
       expect(original.getTime()).toBe(before);
+    });
+  });
+
+  describe('daylight saving', () => {
+    // Every other case in this file runs in the machine's zone, which has no transitions —
+    // there, one calendar day IS 86_400_000 ms and the two implementations are identical.
+    // These three ask for `Europe/London`, where they are not.
+
+    it('adds a calendar day across the spring-forward, not 24 hours', () => {
+      inTimeZone('Europe/London', () => {
+        // 30 Mar 2025 jumps 01:00 to 02:00, so that day is 23 hours long. `+ 86_400_000` lands
+        // on 10:30 and moves an appointment an hour later than the user booked it.
+        const start = at(2025, 2, 29, 9, 30);
+        const moved = adapter.addDays(start, 1);
+
+        expect(iso(moved)).toBe('2025-03-30');
+        expect([moved.getHours(), moved.getMinutes()]).toEqual([9, 30]);
+        expect(moved.getTime() - start.getTime()).toBe(23 * 3_600_000);
+      });
+    });
+
+    it('adds a calendar day across the autumn fall-back, not 24 hours', () => {
+      inTimeZone('Europe/London', () => {
+        // The mirror case: 26 Oct 2025 is 25 hours long, so the same bug lands on 08:30 here.
+        const start = at(2025, 9, 25, 9, 30);
+        const moved = adapter.addDays(start, 1);
+
+        expect(iso(moved)).toBe('2025-10-26');
+        expect([moved.getHours(), moved.getMinutes()]).toEqual([9, 30]);
+        expect(moved.getTime() - start.getTime()).toBe(25 * 3_600_000);
+      });
+    });
+
+    it('still compares by calendar day on a day that is not 24 hours long', () => {
+      inTimeZone('Europe/London', () => {
+        // `startOfDay` has to find local midnight on a day whose midnight is in a different
+        // offset from its evening; 01:30 is skipped entirely and deliberately not used.
+        expect(adapter.isSameDay(at(2025, 2, 30, 0, 30), at(2025, 2, 30, 23, 30))).toBe(true);
+        expect(adapter.compareDate(at(2025, 2, 30, 23, 30), at(2025, 2, 31, 0, 30))).toBeLessThan(0);
+        expect(adapter.getDaysInMonth(at(2025, 2, 30))).toBe(31);
+      });
     });
   });
 
@@ -452,6 +529,28 @@ describe('WrDateFnsAdapter', () => {
       expect(withLocale('ru-RU').getFirstDayOfWeek()).toBe(1);
     });
 
+    it('falls back to a locale-tag guess where Intl has no week info', () => {
+      // `getWeekInfo` is the ONLY path this runner takes, so the `en-us ? 0 : 1` fallback under
+      // it is dead code here and an inverted one goes unnoticed. It is not dead in the wild —
+      // Firefox shipped `Intl.Locale.getWeekInfo` only in 2024 — so the method is removed for
+      // the length of this case to make the environment the fallback exists for.
+      const proto = Intl.Locale.prototype as unknown as { getWeekInfo?: () => { firstDay: number } };
+      const original = proto.getWeekInfo;
+      expect(typeof original).toBe('function'); // the removal below has to actually remove something
+      delete proto.getWeekInfo;
+
+      try {
+        expect(withLocale('en-US').getFirstDayOfWeek()).toBe(0);
+        expect(withLocale('en-GB').getFirstDayOfWeek()).toBe(1);
+        expect(withLocale('ru-RU').getFirstDayOfWeek()).toBe(1);
+      } finally {
+        proto.getWeekInfo = original;
+      }
+
+      // …and the primary path is back, so nothing after this case sees the stub.
+      expect(withLocale('en-US').getFirstDayOfWeek()).toBe(0);
+    });
+
     it('names the days from the first day of the week onwards', () => {
       // The whole row, not just its head: a rotation that is off by one still starts on Mon
       // for `['Mon', 'Sun', 'Sat', …]`.
@@ -466,11 +565,25 @@ describe('WrDateFnsAdapter', () => {
     });
 
     it('names all twelve months', () => {
-      const names = adapter.getMonthNames('long');
-      expect(names).toHaveLength(12);
-      expect(names[0]).toBe('January');
-      expect(names[11]).toBe('December');
+      // The whole list, not the ends: the names come from `new Date(2024, i, <day>)`, and a
+      // day that not every month has rolls the short ones forward — day 31 turns February into
+      // "March" and leaves January, December and the length all looking correct.
+      expect(adapter.getMonthNames('long')).toEqual([
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ]);
       expect(adapter.getMonthNames('short')[7]).toBe('Aug');
+      expect(adapter.getMonthNames('narrow')).toHaveLength(12);
     });
 
     it('follows a non-English locale for the names and the week start', () => {
