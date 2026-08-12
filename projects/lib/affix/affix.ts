@@ -76,11 +76,22 @@ export class WrAffix {
       sentinel.style.cssText = 'height:0;width:100%;margin:0;padding:0;pointer-events:none;';
       parent.insertBefore(sentinel, el);
 
+      // The observer reports STATE, not transitions: it delivers an entry for the
+      // sentinel as soon as it starts watching it — before anything has scrolled —
+      // and can repeat a state the host is already in (a resize, another crossing of
+      // the same threshold). `affixChange` is documented as the transition, so it
+      // only fires on one. The starting state is "not affixed", which is what the
+      // element already renders as, so that first entry is silent.
+      let affixed = false;
+
       const observer = new IntersectionObserver(
         ([entry]) => {
-          const affixed = !entry.isIntersecting;
-          el.classList.toggle('wr-affix--active', affixed);
-          this.affixChange.emit(affixed);
+          const next = !entry.isIntersecting;
+          if (next === affixed) return;
+
+          affixed = next;
+          el.classList.toggle('wr-affix--active', next);
+          this.affixChange.emit(next);
         },
         {
           // Trigger when the sentinel's top crosses the offset line.
