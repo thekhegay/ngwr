@@ -31,6 +31,8 @@ class Host {
     <p wrTypography>Body copy</p>
     <code wrTypography variant="code">inject(WrTheme)</code>
     <span wrTypography variant="caption" truncate>v10.0.0</span>
+    <em wrTypography variant="small" mono>1.21.0</em>
+    <b wrTypography truncate="false" mono="false">Static false</b>
     <ul wrTypography variant="list">
       <li>One</li>
       <li>Two</li>
@@ -184,6 +186,25 @@ describe('WrTypography', () => {
     plain.destroy();
   });
 
+  it('reads a bare `mono` attribute as true, and the string "false" as false', () => {
+    // The same coercion `truncate` gets, on the other boolean input — untested, it is
+    // free to lose its transform while every bound-signal case stays green. And
+    // `mono="false"` / `truncate="false"` is what a static template writes when it
+    // wants OFF: a coercion that only checks for null would turn both ON.
+    const plain = TestBed.createComponent(PlainHost);
+    plain.detectChanges();
+    const root = plain.nativeElement as HTMLElement;
+
+    expect([...root.querySelector('em')!.classList].sort()).toEqual([
+      'wr-typography',
+      'wr-typography--mono',
+      'wr-typography--small',
+    ]);
+    expect([...root.querySelector('b')!.classList].sort()).toEqual(['wr-typography', 'wr-typography--body']);
+
+    plain.destroy();
+  });
+
   it('goes monospace on request', () => {
     fixture.componentInstance.mono.set(true);
     fixture.detectChanges();
@@ -220,10 +241,12 @@ describe('WrTypography', () => {
   });
 
   it('keeps the classes the consumer wrote, across an update', () => {
-    // The host binds `[class]` as a MAP, and a map binding that took ownership of the
-    // whole attribute would drop `page-title` — silently, and only for the consumers
-    // who style the same element themselves. It has to survive the REWRITE too, which
-    // is why the variant changes here rather than being read once.
+    // The directive binds `[class]` to a whole class STRING, and Angular merges that
+    // with the static `class` attribute rather than overwriting it. Written as
+    // `[attr.class]` instead — the obvious-looking equivalent — it takes ownership of
+    // the attribute and drops `page-title`, silently, and only for the consumers who
+    // style the same element themselves. It has to survive the REWRITE too, which is
+    // why the variant changes here rather than being read once.
     const styled = (): string[] => [...(fixture.nativeElement as HTMLElement).querySelector('h2')!.classList].sort();
 
     expect(styled()).toEqual(['page-title', 'wr-typography', 'wr-typography--body']);
