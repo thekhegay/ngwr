@@ -42,6 +42,18 @@ const PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'] as const;
  */
 const MAX_LINE_BYTES = 32 * 1024 * 1024;
 
+/**
+ * How many requests one batch may carry.
+ *
+ * Measured, not guessed: 58,000 entirely valid `get_ngwr_api` calls in one 6.8 MB
+ * batch made the single `JSON.stringify` of the reply array throw
+ * `RangeError: Invalid string length`, which killed the process with ZERO bytes
+ * written and none of the 58,000 ids answered — the exact failure this file's
+ * docblock says was eliminated. 30,000 entries already peaked at 3.3 GB of
+ * resident memory. No real client batches more than a handful.
+ */
+const MAX_BATCH = 256;
+
 const PARSE_ERROR = -32700;
 const INVALID_REQUEST = -32600;
 const METHOD_NOT_FOUND = -32601;
@@ -85,7 +97,18 @@ const catalog = new Catalog();
  * the catalog is read lazily rather than announced at start-up.
  */
 function write(message: unknown): void {
-  process.stdout.write(`${JSON.stringify(message)}\n`);
+  let line: string;
+
+  try {
+    line = JSON.stringify(message);
+  } catch (error) {
+    // Serialising the reply is the last thing that can fail, and failing here
+    // used to take the process down before a single byte was written. An error
+    // the client can correlate is worth more than a crash.
+    line = JSON.stringify(err(null, INTERNAL_ERROR, `Reply could not be serialised: ${String(error)}`));
+  }
+
+  process.stdout.write(`${line}\n`);
 }
 
 function ok(id: Id, result: unknown): Response {
@@ -241,6 +264,11 @@ function dispatch(line: string): void {
       return;
     }
 
+    if (message.length > MAX_BATCH) {
+      write(err(null, INVALID_REQUEST, `A batch may carry at most ${MAX_BATCH} requests.`));
+      return;
+    }
+
     const responses = message.map(respond).filter((response): response is Response => response !== null);
     if (responses.length > 0) write(responses);
 
@@ -265,10 +293,16 @@ process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk: string) => {
   buffer += chunk;
 
-  if (buffer.length > MAX_LINE_BYTES) {
-    buffer = '';
+  // `Buffer.byteLength`, not `.length`: the latter counts UTF-16 units, so
+  // 93 MB of three-byte characters passed a 32 MB cap untouched.
+  if (Buffer.byteLength(buffer, 'utf8') > MAX_LINE_BYTES) {
+    // Discard only the oversize LINE and resynchronise on the next one. Clearing
+    // the whole buffer threw away a complete, valid request that had already
+    // arrived behind it — answered with nothing, which is the one outcome this
+    // file is written to avoid.
+    const newline = buffer.indexOf('\n');
+    buffer = newline === -1 ? '' : buffer.slice(newline + 1);
     write(err(null, INVALID_REQUEST, 'Message exceeded the maximum size and was discarded.'));
-    return;
   }
 
   let newline = buffer.indexOf('\n');

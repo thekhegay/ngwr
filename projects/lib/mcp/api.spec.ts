@@ -5,6 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { describe, expect, it } from 'vitest';
 
 import { type ApiMember, declaredClasses, extractClass } from './api.js';
@@ -164,6 +168,117 @@ declare abstract class WrTableBase<T> {
 }
 `;
 
+/**
+ * A generic whose constraint is written inline in the type parameters.
+ *
+ * The `{` of `<T extends { id: string }>` comes BEFORE the one that opens the
+ * class body. No class in the catalog is written this way TODAY — `WrMention<T
+ * extends WrMentionItem>` is as close as it gets, and it names its constraint —
+ * so this is the one fixture here with no live casualty behind it. Inlining a
+ * row shape on a generic component is one edit away, and the failure it caused
+ * is total: the class answers with the constraint's members and none of its own.
+ */
+const GENERIC = `
+declare class WrGrid<T extends { id: string }> {
+    /** The rows. */
+    readonly items: _angular_core.InputSignal<readonly T[]>;
+    /** Scroll to a row. */
+    scrollToRow(index: number): void;
+    static ɵcmp: _angular_core.ɵɵComponentDeclaration<WrGrid<any>, "wr-grid", never, { "items": { "alias": "items"; "required": true; "isSignal": true; }; }, {}, never, never, true, never>;
+}
+`;
+
+/**
+ * A member whose type is a nested object literal, documented on the inside.
+ *
+ * The apostrophe in the nested comment is the point: a scanner that treats a
+ * comment as code opens a string on it that never closes.
+ */
+const NESTED = `
+declare class WrPoller {
+    /** How the poller behaves. */
+    readonly config: {
+        /** How long to wait — don't rush it. */
+        delay: number;
+    };
+    /** Stop polling. */
+    stop(): void;
+}
+`;
+
+/**
+ * Inputs whose types are string literals made of the punctuation a scanner counts.
+ *
+ * Between them they carry every character the reader tracks: the `>` that closes
+ * a wrapper and the `,` that separates its arguments, both inside quotes. No
+ * shipped type is written this way today — every separator in the catalog is
+ * declared as `string` — so this is a shape the reader has to survive rather than
+ * one it currently meets.
+ */
+const LITERAL = `
+declare class WrBreadcrumbs {
+    /** What to draw between the items. */
+    readonly separator: _angular_core.InputSignal<'/' | '>' | ', '>;
+    /** What the collapsed items are joined with. */
+    readonly joiner: _angular_core.InputSignal<', ' | ' | '>;
+}
+`;
+
+/**
+ * A directive whose input map writes `alias` last.
+ *
+ * Every one of the 144 maps in the catalog today happens to write `alias` first
+ * and `required` second; nothing in the compiler promises that, and the map is
+ * the only place required-ness is written down at all.
+ */
+const KEY_ORDER = `
+import * as i0 from '@angular/core';
+
+declare class WrTooltip {
+    /** The text to show. */
+    readonly text: i0.InputSignal<string>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<WrTooltip, "[wrTooltip]", never, { "text": { "required": true; "isSignal": true; "alias": "wrTooltip"; }; }, {}, never, never, true, never>;
+}
+`;
+
+/** `@internal` as a tag on one member, and as prose inside another one's example. */
+const INTERNAL = `
+declare class WrIconRegistry {
+    /**
+     * Register a set of icons by name.
+     *
+     * @example
+     * \`\`\`ts
+     * registry.register({ check });
+     * @internal names in the declarations are not part of this map.
+     * \`\`\`
+     */
+    register(icons: Record<string, string>): void;
+    /**
+     * The raw store.
+     *
+     * @internal
+     */
+    store(): Map<string, string>;
+}
+`;
+
+/**
+ * A `get`/`set` pair, and an auto-accessor, as TypeScript emits both.
+ *
+ * The catalog ships six getters today and no pair and no auto-accessor, so both
+ * shapes are one `set` away rather than currently broken.
+ */
+const ACCESSORS = `
+declare class WrTour {
+    /** The step showing now. */
+    get index(): number;
+    set index(next: number);
+    /** The label on the current step. */
+    accessor label: string;
+}
+`;
+
 /** The member with a given name, or a failure that names the missing one. */
 const memberOf = (members: readonly ApiMember[], name: string): ApiMember => {
   const found = members.find(member => member.name === name);
@@ -241,6 +356,19 @@ describe('extractClass', () => {
     // writes a binding Angular ignores.
     expect(memberOf(members, 'ariaLabel').alias).toBe('aria-label');
     expect(memberOf(members, 'options').alias).toBeNull();
+  });
+
+  it('reads the input map whatever order its keys are written in', () => {
+    const text = memberOf(extractClass(KEY_ORDER, 'WrTooltip')?.members ?? [], 'text');
+
+    // The pattern required `alias` and then `required`, in that order. It
+    // matched all 144 maps in the catalog because that is the order the
+    // compiler happens to emit today — and a map with `isSignal` between them,
+    // or `alias` last as here, reported a REQUIRED input as optional and an
+    // aliased one under a name no template binds. Both halves of that are the
+    // kind of wrong answer an agent writes code against.
+    expect(text.required).toBe(true);
+    expect(text.alias).toBe('wrTooltip');
   });
 
   it('reports nothing as required when the file carries no ɵcmp map', () => {
@@ -339,6 +467,18 @@ describe('extractClass', () => {
     ]);
   });
 
+  it('hides a member the library marks @internal, and only on the tag', () => {
+    const names = (extractClass(INTERNAL, 'WrIconRegistry')?.members ?? []).map(member => member.name);
+
+    // Nine class members ship `@internal` — `public` only because TypeScript
+    // needed them to be — and they are not for a consumer to call. It has to be
+    // read as a TAG: as a line match it also matched the word inside an
+    // `@example` body, which DELETED the public member that example was
+    // documenting. Silently, and from the answer an agent trusts most.
+    expect(names).toEqual(['register(icons: Record<string, string>)']);
+    expect(names).not.toContain('store()');
+  });
+
   it('reads a class whose declarations were cut off, without members', () => {
     const found = extractClass(
       '/** Half a file. */\ndeclare class WrTruncated {\n    readonly a: string;',
@@ -354,6 +494,62 @@ describe('extractClass', () => {
       docs: null,
       members: [],
     });
+  });
+
+  it('takes the class body and not a constraint in its type parameters', () => {
+    const found = extractClass(GENERIC, 'WrGrid');
+
+    // The opening brace is the one at angle-depth zero. Taking the FIRST `{`
+    // after the class name made `<T extends { id: string }>` the body: the
+    // component answered with one fabricated member, `id: string`, and its real
+    // API — every input, every method — was gone. An agent reading that is not
+    // missing information, it has been told something false.
+    expect(found?.members.map(member => member.name)).toEqual(['items', 'scrollToRow(index: number)']);
+    expect(memberOf(found?.members ?? [], 'items')).toMatchObject({ type: 'readonly T[]', required: true });
+  });
+
+  it('reads past a comment inside a declaration, apostrophe and all', () => {
+    const members = extractClass(NESTED, 'WrPoller')?.members ?? [];
+
+    // A comment is not code. The apostrophe in `don't`, nested inside the
+    // declaration rather than above it, opened a string that never closed — so
+    // no `;` was ever found at depth zero, the rest of the class became ONE
+    // member with a 241,013-character "type", and everything after it
+    // disappeared. The pre-rewrite failure mode arriving through another door.
+    expect(members.map(member => member.name)).toEqual(['config', 'stop()']);
+    expect(memberOf(members, 'stop()').type).toBe('void');
+  });
+
+  it('never reports a type with a comment left in it', () => {
+    // Cosmetic next to losing the member, but it is the string an agent copies
+    // into a signature: a nested doc comment inside an object type has no place
+    // in the type it documents.
+    expect(memberOf(extractClass(NESTED, 'WrPoller')?.members ?? [], 'config').type).toBe('{ delay: number; }');
+  });
+
+  it('keeps a string-literal type whole through its own punctuation', () => {
+    const members = extractClass(LITERAL, 'WrBreadcrumbs')?.members ?? [];
+
+    // The characters this reader counts — `>` to close the wrapper, `,` to split
+    // its arguments — are characters a string-literal type is allowed to
+    // CONTAIN. Counted inside the quotes, the `>` ended the wrapper early and
+    // the `,` split the union: `InputSignal<', ' | ' | '>` reported a type of
+    // `'`, one apostrophe, for the input that decides what the component draws.
+    expect(memberOf(members, 'separator').type).toBe("'/' | '>' | ', '");
+    expect(memberOf(members, 'joiner').type).toBe("', ' | ' | '");
+  });
+
+  it('reports a get/set pair as one property, and reads through accessor', () => {
+    const members = extractClass(ACCESSORS, 'WrTour')?.members ?? [];
+
+    // Two shapes, one answer each. The pair used to come back as TWO members of
+    // the same name, the setter's typed `unknown` — so the same property was
+    // documented twice, contradicting itself. And `accessor label: string` came
+    // out named `accessor`, with the real name lost, because the keyword was not
+    // in the modifier set.
+    expect(members.map(member => member.name)).toEqual(['index', 'label']);
+    expect(memberOf(members, 'index')).toMatchObject({ kind: 'property', type: 'number' });
+    expect(memberOf(members, 'label')).toMatchObject({ kind: 'property', type: 'string' });
   });
 
   it('does not fold a base class into the class that extends it', () => {
@@ -494,5 +690,105 @@ describe('extractClass', () => {
     // absorbing the `@see` an agent is meant to follow.
     expect(found?.example).toBe('<wr-x>\n  <wr-y />\n</wr-x>');
     expect(found?.docs).toBe('https://ngwr.dev/reference/components/x');
+  });
+
+  it('runs an example through a code fence that contains Angular block syntax', () => {
+    const found = extractClass(
+      [
+        '/**',
+        ' * A class.',
+        ' *',
+        ' * @example',
+        ' * ```html',
+        ' * @for (row of rows(); track row.id) {',
+        ' *   <wr-x [row]="row" />',
+        ' * }',
+        ' * ```',
+        ' *',
+        ' * @see https://ngwr.dev/reference/components/x',
+        ' */',
+        'declare class WrX {',
+        '}',
+      ].join('\n'),
+      'WrX'
+    );
+
+    // Nothing inside a fence is a tag. The terminator used to be any line
+    // matching `^@\\w+`, which in a library that DOCUMENTS ANGULAR TEMPLATES
+    // ends a body on `@for` / `@if` / `@defer` — the example cut at the fence it
+    // had just opened, leaving an unterminated ```html for an agent to paste.
+    expect(found?.example).toBe(
+      ['```html', '@for (row of rows(); track row.id) {', '  <wr-x [row]="row" />', '}', '```'].join('\n')
+    );
+    // And the tag after the fence still closes the block, as before.
+    expect(found?.docs).toBe('https://ngwr.dev/reference/components/x');
+  });
+
+  it('does not let an unknown @word end a tag body', () => {
+    const found = extractClass(
+      [
+        '/**',
+        ' * A class.',
+        ' *',
+        ' * @example',
+        ' * <wr-x />',
+        ' * @ViewChild(WrX) x!: WrX;',
+        ' * onClick(): void { this.x.next(); }',
+        ' *',
+        ' * @see https://ngwr.dev/reference/components/x',
+        ' */',
+        'declare class WrX {',
+        '}',
+      ].join('\n'),
+      'WrX'
+    );
+
+    // The other half of the same fix, and the one a fence does not cover: only a
+    // KNOWN tag opens a block, so a decorator at the start of an unfenced line
+    // is prose. `@ViewChild` is how every one of this library's imperative
+    // examples reaches the component — reading it as a tag threw the rest of the
+    // example away and invented a `ViewChild` tag nothing asks for.
+    expect(found?.example).toBe(
+      ['<wr-x />', '@ViewChild(WrX) x!: WrX;', 'onClick(): void { this.x.next(); }'].join('\n')
+    );
+    expect(found?.docs).toBe('https://ngwr.dev/reference/components/x');
+  });
+});
+
+/**
+ * The same two contracts, against the declarations this package actually ships.
+ *
+ * The synthetic fixtures above say what the reader must do; these say that the
+ * library it reads is full of the shape in question. `dist/lib/types` only
+ * exists after `pnpm build:lib`, so the block skips rather than fails on a
+ * checkout that has never built — same as the server suite.
+ */
+const TYPES = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'dist', 'lib', 'types');
+const shipped = (file: string): string => readFileSync(resolve(TYPES, file), 'utf8');
+
+describe.skipIf(!existsSync(TYPES))('the shipped declarations', () => {
+  it('keeps the example a fenced @for used to cut in half', () => {
+    const example = extractClass(shipped('ngwr-pipes.d.ts'), 'WrRange')?.example ?? '';
+
+    // `WrRange`'s example is four lines of `@for` inside an ```html fence, and
+    // what the tool returned for it was the fence and nothing else — one line,
+    // unterminated, of an example whose entire content is the block syntax.
+    expect(example.split('\n')).toHaveLength(5);
+    expect(example.startsWith('```html')).toBe(true);
+    expect(example).toContain('@for (i of (5 | wrRange); track i)');
+    expect(example.endsWith('```')).toBe(true);
+  });
+
+  it('keeps the lines an @ViewChild used to cut off an example', () => {
+    const example = extractClass(shipped('ngwr-rotating-text.d.ts'), 'WrRotatingText')?.example ?? '';
+
+    // `WrRotatingText`'s example demonstrates the imperative half of its API,
+    // and the demonstration is exactly the part that was lost: everything from
+    // the `@ViewChild` line on, which is the only place the docs show how to
+    // reach `next()`. What came back stopped at the comment introducing it — an
+    // unterminated fence whose last line reads `// Manual control:`.
+    expect(example).toContain('@ViewChild(WrRotatingText)');
+    expect(example).toContain('this.rotator.next()');
+    expect(example.endsWith('```')).toBe(true);
   });
 });

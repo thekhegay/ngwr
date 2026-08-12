@@ -109,6 +109,19 @@ const run = async (lines: readonly string[], env?: NodeJS.ProcessEnv): Promise<R
 const request = (id: number | string, method: string, params?: Record<string, unknown>): string =>
   JSON.stringify({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) });
 
+/** One line carrying `count` requests as a JSON-RPC batch, ids 1…count. */
+const batch = (count: number, method: string, params?: Record<string, unknown>): string =>
+  `[${Array.from({ length: count }, (_, index) => request(index + 1, method, params)).join(',')}]`;
+
+/** The batch reply on one line, which arrives as a JSON array rather than a message. */
+const batchReply = (result: Run, line = 0): readonly RpcMessage[] => {
+  const lines = result.stdout.trimEnd().split('\n').filter(Boolean);
+  const raw = lines[line];
+  if (raw === undefined) throw new Error(`no line ${line} on stdout. stdout was:\n${result.stdout || '<empty>'}`);
+
+  return JSON.parse(raw) as readonly RpcMessage[];
+};
+
 /** The reply to one id, failing by name when it never came. */
 const replyTo = (result: Run, id: number | string): RpcMessage => {
   const found = result.messages.find(message => message?.id === id);
@@ -262,6 +275,27 @@ describe.skipIf(!existsSync(SERVER))('ngwr-mcp over stdio', () => {
     expect(replyTo(result, 2).error).toEqual({ code: -32602, message: 'search_ngwr: `query` is required.' });
   });
 
+  it('refuses a kind the published enum does not list, naming the ones it does', async () => {
+    const result = await run([
+      request(1, 'tools/call', { name: 'get_ngwr_api', arguments: { symbol: 'WrSelect', kind: 'Input' } }),
+      request(2, 'tools/call', { name: 'get_ngwr_api', arguments: { symbol: 'WrSelect', kind: 'input' } }),
+    ]);
+
+    // `enum` was published at `tools/list` and then not checked, and it failed
+    // in the worst shape available: `kind: "Input"` — one capital letter — came
+    // back a SUCCESSFUL reply with ZERO member lines in it, which an agent
+    // cannot tell apart from a component that has no inputs. It gets the wrong
+    // answer and no reason to ask again. An error names the fix.
+    expect(replyTo(result, 1).error).toEqual({
+      code: -32602,
+      message: 'get_ngwr_api: `kind` must be one of all, input, model, output, method, property.',
+    });
+    // The value the enum does list still answers, so this is a check and not a
+    // wall in front of the argument.
+    expect(replyTo(result, 2).error).toBeUndefined();
+    expect(String((replyTo(result, 2).result?.['content'] as { text: string }[])[0].text)).toContain('## inputs');
+  });
+
   it('answers a ping with an empty result', async () => {
     expect(replyTo(await run([request(7, 'ping')]), 7).result).toEqual({});
   });
@@ -297,6 +331,80 @@ describe.skipIf(!existsSync(SERVER))('ngwr-mcp over stdio', () => {
     expect(result.messages[0]).toMatchObject({ id: 3 });
   });
 
+  it('refuses an empty batch rather than answering nothing', async () => {
+    // `[]` has no id to answer against, so silence would be indistinguishable to
+    // the client from a server that hung. JSON-RPC §6 forbids it either way.
+    const result = await run([JSON.stringify([])]);
+
+    expect(result.messages).toHaveLength(1);
+    expect(result.messages[0]?.error).toMatchObject({ code: -32600 });
+  });
+
+  it('writes nothing at all for a batch of notifications', async () => {
+    // A notification carries no id and expects no answer — in a batch as much as
+    // alone. Answering one is as wrong as dropping a request.
+    const notifications = `[${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' })},${JSON.stringify(
+      { jsonrpc: '2.0', method: 'ping' }
+    )}]`;
+    const result = await run([notifications, request(9, 'ping')]);
+
+    // Exactly one message: the ping that did carry an id.
+    expect(result.messages).toHaveLength(1);
+    expect(result.messages[0]?.id).toBe(9);
+  });
+
+  it('refuses a batch over the cap with one -32600 that names the limit', async () => {
+    const result = await run([batch(257, 'ping'), request('after', 'ping')]);
+
+    // Measured, not guessed: 58,000 entirely VALID entries in one 6.8 MB batch
+    // made the single `JSON.stringify` of the reply array throw `RangeError:
+    // Invalid string length`, which killed the process with zero bytes written
+    // and none of the 58,000 ids answered — the one outcome this server is
+    // written to avoid, reached by a client that did nothing wrong except ask
+    // for too much at once. A named limit is something it can split and retry.
+    expect(result.messages[0]).toEqual({
+      jsonrpc: '2.0',
+      id: null,
+      error: { code: -32600, message: 'A batch may carry at most 256 requests.' },
+    });
+    // One refusal for the batch, not one per entry — and the session survives it.
+    expect(result.messages).toHaveLength(2);
+    expect(replyTo(result, 'after').result).toEqual({});
+  });
+
+  it('answers every request in a batch at the cap, as one batch', async () => {
+    const result = await run([batch(256, 'ping')]);
+    const answered = batchReply(result);
+
+    // The cap is a limit on the batch, not a quietly smaller batch: 256 goes
+    // through, every id in it is answered, and the whole reply arrives as ONE
+    // array on ONE line — which is what a client blocked on 256 ids parses.
+    expect(result.stdout.trimEnd().split('\n')).toHaveLength(1);
+    expect(answered.map(message => message.id)).toEqual(Array.from({ length: 256 }, (_, index) => index + 1));
+    expect(answered.every(message => message.error === undefined)).toBe(true);
+    expect(result.code).toBe(0);
+  });
+
+  it('serialises a batch of the largest answers it has without losing one', async () => {
+    const result = await run([batch(256, 'tools/call', { name: 'get_ngwr_api', arguments: { symbol: 'WrTable' } })]);
+    const answered = batchReply(result);
+
+    // `write()` now catches a `JSON.stringify` that throws and emits a -32603
+    // instead of taking the process down, and this is as close as the wire can
+    // get to provoking it: 256 of the biggest answers this server has, in one
+    // reply array of some megabytes. The guard itself is no longer reachable
+    // from outside — every value that reaches `JSON.stringify` is a reply this
+    // server built out of its own strings, so there is no cycle and no BigInt in
+    // it, and the one input that DID push the string past V8's maximum length
+    // was an unbounded batch, which `MAX_BATCH` refuses two lines earlier. What
+    // is left to pin is the property the guard exists for: every id answered,
+    // and a clean exit rather than zero bytes and a stack trace.
+    expect(answered).toHaveLength(256);
+    expect(answered.every(message => message.result !== undefined)).toBe(true);
+    expect(result.stdout.length).toBeGreaterThan(1_000_000);
+    expect(result.code).toBe(0);
+  });
+
   it('handles a message that arrives in two chunks', async () => {
     const session = start();
     const line = request(1, 'initialize', { protocolVersion: '2024-11-05' });
@@ -329,6 +437,44 @@ describe.skipIf(!existsSync(SERVER))('ngwr-mcp over stdio', () => {
     expect(result.messages).toHaveLength(1);
     expect(replyTo(result, 1).result).toEqual({});
   });
+
+  // The only way to trip a 32 MB cap is to send 32 MB, and the server measures
+  // the buffer on every chunk, so this one case costs about two seconds where
+  // the rest of the file costs milliseconds — hence the raised timeout, and
+  // hence it earning both halves of the fix in a single pass.
+  it('measures the size cap in bytes, and answers the request behind an oversize line', async () => {
+    const session = start();
+    const cap = 32 * 1024 * 1024;
+    // Three UTF-8 bytes and ONE UTF-16 unit each, which is the whole case: the
+    // cap was checked with `String.length`, so 93 MB of characters like this
+    // one walked past a 32 MB limit untouched. This fills the buffer to just
+    // under the cap in units a third of the size.
+    const wide = '猫';
+    const under = Math.floor((cap - 6_000) / 3);
+    const chunk = wide.repeat(1_000_000);
+
+    let written = 0;
+    for (; written + 1_000_000 <= under; written += 1_000_000) session.write(chunk);
+    session.write(wide.repeat(under - written));
+    // The chunk that takes the line OVER the cap also carries a complete, valid
+    // request behind the newline. Clearing the whole buffer — which is what
+    // tripping the cap used to do — discarded that request, and a request
+    // discarded is a request answered with nothing, which no client recovers
+    // from because none of them ever stops waiting.
+    session.write(`${wide.repeat(4_000)}\n${request(1, 'ping')}\n`);
+
+    const result = await session.done();
+
+    expect(result.messages[0]).toEqual({
+      jsonrpc: '2.0',
+      id: null,
+      error: { code: -32600, message: 'Message exceeded the maximum size and was discarded.' },
+    });
+    expect(replyTo(result, 1).result).toEqual({});
+    // Exactly those two: one refusal for the line, not one per chunk, and no
+    // parse error for a fragment of it left in the buffer.
+    expect(result.messages).toHaveLength(2);
+  }, 30_000);
 
   it('writes nothing to stdout but protocol JSON, one message per line', async () => {
     const result = await run([

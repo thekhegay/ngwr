@@ -38,7 +38,19 @@ interface ApiClass {
 const SIGNAL_WRAPPER = /^(?:[A-Za-z_$][\w$]*\.)?(InputSignal|InputSignalWithTransform|ModelSignal|OutputEmitterRef)</;
 
 /** Modifiers that may precede a member name in a `.d.ts`. */
-const MODIFIERS = new Set(['public', 'private', 'protected', 'static', 'abstract', 'readonly', 'override', 'declare']);
+const MODIFIERS = new Set([
+  'public',
+  'private',
+  'protected',
+  'static',
+  'abstract',
+  'readonly',
+  'override',
+  'declare',
+  // `accessor label: string` — without this the member came out named `accessor`
+  // and the real name was lost.
+  'accessor',
+]);
 
 /** Modifiers that mean "not part of the API". */
 const HIDDEN = new Set(['private', 'protected', 'static']);
@@ -95,9 +107,16 @@ function findClass(source: string, symbol: string): number {
   return source.search(new RegExp(`declare (?:abstract )?class ${escapeRegExp(symbol)}\\b`));
 }
 
-/** The `{ … }` of the class at `start`, brace-matched. */
+/**
+ * The `{ … }` of the class at `start`, brace-matched.
+ *
+ * The opening brace is found at angle-depth zero, because
+ * `declare class WrA<T extends { id: string }>` puts one in the type parameters —
+ * and taking the first `{` there made a constraint's members the class's own: the
+ * component's real API vanished and `id: string` was reported in its place.
+ */
 function classBody(source: string, start: number): string | null {
-  const open = source.indexOf('{', start);
+  const open = bodyBrace(source, start);
   if (open === -1) return null;
 
   let depth = 0;
@@ -110,6 +129,20 @@ function classBody(source: string, start: number): string | null {
   }
 
   return null;
+}
+
+/** The index of the brace that opens a class body, skipping any in its header. */
+function bodyBrace(source: string, start: number): number {
+  let angles = 0;
+
+  for (let i = start; i < source.length; i++) {
+    const char = source[i];
+    if (char === '<') angles++;
+    if (char === '>' && source[i - 1] !== '=') angles--;
+    if (char === '{' && angles <= 0) return i;
+  }
+
+  return -1;
 }
 
 /** The JSDoc block immediately above a declaration, if there is one. */
@@ -128,54 +161,120 @@ function docCommentBefore(source: string, at: number): string {
 }
 
 /**
- * The tags this reads, and the reason the set is closed.
+ * The tags this reads. A closed set, deliberately.
  *
- * A tag is put on its own line before anything is parsed, because JSDoc allows
- * `/** Show the spinner. \@default false *\/` on ONE line and a line-based reader
- * misses it — `wr-table`'s `loading` kept `@default false` inside its prose and
- * reported no default at all. Only known tags are split out: an `@` in ordinary
- * text, or inside an `@example` body, must stay where it is.
+ * Only these open a tag block, and only outside a fenced code sample. Both halves
+ * were learned from live output. A tag body that begins on the next line used to
+ * capture nothing, because the terminator was `$` under the `m` flag — so
+ * `@example` was `null` for 273 of 276 classes. And once that was fixed, ANY line
+ * starting `@word` ended a body, which in a library that documents Angular
+ * templates means `@for` / `@if` / `@defer` inside a code fence: `WrRange`'s whole
+ * example collapsed to an unterminated ```html and `WrRotatingText` lost the five
+ * lines that demonstrate its API.
  */
-const KNOWN_TAGS = /\s+@(default|defaultValue|example|see|param|returns|throws|deprecated|internal|remarks|since)\b/g;
+const KNOWN_TAGS = new Set([
+  'default',
+  'defaultValue',
+  'example',
+  'see',
+  'param',
+  'returns',
+  'throws',
+  'deprecated',
+  'internal',
+  'remarks',
+  'since',
+]);
 
-/** JSDoc text with the comment furniture removed and its tags on their own lines. */
-function stripDoc(doc: string): string {
+/** Splits an inline `… @default false` onto its own line, so one walker sees both. */
+const INLINE_TAG = /\s+@([a-zA-Z]+)\b/;
+
+/** A fence opens or closes a code sample, inside which nothing is a tag. */
+const FENCE = /^\s*(?:```|~~~)/;
+
+interface Doc {
+  readonly summary: string;
+  readonly tags: ReadonlyMap<string, string>;
+}
+
+/** JSDoc furniture removed, nothing else interpreted. */
+function docLines(doc: string): string[] {
   return doc
     .replace(/^\s*\/\*\*/, '')
     .replace(/\*\/\s*$/, '')
     .split('\n')
-    .map(line => line.replace(/^\s*\* ?/, ''))
-    .join('\n')
-    .replace(KNOWN_TAGS, '\n@$1')
-    .trim();
-}
-
-/** Everything before the first `@tag`. */
-function summaryOf(doc: string): string {
-  return stripDoc(doc).split(/^@\w+/m)[0].trim();
+    .map(line => line.replace(/^\s*\* ?/, ''));
 }
 
 /**
- * The body of one `@tag`, however many lines it runs to.
+ * A doc comment as a summary plus its tags, in one fence-aware pass.
  *
- * Split on tag boundaries rather than captured with a lookahead: the version that
- * ended at `(?=^@\w+|$)` under the `m` flag stopped at the first LINE END, so
- * every tag whose body begins on the next line captured nothing. `@example` is
- * written exactly that way throughout this library — 273 of 276 classes have one
- * and three survived — which made the example section of the API tool dead code
- * that nobody noticed, because it simply never rendered.
+ * The first occurrence of a tag wins, and a tag's body runs until the next tag at
+ * the top level — never into or out of a code fence.
  */
+function parseDoc(doc: string): Doc {
+  const summary: string[] = [];
+  const tags = new Map<string, string[]>();
+  let current: string[] | null = null;
+  let fenced = false;
+
+  for (const raw of docLines(doc)) {
+    if (FENCE.test(raw)) {
+      fenced = !fenced;
+      (current ?? summary).push(raw);
+      continue;
+    }
+
+    if (!fenced) {
+      // An inline tag becomes a tag and a body, so `/** Show it. @default false */`
+      // reads the same as the multi-line form.
+      const inline = INLINE_TAG.exec(raw);
+      if (inline && KNOWN_TAGS.has(inline[1]) && inline.index > 0) {
+        (current ?? summary).push(raw.slice(0, inline.index));
+        current = openTag(tags, inline[1]);
+        current.push(raw.slice(inline.index + inline[0].length));
+        continue;
+      }
+
+      const tag = /^@([a-zA-Z]+)\b/.exec(raw);
+      if (tag && KNOWN_TAGS.has(tag[1])) {
+        current = openTag(tags, tag[1]);
+        current.push(raw.slice(tag[0].length));
+        continue;
+      }
+    }
+
+    (current ?? summary).push(raw);
+  }
+
+  return {
+    summary: summary.join('\n').trim(),
+    tags: new Map([...tags].map(([name, body]) => [name, body.join('\n').trim()])),
+  };
+}
+
+/** First occurrence wins — a repeated tag does not overwrite the one that counts. */
+function openTag(tags: Map<string, string[]>, name: string): string[] {
+  const existing = tags.get(name);
+  if (existing) return existing;
+
+  const body: string[] = [];
+  tags.set(name, body);
+
+  return body;
+}
+
+/** Everything before the first tag. */
+function summaryOf(doc: string): string {
+  return parseDoc(doc).summary;
+}
+
+/** The body of one tag, however many lines it runs to, or `null`. */
 function tagOf(doc: string, tag: string): string | null {
-  const text = stripDoc(doc);
-  const lines = text.split('\n');
-  const start = lines.findIndex(line => new RegExp(`^@${tag}\\b`).test(line));
-  if (start === -1) return null;
+  const body = parseDoc(doc).tags.get(tag) ?? '';
 
-  const rest = lines.slice(start + 1);
-  const end = rest.findIndex(line => /^@\w+/.test(line));
-  const body = [lines[start].replace(new RegExp(`^@${tag}\\b`), ''), ...(end === -1 ? rest : rest.slice(0, end))];
-
-  return body.join('\n').trim() || null;
+  // An empty body reads as absent — `@default` with nothing after it says nothing.
+  return body === '' ? null : body;
 }
 
 /** What a template may bind, and whether it must. */
@@ -195,10 +294,19 @@ interface Binding {
  */
 function bindings(body: string): ReadonlyMap<string, Binding> {
   const map = new Map<string, Binding>();
-  const pattern = /"([^"]+)":\s*\{\s*"alias":\s*"([^"]*)";\s*"required":\s*(true|false)/g;
+  // Each entry read as an object, with its keys in ANY order. Pinning the order
+  // to `alias` then `required` happened to match all 144 maps in the catalog
+  // today — and a compiler that emitted `isSignal` between them would have
+  // reported every required input as optional, from the file this function's own
+  // comment calls the only place required-ness is written down.
+  const entry = /"([^"]+)":\s*\{([^}]*)\}/g;
 
-  for (const [, name, alias, required] of body.matchAll(pattern)) {
-    map.set(name, { alias, required: required === 'true' });
+  for (const [, name, fields] of body.matchAll(entry)) {
+    const alias = /"alias":\s*"([^"]*)"/.exec(fields);
+    const required = /"required":\s*(true|false)/.exec(fields);
+    if (!alias || !required) continue;
+
+    map.set(name, { alias: alias[1], required: required[1] === 'true' });
   }
 
   return map;
@@ -265,6 +373,23 @@ function declarationEnd(body: string, from: number): number {
       continue;
     }
 
+    // Comments are not code. An apostrophe in a JSDoc INSIDE a declaration used
+    // to open a string that never closed, so no `;` was ever found at depth zero
+    // and the rest of the class body became one member — a 241,013-character
+    // "type" in the worst case. That is the pre-rewrite failure mode arriving
+    // through a different door.
+    if (char === '/' && body[i + 1] === '*') {
+      const close = body.indexOf('*/', i + 2);
+      i = close === -1 ? body.length : close + 1;
+      continue;
+    }
+
+    if (char === '/' && body[i + 1] === '/') {
+      const newline = body.indexOf('\n', i);
+      i = newline === -1 ? body.length : newline;
+      continue;
+    }
+
     if (char === '"' || char === "'" || char === '`') {
       quote = char;
       continue;
@@ -297,11 +422,18 @@ function parseMember(text: string, doc: string, declared: ReadonlyMap<string, Bi
   if (words.some(word => HIDDEN.has(word))) return null;
 
   // `@internal` is the library saying "this is not for you" about a member that
-  // is `public` only because TypeScript needed it to be. Forty-five ship.
-  if (/^@internal\b/m.test(stripDoc(doc))) return null;
+  // is `public` only because TypeScript needed it to be. Nine ship. Read as
+  // a TAG, not as a line match: prose inside an `@example` that began with the
+  // word deleted the member it was documenting.
+  if (parseDoc(doc).tags.has('internal')) return null;
 
   const accessor = /^(get|set)\s+/.exec(rest);
   if (accessor) rest = rest.slice(accessor[0].length);
+
+  // A `get`/`set` pair is ONE property to a reader, and the getter is the half
+  // that carries the type: reporting both gave two members of the same name, the
+  // setter's typed `unknown`.
+  if (accessor?.[1] === 'set') return null;
 
   const named = /^(#?[A-Za-z_$][\w$]*)(\?)?/.exec(rest);
   // Index signatures, computed names, `#private` fields — not API.
@@ -375,13 +507,33 @@ function unwrap(type: string): string {
   return splitTopLevel(inner)[0].trim();
 }
 
-/** Up to the `>` that closes the wrapper, counting nesting and ignoring `=>`. */
+/**
+ * Up to the `>` that closes the wrapper, counting nesting and ignoring `=>`.
+ *
+ * Quote-aware, like {@link declarationEnd}: a string-literal type is allowed to
+ * contain the very characters this counts. `InputSignal<', ' | ' | '>` reported a
+ * type of `'` before this tracked them.
+ */
 function balanced(source: string): string {
   let depth = 1;
+  let quote = '';
 
   for (let i = 0; i < source.length; i++) {
-    if (source[i] === '<') depth++;
-    if (source[i] === '>' && source[i - 1] !== '=') {
+    const char = source[i];
+
+    if (quote) {
+      if (char === '\\') i++;
+      else if (char === quote) quote = '';
+      continue;
+    }
+
+    if (char === '"' || char === "'" || char === '`') {
+      quote = char;
+      continue;
+    }
+
+    if (char === '<') depth++;
+    if (char === '>' && source[i - 1] !== '=') {
       depth--;
       if (depth === 0) return source.slice(0, i);
     }
@@ -390,18 +542,32 @@ function balanced(source: string): string {
   return source;
 }
 
-/** Split on commas that sit outside every bracket. */
+/** Split on commas that sit outside every bracket and every string. */
 function splitTopLevel(source: string): string[] {
   const parts: string[] = [];
   let depth = 0;
+  let quote = '';
   let current = '';
 
   for (let i = 0; i < source.length; i++) {
     const char = source[i];
+
+    if (quote) {
+      if (char === '\\') {
+        current += char + (source[i + 1] ?? '');
+        i++;
+        continue;
+      }
+      if (char === quote) quote = '';
+      current += char;
+      continue;
+    }
+
+    if (char === '"' || char === "'" || char === '`') quote = char;
     if (char === '<' || char === '(' || char === '[' || char === '{') depth++;
     if (char === ')' || char === ']' || char === '}' || (char === '>' && source[i - 1] !== '=')) depth--;
 
-    if (char === ',' && depth === 0) {
+    if (char === ',' && depth === 0 && !quote) {
       parts.push(current);
       current = '';
       continue;
@@ -414,8 +580,14 @@ function splitTopLevel(source: string): string[] {
   return parts;
 }
 
+/** A type as one line, with any comment inside it removed. */
 function collapse(type: string): string {
-  return type.replace(/\s+/g, ' ').trim();
+  return type
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\/\/[^\n]*/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\{ /g, '{ ')
+    .trim();
 }
 
 function escapeRegExp(value: string): string {

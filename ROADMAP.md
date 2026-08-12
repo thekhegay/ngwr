@@ -2002,7 +2002,20 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
       none of those files have, a way to ASK: an agent that does not know an entry
       point's name cannot use a `.d.ts`, and `ngwr-table.d.ts` is 60 KB of
       declarations to answer "what inputs does `wr-table` take".
-      **Twenty defects, found by audit and not by any gate.** Two were the kind
+      **Thirty-one defects, found by audit and not by any gate** — twenty in the
+      first draft, and eleven MORE in the code written to fix them, which is the
+      part worth remembering: a rewrite is new code with new failure modes, and
+      the second audit is not optional. The scanner came out of it verified 1:1
+      against the TypeScript AST over the whole shipped corpus — 2091 of 2091
+      public members, no leaks, no phantoms — but only after a fenced `@for` in a
+      code sample was found terminating `@example` bodies, an inline object
+      constraint in a class's type parameters was found being read as the class
+      body, and an apostrophe inside a nested JSDoc was found opening a string
+      that never closed, which turned the rest of a class into one member with a
+      241,013-character "type". On the wire, a batch of 58,000 valid requests
+      overflowed `JSON.stringify` and killed the process with zero bytes written
+      and none of the ids answered; batches are capped now.
+      **Twenty of the thirty-one, in the first draft:** Two were the kind
       that hangs a client rather than failing: a JSON-RPC batch produced zero
       bytes, and any handler exception was reported as a PARSE error against a
       null id, so the id the client was waiting on was never answered. And the
