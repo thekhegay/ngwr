@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { WrTypography } from 'ngwr/typography';
 
@@ -17,7 +16,6 @@ import {
   selector: 'ngwr-gs-csp-page',
   templateUrl: './csp.html',
   imports: [
-    RouterLink,
     WrTypography,
     DocPageComponent,
     DocSectionComponent,
@@ -81,7 +79,7 @@ Content-Security-Policy:
     {
       name: 'style-src',
       description:
-        "`'self'` is enough **if** your app imports ngwr's stylesheet. Every component's CSS then lives in your linked stylesheet. Without that import, see the nonce section below.",
+        "`'self'` is enough **if** your app imports ngwr's stylesheet. Every component's CSS then lives in your linked stylesheet. Without that import, see the nonce section below. Nothing in the library needs `'unsafe-inline'`: the one place that paints per-token colour, `<wr-markdown>`'s syntax highlighting, takes coloured SPANS rather than highlighted HTML and renders each with a bound `[style.color]` — which Angular writes through CSSOM, and CSSOM is not a style-src subject.",
       type: 'directive',
       default: "'self'",
     },

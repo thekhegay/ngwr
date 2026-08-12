@@ -33,7 +33,7 @@ import { API } from '#core/generated/api';
 })
 export default class ButtonComponent {
   protected readonly colors = WR_COLORS;
-  protected readonly shapes: readonly WrButtonShape[] = ['rounded', 'pill'];
+  protected readonly shapes: readonly WrButtonShape[] = ['rounded', 'pill', 'squircle'];
   protected readonly loading = signal(false);
 
   protected readonly snippets = {
@@ -50,11 +50,12 @@ export class MyComponent {}`,
     sizes: `<wr-btn size="sm">Small</wr-btn>
 <wr-btn size="md">Medium</wr-btn>
 <wr-btn size="lg">Large</wr-btn>`,
-    shape: `<!-- Two shapes -->
+    shape: `<!-- Three shapes -->
 <wr-btn color="primary">Rounded (default)</wr-btn>
 <wr-btn color="primary" shape="pill">Pill</wr-btn>
+<wr-btn color="primary" shape="squircle">Squircle</wr-btn>
 
-<!-- Smooth corners? Wrap with [wrSquircle] — the only entry point. -->
+<!-- No corner-shape support? [wrSquircle] clips the same look everywhere. -->
 <wr-btn color="primary" wrSquircle [radius]="14">Squircle</wr-btn>`,
     block: `<wr-btn color="primary" block>Full width</wr-btn>`,
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>

@@ -32,9 +32,9 @@ export default class TokensColorsPage {
    * Intents that additionally get the soft set (light + dark are excluded).
    *
    * Still hand-written, because the lib does not export this subset — it is
-   * the literal `@each $name in (…)` list at `_colors.scss:152`, so it cannot
-   * be derived from anything importable. Adding a colour to the palette does
-   * NOT add it here or there; both are manual.
+   * the literal `@each $name in (…)` list in `_colors.scss`, so it cannot be
+   * derived from anything importable. Adding a colour to the palette does NOT
+   * add it here or there; both are manual.
    */
   protected readonly softIntents = ['primary', 'secondary', 'success', 'warning', 'danger', 'info', 'medium'] as const;
 
@@ -76,9 +76,9 @@ export default class TokensColorsPage {
   protected readonly inkTokens: readonly DocApiRow[] = [
     {
       name: '--wr-color-{intent}-ink',
-      type: 'color-mix(in srgb, var(--wr-color-{intent}) 50–93%, var(--wr-color-dark))',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 48–86%, var(--wr-color-dark))',
       description:
-        'The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the measured minimum — primary 93%, secondary 80%, danger 77%, info 76%, success 72%, medium 69%, warning 50%. Warning travels furthest because a yellow readable on white is not yellow. `light-ink` is `--wr-color-on-surface` (a surface tone has no readable darkening) and `dark-ink` is `--wr-color-dark`.',
+        "The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the most saturated value that still reaches 5.0:1 against that intent's own `-soft` tint in BOTH themes — primary 86%, secondary 75%, danger 72%, info 71%, success 67%, medium 65%, warning 48%. Warning travels furthest because a yellow readable on white is not yellow. The 5.0 target is deliberate headroom over AA's 4.5: an earlier pass aimed at 4.5 exactly and a slightly different background pushed `wr-typography--code` back under it. `light-ink` is `--wr-color-on-surface` (a surface tone has no readable darkening) and `dark-ink` is `--wr-color-dark`.",
     },
   ];
 
@@ -128,8 +128,9 @@ export default class TokensColorsPage {
     },
     {
       name: '--wr-color-text-muted',
-      type: 'rgba(var(--wr-color-muted-text-rgb), 0.85)',
-      description: 'De-emphasized text — muted labels, captions.',
+      type: 'rgba(var(--wr-color-muted-text-rgb), 0.95)',
+      description:
+        'De-emphasized text — muted labels, captions. 0.95, not a rounder 0.85: wrapping the role at 0.85 composited to 3.90:1 on the light surface, under the AA bar. 0.95 is the most softening that still clears it (4.81).',
     },
     {
       name: '--wr-color-text-faint',
@@ -233,7 +234,9 @@ export class Palette {
   readonly colors = WR_COLORS;
 }`,
 
-    dark: `/* Only semantic tokens flip; brand hues stay put.
+    dark: `/* The neutrals swap roles; four intents are re-tuned for the canvas
+   (primary, success, warning, danger). secondary and info keep their
+   light values.
    --wr-color-white  = page surface  → #0b1120 in dark
    --wr-color-dark   = body text     → #e6ebf3 in dark
    --wr-color-light  = borders/tints → #262f44 in dark

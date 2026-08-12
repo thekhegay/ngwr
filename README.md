@@ -1,7 +1,7 @@
 # <img src="https://ngwr.dev/images/logo.svg" alt="ngwr logo" height="32px">
 
 [![ngwr website](https://img.shields.io/badge/ngwr.dev-3969e2)](https://ngwr.dev)
-[![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23f51c6a)](https://www.npmjs.com/package/ngwr)
+[![ngwr version](https://img.shields.io/github/package-json/v/thekhegay/ngwr?filename=projects%2Flib%2Fpackage.json&color=%23e21a62)](https://www.npmjs.com/package/ngwr)
 [![angular peer](https://img.shields.io/npm/dependency-version/ngwr/peer/@angular/core)](https://www.npmjs.com/package/ngwr)
 [![ci](https://img.shields.io/github/actions/workflow/status/thekhegay/ngwr/ci.yml?branch=main&label=ci)](https://github.com/thekhegay/ngwr/actions/workflows/ci.yml)
 [![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
@@ -29,9 +29,10 @@ zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
 | `luxon` _(optional)_        | `^3.0.0`             |
 | `lucide` _(optional)_       | `>= 1.0.0`           |
 
-Node ≥ 24.16.0 (or 26+) and TypeScript `~6.0.x` (Angular 22 requires
-`typescript >=6.0 <6.1`). Contributing to this repo additionally needs
-pnpm ≥ 11.10.
+TypeScript `~6.0.x` (Angular 22's compiler declares `typescript >=6.0 <6.1`) and
+a Node version Angular 22 accepts — `^22.22.3 || ^24.15.0 || >=26`. Contributing
+to this repo needs the narrower `^24.16.0 || >=26` it pins (`.nvmrc` says 24),
+plus pnpm ≥ 11.10.
 
 ## Install
 
@@ -55,9 +56,10 @@ yarn add ngwr @angular/cdk
 ```
 
 `@angular/cdk` is the only required peer. Add an icon set and a date library
-only if you use them — `lucide` (or `feather`) for the icon adapters, and
-`date-fns` or `luxon` for the calendar / date-picker adapters. The Quick start
-below registers a lucide icon, so it needs `lucide`:
+only if you use them — `lucide` (or `feather-icons`) for the icon adapters, and
+`date-fns` or `luxon` for the calendar / date-picker, which otherwise runs on a
+built-in native `Date` adapter. The Quick start below registers a lucide icon, so
+it needs `lucide`:
 
 ```shell
 pnpm add lucide
@@ -72,10 +74,11 @@ The fastest way — pull in everything (theme tokens + all component styles):
 @use 'ngwr';
 ```
 
-Good for a spike, but it is every entry point at once — about **247 kB** of CSS
-(~30 kB over the wire), which on its own exceeds the 500 kB initial budget a
-fresh `ng new` ships with. For anything you intend to keep, opt in per component
-below and the sheet stays proportional to what you actually render.
+Good for a spike, but it is every entry point at once — about **265 kB** of CSS
+(~40 kB over the wire), which is over half the 500 kB initial budget a fresh
+`ng new` warns at before any of your own code. For anything you intend to keep,
+opt in per component below and the sheet stays proportional to what you actually
+render.
 
 Prefer to opt in per-component? Each component has its own SCSS entry that pulls
 in the theme automatically:
@@ -210,7 +213,7 @@ Card packages bundle their related directives: `ngwr/spotlight-card` exports `Wr
 
 ### Pipes — `ngwr/pipes`
 
-[wrBytes](https://ngwr.dev/reference/pipes/wr-bytes), [wrDate](https://ngwr.dev/reference/pipes/wr-date), [wrMark](https://ngwr.dev/reference/pipes/wr-mark), [wrNumber](https://ngwr.dev/reference/pipes/wr-number), [wrPlural](https://ngwr.dev/reference/pipes/wr-plural), [wrRange](https://ngwr.dev/reference/pipes/range), [wrTruncate](https://ngwr.dev/reference/pipes/wr-truncate).
+[wrBytes](https://ngwr.dev/reference/pipes/wr-bytes), [wrDate](https://ngwr.dev/reference/pipes/wr-date), [wrMark](https://ngwr.dev/reference/pipes/wr-mark), [wrNumber](https://ngwr.dev/reference/pipes/wr-number), [wrPlural](https://ngwr.dev/reference/pipes/wr-plural), [wrRange](https://ngwr.dev/reference/pipes/wr-range), [wrTruncate](https://ngwr.dev/reference/pipes/wr-truncate).
 
 ### Services
 
@@ -232,7 +235,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 - [Mobile & responsive](https://ngwr.dev/guides/mobile) — responsive overlays, touch targets & density, swipe gestures, safe-area insets, container-query layouts.
 - [Typography](https://ngwr.dev/guides/typography) — `wrTypography` directive: headings, paragraphs, lists, links, code.
 - [Icons](https://ngwr.dev/icons) — `ngwr/icon` registry. Use `svgIcon()` for any set that ships raw SVG files (Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap, or your designer's own), plus thin adapters for Lucide (`ngwr/icon/adapters/lucide`) and Feather (`ngwr/icon/adapters/feather`), whose packages don't ship SVGs.
-- **Date adapters** — `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter(...)` to power calendar + every mode of date-picker.
+- **Date adapters** — `ngwr/date-adapter` (native `Date`, no extra package), `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter()` — plus `{ adapter: WrDateFnsAdapter }` / `{ adapter: WrLuxonAdapter }` for the library-backed ones — to power calendar + every mode of date-picker.
 - **Component defaults** — `ngwr/config`. `provideWrConfig({ button: { size: 'sm' } })` sets what a component falls back to when a template says nothing; a bound value always wins, and a bound `false` beats a configured `true`, so a config never has to be escaped. [Reference](https://ngwr.dev/start/configuration).
 
 ## Highlights
@@ -242,7 +245,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 - **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
 - **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, a `touch` density preset enlarges every control, and drawer / lightbox / toast / carousel respond to swipe gestures. Fixed surfaces respect `env(safe-area-inset-*)`, and layout components (`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination`, `table`) reflow to their container via container queries. [Guide](https://ngwr.dev/guides/mobile).
 - **Table, batteries included.** `wr-table` covers column pinning / resizing / drag-reorder, row selection, expandable rows, grouping, tree rows (`childrenKey` — the forest flattens into the same `<tbody>`, so pinning and cell templates keep working at every depth, and the table announces a `treegrid`), summary rows, CSV export (`exportCsv()`, dependency-free RFC 4180) and a virtualized body — all opt-in inputs on the one component. Excel (`.xlsx`) export is deliberately not shipped: it would mean a third-party dependency.
-- **Tree-shakable.** 164 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are small: a median of ~3 KB gzipped, the heaviest (`ngwr/select`) ~20 KB. The whole catalog gzips to ~516 KB — but real apps pull a handful of entries. The only runtime dependency is `tslib`.
+- **Tree-shakable.** 166 separate ng-packagr entry points — import only what you use. Per-component FESM bundles are small: a median of ~4 KB gzipped, the heaviest (`ngwr/markdown`) ~23 KB. Every runtime bundle together gzips to ~690 KB — the 34 `ngwr/<name>/testing` harnesses aside, since they never reach an app bundle — but real apps pull a handful of entries. The only runtime dependency is `tslib`.
 - **Modular SCSS.** Component styles are scoped through CSS custom properties. Theme tokens live in `ngwr/theme`; utilities (`grid`, `reset`) and the breakpoints SCSS API are opt-in.
 - **Tree-shaken icons.** `provideWrIcons(lucideIcons({ plus: Plus }))` registers only the icons you actually import. Dev-mode validation warns about unregistered icons.
 - **Reactbits ports, dependency-free.** All animation ports are reimplemented with vanilla DOM + Web Animations API / `IntersectionObserver` / `requestAnimationFrame` / raw WebGL — no GSAP, no `motion/react`, no `matter-js`, no `ogl`.
@@ -251,7 +254,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 
 ### MCP server
 
-The package ships `ngwr-mcp`, a zero-dependency MCP server that makes those files askable: `search_ngwr` (find an entry point by what you need), `get_ngwr_component`, `get_ngwr_api` (a class's inputs / models / outputs, read out of the shipped `.d.ts`) and `get_ngwr_setup` (the install, `ng g ngwr:use` and provider commands — returned as text; it never runs them). It adds no second copy of the catalog: it reads only files inside its own installed package, makes no network requests, and runs no commands.
+The package ships `ngwr-mcp`, a zero-dependency MCP server that makes those files askable: `search_ngwr` (find an entry point by what you need), `get_ngwr_component`, `get_ngwr_api` (a class's inputs / models / outputs / methods, read out of the shipped `.d.ts`) and `get_ngwr_setup` (the install, `ng g ngwr:use` and provider commands — returned as text; it never runs them). It adds no second copy of the catalog: it reads only files inside its own installed package, makes no network requests, and runs no commands.
 
 ```json
 {
@@ -270,9 +273,10 @@ Conventional commits are enforced on PR titles. Common types: `feat`, `fix`, `pe
 ```shell
 pnpm install
 pnpm dev            # ng serve --o (showcase)
-pnpm build:lib      # ng build lib + ai assets + dist assets + schematics
-pnpm build:showcase # showcase build + sitemap
-pnpm lint           # ng lint + eslint scripts + stylelint + colour parity
+pnpm test           # ng test lib (vitest)
+pnpm build:lib      # ng build lib + ai assets + dist assets + i18n json + schematics + mcp server
+pnpm build:showcase # ai assets + showcase build + sitemap + markdown twins
+pnpm lint           # ng lint + eslint scripts + stylelint + colour parity + rtl
 ```
 
 ## Authors

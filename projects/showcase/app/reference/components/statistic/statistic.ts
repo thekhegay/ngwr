@@ -164,7 +164,7 @@ protected readonly launchDate = new Date(Date.now() + 1000 * 60 * 60 * 36);`;
     {
       name: '(countdownEnd)',
       description: 'Emits once when the target time is reached.',
-      type: 'EventEmitter<void>',
+      type: 'OutputEmitterRef<void>',
       default: '—',
       sub: true,
     },

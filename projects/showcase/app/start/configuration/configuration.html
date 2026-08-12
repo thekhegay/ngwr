@@ -13,7 +13,7 @@
 
   <ngwr-doc-section
     title="Overlay"
-    description="`provideWrOverlay()` is required for every overlay-backed component — dialog, drawer, popover, dropdown, select, tooltip, menus, pickers. Sets up an isolated overlay container so portal overlays don't leak into the app root."
+    description="`provideWrOverlay()` backs every overlay component — dialog, drawer, popover, dropdown, select, tooltip, menus, pickers — with an overlay container and an `Overlay` instance of NGWR's own. Both tokens fall back to CDK's root instances, so panels still open without it; what you lose is the isolation from other CDK consumers and the `--wr-keyboard-inset` that lets a mobile sheet clear the on-screen keyboard. Call it once."
   >
     <ngwr-doc-code [code]="snippets.overlay" language="angular-ts" />
   </ngwr-doc-section>
@@ -27,7 +27,7 @@
 
   <ngwr-doc-section
     title="Toast"
-    description="Stack of dismissible notifications. Defaults to bottom-right. Inject `WrToast` and call `open(...)` from anywhere."
+    description="Stack of dismissible notifications, defaulting to the top-end corner. Inject `WrToast` and call `show(...)` from anywhere — the provider only sets defaults, so it is optional."
   >
     <ngwr-doc-code [code]="snippets.toast" language="angular-ts" />
   </ngwr-doc-section>
@@ -48,14 +48,14 @@
 
   <ngwr-doc-section
     title="Component defaults"
-    description="`provideWrConfig()` sets the size, shape and intent a component falls back to when a template says nothing. A bound value always wins, so nothing has to be re-stated to escape it — and a bound `false` turns a configured `true` back off, because `false` is a value rather than an absence."
+    description="`provideWrConfig()` sets what a component falls back to when a template says nothing — the shared `size` scale, the `rounded` shape on the controls that have one, and `<wr-markdown>`'s link target and copy button. A bound value always wins, so nothing has to be re-stated to escape it — and a bound `false` turns a configured `true` back off, because `false` is a value rather than an absence. Intent is deliberately not a key: `null` is how a template says nothing, and it is also how the lib's own chrome says “no colour”."
   >
     <ngwr-doc-code [code]="snippets.config" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Density"
-    description="One knob for app-wide sizing. Pick a preset or supply per-axis multipliers."
+    description="One knob for app-wide sizing. The provider picks a preset; the per-axis multipliers behind the presets are CSS custom properties, so a value between two presets is a `:root` override rather than a config field."
   >
     <ngwr-doc-code [code]="snippets.density" language="angular-ts" />
   </ngwr-doc-section>
@@ -76,7 +76,7 @@
 
   <ngwr-doc-section
     title="Cookie"
-    description="SSR-safe typed cookie service. Inject `WrCookie` and call `get(name)` / `set(name, value, opts)` / `delete(name)`."
+    description="SSR-safe typed cookie service. Inject `WrCookie` and call `get(name)` / `set(name, value, opts)` / `remove(name)`."
   >
     <ngwr-doc-code [code]="snippets.cookie" language="angular-ts" />
   </ngwr-doc-section>

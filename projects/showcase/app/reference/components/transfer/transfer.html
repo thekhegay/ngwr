@@ -25,7 +25,7 @@
 
   <ngwr-doc-section
     title="Search and titles"
-    description="`searchable` puts a filter above each pane; it narrows what you see and what the header checkbox sweeps, never what is already chosen. `sourceTitle` / `targetTitle` name the panes — both fall back to the `ngwr/i18n` catalog, so they are localized without being set."
+    description="`searchable` puts a filter above each pane; it narrows what you see, what the header checkbox sweeps and what an arrow commits, never what is already chosen. A row the filter hides stops counting as staged, so a move can only carry rows the pane is actually showing. `sourceTitle` / `targetTitle` name the panes — both fall back to the `ngwr/i18n` catalog, so they are localized without being set."
   >
     <ngwr-doc-code [code]="snippets.searchable" language="angular-html" />
     <ngwr-doc-snippet code="">

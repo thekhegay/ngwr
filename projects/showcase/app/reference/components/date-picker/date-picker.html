@@ -27,7 +27,7 @@
 
   <ngwr-doc-section
     title="Bounds + filter"
-    description="`min`, `max`, and `dateFilter` are forwarded to the inner calendar. Out-of-bounds typed values are not emitted."
+    description="`min`, `max`, and `dateFilter` are forwarded to the inner calendar. A typed value the calendar itself would refuse — out of bounds, or filtered out — is not emitted either, so the keyboard and the grid cannot disagree about what is selectable."
   >
     <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
     <ngwr-doc-snippet code="">

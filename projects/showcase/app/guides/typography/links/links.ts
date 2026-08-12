@@ -19,9 +19,12 @@ export default class TypographyLinksPage {
     inline: `<p wrTypography variant="body">
   … the <a wrTypography variant="link" href="…">getting started guide</a> …
 </p>`,
-    icon: `<a wrTypography variant="link" href="…">
+    icon: `<!-- \`<wr-icon>\` takes no size input — it reads --wr-icon-size, which
+     defaults to 1.2em, so beside link text it is already proportional.
+     Override the property when you want a specific size. -->
+<a wrTypography variant="link" href="…">
   Read the changelog
-  <wr-icon name="arrow-forward" size="14" />
+  <wr-icon name="arrow-forward" style="--wr-icon-size: 0.875rem" />
 </a>`,
   };
 }

@@ -16,14 +16,16 @@ A pnpm + Angular CLI monorepo with two projects:
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
   points, and thirty-eight are nested — `ngwr/i18n/{en,ru}`,
   `ngwr/icon/adapters/{lucide,feather}` and the CDK test harnesses, which now cover
-  **thirty-four** entry points: every form control (`button`, `input`, `textarea`,
+  **thirty-four** entry points: the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
-  `rating`, `file-upload`, `form`, `segmented`), every overlay (`date-picker`,
+  `rating`, `file-upload`, `form`, `segmented`), the overlays (`date-picker`,
   `dropdown`, `popover`, `dialog`, `drawer`, `toast`, `context-menu`, `popconfirm`,
-  `command-palette`, `cascader`, `mention`), the data views (`table`, `tree`) and
-  the navigation / disclosure set (`tabs`, `stepper`, `carousel`, `pagination`,
-  `collapse`, `transfer`) and the markdown renderer — each at `ngwr/<name>/testing`. Built with
-  **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
+  `command-palette`, `cascader`, `mention`), the data views (`table`, `tree`), the
+  navigation / disclosure set (`tabs`, `stepper`, `carousel`, `pagination`,
+  `collapse`, `transfer`) and the markdown renderer — each at
+  `ngwr/<name>/testing`, 61 harness classes in total. `color-picker` and
+  `action-sheet` are the two control / overlay entry points still without one.
+  Built with **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
   docs, and where components are dogfooded. Docs are organised into five
   top-level clusters — **start / guides / reference / icons / animations**: API
@@ -119,6 +121,17 @@ one component folder. Reach for them instead of hand-rolling:
   CDK viewport can't host `<tr>` / role-owned list children). Cascader is
   deferred (no container-owned arrow-nav model); mention is excluded (capped at
   `maxResults` ≈ 8).
+- **Markdown** (`ngwr/markdown`) — `<wr-markdown [value]="…">` renders markdown as
+  DOM, never as HTML. **Raw HTML in the source is escaped**, and that is a
+  deliberate limit rather than an unfinished feature: the input is untrusted by
+  construction, and one `<img onerror>` is the whole cost of being wrong.
+  `[streaming]` makes a partial document render like a whole one (its spec pins
+  the property that makes it safe to leave on — a finished stream parses
+  identically with the flag and without it). `provideWrMarkdownHighlighter()`
+  takes a function returning coloured SPANS (`{ text, color }` per line), not
+  markup: highlighted HTML would need `bypassSecurityTrustHtml` and put the
+  `[innerHTML]` hole back in the one component whose entire input is untrusted.
+  Hand-rolled parser, so no new runtime dependency.
 - **Mobile primitives** (`ngwr/platform`, …) — `WrHaptics`, `ngwr/action-sheet`,
   `ngwr/pull-to-refresh`, and `WrVisualViewport` (publishes
   `--wr-keyboard-inset`, installed by `provideWrOverlay()`).
@@ -152,6 +165,8 @@ enlarges every control at once.
 | Lint everything   | `pnpm lint`                                                                                         |
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
 | Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — **nightly**, not a PR gate)            |
+| RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
+| RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
@@ -167,9 +182,12 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components` — 180 spec files, ~2990 specs. What is still
-uncovered: five of the animation components (the canvas and WebGL ones, where
-jsdom has no drawing context) and mode coverage inside components that are
+page under `reference/components` — 184 spec files, ~3110 specs, and every entry
+point but `ngwr/version` now has one. What is still uncovered is no longer whole
+components but what a spec can reach: jsdom has no drawing context, so the canvas
+and WebGL components (`aurora`, `click-spark`, `confetti`, `fuzzy-text`,
+`splash-cursor`, `waves`) assert the null-context fallback and their own teardown
+rather than anything painted; and mode coverage inside components that are
 covered — a spec on `wr-table` says nothing about tree rows unless it
 exercises them.
 
@@ -177,10 +195,9 @@ exercises them.
 vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
 NAMES contain "dialog" and reports green. To run one file, pass its path to the
 builder's `include`; to be sure of a change, run the whole suite — it is
-seconds. The rest of the components are unwritten, so
-**`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`, `check:llms` and
-`check:a11y` are the gates** and a green run still does not mean a component
-behaves.
+seconds. **`pnpm lint`, `pnpm test`, the two builds, `check:api-docs`,
+`check:llms` and `check:a11y` are the gates**, and a green run still does not mean
+a component behaves — the suite is broad now but shallow in places (see above).
 
 **Deferred DOM work needs `afterNextRender`, not `queueMicrotask`.** Under
 zoneless CD the scheduler runs change detection in a MACROTASK, so a microtask
@@ -213,8 +230,10 @@ Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
 
 `pnpm lint` is **multi-stage**: `ng lint` (lib, then showcase) `&&`
 `eslint scripts` `&&` `stylelint` `&&` `check:colors`
-(`scripts/check-color-parity.ts`) — and the last stage is the one that most
-often turns a green-looking run red. The first stage prints
+(`scripts/check-color-parity.ts`) `&&` `check:rtl` (`scripts/check-rtl.ts` — a
+physical, direction-dependent CSS property with no `rtl-ok:` reason within three
+lines above it) — and the last two stages are the ones that most often turn a
+green-looking run red. The first stage prints
 `All files pass linting.` even when a _later_ stage fails — so **verify by exit
 code, never by grepping the output**:
 
@@ -279,31 +298,52 @@ hand rather than believing the number.
 **`-contrast` picks, it does not blend.** `_contrast()` returns whichever of
 `$contrast-dark` / `$contrast-light` scores higher against the fill, so those two
 values ARE the ceiling for every intent — there is no share to tune, and a
-"softer" black spends contrast that nothing else can recover. Both are now the
+"softer" black spends contrast that nothing else can recover. Both are the
 extremes (`#000` / `#fff`), which puts every intent at its theoretical maximum.
-The one that cannot be improved further is `primary` in the LIGHT theme at
-4.89:1: white already wins there and pure white is the ceiling, so the only
-lever left is the primary fill itself.
+Because it picks, the label an intent gets is decided by the FILL: the two
+candidates are equal at √21 ≈ 4.58, so anything lighter than that takes a black
+label no matter what anyone prefers. That is the whole reason v11 deepened five
+intents — `secondary`, `success`, `danger`, `info`, `medium` — just past the flip
+(light theme: white 4.60–4.64, black 4.52–4.56, an 8–20% shift in tone); at the
+old tones white measured 3.10–3.99, below AA, so a muddy black label won on
+merit. `warning` (black at 12.28:1) and `light` (14.14:1) are deliberately NOT in
+that set and cannot be — white needs `#906900` on warning, which is brown, not a
+warning colour. Every intent clears AA; the tightest are now `secondary` and
+`info` at 4.61:1, where white already wins and pure white is the ceiling, so the
+only lever left is the fill itself.
 
 **The `-ink` ramp is calibrated, not eyeballed.** Each intent's share in
-`$ink-mix` (`theme/styles/_colors.scss`) is the most saturated value that still
-reaches **5.0:1 against that intent's own `-soft` tint**, in both themes — the
-soft tint being the darker of the two backgrounds `-ink` is documented for, and
-so the binding one. The 5.0 target is deliberate headroom over AA's 4.5: the
-first pass aimed at 4.5 exactly and left every intent between 4.59 and 4.83, so
-a slightly different background pushed it under (`wr-typography--code` measured
-4.24, `wr-tag--primary` 4.42). If you change a share, re-derive it — do not
-nudge it until one page looks right.
+`$ink-mix` (`theme/styles/_colors.scss`) was derived as the most saturated value
+that still reaches **5.0:1 against that intent's own `-soft` tint**, in both
+themes — the soft tint being the darker of the two backgrounds `-ink` is
+documented for, and so the binding one. The 5.0 target is deliberate headroom
+over AA's 4.5: the first pass aimed at 4.5 exactly and left every intent between
+4.59 and 4.83, so a slightly different background pushed it under
+(`wr-typography--code` measured 4.24, `wr-tag--primary` 4.42). **v11 moved five of
+the bases and the shares were not re-derived**, which cuts both ways: a deeper
+base darkens the ink, which raises contrast on a light tint and lowers it on a
+dark one, so the light theme now sits at 5.03–6.56 while `secondary-ink` in DARK
+has slipped to 4.78 against its own soft tint — clear of AA, under the documented
+target, and the first share to re-derive if you touch this. Those figures are
+arithmetic on the shipped token values, not painted measurements; confirm with
+`pnpm check:contrast`, which reports what axe measured on a real page. If you
+change a share, re-derive it — do not nudge it until one page looks right.
 
 **Two directions, two tokens — do not mix them up.** `-contrast` is the label ON
 a filled intent; `-ink` is the intent used AS text on `--wr-color-surface` or on
-its own `-soft` tint. Painting a bare `--wr-color-<intent>` as text fails WCAG AA
-in the light theme for every intent but `primary` (warning is 1.71:1), so
-outlined / ghost / tinted variants take `-ink`. Both are `color-mix`es toward
-`--wr-color-dark`, which itself flips per theme, so one declaration darkens in
-light and lightens in dark. For muted prose the role alias
-`--wr-color-on-surface-muted` is the answer — NOT the `medium` intent, which is a
-fill colour and reads at 3.10:1.
+its own `-soft` tint. The v11 deepening changed the first half of that story and
+not the second: a bare `--wr-color-<intent>` as text now clears AA on the plain
+light surface for every intent but `warning` (1.71:1) and `light` (1.48:1) — but
+on its own `-soft` tint, which is where outlined / ghost / tinted variants
+actually paint it, it still fails everywhere (1.60–4.17 in light, 3.65–4.84 in
+dark). That tint is what `-ink` is calibrated against, so those variants take
+`-ink` regardless of how the bare intent scores on white. `-ink` and
+`-soft-contrast` are `color-mix`es toward `--wr-color-dark`, which itself flips
+per theme, so one declaration darkens in light and lightens in dark. For muted
+prose the role alias `--wr-color-on-surface-muted` is the answer — NOT the
+`medium` intent, which is a fill colour: it reaches 4.63:1 on pure white but only
+4.01:1 on the lightest surface the library paints (`#ebeff4`), where the muted
+role still holds 4.63:1.
 
 **SSR-safe.** Components must render under SSR / hydration: zoneless,
 signals-only, and **no constructor-time DOM access** (guard with
@@ -338,11 +378,14 @@ smallest diff that satisfies the request. Concretely:
 `--provenance`), and a poisoned cache would hand it to attacker-controlled
 code. Don't re-add the cache.
 
-**Versioning.** **v10.0.0 shipped** (2026-08-06). Its three breaking changes are
-all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
-casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
-empty codemod would tell consumers their visual regressions were handled when
-they were not. Main is now v11-bound. Don't bump
+**Versioning.** The last release is **v10.2.1** (2026-08-10) — that is the newest
+tag and what `projects/lib/package.json` reads — and main is **v11-bound**. v10's
+three breaking changes were all CSS/token-level — WCAG contrast on
+`--wr-color-*-contrast`, table header casing, tooltip theming — so there is
+deliberately **no `migration-v10`**: an empty codemod would tell consumers their
+visual regressions were handled when they were not. v11's breaking change is the
+same shape (five intents deepened so their labels can be white — see Styling), so
+`schematics/migrations/` still stops at v9 on purpose. Don't bump
 the version by hand — releases are cut from Actions ("Release PR" → `bump`),
 which runs `release:prepare` / `release:body` and opens a `chore(release)` PR.
 
@@ -403,11 +446,20 @@ that assumes 0–255 silently produces nonsense. It emulates
 is minutes.
 
 It runs **nightly** (`.github/workflows/nightly.yml`), not on every PR: a
-browser and 386 page loads took the PR job from ~5 minutes to nearly 17, and
-what it catches is drift in painted colour rather than the kind of break a
+browser and 392 page loads (196 canonical routes, both themes) took the PR job
+from ~5 minutes to nearly 17, and what it catches is drift in painted colour
+rather than the kind of break a
 single PR needs told about mid-review. So a green PR says nothing about
 contrast — run it locally when you touch a token, a tint, or anything that
 paints text on an intent.
+
+`check:rtl-layout` is the other nightly job, and it is nightly for the same
+reason. It renders every route in a real Chromium under both directions and fails
+only where a page overflows sideways in RTL and not in LTR — differential, so
+there is no baseline of pixel positions to rot, and it catches what neither
+`check:rtl` (source only) nor `check:a11y` (JSDOM, no stylesheets) can see. Its
+one shipped catch was the slider thumb centring itself with a physical
+`translate(-50%)` against an inset that had become logical.
 
 **Accessibility.** Interactive components follow the WAI-ARIA APG patterns —
 correct roles/states, keyboard navigation, and focus management; overlays use the
@@ -419,7 +471,7 @@ i18n catalog; an `aria-label` on a component's host element does not reach the
 native control inside it.
 
 **Showcase page = the docs.** Every component ships a docs page — under
-`projects/showcase/app/reference/components/<name>/` for the main catalog (81
+`projects/showcase/app/reference/components/<name>/` for the main catalog (84
 dirs), or under `projects/showcase/app/animations/<name>/` for animation /
 visual-effect components (a separate top-level cluster with its own routing +
 sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
@@ -439,7 +491,7 @@ source blocks kept. Each page advertises its own via
 `<link rel="alternate" type="text/markdown">` (`MetaService.setMarkdownAlternate()`),
 and `ngwr-doc-code` reflects `data-language` purely so the export can fence a
 block correctly — a bound `[language]` does not reach the DOM on its own. `llms-full.txt` is **gitignored** — it exists
-in the working tree (~35 KB) but is untracked and rewritten on every build.
+in the working tree (~51 KB) but is untracked and rewritten on every build.
 Never hand-edit it; edit `scripts/gen-ai-assets.ts`. Only the curated
 [`llms.txt`](llms.txt) and this file are hand-maintained: update them when the
 doc structure or the headline components change. (A rename once silently
@@ -504,6 +556,77 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 - **`container-type: inline-size` collapses width** in shrink-to-fit
   (flex / grid) parents → the element drops to 0 width. Add `width: 100%` under
   the modifier.
+
+## Contracts that look like bugs
+
+Sixteen behaviours that read as defects until you know why they are that way.
+Each was questioned at least once, each has a spec pinning it, and each would
+be "fixed" by someone reading only the symptom. This list used to live in
+ROADMAP.md; it moved here when that file was cut back to remaining work,
+because it is guidance rather than a plan.
+
+- `wr-list`'s interactive row keeps `role="listitem"`: inside a
+  `<ul role="list">` a `button` or `option` child role breaks the structure
+  the container promises. Project a real button into `[wrListItemTrailing]`
+  when the action itself must be announced.
+- `wr-stepper`'s `linear` REFUSES rather than greys — the disabled header is
+  the hint, `onHeaderClick` is the rule. (A real `.click()` on a
+  `<button disabled>` is swallowed by the DOM, so dispatch the event
+  directly or the gate "holds" for the wrong reason.)
+- An edit to one end of a range is never reordered while the user is still on
+  it; ordering settles when the interaction ends.
+- `wr-input-number`: an emptied field is `null`, not `0`, and unparseable text
+  LEAVES the committed number alone — the same rule `wr-date-picker` follows
+  for a partial date.
+- `wr-mention`'s host stays a `textbox`, deliberately not a combobox (the
+  field holds prose, `role="combobox"` is disallowed on `<textarea>`, and it
+  would drop `aria-multiline` for the whole session). `aria-autocomplete` and
+  `aria-haspopup` are STATIC because they describe a permanent capability.
+  `aria-controls` may dangle at a panel id that only exists while open;
+  `aria-activedescendant` naming an absent element is an author ERROR and must
+  vanish with the panel. Its filter matches a SUBSTRING, not a prefix.
+- `wr-cascader`'s value is the whole PATH, and a branch is navigation rather
+  than a choice — nothing commits on the way down unless `changeOnSelect`
+  says so.
+- `wr-tree`: `openOn` defaults to `inline`, so there is no combobox trigger
+  unless you ask for one, and inline selection is `[(selected)]` while
+  `[(value)]` is meaningful in `overlay` mode only.
+- `wr-alert` does not use one live region: danger interrupts
+  (`role="alert"` / assertive), warning is assertive without interrupting,
+  the rest wait their turn — and all of it goes away on dismiss.
+- `<wr-window>`'s `moved` fires while the header is dragged and stays silent
+  for `moveTo()` / `center()` / the opening cascade: the caller already knows
+  where it put the window. Defensible and now documented, which it was not.
+- `wr-tour` skips a step whose target is missing (a tour has to survive a
+  feature behind a flag) while the progress line still counts every step it
+  was given.
+- The date adapter emits single-quoted runs verbatim and treats unquoted
+  letters as tokens, the way `DatePipe` and LDML do. `addDays` moves the
+  CALENDAR day, not 86 400 000 ms — across a DST change the arithmetic
+  version repeats a day and loses one. No test here can hold that: the runner
+  inherits the machine's zone, which is `Asia/Almaty` and has no DST, so the
+  reason lives in the method and the spec's docblock.
+- `wr-calendar-heatmap` leaves four of its seven weekday rows blank on
+  purpose — seven labels do not fit.
+- Every animation component honours `prefers-reduced-motion`; the one with no
+  handling is `wr-spotlight-card`, where a gradient tracks the cursor and no
+  content moves. (A first sweep reported eight, on a glob that dropped every
+  component without an HTML file. The number was wrong before it was checked.)
+- The `if (!i18n)` branch in `useI18nText` is dead code, not a defect: `WrI18n`
+  is root-provided, and `no-provider.spec.ts` proves it resolves with nothing
+  configured. That optional-inject-that-always-constructs is also what once
+  made i18n mandatory in practice — `WR_I18N_LOADER` now defaults to a loader
+  serving an empty catalog, so every lookup misses and components fall through
+  to their English defaults.
+- Escape does NOT depend on focus being inside an overlay:
+  `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
+  which keeps one document listener and routes to the topmost overlay.
+- Both shipped catalogs are pinned at **identical key sets (187)** with no
+  empty values — empty is the worse case, since it resolves as a real
+  translation and reaches the DOM as a nameless control. Nothing had compared
+  `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as
+  missing and quietly serves the English default, so a Russian app rendered
+  English and no gate said a word.
 
 ## Verifying changes
 

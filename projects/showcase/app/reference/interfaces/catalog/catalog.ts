@@ -81,6 +81,16 @@ export default class TypesCatalogPage {
         { name: 'WrTableColumn', description: 'Single column definition.', url: ['/reference/components', 'table'] },
         { name: 'WrTableSortState', description: 'Emitted by (sortChange).', url: ['/reference/components', 'table'] },
         { name: 'WrTreeNode', description: 'Immutable tree node.', url: ['/reference/components', 'tree'] },
+        {
+          name: 'WrMarkdownBlock',
+          description: 'One node of a parsed markdown document.',
+          url: ['/reference/components', 'markdown'],
+        },
+        {
+          name: 'WrMarkdownHighlighter',
+          description: 'Code-to-spans function a highlighter provides.',
+          url: ['/reference/components', 'markdown'],
+        },
         { name: 'WrMarqueeItem', description: 'Image or template marquee entry.', url: ['/animations', 'marquee'] },
         { name: 'WrTimelineColor', description: 'Dot color union.', url: ['/reference/components', 'timeline'] },
       ],
@@ -146,6 +156,7 @@ export default class TypesCatalogPage {
     {
       title: 'Services & config',
       items: [
+        { name: 'WrConfig', description: 'App-wide component defaults.', url: ['/start', 'configuration'] },
         { name: 'WrThemeConfig', description: 'provideWrTheme options.', url: ['/reference/services', 'theme'] },
         { name: 'WrScrollOptions', description: 'Scroll target + behavior.', url: ['/reference/services', 'scroll'] },
         { name: 'WrHotkeySpec', description: 'Key combo descriptor.', url: ['/reference/services', 'hotkey'] },

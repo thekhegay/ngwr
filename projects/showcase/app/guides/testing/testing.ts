@@ -29,7 +29,8 @@ import {
 export default class TestingGuidePageComponent {
   protected readonly snippets = {
     install: `// The harnesses live beside the components they drive, one entry point each.
-// 26 so far: every form control, every overlay, and both data views.
+// 34 so far: every form control, every overlay, both data views, the whole
+// navigation / disclosure set, and <wr-markdown>.
 import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrCheckboxHarness } from 'ngwr/checkbox/testing';
@@ -542,7 +543,8 @@ expect(await md.getHeadings()).toEqual([
   { level: 1, text: 'Release notes', id: 'user-content-release-notes' },
 ]);
 
-// Links carry what a reviewer actually cares about.
+// Links carry what a reviewer actually cares about. \`rel\` is only set when
+// the host opts into a target — this one renders linkTarget="_blank".
 const [link] = await md.getLinks();
 expect(link.href).toBe('https://ngwr.dev');
 expect(link.rel).toBe('noopener noreferrer');
@@ -870,8 +872,7 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     {
       name: 'getItems(filters?) / getItemTexts()',
-      description:
-        'The menu is in the overlay, scoped to this dropdown by its menu id. Filters: `text`, `disabled`, `icon`.',
+      description: 'The menu is in the overlay, scoped to this dropdown by its menu id. Filters: `text`, `disabled`.',
       type: 'Promise<WrDropdownItemHarness[]> | Promise<string[]>',
       default: '—',
     },
@@ -958,7 +959,7 @@ export class MyWidgetHarness extends ComponentHarness {
     {
       name: 'getDays(filters?) / getDay(n) / selectDay(n)',
       description:
-        '`selectDay` refuses a disabled cell instead of clicking into the void. Filters: `text`, `selected`, `disabled`, `today`, `outOfMonth`, `inRange`.',
+        '`selectDay` refuses a disabled cell instead of clicking into the void. Filters: `text`, `selected`, `disabled`, `inRange` — today and the out-of-month padding are questions you ask a cell harness, not the query.',
       type: 'Promise<WrDatePickerDayHarness[]> | Promise<void>',
       default: '—',
     },
@@ -1383,7 +1384,7 @@ export class MyWidgetHarness extends ComponentHarness {
     },
     {
       name: 'getBoxes(filters?) / getBox(i) / getFocusedIndex() / moveFocus(i)',
-      description: 'Per-box access. Filters: `value`, `empty`, `focused`.',
+      description: "Per-box access. Filters: `value`, `empty`, `label` (the box's `aria-label`, e.g. `Digit 3`).",
       type: 'Promise<…>',
       default: '—',
     },
@@ -1826,7 +1827,8 @@ export class MyWidgetHarness extends ComponentHarness {
   protected readonly stepperApi: readonly DocApiRow[] = [
     {
       name: 'getStepLabels() / getSteps(filters?) / getActiveLabel() / getActiveIndex() / getCompletedLabels()',
-      description: 'The steps and where the flow is. Filters: `label`, `active`, `completed`, `disabled`.',
+      description:
+        'The steps and where the flow is. Filters: `label`, `active`, `completed`, `disabled`, `reachable`, `optional`.',
       type: 'Promise<…>',
       default: '—',
     },

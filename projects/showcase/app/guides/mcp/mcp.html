@@ -11,7 +11,8 @@
       markdown twin of every docs page. What it does not ship is a way to ASK. An agent that does not already know an
       entry point's NAME cannot use a <code>.d.ts</code> — it cannot open <code>types/ngwr-date-picker.d.ts</code> to
       answer "does this library have a date range picker", because finding that filename was the question. And once it
-      has the name, the file it wants is often 60 KB of declarations standing in for a forty-line answer.
+      has the name, the file it wants can be 40 KB of declarations standing in for a forty-line answer —
+      <code>ngwr-table.d.ts</code> is the record holder.
     </p>
 
     <p wrTypography>
@@ -123,9 +124,10 @@
     <ngwr-doc-code [code]="snippets.setupResponse" language="markdown" />
 
     <p wrTypography variant="small" tone="medium">
-      Section 4 only appears for symbols that need it, and the list behind it is short on purpose: these are the cases
-      where the component compiles, renders nothing useful, and produces no error that names the cause. A select with no
-      <code>provideWrOverlay()</code> simply never opens.
+      Section 4 only appears for symbols that need it, and the list behind it is short on purpose: these are the
+      providers a component cannot be made to work without. <code>WrDateAdapter</code> is the clearest one — it is an
+      abstract class with no root fallback, so a date picker without <code>provideWrDateAdapter()</code> fails at
+      injection rather than rendering something almost right.
     </p>
   </ngwr-doc-section>
 
@@ -138,10 +140,13 @@
 
     <p wrTypography>
       <strong>It never reaches outside its own package.</strong> No network, no commands, and the only files it opens
-      are three inside its own installed package: <code>llms-full.txt</code>,
-      <code>schematics/use/symbol-map.json</code>, and <code>types/*.d.ts</code>. It never looks at your source, never
-      writes anything, and makes no network calls — so it cannot tell you which ngwr components your app already uses,
-      and cannot fetch a docs page for you. It hands out the URL and lets the agent fetch it.
+      are four inside its own installed package: <code>llms-full.txt</code>,
+      <code>schematics/use/symbol-map.json</code>, <code>types/*.d.ts</code>, and its own <code>package.json</code> —
+      for the version it reports, and for the <code>exports</code> map that decides whether an entry point gets a
+      <code>&#64;use</code> line at all (the harnesses, the services and the adapters ship no stylesheet, and telling a
+      consumer to <code>&#64;use</code> one would break their Sass build). It never looks at your source, never writes
+      anything, and makes no network calls — so it cannot tell you which ngwr components your app already uses, and
+      cannot fetch a docs page for you. It hands out the URL and lets the agent fetch it.
     </p>
 
     <p wrTypography>
@@ -150,9 +155,12 @@
     </p>
 
     <p wrTypography variant="small" tone="medium">
-      A tool that fails answers with <code>isError: true</code> and a sentence saying what went wrong, rather than a
+      A tool that THROWS answers with <code>isError: true</code> and a sentence saying what went wrong, rather than a
       JSON-RPC error — a failed call should leave the conversation intact and tell the agent enough to retry. A
-      misspelled name comes back as a suggestion to search, not as a crash.
+      malformed REQUEST is the other way round: an unknown tool name or a wrong argument type comes back as
+      <code>-32602</code>, because the request itself is the problem. A misspelled component name is neither — it is an
+      ordinary successful answer whose text suggests a search, which is why the example above carries no error field at
+      all.
     </p>
   </ngwr-doc-section>
 

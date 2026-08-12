@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Motion"
-  description="Easing curves, durations and the shorthands that pair them. Components never hardcode timing — they read these tokens, so retuning one value re-times the whole UI."
+  description="Easing curves, durations and the shorthands that pair them. A component reads these rather than picking its own numbers, so retuning one value re-times everything that reads it."
   [keywords]="['motion', 'animation', 'transition', 'easing', 'duration', 'reduced motion']"
   [labels]="['Tokens']"
 >
@@ -58,21 +58,21 @@
 
   <ngwr-doc-section
     title="Overlay timing"
-    description="Every overlay panel — dialog, drawer, select, tooltip, context menu — routes its open animation through one pair of tokens instead of its own timing, so a global tweak lands everywhere at once."
+    description="The anchored panels — dropdown, popover / tooltip, context menu, popconfirm — plus the responsive bottom-sheet route their open animation through this one pair instead of their own timing, so retuning it moves all of them at once. Dialog, drawer and toast still carry a hardcoded duration of their own; overriding the pair does not reach them."
   >
     <ngwr-doc-api [rows]="overlayTokens" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Retuning the feel"
-    description="Because nothing hardcodes timing, motion is a palette you can rebrand the same way as colour — override the tokens on `:root`."
+    description="Motion is a palette you can rebrand the same way as colour — override the tokens on `:root` and everything that reads them follows."
   >
     <ngwr-doc-code [code]="snippets.retune" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Reduced motion"
-    description="ngwr collapses its own animations to a near-instant step under `prefers-reduced-motion: reduce` — built-in components need nothing from you. Honour the same preference in your own motion."
+    description="The `.wr-animate-*` utilities drop to `animation: none`, and the components whose motion is decorative or looping — marquee, typewriter, the text effects, burger, markdown's streaming caret, plus popover / context-menu / command-palette — opt out for themselves. It is not blanket coverage: an overlay's open animation is not gated, so if your app treats the preference as absolute, kill the durations at the token layer, which is one rule for everything that reads them."
   >
     <ngwr-doc-code [code]="snippets.reduced" language="scss" />
   </ngwr-doc-section>

@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 166 secondary entry points, 188 component and directive classes, built on
+> 166 secondary entry points, 181 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -51,7 +51,10 @@ Add from their entry points as needed:
 - `provideWrConfig({ button: { size: 'sm' }, select: { rounded: true } })`
   (`ngwr/config`) — app-wide component DEFAULTS. A value bound on the element always
   wins, and a bound `false` beats a configured `true`, so a config never has to be
-  escaped. Covers `size` / `rounded` on the form controls plus `color` on the button.
+  escaped. Covers `size` on the form controls, `rounded` on `input` / `inputNumber`
+  / `select`, and `linkTarget` / `copyable` on `markdown`. There is deliberately no
+  `color` key — a bound `[color]="null"` means "no intent", which a default cannot
+  express without inventing a sentinel.
 - `provideWrI18n(...)` + `provideWrI18nStaticLoader(...)` — localization.
 - `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date-adapter-fns`
   or `ngwr/date-adapter-luxon`).
@@ -89,13 +92,13 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-input-number`, `wr-input-otp`, `wr-date-picker` (date/time/datetime) and
   `wr-date-range-picker` (both in ngwr/date-picker; the range value is
   `[start, end]`, hence a separate component), `wr-file-upload`,
-  `wr-form-field`, `wr-color-picker`, `wr-transfer` (dual listbox; the value
-  is the RIGHT pane).
+  `wr-form-field` (in ngwr/form), `wr-color-picker`, `wr-transfer` (dual listbox;
+  the value is the RIGHT pane).
 - **Data** — `wr-table` (column pin/resize/drag-reorder, row selection,
   expandable rows, grouping, tree rows (`childrenKey`), summary rows,
   CSV export, virtualized body),
   `wr-pagination`, `wr-tree`, `wr-virtual-scroll`, `wr-sortable-list`
-  (drag-to-reorder).
+  (drag-to-reorder, with `[wrDragHandle]` — both in ngwr/drag-drop).
 - **Feedback** — `wr-alert`, `wr-result`, `wr-empty`, `wr-skeleton`,
   `wr-spinner`.
 - **Layout / Display** — `wr-card`, `wr-carousel`, `wr-collapse`, `wr-splitter`,
@@ -103,7 +106,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-pull-to-refresh`, `wr-markdown` (renders markdown as DOM, never as HTML —
   raw HTML in the source is escaped; `[streaming]` for a partial document;
   `provideWrMarkdownHighlighter()` takes coloured spans, not markup).
-- **Navigation** — `wr-tabs`, `wr-stepper`, `wr-breadcrumbs`, `wr-dropdown-menu`.
+- **Navigation** — `wr-tabs`, `wr-stepper`, `wr-breadcrumbs`, `wr-dropdown-menu`
+  (with its `[wrDropdown]` trigger — both in ngwr/dropdown).
 - **Overlays** — `wr-drawer` (or `WrDrawerManager.open()` to open a component as
   a drawer from code), `wr-action-sheet`, `[wrPopover]` (directive; has a
   `tooltip` mode), `wr-command-palette`, `wr-context-menu`, `wr-popconfirm`.
@@ -124,8 +128,11 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   by `provideWrTheme()`. Two contrast tokens per intent, easy to confuse:
   `--wr-color-<intent>-contrast` is the label ON a filled intent;
   `--wr-color-<intent>-ink` is the intent used AS text on a surface or its own
-  `-soft` tint. A bare `--wr-color-<intent>` as text fails WCAG AA in light. For
-  muted prose use `--wr-color-on-surface-muted`, not the `medium` intent.
+  `-soft` tint. A bare `--wr-color-<intent>` as text clears AA on a plain light
+  surface for every intent but `warning` and `light`, but still fails on the `-soft`
+  tint — which is exactly where outlined / ghost / tinted variants paint it, so use
+  `-ink` there. For muted prose use `--wr-color-on-surface-muted`, not the `medium`
+  intent.
 - **Mobile** — overlays collapse to sheets (`provideWrResponsiveOverlays()`), a
   `responsive` input reflows layout components, a `touch` density preset enlarges
   controls, and `WrHaptics` (ngwr/platform) fires vibration feedback.
@@ -133,14 +140,16 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 34 entry points so far, covering every form control, every
-  overlay, both data views and the navigation / disclosure set (`tabs`, `stepper`,
-  `carousel`, `pagination`, `segmented`, `collapse`, `transfer`): the form controls
+  `ngwr/<name>/testing`. 34 entry points so far, 61 harness classes, covering the
+  form controls, the overlays, both data views, the navigation / disclosure set
+  (`tabs`, `stepper`, `carousel`, `pagination`, `segmented`, `collapse`,
+  `transfer`) and `markdown`: the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `form` for
   `<wr-form-field>`), the overlays (`date-picker`, `dropdown`, `popover`, `dialog`,
   `drawer`, `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`,
-  `mention`) and the data views (`table`, `tree`).
+  `mention`) and the data views (`table`, `tree`). `color-picker` and
+  `action-sheet` are the two that have none yet.
   Load them with `TestbedHarnessEnvironment` and narrow with
   `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's markup.
   Dialog, toast and a service-opened drawer render outside the fixture — load
@@ -151,7 +160,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   + node, `WrCascaderHarness` + column / option, `WrCommandPaletteHarness` +
   group / item, `WrRadioGroupHarness` + radio, `WrSliderHarness` + thumb,
   `WrInputOtpHarness` + box, `WrRatingHarness` + item, `WrContextMenuHarness` +
-  item (submenus included), `WrMentionHarness` + option.
+  item (submenus included), `WrMentionHarness` + option, `WrTransferHarness` +
+  pane / item, `WrMarkdownHarness` + code block.
   A unit test has no layout, so anything a mouse would drag (slider, rating,
   file-upload's drop zone) is driven by the KEYBOARD or by real events, never by
   coordinates. Guide: https://ngwr.dev/guides/testing

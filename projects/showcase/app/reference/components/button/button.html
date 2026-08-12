@@ -45,7 +45,7 @@
 
   <ngwr-doc-section
     title="Shape"
-    description="`shape` is `rounded` (default, small radius) or `pill` (fully rounded). For Figma-style smooth corners, wrap with `[wrSquircle]` — see the Squircle docs."
+    description="`shape` is `rounded` (default, small radius), `pill` (fully rounded ends) or `squircle`. Every button already asks for `corner-shape: squircle` where the browser supports it, so `squircle` mostly picks a larger anchor radius to make those smooth corners read — and `pill` deliberately opts back to a round arc, since squircle maths draws a different shape at pill radii rather than degenerating into one. Where `corner-shape` is unsupported the corners are ordinary arcs; `[wrSquircle]` is the clip-path route that works regardless — see the Squircle docs."
   >
     <ngwr-doc-snippet [code]="snippets.shape">
       <!-- Side-by-side comparison of all three shapes. -->
@@ -70,6 +70,13 @@
           <wr-btn color="primary" shape="pill">Primary</wr-btn>
           <wr-btn color="primary" outlined shape="pill">Outlined</wr-btn>
           <wr-btn shape="pill">Default</wr-btn>
+        </div>
+
+        <code style="font-size: 0.75rem; color: var(--wr-color-on-surface-muted)">squircle</code>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          <wr-btn color="primary" shape="squircle">Primary</wr-btn>
+          <wr-btn color="primary" outlined shape="squircle">Outlined</wr-btn>
+          <wr-btn shape="squircle">Default</wr-btn>
         </div>
       </div>
 

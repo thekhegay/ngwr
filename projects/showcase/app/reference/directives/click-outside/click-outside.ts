@@ -39,7 +39,7 @@ export default class ClickOutsidePage {
     {
       name: '(wrClickOutside)',
       description: 'Emits when a mousedown event lands outside the host element.',
-      type: 'EventEmitter<MouseEvent>',
+      type: 'OutputEmitterRef<MouseEvent>',
       default: '—',
     },
   ];
