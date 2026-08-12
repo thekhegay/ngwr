@@ -165,11 +165,15 @@ export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
    * `isWithinRange`, which the base class documents as inclusive and which
    * therefore dropped its own endpoint.
    *
-   * `hasSame` converts one side into the other's zone before checking the day's
-   * bounds, which is not the same question: 23:00 UTC and 01:00+03 the next
-   * morning are the same instant-window but display different dates, and it
-   * answers true. The native adapter compares fields; agreeing with it is what
-   * keeps a calendar built on either adapter rendering the same thing.
+   * `hasSame` is the other tempting one-liner, and it asks a third question: it
+   * re-expresses one side in the other's zone and tests that instant against the
+   * day's bounds. That mostly agrees with a field comparison — but only mostly,
+   * and only in this version of luxon, whose `hasSame` keeps the local time
+   * while an earlier one kept the instant. Where a date's midnight is ambiguous
+   * or missing (Cuba rewinds 01:00 to 00:00 on 2 November 2025) the bounds stop
+   * lining up and it answers false for two values a user reads as the same date.
+   * The native adapter compares fields; agreeing with it is what keeps a
+   * calendar built on either adapter rendering the same thing.
    */
   isSameDay(a: DateTime, b: DateTime): boolean {
     return a.year === b.year && a.month === b.month && a.day === b.day;

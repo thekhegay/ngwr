@@ -15,6 +15,12 @@ import { WrAutofocus } from './autofocus';
  * detection in a macrotask; a synchronous `detectChanges()` after an action
  * would update the DOM ahead of the deferred call and could report a pass the
  * browser never gives.
+ *
+ * What no case below pins is the microtask hop itself: focusing straight out of
+ * the effect instead of deferring passes every assertion here. jsdom focuses an
+ * element whether or not it is displayed — a `hidden` input takes focus happily —
+ * so "the focus would have been dropped because the DOM had not caught up" has no
+ * observable form in this environment.
  */
 @Component({
   imports: [WrAutofocus],

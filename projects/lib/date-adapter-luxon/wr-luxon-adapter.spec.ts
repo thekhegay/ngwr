@@ -116,6 +116,21 @@ describe('WrLuxonAdapter', () => {
       expect(adapter.isValid(now)).toBe(true);
       expect(Math.abs(now.toMillis() - Date.now())).toBeLessThan(5_000);
     });
+
+    it('attaches the configured locale to every value it constructs', () => {
+      // Every `DateTime` the adapter constructs gets `locale` attached, and it has to: a
+      // consumer that calls `.toLocaleString()` / `.toFormat('LLLL')` on a value the adapter
+      // returned would otherwise get luxon's own default (the runner's, `en-US`) rather than
+      // the locale the app configured. `format` re-applies it on the way out, so nothing else
+      // in this file notices when the option is dropped at construction.
+      const ru = adapterFor('ru-RU');
+      const foreign = DateTime.fromISO('2025-08-11T13:45', { locale: 'en-US' });
+
+      expect(ru.today().locale).toBe('ru-RU');
+      expect(ru.createDate(2025, 7, 11).locale).toBe('ru-RU');
+      expect(ru.clone(foreign).locale).toBe('ru-RU');
+      expect(ru.createDate(2025, 7, 11).toFormat('LLLL')).toBe('август');
+    });
   });
 
   describe('immutability', () => {
@@ -258,6 +273,21 @@ describe('WrLuxonAdapter', () => {
       ).toBe(false);
     });
 
+    it('keeps two values on the same displayed day when that day has no clean midnight', () => {
+      // The case that separates a field comparison from luxon's `hasSame`, which is the
+      // tempting one-liner here. Cuba ends DST at 01:00 on 2 November 2025 by rewinding to
+      // 00:00, so that date's midnight is ambiguous; `hasSame` re-expresses one side in the
+      // other's zone and tests it against that day's bounds, and the ambiguous boundary makes
+      // it answer false for two values a user reads as the same date. Comparing the displayed
+      // fields cannot care.
+      const havana = DateTime.fromISO('2025-11-02T00:30', { zone: 'America/Havana' });
+      const noonUtc = DateTime.fromISO('2025-11-02T12:00', { zone: 'utc' });
+
+      expect(adapter.isSameDay(noonUtc, havana)).toBe(true);
+      expect(adapter.compareDate(noonUtc, havana)).toBe(0);
+      expect(adapter.isWithinRange(havana, noonUtc, noonUtc)).toBe(true);
+    });
+
     it('does not merge two calendar days that share an instant', () => {
       // The other direction: same moment, different dates on the wall. Comparing by
       // displayed fields has to keep them apart.
@@ -325,9 +355,11 @@ describe('WrLuxonAdapter', () => {
 
     it('round-trips the default named format', () => {
       // What the picker does on every blur: format, then parse the text back. Luxon derives
-      // its macro parser from ICU rather than from its own output, so this is pinned for the
-      // locale the pickers are exercised in — see `notCovered` for the locales where the two
-      // disagree upstream.
+      // its macro parser from ICU rather than from its own output, so the round trip is not
+      // universal and this is pinned for one locale rather than described: `mediumDate`,
+      // `longDate` and `mediumDateTime` written in ru-RU ("11 авг. 2025 г.") or ja-JP
+      // ("2025年8月11日") come back unparsable from luxon itself, which is upstream behaviour
+      // and not something the adapter can fix.
       const written = adapter.format(luxonAt(2025, 8, 11), 'shortDate');
       const back = adapter.parse(written, 'shortDate');
 
@@ -354,6 +386,14 @@ describe('WrLuxonAdapter', () => {
       expect(adapter.parse('2025-08-11 and then some', 'yyyy-MM-dd')).toBeNull();
       expect(adapter.parse('', 'yyyy-MM-dd')).toBeNull();
       expect(adapter.parse('   ', 'yyyy-MM-dd')).toBeNull();
+    });
+
+    it('tolerates surrounding whitespace', () => {
+      // Luxon itself rejects ` 2025-08-11 ` outright; the adapter trims before handing it
+      // over, which is what makes a pasted value work — and what the other two adapters do,
+      // so the same input cannot depend on which one an app registered.
+      expect(ymd(adapter.parse('  2025-08-11  ', 'yyyy-MM-dd')!)).toBe('2025-08-11');
+      expect(adapter.getHours(adapter.parse('\t2025-08-11 09:05\n', 'yyyy-MM-dd HH:mm')!)).toBe(9);
     });
 
     it('returns null rather than an invalid DateTime', () => {
@@ -409,11 +449,16 @@ describe('WrLuxonAdapter', () => {
       expect(new Set(us.getDayOfWeekNames('long')).size).toBe(7);
     });
 
-    it('names all twelve months', () => {
+    it('names all twelve months, in each of the three styles', () => {
       const names = adapter.getMonthNames('long');
       expect(names.length).toBe(12);
       expect(names[0]).toBe('January');
       expect(names[11]).toBe('December');
+      // The month dropdown asks for `short` and the year grid for `narrow`; a style that is
+      // accepted and then ignored renders twelve full month names into a cell built for three
+      // letters.
+      expect(adapter.getMonthNames('short').slice(0, 2)).toEqual(['Jan', 'Feb']);
+      expect(adapter.getMonthNames('narrow').slice(0, 2)).toEqual(['J', 'F']);
     });
 
     it('uses one word for a month in the grid and in the text', () => {

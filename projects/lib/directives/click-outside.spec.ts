@@ -116,6 +116,16 @@ describe('WrClickOutside', () => {
     expect(event.defaultPrevented).toBe(false);
   });
 
+  it('counts the page itself as outside, not only what sits inside <body>', () => {
+    // The listener goes on the DOCUMENT. Narrowed to `body`, a press dispatched
+    // at `<html>` — the margin around a centred layout, the scrollbar gutter —
+    // never reaches it, and the popup survives a click the user experiences as
+    // "somewhere else entirely".
+    dispatch('mousedown', document.documentElement);
+
+    expect(seen()).toHaveLength(1);
+  });
+
   it('scopes "outside" to its own host', () => {
     // Two dismissables on one page — a popover inside a drawer is the everyday
     // version. Each instance answers about ITS host: the press landed in the

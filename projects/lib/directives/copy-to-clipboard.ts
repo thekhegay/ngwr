@@ -57,9 +57,12 @@ export class WrCopyToClipboard {
       return;
     }
 
-    // Outside the try, and that is the point: a consumer's `(copied)` handler
-    // that throws is their bug, not a clipboard failure. Inside, it was caught
-    // here — which ran the fallback a second time and emitted `copied` twice.
+    // Outside the try because the try's job is the WRITE. The shape this
+    // replaced emitted inside it and recovered by calling `fallback` again, so
+    // one refused write became two selections, two focus jumps and two `copied`
+    // emissions. (A consumer's own `(copied)` handler cannot reach this frame
+    // either way: `OutputEmitterRef.emit` catches what a listener throws and
+    // hands it to the `ErrorHandler`.)
     this.copied.emit(text);
   }
 
