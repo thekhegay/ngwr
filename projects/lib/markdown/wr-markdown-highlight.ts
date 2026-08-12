@@ -61,8 +61,22 @@ export class WrMarkdownHighlight {
   /** Language to code to answer. Insertion order is least-recently-rendered first. */
   private readonly cache = new Map<string, Map<string, Entry>>();
 
-  /** Bumped whenever an answer lands. The whole reactive surface of this service. */
+  /** Bumped whenever an answer lands. Read by the template, never by a writer. */
   private readonly revision = signal(0);
+
+  private readonly generationSignal = signal(0);
+
+  /**
+   * Bumped ONLY by {@link invalidate}. Read it in the effect that requests, so a
+   * consumer can force a re-ask.
+   *
+   * Separate from `revision` on purpose, and the separation is the whole safety
+   * argument. An effect that requests and also depends on the signal that storing
+   * an answer writes is the shape that looped for ever here once: past the cache
+   * limit, requesting stops being idempotent, so each pass writes, re-dirties the
+   * effect, evicts and requests again. Nothing inside `request` touches this one.
+   */
+  readonly generation = this.generationSignal.asReadonly();
 
   /** Spans for one block, or `null` for plain text. Safe to call from a template. */
   linesFor(code: string, language: string | null): readonly WrHighlightLine[] | null {
@@ -83,6 +97,34 @@ export class WrMarkdownHighlight {
     perLanguage.set(code, entry);
 
     return entry.lines;
+  }
+
+  /**
+   * Forget every answer and ask again on the next render.
+   *
+   * The cache is keyed on `(language, code)` and nothing else, which is right for
+   * the streaming case it exists for and wrong for one real situation: a
+   * highlighter that returns per-theme colours serves whichever palette was
+   * current when a block was first rendered, for ever. There is no theme
+   * dimension to key on — the library cannot know what a highlighter's answer
+   * depends on — so the honest fix is to let the consumer say when it changed.
+   *
+   * A highlighter that returns theme-agnostic colours (CSS `light-dark()`, a
+   * custom property) needs none of this.
+   *
+   * @example
+   * ```ts
+   * const highlight = inject(WrMarkdownHighlight);
+   * effect(() => {
+   *   theme.current();
+   *   highlight.invalidate();
+   * });
+   * ```
+   */
+  invalidate(): void {
+    this.cache.clear();
+    this.generationSignal.update(generation => generation + 1);
+    this.revision.update(revision => revision + 1);
   }
 
   /**

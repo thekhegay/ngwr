@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, signal } from '@angular/core';
+import { Component, InjectionToken, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrConfig } from 'ngwr/config';
@@ -14,6 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WrHighlightLine } from './interfaces';
 import { provideWrMarkdownHighlighter } from './provide-wr-markdown';
 import { WrMarkdown } from './wr-markdown';
+import { WrMarkdownHighlight } from './wr-markdown-highlight';
 
 /**
  * What this spec asserts, and why it reads the DOM rather than the tree.
@@ -51,6 +52,9 @@ class Host {
 }
 
 const TICK = String.fromCharCode(96);
+
+/** Only exists so the factory form has something to inject. */
+const SPANS_TOKEN = new InjectionToken<readonly WrHighlightLine[]>('SPANS_TOKEN');
 const FENCE = TICK + TICK + TICK;
 
 describe('WrMarkdown', () => {
@@ -691,5 +695,68 @@ describe('WrMarkdown — bare boolean attribute', () => {
 
     expect((fixture.nativeElement as HTMLElement).querySelector('button.wr-markdown__copy')).not.toBeNull();
     fixture.destroy();
+  });
+});
+
+describe('WrMarkdown — highlighter plumbing', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  const el = (): HTMLElement => fixture.nativeElement as HTMLElement;
+
+  afterEach(() => fixture.destroy());
+
+  it('takes a highlighter built by a factory, so an adapter can inject', async () => {
+    // Without this, an adapter cannot reach `PLATFORM_ID`, a theme service or an
+    // HTTP client — the showcase's own adapter had to detect the server with
+    // `typeof window === "undefined"`, which is the idiom this repo steers away
+    // from. A highlighter is itself a function, so the factory cannot be detected
+    // by shape; the wrapper object is what makes it unambiguous.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SPANS_TOKEN, useValue: [[{ text: 'injected', color: '#00ff00' }]] },
+        provideWrMarkdownHighlighter({
+          useFactory: () => {
+            const spans = inject(SPANS_TOKEN);
+            return () => spans;
+          },
+        }),
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.value.set(`${FENCE}ts\na()\n${FENCE}`);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el().querySelector('.wr-markdown__line span')!.textContent).toBe('injected');
+  });
+
+  it('re-asks the highlighter after invalidate()', async () => {
+    // The cache is keyed on (language, code) and nothing else, which is right for
+    // streaming and wrong for a highlighter whose answer depends on the theme: it
+    // would serve the palette that was current when the block first rendered, for
+    // ever. There is no theme dimension the library could key on, so the consumer
+    // has to be able to say when it changed.
+    let palette = 'light';
+    const highlighter = vi.fn(() => [[{ text: palette }]]);
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrMarkdownHighlighter(highlighter)] });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.value.set(`${FENCE}ts\na()\n${FENCE}`);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(el().querySelector('.wr-markdown__line span')!.textContent).toBe('light');
+
+    palette = 'dark';
+    TestBed.inject(WrMarkdownHighlight).invalidate();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(highlighter).toHaveBeenCalledTimes(2);
+    expect(el().querySelector('.wr-markdown__line span')!.textContent).toBe('dark');
   });
 });
