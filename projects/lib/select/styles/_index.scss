@@ -105,12 +105,18 @@
   }
 
   // Multi-mode trigger chrome
-  // Chips fill the trigger's flex row; the trigger grows vertically as
-  // needed. A clear-all (×) button appears at the row's tail.
-
+  // Chips fill the trigger's row and the trigger grows vertically as needed. The
+  // clear-all (×) sits at the row's tail.
+  //
+  // The trigger itself must NOT wrap, and that is the whole subtlety: the wrapping
+  // belongs to `&__chips`, which is `flex: 1 1 auto` and therefore takes the full
+  // row as soon as its content needs a second line. A wrapping trigger then pushes
+  // the × onto a flex line of its own, where — as the only item on it — it lands
+  // against the inline START, under the chips, and adds a phantom row to the
+  // control's height. That is what a full multi-select looked like: a stray ×
+  // floating below the field.
   &--multi &__trigger,
   &--tag &__trigger {
-    flex-wrap: wrap;
     align-items: center;
     padding: calc(var(--wr-select-padding-y) * var(--wr-density-y, 1))
       calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
@@ -239,6 +245,9 @@
 
   &__clear {
     --wr-icon-size: 0.875rem;
+    // Never shrink: the chips box is allowed to grow into the whole row, so the
+    // × has to hold its own size against it.
+    flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
