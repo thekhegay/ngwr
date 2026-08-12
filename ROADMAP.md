@@ -2096,8 +2096,25 @@ nobody ships a free, complete Angular AI kit.
       HTML, no indented code blocks (indentation is structural where nested lists
       exist, and generators emit fences), no setext headings (`---` is always a
       rule), no reference links or footnotes (they need a second pass over a
-      document that mid-stream is not all there). 91 specs, plus a CDK harness at
+      document that mid-stream is not all there). 157 specs, plus a CDK harness at
       `ngwr/markdown/testing`.
+      **The review is the part worth remembering.** Four independent audits —
+      security, CommonMark conformance, streaming, Angular rendering — returned
+      **twenty verified defects** in code that already had 91 green specs and eight
+      green gates. Three are worth naming, because each is a class rather than a
+      typo. `[a](<javascript:alert(1)>)` slipped the scheme check, since the angle
+      brackets hid the scheme and left Angular's sanitizer — which this component's
+      own documentation calls insufficient — as the only thing in the way. The
+      streaming tail pattern was unanchored on one side, so a CLOSED `[docs]` in
+      mid-sentence deleted the rest of the paragraph and kept deleting it for the
+      whole stream. And the highlight service read a signal it also wrote, from
+      inside the effect that called it, so a document with more code blocks than
+      the cache could hold looped for ever — the same defect shape as the `[wrMeta]`
+      bug fixed one batch earlier, reintroduced by the same hand. Also three
+      quadratic paths: 100 KB of unmatched emphasis went from **10.8 s to 5 ms**,
+      and a 38 KB table from 4.5 s and twenty million cells to 3 ms. Every fix is
+      pinned by a spec, and all thirteen mutation probes against them failed the
+      suite.
 - [ ] **F2. Chat / agent kit** (XL) — message thread, prompt input (attachments,
       slash commands via the mention plumbing), tool-call + approval +
       reasoning-trace renderers, sources panel — wired to AG-UI /
