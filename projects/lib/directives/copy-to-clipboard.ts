@@ -36,24 +36,43 @@ export class WrCopyToClipboard {
   /** @internal */
   protected async onClick(): Promise<void> {
     const text = this.wrCopyToClipboard();
+    const async = this.doc.defaultView?.navigator?.clipboard;
+
     try {
-      if (this.doc.defaultView?.navigator?.clipboard) {
-        await this.doc.defaultView.navigator.clipboard.writeText(text);
+      if (async) {
+        try {
+          await async.writeText(text);
+        } catch {
+          // The legacy path is a RECOVERY from the async one, so it only runs
+          // when there was an async attempt to recover from. Reached from the
+          // fallback's own failure it just repeated the same refused write —
+          // two selections and two focus jumps for one press.
+          this.fallback(text);
+        }
       } else {
         this.fallback(text);
       }
-      this.copied.emit(text);
     } catch (error) {
-      try {
-        this.fallback(text);
-        this.copied.emit(text);
-      } catch (fallbackError) {
-        this.copyFailed.emit(fallbackError ?? error);
-      }
+      this.copyFailed.emit(error);
+      return;
     }
+
+    // Outside the try, and that is the point: a consumer's `(copied)` handler
+    // that throws is their bug, not a clipboard failure. Inside, it was caught
+    // here — which ran the fallback a second time and emitted `copied` twice.
+    this.copied.emit(text);
   }
 
-  /** Legacy clipboard write — hidden textarea + execCommand('copy'). */
+  /**
+   * Legacy clipboard write — hidden textarea + `execCommand('copy')`.
+   *
+   * Two things this has to get right beyond writing the text. `execCommand`
+   * REPORTS refusal rather than throwing it: a document without focus hands back
+   * `false` and copies nothing, so ignoring the return value shows a "Copied!"
+   * toast over an unchanged clipboard. And selecting the textarea moves focus
+   * into it, so removing the node afterwards drops focus on `<body>` — the user's
+   * next Tab restarts from the top of the page, on every copy.
+   */
   private fallback(text: string): void {
     const node = this.doc.createElement('textarea');
     node.value = text;
@@ -63,12 +82,16 @@ export class WrCopyToClipboard {
     node.style.left = '0';
     node.style.opacity = '0';
     node.style.pointerEvents = 'none';
+
+    const previous = this.doc.activeElement;
     this.doc.body.appendChild(node);
     node.select();
+
     try {
-      this.doc.execCommand('copy');
+      if (!this.doc.execCommand('copy')) throw new Error('The copy command was refused.');
     } finally {
       this.doc.body.removeChild(node);
+      if (previous instanceof HTMLElement) previous.focus();
     }
   }
 }
