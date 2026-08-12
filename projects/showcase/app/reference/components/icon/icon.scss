@@ -10,7 +10,7 @@
     border-radius: var(--wr-border-radius-sm);
 
     a {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
@@ -93,7 +93,7 @@
 
     &:hover {
       border-color: var(--wr-color-primary);
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
     }
 
     &--copied {

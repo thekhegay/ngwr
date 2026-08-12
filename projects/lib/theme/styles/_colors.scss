@@ -272,9 +272,22 @@ $contrast-light: #ffffff !default;
   // 4.42. Half a point of headroom absorbs that, for 2–7 points of share.
   //
   // Going further is not free: 5.25 costs 7–11 points and 5.5 up to 14, which
-  // on `primary` means 93% -> 79% and a visibly muddier blue.
+  // on `primary` meant 93% -> 79% and a visibly muddier blue. (That trade was
+  // priced on the PRE-v11 bases; moving a base reprices it, as `primary` below
+  // shows — 78% now buys 5.0, not 5.5.)
+  //
+  // `primary` was re-derived when the DARK base deepened to #3567ff so its label
+  // could go white: a deeper base makes the ink deeper too, which on a dark tint
+  // is the losing direction. axe measured the old 86% at 4.48:1 on the sidebar's
+  // own tint — under AA, never mind the target. 78% is the most saturated share
+  // that reaches 5.0 there (5.04), and it only helps the light theme, where a
+  // lower share means MORE `--wr-color-dark` and a deeper ink on a pale tint.
+  // Solved against the exact pair axe resolved on the page (#4e79fd on #0f1a36),
+  // because a hand-rolled composite of the tint over the canvas does not
+  // reproduce what the browser paints — this file's own numbers are arithmetic,
+  // and `pnpm check:contrast` is the authority.
   $ink-mix: (
-    primary: 86%,
+    primary: 78%,
     secondary: 75%,
     success: 67%,
     warning: 48%,

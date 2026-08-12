@@ -56,7 +56,7 @@ button {
 // Links produced by the wrDocRich pipe (doc descriptions) — without this
 // they inherit the muted description color and read as plain text.
 .ngwr-doc-link {
-  color: var(--wr-color-primary);
+  color: var(--wr-color-primary-ink);
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: rgba(var(--wr-color-primary-rgb), 0.4);
@@ -109,7 +109,7 @@ button {
   }
 
   a {
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
     text-decoration: none;
 
     &:hover code {

@@ -169,7 +169,19 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       irreducible: `primary` in the LIGHT theme at 4.89:1, where white already
       wins and pure white is the ceiling.
       **The v11 palette shift belongs to the same arithmetic** — shipped, and it is
-      why v11 is a major. Five intents move so their labels can be white: in the
+      why v11 is a major. A sixth intent followed in a patch: the DARK theme's
+      `primary` went from `#5b85ff` (white 3.36 / black 6.24, so it took a black
+      label while the light theme's took white — one intent labelled two ways) to
+      `#3567ff`, white 4.63 / black 4.54. Saturation was held at 100% rather than
+      scaling the channels toward black, which reaches the same ratio at `#4c6fd6`
+      and costs 37 points of saturation on the one theme whose palette is
+      deliberately vivid. It cost two follow-on changes, both found by the nightly
+      sweep rather than by reading: `primary`'s `-ink` share re-derived from 86% to
+      78% (the deeper base had dropped it to 4.48:1 on its own tint), and the
+      showcase's twenty bare `color: var(--wr-color-primary)` declarations moved to
+      `-ink`, because a white label and a readable body text are provably
+      unreachable at once on a dark canvas. Five intents move so their labels can
+      be white: in the
       light palette `secondary` goes from `#f51c6a` to `#e21a62`, `success` from
       `#00a400` to `#008800`, `danger` from `#fa383e` to `#dc3137`, `info` from
       `#3b82f6` to `#3472d9` and `medium` from `#8594a4` to `#6a7683`; in the dark

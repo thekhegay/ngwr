@@ -34,7 +34,9 @@
   &--dragging &__zone {
     border-color: var(--wr-color-primary);
     background: rgba(var(--wr-color-primary-rgb), 0.08);
-    color: var(--wr-color-primary);
+    // Text on the drag tint — same role as the hint above, same token. The border
+    // stays the bare intent: it is a graphic, and 3:1 is its bar.
+    color: var(--wr-color-primary-ink);
   }
 
   &--disabled &__zone {
@@ -62,7 +64,10 @@
 
     strong {
       font-weight: 600;
-      color: var(--wr-color-primary);
+      // `-ink`, not the bare intent: this is the intent used AS text on the zone
+      // surface. The bare token measured 4.06:1 in dark once `primary` deepened
+      // far enough to take a white label — the two roles pull apart there.
+      color: var(--wr-color-primary-ink);
     }
 
     span {
