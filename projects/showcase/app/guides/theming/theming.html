@@ -48,7 +48,7 @@
 
   <ngwr-doc-section
     title="Rebrand — at runtime"
-    description="Override the CSS variables on `:root` (or any subtree). Set both the base color and the `-rgb` channel — components use the channel for `rgba()` rings and tints."
+    description="Override the CSS variables on `:root` (or any subtree). Set the base color, the `-rgb` channel — components use it for `rgba()` rings and tints — and the `-contrast`, which is the one the compile-time path derives for you and this one does not: it was baked from the old fill, so a runtime base change leaves the label behind. Re-pick it the way the theme does, by taking whichever of black or white scores higher against the new fill."
   >
     <ngwr-doc-code [code]="snippets.paletteRoot" language="scss" />
   </ngwr-doc-section>

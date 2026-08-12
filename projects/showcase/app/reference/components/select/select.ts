@@ -211,25 +211,25 @@ onSearch(query: string): void {
       name: '(searchChange)',
       description:
         "Debounced query, for server-side search. Fires on every settled change — including `''` when cleared, so a store can reset. `[minChars]` does not gate it.",
-      type: 'EventEmitter<string>',
+      type: 'OutputEmitterRef<string>',
       default: '—',
     },
     {
       name: '(searchQueryChange)',
       description: 'Raw, undebounced query — the `[(searchQuery)]` half. Prefer `(searchChange)` for server calls.',
-      type: 'EventEmitter<string>',
+      type: 'OutputRef<string>',
       default: '—',
     },
     {
       name: '(valueChange)',
       description: 'The `[(value)]` half. Bound automatically by `[formField]` / `[(ngModel)]`.',
-      type: 'EventEmitter<unknown>',
+      type: 'OutputRef<unknown>',
       default: '—',
     },
     {
       name: '(touch)',
       description: 'Emitted on blur / commit so a bound field marks itself touched.',
-      type: 'EventEmitter<void>',
+      type: 'OutputEmitterRef<void>',
       default: '—',
     },
   ];

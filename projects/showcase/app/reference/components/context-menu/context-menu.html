@@ -41,7 +41,7 @@
 
   <ngwr-doc-section
     title="Submenus"
-    description="Pass another `<wr-context-menu>` to `[submenu]` to nest a submenu off any item. Hover (or press →) to open, ← or click-outside to close. Submenus can themselves contain submenus — the API is recursive."
+    description="Pass another `<wr-context-menu>` to `[submenu]` to nest a submenu off any item. Hover to open, or press the arrow the menu cascades toward — → in LTR, ← under RTL, since the panes mirror with the reading direction and a fixed key would ask an RTL reader to press toward the parent. The opposite arrow, or a click outside, closes it. Submenus can themselves contain submenus — the API is recursive."
   >
     <ngwr-doc-code [code]="snippets.submenu" language="angular-html" />
     <ngwr-doc-snippet code="">

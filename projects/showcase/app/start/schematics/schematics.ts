@@ -23,10 +23,10 @@ ng add ngwr`,
      date-fns — small, modular
      Luxon — Intl-backed, locale-rich
 
-?  Pick a density preset
-   ❯ None — use lib defaults
-     Comfortable — relaxed spacing
-     Compact — tight spacing
+?  Pick a default density
+   ❯ None — use lib defaults (md)
+     sm — tight spacing
+     lg — relaxed spacing
 
 ?  Theme starter?
    ❯ None — stay on lib defaults
@@ -70,7 +70,8 @@ providers: [provideWrIcons(APP_ICONS)],`,
 ng g ngwr:use WrButton --path src/app/pages/checkout/checkout.ts
 ng g ngwr:use WrSelect --path src/app/pages/checkout/checkout.ts
 
-# 338 symbols recognized — every public Wr* export across the catalog.`,
+# 215 symbols recognized — every public Wr* export the scan finds, mapped to
+# the entry point it comes from.`,
 
     useBefore: `// Before: src/app/pages/checkout/checkout.ts
 import { Component } from '@angular/core';
@@ -99,7 +100,10 @@ ng g ngwr:provider toast
 ng g ngwr:provider date-adapter
 
 # Available: overlay | icons | toast | i18n | date-adapter | density |
-#            loading-bar | cookie | storage | theme`,
+#            storage | theme
+#
+# loading-bar and cookie are not here on purpose: neither has a provider.
+# Render <wr-loading-bar /> once and inject WrLoadingBar; inject WrCookie.`,
 
     componentStyle: `# Append \`@use 'ngwr/<name>';\` to the project's global stylesheet.
 # Pairs with \`--styles=none\` on \`ng add\`.

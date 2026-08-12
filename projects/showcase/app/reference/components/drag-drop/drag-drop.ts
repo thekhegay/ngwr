@@ -93,7 +93,7 @@ export default class DragDropPage {
     {
       name: '(reorder)',
       description: 'Fires after a successful reorder with the new array + indices.',
-      type: 'EventEmitter<WrSortableReorderEvent<T>>',
+      type: 'OutputEmitterRef<WrSortableReorderEvent<T>>',
       default: '—',
     },
     {

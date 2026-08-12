@@ -63,7 +63,7 @@
 
   <ngwr-doc-section
     title="Input masking — with ngx-mask"
-    description="ngwr does not ship a mask directive of its own. `ngx-mask` is the de-facto standard in the Angular ecosystem — battle-tested, signal-compatible, ~50 KB gz, MIT. Because `[wrInput]` is just a directive on the real `<input>`, the mask plugs in on the same element with zero ceremony."
+    description="ngwr does not ship a mask directive of its own, and deliberately does not wrap one either — a mask is input plumbing, not a look, so blessing the ecosystem's standard beats owning a second copy of it. `ngx-mask` is that standard: battle-tested, signal-compatible, MIT, and about 18 KB once minified and gzipped. Because `[wrInput]` is just a directive on the real `<input>`, it plugs in on the same element with zero ceremony."
   >
     <h3 style="margin: 0.5rem 0">Setup</h3>
     <ngwr-doc-code [code]="snippets.maskSetup" language="angular-ts" />

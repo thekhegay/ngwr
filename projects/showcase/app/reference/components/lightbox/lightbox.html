@@ -10,7 +10,7 @@
 
   <ngwr-doc-section
     title="Basic usage"
-    description="Click the image to open the lightbox. Use ESC, backdrop click, or the × button to close."
+    description="Click the image to open the lightbox. Escape, the backdrop, the × button — or the full image itself, which is styled `cursor: zoom-out` and has to mean it — all close it. The image is a redundant mouse affordance rather than a second tab stop, so nothing new lands in the keyboard path."
   >
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-lightbox [src]="landscape" alt="Mountain lake" aspectRatio="3 / 2" style="width: 18rem" />

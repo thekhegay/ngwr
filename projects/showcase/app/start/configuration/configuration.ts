@@ -48,10 +48,11 @@ bootstrapApplication(AppComponent, {
 
     overlay: `import { provideWrOverlay } from 'ngwr/overlay';
 
-// Required for every overlay-backed component — dialog, drawer, popover,
-// tooltip, dropdown, select, mention, command-palette, context-menu, and
-// every picker. Creates an isolated overlay container so portal overlays
-// don't leak into the app root.
+// Backs every overlay component — dialog, drawer, popover, tooltip,
+// dropdown, select, mention, command-palette, context-menu, and every
+// picker. Gives them their own overlay container + Overlay instance, so
+// they never share a DOM root with Material / NG-ZORRO. Without it they
+// fall back to CDK's shared root container.
 providers: [provideWrOverlay()],`,
 
     icons: `import { Check, Plus, Trash2 } from 'lucide';
@@ -63,17 +64,19 @@ import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 // \`WrIconDef\` at runtime, so unused Lucide icons get dropped by the bundler.
 providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash2, check: Check }))],`,
 
-    toast: `import { provideWrToast } from 'ngwr/toast';
+    toast: `import { provideWrToastConfig } from 'ngwr/toast';
 
-// Global toast service. Call \`inject(WrToast).open(...)\` anywhere.
-providers: [provideWrToast({ position: 'bottom-right', max: 5 })],`,
+// Defaults for the global toast service. Call \`inject(WrToast).show(...)\`
+// anywhere — the service itself needs no provider.
+// position: 'top-start' | 'top' | 'top-end' | 'bottom-start' | 'bottom' | 'bottom-end'
+providers: [provideWrToastConfig({ position: 'bottom-end', maxStack: 5 })],`,
 
     i18n: `import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 
 providers: [
-  provideWrI18n({ defaultLocale: 'en', available: ['en', 'ru'] }),
+  provideWrI18n({ defaultLocale: 'en', availableLocales: ['en', 'ru'] }),
   provideWrI18nStaticLoader({
     en: { ...wrEn, app: { title: 'My app' } },
     ru: { ...wrRu, app: { title: 'Мое приложение' } },
@@ -99,23 +102,33 @@ providers: [provideWrDateAdapter({ adapter: WrLuxonAdapter })],`,
 // bound on the element always wins, so a config is never something a template has
 // to fight its way out of.
 provideWrConfig({
-  button: { size: 'sm', color: 'primary' },
+  button: { size: 'sm' },
   input: { size: 'sm' },
   select: { size: 'sm', rounded: true },
   checkbox: { size: 'sm' },
 });
 
-// <wr-btn>Save</wr-btn>              -> small, primary
+// <wr-btn>Save</wr-btn>              -> small
 // <wr-btn size="lg">Save</wr-btn>    -> large; the binding wins
-// <wr-select [rounded]="false" />    -> square again; \`false\` is a value, not an absence`,
+// <wr-select [rounded]="false" />    -> square again; \`false\` is a value, not an absence
+
+// There is deliberately no \`color\` key. The lib's own chrome binds
+// [color]="isCurrent ? 'primary' : null", and \`null\` means "the template said
+// nothing" — a configured intent would repaint every one of those buttons.`,
 
     density: `import { provideWrDensity } from 'ngwr/density';
 
 // App-wide default density: 'sm' | 'md' (default) | 'lg' | 'touch'.
+// The other two fields are storageKey and attribute — a preset is the only
+// knob the provider takes.
 providers: [provideWrDensity({ defaultDensity: 'sm' })],
 
-// Fine-grained:
-providers: [provideWrDensity({ height: 0.875, padding: 0.75 })],`,
+// Fine-grained is CSS, not config: a preset is only a set of multipliers, so
+// a value between two presets is a stylesheet override, on :root or a subtree.
+//   :root {
+//     --wr-density-y: 0.7;   /* vertical padding — the lever on height */
+//     --wr-density-x: 0.9;   /* horizontal padding */
+//   }`,
 
     theme: `import { provideWrTheme } from 'ngwr/theme';
 
@@ -147,13 +160,16 @@ export class AppComponent {
     cookie: `import { WrCookie } from 'ngwr/cookie';
 
 // No provider to register — inject the service anywhere for typed
-// get / set / delete on document.cookie, with SSR-safe fallbacks.
+// has / get / set / remove / keys / clear on document.cookie, with SSR-safe
+// fallbacks.
 private readonly cookie = inject(WrCookie);`,
 
     storage: `import { provideWrStorage } from 'ngwr/storage';
 
 // Swappable engine + TTL + watch signal. Defaults to localStorage in the
-// browser, no-op on the server. Inject \`WrStorage\` to use it.
-providers: [provideWrStorage({ engine: 'local', prefix: 'app:' })],`,
+// browser and an in-memory store on the server (and in private mode, where
+// setItem throws). Inject \`WrStorage\` to use it.
+// \`engine\` takes a Storage INSTANCE, or a factory called lazily.
+providers: [provideWrStorage({ engine: sessionStorage, prefix: 'app:' })],`,
   };
 }

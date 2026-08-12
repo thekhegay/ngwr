@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="wrCopyToClipboard"
-  description="Copies the bound string on host click. Emits `(copied)` on success and `(copyFailed)` if the Clipboard API is unavailable."
+  description="Copies the bound string on host click. `navigator.clipboard.writeText` where it exists, with a hidden-textarea + `execCommand` recovery for non-secure contexts. `(copied)` fires only once the write actually lands; a refusal — denied permission, an unfocused document, no clipboard at all — is a `(copyFailed)`, never a silent success, and focus goes back to whatever held it before the fallback selected its textarea."
   [keywords]="['wrCopyToClipboard', 'copy', 'clipboard', 'directive']"
   [labels]="['Directive']"
 >

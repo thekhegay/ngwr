@@ -6,7 +6,7 @@
 >
   <ngwr-doc-section
     title="Intent palette"
-    description="The palette below is `WR_COLORS` itself, in palette order. Each intent exposes its base value plus four generated shades (`-dark` −5%, `-darker` −10%, `-light` +5%, `-lighter` +10% lightness), an `-rgb` channel, and a YIQ-derived `-contrast` (auto dark-on-light / light-on-dark)."
+    description="The palette below is `WR_COLORS` itself, in palette order. Each intent exposes its base value plus four generated shades (`-dark` −5%, `-darker` −10%, `-light` +5%, `-lighter` +10% lightness), an `-rgb` channel, and a `-contrast` — whichever of pure black or pure white scores higher against the fill on real WCAG contrast ratio. It picks, it does not blend, so those two values are the ceiling for every label."
   >
     <div style="display: flex; flex-direction: column; gap: 0.75rem">
       @for (intent of intents; track intent) {
@@ -97,7 +97,7 @@
 
   <ngwr-doc-section
     title="Semantic neutrals"
-    description="Theme-aware tokens for the chrome around your content — surfaces, dividers, scrims, and muted text. These are not per-intent; there is one canonical token for each job, and most are built on the flipping `light` / `medium` channels so they adapt to dark mode automatically."
+    description="Theme-aware tokens for the chrome around your content — surfaces, dividers, scrims, and muted text. These are not per-intent; there is one canonical token for each job. The borders and the hover tint are built on the flipping `light` channel, so they adapt to dark mode automatically; muted text has its own base (`--wr-color-muted-text`, re-tuned per theme) because as text it needs contrast the `medium` fill cannot give it."
   >
     <div
       style="
@@ -168,7 +168,7 @@
 
   <ngwr-doc-section
     title="Role aliases"
-    description="Intent-free semantic roles layered over the flipping neutrals. Prefer these in new code for surface / text jobs — they resolve through `white` / `dark` / `medium`, so they adapt to dark mode for free. The underlying `--wr-color-white` / `-dark` / `-medium` primitives stay available."
+    description="Intent-free semantic roles layered over the flipping neutrals. Prefer these in new code for surface / text jobs — they resolve through `white` / `dark` / `muted-text`, each of which is re-tuned for the dark canvas, so they adapt to dark mode for free. The underlying `--wr-color-white` / `-dark` / `-muted-text` primitives stay available."
   >
     <ngwr-doc-api [rows]="roleTokens" />
     <ngwr-doc-code [code]="snippets.roles" language="scss" />
@@ -176,7 +176,7 @@
 
   <ngwr-doc-section
     title="How dark mode flips"
-    description="Dark mode is opt-in via `[data-theme='dark']` on `<html>` (driven by `provideWrTheme()`). **Only semantic tokens flip** — brand hues stay put so colored elements look the same in both themes. The key inversion is that `--wr-color-white` is the page *surface* and `--wr-color-dark` is the *text* — and both swap roles in dark mode. Build with the tokens and you write zero dark-mode overrides."
+    description="Dark mode is opt-in via `[data-theme='dark']` on `<html>` (driven by `provideWrTheme()`). The key inversion is that `--wr-color-white` is the page *surface* and `--wr-color-dark` is the *text* — and both swap roles in dark mode. The intents are not left alone either: seven of the nine are re-tuned for the deep canvas (`primary`, `success`, `warning`, `danger` for legibility on it, `light` / `medium` / `dark` because they are the neutrals doing the flipping). Only `secondary` and `info` keep their light values. Build with the tokens and you write zero dark-mode overrides."
   >
     <div style="display: flex; gap: 1rem; flex-wrap: wrap">
       <div

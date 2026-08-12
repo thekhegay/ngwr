@@ -85,12 +85,13 @@ export default class TokensMotionPage {
     {
       name: '--wr-overlay-duration',
       type: 'var(--wr-duration-base)',
-      description: 'Open / close timing shared by every overlay panel — dialog, drawer, select, tooltip, context menu.',
+      description:
+        'Open / close timing for the anchored panels — dropdown, popover / tooltip, context menu, popconfirm — and the responsive bottom-sheet.',
     },
     {
       name: '--wr-overlay-ease',
       type: 'var(--wr-ease-out)',
-      description: 'Easing shared by every overlay panel. Retune both here and the whole overlay layer follows.',
+      description: 'Easing for the same set. Retune both here and that layer follows together.',
     },
   ];
 
@@ -121,10 +122,18 @@ export default class TokensMotionPage {
   --wr-overlay-ease: var(--wr-ease-spring);
 }`,
 
-    reduced: `/* ngwr already collapses its own animations under reduced motion —
-   you do not need to repeat this for built-in components. Mirror it in
-   your own styles so custom motion honours the same preference. */
+    reduced: `/* The .wr-animate-* utilities and the decorative components opt out for
+   themselves. For everything that reads the tokens, the durations ARE the
+   switch — one rule covers your styles and theirs together. */
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --wr-duration-fast: 0.01ms;
+    --wr-duration-base: 0.01ms;
+    --wr-duration-slow: 0.01ms;
+    --wr-duration-slower: 0.01ms;
+    --wr-overlay-duration: 0.01ms;
+  }
+
   .my-drawer {
     transition-duration: 0.01ms;
   }

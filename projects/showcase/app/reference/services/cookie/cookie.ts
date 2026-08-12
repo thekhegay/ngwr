@@ -103,7 +103,7 @@ cookies.clear();   // remove them all (path: '/')`,
     {
       name: 'set(key, value, options?)',
       description:
-        "Write a cookie. `expires` accepts `Date` (`expires=…`) or `number` (seconds → `max-age=…`). Defaults: `path: '/'`, `sameSite: 'Lax'`.",
+        "Write a cookie. `expires` accepts `Date` (`expires=…`) or `number` (seconds → `max-age=…`). Defaults: `path: '/'`, `sameSite: 'Lax'`. `sameSite: 'None'` implies `secure` — a browser rejects the pair without it, so asking for a cross-site cookie without `secure` would otherwise be a silent no-op.",
       type: '(key, value, options?) => void',
       default: '—',
     },

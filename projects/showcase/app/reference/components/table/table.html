@@ -49,7 +49,7 @@
 
   <ngwr-doc-section
     title="Virtual scroll"
-    description="Set `virtualScroll` with a fixed `viewportHeight` to window thousands of rows — only the visible slice is in the DOM. It forces fixed column layout, assumes a uniform `rowHeight` (auto-measured by default), and falls back to the full render while grouping, expandable rows, responsive cards or a pager is active. The table below holds 10,000 rows."
+    description="Set `virtualScroll` with a fixed `viewportHeight` to window thousands of rows — only the visible slice is in the DOM. It forces fixed column layout, assumes a uniform `rowHeight` (auto-measured by default), and falls back to the full render while grouping, tree rows, expandable rows, responsive cards or a pager is active. The table below holds 10,000 rows."
   >
     <ngwr-doc-code [code]="snippets.virtual" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -221,7 +221,7 @@
 
   <ngwr-doc-section
     title="Tree rows"
-    description="Set `childrenKey` to the property (or a function) holding each row&#39;s children and `items` becomes the roots. The forest is flattened into the same `&lt;tbody&gt;`, so child rows are ordinary `&lt;tr&gt;`s — column pin, resize, drag-reorder and `[wrTableCell]` templates all keep working at every depth. Open state reuses `[(expanded)]` and identity reuses `rowKey`. `treeColumn` picks which column carries the indent and chevron; without it the first rendered column does. `pageSize` pages the roots, selection and the summary row see every node, and the table announces itself as a `treegrid` with `aria-level` / `aria-posinset` / `aria-setsize` per row. Grouping and `[wrTableExpand]` detail rows are refused rather than half-supported — both own the row&#39;s disclosure."
+    description="Set `childrenKey` to the property (or a function) holding each row&#39;s children and `items` becomes the roots. The forest is flattened into the same `&lt;tbody&gt;`, so child rows are ordinary `&lt;tr&gt;`s — column pin, resize, drag-reorder and `[wrTableCell]` templates all keep working at every depth. Open state reuses `[(expanded)]` and identity reuses `rowKey`. `treeColumn` picks which column carries the indent and chevron; without it the first rendered column does. `pageSize` pages the roots, selection and the summary row see every node, and the table announces itself as a `treegrid` with `aria-level` / `aria-posinset` / `aria-setsize` per row. Three pairings are refused rather than half-supported: `groupBy` wins over `childrenKey`, since a group buckets a flat list and a forest has none; a projected `[wrTableExpand]` loses to tree rows, which already own the row&#39;s disclosure; and `virtualScroll` falls back to the full render, because expanding a parent re-anchors the window."
   >
     <ngwr-doc-code [code]="snippets.tree" language="angular-html" />
     <ngwr-doc-snippet code="">

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Schematics"
-  description="Angular CLI tooling shipped with ngwr — `ng add`, six generators, and a per-major `ng update` migration (v7, v8, v9)."
+  description="Angular CLI tooling shipped with ngwr — `ng add`, five generators, and one `ng update` migration per major that needs code rewritten (v7, v8, v9)."
   [keywords]="['schematics', 'ng-add', 'ng-generate', 'ng-update', 'cli']"
   [labels]="['Getting started', 'CLI']"
 >
@@ -32,7 +32,7 @@
 
   <ngwr-doc-section
     title="ng g ngwr:use"
-    description="Add an `import { WrFoo }` line and splice `WrFoo` into the `@Component({ imports: [...] })` array of an existing component file. 338 public symbols are recognized — the full catalog."
+    description="Add an `import { WrFoo }` line and splice `WrFoo` into the `@Component({ imports: [...] })` array of an existing component file. 215 public symbols are recognized — the map is generated from a public-api scan at build time, so it cannot drift from what the package exports."
   >
     <ngwr-doc-code [code]="snippets.use" language="bash" />
   </ngwr-doc-section>
@@ -58,7 +58,7 @@
 
   <ngwr-doc-section
     title="ng g ngwr:page"
-    description="Scaffold a starter page wired up with ngwr components. Three presets — form (form-field + input + button), table (table + pagination), dashboard (card grid + statistic + count-up)."
+    description="Scaffold a starter page wired up with ngwr components. Three presets — form (form-field + input + button), table (table + pagination), dashboard (card grid + statistic)."
   >
     <ngwr-doc-code [code]="snippets.page" language="bash" />
   </ngwr-doc-section>

@@ -27,7 +27,7 @@
 
   <ngwr-doc-section
     title="Shape"
-    description="`rounded` (default) is a soft rounded square. `circle` replaces the old `[rounded]` boolean. `squircle` uses `corner-shape: squircle` where supported."
+    description="`rounded` (default) is a soft rounded square, `square` keeps hard corners. `circle` replaces the old `[rounded]` boolean. `squircle` uses `corner-shape: squircle` where supported."
   >
     <ngwr-doc-snippet [code]="snippets.shape">
       <wr-avatar [url]="sampleUrl" alt="" size="4rem" shape="square" />
@@ -39,7 +39,7 @@
 
   <ngwr-doc-section
     title="Initials fallback"
-    description="When the avatar has no image, projected content fills the box. Use a flex layout to center it."
+    description="When the avatar has no image, projected content fills the box. Use a flex layout to center it. A `[url]` that fails to load lands in the same place — the spinner and the broken `<img>` are dropped and the initials behind them show through, which is the one state where an avatar is guaranteed to have something worth showing."
   >
     <ngwr-doc-snippet [code]="snippets.initials">
       <wr-avatar [size]="48" shape="circle">

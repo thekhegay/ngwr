@@ -42,14 +42,15 @@ header.wr-affix--active {
     {
       name: '[wrAffixOffsetTop]',
       description:
-        'Pixels from the top of the scroll container when stuck. Drives both `style.top` and the observer threshold.',
+        'Pixels from the top of the scroll container when stuck. Drives both `style.top` and the observer threshold — and it is live: an `IntersectionObserver` cannot change its `rootMargin`, so a new offset builds a new observer rather than letting the pinned position and the state flip apart.',
       type: 'number',
       default: '0',
     },
     {
       name: '(wrAffixChange)',
-      description: 'Emits `true` on stick, `false` on release.',
-      type: 'EventEmitter<boolean>',
+      description:
+        'Emits `true` on stick, `false` on release — transitions only. The observer reports STATE, so it delivers an entry the moment it starts watching and can repeat one the host is already in; a repeat is swallowed rather than emitted.',
+      type: 'OutputEmitterRef<boolean>',
       default: '—',
     },
     {

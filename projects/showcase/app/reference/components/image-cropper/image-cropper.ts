@@ -82,7 +82,12 @@ export class MyComponent {
       type: 'number',
       default: '0.92',
     },
-    { name: '(cropped)', description: 'Emits a Blob after each drag end.', type: 'EventEmitter<Blob>', default: '—' },
+    {
+      name: '(cropped)',
+      description: 'Emits a Blob after each drag end.',
+      type: 'OutputEmitterRef<Blob>',
+      default: '—',
+    },
     { name: 'Readable state', description: 'Signals and methods on the component instance.', type: 'members' },
     {
       name: 'cropRect',

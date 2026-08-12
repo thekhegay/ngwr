@@ -78,10 +78,17 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
   };
 
   protected readonly pickerApi: readonly DocApiRow[] = [
-    { name: 'alpha', description: 'Render the alpha slider; emit 8-digit hex.', type: 'boolean', default: 'true' },
+    {
+      name: 'alpha',
+      description:
+        'Render the alpha slider and carry alpha in the emitted value — 8-digit hex, or the fourth argument of `rgba()` / `hsla()`.',
+      type: 'boolean',
+      default: 'true',
+    },
     {
       name: 'format',
-      description: 'Output format (currently only `hex` is wired).',
+      description:
+        'Which notation `value` is written in — `hex`, `rgba` or `hsla`. All three are read on the way IN whichever one is set, so a bound `rgb(…)` still lands on the canvas; the HEX field always shows canonical hex.',
       type: 'WrColorFormat',
       default: "'hex'",
     },
@@ -95,7 +102,12 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
   ];
 
   protected readonly triggerApi: readonly DocApiRow[] = [
-    { name: 'value', description: 'Two-way bindable hex string.', type: 'string', default: "''" },
+    {
+      name: 'value',
+      description: 'Two-way bindable colour string, in whatever `format` names.',
+      type: 'string',
+      default: "''",
+    },
     { name: 'alpha', description: 'Forwarded to the inner picker.', type: 'boolean', default: 'true' },
     { name: 'format', description: 'Forwarded to the inner picker.', type: 'WrColorFormat', default: "'hex'" },
     { name: 'swatches', description: 'Forwarded to the inner picker.', type: 'readonly string[]', default: '[]' },

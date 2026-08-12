@@ -66,17 +66,21 @@ bootstrapApplication(AppComponent, {
 @use 'ngwr' as *;`,
 
     paletteRoot: `/* Rebrand at runtime — override on \`:root\` or any subtree.
-   Set both the rgb channel and the base color; \`-rgb\` powers rgba() rings. */
+   Set the base color, the rgb channel (\`-rgb\` powers rgba() rings) AND the
+   contrast: \`-contrast\` was picked at SCSS compile time from the OLD fill, so
+   it does not follow a value you set here. #4f46e5 takes white at 6.3:1. */
 :root {
-  --wr-color-primary: #6366f1;
-  --wr-color-primary-rgb: 99, 102, 241;
+  --wr-color-primary: #4f46e5;
+  --wr-color-primary-rgb: 79, 70, 229;
   --wr-color-primary-contrast: #ffffff;
 }
 
-/* Scoped palette override on a section: */
+/* Scoped palette override on a section. This one inherits the white label
+   above, so the fill has to be deep enough to carry it — #be123c is 6.3:1;
+   a lighter rose like #f43f5e would leave it at 3.7:1, under AA. */
 .marketing {
-  --wr-color-primary: #f43f5e;
-  --wr-color-primary-rgb: 244, 63, 94;
+  --wr-color-primary: #be123c;
+  --wr-color-primary-rgb: 190, 18, 60;
 }`,
 
     darkMode: `import { inject } from '@angular/core';
@@ -90,8 +94,10 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
 
 // Tune dark-mode tokens by overriding under [data-theme='dark']:
 // (the default 'data-theme' attribute is configurable via provideWrTheme)
+// There is no --wr-color-bg: in dark, --wr-color-white IS the canvas and
+// --wr-color-dark IS the ink — the two neutrals swap jobs.
 [data-theme='dark'] {
-  --wr-color-bg: #0c0d10;
+  --wr-color-white: #0c0d10;
   --wr-color-dark: #f5f6f8;
 }`,
 
