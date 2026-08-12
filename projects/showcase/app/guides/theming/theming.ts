@@ -57,9 +57,9 @@ bootstrapApplication(AppComponent, {
     success: #22c55e,
     warning: #f59e0b,
     danger: #f43f5e,
-    info: #3b82f6,
+    info: #3472d9,
     light: #cbd5e1,
-    medium: #8594a4,
+    medium: #6a7683,
     dark: #0f172a,
   )
 );
