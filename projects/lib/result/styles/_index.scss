@@ -60,7 +60,9 @@
   }
 
   &--info &__icon {
-    color: var(--wr-color-primary);
+    // `-ink`, like the three variants above. This one alone carried the bare
+    // intent, which is what made the set inconsistent rather than deliberate.
+    color: var(--wr-color-primary-ink);
   }
 
   &--empty &__icon {

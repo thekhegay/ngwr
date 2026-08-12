@@ -70,7 +70,8 @@
   &:hover,
   &:focus-visible {
     background: var(--wr-color-primary-soft);
-    color: var(--wr-color-primary);
+    // The item label inherits this, so it is text on the `-soft` tint: `-ink`.
+    color: var(--wr-color-primary-ink);
     outline: none;
   }
 

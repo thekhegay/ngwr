@@ -824,7 +824,9 @@
     border: 0;
     padding: 0.375rem 0.5rem;
     border-radius: var(--wr-border-radius-sm);
-    color: var(--wr-color-primary);
+    // A real "Reset" text button, so `-ink`. The sort / filter GLYPHS above keep
+    // the bare intent: graphics are held to 3:1, which they clear.
+    color: var(--wr-color-primary-ink);
     font: inherit;
     font-size: var(--wr-text-sm);
     cursor: pointer;

@@ -48,7 +48,10 @@
     padding: 0.75rem 1rem;
     border: 0;
     background: transparent;
-    color: var(--wr-color-primary);
+    // `-ink`, not the bare intent: this is the action LABEL, text on the sheet
+    // surface. Bare measured 4.06:1 in dark once `primary` deepened enough to take
+    // a white label.
+    color: var(--wr-color-primary-ink);
     font-family: inherit;
     font-size: var(--wr-text-base);
     font-weight: var(--wr-font-weight-medium);
