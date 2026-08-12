@@ -228,6 +228,14 @@ export const wrEn: WrI18nCatalog = {
   popover: {
     label: 'Popover',
   },
+  markdown: {
+    copy: 'Copy code',
+    copied: 'Copied',
+    // Read before a task item's text, so a screen reader gets the state that the
+    // checkbox glyph carries visually.
+    taskDone: 'Done:',
+    taskTodo: 'To do:',
+  },
   // Count-neutral on purpose: `wrInterpolate` does `{{name}}` substitution only,
   // with no plural support, so "Matches available: 1" has to read correctly too.
   marquee: {

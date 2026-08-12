@@ -68,6 +68,20 @@ export interface WrConfig {
   readonly input?: WrControlDefaults;
   readonly inputNumber?: WrControlDefaults;
   readonly inputOtp?: Pick<WrControlDefaults, 'size'>;
+  /**
+   * Defaults for `<wr-markdown>`.
+   *
+   * Both keys are app-wide policy rather than per-instance taste, which is the
+   * test a config key has to pass: whether links in rendered markdown open in a
+   * new tab, and whether code blocks carry a copy button, are decisions an app
+   * makes once. `linkTarget` is spelled as a literal union rather than imported
+   * from `ngwr/markdown` for the reason `button.shape` is absent — that entry
+   * point imports this one, and ng-packagr refuses the cycle.
+   */
+  readonly markdown?: {
+    readonly linkTarget?: '_blank' | '_self';
+    readonly copyable?: boolean;
+  };
   readonly radio?: Pick<WrControlDefaults, 'size'>;
   readonly select?: WrControlDefaults;
   readonly switch?: Pick<WrControlDefaults, 'size'>;

@@ -1,0 +1,296 @@
+@use '../../theme/styles' as theme;
+
+.wr-markdown {
+  display: block;
+  color: var(--wr-color-on-surface);
+  font-size: var(--wr-text-base);
+  line-height: 1.65;
+  overflow-wrap: break-word;
+
+  // The document's own outer margins belong to whatever holds it — a chat bubble,
+  // a card — so the first and last blocks give theirs up.
+  > :first-child {
+    margin-block-start: 0;
+  }
+
+  > :last-child {
+    margin-block-end: 0;
+  }
+
+  &__heading {
+    margin-block: 1.5em 0.6em;
+    font-weight: var(--wr-font-weight-semibold);
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  h1#{&}__heading {
+    font-size: var(--wr-text-2xl);
+  }
+
+  h2#{&}__heading {
+    font-size: var(--wr-text-xl);
+  }
+
+  h3#{&}__heading {
+    font-size: var(--wr-text-lg);
+  }
+
+  h4#{&}__heading,
+  h5#{&}__heading,
+  h6#{&}__heading {
+    font-size: var(--wr-text-base);
+  }
+
+  &__paragraph {
+    margin-block: 0 0.85em;
+  }
+
+  &__strong {
+    font-weight: var(--wr-font-weight-semibold);
+  }
+
+  &__link {
+    color: var(--wr-color-primary-ink);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+  }
+
+  &__image {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--wr-border-radius-base);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Code
+  // ---------------------------------------------------------------------------
+
+  &__code-inline {
+    padding: 0.15em 0.35em;
+    border-radius: var(--wr-border-radius-sm);
+    background: rgb(var(--wr-color-light-rgb) / 25%);
+    // `-ink`, not the bare intent: code on a tint is text, and the bare colour
+    // fails AA there. The share in `$ink-mix` is calibrated against this tint.
+    color: var(--wr-color-dark-ink);
+    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+    font-size: 0.9em;
+  }
+
+  &__code-block {
+    position: relative;
+    margin-block: 0 1em;
+  }
+
+  &__pre {
+    margin: 0;
+    padding: 0.75rem;
+    overflow-x: auto;
+    border-radius: var(--wr-border-radius-base);
+    background: rgb(var(--wr-color-light-rgb) / 25%);
+    tab-size: 2;
+  }
+
+  &__code {
+    font-family: var(--wr-font-family-mono, ui-monospace, monospace);
+    font-size: 0.875em;
+    line-height: 1.6;
+  }
+
+  &__line {
+    // An empty line still occupies one, which a bare inline span would not.
+    display: inline-block;
+    min-height: 1lh;
+  }
+
+  &__copy {
+    position: absolute;
+    // Logical, so the button follows the scrollbar-free corner in both
+    // directions. The block it sits on is pinned LTR; its chrome is not.
+    inset-block-start: 0.5rem;
+    inset-inline-end: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid var(--wr-color-outline);
+    border-radius: var(--wr-border-radius-sm);
+    background: var(--wr-color-surface);
+    color: var(--wr-color-on-surface-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--wr-duration-fast) var(--wr-ease-out);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--wr-color-on-surface);
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+  }
+
+  // Revealed on hover of the block, and always for keyboard users — an
+  // opacity-gated control that never appears without a pointer is unreachable.
+  &__code-block:hover &__copy,
+  &__copy:focus-visible {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    &__copy {
+      opacity: 1;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Lists
+  // ---------------------------------------------------------------------------
+
+  &__list {
+    margin-block: 0 0.85em;
+    padding-inline-start: 1.5em;
+
+    // A nested list belongs to its parent item, not to the flow after it.
+    #{&} {
+      margin-block-end: 0;
+    }
+  }
+
+  &__item {
+    margin-block: 0.2em;
+
+    &--task {
+      position: relative;
+      list-style: none;
+      // Room for the marker, which sits in the gutter.
+      padding-inline-start: 1.6em;
+    }
+  }
+
+  &__task {
+    position: absolute;
+    inset-block-start: 0.35em;
+    inset-inline-start: 0.15em;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 1px solid var(--wr-color-outline);
+    border-radius: var(--wr-border-radius-sm);
+    background: var(--wr-color-surface);
+
+    &--checked {
+      border-color: var(--wr-color-primary);
+      background: var(--wr-color-primary);
+
+      // The tick. Drawn from two borders so it needs no icon font and no SVG,
+      // and inherits the intent's own contrast colour.
+      &::after {
+        position: absolute;
+        inset-block-start: 0.12em;
+        inset-inline-start: 0.22em;
+        width: 0.3em;
+        height: 0.55em;
+        border: solid var(--wr-color-primary-contrast);
+        border-width: 0 2px 2px 0; // rtl-ok: a tick is a glyph, not a layout — mirroring it would draw it backwards
+        content: '';
+        rotate: 45deg;
+      }
+    }
+  }
+
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Quote, rule, table
+  // ---------------------------------------------------------------------------
+
+  &__quote {
+    margin-block: 0 0.85em;
+    margin-inline: 0;
+    padding-inline-start: 1em;
+    border-inline-start: 3px solid var(--wr-color-outline);
+    color: var(--wr-color-on-surface-muted);
+  }
+
+  &__rule {
+    margin-block: 1.5em;
+    border: 0;
+    border-block-start: 1px solid var(--wr-color-outline);
+  }
+
+  &__table-scroll {
+    margin-block: 0 1em;
+    overflow-x: auto;
+  }
+
+  &__table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: var(--wr-text-sm);
+  }
+
+  &__th,
+  &__td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--wr-color-outline);
+  }
+
+  &__th {
+    background: rgb(var(--wr-color-light-rgb) / 25%);
+    font-weight: var(--wr-font-weight-semibold);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Streaming caret
+  // ---------------------------------------------------------------------------
+
+  &--streaming > :last-child::after {
+    display: inline-block;
+    width: 0.45em;
+    height: 1em;
+    margin-inline-start: 0.15em;
+    background: currentcolor;
+    content: '';
+    opacity: 0.7;
+    translate: 0 0.12em;
+    animation: wr-markdown-caret 1.1s steps(2, jump-none) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &--streaming > :last-child::after {
+      animation: none;
+    }
+  }
+}
+
+@keyframes wr-markdown-caret {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
