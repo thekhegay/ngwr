@@ -6,7 +6,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -154,15 +154,19 @@ describe.skipIf(!existsSync(SERVER))('ngwr-mcp over stdio', () => {
     expect(String(body?.['instructions'])).toContain('search_ngwr');
   });
 
-  it('reports the package version it was installed as', async () => {
-    const known = await run([request(1, 'initialize')], withVersion('11.0.0-test'));
+  it('reports the version of the package it is part of, not the environment', async () => {
+    const poisoned = await run([request(1, 'initialize')], withVersion('11.0.0-test'));
     const bare = await run([request(1, 'initialize')], withVersion());
+    const manifest = resolve(SERVER, '..', '..', 'package.json');
+    const own = JSON.parse(readFileSync(manifest, 'utf8')) as { version: string };
 
-    // The version tells a client which catalog it is talking to. Unset is a
-    // placeholder rather than a crash, because the variable only exists when
-    // the process was started by a package manager.
-    expect(replyTo(known, 1).result?.['serverInfo']).toMatchObject({ version: '11.0.0-test' });
-    expect(replyTo(bare, 1).result?.['serverInfo']).toMatchObject({ version: '0.0.0' });
+    // It used to read `npm_package_version`, which npx sets from the project that
+    // INVOKED the server — so a consumer app had its own version reported back as
+    // the catalog's. Installing the tarball into a scratch package is what showed
+    // it: in this repo the two are the same file. Both runs must answer the
+    // package's own version, including the one whose environment says otherwise.
+    expect(replyTo(poisoned, 1).result?.['serverInfo']).toMatchObject({ version: own.version });
+    expect(replyTo(bare, 1).result?.['serverInfo']).toMatchObject({ version: own.version });
   });
 
   it('lists the four tools with the schemas a client validates against', async () => {

@@ -106,6 +106,21 @@ class Catalog {
     );
   }
 
+  /**
+   * The version of the package this server is part of.
+   *
+   * From its own `package.json`, NOT from `npm_package_version` — npx sets that
+   * from the project that INVOKED the server, so a consumer app saw its own
+   * version reported back as the catalog's. Only an install test catches that:
+   * in the repo the two happen to be the same file.
+   */
+  version(): string {
+    const raw = this.read('package.json');
+    const parsed = raw ? (JSON.parse(raw) as { version?: string }) : {};
+
+    return parsed.version ?? '0.0.0';
+  }
+
   /** The bundled declarations for an entry point, or `null` when not shipped. */
   types(path: string): string | null {
     const file = join('types', `${path.replace(/\//g, '-')}.d.ts`);
