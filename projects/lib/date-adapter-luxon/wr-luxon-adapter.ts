@@ -44,8 +44,27 @@ const TOKEN_MAP: Readonly<Record<string, string>> = {
 
 const TOKEN_RE = /yyyy|yy|MMMM|MMM|MM|M|dd|d|HH|H|hh|h|mm|ss|a/g;
 
+/**
+ * A quoted literal, in Luxon's own syntax: text between single quotes, where
+ * `''` is an escaped quote. Split on this and the odd-numbered pieces are the
+ * literals — which must reach Luxon untouched.
+ */
+const QUOTED_RE = /('(?:[^']|'')*')/;
+
+/**
+ * Rewrite the library's tokens into Luxon's, LEAVING QUOTED TEXT ALONE.
+ *
+ * The tokens are mostly shared, but a few are not — `MMMM` is Luxon's standalone
+ * `LLLL`, for one — so the pattern is translated on the way in. Doing that over
+ * the whole string also rewrote the caller's own literals: `"MMMM 'MMMM'"`, a
+ * month name followed by the word, printed "August LLLL". Splitting on quotes
+ * first keeps the substitution where it belongs.
+ */
 function translatePattern(pattern: string): string {
-  return pattern.replace(TOKEN_RE, t => TOKEN_MAP[t] ?? t);
+  return pattern
+    .split(QUOTED_RE)
+    .map((part, index) => (index % 2 === 1 ? part : part.replace(TOKEN_RE, t => TOKEN_MAP[t] ?? t)))
+    .join('');
 }
 
 /**
@@ -130,14 +149,38 @@ export class WrLuxonAdapter extends WrDateAdapter<DateTime> {
 
   // Comparison
 
+  /**
+   * The comparison trio, all three answering the same question: what CALENDAR DAY
+   * does each value display?
+   *
+   * Field comparison rather than Luxon's own helpers, and deliberately. This
+   * adapter exists for zone-aware apps, so its values do not all share a zone —
+   * the grid is built with `createDate` in the app's zone while the selected value
+   * may arrive as `DateTime.utc()`. Two things went wrong when the zone was left
+   * in the answer:
+   *
+   * `compareDate` subtracted `startOf('day')` millis, and `startOf` respects each
+   * value's OWN zone, so two values both reading "1 August" came out three hours
+   * apart. Non-zero means "different day" to every caller — including
+   * `isWithinRange`, which the base class documents as inclusive and which
+   * therefore dropped its own endpoint.
+   *
+   * `hasSame` converts one side into the other's zone before checking the day's
+   * bounds, which is not the same question: 23:00 UTC and 01:00+03 the next
+   * morning are the same instant-window but display different dates, and it
+   * answers true. The native adapter compares fields; agreeing with it is what
+   * keeps a calendar built on either adapter rendering the same thing.
+   */
   isSameDay(a: DateTime, b: DateTime): boolean {
-    return a.hasSame(b, 'day');
+    return a.year === b.year && a.month === b.month && a.day === b.day;
   }
   isSameMonth(a: DateTime, b: DateTime): boolean {
-    return a.hasSame(b, 'month');
+    return a.year === b.year && a.month === b.month;
   }
   compareDate(a: DateTime, b: DateTime): number {
-    return a.startOf('day').toMillis() - b.startOf('day').toMillis();
+    if (a.year !== b.year) return a.year - b.year;
+    if (a.month !== b.month) return a.month - b.month;
+    return a.day - b.day;
   }
 
   // Formatting / parsing
