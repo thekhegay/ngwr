@@ -76,27 +76,6 @@
     ".": {
       "sass": "./styles.scss"
     },
-    "./theme": {
-      "sass": "./theme/styles/_index.scss"
-    },
-    "./breakpoints": {
-      "sass": "./styles/_breakpoints.scss"
-    },
-    "./grid": {
-      "sass": "./styles/_grid.scss"
-    },
-    "./reset": {
-      "sass": "./styles/_reset.scss"
-    },
-    "./animations": {
-      "sass": "./styles/_animations.scss"
-    },
-    "./typography": {
-      "sass": "./typography/styles/_index.scss"
-    },
-    "./typography-utilities": {
-      "sass": "./styles/_typography.scss"
-    },
     "./action-sheet": {
       "sass": "./action-sheet/styles/_index.scss"
     },
@@ -108,6 +87,9 @@
     },
     "./anchor": {
       "sass": "./anchor/styles/_index.scss"
+    },
+    "./animations": {
+      "sass": "./styles/_animations.scss"
     },
     "./aurora": {
       "sass": "./aurora/styles/_index.scss"
@@ -132,6 +114,9 @@
     },
     "./breadcrumbs": {
       "sass": "./breadcrumbs/styles/_index.scss"
+    },
+    "./breakpoints": {
+      "sass": "./styles/_breakpoints.scss"
     },
     "./burger": {
       "sass": "./burger/styles/_index.scss"
@@ -214,6 +199,9 @@
     "./empty": {
       "sass": "./empty/styles/_index.scss"
     },
+    "./event-calendar": {
+      "sass": "./event-calendar/styles/_index.scss"
+    },
     "./falling-text": {
       "sass": "./falling-text/styles/_index.scss"
     },
@@ -231,6 +219,9 @@
     },
     "./gradient-text": {
       "sass": "./gradient-text/styles/_index.scss"
+    },
+    "./grid": {
+      "sass": "./styles/_grid.scss"
     },
     "./icon": {
       "sass": "./icon/styles/_index.scss"
@@ -310,6 +301,9 @@
     "./rating": {
       "sass": "./rating/styles/_index.scss"
     },
+    "./reset": {
+      "sass": "./styles/_reset.scss"
+    },
     "./result": {
       "sass": "./result/styles/_index.scss"
     },
@@ -379,6 +373,9 @@
     "./textarea": {
       "sass": "./textarea/styles/_index.scss"
     },
+    "./theme": {
+      "sass": "./theme/styles/_index.scss"
+    },
     "./tilt-card": {
       "sass": "./tilt-card/styles/_index.scss"
     },
@@ -391,11 +388,23 @@
     "./toolbar": {
       "sass": "./toolbar/styles/_index.scss"
     },
+    "./tour": {
+      "sass": "./tour/styles/_index.scss"
+    },
+    "./transfer": {
+      "sass": "./transfer/styles/_index.scss"
+    },
     "./tree": {
       "sass": "./tree/styles/_index.scss"
     },
     "./typewriter": {
       "sass": "./typewriter/styles/_index.scss"
+    },
+    "./typography": {
+      "sass": "./typography/styles/_index.scss"
+    },
+    "./typography-utilities": {
+      "sass": "./styles/_typography.scss"
     },
     "./virtual-scroll": {
       "sass": "./virtual-scroll/styles/_index.scss"
