@@ -572,6 +572,22 @@ describe('validateArguments', () => {
     // An empty array satisfies the schema; the tool itself asks for a symbol.
     expect(validateArguments(specOf('get_ngwr_setup'), { symbols: [] })).toBeNull();
   });
+
+  it('refuses a value outside the published enum, naming the ones inside it', () => {
+    const allowed = '`kind` must be one of all, input, model, output, method, property.';
+
+    // `enum` was published and unchecked, and of the six argument shapes this
+    // function refuses it is the one that failed worst: `kind: "Input"` — a
+    // single capital letter — did not error, it ANSWERED, with zero member lines
+    // in it. An agent cannot tell that from a component with no inputs, so it
+    // does not retry; it writes the template without the input it needed.
+    expect(validateArguments(specOf('get_ngwr_api'), { symbol: 'WrSelect', kind: 'Input' })).toBe(allowed);
+    expect(validateArguments(specOf('get_ngwr_api'), { symbol: 'WrSelect', kind: 'inputs' })).toBe(allowed);
+    // Every value the schema does publish is accepted, including the default.
+    for (const kind of ['all', 'input', 'model', 'output', 'method', 'property']) {
+      expect(validateArguments(specOf('get_ngwr_api'), { symbol: 'WrSelect', kind })).toBeNull();
+    }
+  });
 });
 
 describe('callTool — an unknown tool', () => {

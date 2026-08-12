@@ -136,7 +136,7 @@ const REQUIRED_PROVIDERS: readonly { readonly test: RegExp; readonly provider: s
  */
 function validateArguments(tool: ToolSpec, args: Record<string, unknown>): string | null {
   const schema: {
-    properties?: Record<string, { type?: string; items?: { type?: string } }>;
+    properties?: Record<string, { type?: string; items?: { type?: string }; enum?: string[] }>;
     required?: string[];
   } = tool.inputSchema;
 
@@ -160,6 +160,15 @@ function validateArguments(tool: ToolSpec, args: Record<string, unknown>): strin
     }
 
     if (expected.type && typeof value !== expected.type) return `\`${name}\` must be a ${expected.type}.`;
+
+    // `enum` was published and unchecked, which failed in the worst possible
+    // shape: `kind: "Input"` answered successfully with ZERO members, and an
+    // agent has no way to tell that from a component with no inputs.
+    // `typeof` rather than `String(value)`: every `enum` property here is also
+    // `type: 'string'`, and stringifying an object would compare `[object Object]`.
+    if (expected.enum && (typeof value !== 'string' || !expected.enum.includes(value))) {
+      return `\`${name}\` must be one of ${expected.enum.join(', ')}.`;
+    }
   }
 
   return null;
