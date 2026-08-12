@@ -39,7 +39,11 @@
   border: 0;
   border-radius: var(--wr-border-radius-sm);
   background: transparent;
-  color: rgba(var(--wr-color-dark-rgb), 0.55);
+  // 0.55 measured 3.81:1 against the strip's own background at 12px — the tab
+  // strip only appears on multi-file blocks, so nothing exercised it until the
+  // `markdown` page did. 0.65 lands at 5.26:1, keeping headroom over AA while
+  // still reading as quieter than the active tab (which carries a white pill).
+  color: rgba(var(--wr-color-dark-rgb), 0.65);
   font: inherit;
   font-size: 0.75rem;
   font-weight: 600;

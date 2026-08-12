@@ -208,6 +208,10 @@ export default [
     loadComponent: () => import('./knob/knob'),
   },
   {
+    path: components.markdown,
+    loadComponent: () => import('./markdown/markdown'),
+  },
+  {
     path: components.mention,
     loadComponent: () => import('./mention/mention'),
   },

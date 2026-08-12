@@ -717,6 +717,19 @@ export const API = {
     { name: "color", description: "Bar colour. Defaults to the primary brand colour.", type: "string", default: "'var(--wr-color-primary)'" },
     { name: "height", description: "Bar height.", type: "string", default: "'2px'" },
   ],
+  // <wr-markdown>
+  WrMarkdown: [
+    { name: "value", description: "The markdown source.", type: "string", default: "''" },
+    { name: "streaming", description: "The source is a prefix of a longer document. Turns on partial-safe parsing — an open fence renders as code, a half-typed `**bold` renders as bold rather than as asterisks — and marks the host with `.wr-markdown--streaming`, which paints a caret after the last block.", type: "boolean", default: "false" },
+    { name: "copyable", description: "Show a copy button on finished code blocks. Falls back to `markdown.copyable` from `provideWrConfig()`, then `false`. Only CLOSED blocks get one: mid-stream the code is not all there, and a button that copies half a snippet is worse than no button.", type: "boolean | null, BooleanInput", default: "null" },
+    { name: "linkTarget", description: "Where links open. `_blank` also sets `rel=\"noopener noreferrer\"`, which is not optional — a target without it hands the opener to a page whose URL came from the document being rendered. Falls back to `markdown.linkTarget` from `provideWrConfig()`, then no target.", type: "'_blank' | '_self' | null", default: "null" },
+    { name: "headingIds", description: "Put a slugged `id` on every heading, so the document can be linked into.", type: "boolean", default: "true" },
+    { name: "headingIdPrefix", description: "Namespace for the generated heading ids, and for the in-document `#fragment` links that point at them. Defaults to `'user-content-'`, which is what GitHub emits for untrusted markdown, and for the same reason: without a namespace a document that happens to contain `# Search` renders `id=\"search\"` and steals it from the page around it. That is not cosmetic — a `<label for=\"search\">` silently stops labelling its input, and `getElementById` starts answering with a heading. Anchors written INSIDE the document keep working, because a bare `#fragment` href gets the same prefix. Set it to `''` for a document you author yourself and want clean anchors for.", type: "string", default: "'user-content-'" },
+    { name: "copyLabel", description: "Accessible name of the copy button. Falls back to `markdown.copy`, then `'Copy code'`.", type: "string | null", default: "null" },
+    { name: "copiedLabel", description: "Announced after a successful copy. Falls back to `markdown.copied`, then `'Copied'`.", type: "string | null", default: "null" },
+    { name: "taskDoneLabel", description: "Read out for a checked task item. Falls back to `markdown.taskDone`, then `'Done:'`.", type: "string | null", default: "null" },
+    { name: "taskTodoLabel", description: "Read out for an unchecked task item. Falls back to `markdown.taskTodo`, then `'To do:'`.", type: "string | null", default: "null" },
+  ],
   // <wr-marquee>
   WrMarquee: [
     { name: "items", description: "Items to display. Each entry is either an image source or a TemplateRef node.", type: "readonly WrMarqueeItem[]", required: true },

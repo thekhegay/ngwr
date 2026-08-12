@@ -1,0 +1,174 @@
+<ngwr-doc-page
+  title="Markdown"
+  description="Renders markdown as DOM, not as HTML. Built for streamed model output, and useful for any markdown an app does not write itself — comments, release notes, a README. Raw HTML in the source is escaped rather than rendered, and nothing in the pipeline is ever parsed as HTML."
+  [keywords]="['markdown', 'wr-markdown', 'streaming', 'llm', 'syntax highlighting']"
+  [labels]="['Component', 'Standalone', 'SSR-safe']"
+>
+  <ngwr-doc-section title="Installation">
+    <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Security"
+    description="The input is untrusted by construction, so the component takes the one decision that makes it safe by default: **there is no HTML anywhere in the pipeline.** The parser produces a node tree, the template renders it through ordinary bindings, every text node is a text node, and every `href` passes a scheme check before Angular's own URL sanitizer sees it. No `[innerHTML]`, no `bypassSecurityTrustHtml`, nothing for a `<img onerror>` to ride in on. Raw HTML in the source is therefore escaped, never rendered — `<div>` in, `<div>` on screen, as text. Everything in the document below is hostile; all of it renders as prose."
+  >
+    <ngwr-doc-snippet [files]="securityFiles">
+      <div style="width: 100%; max-width: 44rem">
+        <wr-markdown [value]="docs.security" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Basic usage"
+    description="One input. `[value]` is the markdown source; the component re-parses it whenever it changes and renders the result into its own host — `ViewEncapsulation.None`, so the `.wr-markdown__*` classes are yours to style."
+  >
+    <ngwr-doc-snippet [files]="basicFiles">
+      <div style="width: 100%; max-width: 44rem">
+        <wr-markdown [value]="docs.basic" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The supported subset"
+    description="Stated rather than discovered. **Blocks:** ATX headings, paragraphs, fenced code, blockquotes, bullet / ordered / task lists (nested), GFM tables, thematic breaks. **Inline:** code, strong, emphasis, strikethrough, links, images, autolinks (bracketed and bare), hard breaks, backslash escapes."
+  >
+    <p>
+      Four things are deliberately absent, each for a reason, and the demo below shows all four behaving as documented:
+    </p>
+    <ul>
+      <li>
+        <strong>Raw HTML</strong> — escaped, never rendered. A renderer fed model output or user comments cannot pass
+        <code>&lt;img onerror&gt;</code> through and call it a feature.
+      </li>
+      <li>
+        <strong>Indented (four-space) code blocks</strong> — in a document that also has nested lists, indentation is
+        structural, and the ambiguity resolves against the author almost every time: a wrapped list continuation becomes
+        a code block. Fences are unambiguous, and fences are what generators emit.
+      </li>
+      <li>
+        <strong>Setext headings</strong> (<code>===</code> / <code>---</code> under a line) — a line of dashes is a
+        thematic break here, always. The dual meaning is a well-known trap and the underline form is essentially unused
+        in generated markdown.
+      </li>
+      <li>
+        <strong>Reference links, footnotes, definition lists</strong> — they need a second pass over a document that,
+        mid-stream, is not all there yet.
+      </li>
+    </ul>
+    <ngwr-doc-snippet [files]="subsetFiles">
+      <div style="width: 100%; max-width: 44rem">
+        <wr-markdown [value]="docs.subset" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Streaming"
+    description="`[streaming]` says the source is a PREFIX of a longer document, and that changes what an unmatched marker means. An open fence renders as code instead of waiting for its closer; a half-typed `**bold` renders bold instead of flashing asterisks that vanish one chunk later; a trailing `[label](htt` is withheld until it resolves. The host also gains `.wr-markdown--streaming`, which paints a caret after the last block — CSS, so it costs no node. The demo types the document below in uneven chunks; watch the fence, the emphasis and the caret. `prefers-reduced-motion` is honoured: with it set, the document arrives whole and the caret never appears."
+  >
+    <ngwr-doc-snippet [files]="streamFiles">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 44rem">
+        <div>
+          <wr-btn size="sm" color="light" (click)="replay()">Replay</wr-btn>
+        </div>
+        <wr-markdown [value]="streamed()" [streaming]="streaming()" [copyable]="true" />
+      </div>
+    </ngwr-doc-snippet>
+    <p>
+      Dropping <code>[streaming]</code> at the end is not cosmetic: the same text is re-parsed as a finished document,
+      which is what closes the fence, retires the caret and lets the copy button appear.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Code blocks & syntax highlighting"
+    description="Fenced code renders as a `<pre><code>` with the info string reflected as `data-language`. Colour is opt-in: `provideWrMarkdownHighlighter()` takes a function returning coloured SPANS — not an HTML string — so a highlighted block inside an untrusted document is still never parsed as HTML. Every other Angular markdown renderer takes highlighted HTML and hands it to `[innerHTML]` through `bypassSecurityTrustHtml`, which puts a hole in the one component whose entire input is untrusted. The highlighter may be async and may return `null` for a language it does not know; both render the block as plain text. This site provides a shiki adapter — the blocks below are coloured by it."
+  >
+    <ngwr-doc-snippet [files]="codeFiles">
+      <div style="width: 100%; max-width: 44rem">
+        <wr-markdown [value]="docs.code" [copyable]="true" />
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.highlighter" language="typescript" />
+    <ngwr-doc-code [code]="snippets.highlighterProvider" language="typescript" />
+    <p>
+      Two notes from writing that adapter. It answers <code>null</code> when there is no <code>window</code>: the
+      showcase prerenders every route in Node, where nothing is waiting for colour and the promise would resolve after
+      the HTML was already written — so the static page ships plain code and gains colour on hydration. And the colour
+      it returns is a single <code>light-dark(…)</code> value rather than a hex per theme, because the contract has no
+      theme dimension and the library caches an answer under <code>(language, code)</code>; letting the browser resolve
+      the pair against <code>color-scheme</code> keeps one cached span correct in both themes.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Copy button"
+    description="`copyable` puts a copy button on code blocks — and only on CLOSED ones. Mid-stream the code is not all there, and a button that copies half a snippet is worse than no button, so it appears when the closing fence does. It is revealed on hover of the block and always for keyboard focus (an opacity-gated control that never appears without a pointer is unreachable), and it is always visible where hover does not exist. The accessible name comes from `copyLabel` / `copiedLabel`, both routed through the `ngwr/i18n` `markdown.*` catalog."
+  >
+    <ngwr-doc-code [code]="snippets.copy" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Links & headings"
+    description='`linkTarget` decides where a rendered link opens. `_blank` brings `rel="noopener noreferrer"` with it, and that is not optional — a target without it hands the opener to a page whose URL came from the document being rendered. The `rel` is bound rather than hard-coded, so a same-tab link does not carry a pointless one. Links whose scheme is not `http`, `https`, `mailto`, `tel` or `ftp` are refused outright and render as their own label text, which is more honest than a live anchor pointing at `unsafe:javascript:…`.'
+  >
+    <ngwr-doc-snippet [files]="linkFiles">
+      <div style="width: 100%; max-width: 44rem">
+        <wr-markdown linkTarget="_blank" [value]="docs.links" />
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.headingIds" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Task lists"
+    description='`- [x]` / `- [ ]` items render with a checkbox glyph and lose their bullet. The glyph is presentational, with the state as screen-reader text beside it: a real `<input type="checkbox">` here would be an unlabelled form control — a serious axe violation — and making it operable would promise an interaction a renderer cannot honour. The announced strings are `taskDoneLabel` / `taskTodoLabel`, and default through the i18n catalog.'
+  >
+    <ngwr-doc-snippet [files]="tasksFiles">
+      <div style="width: 100%; max-width: 44rem">
+        <wr-markdown [value]="docs.tasks" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tables"
+    description="GFM tables, with the delimiter row driving per-column alignment. A short row gets empty cells and a long one is truncated to the header width, so a ragged table cannot shift the columns. Each table sits in its own horizontal scroller — a wide table must not push the page sideways."
+  >
+    <ngwr-doc-snippet [files]="tableFiles">
+      <div style="width: 100%; max-width: 44rem">
+        <wr-markdown [value]="docs.table" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="App-wide defaults"
+    description="Two keys, both app-wide policy rather than per-instance taste — which is the test a config key has to pass. A bound value always wins, and a bound `false` beats a configured `true`, so nothing has to be re-stated to escape the default."
+  >
+    <ngwr-doc-code [code]="snippets.config" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Parsing without rendering"
+    description="The parser is exported. `parseMarkdown()` returns the same block tree the component renders, `parseInlines()` handles one line of inline markdown, `plainText()` flattens an inline tree, and `safeMarkdownUrl()` is the URL check the renderer itself applies. Useful for a table of contents, a search index or a plain-text summary."
+  >
+    <ngwr-doc-code [code]="snippets.parse" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Highlighter contract"
+    description="What `provideWrMarkdownHighlighter()` takes, and the shape it returns."
+  >
+    <ngwr-doc-api [rows]="highlightApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

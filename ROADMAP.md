@@ -2055,9 +2055,49 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
 A confirmed open lane: Kendo's kit is paid, NG-ZORRO is porting Ant Design X,
 nobody ships a free, complete Angular AI kit.
 
-- [ ] **F1. Streaming markdown renderer** (M) — standalone component (typed-out
-      streaming, code blocks via the existing shiki setup). Foundation for F2
-      and useful alone.
+- [x] **F1. Streaming markdown renderer** (M) — **shipped** as `ngwr/markdown`
+      (`<wr-markdown>`), not `ngwr/ai/markdown`: rendering markdown is general
+      work, and a chat kit is not a prerequisite for wanting it.
+      **It renders DOM, never HTML — and that is the design, not an
+      implementation detail.** Every comparable Angular renderer takes an HTML
+      string from `marked` / `markdown-it` and hands it to `[innerHTML]`, which
+      puts a sanitizer on the hot path of the one component whose input is
+      untrusted by construction — and forces `bypassSecurityTrustHtml` the moment
+      syntax highlighting is wanted, because Angular's sanitizer strips the inline
+      `style` attributes highlighting is made of. So the parser is hand-rolled and
+      produces a node tree: every text node is a text node, every `href` goes
+      through `SecurityContext.URL` on top of the component's own scheme check,
+      and raw HTML in the source is escaped rather than rendered. That last one is
+      a deliberate limit — `<img onerror>` is the whole cost of being wrong.
+      The **highlighter seam returns coloured SPANS, not markup**
+      (`provideWrMarkdownHighlighter`), which is what keeps `innerHTML` out of the
+      pipeline entirely and the CSP guide's claim true. The showcase wires shiki's
+      `codeToTokens` to it; nothing about grammars ships in the library, so a
+      consumer who renders a paragraph of text pays for no engine.
+      **Streaming is the half no general-purpose parser does.** An unterminated
+      fence renders as code, and an unmatched trailing marker is closed
+      OPTIMISTICALLY: `bold **partial` renders bold immediately, so nothing
+      restyles when the closing `**` lands one chunk later. The invariant that
+      makes it safe to leave on is pinned by spec — at the end of a stream,
+      `streaming: true` must produce exactly the tree of the same text parsed
+      statically, or the document rearranges itself the moment the request
+      completes.
+      Two things cost real time and are worth writing down. **Signal writes during
+      render (NG0600):** resolving highlighting from the template means writing a
+      signal while Angular renders, which it refuses — the component requests from
+      an `effect` and the template only reads. And **inline elements are
+      whitespace-sensitive**: a newline inside `<strong>` in the template is a
+      real space on screen, so `a **b** c` rendered with gaps and a link before a
+      comma had one too. The hanging-`>` idiom is what prettier keeps stable.
+      Recursion runs through `ngTemplateOutlet` into the same template rather than
+      a child component, which is the only shape that adds NO element between a
+      `<ul>` and its `<li>`.
+      The subset is stated in `parse-markdown.ts` along with its holes — no raw
+      HTML, no indented code blocks (indentation is structural where nested lists
+      exist, and generators emit fences), no setext headings (`---` is always a
+      rule), no reference links or footnotes (they need a second pass over a
+      document that mid-stream is not all there). 91 specs, plus a CDK harness at
+      `ngwr/markdown/testing`.
 - [ ] **F2. Chat / agent kit** (XL) — message thread, prompt input (attachments,
       slash commands via the mention plumbing), tool-call + approval +
       reasoning-trace renderers, sources panel — wired to AG-UI /
@@ -2155,13 +2195,12 @@ Open and researched, but explicitly not now.
       free Angular libs (Taiga wraps ProseMirror; PrimeNG is rebuilding theirs).
       Likely a ProseMirror-based `ngwr/editor`. Validate demand before
       committing.
-- [ ] **C4. Input mask** (M) — cheaper than it reads: `ngx-mask` is already a
-      workspace dependency and `wr-input`'s JSDoc documents composing with it,
-      so the open question is _own it or bless it_, not _build it_.
-      Phone-international / card presets later.
-- [ ] **C7. Menubar** (M) — horizontal app menu with submenus. Unblocked, but
-      much cheaper after B2 ships the Aria primitive. Completes
-      dropdown / context-menu into a menu family.
+- [ ] **C7. Menubar** (M) — horizontal app menu with submenus. **Deferred by
+      decision until B2 ships**, not merely "cheaper after": the whole component
+      is roving focus, typeahead and submenu orchestration, which is precisely
+      what the Aria primitive provides — building it first means writing that
+      twice and throwing one away. Completes dropdown / context-menu into a menu
+      family.
 - [ ] **D3. Squircle: graduate or cut** (S) — decide on `corner-shape` browser
       support; "experimental" should not survive two majors.
 - [ ] **C9. Charts: the missing three** (M) — the base set ships (bar, line,
@@ -2195,13 +2234,24 @@ Almost nothing is blocked; the one hard edge is B2.
   more untested API surface.
 - **B4** — soft-depends on **B3**.
 - **D5** — blocked in practice on **D1** + **D2**.
-- **C7** — unblocked, but cheaper after **B2**.
+- **C7** — technically unblocked, but **held for B2 by decision**: its entire
+  cost is the menu interaction model the Aria primitive already carries.
 - **B2** itself — unblocked on paper, but do not start it before **A1** / **A5**
   have coverage.
 - **Everything else is unblocked.**
 
 ## Non-goals (researched, rejected)
 
+- **Input mask (was C4)** — decided: **bless `ngx-mask`, do not own one.**
+  `[wrInput]` is a directive on the real `<input>`, so the mask composes on the
+  same element with no adapter, no wrapper and nothing to keep in sync — which
+  is the whole argument. The deliverable was documentation, and it already
+  exists: `/reference/components/input` has a setup block and six live masks
+  (phone, card, expiry, CVC, date, separated money), and `wr-input.ts`'s JSDoc
+  names it. Owning one would mean reimplementing caret arithmetic, paste,
+  composition events and locale separators — the part of masking that is
+  genuinely hard — to end up where a `pnpm add` already is. Phone-international
+  and card presets die with it; they are `ngx-mask` config, not our surface.
 - Pure-headless library — `@angular/aria` occupies that for free; we build on it.
 - Copy-paste-only distribution — weak traction in Angular; E6 hybrid instead.
 - Proprietary chart engine, or an AG-Grid feature chase.

@@ -12,11 +12,13 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons } from 'ngwr/icon';
+import { provideWrMarkdownHighlighter } from 'ngwr/markdown';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { provideWrTheme } from 'ngwr/theme';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 import { COMMON_ICONS } from '#core/icons';
+import { shikiMarkdownHighlighter } from '#core/shiki';
 import { routing } from '#routing';
 
 /**
@@ -45,6 +47,11 @@ export const appConfig: ApplicationConfig = {
     // top (the lib merges root + element-level multi-providers).
     provideWrIcons([...COMMON_ICONS]),
     provideWrDateAdapter(),
+    // Colour for every fenced code block `<wr-markdown>` renders. Returns
+    // coloured SPANS rather than HTML — see the adapter — and answers `null`
+    // during prerender, so the static HTML ships plain code and gains colour on
+    // hydration.
+    provideWrMarkdownHighlighter(shikiMarkdownHighlighter),
     provideWrTheme(),
     provideWrDensity(),
     provideWrI18n({ availableLocales: ['en', 'ru'], defaultLocale: 'en' }),
