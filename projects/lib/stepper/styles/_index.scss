@@ -45,8 +45,17 @@
     }
   }
 
+  // A column, because the connector is a SIBLING of the button inside the `<li>`:
+  // in a row it lands to the right of the label, where nothing connects. The
+  // giveaway was already in the connector's own rule — a `margin-left` of half
+  // the indicator only means anything when the line runs beneath the circle.
+  // `flex-start` rather than `stretch`: in a column that is the horizontal axis,
+  // so stretch would pull the button to full width and unstick the label from its
+  // circle. `gap: 0` because the base rule's 0.75rem would break the line.
   &--vertical &__header {
-    align-items: stretch;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
     flex: 0 0 auto;
   }
 
@@ -141,6 +150,10 @@
 
   &--vertical &__connector {
     width: 1.5px;
+    // The shared rule's `min-width: 1rem` is a minimum LENGTH for the horizontal
+    // line, and it outranks `width` — so without this reset the vertical connector
+    // paints as a 16px block instead of a 1.5px thread.
+    min-width: 0;
     min-height: 1.25rem;
     height: auto;
     margin: 0.25rem 0 0.25rem calc(var(--wr-stepper-indicator-size) / 2);
@@ -167,12 +180,15 @@
   }
 
   .wr-stepper--responsive:not(.wr-stepper--vertical) .wr-stepper__header {
-    align-items: stretch;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
     flex: 0 0 auto;
   }
 
   .wr-stepper--responsive:not(.wr-stepper--vertical) .wr-stepper__connector {
     width: 1.5px;
+    min-width: 0;
     min-height: 1.25rem;
     height: auto;
     margin: 0.25rem 0 0.25rem calc(var(--wr-stepper-indicator-size) / 2);
