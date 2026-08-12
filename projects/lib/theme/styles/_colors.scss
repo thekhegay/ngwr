@@ -151,9 +151,10 @@ $contrast-light: #ffffff !default;
   // Muted TEXT, deliberately its own token rather than an alias of the `medium`
   // intent. The two roles pull in opposite directions and cannot share a value:
   // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a
-  // button fill it carries dark text and needs >= 4.5:1 the other way. The best
-  // candidate for either fails the other — the window closes around #6b7a8a
-  // (3.81 as text, 4.11 as fill). Aliasing them left secondary text at 2.69:1.
+  // fill it has to clear the bar the other way, against its own label. v11 pulled
+  // them further apart rather than closer — the `medium` fill went deeper
+  // (#6a7683, whose label is now white at 4.63) while this token stayed where a
+  // light canvas needs it. Aliasing them left secondary text at 2.69:1.
   --wr-color-muted-text: #5f6c7d;
   --wr-color-muted-text-rgb: 95, 108, 125;
 
@@ -242,11 +243,14 @@ $contrast-light: #ffffff !default;
   // `-ink`: the intent used as TEXT on `--wr-color-surface`.
   //
   // v10 fixed the opposite direction — `-contrast`, the label ON a filled
-  // intent. The inverse was never covered, and the light theme fails WCAG AA
-  // everywhere an outlined / bordered variant paints the hue as its own label:
-  // warning lands at 1.71:1 against a 4.5 bar, medium 3.10, success 3.33,
-  // danger and info 3.68, secondary 3.99. Dark passes on all of them, because
-  // its bases were retuned lighter for a dark canvas and that happens to be the
+  // intent. The inverse was never covered: an outlined / bordered variant paints
+  // the hue as its own label, and on a TINTED surface the light theme still
+  // fails there. Measured on #ebeff4, the lightest surface, after v11 deepened
+  // five of them: medium 4.01, success 4.02, danger 4.01, info and secondary
+  // 3.99 — all under the 4.5 bar — and warning 1.48, which nothing rescues.
+  // (On pure white those five now clear it at 4.61–4.64; the tint is what makes
+  // `-ink` necessary rather than optional.) Dark passes on all of them, because
+  // its bases are lighter for a dark canvas and that happens to be the
   // accessible direction.
   //
   // Same recipe as `-soft-contrast`: mixing toward `--wr-color-dark` darkens in
