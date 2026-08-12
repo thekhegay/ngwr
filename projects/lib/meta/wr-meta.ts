@@ -31,8 +31,10 @@ function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {
  * Layers merge via shallow merge for scalars and a one-level deep merge
  * for `og` / `twitter` groups.
  *
- * The resolved metadata is applied diff-style — only changed tags are
- * touched in the DOM, so reads of `document.head` stay cheap.
+ * The title and the canonical link are diffed against the last applied
+ * snapshot and only rewritten when they actually change; the `<meta>` tags
+ * are re-resolved by selector on every apply, so an existing tag is updated
+ * in place rather than duplicated.
  *
  * @example
  * ```ts
@@ -83,9 +85,13 @@ export class WrMeta {
 
   /** Push a new layer. Returns a handle whose `.pop()` removes it. */
   push(config: WrMetaConfig): WrMetaHandle {
-    this.stack.update(stack => [...stack, config]);
+    // Copied so the layer has an identity of its own: the handle finds it by
+    // reference, and pushing one shared config object twice would otherwise
+    // give two layers the same identity — the first handle to pop would take
+    // the second one's layer with it.
+    const target: WrMetaConfig = { ...config };
+    this.stack.update(stack => [...stack, target]);
     this.apply();
-    const target = config;
     return {
       pop: () => {
         this.stack.update(stack => {
@@ -125,7 +131,9 @@ export class WrMeta {
 
     const ref = effect(
       () => {
-        const next = factory();
+        // Copied for the same reason as in `push`: the layer is located by
+        // reference, so it must not share one with anybody else's.
+        const next: WrMetaConfig = { ...factory() };
         // Recompute is reactive; the stack write + DOM apply are not, so
         // the effect only re-runs on `factory`'s own dependencies.
         untracked(() => {

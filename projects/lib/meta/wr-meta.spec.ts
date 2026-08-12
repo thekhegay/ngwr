@@ -20,9 +20,10 @@ import { WrMetaBinding } from './wr-meta-binding';
  *    tag, a crawler reads the first one, and nothing looks wrong in devtools
  *    unless you scroll. So the description / canonical cases assert the number
  *    of matching nodes, not just the value of the first.
- * 2. There is one `document.head` for the whole vitest file tree, and this spec
- *    writes into it. Anything left behind would be found by the next spec's
- *    `querySelector` and quietly satisfy it, so `afterEach` restores the head
+ * 2. Every `it` in this file shares one `document`, and each one writes into
+ *    its head. Anything left behind would be found by the next case's
+ *    `querySelector` and quietly satisfy it — a `toHaveLength(1)` passes just
+ *    as well on the previous test's leftover — so `afterEach` restores the head
  *    node-for-node instead of removing the tags we think we added.
  */
 
@@ -92,6 +93,16 @@ describe('WrMeta', () => {
       // A template resolved once at bootstrap looks right on the landing page
       // and wrong on every route after it.
       expect(document.title).toBe('Docs · ngwr');
+    });
+
+    it('re-renders the tab when only the template moves under a stable title', () => {
+      const meta = setup({ titleTemplate: '{{ title }} · ngwr' });
+      meta.set({ title: 'Pricing' });
+      meta.push({ titleTemplate: '{{ title }} · docs' });
+
+      // The title itself did not move, so a diff that watches `title` alone
+      // concludes there is nothing to do and leaves the old suffix in the tab.
+      expect(document.title).toBe('Pricing · docs');
     });
 
     it('leaves the tab empty rather than showing the suffix alone', () => {
@@ -323,6 +334,38 @@ describe('WrMeta', () => {
       expect(content(named('description'))).toBe('Everything ngwr.');
     });
 
+    it('pops a middle layer without taking the ones above it along', () => {
+      const meta = setup();
+      const route = meta.push({ title: 'Docs', description: 'Everything ngwr.' });
+      meta.push({ title: 'Select' });
+
+      route.pop();
+
+      // Handles pop out of order — a route can be torn down while a dialog's
+      // layer is still on top — which is the whole reason `push` hands back a
+      // handle instead of a bare `pop()`. Truncating everything above the
+      // popped layer looks correct for as long as the pops happen to be LIFO
+      // and swallows the dialog's metadata the first time they are not.
+      expect(document.title).toBe('Select');
+      expect(tags(named('description'))).toHaveLength(0);
+    });
+
+    it('gives every push its own layer even when two share one config object', () => {
+      const meta = setup();
+      const shared: WrMetaConfig = { title: 'Route' };
+      const route = meta.push(shared);
+      meta.push({ title: 'Dialog' });
+      meta.push(shared);
+
+      route.pop();
+
+      // A config object exported once and bound in two places is ordinary
+      // (`[wrMeta]="APP_META"`), and a handle that locates its layer by
+      // reference finds the WRONG one when the reference is shared — here the
+      // route's pop removed the topmost copy, leaving 'Dialog' in the tab.
+      expect(document.title).toBe('Route');
+    });
+
     it('set() replaces the top layer instead of stacking another one', () => {
       const meta = setup();
       meta.set({ title: 'Docs', description: 'Everything ngwr.' });
@@ -415,6 +458,22 @@ describe('WrMeta', () => {
       // layer the title would look right the entire time and only betray it
       // here, surfacing "Step 2" instead of the route underneath.
       expect(document.title).toBe('Docs');
+    });
+
+    it('gives every binding its own layer even when two factories return one object', () => {
+      const meta = setup();
+      const shared: WrMetaConfig = { title: 'Route' };
+      const first = meta.bind(() => shared);
+      meta.bind(() => ({ title: 'Dialog' }));
+      meta.bind(() => shared);
+      TestBed.tick();
+
+      first.pop();
+
+      // Same trap as `push`: a factory that returns a stable object — a const,
+      // or anything memoized — hands two layers the same identity, and the
+      // first handle to pop then removes the last one instead of its own.
+      expect(document.title).toBe('Route');
     });
 
     it('stops writing to the head once the handle pops', () => {
