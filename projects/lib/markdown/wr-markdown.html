@@ -1,0 +1,253 @@
+<!--
+  Recursion runs through `ngTemplateOutlet` into these templates rather than
+  through a child component, so the rendered DOM is exactly the document — no
+  wrapper element between a `<ul>` and its `<li>`. See `asBlocks` for the whole
+  reasoning.
+-->
+<ng-template #inlineList let-raw>
+  @let nodes = asInlines(raw);
+
+  @for (node of nodes; track $index) {
+    @switch (node.kind) {
+      @case ('text') {
+        <!-- Wrapped, and not for tidiness: a bare interpolation on its own line is
+             ONE text node that includes the indentation around it, so `a **b** c`
+             rendered with a space inside every `<strong>`. Inside an element the
+             whitespace becomes separate whitespace-only nodes, which Angular
+             removes, and `<ng-container>` itself renders nothing. Prettier
+             reformats the bare form back, so this also has to survive `--fix`. -->
+        <ng-container>{{ node.value }}</ng-container>
+      }
+      @case ('code') {
+        <!-- `dir="ltr"` because code is not prose: under RTL the browser
+             reorders `foo();` to `;foo()`. -->
+        <code class="wr-markdown__code-inline" dir="ltr">{{ node.value }}</code>
+      }
+      @case ('strong') {
+        <strong class="wr-markdown__strong"
+          ><ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: node.children }"
+        /></strong>
+      }
+      @case ('em') {
+        <em class="wr-markdown__em"
+          ><ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: node.children }"
+        /></em>
+      }
+      @case ('del') {
+        <del class="wr-markdown__del"
+          ><ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: node.children }"
+        /></del>
+      }
+      @case ('link') {
+        <a
+          class="wr-markdown__link"
+          [href]="hrefOf(node.href)"
+          [attr.title]="node.title"
+          [attr.target]="resolvedLinkTarget()"
+          [attr.rel]="linkRel()"
+          ><ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: node.children }"
+        /></a>
+      }
+      @case ('image') {
+        <img
+          class="wr-markdown__image"
+          [src]="node.src"
+          [alt]="node.alt"
+          [attr.title]="node.title"
+          loading="lazy"
+          decoding="async"
+        />
+      }
+      @case ('break') {
+        <br />
+      }
+    }
+  }
+</ng-template>
+
+<ng-template #itemList let-raw let-tight="tight">
+  @let items = asItems(raw);
+
+  @for (item of items; track $index) {
+    <li class="wr-markdown__item" [class.wr-markdown__item--task]="item.checked !== null">
+      @if (item.checked !== null) {
+        <!-- Presentational, with the state as text beside it: a real
+             `<input type="checkbox">` here would be an unlabelled form control,
+             which is a serious axe violation, and making it operable would
+             promise an interaction a renderer cannot honour. -->
+        <span class="wr-markdown__task" [class.wr-markdown__task--checked]="item.checked" aria-hidden="true"></span>
+        <span class="wr-markdown__sr-only">{{ item.checked ? resolvedTaskDoneLabel() : resolvedTaskTodoLabel() }}</span>
+      }
+      <ng-container
+        [ngTemplateOutlet]="blockList"
+        [ngTemplateOutletContext]="{ $implicit: item.children, tight: tight }"
+      />
+    </li>
+  }
+</ng-template>
+
+<ng-template #blockList let-raw let-tight="tight">
+  @let list = asBlocks(raw);
+
+  @for (block of list; track $index) {
+    @switch (block.kind) {
+      @case ('paragraph') {
+        <!-- A tight list drops the `<p>`, which is what CommonMark specifies and
+             what keeps a one-line list from being double-spaced. -->
+        @if (tight) {
+          <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+        } @else {
+          <p class="wr-markdown__paragraph">
+            <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+          </p>
+        }
+      }
+      @case ('heading') {
+        @switch (block.level) {
+          @case (1) {
+            <h1 class="wr-markdown__heading" [attr.id]="idOf(block.id)">
+              <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+            </h1>
+          }
+          @case (2) {
+            <h2 class="wr-markdown__heading" [attr.id]="idOf(block.id)">
+              <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+            </h2>
+          }
+          @case (3) {
+            <h3 class="wr-markdown__heading" [attr.id]="idOf(block.id)">
+              <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+            </h3>
+          }
+          @case (4) {
+            <h4 class="wr-markdown__heading" [attr.id]="idOf(block.id)">
+              <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+            </h4>
+          }
+          @case (5) {
+            <h5 class="wr-markdown__heading" [attr.id]="idOf(block.id)">
+              <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+            </h5>
+          }
+          @default {
+            <h6 class="wr-markdown__heading" [attr.id]="idOf(block.id)">
+              <ng-container [ngTemplateOutlet]="inlineList" [ngTemplateOutletContext]="{ $implicit: block.inlines }" />
+            </h6>
+          }
+        }
+      }
+      @case ('code') {
+        @let highlighted = linesOf(block.code, block.language);
+
+        <div class="wr-markdown__code-block">
+          <pre
+            class="wr-markdown__pre"
+            dir="ltr"
+            tabindex="0"
+          ><code class="wr-markdown__code" [attr.data-language]="block.language">@if (highlighted) {@for (row of highlighted; track $index) {<span class="wr-markdown__line">@for (span of row; track $index) {<span
+            [style.color]="span.color"
+            [style.font-style]="span.fontStyle === 'italic' ? 'italic' : null"
+            [style.font-weight]="span.fontStyle === 'bold' ? 'bold' : null"
+            [style.text-decoration]="span.fontStyle === 'underline' ? 'underline' : null"
+          >{{ span.text }}</span>}</span>@if (!$last) {{{ newline }}}}} @else {{{ block.code }}}</code></pre>
+
+          @if (resolvedCopyable() && block.closed) {
+            <button
+              type="button"
+              class="wr-markdown__copy"
+              [wrCopyToClipboard]="block.code"
+              [attr.aria-label]="isCopied(block) ? resolvedCopiedLabel() : resolvedCopyLabel()"
+              (copied)="onCopied(block)"
+            >
+              <svg
+                class="wr-markdown__copy-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                @if (isCopied(block)) {
+                  <path d="M20 6 9 17l-5-5" />
+                } @else {
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                }
+              </svg>
+            </button>
+          }
+        </div>
+      }
+      @case ('quote') {
+        <blockquote class="wr-markdown__quote">
+          <ng-container
+            [ngTemplateOutlet]="blockList"
+            [ngTemplateOutletContext]="{ $implicit: block.children, tight: false }"
+          />
+        </blockquote>
+      }
+      @case ('list') {
+        @if (block.ordered) {
+          <ol
+            class="wr-markdown__list wr-markdown__list--ordered"
+            [attr.start]="block.start === 1 ? null : block.start"
+          >
+            <ng-container
+              [ngTemplateOutlet]="itemList"
+              [ngTemplateOutletContext]="{ $implicit: block.items, tight: block.tight }"
+            />
+          </ol>
+        } @else {
+          <ul class="wr-markdown__list">
+            <ng-container
+              [ngTemplateOutlet]="itemList"
+              [ngTemplateOutletContext]="{ $implicit: block.items, tight: block.tight }"
+            />
+          </ul>
+        }
+      }
+      @case ('table') {
+        <!-- Its own scroller: a wide table must not push the page sideways, which
+             is also what keeps the RTL layout gate quiet about it. -->
+        <div class="wr-markdown__table-scroll" tabindex="0">
+          <table class="wr-markdown__table">
+            <thead>
+              <tr>
+                @for (cell of block.head; track column; let column = $index) {
+                  <th class="wr-markdown__th" scope="col" [style.text-align]="block.align[column]">
+                    <ng-container
+                      [ngTemplateOutlet]="inlineList"
+                      [ngTemplateOutletContext]="{ $implicit: cell.inlines }"
+                    />
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of block.rows; track $index) {
+                <tr>
+                  @for (cell of asCells(row); track column; let column = $index) {
+                    <td class="wr-markdown__td" [style.text-align]="block.align[column]">
+                      <ng-container
+                        [ngTemplateOutlet]="inlineList"
+                        [ngTemplateOutletContext]="{ $implicit: cell.inlines }"
+                      />
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      @case ('rule') {
+        <hr class="wr-markdown__rule" />
+      }
+    }
+  }
+</ng-template>
+
+<ng-container [ngTemplateOutlet]="blockList" [ngTemplateOutletContext]="{ $implicit: blocks(), tight: false }" />

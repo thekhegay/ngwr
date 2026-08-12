@@ -265,6 +265,9 @@
     "./loading-bar": {
       "sass": "./loading-bar/styles/_index.scss"
     },
+    "./markdown": {
+      "sass": "./markdown/styles/_index.scss"
+    },
     "./marquee": {
       "sass": "./marquee/styles/_index.scss"
     },
