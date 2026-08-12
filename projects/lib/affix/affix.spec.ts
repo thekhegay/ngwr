@@ -48,12 +48,11 @@ interface Recorded {
  * becomes stuck, and that the sentinel does not disturb its parent's layout (in a flex
  * or grid parent it is a real child with a real gap). That needs a browser.
  *
- * One asymmetry is deliberately left untested rather than pinned as correct: the sticky
- * `top` follows `wrAffixOffsetTop` on every change, while `rootMargin` is read once when
- * the observer is built and `IntersectionObserver` has no way to update it. A consumer
- * who animates the offset therefore moves the pinning line without moving the trigger
- * line. Making the two agree means rebuilding the observer when the input changes, which
- * is a change to the directive rather than to this file.
+ * The two halves of the offset used to disagree: the sticky `top` is a live binding and
+ * followed every change, while `rootMargin` was read once when the observer was built and
+ * `IntersectionObserver` cannot be reconfigured — so a consumer animating the offset moved
+ * the pinning line without moving the trigger line. The directive now rebuilds the observer
+ * when the input changes, and the case below is what holds it to that.
  */
 describe('WrAffix', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -180,6 +179,25 @@ describe('WrAffix', () => {
     expect(observers[0].options?.rootMargin).toBe('-64px 0px 0px 0px');
   });
 
+  it('moves the trigger line with the offset, not only the pinning line', async () => {
+    // `rootMargin` is fixed for an observer's lifetime, so following the input means
+    // building a new observer and dropping the old one. A collapsing header that
+    // animates its offset would otherwise pin at the new line and keep flipping state
+    // at the old one — visible only while scrolling, which is why nothing caught it.
+    expect(observers).toHaveLength(1);
+    expect(observers[0].options?.rootMargin).toBe('-0px 0px 0px 0px');
+
+    fixture.componentInstance.offset.set(64);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(observers).toHaveLength(2);
+    expect(observers[1].options?.rootMargin).toBe('-64px 0px 0px 0px');
+    // The old one is let go rather than left watching in parallel, or both would
+    // report and the last to fire would win.
+    expect(observers[0].disconnected).toBe(true);
+  });
+
   it('marks the element affixed when the sentinel scrolls away, and tells the host', async () => {
     await report(false);
 
@@ -218,8 +236,11 @@ describe('WrAffix', () => {
     expect(events()).toEqual([true, false]);
   });
 
-  it('lets go of the sentinel and the observer when it is destroyed', () => {
+  it('lets go of the sentinel, the observer and the state class when it is destroyed', async () => {
     const marker = sentinel()!;
+    const el = affixed();
+    await report(false);
+    expect(isActive()).toBe(true);
 
     fixture.destroy();
 
@@ -228,6 +249,10 @@ describe('WrAffix', () => {
     // every toggle.
     expect(marker.parentNode).toBeNull();
     expect(observers[0].disconnected).toBe(true);
+    // The class is written imperatively too, so it outlives the directive on any host
+    // element the consumer keeps a handle on (a detached CDK portal, an element moved
+    // between views) — and a stuck-looking shadow with no observer behind it never clears.
+    expect(el.classList.contains('wr-affix--active')).toBe(false);
   });
 
   it('renders the sticky element on the server, without touching the DOM', async () => {
