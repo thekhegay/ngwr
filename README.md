@@ -249,6 +249,20 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 - **Motion respects the OS.** Every animation component short-circuits to its final state under `prefers-reduced-motion`.
 - **Legible to agents.** Every docs page also serves as markdown at the same URL plus `.md` — [reference/components/select.md](https://ngwr.dev/reference/components/select.md) is that page's prose, code samples and API tables without the site chrome. The whole catalog is at [llms-full.txt](https://ngwr.dev/llms-full.txt), a quick-ref at [llms.txt](https://ngwr.dev/llms.txt).
 
+### MCP server
+
+The package ships `ngwr-mcp`, a zero-dependency MCP server that makes those files askable: `search_ngwr` (find an entry point by what you need), `get_ngwr_component`, `get_ngwr_api` (a class's inputs / models / outputs, read out of the shipped `.d.ts`) and `get_ngwr_setup` (the install, `ng g ngwr:use` and provider commands — returned as text; it never runs them). It adds no second copy of the catalog: it reads only files inside its own installed package, makes no network requests, and runs no commands.
+
+```json
+{
+  "mcpServers": {
+    "ngwr": { "command": "npx", "args": ["-y", "ngwr-mcp"] }
+  }
+}
+```
+
+Works in Claude Code (`claude mcp add ngwr -- npx -y ngwr-mcp`), Claude Desktop and Cursor. To pin it to the version in your lockfile, use `"command": "node", "args": ["./node_modules/ngwr/mcp/server.js"]`. [Guide](https://ngwr.dev/guides/mcp).
+
 ## Contributing
 
 Conventional commits are enforced on PR titles. Common types: `feat`, `fix`, `perf`, `refactor`, `docs`, `style`, `test`, `build`, `ci`, `chore`, `revert`. Optional scope is the component or area (`feat(checkbox): icon mode`).

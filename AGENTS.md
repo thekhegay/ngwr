@@ -35,8 +35,8 @@ A pnpm + Angular CLI monorepo with two projects:
   is in `app/_core/` (alias `#core/*`).
 - **`projects/lib/theme/`** — the styling foundation: design tokens (CSS custom
   properties, `--wr-*`) and SCSS mixins under `theme/styles/`. Not a component.
-- **`scripts/`** — build/release tooling (schematics, icon-set generation,
-  dist-asset copy, release prep), run via `tsx`.
+- **`scripts/`** — build/release tooling (schematics, MCP server, icon-set
+  generation, dist-asset copy, release prep), run via `tsx`.
 
 ### Anatomy of an entry point — e.g. `projects/lib/alert/`
 
@@ -446,6 +446,23 @@ doc structure or the headline components change. (A rename once silently
 emptied the sitemap because its generator hard-coded the old `app/components`
 path — the rewrite derives from the prerender output and floor-checks the count
 so that can't recur.)
+
+## MCP server
+
+`projects/lib/mcp/` is NOT an Angular entry point — it is a Node CLI shipped in
+the same tarball, built by `scripts/build-mcp.ts` into `dist/lib/mcp/` and exposed
+as the `ngwr-mcp` bin. It mirrors how `schematics/` is built: its own
+`tsconfig.json` (extending the root, so the repo's strictness applies), `tsc -p`,
+and a step in the `build:lib` chain.
+
+Four tools over stdio JSON-RPC — `search_ngwr`, `get_ngwr_component`,
+`get_ngwr_api`, `get_ngwr_setup`. **It adds no second copy of the catalog**: it
+reads `llms-full.txt`, `schematics/use/symbol-map.json` and `types/*.d.ts` out of
+its own installed package, which is the only reason it can never drift. Two rules
+if you touch it: nothing may write to stdout except protocol JSON (a stray
+`console.log` corrupts the stream and the client drops the connection), and every
+branch must end in exactly one reply per request and none for a notification — a
+client that never receives a response for an id does not fail, it waits.
 
 ## Schematics
 

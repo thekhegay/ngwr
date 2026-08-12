@@ -1,0 +1,193 @@
+<ngwr-doc-page
+  title="MCP server"
+  description="An MCP server that makes the catalog askable — search entry points, read a class's published API, and get the exact setup commands, from inside your agent."
+  [keywords]="['mcp', 'model context protocol', 'agent', 'ai', 'claude', 'cursor', 'ngwr-mcp']"
+>
+  <ngwr-doc-section title="What it is for">
+    <p wrTypography>
+      The package already ships everything an agent needs to know: a
+      <code>.d.ts</code> per entry point, the whole catalog as
+      <a href="https://ngwr.dev/llms-full.txt" target="_blank" rel="noreferrer noopener">llms-full.txt</a>, and a
+      markdown twin of every docs page. What it does not ship is a way to ASK. An agent that does not already know an
+      entry point's NAME cannot use a <code>.d.ts</code> — it cannot open <code>types/ngwr-date-picker.d.ts</code> to
+      answer "does this library have a date range picker", because finding that filename was the question. And once it
+      has the name, the file it wants is often 60 KB of declarations standing in for a forty-line answer.
+    </p>
+
+    <p wrTypography>
+      <code>ngwr-mcp</code> is a
+      <a href="https://modelcontextprotocol.io" target="_blank" rel="noreferrer noopener">Model Context Protocol</a>
+      server that closes exactly that gap. It speaks JSON-RPC 2.0 over stdio, has no dependencies of its own, and ships
+      as a bin in the <code>ngwr</code> package you already install.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Claude Code" description="A command, or a file you check in.">
+    <ngwr-doc-code [code]="snippets.claudeCode" language="bash" />
+
+    <p wrTypography>
+      The equivalent as a file — <code>.mcp.json</code> at the project root is the shared, committed form, so a
+      teammate's agent starts with the same catalog rather than none:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.mcpJson" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Claude Desktop">
+    <ngwr-doc-code [code]="snippets.claudeDesktop" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Restart the app after editing the file — the config is read at start-up.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Cursor">
+    <ngwr-doc-code [code]="snippets.cursor" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Pinning it to your installed copy"
+    description="`npx` fetches the latest; `node` runs the one your app resolves."
+  >
+    <p wrTypography>
+      <code>npx -y ngwr-mcp</code> resolves the newest published version, which is the right default for asking what the
+      library can do. It is the wrong default when the answers have to match the version in your lockfile — an agent
+      told about an input that only exists in a later major will write code that does not compile. Point the client at
+      <code>node_modules</code> instead:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.pinned" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      The path is relative to the working directory the client launches the server in, which for every client above is
+      the project root. Both forms are the same file: <code>npx</code> downloads the package that
+      <code>./node_modules/ngwr/mcp/server.js</code> already sits inside.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="The four tools">
+    <ngwr-doc-api [rows]="tools" />
+
+    <p wrTypography variant="small" tone="medium">
+      Four, and deliberately not more. Each one answers a question an agent actually has when it meets the library: what
+      is there, how do I use this one, what does it take, what do I have to install. A tool per docs page would be a
+      worse version of <code>fetch</code> — the pages are prerendered HTML with a markdown twin at every URL, and any
+      agent can already read those.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="search_ngwr" description="Start here — it is the tool that turns a need into a name.">
+    <ngwr-doc-code [code]="snippets.searchRequest" language="bash" />
+
+    <p wrTypography>What comes back as <code>content[0].text</code>:</p>
+
+    <ngwr-doc-code [code]="snippets.searchResponse" language="markdown" />
+
+    <p wrTypography variant="small" tone="medium">
+      Two things to read out of that. The scoring is why <code>ngwr/date-picker</code> is first for a query that names
+      none of its words exactly — its selector <code>wr-date-range-picker</code> carries "range" and "picker". And the
+      <code>/testing</code> entry points are in the same catalog, so a harness can surface next to the component it
+      drives; they are not a separate index.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="get_ngwr_component" description="One entry point, by name, symbol or selector.">
+    <ngwr-doc-code [code]="snippets.componentRequest" language="bash" />
+
+    <ngwr-doc-code [code]="snippets.componentResponse" language="markdown" />
+
+    <p wrTypography variant="small" tone="medium">
+      The last two lines are the hand-off. This tool is deliberately a summary — when an agent needs the prose, the
+      demos and the API tables, the markdown twin of the docs page is a better answer than anything the server could
+      re-state, and it is one <code>fetch</code> away.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="get_ngwr_api" description="The published signature, read out of the shipped declarations.">
+    <ngwr-doc-code [code]="snippets.apiRequest" language="bash" />
+
+    <ngwr-doc-code [code]="snippets.apiResponse" language="markdown" />
+
+    <p wrTypography variant="small" tone="medium">
+      Required-ness and the template alias come from the <code>ɵcmp</code> declaration rather than from the member's
+      type, which is the only place either is actually written down: <code>input()</code> and
+      <code>input.required()</code> both emit <code>InputSignal&lt;T&gt;</code>. Signal wrappers are unwrapped, so a
+      type reads as the thing a template binds. Pass <code>kind</code> to narrow — <code>"kind": "input"</code> on a
+      component the size of <code>wr-table</code> is the difference between a page of output and the part you asked for.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="get_ngwr_setup" description="Everything you have to run, as text.">
+    <ngwr-doc-code [code]="snippets.setupRequest" language="bash" />
+
+    <ngwr-doc-code [code]="snippets.setupResponse" language="markdown" />
+
+    <p wrTypography variant="small" tone="medium">
+      Section 4 only appears for symbols that need it, and the list behind it is short on purpose: these are the cases
+      where the component compiles, renders nothing useful, and produces no error that names the cause. A select with no
+      <code>provideWrOverlay()</code> simply never opens.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="What it will not do" description="Worth knowing before you wire it into an agent loop.">
+    <p wrTypography>
+      <strong>It returns commands; it never runs them.</strong> <code>get_ngwr_setup</code> hands back the
+      <code>ng add</code> and <code>ng g ngwr:use</code> lines as text. Running them is your agent's decision and your
+      approval, through whatever your client already asks you for.
+    </p>
+
+    <p wrTypography>
+      <strong>It never reaches outside its own package.</strong> No network, no commands, and the only files it opens
+      are three inside its own installed package: <code>llms-full.txt</code>,
+      <code>schematics/use/symbol-map.json</code>, and <code>types/*.d.ts</code>. It never looks at your source, never
+      writes anything, and makes no network calls — so it cannot tell you which ngwr components your app already uses,
+      and cannot fetch a docs page for you. It hands out the URL and lets the agent fetch it.
+    </p>
+
+    <p wrTypography>
+      <strong>It answers for the version it was launched from.</strong> Under <code>npx</code> that is the latest
+      published release, not necessarily yours — see the pinning section above.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      A tool that fails answers with <code>isError: true</code> and a sentence saying what went wrong, rather than a
+      JSON-RPC error — a failed call should leave the conversation intact and tell the agent enough to retry. A
+      misspelled name comes back as a suggestion to search, not as a crash.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Driving it by hand" description="Useful when a client says only that the server failed.">
+    <ngwr-doc-code [code]="snippets.byHand" language="bash" />
+
+    <p wrTypography variant="small" tone="medium">
+      Stdout carries the protocol and nothing else, which is why diagnostics go to stderr: one stray
+      <code>console.log</code> in that process corrupts the stream and the client drops the connection. If you fork the
+      server or wrap it, keep that rule.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="It ships no second copy of the catalog">
+    <p wrTypography>
+      The design constraint the server was built under: it adds no new source of truth. Every answer above is read at
+      request time out of files the tarball already contains for other reasons —
+      <code>llms-full.txt</code> is generated from library source on every build,
+      <code>schematics/use/symbol-map.json</code> is generated from a public-api scan for the
+      <a [routerLink]="['/start', 'schematics']">schematics</a>, and the declarations are what <code>tsc</code> emitted
+      for your editor.
+    </p>
+
+    <p wrTypography>
+      That is the whole reason to trust it. An embedded index would be a fourth copy of the catalog to keep in step with
+      the library, and — being the copy nobody's build fails over — the first one to go stale. What the server adds is
+      not data. It is the ability to ask.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      It is hand-rolled on the protocol rather than built on the MCP SDK for the same reason the library has one runtime
+      dependency: an SDK would put a dependency tree behind every <code>npm i ngwr</code> for a feature most consumers
+      never run. A tools-only server is four methods and a framing rule.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

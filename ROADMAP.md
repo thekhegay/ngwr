@@ -1988,16 +1988,34 @@ first. **Mention is excluded** — its list is capped at `maxResults` (~8).
       is not in this repo's hands: nginx on the box needs `text/markdown md;` in
       its `mime.types` for a browser to render a twin inline instead of
       downloading it — agents fetching bytes are unaffected either way.
-      **Remaining:** an **ngwr MCP server** (search / docs / examples / install
-      via schematics), agent skills, and an open registry schema for community
-      blocks + theme presets.
-      On the MCP server, note the finding that killed the first design pass:
-      `dist/lib/types/ngwr-<entry>.d.ts` (892 KB, already in the tarball)
-      already carries every class summary, `@example` and input description, so
-      a second copy has to justify itself on top of that — and a hand-rolled
-      JSON-RPC server on the Trusted-Publisher release path wants A1 first. This stack drove shadcn's
-      20%→56% rise; Taiga has an MCP server, nobody in Angular has the full
-      stack. Builds directly on E3.
+      **The MCP server shipped.** `ngwr-mcp` is a `bin` on the existing package —
+      stdio, JSON-RPC 2.0, hand-rolled, zero dependencies, because an SDK would
+      put a dependency tree behind every `npm i ngwr` for a feature most
+      consumers never run. Four tools: `search_ngwr`, `get_ngwr_component`,
+      `get_ngwr_api`, `get_ngwr_setup`. It returns commands and never runs them,
+      and the only files it opens are three inside its own installed package.
+      It answers the objection that killed the first design pass rather than
+      ignoring it. `dist/lib/types/` (1.5 MB, already in the tarball) does carry
+      every summary, `@example` and input description — so the server adds **no
+      second copy of anything**: it reads `llms-full.txt`, the schematics'
+      `symbol-map.json` and the `.d.ts` bundle in place. What it adds is the part
+      none of those files have, a way to ASK: an agent that does not know an entry
+      point's name cannot use a `.d.ts`, and `ngwr-table.d.ts` is 60 KB of
+      declarations to answer "what inputs does `wr-table` take".
+      **Twenty defects, found by audit and not by any gate.** Two were the kind
+      that hangs a client rather than failing: a JSON-RPC batch produced zero
+      bytes, and any handler exception was reported as a PARSE error against a
+      null id, so the id the client was waiting on was never answered. And the
+      whole `.d.ts` reader had to be rewritten from one regular expression per
+      member into a scanner — the pattern's optional JSDoc prefix was lazy but
+      EXPANDABLE, so every member it could not read let the match grow to the next
+      comment and swallow the public members in between:
+      `WrTable.scrollToRow` came back with a 5806-character "description" naming
+      42 internals, `WrDialog.open` vanished, 67 public members were missing and
+      `@example` was `null` for 273 of 276 classes. 102 specs now pin it.
+      **Remaining:** agent skills, and an open registry schema for community
+      blocks + theme presets. This stack drove shadcn's 20%→56% rise; Taiga has an
+      MCP server, nobody in Angular has the full stack. Builds directly on E3.
 - [x] **E3. API reference auto-extraction** (L) — `pnpm gen:api-docs` reads the
       library's JSDoc into `#core/generated/api`, and `pnpm check:api-docs`
       fails CI when a page's table disagrees with the source. Every showcase
