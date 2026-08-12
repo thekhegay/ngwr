@@ -118,6 +118,16 @@ describe('WrCopyToClipboard', () => {
       // value captured once copies the wrong cell for the rest of the session.
       expect(writeText).toHaveBeenCalledWith('changed');
       expect(copied()).toEqual(['changed']);
+
+      // Twice, because once is not enough to tell "reads it at click time" from
+      // "reads it at the FIRST click time" — and a filter that re-binds the same
+      // button is the everyday version of the second one.
+      fixture.componentInstance.text.set('again');
+      fixture.detectChanges();
+      await clickAndSettle();
+
+      expect(writeText).toHaveBeenNthCalledWith(2, 'again');
+      expect(copied()).toEqual(['changed', 'again']);
     });
 
     it('falls back when the write REJECTS, not only when the API is absent', async () => {

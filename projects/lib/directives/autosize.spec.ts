@@ -10,17 +10,19 @@ import { WrAutosize } from './autosize';
  * case below.
  *
  * `WrAutosize` computes a height from `scrollHeight`, and jsdom lays nothing out:
- * `scrollHeight` is 0 for every element, always. So the ARITHMETIC — "three rows
- * of text produce three rows of height" — is not observable here and is not
- * asserted. Stubbing `scrollHeight` until a number came out would test the stub.
+ * `scrollHeight` is 0 for every element, always. So a MEASURED height — "three
+ * rows of text produce three rows of height" — is not observable here, and the
+ * block below does not pretend otherwise: with `scrollHeight` pinned at 0 the
+ * clamp still has a defined answer, `minRows * lineHeight + padding + border`, so
+ * every case here lands on the floor and says so.
  *
- * What IS observable is everything around it, and it is the half that actually
- * breaks: whether the directive writes a height at all, whether it re-measures on
- * the events it claims to (typing, a programmatic value write, a bounds change),
- * and whether `minRows` / `maxRows` reach the result. With `scrollHeight` pinned
- * at 0 the clamp still has a defined answer — `minRows * lineHeight + padding +
- * border` — so the floor is testable exactly, and the ceiling is testable by
- * making it lower than the floor.
+ * That covers the half that breaks most: whether the directive writes a height at
+ * all, whether it re-measures on the events it claims to (typing, a programmatic
+ * value write, a bounds change), and whether `minRows` / `maxRows` reach the
+ * result. The other half — growing to the content, stopping at the ceiling,
+ * shrinking again — needs a `scrollHeight` that answers, and is in the second
+ * `describe` at the bottom of this file, which models one rather than pinning a
+ * number to make an assertion come out.
  */
 @Component({
   imports: [WrAutosize],
@@ -102,7 +104,7 @@ describe('WrAutosize', () => {
     expect(height(sized())).toBe(100);
   });
 
-  it('lets maxRows cap the floor, and turns the scrollbar back on when it does', async () => {
+  it('lets maxRows cap the floor', async () => {
     fixture.componentInstance.minRows.set(6);
     fixture.componentInstance.maxRows.set(3);
     fixture.detectChanges();
@@ -162,13 +164,16 @@ describe('WrAutosize', () => {
     // is about the row height the fallback derives, not about the default floor.
     const el = sized();
     el.style.lineHeight = 'normal';
-    el.style.fontSize = '16px';
+    // 32px, not 16px: at 16px the derived row height is 16 * 1.25 = 20, which is
+    // also the hard-coded last-ditch guess — so the case would pass identically
+    // with the font-size term deleted and prove nothing about it.
+    el.style.fontSize = '32px';
     fixture.componentInstance.minRows.set(2);
     fixture.detectChanges();
     await fixture.whenStable();
 
-    // 16px * 1.25 = 20px per row.
-    expect(height(el)).toBe(40);
+    // 32px * 1.25 = 40px per row.
+    expect(height(el)).toBe(80);
   });
 
   it('adds padding and border to every row calculation', async () => {
@@ -183,5 +188,107 @@ describe('WrAutosize', () => {
     // 2 rows * 20 + (5 + 5) padding + (2 + 3) border. A box-model that ignored
     // these clips the last line in any control with a border, which is most.
     expect(height(el)).toBe(55);
+  });
+});
+
+/**
+ * The half the block above leaves out. With `scrollHeight` flat at 0, every
+ * assertion up there lands on the FLOOR — so growing to the content, stopping at
+ * the ceiling, handing the overflow back to the scrollbar, and shrinking again
+ * are all invisible, and each one is a mode the directive exists for.
+ *
+ * Modelling `scrollHeight` is not the same as stubbing an answer in. A browser
+ * reports the content height while the box is auto-sized, and at least the box
+ * height once one is written — so `scrollHeight` is a function OF the height the
+ * directive last wrote, which is exactly what makes the `height = 'auto'` reset
+ * observable. `CONTENT` is the model's only input; every number asserted below is
+ * the directive's own arithmetic on it.
+ */
+describe('WrAutosize against a measurable box', () => {
+  /** Ten 20px rows. Padding is inside `scrollHeight`; border is not. */
+  const CONTENT = 200;
+
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const sized = (): HTMLTextAreaElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>('.sized')!;
+  const height = (el: HTMLTextAreaElement): number => parseFloat(el.style.height);
+
+  /** Ask for a fresh measurement the way a keystroke does. */
+  const remeasure = (el: HTMLTextAreaElement): void => {
+    el.value = `${el.value}x`;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    Object.defineProperty(sized(), 'scrollHeight', {
+      configurable: true,
+      get(this: HTMLTextAreaElement): number {
+        const written = parseFloat(this.style.height);
+        return Number.isNaN(written) ? CONTENT : Math.max(CONTENT, written);
+      },
+    });
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('grows to the measured content, border included', async () => {
+    const el = sized();
+    el.style.borderTop = '2px solid';
+    el.style.borderBottom = '3px solid';
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    remeasure(el);
+
+    // `scrollHeight` is the padding box, so the border is the directive's to add
+    // — a border-box control that leaves it out is short by its own border on
+    // every render, and the last line sits under the edge.
+    expect(height(el)).toBe(CONTENT + 5);
+  });
+
+  it('shrinks back down instead of keeping the tallest height it ever had', () => {
+    const el = sized();
+    // Whatever a previous, longer draft left behind.
+    el.style.height = '999px';
+
+    remeasure(el);
+
+    // Only reachable by resetting the height before measuring: `scrollHeight`
+    // never reports less than the box it is measured in, so a directive that
+    // measures the box it inflated last time can grow and never shrink.
+    expect(height(el)).toBe(CONTENT);
+  });
+
+  it('stops at maxRows and hands the overflow back to the scrollbar', async () => {
+    const el = sized();
+    fixture.componentInstance.maxRows.set(5);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    remeasure(el);
+
+    expect(height(el)).toBe(100);
+    // The host style pins `overflow: hidden`, which is right up to the ceiling
+    // and wrong past it: capped without a scrollbar, the text below the fifth
+    // row is unreachable.
+    expect(el.style.overflowY).toBe('auto');
+  });
+
+  it('keeps the scrollbar away while the content still fits', async () => {
+    const el = sized();
+    fixture.componentInstance.maxRows.set(20);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    remeasure(el);
+
+    expect(height(el)).toBe(CONTENT);
+    expect(el.style.overflowY).toBe('hidden');
   });
 });
