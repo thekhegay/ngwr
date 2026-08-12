@@ -1,5 +1,13 @@
 # Changelog
 
+## [11.1.0](https://github.com/thekhegay/ngwr/compare/v11.0.0...v11.1.0) (2026-08-12)
+
+### Bug Fixes
+
+* **stepper:** draw the vertical connector under the indicator ([ca85ddf](https://github.com/thekhegay/ngwr/commit/ca85ddf0ad796de45234a1d12f00e0dd0b3b643b))
+* **theme:** give the dark primary a white label and re-derive its ink ([7607a9d](https://github.com/thekhegay/ngwr/commit/7607a9d29f1b41db212524eb0ad89db21706d11b))
+* **theme:** route intent-as-text onto -ink across the library ([843ef6e](https://github.com/thekhegay/ngwr/commit/843ef6ebde7aeb1eaf006e7cc3b95bbbe5d53bf9))
+
 ## [11.0.0](https://github.com/thekhegay/ngwr/compare/v10.2.1...v11.0.0) (2026-08-12)
 
 ### ⚠ BREAKING CHANGES
