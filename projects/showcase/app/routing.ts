@@ -34,6 +34,7 @@ export const routes = {
     mobile: 'mobile',
     keyboard: 'keyboard',
     testing: 'testing',
+    mcp: 'mcp',
     csp: 'csp',
     tokens: 'tokens',
     translations: 'translations',
