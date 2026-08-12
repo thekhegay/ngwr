@@ -312,6 +312,18 @@ warning colour. Every intent clears AA; the tightest are now `secondary` and
 `info` at 4.61:1, where white already wins and pure white is the ceiling, so the
 only lever left is the fill itself.
 
+**In the DARK theme those two roles cannot both be satisfied, and the arithmetic
+says so.** A patch after v11 deepened the dark `primary` from `#5b85ff` to
+`#3567ff` so its label would stop being black while the light theme's was white.
+White wins below L ≈ 0.179; clearing 4.5:1 as text on the dark canvas (`#0e162d`,
+L ≈ 0.0086) needs L ≥ 0.214. The two ranges do not overlap — **no colour takes a
+white label AND works as body text on a dark page**, for any intent, at any hue.
+So a dark theme whose filled buttons carry white labels MUST route the
+intent-as-text role through `-ink` (which lightens in dark), and the bare token
+went from 5.33:1 to 3.87:1 in that role. That is why the showcase's twenty
+`color: var(--wr-color-primary)` declarations became `-ink`: not a workaround, the
+only consistent reading of the two tokens.
+
 **The `-ink` ramp is calibrated, not eyeballed.** Each intent's share in
 `$ink-mix` (`theme/styles/_colors.scss`) was derived as the most saturated value
 that still reaches **5.0:1 against that intent's own `-soft` tint**, in both
@@ -320,18 +332,31 @@ documented for, and so the binding one. The 5.0 target is deliberate headroom
 over AA's 4.5: the first pass aimed at 4.5 exactly and left every intent between
 4.59 and 4.83, so a slightly different background pushed it under
 (`wr-typography--code` measured 4.24, `wr-tag--primary` 4.42). **v11 moved five of
-the bases and the shares were not re-derived**, which cuts both ways: a deeper
-base darkens the ink, which raises contrast on a light tint and lowers it on a
-dark one, so the light theme now sits at 5.03–6.56 while `secondary-ink` in DARK
-has slipped to 4.78 against its own soft tint — clear of AA, under the documented
-target, and the first share to re-derive if you touch this. Those figures are
-arithmetic on the shipped token values, not painted measurements; confirm with
-`pnpm check:contrast`, which reports what axe measured on a real page. If you
-change a share, re-derive it — do not nudge it until one page looks right.
+the bases without re-deriving the shares**, which cuts both ways: a deeper base
+darkens the ink, which raises contrast on a light tint and lowers it on a dark
+one, so the light theme sits at 5.03–6.56 while dark slipped. `primary` has since
+been re-derived from 86% to **78%** — the dark base deepening dropped it to
+4.48:1 on the sidebar's own tint, a real AA failure axe caught, and 78% is the
+most saturated share that reaches 5.0 there (5.04). Lowering a share only helps
+the light theme, where less intent means more `--wr-color-dark`. `secondary-ink`
+in DARK is still at 4.78 — clear of AA, under the documented target, and the next
+share to re-derive if you touch this. **Derive against the pair axe resolved on
+the page, not against a hand-rolled composite:** compositing the `-soft` tint over
+the canvas by hand reproduces the ink colour exactly and the BACKGROUND not at all
+(4.14 computed where axe measured 4.48, and it misses the recorded
+`secondary-ink` 4.78 by the same kind of margin). The ratio formula itself is
+sound — it reproduces axe to the second decimal on a pair axe has already
+resolved. So take the foreground/background pair out of the `check:contrast`
+report and solve on that. Those figures are arithmetic on token values, not
+painted measurements; `pnpm check:contrast` is the authority. If you change a
+share, re-derive it — do not nudge it until one page looks right.
 
 **Two directions, two tokens — do not mix them up.** `-contrast` is the label ON
 a filled intent; `-ink` is the intent used AS text on `--wr-color-surface` or on
-its own `-soft` tint. The v11 deepening changed the first half of that story and
+its own `-soft` tint. In the dark theme the bare token is now unusable as text for
+`primary` too (3.87:1 on the page background) — see the impossibility above; the
+showcase learned this the hard way across 193 routes. The v11 deepening changed
+the first half of that story and
 not the second: a bare `--wr-color-<intent>` as text now clears AA on the plain
 light surface for every intent but `warning` (1.71:1) and `light` (1.48:1) — but
 on its own `-soft` tint, which is where outlined / ghost / tinted variants

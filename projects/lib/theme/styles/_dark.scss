@@ -124,18 +124,30 @@ $_dark: #e6ebf3;
   --wr-color-muted-text-rgb: 154, 166, 184;
 
   // Brand-color retune
-  // The default primary (#3969e2) reads a touch dim on the deep
-  // canvas. Bump the base + shade derivations so hover / focus rings
-  // stay visible against slate-900.
-  --wr-color-primary: #5b85ff;
-  // Same reason as the loop above — the light primary pairs with white, but the
-  // lightened dark-theme primary only reaches 3.36:1 against it.
-  --wr-color-primary-contrast: #{colors.contrast(#5b85ff)};
-  --wr-color-primary-rgb: 91, 133, 255;
-  --wr-color-primary-light: #7a9eff;
-  --wr-color-primary-dark: #2f56c9;
-  --wr-color-primary-lighter: #99b6ff;
-  --wr-color-primary-darker: #1f3a99;
+  // The default primary (#3969e2) reads a touch dim on the deep canvas. What
+  // carries here is SATURATION, not lightness: #3567ff is only ~7% more luminous
+  // than the light base but runs the blue channel to 255, and the shades follow it
+  // so hover / focus rings stay visible against slate-900.
+  //
+  // Deep enough for a WHITE label, and no deeper. `_contrast()` takes whichever
+  // of black / white scores higher, and the two are equal at √21 ≈ 4.58 — the
+  // previous #5b85ff sat at white 3.36 / black 6.24, so it took a BLACK label
+  // while the light theme's primary took white: one intent labelled two
+  // different ways across the themes. #3567ff reads white 4.63 / black 4.54.
+  //
+  // Saturation stays at 100%. Scaling the channels toward black reaches the same
+  // ratio at #4c6fd6, but that is S 63% — duller, which is the opposite of what
+  // this block exists for. Dropping lightness at full saturation keeps the colour
+  // vivid, and keeps it distinct from the light theme's #3969e2 rather than
+  // collapsing onto it.
+  --wr-color-primary: #3567ff;
+  --wr-color-primary-contrast: #{colors.contrast(#3567ff)};
+  --wr-color-primary-rgb: 53, 103, 255;
+  // The same lightness steps as before, taken off the new base.
+  --wr-color-primary-light: #547eff;
+  --wr-color-primary-dark: #2848aa;
+  --wr-color-primary-lighter: #7396ff;
+  --wr-color-primary-darker: #183179;
 
   // success / warning / danger — retuned bases now get the FULL symmetric
   // shade set in dark too (generated, so no intent can silently drift).

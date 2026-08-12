@@ -124,7 +124,7 @@
   // entry, stagger 55ms — inline with the heading copy + primary color
   // so the animated word reads as the deliberate accent.
   &__title-split {
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
     font-weight: inherit;
     // Override the lib's `overflow: hidden` on the host. With it, the
     // inline-block's baseline shifts to its bottom edge and the word
@@ -425,7 +425,7 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 0.5rem;
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
     background: rgba(var(--wr-color-primary-rgb), 0.18);
     --wr-icon-size: 1.125rem;
 
@@ -443,7 +443,7 @@
     }
     &[data-accent='info'] {
       background: rgba(var(--wr-color-primary-rgb), 0.18);
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
     }
     &[data-accent='secondary'] {
       background: rgba(var(--wr-color-medium-rgb, 113, 128, 150), 0.18);
@@ -451,7 +451,7 @@
     }
     &[data-accent='primary'] {
       background: rgba(var(--wr-color-primary-rgb), 0.18);
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
     }
   }
 }

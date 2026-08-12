@@ -11,7 +11,7 @@
   line-height: 1.25rem;
 
   &__icon {
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
     font-weight: 700;
   }
 
@@ -21,7 +21,7 @@
 
   &__author,
   &__link {
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
     text-decoration: none;
     font-weight: 600;
 

@@ -40,7 +40,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--wr-color-primary);
+    color: var(--wr-color-primary-ink);
     font-family: var(--wr-font-family-base);
     font-size: 1rem;
     font-weight: 700;
@@ -98,7 +98,7 @@
         transition: color var(--wr-transition-base);
 
         &:hover {
-          color: var(--wr-color-primary);
+          color: var(--wr-color-primary-ink);
         }
       }
     }
@@ -147,7 +147,7 @@
     transition: color var(--wr-transition-base);
 
     &:hover {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
     }
   }
 }

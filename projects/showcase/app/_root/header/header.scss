@@ -97,7 +97,7 @@
       transition: var(--wr-transition-base);
 
       &:hover {
-        --ngwr-header-nav-link-color: var(--wr-color-primary);
+        --ngwr-header-nav-link-color: var(--wr-color-primary-ink);
         --ngwr-header-nav-link-bg: rgba(var(--wr-color-primary-rgb), 0.1);
       }
 
@@ -260,7 +260,7 @@
     }
 
     &--active {
-      color: var(--wr-color-primary);
+      color: var(--wr-color-primary-ink);
       font-weight: 600;
     }
   }
@@ -379,7 +379,7 @@
       --wr-icon-size: 1rem;
 
       &:hover {
-        color: var(--wr-color-primary);
+        color: var(--wr-color-primary-ink);
         background: rgba(var(--wr-color-primary-rgb), 0.1);
       }
 
