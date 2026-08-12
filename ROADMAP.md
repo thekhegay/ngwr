@@ -180,7 +180,15 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       78% (the deeper base had dropped it to 4.48:1 on its own tint), and the
       showcase's twenty bare `color: var(--wr-color-primary)` declarations moved to
       `-ink`, because a white label and a readable body text are provably
-      unreachable at once on a dark canvas. Five intents move so their labels can
+      unreachable at once on a dark canvas. Then the same audit ran over the
+      LIBRARY: 29 declarations paint a bare intent through a text property, and 11
+      of them are text while 18 are `<svg>`-only graphics that WCAG holds to 3:1
+      and that the bare token clears. The eleven moved. Five of them
+      (`wr-option--selected`, `wr-tree__row--selected`, `wr-cascader__opt--active`,
+      the command-palette option, `wr-segmented__option:hover`) had been under AA
+      in the LIGHT theme too, at 4.17–4.19:1, since long before v11 — invisible
+      because every one of them lives in a hover state or an overlay panel, which
+      neither shipped gate ever paints. Five intents move so their labels can
       be white: in the
       light palette `secondary` goes from `#f51c6a` to `#e21a62`, `success` from
       `#00a400` to `#008800`, `danger` from `#fa383e` to `#dc3137`, `info` from
@@ -240,7 +248,16 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       Worth repeating after any change to a scroll container or an overflow rule,
       as a scratch script rather than a gate.
       **Remaining:** Playwright screenshot diffs across the showcase, at mobile
-      viewports too.
+      viewports too — and **interactive-state contrast**, which no gate covers:
+      both walk prerendered HTML or a page at rest, so every hover, focus ring and
+      overlay panel is unpainted and therefore unmeasured. Driving Playwright into
+      those states found six real AA failures the gates had been green through, and
+      one still open: `wr-command-palette__option-shortcut` (the `<kbd>`) measures
+      **4.17:1 in the LIGHT theme**, `#5f6c7d` on `#dce4f1` — the muted role is
+      calibrated for `#ebeff4`, and the active option's tint is darker than that.
+      Unrelated to the intent tokens, so it was left alone rather than folded into
+      a patch about them. An audit here must assert the state PAINTED: a clean axe
+      run over an element that never rendered looks exactly like a pass.
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).

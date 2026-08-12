@@ -34,7 +34,8 @@
 
     &--selected {
       background: var(--wr-color-primary-soft);
-      color: var(--wr-color-primary);
+      // Text on the `-soft` tint: `-ink`. Bare measured 4.19:1 light / 3.63:1 dark.
+      color: var(--wr-color-primary-ink);
     }
 
     // Visible ring only when the row truly has keyboard focus — not
@@ -248,7 +249,8 @@
     padding-inline: 0.5rem 0.25rem;
     border-radius: 999px;
     background: var(--wr-color-primary-soft);
-    color: var(--wr-color-primary);
+    // The chip wraps a label, so this paints text on the chip's own tint.
+    color: var(--wr-color-primary-ink);
     font-size: var(--wr-text-sm);
     line-height: 1.4;
     user-select: none;

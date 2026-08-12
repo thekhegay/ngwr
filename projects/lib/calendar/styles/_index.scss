@@ -12,6 +12,11 @@
   --wr-calendar-accent: var(--wr-color-primary);
   --wr-calendar-accent-rgb: var(--wr-color-primary-rgb);
   --wr-calendar-accent-contrast: var(--wr-color-primary-contrast);
+  // The accent used AS TEXT — a different direction from `-contrast`, which is the
+  // label ON an accent fill. Its own companion rather than a hard-coded
+  // `--wr-color-primary-ink`, so a consumer overriding `--wr-calendar-accent` can
+  // carry the text role with it; the same reason `-rgb` and `-contrast` are here.
+  --wr-calendar-accent-ink: var(--wr-color-primary-ink);
 
   display: inline-flex;
   flex-direction: column;
@@ -170,7 +175,9 @@
 
     &--today:not(.wr-calendar__day--selected) {
       box-shadow: inset 0 0 0 1px var(--wr-calendar-accent);
-      color: var(--wr-calendar-accent);
+      // Text (a 14px/600 day number), so the ink companion. The ring above
+      // keeps the bare accent: a 1px border is a graphic, held to 3:1.
+      color: var(--wr-calendar-accent-ink);
       font-weight: 600;
     }
 
@@ -238,7 +245,9 @@
 
     &--current:not(.wr-calendar__chip--selected) {
       box-shadow: inset 0 0 0 1px var(--wr-calendar-accent);
-      color: var(--wr-calendar-accent);
+      // Same pairing as `__day--today`: the month / year label is text, the 1px
+      // ring is a graphic and keeps the bare accent.
+      color: var(--wr-calendar-accent-ink);
       font-weight: 600;
     }
 

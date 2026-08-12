@@ -94,7 +94,11 @@
     transition: color var(--wr-transition-base);
 
     &:hover:not(:disabled):not(.wr-segmented__option--selected) {
-      color: var(--wr-color-primary);
+      // The option label is text on the NEUTRAL track (`--wr-segmented-bg`), not
+      // on a primary tint — the option itself is transparent. Bare measured
+      // 4.19:1 light / 3.63:1 dark, under AA in both, so this was never only a
+      // dark-theme bug.
+      color: var(--wr-color-primary-ink);
     }
 
     &--selected {

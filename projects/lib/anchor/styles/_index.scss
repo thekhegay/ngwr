@@ -48,7 +48,8 @@
     }
 
     &--active {
-      color: var(--wr-color-primary);
+      // Text, on the page surface — `-ink` is the token for the intent AS text.
+      color: var(--wr-color-primary-ink);
       font-weight: var(--wr-font-weight-semibold);
 
       &::before {

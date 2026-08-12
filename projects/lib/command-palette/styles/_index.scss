@@ -108,7 +108,8 @@
 
     &--active {
       background: var(--wr-color-primary-soft);
-      color: var(--wr-color-primary);
+      // Text on the `-soft` tint: `-ink`. Bare measured 4.17:1 light / 3.65:1 dark.
+      color: var(--wr-color-primary-ink);
     }
   }
 

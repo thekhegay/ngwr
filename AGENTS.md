@@ -315,14 +315,43 @@ only lever left is the fill itself.
 **In the DARK theme those two roles cannot both be satisfied, and the arithmetic
 says so.** A patch after v11 deepened the dark `primary` from `#5b85ff` to
 `#3567ff` so its label would stop being black while the light theme's was white.
-White wins below L ≈ 0.179; clearing 4.5:1 as text on the dark canvas (`#0e162d`,
-L ≈ 0.0086) needs L ≥ 0.214. The two ranges do not overlap — **no colour takes a
+White wins below L ≈ 0.179; clearing 4.5:1 as text on the dark canvas needs
+L ≥ 0.201 on the library's own `--wr-color-surface` (`#0b1120`) and L ≥ 0.214 on the
+showcase's slightly lighter page (`#0e162d`, which is the pair axe reports). The two
+ranges do not overlap on either — **no colour takes a
 white label AND works as body text on a dark page**, for any intent, at any hue.
 So a dark theme whose filled buttons carry white labels MUST route the
 intent-as-text role through `-ink` (which lightens in dark), and the bare token
 went from 5.33:1 to 3.87:1 in that role. That is why the showcase's twenty
 `color: var(--wr-color-primary)` declarations became `-ink`: not a workaround, the
 only consistent reading of the two tokens.
+
+**Text takes `-ink`; a GRAPHIC keeps the bare intent.** The library had 29
+declarations painting a bare `--wr-color-primary` through a text property, and the
+split is 11 text / 18 graphic — decided by reading each template, never by the
+class name. **A property-name grep does not find them all.** `wr-calendar` paints
+today's day number through its own theming hook — `--wr-calendar-accent`, which
+defaults to `var(--wr-color-primary)` — so no search for the token's name reaches
+it. It measured 4.06:1 in dark and now has an `--wr-calendar-accent-ink` companion
+beside the existing `-rgb` and `-contrast` ones, so overriding the hook carries the
+text role with it. Sweeping every component-local alias that resolves to a bare
+intent turned up exactly one other, `--wr-alert-close`, and it is a non-issue: an
+`<svg>`, and every variant already overrides the default with `-ink`. Two more
+shapes a grep also misses and neither is actionable — `wr-shiny-text` uses
+`rgba(var(--wr-color-primary-rgb), 0.9)` as a gradient stop under
+`background-clip: text`, where there is no `-ink-rgb` to swap in, and the chart
+components take `input<string>('var(--wr-color-primary)')` as a consumer-facing
+default that specs pin. `.wr-date-picker__trigger`, `.wr-table-sort--asc`,
+`.wr-input-number__step` and all five `.wr-sidebar__icon` rules contain nothing but
+an `<svg>`, and WCAG holds a graphic to 3:1, which `#3567ff` clears on the dark
+canvas at 3.87. Deepening those would restyle the light theme for no accessibility
+gain. The eleven that DID move — `wr-option--selected`, `wr-tree__row--selected`,
+`wr-tree__chip`, `wr-cascader__opt--active`, the command-palette and context-menu
+items, `wr-segmented__option:hover`, `wr-action-sheet__action`,
+`wr-anchor__link--active`, `wr-table-filter__reset` ("Reset", a real text button)
+and `wr-falling-text__word--hl` — all carry text, and six of them sit directly on
+`--wr-color-primary-soft`, the tint `-ink` is calibrated against. Five were failing
+in the LIGHT theme too, at 4.17–4.19:1, long before the dark base moved.
 
 **The `-ink` ramp is calibrated, not eyeballed.** Each intent's share in
 `$ink-mix` (`theme/styles/_colors.scss`) was derived as the most saturated value
@@ -477,6 +506,30 @@ rather than the kind of break a
 single PR needs told about mid-review. So a green PR says nothing about
 contrast — run it locally when you touch a token, a tint, or anything that
 paints text on an intent.
+
+**`check:contrast` gates on ROUTE COUNTS per rule, not on nodes**, so a brand-new
+violation on a route already in `contrast-baseline.json` passes silently. That is
+not hypothetical: the dark `primary` deepening broke `wr-calendar__day--today`
+(4.06:1), the calendar route was already baselined for its WCAG-exempt
+`--out-of-month` days, the route count did not move, and the sweep printed
+`✓ No new contrast or target-size violations`. It was found by probing the element
+directly. **When you change a token, measure the elements you changed** — a green
+sweep only means no NEW route started failing.
+
+**Neither gate can see a hover, a focus ring, or anything inside an overlay.**
+Both walk PRERENDERED HTML or a page at rest, so `.wr-option--selected` (inside a
+panel that does not exist until you click), `.wr-segmented__option:hover` and
+`.wr-context-menu-item` are invisible to them — which is precisely where the
+library paints an intent as text. Those states were measured by driving Playwright
+into each one and running axe there; the six that failed had been failing for as
+long as the rules existed, and both gates were green throughout. **When auditing
+a state, assert that the state PAINTED**: a clean axe run over an element that
+never rendered is indistinguishable from a pass, and that is how an audit reports
+green on nothing. Two traps found that way — `.wr-context-menu-item:focus-visible`
+can never match, because items carry `tabindex="-1"` and the menu focuses its own
+host (the rule is reached through its `:hover` twin); and
+`.wr-falling-text__word--hl` needs a `[highlightWords]` binding that no showcase
+demo passes, so it is unmeasurable on the docs site at any effort.
 
 `check:rtl-layout` is the other nightly job, and it is nightly for the same
 reason. It renders every route in a real Chromium under both directions and fails

@@ -24,7 +24,8 @@
     }
 
     &--hl {
-      color: var(--wr-color-primary);
+      // A highlighted WORD is text the user reads, decorative motion or not.
+      color: var(--wr-color-primary-ink);
     }
   }
 
