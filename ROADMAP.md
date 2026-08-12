@@ -1601,6 +1601,32 @@ theme is what makes ngwr a library people can bet on.
       suspicion.
       A2 (CDK test harnesses) and B2 both wait on this half, which is now mostly
       done.
+      **Every entry point now has at least one spec** (2026-08-12): the two date
+      adapters, the four standalone directives, `affix`, `typography` and `meta`
+      were the last with none. +190 cases, suite 2814 across 177 files.
+      Four defects, each reproduced before anything was touched:
+      **`[wrMeta]` froze the app** — its effect calls `push()`, which writes the
+      layer stack, then `apply()`, which reads that same stack through
+      `resolved()`, so the effect depended on a signal it wrote and re-ran
+      forever. `WrMeta.bind()` wraps the identical pair in `untracked` with a
+      comment explaining why; the directive was missing it, and the showcase never
+      uses `[wrMeta]`, so nothing had exercised it.
+      **The Luxon adapter contradicted itself** — `isSameDay` said "same day"
+      while `compareDate` returned three hours, because `startOf('day')` respects
+      each value's own zone. `isWithinRange` is documented as inclusive and
+      delegates to `compareDate`, so a range built from UTC bounds dropped its own
+      endpoint. `hasSame` and field comparison disagree in other cases too, so the
+      whole trio is now field-based, matching the native adapter.
+      **Its `format` rewrote tokens inside quoted literals** — `"MMMM 'MMMM'"`
+      printed `August LLLL`, because the `MMMM`→`LLLL` translation ran over the
+      whole pattern rather than stopping at a quote.
+      **`[wrCopyToClipboard]` reported success on a refused copy** —
+      `execCommand` returns `false` rather than throwing, and the return value was
+      ignored, so the user got a "Copied!" toast over an unchanged clipboard. Two
+      more in the same directive: `copied.emit` sat inside the `try`, so an
+      exception from a consumer's handler was treated as a clipboard failure and
+      ran the legacy write a second time; and the hidden textarea took focus and
+      never gave it back, dropping the caret on `<body>` after every copy.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
