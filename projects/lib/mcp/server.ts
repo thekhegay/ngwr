@@ -167,7 +167,7 @@ function handle(id: Id, method: string, params: Params): Response {
           ? asked
           : PROTOCOL_VERSIONS[0],
         capabilities: { tools: {} },
-        serverInfo: { name: 'ngwr', title: 'ngwr component catalog', version: version() },
+        serverInfo: { name: 'ngwr', title: 'ngwr component catalog', version: catalog.version() },
         instructions:
           'Angular component library. Use search_ngwr first when you do not know an entry point name, ' +
           'then get_ngwr_api for exact signatures and get_ngwr_setup for the commands to wire it in.',
@@ -249,11 +249,6 @@ function dispatch(line: string): void {
 
   const response = respond(message);
   if (response) write(response);
-}
-
-/** The package version, so a client can report which catalog it is talking to. */
-function version(): string {
-  return process.env['npm_package_version'] ?? '0.0.0';
 }
 
 /**

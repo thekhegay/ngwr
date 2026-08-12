@@ -199,7 +199,10 @@ describe('Catalog', () => {
     empty = mkdtempSync(join(tmpdir(), 'ngwr-mcp-bare-'));
 
     writeFileSync(join(root, 'llms-full.txt'), CATALOG_TEXT);
-    writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'ngwr', exports: EXPORTS }));
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({ name: 'ngwr', version: '10.2.1-fixture', exports: EXPORTS })
+    );
     mkdirSync(join(root, 'schematics', 'use'), { recursive: true });
     writeFileSync(join(root, 'schematics', 'use', 'symbol-map.json'), JSON.stringify(SYMBOL_MAP));
     mkdirSync(join(root, 'types'), { recursive: true });
@@ -241,6 +244,27 @@ describe('Catalog', () => {
     // round it hands a consumer an `@use` that breaks their Sass build, which is
     // a worse answer than saying nothing.
     expect(catalog.hasStyles('ngwr/alert')).toBe(false);
+  });
+
+  it('reports its own version, not the one in the environment', () => {
+    // `npm_package_version` is set by whatever project INVOKED the server, so a
+    // consumer app had its own version reported back to it as the catalog's.
+    // Only an install test showed that — inside this repo the two happen to be
+    // the same file. The environment is poisoned here to prove the answer does
+    // not come from it.
+    const previous = process.env['npm_package_version'];
+    process.env['npm_package_version'] = '99.99.99';
+
+    try {
+      expect(new Catalog(root).version()).toBe('10.2.1-fixture');
+    } finally {
+      if (previous === undefined) delete process.env['npm_package_version'];
+      else process.env['npm_package_version'] = previous;
+    }
+  });
+
+  it('answers 0.0.0 when there is no manifest to read', () => {
+    expect(new Catalog(empty).version()).toBe('0.0.0');
   });
 
   it('reports a stylesheet only for an entry point whose exports map declares one', () => {
