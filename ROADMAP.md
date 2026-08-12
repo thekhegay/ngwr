@@ -2261,6 +2261,26 @@ Open and researched, but explicitly not now.
 
 ## Breaking changes on the table
 
+- [x] **Five intents deepened so their labels can be white** — shipped, and it is
+      a visual major: `secondary`, `success`, `danger`, `info` and `medium` move
+      8–20% deeper in the light palette (`#f51c6a`→`#e21a62`, `#00a400`→`#008800`,
+      `#fa383e`→`#dc3137`, `#3b82f6`→`#3472d9`, `#8594a4`→`#6a7683`), and
+      `success` / `danger` / the `medium` fill move 21–33% deeper in the dark one.
+      The reason is arithmetic, not taste. `_contrast()` picks whichever of black
+      and white scores HIGHER against the fill, and the two are equal at
+      **√21 ≈ 4.58** — so any intent lighter than that gets a black label no
+      matter what anyone prefers, and at the old tones white measured 3.10–3.99
+      (below AA) against black's 5.26–6.77. Aiming at 4.5 does NOT work and was
+      tried: at 4.51 black still reads 4.66 and the picker does not move. Each of
+      the five now sits just past the flip, white 4.60–4.64.
+      `warning` and `light` are deliberately not in the set and cannot be: white
+      needs `#906900` on warning, which is brown rather than a warning colour.
+      Their black labels are correct at 12.28 and 14.14.
+      The cost is highest in the dark theme, where a lighter fill is the point —
+      `success` goes from `#34c759` to `#23863c` and is visibly duller. The
+      `medium` FILL moved; `--wr-color-muted-text` did not, because that is text
+      on the canvas, where lighter is what makes it legible.
+
 - [ ] **Colour role-rename** — component stylesheets are fully on the surface
       roles; what remains is **10 default values across 7 files** still naming
       `--wr-color-{white,dark,light}` (`click-spark.ts`, `fuzzy-text.ts`,

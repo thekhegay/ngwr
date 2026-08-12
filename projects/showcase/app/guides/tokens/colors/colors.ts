@@ -237,7 +237,11 @@ export class Palette {
    --wr-color-white  = page surface  → #0b1120 in dark
    --wr-color-dark   = body text     → #e6ebf3 in dark
    --wr-color-light  = borders/tints → #262f44 in dark
-   --wr-color-medium = secondary txt → #9aa6b8 in dark */
+   --wr-color-medium = medium FILL   → #6d7682 in dark
+
+   Secondary TEXT is --wr-color-on-surface-muted (#9aa6b8 in dark) — a
+   different token on purpose: lighter is what makes text legible on a dark
+   canvas, the opposite direction from a fill. */
 [data-theme='dark'] {
   /* set automatically by provideWrTheme(); shown here for reference */
 }

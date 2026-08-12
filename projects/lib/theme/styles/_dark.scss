@@ -13,10 +13,15 @@
 // FULL symmetric shade set — the hand blocks used to ship only base+rgb,
 // leaving -light/-dark/-lighter/-darker baked from the LIGHT palette.
 // (primary keeps its hand-tuned block; info stays its light values.)
+// `success` and `danger` are past the black/white flip point here too — see the
+// note above `$base-colors`. The dark canvas wants a LIGHTER fill, so the deepening
+// costs more here than in the light theme (33% and 21%), and that is the trade:
+// a duller green, in exchange for a label that is legible rather than muddy.
+// `warning` stays as it is — white cannot reach it at any tone worth shipping.
 $dark-intents: (
-  success: #34c759,
+  success: #23863c,
   warning: #ffcc33,
-  danger: #ff5c5c,
+  danger: #ca4949,
 );
 
 // The surface / ink bases below are re-tuned for the dark canvas too, but they
@@ -25,7 +30,10 @@ $dark-intents: (
 // the shade derivations read from the value that actually ships, instead of
 // being re-typed next to it.
 $_light: #262f44;
-$_medium: #9aa6b8;
+// The medium FILL, past the flip point. Not the muted-text role: that reads from
+// `--wr-color-muted-text` below, which stays #9aa6b8 — it is text on the canvas,
+// where lighter is what makes it legible, the opposite direction from a fill.
+$_medium: #6d7682;
 $_dark: #e6ebf3;
 
 [data-theme='dark'] {
