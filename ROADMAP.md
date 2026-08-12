@@ -2280,6 +2280,17 @@ Open and researched, but explicitly not now.
       `success` goes from `#34c759` to `#23863c` and is visibly duller. The
       `medium` FILL moved; `--wr-color-muted-text` did not, because that is text
       on the canvas, where lighter is what makes it legible.
+      One thing left where it was, worth knowing before someone "fixes" it: the
+      `-ink` shares in `$ink-mix` were NOT re-derived. `-ink` and `-soft` both
+      come off the same base and move together, so a deeper base darkens the ink
+      and deepens the tint in the same proportion rather than pulling them apart.
+      That reasoning was NOT confirmed by hand — three attempts to measure the
+      pair from the tokens produced nonsense, each caught by a control case,
+      because `getComputedStyle().color` hands back an unresolved
+      `color-mix(…)` for these values and digit-scraping it is meaningless. This
+      is the trap `scripts/check-contrast.ts` already documents. The evidence is
+      that gate instead: 196 routes × 2 themes, no new violations, including the
+      tag / alert / typography pages that actually paint ink on its own tint.
 
 - [ ] **Colour role-rename** — component stylesheets are fully on the surface
       roles; what remains is **10 default values across 7 files** still naming
