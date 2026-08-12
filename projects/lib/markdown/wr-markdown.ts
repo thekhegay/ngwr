@@ -159,7 +159,17 @@ export class WrMarkdown {
   protected readonly resolvedTaskDoneLabel = useI18nText(this.taskDoneLabel, 'markdown.taskDone', 'Done:');
   protected readonly resolvedTaskTodoLabel = useI18nText(this.taskTodoLabel, 'markdown.taskTodo', 'To do:');
 
-  /** The parsed document. Re-derived on every source change; see the class docs. */
+  /**
+   * The parsed document, re-derived whenever the source changes.
+   *
+   * The WHOLE buffer, on every chunk — so a streamed answer costs O(n²) over the
+   * stream. That is a deliberate trade rather than an oversight: freezing the
+   * blocks before the last blank line would halve it, but a blank line is not a
+   * safe boundary in markdown (a list continues across one), and a wrong boundary
+   * corrupts the document rather than slowing it down. The constant is small —
+   * 300 KB of prose parses in ~120 ms — and `@for`'s `track $index` keeps the
+   * DOM cost proportional to what actually changed.
+   */
   protected readonly blocks = computed(() => parseMarkdown(this.value(), { streaming: this.streaming() }));
 
   /** `rel` is bound, not hard-coded, so a same-tab link does not carry a pointless one. */
@@ -182,6 +192,10 @@ export class WrMarkdown {
     // writing a signal when the answer lands, and Angular refuses a signal write
     // during rendering (NG0600). An effect runs after it.
     effect(() => {
+      // `generation` is what makes `WrMarkdownHighlight.invalidate()` reach the
+      // blocks already on screen. It is deliberately NOT the signal that storing
+      // an answer bumps — depending on that one from here is the loop.
+      this.highlight.generation();
       for (const block of this.codeBlocks()) this.highlight.request(block.code, block.language);
     });
 

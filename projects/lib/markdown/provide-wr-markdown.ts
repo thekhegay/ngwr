@@ -20,13 +20,33 @@ import { WR_MARKDOWN_HIGHLIGHTER } from './tokens';
  * produces, since a highlighter that resolves after prerender has already
  * finished cannot contribute to the HTML.
  *
+ * Pass `{ useFactory }` when the adapter needs to inject something. A highlighter
+ * is itself a function, so the factory cannot be detected by shape — hence the
+ * wrapper object rather than an overload that would guess.
+ *
  * @example
  * ```ts
  * bootstrapApplication(App, {
- *   providers: [provideWrMarkdownHighlighter(shikiSpans)],
+ *   providers: [
+ *     provideWrMarkdownHighlighter(shikiSpans),
+ *
+ *     // Or, when the adapter has dependencies of its own:
+ *     provideWrMarkdownHighlighter({
+ *       useFactory: () => {
+ *         const isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+ *         return (code, language) => (isBrowser ? shikiSpans(code, language) : null);
+ *       },
+ *     }),
+ *   ],
  * });
  * ```
  */
-export function provideWrMarkdownHighlighter(highlighter: WrMarkdownHighlighter): EnvironmentProviders {
-  return makeEnvironmentProviders([{ provide: WR_MARKDOWN_HIGHLIGHTER, useValue: highlighter }]);
+export function provideWrMarkdownHighlighter(
+  highlighter: WrMarkdownHighlighter | { readonly useFactory: () => WrMarkdownHighlighter }
+): EnvironmentProviders {
+  if (typeof highlighter === 'function') {
+    return makeEnvironmentProviders([{ provide: WR_MARKDOWN_HIGHLIGHTER, useValue: highlighter }]);
+  }
+
+  return makeEnvironmentProviders([{ provide: WR_MARKDOWN_HIGHLIGHTER, useFactory: highlighter.useFactory }]);
 }
