@@ -56,6 +56,7 @@
  *   pnpm check:state-contrast --theme=dark    # one theme
  *   pnpm check:state-contrast --filter=select # only states whose id matches
  *   pnpm check:state-contrast --verbose       # every node, plus the coverage list
+ *   pnpm check:state-contrast --probe         # report every unreachable state instead of the first
  */
 
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -83,6 +84,9 @@ const THEMES = ['light', 'dark'] as const;
 type Theme = (typeof THEMES)[number];
 
 const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf8');
+
+/** `--probe`: collect unreachable states instead of stopping at the first. */
+const PROBE = process.argv.includes('--probe');
 
 const MIME: Readonly<Record<string, string>> = {
   '.html': 'text/html; charset=utf-8',
@@ -268,7 +272,43 @@ async function settle(page: Page, selector: string): Promise<{ ok: boolean; reas
  * report six brand-new failures the morning it did. What identifies the node
  * for this purpose is its classes and its role, not where it sits in the row.
  */
-const normalize = (target: string): string => target.replace(/:nth-child\(\d+\)/g, '').replace(/\s+/g, ' ').trim();
+function normalize(target: string): string {
+  const stripped = target
+    .replace(/:nth-child\(\d+\)/g, '')
+    // Angular's per-component attribute. `_ngcontent-ng-c2047152735` is a build
+    // hash: it changes whenever the showcase is rebuilt, so a key holding one
+    // expires on its own and reports the same finding as brand new.
+    .replace(/\[_ng[a-z]+-[a-z0-9-]+="[^"]*"\]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // The failing NODE, not the path to it. axe walks up to the doc-section when
+  // a scope is wide, and a key carrying six ancestors is one showcase layout
+  // change away from being wrong about a rule that has not moved.
+  const leaf = stripped.split('>').pop()?.trim() ?? stripped;
+  return leaf || stripped;
+}
+
+/**
+ * A state the run could not reach, which is a FAILURE and not a skip.
+ *
+ * It stops the run by default, because the alternative is a gate that quietly
+ * measures fewer and fewer states as selectors drift. `--probe` collects them
+ * instead and reports the lot at the end — the mode for extending the table,
+ * where finding one broken entry per full sweep is the difference between an
+ * afternoon and twenty minutes.
+ */
+function unreachableState(state: State, theme: Theme, why: string, into: string[]): readonly Failure[] {
+  const line = `"${state.id}" (${theme}) ${why}`;
+  if (PROBE) {
+    into.push(line);
+    return [];
+  }
+  err(`\n✘ state-contrast: ${line}`);
+  err(`  A state this gate cannot reach is not a state it is checking. Fix the steps or drop the entry.`);
+  err(`  Extending the table? --probe reports every one of these instead of stopping at the first.\n`);
+  exit(1);
+}
 
 interface Failure {
   readonly state: string;
@@ -278,13 +318,32 @@ interface Failure {
   readonly detail: string;
 }
 
-/** axe measured the colours already; re-deriving them is where `color-mix` bites. */
+/**
+ * axe measured it already; re-deriving is where a `color-mix` result in
+ * `color(srgb …)` form quietly turns into nonsense.
+ *
+ * Both rules, because a report that prints the ratio for one and bare markup
+ * for the other makes half the findings unactionable — a `target-size` line
+ * without the measured box says only that something is too small.
+ */
 function describe(node: { any?: readonly { data?: unknown }[] }): string {
   const data = node.any?.find(c => c.data && typeof c.data === 'object')?.data as
-    | { fgColor?: string; bgColor?: string; contrastRatio?: number; expectedContrastRatio?: string }
+    | {
+        fgColor?: string;
+        bgColor?: string;
+        contrastRatio?: number;
+        expectedContrastRatio?: string;
+        minSize?: number;
+        width?: number;
+        height?: number;
+      }
     | undefined;
-  if (!data?.contrastRatio) return '';
-  return `${data.contrastRatio}:1 (wants ${data.expectedContrastRatio ?? '?'}) ${data.fgColor ?? '?'} on ${data.bgColor ?? '?'}`;
+  if (!data) return '';
+  if (data.contrastRatio) {
+    return `${data.contrastRatio}:1 (wants ${data.expectedContrastRatio ?? '?'}) ${data.fgColor ?? '?'} on ${data.bgColor ?? '?'}`;
+  }
+  if (data.width && data.height) return `${data.width}×${data.height}px (wants ${data.minSize ?? 24})`;
+  return '';
 }
 
 /**
@@ -297,7 +356,8 @@ async function audit(
   origin: string,
   state: State,
   theme: Theme,
-  painted: Set<string>
+  painted: Set<string>,
+  unreachable: string[]
 ): Promise<readonly Failure[]> {
   await page.goto(`${origin}${state.route}`, { waitUntil: 'networkidle' });
 
@@ -311,7 +371,15 @@ async function audit(
   await cdp.send('DOM.enable');
   await cdp.send('CSS.enable');
 
-  for (const step of state.steps) await drive(page, cdp, step);
+  // A step that cannot run is the same class of problem as a state that does
+  // not paint — the entry is wrong — so it reports the same way rather than
+  // taking the whole sweep down with a raw Playwright stack.
+  try {
+    for (const step of state.steps) await drive(page, cdp, step);
+  } catch (error) {
+    const why = `could not be driven: ${(error as Error).message.split('\n')[0]}`;
+    return unreachableState(state, theme, why, unreachable);
+  }
 
   // THE assertion. Everything below this line is only meaningful because the
   // state is known to be on screen — an axe pass over an element that never
@@ -320,24 +388,21 @@ async function audit(
   try {
     await target.waitFor({ state: 'visible', timeout: 5000 });
   } catch {
-    err(`\n✘ state-contrast: "${state.id}" (${theme}) never painted — no visible "${state.target}" on ${state.route}.`);
-    err(`  A state this gate cannot reach is not a state it is checking. Fix the steps or drop the entry.\n`);
-    exit(1);
+    return unreachableState(state, theme, `never painted — no visible "${state.target}" on ${state.route}`, unreachable);
   }
 
   // A state still in motion measures a frame. Say so rather than reporting the
   // number as a design — the fix is a step, not a token.
   const settled = await settle(page, state.scope ?? state.target);
   if (!settled.ok) {
-    err(`\n✘ state-contrast: "${state.id}" (${theme}) never stopped moving — anything measured here is one frame of an animation.`);
-    err(`  last sample: ${settled.reason}\n`);
-    exit(1);
+    const why = `never stopped moving — anything measured here is one frame of an animation. Last sample: ${settled.reason}`;
+    return unreachableState(state, theme, why, unreachable);
   }
 
   const box = await target.boundingBox();
   if (!box || box.width < 2 || box.height < 2) {
-    err(`\n✘ state-contrast: "${state.id}" (${theme}) matched "${state.target}" but it has no box (${JSON.stringify(box)}).\n`);
-    exit(1);
+    const why = `matched "${state.target}" but it has no box (${JSON.stringify(box)})`;
+    return unreachableState(state, theme, why, unreachable);
   }
 
   const scope = state.scope ?? state.target;
@@ -446,6 +511,7 @@ async function main(): Promise<void> {
   let browser: Browser | null = null;
   const failures: Failure[] = [];
   const painted = new Set<string>();
+  const unreachable: string[] = [];
 
   try {
     browser = await chromium.launch();
@@ -464,7 +530,7 @@ async function main(): Promise<void> {
       const page = await context.newPage();
 
       info(`  ${theme}: ${targets.length} states`);
-      for (const state of targets) failures.push(...(await audit(page, origin, state, theme, painted)));
+      for (const state of targets) failures.push(...(await audit(page, origin, state, theme, painted, unreachable)));
 
       await context.close();
     }
@@ -521,6 +587,13 @@ async function main(): Promise<void> {
         ` (${targets.length} states, ${painted.size} classes reached)`
     );
     if (verbose && missing.length > 0) info(`  unpainted: ${missing.join(', ')}`);
+  }
+
+  if (unreachable.length > 0) {
+    err(`\n✘ ${unreachable.length} state(s) could not be reached:`);
+    for (const line of unreachable) err(`  · ${line}`);
+    err('');
+    exit(1);
   }
 
   if (unexpected.length > 0) {

@@ -251,11 +251,35 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       corrected.
       **Coverage is reported rather than assumed.** The table is hand-maintained,
       so every full run counts the state-dependent classes in the BUILT stylesheet
-      and says how many it actually painted — **21 of 95** today. A curated list
-      that has stopped growing looks exactly like one that covers the catalog, and
-      that number is the only cheap way to tell them apart.
+      and says how many it actually painted — **58 of 95** across **58 states**,
+      up from 21 of 95 across 24 in the first pass. A curated list that has stopped
+      growing looks exactly like one that covers the catalog, and that number is
+      the only cheap way to tell them apart. Extending it is what `--probe` is
+      for: it reports every unreachable state instead of stopping at the first,
+      which turns a table-growing session from one full sweep per broken selector
+      into one sweep for all of them. Three traps that pass reviewing and fail on
+      the site: the showcase is built out of the library, so the FIRST
+      `.wr-dropdown-trigger` on every page is the header's own version switcher —
+      every entry goes through `demo()`; axe's node targets carry Angular's
+      `_ngcontent-ng-cNNNNNNN` build hash, so a baseline key holding one expires on
+      the next build (they are stripped, along with `:nth-child()`, down to the
+      failing node itself); and a state that needs more than a selector can create
+      is not in scope — `wr-anchor__link--active` needs a scroll position, so the
+      table takes its hover twin, which is the rule that paints an intent as text.
+      **What the second pass found, all invisible to both other gates because they
+      only exist inside a state:** the window's traffic-light buttons are 14×14px
+      and its taskbar close is 16×16 where WCAG 2.5.8 wants 24; the carousel dots
+      show up here too, for the same reason they are already baselined by route.
+      The taskbar close is the only one recorded as a DEFECT rather than a design
+      call — the tab is 28px tall, so a 24px close fits — and it has a second
+      problem worth the same edit: it is a `role="button"` span with
+      `tabindex="0"` inside the tab's own `<button>`.
       **Remaining:** Playwright screenshot diffs across the showcase, at mobile
-      viewports too — and growing the state table past those 21 classes.
+      viewports too; the last 37 state classes; and the bigger hole this pass
+      exposed — `check:a11y` walks prerendered HTML, so the STRUCTURAL rules
+      (`nested-interactive` and the rest) have never run inside an overlay either.
+      The state harness could run them; it currently runs only the two painted
+      ones.
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).
