@@ -185,6 +185,9 @@ export const wrEn: WrI18nCatalog = {
     prevYears: 'Previous 12 years',
     nextYears: 'Next 12 years',
   },
+  imageCropper: {
+    empty: 'No image',
+  },
   calendarHeatmap: {
     label: 'Calendar heatmap',
   },

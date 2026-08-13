@@ -20,9 +20,16 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 import type { WrCropHandle, WrCropRect, WrImageOutputType } from './interfaces';
+
+/**
+ * Stands in for the consumer input `useI18nText` expects — the empty state takes no
+ * label input, and its string was an English literal in the template.
+ */
+const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 interface RectPx {
   x: number;
@@ -81,6 +88,8 @@ export class WrImageCropper {
   protected readonly imgEl = viewChild.required<ElementRef<HTMLImageElement>>('img');
 
   /** Resolved object URL for `src` (so File / Blob render in `<img>`). */
+  protected readonly emptyText = useI18nText(NO_OVERRIDE, 'imageCropper.empty', 'No image');
+
   protected readonly objectUrl = signal<string | null>(null);
 
   /** Previous object URL we created — kept off-signal so the resolve

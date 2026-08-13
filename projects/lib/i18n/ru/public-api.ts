@@ -173,6 +173,9 @@ export const wrRu: WrI18nCatalog = {
     prevYears: 'Предыдущие 12 лет',
     nextYears: 'Следующие 12 лет',
   },
+  imageCropper: {
+    empty: 'Нет изображения',
+  },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',
   },
