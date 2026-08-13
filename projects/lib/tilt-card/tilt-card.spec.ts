@@ -136,6 +136,24 @@ describe('WrTiltCard', () => {
     expect(host().style.getPropertyValue('--wr-tilt-glare-y')).toBe('25%');
   });
 
+  it('gives the host back the styles the glare borrowed', () => {
+    // `installGlare` writes `overflow: hidden` (and `position` on a static host) so
+    // the overlay clips and anchors. Both used to stay behind for good, so a card
+    // that clipped nothing before `[glare]` was switched on kept clipping after it
+    // was switched off.
+    fixture.componentInstance.glare.set(true);
+    fixture.detectChanges();
+    move(50, 25);
+    expect(host().style.overflow).toBe('hidden');
+
+    fixture.componentInstance.glare.set(false);
+    fixture.detectChanges();
+
+    expect(host().style.overflow).toBe('');
+    expect(host().style.position).toBe('');
+    expect(host().style.getPropertyValue('--wr-tilt-glare-x')).toBe('');
+  });
+
   it('takes the glare away with itself when it is destroyed', () => {
     fixture.componentInstance.glare.set(true);
     fixture.detectChanges();

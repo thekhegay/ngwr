@@ -47,6 +47,8 @@ export class WrTilt {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private glareEl: HTMLElement | null = null;
+  private priorOverflow = '';
+  private priorPosition = '';
 
   constructor() {
     const host = this.el.nativeElement;
@@ -95,6 +97,15 @@ export class WrTilt {
   private installGlare(): void {
     if (this.glareEl) return;
     const host = this.el.nativeElement;
+
+    // Remembered, not assumed: `overflow` is written unconditionally, so it can be
+    // clobbering an author's own inline value, and a blanket `removeProperty` on the
+    // way out would delete it. Capturing the empty string is exactly what restores an
+    // element that had none — which is the common case, and the one that used to keep
+    // `overflow: hidden` for good after `[glare]` was turned back off.
+    this.priorOverflow = host.style.overflow;
+    this.priorPosition = host.style.position;
+
     if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
     host.style.overflow = 'hidden';
     const glare = host.ownerDocument.createElement('span');
@@ -105,7 +116,16 @@ export class WrTilt {
   }
 
   private removeGlare(): void {
-    this.glareEl?.remove();
+    if (!this.glareEl) return;
+
+    const host = this.el.nativeElement;
+    this.glareEl.remove();
     this.glareEl = null;
+    host.style.overflow = this.priorOverflow;
+    host.style.position = this.priorPosition;
+    // Nothing reads these once the overlay is gone; leaving them behind only makes a
+    // destroyed directive look like it is still tracking a pointer.
+    host.style.removeProperty('--wr-tilt-glare-x');
+    host.style.removeProperty('--wr-tilt-glare-y');
   }
 }
