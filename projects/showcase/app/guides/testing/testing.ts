@@ -240,6 +240,19 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    knob: `it('turns the dial from the keyboard', async () => {
+  const knob = await loader.getHarness(WrKnobHarness);
+
+  await knob.setValue(60);
+
+  // The announced number and the printed string are different questions.
+  expect(await knob.getValue()).toBe(60);
+  expect(await knob.getDisplayValue()).toBe('60%');
+
+  await knob.pressEnd();
+  expect(await knob.getValue()).toBe(await knob.getMax());
+});`,
+
     splitter: `it('resizes from the keyboard', async () => {
   const splitter = await loader.getHarness(WrSplitterHarness);
 
@@ -1259,6 +1272,43 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly knobApi: readonly DocApiRow[] = [
+    {
+      name: 'getValue() / getMin() / getMax()',
+      description: 'The dial as `role="slider"` reports it — the three `aria-value*` attributes.',
+      type: 'Promise<number>',
+      default: '\u2014',
+    },
+    {
+      name: 'getDisplayValue() / getSuffix()',
+      description:
+        'The text in the middle of the dial, suffix included, or `null` when `showValue` is off. Not the same as the announced value, and deliberately not merged with it.',
+      type: 'Promise<string | null>',
+      default: '\u2014',
+    },
+    {
+      name: 'pressArrow(arrow, { shift }) / pressHome() / pressEnd() / setValue(n)',
+      description:
+        'All four arrows are live, and `shift` is ten steps. `setValue` walks and measures the step as it goes, then asserts its landing; a target between grid points throws with where it stopped.',
+      type: 'Promise<void>',
+      default: '\u2014',
+    },
+    {
+      name: 'getHandlePosition()',
+      description:
+        'The handle dot in viewBox units, from its `cx` / `cy` — the arc and the dot are the whole visual, and neither can be measured without layout.',
+      type: 'Promise<{ x: number; y: number }>',
+      default: '\u2014',
+    },
+    {
+      name: 'isDisabled() / isReadonly() / isFocusable() / focus() / blur() / getLabel()',
+      description:
+        'Both off states leave the tab order, so `isFocusable()` is worth asking separately: a read-only dial a keyboard cannot reach is one nobody can read either. `blur()` is what emits `touch`.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 

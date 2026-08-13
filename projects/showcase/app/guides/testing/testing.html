@@ -255,6 +255,28 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Knob" description="The number it announces, and the string it prints.">
+    <ngwr-doc-code [code]="snippets.knob" language="typescript" />
+
+    <p wrTypography>
+      <code>getValue()</code> is <code>aria-valuenow</code>; <code>getDisplayValue()</code> is the text in the middle of
+      the dial, which a <code>suffix</code> makes <code>"50%"</code> while the announced value stays <code>50</code>.
+      Two methods because they can disagree — and because <code>[showValue]="false"</code> takes the text away without
+      touching the value.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <code>setValue()</code> walks with the arrows and measures the step as it goes: <code>step</code> is an input with
+      no DOM presence, and a value written from outside is clamped but never snapped, so the first press can move by
+      less than a step as it lands on the grid. A target BETWEEN two grid points is only discovered by overshooting it,
+      and the error says where it stopped. There is no <code>turnTo()</code> — the drag measures an angle from the
+      centre of a box a unit test never lays out, so it would write the same end of the arc for any coordinates and
+      report success.
+    </p>
+
+    <ngwr-doc-api [rows]="knobApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Driving a table" description="A family of harnesses, because a table is a tree.">
     <ngwr-doc-code [code]="snippets.table" language="typescript" />
 
