@@ -268,7 +268,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       corrected.
       **Coverage is reported rather than assumed.** The table is hand-maintained,
       so every full run counts the state-dependent classes in the BUILT stylesheet
-      and says how many it actually painted — **58 of 95** across **58 states**,
+      and says how many it actually painted — **71 of 95** across **70 states**,
       up from 21 of 95 across 24 in the first pass. A curated list that has stopped
       growing looks exactly like one that covers the catalog, and that number is
       the only cheap way to tell them apart. Extending it is what `--probe` is
@@ -296,12 +296,23 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       height. Neither half was reachable by any gate: a tab exists only while a
       window is minimized, and `check:a11y` reads prerendered HTML, where the
       rail is not rendered at all.
+      **A scope is resolved as the target's ANCESTOR**, not as the first element
+      matching the selector — a docs page renders the same component several
+      times, and `table/row-selected` clicked a checkbox in the third demo and
+      then measured the first, which is exactly how a state whose job was to
+      paint `wr-table__tr--selected` reported it unpainted. The resolved element
+      is marked with a `data-` attribute and axe runs on that, so the run and the
+      class census cannot disagree about which instance they mean.
+      **`pointer` is a real mouse, `hover` is a forced pseudo-class**, and both
+      are needed: a component that styles `:hover` is reachable without moving a
+      cursor, but the toast stack fans out on a `mouseenter` HANDLER and its
+      "Close all" button does not exist until it has. Four states are absent for
+      an honest reason rather than a broken selector — back-top needs a scroll
+      position, file-upload needs a chosen file, the calendar's selected chip and
+      the drag handle need a gesture — and a state a selector cannot create is
+      out of this gate's reach by construction.
       **Remaining:** Playwright screenshot diffs across the showcase, at mobile
-      viewports too; the last 37 state classes; and the bigger hole this pass
-      exposed — `check:a11y` walks prerendered HTML, so the STRUCTURAL rules
-      (`nested-interactive` and the rest) have never run inside an overlay either.
-      The state harness could run them; it currently runs only the two painted
-      ones.
+      viewports too, and the last 24 state classes.
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).

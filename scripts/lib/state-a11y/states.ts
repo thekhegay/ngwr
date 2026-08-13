@@ -481,13 +481,109 @@ export const STATES: readonly State[] = [
     target: '.wr-time-picker',
     scope: '.wr-time-picker',
   },
+  {
+    id: 'select/tag-mode',
+    route: `${REF}/select`,
+    steps: [{ hover: demo('.wr-select__trigger--tag') }],
+    target: demo('.wr-select__chip-remove'),
+    scope: demo('.wr-select'),
+  },
+  {
+    id: 'select/search-mode',
+    route: `${REF}/select`,
+    steps: [{ click: demo('.wr-select__trigger--search') }, { wait: 200 }],
+    target: '.wr-option',
+    scope: '.wr-select-panel',
+  },
+  {
+    id: 'tree/overlay-panel',
+    route: `${REF}/tree`,
+    steps: [{ click: demo('.wr-tree__trigger') }, { wait: 200 }],
+    target: '.wr-tree-panel .wr-tree__row',
+    scope: '.wr-tree-panel',
+  },
+  {
+    id: 'table/filter-reset',
+    route: `${REF}/table`,
+    steps: [{ click: demo('.wr-table-filter') }, { wait: 200 }, { click: '.wr-table-filter__item' }],
+    target: '.wr-table-filter__reset',
+    scope: '.wr-table-filter__panel',
+    note: 'A real text button painting the intent — one of the six the hand audit caught.',
+  },
+  {
+    id: 'toast/close-all',
+    route: `${REF}/toast`,
+    // A real pointer, not a forced `:hover`: the stack fans out on a
+    // `mouseenter` HANDLER, and "Close all" is not rendered until it has.
+    steps: [{ click: demo('.wr-btn:has-text("Open 3 toasts")') }, { wait: 400 }, { pointer: '.wr-toast-host' }],
+    target: '.wr-toast-host__close-all',
+    scope: '.wr-toast-host',
+  },
+  {
+    id: 'alert/dismissible',
+    route: `${REF}/alert`,
+    steps: [{ hover: demo('.wr-alert__close') }],
+    target: demo('.wr-alert__close'),
+    scope: demo('.wr-alert'),
+  },
+  {
+    id: 'input/password-toggle',
+    route: `${REF}/input`,
+    steps: [{ hover: demo('.wr-input-group__toggle') }],
+    target: demo('.wr-input-group__toggle'),
+    scope: demo('.wr-input-group'),
+  },
+  {
+    id: 'input-number/stepper-hover',
+    route: `${REF}/input-number`,
+    steps: [{ hover: demo('.wr-input-number__step') }],
+    target: demo('.wr-input-number__step'),
+    scope: demo('.wr-input-number'),
+  },
+  {
+    id: 'markdown/copy-button',
+    route: `${REF}/markdown`,
+    steps: [{ hover: demo('.wr-markdown__copy') }],
+    target: demo('.wr-markdown__copy'),
+    scope: demo('.wr-markdown'),
+  },
+  {
+    id: 'event-calendar/month',
+    route: `${REF}/event-calendar`,
+    steps: [{ hover: demo('.wr-event-calendar__daynum') }],
+    target: demo('.wr-event-calendar__daynum'),
+    scope: demo('.wr-event-calendar'),
+  },
+  {
+    id: 'burger/button',
+    route: `${REF}/burger`,
+    steps: [{ hover: demo('.wr-burger__btn') }],
+    target: demo('.wr-burger__btn'),
+    scope: demo('.wr-burger'),
+  },
+  {
+    id: 'textarea/resize-handle',
+    route: `${REF}/textarea`,
+    steps: [{ hover: demo('.wr-textarea__resize') }],
+    target: demo('.wr-textarea__resize'),
+    scope: demo('.wr-textarea-wrap, .wr-textarea'),
+  },
 ];
 
-/** One action. `hover` / `focus` are forced through CDP rather than a pointer. */
+/**
+ * One action. `hover` / `focus` are forced through CDP rather than a pointer, so
+ * they reach a state a single mouse position cannot — but a component that
+ * listens for `mouseenter` rather than styling `:hover` needs the real thing,
+ * and that is what `pointer` is for. The toast stack is the case: it fans out on
+ * a `mouseenter` handler, and its "Close all" button does not exist until it
+ * does.
+ */
 export type Step =
   | { readonly click: string }
   | { readonly rightClick: string }
   | { readonly hover: string }
+  /** A REAL pointer move. `hover` forces the pseudo-class; this fires the events. */
+  | { readonly pointer: string }
   | { readonly focus: string }
   | { readonly fill: readonly [selector: string, text: string] }
   | { readonly press: string }

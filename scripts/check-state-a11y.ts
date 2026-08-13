@@ -189,6 +189,7 @@ async function drive(page: Page, cdp: CDPSession, step: Step): Promise<void> {
   else if ('rightClick' in step)
     await page.locator(step.rightClick).first().click({ button: 'right', force: true, timeout: 5000 });
   else if ('hover' in step) await force(cdp, step.hover, ['hover']);
+  else if ('pointer' in step) await page.locator(step.pointer).first().hover({ timeout: 5000 });
   else if ('focus' in step) {
     await page.locator(step.focus).first().evaluate(el => (el as HTMLElement).focus(), undefined, { timeout: 5000 });
     await force(cdp, step.focus, ['focus', 'focus-visible']);
@@ -441,16 +442,34 @@ async function audit(
     return unreachableState(state, theme, why, unreachable);
   }
 
-  const scope = state.scope ?? state.target;
-  for (const cls of await page.locator(scope).first().evaluate(el => {
+  // Mark the scope on the DOM instead of re-resolving it, and resolve it as the
+  // target's own ANCESTOR.
+  //
+  // `scope` is a class selector and a docs page renders the same component
+  // several times, so `.first()` picks whichever instance comes first — not the
+  // one the steps drove. `table/row-selected` clicked a checkbox in the third
+  // demo and then measured the first, which is why `wr-table__tr--selected`
+  // showed up as unpainted by a state whose whole job was to paint it. A clean
+  // axe run over the wrong instance is the same failure as a clean run over a
+  // state that never rendered.
+  const scopeSelector = state.scope ?? state.target;
+  const classes = await target.evaluate((el, selector) => {
+    const root = (el as HTMLElement).closest(selector) ?? document.querySelector(selector);
+    if (!root) return null;
+    root.setAttribute('data-wr-state-scope', '');
     const seen = new Set<string>();
-    for (const node of [el, ...el.querySelectorAll('*')]) {
+    for (const node of [root, ...root.querySelectorAll('*')]) {
       for (const c of node.classList) if (c.startsWith('wr-')) seen.add(c);
     }
     return [...seen];
-  })) {
-    painted.add(cls);
+  }, scopeSelector);
+
+  if (classes === null) {
+    return unreachableState(state, theme, `matched no scope for "${scopeSelector}"`, unreachable);
   }
+  for (const cls of classes) painted.add(cls);
+
+  const scope = '[data-wr-state-scope]';
 
   await page.addScriptTag({ content: AXE_SOURCE });
   const results = (await page.evaluate(
@@ -477,6 +496,10 @@ async function audit(
     err(`\n✘ state-a11y: axe did not run ${missing.join(', ')} on "${state.id}" — the result says nothing about them.\n`);
     exit(1);
   }
+
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll('[data-wr-state-scope]')) el.removeAttribute('data-wr-state-scope');
+  });
 
   const out: Failure[] = [];
   for (const violation of results.violations) {
