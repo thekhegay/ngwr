@@ -208,6 +208,14 @@ export const wrRu: WrI18nCatalog = {
   },
   window: {
     close: 'Закрыть',
+    minimize: 'Свернуть',
+    maximize: 'Развернуть',
+    restore: 'Восстановить',
+    restoreDown: 'Восстановить размер',
+    restoreWindow: 'Восстановить {{title}}',
+    closeWindow: 'Закрыть окно',
+    untitled: 'Без названия',
+    taskbar: 'Свёрнутые окна',
   },
   dialog: {
     close: 'Закрыть диалог',

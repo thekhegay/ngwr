@@ -19,6 +19,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp, randomId } from 'ngwr/utils';
 
 import type {
@@ -31,6 +32,14 @@ import type {
   WrWindowState,
 } from './interfaces';
 import { WrWindowManager } from './services/window-manager';
+
+/**
+ * Stands in for the consumer input `useI18nText` expects. The chrome buttons take no
+ * label input — they are icon-only OS affordances — but their names still have to
+ * come from the catalog rather than from the template, which is where they used to
+ * live as English literals.
+ */
+const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 /**
  * Best-effort OS detection — runs once at module load. Looks at the
@@ -123,6 +132,25 @@ export class WrWindow {
 
   /** Auto-generated id for the title element, referenced by `aria-labelledby`. */
   protected readonly titleId = randomId('wr-window-title');
+
+  // `window.close` had been sitting in both catalogs unread while the template
+  // hard-coded the same English beside it; the other four had no key at all, so a
+  // Russian app announced four of its five window buttons in English.
+  protected readonly closeLabel = useI18nText(NO_OVERRIDE, 'window.close', 'Close');
+  private readonly minimizeLabel = useI18nText(NO_OVERRIDE, 'window.minimize', 'Minimize');
+  private readonly maximizeLabel = useI18nText(NO_OVERRIDE, 'window.maximize', 'Maximize');
+  private readonly restoreLabel = useI18nText(NO_OVERRIDE, 'window.restore', 'Restore');
+  private readonly restoreDownLabel = useI18nText(NO_OVERRIDE, 'window.restoreDown', 'Restore down');
+
+  /** The minimize button doubles as restore, and says which it is. */
+  protected readonly minimizeActionLabel = computed(() =>
+    this.state() === 'minimized' ? this.restoreLabel() : this.minimizeLabel()
+  );
+
+  /** Same for maximize, whose restore has its own wording. */
+  protected readonly maximizeActionLabel = computed(() =>
+    this.state() === 'maximized' ? this.restoreDownLabel() : this.maximizeLabel()
+  );
 
   /** Initial position. `null` = auto-cascade from the manager. */
   readonly initialX = input<number | null>(null, {

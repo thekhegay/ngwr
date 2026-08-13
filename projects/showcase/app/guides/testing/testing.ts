@@ -240,6 +240,24 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    window: `it('minimizes to the taskbar and back', async () => {
+  windows.open(EditorComponent, { title: 'Untitled.md' });
+  await fixture.whenStable();
+
+  const win = await rootLoader.getHarness(WrWindowHarness.with({ title: 'Untitled.md' }));
+  await win.minimize();
+
+  // Minimized is a state, not a dismissal.
+  expect(await win.isOpen()).toBe(true);
+  expect(await win.getState()).toBe('minimized');
+
+  const taskbar = await loader.getHarness(WrWindowTaskbarHarness);
+  expect(await taskbar.getTabTitles()).toEqual(['Untitled.md']);
+
+  await taskbar.restore('Untitled.md');
+  expect(await win.getState()).toBe('normal');
+});`,
+
     calendar: `it('picks a day and walks the views', async () => {
   const calendar = await loader.getHarness(WrCalendarHarness);
 
@@ -1327,6 +1345,51 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly windowApi: readonly DocApiRow[] = [
+    {
+      name: 'getTitle() / getState() / isOpen() / getBodyText() / getStatusBarText() / getTitleExtraText()',
+      description:
+        '`isOpen()` is for a harness you are HOLDING, and stays true for a MINIMIZED window — that is a state, not a dismissal.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'close() / minimize() / maximize() / doubleClickChrome() / sendEscape() / focusWindow()',
+      description:
+        'The same button minimizes and restores, and the same one maximizes and restores down. A button the chrome does not render throws, naming why — `showClose: false`, or the Linux chrome.',
+      type: 'Promise<void>',
+      default: '\u2014',
+    },
+    {
+      name: 'getBox() / getZIndex() / isResizable() / getResizeHandles()',
+      description:
+        'Geometry from the inline styles the component writes — the only readable answer without layout, and the same numbers a drag or a snap changes. `getZIndex()` is how you assert the stack order.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getCloseLabel() / getMinimizeLabel() / getMaximizeLabel() / hasCloseButton() / hasMinimizeButton() / hasMaximizeButton() / getOs() / getChromeSize()',
+      description:
+        'The chrome is icon-only, so those labels are the buttons’ only names — and they change with the state and with the OS the chrome is dressed as.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getRole() / isLabelledByTitle() / isHiddenFromAssistiveTech()',
+      description:
+        'A non-modal `role="dialog"` named by its own title element — resolved rather than trusted, since with several windows open the ids are what keeps them apart.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Taskbar: isEmpty() / getTabTitles() / restore(title) / closeTab(title) / getRestoreLabel(title) / getRailLabel() / getPosition()',
+      description:
+        '`WrWindowTaskbarHarness`, from the FIXTURE loader. An untitled window still gets a named tab. `closeTab()` closes without restoring, which is the nesting worth asserting.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 
