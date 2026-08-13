@@ -225,6 +225,21 @@ it('sets a time and steps it', async () => {
   expect(await sheet.isOpen()).toBe(false);
 });`,
 
+    colorPicker: `it('picks a colour through the fields, not a drag', async () => {
+  const trigger = await loader.getHarness(WrColorPickerTriggerHarness);
+  const picker = await trigger.open();
+
+  await picker.setHex('#3969e2');
+  expect(await picker.getHex()).toBe('#3969e2ff');
+
+  await picker.setTab('rgb');
+  expect(await picker.getRgb()).toEqual({ r: 57, g: 105, b: 226 });
+
+  await picker.setAlphaPercent(50);
+  // The surfaces followed, and the thumbs say so without any layout.
+  expect((await picker.getThumbs()).alpha).toBe(50);
+});`,
+
     table: `it('sorts, selects and expands', async () => {
   const table = await loader.getHarness(WrTableHarness);
 
@@ -1182,6 +1197,51 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'Row: getLabel() / getRole() / isDisabled() / hasIcon() / getIconName() / click() / focus() / isFocused()',
       description:
         '`WrActionSheetActionHarness`. The role is `default` / `destructive` / `cancel` as the component painted it; the icon name comes from `wr-icon`’s reflected `data-icon`, the only place it reaches the DOM.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly colorPickerApi: readonly DocApiRow[] = [
+    {
+      name: 'getHex() / setHex(text) / blurHex() / isHexFocused()',
+      description:
+        'The canonical colour — 8 digits with alpha, 6 without. Typed rather than assigned, because the field commits on every keystroke; text that never parses leaves the colour alone until the blur snaps the field back.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getTab() / setTab(tab) / getTabs()',
+      description:
+        'Which numeric fields are showing. The switcher is a `<wr-segmented>`, so `getTabs()` hands back `WrSegmentedHarness` rather than re-querying its buttons.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getRgb() / setRgbChannel(ch, n) / getHsl() / setHslChannel(ch, n)',
+      description:
+        'The channels of the ACTIVE tab; reading the other tab’s throws, naming `setTab`. A write lands once rather than per keystroke — typing 128 would commit 1, then 12, and clearing first would commit 0, since `Number("")` is 0.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getAlphaPercent() / setAlphaPercent(n) / hasAlpha()',
+      description:
+        'Alpha as the whole percent the numeric tabs show. `null` means the picker has no alpha; the HEX tab throws instead, because there the alpha is the last two hex digits.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getSwatches() / pickSwatch(color) / getThumbs() / isDisabled()',
+      description:
+        'Presets are matched on the string the consumer passed — the button’s accessible name — because the painted background comes back normalised. `getThumbs()` is the inline percentages, the only position a spec without layout can read.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'Trigger: isOpen() / open() / close() / toggle() / sendEscape() / getPicker() / isDisabled()',
+      description:
+        '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
     },
