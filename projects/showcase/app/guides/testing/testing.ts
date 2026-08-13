@@ -240,6 +240,19 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    speedDial: `it('fans out and picks', async () => {
+  const dial = await loader.getHarness(WrSpeedDialHarness);
+
+  // Closed, the buttons are in the DOM but unreachable — so the harness refuses.
+  await expect(dial.getActions()).rejects.toThrow();
+
+  await dial.open();
+  expect(await dial.getActionLabels()).toEqual(['Share', 'Copy link']);
+
+  await dial.sendEscape();
+  expect(await dial.isTriggerFocused()).toBe(true);
+});`,
+
     knob: `it('turns the dial from the keyboard', async () => {
   const knob = await loader.getHarness(WrKnobHarness);
 
@@ -1272,6 +1285,44 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly speedDialApi: readonly DocApiRow[] = [
+    {
+      name: 'isOpen() / open() / close() / toggle() / sendEscape()',
+      description:
+        'Open state from the trigger’s `aria-expanded`. Escape closes AND returns focus to the trigger, which is the half worth asserting.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getActions(filters?) / getActionLabels() / pick(filters) / getActionCount()',
+      description:
+        'The first three refuse while the dial is closed — the buttons are still in the DOM and only `visibility` hides them. `pick()` opens first, then clicks. Filters: `label`, `disabled`.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getTriggerLabel() / getTriggerIcon() / getDirection() / hasSafeArea() / isDisabled()',
+      description:
+        'The trigger is icon-only, so its `aria-label` is its ONLY name. Direction comes from the host modifier.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getMenuRole() / isMenuBound()',
+      description:
+        'The `aria-controls` pairing, checked in both directions: the menu must be this dial’s own, and no other element may answer to the same id.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Action: getLabel() / getInitial() / hasIcon() / getIconName() / getRole() / isDisabled() / click()',
+      description:
+        '`WrSpeedDialActionHarness`. `getLabel()` is the accessible name; `getInitial()` is the single glyph drawn when there is no icon — a whole emoji, not half a surrogate pair.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 

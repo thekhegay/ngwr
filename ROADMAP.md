@@ -75,7 +75,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-      **Shipped: 38 nested entry points, ~934 harness specs** — every form control
+      **Shipped: 39 nested entry points, ~963 harness specs** — every form control
       (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
       `input-number`, `input-otp`, `slider`, `rating`, `file-upload`,
       `color-picker`, `knob`, `form`,
@@ -83,7 +83,8 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
       `command-palette`, `cascader`, `mention`), both data views (`table`, `tree`),
       the navigation and disclosure set (`tabs`, `stepper`, `carousel`,
-      `pagination`, `collapse`, `transfer`), `splitter` and `markdown` — nested, so a spec
+      `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial` and `markdown` —
+      nested, so a spec
       import pulls nothing into the app bundle — plus the `/guides/testing` page.
 
     **The design rules, all of them earned:**
@@ -161,8 +162,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     counts the row itself.
 
     **Still uncovered:** calendar, event-calendar, window, tour, lightbox,
-    image-cropper, speed-dial, virtual-scroll, plus the charts and the animation
-    set. Every CONTROL and every OVERLAY has one now, so what is left is
+    image-cropper, virtual-scroll, plus the charts and the animation set. Every CONTROL and every OVERLAY has one now, so what is left is
     the rest of the layout set, the two calendars and the animations. None is
     blocked.
 - [ ] **A5. Visual regression** (M) — **the painted-a11y half landed:**
