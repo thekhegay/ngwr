@@ -140,6 +140,7 @@ export const wrRu: WrI18nCatalog = {
     cancel: 'Отмена',
   },
   toast: {
+    region: 'Уведомления',
     close: 'Закрыть',
     copy: 'Копировать',
     copied: 'Скопировано',

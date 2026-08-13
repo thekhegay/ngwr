@@ -1,11 +1,19 @@
 import { Component, type EnvironmentProviders, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideWrConfig } from 'ngwr/config';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import type { WrInputSize } from 'ngwr/input';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrInputNumber } from './input-number';
+
+@Component({
+  imports: [WrInputNumber],
+  template: `<wr-input-number incrementLabel="Up" decrementLabel="Down" />`,
+})
+class LabelledHost {}
 
 @Component({
   imports: [WrInputNumber],
@@ -327,5 +335,56 @@ describe('WrInputNumber defaults from provideWrConfig', () => {
 
     expect(chrome(0).field.className).toBe('wr-input');
     expect(chrome(0).group.className).toBe('wr-input-group');
+  });
+});
+
+/**
+ * The steppers are icon-only, so their `aria-label` IS their accessible name —
+ * and it was the English literal `"Increment"` in the template while
+ * `inputNumber.increment` sat unread in both shipped catalogs. Nothing failed:
+ * the string was right for one language and every gate is in that language.
+ */
+describe('WrInputNumber stepper names', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const steppers = (fixture: ComponentFixture<unknown>): (string | null)[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll('.wr-input-number__step')].map(b =>
+      b.getAttribute('aria-label')
+    );
+
+  it('comes from the catalog, not from the template', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const labels = steppers(fixture);
+    expect(labels).toHaveLength(2);
+    for (const label of labels) {
+      expect(label).toBeTruthy();
+      expect(/\p{Script=Cyrillic}/u.test(label ?? ''), `"${label ?? ''}" is still English`).toBe(true);
+    }
+  });
+
+  it('falls back to English when nothing is registered', () => {
+    TestBed.configureTestingModule({ providers: [] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+
+    expect(steppers(fixture)).toEqual(['Increment', 'Decrement']);
+  });
+
+  it('lets a binding win over both', () => {
+    TestBed.configureTestingModule({ providers: [] });
+    const fixture = TestBed.createComponent(LabelledHost);
+    fixture.detectChanges();
+
+    expect(steppers(fixture)).toEqual(['Up', 'Down']);
   });
 });

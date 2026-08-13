@@ -48,13 +48,13 @@
           }
         </span>
       } @else {
-        <span class="wr-tree__placeholder">{{ placeholder() }}</span>
+        <span class="wr-tree__placeholder">{{ resolvedPlaceholder() }}</span>
       }
     } @else {
       @if (singleLabel(); as label) {
         <span class="wr-tree__value">{{ label }}</span>
       } @else {
-        <span class="wr-tree__placeholder">{{ placeholder() }}</span>
+        <span class="wr-tree__placeholder">{{ resolvedPlaceholder() }}</span>
       }
     }
 

@@ -152,6 +152,7 @@ export const wrEn: WrI18nCatalog = {
     cancel: 'Cancel',
   },
   toast: {
+    region: 'Notifications',
     close: 'Close',
     copy: 'Copy',
     copied: 'Copied',

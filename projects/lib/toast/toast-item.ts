@@ -44,7 +44,11 @@ export class WrToastItem {
   readonly showCopy = input<boolean>(false);
   /** Auto-dismiss duration in ms — used to scale the progress bar. `0` hides it. */
   readonly duration = input<number>(0);
-  readonly labels = input.required<WrToastConfig['labels']>();
+  /**
+   * Already resolved by the host — strings, not the config's nullable shape.
+   * The item renders them and never reaches for the catalog itself.
+   */
+  readonly labels = input.required<{ [K in keyof WrToastConfig['labels']]: string }>();
 
   readonly dismissed = output<void>();
   readonly pauseRequested = output<void>();
