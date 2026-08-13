@@ -2,9 +2,7 @@
   <button
     type="button"
     class="wr-calendar__nav wr-calendar__nav--prev"
-    [attr.aria-label]="
-      viewMode() === 'year' ? 'Previous 12 years' : viewMode() === 'month' ? 'Previous year' : 'Previous month'
-    "
+    [attr.aria-label]="prevLabel()"
     [disabled]="disabled()"
     (click)="prev()"
   >
@@ -33,7 +31,7 @@
   <button
     type="button"
     class="wr-calendar__nav wr-calendar__nav--next"
-    [attr.aria-label]="viewMode() === 'year' ? 'Next 12 years' : viewMode() === 'month' ? 'Next year' : 'Next month'"
+    [attr.aria-label]="nextLabel()"
     [disabled]="disabled()"
     (click)="next()"
   >

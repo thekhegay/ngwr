@@ -23,8 +23,15 @@ import {
 } from '@angular/core';
 
 import { WrDateAdapter } from 'ngwr/date-adapter';
+import { useI18nText } from 'ngwr/i18n';
 
 import type { WrCalendarMode, WrCalendarRange } from './interfaces';
+
+/**
+ * Stands in for the consumer input `useI18nText` expects, for labels the calendar
+ * exposes no input for. Constant and read-only, so one instance is safe to share.
+ */
+const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 const ROWS = 6;
 const COLS = 7;
@@ -106,6 +113,41 @@ export class WrCalendar {
 
   /** Which sub-view is currently shown. Cycles `day → month → year` on header click. */
   protected readonly viewMode = signal<'day' | 'month' | 'year'>('day');
+
+  // The four month/year strings have been in both catalogs since they were written
+  // and nothing read them: the template hard-coded the same English beside them, so a
+  // localized app announced its calendar's arrows in English. `nullSignal()` is the
+  // shim for exactly this — a label with no consumer input to forward.
+  private readonly prevMonthLabel = useI18nText(NO_OVERRIDE, 'calendar.prevMonth', 'Previous month');
+  private readonly nextMonthLabel = useI18nText(NO_OVERRIDE, 'calendar.nextMonth', 'Next month');
+  private readonly prevYearLabel = useI18nText(NO_OVERRIDE, 'calendar.prevYear', 'Previous year');
+  private readonly nextYearLabel = useI18nText(NO_OVERRIDE, 'calendar.nextYear', 'Next year');
+  private readonly prevYearsLabel = useI18nText(NO_OVERRIDE, 'calendar.prevYears', 'Previous 12 years');
+  private readonly nextYearsLabel = useI18nText(NO_OVERRIDE, 'calendar.nextYears', 'Next 12 years');
+
+  /** What the ← button does from here — a month, a year, or a 12-year page. */
+  protected readonly prevLabel = computed(() => {
+    switch (this.viewMode()) {
+      case 'year':
+        return this.prevYearsLabel();
+      case 'month':
+        return this.prevYearLabel();
+      default:
+        return this.prevMonthLabel();
+    }
+  });
+
+  /** What the → button does from here. */
+  protected readonly nextLabel = computed(() => {
+    switch (this.viewMode()) {
+      case 'year':
+        return this.nextYearsLabel();
+      case 'month':
+        return this.nextYearLabel();
+      default:
+        return this.nextMonthLabel();
+    }
+  });
 
   protected readonly today = computed(() => this.adapter.today());
 

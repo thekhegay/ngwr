@@ -170,6 +170,8 @@ export const wrRu: WrI18nCatalog = {
     nextMonth: 'Следующий месяц',
     prevYear: 'Предыдущий год',
     nextYear: 'Следующий год',
+    prevYears: 'Предыдущие 12 лет',
+    nextYears: 'Следующие 12 лет',
   },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',

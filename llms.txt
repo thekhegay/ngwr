@@ -140,7 +140,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 41 entry points so far, 71 harness classes, covering the
+  `ngwr/<name>/testing`. 42 entry points so far, 72 harness classes, covering the
   form controls, the overlays, both data views, the navigation / disclosure set
   (`tabs`, `stepper`, `carousel`, `pagination`, `segmented`, `collapse`,
   `transfer`) and `markdown`: the form controls
@@ -149,8 +149,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `knob`, `form` for `<wr-form-field>`), the overlays (`date-picker`, `dropdown`,
   `popover`, `dialog`, `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
   `command-palette`, `cascader`, `mention`), the data views (`table`, `tree`),
-  `splitter`, `speed-dial`, `lightbox` and `tour` — every control and every
-  overlay has one.
+  `splitter`, `speed-dial`, `lightbox`, `tour` and `calendar` — every control and
+  every overlay has one.
   Load them with `TestbedHarnessEnvironment` and narrow with
   `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's markup.
   Dialog, toast and a service-opened drawer render outside the fixture — load
