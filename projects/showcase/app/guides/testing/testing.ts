@@ -1424,6 +1424,27 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<\u2026>',
       default: '\u2014',
     },
+    {
+      name: 'Gauge: getRole() / getValue() / getMin() / getMax() / getValueText() / getDisplayValue() / getSuffix()',
+      description:
+        '`WrGaugeHarness`. The arc is `aria-hidden` and the printed number is optional, so `role="meter"` plus `aria-valuetext` is the whole readable surface — a gauge with `showValue` off still announces `72%`.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Meter group: getValue() / getMax() / getSlices() / getLegendLabels() / getLegendValues() / hasLegend()',
+      description:
+        '`WrMeterGroupHarness`. The bar is ONE `progressbar` carrying the total; the bands announce nothing and are read by their `title` and their inline share.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Heatmap: getCellCount() / getCells() / getValueFor(iso) / getWeekdayLabels() / getMonthLabels() / hasLabels()',
+      description:
+        '`WrCalendarHeatmapHarness`. Every square is `aria-hidden` and the grid is one named image — a year of announced days would be unusable — so a square’s `title` is the only text there is. Four weekday labels are blank by design.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
   ];
 
   protected readonly eventCalendarApi: readonly DocApiRow[] = [

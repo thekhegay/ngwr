@@ -75,7 +75,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-      **Shipped: 49 nested entry points, ~1113 harness specs** — every form control
+      **Shipped: 52 nested entry points, ~1139 harness specs** — every form control
       (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
       `input-number`, `input-otp`, `slider`, `rating`, `file-upload`,
       `color-picker`, `knob`, `form`,
@@ -84,9 +84,9 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       `command-palette`, `cascader`, `mention`), both data views (`table`, `tree`),
       the navigation and disclosure set (`tabs`, `stepper`, `carousel`,
       `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`, `lightbox`,
-      `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`, four charts
-      (`bar-chart`, `line-chart`, `donut-chart`, `sparkline`) and `markdown` — nested,
-      so a spec
+      `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`, every chart
+      (`bar-chart`, `line-chart`, `donut-chart`, `sparkline`, `gauge`, `meter-group`,
+      `calendar-heatmap`) and `markdown` — nested, so a spec
       import pulls nothing into the app bundle — plus the `/guides/testing` page.
 
     **The design rules, all of them earned:**
@@ -163,12 +163,13 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     virtualized table selects the whole dataset, not the window, and `aria-setsize`
     counts the row itself.
 
-    **Still uncovered:** `gauge`, `meter-group` and `calendar-heatmap` of the charts,
-    and the animation set — the latter presentational, and what most of them draw is a
-    canvas a unit test cannot measure at all. The four charts that DO have one read
-    only what is textual or countable: a path's `d` moves with the viewBox and is not
-    an assertion, so the legends, the ticks, the labels and the bar percentages are
-    the surface.
+    **Still uncovered: the animation set alone** — presentational, and what most of
+    them draw is a canvas a unit test cannot measure at all (their own specs already
+    assert the null-context fallback and their teardown, which is the whole of what a
+    spec can reach there). The charts read only what is textual or countable: an SVG
+    path's `d` moves with the viewBox and is not an assertion, so the legends, the
+    ticks, the labels, the ARIA value trio and the inline percentages are the
+    surface.
     **`virtual-scroll` is deliberately not getting one**, which is a decision rather
     than a gap: it is a thin wrapper over `cdk-virtual-scroll-viewport`, whose entire
     observable behaviour is the window it renders, and jsdom measures the viewport at
