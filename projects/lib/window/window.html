@@ -12,7 +12,7 @@
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--close"
-          aria-label="Close"
+          [attr.aria-label]="closeLabel()"
           (click)="close()"
         >
           <svg class="wr-window__chrome-action-glyph" viewBox="0 0 10 10" aria-hidden="true">
@@ -29,7 +29,7 @@
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--minimize"
-          [attr.aria-label]="state() === 'minimized' ? 'Restore' : 'Minimize'"
+          [attr.aria-label]="minimizeActionLabel()"
           (click)="minimize()"
         >
           <svg class="wr-window__chrome-action-glyph" viewBox="0 0 10 10" aria-hidden="true">
@@ -41,7 +41,7 @@
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--maximize"
-          [attr.aria-label]="state() === 'maximized' ? 'Restore down' : 'Maximize'"
+          [attr.aria-label]="maximizeActionLabel()"
           (click)="maximize()"
         >
           <svg class="wr-window__chrome-action-glyph" viewBox="0 0 10 10" aria-hidden="true">
@@ -65,7 +65,7 @@
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--minimize"
-          [attr.aria-label]="state() === 'minimized' ? 'Restore' : 'Minimize'"
+          [attr.aria-label]="minimizeActionLabel()"
           (click)="minimize()"
         >
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
@@ -78,7 +78,7 @@
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--maximize"
-          [attr.aria-label]="state() === 'maximized' ? 'Restore down' : 'Maximize'"
+          [attr.aria-label]="maximizeActionLabel()"
           (click)="maximize()"
         >
           @if (state() === 'maximized') {
@@ -98,7 +98,7 @@
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--close"
-          aria-label="Close"
+          [attr.aria-label]="closeLabel()"
           (click)="close()"
         >
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">

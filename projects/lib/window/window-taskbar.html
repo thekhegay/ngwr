@@ -4,15 +4,15 @@
       <button
         type="button"
         class="wr-window-taskbar__tab"
-        [attr.aria-label]="`Restore ${ref.title() || 'Untitled'}`"
+        [attr.aria-label]="restoreLabel({ title: tabTitle(ref) })"
         (click)="restore(ref)"
       >
-        <span class="wr-window-taskbar__tab-title">{{ ref.title() || 'Untitled' }}</span>
+        <span class="wr-window-taskbar__tab-title">{{ tabTitle(ref) }}</span>
         <span
           class="wr-window-taskbar__tab-close"
           role="button"
           tabindex="0"
-          aria-label="Close window"
+          [attr.aria-label]="closeLabel()"
           (click)="close(ref, $event)"
           (keydown.enter)="close(ref, $event)"
         >

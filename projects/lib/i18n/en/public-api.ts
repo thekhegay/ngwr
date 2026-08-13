@@ -220,6 +220,14 @@ export const wrEn: WrI18nCatalog = {
   },
   window: {
     close: 'Close',
+    minimize: 'Minimize',
+    maximize: 'Maximize',
+    restore: 'Restore',
+    restoreDown: 'Restore down',
+    restoreWindow: 'Restore {{title}}',
+    closeWindow: 'Close window',
+    untitled: 'Untitled',
+    taskbar: 'Minimized windows',
   },
   dialog: {
     close: 'Close dialog',
