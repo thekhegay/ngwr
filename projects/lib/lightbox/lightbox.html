@@ -9,7 +9,16 @@
     decoding="async"
   />
 } @else {
-  <button type="button" class="wr-lightbox__trigger" [attr.aria-label]="resolvedOpenLabel()" (click)="onClick()">
+  <!-- The trigger opens a modal dialog, and used to say so nowhere: no hint that it
+       opens anything, and nothing on the page tying it to the viewer it opened. -->
+  <button
+    type="button"
+    class="wr-lightbox__trigger"
+    aria-haspopup="dialog"
+    [attr.aria-controls]="open() ? viewerId : null"
+    [attr.aria-label]="resolvedOpenLabel()"
+    (click)="onClick()"
+  >
     <img
       class="wr-lightbox__thumb"
       [src]="preview() || src()"
@@ -26,6 +35,7 @@
   <div
     #viewer
     class="wr-lightbox-viewer"
+    [id]="viewerId"
     role="dialog"
     aria-modal="true"
     [attr.aria-label]="resolvedViewerLabel()"

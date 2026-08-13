@@ -255,6 +255,28 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Lightbox" description="A viewer that does not exist until it does.">
+    <ngwr-doc-code [code]="snippets.lightbox" language="typescript" />
+
+    <p wrTypography>
+      The thumbnail is in your fixture and the viewer is an overlay, so the harness crosses between them — scoped by the
+      id the trigger publishes as <code>aria-controls</code>, which means two lightboxes open at once still answer for
+      their own image. Unlike a collapse or a speed dial, a closed lightbox has no viewer at ALL: the overlay is created
+      on open and disposed on close, so every viewer read throws while it is shut rather than answering about a stale
+      element.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Two things worth asserting that nothing else covers. <code>clickImage()</code> drives the full image, which is
+      styled <code>cursor: zoom-out</code> and deliberately kept OUT of the tab order — a mouse affordance whose promise
+      nothing else checks. And <code>[disablePreview]</code> removes the button rather than disabling it, so the
+      thumbnail becomes a bare <code>&lt;img&gt;</code>: <code>isInteractive()</code> is how you tell, and
+      <code>open()</code> explains itself instead of failing to find an element.
+    </p>
+
+    <ngwr-doc-api [rows]="lightboxApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Speed dial" description="The actions are always in the DOM.">
     <ngwr-doc-code [code]="snippets.speedDial" language="typescript" />
 
