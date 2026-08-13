@@ -240,6 +240,22 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    tour: `it('walks the tour', async () => {
+  tour.start(steps);
+  await fixture.whenStable();
+
+  const first = await rootLoader.getHarness(WrTourHarness);
+  expect(await first.getTitle()).toBe('Search');
+  expect(await first.hasBack()).toBe(false);
+
+  await first.next();
+
+  // The card is rebuilt per step, so fetch a fresh harness rather than reusing one.
+  const second = await rootLoader.getHarness(WrTourHarness);
+  expect(await second.getProgress()).toEqual({ current: 2, total: 2 });
+  expect(await second.getPrimaryLabel()).toBe('Done');
+});`,
+
     lightbox: `it('opens the full image', async () => {
   const lightbox = await loader.getHarness(WrLightboxHarness.with({ alt: 'Mountain' }));
 
@@ -1299,6 +1315,37 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly tourApi: readonly DocApiRow[] = [
+    {
+      name: 'getTitle() / getContent() / getProgressText() / getProgress()',
+      description:
+        'The step as printed. `getProgress()` parses the two numbers out of the line and answers `null` rather than guessing if a catalog spells them differently; its `total` counts the steps the tour was STARTED with, skipped ones included.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'next() / back() / skipTour() / hasBack()',
+      description:
+        'The three buttons, driven through `WrButtonHarness`. `back()` throws on the first step, where the button is not rendered at all.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getPrimaryLabel() / getBackLabel() / getSkipLabel()',
+      description:
+        '`getPrimaryLabel()` is how you tell the last step: the service looks ahead for a reachable target, so it reads "Done" one card early when the final step is hidden — which no count can show.',
+      type: 'Promise<string>',
+      default: '\u2014',
+    },
+    {
+      name: 'isShowing() / isModal() / getAccessibleName()',
+      description:
+        '`isShowing()` is for a harness you are HOLDING — it goes false when the step is torn down. The card is an `aria-modal` dialog named by its title plus the progress line, or by the progress line alone.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 

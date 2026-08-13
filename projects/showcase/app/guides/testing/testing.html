@@ -255,6 +255,27 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Tour" description="One card at a time, and last is not a count.">
+    <ngwr-doc-code [code]="snippets.tour" language="typescript" />
+
+    <p wrTypography>
+      <code>WrTour</code> is a service with no element of its own, so the card comes from
+      <code>documentRootLoader()</code> and there is nothing to load while the tour is idle — which makes
+      <code>getHarnessOrNull()</code> the way to ask whether one is running. Only one card exists at a time: the service
+      tears a step down before opening the next, so a harness held across <code>next()</code> is pointed at a detached
+      element.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      The assertion worth writing is <code>getPrimaryLabel()</code>, not the count. A step whose target is not on the
+      page is skipped, so a three-step tour can show two — and the service looks AHEAD for a reachable step to decide
+      whether the button reads "Next" or "Done". <code>current === total</code> disagrees with it exactly when the last
+      step is hidden, which is the case that used to end the tour from a card still saying "Next".
+    </p>
+
+    <ngwr-doc-api [rows]="tourApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Lightbox" description="A viewer that does not exist until it does.">
     <ngwr-doc-code [code]="snippets.lightbox" language="typescript" />
 
