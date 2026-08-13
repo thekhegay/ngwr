@@ -174,6 +174,7 @@ enlarges every control at once.
 | Lint everything   | `pnpm lint`                                                                                         |
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
 | Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — **nightly**, not a PR gate)            |
+| State contrast    | `pnpm check:state-contrast` (the same two rules INSIDE hovers / overlays — **nightly**)             |
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
@@ -562,26 +563,58 @@ paints text on an intent.
 **`check:contrast` gates on ROUTE COUNTS per rule, not on nodes**, so a brand-new
 violation on a route already in `contrast-baseline.json` passes silently. That is
 not hypothetical: the dark `primary` deepening broke `wr-calendar__day--today`
-(4.06:1), the calendar route was already baselined for its WCAG-exempt
+(4.06:1), the calendar route was already baselined for its
 `--out-of-month` days, the route count did not move, and the sweep printed
 `✓ No new contrast or target-size violations`. It was found by probing the element
 directly. **When you change a token, measure the elements you changed** — a green
 sweep only means no NEW route started failing.
 
-**Neither gate can see a hover, a focus ring, or anything inside an overlay.**
-Both walk PRERENDERED HTML or a page at rest, so `.wr-option--selected` (inside a
-panel that does not exist until you click), `.wr-segmented__option:hover` and
-`.wr-context-menu-item` are invisible to them — which is precisely where the
-library paints an intent as text. Those states were measured by driving Playwright
-into each one and running axe there; the six that failed had been failing for as
-long as the rules existed, and both gates were green throughout. **When auditing
-a state, assert that the state PAINTED**: a clean axe run over an element that
-never rendered is indistinguishable from a pass, and that is how an audit reports
-green on nothing. Two traps found that way — `.wr-context-menu-item:focus-visible`
-can never match, because items carry `tabindex="-1"` and the menu focuses its own
-host (the rule is reached through its `:hover` twin); and
-`.wr-falling-text__word--hl` needs a `[highlightWords]` binding that no showcase
-demo passes, so it is unmeasurable on the docs site at any effort.
+**Neither of those two can see a hover, a focus ring, or anything inside an
+overlay** — which is precisely where the library paints an intent as text. Both
+walk PRERENDERED HTML or a page at rest, so `.wr-option--selected` (inside a panel
+that does not exist until you click), `.wr-segmented__option:hover` and
+`.wr-context-menu-item` are invisible to them. Seven failures were found there by
+hand, every one of them long-standing and every one under a green run. That is
+what **`pnpm check:state-contrast`** (`scripts/check-state-contrast.ts`) is for:
+the third a11y gate, nightly, driving a curated table of states from
+`scripts/lib/state-contrast/states.ts` and running the same two rules inside each.
+
+Four rules if you touch it, and each one is a bug it already had:
+
+- **A state that did not paint FAILS the run.** A clean axe run over an element
+  that never rendered is indistinguishable from a pass, and that is how an audit
+  reports green on nothing. Every entry names a `target` asserted visible with a
+  real box first. Two selectors found that way that can never match:
+  `.wr-context-menu-item:focus-visible` (items carry `tabindex="-1"` and the menu
+  focuses its own host — reach the rule through its `:hover` twin), and
+  `.wr-falling-text__word--hl`, which needs a `[highlightWords]` binding no
+  showcase demo passes.
+- **Wait for the state to STOP MOVING, and never against `transform: none`.**
+  `reducedMotion` does not stop an overlay's enter animation, and mid-flight the
+  dialog reports its own title at 3.68:1 — a half-faded panel over a half-faded
+  backdrop. The check is five identical samples of every ANCESTOR's opacity and
+  transform (the pane animates, not the panel) plus a count of running
+  colour-affecting animations. Every CDK pane carries a permanent positioning
+  translate, so "settled means no transform" can never be satisfied; and a toast's
+  progress bar runs for its whole dismiss timeout, so animations that cannot
+  change a colour do not count.
+- **Sample the wait from NODE, one short evaluate at a time.** A three-second loop
+  inside the page runs its timers and still sees the same six transitions running
+  the whole way — a headless renderer nothing is asking for a frame does not
+  advance them.
+- **Never let a `catch` return "settled".** One did, and it hid
+  `__name is not defined` — esbuild's keep-names transform, thrown by every
+  `page.evaluate` holding a NAMED inner function — through four rounds of
+  debugging. Inline the helpers.
+
+Two more things about it. The baseline is keyed by NODE with `:nth-child()`
+stripped, so a new violation inside an already-failing state cannot hide and the
+calendar entries do not expire when the month changes. And a full run prints
+coverage — state-dependent classes in the BUILT stylesheet versus classes it
+actually painted, **21 of 95** — because a curated table that stopped growing
+looks exactly like one that covers the catalog. Selectors go through `demo()`: the
+showcase is built out of the library, so the first `.wr-dropdown-trigger` on every
+page is the header's own version switcher.
 
 `check:rtl-layout` is the other nightly job, and it is nightly for the same
 reason. It renders every route in a real Chromium under both directions and fails
