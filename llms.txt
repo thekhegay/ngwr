@@ -197,7 +197,15 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   listed here rather than embedding a copy of them. Client config for Claude
   Code / Claude Desktop / Cursor, and a worked example of each tool:
   https://ngwr.dev/guides/mcp
+- **Agent skill — the rules, not the catalog.** `skills/ngwr/SKILL.md` in the
+  installed package (also at https://ngwr.dev/skills/ngwr/SKILL.md) is about a
+  page of the things this library does that a reasonable guess gets wrong: the
+  button's selector is `wr-btn`, a checkbox's group identity is `checkboxValue`,
+  there is no `ControlValueAccessor`, imports come from the entry point rather
+  than a barrel. `references/catalog.md` and `references/setup.md` sit beside it
+  for the long tail. Generated from the same pass as `llms-full.txt`:
+  https://ngwr.dev/guides/agent-skill
 - All site URLs (for crawlers): https://ngwr.dev/sitemap.xml
 - Source, README, per-component `.d.ts` types: https://github.com/thekhegay/ngwr
   (installed at `node_modules/ngwr/types/ngwr-<name>.d.ts`; the package also
-  ships `README.md`, `llms.txt`, and `llms-full.txt`)
+  ships `README.md`, `llms.txt`, `llms-full.txt` and `skills/ngwr/`)

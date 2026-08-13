@@ -6,11 +6,18 @@
  */
 
 /**
- * Generates `llms-full.txt` from library + showcase source, so it never drifts
- * from the code: every ngwr entry point with its import path, selector(s),
- * public exports, and description. The exhaustive companion to the curated
- * `llms.txt`. Written to the repo root; shipped in the package (via
- * copy-dist-assets) and served at ngwr.dev/llms-full.txt.
+ * Generates the AI assets from library + showcase source, so they never drift
+ * from the code:
+ *
+ * - `llms-full.txt` — every ngwr entry point with its import path, selector(s),
+ *   public exports, and description. The exhaustive companion to the curated
+ *   `llms.txt`.
+ * - `skills/ngwr/` — the agent skill: a `SKILL.md` carrying the rules an agent
+ *   gets wrong, plus `references/` files holding the catalog and the setup.
+ *
+ * Both are written to the repo root, shipped in the package (via
+ * copy-dist-assets) and served from ngwr.dev. They come off ONE `collect()`, so
+ * the catalog cannot say two different things in two files.
  *
  * Wired into `build:lib` + `build:showcase`. The output is generated
  * (gitignored) — never hand-edit it; edit this script. (The sitemap is a
@@ -27,9 +34,12 @@
  *   pnpm tsx scripts/gen-ai-assets.ts --check
  */
 
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 
+import { REQUIRED_PROVIDERS } from '../projects/lib/mcp/providers';
+
+import { renderSkill } from './lib/ai/skill';
 import { info } from './lib/log/info';
 import { ROOT_PATH } from './lib/paths/root';
 
@@ -37,6 +47,19 @@ const LIB_DIR = join(ROOT_PATH, 'projects/lib');
 const SHOWCASE_APP = join(ROOT_PATH, 'projects/showcase/app');
 const REFERENCE_DIR = join(SHOWCASE_APP, 'reference');
 const ANIMATIONS_DIR = join(SHOWCASE_APP, 'animations');
+
+/**
+ * The Angular major the library is built against, read from its own peer range
+ * rather than written into the skill — a stale framework version in a document
+ * an agent trusts is worse than none.
+ */
+function angularMajor(): string {
+  const pkg = JSON.parse(read(join(LIB_DIR, 'package.json')) || '{}') as {
+    peerDependencies?: Record<string, string>;
+  };
+  const range = pkg.peerDependencies?.['@angular/core'] ?? '';
+  return /(\d+)/.exec(range)?.[1] ?? '22';
+}
 
 const dirsOnly = (path: string): string[] =>
   existsSync(path)
@@ -339,6 +362,8 @@ function render(entries: readonly Entry[]): string {
 const MIN_ENTRIES = 164;
 const MIN_DESCRIBED = 117;
 const MIN_WITH_EXPORTS = 164;
+/** Rows in the skill's catalog table — one per entry point, plus the header. */
+const MIN_SKILL_ROWS = 164;
 
 function check(entries: readonly Entry[]): number {
   const problems: string[] = [];
@@ -361,6 +386,30 @@ function check(entries: readonly Entry[]): number {
     if (!entry.headline) problems.push(`ngwr/${entry.name}: no symbol to put in the import line`);
   }
 
+  // The skill is checked as OUTPUT, not as inputs. A generator that produces a
+  // SKILL.md with no frontmatter, or a catalog table with the header and
+  // nothing under it, passes every input floor above and is useless to the one
+  // reader it has.
+  const skill = renderSkill(entries, REQUIRED_PROVIDERS, angularMajor());
+  const main = skill.find(file => file.path === 'SKILL.md');
+  const catalog = skill.find(file => file.path === 'references/catalog.md');
+
+  if (!main?.content.startsWith('---\nname: ngwr\ndescription: ')) {
+    problems.push('SKILL.md does not open with the frontmatter an agent reads to decide whether to load it');
+  }
+  const rows = (catalog?.content.match(/^\| `ngwr\//gm) ?? []).length;
+  if (rows < MIN_SKILL_ROWS) problems.push(`the skill catalog lists ${rows} entry points, expected at least ${MIN_SKILL_ROWS}`);
+
+  // Every provider rule has to survive into the document. `describeTest` unpacks
+  // a regular expression, and the failure mode is a confident half-list rather
+  // than a crash.
+  for (const required of REQUIRED_PROVIDERS) {
+    if (!main?.content.includes(required.provider)) problems.push(`SKILL.md never mentions ${required.provider}`);
+  }
+  if (main?.content.includes('symbols matching')) {
+    problems.push('a provider rule uses a regular-expression shape describeTest cannot name');
+  }
+
   for (const problem of problems) console.error(`  ✘ ${problem}`);
   return problems.length;
 }
@@ -380,6 +429,19 @@ function main(): void {
 
   writeFileSync(join(ROOT_PATH, 'llms-full.txt'), render(entries));
   info(`✓ llms-full.txt — ${entries.length} entry points, ${entries.filter(e => e.description).length} descriptions`);
+
+  // Removed and rewritten rather than merged over: a reference file that stops
+  // being generated has to stop being shipped, and the tarball is assembled by
+  // copying whatever is in this directory.
+  const skillDir = join(ROOT_PATH, 'skills/ngwr');
+  rmSync(skillDir, { recursive: true, force: true });
+  const skill = renderSkill(entries, REQUIRED_PROVIDERS, angularMajor());
+  for (const file of skill) {
+    const path = join(skillDir, file.path);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, file.content);
+  }
+  info(`✓ skills/ngwr — ${skill.length} files, ${entries.length} entry points in the catalog`);
 }
 
 main();

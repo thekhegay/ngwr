@@ -35,6 +35,7 @@ export const routes = {
     keyboard: 'keyboard',
     testing: 'testing',
     mcp: 'mcp',
+    agentSkill: 'agent-skill',
     csp: 'csp',
     tokens: 'tokens',
     translations: 'translations',

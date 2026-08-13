@@ -4,5 +4,6 @@ Allow: /
 # Machine-readable summaries of the library, for agents and LLMs:
 #   https://ngwr.dev/llms.txt       — curated quick reference
 #   https://ngwr.dev/llms-full.txt  — every entry point, generated at build time
+#   https://ngwr.dev/skills/ngwr/SKILL.md — the agent skill, same generator
 
 Sitemap: https://ngwr.dev/sitemap.xml

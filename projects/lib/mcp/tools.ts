@@ -7,6 +7,7 @@
 
 import { declaredClasses, extractClass, type ApiMember } from './api.js';
 import type { Catalog, CatalogEntry } from './catalog.js';
+import { REQUIRED_PROVIDERS } from './providers.js';
 
 /** A tool as `tools/list` describes it. */
 interface ToolSpec {
@@ -90,36 +91,6 @@ const TOOLS: readonly ToolSpec[] = [
       },
       required: ['symbols'],
     },
-  },
-];
-
-/**
- * Providers a symbol cannot work without.
- *
- * Hard-coded, and the list is short on purpose: these are the four cases where
- * the component compiles, renders nothing useful, and gives no error that names
- * the cause. Everything else is discoverable from the docs page.
- */
-const REQUIRED_PROVIDERS: readonly { readonly test: RegExp; readonly provider: string; readonly why: string }[] = [
-  {
-    test: /^Wr(Dialog|Drawer|Toast|Popover|Popconfirm|ContextMenu|Select|Dropdown|CommandPalette|Cascader|Mention|DatePicker|Tour|Lightbox)/,
-    provider: "provideWrOverlay() // from 'ngwr/overlay'",
-    why: 'overlays render into an ngwr-owned container; without it they never appear',
-  },
-  {
-    test: /^WrIcon/,
-    provider: "provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'",
-    why: 'icons resolve by name from a registry you populate',
-  },
-  {
-    test: /^WrDatePicker|^WrCalendar|^WrEventCalendar/,
-    provider: "provideWrDateAdapter(wrDateFnsAdapter) // from 'ngwr/date-adapter-fns'",
-    why: 'every date mode goes through an adapter; there is no built-in default',
-  },
-  {
-    test: /^WrT$|^WrI18n/,
-    provider: "provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n'",
-    why: 'the pipe and directive read from a catalog you provide',
   },
 ];
 
