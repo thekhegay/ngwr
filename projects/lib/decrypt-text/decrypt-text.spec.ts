@@ -265,6 +265,19 @@ describe('WrDecryptText', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it('leaves click mode plain at rest under reduced motion', async () => {
+    // Click mode rests on the SCRAMBLE, and that path never reaches the
+    // reduced-motion short-circuit in `startInterval` — so this used to be the one
+    // way to end up permanently unreadable for someone who asked for less motion,
+    // with no pointer-free way back.
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    fixture.componentInstance.animateOn.set('click');
+    fixture.detectChanges();
+
+    expect(shown()).toBe('HELLO');
+    expect(encryptedCount()).toBe(0);
+  });
+
   it('prerenders the plain text on the server', async () => {
     await mount([{ provide: PLATFORM_ID, useValue: 'server' }]);
 
