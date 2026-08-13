@@ -174,7 +174,7 @@ enlarges every control at once.
 | Lint everything   | `pnpm lint`                                                                                         |
 | a11y sweep        | `pnpm check:a11y` (axe over `dist/showcase` — run `build:showcase` first)                           |
 | Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — **nightly**, not a PR gate)            |
-| State contrast    | `pnpm check:state-contrast` (the same two rules INSIDE hovers / overlays — **nightly**)             |
+| State a11y        | `pnpm check:state-a11y` (the FULL axe set INSIDE hovers / overlays — **nightly**)                   |
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
@@ -574,10 +574,17 @@ overlay** — which is precisely where the library paints an intent as text. Bot
 walk PRERENDERED HTML or a page at rest, so `.wr-option--selected` (inside a panel
 that does not exist until you click), `.wr-segmented__option:hover` and
 `.wr-context-menu-item` are invisible to them. Seven failures were found there by
-hand, every one of them long-standing and every one under a green run. That is
-what **`pnpm check:state-contrast`** (`scripts/check-state-contrast.ts`) is for:
-the third a11y gate, nightly, driving a curated table of states from
-`scripts/lib/state-contrast/states.ts` and running the same two rules inside each.
+hand, every one of them long-standing and every one under a green run. And the blind spot is not only colour: since `check:a11y` reads prerendered HTML,
+the STRUCTURAL rules have never run inside an overlay either —
+`nested-interactive` never saw the window taskbar's close button, a
+`role="button"` span with `tabindex="0"` inside the tab's own `<button>`, because
+a tab exists only while a window is minimized. That one was found by reading a
+template.
+
+**`pnpm check:state-a11y`** (`scripts/check-state-a11y.ts`) is the answer to
+both: the third a11y gate, nightly, driving a curated table of states from
+`scripts/lib/state-a11y/states.ts` and running the FULL axe rule set inside each
+(only `color-contrast-enhanced` is off — it is AAA).
 
 Four rules if you touch it, and each one is a bug it already had:
 
@@ -606,6 +613,12 @@ Four rules if you touch it, and each one is a bug it already had:
   `__name is not defined` — esbuild's keep-names transform, thrown by every
   `page.evaluate` holding a NAMED inner function — through four rounds of
   debugging. Inline the helpers.
+- **Assert the RULES ran, not just the state.** `target-size` is in
+  `axe.getRules()` and is NOT in a default `axe.run()` — the WCAG 2.2 rules are
+  opt-in — so widening this gate from `runOnly` to the full set silently dropped
+  it and printed "no longer fails, drop it from the baseline" about findings
+  still on the page. `ALWAYS_ON` re-enables it; `REQUIRED_RULES` is the part that
+  matters, checking each one appears in the result afterwards.
 
 Two more things about it. The baseline is keyed by NODE with `:nth-child()`
 stripped, so a new violation inside an already-failing state cannot hide and the

@@ -18,7 +18,7 @@
 > prints `All files pass linting.` even when a later one fails, so trust the
 > exit code), `pnpm test` (**3640 specs across 226 files**), `check:api-docs`,
 > `check:llms`, `build:lib`, `build:showcase`, `check:a11y` (220 prerendered
-> pages). `check:contrast`, `check:state-contrast` and `check:rtl-layout` need a
+> pages). `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
 > browser and run **nightly**. Docs are prerendered — **219 routes**, 196 canonical plus 23
 > redirect stubs, with 195 markdown twins beside them — and past majors are
 > archived under `/v7/`, `/v8/`, `/v9/`.
@@ -205,15 +205,32 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       here must assert the state PAINTED: a clean axe run over an element that
       never rendered looks exactly like a pass, so the probe checked the box had a
       size and the palette had an active option before believing any number.
-      **Interactive-state contrast is now the third a11y gate** —
-      `pnpm check:state-contrast`, nightly beside the other two. It exists because
-      both of the others read a page at rest, so every hover, focus ring and
-      overlay panel goes unpainted and therefore unmeasured; driving Playwright
-      into those states by hand found seven real AA failures the gates had been
-      green through, and nothing stopped the eighth. It drives a curated table of
-      states — every overlay panel, the hover and selection states, two focus
-      rings — asserts each one PAINTED before measuring, and runs the same two
-      rules there.
+      **Interactive-state a11y is now the third gate** — `pnpm check:state-a11y`,
+      nightly beside the other two. It exists because both of the others read a
+      page at rest, so every hover, focus ring and overlay panel goes unpainted
+      and therefore unmeasured; driving Playwright into those states by hand
+      found seven real AA failures the gates had been green through, and nothing
+      stopped the eighth. It drives a curated table of states — every overlay
+      panel, the hover and selection states, focus rings — asserts each one
+      PAINTED before measuring, and runs the FULL axe rule set there.
+      **The full set, not the two painted rules it started with.** Colour was
+      where the gap was noticed and not where it ends: `check:a11y` reads
+      prerendered HTML, so `nested-interactive` and every other structural rule
+      had never run inside an overlay either. The window taskbar's close button
+      proved it — a `role="button"` span with `tabindex="0"` inside the tab's own
+      `<button>`, found by reading a template rather than by any gate. Putting the
+      bug back and re-running is what proved the rules fire: a clean run over a
+      rule set that never executed looks exactly like a clean run.
+      **And that is not hypothetical, it happened inside this change.**
+      `target-size` is in `axe.getRules()` and is NOT in a default `axe.run()` —
+      the WCAG 2.2 rules are opt-in — so widening from `runOnly` to the full set
+      silently dropped it, and the sweep printed four cheerful "no longer fails,
+      drop it from the baseline" lines about findings still sitting on the page.
+      The fix is not the enable list, which is a promise; it is the assertion
+      after the run that `color-contrast`, `target-size` and `nested-interactive`
+      each appear somewhere in the result. A rule that never ran reports exactly
+      like a rule that found nothing, one level up from a state that never
+      painted, and the same answer applies: check that it happened.
       **Four things it had to get right**, each learned by getting it wrong first.
       It FAILS when a state does not appear, because a clean axe run over an
       element that never rendered is the failure mode this whole item keeps

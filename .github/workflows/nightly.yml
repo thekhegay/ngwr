@@ -21,13 +21,15 @@ name: Nightly
 # `dir="rtl"`. This job loads every route in both directions and fails when a box
 # escapes the viewport in RTL that does not in LTR.
 #
-# `pnpm check:state-contrast` is the third a11y gate, and it covers what the
-# other two structurally cannot: colour in a state the user has to create. Both
+# `pnpm check:state-a11y` is the third a11y gate, and it covers what the other
+# two structurally cannot: a state the user has to create. Both
 # of them read a page at rest — prerendered HTML in one case, a loaded route in
 # the other — so a hover, a focus ring and everything inside an overlay go
-# unpainted and therefore unmeasured. Seven real AA failures were found by hand
-# in exactly those places while both gates were green. This one drives each
-# state, asserts it painted, and measures there.
+# unpainted and therefore unmeasured — and since `check:a11y` reads prerendered
+# HTML, the STRUCTURAL rules have never run in there either. Seven real AA
+# colour failures and one nested-interactive button were found by hand in
+# exactly those places while both gates were green. This one drives each state,
+# asserts it painted, and runs the full rule set there.
 #
 # Nightly is the right cadence for it. What it catches is drift in painted
 # colour: a token nudged, a tint restyled, a component switched off the `-ink`
@@ -98,8 +100,8 @@ jobs:
           path: contrast-report.txt
           retention-days: 30
 
-  state-contrast:
-    name: Interactive-state contrast
+  state-a11y:
+    name: Interactive-state a11y
     runs-on: ubuntu-latest
 
     steps:
@@ -122,7 +124,7 @@ jobs:
       # `--verbose` prints the baseline notes, which is where the reasoning for
       # every allowed failure lives. `shell: bash` for `-o pipefail`, and `2>&1`
       # because both loggers write to stderr — same two traps as the job above.
-      - run: pnpm check:state-contrast --verbose 2>&1 | tee state-contrast-report.txt
+      - run: pnpm check:state-a11y --verbose 2>&1 | tee state-a11y-report.txt
         shell: bash
 
       # The coverage line is the reason to keep this even when green: the table
@@ -131,8 +133,8 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: state-contrast-report
-          path: state-contrast-report.txt
+          name: state-a11y-report
+          path: state-a11y-report.txt
           retention-days: 30
 
   rtl-layout:
