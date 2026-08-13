@@ -266,6 +266,31 @@ describe('WrWindowHarness', () => {
       expect(await rootLoader.getHarnessOrNull(WrWindowHarness)).toBeNull();
     });
 
+    /**
+     * The close used to be a `role="button"` span with `tabindex="0"` INSIDE the
+     * tab's own `<button>` — interactive content inside interactive content,
+     * which no gate could see: a tab exists only while a window is minimized,
+     * and the a11y sweep reads prerendered HTML, where the rail is not there.
+     * The 16×16 hit area came out of the same markup and is fixed by the same
+     * edit; 24 is what WCAG 2.5.8 asks of a pointer target.
+     */
+    it('keeps the two controls as siblings, both real buttons', async () => {
+      await (await open()).minimize();
+
+      const rail = (fixture.nativeElement as HTMLElement).querySelector('.wr-window-taskbar')!;
+      const pill = rail.querySelector('.wr-window-taskbar__tab')!;
+      const restore = pill.querySelector('.wr-window-taskbar__tab-restore')!;
+      const close = pill.querySelector('.wr-window-taskbar__tab-close')!;
+
+      expect(pill.tagName).toBe('DIV');
+      expect([restore.tagName, close.tagName]).toEqual(['BUTTON', 'BUTTON']);
+      expect(restore.contains(close), 'the close is nested inside the tab button again').toBe(false);
+      // Neither may carry a redundant role — a `<button role="button">` is the
+      // same defect wearing a different hat.
+      expect([restore.getAttribute('role'), close.getAttribute('role')]).toEqual([null, null]);
+      expect(close.getAttribute('tabindex')).toBeNull();
+    });
+
     it('names what the rail holds when a tab is not there', async () => {
       const rail = await taskbar();
       await expect(rail.restore('Nope')).rejects.toThrow(/no window is minimized/);

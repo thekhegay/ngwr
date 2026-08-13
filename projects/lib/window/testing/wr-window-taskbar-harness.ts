@@ -84,9 +84,9 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
   /**
    * Click a tab's ✕ — closing the window WITHOUT restoring it.
    *
-   * The glyph stops the click from reaching the tab, which is the behaviour worth
-   * asserting: the two controls are nested, so a close that also restored would look
-   * fine on screen and leave a closed window's content flashing up first.
+   * Still worth asserting separately now that the two are siblings rather than
+   * nested: they sit inside one pill and look like one control, so a close that
+   * also restored would flash a closing window's content and look plausible.
    */
   async closeTab(title: string): Promise<void> {
     const index = await this.indexOf(title, 'closeTab');
@@ -94,14 +94,21 @@ export class WrWindowTaskbarHarness extends ComponentHarness {
     await closers[index].click();
   }
 
+  /**
+   * The tab's BUTTON, not the pill around it.
+   *
+   * `.wr-window-taskbar__tab` is a plain container — it carries the pill's look
+   * and nothing else, because the close beside it cannot be a control nested in
+   * a control. The name and the click both belong to `__tab-restore`.
+   */
   private async requireTab(title: string, method: string): Promise<TestElement> {
-    const tabs = await this.locatorForAll('.wr-window-taskbar__tab')();
+    const tabs = await this.locatorForAll('.wr-window-taskbar__tab-restore')();
     return tabs[await this.indexOf(title, method)];
   }
 
-  /** Which tab carries this title — one lookup for both the tab and its close glyph. */
+  /** Which tab carries this title — one lookup for both the tab and its close button. */
   private async indexOf(title: string, method: string): Promise<number> {
-    const tabs = await this.locatorForAll('.wr-window-taskbar__tab')();
+    const tabs = await this.locatorForAll('.wr-window-taskbar__tab-restore')();
     for (const [index, tab] of tabs.entries()) {
       if ((await tab.text()) === title) return index;
     }
