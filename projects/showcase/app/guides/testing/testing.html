@@ -255,6 +255,29 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Event calendar" description="A chip lives in the cell its event starts in.">
+    <ngwr-doc-code [code]="snippets.eventCalendar" language="typescript" />
+
+    <p wrTypography>
+      Every chip sits inside the <code>role="gridcell"</code> where its event STARTS and reaches out from there — a
+      <code>calc()</code> width for a band, a percentage height for a timed block — which is what lets
+      <code>getCellChips()</code> scope to one cell at all. Cells are addressed by their DAY and, in a time view, the
+      minutes from midnight of their row: those come off the data attributes the drag's own hit-testing publishes, and
+      they are the only names that mean the same thing in all three views.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Moving and resizing go through the keyboard — <code>Alt</code> and an arrow to move, <code>Alt</code> +
+      <code>Shift</code> to resize — which is the accessible path and the only one a test without layout can drive. Both
+      only EMIT: <code>events</code> is an input the calendar never writes to, so a spec whose host ignores
+      <code>eventChange</code> is asserting a cancelled gesture. One jsdom note: an editable chip's click needs
+      <code>document.elementFromPoint</code> stubbed, because the CDK dispatches a real pointer sequence and the chip
+      hit-tests for the cell under it.
+    </p>
+
+    <ngwr-doc-api [rows]="eventCalendarApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Image cropper" description="The smallest honest surface here.">
     <ngwr-doc-code [code]="snippets.imageCropper" language="typescript" />
 

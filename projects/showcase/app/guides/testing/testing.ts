@@ -240,6 +240,20 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    eventCalendar: `it('moves an event with the keyboard', async () => {
+  const calendar = await loader.getHarness(WrEventCalendarHarness);
+
+  expect(await calendar.getView()).toBe('month');
+  expect(await calendar.getChipLabels()).toHaveLength(3);
+
+  const [standup] = await calendar.getChips({ title: 'Standup' });
+  await standup.move('right');
+
+  // The calendar only EMITS — applying the change is the host's job.
+  expect(changed()?.kind).toBe('move');
+  expect(changed()?.start.getDate()).toBe(15);
+});`,
+
     imageCropper: `it('opens a crop window once the image is measured', async () => {
   const cropper = await loader.getHarness(WrImageCropperHarness);
 
@@ -1359,6 +1373,44 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly eventCalendarApi: readonly DocApiRow[] = [
+    {
+      name: 'getView() / getTitle() / previous() / next() / goToday() / setView(label) / getViewLabels() / getActiveViewLabel()',
+      description:
+        'The view is read off the GRID rather than the `view` model — month has its own shape, and week and day are told apart by their column count. The switcher is addressed by the label it prints, since the view value never reaches the DOM.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getChips(filters?) / getChipLabels() / getCellChips(day, minutes?)',
+      description:
+        'A multi-day event has ONE chip, in the cell it starts in — so this counts events in view, not event-days. Filters: `label`, `title`, `band`.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'clickCell(day, minutes?) / getCellLabel(day, minutes?) / focusCell(day, minutes?) / getCursor() / pressArrow(arrow) / pressHome() / pressEnd()',
+      description:
+        '`minutes` is -1 for a month cell or the all-day band. The grid roves a single tab stop rather than making every cell tabbable, and `getCursor()` is where it is.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getWeekdayNames() / getDayNumbers() / getSlotLabels() / hasAllDayRow() / getOverflowLabels() / openOverflow()',
+      description:
+        'The month grid is always six weeks. The all-day row appears only when something needs it, and the “+N more” button only when a cell holds more than `maxLanes` lets it show.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Chip: getLabel() / getTitle() / getTime() / isBand() / continuesBefore() / continuesAfter() / click() / move(arrow) / resize(arrow)',
+      description:
+        '`WrEventCalendarChipHarness`. The drawn text is `aria-hidden`, so `getLabel()` is what is announced and `getTitle()` what is printed. `move()` is Alt + arrow, `resize()` adds Shift and moves the end alone.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 
