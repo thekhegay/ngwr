@@ -1,0 +1,77 @@
+<ngwr-doc-page
+  title="Registry"
+  description="An open JSON format for shareable theme presets and blocks — one file anyone can host, any tool can fetch, and a schema that says what is valid."
+  [keywords]="['registry', 'blocks', 'theme preset', 'schema', 'registry:theme', 'registry:block']"
+>
+  <ngwr-doc-section title="What it is">
+    <p wrTypography>
+      A registry item is one installable unit as a single JSON file: a theme preset (token overrides), a block (several
+      ngwr components composed into a page or a section), or a component. There is no server and no account — an item is
+      a URL. Host it on your own domain, in a gist, in your repo; a tool fetches it, validates it against the schema,
+      and writes what it describes.
+    </p>
+
+    <p wrTypography>
+      The format is published at
+      <a href="https://ngwr.dev/registry/schema.json" target="_blank" rel="noreferrer noopener"
+        >ngwr.dev/registry/schema.json</a
+      >, and the two worked examples are beside it —
+      <a href="https://ngwr.dev/registry/items/theme-slate.json" target="_blank" rel="noreferrer noopener"
+        >theme-slate.json</a
+      >
+      and
+      <a href="https://ngwr.dev/registry/items/block-sign-in.json" target="_blank" rel="noreferrer noopener"
+        >block-sign-in.json</a
+      >. Point your editor's <code>$schema</code> at the first and you get completion and validation while you write
+      one.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      The shape borrows from shadcn's registry on purpose: an author who has published one of those should recognise
+      this one. What differs is what Angular needs — <code>entryPoints</code> names <code>ngwr/*</code> subpaths, and
+      <code>cssVars</code> names <code>--wr-*</code> tokens rather than arbitrary properties.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="A theme preset" description="Tokens, and nothing else.">
+    <ngwr-doc-code [code]="snippets.theme" language="typescript" />
+
+    <p wrTypography>
+      Keys must be <code>--wr-*</code>. A preset that sets <code>--brand-blue</code> is arbitrary CSS wearing the label:
+      people install a theme expecting the library's own token layer to be what changes, and everything ngwr paints is
+      derived from that layer. See <a [routerLink]="['/guides', 'tokens']">tokens</a> for what is available.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="A block" description="Files a tool writes into your project.">
+    <ngwr-doc-code [code]="snippets.block" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="The fields">
+    <ngwr-doc-api [rows]="fields" title="Registry item" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Two rules worth knowing before you publish one">
+    <p wrTypography>
+      <strong>A target is a relative path, and that is enforced.</strong> An item is remote content that a CLI writes to
+      disk, so <code>files[].target</code> rejects absolute paths, Windows drive letters, anything that looks like a URL
+      scheme, and any <code>..</code> segment — including one that appears after a legitimate prefix, which is the form
+      a naive "does it start with <code>..</code>" check misses. If your item needs to write outside the project, it is
+      not a registry item.
+    </p>
+
+    <p wrTypography>
+      <strong>A theme has no files and a block has at least one.</strong> A theme that ships code would install
+      unreviewed source as part of "changing the colours"; a block that ships none installs nothing at all. Both are
+      refused rather than warned about.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <code>pnpm check:registry</code> runs in this repo's lint chain: it validates every shipped item, checks each
+      <code>entryPoints</code> name against the real catalog, and compares the published schema against the validator so
+      the contract and the enforcement cannot drift apart.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

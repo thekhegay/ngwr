@@ -176,6 +176,7 @@ enlarges every control at once.
 | Contrast sweep    | `pnpm check:contrast` (axe in a real Chromium, both themes — **nightly**, not a PR gate)            |
 | State a11y        | `pnpm check:state-a11y` (the FULL axe set INSIDE hovers / overlays — **nightly**)                   |
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
+| Registry gate     | `pnpm check:registry` (the open item format under `registry/` — also a `pnpm lint` stage)           |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
@@ -285,8 +286,10 @@ Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
 `eslint scripts` `&&` `stylelint` `&&` `check:colors`
 (`scripts/check-color-parity.ts`) `&&` `check:rtl` (`scripts/check-rtl.ts` — a
 physical, direction-dependent CSS property with no `rtl-ok:` reason within three
-lines above it) — and the last two stages are the ones that most often turn a
-green-looking run red. The first stage prints
+lines above it) `&&` `check:registry` (`scripts/check-registry.ts` — the items
+under `registry/`, their `entryPoints` against the real catalog, and
+`schema.json` against the validator that enforces it) — and the last stages are
+the ones that most often turn a green-looking run red. The first stage prints
 `All files pass linting.` even when a _later_ stage fails — so **verify by exit
 code, never by grepping the output**:
 
