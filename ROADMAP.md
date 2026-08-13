@@ -16,35 +16,40 @@
 > [AGENTS.md](AGENTS.md) under "Writing a HARNESS".
 > **Seven gates run on every PR:** `pnpm lint` (multi-stage — the first stage
 > prints `All files pass linting.` even when a later one fails, so trust the
-> exit code), `pnpm test` (**3640 specs across 226 files**), `check:api-docs`,
-> `check:llms`, `build:lib`, `build:showcase`, `check:a11y` (220 prerendered
+> exit code), `pnpm test` (**3652 specs across 226 files**), `check:api-docs`,
+> `check:llms`, `build:lib`, `build:showcase`, `check:a11y` (222 prerendered
 > pages). `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
-> browser and run **nightly**. Docs are prerendered — **219 routes**, 196 canonical plus 23
-> redirect stubs, with 195 markdown twins beside them — and past majors are
-> archived under `/v7/`, `/v8/`, `/v9/`.
+> browser and run **nightly**. Docs are prerendered — **221 routes**, 198
+> canonical plus 23 redirect stubs, with 200 markdown twins beside them — and
+> past majors are archived under `/v7/`, `/v8/`, `/v9/`.
 
 ## Order
 
 The sequence to work in. Everything not listed here is open but unscheduled;
 everything under [Deferred](#deferred) is explicitly not now.
 
-1. **E2** — AI-legibility stack — **done**: the MCP server, the markdown twins,
-   the agent skill and the open registry format have all landed
-2. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
-3. **B2** — Rebuild internals on `@angular/aria`
-4. **B4** — Schema-driven `wr-form`
-5. **D1** — Theme presets + builder
-6. **D2** — System-token layer
+1. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
+2. **B2** — Rebuild internals on `@angular/aria`
+3. **B4** — Schema-driven `wr-form`
+4. **D1** — Theme presets + builder
+5. **D2** — System-token layer
+
+**E2 came off this list** — the AI-legibility stack is complete: `llms.txt` and
+`llms-full.txt`, the per-page markdown twins, the MCP server, the generated
+agent skill and the open registry format. Everything remaining in the sequence
+is an XL feature that changes public surface, so the order below is a decision
+about direction rather than a queue to pull from.
 
 Two notes on the order, then it stands as written:
 
 - **C3 sits above B2 but is hard-blocked by it** — it needs the Aria `Combobox`
   primitive, so in practice either B2 moves up or C3 moves down.
-- **A1 is deliberately not in the list** — it is continuous rather than
-  sequenced. What used to be the argument for keeping B2 back is now answered:
-  3640 specs assert rendered DOM, roles and `.wr-*` classes, which is exactly
-  what B2 churns, and seventy harnesses assert the same surface from the outside.
-  What is left in A1 is mode coverage, not existence.
+- **A1 and A5 are deliberately not in the list** — they are continuous rather
+  than sequenced, and they are where work lands between features. What used to
+  be the argument for keeping B2 back is now answered: 3652 specs assert
+  rendered DOM, roles and `.wr-*` classes, which is exactly what B2 churns,
+  seventy harnesses assert the same surface from the outside, and a third a11y
+  gate now drives 77 interactive states that no other gate can see.
 
 ## A — Trust & hardening
 
@@ -56,7 +61,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A1. Test foundation** (XL) — **the suite exists and gates CI.**
       `pnpm test` is `ng test lib` (vitest through `@angular/build:unit-test`, no
       `vitest.config.ts`); specs sit next to the code they cover and
-      `tsconfig.lib.json` excludes them, so nothing ships to npm. **3640 specs
+      `tsconfig.lib.json` excludes them, so nothing ships to npm. **3652 specs
       across 226 files**, and **every entry point has one** — the last five landed
       with the animation pass. How to write one, and the traps that cost
       real time (`--filter` is a test-name regex, deferred DOM work needs
