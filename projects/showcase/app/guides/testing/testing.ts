@@ -240,6 +240,18 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    calendar: `it('picks a day and walks the views', async () => {
+  const calendar = await loader.getHarness(WrCalendarHarness);
+
+  expect(await calendar.getHeaderLabel()).toBe('March 2026');
+  await (await calendar.getDay(20)).click();
+  expect(await calendar.getSelectedDayNumbers()).toEqual([20]);
+
+  await calendar.clickHeader();               // day -> month
+  await calendar.selectChip('Jun');           // and back down
+  expect(await calendar.getHeaderLabel()).toBe('June 2026');
+});`,
+
     tour: `it('walks the tour', async () => {
   tour.start(steps);
   await fixture.whenStable();
@@ -1315,6 +1327,51 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly calendarApi: readonly DocApiRow[] = [
+    {
+      name: 'getView() / getHeaderLabel() / clickHeader() / previous() / next()',
+      description:
+        'The header walks day → month → year and is disabled at the top, where `clickHeader()` throws rather than clicking a button the DOM ignores.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getDays(filters?) / getDay(n) / getSelectedDayNumbers() / getInRangeDayNumbers() / getActiveDayNumber()',
+      description:
+        '`getDay(n)` skips the spill days of the neighbouring months. `getActiveDayNumber()` is the roving tab stop, and `null` is a real answer after paging. Filters: `text`, `selected`, `disabled`, `inRange`.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getMonths() / getYears() / selectChip(label)',
+      description:
+        'The chips of the two picker views, each with its selected / current / disabled state. Throws on the day view, which has none.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'pressArrow(arrow) / pressHome() / pressEnd() / pressPageUp({ shift }) / pressPageDown({ shift }) / pressEnter()',
+      description:
+        'Sent to the host, where the component listens. Home and End are the ends of the WEEK, not of the month; shift turns a page into a year.',
+      type: 'Promise<void>',
+      default: '\u2014',
+    },
+    {
+      name: 'getWeekdayNames() / getWeekCount() / getGridRole() / getPreviousLabel() / getNextLabel() / getMode() / isDisabled()',
+      description:
+        'Six rows always, so the grid never reflows. The grid role is on the body rather than the host, which also holds the nav. The arrow names change with the view.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Day: getText() / getDayOfMonth() / isSelected() / isDisabled() / isToday() / isOutOfMonth() / isInRange() / isActive() / click()',
+      description:
+        '`WrCalendarDayHarness` — the same class `ngwr/date-picker/testing` exports as `WrDatePickerDayHarness`.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 

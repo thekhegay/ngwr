@@ -182,6 +182,8 @@ export const wrEn: WrI18nCatalog = {
     nextMonth: 'Next month',
     prevYear: 'Previous year',
     nextYear: 'Next year',
+    prevYears: 'Previous 12 years',
+    nextYears: 'Next 12 years',
   },
   calendarHeatmap: {
     label: 'Calendar heatmap',

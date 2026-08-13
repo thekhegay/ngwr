@@ -255,6 +255,33 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Calendar" description="Three views behind one header.">
+    <ngwr-doc-code [code]="snippets.calendar" language="typescript" />
+
+    <p wrTypography>
+      Clicking the header walks <code>day → month → year</code>, and each view renders something else — a
+      <code>role="grid"</code> of day cells, or a <code>role="listbox"</code> of chips. Every day method throws off the
+      day view rather than answering with an empty list, which would read as a month with no days.
+      <code>getDay(20)</code> addresses a day of the DISPLAYED month: the grid is always six weeks, so most numbers
+      appear twice and the spill days are skipped.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      The roving cell is not the selection, and it does not follow <code>next()</code> — paging is a view change, so a
+      grid moved away from the roving month has no tab stop at all until a key or a click puts one back.
+      <code>getActiveDayNumber()</code> answers <code>null</code> there, which is the behaviour rather than a failure.
+      Keys go to the host, where the component listens, so a spec does not depend on jsdom having focused anything.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <code>WrCalendarDayHarness</code> is the same class <code>ngwr/date-picker/testing</code> exports as
+      <code>WrDatePickerDayHarness</code> — a picker's popup IS a calendar, and there is one implementation of its cell.
+      Either name works with either query.
+    </p>
+
+    <ngwr-doc-api [rows]="calendarApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Tour" description="One card at a time, and last is not a count.">
     <ngwr-doc-code [code]="snippets.tour" language="typescript" />
 
