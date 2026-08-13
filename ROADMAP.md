@@ -75,9 +75,10 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-      **Shipped: 35 nested entry points, ~871 harness specs** — every form control
+      **Shipped: 36 nested entry points, ~892 harness specs** — every form control
       (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
-      `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `form`,
+      `input-number`, `input-otp`, `slider`, `rating`, `file-upload`,
+      `color-picker`, `form`,
       `segmented`), every overlay (`date-picker`, `dropdown`, `popover`, `dialog`,
       `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
       `command-palette`, `cascader`, `mention`), both data views (`table`, `tree`),
@@ -124,8 +125,16 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     bound popover content leaves nothing in the DOM and a closed tooltip publishes
     no ARIA either.
 
-    **Seven library defects came out of writing them**, which is the argument for
-    harnesses on its own. The seventh is the newest and the quietest: both drawer
+    **Nine library defects came out of writing them**, which is the argument for
+    harnesses on its own. Two came from `[wrColorPickerTrigger]`, which had no spec
+    of any kind before: it published `aria-haspopup` and `aria-expanded` but never
+    `aria-controls`, so nothing on the page connected the button to the picker it
+    opened — the same gap `[wrContextMenu]` and `[wrPopconfirm]` were fixed for, and
+    the reason the harness could not scope a panel to its own trigger. And its
+    `disabled` input never reached the DOM at all: it gates `toggle()` and is
+    forwarded to the inner picker, so the button announced itself as live and did
+    nothing when pressed. Both now follow the shape the rest of the library uses.
+    The seventh is the quietest: both drawer
     flavours resolved the panel's `aria-labelledby` ONCE, so a `[wrDrawerTitle]`
     that arrived, changed or vanished while the drawer stayed open left the
     reference naming an element that was no longer there — an `aria-modal` dialog
@@ -152,8 +161,9 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     counts the row itself.
 
     **Still uncovered:** splitter, calendar, event-calendar, window, tour,
-    lightbox, image-cropper, knob, color-picker, speed-dial, virtual-scroll, plus
-    the charts and the animation set. None is blocked.
+    lightbox, image-cropper, knob, speed-dial, virtual-scroll, plus the charts and
+    the animation set. Every CONTROL and every OVERLAY has one now, so what is left
+    is the layout, scheduling and animation half. None is blocked.
 - [ ] **A5. Visual regression** (M) — **the painted-a11y half landed:**
       `pnpm check:contrast` (`scripts/check-contrast.ts`) drives a real Chromium
       over every canonical route in BOTH themes and runs the two rules JSDOM

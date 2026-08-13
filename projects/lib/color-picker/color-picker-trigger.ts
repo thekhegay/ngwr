@@ -26,6 +26,8 @@ import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 import { WrColorPicker } from './color-picker';
 import type { WrColorFormat } from './interfaces';
 
+let triggerUid = 0;
+
 /**
  * Opens a `<wr-color-picker>` in an overlay anchored to the host element.
  *
@@ -56,6 +58,14 @@ import type { WrColorFormat } from './interfaces';
     // button gave no hint that it opens anything, and never said it was open.
     '[attr.aria-haspopup]': '"dialog"',
     '[attr.aria-expanded]': 'isOpen()',
+    // Which panel, and only while there is one — the same pairing `[wrPopconfirm]`
+    // publishes. Without it nothing on the page connects the trigger to the picker
+    // it opened, so a second trigger's panel is indistinguishable from this one's.
+    '[attr.aria-controls]': 'isOpen() ? panelId : null',
+    // The directive's own `disabled` never reached the DOM: it gates `toggle()` and
+    // is forwarded to the inner picker, so the button looked live to a screen
+    // reader and did nothing when pressed.
+    '[attr.aria-disabled]': 'disabled() ? true : null',
   },
 })
 export class WrColorPickerTrigger {
@@ -89,6 +99,9 @@ export class WrColorPickerTrigger {
 
   protected readonly isOpen = signal(false);
   private overlayRef: OverlayRef | null = null;
+
+  /** @internal Public so the host binding can read it. */
+  protected readonly panelId = `wr-color-picker-panel-${++triggerUid}`;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
@@ -124,6 +137,7 @@ export class WrColorPickerTrigger {
       scrollStrategy: this.scrollStrategies.reposition(),
       panelClass: 'wr-color-picker-overlay',
     });
+    this.overlayRef.overlayElement.id = this.panelId;
 
     const portal = new ComponentPortal(WrColorPicker, this.vcr);
     const ref = this.overlayRef.attach(portal);

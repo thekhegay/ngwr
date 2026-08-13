@@ -212,6 +212,28 @@
     <ngwr-doc-api [rows]="actionSheetApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Colour picker" description="No drag, and no reading the preview.">
+    <ngwr-doc-code [code]="snippets.colorPicker" language="typescript" />
+
+    <p wrTypography>
+      Two absences are the design. There is no <code>setHue()</code>: the SV canvas and the two sliders are pointer
+      surfaces that divide by a measured box, and a unit test has no layout, so a synthetic drag writes
+      <code>NaN</code> and reports success. The numeric fields reach the same state and are the component's only
+      keyboard path anyway. <code>getThumbs()</code> then reads where the thumbs ended up, from the percentages the
+      component writes inline — that is how you check a surface followed a colour set through a field.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      And there is no <code>getColor()</code> reading the preview swatch. The preview paints the colour as a CSS
+      background, which jsdom normalises to <code>rgb(…)</code> and strips the alpha from, so <code>#ff880080</code> and
+      <code>#ff8800ff</code> come back identical — a method that answers one thing in a spec and another in a browser.
+      <code>getHex()</code> is the colour; it is also not the same as <code>value</code>, which <code>format</code> may
+      write as <code>rgb()</code> or <code>hsl()</code>.
+    </p>
+
+    <ngwr-doc-api [rows]="colorPickerApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Driving a table" description="A family of harnesses, because a table is a tree.">
     <ngwr-doc-code [code]="snippets.table" language="typescript" />
 
