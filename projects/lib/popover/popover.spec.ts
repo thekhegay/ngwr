@@ -469,3 +469,106 @@ describe('WrPopover under dir="rtl"', () => {
     expect(pane()?.getAttribute('style')).toContain('translateY(8px)');
   });
 });
+
+/** A popover and a tooltip on one page, both asking for the sheet presentation. */
+@Component({
+  imports: [WrPopover],
+  template: `
+    <button type="button" class="sheet-trigger" [wrPopover]="panel" [responsive]="responsive()">Details</button>
+    <button type="button" class="sheet-tip" wrPopover="Save" mode="tooltip" [responsive]="true">Save</button>
+    <ng-template #panel>Panel body</ng-template>
+  `,
+})
+class SheetHost {
+  readonly responsive = signal<boolean | undefined>(true);
+}
+
+/**
+ * Sheet presentation is popover-only, and the reason is in the component: a tooltip
+ * is a transient label that follows its trigger, and docking one to the bottom of the
+ * viewport would leave a caption floating a screen away from the thing it captions.
+ * That exclusion is a `!tooltip &&` in one expression, which is exactly the kind of
+ * condition that gets simplified away — so both halves are asserted here.
+ *
+ * Everything the sheet changes is an overlay OPTION rather than a stylesheet rule, so
+ * a unit test sees all of it: the panel class, the backdrop, and the position
+ * modifier that disappears once the panel stops being anchored to anything.
+ */
+describe('WrPopover as a bottom sheet', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
+  const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+
+  const click = (selector: string): void => {
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(selector)!.click();
+    fixture.detectChanges();
+  };
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+
+  const mount = (viewport: number): void => {
+    Object.defineProperty(window, 'innerWidth', { value: viewport, configurable: true });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(SheetHost);
+    fixture.detectChanges();
+  };
+
+  // The tooltip case waits out a show delay, which is a real timer here.
+  beforeEach(() => vi.useFakeTimers());
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+    if (width) Object.defineProperty(window, 'innerWidth', width);
+  });
+
+  it('slides the panel up from the bottom on a narrow viewport', () => {
+    mount(390);
+    click('.sheet-trigger');
+
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
+    // No `--<position>` modifier: there is no trigger to be positioned against.
+    expect(pane()!.className).not.toContain('wr-popover-overlay--');
+    expect(document.querySelector('.cdk-overlay-backdrop')?.classList).toContain('wr-overlay-backdrop');
+  });
+
+  it('closes when the backdrop is tapped', () => {
+    mount(390);
+    click('.sheet-trigger');
+
+    document.querySelector<HTMLElement>('.cdk-overlay-backdrop')!.click();
+    fixture.detectChanges();
+
+    expect(pane()).toBeNull();
+  });
+
+  it('leaves a TOOLTIP anchored, however narrow the viewport', () => {
+    mount(390);
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLElement>('.sheet-tip')!
+      .dispatchEvent(new MouseEvent('mouseenter'));
+    vi.advanceTimersByTime(1000);
+    fixture.detectChanges();
+
+    const tip = document.querySelector<HTMLElement>('.wr-tooltip-overlay');
+    expect(tip).not.toBeNull();
+    expect(tip!.classList.contains('wr-overlay-sheet')).toBe(false);
+    expect(tip!.className).toContain('wr-tooltip-overlay--');
+  });
+
+  it('stays anchored on a wide viewport', () => {
+    mount(1280);
+    click('.sheet-trigger');
+
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
+    expect(pane()!.className).toContain('wr-popover-overlay--');
+  });
+
+  it('never becomes a sheet when the trigger opted out', () => {
+    mount(390);
+    fixture.componentInstance.responsive.set(false);
+    fixture.detectChanges();
+    click('.sheet-trigger');
+
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
+  });
+});

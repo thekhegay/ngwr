@@ -191,7 +191,7 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components` — 225 spec files, ~3616 specs, and **every entry
+page under `reference/components` — 226 spec files, ~3640 specs, and **every entry
 point now has one**. What is still uncovered is no longer whole
 components but what a spec can reach: jsdom has no drawing context, so the canvas
 and WebGL components (`aurora`, `click-spark`, `confetti`, `fuzzy-text`,

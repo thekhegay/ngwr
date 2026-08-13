@@ -14,6 +14,7 @@ import { WrPagination } from './pagination';
       [total]="total()"
       [disabled]="disabled()"
       [showSizeChanger]="showSizeChanger()"
+      [responsive]="responsive()"
     />
   `,
 })
@@ -23,6 +24,7 @@ class Host {
   readonly total = signal(95);
   readonly disabled = signal(false);
   readonly showSizeChanger = signal(false);
+  readonly responsive = signal(false);
 }
 
 /**
@@ -184,5 +186,38 @@ describe('WrPagination', () => {
     fixture.detectChanges();
 
     expect(root().querySelector('wr-select')).not.toBeNull();
+  });
+
+  describe('responsive mode', () => {
+    it('is a class and nothing else — the reflow is a container query', () => {
+      // Worth stating plainly: `responsive` renders no different markup. It opts the
+      // host into a `@container` rule, so a spec can pin the switch and nothing past
+      // it, and a test asserting a collapsed strip would be asserting jsdom.
+      const host = (): HTMLElement => root().querySelector('wr-pagination')!;
+      const strip = (): number => pageButtons().length;
+
+      const before = strip();
+      expect(host().className).not.toContain('wr-pagination--responsive');
+
+      fixture.componentInstance.responsive.set(true);
+      fixture.detectChanges();
+
+      expect(host().className).toContain('wr-pagination--responsive');
+      expect(strip()).toBe(before);
+    });
+
+    it('keeps the compact pager out of the accessibility tree, in both modes', () => {
+      // The `3 / 10` label the narrow layout swaps in is always in the DOM — CSS
+      // decides which of the two is visible — so without `aria-hidden` a screen
+      // reader would read the position twice on every page, at every width.
+      const compact = (): HTMLElement => root().querySelector('.wr-pagination__current')!;
+      expect(compact().getAttribute('aria-hidden')).toBe('true');
+
+      fixture.componentInstance.responsive.set(true);
+      fixture.detectChanges();
+
+      expect(compact().getAttribute('aria-hidden')).toBe('true');
+      expect(compact().textContent.trim()).toBe('1 / 10');
+    });
   });
 });

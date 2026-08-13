@@ -16,7 +16,7 @@
 > [AGENTS.md](AGENTS.md) under "Writing a HARNESS".
 > **Seven gates run on every PR:** `pnpm lint` (multi-stage — the first stage
 > prints `All files pass linting.` even when a later one fails, so trust the
-> exit code), `pnpm test` (**3616 specs across 225 files**), `check:api-docs`,
+> exit code), `pnpm test` (**3640 specs across 226 files**), `check:api-docs`,
 > `check:llms`, `build:lib`, `build:showcase`, `check:a11y` (220 prerendered
 > pages). `check:contrast` and `check:rtl-layout` need a browser and run
 > **nightly**. Docs are prerendered — **219 routes**, 196 canonical plus 23
@@ -42,7 +42,7 @@ Two notes on the order, then it stands as written:
   primitive, so in practice either B2 moves up or C3 moves down.
 - **A1 is deliberately not in the list** — it is continuous rather than
   sequenced. What used to be the argument for keeping B2 back is now answered:
-  3616 specs assert rendered DOM, roles and `.wr-*` classes, which is exactly
+  3640 specs assert rendered DOM, roles and `.wr-*` classes, which is exactly
   what B2 churns, and seventy harnesses assert the same surface from the outside.
   What is left in A1 is mode coverage, not existence.
 
@@ -56,18 +56,25 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A1. Test foundation** (XL) — **the suite exists and gates CI.**
       `pnpm test` is `ng test lib` (vitest through `@angular/build:unit-test`, no
       `vitest.config.ts`); specs sit next to the code they cover and
-      `tsconfig.lib.json` excludes them, so nothing ships to npm. **3616 specs
-      across 225 files**, and **every entry point has one** — the last five landed
+      `tsconfig.lib.json` excludes them, so nothing ships to npm. **3640 specs
+      across 226 files**, and **every entry point has one** — the last five landed
       with the animation pass. How to write one, and the traps that cost
       real time (`--filter` is a test-name regex, deferred DOM work needs
       `afterNextRender`, jsdom has no layout), are documented in
       [AGENTS.md](AGENTS.md) — the durable half of what this item learned lives
       there, and the campaign's per-component findings are in git history.
       **What remains:**
-      - **Mode coverage inside covered components.** A spec on `wr-table` says
-        nothing about tree rows unless it exercises them; the same holds for
-        `wr-select`'s tag mode, `wr-date-picker`'s datetime range, and every
-        `responsive` variant.
+      - **Mode coverage inside covered components.** Most of what this bullet used
+        to name turned out to be covered already — `wr-table`'s tree rows and
+        grouping, `wr-select`'s tag and search modes, `wr-date-picker`'s
+        per-end datetime range — and the `responsive` half has now landed:
+        `wrPresentAsSheet` is pinned directly (the precedence rule is `??`, not
+        `||`, so a bound `false` survives a global provider), the two overlays that
+        switch presentation have sheet suites, and `wr-table` proves it gives
+        virtualization up in card mode, which is the fourth pair it refuses and the
+        only one that was not written down. What is left is the long tail: a mode
+        is covered when a spec EXERCISES it, and a component with six inputs has
+        more combinations than any list here can name.
       - ~~Five entry points have no spec at all~~ — closed. `ngwr/version` now
         compares its constant against the library manifest (the one drift a release
         script cannot catch by itself); the two icon adapters pin the SVG envelope
