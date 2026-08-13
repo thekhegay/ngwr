@@ -267,11 +267,14 @@
     </p>
 
     <p wrTypography variant="small" tone="medium">
-      Two ARIA pairings are worth pinning. A bar chart names each column with its label AND its value, while the printed
-      label row underneath is <code>aria-hidden</code> decoration — so asserting only the drawn labels would pass on a
-      chart that announces nothing. And a sparkline is either named, in which case it is a <code>role="img"</code>, or
-      it is decoration and must be <code>aria-hidden</code>: getting that backwards leaves a screen reader stopping on a
-      graphic with nothing to say.
+      Three ARIA shapes are worth pinning. A gauge is a <code>role="meter"</code> whose
+      <code>aria-valuetext</code> carries the suffix, which is what keeps it readable with its number hidden; a heatmap
+      is ONE named image with <code>aria-hidden</code> squares, because a year of announced days would be unusable. A
+      bar chart names each column with its label AND its value, while the printed label row underneath is
+      <code>aria-hidden</code> decoration — so asserting only the drawn labels would pass on a chart that announces
+      nothing. And a sparkline is either named, in which case it is a <code>role="img"</code>, or it is decoration and
+      must be <code>aria-hidden</code>: getting that backwards leaves a screen reader stopping on a graphic with nothing
+      to say.
     </p>
 
     <ngwr-doc-api [rows]="chartApi" />
