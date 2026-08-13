@@ -188,7 +188,12 @@ export class WrDecryptText {
       const txt = this.text();
       const mode = this.animateOn();
       this.stopInterval();
-      if (mode === 'click') {
+      // The resting state of `click` mode is the scramble — but not for someone who
+      // asked for less motion. `startInterval` short-circuits every TRIGGER to the
+      // plain text, and this is the one path that never reaches it, so a reduced-
+      // motion reader was left staring at permanently scrambled glyphs with no
+      // pointer-free way to undo them.
+      if (mode === 'click' && !this.platform.prefersReducedMotion()) {
         this.encryptInstantly(txt);
       } else {
         this.displayText.set(txt);
