@@ -195,13 +195,21 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       viewports too — and **interactive-state contrast**, which no gate covers:
       both walk prerendered HTML or a page at rest, so every hover, focus ring and
       overlay panel is unpainted and therefore unmeasured. Driving Playwright into
-      those states found six real AA failures the gates had been green through, and
-      one still open: `wr-command-palette__option-shortcut` (the `<kbd>`) measures
-      **4.17:1 in the LIGHT theme**, `#5f6c7d` on `#dce4f1` — the muted role is
-      calibrated for `#ebeff4`, and the active option's tint is darker than that.
-      Unrelated to the intent tokens, so it was left alone rather than folded into
-      a patch about them. An audit here must assert the state PAINTED: a clean axe
-      run over an element that never rendered looks exactly like a pass.
+      those states found seven real AA failures the gates had been green through.
+      The last of them is now closed and it is the clearest example of the class:
+      `wr-command-palette__option-shortcut` (the `<kbd>`) measured **4.17:1 in the
+      LIGHT theme**, `#5f6c7d` on `#dce4f1`. Nothing about the chip was wrong —
+      `--wr-color-hover` is translucent, so on a plain row it composites to a light
+      grey where the muted role reads 4.63:1, and only over the ACTIVE row's
+      `-soft` tint does the same declaration land on a background the role was
+      never calibrated for. Fixed by putting the chip back on the panel's own
+      `--wr-color-surface` for that one state, which restores the exact pairing
+      `--wr-color-on-surface-muted` is derived against and keeps the chip reading
+      as a keycap rather than as part of the highlight: measured in a real
+      Chromium, **5.34:1 light and 7.63:1 dark**, up from 4.17 and 6.29. An audit
+      here must assert the state PAINTED: a clean axe run over an element that
+      never rendered looks exactly like a pass, so the probe checked the box had a
+      size and the palette had an active option before believing any number.
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).
