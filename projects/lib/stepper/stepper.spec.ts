@@ -9,7 +9,7 @@ import { WrStepper } from './stepper';
 @Component({
   imports: [WrStepper, WrStep],
   template: `
-    <wr-stepper [(active)]="active" [linear]="linear()" [orientation]="orientation()">
+    <wr-stepper [(active)]="active" [linear]="linear()" [orientation]="orientation()" [responsive]="responsive()">
       <wr-step label="Account">Account body</wr-step>
       <wr-step label="Address" [completed]="addressDone()">Address body</wr-step>
       <wr-step label="Review" [disabled]="reviewDisabled()">Review body</wr-step>
@@ -21,6 +21,7 @@ class Host {
   readonly active = signal(0);
   readonly linear = signal(false);
   readonly orientation = signal<'horizontal' | 'vertical'>('horizontal');
+  readonly responsive = signal(false);
   readonly addressDone = signal<boolean | null>(null);
   readonly reviewDisabled = signal(false);
 }
@@ -173,5 +174,26 @@ describe('WrStepper', () => {
     expect(
       [...root().querySelectorAll('.wr-stepper__indicator')].every(i => i.getAttribute('aria-hidden') === 'true')
     ).toBe(true);
+  });
+
+  it('opts into the narrow reflow without changing what it IS', () => {
+    // `responsive` adds a modifier the stylesheet's `@container` rule keys on, and
+    // that rule is scoped to steppers that are not already vertical. So the two
+    // inputs are independent and the DOM must keep saying horizontal — a reflow that
+    // rewrote the orientation class would make `[orientation]` unreadable, and
+    // reflowing a vertical stepper into a vertical one is a no-op nobody asked for.
+    const host = (): HTMLElement => root().querySelector('wr-stepper')!;
+
+    fixture.componentInstance.responsive.set(true);
+    fixture.detectChanges();
+
+    expect(host().className).toContain('wr-stepper--responsive');
+    expect(host().className).not.toContain('wr-stepper--vertical');
+
+    fixture.componentInstance.orientation.set('vertical');
+    fixture.detectChanges();
+
+    expect(host().className).toContain('wr-stepper--responsive');
+    expect(host().className).toContain('wr-stepper--vertical');
   });
 });

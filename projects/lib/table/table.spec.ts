@@ -76,6 +76,27 @@ class VirtualHost {
   );
 }
 
+@Component({
+  imports: [WrTable],
+  template: `
+    <wr-table
+      [columns]="columns()"
+      [items]="items()"
+      rowKey="id"
+      virtualScroll
+      [viewportHeight]="200"
+      [responsive]="responsive()"
+    />
+  `,
+})
+class ResponsiveVirtualHost {
+  readonly columns = signal(COLUMNS);
+  readonly responsive = signal(false);
+  readonly items = signal<readonly Record<string, unknown>[]>(
+    Array.from({ length: 100 }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, role: 'user' }))
+  );
+}
+
 /**
  * `wr-table` is the library's data workhorse and most of its surface is opt-in
  * modes. What this suite pins is the part that is easy to break silently: the
@@ -579,5 +600,64 @@ describe('WrTable header gestures follow the reading direction', () => {
       mount('rtl');
       expect(dropAllowed(1)).toBe(true);
     });
+  });
+});
+
+/**
+ * `responsive` is the fourth thing virtualization refuses to combine with, and the
+ * only one of the four that is not in the component's own list of documented pairs.
+ * The reason is the same shape as the others: card mode reflows every row into a
+ * stacked block through a container query, so rows stop being one uniform height —
+ * and a windowed body is spacer arithmetic on exactly that number. Left on, the
+ * spacers would be sized from a measurement that no longer describes anything.
+ *
+ * A container query is invisible to a unit test, so what is asserted is the DECISION:
+ * with `responsive` on, the table renders every row and no spacer at all.
+ */
+describe('WrTable in card mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ResponsiveVirtualHost>>;
+  let rowHeight: PropertyDescriptor | undefined;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const spacers = (): number => root().querySelectorAll('.wr-table__spacer').length;
+  const rows = (): number => root().querySelectorAll('tbody tr:not(.wr-table__spacer)').length;
+
+  beforeEach(() => {
+    rowHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, get: () => 56 });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(ResponsiveVirtualHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (rowHeight) Object.defineProperty(HTMLElement.prototype, 'offsetHeight', rowHeight);
+  });
+
+  it('windows the body while the table is a table', () => {
+    expect(spacers()).toBeGreaterThan(0);
+    expect(rows()).toBeLessThan(100);
+  });
+
+  it('gives virtualization up when the rows become cards', () => {
+    fixture.componentInstance.responsive.set(true);
+    fixture.detectChanges();
+
+    expect(root().querySelector('wr-table')!.className).toContain('wr-table--responsive');
+    expect(spacers()).toBe(0);
+    expect(rows()).toBe(100);
+  });
+
+  it('takes it back when the table stops being cards', () => {
+    fixture.componentInstance.responsive.set(true);
+    fixture.detectChanges();
+    fixture.componentInstance.responsive.set(false);
+    fixture.detectChanges();
+
+    expect(spacers()).toBeGreaterThan(0);
+    expect(rows()).toBeLessThan(100);
   });
 });

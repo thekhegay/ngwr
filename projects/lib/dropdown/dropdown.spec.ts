@@ -230,6 +230,102 @@ describe('WrDropdown', () => {
   });
 });
 
+/** The same menu on a trigger that asks for the sheet presentation explicitly. */
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [wrDropdown]="menu" [responsive]="responsive()">Actions</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Copy</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class SheetHost {
+  readonly responsive = signal<boolean | undefined>(true);
+}
+
+/**
+ * The mobile presentation, which is a different overlay rather than a restyled one:
+ * pinned to the bottom edge, full width, with a backdrop that blocks the page and
+ * dismisses on a tap. Nothing about it is CSS — every one of those is an option
+ * passed to `overlay.create()` — so a unit test can see all of it.
+ *
+ * The viewport is what decides, so it is moved here and put back afterwards: jsdom
+ * shares one window across the whole file.
+ */
+describe('WrDropdown as a bottom sheet', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SheetHost>>;
+  const width = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+
+  const trigger = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector('button')!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dropdown-overlay');
+
+  const mount = (viewport: number): void => {
+    Object.defineProperty(window, 'innerWidth', { value: viewport, configurable: true });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(SheetHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => {
+    fixture.destroy();
+    if (width) Object.defineProperty(window, 'innerWidth', width);
+  });
+
+  it('slides up from the bottom on a narrow viewport', () => {
+    mount(390);
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(true);
+    // The floating form carries a per-position modifier; the sheet has no position
+    // to carry, which is the tell that it detached from the trigger.
+    expect(pane()!.className).not.toContain('wr-dropdown-overlay--');
+  });
+
+  it('dims the page behind it, with the shared class that has the styles', () => {
+    mount(390);
+    trigger().click();
+    fixture.detectChanges();
+
+    const backdrop = document.querySelector('.cdk-overlay-backdrop');
+    expect(backdrop).not.toBeNull();
+    expect(backdrop!.classList.contains('wr-overlay-backdrop')).toBe(true);
+  });
+
+  it('closes when that backdrop is tapped', () => {
+    mount(390);
+    trigger().click();
+    fixture.detectChanges();
+
+    document.querySelector<HTMLElement>('.cdk-overlay-backdrop')!.click();
+    fixture.detectChanges();
+
+    expect(pane()).toBeNull();
+  });
+
+  it('stays a floating menu on a wide viewport, backdrop and all', () => {
+    mount(1280);
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
+    expect(document.querySelector('.cdk-overlay-backdrop')).toBeNull();
+  });
+
+  it('never becomes a sheet when the trigger opted out', () => {
+    mount(390);
+    fixture.componentInstance.responsive.set(false);
+    fixture.detectChanges();
+
+    trigger().click();
+    fixture.detectChanges();
+
+    expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
+  });
+});
+
 /**
  * ⚠️ This one guards the RULE, not the behaviour.
  *
