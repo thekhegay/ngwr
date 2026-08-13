@@ -9,7 +9,7 @@ import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
-import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterNextRender, inject } from '@angular/core';
+import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
 import { WR_OVERLAY, wrAppendOverlayClose } from 'ngwr/overlay';
@@ -141,13 +141,24 @@ export class WrDrawerManager {
       // Has to wait for a render, not a microtask: attaching the portal only
       // schedules change detection, so under zoneless CD a microtask runs while
       // the content is still an empty view and the title id doesn't exist yet.
-      afterNextRender(
+      //
+      // And after EVERY render, not just the next one: the title belongs to the
+      // caller's component, so an `@if` or a late-arriving heading can replace
+      // or remove the element the attribute names. A reference to a node that is
+      // no longer there is not a name — the dialog announces as unnamed — so a
+      // missing title clears the attribute rather than leaving it dangling.
+      const labelSync = afterEveryRender(
         () => {
           const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
           if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
+          else host.removeAttribute('aria-labelledby');
         },
         { injector: this.parentInjector }
       );
+      // The hook is bound to the root injector, so it outlives the drawer unless
+      // it is torn down with it. `detachments()` fires on dispose, which is the
+      // one path every dismissal goes through.
+      overlayRef.detachments().subscribe(() => labelSync.destroy());
       // Trap focus inside the drawer and move initial focus in.
       const trap = this.focusTrapFactory.create(host);
       drawerRef.focusTrap = trap;
