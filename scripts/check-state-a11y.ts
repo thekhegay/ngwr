@@ -119,6 +119,23 @@ const FAILING_IMPACTS: readonly ImpactValue[] = ['serious', 'critical'];
 const THEMES = ['light', 'dark'] as const;
 type Theme = (typeof THEMES)[number];
 
+/**
+ * The desktop viewport every other gate uses, and the phone one none of them
+ * does.
+ *
+ * `wrPresentAsSheet` turns select, dropdown, popover, dialog and drawer into
+ * bottom sheets at 640px and under — a different panel, a different backdrop
+ * and a different set of `.wr-overlay-sheet` rules — and both existing gates
+ * load every page at 1280 wide, so not one pixel of that presentation has ever
+ * been measured. A state opts in with `viewport: 'mobile'`; the size is the
+ * iPhone-ish 390×844 rather than something just under the breakpoint, because a
+ * sheet that only works at 639px is not the thing being shipped.
+ */
+const VIEWPORTS = {
+  desktop: { width: 1280, height: 900 },
+  mobile: { width: 390, height: 844 },
+} as const;
+
 const AXE_SOURCE = readFileSync(createRequire(import.meta.url).resolve('axe-core'), 'utf8');
 
 /** `--probe`: collect unreachable states instead of stopping at the first. */
@@ -592,23 +609,38 @@ async function main(): Promise<void> {
   try {
     browser = await chromium.launch();
     for (const theme of themes) {
-      const context = await browser.newContext({
-        colorScheme: theme,
-        // Without this an animation caught mid-flight reports a frame rather
-        // than a design — and every one of these states is mid-animation the
-        // instant it opens.
-        reducedMotion: 'reduce',
-        viewport: { width: 1280, height: 900 },
-      });
-      // Seeded BEFORE the first paint, so one load per state is enough: the
-      // theme service reads storage on bootstrap and there is nothing to undo.
-      await context.addInitScript(t => localStorage.setItem('wr-theme', t), theme);
-      const page = await context.newPage();
+      // One context per viewport, not one page resized between states: a sheet
+      // is decided when the overlay OPENS, and `wrPresentAsSheet` reads
+      // `window.innerWidth` at that moment — a resize afterwards leaves a
+      // floating panel on a phone-sized page, which is a layout nobody ships.
+      for (const viewport of ['desktop', 'mobile'] as const) {
+        const forHere = targets.filter(state => (state.viewport ?? 'desktop') === viewport);
+        if (forHere.length === 0) continue;
 
-      info(`  ${theme}: ${targets.length} states`);
-      for (const state of targets) failures.push(...(await audit(page, origin, state, theme, painted, unreachable)));
+        const context = await browser.newContext({
+          colorScheme: theme,
+          // Without this an animation caught mid-flight reports a frame rather
+          // than a design — and every one of these states is mid-animation the
+          // instant it opens.
+          reducedMotion: 'reduce',
+          viewport: VIEWPORTS[viewport],
+          // A sheet is what a TOUCH device gets, and some of the reflow is
+          // gated on `pointer: coarse` rather than on width alone.
+          hasTouch: viewport === 'mobile',
+          isMobile: viewport === 'mobile',
+        });
+        // Seeded BEFORE the first paint, so one load per state is enough: the
+        // theme service reads storage on bootstrap and there is nothing to undo.
+        await context.addInitScript(t => localStorage.setItem('wr-theme', t), theme);
+        const page = await context.newPage();
 
-      await context.close();
+        info(`  ${theme} / ${viewport}: ${forHere.length} states`);
+        for (const state of forHere) {
+          failures.push(...(await audit(page, origin, state, theme, painted, unreachable)));
+        }
+
+        await context.close();
+      }
     }
   } finally {
     await browser?.close();

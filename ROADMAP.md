@@ -311,8 +311,19 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       position, file-upload needs a chosen file, the calendar's selected chip and
       the drag handle need a gesture — and a state a selector cannot create is
       out of this gate's reach by construction.
-      **Remaining:** Playwright screenshot diffs across the showcase, at mobile
-      viewports too, and the last 24 state classes.
+      **The mobile sheets are measured now too**, which nothing had ever done:
+      `wrPresentAsSheet` swaps select, dropdown, popover, dialog, drawer and the
+      command palette to a bottom sheet at 640px and under, and both other gates
+      load every page at 1280 wide — a different panel, a different backdrop and
+      a `.wr-overlay-sheet` class that exists nowhere else. Seven states carry
+      `viewport: 'mobile'` (390×844, touch on) and get their own browser context
+      rather than a resize, because a sheet is decided when the overlay OPENS:
+      `wrPresentAsSheet` reads `window.innerWidth` at that moment, so resizing
+      afterwards leaves a floating panel on a phone-sized page, which is a layout
+      nobody ships. All seven come back clean.
+      **Remaining:** Playwright screenshot diffs across the showcase, and the
+      last 24 state classes — several of which need a gesture rather than a
+      selector (a scroll for back-top, a chosen file for file-upload).
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).
