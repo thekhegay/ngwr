@@ -33,7 +33,7 @@ const REF = '/reference/components';
  * names. Overlay panels still escape to the overlay container, so only the
  * trigger and the in-page states take this.
  */
-const demo = (selector: string): string => `ngwr-doc-snippet ${selector}`;
+const demo = (selector: string): string => `:is(ngwr-doc-snippet, ngwr-doc-playground) ${selector}`;
 
 /**
  * `demo()` prefixes ONE selector, so a comma inside it would scope the first
@@ -221,6 +221,265 @@ export const STATES: readonly State[] = [
     steps: [{ hover: demo('.wr-pagination__page') }],
     target: demo('.wr-pagination__page'),
     scope: demo('.wr-pagination'),
+  },
+  {
+    id: 'mention/panel',
+    route: `${REF}/mention`,
+    steps: [{ fill: [demo('textarea'), 'hey @'] }, { wait: 200 }],
+    target: '.wr-mention-panel__option',
+    scope: '.wr-mention-panel',
+  },
+  {
+    id: 'color-picker/panel',
+    route: `${REF}/color-picker`,
+    steps: [{ click: demo('.wr-color-picker') }, { wait: 300 }],
+    target: '.wr-color-picker__field',
+    scope: '.wr-color-picker__inputs',
+  },
+  {
+    id: 'speed-dial/open',
+    route: `${REF}/speed-dial`,
+    steps: [{ click: demo('.wr-speed-dial__trigger') }],
+    target: demo('.wr-speed-dial__action'),
+    scope: demo('.wr-speed-dial'),
+  },
+  {
+    id: 'tour/step',
+    // A service, so its page is under /reference/services rather than /components.
+    route: '/reference/services/tour',
+    steps: [{ click: demo('.wr-btn--secondary') }, { wait: 400 }],
+    target: '.wr-tour-popup',
+    scope: '.wr-tour-popup',
+  },
+  {
+    id: 'window/open',
+    route: `${REF}/window`,
+    steps: [{ click: demo('.wr-btn') }, { wait: 300 }],
+    target: '.wr-window',
+    scope: '.wr-window',
+  },
+  {
+    id: 'popover/open',
+    route: `${REF}/popover`,
+    steps: [{ click: demo('.wr-popover-trigger') }],
+    target: '.wr-popover-overlay',
+    scope: '.wr-popover-overlay',
+  },
+
+  // ── Selected / active states that a page at rest never shows, and the hover
+  // twins of the ones it does.
+  {
+    id: 'tabs/tab-active',
+    route: `${REF}/tabs`,
+    steps: [{ hover: demo('.wr-tabs__tab--active') }],
+    target: demo('.wr-tabs__tab--active'),
+    scope: demo('.wr-tabs'),
+  },
+  {
+    id: 'segmented/option-selected',
+    route: `${REF}/segmented`,
+    steps: [{ hover: demo('.wr-segmented__option--selected') }],
+    target: demo('.wr-segmented__option--selected'),
+    scope: demo('.wr-segmented'),
+  },
+  {
+    id: 'pagination/page-active',
+    route: `${REF}/pagination`,
+    steps: [{ hover: demo('.wr-pagination__page[aria-current="page"]') }],
+    target: demo('.wr-pagination__page[aria-current="page"]'),
+    scope: demo('.wr-pagination'),
+  },
+  {
+    id: 'tree/chip',
+    route: `${REF}/tree`,
+    steps: [{ click: demo('.wr-tree__trigger') }, { click: '.wr-tree__label' }],
+    target: '.wr-tree__chip, .wr-tree__row--selected',
+    scope: demo('.wr-tree'),
+  },
+  {
+    id: 'anchor/link-hover',
+    route: `${REF}/anchor`,
+    // Its `--active` twin needs a scroll position, which is a state this table
+    // cannot create from a selector — the hover rule is the one that paints an
+    // intent as text, and it is reachable.
+    steps: [{ hover: demo('.wr-anchor__link') }],
+    target: demo('.wr-anchor__link'),
+    scope: demo('.wr-anchor'),
+  },
+  {
+    id: 'list/item-hover',
+    route: `${REF}/list`,
+    steps: [{ hover: demo('.wr-list__item') }],
+    target: demo('.wr-list__item'),
+    scope: demo('.wr-list'),
+  },
+  {
+    id: 'collapse/header-hover',
+    route: `${REF}/collapse`,
+    steps: [{ hover: demo('.wr-collapse__header') }],
+    target: demo('.wr-collapse__header'),
+    scope: demo('.wr-collapse'),
+  },
+  {
+    id: 'breadcrumbs/link-hover',
+    route: `${REF}/breadcrumbs`,
+    steps: [{ hover: demo('.wr-breadcrumbs__link') }],
+    target: demo('.wr-breadcrumbs__link'),
+    scope: demo('.wr-breadcrumbs'),
+  },
+  {
+    id: 'stepper/header-hover',
+    route: `${REF}/stepper`,
+    steps: [{ hover: demo('.wr-stepper__header') }],
+    target: demo('.wr-stepper__header'),
+    scope: demo('.wr-stepper'),
+  },
+  {
+    id: 'transfer/item-hover',
+    route: `${REF}/transfer`,
+    steps: [{ hover: demo('.wr-transfer__item') }],
+    target: demo('.wr-transfer__item'),
+    scope: demo('.wr-transfer'),
+  },
+  {
+    id: 'table/sort-active',
+    route: `${REF}/table`,
+    steps: [{ click: demo('.wr-table th button') }],
+    target: demo('.wr-table th[aria-sort="ascending"]'),
+    scope: demo('.wr-table'),
+  },
+  {
+    id: 'calendar/today-and-selected',
+    route: `${REF}/calendar`,
+    steps: [{ hover: demo('.wr-calendar__day--today') }],
+    target: demo('.wr-calendar__day--today'),
+    scope: demo('.wr-calendar'),
+    note: 'Paints --wr-calendar-accent, a component-local alias no token grep reaches.',
+  },
+
+  // ── Focus rings. A focus ring is a state by definition and the one both other
+  // gates are structurally blind to.
+  {
+    id: 'switch/focus',
+    route: `${REF}/switch`,
+    steps: [{ focus: demo('.wr-switch input') }],
+    target: demo('.wr-switch__track'),
+    scope: demo('.wr-switch'),
+  },
+  {
+    id: 'checkbox/focus',
+    route: `${REF}/checkbox`,
+    steps: [{ focus: demo('.wr-checkbox__input') }],
+    target: demo('.wr-checkbox__box'),
+    scope: demo('.wr-checkbox'),
+  },
+  {
+    id: 'slider/thumb-focus',
+    route: `${REF}/slider`,
+    steps: [{ focus: demo('.wr-slider__thumb') }],
+    target: demo('.wr-slider__thumb'),
+    scope: demo('.wr-slider'),
+  },
+  {
+    id: 'input-otp/cell-focus',
+    route: `${REF}/input-otp`,
+    steps: [{ focus: demo('.wr-input-otp__cell') }],
+    target: demo('.wr-input-otp__cell'),
+    scope: demo('.wr-input-otp'),
+  },
+  {
+    id: 'select/trigger-hover',
+    route: `${REF}/select`,
+    steps: [{ hover: demo('.wr-select__trigger') }],
+    target: demo('.wr-select__trigger'),
+    scope: demo('.wr-select'),
+  },
+  {
+    id: 'select/option-selected',
+    route: `${REF}/select`,
+    steps: [{ click: demo('.wr-select__trigger') }, { click: '.wr-option' }, { click: demo('.wr-select__trigger') }],
+    target: '.wr-option--selected',
+    scope: '.wr-select-panel',
+    note: 'Measured 4.17:1 in light before the -ink move, and invisible to both other gates the whole time.',
+  },
+  {
+    id: 'table/row-selected',
+    route: `${REF}/table`,
+    steps: [{ click: demo('.wr-table tbody .wr-checkbox__input') }],
+    target: demo('.wr-table__tr--selected'),
+    scope: demo('.wr-table'),
+  },
+  {
+    id: 'table/filter-panel',
+    route: `${REF}/table`,
+    steps: [{ click: demo('.wr-table-filter') }, { wait: 200 }],
+    target: '.wr-table-filter__item',
+    scope: '.wr-table-filter__panel',
+    note: 'wr-table-filter__reset is a real text button painting the intent — one of the six the hand audit caught.',
+  },
+  {
+    id: 'carousel/dot-active',
+    route: `${REF}/carousel`,
+    steps: [{ hover: demo('.wr-carousel__dot--active') }],
+    target: demo('.wr-carousel__dot--active'),
+    scope: demo('.wr-carousel'),
+  },
+  {
+    id: 'file-upload/zone-hover',
+    route: `${REF}/file-upload`,
+    steps: [{ hover: demo('.wr-file-upload__zone') }],
+    target: demo('.wr-file-upload__zone'),
+    scope: demo('.wr-file-upload'),
+  },
+  {
+    id: 'splitter/divider-hover',
+    route: `${REF}/splitter`,
+    steps: [{ hover: demo('.wr-splitter__divider') }],
+    target: demo('.wr-splitter__divider'),
+    scope: demo('.wr-splitter'),
+  },
+  {
+    id: 'lightbox/viewer-chrome',
+    route: `${REF}/lightbox`,
+    steps: [{ click: demo('.wr-lightbox__trigger') }, { wait: 300 }],
+    target: '.wr-lightbox-viewer__close',
+    scope: '.wr-lightbox-viewer',
+  },
+  {
+    id: 'sidebar/item-active',
+    route: `${REF}/sidebar`,
+    steps: [{ hover: demo('.wr-sidebar__item--active') }],
+    target: demo('.wr-sidebar__item--active'),
+    scope: demo('.wr-sidebar'),
+  },
+  {
+    id: 'tree/overlay-trigger',
+    route: `${REF}/tree`,
+    steps: [{ click: demo('.wr-tree__trigger') }, { wait: 200 }],
+    target: '.wr-tree__row',
+    scope: '.wr-tree-overlay, .wr-tree',
+  },
+  {
+    id: 'window/taskbar',
+    route: `${REF}/window`,
+    // A tab exists only for a MINIMIZED window, so the window has to be opened
+    // and then minimized — the taskbar is empty otherwise, and an empty taskbar
+    // is exactly the "measured nothing, reported green" case.
+    steps: [
+      { click: demo('.wr-btn') },
+      { wait: 400 },
+      { click: '.wr-window__chrome-action--minimize' },
+      { wait: 400 },
+    ],
+    target: '.wr-window-taskbar__tab',
+    scope: '.wr-window-taskbar',
+  },
+  {
+    id: 'date-picker/time',
+    route: `${REF}/date-picker`,
+    steps: [{ click: demo('.wr-date-picker--time .wr-date-picker__trigger') }, { wait: 200 }],
+    target: '.wr-time-picker',
+    scope: '.wr-time-picker',
   },
 ];
 
