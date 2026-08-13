@@ -240,6 +240,20 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    imageCropper: `it('opens a crop window once the image is measured', async () => {
+  const cropper = await loader.getHarness(WrImageCropperHarness);
+
+  // jsdom loads nothing, so hand the <img> the two numbers the component reads.
+  const img = fixture.nativeElement.querySelector('.wr-image-cropper__image');
+  img.getBoundingClientRect = () => ({ width: 400, height: 400, x: 0, y: 0 });
+  Object.defineProperty(img, 'naturalWidth', { value: 800 });
+  Object.defineProperty(img, 'naturalHeight', { value: 800 });
+
+  await cropper.dispatchImageLoad();
+
+  expect(await cropper.getCropBox()).toEqual({ x: 80, y: 80, width: 240, height: 240 });
+});`,
+
     window: `it('minimizes to the taskbar and back', async () => {
   windows.open(EditorComponent, { title: 'Untitled.md' });
   await fixture.whenStable();
@@ -1345,6 +1359,30 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly imageCropperApi: readonly DocApiRow[] = [
+    {
+      name: 'isEmpty() / getEmptyText() / getImageSrc() / isReady()',
+      description:
+        'Two different questions: a cropper with a `src` is not empty, but it is not READY until the image has been measured — the crop window is a fraction of the rendered box.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'dispatchImageLoad()',
+      description:
+        'Fires the event, not a real load. Stub `getBoundingClientRect()` and `naturalWidth` on the `<img>` first, or the crop UI stays shut — which is what a browser does with a zero-sized image too.',
+      type: 'Promise<void>',
+      default: '\u2014',
+    },
+    {
+      name: 'getCropBox() / getHandles() / hasBackdrop()',
+      description:
+        'The crop window in DISPLAY pixels, from the inline styles. Not what a consumer receives: `cropRect()` converts to the image’s natural pixels, and that is component API rather than DOM.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 

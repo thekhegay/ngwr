@@ -75,7 +75,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-      **Shipped: 43 nested entry points, ~1046 harness specs** — every form control
+      **Shipped: 44 nested entry points, ~1056 harness specs** — every form control
       (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
       `input-number`, `input-otp`, `slider`, `rating`, `file-upload`,
       `color-picker`, `knob`, `form`,
@@ -84,7 +84,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       `command-palette`, `cascader`, `mention`), both data views (`table`, `tree`),
       the navigation and disclosure set (`tabs`, `stepper`, `carousel`,
       `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`, `lightbox`,
-      `tour`, `calendar`, `window` and `markdown` — nested, so a spec
+      `tour`, `calendar`, `window`, `image-cropper` and `markdown` — nested, so a spec
       import pulls nothing into the app bundle — plus the `/guides/testing` page.
 
     **The design rules, all of them earned:**
@@ -161,8 +161,8 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     virtualized table selects the whole dataset, not the window, and `aria-setsize`
     counts the row itself.
 
-    **Still uncovered:** event-calendar, image-cropper, virtual-scroll, plus the
-    charts and the animation set. Every CONTROL and every OVERLAY has one now, so what is left is
+    **Still uncovered:** event-calendar, virtual-scroll, plus the charts and the
+    animation set. Every CONTROL and every OVERLAY has one now, so what is left is
     the rest of the layout set, the two calendars and the animations. None is
     blocked.
 - [ ] **A5. Visual regression** (M) — **the painted-a11y half landed:**

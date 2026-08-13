@@ -255,6 +255,28 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Image cropper" description="The smallest honest surface here.">
+    <ngwr-doc-code [code]="snippets.imageCropper" language="typescript" />
+
+    <p wrTypography>
+      Almost everything the cropper does is measured — the image's rendered box, its <code>naturalWidth</code>, the
+      conversion between display and source pixels, the pointer deltas — and jsdom measures nothing. So there is
+      deliberately no <code>moveCrop()</code> or <code>resizeCrop()</code>: either would divide by a zero-sized rect,
+      write <code>NaN</code>, and report success. What a spec can do is give the image the two numbers
+      <code>onImageLoad</code> reads and call <code>dispatchImageLoad()</code>; from there the crop window's geometry is
+      written inline and is a real answer.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Note that <code>isEmpty()</code> and <code>isReady()</code> are different questions: a cropper with a perfectly
+      good <code>src</code> shows nothing but the image until it has been measured. And the cropper renders no buttons
+      at all — <code>crop()</code> and <code>cropRect()</code> are component API a consumer reaches through a
+      <code>viewChild</code>, which is outside what any harness can see.
+    </p>
+
+    <ngwr-doc-api [rows]="imageCropperApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Window" description="Non-modal, several at once, and a rail for the rest.">
     <ngwr-doc-code [code]="snippets.window" language="typescript" />
 
