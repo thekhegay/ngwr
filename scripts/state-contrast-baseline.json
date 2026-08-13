@@ -1,0 +1,16 @@
+{
+  "color-contrast (light) — date-picker/calendar": {
+    "targets": [
+      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]",
+      ".wr-calendar__week[role=\"row\"] > .wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+    ],
+    "note": "2.23:1, measured 2026-08-14. A design call, not a patch, and NOT the WCAG exemption the route baseline claims for it: out-of-month days are enabled `<button>`s (`disabled=false`, `aria-disabled=false`) reachable with the arrow keys, so 1.4.3 applies to them. The colour is right — `--wr-calendar-muted` is `#5f6c7d`, which clears AA on white at 4.63:1 — and `opacity: 0.55` is what drops it to 2.23. Raising the opacity does not fix it either: at 0.75 the composite is #87919e (3.2:1), and reaching 4.5 needs essentially the full-strength muted colour, which is the same tone as an in-month day. So the de-emphasis and the ratio cannot both be had by tuning this one number — it wants a different signal (weight, a dot, a divider) or non-actionable out-of-month days."
+  },
+  "color-contrast (dark) — date-picker/calendar": {
+    "targets": [
+      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]",
+      ".wr-calendar__week[role=\"row\"] > .wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+    ],
+    "note": "3.11:1, the same element and the same design call as the light entry — #5a6374 on #0b1120. Dark starts closer because the muted role lightens, and the 0.55 opacity is still what puts it under."
+  }
+}

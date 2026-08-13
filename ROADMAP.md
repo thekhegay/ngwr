@@ -18,8 +18,8 @@
 > prints `All files pass linting.` even when a later one fails, so trust the
 > exit code), `pnpm test` (**3640 specs across 226 files**), `check:api-docs`,
 > `check:llms`, `build:lib`, `build:showcase`, `check:a11y` (220 prerendered
-> pages). `check:contrast` and `check:rtl-layout` need a browser and run
-> **nightly**. Docs are prerendered — **219 routes**, 196 canonical plus 23
+> pages). `check:contrast`, `check:state-contrast` and `check:rtl-layout` need a
+> browser and run **nightly**. Docs are prerendered — **219 routes**, 196 canonical plus 23
 > redirect stubs, with 195 markdown twins beside them — and past majors are
 > archived under `/v7/`, `/v8/`, `/v9/`.
 
@@ -191,12 +191,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       focus cannot be scrolled by keyboard. Shiki adds no `tabindex`; it does now.
       Worth repeating after any change to a scroll container or an overflow rule,
       as a scratch script rather than a gate.
-      **Remaining:** Playwright screenshot diffs across the showcase, at mobile
-      viewports too — and **interactive-state contrast**, which no gate covers:
-      both walk prerendered HTML or a page at rest, so every hover, focus ring and
-      overlay panel is unpainted and therefore unmeasured. Driving Playwright into
-      those states found seven real AA failures the gates had been green through.
-      The last of them is now closed and it is the clearest example of the class:
+      **The seventh is closed, and it is the clearest example of the class:**
       `wr-command-palette__option-shortcut` (the `<kbd>`) measured **4.17:1 in the
       LIGHT theme**, `#5f6c7d` on `#dce4f1`. Nothing about the chip was wrong —
       `--wr-color-hover` is translucent, so on a plain row it composites to a light
@@ -210,6 +205,57 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       here must assert the state PAINTED: a clean axe run over an element that
       never rendered looks exactly like a pass, so the probe checked the box had a
       size and the palette had an active option before believing any number.
+      **Interactive-state contrast is now the third a11y gate** —
+      `pnpm check:state-contrast`, nightly beside the other two. It exists because
+      both of the others read a page at rest, so every hover, focus ring and
+      overlay panel goes unpainted and therefore unmeasured; driving Playwright
+      into those states by hand found seven real AA failures the gates had been
+      green through, and nothing stopped the eighth. It drives a curated table of
+      states — every overlay panel, the hover and selection states, two focus
+      rings — asserts each one PAINTED before measuring, and runs the same two
+      rules there.
+      **Four things it had to get right**, each learned by getting it wrong first.
+      It FAILS when a state does not appear, because a clean axe run over an
+      element that never rendered is the failure mode this whole item keeps
+      hitting. Its baseline is keyed by NODE rather than by count, so a new
+      violation inside an already-failing state cannot hide the way
+      `wr-calendar__day--today` did — and the keys have their `:nth-child()`
+      stripped, or the calendar entries would expire when the month changes.
+      `:hover` and `:focus-visible` are forced through CDP `CSS.forcePseudoState`,
+      since a real pointer has one position and cannot reach a row inside an open
+      overlay. And it waits for the state to STOP MOVING — five identical samples
+      of every ancestor's opacity and transform plus a count of running
+      colour-affecting animations — because `reducedMotion` does not stop an
+      overlay's enter animation: caught mid-flight the dialog reports its own
+      title at 3.68:1, a composite of a half-faded panel over a half-faded
+      backdrop that exists for 200ms.
+      **Three traps, all worth knowing before touching it.** A `catch` that
+      returned "settled" hid `__name is not defined` — esbuild's keep-names
+      transform, thrown by every `page.evaluate` holding a named inner function —
+      through four rounds of debugging; that is the swallow-nothing rule in
+      miniature. The wait has to be sampled from Node, one short evaluate at a
+      time: a three-second loop INSIDE the page runs its timers and still observes
+      the same six transitions running the whole way, because a headless renderer
+      nothing is asking for a frame does not advance them. And "settled" cannot
+      mean `transform: none`, since every CDK pane carries a permanent positioning
+      translate — a condition that can never be met is indistinguishable from one
+      that always fails.
+      **What the first run found** is a correction rather than a new defect:
+      `wr-calendar__day--out-of-month` measures 2.23:1 light / 3.11:1 dark, and the
+      route baseline had been filing it under WCAG-exempt inactive controls. It is
+      not exempt — those cells are enabled `<button>`s reachable with the arrow
+      keys. The colour is right (`#5f6c7d`, 4.63:1 on white) and `opacity: 0.55` is
+      what drops it, which cannot be tuned out: 0.75 gives 3.2:1, and reaching 4.5
+      needs the full-strength muted tone, which is no de-emphasis at all. Baselined
+      as a design call with the arithmetic written down, and the older note
+      corrected.
+      **Coverage is reported rather than assumed.** The table is hand-maintained,
+      so every full run counts the state-dependent classes in the BUILT stylesheet
+      and says how many it actually painted — **21 of 95** today. A curated list
+      that has stopped growing looks exactly like one that covers the catalog, and
+      that number is the only cheap way to tell them apart.
+      **Remaining:** Playwright screenshot diffs across the showcase, at mobile
+      viewports too — and growing the state table past those 21 classes.
 
 **Remaining from the SSR pass:** per-component SSR-safety notes in the docs, and
 incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`).

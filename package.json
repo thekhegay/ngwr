@@ -24,7 +24,8 @@
     "postinstall": "node scripts/build-icon-sets.mjs",
     "release:prepare": "tsx scripts/release-prepare.ts",
     "release:body": "tsx scripts/release-body.ts",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "check:state-contrast": "tsx scripts/check-state-contrast.ts"
   },
   "simple-git-hooks": {
     "commit-msg": "npx --no-install commitlint --edit $1"
