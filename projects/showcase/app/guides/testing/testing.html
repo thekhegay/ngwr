@@ -234,6 +234,27 @@
     <ngwr-doc-api [rows]="colorPickerApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Splitter" description="Two words for the axis, and they are opposites.">
+    <ngwr-doc-code [code]="snippets.splitter" language="typescript" />
+
+    <p wrTypography>
+      <code>orientation="horizontal"</code> means the panes sit side by side, which needs a VERTICAL divider — so that
+      is what <code>aria-orientation</code> says. The harness answers both, because a spec that conflated them would
+      look right and assert nothing. <code>getPaneSizes()</code> reads the <code>flex-basis</code> the component writes
+      inline, which is the only evidence a test without layout has that the panes followed the divider.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <code>setPosition()</code> WALKS with the arrow keys rather than assigning — ten-unit hops, then single steps —
+      because assigning would prove the harness can write a signal and nothing about the clamp, the bounds, or the RTL
+      mirroring, which all live on that path. It works out which key grows the number by pressing one and putting it
+      back, so it is right in both reading directions; a target it cannot land on exactly (the position is a float, and
+      a drag can leave it mid-step) throws with where it stopped.
+    </p>
+
+    <ngwr-doc-api [rows]="splitterApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Driving a table" description="A family of harnesses, because a table is a tree.">
     <ngwr-doc-code [code]="snippets.table" language="typescript" />
 

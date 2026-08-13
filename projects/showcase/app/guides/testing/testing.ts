@@ -240,6 +240,21 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    splitter: `it('resizes from the keyboard', async () => {
+  const splitter = await loader.getHarness(WrSplitterHarness);
+
+  // Panes side by side; the divider drawn between them is a vertical line.
+  expect(await splitter.getOrientation()).toBe('horizontal');
+  expect(await splitter.getDividerOrientation()).toBe('vertical');
+
+  await splitter.setPosition(70);
+  expect(await splitter.getPaneSizes()).toEqual({ start: 70, end: 30 });
+
+  // Home and End are semantic — they never mirror under RTL.
+  await splitter.pressHome();
+  expect(await splitter.getPosition()).toBe(await splitter.getMinPosition());
+});`,
+
     table: `it('sorts, selects and expands', async () => {
   const table = await loader.getHarness(WrTableHarness);
 
@@ -1242,6 +1257,43 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'Trigger: isOpen() / open() / close() / toggle() / sendEscape() / getPicker() / isDisabled()',
       description:
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+  ];
+
+  protected readonly splitterApi: readonly DocApiRow[] = [
+    {
+      name: 'getPosition() / getMinPosition() / getMaxPosition()',
+      description: 'The divider, from the `aria-value*` trio it publishes as a `role="separator"`.',
+      type: 'Promise<number>',
+      default: '—',
+    },
+    {
+      name: 'getOrientation() / getDividerOrientation()',
+      description:
+        'The component’s axis and the divider’s, which are opposites: panes side by side need a vertical line between them.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'pressArrow(arrow, { shift }) / pressHome() / pressEnd() / setPosition(n)',
+      description:
+        'The key a user presses, not a semantic direction — under RTL the start pane is on the right, so ArrowRight shrinks. `setPosition` walks and asserts its landing.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'getPaneSizes() / getStartText() / getEndText()',
+      description:
+        'The share each pane asks for, from the inline `flex-basis` — a measured width is zero for both in a unit test.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'isDisabled() / isDividerFocusable() / focusDivider() / isDividerFocused() / getDividerLabel()',
+      description:
+        'Announced state and tab stop, asked separately: a divider announced as disabled that is still a tab stop is a control the keyboard can reach and not use.',
       type: 'Promise<…>',
       default: '—',
     },

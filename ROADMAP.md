@@ -75,7 +75,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-      **Shipped: 36 nested entry points, ~892 harness specs** — every form control
+      **Shipped: 37 nested entry points, ~913 harness specs** — every form control
       (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
       `input-number`, `input-otp`, `slider`, `rating`, `file-upload`,
       `color-picker`, `form`,
@@ -83,7 +83,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
       `command-palette`, `cascader`, `mention`), both data views (`table`, `tree`),
       the navigation and disclosure set (`tabs`, `stepper`, `carousel`,
-      `pagination`, `collapse`, `transfer`) and `markdown` — nested, so a spec
+      `pagination`, `collapse`, `transfer`), `splitter` and `markdown` — nested, so a spec
       import pulls nothing into the app bundle — plus the `/guides/testing` page.
 
     **The design rules, all of them earned:**
@@ -160,10 +160,11 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     virtualized table selects the whole dataset, not the window, and `aria-setsize`
     counts the row itself.
 
-    **Still uncovered:** splitter, calendar, event-calendar, window, tour,
-    lightbox, image-cropper, knob, speed-dial, virtual-scroll, plus the charts and
-    the animation set. Every CONTROL and every OVERLAY has one now, so what is left
-    is the layout, scheduling and animation half. None is blocked.
+    **Still uncovered:** calendar, event-calendar, window, tour, lightbox,
+    image-cropper, knob, speed-dial, virtual-scroll, plus the charts and the
+    animation set. Every CONTROL and every OVERLAY has one now, so what is left is
+    the rest of the layout set, the two calendars and the animations. None is
+    blocked.
 - [ ] **A5. Visual regression** (M) — **the painted-a11y half landed:**
       `pnpm check:contrast` (`scripts/check-contrast.ts`) drives a real Chromium
       over every canonical route in BOTH themes and runs the two rules JSDOM
