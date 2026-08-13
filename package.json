@@ -25,7 +25,7 @@
     "release:prepare": "tsx scripts/release-prepare.ts",
     "release:body": "tsx scripts/release-body.ts",
     "prepare": "simple-git-hooks",
-    "check:state-contrast": "tsx scripts/check-state-contrast.ts"
+    "check:state-a11y": "tsx scripts/check-state-a11y.ts"
   },
   "simple-git-hooks": {
     "commit-msg": "npx --no-install commitlint --edit $1"

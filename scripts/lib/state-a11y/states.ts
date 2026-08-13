@@ -6,7 +6,7 @@
  */
 
 /**
- * The states `check:state-contrast` drives, and the only hand-maintained part
+ * The states `check:state-a11y` drives, and the only hand-maintained part
  * of that gate.
  *
  * Selectors are the library's own BEM classes wherever possible. Those are

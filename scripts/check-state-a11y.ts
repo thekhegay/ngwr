@@ -7,19 +7,25 @@
 
 /**
  * The third a11y gate, and the one that covers what the other two structurally
- * cannot: colour in a state the user has to CREATE.
+ * cannot: a state the user has to CREATE.
  *
  * `check:a11y` reads prerendered HTML. `check:contrast` drives a real browser
- * but measures a page at REST. Between them they never paint a hover, a focus
- * ring, or anything inside an overlay — which is exactly where this library
- * paints an intent as text. Seven real AA failures have been found by hand in
- * those states, every one of them while both gates were green: five had been
- * shipped for majors (`wr-option--selected`, `wr-tree__row--selected`,
- * `wr-cascader__opt--active`, the command-palette option,
- * `wr-segmented__option:hover`, all 4.17–4.19:1 in the LIGHT theme), and the
- * seventh was a `<kbd>` whose translucent background composited over a tint the
- * muted role was never calibrated against. Hand-driving found them; nothing
- * stopped the next one.
+ * but measures a page at REST. Between them they never reach a hover, a focus
+ * ring, or anything inside an overlay — and that is where most of this library
+ * lives. Seven real AA colour failures were found by hand in those states, every
+ * one while both gates were green: five had been shipped for majors
+ * (`wr-option--selected`, `wr-tree__row--selected`, `wr-cascader__opt--active`,
+ * the command-palette option, `wr-segmented__option:hover`, all 4.17–4.19:1 in
+ * the LIGHT theme), and the seventh was a `<kbd>` whose translucent background
+ * composited over a tint the muted role was never calibrated against.
+ *
+ * Colour was where it started and not where it ended. The STRUCTURAL rules had
+ * never run inside an overlay either, for the same reason: `nested-interactive`
+ * never saw the window taskbar's close button — a `role="button"` span with
+ * `tabindex="0"` inside the tab's own `<button>` — because a tab exists only
+ * while a window is minimized. That one was found by reading a template. This
+ * gate now runs the full rule set in every state it drives, which costs nothing:
+ * the state is already open and already settled.
  *
  * The design follows from the way those audits went wrong before they went
  * right:
@@ -52,11 +58,11 @@
  * Nightly, like `check:contrast`, and for the same reason: it needs a browser.
  *
  * Usage:
- *   pnpm check:state-contrast                 # after build:showcase
- *   pnpm check:state-contrast --theme=dark    # one theme
- *   pnpm check:state-contrast --filter=select # only states whose id matches
- *   pnpm check:state-contrast --verbose       # every node, plus the coverage list
- *   pnpm check:state-contrast --probe         # report every unreachable state instead of the first
+ *   pnpm check:state-a11y                 # after build:showcase
+ *   pnpm check:state-a11y --theme=dark    # one theme
+ *   pnpm check:state-a11y --filter=select # only states whose id matches
+ *   pnpm check:state-a11y --verbose       # every node, plus the coverage list
+ *   pnpm check:state-a11y --probe         # report every unreachable state instead of the first
  */
 
 import { createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -71,13 +77,43 @@ import { chromium, type Browser, type CDPSession, type Page } from 'playwright';
 import { err } from './lib/log/err';
 import { info } from './lib/log/info';
 import { ROOT_PATH } from './lib/paths/root';
-import { STATES, type State, type Step } from './lib/state-contrast/states';
+import { STATES, type State, type Step } from './lib/state-a11y/states';
 
 const DIST = resolve(ROOT_PATH, 'dist/showcase');
-const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/state-contrast-baseline.json');
+const BASELINE_PATH = resolve(ROOT_PATH, 'scripts/state-a11y-baseline.json');
 
-/** The same two rules `check:contrast` owns — this one just paints first. */
-const PAINTED_RULES = ['color-contrast', 'target-size'] as const;
+/**
+ * Everything axe knows, minus one.
+ *
+ * It started as the two rules `check:contrast` owns, on the theory that colour
+ * was the gap. It is not: `check:a11y` reads PRERENDERED HTML, so no structural
+ * rule has ever run inside an overlay either — `nested-interactive` never saw
+ * the window taskbar's close button, a `role="button"` span with `tabindex="0"`
+ * inside the tab's own `<button>`, because a tab exists only while a window is
+ * minimized. That was found by reading the template. Running the full set here
+ * costs nothing extra: the state is already open and already settled.
+ *
+ * `color-contrast-enhanced` is AAA and this library targets AA, so it is off for
+ * the same reason `check:a11y` turns it off.
+ */
+const DISABLED_RULES = ['color-contrast-enhanced'];
+
+/**
+ * Rules axe will not run unless asked, and rules this gate must never lose.
+ *
+ * `target-size` is in `axe.getRules()` and is NOT in a default `axe.run()` — the
+ * WCAG 2.2 rules are opt-in. Switching this gate from `runOnly: [color-contrast,
+ * target-size]` to the full set therefore SILENTLY dropped it, and the sweep
+ * printed four "no longer fails — drop it from the baseline" lines about
+ * findings that were still on the page. Nothing distinguishes a rule that passed
+ * from one that never ran, which is the same trap as a state that never painted,
+ * one level up.
+ *
+ * So: enable them explicitly, and then verify they appear in the RESULT. The
+ * check below is the load-bearing half — the enable list alone is a promise.
+ */
+const ALWAYS_ON = ['target-size'];
+const REQUIRED_RULES = ['color-contrast', 'target-size', 'nested-interactive'];
 const FAILING_IMPACTS: readonly ImpactValue[] = ['serious', 'critical'];
 
 const THEMES = ['light', 'dark'] as const;
@@ -304,7 +340,7 @@ function unreachableState(state: State, theme: Theme, why: string, into: string[
     into.push(line);
     return [];
   }
-  err(`\n✘ state-contrast: ${line}`);
+  err(`\n✘ state-a11y: ${line}`);
   err(`  A state this gate cannot reach is not a state it is checking. Fix the steps or drop the entry.`);
   err(`  Extending the table? --probe reports every one of these instead of stopping at the first.\n`);
   exit(1);
@@ -363,7 +399,7 @@ async function audit(
 
   const applied = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
   if (applied !== theme) {
-    err(`\n✘ state-contrast: ${state.route} came up as "${applied ?? 'unset'}" with "${theme}" requested.\n`);
+    err(`\n✘ state-a11y: ${state.route} came up as "${applied ?? 'unset'}" with "${theme}" requested.\n`);
     exit(1);
   }
 
@@ -418,12 +454,29 @@ async function audit(
 
   await page.addScriptTag({ content: AXE_SOURCE });
   const results = (await page.evaluate(
-    async ({ sel, rules }: { sel: string; rules: readonly string[] }) => {
+    async ({ sel, off, on }: { sel: string; off: readonly string[]; on: readonly string[] }) => {
       const runner = (window as unknown as { axe: { run: (c: unknown, o: unknown) => Promise<AxeResults> } }).axe;
-      return runner.run(sel, { resultTypes: ['violations'], runOnly: { type: 'rule', values: [...rules] } });
+      return runner.run(sel, {
+        resultTypes: ['violations'],
+        rules: {
+          ...Object.fromEntries(off.map(id => [id, { enabled: false }])),
+          ...Object.fromEntries(on.map(id => [id, { enabled: true }])),
+        },
+      });
     },
-    { sel: scope, rules: PAINTED_RULES }
+    { sel: scope, off: DISABLED_RULES, on: ALWAYS_ON }
   )) as AxeResults;
+
+  // Did the rules this gate exists for actually execute? A rule that never ran
+  // reports exactly like a rule that found nothing.
+  const ran = new Set(
+    [...results.violations, ...results.passes, ...results.incomplete, ...results.inapplicable].map(r => r.id)
+  );
+  const missing = REQUIRED_RULES.filter(id => !ran.has(id));
+  if (missing.length > 0) {
+    err(`\n✘ state-a11y: axe did not run ${missing.join(', ')} on "${state.id}" — the result says nothing about them.\n`);
+    exit(1);
+  }
 
   const out: Failure[] = [];
   for (const violation of results.violations) {
@@ -491,19 +544,19 @@ async function main(): Promise<void> {
   const filter = args.find(a => a.startsWith('--filter='))?.split('=')[1] ?? '';
 
   if (!existsSync(join(DIST, 'index.html'))) {
-    err('\n✘ state-contrast: dist/showcase not found. Run build:showcase first.\n');
+    err('\n✘ state-a11y: dist/showcase not found. Run build:showcase first.\n');
     exit(1);
   }
 
   const themes = only ? THEMES.filter(t => t === only) : THEMES;
   if (only && themes.length === 0) {
-    err(`\n✘ state-contrast: unknown theme "${only}". Use light or dark.\n`);
+    err(`\n✘ state-a11y: unknown theme "${only}". Use light or dark.\n`);
     exit(1);
   }
 
   const targets = STATES.filter(s => s.id.includes(filter));
   if (targets.length === 0) {
-    err(`\n✘ state-contrast: no state matches "${filter}".\n`);
+    err(`\n✘ state-a11y: no state matches "${filter}".\n`);
     exit(1);
   }
 
@@ -597,7 +650,7 @@ async function main(): Promise<void> {
   }
 
   if (unexpected.length > 0) {
-    err(`\n✘ ${unexpected.length} contrast/target-size failure(s) in interactive states, not in the baseline.\n`);
+    err(`\n✘ ${unexpected.length} accessibility failure(s) in interactive states, not in the baseline.\n`);
     exit(1);
   }
 
