@@ -264,7 +264,17 @@ export class WrTable {
   /** Accessible name of a group band's collapse toggle. Falls back to `table.toggleGroup`. */
   readonly toggleGroupLabel = input<string | null>(null);
 
+  /** Accessible name of the loading overlay. Falls back to `table.loading`. */
+  readonly loadingLabel = input<string | null>(null);
+
   protected readonly resolvedEmptyLabel = useI18nText(this.emptyLabel, 'table.empty', 'No data');
+  /**
+   * The loading overlay was a bare spinner in a `<div>` — a busy state with no
+   * accessible name, which a screen reader reports as nothing at all while the
+   * table sits empty. `table.loading` shipped in both catalogs for it and was
+   * never read.
+   */
+  protected readonly resolvedLoadingLabel = useI18nText(this.loadingLabel, 'table.loading', 'Loading…');
   protected readonly resolvedSortLabel = useI18nText(this.sortLabel, 'table.sort', 'Sort column');
   protected readonly resolvedSelectAllLabel = useI18nText(this.selectAllLabel, 'table.selectAll', 'Select all rows');
   protected readonly resolvedSelectRowLabel = useI18nText(this.selectRowLabel, 'table.selectRow', 'Select row');

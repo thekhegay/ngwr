@@ -40,11 +40,20 @@ export interface WrToastConfig {
    * @default 5
    */
   readonly maxStack: number;
-  /** Labels rendered in the UI. Keep short — meant to be overridden for i18n. */
+  /**
+   * Labels rendered in the UI. Keep short.
+   *
+   * `null` — the default for every one of them — means "resolve it from the
+   * `ngwr/i18n` catalog", which is what makes a Russian app announce a Russian
+   * close button without configuring the toast at all. They were English
+   * literals here until v11, so the four `toast.*` keys in the shipped catalogs
+   * were never read by anything. A string set here still WINS over the catalog:
+   * this is the consumer's explicit override, not a default.
+   */
   readonly labels: {
-    readonly close: string;
-    readonly copy: string;
-    readonly copied: string;
-    readonly closeAll: string;
+    readonly close: string | null;
+    readonly copy: string | null;
+    readonly copied: string | null;
+    readonly closeAll: string | null;
   };
 }

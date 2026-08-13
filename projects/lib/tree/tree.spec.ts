@@ -4,11 +4,25 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { WrTreeNode, WrTreeSelectionMode } from './interfaces';
 import { WrTree } from './tree';
+
+@Component({
+  imports: [WrTree],
+  template: `<wr-tree openOn="overlay" [nodes]="[]" />`,
+})
+class PlaceholderHost {}
+
+@Component({
+  imports: [WrTree],
+  template: `<wr-tree openOn="overlay" [nodes]="[]" placeholder="Pick a folder" />`,
+})
+class BoundPlaceholderHost {}
 
 const NODES: readonly WrTreeNode[] = [
   {
@@ -627,5 +641,58 @@ describe('WrTree in overlay mode', () => {
     fixture.detectChanges();
 
     expect(list()).toBeNull();
+  });
+});
+
+/**
+ * `wr-select` has always fallen through an unset placeholder to the catalog;
+ * `wr-tree` rendered `placeholder()` raw, so `tree.placeholder` shipped in both
+ * catalogs and reached nothing — an overlay trigger with no selection rendered
+ * an empty span where the select next to it read "Select…".
+ */
+describe('WrTree placeholder', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const mount = async (providers: unknown[]): Promise<HTMLElement> => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), ...(providers as never[])] });
+    const fixture = TestBed.createComponent(PlaceholderHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  };
+
+  it('falls through to the catalog when none is bound', async () => {
+    const el = await mount([
+      provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+      provideWrI18nStaticLoader({ ru: wrRu }),
+    ]);
+
+    const placeholder = el.querySelector('.wr-tree__placeholder')?.textContent?.trim() ?? '';
+    expect(placeholder, 'the trigger rendered nothing at all').not.toBe('');
+    expect(/\p{Script=Cyrillic}/u.test(placeholder), `"${placeholder}" is still English`).toBe(true);
+  });
+
+  it('renders nothing extra when there is no catalog either', async () => {
+    // The English fallback is deliberately empty: a bare `wr-tree` should not
+    // invent a placeholder nobody asked for.
+    const el = await mount([]);
+    expect(el.querySelector('.wr-tree__placeholder')?.textContent?.trim()).toBe('');
+  });
+
+  it('lets a bound placeholder win', async () => {
+    const el = await mount([
+      provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+      provideWrI18nStaticLoader({ ru: wrRu }),
+    ]);
+    const host = TestBed.createComponent(BoundPlaceholderHost);
+    host.detectChanges();
+    await host.whenStable();
+    host.detectChanges();
+
+    expect(el).toBeTruthy();
+    expect((host.nativeElement as HTMLElement).querySelector('.wr-tree__placeholder')?.textContent?.trim()).toBe(
+      'Pick a folder'
+    );
   });
 });

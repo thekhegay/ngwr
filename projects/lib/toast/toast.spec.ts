@@ -1,6 +1,8 @@
 import { type EnvironmentProviders } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -477,5 +479,88 @@ describe('WrToast', () => {
       tick();
       expect(items()).toHaveLength(0);
     });
+  });
+});
+
+/**
+ * Toast's four labels lived as English literals in `DEFAULT_TOAST_CONFIG`, which
+ * meant `toast.close`, `toast.copy`, `toast.copied` and `toast.closeAll` shipped
+ * in both catalogs and were read by nothing — an app on the Russian catalog got
+ * an English close button and no gate said a word, because the region's own name
+ * was the literal `'Notifications'` in a host binding and the rest matched the
+ * fallback exactly.
+ *
+ * The order that has to hold: a configured string WINS (it is the consumer's
+ * explicit choice), then the catalog, then English.
+ */
+describe('WrToast labels', () => {
+  let toast: WrToast;
+
+  const tick = (): void => TestBed.tick();
+  const host = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-toast-host');
+  const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-toast')];
+  const actions = (t: HTMLElement): HTMLButtonElement[] => [
+    ...t.querySelectorAll<HTMLButtonElement>('.wr-toast__action'),
+  ];
+  const cyrillic = (value: string | null | undefined): boolean => /\p{Script=Cyrillic}/u.test(value ?? '');
+
+  beforeEach(() => vi.useFakeTimers());
+
+  afterEach(() => {
+    vi.useRealTimers();
+    TestBed.resetTestingModule();
+  });
+
+  it('takes every one of them from the catalog', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    toast = TestBed.inject(WrToast);
+
+    toast.show({ message: 'Раз', showCopy: true });
+    toast.show({ message: 'Два' });
+    tick();
+    // The static loader resolves a promise before the catalog is live, and
+    // there is no fixture here to `whenStable()` on — the host renders through
+    // the overlay, not into one.
+    await Promise.resolve();
+    tick();
+
+    expect(cyrillic(host()?.getAttribute('aria-label')), 'the live region is still named in English').toBe(true);
+    for (const label of actions(items()[0]).map(b => b.getAttribute('aria-label'))) {
+      expect(cyrillic(label), `"${label ?? ''}" is still English`).toBe(true);
+    }
+  });
+
+  it('still lets provideWrToastConfig win over the catalog', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+        provideWrToastConfig({ labels: { close: 'Dismiss', copy: 'Copy', copied: 'Copied', closeAll: 'Clear' } }),
+      ],
+    });
+    toast = TestBed.inject(WrToast);
+
+    toast.show({ message: 'One' });
+    tick();
+
+    expect(actions(items()[0]).map(b => b.getAttribute('aria-label'))).toEqual(['Dismiss']);
+  });
+
+  it('falls back to English when no catalog is registered', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    toast = TestBed.inject(WrToast);
+
+    toast.show({ message: 'One' });
+    tick();
+
+    expect(host()?.getAttribute('aria-label')).toBe('Notifications');
+    expect(actions(items()[0]).map(b => b.getAttribute('aria-label'))).toEqual(['Close']);
   });
 });

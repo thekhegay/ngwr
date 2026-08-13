@@ -379,11 +379,23 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       (spartan ~21k dl/wk).
 - [ ] **E7. Locale packs** (M) — built-in component strings for ~20 locales on
       top of the i18n service. Two locales ship today (en / ru); NG-ZORRO ships
-      ~80. Worth pairing with a pass over the catalog: **44 of the 198 keys are
-      still unread by any component** — including all twelve `date.months.*`,
-      which nothing reads at all — and a locale pack multiplies only what is
-      actually wired up. (The 19 `validation.*` keys ARE read, dynamically, by
-      `<wr-form-field>`; a naive grep calls them dead.)
+      ~80. A locale pack multiplies only what is actually wired up, and a pass
+      over the catalog found five keys unread because the COMPONENT hard-coded
+      English instead — `inputNumber.increment` / `.decrement` (the steppers'
+      only accessible names), all four `toast.*` labels (their defaults were
+      English literals in `DEFAULT_TOAST_CONFIG`, so an app on the Russian
+      catalog got an English close button), `tree.placeholder` (`wr-select` fell
+      through to the catalog for an unset placeholder and `wr-tree` did not) and
+      `table.loading` (whose overlay had no role and no name at all). All fixed,
+      each with a spec that fails without it, and the toast's live region gained
+      the `toast.region` key it never had — 199 keys now.
+      **36 of the 199 are still unread, and most of them should be**: the 20
+      `common.*` are a convenience catalog for consuming apps rather than
+      anything the library renders, and the 12 `date.months.*` are dead by
+      design — every date string goes through the adapter's `Intl` formatting.
+      What is left is four to decide on: `pagination.pageOf`, `select.empty`,
+      `fileUpload.invalid` and `fileUpload.tooBig`. (The 19 `validation.*` keys
+      ARE read, dynamically, by `<wr-form-field>`; a naive grep calls them dead.)
 - [ ] **E9. Blocks** (L) — `ng g @ngwr/blocks:auth|dashboard|landing|settings`
       composed from ngwr components and themed by D1. Proven adoption driver
       (shadcnblocks economy, Ant Pro, Tremor); virtually no Angular block

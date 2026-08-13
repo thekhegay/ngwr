@@ -6,11 +6,21 @@ import { By } from '@angular/platform-browser';
 
 import { Subject } from 'rxjs';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { noop } from 'ngwr/utils';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { WrTableColumns } from './interfaces';
 import { WrTable } from './table';
+
+@Component({
+  imports: [WrTable],
+  template: `<wr-table [columns]="columns" [items]="[]" loading />`,
+})
+class LoadingHost {
+  protected readonly columns = COLUMNS;
+}
 
 const COLUMNS: WrTableColumns = {
   name: { title: 'Name', sortable: true },
@@ -659,5 +669,47 @@ describe('WrTable in card mode', () => {
 
     expect(spacers()).toBeGreaterThan(0);
     expect(rows()).toBeLessThan(100);
+  });
+});
+
+/**
+ * The loading overlay was a spinner in a bare `<div>`: a busy state with no
+ * role and no accessible name, which a screen reader reports as an empty table
+ * rather than as a table that is loading. `table.loading` shipped in both
+ * catalogs for exactly this and nothing read it.
+ */
+describe('WrTable loading overlay', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const overlay = (): HTMLElement | null => {
+    const fixture = TestBed.createComponent(LoadingHost);
+    fixture.detectChanges();
+    return (fixture.nativeElement as HTMLElement).querySelector('.wr-table__loading');
+  };
+
+  it('announces itself, in English by default', () => {
+    TestBed.configureTestingModule({ providers: [] });
+    const el = overlay();
+
+    expect(el?.getAttribute('role')).toBe('status');
+    expect(el?.getAttribute('aria-label')).toBe('Loading…');
+  });
+
+  it('takes its name from the catalog', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(LoadingHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const label = (fixture.nativeElement as HTMLElement)
+      .querySelector('.wr-table__loading')
+      ?.getAttribute('aria-label');
+    expect(/\p{Script=Cyrillic}/u.test(label ?? ''), `"${label ?? ''}" is still English`).toBe(true);
   });
 });

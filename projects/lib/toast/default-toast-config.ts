@@ -22,10 +22,12 @@ export const DEFAULT_TOAST_CONFIG: WrToastConfig = {
   showCloseAll: true,
   closeAllThreshold: 2,
   maxStack: 5,
+  // Null, not English: the host resolves each one through the i18n catalog and
+  // falls back to English only if nothing is registered. See `WrToastConfig`.
   labels: {
-    close: 'Close',
-    copy: 'Copy',
-    copied: 'Copied',
-    closeAll: 'Close all',
+    close: null,
+    copy: null,
+    copied: null,
+    closeAll: null,
   },
 };

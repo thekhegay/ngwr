@@ -30,7 +30,7 @@
         type="button"
         class="wr-input-number__step"
         tabindex="-1"
-        aria-label="Increment"
+        [attr.aria-label]="resolvedIncrement()"
         [disabled]="!interactive() || atMax()"
         (click)="stepBy(1)"
       >
@@ -42,7 +42,7 @@
         type="button"
         class="wr-input-number__step"
         tabindex="-1"
-        aria-label="Decrement"
+        [attr.aria-label]="resolvedDecrement()"
         [disabled]="!interactive() || atMin()"
         (click)="stepBy(-1)"
       >

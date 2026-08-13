@@ -131,6 +131,14 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   readonly placeholder = input<string>('');
 
   /**
+   * The same fall-through `wr-select` has had all along: an unset placeholder
+   * takes the catalog's `tree.placeholder`, so an overlay trigger with nothing
+   * selected reads "Select…" in the app's language instead of rendering an
+   * empty span. The key shipped in both catalogs and nothing read it.
+   */
+  protected readonly resolvedPlaceholder = useI18nText(this.placeholder, 'tree.placeholder', '');
+
+  /**
    * Accessible name of the overlay trigger. Falls back to the placeholder, then
    * to `select.label` — a `role="combobox"` with nothing selected and no
    * placeholder otherwise has no name at all.
@@ -142,7 +150,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // Not `??`: an empty placeholder must fall through to the catalog string.
     const explicit = this.ariaLabel();
     if (explicit) return explicit;
-    const placeholder = this.placeholder();
+    const placeholder = this.resolvedPlaceholder();
     return placeholder ? placeholder : this.labelText();
   });
 

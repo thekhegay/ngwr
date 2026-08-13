@@ -21,6 +21,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
+import { useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, type WrInputSize } from 'ngwr/input';
 import { clamp, round } from 'ngwr/utils';
 
@@ -150,6 +151,20 @@ export class WrInputNumber implements FormValueControl<number | null> {
     const placeholder = this.placeholder();
     return placeholder ? placeholder : null;
   });
+
+  /** Increment button aria-label. Falls back to `inputNumber.increment`. */
+  readonly incrementLabel = input<string | null>(null);
+
+  /** Decrement button aria-label. Falls back to `inputNumber.decrement`. */
+  readonly decrementLabel = input<string | null>(null);
+
+  /**
+   * The steppers are icon-only buttons, so these ARE their accessible names.
+   * They were hard-coded English while the catalog carried the keys for them
+   * unread — a Russian app announced "Increment".
+   */
+  protected readonly resolvedIncrement = useI18nText(this.incrementLabel, 'inputNumber.increment', 'Increment');
+  protected readonly resolvedDecrement = useI18nText(this.decrementLabel, 'inputNumber.decrement', 'Decrement');
 
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });

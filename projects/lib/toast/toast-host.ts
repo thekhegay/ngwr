@@ -7,6 +7,8 @@
 
 import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
+
 import type { WrToastConfig, WrToastMode, WrToastOptions, WrToastPosition } from './interfaces';
 import { WrToastItem } from './toast-item';
 
@@ -34,7 +36,7 @@ type ActiveToast = WrToastOptions & {
   host: {
     '[class]': 'classes()',
     role: 'region',
-    'aria-label': 'Notifications',
+    '[attr.aria-label]': 'regionLabel()',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave()',
     '(focusin)': 'onFocusIn()',
@@ -47,6 +49,46 @@ export class WrToastHost {
   readonly config = input.required<WrToastConfig>();
   /** Layout mode. @default 'stack' (Sonner-style; hover to fan out) */
   readonly mode = input<WrToastMode>('stack');
+
+  /**
+   * Every string this host and its items render, resolved through the catalog.
+   *
+   * The config value WINS when the consumer sets one, and its default is now
+   * `null` — until v11 those defaults were English literals, so the four
+   * `toast.*` keys in the shipped catalogs were dead and a Russian app got an
+   * English close button. `region` had no key at all: the live region's name
+   * was the literal `'Notifications'` in a host binding.
+   */
+  protected readonly regionLabel = useI18nText(signal(null), 'toast.region', 'Notifications');
+
+  private readonly closeLabel = useI18nText(
+    computed(() => this.config().labels.close),
+    'toast.close',
+    'Close'
+  );
+  private readonly copyLabel = useI18nText(
+    computed(() => this.config().labels.copy),
+    'toast.copy',
+    'Copy'
+  );
+  private readonly copiedLabel = useI18nText(
+    computed(() => this.config().labels.copied),
+    'toast.copied',
+    'Copied'
+  );
+  protected readonly closeAllLabel = useI18nText(
+    computed(() => this.config().labels.closeAll),
+    'toast.closeAll',
+    'Close all'
+  );
+
+  /** What `wr-toast-item` receives — resolved, so the item stays presentational. */
+  protected readonly labels = computed(() => ({
+    close: this.closeLabel(),
+    copy: this.copyLabel(),
+    copied: this.copiedLabel(),
+    closeAll: this.closeAllLabel(),
+  }));
 
   /** @internal — hovering or focusing the stack toggles this in stack mode. */
   protected readonly expanded = signal(false);
