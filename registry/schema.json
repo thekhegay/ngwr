@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ngwr.dev/registry/schema.json",
+  "title": "ngwr registry item",
+  "description": "One installable unit — a theme preset, a block or a component — that any tool can fetch and any author can host. The rules here are enforced by `pnpm check:registry`; see https://ngwr.dev/guides/registry.",
+  "type": "object",
+  "required": ["name", "type", "title", "description"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "This file, so an editor can complete and validate the item as it is written."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "kebab-case, unique within the registry that hosts it."
+    },
+    "type": {
+      "enum": ["registry:theme", "registry:block", "registry:component"],
+      "description": "A theme is tokens and nothing else. A block composes several ngwr components into a page or a section. A component is one unit of UI."
+    },
+    "title": { "type": "string", "description": "Short human name, shown in a picker." },
+    "description": { "type": "string", "description": "One sentence on what it is for." },
+    "author": { "type": "string" },
+    "ngwr": {
+      "type": "string",
+      "description": "Compatible ngwr versions, as a semver range — e.g. \">=11\"."
+    },
+    "dependencies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "npm packages beyond ngwr and its peers."
+    },
+    "registryDependencies": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^https://" },
+      "description": "Absolute https URLs of other registry items this one composes. Relative is meaningless: the resolving CLI does not know where this item came from."
+    },
+    "entryPoints": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^ngwr/" },
+      "description": "The `ngwr/*` subpaths the item imports from. Checked against the real catalog, so a typo fails rather than installing something that will not compile."
+    },
+    "cssVars": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Token overrides per theme. Keys must be `--wr-*`: a preset that sets arbitrary custom properties is not a theme preset, and consumers install one expecting the library's own token layer to be what changes.",
+      "properties": {
+        "light": { "$ref": "#/$defs/tokens" },
+        "dark": { "$ref": "#/$defs/tokens" }
+      }
+    },
+    "files": {
+      "type": "array",
+      "description": "Source files a CLI writes into the consuming project.",
+      "items": {
+        "type": "object",
+        "required": ["path", "target", "content"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string", "description": "Path inside the item, for humans." },
+          "target": {
+            "type": "string",
+            "description": "Where to write it, RELATIVE to the project root. Absolute paths, drive letters, URL schemes and any `..` segment are rejected — an item is remote content and this is the field an attacker reaches for first.",
+            "pattern": "^(?![a-zA-Z]:)(?![a-z][a-z0-9+.-]*:)(?!/)(?!\\\\)(?!.*(^|[\\\\/])\\.\\.([\\\\/]|$)).+$"
+          },
+          "content": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "tokens": {
+      "type": "object",
+      "propertyNames": { "pattern": "^--wr-" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "registry:theme" } }, "required": ["type"] },
+      "then": {
+        "required": ["cssVars"],
+        "properties": { "files": { "maxItems": 0 } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "enum": ["registry:block", "registry:component"] } },
+        "required": ["type"]
+      },
+      "then": { "required": ["files"], "properties": { "files": { "minItems": 1 } } }
+    }
+  ]
+}

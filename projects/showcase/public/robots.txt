@@ -5,5 +5,6 @@ Allow: /
 #   https://ngwr.dev/llms.txt       — curated quick reference
 #   https://ngwr.dev/llms-full.txt  — every entry point, generated at build time
 #   https://ngwr.dev/skills/ngwr/SKILL.md — the agent skill, same generator
+#   https://ngwr.dev/registry/schema.json — the open registry item format
 
 Sitemap: https://ngwr.dev/sitemap.xml

@@ -62,5 +62,6 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'Testing', url: ['/guides', 'testing'] },
   { title: 'MCP server', url: ['/guides', 'mcp'] },
   { title: 'Agent skill', url: ['/guides', 'agent-skill'] },
+  { title: 'Registry', url: ['/guides', 'registry'] },
   { title: 'Content Security Policy', url: ['/guides', 'csp'] },
 ];

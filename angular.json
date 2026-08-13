@@ -91,6 +91,11 @@
                 "glob": "skills/**/*.md",
                 "input": ".",
                 "output": "."
+              },
+              {
+                "glob": "registry/**/*.json",
+                "input": ".",
+                "output": "."
               }
             ],
             "styles": [

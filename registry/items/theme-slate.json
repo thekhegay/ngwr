@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ngwr.dev/registry/schema.json",
+  "name": "theme-slate",
+  "type": "registry:theme",
+  "title": "Slate",
+  "description": "A cooler, lower-saturation take on the default palette — the primary intent moves toward slate blue and the surfaces pick up the same hue.",
+  "author": "ngwr",
+  "ngwr": ">=11",
+  "cssVars": {
+    "light": {
+      "--wr-color-primary": "#41598f",
+      "--wr-color-primary-rgb": "65, 89, 143",
+      "--wr-color-surface": "#fbfcfd",
+      "--wr-color-outline": "#dbe1ea"
+    },
+    "dark": {
+      "--wr-color-primary": "#5b7fd6",
+      "--wr-color-primary-rgb": "91, 127, 214",
+      "--wr-color-surface": "#0c1018",
+      "--wr-color-outline": "#1e2634"
+    }
+  }
+}

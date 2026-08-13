@@ -28,8 +28,8 @@
 The sequence to work in. Everything not listed here is open but unscheduled;
 everything under [Deferred](#deferred) is explicitly not now.
 
-1. **E2** — AI-legibility stack (the MCP server, the markdown twins and
-   the agent skill landed too; the registry schema remains)
+1. **E2** — AI-legibility stack — **done**: the MCP server, the markdown twins,
+   the agent skill and the open registry format have all landed
 2. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
 3. **B2** — Rebuild internals on `@angular/aria`
 4. **B4** — Schema-driven `wr-form`
@@ -431,8 +431,31 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       frontmatter or a catalog table with a header and nothing under it passes
       every input floor and is useless to its one reader. Documented at
       `/guides/agent-skill`.
-      **Remaining:** an open registry schema for community blocks + theme
-      presets. This stack drove shadcn's rise from 20% to 56%;
+      **The registry format shipped**, which closes this item. A registry item is
+      one installable unit as a single JSON file — a theme preset, a block or a
+      component — with no server and no account: an item is a URL, hosted
+      wherever its author likes. The contract is published at
+      `/registry/schema.json` with two worked examples beside it
+      (`theme-slate`, `block-sign-in`), and the shape deliberately borrows from
+      shadcn's registry so an author who has published one of those recognises
+      this one; what differs is what Angular needs — `entryPoints` names
+      `ngwr/*` subpaths and `cssVars` names `--wr-*` tokens.
+      **Three rules are enforced rather than described.** A `files[].target` is a
+      relative path, and the check rejects absolute paths, drive letters, URL
+      schemes and any `..` segment INCLUDING one after a legitimate prefix — an
+      item is remote content that a CLI writes to disk, and that field is the
+      first thing a malicious one reaches for. A theme carries `cssVars` and no
+      files (a theme that ships code installs unreviewed source as part of
+      "changing the colours"); a block carries at least one file. And every
+      `entryPoints` name is checked against the real catalog, read from the same
+      `ng-package.json` scan `llms-full.txt` uses, so the registry gets no second
+      copy of the entry-point list — the first example failed the gate on
+      `ngwr/form-field`, which does not exist.
+      `pnpm check:registry` runs in the lint chain and also compares the
+      published schema against the validator, because two descriptions of one
+      format drift the moment either is edited — the same parity trick
+      `check-color-parity.ts` plays on the colour lists. Documented at
+      `/guides/registry`. This stack drove shadcn's rise from 20% to 56%;
       Taiga has an MCP server, nobody in Angular has the full stack. Builds
       on the API-reference extraction that already ships.
 - [ ] **E4. Playground embeds** (M) — StackBlitz per component page.

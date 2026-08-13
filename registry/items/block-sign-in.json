@@ -1,0 +1,33 @@
+{
+  "$schema": "https://ngwr.dev/registry/schema.json",
+  "name": "block-sign-in",
+  "type": "registry:block",
+  "title": "Sign-in card",
+  "description": "A centred sign-in card built from wr-card, wr-form-field, wr-input and wr-btn, wired to Signal Forms with the library's own validators.",
+  "author": "ngwr",
+  "ngwr": ">=11",
+  "entryPoints": [
+    "ngwr/card",
+    "ngwr/form",
+    "ngwr/input",
+    "ngwr/button",
+    "ngwr/validators"
+  ],
+  "files": [
+    {
+      "path": "sign-in.ts",
+      "target": "src/app/sign-in/sign-in.ts",
+      "content": "import { Component, signal } from '@angular/core';\nimport { form } from '@angular/forms/signals';\n\nimport { WrButton } from 'ngwr/button';\nimport { WrCard } from 'ngwr/card';\nimport { WrFormField } from 'ngwr/form';\nimport { WrInput } from 'ngwr/input';\nimport { WrValidators } from 'ngwr/validators';\n\n@Component({\n  selector: 'app-sign-in',\n  templateUrl: './sign-in.html',\n  imports: [WrCard, WrFormField, WrInput, WrButton],\n})\nexport class SignIn {\n  protected readonly model = signal({ email: '', password: '' });\n  protected readonly f = form(this.model, path => {\n    WrValidators.required(path.email);\n    WrValidators.email(path.email);\n    WrValidators.required(path.password);\n  });\n\n  protected submit(): void {\n    if (this.f().invalid()) return;\n    // POST this.model() somewhere.\n  }\n}\n"
+    },
+    {
+      "path": "sign-in.html",
+      "target": "src/app/sign-in/sign-in.html",
+      "content": "<wr-card class=\"app-sign-in\">\n  <h1>Sign in</h1>\n\n  <wr-form-field label=\"Email\">\n    <input wrInput type=\"email\" autocomplete=\"email\" [formField]=\"f.email\" />\n  </wr-form-field>\n\n  <wr-form-field label=\"Password\">\n    <input wrInput type=\"password\" autocomplete=\"current-password\" [formField]=\"f.password\" />\n  </wr-form-field>\n\n  <button wr-btn color=\"primary\" type=\"button\" [disabled]=\"f().invalid()\" (click)=\"submit()\">Sign in</button>\n</wr-card>\n"
+    },
+    {
+      "path": "sign-in.scss",
+      "target": "src/app/sign-in/sign-in.scss",
+      "content": ".app-sign-in {\n  display: grid;\n  gap: 1rem;\n  max-inline-size: 22rem;\n  margin-inline: auto;\n}\n"
+    }
+  ]
+}

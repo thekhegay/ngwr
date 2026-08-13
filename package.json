@@ -8,7 +8,7 @@
     "test": "ng test lib",
     "test:coverage": "ng test lib --coverage --coverage-reporters lcovonly text-summary",
     "test:watch": "ng test lib --watch",
-    "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl",
+    "lint": "ng lint && eslint scripts && pnpm lint:styles && pnpm check:colors && pnpm check:rtl && pnpm check:registry",
     "check:colors": "tsx scripts/check-color-parity.ts",
     "check:rtl": "tsx scripts/check-rtl.ts",
     "check:rtl-layout": "tsx scripts/check-rtl-layout.ts",
@@ -25,7 +25,8 @@
     "release:prepare": "tsx scripts/release-prepare.ts",
     "release:body": "tsx scripts/release-body.ts",
     "prepare": "simple-git-hooks",
-    "check:state-a11y": "tsx scripts/check-state-a11y.ts"
+    "check:state-a11y": "tsx scripts/check-state-a11y.ts",
+    "check:registry": "tsx scripts/check-registry.ts"
   },
   "simple-git-hooks": {
     "commit-msg": "npx --no-install commitlint --edit $1"
