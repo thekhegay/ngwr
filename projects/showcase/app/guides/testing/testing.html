@@ -255,6 +255,27 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Speed dial" description="The actions are always in the DOM.">
+    <ngwr-doc-code [code]="snippets.speedDial" language="typescript" />
+
+    <p wrTypography>
+      A collapsed dial still holds its buttons — the fan-out has to have something to animate — and what actually hides
+      them is <code>visibility</code>, which is also what keeps them out of the tab order. A unit test applies no CSS,
+      so those buttons look perfectly reachable to a query. <code>getActions()</code> and <code>pick()</code> therefore
+      refuse while the dial is closed; <code>getActionCount()</code> answers either way, because counting is not
+      reaching.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      An action draws an ICON, or the first glyph of its label — so its visible text is <code>"C"</code> for "Copy
+      link". <code>getLabel()</code> reads the accessible name and <code>getInitial()</code> what is drawn. The Escape
+      assertion is worth writing: <code>role="menu"</code> promises a way out, and the actions are ordinary tab stops,
+      so focus has to come back to the trigger.
+    </p>
+
+    <ngwr-doc-api [rows]="speedDialApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Knob" description="The number it announces, and the string it prints.">
     <ngwr-doc-code [code]="snippets.knob" language="typescript" />
 
