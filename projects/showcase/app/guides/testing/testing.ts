@@ -208,6 +208,23 @@ it('sets a time and steps it', async () => {
   await drawer.close();
 });`,
 
+    actionSheet: `it('offers a choice, and names itself either way', async () => {
+  const sheet = await rootLoader.getHarness(WrActionSheetHarness);
+
+  // No visible title, so the name is the screen-reader-only fallback.
+  expect(await sheet.getAccessibleName()).toBe('Actions');
+  expect(await sheet.isNamed()).toBe(true);
+
+  expect(await sheet.getActionGroups()).toEqual([
+    ['Take Photo', 'Choose from Library', 'Delete'],
+    ['Cancel'],
+  ]);
+
+  // Picking emits and closes in one call, so the harness goes stale after it.
+  await sheet.select({ role: 'destructive' });
+  expect(await sheet.isOpen()).toBe(false);
+});`,
+
     table: `it('sorts, selects and expands', async () => {
   const table = await loader.getHarness(WrTableHarness);
 
@@ -1128,6 +1145,44 @@ export class MyWidgetHarness extends ComponentHarness {
       name: 'isFocusTrapped()',
       description: 'Whether focus is inside the drawer, where the trap should hold it.',
       type: 'Promise<boolean>',
+      default: '—',
+    },
+  ];
+
+  protected readonly actionSheetApi: readonly DocApiRow[] = [
+    {
+      name: 'isOpen() / getTitle() / getMessage()',
+      description:
+        'A sheet you are HOLDING; a closed one has no harness to get. Title and message are `null` when the sheet was opened without them.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getAccessibleName() / isTitleVisible() / isNamed()',
+      description:
+        'An untitled sheet still names its dialog, with a string only a screen reader gets. `isNamed()` resolves the panel’s `aria-labelledby` rather than trusting that the attribute is there.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'getActions(filters?) / getActionLabels() / getActionGroups() / hasCancelGroup()',
+      description:
+        'The rows, flat and grouped. The grouping is what pins the cancel row to its own block. Filters: `label`, `role`, `disabled`.',
+      type: 'Promise<…>',
+      default: '—',
+    },
+    {
+      name: 'select(filters) / sendEscape()',
+      description:
+        'The two ways out. Picking emits `action` and closes; Escape closes and emits nothing. A disabled or unmatched row throws instead of doing nothing quietly.',
+      type: 'Promise<void>',
+      default: '—',
+    },
+    {
+      name: 'Row: getLabel() / getRole() / isDisabled() / hasIcon() / getIconName() / click() / focus() / isFocused()',
+      description:
+        '`WrActionSheetActionHarness`. The role is `default` / `destructive` / `cancel` as the component painted it; the icon name comes from `wr-icon`’s reflected `data-icon`, the only place it reaches the DOM.',
+      type: 'Promise<…>',
       default: '—',
     },
   ];

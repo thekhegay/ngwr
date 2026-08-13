@@ -140,16 +140,16 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 34 entry points so far, 61 harness classes, covering the
+  `ngwr/<name>/testing`. 35 entry points so far, 63 harness classes, covering the
   form controls, the overlays, both data views, the navigation / disclosure set
   (`tabs`, `stepper`, `carousel`, `pagination`, `segmented`, `collapse`,
   `transfer`) and `markdown`: the form controls
   (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
   `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `form` for
   `<wr-form-field>`), the overlays (`date-picker`, `dropdown`, `popover`, `dialog`,
-  `drawer`, `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`,
-  `mention`) and the data views (`table`, `tree`). `color-picker` and
-  `action-sheet` are the two that have none yet.
+  `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
+  `command-palette`, `cascader`, `mention`) and the data views (`table`, `tree`).
+  `color-picker` is the last one with none.
   Load them with `TestbedHarnessEnvironment` and narrow with
   `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's markup.
   Dialog, toast and a service-opened drawer render outside the fixture — load

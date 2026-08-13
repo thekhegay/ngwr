@@ -75,15 +75,15 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
       `ngwr/<entry>/testing` harnesses so consumers can test against wr
       components. Consumer-facing feature; target vitest.
-      **Shipped: 34 nested entry points, ~853 harness specs** — every form control
+      **Shipped: 35 nested entry points, ~871 harness specs** — every form control
       (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
       `input-number`, `input-otp`, `slider`, `rating`, `file-upload`, `form`,
       `segmented`), every overlay (`date-picker`, `dropdown`, `popover`, `dialog`,
-      `drawer`, `toast`, `context-menu`, `popconfirm`, `command-palette`,
-      `cascader`, `mention`), both data views (`table`, `tree`), the navigation and
-      disclosure set (`tabs`, `stepper`, `carousel`, `pagination`, `collapse`,
-      `transfer`) and `markdown` — nested, so a spec import pulls nothing into the
-      app bundle — plus the `/guides/testing` page.
+      `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
+      `command-palette`, `cascader`, `mention`), both data views (`table`, `tree`),
+      the navigation and disclosure set (`tabs`, `stepper`, `carousel`,
+      `pagination`, `collapse`, `transfer`) and `markdown` — nested, so a spec
+      import pulls nothing into the app bundle — plus the `/guides/testing` page.
 
     **The design rules, all of them earned:**
 
@@ -124,8 +124,20 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     bound popover content leaves nothing in the DOM and a closed tooltip publishes
     no ARIA either.
 
-    **Six library defects came out of writing them**, which is the argument for
-    harnesses on its own: `[wrMention]` dismissed on Escape's keydown and reopened
+    **Seven library defects came out of writing them**, which is the argument for
+    harnesses on its own. The seventh is the newest and the quietest: both drawer
+    flavours resolved the panel's `aria-labelledby` ONCE, so a `[wrDrawerTitle]`
+    that arrived, changed or vanished while the drawer stayed open left the
+    reference naming an element that was no longer there — an `aria-modal` dialog
+    announced as unnamed, with nothing on screen to say so. A conditionally
+    rendered title was never named at all in the component flavour, whose one-shot
+    lookup was a `queueMicrotask` rather than a render hook (the trap AGENTS.md
+    documents, and the manager beside it had already avoided). Both re-resolve
+    after every render now, and clear the attribute rather than dangle it. The
+    action-sheet harness found it: an untitled sheet names its dialog with a
+    screen-reader-only string, so `isNamed()` had to check the wiring rather than
+    the string, and the wiring was what was broken. The other six:
+    `[wrMention]` dismissed on Escape's keydown and reopened
     on the keyup, so Escape did not work in a real browser (a keydown-only spec
     hides it — the CDK sends real pairs); `wr-context-menu-item`'s `aria-expanded`
     went stale because it was bound to a plain field; neither `[wrContextMenu]` nor
@@ -140,8 +152,8 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
     counts the row itself.
 
     **Still uncovered:** splitter, calendar, event-calendar, window, tour,
-    lightbox, image-cropper, knob, color-picker, speed-dial, action-sheet,
-    virtual-scroll, plus the charts and the animation set. None is blocked.
+    lightbox, image-cropper, knob, color-picker, speed-dial, virtual-scroll, plus
+    the charts and the animation set. None is blocked.
 - [ ] **A5. Visual regression** (M) — **the painted-a11y half landed:**
       `pnpm check:contrast` (`scripts/check-contrast.ts`) drives a real Chromium
       over every canonical route in BOTH themes and runs the two rules JSDOM

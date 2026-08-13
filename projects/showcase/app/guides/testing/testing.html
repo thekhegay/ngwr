@@ -191,6 +191,27 @@
     <ngwr-doc-api [rows]="drawerApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Action sheet" description="A name you cannot see, and a group you can.">
+    <ngwr-doc-code [code]="snippets.actionSheet" language="typescript" />
+
+    <p wrTypography>
+      The sheet renders through <code>&lt;wr-drawer&gt;</code>, so it comes from the document root like everything else
+      in an overlay — but each sheet anchors on its own <code>.wr-action-sheet</code> root, so two open at once never
+      answer for each other's rows. Dismissal by backdrop or ✕ belongs to the drawer underneath;
+      <code>WrDrawerHarness</code> answers those from the same loader.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Two things are worth asserting because nothing on screen shows them. A sheet with no
+      <code>title</code> is still an <code>aria-modal</code> dialog, and it names itself with a screen-reader-only
+      string — <code>getAccessibleName()</code> reads it, <code>isNamed()</code> checks the panel is actually wired to
+      it. And <code>getActionGroups()</code> keeps the cancel row's separate group visible, which the flat label list
+      cannot: a cancel row that stopped being pinned to the bottom would still come last.
+    </p>
+
+    <ngwr-doc-api [rows]="actionSheetApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Driving a table" description="A family of harnesses, because a table is a tree.">
     <ngwr-doc-code [code]="snippets.table" language="typescript" />
 
