@@ -24,7 +24,7 @@ import {
 
 import { WrButton, WrButtonGroup } from 'ngwr/button';
 import { WrDateAdapter } from 'ngwr/date-adapter';
-import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { numAttr } from 'ngwr/utils';
 
 import { WrCalendarEventTemplate } from './event-calendar-event-template';
@@ -35,6 +35,12 @@ import type {
   WrCalendarSlot,
   WrCalendarView,
 } from './interfaces';
+
+/**
+ * Stands in for the consumer input `useI18nText` expects — the header strings take no
+ * label inputs of their own.
+ */
+const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 const MINUTES_PER_DAY = 24 * 60;
 const DAYS_PER_WEEK = 7;
@@ -222,17 +228,24 @@ export class WrEventCalendar {
   private readonly dir = inject(Directionality, { optional: true });
   private readonly chipTpl = contentChild(WrCalendarEventTemplate);
 
-  protected readonly todayLabel = readI18nText('eventCalendar.today', 'Today');
-  protected readonly previousLabel = readI18nText('eventCalendar.previous', 'Previous');
-  protected readonly nextLabel = readI18nText('eventCalendar.next', 'Next');
-  protected readonly allDayLabel = readI18nText('eventCalendar.allDay', 'All day');
-  protected readonly timeLabel = readI18nText('eventCalendar.time', 'Time');
+  // Reactive, not `readI18nText`: a calendar is as long-lived as the page it sits
+  // on, so a catalog that finishes loading after construction — or a locale switch —
+  // has to reach these. Resolved once, they froze the English defaults in place.
+  protected readonly todayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.today', 'Today');
+  protected readonly previousLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.previous', 'Previous');
+  protected readonly nextLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.next', 'Next');
+  protected readonly allDayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.allDay', 'All day');
+  protected readonly timeLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.time', 'Time');
   protected readonly moreLabel = useI18nFormatter('eventCalendar.more', '+{{count}} more');
-  protected readonly viewLabels: Record<WrCalendarView, string> = {
-    month: readI18nText('eventCalendar.month', 'Month'),
-    week: readI18nText('eventCalendar.week', 'Week'),
-    day: readI18nText('eventCalendar.day', 'Day'),
-  };
+  private readonly monthLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.month', 'Month');
+  private readonly weekLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.week', 'Week');
+  private readonly dayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.day', 'Day');
+
+  protected readonly viewLabels = computed<Record<WrCalendarView, string>>(() => ({
+    month: this.monthLabel(),
+    week: this.weekLabel(),
+    day: this.dayLabel(),
+  }));
 
   /** Accessible name of the grid; overridable for a page with several. */
   readonly ariaLabel = input<string | null>(null);
@@ -344,7 +357,7 @@ export class WrEventCalendar {
    */
   protected readonly weekdayNames = computed(() => this.adapter.getDayOfWeekNames('short'));
 
-  protected readonly switcher = computed(() => this.views().map(view => ({ view, label: this.viewLabels[view] })));
+  protected readonly switcher = computed(() => this.views().map(view => ({ view, label: this.viewLabels()[view] })));
 
   // ----------------------------------------------------------- month model
 
@@ -408,7 +421,7 @@ export class WrEventCalendar {
     return days.map((date, col) => ({
       key: this.iso(date),
       date,
-      label: `${this.allDayLabel} — ${this.adapter.format(date, 'longDate')}`,
+      label: `${this.allDayLabel()} — ${this.adapter.format(date, 'longDate')}`,
       bands: chips.filter(chip => chip.column === col),
     }));
   });
@@ -583,6 +596,20 @@ export class WrEventCalendar {
     }
 
     event.preventDefault();
+
+    // `Shift` turns the same gesture into a resize, moving the END alone. Without it
+    // the keyboard could move an event and never re-length one — and the resize grab
+    // area is `aria-hidden` and unfocusable precisely BECAUSE this exists, so its
+    // absence left the operation on the mouse only.
+    if (event.shiftKey) {
+      const end = this.shift(chipEvent.end, days, minutes);
+      // Same rule as the pointer path: a resize that would end at or before the
+      // start is a no-op rather than an inverted event.
+      if (end.getTime() <= chipEvent.start.getTime()) return;
+      this.eventChange.emit({ event: chipEvent, start: chipEvent.start, end, kind: 'resize' });
+      return;
+    }
+
     this.eventChange.emit({
       event: chipEvent,
       start: this.shift(chipEvent.start, days, minutes),
@@ -786,12 +813,12 @@ export class WrEventCalendar {
   // --------------------------------------------------------------- chrome
 
   protected chipLabel(event: WrCalendarEvent): string {
-    const time = event.allDay ? this.allDayLabel : this.adapter.format(event.start, 'time');
+    const time = event.allDay ? this.allDayLabel() : this.adapter.format(event.start, 'time');
     return `${event.title}, ${time}`;
   }
 
   protected chipTime(event: WrCalendarEvent): string {
-    return event.allDay ? this.allDayLabel : this.adapter.format(event.start, 'time');
+    return event.allDay ? this.allDayLabel() : this.adapter.format(event.start, 'time');
   }
 
   protected canDrag(event: WrCalendarEvent): boolean {

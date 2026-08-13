@@ -13,8 +13,8 @@
         type="button"
         size="sm"
         outlined
-        class="wr-event-calendar__step"
-        [attr.aria-label]="previousLabel"
+        class="wr-event-calendar__step wr-event-calendar__step--prev"
+        [attr.aria-label]="previousLabel()"
         (click)="step(-1)"
       >
         <svg
@@ -31,14 +31,16 @@
           <path d="m15 18-6-6 6-6" />
         </svg>
       </button>
-      <button wr-btn type="button" size="sm" outlined (click)="goToday()">{{ todayLabel }}</button>
+      <button wr-btn type="button" size="sm" outlined class="wr-event-calendar__today" (click)="goToday()">
+        {{ todayLabel() }}
+      </button>
       <button
         wr-btn
         type="button"
         size="sm"
         outlined
-        class="wr-event-calendar__step"
-        [attr.aria-label]="nextLabel"
+        class="wr-event-calendar__step wr-event-calendar__step--next"
+        [attr.aria-label]="nextLabel()"
         (click)="step(1)"
       >
         <svg
@@ -66,6 +68,7 @@
             wr-btn
             type="button"
             size="sm"
+            class="wr-event-calendar__view"
             [outlined]="view() !== item.view"
             [color]="view() === item.view ? 'primary' : null"
             [attr.aria-pressed]="view() === item.view"
@@ -141,7 +144,7 @@
     [attr.aria-label]="resolvedAriaLabel()"
   >
     <div role="row" class="wr-event-calendar__row">
-      <div role="columnheader" class="wr-event-calendar__gutter" [attr.aria-label]="timeLabel"></div>
+      <div role="columnheader" class="wr-event-calendar__gutter" [attr.aria-label]="timeLabel()"></div>
       @for (column of columns(); track column.key) {
         <div
           role="columnheader"
@@ -156,7 +159,7 @@
 
     @if (hasAllDay()) {
       <div role="row" class="wr-event-calendar__row wr-event-calendar__row--allday">
-        <div role="rowheader" class="wr-event-calendar__gutter">{{ allDayLabel }}</div>
+        <div role="rowheader" class="wr-event-calendar__gutter">{{ allDayLabel() }}</div>
         @for (cell of allDayCells(); track cell.key; let c = $index) {
           <div
             role="gridcell"
@@ -221,8 +224,8 @@
 
                 @if (canDrag(chip.event) && !chip.continuesAfter) {
                   <!--
-                    A grab area, not a control: the same resize is on the keyboard
-                    as `Alt` + arrows on the chip itself, so exposing a second
+                    A grab area, not a control: the same resize is on the keyboard as
+                    `Alt` + `Shift` + arrows on the chip itself, so exposing a second
                     focusable thing here would add a tab stop that leads nowhere.
                   -->
                   <span
