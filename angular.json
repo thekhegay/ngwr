@@ -86,6 +86,11 @@
                 "glob": "{llms.txt,llms-full.txt}",
                 "input": ".",
                 "output": "."
+              },
+              {
+                "glob": "skills/**/*.md",
+                "input": ".",
+                "output": "."
               }
             ],
             "styles": [

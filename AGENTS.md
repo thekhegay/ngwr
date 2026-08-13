@@ -643,8 +643,15 @@ sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
 
-**AI assets.** `llms-full.txt` regenerates from library source on every build
-(`scripts/gen-ai-assets.ts`); `sitemap.xml` and the per-page **markdown twins**
+**AI assets.** `llms-full.txt` AND the agent skill (`skills/ngwr/SKILL.md` plus
+`references/{catalog,setup}.md`) regenerate from library source on every build,
+both from the one `collect()` pass in `scripts/gen-ai-assets.ts` — so the catalog
+cannot say two different things in two files. The skill ships inside the npm
+tarball (copied by `copy-dist-assets.ts`) and is served at `/skills/ngwr/SKILL.md`;
+its provider table is imported from `projects/lib/mcp/providers.ts`, which the MCP
+server's `get_ngwr_setup` reads too. `check:llms` gates the skill as OUTPUT — no
+frontmatter, or a catalog table with only a header, fails the build. Both are
+gitignored and hand-editing either is pointless; `sitemap.xml` and the per-page **markdown twins**
 regenerate from the prerendered route list after `build:showcase`
 (`scripts/gen-sitemap.ts`, `scripts/gen-md-docs.ts`) — so a new entry point or
 route is picked up automatically. The twins are what `/reference/components/select.md`
