@@ -6,15 +6,17 @@
 > including the sixteen "contracts that look like bugs" this file used to carry.
 > Sizes: S / M / L / XL.
 >
-> **State (2026-08-12):** **v11 is the current major line** (Angular 22 peer). It
+> **State (2026-08-14):** **v11 is the current major line** (Angular 22 peer). It
 > is a major because five palette intents moved so their labels could go white —
 > `secondary`, `success`, `danger`, `info`, `medium`; the arithmetic is under A5,
 > and there is deliberately no codemod, because a codemod cannot repaint a
-> screenshot. The catalog is **166 secondary entry points / 184 component and
-> directive classes**.
+> screenshot. The catalog is **202 secondary entry points / 184 component and
+> directive classes**, seventy of those entry points being the `<name>/testing`
+> CDK harnesses — A2 closed with the animation set, and what it learned lives in
+> [AGENTS.md](AGENTS.md) under "Writing a HARNESS".
 > **Seven gates run on every PR:** `pnpm lint` (multi-stage — the first stage
 > prints `All files pass linting.` even when a later one fails, so trust the
-> exit code), `pnpm test` (**3113 specs across 184 files**), `check:api-docs`,
+> exit code), `pnpm test` (**3586 specs across 220 files**), `check:api-docs`,
 > `check:llms`, `build:lib`, `build:showcase`, `check:a11y` (220 prerendered
 > pages). `check:contrast` and `check:rtl-layout` need a browser and run
 > **nightly**. Docs are prerendered — **219 routes**, 196 canonical plus 23
@@ -38,14 +40,15 @@ Two notes on the order, then it stands as written:
 
 - **C3 sits above B2 but is hard-blocked by it** — it needs the Aria `Combobox`
   primitive, so in practice either B2 moves up or C3 moves down.
-- **A1 / A2 are deliberately not in the list** — they are continuous rather than
+- **A1 is deliberately not in the list** — it is continuous rather than
   sequenced. What used to be the argument for keeping B2 back is now answered:
-  3113 specs assert rendered DOM, roles and `.wr-*` classes, which is exactly
-  what B2 churns. What is left in A1 is mode coverage, not existence.
+  3586 specs assert rendered DOM, roles and `.wr-*` classes, which is exactly
+  what B2 churns, and seventy harnesses assert the same surface from the outside.
+  What is left in A1 is mode coverage, not existence.
 
 ## A — Trust & hardening
 
-The catalog is 166 entry points. Lint, unit tests, both builds, the a11y sweep,
+The catalog is 202 entry points. Lint, unit tests, both builds, the a11y sweep,
 the API-drift check and the llms floor gate it today. The hole is the SHAPE of
 the suite, not its absence: every entry point that carries behaviour has a spec,
 but a spec on `wr-table` says nothing about tree rows unless it exercises them.
@@ -53,8 +56,8 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
 - [ ] **A1. Test foundation** (XL) — **the suite exists and gates CI.**
       `pnpm test` is `ng test lib` (vitest through `@angular/build:unit-test`, no
       `vitest.config.ts`); specs sit next to the code they cover and
-      `tsconfig.lib.json` excludes them, so nothing ships to npm. **3113 specs
-      across 184 files**, and every component with a page under
+      `tsconfig.lib.json` excludes them, so nothing ships to npm. **3586 specs
+      across 220 files**, and every component with a page under
       `reference/components` has one. How to write one, and the traps that cost
       real time (`--filter` is a test-name regex, deferred DOM work needs
       `afterNextRender`, jsdom has no layout), are documented in
@@ -72,113 +75,6 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       - `mcp/server.spec.ts` spawns `dist/lib/mcp/server.js`, so on a tree that has
         never run `build:lib` two of its specs fail and two skip. Run `build:lib`
         first, or accept the skip.
-- [ ] **A2. CDK test harnesses** (L, soft-blocked on A1) — ship
-      `ngwr/<entry>/testing` harnesses so consumers can test against wr
-      components. Consumer-facing feature; target vitest.
-      **Shipped: 52 nested entry points, ~1139 harness specs** — every form control
-      (`button`, `input`, `textarea`, `checkbox`, `switch`, `radio`, `select`,
-      `input-number`, `input-otp`, `slider`, `rating`, `file-upload`,
-      `color-picker`, `knob`, `form`,
-      `segmented`), every overlay (`date-picker`, `dropdown`, `popover`, `dialog`,
-      `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
-      `command-palette`, `cascader`, `mention`), both data views (`table`, `tree`),
-      the navigation and disclosure set (`tabs`, `stepper`, `carousel`,
-      `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`, `lightbox`,
-      `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`, every chart
-      (`bar-chart`, `line-chart`, `donut-chart`, `sparkline`, `gauge`, `meter-group`,
-      `calendar-heatmap`) and `markdown` — nested, so a spec
-      import pulls nothing into the app bundle — plus the `/guides/testing` page.
-
-    **The design rules, all of them earned:**
-
-    - A harness answers what the control DOES, not how it is built:
-      `isDisabled()` reads both `disabled` and `aria-disabled` because the
-      element form needs both, and `getColor()` matches `WR_COLORS` rather than
-      "the first `wr-btn--*` class", which would answer `icon` as readily as
-      `primary`.
-    - **A panel is scoped by the id its trigger publishes**, never by its class:
-      a query for `.wr-select-panel` answers with whichever select opened first.
-      The only case that catches a leak is two instances open at once, and the
-      SINGLE-element and LIST queries are separate code paths — the list one
-      leaked while the single one was covered.
-    - `getOptions()` drops what a client-side search filtered out (the options
-      stay in the DOM so registration order survives) and throws while the panel
-      is closed rather than answering `[]`.
-    - `WrDialogHarness` is a `ContentContainerComponentHarness`, so a consumer's
-      own harnesses resolve INSIDE one dialog.
-    - **Pointer-driven writes are lies in jsdom**, so every value control is
-      driven by the keyboard — the accessible path anyway — and the walk asserts
-      its landing: with `max=100 step=3` the thumb stops at 99, where `setValue(100)`
-      used to resolve silently on the wrong number.
-    - **Two questions, not one:** a number field shows a string and holds a number,
-      and an OTP's assembled code can differ from the bound model. Separate
-      methods say so.
-    - **The tab stop is not the selection** — a radio group with nothing picked
-      still has one — and `getAccessibleName()` shipped resolving `aria-label`
-      before `aria-labelledby`, backwards, in the one method whose job is checking
-      a11y wiring.
-    - `setValue` dispatches `input` AND `change`; the stated reason was wrong and
-      is corrected in the harness and the guide — Angular's `DefaultValueAccessor`
-      listens to `input`, `blur` and the composition events, so the `change` is for
-      a consumer's own handler.
-
-    **Two library changes the harnesses forced:** the toast's actions were both
-    `.wr-toast__action`, so `dismiss()` had no stable target (`--copy` / `--close`
-    now), and `[wrPopover]` needed a `wr-popover-trigger` marker class, because
-    bound popover content leaves nothing in the DOM and a closed tooltip publishes
-    no ARIA either.
-
-    **Nine library defects came out of writing them**, which is the argument for
-    harnesses on its own. Two came from `[wrColorPickerTrigger]`, which had no spec
-    of any kind before: it published `aria-haspopup` and `aria-expanded` but never
-    `aria-controls`, so nothing on the page connected the button to the picker it
-    opened — the same gap `[wrContextMenu]` and `[wrPopconfirm]` were fixed for, and
-    the reason the harness could not scope a panel to its own trigger. And its
-    `disabled` input never reached the DOM at all: it gates `toggle()` and is
-    forwarded to the inner picker, so the button announced itself as live and did
-    nothing when pressed. Both now follow the shape the rest of the library uses.
-    The seventh is the quietest: both drawer
-    flavours resolved the panel's `aria-labelledby` ONCE, so a `[wrDrawerTitle]`
-    that arrived, changed or vanished while the drawer stayed open left the
-    reference naming an element that was no longer there — an `aria-modal` dialog
-    announced as unnamed, with nothing on screen to say so. A conditionally
-    rendered title was never named at all in the component flavour, whose one-shot
-    lookup was a `queueMicrotask` rather than a render hook (the trap AGENTS.md
-    documents, and the manager beside it had already avoided). Both re-resolve
-    after every render now, and clear the attribute rather than dangle it. The
-    action-sheet harness found it: an untitled sheet names its dialog with a
-    screen-reader-only string, so `isNamed()` had to check the wiring rather than
-    the string, and the wiring was what was broken. The other six:
-    `[wrMention]` dismissed on Escape's keydown and reopened
-    on the keyup, so Escape did not work in a real browser (a keydown-only spec
-    hides it — the CDK sends real pairs); `wr-context-menu-item`'s `aria-expanded`
-    went stale because it was bound to a plain field; neither `[wrContextMenu]` nor
-    `[wrPopconfirm]` published `aria-controls`; and `wr-tabs` twice ignored that
-    `disabled` means nothing to an `<a>` — a disabled ROUTER tab navigated on
-    click, and the roving `tabindex="0"` followed `active` without checking
-    `disabled`, leaving the strip with no tab stop at all. Worth remembering from
-    the first: `preventDefault()` does NOT stop `RouterLink`, which navigates from
-    its own handler — withhold the commands (`[routerLink]="disabled ? null : link"`).
-    Mutation testing also corrected the library's own docs: select-all on a
-    virtualized table selects the whole dataset, not the window, and `aria-setsize`
-    counts the row itself.
-
-    **Still uncovered: the animation set alone** — presentational, and what most of
-    them draw is a canvas a unit test cannot measure at all (their own specs already
-    assert the null-context fallback and their teardown, which is the whole of what a
-    spec can reach there). The charts read only what is textual or countable: an SVG
-    path's `d` moves with the viewBox and is not an assertion, so the legends, the
-    ticks, the labels, the ARIA value trio and the inline percentages are the
-    surface.
-    **`virtual-scroll` is deliberately not getting one**, which is a decision rather
-    than a gap: it is a thin wrapper over `cdk-virtual-scroll-viewport`, whose entire
-    observable behaviour is the window it renders, and jsdom measures the viewport at
-    zero — so a `getRenderedItems()` would answer `[]` for a working component and a
-    broken one alike, and `TestElement` has no scroll API to move it with. The two
-    things that ARE ours, the height coercion and the buffer pair, are pinned by the
-    component's own spec. Every CONTROL and every OVERLAY has one now, so what is left is
-    the rest of the layout set, the two calendars and the animations. None is
-    blocked.
 - [ ] **A5. Visual regression** (M) — **the painted-a11y half landed:**
       `pnpm check:contrast` (`scripts/check-contrast.ts`) drives a real Chromium
       over every canonical route in BOTH themes and runs the two rules JSDOM

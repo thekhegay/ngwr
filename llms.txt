@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 166 secondary entry points, 181 component and directive classes, built on
+> 202 secondary entry points, 181 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -140,7 +140,7 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `wr-tree` and `wr-select` (search mode), alongside the standalone
   `wr-virtual-scroll` wrapper.
 - **Testing** — CDK component harnesses ship beside the components they drive, at
-  `ngwr/<name>/testing`. 52 entry points so far, 84 harness classes, covering the
+  `ngwr/<name>/testing`. 70 entry points so far, 104 harness classes, covering the
   form controls, the overlays, both data views, the navigation / disclosure set
   (`tabs`, `stepper`, `carousel`, `pagination`, `segmented`, `collapse`,
   `transfer`) and `markdown`: the form controls
@@ -150,8 +150,11 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   `popover`, `dialog`, `drawer`, `action-sheet`, `toast`, `context-menu`, `popconfirm`,
   `command-palette`, `cascader`, `mention`), the data views (`table`, `tree`),
   `splitter`, `speed-dial`, `lightbox`, `tour`, `calendar`, `event-calendar`,
-  `window`, `image-cropper` and every chart — every control, every overlay and
-  every chart has one.
+  `window`, `image-cropper`, every chart and eighteen of the twenty-one animations —
+  every control, every overlay and every chart has one. `aurora`, `click-spark`,
+  `confetti` and `virtual-scroll` deliberately have none: what they do is a canvas or
+  a measured viewport, so every honest method would read the same for a working
+  component and a broken one.
   Load them with `TestbedHarnessEnvironment` and narrow with
   `WrButtonHarness.with({ text: 'Save' })` instead of querying ngwr's markup.
   Dialog, toast and a service-opened drawer render outside the fixture — load
