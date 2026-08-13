@@ -127,6 +127,18 @@
     color: var(--wr-color-primary);
   }
 
+  // The keycap is the one thing on the active row that does NOT want the tint under
+  // it. `--wr-color-hover` is translucent, so on a plain row it composites to a light
+  // grey and the muted label reads at 4.63:1 — but over `--wr-color-primary-soft` it
+  // composites to #dce4f1, where the same label measures 4.17:1 and fails AA. Neither
+  // shipped gate can see it: the palette has to be OPEN with a row active, which is a
+  // state that walks past prerendered HTML and a page at rest alike. Putting the chip
+  // back on the surface restores the pairing the muted role is calibrated for, and
+  // keeps the chip reading as a keycap rather than as part of the highlight.
+  &__option--active &__option-shortcut {
+    background: var(--wr-color-surface);
+  }
+
   &__option-body {
     flex: 1 1 auto;
     min-width: 0;
