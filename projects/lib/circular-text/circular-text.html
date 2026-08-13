@@ -1,4 +1,13 @@
-<span class="wr-circular-text__spin" #spin>
+<!--
+  The readable text, once: the ring below is per-character spans, which a screen
+  reader may read out one letter at a time. Same shape as `wr-blur-text` and
+  `wr-decrypt-text` — the string is carried here and the pieces are taken out of
+  the tree with one `aria-hidden` on the wrapper rather than N on the chars, so
+  the attribute stays off the nodes the rotation touches. It sits OUTSIDE
+  `__spin`, or it would be hidden with the chars and would spin with them.
+-->
+<span class="wr-circular-text__sr-only">{{ text() }}</span>
+<span class="wr-circular-text__spin" aria-hidden="true" #spin>
   @for (c of chars(); track $index) {
     <span class="wr-circular-text__char" [style.transform]="c.transform">{{ c.ch }}</span>
   }
