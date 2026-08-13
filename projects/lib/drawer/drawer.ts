@@ -17,6 +17,7 @@ import {
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
+  afterEveryRender,
   effect,
   inject,
   input,
@@ -209,7 +210,28 @@ export class WrDrawer {
         this.closeOverlay();
       }
     });
+    afterEveryRender(() => this.syncLabel());
     this.destroyRef.onDestroy(() => this.closeOverlay());
+  }
+
+  /**
+   * Point the panel's `aria-labelledby` at the CURRENT `[wrDrawerTitle]`.
+   *
+   * Re-resolved after every render rather than once when the drawer opens,
+   * because the title element is projected content and can come and go while
+   * the drawer stays open — an `@if` around it, or a heading that only exists
+   * once the data arrives. A one-shot lookup leaves the attribute naming an
+   * element that has been removed or replaced, and a dangling reference is not
+   * a name: the dialog is announced as unnamed, with nothing on screen to say
+   * so. A missing title clears the attribute for the same reason.
+   */
+  private syncLabel(): void {
+    const host = this.overlayRef?.overlayElement;
+    if (!host) return;
+
+    const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
+    if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
+    else host.removeAttribute('aria-labelledby');
   }
 
   private openOverlay(): void {
@@ -249,10 +271,6 @@ export class WrDrawer {
       const host = this.overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
       host.setAttribute('aria-modal', 'true');
-      queueMicrotask(() => {
-        const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
-        if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
-      });
       this.focusTrap = this.focusTrapFactory.create(host);
       void this.focusTrap.focusInitialElementWhenReady();
     }

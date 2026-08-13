@@ -154,9 +154,10 @@ describe('WrDrawerHarness — <wr-drawer>', () => {
     const drawer = await open();
     expect(await drawer.isLabelledByTitle()).toBe(true);
 
-    // The panel keeps the `aria-labelledby` it wrote when it opened, so the id now
-    // points at nothing. A dangling reference is not an accessible name, and the
-    // harness has to resolve it rather than trust the attribute's presence.
+    // The panel re-resolves `aria-labelledby` after every render, so a title that
+    // goes away takes the reference with it. The harness resolves the id rather
+    // than trusting the attribute's presence either way — that is what tells a
+    // cleared reference apart from one still naming a removed element.
     fixture.componentInstance.showTitle.set(false);
     await fixture.whenStable();
 

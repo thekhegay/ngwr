@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { WrDrawerTitle } from './directives';
 import { WrDrawer } from './drawer';
 import type { WrDrawerPosition } from './interfaces';
 
@@ -29,6 +30,28 @@ class Host {
   readonly closeOnEscape = signal(true);
   readonly closeOnBackdropClick = signal(true);
   readonly closeLabel = signal<string | null>(null);
+}
+
+/** A title that can change identity or vanish while the drawer stays open. */
+@Component({
+  imports: [WrDrawer, WrDrawerTitle],
+  template: `
+    <wr-drawer [(open)]="open">
+      @if (showTitle()) {
+        @if (long()) {
+          <h2 wrDrawerTitle>Advanced filters</h2>
+        } @else {
+          <h2 wrDrawerTitle>Filters</h2>
+        }
+      }
+      <p class="body">Drawer body</p>
+    </wr-drawer>
+  `,
+})
+class TitleHost {
+  readonly open = signal(false);
+  readonly showTitle = signal(true);
+  readonly long = signal(false);
 }
 
 /**
@@ -87,6 +110,40 @@ describe('WrDrawer', () => {
     // role and `aria-modal` a screen reader keeps reading the page behind it.
     expect(panel()!.getAttribute('role')).toBe('dialog');
     expect(panel()!.getAttribute('aria-modal')).toBe('true');
+  });
+
+  it('names the dialog from whichever title is in the panel right now', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const titled = TestBed.createComponent(TitleHost);
+    titled.detectChanges();
+
+    titled.componentInstance.open.set(true);
+    await titled.whenStable();
+
+    const named = (): string | null => panel()!.getAttribute('aria-labelledby');
+    const titleId = (): string | null =>
+      document.querySelector<HTMLElement>('.wr-drawer__title')?.getAttribute('id') ?? null;
+
+    expect(named()).toBe(titleId());
+
+    // The title is projected content, so it can be swapped or dropped while the
+    // drawer stays open. Resolving the id once at open time left the attribute
+    // naming an element that is no longer in the document, and a dangling
+    // reference is not a name — the dialog announces as unnamed, with nothing on
+    // screen to say so.
+    titled.componentInstance.long.set(true);
+    await titled.whenStable();
+
+    expect(document.querySelector('.wr-drawer__title')!.textContent).toBe('Advanced filters');
+    expect(named()).toBe(titleId());
+
+    titled.componentInstance.showTitle.set(false);
+    await titled.whenStable();
+
+    expect(named()).toBeNull();
+
+    titled.destroy();
   });
 
   it('takes itself back out of the document on close', () => {
