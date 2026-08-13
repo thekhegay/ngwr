@@ -24,6 +24,17 @@
   user-select: none;
   transition: transform 0.6s var(--wr-ease-spring);
 
+  // The accessible copy of the string — the ring itself is `aria-hidden`.
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   &__spin {
     position: absolute;
     inset: 0;

@@ -1,4 +1,9 @@
-<!-- Screen-reader-only live region with the canonical text. -->
+<!--
+  The readable text, once: the spans below are per-character. Deliberately NOT a
+  live region — `auto` rotates every two seconds by default, and the APG's answer
+  for self-advancing content is silence, not an announcement every two seconds.
+-->
+
 <span class="wr-rotating-text__sr-only">{{ current() }}</span>
 
 <!-- Animated visual content. -->
