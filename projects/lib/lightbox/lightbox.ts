@@ -27,6 +27,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
+let viewerUid = 0;
+
 /**
  * Image with click-to-zoom lightbox. The thumbnail is a plain `<img>`
  * with whatever sizing/`object-fit` you give it; clicking opens a CDK
@@ -112,6 +114,13 @@ export class WrLightbox {
 
   protected readonly open = signal(false);
   protected readonly loaded = signal(false);
+
+  /**
+   * Id the trigger's `aria-controls` points at while the viewer is open.
+   *
+   * @internal Public so the host bindings can read it.
+   */
+  protected readonly viewerId = `wr-lightbox-viewer-${++viewerUid}`;
 
   protected readonly classes = computed(() => {
     const parts = ['wr-lightbox'];

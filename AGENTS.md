@@ -11,19 +11,20 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **171**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **172**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and forty-three are nested — `ngwr/i18n/{en,ru}`,
+  points, and forty-four are nested — `ngwr/i18n/{en,ru}`,
   `ngwr/icon/adapters/{lucide,feather}` and the CDK test harnesses, which now cover
-  **thirty-nine** entry points: the form controls (`button`, `input`, `textarea`,
+  **forty** entry points: the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
   `toast`, `context-menu`, `popconfirm`, `command-palette`, `cascader`, `mention`),
   the data views (`table`, `tree`), the navigation / disclosure set (`tabs`,
-  `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial` and
-  the markdown renderer — each at `ngwr/<name>/testing`, 69 harness classes in total.
+  `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
+  `lightbox` and the markdown renderer — each at `ngwr/<name>/testing`, 70 harness
+  classes in total.
   **Every control and every overlay has one**; what is left is the rest of the
   layout set, the two calendars, and the animations.
   Built with **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
@@ -258,7 +259,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (171 entry points):
+library where an internal tool exists. The catalog is large (172 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -461,7 +462,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (171 entry points) and **deliberately consolidated** —
+The catalog is large (172 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).

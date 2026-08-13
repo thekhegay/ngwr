@@ -240,6 +240,20 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    lightbox: `it('opens the full image', async () => {
+  const lightbox = await loader.getHarness(WrLightboxHarness.with({ alt: 'Mountain' }));
+
+  // Nothing to read yet — the viewer is an overlay that does not exist while shut.
+  await expect(lightbox.getFullSrc()).rejects.toThrow();
+
+  await lightbox.open();
+  expect(await lightbox.isModal()).toBe(true);
+  expect(await lightbox.getFullSrc()).toContain('/photo.jpg');
+
+  await lightbox.sendEscape();
+  expect(await lightbox.isOpen()).toBe(false);
+});`,
+
     speedDial: `it('fans out and picks', async () => {
   const dial = await loader.getHarness(WrSpeedDialHarness);
 
@@ -1285,6 +1299,37 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly lightboxApi: readonly DocApiRow[] = [
+    {
+      name: 'isOpen() / open() / close() / clickImage() / sendEscape()',
+      description:
+        'Open state from the host modifier — the viewer itself is gone when closed, so a query for it cannot tell "shut" from "never opened". `clickImage()` drives the zoom-out affordance, which is not a tab stop.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'getAlt() / getThumbSrc() / getFullSrc()',
+      description:
+        'The thumbnail shows `preview` when there is one and never swaps to `src`, so the two sources are different questions.',
+      type: 'Promise<string>',
+      default: '\u2014',
+    },
+    {
+      name: 'getCaption() / getViewerLabel() / getCloseLabel() / isModal() / isFocusTrapped()',
+      description:
+        'Everything inside the viewer, and all of it throws while closed. `isFocusTrapped()` is what makes `aria-modal` true rather than a claim — hand jsdom a box first, or the trap finds nothing tabbable.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'isInteractive() / getOpenLabel() / isLoading() / isViewerBound()',
+      description:
+        '`disablePreview` removes the button entirely. `isLoading()` clears on a FAILED load too — the loading state hides the image, so a broken src would otherwise shimmer for ever.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 
