@@ -295,7 +295,7 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       (spartan ~21k dl/wk).
 - [ ] **E7. Locale packs** (M) — built-in component strings for ~20 locales on
       top of the i18n service. Two locales ship today (en / ru); NG-ZORRO ships
-      ~80. Worth pairing with a pass over the catalog: **49 of the 187 keys are
+      ~80. Worth pairing with a pass over the catalog: **44 of the 198 keys are
       still unread by any component** — including all twelve `date.months.*`,
       which nothing reads at all — and a locale pack multiplies only what is
       actually wired up. (The 19 `validation.*` keys ARE read, dynamically, by
