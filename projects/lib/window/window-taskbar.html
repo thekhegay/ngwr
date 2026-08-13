@@ -1,26 +1,35 @@
 @if (items().length > 0) {
   <div class="wr-window-taskbar__rail">
     @for (ref of items(); track ref.id) {
-      <button
-        type="button"
-        class="wr-window-taskbar__tab"
-        [attr.aria-label]="restoreLabel({ title: tabTitle(ref) })"
-        (click)="restore(ref)"
-      >
-        <span class="wr-window-taskbar__tab-title">{{ tabTitle(ref) }}</span>
-        <span
+      <!--
+        Two SIBLING buttons in a plain container, not a close button nested
+        inside the tab. The close used to be a `role="button"` span with
+        `tabindex="0"` inside the tab's own `<button>` — interactive content
+        inside interactive content, which the HTML parser and `nested-interactive`
+        both object to. Nothing caught it: a taskbar tab exists only while a
+        window is minimized, and the a11y sweep reads prerendered HTML, where the
+        rail is not rendered at all.
+      -->
+      <div class="wr-window-taskbar__tab">
+        <button
+          type="button"
+          class="wr-window-taskbar__tab-restore"
+          [attr.aria-label]="restoreLabel({ title: tabTitle(ref) })"
+          (click)="restore(ref)"
+        >
+          <span class="wr-window-taskbar__tab-title">{{ tabTitle(ref) }}</span>
+        </button>
+        <button
+          type="button"
           class="wr-window-taskbar__tab-close"
-          role="button"
-          tabindex="0"
           [attr.aria-label]="closeLabel()"
           (click)="close(ref, $event)"
-          (keydown.enter)="close(ref, $event)"
         >
           <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true">
             <path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           </svg>
-        </span>
-      </button>
+        </button>
+      </div>
     }
   </div>
 }

@@ -1,22 +1,32 @@
 {
   "color-contrast (light) — date-picker/calendar": {
-    "targets": [".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"],
+    "targets": [
+      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+    ],
     "note": "2.23:1, measured 2026-08-14. A design call, not a patch, and NOT the WCAG exemption the route baseline claims for it: out-of-month days are enabled `<button>`s (`disabled=false`, `aria-disabled=false`) reachable with the arrow keys, so 1.4.3 applies to them. The colour is right — `--wr-calendar-muted` is `#5f6c7d`, which clears AA on white at 4.63:1 — and `opacity: 0.55` is what drops it to 2.23. Raising the opacity does not fix it either: at 0.75 the composite is #87919e (3.2:1), and reaching 4.5 needs essentially the full-strength muted colour, which is the same tone as an in-month day. So the de-emphasis and the ratio cannot both be had by tuning this one number — it wants a different signal (weight, a dot, a divider) or non-actionable out-of-month days."
   },
   "color-contrast (dark) — date-picker/calendar": {
-    "targets": [".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"],
+    "targets": [
+      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+    ],
     "note": "3.11:1, the same element and the same design call as the light entry — #5a6374 on #0b1120. Dark starts closer because the muted role lightens, and the 0.55 opacity is still what puts it under."
   },
   "color-contrast (light) — calendar/today-and-selected": {
-    "targets": [".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"],
+    "targets": [
+      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+    ],
     "note": "The same out-of-month cells as the date-picker entry, reached through `wr-calendar` directly rather than through a picker's popup — 2.23:1, 17 nodes across the page's three calendars. One design call, two states that paint it."
   },
   "color-contrast (dark) — calendar/today-and-selected": {
-    "targets": [".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"],
+    "targets": [
+      ".wr-calendar__day--out-of-month.wr-calendar__day[role=\"gridcell\"]"
+    ],
     "note": "3.11:1, the dark half of the entry above."
   },
   "color-contrast (light) — slider/thumb-focus": {
-    "targets": [".wr-slider__label"],
+    "targets": [
+      ".wr-slider__label"
+    ],
     "note": "2.43:1 on the DISABLED slider in that demo, and genuinely exempt: WCAG 1.4.3 does not apply to an inactive control. axe cannot tell, because `disabled` sits on the `<wr-slider>` host rather than on the label it is measuring — the same blind spot the route baseline records for `<wr-btn disabled>` labels. Only the light theme lands under 4.5; dark clears it."
   },
   "target-size (light) — window/open": {
@@ -52,13 +62,5 @@
       "button[aria-label=\"Go to slide 4\"]"
     ],
     "note": "The same dots at the same size — not themed."
-  },
-  "target-size (light) — window/taskbar": {
-    "targets": [".wr-window-taskbar__tab-close"],
-    "note": "16×16px where WCAG 2.5.8 wants 24 — and unlike the carousel dots and the window's traffic lights, this one is a DEFECT rather than a design call: the tab is 28px tall (20px line-height plus 8px of padding), so a 24px close fits inside it and costs 8px of tab width. Baselined only because the same element has a second problem that wants fixing in the same edit — it is a `role=\"button\"` span with `tabindex=\"0\"` nested inside the tab's own `<button>`, which is interactive content inside interactive content. Neither is visible to `check:a11y`: the taskbar is empty until a window is minimized, so the prerendered HTML has no tab at all."
-  },
-  "target-size (dark) — window/taskbar": {
-    "targets": [".wr-window-taskbar__tab-close"],
-    "note": "The same 16×16px close — not themed."
   }
 }

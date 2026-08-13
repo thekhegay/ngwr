@@ -270,10 +270,15 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       only exist inside a state:** the window's traffic-light buttons are 14×14px
       and its taskbar close is 16×16 where WCAG 2.5.8 wants 24; the carousel dots
       show up here too, for the same reason they are already baselined by route.
-      The taskbar close is the only one recorded as a DEFECT rather than a design
-      call — the tab is 28px tall, so a 24px close fits — and it has a second
-      problem worth the same edit: it is a `role="button"` span with
-      `tabindex="0"` inside the tab's own `<button>`.
+      The taskbar close was the only one recorded as a DEFECT rather than a
+      design call, and it is fixed: the pill is now a plain container holding two
+      SIBLING buttons, because the close had been a `role="button"` span with
+      `tabindex="0"` inside the tab's own `<button>` — interactive content inside
+      interactive content — and the 16×16 hit area came out of the same markup.
+      24px now, which the 28px pill absorbs without changing the taskbar's
+      height. Neither half was reachable by any gate: a tab exists only while a
+      window is minimized, and `check:a11y` reads prerendered HTML, where the
+      rail is not rendered at all.
       **Remaining:** Playwright screenshot diffs across the showcase, at mobile
       viewports too; the last 37 state classes; and the bigger hole this pass
       exposed — `check:a11y` walks prerendered HTML, so the STRUCTURAL rules
