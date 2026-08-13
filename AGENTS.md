@@ -11,12 +11,12 @@ in the repo_.
 A pnpm + Angular CLI monorepo with two projects:
 
 - **`projects/lib/`** — the published package (`ngwr`). Almost every subfolder is
-  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **184**
+  a **tree-shakable secondary entry point** consumed as `ngwr/<name>` — **202**
   of them (`ngwr/button`, `ngwr/select`, `ngwr/overlay`, …). Counted by
   `ng-package.json`, not by directory: `styles/` and `schematics/` are not entry
-  points, and fifty-six are nested — `ngwr/i18n/{en,ru}`,
+  points, and seventy-four are nested — `ngwr/i18n/{en,ru}`,
   `ngwr/icon/adapters/{lucide,feather}` and the CDK test harnesses, which now cover
-  **fifty-two** entry points: the form controls (`button`, `input`, `textarea`,
+  **seventy** entry points: the form controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,
   `rating`, `file-upload`, `color-picker`, `knob`, `form`, `segmented`), the overlays
   (`date-picker`, `dropdown`, `popover`, `dialog`, `drawer`, `action-sheet`,
@@ -24,12 +24,16 @@ A pnpm + Angular CLI monorepo with two projects:
   the data views (`table`, `tree`), the navigation / disclosure set (`tabs`,
   `stepper`, `carousel`, `pagination`, `collapse`, `transfer`), `splitter`, `speed-dial`,
   `lightbox`, `tour`, `calendar`, `event-calendar`, `window`, `image-cropper`, **every
-  chart** and the markdown renderer — each at `ngwr/<name>/testing`, 84 harness
-  classes in total — `WrCalendarDayHarness` being
-  the one exported twice, since a date-picker's popup IS a calendar and
+  chart** and **eighteen of the twenty-one animations** — each at
+  `ngwr/<name>/testing`, 104 harness classes in total; `WrCalendarDayHarness` is the
+  one exported twice, since a date-picker's popup IS a calendar and
   `ngwr/date-picker/testing` keeps the name it shipped as.
-  **Every control and every overlay has one**; what is left is the rest of the
-  layout set, the two calendars, and the animations.
+  **Four entry points are deliberately without one, and the reason is the same each
+  time**: `aurora`, `click-spark` and `confetti` draw into a canvas whose context is
+  `null` under jsdom, and `virtual-scroll` is a thin wrapper over
+  `cdk-virtual-scroll-viewport` whose whole observable behaviour is the window it
+  measures — so every honest method would answer identically for a working component
+  and a broken one. Do not "finish the set" by adding them.
   Built with **ng-packagr**. TS path mapping: `ngwr/*` → `./projects/lib/*`.
 - **`projects/showcase/`** — the docs site (**ngwr.dev**): live demos + API
   docs, and where components are dogfooded. Docs are organised into five
@@ -227,6 +231,49 @@ straight through the kind of change that actually breaks people. `*.spec.ts` has
 an eslint override for the inline-template and selector rules, since a host that
 exists for one `describe` should not ship a `.html` file.
 
+**Writing a HARNESS** (`ngwr/<name>/testing`): copy
+`projects/lib/collapse/testing/` for the layout and the voice, or
+`projects/lib/image-cropper/testing/` for a component whose geometry a unit test
+cannot reach. The rules below were all earned by shipping seventy of them, and
+the first one decides every other question:
+
+- **A method that would answer the same thing for a working component and a
+  broken one must not exist.** jsdom has no layout (every rect is 0×0), no CSS
+  cascade from stylesheets, no canvas context and only partial Web Animations —
+  so no measured positions, no computed styles that come from a sheet, no "is it
+  animating". Where a reader would reach for one, the class JSDoc says why it is
+  absent. Half the value of these files is the refusals.
+- What IS readable, and where the assertions live: BEM classes and modifiers
+  (public API here), ARIA attributes, text nodes, and inline styles or custom
+  properties **the component wrote itself**. Read those off the `style`
+  ATTRIBUTE, not through `getCssValue()` — a computed read resolves the
+  stylesheet's own default, so it answers plausibly at exactly the moment the
+  host binding is what broke.
+- **A panel is scoped by the id its trigger publishes**, never by its class: a
+  query for `.wr-select-panel` answers with whichever select opened first. The
+  single-element and list queries are separate code paths, and the list one
+  leaked while the single one was covered.
+- **Two questions are not one.** A number field shows a string and holds a
+  number; an OTP's assembled code can differ from the bound model; a text
+  animation carries an accessible copy AND a pile of `aria-hidden` pieces. A
+  spec that reads only the drawn half passes on a component that announces
+  `W. e. l. c. o. m. e.`
+- **Pointer-driven writes are lies in jsdom.** Drive value controls with the
+  keyboard — the accessible path anyway — and assert the landing: with
+  `max=100 step=3` the thumb stops at 99, where `setValue(100)` used to resolve
+  silently on the wrong number. Where a gesture is the only path, keep the
+  method and make its JSDoc name what the SPEC must stub (a rect, an image
+  `load`), the way `WrImageCropperHarness` does.
+- Throw, with a sentence that says why, instead of returning a plausible
+  nothing — and mind vacuous truth: `every` over zero elements is `true`, so
+  "the animated text is hidden" would pass on a component that renders no text
+  at all.
+- Compose rather than re-query: a pager's size changer hands back
+  `WrSelectHarness`, a tour's buttons `WrButtonHarness`, a colour picker's tabs
+  `WrSegmentedHarness`. Two harnesses for one element is a fork waiting to
+  drift — `WrCalendarDayHarness` is exported twice under two names for exactly
+  that reason.
+
 Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
 (`engine-strict=true` in `.npmrc` — an older pnpm is refused outright, and
 `packageManager` pins 11.10.0), TypeScript `~6.0`, Angular `22.x`.
@@ -262,7 +309,7 @@ shipping. Conventional-commit subjects are checked locally (commitlint
 already covers the need, use it — an existing component (check the catalog
 before hand-rolling), `ngwr/utils`, `ngwr/pipes`, `ngwr/validators`, theme
 tokens — rather than hand-rolling raw markup/logic or pulling an external
-library where an internal tool exists. The catalog is large (184 entry points):
+library where an internal tool exists. The catalog is large (202 entry points):
 check before writing a bare `<input type="file">`, a date / number / truncate
 helper, a coercion, an id generator, and so on. New external runtime
 dependencies need a strong justification — the only runtime dependency today is
@@ -465,7 +512,7 @@ arrow) — for version and before/after descriptions.
 
 ## Building components
 
-The catalog is large (184 entry points) and **deliberately consolidated** —
+The catalog is large (202 entry points) and **deliberately consolidated** —
 many "components" are modes or inputs on one host (e.g. `wr-select` covers
 single / multi / search / tag; `wr-date-picker` covers date / time / datetime;
 `wr-popover` has a `tooltip` mode; `wr-drawer` doubles as a bottom-sheet).

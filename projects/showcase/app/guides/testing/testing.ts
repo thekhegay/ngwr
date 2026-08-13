@@ -240,6 +240,18 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    animations: `it('animates text without losing it', async () => {
+  const headline = await loader.getHarness(WrBlurTextHarness);
+
+  // Two questions, not one: what is announced, and what is drawn.
+  expect(await headline.getAccessibleText()).toBe('Welcome to ngwr');
+  expect(await headline.getPieces()).toEqual(['Welcome', 'to', 'ngwr']);
+  expect(await headline.isTextHidden()).toBe(true);
+
+  // And the split has to be lossless — this is what catches a dropped space.
+  expect(await headline.getRenderedText()).toBe(await headline.getAccessibleText());
+});`,
+
     charts: `it('reads the data, not the drawing', async () => {
   const bars = await loader.getHarness(WrBarChartHarness);
 
@@ -1385,6 +1397,58 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly animationApi: readonly DocApiRow[] = [
+    {
+      name: 'Text splitters: getAccessibleText() / getPieces() / getRenderedText() / isTextHidden() / hasStagedMotion()',
+      description:
+        '`WrBlurTextHarness`, `WrSplitTextHarness`. The announced copy and the drawn pieces are separate reads because they can disagree; comparing them is what catches a split that lost a space.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Circular / rotating: getAccessibleText() / getCharacters() / getCharacterAngles() / getOrbitOffsets() / isBonkers() / getWordCount() / isSettled()',
+      description:
+        '`WrCircularTextHarness`, `WrRotatingTextHarness`. Angles and offsets are parsed from the inline transform each character carries — a computed read would answer `none` for a ring that placed them correctly.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Typewriter / decrypt: getText() / hasCursor() / getCursorBlinkDuration() / getRevealedIndices() / getEncryptedCount() / isFullyRevealed() / hover() / click()',
+      description:
+        '`WrTypewriterHarness`, `WrDecryptTextHarness`. The typewriter’s accessible text IS the painted fragment — there is no second copy and none is wanted. Decrypt-text’s per-character reveal is a real state machine and reads exactly.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'CSS-driven text: getText() / getCloneText() / isCloneTextInSync() / getDurations() / getColors() / getGradient() / isPaused() / isYoyo() / pausesOnHover()',
+      description:
+        '`WrGlitchTextHarness`, `WrGradientTextHarness`, `WrShinyTextHarness`. Everything here is a custom property the component computed from an input — a seconds string, a gradient, a degree — so a lost unit is a visible break and these are what catch it.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Surfaces: getWords() / getHighlightedWords() / release() / getCopyCount() / getAnnouncedCopyCount() / getItems() / isSingleRay() / getSpeedSeconds()',
+      description:
+        '`WrFallingTextHarness`, `WrMarqueeHarness` (+ item), `WrStarBorderHarness`. The marquee duplicates its sequence and hides every copy but the first: `getAnnouncedCopyCount()` is the assertion that catches a duplicate leaking into the accessibility tree.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Pointer effects: movePointerTo(x, y) / leave() / isFlat() / getTilt() / getSpotlightPosition() / hasGlare() / getGlarePosition()',
+      description:
+        '`WrTiltHarness`, `WrSpotlightHarness`, `WrSpotlightCardHarness`, `WrBorderGlowHarness`. These divide by the host’s measured box, so stub `getBoundingClientRect` in the spec first — each JSDoc says so. `isFlat()` after a move is the reduced-motion assertion.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Canvas-backed: getText() / isDecorative() / hasCanvas() / isTextVisuallyHidden() / isPainted() / getLineGapPx() / isFullscreen()',
+      description:
+        '`WrFuzzyTextHarness`, `WrWavesHarness`, `WrSplashCursorHarness`. The DOM half only. `isPainted()` is the handover flag that retires the CSS stand-in once the canvas has drawn — false in a unit test, which is the contract rather than a limitation.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 

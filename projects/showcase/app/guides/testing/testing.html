@@ -255,6 +255,38 @@
     <ngwr-doc-api [rows]="splitterApi" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Animations" description="What a test can see of something that moves.">
+    <ngwr-doc-code [code]="snippets.animations" language="typescript" />
+
+    <p wrTypography>
+      Eighteen of the animation components have a harness, and they all obey one rule: nothing reports on the MOTION. A
+      tween's progress is a compositor frame, a <code>&#64;keyframes</code> rule lives in a stylesheet a unit test never
+      loads, and jsdom implements neither Web Animations nor a canvas — so there is no
+      <code>isAnimating()</code> anywhere in the set, and each class says in its own docs which method you might have
+      reached for and why it is absent. What is left is everything an animation writes down: the split it made of your
+      text, the ARIA around it, and the custom properties its inputs turn into.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      The pattern worth copying is the pair. A component that animates text per character carries the whole string once
+      in a visually-hidden span and marks the pieces <code>aria-hidden</code>, so <code>getAccessibleText()</code> is
+      what a screen reader hears and <code>getPieces()</code> is what is drawn — and a spec that asserts only the second
+      passes on a component that announces <code>W. e. l. c. o. m. e.</code> Comparing the two is also how you catch a
+      split that lost a space.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Three components deliberately have NO harness: <code>aurora</code>, <code>click-spark</code> and
+      <code>confetti</code> draw into a canvas whose context is <code>null</code> in a unit test, so every honest method
+      would answer the same for a working component and a dead one. Where a harness does exist for a canvas-backed
+      effect — <code>fuzzy-text</code>, <code>waves</code>, <code>splash-cursor</code> — it reports the DOM half only:
+      the accessible copy of the text, the <code>aria-hidden</code> on the canvas, and the handover flag that says the
+      drawing took over from the CSS stand-in.
+    </p>
+
+    <ngwr-doc-api [rows]="animationApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Charts" description="Read what is textual; a path is not an assertion.">
     <ngwr-doc-code [code]="snippets.charts" language="typescript" />
 
