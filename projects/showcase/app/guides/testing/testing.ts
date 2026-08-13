@@ -240,6 +240,18 @@ it('sets a time and steps it', async () => {
   expect((await picker.getThumbs()).alpha).toBe(50);
 });`,
 
+    charts: `it('reads the data, not the drawing', async () => {
+  const bars = await loader.getHarness(WrBarChartHarness);
+
+  // The label row is aria-hidden; the column carries the real name.
+  expect(await bars.getLabels()).toEqual(['Mon', 'Tue', 'Wed']);
+  expect(await bars.getAccessibleNames()).toEqual(['Mon: 12', 'Tue: 24', 'Wed: 6']);
+  expect((await bars.getBars()).map(b => b.heightPercent)).toEqual([50, 100, 25]);
+
+  const donut = await loader.getHarness(WrDonutChartHarness);
+  expect(await donut.getLegend()).toEqual([{ label: 'Direct', value: '30' }]);
+});`,
+
     eventCalendar: `it('moves an event with the keyboard', async () => {
   const calendar = await loader.getHarness(WrEventCalendarHarness);
 
@@ -1373,6 +1385,44 @@ export class MyWidgetHarness extends ComponentHarness {
         '`WrColorPickerTriggerHarness`. `open()` hands back the picker, scoped by the panel id the trigger publishes through `aria-controls` — two triggers open at once answer with their own.',
       type: 'Promise<…>',
       default: '—',
+    },
+  ];
+
+  protected readonly chartApi: readonly DocApiRow[] = [
+    {
+      name: 'Bar: getBars() / getLabels() / getAccessibleNames() / getBarCount() / hasValues() / getPlotHeight()',
+      description:
+        '`WrBarChartHarness`. Heights come back as a percentage of the chart’s maximum — the one number that survives a test with no layout, and the component’s actual job.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Line: getSeriesLabels() / getLineCount() / getDotCount() / getYTicks() / getXLabels() / hasGrid() / hasLegend()',
+      description:
+        '`WrLineChartHarness`. Comparing the line count with the legend catches a series that got filtered out of one of them.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Line: hasTooltip() / getTooltipLabel() / getTooltipRows()',
+      description:
+        'Readable, but there is no `hoverAt()`: the tooltip resolves the cursor’s x against a MEASURED plot, and jsdom reports 0×0, so a synthetic move lands nowhere.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Donut: getSliceCount() / getLegend() / getCenterValue() / getCenterLabel() / getAccessibleName() / getSize()',
+      description:
+        '`WrDonutChartHarness`. The ring is `aria-hidden` and its slices are paths, so the legend is the only textual form the data has — and the chart’s own name is what survives `showLegend: false`.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
+    },
+    {
+      name: 'Sparkline: isDecorative() / getRole() / getAccessibleName() / hasLine() / hasArea() / hasTip() / getColor()',
+      description:
+        '`WrSparklineHarness`. Named means `role="img"`; unnamed means `aria-hidden`. The pair is the assertion — a nameless graphic a screen reader stops on is the failure.',
+      type: 'Promise<\u2026>',
+      default: '\u2014',
     },
   ];
 
