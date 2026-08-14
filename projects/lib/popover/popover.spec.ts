@@ -45,6 +45,7 @@ import { WrPopover } from './popover';
 
     <ng-template #panel>
       <p class="panel-body">Anything you can render.</p>
+      <button type="button" class="panel-action">Act</button>
     </ng-template>
   `,
 })
@@ -216,6 +217,39 @@ describe('WrPopover', () => {
       fixture.detectChanges();
 
       expect(popoverPane()).toBeTruthy();
+    });
+
+    /**
+     * A popover is not a tooltip: it attaches a `role="dialog"` pane whose
+     * whole point is interactive content, so the caret is often inside it when
+     * it closes. Disposing without handing focus back dropped it on `<body>`
+     * and the next Tab restarted from the top of the document.
+     */
+    it('gives focus back to the trigger when the caret was inside', () => {
+      open();
+      const inside = document.querySelector<HTMLButtonElement>('.panel-action')!;
+      inside.focus();
+
+      press('Escape');
+
+      expect(popoverPane()).toBeNull();
+      expect(document.activeElement, 'focus was stranded on <body>').toBe(trigger('click'));
+    });
+
+    it('leaves focus alone when it had already moved elsewhere', () => {
+      const elsewhere = document.createElement('input');
+      document.body.appendChild(elsewhere);
+      try {
+        open();
+        elsewhere.focus();
+
+        press('Escape');
+
+        expect(popoverPane()).toBeNull();
+        expect(document.activeElement, 'the close fought the user for the caret').toBe(elsewhere);
+      } finally {
+        elsewhere.remove();
+      }
     });
 
     it('closes on Escape from anywhere on the page', () => {

@@ -334,8 +334,19 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
+    // Every enabled option carries `tabindex="0"` and commits on Enter, so on
+    // the keyboard the caret is INSIDE the pane by design — and the ordinary
+    // way to finish choosing (`onOptionClick` on a leaf) closes it. Disposing
+    // without handing focus back dropped it on `<body>` on the SUCCESS path,
+    // not merely on dismissal: a keyboard user who had just picked a value then
+    // had to Tab from the top of the document to get back to the control.
+    // Untouched when focus had already moved elsewhere — that click is usually
+    // what closed us, and stealing the caret back would fight the user for it.
+    const pane = this.overlayRef.overlayElement;
+    const focusWasInside = pane.contains(this.host.nativeElement.ownerDocument.activeElement);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (focusWasInside) this.host.nativeElement.querySelector<HTMLElement>('.wr-cascader__trigger')?.focus();
   }
 }
 

@@ -163,11 +163,15 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   constructor() {
     // Keep the internal thumbs in sync with external writes to `value`
     // (the old `writeValue`): split the tuple / clamp into the low & high cells.
-    // And WRITE THE CLAMP BACK. This used to clamp into the cells only, so an
-    // out-of-range write was drawn correctly and stored wrongly: the thumb sat
-    // on the bound while the form kept the original number, with nothing to
-    // reconcile them until the user happened to drag. Clamping is idempotent,
-    // so the write-back re-enters this effect once and settles.
+    // The cells are clamped and the MODEL IS NOT TOUCHED, and the asymmetry is
+    // deliberate. A thumb cannot render outside its own track, so the display
+    // has no choice — but writing that clamp back into `value` would erase the
+    // error it represents: under `[formField]` the bounds reach this component
+    // only through the schema's `min()` / `max()` rules (binding `[min]` beside
+    // `[formField]` is an NG8022 compile error), so the write-back deleted the
+    // out-of-range value those rules exist to report, and marked a pristine
+    // form dirty on first paint besides. The first real interaction emits an
+    // in-range number through `emitChange` and the two agree from then on.
     effect(() => {
       const v = this.value();
 
@@ -178,7 +182,6 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
         this.low.set(lo);
         this.high.set(hi);
         this.highSeeded = true;
-        if (tuple[0] !== lo || tuple[1] !== hi) this.value.set([lo, hi]);
         return;
       }
 
@@ -186,19 +189,15 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
       const lo = this.clampToBounds(v);
       this.low.set(lo);
 
-      if (!this.range()) {
-        if (v !== lo) this.value.set(lo);
-        return;
-      }
+      if (!this.range()) return;
 
-      // Range mode holding a scalar: the shape is wrong and the high thumb has
-      // never been told anything. Seed it at the top of the range — which is
-      // what the literal 100 meant back when the bounds were 0–100 — and
-      // normalise the model to the tuple its own docs promise.
-      const hi = this.highSeeded ? this.clampToBounds(untracked(this.high)) : this.maxValue();
-      this.high.set(hi);
+      // Range mode holding a scalar: the high thumb has never been told
+      // anything, and its literal default is not inside every `[min, max]`.
+      // Seed it at the top of the range — which is what the 100 meant back when
+      // the bounds were 0–100. The MODEL is left alone here too; the shape it
+      // holds is the consumer's business until they move a thumb.
+      this.high.set(this.highSeeded ? this.clampToBounds(untracked(this.high)) : this.maxValue());
       this.highSeeded = true;
-      this.value.set([lo, hi]);
     });
   }
 

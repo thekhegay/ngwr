@@ -119,19 +119,70 @@ describe('WrInputNumber', () => {
   });
 
   /**
-   * The field and the model have to agree. The display was formatted from
-   * `constrain(v)` while the model kept `v`, so a `[max]="10"` field handed 500
-   * showed "10" and submitted 500.
+   * The field shows what the model holds.
+   *
+   * It used to format `constrain(v)`, so a `[max]="10"` field handed 500 drew
+   * "10" over a model that still said 500 — the DISPLAY was the thing lying.
+   * Writing the clamp back instead would be worse: under `[formField]` the
+   * bounds arrive only through the schema's `min()` / `max()` rules, so it
+   * would erase the error those rules exist to raise and dirty a pristine form.
+   * `min` / `max` bound what this component's own edits produce; a value
+   * written from outside is displayed and left for validation to judge.
    */
-  it('writes a clamped value back instead of only drawing it', async () => {
+  it('draws an out-of-range value instead of a clamp of it', async () => {
     fixture.componentInstance.max.set(10);
     fixture.componentInstance.amount.set(500);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(field().value).toBe('10');
-    expect(amount(), 'the form kept a number the field denies').toBe(10);
+    expect(field().value, 'the field drew a number the model does not hold').toBe('500');
+    expect(amount()).toBe(500);
+  });
+
+  it('still refuses to STEP past the bound', async () => {
+    fixture.componentInstance.max.set(10);
+    fixture.componentInstance.amount.set(9);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    stepper('Increment').click();
+    stepper('Increment').click();
+    fixture.detectChanges();
+
+    expect(amount()).toBe(10);
+  });
+
+  /**
+   * The anti-drift rounding must not manufacture drift. `round(v, 10)` scales
+   * by 1e10, which leaves 2^53 above ~9e8: `round(1000000001, 10)` comes back
+   * as `1000000000.9999999`, and each press then compounds it.
+   */
+  it('steps large integers exactly', async () => {
+    fixture.componentInstance.amount.set(999_999_999);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    for (let i = 0; i < 4; i++) stepper('Increment').click();
+    fixture.detectChanges();
+
+    expect(amount()).toBe(1_000_000_003);
+    expect(field().value).not.toContain('.');
+  });
+
+  it('does not round a very fine step away to nothing', async () => {
+    fixture.componentInstance.step.set(1e-11);
+    fixture.componentInstance.amount.set(0);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    stepper('Increment').click();
+    fixture.detectChanges();
+
+    expect(amount()).toBe(1e-11);
   });
 
   it('renders the bound value and names its steppers', () => {

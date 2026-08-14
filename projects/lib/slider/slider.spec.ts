@@ -211,32 +211,35 @@ describe('WrSlider', () => {
    * half cannot tell "mirrors" from "always goes the other way".
    */
   /**
-   * The cells and the model have to agree.
+   * A thumb cannot render outside its own track, so the DISPLAY is clamped —
+   * and the model is not.
    *
-   * The sync effect clamped into `low` / `high` and stopped there, so an
-   * out-of-range write was drawn correctly and stored wrongly: the thumb sat on
-   * the bound while the form held the original number, with nothing to
-   * reconcile them until the user happened to drag.
+   * Writing the clamp back looks like the tidier answer and is the wrong one:
+   * under `[formField]` the bounds arrive only through the schema's `min()` /
+   * `max()` rules, so overwriting the value deletes the error those rules exist
+   * to raise, and the write marks a pristine form dirty before the user has
+   * touched anything.
    */
   describe('values it was handed but cannot represent', () => {
-    it('writes the clamp back instead of only drawing it', async () => {
+    it('pins the thumb at the bound and leaves the value alone', async () => {
       fixture.componentInstance.amount.set(500);
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
       expect(thumb().getAttribute('aria-valuenow')).toBe('100');
-      expect(amount(), 'the form kept a number the slider denies').toBe(100);
+      expect(amount(), 'the slider rewrote data it only had to draw').toBe(500);
     });
 
-    it('clamps a value under the floor the same way', async () => {
-      fixture.componentInstance.min.set(10);
-      fixture.componentInstance.amount.set(-5);
+    it('reports an in-range number as soon as the user moves it', async () => {
+      fixture.componentInstance.amount.set(500);
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(amount()).toBe(10);
+      press('ArrowDown');
+
+      expect(amount()).toBe(99);
     });
 
     /**

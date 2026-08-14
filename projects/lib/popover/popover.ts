@@ -381,8 +381,21 @@ export class WrPopover {
       this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayLeave);
     }
     this.clearHoverClose();
+    // Take the focus back before the pane goes, and only if it was in there.
+    //
+    // A popover is not a tooltip: it attaches a `TemplatePortal` under
+    // `role="dialog"`, so a form or a menu inside it is the point, and Escape
+    // arrives through the overlay's `keydownEvents()` no matter where the caret
+    // is. Disposing with focus inside dropped it on `<body>`, and the next Tab
+    // restarted from the top of the document. `wr-date-picker` and
+    // `wr-popconfirm` already guard it exactly this way; leaving focus alone
+    // when it had already moved is what stops the close from fighting the user
+    // for the caret.
+    const pane = this.overlayRef.overlayElement;
+    const focusWasInside = pane.contains(this.host.nativeElement.ownerDocument.activeElement);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (focusWasInside) this.host.nativeElement.focus();
     this.closed.emit();
   }
 

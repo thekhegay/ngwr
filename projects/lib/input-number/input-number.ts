@@ -212,6 +212,23 @@ export class WrInputNumber implements FormValueControl<number | null> {
    */
   private static readonly STEP_PRECISION = 10;
 
+  /**
+   * Above this, the anti-drift round is skipped — it would MANUFACTURE drift.
+   *
+   * `round(v, 10)` is `Math.round((v + EPSILON) * 1e10) / 1e10`, and the scale
+   * factor is only exact while `v * 1e10` stays inside 2^53, i.e. |v| under
+   * about 900,720. In practice the round-trip still recovers up to ~9.2e8 and
+   * then breaks: `round(1000000001, 10)` is `1000000000.9999999`, and since
+   * `format` prints up to 20 fraction digits that tail reaches the screen —
+   * and compounds, because the next press starts from it. Integer stepping at
+   * that magnitude is exact in IEEE754 and needed no help; the only thing this
+   * rounding exists to defend is `0.1 + 0.1 + 0.1`.
+   */
+  private static readonly SAFE_ROUND_MAGNITUDE = 1e6;
+
+  /** Steps finer than this would be rounded away by {@link STEP_PRECISION}. */
+  private static readonly SAFE_ROUND_STEP = 1e-9;
+
   constructor() {
     // Keep the display `text` in sync with external writes to `value` (via
     // `[formField]` / `[(value)]`). While the user is editing, the input
@@ -224,14 +241,22 @@ export class WrInputNumber implements FormValueControl<number | null> {
         this.text.set('');
         return;
       }
-      // WRITE THE CLAMP BACK, do not just draw it. The display was formatted
-      // from `constrain(v)` while the model kept `v`, so a `[max]="10"` field
-      // handed 500 showed "10" and submitted 500 — and nothing reconciled them
-      // until the user happened to type. Clamping is idempotent, so the
-      // write-back re-enters this effect once and settles.
-      const constrained = this.constrain(v);
-      this.text.set(this.format(constrained));
-      if (constrained !== v) this.value.set(constrained);
+      // SHOW WHAT THE MODEL HOLDS. It used to format `constrain(v)`, so a
+      // `[max]="10"` field handed 500 drew "10" over a model that still said
+      // 500 — the display was the thing lying, not the model.
+      //
+      // The tempting repair is to write the clamp back so the two agree, and
+      // that is worse: under `[formField]` the bounds arrive ONLY through the
+      // schema's `min()` / `max()` rules (binding `[min]` next to `[formField]`
+      // is an NG8022 compile error), so overwriting the value ERASES the very
+      // error those rules exist to raise — and the write marks a pristine form
+      // dirty, tripping unsaved-changes guards and opening every other
+      // validator's message on first paint.
+      //
+      // So: `min` / `max` bound what this component's own edits may produce,
+      // and a value written from outside is displayed as it is and left for
+      // validation to judge.
+      this.text.set(this.format(v));
     });
   }
 
@@ -287,7 +312,14 @@ export class WrInputNumber implements FormValueControl<number | null> {
     // model AND onto the screen. Ten digits erases IEEE noise without
     // quantising a value the user typed (0.15000000000000002 stays 0.15, it
     // does not snap to the step grid).
-    const next = this.constrain(round(base + units * stepSize, WrInputNumber.STEP_PRECISION));
+    //
+    // Guarded on BOTH ends, because outside them the correction is the thing
+    // that corrupts: see SAFE_ROUND_MAGNITUDE, and a step finer than 1e-9 would
+    // simply be rounded away to nothing.
+    const raw = base + units * stepSize;
+    const correctable =
+      Math.abs(raw) < WrInputNumber.SAFE_ROUND_MAGNITUDE && Math.abs(stepSize) >= WrInputNumber.SAFE_ROUND_STEP;
+    const next = this.constrain(correctable ? round(raw, WrInputNumber.STEP_PRECISION) : raw);
     this.value.set(next);
     this.text.set(this.format(next));
   }
