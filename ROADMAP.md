@@ -329,10 +329,9 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       **The first nightly run went red, and the cause is worth keeping.** The
       sweep drove the window docs page's first demo button, which opens with
       `os: 'auto'` — and `detectOs()` reads the user agent, so on ubuntu-latest
-      the window came up with the LINUX chrome, which renders no minimize button
-      at all (`resolvedOs() !== 'linux'` gates it out of the template; it is a
-      contract with a spec behind it). The click waited five seconds for an
-      element the library deliberately does not have. Three fixes, each closing a
+      the window came up with the LINUX chrome, which is close-only by
+      convention and so had no minimize button. The click waited five seconds for
+      an element that was never going to appear. Three fixes, each closing a
       different half: the window states now click the explicit macOS demo instead
       of "whatever is first" and a new state covers the Windows chrome arm; the
       browser context pins a fixed macOS user agent, because two things sniff the

@@ -76,6 +76,34 @@ function firstArg(args: string): string | undefined {
   return trimmed;
 }
 
+/**
+ * The READ type out of an explicit generic list.
+ *
+ * `input<T>()` is one argument, but a transform input is two —
+ * `input<boolean | null, BooleanInput | null>(…)` — and the whole list rendered
+ * into the type column as `boolean | null, BooleanInput | null`, which is not a
+ * type anyone can write. The first argument is what the component exposes and
+ * what every non-generic transform input already infers to (`coerceBooleanProperty`
+ * reports `boolean`, not `BooleanInput`), so taking it keeps the column
+ * consistent.
+ *
+ * Split at DEPTH ZERO only: `input<Record<string, number>>()` has a comma in it
+ * and is one argument.
+ */
+function firstGeneric(generic: string): string {
+  let depth = 0;
+  for (let i = 0; i < generic.length; i++) {
+    const c = generic[i];
+    // `=>` is not a closer. `input<((d: Date) => boolean) | null, unknown>()`
+    // would otherwise drive the depth negative and never split.
+    if (c === '>' && generic[i - 1] === '=') continue;
+    if (c === '<' || c === '(' || c === '[' || c === '{') depth++;
+    else if (c === '>' || c === ')' || c === ']' || c === '}') depth--;
+    else if (c === ',' && depth === 0) return generic.slice(0, i).trim();
+  }
+  return generic.trim();
+}
+
 /** Best-effort type when the member has no explicit generic. */
 function inferType(initial: string | undefined, args: string): string {
   if (initial === 'false' || initial === 'true') return 'boolean';
@@ -115,7 +143,11 @@ function extractFile(file: string, entry: string): ApiEntry[] {
 
       const initial = firstArg(g['args'] ?? '');
       const generic = g['generic']?.trim();
-      const type = generic ?? (kind === 'output' ? 'void' : inferType(initial, g['args'] ?? ''));
+      const type = generic
+        ? firstGeneric(generic)
+        : kind === 'output'
+          ? 'void'
+          : inferType(initial, g['args'] ?? '');
 
       // `{ alias: 'wrAffixChange' }` is the name a template writes, and the only
       // one a consumer ever sees — the property name is an implementation detail.

@@ -81,7 +81,9 @@
       <wr-btn (click)="openTaskbarDemo('Editor')">Open editor</wr-btn>
       <wr-btn (click)="openTaskbarDemo('Logs')">Open logs</wr-btn>
       <small style="display: block; margin-top: 0.5rem; color: var(--wr-color-on-surface-muted)"
-        >Click minimize on any of them — they land in the strip at the bottom of the page.</small
+        >Click minimize on any of them — they land in the strip at the bottom of the page. These three pass
+        <code>showMinimize: true</code>, because the Linux chrome is close-only by default and there would otherwise be
+        nothing to press.</small
       >
     </ngwr-doc-snippet>
   </ngwr-doc-section>

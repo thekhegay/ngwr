@@ -18,8 +18,8 @@
   [keepInViewport]="config.keepInViewport ?? true"
   [snap]="config.snap ?? 'none'"
   [dragHandle]="config.dragHandle ?? null"
-  [showMinimize]="config.showMinimize ?? true"
-  [showMaximize]="config.showMaximize ?? true"
+  [showMinimize]="config.showMinimize ?? null"
+  [showMaximize]="config.showMaximize ?? null"
   [showClose]="config.showClose ?? true"
   (closed)="ref.close()"
   #window

@@ -622,8 +622,8 @@ async function main(): Promise<void> {
     // One user agent for every run, everywhere.
     //
     // The library sniffs the OS in two places, and both reach the DOM this gate
-    // measures: `wr-window` picks a chrome per platform (the Linux one renders
-    // NO minimize button — a contract, not a bug), and `WrHotkey` resolves
+    // measures: `wr-window` picks a chrome per platform (the Linux one is
+    // close-only unless `showMinimize` asks otherwise), and `WrHotkey` resolves
     // `mod` to ⌘ or Ctrl, which changes the width of the command palette's
     // shortcut chip. Left alone, the sweep paints one page on a laptop and a
     // different one on ubuntu-latest, and a baseline cannot be true of both —

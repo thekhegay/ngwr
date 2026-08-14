@@ -290,7 +290,7 @@ export const API = {
     { name: "placeholder", description: "Search input placeholder. Falls back to `commandPalette.placeholder`.", type: "string | null", default: "null" },
     { name: "emptyText", description: "Text shown when no items match. Falls back to `commandPalette.noResults`.", type: "string | null", default: "null" },
     { name: "closeOnPick", description: "Auto-close on `(picked)`. Set false to keep open.", type: "boolean", default: "true" },
-    { name: "responsive", description: "Present the palette full-screen on small viewports instead of a centred modal. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it. The palette docks to the top (it auto-focuses its input, so the on-screen keyboard stays clear).", type: "boolean | undefined, BooleanInput", default: "undefined" },
+    { name: "responsive", description: "Present the palette full-screen on small viewports instead of a centred modal. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it. The palette docks to the top (it auto-focuses its input, so the on-screen keyboard stays clear).", type: "boolean | undefined", default: "undefined" },
     { name: "(picked)", description: "Fires when the user commits an item (Enter / click).", type: "WrCommandItem" },
   ],
   // <wr-compare>
@@ -321,7 +321,7 @@ export const API = {
   ],
   // <wr-counter>
   WrCounter: [
-    { name: "value", description: "The number to show. Coerced like every other numeric input here — it was the only one without it, and `Intl.NumberFormat().format(NaN)` renders the literal text `NaN`.", type: "number, unknown", required: true },
+    { name: "value", description: "The number to show. Coerced like every other numeric input here — it was the only one without it, and `Intl.NumberFormat().format(NaN)` renders the literal text `NaN`.", type: "number", required: true },
     { name: "mode", description: "Animation mode.", type: "WrCounterMode", default: "'odometer'" },
     { name: "duration", description: "Duration (ms).", type: "number", default: "900" },
     { name: "decimals", description: "Fixed number of decimals.", type: "number", default: "0" },
@@ -412,7 +412,7 @@ export const API = {
   ],
   // <[wrDialogClose]>
   WrDialogClose: [
-    { name: "wrDialogClose", description: "Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.", type: "R | undefined, R | undefined | ''", default: "undefined" },
+    { name: "wrDialogClose", description: "Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.", type: "R | undefined", default: "undefined" },
   ],
   // <[wrDialogFooter]>
   WrDialogFooter: [
@@ -453,7 +453,7 @@ export const API = {
   ],
   // <[wrDrawerClose]>
   WrDrawerClose: [
-    { name: "wrDrawerClose", description: "Value to pass to `close()` for service-opened drawers. When unset — or used as a bare attribute — the drawer closes with `undefined`.", type: "R | undefined, R | undefined | ''", default: "undefined" },
+    { name: "wrDrawerClose", description: "Value to pass to `close()` for service-opened drawers. When unset — or used as a bare attribute — the drawer closes with `undefined`.", type: "R | undefined", default: "undefined" },
   ],
   // <[wrDrawerFooter]>
   WrDrawerFooter: [
@@ -464,7 +464,7 @@ export const API = {
     { name: "wrDropdown", description: "Menu to open. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
     { name: "trigger", description: "How the menu opens.", type: "WrDropdownTrigger", default: "'click'" },
     { name: "position", description: "Where the menu anchors relative to the trigger.", type: "WrDropdownPosition", default: "'bottom-start'" },
-    { name: "responsive", description: "Present the menu as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined, BooleanInput", default: "undefined" },
+    { name: "responsive", description: "Present the menu as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined", default: "undefined" },
     { name: "(opened)", description: "Fires after the menu opens.", type: "void" },
     { name: "(closed)", description: "Fires after the menu closes.", type: "void" },
   ],
@@ -562,7 +562,7 @@ export const API = {
   // <wr-gauge>
   WrGauge: [
     { name: "ariaLabel", description: "Accessible name — the role needs one. Falls back to `gauge.label`.", type: "string | null", default: "null" },
-    { name: "value", description: "The reading. Coerced like every other numeric input here — it was the only one without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is invalid path geometry and drops the arc.", type: "number, unknown", required: true },
+    { name: "value", description: "The reading. Coerced like every other numeric input here — it was the only one without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is invalid path geometry and drops the arc.", type: "number", required: true },
     { name: "min", description: "—", type: "number", default: "0" },
     { name: "max", description: "—", type: "number", default: "100" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "160" },
@@ -614,11 +614,11 @@ export const API = {
   // <input[wrInput], textarea[wrInput]>
   WrInput: [
     { name: "wrSize", description: "Control size. Named `wrSize` (not `size`) so it never clashes with the native `<input size>` attribute. Unset, it falls back to `provideWrConfig({ input: { size } })`.", type: "WrInputSize | null", default: "'md'" },
-    { name: "rounded", description: "Pill-shaped corners. Unset, it falls back to `provideWrConfig({ input: { rounded } })`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null, BooleanInput", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners. Unset, it falls back to `provideWrConfig({ input: { rounded } })`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
   ],
   // <wr-input-group>
   WrInputGroup: [
-    { name: "rounded", description: "Pill-shaped corners. Unset, it falls back to `provideWrConfig({ input: { rounded } })` — the same key the inner `[wrInput]` reads.", type: "boolean | null, BooleanInput", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners. Unset, it falls back to `provideWrConfig({ input: { rounded } })` — the same key the inner `[wrInput]` reads.", type: "boolean | null", default: "false" },
   ],
   // <wr-input-number>
   WrInputNumber: [
@@ -628,7 +628,7 @@ export const API = {
     { name: "decimals", description: "Fixed number of decimals shown on blur. `null` keeps the entered precision.", type: "number | null", default: "null" },
     { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
     { name: "size", description: "Control size — forwarded to the field, and shares the `--wr-control-*` contract. Unset falls back to the `inputNumber.size` app default from `provideWrConfig()`, then to the `input.size` one, then to `md`.", type: "WrInputSize | null", default: "'md'" },
-    { name: "rounded", description: "Pill-shaped corners. Unset falls back to the `inputNumber.rounded` app default from `provideWrConfig()`, then to the `input.rounded` one; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null, BooleanInput", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners. Unset falls back to the `inputNumber.rounded` app default from `provideWrConfig()`, then to the `input.rounded` one; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
     { name: "prefix", description: "Optional prefix label (e.g. `\"$\"`).", type: "string", default: "''" },
     { name: "suffix", description: "Optional suffix label (e.g. `\"kg\"`).", type: "string", default: "''" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
@@ -723,7 +723,7 @@ export const API = {
   WrMarkdown: [
     { name: "value", description: "The markdown source.", type: "string", default: "''" },
     { name: "streaming", description: "The source is a prefix of a longer document. Turns on partial-safe parsing — an open fence renders as code, a half-typed `**bold` renders as bold rather than as asterisks — and marks the host with `.wr-markdown--streaming`, which paints a caret after the last block.", type: "boolean", default: "false" },
-    { name: "copyable", description: "Show a copy button on finished code blocks. Falls back to `markdown.copyable` from `provideWrConfig()`, then `false`. Only CLOSED blocks get one: mid-stream the code is not all there, and a button that copies half a snippet is worse than no button.", type: "boolean | null, BooleanInput", default: "null" },
+    { name: "copyable", description: "Show a copy button on finished code blocks. Falls back to `markdown.copyable` from `provideWrConfig()`, then `false`. Only CLOSED blocks get one: mid-stream the code is not all there, and a button that copies half a snippet is worse than no button.", type: "boolean | null", default: "null" },
     { name: "linkTarget", description: "Where links open. `_blank` also sets `rel=\"noopener noreferrer\"`, which is not optional — a target without it hands the opener to a page whose URL came from the document being rendered. Falls back to `markdown.linkTarget` from `provideWrConfig()`, then no target.", type: "'_blank' | '_self' | null", default: "null" },
     { name: "headingIds", description: "Put a slugged `id` on every heading, so the document can be linked into.", type: "boolean", default: "true" },
     { name: "headingIdPrefix", description: "Namespace for the generated heading ids, and for the in-document `#fragment` links that point at them. Defaults to `'user-content-'`, which is what GitHub emits for untrusted markdown, and for the same reason: without a namespace a document that happens to contain `# Search` renders `id=\"search\"` and steals it from the page around it. That is not cosmetic — a `<label for=\"search\">` silently stops labelling its input, and `getElementById` starts answering with a heading. Anchors written INSIDE the document keep working, because a bare `#fragment` href gets the same prefix. Set it to `''` for a document you author yourself and want clean anchors for.", type: "string", default: "'user-content-'" },
@@ -847,7 +847,7 @@ export const API = {
     { name: "position", description: "Anchor side.", type: "WrPopoverPosition | null", default: "'bottom' for popover, 'top' for tooltip" },
     { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
     { name: "hideDelay", description: "Tooltip only — delay before hiding, in ms.", type: "number", default: "60" },
-    { name: "responsive", description: "Popover mode only — present the panel as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it. Tooltips never become sheets.", type: "boolean | undefined, BooleanInput", default: "undefined" },
+    { name: "responsive", description: "Popover mode only — present the panel as a full-width bottom-sheet on small viewports instead of an anchored panel. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it. Tooltips never become sheets.", type: "boolean | undefined", default: "undefined" },
     { name: "ariaLabel", description: "Popover mode only — accessible name of the panel. `role=\"dialog\"` with no name announces as a bare \"dialog\", so the catalog's `popover.label` is used when nothing is given. A popover has no universal name; whenever the panel has a heading or a purpose, pass it.", type: "string | null", default: "null" },
     { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
     { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
@@ -950,9 +950,9 @@ export const API = {
     { name: "clearLabel", description: "Clear-selection (×) button aria-label. Falls back to `select.clearSelection`.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — `role=\"combobox\"` on an empty trigger otherwise has no name at all, which is the common case before anything is selected.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the select. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
-    { name: "rounded", description: "Pill-shaped corners on the trigger. Unset falls back to the `select.rounded` app default from `provideWrConfig()`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null, BooleanInput", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners on the trigger. Unset falls back to the `select.rounded` app default from `provideWrConfig()`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `select.size` app default from `provideWrConfig()`.", type: "WrSelectSize | null", default: "'md'" },
-    { name: "responsive", description: "Present the option panel as a full-width bottom-sheet on small viewports instead of an anchored dropdown. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined, BooleanInput", default: "undefined" },
+    { name: "responsive", description: "Present the option panel as a full-width bottom-sheet on small viewports instead of an anchored dropdown. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined", default: "undefined" },
     { name: "mode", description: "Behavior mode. `<wr-select>` is the unified combobox primitive — pick the shape via `[mode]`: - `'single'` (default) — one value, no input. Classic dropdown. - `'multi'` — array value, chips on the trigger. - `'search'` — type-ahead with sync filter or async loader. - `'tag'` — free-text + chips.", type: "WrSelectMode | null", default: "null" },
     { name: "searchable", description: "Add a type-ahead filter without changing the value shape — the missing multi-with-search combination, since `[mode]` picks exactly one shape: ```html <wr-select mode=\"multi\" searchable [(value)]=\"categories\">…</wr-select> ``` On `multi` the trigger keeps its chips and grows an inline text field (the shape `tag` mode already uses); on `single` it is equivalent to `mode=\"search\"`. Every search input (`[options]`, `[loader]`, `[debounceMs]`, `[minChars]`, `[virtualScroll]`, the `(searchChange)` output, …) applies either way. Ignored in `tag` mode, which owns its own input.", type: "boolean", default: "false" },
     { name: "searchQuery", description: "The live search query. Empty string = no filter. Exposed via context so each `<wr-option>` can self-hide non-matching rows. Two-way bindable, so the query can be owned or reset from outside: `[(searchQuery)]=\"query\"`. For server-side search prefer the debounced {@link searchChange} output — `searchQueryChange` fires on every keystroke.", type: "string", default: "''" },
@@ -1419,9 +1419,9 @@ export const API = {
     { name: "keepInViewport", description: "—", type: "boolean", default: "true" },
     { name: "snap", description: "Drag-to-edge snap behaviour.", type: "WrWindowSnap", default: "'none'" },
     { name: "dragHandle", description: "CSS selector inside the projected body that restricts the move grab — pointer-downs outside this selector won't start a drag. Use to keep interactive body content (sliders, inputs) from hijacking the title-bar drag. `null` (default) means the whole title bar is grabbable.", type: "string | null", default: "null" },
-    { name: "showMinimize", description: "—", type: "boolean", default: "true" },
-    { name: "showMaximize", description: "—", type: "boolean", default: "true" },
-    { name: "showClose", description: "—", type: "boolean", default: "true" },
+    { name: "showMinimize", description: "Show the minimize control. `null` (the default) follows the chrome: every OS but Linux shows it, and the Linux preset is close-only by convention. Pass `true` to override that — on Linux it is what puts a window within reach of `<wr-window-taskbar>`.", type: "boolean | null", default: "null" },
+    { name: "showMaximize", description: "Show the maximize control. `null` (the default) follows the chrome, as with {@link showMinimize}.", type: "boolean | null", default: "null" },
+    { name: "showClose", description: "Show the close control. Not per-OS: every chrome closes.", type: "boolean", default: "true" },
     { name: "(closed)", description: "Fires when the window closes — from the header button or from `close()`.", type: "void" },
     { name: "(moved)", description: "Fires while the header is DRAGGED, once per pointer move. Programmatic moves (`moveTo`, `center`, the initial cascade) are silent: the caller already knows where it put the window, and echoing those back would double-count for a consumer persisting the position.", type: "{ readonly x: number; readonly y: number }" },
     { name: "(resized)", description: "Fires while an edge is DRAGGED, and once when a snap target is applied.", type: "{ readonly width: number; readonly height: number }" },

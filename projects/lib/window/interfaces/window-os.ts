@@ -15,8 +15,10 @@
  * - `macos` — traffic-light dots on the LEFT (red close, yellow minimize,
  *   green maximize). Glyphs (×, −, +) appear when the cluster is hovered.
  * - `windows` — monochrome glyph buttons on the RIGHT.
- * - `linux` — close-only on the right; minimize / maximize hidden unless
- *   explicitly requested.
+ * - `linux` — close-only on the right, the GNOME convention. That is a DEFAULT
+ *   and not a rule: `showMinimize` / `showMaximize` set to `true` put the
+ *   buttons back, which is what a Linux user needs before a window can be
+ *   minimized into `<wr-window-taskbar>`.
  */
 export type WrWindowOs = 'auto' | 'macos' | 'windows' | 'linux';
 

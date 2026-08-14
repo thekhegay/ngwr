@@ -618,8 +618,8 @@ Four rules if you touch it, and each one is a bug it already had:
   debugging. Inline the helpers.
 - **Pin anything the page sniffs about the machine.** The context sets a fixed
   macOS `userAgent` (real Chromium version, fixed platform token), because
-  `wr-window` picks a chrome per OS — the Linux one renders NO minimize button,
-  which is a contract, not a bug — and `WrHotkey` resolves `mod` to ⌘ or Ctrl,
+  `wr-window` picks a chrome per OS — the Linux one is close-only unless
+  `showMinimize` asks otherwise — and `WrHotkey` resolves `mod` to ⌘ or Ctrl,
   which changes the width of the command palette's shortcut chip. Without it the
   sweep paints one page on a laptop and another on ubuntu-latest, and a baseline
   cannot be true of both: the first nightly run died on a click for a button the

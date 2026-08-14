@@ -70,8 +70,16 @@ export interface WrWindowConfig<D = unknown> {
   readonly snap?: WrWindowSnap;
 
   // Chrome actions
+  /**
+   * Show the minimize control. Omit to follow the chrome — every OS but Linux
+   * shows it, and the Linux preset is close-only by convention. Pass `true` to
+   * override that, which is what a Linux user needs before a window can reach
+   * `<wr-window-taskbar>`.
+   */
   readonly showMinimize?: boolean;
+  /** Show the maximize control. Omit to follow the chrome, as with {@link showMinimize}. */
   readonly showMaximize?: boolean;
+  /** Show the close control. Every chrome closes, so this is not per-OS. */
   readonly showClose?: boolean;
 
   // Taskbar
