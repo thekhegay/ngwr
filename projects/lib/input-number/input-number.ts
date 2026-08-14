@@ -205,6 +205,13 @@ export class WrInputNumber implements FormValueControl<number | null> {
     return parts.join(' ');
   });
 
+  /**
+   * Fraction digits the stepper rounds its arithmetic to when `decimals` says
+   * nothing. High enough to leave a real value alone, low enough to erase the
+   * binary-float tail that repeated stepping accumulates.
+   */
+  private static readonly STEP_PRECISION = 10;
+
   constructor() {
     // Keep the display `text` in sync with external writes to `value` (via
     // `[formField]` / `[(value)]`). While the user is editing, the input
@@ -213,7 +220,18 @@ export class WrInputNumber implements FormValueControl<number | null> {
     effect(() => {
       const v = this.value();
       if (this.focused()) return;
-      this.text.set(v === null || Number.isNaN(v) ? '' : this.format(this.constrain(v)));
+      if (v === null || Number.isNaN(v)) {
+        this.text.set('');
+        return;
+      }
+      // WRITE THE CLAMP BACK, do not just draw it. The display was formatted
+      // from `constrain(v)` while the model kept `v`, so a `[max]="10"` field
+      // handed 500 showed "10" and submitted 500 — and nothing reconciled them
+      // until the user happened to type. Clamping is idempotent, so the
+      // write-back re-enters this effect once and settles.
+      const constrained = this.constrain(v);
+      this.text.set(this.format(constrained));
+      if (constrained !== v) this.value.set(constrained);
     });
   }
 
@@ -262,7 +280,14 @@ export class WrInputNumber implements FormValueControl<number | null> {
   private bump(units: number): void {
     const stepSize = this.step() || 1;
     const base = this.value() ?? this.fallbackBase();
-    const next = this.constrain(base + units * stepSize);
+    // `round` before `constrain`, and only on the stepped ARITHMETIC. Binary
+    // floats do not add: three presses of a `step="0.1"` stepper produced
+    // 0.30000000000000004, `constrain` only rounds when `decimals` is set, and
+    // `format` prints up to 20 fraction digits — so the drift went into the
+    // model AND onto the screen. Ten digits erases IEEE noise without
+    // quantising a value the user typed (0.15000000000000002 stays 0.15, it
+    // does not snap to the step grid).
+    const next = this.constrain(round(base + units * stepSize, WrInputNumber.STEP_PRECISION));
     this.value.set(next);
     this.text.set(this.format(next));
   }
