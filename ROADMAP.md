@@ -273,7 +273,7 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       corrected.
       **Coverage is reported rather than assumed.** The table is hand-maintained,
       so every full run counts the state-dependent classes in the BUILT stylesheet
-      and says how many it actually painted — **71 of 95** across **70 states**,
+      and says how many it actually painted — **71 of 95** across **78 states**,
       up from 21 of 95 across 24 in the first pass. A curated list that has stopped
       growing looks exactly like one that covers the catalog, and that number is
       the only cheap way to tell them apart. Extending it is what `--probe` is
@@ -326,6 +326,23 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       `wrPresentAsSheet` reads `window.innerWidth` at that moment, so resizing
       afterwards leaves a floating panel on a phone-sized page, which is a layout
       nobody ships. All seven come back clean.
+      **The first nightly run went red, and the cause is worth keeping.** The
+      sweep drove the window docs page's first demo button, which opens with
+      `os: 'auto'` — and `detectOs()` reads the user agent, so on ubuntu-latest
+      the window came up with the LINUX chrome, which renders no minimize button
+      at all (`resolvedOs() !== 'linux'` gates it out of the template; it is a
+      contract with a spec behind it). The click waited five seconds for an
+      element the library deliberately does not have. Three fixes, each closing a
+      different half: the window states now click the explicit macOS demo instead
+      of "whatever is first" and a new state covers the Windows chrome arm; the
+      browser context pins a fixed macOS user agent, because two things sniff the
+      platform and both reach the measured DOM (the window chrome, and `mod`
+      resolving to ⌘ or Ctrl in the palette's shortcut chip); and the nightly job
+      passes `--probe`, since stopping at the first unreachable state told us
+      nothing about the seventy behind it. The error now names the STEP as well —
+      the CI log said only `locator.click: Timeout 5000ms exceeded` on an entry
+      with two clicks in it. Reproduced locally by handing the context a Linux
+      user agent, which fails the old entry and passes the new one.
       **Remaining:** Playwright screenshot diffs across the showcase, and the
       last 24 state classes — several of which need a gesture rather than a
       selector (a scroll for back-top, a chosen file for file-upload).
