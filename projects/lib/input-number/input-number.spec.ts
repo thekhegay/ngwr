@@ -79,6 +79,61 @@ describe('WrInputNumber', () => {
 
   afterEach(() => fixture.destroy());
 
+  /**
+   * Binary floats do not add.
+   *
+   * `bump()` handed `base + units * step` straight to `constrain()`, which only
+   * rounds when `decimals` is set — and `format()` prints up to 20 fraction
+   * digits. Three presses of a `step="0.1"` stepper therefore put
+   * `0.30000000000000004` in the model AND on the screen.
+   */
+  it('does not accumulate float drift through the steppers', async () => {
+    fixture.componentInstance.step.set(0.1);
+    fixture.componentInstance.amount.set(0);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    stepper('Increment').click();
+    stepper('Increment').click();
+    stepper('Increment').click();
+    fixture.detectChanges();
+
+    expect(amount()).toBe(0.3);
+    expect(field().value).toBe('0.3');
+  });
+
+  it('keeps a value that is genuinely off the step grid', async () => {
+    // Rounding the drift must not quantise onto the step: 0.05 + 0.1 is 0.15,
+    // not 0.2.
+    fixture.componentInstance.step.set(0.1);
+    fixture.componentInstance.amount.set(0.05);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    stepper('Increment').click();
+    fixture.detectChanges();
+
+    expect(amount()).toBe(0.15);
+  });
+
+  /**
+   * The field and the model have to agree. The display was formatted from
+   * `constrain(v)` while the model kept `v`, so a `[max]="10"` field handed 500
+   * showed "10" and submitted 500.
+   */
+  it('writes a clamped value back instead of only drawing it', async () => {
+    fixture.componentInstance.max.set(10);
+    fixture.componentInstance.amount.set(500);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(field().value).toBe('10');
+    expect(amount(), 'the form kept a number the field denies').toBe(10);
+  });
+
   it('renders the bound value and names its steppers', () => {
     expect(field().value).toBe('5');
     expect(stepper('Increment')).toBeTruthy();

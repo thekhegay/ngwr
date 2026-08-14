@@ -30,6 +30,13 @@ class RangeHost {
   readonly span = signal<[number, number]>([20, 80]);
 }
 
+/** Range mode with NO value bound and bounds that exclude the internal default. */
+@Component({
+  imports: [WrSlider],
+  template: `<wr-slider range [min]="200" [max]="300" />`,
+})
+class UnboundRangeHost {}
+
 /**
  * Dragging needs a real compositor, so what a unit suite can own here is the
  * half that does not: the ARIA contract a screen reader reads, and the keyboard
@@ -203,6 +210,60 @@ describe('WrSlider', () => {
    * not. Every case here is a pair, because a suite that only asserts the RTL
    * half cannot tell "mirrors" from "always goes the other way".
    */
+  /**
+   * The cells and the model have to agree.
+   *
+   * The sync effect clamped into `low` / `high` and stopped there, so an
+   * out-of-range write was drawn correctly and stored wrongly: the thumb sat on
+   * the bound while the form held the original number, with nothing to
+   * reconcile them until the user happened to drag.
+   */
+  describe('values it was handed but cannot represent', () => {
+    it('writes the clamp back instead of only drawing it', async () => {
+      fixture.componentInstance.amount.set(500);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(thumb().getAttribute('aria-valuenow')).toBe('100');
+      expect(amount(), 'the form kept a number the slider denies').toBe(100);
+    });
+
+    it('clamps a value under the floor the same way', async () => {
+      fixture.componentInstance.min.set(10);
+      fixture.componentInstance.amount.set(-5);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(amount()).toBe(10);
+    });
+
+    /**
+     * `high` starts at the literal 100, which is not inside every `[min, max]`.
+     * With no value bound the tuple branch never runs, so the thumb rendered
+     * off the track and the first interaction committed `[low, 100]`.
+     */
+    it('seeds the high thumb inside the bounds when nothing was bound', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      const unbound = TestBed.createComponent(UnboundRangeHost);
+      unbound.detectChanges();
+      await unbound.whenStable();
+      unbound.detectChanges();
+
+      const values = [...(unbound.nativeElement as HTMLElement).querySelectorAll('[role="slider"]')].map(el =>
+        Number(el.getAttribute('aria-valuenow'))
+      );
+
+      for (const v of values) {
+        expect(v, `${v} is outside [200, 300]`).toBeGreaterThanOrEqual(200);
+        expect(v).toBeLessThanOrEqual(300);
+      }
+      unbound.destroy();
+    });
+  });
+
   describe('reading direction', () => {
     type Direction = 'ltr' | 'rtl';
 

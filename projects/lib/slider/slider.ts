@@ -18,6 +18,7 @@ import {
   model,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
@@ -109,7 +110,23 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   readonly touch = output<void>();
 
   protected readonly low = signal(0);
+  /**
+   * The high thumb's cell. Its literal default stands in for `maxValue()`,
+   * which cannot be read at field-initialisation time — see `highSeeded` and
+   * the constructor effect.
+   */
   protected readonly high = signal(100);
+
+  /**
+   * Whether `high` has ever been told a real value by the model.
+   *
+   * `<wr-slider range [min]="200" [max]="300" />` binds no value, so the model
+   * holds its own scalar default and the tuple branch below never runs: `high`
+   * kept the literal 100, which is not inside every `[min, max]`. The thumb
+   * rendered off the track and the first interaction committed `[low, 100]` —
+   * a value the slider itself calls out of range.
+   */
+  private highSeeded = false;
 
   protected readonly track = viewChild.required<ElementRef<HTMLElement>>('track');
 
@@ -146,15 +163,42 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   constructor() {
     // Keep the internal thumbs in sync with external writes to `value`
     // (the old `writeValue`): split the tuple / clamp into the low & high cells.
+    // And WRITE THE CLAMP BACK. This used to clamp into the cells only, so an
+    // out-of-range write was drawn correctly and stored wrongly: the thumb sat
+    // on the bound while the form kept the original number, with nothing to
+    // reconcile them until the user happened to drag. Clamping is idempotent,
+    // so the write-back re-enters this effect once and settles.
     effect(() => {
       const v = this.value();
+
       if (Array.isArray(v)) {
         const tuple = v as readonly [number, number];
-        this.low.set(this.clampToBounds(tuple[0]));
-        this.high.set(this.clampToBounds(tuple[1]));
-      } else if (typeof v === 'number') {
-        this.low.set(this.clampToBounds(v));
+        const lo = this.clampToBounds(tuple[0]);
+        const hi = this.clampToBounds(tuple[1]);
+        this.low.set(lo);
+        this.high.set(hi);
+        this.highSeeded = true;
+        if (tuple[0] !== lo || tuple[1] !== hi) this.value.set([lo, hi]);
+        return;
       }
+
+      if (typeof v !== 'number') return;
+      const lo = this.clampToBounds(v);
+      this.low.set(lo);
+
+      if (!this.range()) {
+        if (v !== lo) this.value.set(lo);
+        return;
+      }
+
+      // Range mode holding a scalar: the shape is wrong and the high thumb has
+      // never been told anything. Seed it at the top of the range — which is
+      // what the literal 100 meant back when the bounds were 0–100 — and
+      // normalise the model to the tuple its own docs promise.
+      const hi = this.highSeeded ? this.clampToBounds(untracked(this.high)) : this.maxValue();
+      this.high.set(hi);
+      this.highSeeded = true;
+      this.value.set([lo, hi]);
     });
   }
 
