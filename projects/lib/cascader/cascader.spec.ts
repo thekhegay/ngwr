@@ -180,6 +180,26 @@ describe('WrCascader', () => {
       expect(panel()).toBeNull();
     });
 
+    /**
+     * Every option is its own tab stop, so on the keyboard the caret is INSIDE
+     * the pane by design — and picking a leaf is what closes it. Disposing
+     * without handing focus back dropped it on `<body>` on the SUCCESS path,
+     * leaving a keyboard user who had just chosen a value to Tab from the top
+     * of the document to get back to the control.
+     */
+    it('gives focus back to the trigger when a pick closes the panel', () => {
+      open();
+      choose('Europe');
+      choose('Germany');
+      const leaf = optionFor('Berlin')!;
+      leaf.focus();
+      leaf.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(panel()).toBeNull();
+      expect(document.activeElement, 'focus was stranded on <body>').toBe(trigger());
+    });
+
     it('commits a childless root as a one-segment path', () => {
       open();
       choose('Antarctica');

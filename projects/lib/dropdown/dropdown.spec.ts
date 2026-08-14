@@ -266,6 +266,33 @@ describe('WrDropdown', () => {
     expect(document.activeElement, 'focus was stranded on <body>').toBe(trigger());
   });
 
+  it('leaves focus alone when it had already moved out of the menu', async () => {
+    // The other half of the close guard: `focusWasInside`. Without it the close
+    // yanks the caret onto the trigger from wherever the user has since gone —
+    // and an outside CLICK is itself one of the ways a menu closes, so the
+    // field they clicked into would lose focus the moment they got there.
+    fixture.componentInstance.how.set('hover');
+    fixture.detectChanges();
+    const elsewhere = document.createElement('input');
+    document.body.appendChild(elsewhere);
+
+    try {
+      trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      fixture.detectChanges();
+      await Promise.resolve();
+      fixture.detectChanges();
+      elsewhere.focus();
+
+      trigger().dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+      fixture.detectChanges();
+
+      expect(menu()).toBeNull();
+      expect(document.activeElement, 'the close stole the caret').toBe(elsewhere);
+    } finally {
+      elsewhere.remove();
+    }
+  });
+
   it('still focuses the first item when the KEYBOARD opens it', async () => {
     fixture.componentInstance.how.set('hover');
     fixture.detectChanges();
