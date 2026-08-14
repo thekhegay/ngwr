@@ -96,8 +96,10 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
    * The OS the chrome is dressed as — `macos`, `windows` or `linux`.
    *
    * Worth asserting because it is not cosmetic: on macOS the buttons are a
-   * traffic-light cluster in close → minimize → maximize order, and on Linux the
-   * minimize and maximize buttons are not rendered at all.
+   * traffic-light cluster in close → minimize → maximize order, and the Linux
+   * chrome renders neither minimize nor maximize UNLESS `showMinimize` /
+   * `showMaximize` asks for them. "No minimize on Linux" is a default, not an
+   * invariant — see {@link hasMinimizeButton}.
    */
   async getOs(): Promise<string> {
     const host = await this.host();
@@ -179,14 +181,16 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
   /**
    * Whether the chrome offers a minimize button.
    *
-   * `false` on Linux whatever `showMinimize` says — that chrome renders the close
-   * button only, which is a real behavioural difference and not a style.
+   * `false` on Linux BY DEFAULT — that chrome is close-only by convention, which
+   * is a real behavioural difference and not a style. `showMinimize: true`
+   * overrides it, and a spec that asserts "no minimize on Linux" without saying
+   * which of the two it means will pass for the wrong reason.
    */
   async hasMinimizeButton(): Promise<boolean> {
     return (await this.chromeAction('minimize')) !== null;
   }
 
-  /** Whether the chrome offers a maximize button. Also `false` on Linux. */
+  /** Whether the chrome offers a maximize button. Also `false` on Linux by default. */
   async hasMaximizeButton(): Promise<boolean> {
     return (await this.chromeAction('maximize')) !== null;
   }
@@ -230,8 +234,10 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
   /**
    * Double-click the title bar, the other way to maximize.
    *
-   * A separate gesture worth its own assertion: it is gated on `showMaximize`, so a
-   * window without the button must not maximize this way either.
+   * A separate gesture worth its own assertion, and it does NOT follow the
+   * button: only an explicit `showMaximize: false` turns it off. The Linux
+   * chrome hides the button by convention and keeps the gesture — which is also
+   * the only way out of a window that reached `maximized` without one.
    */
   async doubleClickChrome(): Promise<void> {
     await (await this.locatorFor('.wr-window__chrome')()).dispatchEvent('dblclick');
@@ -279,8 +285,8 @@ export class WrWindowHarness extends ContentContainerComponentHarness {
     if (!button) {
       throw new Error(
         `WrWindowHarness.${method}(): this window has no ${name} button. It was opened with \`show` +
-          `${name[0].toUpperCase()}${name.slice(1)}: false\`, or its chrome is the Linux one, which renders ` +
-          'the close button only.'
+          `${name[0].toUpperCase()}${name.slice(1)}: false\`, or its chrome is the Linux one, which is ` +
+          `close-only unless \`show${name[0].toUpperCase()}${name.slice(1)}: true\` asks for it.`
       );
     }
     return button;

@@ -1,4 +1,16 @@
-<div class="wr-window__chrome" (pointerdown)="startMove($event)" (dblclick)="showMaximize() && maximize()">
+<!--
+  The double-click gate is `!== false`, NOT `maximizeVisible()`, and the
+  difference is a window nobody can get out of. The Linux preset hides the
+  maximize BUTTON; the gesture is how GNOME maximizes, and it worked on every
+  chrome before this input went tri-state. Gating it on button visibility would
+  have killed it there — and `maximized` is reachable on Linux with no button at
+  all (a snap to the top edge, `ref.maximize()`, a restored layout), after which
+  every exit disappears at once: no restore-down button, no minimize button,
+  `startMove` refuses while the state is not `normal`, the resize handles are not
+  rendered, and the only key the window listens for is Escape, which closes it.
+  An explicit `showMaximize: false` still turns the gesture off everywhere.
+-->
+<div class="wr-window__chrome" (pointerdown)="startMove($event)" (dblclick)="showMaximize() !== false && maximize()">
   <div class="wr-window__title" [attr.id]="titleId">{{ title() }}</div>
   <div class="wr-window__title-extra">
     <ng-content select="[wrWindowTitleExtra]" />
@@ -25,7 +37,7 @@
           </svg>
         </button>
       }
-      @if (showMinimize()) {
+      @if (minimizeVisible()) {
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--minimize"
@@ -37,7 +49,7 @@
           </svg>
         </button>
       }
-      @if (showMaximize()) {
+      @if (maximizeVisible()) {
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--maximize"
@@ -60,8 +72,11 @@
         </button>
       }
     } @else {
-      <!-- Windows / Linux glyph buttons -->
-      @if (resolvedOs() !== 'linux' && showMinimize()) {
+      <!-- Windows / Linux glyph buttons. Linux hides minimize and maximize by
+           DEFAULT, not by rule: `minimizeVisible()` resolves the input first, so
+           `[showMinimize]="true"` puts the button back — which is the only way a
+           user on Linux can reach `<wr-window-taskbar>` at all. -->
+      @if (minimizeVisible()) {
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--minimize"
@@ -74,7 +89,7 @@
         </button>
       }
 
-      @if (resolvedOs() !== 'linux' && showMaximize()) {
+      @if (maximizeVisible()) {
         <button
           type="button"
           class="wr-window__chrome-action wr-window__chrome-action--maximize"

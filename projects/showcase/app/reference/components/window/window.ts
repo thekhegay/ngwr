@@ -89,6 +89,10 @@ export default class WindowPageComponent {
       title,
       id: `docs.taskbar.${title}`,
       size: 'sm',
+      // Explicit, because this demo is ABOUT the taskbar and the Linux chrome is
+      // close-only by default — without it the section tells a Linux reader to
+      // press a button their window does not have.
+      showMinimize: true,
       data: { message: 'Minimize me and I will land in the taskbar at the bottom of the page.' },
     });
   }
@@ -257,9 +261,17 @@ ref.close(savedDocId);`,
       default: "'none'",
     },
     {
-      name: 'showMinimize / showMaximize / showClose',
+      name: 'showMinimize / showMaximize',
       sub: true,
-      description: 'Render the corresponding chrome action.',
+      description:
+        'Render the corresponding chrome action. Omit to follow the chrome — every OS but Linux shows both, and the Linux preset is close-only by convention. Pass `true` to override that, which is what a Linux user needs before a window can reach the taskbar.',
+      type: 'boolean',
+      default: 'per-OS',
+    },
+    {
+      name: 'showClose',
+      sub: true,
+      description: 'Render the close action. Not per-OS — every chrome closes.',
       type: 'boolean',
       default: 'true',
     },

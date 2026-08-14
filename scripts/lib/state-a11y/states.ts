@@ -257,10 +257,9 @@ export const STATES: readonly State[] = [
     // The macOS demo, NOT the first button on the page — `wr-window`'s chrome is
     // per-OS and the default `os: 'auto'` resolves from the user agent, so the
     // first button paints traffic lights on a Mac and a close-only title bar on
-    // a Linux runner. That is not a flake: the Linux chrome is a contract
-    // (`resolvedOs() !== 'linux'` gates minimize and maximize out of the
-    // template, pinned by a spec), and a state whose DOM depends on where the
-    // sweep runs cannot have a baseline.
+    // a Linux runner. That is not a flake: the Linux chrome is close-only by
+    // DEFAULT (a convention, overridable with `showMinimize`), and a state whose
+    // DOM depends on where the sweep runs cannot have a baseline.
     steps: [{ click: demo('.wr-btn:has-text("macOS")') }, { wait: 300 }],
     target: '.wr-window',
     scope: '.wr-window',
@@ -483,9 +482,9 @@ export const STATES: readonly State[] = [
     // and then minimized — the taskbar is empty otherwise, and an empty taskbar
     // is exactly the "measured nothing, reported green" case.
     // Opened through the macOS demo for the same reason `window/open` is: the
-    // Linux chrome has no minimize button at all, so on a Linux runner this
-    // entry's second click waits five seconds for an element the library
-    // deliberately does not render. That is how the first nightly run went red.
+    // Linux chrome shows no minimize button unless one is asked for, so on a
+    // Linux runner this entry's second click waited five seconds for an element
+    // that was never going to appear. That is how the first nightly run went red.
     steps: [
       { click: demo('.wr-btn:has-text("macOS")') },
       { wait: 400 },

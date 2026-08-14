@@ -112,6 +112,40 @@ describe('WrWindowHarness', () => {
     expect(await win.getState()).toBe('maximized');
   });
 
+  /**
+   * The gesture follows the OPT-OUT, never the button — and the difference is a
+   * window nobody can get out of.
+   *
+   * The Linux chrome hides the maximize button, but `maximized` is reachable
+   * there anyway: a snap to the top edge, `ref.maximize()`, a restored layout.
+   * Gate the double-click on button visibility and every exit disappears at
+   * once — no restore-down button, no minimize button, `startMove` refuses while
+   * the state is not `normal`, no resize handles, and the only key handled is
+   * Escape, which closes the window instead of restoring it.
+   */
+  it('restores a maximized Linux window from a double-click, with no button to press', async () => {
+    // Maximized through the REF, because the button this chrome hides is exactly
+    // the point — a snap to the top edge and a restored layout get here the same
+    // way.
+    const ref = fixture.componentInstance.windows.open(Editor, { title: 'Snapped', os: 'linux' });
+    await fixture.whenStable();
+    ref.maximize();
+    await fixture.whenStable();
+
+    const win = await rootLoader.getHarness(WrWindowHarness.with({ title: 'Snapped' }));
+    expect([await win.getState(), await win.hasMaximizeButton()]).toEqual(['maximized', false]);
+
+    await win.doubleClickChrome();
+    expect(await win.getState()).toBe('normal');
+  });
+
+  it('honours an explicit opt-out for the gesture too', async () => {
+    const win = await open({ showMaximize: false });
+
+    await win.doubleClickChrome();
+    expect(await win.getState()).toBe('normal');
+  });
+
   it('translates every chrome label from the catalog', async () => {
     mount([provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }), provideWrI18nStaticLoader({ ru: wrRu })]);
     const win = await open();
@@ -149,7 +183,7 @@ describe('WrWindowHarness', () => {
     expect(await stubborn.isOpen()).toBe(true);
   });
 
-  it('renders the Linux chrome with the close button only', async () => {
+  it('renders the Linux chrome with the close button only, BY DEFAULT', async () => {
     const win = await open({ os: 'linux' });
 
     expect(await win.getOs()).toBe('linux');
@@ -158,7 +192,48 @@ describe('WrWindowHarness', () => {
       false,
       false,
     ]);
-    await expect(win.minimize()).rejects.toThrow(/Linux/);
+    await expect(win.minimize()).rejects.toThrow(/close-only/);
+  });
+
+  /**
+   * The default is a CONVENTION, not a rule, and the difference is the whole
+   * reason `showMinimize` is tri-state.
+   *
+   * While it defaulted to `true`, "not set" and "explicitly asked for" were the
+   * same value, so the Linux preset had to gate minimize out of the template
+   * unconditionally — and `<wr-window-taskbar>` became unreachable on that
+   * chrome: `ref.minimize()` still worked and still filed the window into the
+   * taskbar, but no user could press anything to get it there.
+   */
+  it('puts the Linux minimize button back when asked for one', async () => {
+    const win = await open({ os: 'linux', showMinimize: true });
+
+    expect([await win.hasCloseButton(), await win.hasMinimizeButton(), await win.hasMaximizeButton()]).toEqual([
+      true,
+      true,
+      false,
+    ]);
+
+    await win.minimize();
+    expect(await win.getState()).toBe('minimized');
+  });
+
+  it('still lets Linux hide the button it never had', async () => {
+    // `false` and "unset" resolve the same way HERE, and must: an explicit
+    // `false` cannot be turned into a button by a chrome default.
+    const win = await open({ os: 'linux', showMinimize: false });
+
+    expect(await win.hasMinimizeButton()).toBe(false);
+  });
+
+  it('reaches the taskbar from the Linux chrome once minimize is on', async () => {
+    await open({ os: 'linux', showMinimize: true, title: 'Inbox' });
+    const rail = await loader.getHarness(WrWindowTaskbarHarness);
+    expect(await rail.isEmpty()).toBe(true);
+
+    await (await rootLoader.getHarness(WrWindowHarness.with({ title: 'Inbox' }))).minimize();
+
+    expect(await rail.getTabTitles()).toEqual(['Inbox']);
   });
 
   it('drops the buttons it was told to hide', async () => {

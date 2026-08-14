@@ -373,8 +373,9 @@
       <code>getBox()</code> is how you assert a move, a resize or a snap, and <code>getZIndex()</code> is how you assert
       that clicking a window brought it to the front. Two states to keep apart: MINIMIZED is not closed —
       <code>isOpen()</code> stays true — and the same button minimizes and restores, which is why
-      <code>getMinimizeLabel()</code> changes with the state. On Linux the chrome renders the close button alone,
-      whatever <code>showMinimize</code> says.
+      <code>getMinimizeLabel()</code> changes with the state. On Linux the chrome renders the close button alone by
+      DEFAULT — <code>showMinimize: true</code> puts the button back, so assert the configuration you opened rather than
+      an invariant.
     </p>
 
     <ngwr-doc-api [rows]="windowApi" />

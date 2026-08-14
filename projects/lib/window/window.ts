@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { type BooleanInput, coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import {
   Component,
   ViewEncapsulation,
@@ -69,6 +69,18 @@ function detectOs(): WrWindowResolvedOs {
 }
 
 const DETECTED_OS = detectOs();
+
+/**
+ * `coerceBooleanProperty` that keeps `null` as `null`.
+ *
+ * The plain coercion maps `null` and `undefined` to `false`, which is the one
+ * thing a tri-state input must not do: "unset" has to survive as its own value
+ * or the OS default can never be told apart from an explicit `false`. Attribute
+ * presence (`<wr-window showMinimize>`, i.e. `''`) still means `true`.
+ */
+function optionalBoolean(value: BooleanInput | null): boolean | null {
+  return value === null || value === undefined ? null : coerceBooleanProperty(value);
+}
 
 const SIZE_PRESETS: Readonly<Record<WrWindowSize, { width: number; height: number }>> = {
   sm: { width: 320, height: 200 },
@@ -189,6 +201,14 @@ export class WrWindow {
     return o === 'auto' ? DETECTED_OS : o;
   });
 
+  /**
+   * Whether each control is rendered: the input wins, the chrome decides the
+   * default. Linux is close-only unless asked otherwise — see
+   * {@link showMinimize} for why that is an input and not a template gate.
+   */
+  protected readonly minimizeVisible = computed(() => this.showMinimize() ?? this.resolvedOs() !== 'linux');
+  protected readonly maximizeVisible = computed(() => this.showMaximize() ?? this.resolvedOs() !== 'linux');
+
   /** Title-bar density. @default 'normal' */
   readonly chromeSize = input<WrWindowChromeSize>('normal');
 
@@ -224,8 +244,24 @@ export class WrWindow {
    */
   readonly dragHandle = input<string | null>(null);
 
-  readonly showMinimize = input(true, { transform: coerceBooleanProperty });
-  readonly showMaximize = input(true, { transform: coerceBooleanProperty });
+  // Tri-state, and the third state is the point. While this defaulted to `true`,
+  // "not set" and "explicitly asked for" were the same value, so the Linux
+  // preset had to gate minimize out of the template unconditionally — and
+  // `<wr-window-taskbar>` became unreachable on that chrome: `ref.minimize()`
+  // still filed a window into it, but no user could press anything to get it
+  // there. `null` restores the distinction the chrome docs always claimed.
+  /**
+   * Show the minimize control. `null` (the default) follows the chrome: every OS
+   * but Linux shows it, and the Linux preset is close-only by convention. Pass
+   * `true` to override that — on Linux it is what puts a window within reach of
+   * `<wr-window-taskbar>`.
+   */
+  readonly showMinimize = input<boolean | null, BooleanInput | null>(null, { transform: optionalBoolean });
+
+  /** Show the maximize control. `null` (the default) follows the chrome, as with {@link showMinimize}. */
+  readonly showMaximize = input<boolean | null, BooleanInput | null>(null, { transform: optionalBoolean });
+
+  /** Show the close control. Not per-OS: every chrome closes. */
   readonly showClose = input(true, { transform: coerceBooleanProperty });
 
   /** Fires when the window closes — from the header button or from `close()`. */

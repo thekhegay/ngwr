@@ -197,8 +197,9 @@
 
   // OS preset: Linux (GNOME-style) — chrome-action retains the windows
   //                   look but the chrome bar is slightly taller and the
-  //                   title stays left-aligned (close-only is enforced by
-  //                   the template).
+  //                   title stays left-aligned. Close-only is the template's
+  //                   DEFAULT here, not a rule: `[showMinimize]="true"` puts
+  //                   the button back.
   &--os-linux {
     .wr-window__chrome {
       height: 2.5rem;
