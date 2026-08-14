@@ -547,6 +547,39 @@ describe('WrSelect with a minimum query length', () => {
     type('sm');
     expect(panel()).toBeNull();
   });
+
+  /**
+   * Closing is not forgetting.
+   *
+   * The panel-close effect reset the query for any searchable select, and
+   * `searchDisplay` falls back to the selected label the moment `open()` is
+   * false — so backspacing from "sma" to "sm" closed the panel and wiped the
+   * field in the same tick. The user was mid-word.
+   */
+  it('keeps what the user typed when the panel closes under the threshold', async () => {
+    field().dispatchEvent(new Event('focus'));
+    type('sma');
+    type('sm');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(panel()).toBeNull();
+    expect(field().value, 'the query was erased while the user was still typing').toBe('sm');
+
+    // And typing on re-opens with the whole query, not a fragment.
+    type('sma');
+    expect(panel()).not.toBeNull();
+  });
+
+  it('does forget it once the field is left', async () => {
+    field().dispatchEvent(new Event('focus'));
+    type('sm');
+    field().dispatchEvent(new Event('blur'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(field().value).toBe('');
+  });
 });
 
 describe('WrSelect as a bottom sheet', () => {
@@ -639,6 +672,28 @@ describe('WrSelect with both dynamic and projected options', () => {
 
     press('ArrowUp');
     expect(activeLabel()).toBe('Dyn Two');
+  });
+
+  /**
+   * `firstEnabled()` RETURNS an index, and every reader resolves it against DOM
+   * order — so scanning creation order handed back a position in the other
+   * list. After a query that leaves the projected rows the only matches, the
+   * cursor landed on a row that had been filtered out of view, and Enter
+   * committed nothing.
+   */
+  it('re-seeds the cursor onto a row that is still on screen after a query', () => {
+    field().value = 'Projected';
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    const visible = rows()
+      .filter(r => !r.classList.contains('wr-option--hidden'))
+      .map(r => r.textContent.trim());
+    expect(visible).toEqual(['Projected A', 'Projected B']);
+    expect(activeLabel(), 'the cursor sat on a filtered-out row').toBe('Projected A');
+
+    press('Enter');
+    expect(fixture.componentInstance.size()).toBe('a');
   });
 });
 
