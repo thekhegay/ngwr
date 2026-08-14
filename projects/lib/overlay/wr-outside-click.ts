@@ -68,6 +68,7 @@ function containsAcrossShadow(parent: Node, child: EventTarget | null): boolean 
  *
  * Registration is per subscription: the document listeners go up with the first
  * watcher and come down with the last, so an app with no open overlay has none.
+ * That sentence was aspirational until v11 — see {@link outsidePointerEvents}.
  */
 @Service()
 export class WrOutsideClick {
@@ -81,7 +82,24 @@ export class WrOutsideClick {
 
   /**
    * Emits every `click` / `auxclick` / `contextmenu` that lands outside the
-   * given overlay's pane, for as long as the returned observable is subscribed.
+   * given overlay's pane, for as long as the overlay is attached.
+   *
+   * **It completes when the overlay detaches, and that is load-bearing.** Every
+   * one of the ten call sites subscribes inside its own `openOverlay()` and
+   * pipes `takeUntilDestroyed(destroyRef)` — a DIRECTIVE lifetime, not an
+   * overlay one — and none of them unsubscribes on close, because the natural
+   * reading of that idiom is "this ends with the component". Without the
+   * completion below the teardown never ran: one watcher accumulated per OPEN
+   * for the life of the page, each pinning a disposed `OverlayRef` (and through
+   * it a detached pane, its portal outlet and their injectors), the four
+   * capture-phase document listeners could never come down because
+   * `watchers.length` never reached zero, and every click on the page walked a
+   * list that only grew. A `mode="tooltip"` popover made it unbounded — one
+   * permanent watcher per hover.
+   *
+   * Completing here rather than fixing ten call sites is deliberate: the next
+   * component to open an overlay would have made the same reasonable mistake.
+   * It is also what CDK's own `OverlayRef.outsidePointerEvents()` does.
    */
   outsidePointerEvents(overlayRef: OverlayRef): Observable<MouseEvent> {
     return new Observable<MouseEvent>(subscriber => {
@@ -91,7 +109,17 @@ export class WrOutsideClick {
       this.watchers.push(watcher);
       if (this.watchers.length === 1) this.listen();
 
+      // BOTH handlers, and the second one is not defensive padding. `dispose()`
+      // emits a detachment and then completes the subject, so a live overlay
+      // arrives through `next` — but a ref that was already disposed before
+      // anyone subscribed has nothing left to emit and arrives through
+      // `complete` alone. Listening for `next` only left exactly the watcher
+      // this whole change exists to remove.
+      const ended = (): void => subscriber.complete();
+      const detached = overlayRef.detachments().subscribe({ next: ended, complete: ended });
+
       return () => {
+        detached.unsubscribe();
         const index = this.watchers.indexOf(watcher);
         if (index > -1) this.watchers.splice(index, 1);
         if (!this.watchers.length) this.unlisten();

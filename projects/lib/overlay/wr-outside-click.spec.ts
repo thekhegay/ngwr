@@ -260,6 +260,63 @@ describe('WrOutsideClick', () => {
         remove.mockRestore();
       }
     });
+
+    /**
+     * The overlay's lifetime ends the stream, not the subscriber's.
+     *
+     * Every consumer in the library subscribes inside its own `openOverlay()`
+     * and pipes `takeUntilDestroyed(destroyRef)`, which is a DIRECTIVE lifetime
+     * — nobody unsubscribes on close. While the stream stayed open through a
+     * dispose, that idiom leaked one watcher per OPEN, each holding a disposed
+     * `OverlayRef`, and the document listeners could never come down because
+     * the list never emptied. A tooltip made it unbounded.
+     */
+    it('ends the stream when the overlay it watches is disposed', () => {
+      const remove = vi.spyOn(document, 'removeEventListener');
+      try {
+        const ref = openPane();
+        let completed = false;
+        // The library's idiom exactly: subscribe on open, never unsubscribe.
+        outside.outsidePointerEvents(ref).subscribe({ complete: () => (completed = true) });
+
+        ref.dispose();
+
+        expect(completed, 'the watcher outlived the overlay').toBe(true);
+        expect(remove.mock.calls.filter(([type]) => type === 'click').length).toBe(1);
+      } finally {
+        remove.mockRestore();
+      }
+    });
+
+    it('leaves no watcher behind across repeated open/close cycles', () => {
+      const watchers = (): number => (outside as unknown as { watchers: readonly unknown[] }).watchers.length;
+      // Relative, not absolute: the service is a singleton for the whole file.
+      const before = watchers();
+
+      for (let i = 0; i < 5; i++) {
+        const ref = overlay.create();
+        ref.attach(new ComponentPortal(Pane));
+        TestBed.tick();
+        outside.outsidePointerEvents(ref).subscribe();
+        ref.dispose();
+      }
+
+      expect(watchers()).toBe(before);
+    });
+
+    it('registers nothing for an overlay that is already gone', () => {
+      const ref = overlay.create();
+      ref.attach(new ComponentPortal(Pane));
+      TestBed.tick();
+      ref.dispose();
+
+      const watchers = (): number => (outside as unknown as { watchers: readonly unknown[] }).watchers.length;
+      const before = watchers();
+
+      outside.outsidePointerEvents(ref).subscribe();
+
+      expect(watchers()).toBe(before);
+    });
   });
 
   describe('on the server', () => {

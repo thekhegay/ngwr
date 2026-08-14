@@ -131,8 +131,22 @@ export class WrSplitText {
 
   private hasAnimated = false;
 
+  /**
+   * The ONE observer, replaced rather than stacked.
+   *
+   * `startObserver()` used to `new IntersectionObserver(…)` and register its own
+   * `destroyRef.onDestroy` every time, and the effect below calls it on every
+   * `text` change after setting `hasAnimated = false` — so the guard at the top
+   * of `startObserver` never blocked that path. An off-screen element (the only
+   * case where the observer does not immediately disconnect itself) therefore
+   * leaked one live observer AND one destroy callback per change, all of them
+   * watching the same host and all of them able to fire `animate()`.
+   */
+  private observer: IntersectionObserver | null = null;
+
   constructor() {
     if (!this.isBrowser) return;
+    this.destroyRef.onDestroy(() => this.observer?.disconnect());
 
     afterNextRender(() => this.startObserver());
 
@@ -152,6 +166,7 @@ export class WrSplitText {
 
     const observe = (): void => {
       if (this.hasAnimated) return;
+      this.observer?.disconnect();
       const io = new IntersectionObserver(
         (entries, obs) => {
           for (const e of entries) {
@@ -164,8 +179,8 @@ export class WrSplitText {
         },
         { threshold: this.threshold(), rootMargin: this.rootMargin() }
       );
+      this.observer = io;
       io.observe(host);
-      this.destroyRef.onDestroy(() => io.disconnect());
     };
 
     void ready.then(observe);
