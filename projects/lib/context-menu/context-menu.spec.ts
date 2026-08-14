@@ -98,6 +98,41 @@ describe('WrContextMenu', () => {
     vi.useRealTimers();
   });
 
+  /**
+   * One handle cannot hold two closings.
+   *
+   * `closeOverlay()` keeps a pane alive for its 220ms exit animation, and
+   * `onContextMenu` closes then immediately re-opens — so right-clicking faster
+   * than the animation used to clear the PREVIOUS pane's dispose timer and
+   * replace it with its own. Every pane but the last was then orphaned: an
+   * `opacity: 0`, `pointer-events: auto` box with a live document scroll
+   * listener and an undetached ref still registered with CDK's keyboard
+   * dispatcher, which swallowed Escape for the whole page.
+   */
+  it('disposes every pane when re-opened faster than the exit animation', () => {
+    for (let i = 0; i < 4; i++) {
+      rightClick();
+      vi.advanceTimersByTime(50);
+    }
+    // Close the last one and let every pending animation finish.
+    press(menus()[0], 'Escape');
+    vi.advanceTimersByTime(1000);
+    fixture.detectChanges();
+
+    expect(document.querySelectorAll('.wr-context-menu-overlay')).toHaveLength(0);
+  });
+
+  it('takes its still-closing panes with it when the directive is destroyed', () => {
+    rightClick();
+    press(menus()[0], 'Escape');
+    // Destroyed mid-animation: the timer that would have disposed the pane
+    // belongs to a directive that is about to stop existing.
+    fixture.destroy();
+    vi.advanceTimersByTime(1000);
+
+    expect(document.querySelectorAll('.wr-context-menu-overlay')).toHaveLength(0);
+  });
+
   it('renders nothing until the target is right-clicked', () => {
     expect(menus()).toHaveLength(0);
 

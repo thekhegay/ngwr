@@ -75,7 +75,21 @@ export class WrContextMenu {
   protected readonly openMenuId = signal<string | null>(null);
 
   private overlayRef: OverlayRef | null = null;
-  private closingTimer: ReturnType<typeof setTimeout> | null = null;
+  /**
+   * Panes waiting out their exit animation, keyed by the timer that disposes
+   * them.
+   *
+   * A SET, because one handle cannot hold two closings. It used to be a single
+   * `closingTimer`, and the second close inside the 220ms window cleared the
+   * first one's timer instead of its own — so the previous pane's `dispose()`
+   * never ran. `onContextMenu` closes and immediately re-opens, so right-clicking
+   * one target faster than the animation orphaned a pane per click: an
+   * `opacity: 0` box with `pointer-events: auto` eating clicks, a never-destroyed
+   * embedded view, a capture-phase document scroll listener still moving it, and
+   * an undetached ref still registered with CDK's keyboard dispatcher — which
+   * swallowed Escape for the whole page.
+   */
+  private readonly closingPanes = new Map<ReturnType<typeof setTimeout>, OverlayRef>();
   private leaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Touch long-press → open. Right-click keeps using `(contextmenu)`.
@@ -143,6 +157,13 @@ export class WrContextMenu {
     this.destroyRef.onDestroy(() => {
       this.cancelPress();
       this.closeOverlay();
+      // Whatever is still fading out goes now: the timers that would have
+      // disposed those panes belong to a directive that no longer exists.
+      for (const [timer, ref] of this.closingPanes) {
+        clearTimeout(timer);
+        ref.dispose();
+      }
+      this.closingPanes.clear();
     });
   }
 
@@ -360,11 +381,11 @@ export class WrContextMenu {
     // class first so the SCSS transition runs back to the default
     // (faded + scaled-down) state, then dispose after the transition.
     pane.classList.remove('wr-context-menu-overlay--open');
-    if (this.closingTimer !== null) clearTimeout(this.closingTimer);
-    this.closingTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
+      this.closingPanes.delete(timer);
       ref.dispose();
-      this.closingTimer = null;
     }, WrContextMenu.TRANSITION_MS);
+    this.closingPanes.set(timer, ref);
     // Mark immediately so a subsequent right-click opens a fresh menu
     // rather than landing on the disposing one.
     this.overlayRef = null;

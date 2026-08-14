@@ -108,8 +108,22 @@ export class WrBlurText {
 
   private hasAnimated = false;
 
+  /**
+   * The ONE observer, replaced rather than stacked.
+   *
+   * `startObserver()` used to `new IntersectionObserver(…)` and register its own
+   * `destroyRef.onDestroy` every time, and the effect below calls it on every
+   * `text` change after setting `hasAnimated = false` — so the guard at the top
+   * of `startObserver` never blocked that path. An off-screen element (the only
+   * case where the observer does not immediately disconnect itself) therefore
+   * leaked one live observer AND one destroy callback per change, all of them
+   * watching the same host and all of them able to fire `animate()`.
+   */
+  private observer: IntersectionObserver | null = null;
+
   constructor() {
     if (!this.isBrowser) return;
+    this.destroyRef.onDestroy(() => this.observer?.disconnect());
     afterNextRender(() => this.startObserver());
     effect(() => {
       this.text();
@@ -122,6 +136,7 @@ export class WrBlurText {
   private startObserver(): void {
     if (this.hasAnimated) return;
     const host = this.host.nativeElement;
+    this.observer?.disconnect();
     const io = new IntersectionObserver(
       (entries, obs) => {
         for (const e of entries) {
@@ -134,8 +149,8 @@ export class WrBlurText {
       },
       { threshold: this.threshold(), rootMargin: this.rootMargin() }
     );
+    this.observer = io;
     io.observe(host);
-    this.destroyRef.onDestroy(() => io.disconnect());
   }
 
   private animate(): void {
