@@ -197,8 +197,24 @@ export class WrTabs implements WrTabsContext {
   protected onStripKeydown(event: KeyboardEvent): void {
     const tabs = this.tabs().filter(t => !t.disabled());
     if (tabs.length === 0) return;
+
+    // Step from where FOCUS is, not from what is active.
+    //
+    // In router mode nothing ever moves `active` — `onTabClick` and this
+    // handler both gate `activate()` on `!isRouter()`, because the route is
+    // what selects a tab there. Reading the neighbour off `activeTab()`
+    // therefore recomputed the same `idx` on every press, and ArrowRight
+    // walked from the first tab to the second and stayed there for the rest of
+    // the session. In manual mode focus and activation move together, so the
+    // two readings agree and nothing changes.
+    const strip = this.stripRef()?.nativeElement;
+    const focused = strip?.ownerDocument.activeElement;
+    const focusedIdx =
+      focused instanceof HTMLElement && strip?.contains(focused)
+        ? tabs.findIndex(t => this.headerId(t.key()) === focused.id)
+        : -1;
     const active = this.activeTab();
-    const idx = active ? tabs.indexOf(active) : -1;
+    const idx = focusedIdx >= 0 ? focusedIdx : active ? tabs.indexOf(active) : -1;
     // The two neighbours in DOM order, wrapping at the ends.
     const forward = idx < tabs.length - 1 ? idx + 1 : 0;
     const backward = idx > 0 ? idx - 1 : tabs.length - 1;
