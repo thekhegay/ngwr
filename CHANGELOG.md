@@ -1,5 +1,47 @@
 # Changelog
 
+## [11.2.0](https://github.com/thekhegay/ngwr/compare/v11.1.0...v11.2.0) (2026-08-14)
+
+### Features
+
+* **action-sheet:** ship the ngwr/action-sheet/testing harness ([bdcb187](https://github.com/thekhegay/ngwr/commit/bdcb1873682bd2f68f66cb210feec898d5e0f546))
+* **ai:** ship a generated agent skill in the package ([5e30414](https://github.com/thekhegay/ngwr/commit/5e304144a117d54756d1e7aaaee070c327a958c0))
+* **animations:** ship testing harnesses for the animation set ([eab20d0](https://github.com/thekhegay/ngwr/commit/eab20d00ee27fbdae81ae48b4267e214fa4f3615))
+* **calendar:** ship the ngwr/calendar/testing harness ([0b798b9](https://github.com/thekhegay/ngwr/commit/0b798b94e8231e222d7765dd0750d712b2d4c667))
+* **charts:** ship testing harnesses for bar, line, donut and sparkline ([c0c90dd](https://github.com/thekhegay/ngwr/commit/c0c90ddea7b48861dfba1d3e69ed12cf7fc5acc6))
+* **charts:** ship testing harnesses for gauge, meter-group and heatmap ([518ba03](https://github.com/thekhegay/ngwr/commit/518ba037ad1ed0500cf341e38dbee4811eed9391))
+* **ci:** gate contrast in hover, focus and overlay states ([4a6c008](https://github.com/thekhegay/ngwr/commit/4a6c008e16366ed19f3197d96854e24b1a1e2870))
+* **ci:** run the full axe rule set inside interactive states ([a91b14b](https://github.com/thekhegay/ngwr/commit/a91b14b9f74b577433f704e45a3c904f21269da2))
+* **color-picker:** ship the ngwr/color-picker/testing harness ([863082f](https://github.com/thekhegay/ngwr/commit/863082f556c2ebecef909146043710cf617d08a5))
+* **event-calendar:** ship the ngwr/event-calendar/testing harness ([093e7e6](https://github.com/thekhegay/ngwr/commit/093e7e6ac7938903faed2ad44078f8c84e9a4c92))
+* **image-cropper:** ship the ngwr/image-cropper/testing harness ([218be73](https://github.com/thekhegay/ngwr/commit/218be738c9650fbb7f5b48dfc21b951e7db3ca09))
+* **knob:** ship the ngwr/knob/testing harness ([06f1c0a](https://github.com/thekhegay/ngwr/commit/06f1c0a684f46c47444ff20fe052d8deb815a7e9))
+* **lightbox:** ship the ngwr/lightbox/testing harness ([7e73612](https://github.com/thekhegay/ngwr/commit/7e73612690112bfe4c21520fc554db14d99bb7fa))
+* **registry:** publish an open format for theme presets and blocks ([652f546](https://github.com/thekhegay/ngwr/commit/652f5467c2d17a1a49f42b2141f7d6a00a9c4598))
+* **speed-dial:** ship the ngwr/speed-dial/testing harness ([1af81dc](https://github.com/thekhegay/ngwr/commit/1af81dcde3ade8844f76f57b7004d5961b281c2a))
+* **splitter:** ship the ngwr/splitter/testing harness ([55e1a21](https://github.com/thekhegay/ngwr/commit/55e1a21fdaa9b4aafc717f79343029720b2f24ca))
+* **tour:** ship the ngwr/tour/testing harness ([7bd1bc1](https://github.com/thekhegay/ngwr/commit/7bd1bc196f2ab789a29d3839876d7dcab5a3b2b1))
+* **window:** ship the ngwr/window/testing harness ([8eb6c3a](https://github.com/thekhegay/ngwr/commit/8eb6c3a49844498c20ab4363cecd42ddccf5308d))
+
+### Bug Fixes
+
+* **checkbox,color-picker:** report touched on blur and stop ignoring write-backs ([f81c1bc](https://github.com/thekhegay/ngwr/commit/f81c1bc08c5028564731b0957220f275e126691b))
+* **ci:** make the state-a11y sweep independent of the runner's os ([bdb7c57](https://github.com/thekhegay/ngwr/commit/bdb7c571f22c72ee83c717c7fc53aa96ef42365c))
+* **circular-text:** carry the readable string beside the spinning letters ([e866fa6](https://github.com/thekhegay/ngwr/commit/e866fa6e5748f856cb5fc2b16f5bed0fbb1c05a4))
+* **command-palette:** keep the shortcut chip legible on the active option ([dbe76db](https://github.com/thekhegay/ngwr/commit/dbe76db7bca59bedd0de36baf22d6adf86a3af20))
+* **decrypt-text:** rest on plain text in click mode under reduced motion ([cfaade8](https://github.com/thekhegay/ngwr/commit/cfaade84103bcc4cf9fbb6ddc030fc1a4be7ae8b))
+* **drawer:** re-resolve aria-labelledby while the drawer is open ([74a5151](https://github.com/thekhegay/ngwr/commit/74a51518ae53bcac05c77dcbe1a26e0bf5e49705))
+* **dropdown,tabs:** leave the keyboard where the user put it ([893d3e7](https://github.com/thekhegay/ngwr/commit/893d3e7b0b70916640ce098ac4fdf09e5172b23f))
+* **forms,overlay:** stop clamping into the model and hand focus back on close ([2905c03](https://github.com/thekhegay/ngwr/commit/2905c03fadae5b3377abc076237629110aeb00c1))
+* **i18n:** route the last hard-coded english strings through the catalog ([51a2cd2](https://github.com/thekhegay/ngwr/commit/51a2cd20254cf592053e8415d72cbe7c8e12dd95))
+* **overlay:** stop leaking watchers, panes and observers on close ([35a5114](https://github.com/thekhegay/ngwr/commit/35a51148da3cd36147d3d7847d7b0c2db0f57f53))
+* **select:** keep the cursor and the query where the user put them ([c6265fd](https://github.com/thekhegay/ngwr/commit/c6265fd7e3a79811470c26f8babc5ce14e82a4be))
+* **showcase:** make every reference cluster reachable from the sidebar ([c52e94e](https://github.com/thekhegay/ngwr/commit/c52e94eadd94d4ce9feb429cda289f7fde364ea3))
+* **slider,input-number:** agree with the value they were handed ([c4d48b3](https://github.com/thekhegay/ngwr/commit/c4d48b31cc84a7e6bc25cde566b1e7d86d4303f1))
+* **tilt-card:** give the host back the styles the glare borrowed ([74086dc](https://github.com/thekhegay/ngwr/commit/74086dc87617c765a1a542c93d09e56fdcee1a06))
+* **window:** let the linux chrome opt into minimize so the taskbar is reachable ([9488ec0](https://github.com/thekhegay/ngwr/commit/9488ec0cfd5775b87b27a7540bf347921b978a32))
+* **window:** unnest the taskbar close button and give it a 24px target ([6884c37](https://github.com/thekhegay/ngwr/commit/6884c37c452d0688ab41bda833ade47198b954dd))
+
 ## [11.1.0](https://github.com/thekhegay/ngwr/compare/v11.0.0...v11.1.0) (2026-08-12)
 
 ### Bug Fixes
