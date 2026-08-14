@@ -6,6 +6,7 @@ import { filter, map, startWith } from 'rxjs';
 
 import { WrIcon } from 'ngwr/icon';
 
+import { REFERENCE_CLUSTERS } from './configs/reference-clusters';
 import type { SidebarGroup } from './sidebar.types';
 
 /**
@@ -89,8 +90,18 @@ export class Sidebar {
     return value;
   }
 
+  /**
+   * The cluster switcher must not win the auto-expand.
+   *
+   * Its seven links are the `/reference/<cluster>` prefixes, so EVERY reference
+   * URL matches one of them — first, since it sits at the top — and the group
+   * that actually owns the active page would never open again. Skipping it here
+   * is cheaper than teaching the matcher about specificity, and the switcher is
+   * one click away when it is wanted.
+   */
   private findGroupForUrl(url: string): string | null {
     for (const group of this.groups()) {
+      if (group.title === REFERENCE_CLUSTERS.title) continue;
       if (group.children?.some(l => l.url && url.startsWith(l.url.join('/')))) {
         return group.title;
       }

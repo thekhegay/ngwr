@@ -1,10 +1,12 @@
 import type { SidebarGroup } from '../sidebar.types';
 
+import { withReferenceClusters } from './reference-clusters';
+
 /**
  * Sidebar for `/reference/utils/*` — grouped by purpose. Mirrors the categories
  * in `routes.utils` (see `routing.ts`).
  */
-export const UTILS_SIDEBAR: readonly SidebarGroup[] = [
+export const UTILS_SIDEBAR: readonly SidebarGroup[] = withReferenceClusters([
   {
     title: 'CSS',
     children: [
@@ -56,4 +58,4 @@ export const UTILS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'isObservable', url: ['/reference/utils', 'is-observable'] },
     ],
   },
-];
+]);

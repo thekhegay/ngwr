@@ -1,7 +1,9 @@
 import type { SidebarGroup } from '../sidebar.types';
 
+import { withReferenceClusters } from './reference-clusters';
+
 /** Sidebar for `/reference/validators/*` — one row per `WrValidators` member, grouped by purpose. */
-export const VALIDATORS_SIDEBAR: readonly SidebarGroup[] = [
+export const VALIDATORS_SIDEBAR: readonly SidebarGroup[] = withReferenceClusters([
   {
     title: 'Cross-control',
     children: [
@@ -33,4 +35,4 @@ export const VALIDATORS_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'noWhitespace', url: ['/reference/validators', 'no-whitespace'] },
     ],
   },
-];
+]);

@@ -1,7 +1,9 @@
 import type { SidebarGroup } from '../sidebar.types';
 
+import { withReferenceClusters } from './reference-clusters';
+
 /** Flat sidebar for `/reference/services/*` — one direct-link row per service. */
-export const SERVICES_SIDEBAR: readonly SidebarGroup[] = [
+export const SERVICES_SIDEBAR: readonly SidebarGroup[] = withReferenceClusters([
   { title: 'WrClipboard', url: ['/reference/services', 'clipboard'] },
   { title: 'WrCookie', url: ['/reference/services', 'cookie'] },
   { title: 'WrDensity', url: ['/reference/services', 'density'] },
@@ -15,4 +17,4 @@ export const SERVICES_SIDEBAR: readonly SidebarGroup[] = [
   { title: 'WrStorage', url: ['/reference/services', 'storage'] },
   { title: 'WrTheme', url: ['/reference/services', 'theme'] },
   { title: 'WrTour', url: ['/reference/services', 'tour'] },
-];
+]);
