@@ -219,6 +219,64 @@ describe('WrDropdown', () => {
     expect(menu()).not.toBeNull();
   });
 
+  /**
+   * Hover SHOWS a menu; it does not take the keyboard with it.
+   *
+   * The first-item focus was unconditional, so sweeping a cursor over a
+   * `trigger="hover"` menu pulled the caret out of whatever the user was
+   * typing — and moving the cursor away disposed the pane with focus still
+   * inside it, dropping focus on `<body>` so the next Tab restarted from the
+   * top of the document.
+   */
+  it('does not take the keyboard when the pointer opens it', async () => {
+    fixture.componentInstance.how.set('hover');
+    fixture.detectChanges();
+    const elsewhere = document.createElement('input');
+    document.body.appendChild(elsewhere);
+    elsewhere.focus();
+
+    try {
+      trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      fixture.detectChanges();
+      await Promise.resolve();
+      fixture.detectChanges();
+
+      expect(menu()).not.toBeNull();
+      expect(document.activeElement, 'the menu stole the caret').toBe(elsewhere);
+    } finally {
+      elsewhere.remove();
+    }
+  });
+
+  it('gives focus back to the trigger when a hover menu closes under it', async () => {
+    fixture.componentInstance.how.set('hover');
+    fixture.detectChanges();
+
+    trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    fixture.detectChanges();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    // The user tabbed into the menu, then the pointer left.
+    items()[0].focus();
+    trigger().dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(menu()).toBeNull();
+    expect(document.activeElement, 'focus was stranded on <body>').toBe(trigger());
+  });
+
+  it('still focuses the first item when the KEYBOARD opens it', async () => {
+    fixture.componentInstance.how.set('hover');
+    fixture.detectChanges();
+
+    key(trigger(), 'ArrowDown');
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(items()[0]);
+  });
+
   it('takes the menu with it when the trigger is destroyed', () => {
     // The overlay lives in the CDK container, not in the destroyed view, so nothing
     // else would remove it.

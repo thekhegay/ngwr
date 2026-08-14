@@ -142,15 +142,29 @@ export class WrDropdown {
   // Host listeners
 
   /** @internal */
+  /**
+   * Whether the pointer, rather than the keyboard, opened the current menu.
+   *
+   * A hover-opened menu must not take focus — the APG shows a menu on hover and
+   * leaves the caret where it was — while a keyboard-opened one must. The
+   * trigger MODE cannot answer that on its own: a `trigger="hover"` menu is
+   * still openable with Enter, and that open should focus the first item.
+   */
+  private openedByPointer = false;
+
   protected onClick(event: MouseEvent): void {
     if (this.trigger() !== 'click') return;
     event.stopPropagation();
+    this.openedByPointer = false;
     this.toggle();
   }
 
   /** @internal */
   protected onMouseEnter(): void {
     if (this.trigger() !== 'hover') return;
+    // A POINTER opened this, so the menu must not take the keyboard with it —
+    // see `openedByPointer`.
+    this.openedByPointer = true;
     this.isOpen.set(true);
   }
 
@@ -203,8 +217,13 @@ export class WrDropdown {
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
-    // Focus the first menu item after the menu renders.
-    queueMicrotask(() => this.focusItemAt(0));
+    // Focus the first menu item after the menu renders — unless a POINTER
+    // opened it. This used to be unconditional, so merely sweeping the cursor
+    // over a `trigger="hover"` menu yanked the caret out of whatever the user
+    // was typing; the APG's own rule is that hover shows a menu and does not
+    // move focus into it. A keyboard open (Enter / Space / ArrowDown) still
+    // focuses the first item, on a hover trigger too.
+    if (!this.openedByPointer) queueMicrotask(() => this.focusItemAt(0));
 
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
@@ -233,8 +252,15 @@ export class WrDropdown {
     if (this.trigger() === 'hover') {
       this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayMouseLeave);
     }
+    // Take the focus back before the pane goes, or it lands on `<body>` and the
+    // next Tab starts from the top of the document. Only when focus is actually
+    // inside the menu: closing a menu nobody was in must not steal the caret
+    // from wherever the user has since moved.
+    const active = document.activeElement;
+    const focusWasInside = active instanceof Node && this.overlayRef.overlayElement.contains(active);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    if (focusWasInside) this.host.nativeElement.focus();
     this.closed.emit();
   }
 
@@ -245,6 +271,9 @@ export class WrDropdown {
     if (this.isOpen()) return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
+      // Opened from the keyboard — including on a `hover` trigger, which stays
+      // keyboard-operable — so the first item SHOULD take focus.
+      this.openedByPointer = false;
       this.open();
     }
   }

@@ -1,10 +1,11 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { Subject } from 'rxjs';
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrTab } from './tab';
 import { WrTabs } from './tabs';
@@ -30,6 +31,19 @@ import { WrTabs } from './tabs';
 class Host {
   readonly active = signal<string | null>(null);
 }
+
+/** Router mode: the ROUTE selects a tab, so nothing ever moves `active`. */
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs>
+      <wr-tab title="One" key="one" routerLink="/one" />
+      <wr-tab title="Two" key="two" routerLink="/two" />
+      <wr-tab title="Three" key="three" routerLink="/three" />
+    </wr-tabs>
+  `,
+})
+class RouterHost {}
 
 describe('WrTabs', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -285,5 +299,60 @@ describe('WrTabs under a reading direction', () => {
     mount('rtl');
     scrolledBy(20);
     expect(fades(), 'rtl').toEqual({ start: false, end: true });
+  });
+});
+
+/**
+ * The arrows step from where FOCUS is, and in router mode that is the only
+ * reading that can work: `activate()` is gated on `!isRouter()` there, so
+ * `activeTab()` never moves and every ArrowRight recomputed the same
+ * neighbour. Pressing it three times walked to the second tab and stopped.
+ */
+describe('WrTabs in router mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<RouterHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const strip = (): HTMLElement => root().querySelector<HTMLElement>('[role="tablist"]')!;
+  const headers = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="tab"]')];
+  const focused = (): string | undefined => (document.activeElement as HTMLElement | null)?.textContent?.trim();
+
+  const press = (key: string): void => {
+    strip().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    fixture = TestBed.createComponent(RouterHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('walks the strip instead of bouncing off the same tab', () => {
+    headers()[0].focus();
+
+    press('ArrowRight');
+    expect(focused()).toBe('Two');
+
+    press('ArrowRight');
+    expect(focused(), 'the cursor never left the second tab').toBe('Three');
+
+    press('ArrowRight');
+    expect(focused(), 'it should wrap to the first').toBe('One');
+  });
+
+  it('walks backwards too, and Home / End still name the ends', () => {
+    headers()[2].focus();
+
+    press('ArrowLeft');
+    expect(focused()).toBe('Two');
+
+    press('Home');
+    expect(focused()).toBe('One');
+
+    press('End');
+    expect(focused()).toBe('Three');
   });
 });
