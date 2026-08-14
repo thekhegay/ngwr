@@ -1,5 +1,7 @@
 import type { SidebarGroup } from '../sidebar.types';
 
+import { withReferenceClusters } from './reference-clusters';
+
 /**
  * Sidebar for `/reference/components/*` — every UI component grouped by purpose.
  * Attached via `data: { sidebar: COMPONENTS_SIDEBAR }` on the
@@ -9,7 +11,7 @@ import type { SidebarGroup } from '../sidebar.types';
  * Overlays; passive status surfaces live in Feedback; containers and
  * shells live in Layout.
  */
-export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
+export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = withReferenceClusters([
   {
     title: 'Buttons',
     children: [
@@ -139,4 +141,4 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = [
     ],
   },
   { title: 'Squircle', url: ['/reference/components', 'squircle'] },
-];
+]);
