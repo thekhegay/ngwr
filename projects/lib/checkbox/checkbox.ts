@@ -156,6 +156,9 @@ export class WrCheckbox implements FormCheckboxControl {
   }
 
   protected onInputBlur(): void {
+    // Inside a group the GROUP is the bound control, and its own `touch` is
+    // what a form listens to; the child's output is wired to nothing there.
+    if (this.group) this.group.blurred();
     this.touch.emit();
   }
 }

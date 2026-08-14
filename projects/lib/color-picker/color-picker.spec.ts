@@ -246,6 +246,41 @@ describe('WrColorPicker', () => {
       expect(value().toLowerCase()).toBe('#0000ffff');
     });
 
+    /**
+     * "Ignore this write" is not "ignore this string, forever".
+     *
+     * The guard that stops a drag re-quantising through its own hex round-trip
+     * was set and never cleared, so once the picker had emitted a colour, an
+     * app writing that same colour back — a reset button, a form patch, an
+     * undo — was dropped for the rest of the component's life.
+     */
+    it('honours an external write of a colour it emitted earlier', async () => {
+      const original = fixture.componentInstance.value();
+
+      // The picker emits: pick a swatch.
+      swatches()[0].click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      const emitted = value();
+      expect(emitted.toLowerCase()).not.toBe(original.toLowerCase());
+
+      // Somewhere else moves it away...
+      fixture.componentInstance.value.set(original);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(hexField().value.toLowerCase()).toContain('ff8800');
+
+      // ...and then back to exactly what the picker had emitted.
+      fixture.componentInstance.value.set(emitted);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(hexField().value.toLowerCase(), 'the write-back was swallowed').toBe(emitted.toLowerCase());
+    });
+
     it('puts the canonical value back in the field on blur', () => {
       const field = hexField();
       field.value = 'garbage';

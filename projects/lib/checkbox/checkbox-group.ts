@@ -81,4 +81,9 @@ export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxG
     this.value.set(next);
     this.touch.emit();
   }
+
+  /** @internal A child checkbox lost focus — see {@link WrCheckboxGroupContext.blurred}. */
+  blurred(): void {
+    this.touch.emit();
+  }
 }
