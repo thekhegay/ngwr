@@ -148,7 +148,17 @@ export class WrColorPicker implements FormValueControl<string> {
     return parts.join(' ');
   });
 
-  /** Last string we pushed into `value`; lets the sync effect ignore our own writes. */
+  /**
+   * The one write we just made, held only until the sync effect has seen it.
+   *
+   * It exists so a drag keeps its continuous HSV values instead of being
+   * re-quantised through its own hex round-trip. It used to be set and never
+   * cleared, which turned "ignore this write" into "ignore this STRING,
+   * forever": after the picker emitted `#ff0000` once, an app writing
+   * `#ff0000` back — a reset button, a form patch, an undo — was silently
+   * dropped for the rest of the component's life, and the surface kept
+   * whatever colour the user had dragged to.
+   */
   private lastEmitted: string | null = null;
 
   constructor() {
@@ -157,7 +167,12 @@ export class WrColorPicker implements FormValueControl<string> {
     // `lastEmitted` so dragging keeps its continuous (unquantised) values.
     effect(() => {
       const value = this.value();
-      if (value === this.lastEmitted) return;
+      if (value === this.lastEmitted) {
+        // Ours, and now observed. Release the guard so the NEXT write of the
+        // same string — which can only come from outside — is honoured.
+        this.lastEmitted = null;
+        return;
+      }
       const rgb = parseColor(value) ?? { r: 0, g: 0, b: 0, a: 1 };
       const hsv = rgbToHsv(rgb);
       this.h.set(hsv.h);

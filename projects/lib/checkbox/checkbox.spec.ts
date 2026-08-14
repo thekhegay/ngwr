@@ -32,7 +32,7 @@ class Host {
 @Component({
   imports: [WrCheckbox, WrCheckboxGroup],
   template: `
-    <wr-checkbox-group [(value)]="picked" [disabled]="groupDisabled()">
+    <wr-checkbox-group [(value)]="picked" [disabled]="groupDisabled()" (touch)="touched.set(touched() + 1)">
       <wr-checkbox checkboxValue="a">A</wr-checkbox>
       <wr-checkbox checkboxValue="b">B</wr-checkbox>
       <wr-checkbox checkboxValue="c">C</wr-checkbox>
@@ -42,6 +42,7 @@ class Host {
 class GroupHost {
   readonly picked = signal<unknown[]>([]);
   readonly groupDisabled = signal(false);
+  readonly touched = signal(0);
 }
 
 @Component({
@@ -169,6 +170,24 @@ describe('WrCheckboxGroup', () => {
   });
 
   afterEach(() => fixture.destroy());
+
+  /**
+   * The GROUP is the bound control, so the group is what has to report
+   * touched — and a child's own `touch` output goes nowhere, because the group
+   * never listens to it. The only path that marked the group touched was an
+   * actual toggle, so tabbing through every box and deliberately picking none
+   * left the field pristine: a `required` group showed no error until the user
+   * did the one thing they had decided not to do.
+   */
+  it('is touched by a child losing focus, not only by a toggle', () => {
+    expect(fixture.componentInstance.touched()).toBe(0);
+
+    inputs()[1].dispatchEvent(new FocusEvent('blur', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.touched(), 'tabbing through left the group pristine').toBe(1);
+    expect(picked()).toEqual([]);
+  });
 
   it('collects each box under its own checkboxValue', () => {
     click(0);

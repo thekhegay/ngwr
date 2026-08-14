@@ -17,6 +17,17 @@ export interface WrCheckboxGroupContext {
   isSelected(value: unknown): boolean;
   /** Toggle the given value in the group. */
   toggle(value: unknown): void;
+  /**
+   * A child lost focus.
+   *
+   * The group is the control a form binds to, so it is the group that has to
+   * report touched — and a child's own `touch` output goes nowhere, since the
+   * group never listens to it. Without this channel the only way to mark a
+   * group touched was to CHANGE it: tabbing through every box and picking none
+   * left the field pristine, so a `required` group showed no error until the
+   * user toggled something, which is the one thing they had decided not to do.
+   */
+  blurred(): void;
   /** Whether the entire group is disabled. */
   readonly isDisabled: Signal<boolean>;
 }
