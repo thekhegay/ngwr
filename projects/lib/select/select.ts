@@ -584,13 +584,18 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * Virtualization engaged: opt-in, search mode, a non-empty filtered array, and
    * NO projected `<wr-option>` children (those keep the full-render registry path
    * so their DOM-derived labels / selection still work).
+   *
+   * NOT gated on there being matches. It used to also require
+   * `filteredDynamicOptions().length > 0`, which meant a query matching nothing
+   * fell back to the full-render path and mounted the ENTIRE unfiltered array —
+   * 2000 `<wr-option>` hosts, every one of them `--hidden`, behind a "No
+   * results" line — and then tore all of them down again on the next keystroke
+   * that matched. The empty window is handled where it belongs: `virtualWindow`
+   * already short-circuits on `total === 0`, and `firstEnabled` / `lastEnabled`
+   * already answer -1.
    */
   protected readonly virtualActive = computed<boolean>(
-    () =>
-      this.virtualScroll() &&
-      this.isSearchable() &&
-      this.projectedOptions().length === 0 &&
-      this.filteredDynamicOptions().length > 0
+    () => this.virtualScroll() && this.isSearchable() && this.projectedOptions().length === 0
   );
 
   private readonly scrollTop = signal(0);
@@ -775,11 +780,20 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   protected onSearchFocus(): void {
     if (this.isDisabled()) return;
+    this.searchHasFocus.set(true);
     if (!this.meetsMinChars()) return;
     if (!this.open()) {
       this.seedActiveIndex();
       this.open.set(true);
     }
+  }
+
+  protected onSearchBlur(): void {
+    this.searchHasFocus.set(false);
+    // Leaving the field is what makes a below-threshold query stale, so this is
+    // where the panel-close reset would have run if it could have waited.
+    if (!this.open() && this.isSearchable()) this.searchQuery.set('');
+    this.touch.emit();
   }
 
   protected onSearchKey(event: KeyboardEvent): void {
@@ -829,9 +843,28 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    * @internal
    */
   protected readonly searchDisplay = computed(() => {
+    // FOCUS as well as open, and that second term is the whole `[minChars]`
+    // story. Backspacing under the threshold closes the panel, and falling back
+    // to the selected label the moment `open()` goes false rewrote the field
+    // out from under someone who was still typing — "sma" -> "sm" showed an
+    // empty box.
+    //
+    // A NON-EMPTY query, though: picking an option clears it and leaves focus
+    // in the field, and there the label is what belongs on screen.
     if (this.open()) return this.searchQuery();
+    if (this.searchHasFocus() && this.searchQuery() !== '') return this.searchQuery();
     return this.selectedLabel() ?? '';
   });
+
+  /**
+   * Whether the search field holds focus.
+   *
+   * Read by `searchDisplay`, so it has to be a signal — and it is also what
+   * lets the panel-close effect tell "the user walked away" (reset the query)
+   * from "the query dropped under `minChars` and they are still typing" (keep
+   * it).
+   */
+  private readonly searchHasFocus = signal(false);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(WR_OVERLAY);
@@ -855,9 +888,15 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
         this.openOverlay();
       } else {
         this.closeOverlay();
-        // Reset the search query when the panel closes so a re-open
-        // doesn't carry a stale filter.
-        if (this.isSearchable()) this.searchQuery.set('');
+        // Reset the search query when the panel closes so a re-open doesn't
+        // carry a stale filter — but NOT while the field still has focus.
+        //
+        // With `[minChars]`, backspacing under the threshold closes the panel
+        // (`onSearchInput`), and `searchDisplay` falls back to the selected
+        // label the moment `open()` is false — so an unconditional reset here
+        // erased what the user was still typing, mid-word. A query the user is
+        // actively editing is not stale.
+        if (this.isSearchable() && !this.searchHasFocus()) this.searchQuery.set('');
       }
     });
 
@@ -1002,6 +1041,11 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     }
     this.value.set(value);
     this.touch.emit();
+    // A committed choice replaces the query, focus or no focus: the field goes
+    // back to showing the selected label. The close-effect below deliberately
+    // will not do it while the field is focused, which is right for a panel
+    // that closed under `minChars` and wrong for one that closed on a pick.
+    this.searchQuery.set('');
     this.open.set(false);
   }
 
@@ -1239,14 +1283,27 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     }
   }
 
+  /**
+   * Both scan `orderedRegistry`, and that is not interchangeable with
+   * `registry`.
+   *
+   * They RETURN an index, and every reader of `activeIndex` — `activeOptionId`,
+   * `moveActive`, `seedActiveIndex`, the Enter branch of `onTriggerKey` —
+   * resolves it against DOM order. Scanning creation order here produced an
+   * index into the other list: with projected `<wr-option>` children next to
+   * `[options]` rows the two differ, so opening or searching left the cursor on
+   * a row the user was not looking at, and Enter committed whatever happened to
+   * sit at that position in DOM order — a filter-hidden option, which commits
+   * nothing at all.
+   */
   private firstEnabled(): number {
     if (this.virtualActive()) return this.filteredDynamicOptions().length > 0 ? 0 : -1;
-    return this.registry().findIndex(o => !o.disabled && !this.isOptionHidden(o.getLabel()));
+    return this.orderedRegistry().findIndex(o => !o.disabled && !this.isOptionHidden(o.getLabel()));
   }
 
   private lastEnabled(): number {
     if (this.virtualActive()) return this.filteredDynamicOptions().length - 1;
-    const list = this.registry();
+    const list = this.orderedRegistry();
     let found = -1;
     list.forEach((o, i) => {
       if (!o.disabled && !this.isOptionHidden(o.getLabel())) found = i;

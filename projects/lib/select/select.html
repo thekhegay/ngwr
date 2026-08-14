@@ -21,7 +21,7 @@
       (input)="onSearchInput($event)"
       (focus)="onSearchFocus()"
       (keydown)="onSearchKey($event)"
-      (blur)="touch.emit()"
+      (blur)="onSearchBlur()"
     />
     @if (clearable() && hasSelection() && !isDisabled()) {
       <span
