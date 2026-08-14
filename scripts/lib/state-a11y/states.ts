@@ -254,9 +254,26 @@ export const STATES: readonly State[] = [
   {
     id: 'window/open',
     route: `${REF}/window`,
-    steps: [{ click: demo('.wr-btn') }, { wait: 300 }],
+    // The macOS demo, NOT the first button on the page — `wr-window`'s chrome is
+    // per-OS and the default `os: 'auto'` resolves from the user agent, so the
+    // first button paints traffic lights on a Mac and a close-only title bar on
+    // a Linux runner. That is not a flake: the Linux chrome is a contract
+    // (`resolvedOs() !== 'linux'` gates minimize and maximize out of the
+    // template, pinned by a spec), and a state whose DOM depends on where the
+    // sweep runs cannot have a baseline.
+    steps: [{ click: demo('.wr-btn:has-text("macOS")') }, { wait: 300 }],
     target: '.wr-window',
     scope: '.wr-window',
+    note: 'macOS chrome: three 14px traffic lights, all under the 24px target size.',
+  },
+  {
+    id: 'window/chrome-windows',
+    route: `${REF}/window`,
+    // The other arm of the same template — different markup, different button
+    // sizes — and nothing had ever measured it.
+    steps: [{ click: demo('.wr-btn:has-text("Windows")') }, { wait: 300 }],
+    target: '.wr-window--os-windows .wr-window__chrome-action--minimize',
+    scope: '.wr-window--os-windows',
   },
   {
     id: 'popover/open',
@@ -465,8 +482,12 @@ export const STATES: readonly State[] = [
     // A tab exists only for a MINIMIZED window, so the window has to be opened
     // and then minimized — the taskbar is empty otherwise, and an empty taskbar
     // is exactly the "measured nothing, reported green" case.
+    // Opened through the macOS demo for the same reason `window/open` is: the
+    // Linux chrome has no minimize button at all, so on a Linux runner this
+    // entry's second click waits five seconds for an element the library
+    // deliberately does not render. That is how the first nightly run went red.
     steps: [
-      { click: demo('.wr-btn') },
+      { click: demo('.wr-btn:has-text("macOS")') },
       { wait: 400 },
       { click: '.wr-window__chrome-action--minimize' },
       { wait: 400 },

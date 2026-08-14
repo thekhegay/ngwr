@@ -124,7 +124,13 @@ jobs:
       # `--verbose` prints the baseline notes, which is where the reasoning for
       # every allowed failure lives. `shell: bash` for `-o pipefail`, and `2>&1`
       # because both loggers write to stderr — same two traps as the job above.
-      - run: pnpm check:state-a11y --verbose 2>&1 | tee state-a11y-report.txt
+      #
+      # `--probe` because nobody is watching THIS run either. Without it the
+      # sweep stops at the first state it cannot reach and says nothing about
+      # the seventy behind it, which is what the first nightly did: one entry
+      # that depended on the runner's OS took the whole report with it. The exit
+      # code is the same; only the amount you learn from one run changes.
+      - run: pnpm check:state-a11y --verbose --probe 2>&1 | tee state-a11y-report.txt
         shell: bash
 
       # The coverage line is the reason to keep this even when green: the table

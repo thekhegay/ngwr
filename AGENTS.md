@@ -616,6 +616,15 @@ Four rules if you touch it, and each one is a bug it already had:
   `__name is not defined` — esbuild's keep-names transform, thrown by every
   `page.evaluate` holding a NAMED inner function — through four rounds of
   debugging. Inline the helpers.
+- **Pin anything the page sniffs about the machine.** The context sets a fixed
+  macOS `userAgent` (real Chromium version, fixed platform token), because
+  `wr-window` picks a chrome per OS — the Linux one renders NO minimize button,
+  which is a contract, not a bug — and `WrHotkey` resolves `mod` to ⌘ or Ctrl,
+  which changes the width of the command palette's shortcut chip. Without it the
+  sweep paints one page on a laptop and another on ubuntu-latest, and a baseline
+  cannot be true of both: the first nightly run died on a click for a button the
+  Linux chrome deliberately does not have. Per-OS variation is covered by states
+  that pin `os` on the component instead.
 - **`viewport: 'mobile'` is how a bottom sheet gets measured**, and it gets its
   own browser context rather than a resize: `wrPresentAsSheet` reads
   `window.innerWidth` when the overlay OPENS, so resizing afterwards leaves a
@@ -635,7 +644,7 @@ Two more things about it. The baseline is keyed by NODE with `:nth-child()`
 stripped, so a new violation inside an already-failing state cannot hide and the
 calendar entries do not expire when the month changes. And a full run prints
 coverage — state-dependent classes in the BUILT stylesheet versus classes it
-actually painted, **71 of 95** across 77 states — because a curated table that
+actually painted, **71 of 95** across 78 states — because a curated table that
 stopped growing looks exactly like one that covers the catalog. Two things when
 you extend it: pass **`--probe`**, which reports every unreachable state instead
 of stopping at the first, and put every selector through **`demo()`** — the

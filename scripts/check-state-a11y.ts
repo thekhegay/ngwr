@@ -428,10 +428,20 @@ async function audit(
   // A step that cannot run is the same class of problem as a state that does
   // not paint — the entry is wrong — so it reports the same way rather than
   // taking the whole sweep down with a raw Playwright stack.
+  //
+  // The STEP is named in the message, and that is not decoration: the first
+  // nightly run failed with `could not be driven: locator.click: Timeout 5000ms
+  // exceeded` and nothing else, on an entry with two clicks in it. Playwright
+  // puts the selector in its call log, several lines down, which is exactly the
+  // part a one-line summary throws away.
+  let running: Step | null = null;
   try {
-    for (const step of state.steps) await drive(page, cdp, step);
+    for (const step of state.steps) {
+      running = step;
+      await drive(page, cdp, step);
+    }
   } catch (error) {
-    const why = `could not be driven: ${(error as Error).message.split('\n')[0]}`;
+    const why = `could not run step ${JSON.stringify(running)}: ${(error as Error).message.split('\n')[0]}`;
     return unreachableState(state, theme, why, unreachable);
   }
 
@@ -608,6 +618,22 @@ async function main(): Promise<void> {
 
   try {
     browser = await chromium.launch();
+
+    // One user agent for every run, everywhere.
+    //
+    // The library sniffs the OS in two places, and both reach the DOM this gate
+    // measures: `wr-window` picks a chrome per platform (the Linux one renders
+    // NO minimize button — a contract, not a bug), and `WrHotkey` resolves
+    // `mod` to ⌘ or Ctrl, which changes the width of the command palette's
+    // shortcut chip. Left alone, the sweep paints one page on a laptop and a
+    // different one on ubuntu-latest, and a baseline cannot be true of both —
+    // the first nightly run failed on exactly that. The Chromium VERSION is
+    // kept real; only the platform token is fixed, and the per-OS chrome is
+    // covered by states that pin `os` on the component instead of hoping for it.
+    const userAgent =
+      `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ` +
+      `(KHTML, like Gecko) HeadlessChrome/${browser.version()} Safari/537.36`;
+
     for (const theme of themes) {
       // One context per viewport, not one page resized between states: a sheet
       // is decided when the overlay OPENS, and `wrPresentAsSheet` reads
@@ -624,6 +650,9 @@ async function main(): Promise<void> {
           // instant it opens.
           reducedMotion: 'reduce',
           viewport: VIEWPORTS[viewport],
+          // Playwright derives `navigator.userAgentData.platform` from this
+          // string, which is the first source ngwr's own `detectOs()` reads.
+          userAgent,
           // A sheet is what a TOUCH device gets, and some of the reflow is
           // gated on `pointer: coarse` rather than on width alone.
           hasTouch: viewport === 'mobile',
