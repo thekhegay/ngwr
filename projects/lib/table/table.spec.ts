@@ -22,6 +22,34 @@ class LoadingHost {
   protected readonly columns = COLUMNS;
 }
 
+/**
+ * The whole point of this host is that it COMPILES.
+ *
+ * `[items]` used to be `readonly Record<string, unknown>[]`, and TypeScript
+ * withholds the implicit index signature from an `interface` — so an app whose
+ * model was declared `interface User` could not bind its own data, while the
+ * identical `type User` could. The failure read as "the table refuses my array".
+ *
+ * `strictTemplates` type-checks this file, so narrowing the input again fails the
+ * build here rather than in someone's app. Deliberately an `interface`, and
+ * deliberately not exercised at runtime — there is nothing to assert that the
+ * rendering tests below do not already cover.
+ */
+interface SpecUser {
+  id: number;
+  name: string;
+  role: string;
+}
+
+@Component({
+  imports: [WrTable],
+  template: `<wr-table [columns]="columns" [items]="users" />`,
+})
+class InterfaceRowsHost {
+  protected readonly columns = COLUMNS;
+  protected readonly users: SpecUser[] = [{ id: 1, name: 'Ada', role: 'admin' }];
+}
+
 const COLUMNS: WrTableColumns = {
   name: { title: 'Name', sortable: true },
   role: { title: 'Role' },
@@ -693,6 +721,17 @@ describe('WrTable loading overlay', () => {
 
     expect(el?.getAttribute('role')).toBe('status');
     expect(el?.getAttribute('aria-label')).toBe('Loading…');
+  });
+
+  it('accepts rows typed with an interface, not just a type alias', () => {
+    // A compile-time contract first — see `InterfaceRowsHost`. Mounting it also
+    // proves the widened input still reaches the renderer.
+    const fixture = TestBed.createComponent(InterfaceRowsHost);
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const cells = [...host.querySelectorAll<HTMLElement>('tbody td')];
+    expect(cells.map(c => c.textContent.trim())).toEqual(['Ada', 'admin']);
   });
 
   it('takes its name from the catalog', async () => {

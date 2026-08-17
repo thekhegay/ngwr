@@ -13,6 +13,7 @@ export type {
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableGroupContext,
+  WrTableRow,
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,

@@ -1,3 +1,4 @@
+export type { WrTableRow } from './table-row';
 export type { WrTableSortDirection } from './table-sort-direction';
 export type { WrTableSortState } from './table-sort';
 export type { WrTableFilterItem } from './table-filter-item';
