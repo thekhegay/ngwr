@@ -101,6 +101,26 @@ one component folder. Reach for them instead of hand-rolling:
   `Signal<boolean>`; SCSS mixin API via `@use 'ngwr/breakpoints'`.
 - **Theme** (`ngwr/theme`) — `provideWrTheme()` sets the `--wr-*` token layer
   (see Styling). Global CSS: `@use 'ngwr'` (umbrella) or `@use 'ngwr/<name>'`.
+  **`wrThemeTokens()` is the palette recipe in TypeScript** — the same arithmetic
+  as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour, a
+  registry preset). It emits **seven tokens per intent, not twelve**: the tint and
+  ink layer is written in terms of `var()`, so redefining the base and its `-rgb`
+  re-resolves `-soft`, `-soft-border`, `-soft-contrast`, `-active` and `-ink` on
+  its own, and emitting those would freeze values the stylesheet is meant to keep
+  deriving. `-contrast` IS re-derived, because it PICKS black or white and a
+  re-tuned intent otherwise keeps the label of the colour it replaced. Only the
+  LIGHT recipe — `_dark.scss` is hand-tuned (`color.scale(…, 70%)` where light
+  uses `color.adjust(…, 5%)`), so a dark seed gives a consistent dark palette, not
+  the shipped one. `pnpm check:theme` reads the BUILT stylesheet and compares all
+  63 shipped tokens; it caught a missing second modulo in `hslToRgb` on its first
+  run (`((h % 360) + 360) / 60` reads as normalisation and sends 222° to sector
+  9.7 instead of 3.7, so only greys survived). The three `registry/items/theme-*`
+  presets are GENERATED from a seed table by `pnpm gen:theme-presets` and
+  re-derived by `check:registry`; `/guides/tokens/builder` exports both a CSS
+  block and a ready preset. **What this does not cover:** `-ink` shares are
+  calibrated against the SHIPPED bases, so a far-off seed inherits shares that no
+  longer guarantee 5:1, and `check:theme` will not notice — it compares the nine
+  shipped intents, not an arbitrary seed.
 - **Date adapters** (`ngwr/date-adapter-fns`, `…-luxon`) —
   `provideWrDateAdapter(...)` powers calendar + every date-picker mode.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
