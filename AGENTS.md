@@ -616,6 +616,12 @@ Four rules if you touch it, and each one is a bug it already had:
   `__name is not defined` — esbuild's keep-names transform, thrown by every
   `page.evaluate` holding a NAMED inner function — through four rounds of
   debugging. Inline the helpers.
+- **Pin the CLOCK as well as the machine.** The context freezes `Date` with
+  `clock.setFixedTime`, because a state that renders differently tomorrow cannot
+  have a baseline: the event-calendar demo builds its events from `new Date()`,
+  so its chips carry new `aria-label`s and new modifier classes every day, and
+  the nightly went red twice on the same 20px design call wearing different
+  node names. The date-picker and calendar demos drift the same way.
 - **Pin anything the page sniffs about the machine.** The context sets a fixed
   macOS `userAgent` (real Chromium version, fixed platform token), because
   `wr-window` picks a chrome per OS — the Linux one is close-only unless

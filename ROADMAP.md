@@ -326,6 +326,13 @@ but a spec on `wr-table` says nothing about tree rows unless it exercises them.
       `wrPresentAsSheet` reads `window.innerWidth` at that moment, so resizing
       afterwards leaves a floating panel on a phone-sized page, which is a layout
       nobody ships. All seven come back clean.
+      **Both times the nightly went red, the cause was environment rather than
+      a defect, which is the failure mode a baseline-driven gate has.** The
+      second was the clock: the event-calendar demo builds its events from
+      `new Date()`, so the chips the baseline names by `aria-label` are
+      different chips every day, and the same 20px design call kept arriving as
+      a new finding. The context now freezes `Date` with `clock.setFixedTime`,
+      for the same reason it pins the user agent.
       **The first nightly run went red, and the cause is worth keeping.** The
       sweep drove the window docs page's first demo button, which opens with
       `os: 'auto'` — and `detectOs()` reads the user agent, so on ubuntu-latest

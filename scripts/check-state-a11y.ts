@@ -658,6 +658,19 @@ async function main(): Promise<void> {
           hasTouch: viewport === 'mobile',
           isMobile: viewport === 'mobile',
         });
+        // Freeze the clock, for the same reason the user agent is pinned: a
+        // state that renders differently tomorrow cannot have a baseline.
+        //
+        // The event-calendar demo builds its events relative to `new Date()`,
+        // so the chips carry different titles and different modifier classes
+        // every day — and the baseline, which keys on the failing NODE, went
+        // red twice in a row on findings that were the same 20px design call
+        // wearing new `aria-label`s. The date-picker and calendar demos move
+        // the same way. Any fixed instant would do; a mid-week, mid-month one
+        // keeps every demo showing a full month with events on both sides of
+        // "today".
+        await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
+
         // Seeded BEFORE the first paint, so one load per state is enough: the
         // theme service reads storage on bootstrap and there is nothing to undo.
         await context.addInitScript(t => localStorage.setItem('wr-theme', t), theme);
