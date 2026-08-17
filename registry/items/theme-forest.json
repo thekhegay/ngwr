@@ -1,0 +1,43 @@
+{
+  "$schema": "https://ngwr.dev/registry/schema.json",
+  "name": "theme-forest",
+  "type": "registry:theme",
+  "title": "Forest",
+  "description": "A deep green primary with a muted teal info, for dashboards that read as calm rather than alert.",
+  "author": "ngwr",
+  "ngwr": ">=11",
+  "cssVars": {
+    "light": {
+      "--wr-color-primary": "#1f6b45",
+      "--wr-color-primary-rgb": "31, 107, 69",
+      "--wr-color-primary-contrast": "#ffffff",
+      "--wr-color-primary-dark": "#195738",
+      "--wr-color-primary-darker": "#14432b",
+      "--wr-color-primary-light": "#257f52",
+      "--wr-color-primary-lighter": "#2a935f",
+      "--wr-color-info": "#2b6b74",
+      "--wr-color-info-rgb": "43, 107, 116",
+      "--wr-color-info-contrast": "#ffffff",
+      "--wr-color-info-dark": "#245a61",
+      "--wr-color-info-darker": "#1d494f",
+      "--wr-color-info-light": "#327c87",
+      "--wr-color-info-lighter": "#398d99"
+    },
+    "dark": {
+      "--wr-color-primary": "#5fb98a",
+      "--wr-color-primary-rgb": "95, 185, 138",
+      "--wr-color-primary-contrast": "#000000",
+      "--wr-color-primary-dark": "#4db17d",
+      "--wr-color-primary-darker": "#469f71",
+      "--wr-color-primary-light": "#71c197",
+      "--wr-color-primary-lighter": "#82c9a4",
+      "--wr-color-info": "#6cb3bc",
+      "--wr-color-info-rgb": "108, 179, 188",
+      "--wr-color-info-contrast": "#000000",
+      "--wr-color-info-dark": "#5aaab4",
+      "--wr-color-info-darker": "#4d9ea8",
+      "--wr-color-info-light": "#7ebcc4",
+      "--wr-color-info-lighter": "#8fc5cc"
+    }
+  }
+}

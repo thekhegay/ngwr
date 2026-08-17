@@ -24,6 +24,7 @@ export const GUIDES_SIDEBAR: readonly SidebarGroup[] = [
       { title: 'Typography', url: ['/guides/tokens', 'typography'] },
       { title: 'Density', url: ['/guides/tokens', 'density'] },
       { title: 'Motion', url: ['/guides/tokens', 'motion'] },
+      { title: 'Theme builder', url: ['/guides/tokens', 'builder'] },
     ],
   },
   {

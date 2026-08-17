@@ -376,12 +376,42 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       select-with-search; build on the Aria `Combobox` primitive.
 ## D — Theming & visuals
 
-- [ ] **D1. Theme presets + builder** (L) — algorithmic palette from a seed
-      colour, 2–3 prebuilt themes, and a live theme-builder page that **exports
-      tokens and shareable preset files** (tweakcn proves standalone demand).
-      Starts from lift-and-generalise, not zero:
-      `showcase/app/_core/services/primary-color.ts` already derives the full
-      `--wr-color-primary*` ramp from a hex seed at runtime.
+- [x] **D1. Theme presets + builder** (L) — **shipped.** `ngwr/theme` exports
+      `wrThemeTokens()` / `wrIntentTokens()` / `wrContrastFor()`: the palette
+      recipe that used to exist only in Sass, so a theme chosen at RUNTIME (a
+      builder, a tenant colour, a preset off the registry) derives what the
+      stylesheet derives.
+      **Seven tokens per intent, not twelve, and that is the interesting part.**
+      The tint and ink layer is written in terms of `var()`, so redefining the
+      base and its channels re-resolves `-soft`, `-soft-border`,
+      `-soft-contrast`, `-active` and `-ink` for free — a preset that emitted
+      those would be freezing values the stylesheet is meant to keep deriving.
+      `-contrast` IS re-derived, because it PICKS black or white and a re-tuned
+      intent otherwise keeps the label of the colour it replaced.
+      **`pnpm check:theme` is what makes it trustworthy**, and it earned its
+      place on the first run: it reads the BUILT stylesheet and compares all 63
+      shipped tokens, and it immediately caught a missing second modulo in
+      `hslToRgb` — `((h % 360) + 360) / 60` reads as normalisation and maps 222°
+      to sector 9.7 instead of 3.7, so every hue landed in the wrong arm of the
+      sextant table and `dark`'s navy came back red. Only greys survived. It
+      compares ROUNDED channels rather than strings, because Sass emits
+      `color.adjust` at full precision (`rgb(34.7577…, 88.1497…, 222.7422…)`) and
+      keeps landing exactly on `.5`, where an epsilon has to pick a side.
+      **Three presets ship as registry items** — `theme-slate`, `theme-ember`,
+      `theme-forest` — GENERATED from a seed table by `gen:theme-presets` and
+      verified by `check:registry`, which re-derives them and fails if either
+      side was edited alone. The first hand-written draft of `theme-slate` had a
+      `-rgb` line computed in someone's head and no shades at all.
+      **The builder is at `/guides/tokens/builder`**: a swatch per intent, and
+      "Apply" writes the tokens onto `<html>` so the preview is the whole site
+      rather than a box — a builder that previews into an isolated frame can be
+      wrong about the thing you are choosing. It exports the CSS block and a
+      ready `registry:theme` item, carrying only the intents that moved.
+      **Only the LIGHT recipe is derived.** `_dark.scss` is hand-tuned — its
+      `dark-light` uses `color.scale(…, 70%)` where the light block uses
+      `color.adjust(…, 5%)` — so the generator would be lying if it claimed to
+      reproduce it; a dark seed run through the same recipe gives a consistent
+      dark palette, not the shipped one.
 - [ ] **D2. System-token layer** (M, partially shipped) — a neutral gray ramp
       plus surface role aliases already landed, documented at `/guides/tokens`.
       **Remaining:** the full semantic `--wr-sys-*` roles over the raw palette,

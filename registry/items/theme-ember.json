@@ -1,0 +1,43 @@
+{
+  "$schema": "https://ngwr.dev/registry/schema.json",
+  "name": "theme-ember",
+  "type": "registry:theme",
+  "title": "Ember",
+  "description": "Warm and high-contrast: a burnt-orange primary with a red-leaning secondary.",
+  "author": "ngwr",
+  "ngwr": ">=11",
+  "cssVars": {
+    "light": {
+      "--wr-color-primary": "#b4441a",
+      "--wr-color-primary-rgb": "180, 68, 26",
+      "--wr-color-primary-contrast": "#ffffff",
+      "--wr-color-primary-dark": "#9e3c17",
+      "--wr-color-primary-darker": "#873314",
+      "--wr-color-primary-light": "#ca4c1d",
+      "--wr-color-primary-lighter": "#df5622",
+      "--wr-color-secondary": "#c02a4a",
+      "--wr-color-secondary-rgb": "192, 42, 74",
+      "--wr-color-secondary-contrast": "#ffffff",
+      "--wr-color-secondary-dark": "#ab2542",
+      "--wr-color-secondary-darker": "#96213a",
+      "--wr-color-secondary-light": "#d23154",
+      "--wr-color-secondary-lighter": "#d74665"
+    },
+    "dark": {
+      "--wr-color-primary": "#ef8a5c",
+      "--wr-color-primary-rgb": "239, 138, 92",
+      "--wr-color-primary-contrast": "#000000",
+      "--wr-color-primary-dark": "#ed7945",
+      "--wr-color-primary-darker": "#ea692e",
+      "--wr-color-primary-light": "#f19b73",
+      "--wr-color-primary-lighter": "#f4ab8a",
+      "--wr-color-secondary": "#e2607e",
+      "--wr-color-secondary-rgb": "226, 96, 126",
+      "--wr-color-secondary-contrast": "#000000",
+      "--wr-color-secondary-dark": "#de4a6d",
+      "--wr-color-secondary-darker": "#da355b",
+      "--wr-color-secondary-light": "#e6768f",
+      "--wr-color-secondary-lighter": "#ea8ba1"
+    }
+  }
+}

@@ -3,21 +3,41 @@
   "name": "theme-slate",
   "type": "registry:theme",
   "title": "Slate",
-  "description": "A cooler, lower-saturation take on the default palette — the primary intent moves toward slate blue and the surfaces pick up the same hue.",
+  "description": "A cooler, lower-saturation take on the default palette — the blue steps back toward grey.",
   "author": "ngwr",
   "ngwr": ">=11",
   "cssVars": {
     "light": {
       "--wr-color-primary": "#41598f",
       "--wr-color-primary-rgb": "65, 89, 143",
-      "--wr-color-surface": "#fbfcfd",
-      "--wr-color-outline": "#dbe1ea"
+      "--wr-color-primary-contrast": "#ffffff",
+      "--wr-color-primary-dark": "#394e7d",
+      "--wr-color-primary-darker": "#31436c",
+      "--wr-color-primary-light": "#4964a1",
+      "--wr-color-primary-lighter": "#526fb1",
+      "--wr-color-info": "#3f6ea8",
+      "--wr-color-info-rgb": "63, 110, 168",
+      "--wr-color-info-contrast": "#ffffff",
+      "--wr-color-info-dark": "#386295",
+      "--wr-color-info-darker": "#315683",
+      "--wr-color-info-light": "#477aba",
+      "--wr-color-info-lighter": "#5988c1"
     },
     "dark": {
-      "--wr-color-primary": "#5b7fd6",
-      "--wr-color-primary-rgb": "91, 127, 214",
-      "--wr-color-surface": "#0c1018",
-      "--wr-color-outline": "#1e2634"
+      "--wr-color-primary": "#7d9ad6",
+      "--wr-color-primary-rgb": "125, 154, 214",
+      "--wr-color-primary-contrast": "#000000",
+      "--wr-color-primary-dark": "#6a8bd0",
+      "--wr-color-primary-darker": "#567cca",
+      "--wr-color-primary-light": "#90a9dc",
+      "--wr-color-primary-lighter": "#a4b8e2",
+      "--wr-color-info": "#79a6cf",
+      "--wr-color-info-rgb": "121, 166, 207",
+      "--wr-color-info-contrast": "#000000",
+      "--wr-color-info-dark": "#669ac8",
+      "--wr-color-info-darker": "#538dc2",
+      "--wr-color-info-light": "#8cb2d6",
+      "--wr-color-info-lighter": "#9fbfdc"
     }
   }
 }

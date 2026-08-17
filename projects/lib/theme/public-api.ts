@@ -1,4 +1,5 @@
 export { WR_COLORS } from './colors';
+export { wrContrastFor, wrIntentTokens, wrThemeTokens } from './palette';
 export type { WrColor } from './colors';
 
 export { WrTheme } from './services/wr-theme';

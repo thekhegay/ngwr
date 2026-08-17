@@ -1,0 +1,70 @@
+<ngwr-doc-page
+  title="Theme builder"
+  description="Pick a seed per intent and the whole page repaints. Export the tokens as CSS, or as a registry preset someone else can install."
+  [keywords]="['theme builder', 'palette', 'seed colour', 'theme preset', 'tokens', 'registry:theme']"
+>
+  <ngwr-doc-section title="Seeds">
+    <p wrTypography>
+      One hex per intent is all a theme is. The four shades and the label colour are derived from it by
+      <code>wrThemeTokens()</code> — the same function that generates the shipped presets, and the one
+      <code>pnpm check:theme</code> proves against the compiled stylesheet. The tint and ink layer (<code>-soft</code>,
+      <code>-ink</code>, <code>-active</code>) is written in terms of <code>var()</code>, so it re-resolves on its own
+      and no preset needs to carry it.
+    </p>
+
+    <wr-segmented [value]="editing()" [options]="sides" (valueChange)="onSide($event)" ariaLabel="Theme to edit" />
+
+    <div class="builder__seeds">
+      @for (intent of intents; track intent) {
+        <!--
+          The TRIGGER, not the inline picker. Seven inline pickers is seven
+          saturation canvases side by side — the first draft of this page pushed
+          the layout off screen horizontally. Anchored to a swatch, each one
+          opens on demand.
+        -->
+        <button
+          type="button"
+          class="builder__seed"
+          wrColorPickerTrigger
+          [value]="seeds()[intent]"
+          [alpha]="false"
+          (valueChange)="setSeed(intent, $event)"
+        >
+          <span class="builder__swatch" [style.background]="seeds()[intent]"></span>
+          <span class="builder__seed-name">{{ intent }}</span>
+          <span class="builder__seed-hex">{{ seeds()[intent] }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="builder__actions">
+      <button wr-btn color="primary" type="button" (click)="apply()">Apply to this page</button>
+      <button wr-btn outlined type="button" (click)="reset()">Reset</button>
+    </div>
+
+    <p wrTypography variant="small" tone="medium">
+      "Apply" writes the tokens onto <code>&lt;html&gt;</code>, so the preview is the whole site — this page, the
+      header, the sidebar, every component below. A builder that previews into an isolated box can be wrong about the
+      thing you are actually choosing. Reload to drop it.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="CSS" description="Paste into your global stylesheet, after ngwr's own.">
+    <ngwr-doc-code [code]="css()" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="As a registry preset"
+    description="One JSON file, hosted anywhere — see the registry guide for what a tool does with it."
+  >
+    <ngwr-doc-code [code]="preset()" language="typescript" />
+
+    <p wrTypography variant="small" tone="medium">
+      Only the intents you moved are in there. A preset restating the defaults would fight the next palette change
+      instead of riding it, and <a [routerLink]="['/guides', 'registry']">the format</a> is explicit that an omitted
+      intent keeps whatever the stylesheet compiled.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>
