@@ -61,19 +61,15 @@
     "targets": [
       ".wr-event-calendar__chip--band.wr-event-calendar__chip",
       ".wr-event-calendar__chip--band.wr-event-calendar__chip[aria-label=\"Standup, 09:30 AM\"]",
-      ".wr-event-calendar__chip--band.wr-event-calendar__chip[aria-label=\"Release window, 11:00 AM\"]",
-      "button[aria-label=\"Conference, All day\"]",
-      "button[aria-label=\"Retro, 03:00 PM\"]"
+      ".wr-event-calendar__chip--band.wr-event-calendar__chip[aria-label=\"Release window, 11:00 AM\"]"
     ],
-    "note": "20px-tall event chips where WCAG 2.5.8 wants 24, already recorded in `contrast-baseline.json` as a design call: raising them fits one fewer event per month cell before the overflow indicator appears, which is a density decision about the component. Stacked chips also sit closer than 24px apart, so the spacing exception does not rescue them. It surfaces here as well because hovering a day is a state; fix it in the component and both entries go."
+    "note": "20px-tall event chips where WCAG 2.5.8 wants 24, already recorded in `contrast-baseline.json` as a design call: raising them fits one fewer event per month cell before the overflow indicator appears, which is a density decision about the component. Stacked chips also sit closer than 24px apart, so the spacing exception does not rescue them. The `aria-label`s are stable only because the sweep freezes the clock — the demo builds its events from `new Date()`, and two nightly runs went red on this same finding wearing new titles before that landed."
   },
   "target-size (dark) — event-calendar/month": {
     "targets": [
       ".wr-event-calendar__chip--band.wr-event-calendar__chip",
       ".wr-event-calendar__chip--band.wr-event-calendar__chip[aria-label=\"Standup, 09:30 AM\"]",
-      ".wr-event-calendar__chip--band.wr-event-calendar__chip[aria-label=\"Release window, 11:00 AM\"]",
-      "button[aria-label=\"Conference, All day\"]",
-      "button[aria-label=\"Retro, 03:00 PM\"]"
+      ".wr-event-calendar__chip--band.wr-event-calendar__chip[aria-label=\"Release window, 11:00 AM\"]"
     ],
     "note": "The same chips at the same height — not themed."
   }
