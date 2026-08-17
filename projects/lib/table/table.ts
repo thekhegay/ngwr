@@ -42,6 +42,7 @@ import type {
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableGroupContext,
+  WrTableRow,
   WrTableSortState,
   WrTableSortDirection,
   WrTableSummary,
@@ -118,8 +119,25 @@ export class WrTable {
   /** Column definitions, keyed by row property name. */
   readonly columns = input.required<WrTableColumns>();
 
-  /** Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. */
-  readonly items = input<readonly Record<string, unknown>[] | null | undefined>(null);
+  /**
+   * Row items. `null`/`undefined` renders the empty state; use `[loading]` for
+   * the spinner.
+   *
+   * Typed `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an
+   * array of an `interface` binds as readily as an array of a `type` — see
+   * {@link WrTableRow} for why those two are not the same to TypeScript.
+   */
+  readonly items = input<readonly WrTableRow[] | null | undefined>(null);
+
+  /**
+   * The rows as records, for everything downstream that reads a cell by key.
+   *
+   * One cast at the boundary: the INPUT is wide so any object shape binds, while
+   * the body keeps indexing rows the way it always has.
+   */
+  private readonly rows = computed<readonly Record<string, unknown>[] | null | undefined>(
+    () => this.items() as readonly Record<string, unknown>[] | null | undefined
+  );
 
   /** Show the loading spinner overlay. @default false */
   readonly loading = input(false, { transform: coerceBooleanProperty });
@@ -346,12 +364,12 @@ export class WrTable {
   protected readonly resolvedTotal = computed<number>(() => {
     const server = this.totalItems();
     if (server !== null) return server;
-    return this.items()?.length ?? 0;
+    return this.rows()?.length ?? 0;
   });
 
   /** Items visible on the current page (client mode slices; server mode passes through). */
   protected readonly visibleItems = computed<readonly Record<string, unknown>[] | null | undefined>(() => {
-    const items = this.items();
+    const items = this.rows();
     if (!items) return items;
     const size = this.pageSize();
     if (size <= 0 || this.totalItems() !== null) return items;
@@ -912,7 +930,7 @@ export class WrTable {
         if (children.length > 0) walk(children, new Set(seen).add(key));
       }
     };
-    walk(this.items() ?? [], new Set());
+    walk(this.rows() ?? [], new Set());
     return out;
   }
 
@@ -1183,7 +1201,7 @@ export class WrTable {
    * instead of silently reporting roots only.
    */
   private datasetRows(): readonly Record<string, unknown>[] {
-    return this.treeMode() ? this.allTreeRows() : (this.items() ?? []);
+    return this.treeMode() ? this.allTreeRows() : (this.rows() ?? []);
   }
 
   private selectedRows(): readonly Record<string, unknown>[] {
