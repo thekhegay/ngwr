@@ -37,6 +37,17 @@
     <ngwr-doc-code [code]="snippets.theme" language="typescript" />
 
     <p wrTypography>
+      <strong>Seven tokens per intent, and the shipped presets are generated rather than written.</strong> A base, its
+      channels, its label colour and its four shades — <code>-soft</code>, <code>-ink</code> and
+      <code>-active</code> are absent on purpose, because the stylesheet defines them in terms of <code>var()</code> and
+      re-resolves them from the base on its own. Deriving them by hand is how a preset ends up freezing a value the
+      library later changes, so <code>wrThemeTokens()</code> from <code>ngwr/theme</code> does it instead: it is what
+      the <a [routerLink]="['/guides/tokens', 'builder']">theme builder</a> exports, what
+      <code>pnpm gen:theme-presets</code> writes, and what <code>pnpm check:registry</code> re-derives to prove the
+      three files here still match their seeds.
+    </p>
+
+    <p wrTypography>
       Keys must be <code>--wr-*</code>. A preset that sets <code>--brand-blue</code> is arbitrary CSS wearing the label:
       people install a theme expecting the library's own token layer to be what changes, and everything ngwr paints is
       derived from that layer. See <a [routerLink]="['/guides', 'tokens']">tokens</a> for what is available.

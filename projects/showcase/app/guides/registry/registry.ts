@@ -33,19 +33,21 @@ export default class RegistryGuidePageComponent {
   "name": "theme-slate",
   "type": "registry:theme",
   "title": "Slate",
-  "description": "A cooler, lower-saturation take on the default palette.",
+  "description": "A cooler, lower-saturation take on the default palette — the blue steps back toward grey.",
+  "author": "ngwr",
   "ngwr": ">=11",
   "cssVars": {
     "light": {
       "--wr-color-primary": "#41598f",
       "--wr-color-primary-rgb": "65, 89, 143",
-      "--wr-color-surface": "#fbfcfd"
+      "--wr-color-primary-contrast": "#ffffff",
+      "--wr-color-primary-dark": "#394e7d",
+      "--wr-color-primary-darker": "#31436c",
+      "--wr-color-primary-light": "#4964a1",
+      "--wr-color-primary-lighter": "#526fb1",
+      … the same seven for "secondary"
     },
-    "dark": {
-      "--wr-color-primary": "#5b7fd6",
-      "--wr-color-primary-rgb": "91, 127, 214",
-      "--wr-color-surface": "#0c1018"
-    }
+    "dark": { … }
   }
 }`,
 
