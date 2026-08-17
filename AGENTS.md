@@ -488,14 +488,18 @@ smallest diff that satisfies the request. Concretely:
 `--provenance`), and a poisoned cache would hand it to attacker-controlled
 code. Don't re-add the cache.
 
-**Versioning.** The last release is **v10.2.1** (2026-08-10) — that is the newest
-tag and what `projects/lib/package.json` reads — and main is **v11-bound**. v10's
-three breaking changes were all CSS/token-level — WCAG contrast on
-`--wr-color-*-contrast`, table header casing, tooltip theming — so there is
-deliberately **no `migration-v10`**: an empty codemod would tell consumers their
-visual regressions were handled when they were not. v11's breaking change is the
-same shape (five intents deepened so their labels can be white — see Styling), so
-`schematics/migrations/` still stops at v9 on purpose. Don't bump
+**Versioning.** The last release is **v11.2.0** (2026-08-17) — that is the newest
+tag and what `projects/lib/package.json` reads. v10's three breaking changes were
+all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
+casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
+empty codemod would tell consumers their visual regressions were handled when
+they were not. v11's breaking change was the same shape (five intents deepened so
+their labels can be white — see Styling), so `schematics/migrations/` still stops
+at v9 on purpose. v11.2.0 shipped eighteen `ngwr/*/testing` entry points, the
+generated agent skill and the registry format, plus sixteen fixes; it widened
+three exported types to nullable (`WrToastConfig.labels.*`, `wr-window`'s
+`showMinimize` / `showMaximize`) and added a required member to the `@internal`
+`WrCheckboxGroupContext` — type-level only, no runtime break. Don't bump
 the version by hand — releases are cut from Actions ("Release PR" → `bump`),
 which runs `release:prepare` / `release:body` and opens a `chore(release)` PR.
 
