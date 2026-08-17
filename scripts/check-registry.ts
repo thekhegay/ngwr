@@ -42,6 +42,7 @@ import { err } from './lib/log/err';
 import { info } from './lib/log/info';
 import { ROOT_PATH } from './lib/paths/root';
 import { ITEM_TYPES, REQUIRED_KEYS, validateItem } from './lib/registry/item';
+import { PRESETS, buildThemePreset } from './lib/registry/theme-presets';
 
 const REGISTRY = resolve(ROOT_PATH, 'registry');
 const ITEMS = join(REGISTRY, 'items');
@@ -129,13 +130,31 @@ function main(): void {
     }
   }
 
+  // The shipped themes are DERIVED, so a hand edit to one is a fork of the
+  // palette recipe. Re-derive from the seed table and compare; the same bargain
+  // `check:api-docs` strikes with `gen:api-docs`.
+  for (const preset of PRESETS) {
+    const path = join(ITEMS, `${preset.name}.json`);
+    if (!existsSync(path)) {
+      problems.push(`${preset.name}.json — in the seed table, not on disk. Run \`pnpm gen:theme-presets\`.`);
+      continue;
+    }
+    const expected = `${JSON.stringify(buildThemePreset(preset), null, 2)}\n`;
+    if (readFileSync(path, 'utf8') !== expected) {
+      problems.push(`${preset.name}.json — does not match its seeds. Run \`pnpm gen:theme-presets\`.`);
+    }
+  }
+
   if (problems.length > 0) {
     for (const problem of problems) err(`  ✘ ${problem}`);
     err(`\n✘ ${problems.length} registry problem(s).\n`);
     exit(1);
   }
 
-  info(`✓ Registry — ${files.length} item(s) valid against schema.json, ${catalog.size} entry points to check names against.`);
+  info(
+    `✓ Registry — ${files.length} item(s) valid against schema.json, ${PRESETS.length} theme(s) match their seeds, ` +
+      `${catalog.size} entry points to check names against.`
+  );
 }
 
 main();

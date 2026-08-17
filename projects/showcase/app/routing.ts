@@ -60,6 +60,7 @@ export const routes = {
     typography: 'typography',
     density: 'density',
     motion: 'motion',
+    builder: 'builder',
   },
   components: {
     index: 'components',

@@ -26,7 +26,9 @@
     "release:body": "tsx scripts/release-body.ts",
     "prepare": "simple-git-hooks",
     "check:state-a11y": "tsx scripts/check-state-a11y.ts",
-    "check:registry": "tsx scripts/check-registry.ts"
+    "check:registry": "tsx scripts/check-registry.ts",
+    "check:theme": "tsx scripts/check-theme-parity.ts",
+    "gen:theme-presets": "tsx scripts/gen-theme-presets.ts"
   },
   "simple-git-hooks": {
     "commit-msg": "npx --no-install commitlint --edit $1"

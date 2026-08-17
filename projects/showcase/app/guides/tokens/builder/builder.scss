@@ -1,0 +1,52 @@
+.builder {
+  &__seeds {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: 0.75rem;
+    margin-block: 1rem;
+  }
+
+  &__seed {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem;
+    background: var(--wr-color-surface);
+    border: 1px solid var(--wr-color-outline);
+    border-radius: var(--wr-border-radius-base);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--wr-color-hover);
+    }
+  }
+
+  &__swatch {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: var(--wr-border-radius-sm);
+    border: 1px solid var(--wr-color-border);
+  }
+
+  &__seed-name {
+    flex: 1 1 auto;
+    font-size: var(--wr-text-sm);
+    text-transform: capitalize;
+  }
+
+  &__seed-hex {
+    font-size: var(--wr-text-sm);
+    color: var(--wr-color-on-surface-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-block: 1rem 0.5rem;
+  }
+}
