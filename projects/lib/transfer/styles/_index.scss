@@ -31,7 +31,7 @@
     gap: 0.5rem;
     padding: 0.5rem 0.625rem;
     border-bottom: 1px solid var(--wr-color-outline);
-    background: rgba(var(--wr-color-outline-rgb), 0.25);
+    background: var(--wr-color-fill);
   }
 
   &__title {

@@ -45,7 +45,7 @@
   }
 
   &:active {
-    --wr-btn-bg: rgba(var(--wr-color-outline-rgb), 0.6);
+    --wr-btn-bg: var(--wr-color-fill-strong);
   }
 
   &[disabled],

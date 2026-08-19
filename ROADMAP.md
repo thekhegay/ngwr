@@ -407,19 +407,17 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
         ngwr source (the twelve `*-fixed` tones, `inverse-primary`, the five-step
         `surface-container` ramp). Ship a documented snippet if anything.
 
-      **What is actually left, each with a hand-roll count and no existing name:**
-      - `--wr-disabled-opacity`, a scalar in `_variables.scss`. Nothing in
-        `theme/` names the disabled state today, against **29 entry points, 41
-        declarations and 7 values** — 0.6 x18, 0.5 x8, 0.7 x5, 0.55 x3, 0.4 x3,
-        0.35 x2, 0.65 x2 — with `date-picker` and `calendar` each disagreeing with
-        themselves three ways inside one file.
-      - A three-step neutral FILL scale, **only** in a PR that also converts the
-        31 hand-rolled declarations and collapses those eight alphas. The border
-        trio carries the right values under the wrong name: a fill is not a
-        hairline.
-      - A `check:tokens` lint stage failing on a token declared in `theme/styles/`
-        with no consumer, with an `unused-ok:` escape in the shape `check:rtl`
-        already uses. It would have caught every dead family above.
+      **All three of the additions it was rescoped to have now shipped**, so what
+      remains under this heading is nothing: `--wr-disabled-opacity` (41
+      declarations at 7 values across 29 entry points, collapsed to one, with
+      `wr-calendar` keeping a documented override because a navigable
+      out-of-month day sits at 0.55 and a disabled day has to be fainter than
+      that), the three-step `--wr-color-fill{,-subtle,-strong}` scale (33
+      declarations at 8 alphas across 22 files, and read off `light-rgb` rather
+      than `outline-rgb` so retuning a hairline no longer drags every fill with
+      it), and `check:tokens`, which found 37 unconsumed declarations on its
+      first run and is now a `pnpm lint` stage. Close this item once someone
+      confirms nothing else was meant by it.
 - [ ] **D6. High-contrast rendering** (M) — split out of D2, because the two media
       queries are not one feature. **`prefers-contrast: more` is the one worth
       shipping first**: the fix is token-shaped (the `-ink` shares re-derived per

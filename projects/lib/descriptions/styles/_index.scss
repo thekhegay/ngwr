@@ -108,7 +108,7 @@
   }
 
   &--bordered#{&}--inline &__label {
-    background: rgba(var(--wr-color-outline-rgb), 0.35);
+    background: var(--wr-color-fill);
     border-inline-end: 1px solid var(--wr-color-outline);
   }
 }

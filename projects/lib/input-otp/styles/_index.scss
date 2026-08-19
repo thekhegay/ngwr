@@ -44,7 +44,7 @@
     }
 
     &:disabled {
-      background: rgba(var(--wr-color-outline-rgb), 0.5);
+      background: var(--wr-color-fill-strong);
       color: var(--wr-color-on-surface-muted);
       cursor: not-allowed;
     }

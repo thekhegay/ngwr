@@ -137,7 +137,7 @@
 
     &.wr-tree--disabled {
       --wr-tree-trigger-color: var(--wr-color-on-surface-muted);
-      --wr-tree-trigger-bg: rgba(var(--wr-color-outline-rgb), 0.35);
+      --wr-tree-trigger-bg: var(--wr-color-fill);
     }
   }
 

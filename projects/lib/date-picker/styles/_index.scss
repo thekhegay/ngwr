@@ -162,7 +162,7 @@
     }
 
     &:disabled {
-      background: rgba(var(--wr-color-outline-rgb), 0.35);
+      background: var(--wr-color-fill);
       color: var(--wr-time-picker-muted);
       cursor: not-allowed;
     }

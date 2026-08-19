@@ -160,6 +160,24 @@ $contrast-light: #ffffff !default;
   // regardless of theme.
   --wr-color-overlay: rgba(var(--wr-color-backdrop-rgb), 0.45);
 
+  // Neutral FILL scale — the low-contrast wash a table header, a track, a
+  // readonly field or a code chip sits on. Three steps, because the catalog had
+  // **thirty-three declarations at eight alphas** hand-rolled across 22 files,
+  // and `wr-table` alone used six of them; the values below are the weighted
+  // centre of the three clusters those eight actually formed.
+  //
+  // **Off `light-rgb`, deliberately NOT off `--wr-color-outline-rgb`**, even
+  // though the two resolve to the same channel today. That is the bug this scale
+  // exists to prevent: every one of those hand-rolls read the OUTLINE channel, so
+  // a hairline retuned for its own job — a plausible contrast fix — would have
+  // dragged 33 unrelated fills with it, and one measured pair in `wr-table` goes
+  // from 6.58:1 to 4.05:1 that way. A fill is not a hairline, which is also why
+  // these are not `--wr-color-border-*` under a new name: those three carry the
+  // right VALUES under the wrong noun.
+  --wr-color-fill-subtle: rgba(var(--wr-color-light-rgb), 0.15);
+  --wr-color-fill: rgba(var(--wr-color-light-rgb), 0.3);
+  --wr-color-fill-strong: rgba(var(--wr-color-light-rgb), 0.55);
+
   // Muted TEXT, deliberately its own token rather than an alias of the `medium`
   // intent. The two roles pull in opposite directions and cannot share a value:
   // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a

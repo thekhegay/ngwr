@@ -86,7 +86,7 @@
 
   &--code {
     padding: 0.0625rem 0.375rem;
-    background: rgba(var(--wr-color-outline-rgb), 0.6);
+    background: var(--wr-color-fill-strong);
     border-radius: var(--wr-border-radius-sm);
     font-size: 0.875em;
   }
