@@ -360,7 +360,7 @@
   &--disabled {
     color: var(--wr-color-on-surface-muted);
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: var(--wr-disabled-opacity);
 
     &:hover {
       background: transparent;

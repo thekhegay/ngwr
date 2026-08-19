@@ -41,7 +41,7 @@
     min-width: 0;
 
     &--disabled {
-      opacity: 0.5;
+      opacity: var(--wr-disabled-opacity);
     }
   }
 

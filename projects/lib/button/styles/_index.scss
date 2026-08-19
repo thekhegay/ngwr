@@ -52,7 +52,7 @@
   &:disabled {
     cursor: default;
     pointer-events: none;
-    opacity: 0.6;
+    opacity: var(--wr-disabled-opacity);
   }
 
   &__icon {

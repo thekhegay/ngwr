@@ -11,7 +11,7 @@
   color: var(--wr-color-on-surface);
 
   &--disabled {
-    opacity: 0.6;
+    opacity: var(--wr-disabled-opacity);
   }
 
   &__pane {

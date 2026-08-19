@@ -9,7 +9,7 @@
   padding-block: 0.5rem;
 
   &--disabled {
-    opacity: 0.6;
+    opacity: var(--wr-disabled-opacity);
     pointer-events: none;
   }
 

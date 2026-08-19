@@ -123,7 +123,7 @@
   &--disabled {
     --wr-checkbox-color: var(--wr-color-on-surface-muted);
     pointer-events: none;
-    opacity: 0.6;
+    opacity: var(--wr-disabled-opacity);
   }
 }
 
