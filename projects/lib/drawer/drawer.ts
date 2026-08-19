@@ -18,6 +18,7 @@ import {
   ViewContainerRef,
   ViewEncapsulation,
   afterEveryRender,
+  contentChild,
   effect,
   inject,
   input,
@@ -29,6 +30,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY } from 'ngwr/overlay';
 
+import { WrDrawerTitle } from './directives/drawer-title';
 import type { WrDrawerPosition } from './interfaces';
 
 /**
@@ -118,11 +120,27 @@ export class WrDrawer {
 
   protected readonly panelTpl = viewChild.required(TemplateRef);
 
+  /**
+   * A projected `[wrDrawerTitle]`, if the consumer gave one.
+   *
+   * The dismiss button is corner chrome positioned at a fixed
+   * `inset-block-start` chosen to centre it on the TITLE's first line. With no
+   * title the content starts at the top of the panel and runs underneath it: on
+   * a bare `<wr-drawer><nav /></wr-drawer>` the button covered the first menu
+   * row by 24×16 px, and `elementFromPoint` at the button's centre returned the
+   * button, so that corner of the first item was unclickable. The panel has to
+   * know, because only the panel can reserve the space.
+   */
+  private readonly projectedTitle = contentChild(WrDrawerTitle);
+
   protected panelClass(): string {
     const parts = ['wr-drawer__panel', `wr-drawer__panel--${this.position()}`];
     if (this.rounded()) parts.push('wr-drawer__panel--rounded');
     if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
     if (this.closable()) parts.push('wr-drawer__panel--closable');
+    // Only when there is something to collide with: a closable drawer with a
+    // title already clears the button, and an unclosable one has no button.
+    if (this.closable() && !this.projectedTitle()) parts.push('wr-drawer__panel--untitled');
     return parts.join(' ');
   }
 

@@ -156,6 +156,50 @@ describe('WrDrawer', () => {
     expect(panel()).toBeNull();
   });
 
+  describe('the untitled panel', () => {
+    /**
+     * The dismiss button is absolutely positioned at an offset chosen to centre
+     * it on the TITLE's first line. Give a drawer only content — the shape a
+     * navigation panel takes — and the content starts at the top and runs under
+     * it: the showcase's icon-set panel had the × covering the first menu row by
+     * 24x16 px, with `elementFromPoint` at the button's centre returning the
+     * button, so the row's corner was unclickable.
+     *
+     * jsdom resolves no stylesheet and has no layout, so the overlap itself is
+     * not measurable here. The modifier IS: it is what reserves the strip, and
+     * `.wr-*` classes are public API, so asserting it is asserting the contract
+     * rather than a detail.
+     */
+    const panel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__panel')!;
+
+    it('reserves the corner when there is no title to sit beside', () => {
+      fixture.componentInstance.open.set(true);
+      fixture.detectChanges();
+
+      expect(panel().classList.contains('wr-drawer__panel--closable')).toBe(true);
+      expect(panel().classList.contains('wr-drawer__panel--untitled')).toBe(true);
+    });
+
+    it('does not reserve it when a title is projected', () => {
+      const titled = TestBed.createComponent(TitleHost);
+      titled.componentInstance.open.set(true);
+      titled.detectChanges();
+
+      const withTitle = document.querySelector<HTMLElement>('.wr-drawer__panel')!;
+      expect(withTitle.classList.contains('wr-drawer__panel--untitled')).toBe(false);
+
+      titled.destroy();
+    });
+
+    it('does not reserve it when there is no button either', () => {
+      fixture.componentInstance.closable.set(false);
+      fixture.componentInstance.open.set(true);
+      fixture.detectChanges();
+
+      expect(panel().classList.contains('wr-drawer__panel--untitled')).toBe(false);
+    });
+  });
+
   describe('position', () => {
     const positions: readonly WrDrawerPosition[] = ['left', 'right', 'top', 'bottom'];
 

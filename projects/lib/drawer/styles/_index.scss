@@ -26,6 +26,33 @@
   height: 100vh;
   height: 100dvh;
 }
+// No title to sit beside, so the corner chrome needs its own room.
+//
+// `__close` is absolutely positioned at an offset chosen to centre it on the
+// TITLE's first line. A drawer given only content — the shape a navigation
+// panel takes, `<wr-drawer><nav /></wr-drawer>` — starts its content at the top
+// and runs it under the button: the showcase's icon-set panel had the × over
+// the first menu row by 24x16 px, with `elementFromPoint` returning the button,
+// so that corner of the row could not be clicked. Reserve the strip rather than
+// move the button, which would make titled drawers look different for no reason.
+//
+// Written out rather than nested under `.wr-drawer__panel`: the first attempt
+// put it beside `&__close`, whose parent is `.wr-drawer`, so it compiled to
+// `.wr-drawer--untitled` and matched nothing. The class the component writes is
+// on the PANEL.
+//
+// **3.25rem, and the number comes from the TOUCH TARGET rather than the button.**
+// `__close` sits at `inset-block-start: 1.75rem` with `translateY(-50%)`, so its
+// visible box is 16–40px — but it also carries `touch-target`, whose `::after`
+// grows the hit area to 44px on a coarse pointer, reaching 6–50px. Reserving the
+// visible height left `getBoundingClientRect` reporting no overlap while
+// `elementFromPoint` still answered "close button" over the first 10px of the
+// content: the boxes had stopped intersecting and the control was still covered.
+// 52px clears the target with two pixels to spare.
+.wr-drawer__panel--untitled > *:not(.wr-drawer__close) {
+  padding-block-start: 3.25rem;
+}
+
 
 // …and that same flattening puts the content component's own host element
 // between the panel and the title / content / footer slots, so the panel's
@@ -168,6 +195,16 @@
     border-bottom: 1px solid var(--wr-color-outline);
   }
 
+  // No title to sit beside, so the corner chrome needs its own room.
+  //
+  // `__close` is absolutely positioned at an offset chosen to centre it on the
+  // TITLE's first line (see below). A drawer given only content — the shape a
+  // navigation panel takes, `<wr-drawer><nav /></wr-drawer>` — starts its
+  // content at the top of the panel and runs it straight under the button: the
+  // showcase's own icon-set panel had the × covering the first menu row by
+  // 24x16 px, with `elementFromPoint` returning the button, so that corner of
+  // the row could not be clicked. Reserve the strip instead of moving the
+  // button, which would leave titled drawers looking different for no reason.
   // Built-in dismiss (×) in the panel's top-right corner — rendered by the
   // component template, appended by `WrDrawerManager` for service drawers.
   &__close {
