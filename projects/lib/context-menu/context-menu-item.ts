@@ -323,8 +323,8 @@ export class WrContextMenuItem {
 
     // While this pane is open it is the newest overlay that listens, so CDK's
     // keyboard dispatcher hands it every keydown and the root menu's own handler
-    // stops seeing them — which is what makes the cursor stay in the level the
-    // user is on.
+    // stops seeing them. Which pane the keys then act on is decided in
+    // `onSubmenuKeydown`, not here: a hover open leaves the caret where it was.
     this.submenuKeys = this.submenuRef.keydownEvents().subscribe(event => this.onSubmenuKeydown(event));
 
     // A keyboard open walks INTO the submenu; a hover open only shows it.
@@ -335,13 +335,21 @@ export class WrContextMenuItem {
   }
 
   /**
-   * @internal Keys typed while this submenu owns the keyboard: the arrows walk
-   * its rows, and Escape or the arrow pointing BACK the way the menu cascades
-   * steps out one level, returning the cursor to the row that owns the pane.
+   * @internal Keys routed here while this submenu is the topmost overlay: the
+   * arrows walk the rows of the pane the caret is in, and Escape or the arrow
+   * pointing BACK the way the menu cascades steps out one level, returning the
+   * cursor to the row that owns the pane when the cursor was inside it.
    *
    * Escape closes this level only, not the whole chain — the APG's rule for a
    * submenu. It reaches this handler rather than the root's because the
    * dispatcher stops at the topmost overlay that listens, which is now this one.
+   *
+   * Which is also why the arrows are aimed at the pane holding the caret rather
+   * than at this one. The dispatcher routes by stacking order, not by focus, and
+   * a HOVER-opened submenu is topmost while focus is deliberately still on the
+   * root row the pointer swept off (see `openedByKeyboard`) — so ArrowDown used
+   * to jump into this pane's first row instead of moving down the menu the user
+   * is in. Same reason `wr-dropdown`'s menu handler checks ownership.
    */
   private onSubmenuKeydown(event: KeyboardEvent): void {
     const pane = this.submenuRef?.overlayElement;
@@ -350,14 +358,21 @@ export class WrContextMenuItem {
     // submenu, or Enter on a leaf. Re-handling it here would close the pane out
     // from under the level it just opened.
     if (event.defaultPrevented) return;
+    const active = document.activeElement;
+    const focusedPane = active instanceof Element ? active.closest<HTMLElement>('.wr-context-menu-overlay') : null;
     const back = this.isRtl() ? 'ArrowRight' : 'ArrowLeft';
     if (event.key === 'Escape' || event.key === back) {
       event.preventDefault();
       this.disposeSubmenu(false);
-      this.host.nativeElement.focus();
+      // Onto the owning row only when the caret was in the pane just closed:
+      // dismissing a submenu the pointer opened must not drag it off the row the
+      // keyboard user is on.
+      if (focusedPane === pane) this.host.nativeElement.focus();
       return;
     }
-    wrHandleMenuNavigation(pane, event);
+    // Falls back to this pane when the caret is outside every menu — nothing
+    // else can answer, and the navigation opens at the first row from there.
+    wrHandleMenuNavigation(focusedPane ?? pane, event);
   }
 
   /** Bound handlers (= preserves identity for removeEventListener). */

@@ -8,10 +8,11 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
-  type ElementRef,
+  ElementRef,
   ViewEncapsulation,
   computed,
   effect,
+  inject,
   input,
   model,
   output,
@@ -23,10 +24,12 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
 
 import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
 
+let menuUid = 0;
+
 /**
- * Floating action button that expands into a fan of secondary actions on
- * click / hover. Place inside a positioned container or near `position: fixed`
- * — the component itself doesn't pin to the viewport.
+ * Floating action button that expands into a fan of secondary actions on click.
+ * Place inside a positioned container or near `position: fixed` — the component
+ * itself doesn't pin to the viewport.
  *
  * @example
  * ```html
@@ -41,8 +44,6 @@ import type { WrSpeedDialAction, WrSpeedDialDirection } from './interfaces';
  *
  * @see https://ngwr.dev/reference/components/speed-dial
  */
-let menuUid = 0;
-
 @Component({
   selector: 'wr-speed-dial',
   templateUrl: './speed-dial.html',
@@ -88,6 +89,8 @@ export class WrSpeedDial {
 
   protected readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   constructor() {
     // A disabled trigger cannot be pressed, and the trigger is the only way to close
     // the dial — so being disabled while open left it fanned out with no way back.
@@ -112,13 +115,27 @@ export class WrSpeedDial {
   protected onPick(action: WrSpeedDialAction): void {
     if (this.disabled()) return;
     this.open.set(false);
+    // Take the focus back before the action goes — the collapsed wrapper turns
+    // `visibility: hidden`, and a browser blurs an element it hides, so the caret
+    // landed on `<body>` and the next Tab restarted at the top of the document.
+    // Escape already did this; the SUCCESS path did not.
+    //
+    // Before the emit, not after: `pick` is where a consumer opens a dialog or
+    // navigates, and such a handler moves focus itself — focusing afterwards would
+    // yank the caret back onto the trigger. `wr-dropdown` sequences it the same way.
+    //
+    // Only when the caret is inside the dial: Safari does not focus a button on
+    // mouse-down, so an unguarded call would steal it from wherever the user is.
+    if (this.host.nativeElement.contains(this.host.nativeElement.ownerDocument.activeElement)) {
+      this.triggerEl()?.nativeElement.focus();
+    }
     this.pick.emit(action);
   }
 
   /**
-   * `role="menu"` promises a way out, and the actions are ordinary buttons in the tab
-   * order — without this a keyboard user who opened the dial had to tab through every
-   * action to leave it.
+   * Escape closes the dial and hands the caret back. The actions are ordinary buttons
+   * in the tab order, so without this a keyboard user who opened the dial had to tab
+   * through every action to leave it.
    */
   protected onKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Escape' || !this.open()) return;

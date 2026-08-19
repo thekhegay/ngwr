@@ -12,9 +12,11 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -204,6 +206,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   private readonly vcr = inject(ViewContainerRef);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private overlayRef: OverlayRef | null = null;
 
   constructor() {
@@ -249,6 +252,22 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     if (this.disabled()) return;
     if (!this.open()) this.activePath.set(this.path());
     this.open.update(v => !v);
+  }
+
+  /**
+   * ArrowDown / ArrowUp open the panel, Alt+ArrowDown included — the combobox way in,
+   * and the shape `wr-dropdown`'s trigger uses. Enter and Space need no branch: the
+   * trigger is a real `<button>`, so the browser turns them into the click above.
+   *
+   * Only while closed. Once the panel is up the caret is inside it, and its options
+   * own their own keys.
+   */
+  protected onTriggerKeydown(event: KeyboardEvent): void {
+    if (this.disabled() || this.open()) return;
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    event.preventDefault();
+    this.activePath.set(this.path());
+    this.open.set(true);
   }
 
   protected onOptionClick(colIndex: number, opt: WrCascaderOption<T>, event: Event): void {
@@ -313,6 +332,18 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
+    // Move the caret into the panel it just opened. Nothing did, and the pane is
+    // appended to `<body>`, so an opened cascader left focus on the trigger and its
+    // options were reachable only by tabbing past the whole rest of the page —
+    // `wr-tree` and `wr-context-menu` were the same defect. `closeOverlay` below
+    // already assumes this is where the caret lives.
+    //
+    // `afterNextRender`, NOT `queueMicrotask`: under zoneless CD change detection runs
+    // in a macrotask, so a microtask queued here fires before the columns are in the
+    // DOM — the trap that once left `wr-calendar`'s ring and its real focus on
+    // different days.
+    afterNextRender(() => this.focusPanelOption(), { injector: this.injector });
+
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -330,6 +361,21 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
           this.open.set(false);
         }
       });
+  }
+
+  /**
+   * The option the panel opens on: the selected one in the first column when there is
+   * a selection, otherwise the first enabled root. A disabled option is skipped — it
+   * still carries `tabindex="-1"`, so `focus()` would land on it and answer for a
+   * choice nobody can make.
+   */
+  private focusPanelOption(): void {
+    const pane = this.overlayRef?.overlayElement;
+    if (!pane) return;
+    const option =
+      pane.querySelector<HTMLElement>('.wr-cascader__opt--active:not(.wr-cascader__opt--disabled)') ??
+      pane.querySelector<HTMLElement>('.wr-cascader__opt:not(.wr-cascader__opt--disabled)');
+    option?.focus();
   }
 
   private closeOverlay(): void {

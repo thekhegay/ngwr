@@ -46,7 +46,13 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
     why: 'every date mode goes through an adapter; there is no built-in default',
   },
   {
-    test: /^WrT$|^WrI18n/,
+    // Spelled out rather than `^WrT(Pipe|Directive)$`: `describeTest` in the
+    // skill generator only names alternatives that are bare symbols, so a group
+    // here would print "symbols matching …" instead of the two names. It used to
+    // read `^WrT$`: `WrT` is a symbol ngwr has never exported, and anchored at
+    // both ends it matched neither `WrTPipe` nor `WrTDirective` — so the one rule
+    // whose `why` names the pipe and the directive fired for neither of them.
+    test: /^WrTPipe$|^WrTDirective$|^WrI18n/,
     // Two entry points, and the comment has to say so: the catalog `wrEn` is
     // `ngwr/i18n/en`, not `ngwr/i18n`, which exports neither catalog.
     provider: "provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'",

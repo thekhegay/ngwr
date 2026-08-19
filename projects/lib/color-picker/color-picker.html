@@ -1,13 +1,55 @@
-<div class="wr-color-picker__sv" (pointerdown)="onPointerDown($event, 'sv')">
+<!--
+  `role="group"` rather than `role="slider"`, because this surface holds TWO
+  values and a slider has one `aria-valuenow`; and rather than
+  `role="application"`, which would switch the reader out of its own browse mode
+  for the whole subtree — the call `wr-image-cropper` already made. A group has
+  no value of its own, so the two percentages ride in its accessible name, which
+  is where a reader querying the focused element finds them.
+-->
+<div
+  class="wr-color-picker__sv"
+  role="group"
+  [attr.aria-label]="resolvedAreaLabel()"
+  [attr.aria-disabled]="disabled() || null"
+  [attr.tabindex]="disabled() ? -1 : 0"
+  (pointerdown)="onPointerDown($event, 'sv')"
+  (keydown)="onAreaKeydown($event)"
+  (blur)="onSurfaceBlur()"
+>
   <span class="wr-color-picker__thumb" [style.left.%]="svThumbX()" [style.top.%]="svThumbY()"></span>
 </div>
 
-<div class="wr-color-picker__slider wr-color-picker__slider--hue" (pointerdown)="onPointerDown($event, 'hue')">
+<div
+  class="wr-color-picker__slider wr-color-picker__slider--hue"
+  role="slider"
+  aria-valuemin="0"
+  aria-valuemax="360"
+  [attr.aria-label]="resolvedHueLabel()"
+  [attr.aria-valuenow]="hueValue()"
+  [attr.aria-disabled]="disabled() || null"
+  [attr.tabindex]="disabled() ? -1 : 0"
+  (pointerdown)="onPointerDown($event, 'hue')"
+  (keydown)="onSliderKeydown($event, 'hue')"
+  (blur)="onSurfaceBlur()"
+>
   <span class="wr-color-picker__thumb wr-color-picker__thumb--slider" [style.left.%]="hueThumbX()"></span>
 </div>
 
 @if (alpha()) {
-  <div class="wr-color-picker__slider wr-color-picker__slider--alpha" (pointerdown)="onPointerDown($event, 'alpha')">
+  <div
+    class="wr-color-picker__slider wr-color-picker__slider--alpha"
+    role="slider"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    [attr.aria-label]="resolvedAlphaLabel()"
+    [attr.aria-valuenow]="alphaPercent()"
+    [attr.aria-valuetext]="`${alphaPercent()}%`"
+    [attr.aria-disabled]="disabled() || null"
+    [attr.tabindex]="disabled() ? -1 : 0"
+    (pointerdown)="onPointerDown($event, 'alpha')"
+    (keydown)="onSliderKeydown($event, 'alpha')"
+    (blur)="onSurfaceBlur()"
+  >
     <span class="wr-color-picker__thumb wr-color-picker__thumb--slider" [style.left.%]="alphaThumbX()"></span>
   </div>
 }

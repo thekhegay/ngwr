@@ -6,4 +6,11 @@
   // height here the 404 renders as a small tile tucked under the header.
   min-height: 60vh;
   padding: 3rem 1.5rem;
+
+  // The preset's own host is an unstyled wrapper around `<wr-result>`. Taking it
+  // out of the box tree leaves the result itself as this flex item, which is the
+  // parent its `width` / `min-height` percentages are written against.
+  wr-result-404 {
+    display: contents;
+  }
 }

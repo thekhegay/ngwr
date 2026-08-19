@@ -207,6 +207,24 @@ describe('Catalog', () => {
     writeFileSync(join(root, 'schematics', 'use', 'symbol-map.json'), JSON.stringify(SYMBOL_MAP));
     mkdirSync(join(root, 'types'), { recursive: true });
     writeFileSync(join(root, 'types', 'ngwr-i18n-en.d.ts'), 'declare const wrEn: object;\n');
+    // Real declaration shape, ORDER INCLUDED: `ɵfac` is emitted above `ɵcmp`,
+    // and the first version of `declarable()` matched all five markers in one
+    // alternation — so it read the factory first and called every component a
+    // service. A fixture without markers could not tell.
+    writeFileSync(
+      join(root, 'types', 'ngwr-chip.d.ts'),
+      [
+        'declare class WrChip {',
+        '    static ɵfac: i0.ɵɵFactoryDeclaration<WrChip, never>;',
+        '    static ɵcmp: i0.ɵɵComponentDeclaration<WrChip, "wr-chip", never, {}, {}, never, ["*"], true, never>;',
+        '}',
+        'declare class WrChipService {',
+        '    static ɵfac: i0.ɵɵFactoryDeclaration<WrChipService, never>;',
+        '    static ɵprov: i0.ɵɵInjectableDeclaration<WrChipService>;',
+        '}',
+        '',
+      ].join('\n')
+    );
   });
 
   afterAll(() => {
@@ -353,5 +371,26 @@ describe('Catalog', () => {
     expect(catalog.find('constructor')).toBeNull();
     // And the fix is not "the map is empty": a real symbol still resolves.
     expect(catalog.find('WrTag')).toBe(badgeOf(catalog));
+  });
+
+  describe('declarable', () => {
+    /**
+     * `ng g ngwr:use` refuses a non-declarable, so the MCP must stop recommending
+     * it for one — and it decides from the SHIPPED `.d.ts`, where the compiler
+     * already wrote the answer, rather than from a second hand-kept list.
+     */
+    it('reads the compiler markers, not the order they appear in', () => {
+      const catalog = new Catalog(root);
+
+      expect(catalog.declarable('WrChip', 'ngwr/chip')).toBe(true);
+      expect(catalog.declarable('WrChipService', 'ngwr/chip')).toBe(false);
+    });
+
+    it('says "cannot say" rather than "no" for a symbol the types do not declare', () => {
+      const catalog = new Catalog(root);
+
+      expect(catalog.declarable('WrNotThere', 'ngwr/chip')).toBeNull();
+      expect(catalog.declarable('WrChip', 'ngwr/no-such-entry')).toBeNull();
+    });
   });
 });

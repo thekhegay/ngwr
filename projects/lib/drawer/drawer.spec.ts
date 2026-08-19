@@ -18,6 +18,7 @@ import type { WrDrawerPosition } from './interfaces';
       [closeOnEscape]="closeOnEscape()"
       [closeOnBackdropClick]="closeOnBackdropClick()"
       [closeLabel]="closeLabel()"
+      [showHandle]="showHandle()"
     >
       <p class="body">Drawer body</p>
     </wr-drawer>
@@ -26,6 +27,7 @@ import type { WrDrawerPosition } from './interfaces';
 class Host {
   readonly open = signal(false);
   readonly position = signal<WrDrawerPosition>('right');
+  readonly showHandle = signal(false);
   readonly closable = signal(true);
   readonly closeOnEscape = signal(true);
   readonly closeOnBackdropClick = signal(true);
@@ -256,6 +258,74 @@ describe('WrDrawer', () => {
       // Escape still has to work, or an unclosable drawer is a trap.
       escape();
       expect(fixture.componentInstance.open()).toBe(false);
+    });
+  });
+
+  describe('swipe to dismiss', () => {
+    const swipePanel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__panel')!;
+    const handle = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__handle')!;
+
+    /**
+     * jsdom has neither `PointerEvent` nor pointer capture, so the gesture is
+     * driven with `MouseEvent`s carrying the two properties the handlers read —
+     * the idiom `wr-splitter`'s spec uses. `isPrimary` has to be set explicitly:
+     * it does not exist on `MouseEvent`, and the start guard rejects `undefined`.
+     */
+    const pointer = (type: string, clientY: number): void => {
+      const el = handle();
+      el.setPointerCapture = (): undefined => undefined;
+      el.releasePointerCapture = (): undefined => undefined;
+      const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientY });
+      Object.defineProperty(event, 'isPrimary', { value: true });
+      el.dispatchEvent(event);
+      fixture.detectChanges();
+    };
+
+    const openSheet = (): void => {
+      fixture.componentInstance.position.set('bottom');
+      fixture.componentInstance.showHandle.set(true);
+      fixture.detectChanges();
+      open();
+      // jsdom lays nothing out, so the panel measures 0 and every drag clears
+      // 30% of it. A stubbed 400px gives the threshold a real number.
+      Object.defineProperty(swipePanel(), 'offsetHeight', { value: 400, configurable: true });
+    };
+
+    it('closes on a release past 30% of the panel', () => {
+      openSheet();
+
+      pointer('pointerdown', 0);
+      pointer('pointermove', 160);
+      pointer('pointerup', 160);
+
+      expect(fixture.componentInstance.open()).toBe(false);
+    });
+
+    it('snaps back on a release short of the threshold', () => {
+      openSheet();
+
+      pointer('pointerdown', 0);
+      pointer('pointermove', 40);
+      pointer('pointerup', 40);
+
+      expect(fixture.componentInstance.open()).toBe(true);
+      expect(swipePanel().style.transform).toBe('');
+    });
+
+    it('abandons a cancelled swipe instead of dismissing on it', () => {
+      // `pointercancel` was wired to the RELEASE handler, so a gesture the
+      // system took away — a call, a second finger, an orientation change —
+      // dismissed the drawer past a threshold the user never let go at, and the
+      // overlay was disposed at the dragged offset so there was nothing to
+      // take back.
+      openSheet();
+
+      pointer('pointerdown', 0);
+      pointer('pointermove', 160);
+      pointer('pointercancel', 160);
+
+      expect(fixture.componentInstance.open()).toBe(true);
+      expect(swipePanel().style.transform).toBe('');
     });
   });
 });

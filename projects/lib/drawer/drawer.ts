@@ -163,6 +163,21 @@ export class WrDrawer {
     panel.style.transform = axis === 'y' ? `translateY(${delta}px)` : `translateX(${delta}px)`;
   }
 
+  /**
+   * A cancelled pointer is an ABANDONED swipe, not a completed one — the system
+   * took the gesture away (a call, a system gesture, an orientation change) and
+   * no `pointerup` ever arrives. Routing it through `onSwipeEnd` dismissed the
+   * drawer on an interruption the user did not ask for and, because the overlay
+   * is disposed with the dragged offset applied, could not take back. Same rule
+   * `wr-pull-to-refresh` states for `touchcancel`.
+   */
+  protected onSwipeCancel(panel: HTMLElement): void {
+    if (!this.swiping) return;
+    this.swiping = false;
+    panel.style.transition = '';
+    panel.style.transform = '';
+  }
+
   protected onSwipeEnd(event: PointerEvent, panel: HTMLElement): void {
     if (!this.swiping) return;
     this.swiping = false;

@@ -8,9 +8,28 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CdkDrag, type CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, TemplateRef, ViewEncapsulation, contentChild, input, model, output } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import {
+  Component,
+  Injector,
+  TemplateRef,
+  ViewEncapsulation,
+  afterNextRender,
+  contentChild,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChildren,
+} from '@angular/core';
+
+import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 
 import type { WrSortableReorderEvent } from './interfaces';
+
+/** Counted, not random: the list prerenders, so the id has to match on rehydration. */
+let sortableListUid = 0;
 
 /**
  * Drag-to-reorder list. Wraps CDK's `cdkDropList` + `cdkDrag` with a
@@ -21,6 +40,18 @@ import type { WrSortableReorderEvent } from './interfaces';
  * let-index="index"`. Put `wrDragHandle` on an element inside that
  * template to restrict drag start to a handle; there is no input for
  * it, the directive's presence is the switch.
+ *
+ * Every row is a tab stop: Space or Enter picks it up, the arrow keys move it,
+ * Space or Enter drops it and Escape puts it back. CDK's `cdkDrag` ships no key
+ * handling of its own, so without this the component's only function was
+ * unreachable from a keyboard.
+ *
+ * What that does NOT answer is WCAG 2.5.7, which asks for a POINTER alternative
+ * to the drag. Click-to-pick-up is the obvious candidate and is not safe here:
+ * the CDK's drag-drop bundle installs no click suppressor of any kind, so the
+ * mouseup ending a drag still produces a click, and a row that grabbed itself on
+ * click would be picking itself straight back up. A visible move-up /
+ * move-down affordance is the remaining answer, and that is a design change.
  *
  * @example
  * ```html
@@ -75,6 +106,36 @@ export class WrSortableList<T = unknown> {
 
   protected readonly rowTemplate = contentChild.required(TemplateRef<{ $implicit: T; index: number }>);
 
+  private readonly injector = inject(Injector);
+
+  private readonly rowEls = viewChildren<ElementRef<HTMLElement>>('row');
+
+  /** Index of the row the keyboard is holding, or `null` when nothing is held. */
+  protected readonly grabbedIndex = signal<number | null>(null);
+
+  /** Live-region text. Written by the keyboard path only. */
+  protected readonly announcement = signal('');
+
+  /** Links every row to the key model via `aria-describedby`. */
+  protected readonly keyHelpId = `wr-sortable-list-help-${++sortableListUid}`;
+
+  protected readonly resolvedKeyHelp = readI18nText(
+    'sortableList.keyHelp',
+    'Press Space to pick this item up, then use the arrow keys to move it. ' +
+      'Press Space again to drop it, or Escape to put it back.'
+  );
+
+  private readonly grabbedText = useI18nFormatter('sortableList.grabbed', 'Grabbed. {{index}} of {{total}}.');
+  private readonly movedText = useI18nFormatter('sortableList.moved', '{{index}} of {{total}}.');
+  private readonly droppedText = useI18nFormatter('sortableList.dropped', 'Dropped. {{index}} of {{total}}.');
+  private readonly cancelledText = readI18nText('sortableList.cancelled', 'Move cancelled.');
+
+  /** Where the held row started. Escape puts it back there. */
+  private grabOrigin = -1;
+
+  /** True while a keyboard move is handing focus back — see `onRowFocusout`. */
+  private restoringFocus = false;
+
   protected onDrop(event: CdkDragDrop<T[]>): void {
     if (event.previousIndex === event.currentIndex) return;
     const next = this.items().slice();
@@ -86,6 +147,126 @@ export class WrSortableList<T = unknown> {
       currentIndex: event.currentIndex,
       item: next[event.currentIndex],
     });
+  }
+
+  /**
+   * The keyboard reorder path: pick up, move, drop — deliberately a two-step
+   * grab rather than "an arrow moves the focused row", so that arrowing through
+   * a list a user is only reading can never rearrange it.
+   *
+   * Keys are handled only when the ROW itself is the event target; a button or
+   * an input projected into the row template keeps every key it would normally
+   * get.
+   */
+  protected onRowKeydown(event: KeyboardEvent, index: number): void {
+    if (this.disabled() || event.target !== event.currentTarget) return;
+
+    const grabbed = this.grabbedIndex();
+    const horizontal = this.orientation() === 'horizontal';
+    const forward = horizontal ? 'ArrowRight' : 'ArrowDown';
+    const back = horizontal ? 'ArrowLeft' : 'ArrowUp';
+
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      if (grabbed === null) this.grab(index);
+      else this.drop();
+      return;
+    }
+
+    if (grabbed === null) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      // Held only while a row is grabbed — an Escape typed anywhere else has to
+      // keep reaching whatever dialog or overlay the list is sitting in.
+      event.stopPropagation();
+      this.cancelGrab();
+      return;
+    }
+
+    if (event.key === forward || event.key === back) {
+      event.preventDefault();
+      this.moveGrabbed(event.key === forward ? 1 : -1);
+    }
+  }
+
+  /**
+   * Focus leaving a held row ends the gesture as a drop rather than dropping the
+   * change on the floor — `[(items)]` has already been written by then, so a
+   * silent release would leave `reorder` never reporting a move that happened.
+   * The guard is what makes it safe: moving a focused node in the DOM blurs it,
+   * so every keyboard move fires this too.
+   */
+  protected onRowFocusout(): void {
+    if (this.restoringFocus || this.grabbedIndex() === null) return;
+    this.drop();
+  }
+
+  private grab(index: number): void {
+    this.grabOrigin = index;
+    this.grabbedIndex.set(index);
+    this.announcement.set(this.grabbedText(this.position(index)));
+  }
+
+  private moveGrabbed(delta: number): void {
+    const from = this.grabbedIndex();
+    if (from === null) return;
+    const to = from + delta;
+    if (to < 0 || to >= this.items().length) return;
+
+    this.relocate(from, to);
+    this.grabbedIndex.set(to);
+    this.announcement.set(this.movedText(this.position(to)));
+  }
+
+  private drop(): void {
+    const to = this.grabbedIndex();
+    const from = this.grabOrigin;
+    this.grabbedIndex.set(null);
+    this.grabOrigin = -1;
+    if (to === null) return;
+
+    this.announcement.set(this.droppedText(this.position(to)));
+    if (from === to) return;
+    // One event per gesture, the way a drag emits one on drop — not one per
+    // arrow press, which would put a host that persists on `reorder` through a
+    // write per keystroke. `[(items)]` still updates on every press, because
+    // the rendered order has to follow the row the user is moving.
+    this.reorder.emit({ items: this.items(), previousIndex: from, currentIndex: to, item: this.items()[to] });
+  }
+
+  private cancelGrab(): void {
+    const from = this.grabbedIndex();
+    if (from === null) return;
+    if (from !== this.grabOrigin) this.relocate(from, this.grabOrigin);
+    this.grabbedIndex.set(null);
+    this.grabOrigin = -1;
+    this.announcement.set(this.cancelledText());
+  }
+
+  private relocate(from: number, to: number): void {
+    const next = this.items().slice();
+    moveItemInArray(next, from, to);
+    this.items.set(next);
+
+    // The row is the same DOM node moved to another slot, and moving a focused
+    // node hands focus back to `<body>` — so it has to be taken again once the
+    // move has rendered. `afterNextRender`, never a microtask: zoneless change
+    // detection runs in a macrotask, so a microtask would fire while the row is
+    // still at its old index and focus the wrong one. (jsdom keeps focus across
+    // a node move, so no spec here can express that half.)
+    this.restoringFocus = true;
+    afterNextRender(
+      () => {
+        this.rowEls()[to]?.nativeElement.focus();
+        this.restoringFocus = false;
+      },
+      { injector: this.injector }
+    );
+  }
+
+  private position(index: number): { index: number; total: number } {
+    return { index: index + 1, total: this.items().length };
   }
 }
 

@@ -345,11 +345,23 @@ function setup(catalog: Catalog, symbols: readonly string[]): string {
     '(prompts for styles, date adapter, density and theme, and prints a bootstrap snippet)',
     '',
     '## 2. Wire each symbol into the component that uses it',
-    ...resolved.map(hit =>
-      typeof knows[hit.symbol] === 'string'
-        ? `ng g ngwr:use ${hit.symbol} --path src/app/some.component.ts   # ${hit.entry.path}`
-        : `import { ${hit.symbol} } from '${hit.entry.path}';   // by hand — ng g ngwr:use does not know this symbol`
-    ),
+    ...resolved.map(hit => {
+      // Two questions, and the schematic answers "no" to either one. It has to
+      // KNOW the symbol, and the symbol has to be declarable — `ng g ngwr:use`
+      // refuses a service or a token now rather than splicing it into an
+      // `imports: []` where it would not compile. `declarable()` reads the
+      // shipped `.d.ts`, so this needs no copy of that list.
+      const known = typeof knows[hit.symbol] === 'string';
+      const declarable = catalog.declarable(hit.symbol, hit.entry.path);
+
+      if (known && declarable !== false) {
+        return `ng g ngwr:use ${hit.symbol} --path src/app/some.component.ts   # ${hit.entry.path}`;
+      }
+
+      const why = known ? 'not a declarable — inject or call it' : 'ng g ngwr:use does not know this symbol';
+
+      return `import { ${hit.symbol} } from '${hit.entry.path}';   // by hand — ${why}`;
+    }),
     '',
     '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
     '',

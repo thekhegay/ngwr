@@ -42,7 +42,7 @@ root barrel for components.
 | `ngwr/collapse` | `import { WrCollapse } from 'ngwr/collapse'` | `wr-accordion` `wr-collapse-group` `wr-collapse` |
 | `ngwr/collapse/testing` | `import { WrCollapseGroupHarness } from 'ngwr/collapse/testing'` | — |
 | `ngwr/color-picker` | `import { WrColorPicker } from 'ngwr/color-picker'` | `[wrColorPickerTrigger]` `wr-color-picker` |
-| `ngwr/color-picker/testing` | `import { WrColorPickerHarness } from 'ngwr/color-picker/testing'` | `.wr-color-picker__tabs` |
+| `ngwr/color-picker/testing` | `import { WrColorPickerHarness } from 'ngwr/color-picker/testing'` | — |
 | `ngwr/command-palette` | `import { WrCommandPalette } from 'ngwr/command-palette'` | `wr-command-palette` |
 | `ngwr/command-palette/testing` | `import { WrCommandPaletteGroupHarness } from 'ngwr/command-palette/testing'` | — |
 | `ngwr/compare` | `import { WrCompare } from 'ngwr/compare'` | `wr-compare` |
@@ -74,7 +74,7 @@ root barrel for components.
 | `ngwr/dropdown/testing` | `import { WrDropdownHarness } from 'ngwr/dropdown/testing'` | — |
 | `ngwr/empty` | `import { WrEmpty } from 'ngwr/empty'` | `wr-empty` |
 | `ngwr/event-calendar` | `import { WrEventCalendar } from 'ngwr/event-calendar'` | `ng-template[wrCalendarEvent]` `wr-event-calendar` |
-| `ngwr/event-calendar/testing` | `import { WrEventCalendarChipHarness } from 'ngwr/event-calendar/testing'` | `.wr-event-calendar__view` |
+| `ngwr/event-calendar/testing` | `import { WrEventCalendarChipHarness } from 'ngwr/event-calendar/testing'` | — |
 | `ngwr/falling-text` | `import { WrFallingText } from 'ngwr/falling-text'` | `wr-falling-text` |
 | `ngwr/falling-text/testing` | `import { WrFallingTextHarness } from 'ngwr/falling-text/testing'` | — |
 | `ngwr/file-upload` | `import { WrFileUpload } from 'ngwr/file-upload'` | `wr-file-upload` |
@@ -127,7 +127,7 @@ root barrel for components.
 | `ngwr/overlay` | `import { WrOutsideClick } from 'ngwr/overlay'` | — |
 | `ngwr/page-header` | `import { WrPageHeader } from 'ngwr/page-header'` | `wr-page-header` |
 | `ngwr/pagination` | `import { WrPagination } from 'ngwr/pagination'` | `wr-pagination` |
-| `ngwr/pagination/testing` | `import { WrPaginationHarness } from 'ngwr/pagination/testing'` | `.wr-pagination__page` `.wr-pagination__nav > wr-btn:not(.wr-pagination__page)` `.wr-pagination__size` `.wr-pagination__page[aria-current="page"]` |
+| `ngwr/pagination/testing` | `import { WrPaginationHarness } from 'ngwr/pagination/testing'` | — |
 | `ngwr/pipes` | `import { WrBytes } from 'ngwr/pipes'` | — |
 | `ngwr/platform` | `import { WrPlatform } from 'ngwr/platform'` | — |
 | `ngwr/popconfirm` | `import { WrPopconfirm } from 'ngwr/popconfirm'` | `wr-popconfirm` `[wrPopconfirm]` |
@@ -187,11 +187,11 @@ root barrel for components.
 | `ngwr/tilt-card` | `import { WrTiltCard } from 'ngwr/tilt-card'` | `wr-tilt-card` `[wrTilt]` |
 | `ngwr/tilt-card/testing` | `import { WrTiltHarness } from 'ngwr/tilt-card/testing'` | — |
 | `ngwr/timeline` | `import { WrTimeline } from 'ngwr/timeline'` | `wr-timeline-item` `wr-timeline` |
-| `ngwr/toast` | `import { WrToast } from 'ngwr/toast'` | `wr-toast-host` `wr-toast` |
+| `ngwr/toast` | `import { WrToast } from 'ngwr/toast'` | — |
 | `ngwr/toast/testing` | `import { WrToastHarness } from 'ngwr/toast/testing'` | — |
 | `ngwr/toolbar` | `import { WrToolbar } from 'ngwr/toolbar'` | `wr-toolbar` |
 | `ngwr/tour` | `import { WrTour } from 'ngwr/tour'` | `wr-tour-popup` |
-| `ngwr/tour/testing` | `import { WrTourHarness } from 'ngwr/tour/testing'` | `.wr-tour-popup__action--next` `.wr-tour-popup__action--skip` `.wr-tour-popup__action--back` |
+| `ngwr/tour/testing` | `import { WrTourHarness } from 'ngwr/tour/testing'` | — |
 | `ngwr/transfer` | `import { WrTransfer } from 'ngwr/transfer'` | `wr-transfer` |
 | `ngwr/transfer/testing` | `import { WrTransferHarness } from 'ngwr/transfer/testing'` | — |
 | `ngwr/tree` | `import { WrTree } from 'ngwr/tree'` | `wr-tree` |
@@ -205,7 +205,7 @@ root barrel for components.
 | `ngwr/virtual-scroll` | `import { WrVirtualScroll } from 'ngwr/virtual-scroll'` | `wr-virtual-scroll` |
 | `ngwr/waves` | `import { WrWaves } from 'ngwr/waves'` | `wr-waves` |
 | `ngwr/waves/testing` | `import { WrWavesHarness } from 'ngwr/waves/testing'` | — |
-| `ngwr/window` | `import { WrWindowManager } from 'ngwr/window'` | `wr-window-container` `wr-window-taskbar` `wr-window` |
+| `ngwr/window` | `import { WrWindowManager } from 'ngwr/window'` | `wr-window-taskbar` |
 | `ngwr/window/testing` | `import { WrWindowHarness } from 'ngwr/window/testing'` | — |
 
 Descriptions and every public export per entry point:

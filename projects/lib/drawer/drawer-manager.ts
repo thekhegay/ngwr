@@ -8,7 +8,7 @@
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
-import { isPlatformBrowser } from '@angular/common';
+import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
@@ -62,6 +62,7 @@ export class WrDrawerManager {
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly i18n = inject(WrI18n);
+  private readonly location = inject(Location);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDrawerOptions<D> = {}): WrDrawerRef<C, R> {
     const position = options.position ?? DEFAULT_POSITION;
@@ -178,8 +179,36 @@ export class WrDrawerManager {
         }
       });
     }
+    if (options.closeOnNavigation !== false) {
+      this.watchNavigation(overlayRef, drawerRef);
+    }
 
     return drawerRef;
+  }
+
+  /**
+   * Tie the drawer's lifetime to the URL it was opened on — the same treatment
+   * `WrDialog` gets, and for the same reason.
+   *
+   * Nothing else does. The overlay belongs to a root service and is dismissed
+   * only by the backdrop, Escape, the appended × or an explicit `close()`, so
+   * navigating away left the panel, its backdrop, its focus trap and the
+   * page-wide scroll block sitting over a page the user never opened them on.
+   *
+   * `onUrlChange`, not `Location.subscribe()` — which is what CDK's own
+   * `disposeOnNavigation` uses: `subscribe` fires on popstate alone, so an in-app
+   * `router.navigate()` left the drawer standing. And `drawerRef.close()` rather
+   * than disposing the overlay behind the ref's back, which would never emit
+   * `closed`, never destroy the focus trap, and leave `awaitClose()` pending.
+   */
+  private watchNavigation<C, R>(overlayRef: OverlayRef, drawerRef: WrDrawerRef<C, R>): void {
+    const stopWatching = this.location.onUrlChange(() => drawerRef.close());
+    // Unhooked a microtask late, because `Location` notifies its listeners with
+    // a `forEach` and unregistering splices the array it is iterating: removing
+    // ours synchronously from inside the notification would shift the next entry
+    // into the slot forEach has already passed, and a SECOND stacked drawer
+    // would be skipped and left behind.
+    overlayRef.detachments().subscribe(() => queueMicrotask(stopWatching));
   }
 
   /**

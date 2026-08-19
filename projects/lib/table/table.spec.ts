@@ -16,10 +16,12 @@ import { WrTable } from './table';
 
 @Component({
   imports: [WrTable],
-  template: `<wr-table [columns]="columns" [items]="[]" loading />`,
+  template: `<wr-table [columns]="columns" [items]="items()" [loading]="loading()" />`,
 })
 class LoadingHost {
   protected readonly columns = COLUMNS;
+  readonly items = signal<readonly Record<string, unknown>[] | null>([]);
+  readonly loading = signal(true);
 }
 
 /**
@@ -238,11 +240,16 @@ describe('WrTable', () => {
     expect(cellTexts()).toEqual([['Ken', 'user']]);
   });
 
-  it('survives a null items input rather than rendering garbage', () => {
+  it('renders the empty state for a null items input, the way `items` documents', () => {
     fixture.componentInstance.items.set(null as never);
     fixture.detectChanges();
 
-    expect(bodyRows().length).toBeLessThanOrEqual(1);
+    // `<= 1` used to be the whole assertion, and it passes at 0 rows as happily
+    // as at 1 — which is what let a nullish `[items]` (the input's own DEFAULT)
+    // render a header over a blank body with no message anywhere, while the
+    // JSDoc promised the empty state.
+    expect(bodyRows()).toHaveLength(1);
+    expect(bodyRows()[0].querySelector('.wr-table__empty')?.textContent?.trim()).toBe('No data');
   });
 
   describe('row selection', () => {
@@ -290,6 +297,29 @@ describe('WrTable', () => {
       selectAll()!.click();
       fixture.detectChanges();
       expect(selection()).toEqual([]);
+    });
+
+    it('refuses the select-all when there is nothing to sweep', () => {
+      fixture.componentInstance.items.set([]);
+      fixture.detectChanges();
+
+      // `[checked]` is one-way over a checkbox that owns its own state, and
+      // `allSelected()` is `false` both before and after a click on zero rows —
+      // an unchanged input is never written back, so the box used to latch
+      // CHECKED over an empty table and stay checked when rows came back.
+      expect(selectAll()!.disabled).toBe(true);
+
+      selectAll()!.click();
+      fixture.detectChanges();
+
+      expect(selectAll()!.checked).toBe(false);
+      expect(selection()).toEqual([]);
+
+      fixture.componentInstance.items.set(ROWS);
+      fixture.detectChanges();
+
+      expect(selectAll()!.checked).toBe(false);
+      expect(boxes().map(b => b.checked)).toEqual([false, false, false]);
     });
 
     it('shows the header box as indeterminate for a partial selection', () => {
@@ -797,6 +827,43 @@ describe('WrTable loading overlay', () => {
 
     expect(el?.getAttribute('role')).toBe('status');
     expect(el?.getAttribute('aria-label')).toBe('Loading…');
+  });
+
+  it('marks the TABLE busy, not only the veil', () => {
+    // The rows under the veil are stale, and only the host can say so — the veil
+    // marked itself. `wr-card` has paired `aria-busy` with a click-through
+    // overlay all along.
+    //
+    // The other half of that pairing — `pointer-events: none` on the veil, which
+    // used to make it eat every click while leaving the whole table operable by
+    // Tab + Enter — is not assertable here: jsdom loads no stylesheet and does no
+    // hit-testing, so a computed read would answer from nothing.
+    const fixture = TestBed.createComponent(LoadingHost);
+    fixture.detectChanges();
+    const host = (fixture.nativeElement as HTMLElement).querySelector('wr-table')!;
+
+    expect(host.getAttribute('aria-busy')).toBe('true');
+
+    fixture.componentInstance.loading.set(false);
+    fixture.detectChanges();
+
+    expect(host.getAttribute('aria-busy')).toBeNull();
+  });
+
+  it('keeps the "no data" row from reading through the veil', () => {
+    // `[items]="[]" [loading]="true"` is the documented way to show the spinner,
+    // and the veil is 70% opaque — so the empty row was legible under it, and in
+    // the a11y tree beside the busy status, announcing "No data" mid-load.
+    const fixture = TestBed.createComponent(LoadingHost);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(host.querySelector('.wr-table__empty')).toBeNull();
+
+    fixture.componentInstance.loading.set(false);
+    fixture.detectChanges();
+
+    expect(host.querySelector('.wr-table__empty')).not.toBeNull();
   });
 
   it('accepts rows typed with an interface, not just a type alias', () => {

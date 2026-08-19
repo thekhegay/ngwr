@@ -25,6 +25,29 @@ import { WR_MARKDOWN_HIGHLIGHTER } from './tokens';
  */
 const CACHE_LIMIT = 256;
 
+/**
+ * How many languages to remember at all.
+ *
+ * {@link CACHE_LIMIT} bounds the store in the dimension a STREAM controls and
+ * left it unbounded in the dimension the DOCUMENT controls: `language` is the
+ * first word of the code fence's info string, arbitrary text from an input
+ * `<wr-markdown>` treats as untrusted — so a document of ```` ```a1 ```` …
+ * ```` ```aN ```` fences created N buckets that only `invalidate()` ever
+ * removed. Same `providedIn: 'root'` lifetime as the rest of this store.
+ *
+ * Comfortably larger than any one document for the same reason `CACHE_LIMIT` is:
+ * a window too small to hold what is on screen evicts what the same pass still
+ * renders. A document with more than a few dozen distinct languages is exotic.
+ *
+ * Evicting here cannot re-dirty the effect that requests, which is the loop this
+ * class is built around avoiding: that effect depends on `generation`, and
+ * nothing on this path writes it.
+ *
+ * Exported for the spec, not through `public-api.ts` — the number is the whole
+ * assertion, and a copy of it in the test would stop tracking this one.
+ */
+const LANGUAGE_LIMIT = 64;
+
 /** One block's answer. `lines` stays `null` until an async highlighter resolves. */
 interface Entry {
   lines: readonly WrHighlightLine[] | null;
@@ -135,8 +158,15 @@ export class WrMarkdownHighlight {
     // A bare fence has no grammar to pick, so there is nothing to ask for.
     if (!this.highlighter || !language || !code) return;
 
-    const perLanguage = this.cache.get(language) ?? new Map<string, Entry>();
+    const existing = this.cache.get(language);
+    // Deleted before it is re-set, because `Map.set` on a key it already holds
+    // keeps the ORIGINAL position: a plain `set` would leave the outer map in
+    // first-sighting order, and `evictLanguage` would then drop a language still
+    // being asked for in favour of one seen earlier and no longer rendered.
+    if (existing) this.cache.delete(language);
+    const perLanguage = existing ?? new Map<string, Entry>();
     this.cache.set(language, perLanguage);
+    this.evictLanguage();
     // Presence IS the record of having asked — a separate `asked` set was a second
     // structure to keep in step with this one, and eviction only pruned one of them.
     if (perLanguage.has(code)) return;
@@ -185,4 +215,24 @@ export class WrMarkdownHighlight {
       perLanguage.delete(oldest.value);
     }
   }
+
+  /**
+   * The same bound, one dimension out. `request` re-inserts a bucket it already
+   * holds, so the outer map iterates least-recently-REQUESTED first — and the
+   * component's effect asks for every code block in the document it is showing,
+   * so a language that stops being requested is one nothing renders any more.
+   *
+   * Read is deliberately NOT a touch here, unlike {@link linesFor} for the inner
+   * map: with the effect re-asking for every block, request order already tracks
+   * what is rendered, and nothing has needed the finer signal.
+   */
+  private evictLanguage(): void {
+    while (this.cache.size > LANGUAGE_LIMIT) {
+      const oldest = this.cache.keys().next();
+      if (oldest.done) return;
+      this.cache.delete(oldest.value);
+    }
+  }
 }
+
+export { LANGUAGE_LIMIT };

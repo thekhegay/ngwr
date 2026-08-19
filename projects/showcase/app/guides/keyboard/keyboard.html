@@ -74,15 +74,16 @@
 
   <ngwr-doc-section
     title="Handle the rest yourself"
-    description="Chords are the easy half. Type-ahead, arrow navigation and “ignore the browser’s own shortcuts” are plain `keydown` handlers — these three primitives are what ngwr’s own components use for them."
+    description="Chords are the easy half. Type-ahead, arrow navigation and “ignore the browser’s own shortcuts” are plain `keydown` handlers — ngwr ships three small primitives for writing them."
   >
     <ngwr-doc-code [code]="snippets.keys" language="angular-ts" />
 
     <p wrTypography variant="small" tone="medium">
-      <a routerLink="/reference/utils/keys">KEYS</a> exists so a refactor can find every place that cares about
-      <code>Escape</code>; <a routerLink="/reference/utils/has-modifier">hasModifier</a> is how you avoid stealing
-      <kbd>⌘C</kbd>; <a routerLink="/reference/utils/is-printable-key">isPrintableKey</a> separates “the user typed a
-      character” from “the user pressed F5”.
+      <a routerLink="/reference/utils/keys">KEYS</a> spells the <code>KeyboardEvent.key</code> values correctly, so a
+      typo like <code>'Esacpe'</code> is a compile error rather than a handler that never fires;
+      <a routerLink="/reference/utils/has-modifier">hasModifier</a> is how you avoid stealing <kbd>⌘C</kbd>;
+      <a routerLink="/reference/utils/is-printable-key">isPrintableKey</a> separates “the user typed a character” from
+      “the user pressed F5”.
     </p>
   </ngwr-doc-section>
 

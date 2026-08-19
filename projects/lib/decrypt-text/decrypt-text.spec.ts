@@ -145,8 +145,12 @@ describe('WrDecryptText', () => {
     advance(10);
 
     // The pool is the distinct characters of HELLO, and `random() = 0` picks the
-    // first — so every scrambled glyph is one the text really contains.
-    expect([...shown()].every(ch => 'HELO'.includes(ch))).toBe(true);
+    // first — so the scramble is exactly 'HHHHH'. Asserting instead that every
+    // glyph is one of 'HELO' is vacuous here: the text's own glyphs ARE the
+    // alphabet being checked, so the untouched 'HELLO' satisfies it just as well,
+    // and a component that ignored the hover entirely passed.
+    expect(shown()).toBe('HHHHH');
+    expect(encryptedCount()).toBe(5);
   });
 
   it('keeps a surrogate pair whole, and reveals the character that is really there', async () => {

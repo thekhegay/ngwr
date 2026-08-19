@@ -35,6 +35,16 @@ export interface WrDrawerOptions<D = unknown> {
   /** When `true`, the Escape key closes the drawer. @default true */
   readonly closeOnEscape?: boolean;
   /**
+   * When `true`, the drawer closes as soon as the URL changes — the Back button
+   * and any `router.navigate()` alike. Nothing else ties a drawer to the route
+   * it was opened on, so turning this off leaves the panel, its backdrop, its
+   * focus trap and the page-wide scroll block over whatever page the app
+   * navigates to. Turn it off only for a drawer that OWNS the navigation (a
+   * filter panel that keeps its state in the query string).
+   * @default true
+   */
+  readonly closeOnNavigation?: boolean;
+  /**
    * Render a dismiss (×) button in the panel's top-right corner. Set `false`
    * when the content supplies its own close affordance. @default true
    */

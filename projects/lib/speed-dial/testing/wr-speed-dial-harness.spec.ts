@@ -106,7 +106,6 @@ describe('WrSpeedDialHarness', () => {
     expect([await share.getLabel(), await share.hasIcon(), await share.getIconName()]).toEqual(['Share', true, 'link']);
     // No icon, so the button draws the first glyph of the label and nothing else.
     expect([await copy.getLabel(), await copy.hasIcon(), await copy.getInitial()]).toEqual(['Copy link', false, 'C']);
-    expect(await share.getRole()).toBe('menuitem');
   });
 
   it('draws a whole emoji rather than half a surrogate pair', async () => {
@@ -127,6 +126,21 @@ describe('WrSpeedDialHarness', () => {
 
     expect(fixture.componentInstance.picked).toEqual(['share']);
     expect(await harness.isOpen()).toBe(false);
+  });
+
+  it('puts focus back on the trigger when the picked action collapses', async () => {
+    // The keyboard path: the caret is on the action when it is activated, and the
+    // wrapper it lives in becomes `visibility: hidden` — a browser blurs what it hides,
+    // so without the return the caret lands on `<body>`.
+    const harness = await dial();
+    await harness.open();
+
+    const [share] = await harness.getActions();
+    await share.focus();
+    await share.click();
+
+    expect([await harness.isOpen(), await harness.isTriggerFocused()]).toEqual([false, true]);
+    expect(fixture.componentInstance.picked).toEqual(['share']);
   });
 
   it('opens on its own when asked to pick from a closed dial', async () => {
@@ -179,10 +193,12 @@ describe('WrSpeedDialHarness', () => {
     expect([await harness.getDirection(), await harness.hasSafeArea()]).toEqual(['left', true]);
   });
 
-  it('pairs the trigger with its own menu', async () => {
+  it('pairs the trigger with its own action list', async () => {
     const harness = await dial();
 
-    expect(await harness.getMenuRole()).toBe('menu');
+    // `list`, not `menu`: the dial has none of the menu keys, and the role is spelled
+    // out only because `list-style: none` costs the implicit semantics in Safari.
+    expect(await harness.getMenuRole()).toBe('list');
     expect(await harness.isMenuBound()).toBe(true);
   });
 

@@ -231,9 +231,11 @@ describe('WrDecryptTextHarness', () => {
     await text.hover();
     vi.advanceTimersByTime(10);
 
-    // The pool is the distinct characters of HELLO — the one input whose effect is
-    // visible in the glyphs and nowhere in the classes.
-    expect([...(await text.getRenderedText())].every(glyph => 'HELO'.includes(glyph))).toBe(true);
+    // `every(glyph => 'HELO'.includes(glyph))` is what this used to assert, and it
+    // is vacuously true of the finished word: HELLO is spelled out of exactly
+    // those letters, so the check passed whether the pool was honoured or
+    // ignored. Assert the state that only the pool produces instead.
+    expect([await text.getRenderedText(), await text.getEncryptedCount()]).toEqual(['HHHHH', 5]);
   });
 
   it('rests scrambled in click mode, and reveals once', async () => {

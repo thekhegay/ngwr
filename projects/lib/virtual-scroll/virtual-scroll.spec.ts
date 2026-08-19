@@ -1,5 +1,7 @@
+import { CdkFixedSizeVirtualScroll } from '@angular/cdk/scrolling';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -47,6 +49,31 @@ describe('WrVirtualScroll', () => {
   const viewport = (): HTMLElement => root().querySelector<HTMLElement>('cdk-virtual-scroll-viewport')!;
   const rows = (): string[] => [...root().querySelectorAll('.row')].map(el => el.textContent.trim());
 
+  /**
+   * The resolved buffers, read off the CDK directive that holds them.
+   *
+   * They used to be read as `ng-reflect-min-buffer-px`, which Angular 22 emits only
+   * when `provideNgReflectAttributes()` is in the injector — nothing here provides
+   * it, so `getAttribute` answered `null` and the assertion's own `?? '128'`
+   * fallback was the value being compared.
+   *
+   * `CdkFixedSizeVirtualScroll` is where `[itemSize]` / `[minBufferPx]` /
+   * `[maxBufferPx]` land; `CdkVirtualScrollViewport` carries none of the three. And
+   * `debugElement.componentInstance` is the host component, so the directive comes
+   * out of the element injector.
+   */
+  const buffers = (): CdkFixedSizeVirtualScroll =>
+    fixture.debugElement.query(By.directive(CdkFixedSizeVirtualScroll)).injector.get(CdkFixedSizeVirtualScroll);
+
+  /** Re-mounts so an input can be set BEFORE the viewport is constructed. */
+  const remount = (set: (host: Host) => void): void => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(Host);
+    set(fixture.componentInstance);
+  };
+
   const mount = (): void => {
     fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
@@ -77,31 +104,38 @@ describe('WrVirtualScroll', () => {
   });
 
   it('derives both buffers from the item size when neither is given', () => {
-    expect(viewport().getAttribute('ng-reflect-min-buffer-px') ?? '128').toBe('128');
+    // itemSize 32, so 32 * 4 and 32 * 8.
+    expect([buffers().minBufferPx, buffers().maxBufferPx]).toEqual([128, 256]);
   });
 
-  it('accepts a maximum below the derived minimum without throwing', () => {
+  it('accepts a maximum below the derived minimum, pulling the minimum down to it', () => {
     // CDK requires `maxBufferPx >= minBufferPx` and throws outright otherwise. The two
     // inputs used to be resolved INDEPENDENTLY, so setting only `maxBufferPx` — a
     // perfectly reasonable thing to do — left the derived minimum of `itemSize * 4`
-    // above it and the viewport threw on construction.
-    fixture.destroy();
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
-    fixture = TestBed.createComponent(Host);
-    fixture.componentInstance.maxBuffer.set(10);
+    // above it and the viewport threw on construction. Not throwing is half of it:
+    // the landing values are what say the pair was resolved rather than clamped by
+    // the CDK.
+    remount(host => host.maxBuffer.set(10));
 
     expect(() => fixture.detectChanges()).not.toThrow();
+    expect([buffers().minBufferPx, buffers().maxBufferPx]).toEqual([10, 10]);
   });
 
-  it('accepts a minimum above the derived maximum without throwing', () => {
-    fixture.destroy();
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
-    fixture = TestBed.createComponent(Host);
-    fixture.componentInstance.minBuffer.set(5000);
+  it('accepts a minimum above the derived maximum, pushing the maximum up to it', () => {
+    remount(host => host.minBuffer.set(5000));
 
     expect(() => fixture.detectChanges()).not.toThrow();
+    expect([buffers().minBufferPx, buffers().maxBufferPx]).toEqual([5000, 5000]);
+  });
+
+  it('sorts a pair given the wrong way round', () => {
+    remount(host => {
+      host.minBuffer.set(300);
+      host.maxBuffer.set(100);
+    });
+
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect([buffers().minBufferPx, buffers().maxBufferPx]).toEqual([100, 300]);
   });
 
   it('keeps working with an empty list', () => {

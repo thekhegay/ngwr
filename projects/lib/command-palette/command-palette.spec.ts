@@ -176,6 +176,22 @@ describe('WrCommandPalette', () => {
     expect(root().querySelector('.wr-command-palette__empty')).not.toBeNull();
   });
 
+  it('keeps the "no results" row out of the listbox', () => {
+    type('zzzz');
+    const listbox = root().querySelector<HTMLElement>('[role="listbox"]')!;
+    const empty = root().querySelector<HTMLElement>('.wr-command-palette__empty')!;
+
+    // A listbox may own only `option` and `group` children — the rule the buckets
+    // already follow — so this row inside it was an axe `aria-required-children`
+    // critical, in the one state it renders in. A listbox with no children at all
+    // is allowed, which is what is left behind.
+    expect(listbox.contains(empty)).toBe(false);
+    expect(listbox.children).toHaveLength(0);
+    // Focus stays in the search input while the query is typed, so nothing would
+    // read the row out unless it is a live region.
+    expect(empty.getAttribute('role')).toBe('status');
+  });
+
   it('sends the highlight back to the top on every keystroke', () => {
     press('End');
     expect(activeIndex()).toBe(2);

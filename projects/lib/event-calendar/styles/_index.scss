@@ -286,6 +286,17 @@
 
   &--editable &__chip {
     cursor: grab;
+    // Own the drag gesture — without this a coarse pointer hands the press to
+    // the browser as a pan, which fires `pointercancel` before any `pointerup`,
+    // and the host's cancel binding drops the drag: a chip could not be moved
+    // with a finger at all. Arbitration intersects `touch-action` up the
+    // ancestors, so nested `__resize` is covered by the same rule (its 0.375rem
+    // height is a separate question). The cost is that a finger-scroll STARTING
+    // on a chip no longer scrolls, on an editable calendar only — the trade
+    // `wr-splitter`'s gutter already makes. `pan-y` is no softer fallback here:
+    // vertical is the axis a week/day move travels, and the only one a resize
+    // has.
+    touch-action: none;
   }
 
   &--dragging {

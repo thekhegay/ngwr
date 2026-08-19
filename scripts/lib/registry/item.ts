@@ -90,6 +90,34 @@ function targetProblem(target: string): string | null {
 }
 
 /**
+ * A registry dependency a CLI may fetch.
+ *
+ * Relative has no meaning here: the item is fetched from somewhere, and
+ * "somewhere" is not knowable to the CLI resolving it.
+ */
+function registryDependencyProblem(url: string): string | null {
+  return /^https:\/\//.test(url) ? null : 'is not an https URL';
+}
+
+/**
+ * An `entryPoints` name.
+ *
+ * Two rules, and only the first is one `schema.json` can state: the `ngwr/`
+ * prefix is required, and the rest has to be a real entry point. The prefix used
+ * to be STRIPPED rather than required — `entry.replace(/^ngwr\//, '')` — so a bare
+ * `"select"` passed here and failed the published `"pattern": "^ngwr/"`, and the
+ * repo told an author their item was valid against a schema that refuses it.
+ *
+ * Catalog membership stays out of the schema deliberately: a JSON Schema cannot
+ * know what shipped.
+ */
+function entryPointProblem(entry: string, entryPoints: ReadonlySet<string>): string | null {
+  if (!entry.startsWith('ngwr/')) return 'is missing the "ngwr/" prefix';
+  if (!entryPoints.has(entry.slice('ngwr/'.length))) return 'is not an ngwr entry point';
+  return null;
+}
+
+/**
  * Every problem, not the first one.
  *
  * An author fixing a published item by trial and error is the worst version of
@@ -117,18 +145,17 @@ function validateItem(raw: unknown, entryPoints: ReadonlySet<string>): string[] 
 
   if (isStringArray(raw['registryDependencies'])) {
     for (const url of raw['registryDependencies']) {
-      // A relative registry dependency has no meaning: the item is fetched from
-      // somewhere, and "somewhere" is not knowable to the CLI resolving it.
-      if (!/^https:\/\//.test(url)) problems.push(`registryDependency "${url}" is not an https URL`);
+      const problem = registryDependencyProblem(url);
+      if (problem !== null) problems.push(`registryDependency "${url}" ${problem}`);
     }
   }
 
   if (isStringArray(raw['entryPoints'])) {
     for (const entry of raw['entryPoints']) {
-      const subpath = entry.replace(/^ngwr\//, '');
       // Checked against the catalog scan rather than a list kept here — the
       // point of the whole AI-assets pass was to stop having two of those.
-      if (!entryPoints.has(subpath)) problems.push(`entryPoint "${entry}" is not an ngwr entry point`);
+      const problem = entryPointProblem(entry, entryPoints);
+      if (problem !== null) problems.push(`entryPoint "${entry}" ${problem}`);
     }
   }
 
@@ -192,5 +219,5 @@ function validateItem(raw: unknown, entryPoints: ReadonlySet<string>): string[] 
   return problems;
 }
 
-export { ITEM_TYPES, REQUIRED_KEYS, targetProblem, validateItem };
+export { ITEM_TYPES, REQUIRED_KEYS, entryPointProblem, registryDependencyProblem, targetProblem, validateItem };
 export type { WrRegistryFile, WrRegistryItem, WrRegistryItemType };

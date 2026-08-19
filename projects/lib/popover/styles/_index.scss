@@ -197,9 +197,12 @@ $_arrow-placement: (
 // `<… [wrPopover]="'text'" mode="tooltip">` instead.)
 //
 
-.wr-tooltip-overlay {
-  pointer-events: none;
-}
+// The pane is deliberately NOT `pointer-events: none`. WCAG 1.4.13 asks that a
+// tooltip stay up while the pointer is moved onto it — someone reading a long
+// hint at 400% zoom has to be able to reach the text — and an inert pane makes
+// the `mouseenter` that keeps it open impossible to fire. It does mean the chip
+// now intercepts what is under it, which is the area it draws on and no more;
+// the one part of that worth avoiding is the arrow, opted back out below.
 
 .wr-tooltip {
   // Follows the theme instead of inverting against it: on a dark canvas the
@@ -238,6 +241,10 @@ $_arrow-placement: (
     height: $_arrow;
     background: var(--wr-tooltip-bg);
     transform: rotate(45deg);
+    // The one piece that stays inert: the arrow points AT the trigger and
+    // overlaps it, so a hittable arrow would eat clicks meant for the control
+    // the tooltip describes.
+    pointer-events: none;
   }
 }
 

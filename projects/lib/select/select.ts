@@ -158,6 +158,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Per-chip ARIA label — interpolates `{{label}}`. @internal */
   protected readonly chipRemoveLabel = useI18nFormatter('select.removeItem', 'Remove {{label}}');
 
+  /**
+   * The overflow chip past `maxTagCount` — interpolates `{{count}}`. Through the
+   * catalog, like every other string here: printed as a bare `+{{ extra }} more`
+   * it stayed English in a fully localized app, beside an event-calendar cell
+   * reading "ещё 3" from the same string. @internal
+   */
+  protected readonly moreLabel = useI18nFormatter('select.more', '+{{count}} more');
+
   private readonly field = inject(WR_FORM_FIELD, { optional: true });
 
   /**
@@ -1314,6 +1322,20 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
     // Open — navigation/selection.
     switch (event.key) {
+      case 'Tab':
+        // Let focus leave naturally — no `preventDefault` — but do not let the panel
+        // outlive it. Nothing closed on Tab, so the listbox stayed on screen with a
+        // live `aria-activedescendant` while the combobox no longer had focus: it can
+        // cover the control that just took it (WCAG 2.4.11), and it keeps tracking a
+        // trigger nobody is on, so a click aimed at what is underneath lands on an
+        // option and commits into a select the user had already left. `wr-dropdown`
+        // and `wr-context-menu` close on Tab for the same reason.
+        //
+        // Closing does NOT commit the active option. The cursor is SEEDED on open, so
+        // tabbing straight through would select a row the user never looked at — and
+        // in multi / search / freeText modes there is no single "the option" to take.
+        this.open.set(false);
+        break;
       case 'ArrowDown':
         event.preventDefault();
         this.moveActive(1);

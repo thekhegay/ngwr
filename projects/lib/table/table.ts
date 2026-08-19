@@ -112,6 +112,10 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
     class: 'wr-table',
     '[class.wr-table--responsive]': 'responsive()',
     '[class.wr-table--virtual]': 'virtualized()',
+    // The rows under the veil are stale while a load is in flight, and nothing
+    // said so: the veil marked itself, not the table it covers. Same pairing as
+    // `wr-card` — mark busy, don't block (the veil is `pointer-events: none`).
+    '[attr.aria-busy]': 'loading() ? true : null',
   },
   imports: [NgTemplateOutlet, CdkDropList, CdkDrag, WrCheckbox, WrPagination, WrSpinner, WrTableSort, WrTableFilter],
 })
@@ -807,7 +811,7 @@ export class WrTable {
    * that is every VISIBLE node — a collapsed subtree is not on screen and is not
    * swept in, which keeps the checkbox honest about what it just did.
    */
-  private readonly pageRowKeys = computed<readonly unknown[]>(() =>
+  protected readonly pageRowKeys = computed<readonly unknown[]>(() =>
     // `renderRows()` in EVERY mode, not only tree: it is the list that reaches the
     // screen. Reading `visibleItems()` outside tree mode swept in the rows of a
     // COLLAPSED group — invisible rows, silently selected, which is exactly what
@@ -1047,9 +1051,9 @@ export class WrTable {
   /**
    * The flat `<tbody>` render list. Ungrouped it is exactly today's rows in
    * order (the rendered elements are unchanged; only the `@for` track identity
-   * moves to a stable id). Returns `[]` for both no-rows and loading — the
-   * template's `@if (visibleItems())` guard keeps the loading case from showing
-   * the empty row.
+   * moves to a stable id). Returns `[]` for nullish rows, and reads nothing about
+   * `loading()` — suppressing the "no data" row under the spinner is the
+   * template's job, not this one's.
    */
   protected readonly renderRows = computed<readonly RenderRow[]>(() => {
     const rows = this.visibleItems();

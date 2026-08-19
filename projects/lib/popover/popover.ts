@@ -229,12 +229,17 @@ export class WrPopover {
 
   /** @internal */
   protected onMouseLeave(event: MouseEvent): void {
+    const related = event.relatedTarget as Node | null;
     if (this.isTooltip()) {
+      // Crossing straight from the trigger onto the panel does not even arm the
+      // hide, the same bail-out the popover arm below has had. The panel's own
+      // `mouseenter` would cancel it a moment later anyway; not arming it is
+      // what removes the race.
+      if (related && this.overlayRef?.overlayElement.contains(related)) return;
       this.scheduleHide();
       return;
     }
     if (this.trigger() !== 'hover') return;
-    const related = event.relatedTarget as Node | null;
     if (related && this.overlayRef?.overlayElement.contains(related)) return;
     // Delay so the pointer can cross the gap between trigger and panel —
     // entering the panel cancels the close (see attach listeners).
@@ -347,16 +352,38 @@ export class WrPopover {
       // would be a tooltip nested inside a tooltip.
       this.overlayRef.overlayElement.setAttribute('role', 'tooltip');
     } else if (typeof content !== 'string') {
-      this.overlayRef.attach(new TemplatePortal(content, this.vcr));
+      const view = this.overlayRef.attach(new TemplatePortal(content, this.vcr));
+      const pane = this.overlayRef.overlayElement;
       // Popover mode is a non-modal dialog: the docstring promised dialog
       // semantics but nothing ever set a role, so a screen reader met an
       // unnamed generic container. `aria-modal="false"` is explicit — focus is
       // deliberately NOT trapped, the panel closes on outside click / Escape.
-      this.overlayRef.overlayElement.setAttribute('role', 'dialog');
-      this.overlayRef.overlayElement.setAttribute('aria-modal', 'false');
+      pane.setAttribute('role', 'dialog');
+      pane.setAttribute('aria-modal', 'false');
       // A named dialog: `role="dialog"` with no name announces as a bare
       // "dialog" and trips axe's `aria-dialog-name`.
-      this.overlayRef.overlayElement.setAttribute('aria-label', this.resolvedAriaLabel());
+      pane.setAttribute('aria-label', this.resolvedAriaLabel());
+
+      if (this.trigger() === 'click') {
+        // Render the projected content before focus moves, the way
+        // `wr-popconfirm` does — a reader announcing the dialog reads what is in
+        // it, and on an empty pane that is nothing.
+        view.detectChanges();
+        // Focus has to ENTER the panel. The overlay container sits at the end of
+        // `<body>`, so Tab from the trigger went to the next control on the page
+        // and left the dialog stranded behind it (WCAG F85). The pane takes it
+        // rather than the first control inside: a popover's content is
+        // arbitrary, and landing on a text field would raise the on-screen
+        // keyboard and skip whatever the panel says above it. Tab from the pane
+        // reaches that first control anyway, since the pane precedes its own
+        // content in document order.
+        //
+        // Click-triggered only — a hover popover must not pull the caret out of
+        // what the user is typing in, and `scheduleHoverClose()` would then
+        // dispose the pane out from under the focused element.
+        pane.tabIndex = -1;
+        pane.focus();
+      }
     }
     this.overlayRef.overlayElement.id = this.panelId;
 
@@ -378,7 +405,10 @@ export class WrPopover {
         }
       });
 
-    if (!tooltip && this.trigger() === 'hover') {
+    // Both hover shapes keep the panel up while the pointer is on it: for a
+    // popover so the pointer can cross the gap, for a tooltip because WCAG
+    // 1.4.13 requires it (Hoverable).
+    if (tooltip || this.trigger() === 'hover') {
       this.overlayRef.overlayElement.addEventListener('mouseenter', this.onOverlayEnter);
       this.overlayRef.overlayElement.addEventListener('mouseleave', this.onOverlayLeave);
     }
@@ -388,7 +418,7 @@ export class WrPopover {
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
-    if (!this.isTooltip() && this.trigger() === 'hover') {
+    if (this.isTooltip() || this.trigger() === 'hover') {
       this.overlayRef.overlayElement.removeEventListener('mouseenter', this.onOverlayEnter);
       this.overlayRef.overlayElement.removeEventListener('mouseleave', this.onOverlayLeave);
     }
@@ -416,10 +446,18 @@ export class WrPopover {
   private readonly onOverlayLeave = (event: MouseEvent): void => {
     const related = event.relatedTarget as Node | null;
     if (related && this.host.nativeElement.contains(related)) return;
-    this.scheduleHoverClose();
+    // A tooltip leaves on its own `hideDelay`, the same one the trigger uses; a
+    // hover popover has the longer grace period for crossing the gap back.
+    if (this.isTooltip()) this.scheduleHide();
+    else this.scheduleHoverClose();
   };
 
   private readonly onOverlayEnter = (): void => {
+    // Two different timers can be in flight: `hideTimer`, armed by the trigger's
+    // own `mouseleave` in tooltip mode, and `hoverCloseTimer` in popover mode.
+    // Cancelling only the second would leave a tooltip disappearing `hideDelay`
+    // after the pointer arrived on it.
+    this.clearTimers();
     this.clearHoverClose();
   };
 

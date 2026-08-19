@@ -21,7 +21,7 @@ import type { WrSpeedDialActionHarnessFilters } from './interfaces';
  * @see https://ngwr.dev/guides/testing
  */
 export class WrSpeedDialActionHarness extends ComponentHarness {
-  /** The action button. `role="menuitem"` sits on this element too. */
+  /** The action button. */
   static hostSelector = '.wr-speed-dial__action';
 
   /** Build a predicate that narrows the query — pass to `getHarness` / `getAllHarnesses`. */
@@ -34,11 +34,6 @@ export class WrSpeedDialActionHarness extends ComponentHarness {
   /** The action's accessible name — what a screen reader reads, and what `title` shows. */
   async getLabel(): Promise<string | null> {
     return (await this.host()).getAttribute('aria-label');
-  }
-
-  /** The role the action announces — `menuitem`. */
-  async getRole(): Promise<string | null> {
-    return (await this.host()).getAttribute('role');
   }
 
   /** Whether the action draws an icon rather than a letter. */

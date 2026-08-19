@@ -393,6 +393,11 @@
     backdrop-filter: blur(2px);
     // Above the pinned sticky cells (th z-index 2), so loading veils them too.
     z-index: 3;
+    // A positioned box over the whole table swallowed every click while leaving
+    // the keyboard untouched — sort headers, row checkboxes and the pager all
+    // stayed operable by Tab + Enter. The veil is a marker (the host carries
+    // `aria-busy`), not a shield, so it stops eating the pointer too.
+    pointer-events: none;
   }
 
   // --- Row grouping ---------------------------------------------------------
