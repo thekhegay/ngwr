@@ -170,6 +170,24 @@ describe('WrCarousel', () => {
    * What does NOT mirror is the buttons — `next` is the next slide in both
    * directions. Only the physical motion under them turns around.
    */
+  it('takes every off-screen slide out of the tab order and the a11y tree', async () => {
+    // Only one slide is visible, but the track merely translates the rest away —
+    // so without `inert` a keyboard user tabs into a link on a slide that is not
+    // on screen, and a screen reader announces all three. Fails on the old code,
+    // where the slide host carried no state at all.
+    const slides = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('wr-carousel-slide')];
+
+    expect(slides()).toHaveLength(3);
+    expect(slides().map(s => s.hasAttribute('inert'))).toEqual([false, true, true]);
+    expect(slides().map(s => s.getAttribute('aria-hidden'))).toEqual([null, 'true', 'true']);
+
+    fixture.componentInstance.active.set(2);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(slides().map(s => s.hasAttribute('inert'))).toEqual([true, true, false]);
+  });
+
   describe('reading direction', () => {
     it('moves the track toward the far side of the strip — ltr', () => {
       mount('browser', 'ltr');

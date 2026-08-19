@@ -18,6 +18,7 @@ class Page {}
 
 const ENTRIES: readonly WrSidebarEntry[] = [
   { title: 'Home', url: ['/'] },
+  { title: 'Archive', url: ['/archive'], disabled: true },
   {
     title: 'Data & charts',
     children: [
@@ -112,7 +113,8 @@ describe('WrSidebar', () => {
   });
 
   it('renders flat items as links and groups as toggles', () => {
-    expect(root().querySelectorAll('.wr-sidebar__entry').length).toBe(1);
+    expect(root().querySelectorAll('.wr-sidebar__entry').length).toBe(2);
+    expect(root().querySelectorAll('a.wr-sidebar__entry').length).toBe(1);
     expect(toggles().length).toBe(2);
     expect(root().querySelectorAll('.wr-sidebar__item').length).toBe(4);
   });
@@ -121,6 +123,16 @@ describe('WrSidebar', () => {
     const disabled = root().querySelector('.wr-sidebar__item--disabled')!;
     expect(disabled.tagName).toBe('SPAN');
     expect(disabled.textContent).toContain('Soon');
+  });
+
+  it('renders a disabled TOP-LEVEL entry as plain text too', () => {
+    // It used to be a live `<a [routerLink]>` wearing the `--disabled` class, and
+    // that class only paints: `pointer-events: none` blocks a mouse, never the
+    // keyboard, so the entry was still a tab stop and Enter still navigated.
+    const disabled = root().querySelector('.wr-sidebar__entry--disabled')!;
+    expect(disabled.tagName).toBe('SPAN');
+    expect(disabled.textContent).toContain('Archive');
+    expect(root().querySelector('a[href="/archive"]')).toBeNull();
   });
 
   it('opens a group on click and closes it again', () => {

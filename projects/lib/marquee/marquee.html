@@ -1,6 +1,19 @@
 <div class="wr-marquee__track" #track (mouseenter)="onEnter()" (mouseleave)="onLeave()">
   @for (copyIndex of copyIndices(); track copyIndex) {
-    <ul class="wr-marquee__list" role="list" [attr.aria-hidden]="copyIndex > 0" [attr.data-copy]="copyIndex">
+    <!--
+      `inert` alongside `aria-hidden`, and never one without the other: the copies
+      exist only to fill the track, and an item with an `href` renders a real anchor
+      in every one of them. Hidden from the screen reader but still in the tab order,
+      each duplicate is a tab stop that announces nothing — axe's `aria-hidden-focus`,
+      and N stops on one destination for anyone using the keyboard.
+    -->
+    <ul
+      class="wr-marquee__list"
+      role="list"
+      [attr.aria-hidden]="copyIndex > 0"
+      [attr.inert]="copyIndex > 0 ? '' : null"
+      [attr.data-copy]="copyIndex"
+    >
       @for (item of items(); track $index) {
         <li class="wr-marquee__item" role="listitem">
           @if (item.href) {

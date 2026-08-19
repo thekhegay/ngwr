@@ -6,7 +6,7 @@
  */
 
 import { isPlatformBrowser } from '@angular/common';
-import { Service, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
+import { DestroyRef, Service, PLATFORM_ID, type Signal, type WritableSignal, inject, signal } from '@angular/core';
 
 import { WR_STORAGE_CONFIG } from './storage-config';
 import { WR_STORAGE_ENGINE } from './storage-engine';
@@ -56,6 +56,7 @@ function isEnvelope(x: unknown): x is Envelope<unknown> {
 export class WrStorage {
   private readonly engine = inject(WR_STORAGE_ENGINE);
   private readonly config = inject(WR_STORAGE_CONFIG);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /**
@@ -208,7 +209,8 @@ export class WrStorage {
   private installCrossTabListener(): void {
     if (!this.isBrowser || this.listenerInstalled) return;
     this.listenerInstalled = true;
-    window.addEventListener('storage', (event: StorageEvent) => {
+
+    const handler = (event: StorageEvent): void => {
       // `storage` only fires for `localStorage` / `sessionStorage`, and
       // only for changes from OTHER tabs. Local writes are handled by
       // `notify()` in `set`/`remove`/`clear`.
@@ -220,6 +222,19 @@ export class WrStorage {
       const p = this.config.prefix;
       if (p && !event.key.startsWith(p)) return;
       this.notify(p ? event.key.slice(p.length) : event.key);
+    };
+
+    window.addEventListener('storage', handler);
+
+    // The listener belongs to THIS injector. Root-provided it lives as long as
+    // the page, but a route or component that lists `WrStorage` in its own
+    // `providers` used to leave the handler on the window after its injector was
+    // gone — still driving the watcher signals of a destroyed instance, and
+    // holding the instance and every signal in it reachable for the life of the
+    // page. Same bug `WrHotkey` already fixed once.
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('storage', handler);
+      this.listenerInstalled = false;
     });
   }
 }

@@ -24,7 +24,8 @@
     <input
       class="wr-table-filter__search"
       type="search"
-      placeholder="Search"
+      [placeholder]="resolvedSearchLabel()"
+      [attr.aria-label]="resolvedSearchLabel()"
       [value]="query()"
       (input)="onSearchInput($event)"
     />
@@ -60,7 +61,7 @@
     </div>
 
     @if (selectedCount() > 0) {
-      <button type="button" class="wr-table-filter__reset" (click)="onReset()">Reset</button>
+      <button type="button" class="wr-table-filter__reset" (click)="onReset()">{{ resolvedResetLabel() }}</button>
     }
   </div>
 </wr-dropdown-menu>

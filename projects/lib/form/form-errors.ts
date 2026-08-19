@@ -90,7 +90,10 @@ export const WR_FORM_ERROR_FALLBACKS: WrFormErrorMessages = {
   pattern: 'This value is not in the expected format.',
 
   // WrValidators.
-  noWhitespace: 'This field cannot be blank.',
+  // Not "cannot be blank": the validator PASSES on an empty value and fails on
+  // any value that holds whitespace, so the blank wording described the one case
+  // that never reaches this message — over a field reading `Ada Lovelace`.
+  noWhitespace: 'This value cannot contain spaces.',
   hexColor: 'Enter a hex colour, e.g. #1a2b3c.',
   url: 'Enter a valid URL.',
   cardNumber: 'Enter a valid card number.',

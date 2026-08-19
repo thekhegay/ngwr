@@ -58,6 +58,10 @@ export const wrEn: WrI18nCatalog = {
     selectGroup: 'Select group',
     toggleGroup: 'Toggle group',
     noMatches: 'No matches',
+    // The filter panel's search box has no visible label, so `search` is both its
+    // placeholder AND its accessible name.
+    search: 'Search',
+    reset: 'Reset',
   },
   eventCalendar: {
     today: 'Today',
@@ -81,6 +85,11 @@ export const wrEn: WrI18nCatalog = {
   splitter: {
     divider: 'Resize panes',
   },
+  stepper: {
+    // Rendered as a badge beside the step's own label, so it reads as part of the
+    // header rather than as a sentence — lowercase on purpose.
+    optional: 'optional',
+  },
   transfer: {
     source: 'Available',
     target: 'Selected',
@@ -100,7 +109,7 @@ export const wrEn: WrI18nCatalog = {
     min: 'Enter {{min}} or more.',
     max: 'Enter {{max}} or less.',
     pattern: 'This value is not in the expected format.',
-    noWhitespace: 'This field cannot be blank.',
+    noWhitespace: 'This value cannot contain spaces.',
     hexColor: 'Enter a hex colour, e.g. #1a2b3c.',
     url: 'Enter a valid URL.',
     cardNumber: 'Enter a valid card number.',
@@ -165,6 +174,14 @@ export const wrEn: WrI18nCatalog = {
   inputNumber: {
     increment: 'Increment',
     decrement: 'Decrement',
+  },
+  // Two names for one box, chosen by `mode`: only the numeric strip holds digits.
+  // One key saying "Digit" would be a lie on the alphanumeric and text modes, which
+  // accept letters — a wrong name is worse than an untranslated one.
+  inputOtp: {
+    label: 'Verification code',
+    digit: 'Digit {{index}}',
+    character: 'Character {{index}}',
   },
   anchor: {
     label: 'Table of contents',
@@ -299,6 +316,13 @@ export const wrEn: WrI18nCatalog = {
   },
   knob: {
     label: 'Value',
+  },
+  slider: {
+    label: 'Value',
+    // Range mode gives each end its own thumb, and each thumb its own name — a
+    // screen reader otherwise reads the same word twice for two different values.
+    lower: 'Lower value',
+    upper: 'Upper value',
   },
   speedDial: {
     label: 'Actions',

@@ -28,10 +28,11 @@ import { WrTabHarness } from './wr-tab-harness';
  *   the tab they move to, the APG's automatic-activation pattern. `<wr-tabs>`
  *   renders exactly one panel: the selected tab's.
  * - **Router** — one `routerLink` on any child switches the whole strip over. The
- *   tabs become `<a role="tab">`s, they announce no `aria-selected` at all (the
- *   router paints `--active` and nothing else), the strip renders NO panel, and it
- *   stops being one tab stop — every enabled tab is a Tab stop of its own. The
- *   arrow keys still move focus, but they select nothing: the route does that.
+ *   tabs become `<a role="tab">`s whose `aria-selected` follows the resolved route
+ *   (the same `routerLinkActive` that paints `--active`), the strip renders NO
+ *   panel, and it stops being one tab stop — every enabled tab is a Tab stop of its
+ *   own. The arrow keys still move focus, but they select nothing: the route does
+ *   that.
  *
  * So {@link getSelectedLabel} and {@link getFocusedLabel} are two different
  * questions, and {@link getTabStopLabels} is a third. They coincide in content mode

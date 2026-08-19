@@ -141,6 +141,10 @@ export class WrWindowManager {
       };
     }
 
+    // Assigned right after the ref exists; the predicate below only ever runs
+    // from a keydown, long after.
+    let self: WrWindowRef<unknown, unknown> | null = null;
+
     // Each window gets its own CDK overlay pane positioned `static` —
     // <wr-window> itself uses `position: fixed`, so the pane is only a
     // mount point. Windows are never modal — reach for `WrDialog` when
@@ -149,6 +153,15 @@ export class WrWindowManager {
       positionStrategy: this.overlay.position().global(),
       panelClass: 'wr-window-overlay',
       hasBackdrop: false,
+      // Which window an Escape belongs to is a question the CDK cannot answer
+      // here. Its keyboard dispatcher walks the attached overlays newest-first
+      // and hands the key to the first one willing to take it — and attach order
+      // is frozen at OPEN order, because `focus()` re-stacks with a z-index and
+      // never re-attaches. So the last window opened swallowed every Escape,
+      // even sitting behind the one the user was in. Declining here is what makes
+      // it recoverable: a rejected event walks on down the stack instead of being
+      // eaten, so the window that does own it still gets its Escape.
+      eventPredicate: () => self === null || this.ownsKeyboard(self),
       // OUT of the top layer, deliberately. The CDK puts overlay hosts there by
       // default (`popover="manual"`), and the top layer orders strictly by
       // ENTRY: whatever opened last paints on top and no z-index can change it.
@@ -162,6 +175,7 @@ export class WrWindowManager {
 
     const id = config.id ?? randomId('wr-window');
     const ref = new WrWindowRef<C, R>(id, overlayRef);
+    self = ref as unknown as WrWindowRef<unknown, unknown>;
     ref.taskbarVisible = config.taskbar !== false;
 
     // Provide WR_WINDOW_REF + WR_WINDOW_DATA inside the projected
@@ -216,6 +230,24 @@ export class WrWindowManager {
     }
 
     return ref;
+  }
+
+  /**
+   * Whether a keyboard event routed to `ref`'s overlay is actually meant for it.
+   *
+   * The window holding real DOM focus owns the key. When focus is outside every
+   * window — the common case, since a window is not modal and traps nothing —
+   * the FRONT-most one does, by the manager's own z stack rather than by attach
+   * order. A tie (nothing has ever been focused, so no z has been handed out
+   * yet) leaves every window willing, and the dispatcher's newest-first walk
+   * settles it as before.
+   */
+  private ownsKeyboard(ref: WrWindowRef<unknown, unknown>): boolean {
+    const open = this._windows();
+    const active = this.isBrowser ? document.activeElement : null;
+    const focused = active ? open.find(w => w._overlayRef.overlayElement?.contains(active)) : undefined;
+    if (focused) return focused === ref;
+    return open.every(w => w === ref || w.z() <= ref.z());
   }
 
   /** Close every programmatically-opened window. */

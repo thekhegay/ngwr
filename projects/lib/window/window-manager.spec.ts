@@ -186,6 +186,44 @@ describe('WrWindowManager', () => {
       expect(hostZ(first)).toBeGreaterThan(hostZ(second));
     });
 
+    it('closes the window in FRONT on Escape, not whichever opened last', () => {
+      const a = manager.open(Body, { id: 'a' });
+      const b = manager.open(Body, { id: 'b' });
+      TestBed.tick();
+
+      // The user brings A forward. Attach order does not follow — `focus()`
+      // re-stacks with a z-index and never re-attaches — so CDK's newest-first
+      // dispatch kept offering Escape to B, behind it and not focused.
+      a.focus();
+      TestBed.tick();
+      expect(a.z()).toBeGreaterThan(b.z());
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      TestBed.tick();
+
+      expect(manager.windows().map(w => w.id)).toEqual(['b']);
+    });
+
+    it('lets the window holding focus take the Escape, wherever it sits in the stack', () => {
+      const a = manager.open(Body, { id: 'a' });
+      const b = manager.open(Body, { id: 'b' });
+      TestBed.tick();
+
+      a.focus();
+      TestBed.tick();
+
+      // Focus beats the stack: the user is IN B, so B is what Escape dismisses
+      // even though A paints over it.
+      const inside = b._overlayRef.overlayElement.querySelector<HTMLElement>('button');
+      expect(inside, 'the window chrome renders no focusable control').not.toBeNull();
+      inside!.focus();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      TestBed.tick();
+
+      expect(manager.windows().map(w => w.id)).toEqual(['a']);
+    });
+
     it('steps the spawn offset so two windows do not sit exactly on top of each other', () => {
       const a = manager.nextStartOffset();
       const b = manager.nextStartOffset();

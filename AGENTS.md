@@ -215,14 +215,18 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 (`ngwr/form`), most of the service layer (`ngwr/hotkey`, `ngwr/i18n`,
 `ngwr/media`, `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
-page under `reference/components` — 226 spec files, ~3650 specs, and **every entry
+page under `reference/components` — 227 spec files, ~3750 specs, and **every entry
 point now has one**. What is still uncovered is no longer whole
 components but what a spec can reach: jsdom has no drawing context, so the canvas
-and WebGL components (`aurora`, `click-spark`, `confetti`, `fuzzy-text`,
-`splash-cursor`, `waves`) assert the null-context fallback and their own teardown
-rather than anything painted; and mode coverage inside components that are
-covered — a spec on `wr-table` says nothing about tree rows unless it
-exercises them.
+and WebGL components can never assert anything painted. Two of the six —
+`aurora` and `waves` — now install a recording context and an `ErrorHandler`
+recorder so their specs reach the end of `boot()` and assert frame counts, the
+null-context fallback class and teardown; a mutation that deletes the
+null-context guard fails three of them. The other four (`click-spark`,
+`confetti`, `fuzzy-text`, `splash-cursor`) still stop at the early return, so
+their specs pin construction and destruction and little else. The other hole is
+mode coverage inside components that are covered — a spec on `wr-table` says
+nothing about tree rows unless it exercises them.
 
 **`pnpm test --filter <x>` is a TEST-NAME regex, not a file filter.** It is
 vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
@@ -898,7 +902,7 @@ because it is guidance rather than a plan.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
-- Both shipped catalogs are pinned at **identical key sets (199)** with no
+- Both shipped catalogs are pinned at **identical key sets (208)** with no
   empty values — empty is the worse case, since it resolves as a real
   translation and reaches the DOM as a nameless control. Nothing had compared
   `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as

@@ -24,6 +24,12 @@
  * Pages opt in to the generated data by replacing their hand-written array with
  * `API.WrFoo`. A page that keeps its own array is still checked, so the two
  * cannot drift apart silently — the check exits non-zero on any disagreement.
+ *
+ * "Still checked" was aspirational until discovery stopped requiring the array
+ * be named `api`: a page calling its rows `typeRows` was skipped outright, and a
+ * gate that reports green on a table it never opened is worse than no gate. What
+ * that turned up is in `KNOWN_INCOMPLETE` — recorded page by page, so new drift
+ * on those pages still fails.
  */
 
 import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
@@ -85,7 +91,15 @@ ${body}
 `;
 }
 
-/** Hand-written `api` arrays still living in showcase pages, keyed by file. */
+/**
+ * Hand-written row arrays still living in showcase pages, keyed by file.
+ *
+ * The identifier is `\w+`, not the literal `api`, and that is the whole
+ * difference between a gate and a gesture: pages name their tables `typeRows`,
+ * `configApi`, `serviceApi`, `apiRows`… and for as long as discovery insisted on
+ * `api` those pages were never opened, so `check()` printed a green
+ * "0 page(s) disagree" over tables it had not read. Twelve of them disagreed.
+ */
 function handWritten(): Map<string, string> {
   const found = new Map<string, string>();
   const walk = (dir: string): void => {
@@ -95,7 +109,7 @@ function handWritten(): Map<string, string> {
         if (name.name !== 'generated') walk(full);
       } else if (name.name.endsWith('.ts')) {
         const src = readFileSync(full, 'utf8');
-        if (/readonly api\s*:\s*readonly DocApiRow\[\]\s*=\s*\[/.test(src)) found.set(full, src);
+        if (/readonly \w+\s*:\s*readonly DocApiRow\[\]\s*=\s*\[/.test(src)) found.set(full, src);
       }
     }
   };
@@ -103,9 +117,24 @@ function handWritten(): Map<string, string> {
   return found;
 }
 
-/** `…/reference/components/button/button.ts` → `button`. */
+/**
+ * The clusters where a page's folder name IS an entry point, by construction —
+ * "one public API per page" for `reference`, one component per page for
+ * `animations`.
+ *
+ * Everywhere else the match is a coincidence of naming, and taking it produces
+ * confident nonsense: `guides/keyboard` is the hotkey walkthrough and would be
+ * compared against `ngwr/keyboard` (the `<wr-kbd>` chip), `guides/tokens/density`
+ * against the density DIRECTIVE, `guides/tokens/typography` against
+ * `wrTypography` — whose real reference page is `reference/directives/typography`.
+ */
+const COMPARED_CLUSTERS = ['reference/', 'animations/'];
+
+/** `…/reference/components/button/button.ts` → `button`; `''` outside the clusters above. */
 function entryOf(file: string): string {
-  const parts = relative(PAGES_ROOT, file).split('/');
+  const rel = relative(PAGES_ROOT, file);
+  if (!COMPARED_CLUSTERS.some(prefix => rel.startsWith(prefix))) return '';
+  const parts = rel.split('/');
   return parts[parts.length - 2] ?? '';
 }
 
@@ -116,6 +145,10 @@ function entryOf(file: string): string {
  */
 function bare(name: string): string {
   return name
+    // A row can carry the binding's VALUE beside its name — the drawer page
+    // documents `[wrDrawerClose]="value?"` to show the payload is optional.
+    // Without this the row reads as unparseable and its member as undocumented.
+    .replace(/=.*$/, '')
     .replace(/^(?:\[[A-Za-z]+\]|<wr-[a-z-]+>)\./, '')
     // Repeated, not once: `[(position)]` is a banana-in-a-box, two layers deep.
     .replace(/^[[(]+/, '')
@@ -124,7 +157,7 @@ function bare(name: string): string {
 }
 
 function isMember(name: string): boolean {
-  return /^(?:(?:\[[A-Za-z]+\]|<wr-[a-z-]+>)\.)?[[(.]{0,2}[a-z][A-Za-z0-9]*[\])]{0,2}$/.test(name);
+  return /^(?:(?:\[[A-Za-z]+\]|<wr-[a-z-]+>)\.)?[[(.]{0,2}[a-z][A-Za-z0-9]*[\])]{0,2}(?:="[^"]*")?$/.test(name);
 }
 
 /**
@@ -176,6 +209,81 @@ function documentedMembers(src: string, requireDefault = false): string[] {
   return out;
 }
 
+/**
+ * Pages whose folder names an entry point they deliberately do not document.
+ *
+ * `reference/components/window` says it in its own opening line: there is no
+ * declarative `<wr-window>` for consumers, the manager is the only entry point,
+ * and the page documents `WrWindowConfig` / `WrWindowManager` / `WrWindowRef`
+ * instead. Its twenty-seven "missing" members are the internal component's
+ * inputs, so holding the page to them would be demanding docs for an API the
+ * library does not offer.
+ */
+const DELIBERATE_MISMATCH: ReadonlySet<string> = new Set([
+  'projects/showcase/app/reference/components/window/window.ts',
+]);
+
+/**
+ * Drift the widened discovery above uncovered — recorded, not excused.
+ *
+ * These eleven pages were never opened by the old `readonly api:` regex, so
+ * their tables have been out of step with the source for as long as the gate has
+ * existed. The lists are exact: a NEW disagreement on a listed page still fails,
+ * and so does a page that has been brought back into agreement — the entry has
+ * to be deleted with the fix, which is what keeps this from turning into the
+ * silent green it replaced.
+ *
+ * A few are the comparison's own blind spots rather than missing prose — the
+ * `valueChange` / `searchQueryChange` outputs a `model()` synthesises, interface
+ * fields listed under a plain heading — and those want `extract-api.ts` widened,
+ * not rows added to a page.
+ */
+const KNOWN_INCOMPLETE: Readonly<Record<string, readonly string[]>> = {
+  'projects/showcase/app/reference/components/checkbox/checkbox.ts': ['value'],
+  'projects/showcase/app/reference/components/color-picker/color-picker.ts': [
+    'hslToRgb',
+    'hsvToRgb',
+    'rgbToHsl',
+    'rgbToHsv',
+    'touch',
+  ],
+  'projects/showcase/app/reference/components/donut-chart/donut-chart.ts': ['ariaLabel'],
+  'projects/showcase/app/reference/components/drawer/drawer.ts': ['align', 'data', 'panelClass', 'showHandle'],
+  'projects/showcase/app/reference/components/input/input.ts': ['hideLabel', 'showLabel', 'wrInput'],
+  'projects/showcase/app/reference/components/mention/mention.ts': [
+    'activeIndex',
+    'hovered',
+    'items',
+    'listLabel',
+    'listboxId',
+    'picked',
+  ],
+  'projects/showcase/app/reference/components/meter-group/meter-group.ts': ['color', 'label', 'value'],
+  'projects/showcase/app/reference/components/radio/radio.ts': ['touch'],
+  'projects/showcase/app/reference/components/select/select.ts': ['searchQueryChange', 'valueChange'],
+  'projects/showcase/app/reference/components/speed-dial/speed-dial.ts': [
+    'actions',
+    'direction',
+    'disabled',
+    'icon',
+    'open',
+    'pick',
+    'safeArea',
+    'triggerLabel',
+  ],
+  'projects/showcase/app/reference/components/toast/toast.ts': [
+    'closeAllThreshold',
+    'config',
+    'dismissAllRequested',
+    'dismissed',
+    'maxStack',
+    'mode',
+    'pauseRequested',
+    'resumeRequested',
+    'showCloseAll',
+  ],
+};
+
 function check(api: Map<string, ApiEntry>): number {
   // An entry point is compared as a whole, not class by class: `layout/`
   // documents `WrLayout` + header + sider + content + footer on one page, and
@@ -203,8 +311,12 @@ function check(api: Map<string, ApiEntry>): number {
 
   let mismatched = 0;
   let unmapped = 0;
+  let quarantined = 0;
 
   for (const [file, src] of handWritten()) {
+    const rel = relative(ROOT_PATH, file);
+    if (DELIBERATE_MISMATCH.has(rel)) continue;
+
     const entry = entryOf(file);
     const found = byEntry.get(entry);
     if (!found) {
@@ -235,15 +347,32 @@ function check(api: Map<string, ApiEntry>): number {
     const missing = [...actual].filter(n => !documented.has(n));
     const stale = [...new Set(claimed.filter(n => !n.startsWith('[') && !actual.has(bare(n))).map(bare))];
 
+    const recorded = KNOWN_INCOMPLETE[rel];
+    if (recorded) {
+      const seen = [...new Set([...missing, ...stale])].sort();
+      const surprise = seen.filter(n => !recorded.includes(n));
+      const settled = recorded.filter(n => !seen.includes(n));
+      if (surprise.length === 0 && settled.length === 0) {
+        quarantined++;
+        continue;
+      }
+      mismatched++;
+      console.log(`  ${rel}  (${found.primary})  [recorded as incomplete]`);
+      if (surprise.length) console.log(`      new drift:  ${surprise.join(', ')}`);
+      if (settled.length) console.log(`      now agrees, drop from KNOWN_INCOMPLETE:  ${settled.join(', ')}`);
+      continue;
+    }
+
     if (missing.length === 0 && stale.length === 0) continue;
     mismatched++;
-    console.log(`  ${relative(ROOT_PATH, file)}  (${found.primary})`);
+    console.log(`  ${rel}  (${found.primary})`);
     if (missing.length) console.log(`      missing:  ${missing.join(', ')}`);
     if (stale.length) console.log(`      unknown:  ${stale.join(', ')}`);
   }
 
   console.log(
-    `\n  ${mismatched} page(s) disagree with the source; ${unmapped} not mapped to an entry point (interfaces, guides, groups).`
+    `\n  ${mismatched} page(s) disagree with the source; ${quarantined} recorded as incomplete;` +
+      ` ${unmapped} not mapped to an entry point (interfaces, guides, groups).`
   );
   return mismatched;
 }

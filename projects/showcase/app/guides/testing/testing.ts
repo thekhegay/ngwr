@@ -29,8 +29,10 @@ import {
 export default class TestingGuidePageComponent {
   protected readonly snippets = {
     install: `// The harnesses live beside the components they drive, one entry point each.
-// 34 so far: every form control, every overlay, both data views, the whole
-// navigation / disclosure set, and <wr-markdown>.
+// 70 so far, 104 harness classes: every form control, every overlay, both data
+// views, the whole navigation / disclosure set, every chart, eighteen of the
+// twenty-one animations, <wr-markdown>, and the standalone widgets — calendar,
+// event-calendar, window, image-cropper, tour, lightbox, speed-dial, splitter.
 import { WrButtonHarness } from 'ngwr/button/testing';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrCheckboxHarness } from 'ngwr/checkbox/testing';

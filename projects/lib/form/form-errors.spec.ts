@@ -1,3 +1,5 @@
+import { FormControl } from '@angular/forms';
+
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { WrValidators } from 'ngwr/validators';
@@ -62,6 +64,19 @@ describe('validation copy', () => {
     // on the group.
     expect(catalog(wrEn)['matchFields']).not.toBe(catalog(wrEn)['match']);
     expect(catalog(wrRu)['matchFields']).not.toBe(catalog(wrRu)['match']);
+  });
+
+  it('describes noWhitespace by what it rejects, not as a blank field', () => {
+    // Copy coverage is not copy correctness, which is how this survived: the
+    // sentence was "This field cannot be blank." while the validator PASSES on an
+    // empty value and fails on any value that holds whitespace. So the one case
+    // that reaches the message is `Ada Lovelace`, and the message called it blank.
+    expect(WrValidators.noWhitespace(new FormControl(''))).toBeNull();
+    expect(WrValidators.noWhitespace(new FormControl('Ada Lovelace'))).toEqual({ noWhitespace: true });
+
+    const fallback = String(WR_FORM_ERROR_FALLBACKS['noWhitespace']).toLowerCase();
+    expect(fallback).not.toContain('blank');
+    expect(fallback).toContain('space');
   });
 
   it('leaves no {{placeholder}} in the matchFields copy', () => {

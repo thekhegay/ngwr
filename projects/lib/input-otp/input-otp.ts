@@ -24,6 +24,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
 
@@ -52,10 +53,15 @@ import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
   selector: 'wr-input-otp',
   templateUrl: './input-otp.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()', role: 'group', 'aria-label': 'Verification code' },
+  host: { '[class]': 'classes()', role: 'group', '[attr.aria-label]': 'resolvedAriaLabel()' },
 })
 export class WrInputOtp implements FormValueControl<string> {
   private readonly dir = inject(Directionality, { optional: true });
+
+  /** Accessible name of the whole strip. Falls back to `inputOtp.label`. */
+  readonly ariaLabel = input<string | null>(null);
+
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'inputOtp.label', 'Verification code');
 
   /** Number of cells to render. Clamped to `[1, 20]`. @default 6 */
   readonly length = input(6, {
@@ -116,6 +122,9 @@ export class WrInputOtp implements FormValueControl<string> {
 
   protected readonly cellType = computed<'password' | 'text'>(() => (this.mask() ? 'password' : 'text'));
   protected readonly cellInputMode = computed(() => (this.mode() === 'numeric' ? 'numeric' : 'text'));
+
+  private readonly digitLabel = useI18nFormatter('inputOtp.digit', 'Digit {{index}}');
+  private readonly characterLabel = useI18nFormatter('inputOtp.character', 'Character {{index}}');
 
   protected readonly cellRefs = viewChildren<ElementRef<HTMLInputElement>>('cell');
 
@@ -206,6 +215,19 @@ export class WrInputOtp implements FormValueControl<string> {
 
   protected trackIndex(index: number): number {
     return index;
+  }
+
+  /**
+   * A box's accessible name. It projects no text and carries no label of its own,
+   * so this string IS the name a screen reader reads for it.
+   *
+   * Keyed off `mode`, not fixed: `sanitiseChar` passes any letter through in
+   * `alphanumeric` and `text`, so the old literal announced "Digit 3" over a box
+   * holding `A` — wrong in a way translating it would not have fixed.
+   */
+  protected cellLabel(index: number): string {
+    const params = { index: index + 1 };
+    return this.mode() === 'numeric' ? this.digitLabel(params) : this.characterLabel(params);
   }
 
   // Internals

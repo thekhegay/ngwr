@@ -27,7 +27,7 @@ interface CatalogEntry {
  * The catalog, read from the files the package already ships.
  *
  * **No second copy of anything, and that is the design constraint this whole
- * server was built under.** `llms-full.txt` (51 KB, 166 entry points) and
+ * server was built under.** `llms-full.txt` (~57 KB, 202 entry points) and
  * `schematics/use/symbol-map.json` (215 symbols) are already in the tarball for
  * other reasons, and the `.d.ts` bundle carries every signature. A server that
  * embedded its own index would be a fourth copy to keep in step with the library,
@@ -35,7 +35,7 @@ interface CatalogEntry {
  *
  * What it adds on top is the part none of those files have: a way to ASK. An
  * agent that does not already know an entry point's name cannot use a `.d.ts`,
- * and reading 51 KB of catalog to answer "what renders markdown" is the cost this
+ * and reading ~57 KB of catalog to answer "what renders markdown" is the cost this
  * exists to remove.
  */
 class Catalog {
@@ -73,10 +73,15 @@ class Catalog {
   /**
    * Does this entry point ship a stylesheet?
    *
-   * Read from the package's own `exports` map rather than assumed: 58 of the 166
+   * Read from the package's own `exports` map rather than assumed: 94 of the 202
    * entry points ship no `styles/_index.scss` — the testing harnesses, the
    * services, the adapters — and telling a consumer to `@use` one of those breaks
    * their Sass build.
+   *
+   * Count them with `hasStyles()` rather than by tallying `sass` conditions in the
+   * `exports` map: six of those keys are not catalog entry points at all (the root
+   * plus `animations`, `breakpoints`, `grid`, `reset`, `typography-utilities`), so
+   * that arithmetic comes out six short.
    */
   hasStyles(path: string): boolean {
     this.exports ??= (() => {

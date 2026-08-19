@@ -23,6 +23,7 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useI18nText } from 'ngwr/i18n';
 import { clamp, round } from 'ngwr/utils';
 
 import type { WrSliderValue } from './interfaces';
@@ -61,7 +62,7 @@ import type { WrSliderValue } from './interfaces';
   selector: 'wr-slider',
   templateUrl: './slider.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: { '[class]': 'classes()', '(focusout)': 'onFocusOut($event)' },
 })
 export class WrSlider implements FormValueControl<WrSliderValue> {
   // Typed `WrSliderValue | undefined` (not `number`) to satisfy the reserved
@@ -99,6 +100,29 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
   /** Render the current value below the track. @default true */
   readonly showLabel = input(true, { transform: coerceBooleanProperty });
+
+  /**
+   * Accessible name of the thumb — the single one, or the LOWER one in range
+   * mode. Falls back to `slider.label` / `slider.lower`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  /** Accessible name of the upper thumb in range mode. Falls back to `slider.upper`. */
+  readonly upperLabel = input<string | null>(null);
+
+  /**
+   * A thumb projects no text, so these ARE the accessible names — and they were
+   * hard-coded English with no key behind them, so every slider on a page
+   * announced the same untranslated "Value" whatever it controlled.
+   *
+   * Range mode reads `ariaLabel` as the LOWER end rather than as the whole
+   * control: a name given once must land on something, and naming both thumbs
+   * the same thing would read two different values under one name.
+   */
+  private readonly singleLabel = useI18nText(this.ariaLabel, 'slider.label', 'Value');
+  private readonly lowerLabel = useI18nText(this.ariaLabel, 'slider.lower', 'Lower value');
+  protected readonly resolvedUpperLabel = useI18nText(this.upperLabel, 'slider.upper', 'Upper value');
+  protected readonly resolvedLowLabel = computed(() => (this.range() ? this.lowerLabel() : this.singleLabel()));
 
   /**
    * Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape
@@ -208,17 +232,28 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     event.preventDefault();
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
+    // `preventDefault` above also suppresses the default focus, so the arrows
+    // did nothing after a mouse drag until the thumb was found again with Tab —
+    // while a click on the bare TRACK focused it. Synchronously, not through
+    // `focusThumb`: `event.currentTarget` is already the thumb, so that
+    // helper's `queueMicrotask` would only defer a focus nothing is waiting on.
+    target.focus();
 
     const move = (e: PointerEvent): void => this.updateFromEvent(e, thumb);
-    const up = (e: PointerEvent): void => {
+    const cleanup = (e: PointerEvent): void => {
       target.releasePointerCapture(e.pointerId);
       target.removeEventListener('pointermove', move);
-      target.removeEventListener('pointerup', up);
+      target.removeEventListener('pointerup', cleanup);
+      target.removeEventListener('pointercancel', cleanup);
       this.touch.emit();
     };
 
     target.addEventListener('pointermove', move);
-    target.addEventListener('pointerup', up);
+    target.addEventListener('pointerup', cleanup);
+    // `pointercancel` is never followed by a `pointerup`, so without this the
+    // move listener outlived the drag: the thumb kept following a pointer that
+    // was merely hovering over it, with no button held.
+    target.addEventListener('pointercancel', cleanup);
     this.updateFromEvent(event, thumb);
   }
 
@@ -267,6 +302,21 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     event.preventDefault();
     this.setThumb(thumb, next);
     this.emitChange();
+    this.touch.emit();
+  }
+
+  /**
+   * A bound field learns it may show its validation copy from `touch`, and
+   * pointer-up plus a value-changing keypress cannot be the only sources: a
+   * slider tabbed into and out of without an arrow press left the field
+   * untouched forever — which is exactly the case `touched` exists for, and
+   * what this output has always documented itself as doing. `wr-knob` and
+   * `wr-rating` bind `(blur)` on the one element they own; this component has
+   * two thumbs, so it listens for the bubbling `focusout` on its host instead
+   * — and ignores the one that only moves focus from one thumb to the other.
+   */
+  protected onFocusOut(event: FocusEvent): void {
+    if (this.track().nativeElement.contains(event.relatedTarget as Node | null)) return;
     this.touch.emit();
   }
 

@@ -32,8 +32,22 @@ export class WrTableFilter {
   /** Text shown when the search finds nothing. Falls back to `table.noMatches`. */
   readonly noMatchesLabel = input<string | null>(null);
 
+  /**
+   * Placeholder AND accessible name of the search box. Falls back to `table.search`.
+   *
+   * One string for both because the box has no visible label: the placeholder was
+   * its only name, so a hard-coded literal left the control unnamed in every other
+   * language rather than merely untranslated.
+   */
+  readonly searchLabel = input<string | null>(null);
+
+  /** Label of the clear-selection button. Falls back to `table.reset`. */
+  readonly resetLabel = input<string | null>(null);
+
   protected readonly resolvedFilterLabel = useI18nText(this.filterLabel, 'table.filter', 'Filter column');
   protected readonly resolvedNoMatchesLabel = useI18nText(this.noMatchesLabel, 'table.noMatches', 'No matches');
+  protected readonly resolvedSearchLabel = useI18nText(this.searchLabel, 'table.search', 'Search');
+  protected readonly resolvedResetLabel = useI18nText(this.resetLabel, 'table.reset', 'Reset');
 
   readonly items = input.required<readonly WrTableFilterItem[]>();
 

@@ -427,6 +427,24 @@ export class WrCalendar {
 
   protected onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;
+
+    // The listener sits on the HOST, which also wraps the nav header and the
+    // month / year chip listboxes — so without this every key aimed at a `‹`
+    // button or a month chip drove the day grid instead, and the
+    // `preventDefault()` below cancelled the button's own activation: Enter on
+    // `‹` picked a day the user never touched, ArrowDown on the header yanked
+    // real focus into the grid. The host element itself is deliberately let
+    // through: `WrCalendarHarness` sends its keys to `<wr-calendar>` rather
+    // than to a cell, because the calendar moves focus in an `afterNextRender`
+    // and jsdom often has focus nowhere at all.
+    const target = event.target as Element | null;
+    if (
+      target !== this.host.nativeElement &&
+      target?.closest('.wr-calendar__header, .wr-calendar__months, .wr-calendar__years')
+    ) {
+      return;
+    }
+
     const current = this.focusedDate();
     let next: Date | null = null;
     // Which way the key travels, so a landing on a closed-off day can keep

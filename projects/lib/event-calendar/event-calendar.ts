@@ -638,7 +638,13 @@ export class WrEventCalendar {
         next = [Math.min(columns - 1, day + 1), minutes];
         break;
       case 'ArrowUp':
-        next = inTime ? [day, this.stepRow(minutes, -1, rows)] : [Math.max(0, day - DAYS_PER_WEEK), minutes];
+        // Hold position at the top row, the way ArrowDown does at the bottom. A
+        // `Math.max(0, …)` clamp reads as the same thing and is not: from the
+        // Wednesday of the first week it lands on 0, so the cursor jumps
+        // SIDEWAYS to Sunday instead of staying put.
+        next = inTime
+          ? [day, this.stepRow(minutes, -1, rows)]
+          : [day - DAYS_PER_WEEK >= 0 ? day - DAYS_PER_WEEK : day, minutes];
         break;
       case 'ArrowDown':
         next = inTime

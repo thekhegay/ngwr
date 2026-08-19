@@ -154,6 +154,18 @@ describe('WrTour', () => {
     expect(actionLabels()).toEqual(['Skip tour', 'Done']);
   });
 
+  it('offers no Back on the first REACHABLE step', () => {
+    // The mirror of the case above. A leading step whose target is missing gets
+    // skipped, so the tour opens on index 1 — and `isFirst` compared against the
+    // raw index, putting a Back button on the very first card the user sees. It
+    // did nothing at all: `prev()` walks off the start and returns without moving.
+    tour.start([{ target: '#nowhere', content: 'gone' }, STEPS[1]]);
+    sync();
+
+    expect(tour.index()).toBe(1);
+    expect(actionLabels()).toEqual(['Skip tour', 'Done']);
+  });
+
   it('closes on Escape', () => {
     tour.start(STEPS);
     sync();

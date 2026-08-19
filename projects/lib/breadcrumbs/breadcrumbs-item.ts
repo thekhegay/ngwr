@@ -12,10 +12,13 @@ import { RouterLink } from '@angular/router';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 
 /**
- * One row inside `<wr-breadcrumbs>`. Renders as a `<li>` containing
- * either an `<a>` (when `[href]` or `[routerLink]` is set) or a plain
- * `<span aria-current="page">` (when neither is set — typically the last
- * crumb).
+ * One row inside `<wr-breadcrumbs>`. The host itself is the row — a
+ * `<wr-breadcrumbs-item role="listitem" class="wr-breadcrumbs__item">`
+ * inside the parent's `<ol>` — and it contains either a real
+ * `<a class="wr-breadcrumbs__link">` (when `[href]` or `[routerLink]` is
+ * set) or, for the current crumb, a non-interactive
+ * `<a class="wr-breadcrumbs__current" role="text" tabindex="-1"
+ * aria-current="page">` (when neither is set — typically the last crumb).
  *
  * @example
  * ```html

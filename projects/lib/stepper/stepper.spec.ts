@@ -1,6 +1,8 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrStep } from './step';
@@ -25,6 +27,16 @@ class Host {
   readonly addressDone = signal<boolean | null>(null);
   readonly reviewDisabled = signal(false);
 }
+
+@Component({
+  imports: [WrStepper, WrStep],
+  template: `
+    <wr-stepper>
+      <wr-step label="Профиль" optional>Body</wr-step>
+    </wr-stepper>
+  `,
+})
+class OptionalHost {}
 
 /**
  * Two things carry the meaning here: `aria-current="step"` on exactly one
@@ -195,5 +207,41 @@ describe('WrStepper', () => {
 
     expect(host().className).toContain('wr-stepper--responsive');
     expect(host().className).toContain('wr-stepper--vertical');
+  });
+});
+
+/**
+ * The badge sits INSIDE the header button's label span, so the word is part of
+ * the step's accessible name — the hard-coded literal was announced to every
+ * locale, not merely shown. There is no `*Label` input on purpose: one word
+ * shared by every step is a catalog entry, not a per-step binding.
+ */
+describe('WrStepper optional badge', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const badge = (fixture: { nativeElement: unknown }): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-stepper__optional')?.textContent?.trim() ?? '';
+
+  it('comes from the catalog, not from the template', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(OptionalHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(/\p{Script=Cyrillic}/u.test(badge(fixture)), `"${badge(fixture)}" is still English`).toBe(true);
+  });
+
+  it('falls back to English when nothing is registered', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(OptionalHost);
+    fixture.detectChanges();
+
+    expect(badge(fixture)).toBe('optional');
   });
 });

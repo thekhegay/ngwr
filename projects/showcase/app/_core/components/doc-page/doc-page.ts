@@ -11,6 +11,16 @@ import { MetaService } from '#core/services';
 
 const FALLBACK_CATEGORY = 'Docs';
 
+/**
+ * Clusters whose own segment is a container rather than a category — the label
+ * lives one level in (`/reference/utils/clamp` → 'Utils'). The value here is
+ * what a page sitting directly under the cluster gets instead.
+ */
+const CLUSTER_CATEGORY: Readonly<Record<string, string>> = {
+  guides: 'Guides',
+  reference: 'Reference',
+};
+
 const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   components: 'Components',
   animations: 'Animations',
@@ -18,12 +28,13 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
   icons: 'Icons',
   pipes: 'Pipes',
   services: 'Services',
-  translate: 'Translate',
+  translations: 'Translations',
   interfaces: 'Interfaces',
   typography: 'Typography',
+  tokens: 'Design tokens',
   utils: 'Utils',
   validators: 'Validators',
-  'getting-started': 'Getting Started',
+  start: 'Start',
 };
 
 /**
@@ -33,10 +44,12 @@ const CATEGORY_BY_SEGMENT: Readonly<Record<string, string>> = {
  * the page content below. Wires up `MetaService` automatically — pages
  * don't need to set the title, description, keywords, or canonical URL.
  *
- * **Category** — the title-bar category prefix (e.g. "Components", "Utils")
- * is derived from the first URL segment by default, so per-page boilerplate
- * stays minimal. Override `[category]` only for the rare page that needs
- * a forced label.
+ * **Category** — the document-title category (e.g. "Components", "Utils") is
+ * derived from the URL by default, so per-page boilerplate stays minimal. It is
+ * the CLUSTER segment that decides: `animations` / `icons` / `start` sit at the
+ * top level and name themselves, while `reference` and `guides` are containers
+ * and the label comes from the segment under them. Override `[category]` only
+ * for the rare page that needs a forced label.
  *
  * @example
  * ```html
@@ -71,7 +84,7 @@ export class DocPageComponent {
 
   /**
    * Override the auto-derived category. Pass `null` to use the URL-derived
-   * value (default behaviour). The derived value comes from the first URL
+   * value (default behaviour). The derived value comes from the cluster
    * segment, mapped via {@link CATEGORY_BY_SEGMENT}.
    */
   readonly category = input<string | null>(null);
@@ -101,8 +114,18 @@ export class DocPageComponent {
   }
 
   private deriveCategoryFromUrl(): string {
-    // First non-empty path segment, e.g. `/utils/keys` → 'utils'.
-    const segment = this.router.url.split(/[/?#]/).find(s => s.length > 0) ?? '';
-    return CATEGORY_BY_SEGMENT[segment] ?? FALLBACK_CATEGORY;
+    // `/reference/utils/clamp` → ['reference', 'utils', 'clamp'].
+    const [first = '', second = ''] = this.router.url.split(/[/?#]/).filter(s => s.length > 0);
+
+    // Read the cluster before the first segment: the IA moved every page under
+    // `/reference/*`, `/guides/*` and `/start/*`, and a first-segment-only
+    // lookup then missed for all but `animations` and `icons` — 174 prerendered
+    // pages shipped `<title>… · Docs · ngwr</title>` off the fallback below,
+    // which is exactly what a fallback looks like when it is doing the work.
+    // A cluster page with nothing mapped under it keeps the cluster's own name.
+    const cluster = CLUSTER_CATEGORY[first];
+    if (cluster) return CATEGORY_BY_SEGMENT[second] ?? cluster;
+
+    return CATEGORY_BY_SEGMENT[first] ?? FALLBACK_CATEGORY;
   }
 }

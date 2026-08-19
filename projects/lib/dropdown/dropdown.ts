@@ -284,11 +284,27 @@ export class WrDropdown {
     const current = document.activeElement as HTMLElement | null;
     const idx = current ? items.indexOf(current) : -1;
 
+    // CDK's keyboard dispatcher feeds this overlay EVERY document keydown, not
+    // just the ones typed into it — and a `trigger="hover"` menu is open with
+    // the caret deliberately left wherever the user was (see `openedByPointer`).
+    // So ownership is checked here rather than assumed: without it, ArrowDown /
+    // ArrowUp / Home / End pressed in an unrelated field were `preventDefault`ed
+    // and yanked focus into the menu. The trigger counts as ours — a hover menu
+    // that the user has tabbed back to should still open to the keyboard.
+    const typedIn = event.target;
+    const ours =
+      typedIn instanceof Node &&
+      (this.host.nativeElement.contains(typedIn) || (this.overlayRef?.overlayElement.contains(typedIn) ?? false));
+    // Escape (and Tab) still close from anywhere — routing to the topmost
+    // overlay regardless of focus is the dispatcher's whole job. Escape just
+    // must not drag the caret onto the trigger from a field the user is in.
+    if (!ours && event.key !== 'Escape' && event.key !== 'Tab') return;
+
     switch (event.key) {
       case 'Escape':
         event.preventDefault();
         this.isOpen.set(false);
-        this.host.nativeElement.focus();
+        if (ours) this.host.nativeElement.focus();
         break;
       case 'Tab':
         // Let focus leave naturally; close the menu.

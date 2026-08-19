@@ -293,6 +293,45 @@ describe('WrDropdown', () => {
     }
   });
 
+  /**
+   * An open menu is fed every keydown on the page, not just its own.
+   *
+   * CDK's keyboard dispatcher routes document keydowns to the topmost overlay
+   * regardless of focus, and a `trigger="hover"` menu is open with the caret
+   * left in whatever the user was typing — so the menu handler swallowed
+   * ArrowDown/ArrowUp/Home/End meant for that field and pulled focus into
+   * itself, and Escape typed there dropped the caret on the nav trigger.
+   */
+  it('leaves keys typed outside it to the element they were typed in', async () => {
+    fixture.componentInstance.how.set('hover');
+    fixture.detectChanges();
+    const elsewhere = document.createElement('input');
+    document.body.appendChild(elsewhere);
+    elsewhere.focus();
+
+    try {
+      trigger().dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      fixture.detectChanges();
+      await Promise.resolve();
+      fixture.detectChanges();
+      expect(menu()).not.toBeNull();
+
+      for (const name of ['ArrowDown', 'ArrowUp', 'Home', 'End']) {
+        const event = key(elsewhere, name);
+        expect(event.defaultPrevented, `${name} was swallowed`).toBe(false);
+        expect(document.activeElement, `${name} stole the caret`).toBe(elsewhere);
+      }
+
+      // Escape still closes — that is the dispatcher's whole point — but from
+      // out here it must not move focus.
+      key(elsewhere, 'Escape');
+      expect(menu()).toBeNull();
+      expect(document.activeElement, 'Escape stole the caret').toBe(elsewhere);
+    } finally {
+      elsewhere.remove();
+    }
+  });
+
   it('still focuses the first item when the KEYBOARD opens it', async () => {
     fixture.componentInstance.how.set('hover');
     fixture.detectChanges();

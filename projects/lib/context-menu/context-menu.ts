@@ -381,6 +381,15 @@ export class WrContextMenu {
     // class first so the SCSS transition runs back to the default
     // (faded + scaled-down) state, then dispose after the transition.
     pane.classList.remove('wr-context-menu-overlay--open');
+    // …and stop it hit-testing on the way out. Fading to `opacity: 0` does not
+    // stop a pane receiving pointer events — `.cdk-overlay-pane` sets
+    // `pointer-events: auto` — so for the whole 220 ms an invisible menu kept
+    // swallowing clicks meant for the page underneath, and a second click on
+    // the item just picked (a double-click, or Escape then click) re-ran the
+    // consumer's action. Written inline rather than in `styles/_index.scss`
+    // because the closing state has no class of its own, and inline beats the
+    // CDK's own sheet without an `!important`.
+    pane.style.pointerEvents = 'none';
     const timer = setTimeout(() => {
       this.closingPanes.delete(timer);
       ref.dispose();

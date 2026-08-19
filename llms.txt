@@ -207,9 +207,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   https://ngwr.dev/guides/agent-skill
 - **Registry — an open format for shareable theme presets and blocks.** One
   installable unit per JSON file, hosted anywhere; the contract is
-  https://ngwr.dev/registry/schema.json and two worked examples sit beside it at
-  `/registry/items/`. `cssVars` keys are `--wr-*` tokens, `entryPoints` names
-  `ngwr/*` subpaths, and a `files[].target` is always relative:
+  https://ngwr.dev/registry/schema.json and four worked examples sit beside it
+  at `/registry/items/` — three theme presets and one block. `cssVars` keys are
+  `--wr-*` tokens, `entryPoints` names `ngwr/*` subpaths, and a `files[].target`
+  is always relative:
   https://ngwr.dev/guides/registry
 - All site URLs (for crawlers): https://ngwr.dev/sitemap.xml
 - Source, README, per-component `.d.ts` types: https://github.com/thekhegay/ngwr

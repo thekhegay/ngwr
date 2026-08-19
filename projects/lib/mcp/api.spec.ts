@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -756,19 +756,37 @@ describe('extractClass', () => {
 });
 
 /**
- * The same two contracts, against the declarations this package actually ships.
+ * The same two contracts, against doc comments the library really carries.
  *
  * The synthetic fixtures above say what the reader must do; these say that the
- * library it reads is full of the shape in question. `dist/lib/types` only
- * exists after `pnpm build:lib`, so the block skips rather than fails on a
- * checkout that has never built — same as the server suite.
+ * library it reads is full of the shape in question. They used to read
+ * `dist/lib/types/*.d.ts` and skip when it was absent, which was never once
+ * satisfied on CI — the suite runs before `build:lib` — so two tests read as
+ * coverage while never executing. The class doc comment is what ng-packagr
+ * copies into the declaration verbatim, and it is on disk in every checkout, so
+ * the same two examples go through the same parser with nothing to skip.
  */
-const TYPES = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'dist', 'lib', 'types');
-const shipped = (file: string): string => readFileSync(resolve(TYPES, file), 'utf8');
+const LIB = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-describe.skipIf(!existsSync(TYPES))('the shipped declarations', () => {
+/** A class's own doc comment, wrapped as the one-class declaration `extractClass` reads. */
+const documented = (file: string, symbol: string): string => {
+  const source = readFileSync(resolve(LIB, file), 'utf8');
+  const declaration = source.indexOf(`export class ${symbol}`);
+  // Loudly, rather than as an empty example that would pass every assertion
+  // below: a moved file must fail this suite, not quietly empty it.
+  if (declaration === -1) throw new Error(`${symbol} is no longer declared in ${file}.`);
+
+  // The last block comment before the declaration — the decorator in between
+  // carries none of its own.
+  const start = source.lastIndexOf('/**', declaration);
+  const end = source.indexOf('*/', start) + 2;
+
+  return `${source.slice(start, end)}\ndeclare class ${symbol} {\n}\n`;
+};
+
+describe("the library's own examples", () => {
   it('keeps the example a fenced @for used to cut in half', () => {
-    const example = extractClass(shipped('ngwr-pipes.d.ts'), 'WrRange')?.example ?? '';
+    const example = extractClass(documented('pipes/range.ts', 'WrRange'), 'WrRange')?.example ?? '';
 
     // `WrRange`'s example is four lines of `@for` inside an ```html fence, and
     // what the tool returned for it was the fence and nothing else — one line,
@@ -780,7 +798,8 @@ describe.skipIf(!existsSync(TYPES))('the shipped declarations', () => {
   });
 
   it('keeps the lines an @ViewChild used to cut off an example', () => {
-    const example = extractClass(shipped('ngwr-rotating-text.d.ts'), 'WrRotatingText')?.example ?? '';
+    const example =
+      extractClass(documented('rotating-text/rotating-text.ts', 'WrRotatingText'), 'WrRotatingText')?.example ?? '';
 
     // `WrRotatingText`'s example demonstrates the imperative half of its API,
     // and the demonstration is exactly the part that was lost: everything from

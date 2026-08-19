@@ -186,14 +186,43 @@ describe('WrDatePicker', () => {
     expect(day(15).classList.contains('wr-calendar__day--selected')).toBe(true);
   });
 
-  it('closes on Escape without changing the value, and hands focus back to the field', () => {
+  it('closes on Escape without changing the value, and hands focus back to whatever opened it', () => {
+    // The trigger opened it and the grid took focus, so the guarded restore
+    // hands the caret back to the trigger — the element the user actually
+    // pressed, which is the APG behaviour and what the range picker does.
     open();
     document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
     fixture.detectChanges();
 
     expect(calendar()).toBeNull();
     expect(picked()?.getDate()).toBe(15);
-    expect(document.activeElement).toBe(field());
+    expect(document.activeElement).toBe(trigger());
+  });
+
+  it('leaves focus where the user put it when Escape comes from outside the panel', () => {
+    // Clicking the input opens the panel WITHOUT moving focus (see
+    // `openOnInput`), so the user can carry on Tabbing with it open — and
+    // Escape reaches this overlay from anywhere, the CDK dispatches it to the
+    // topmost one. An unconditional `.focus()` on the field overrode the
+    // guarded restore and dragged the caret backwards into the date field from
+    // wherever the user had moved on to.
+    const elsewhere = document.createElement('textarea');
+    document.body.appendChild(elsewhere);
+
+    try {
+      field().click();
+      fixture.detectChanges();
+      expect(calendar()).toBeTruthy();
+
+      elsewhere.focus();
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(calendar()).toBeNull();
+      expect(document.activeElement, 'the close stole the caret').toBe(elsewhere);
+    } finally {
+      elsewhere.remove();
+    }
   });
 
   it('closes on a click outside the panel', () => {

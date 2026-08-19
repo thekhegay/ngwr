@@ -172,6 +172,39 @@ describe('WrEventCalendar', () => {
       expect(document.activeElement).toBe(cellAt(11));
     });
 
+    it('holds position on ArrowUp in the first week instead of sliding to Sunday', () => {
+      // The top and bottom rows have to behave the same way, and a `Math.max(0, …)`
+      // clamp only looks like it does: from the Wednesday of the first week it
+      // resolves to index 0, which is the SUNDAY of that same row.
+      const wednesday = cellAt(3);
+      wednesday.focus();
+      fixture.detectChanges();
+
+      arrow('ArrowUp', wednesday);
+
+      expect(document.activeElement).toBe(wednesday);
+    });
+
+    it('holds position on ArrowDown in the last week, which is the twin of the above', () => {
+      const last = cellAt(38);
+      last.focus();
+      fixture.detectChanges();
+
+      arrow('ArrowDown', last);
+
+      expect(document.activeElement).toBe(last);
+    });
+
+    it('still steps a whole week up when there is a week above', () => {
+      const target = cellAt(10);
+      target.focus();
+      fixture.detectChanges();
+
+      arrow('ArrowUp', target);
+
+      expect(document.activeElement).toBe(cellAt(3));
+    });
+
     it('hands the single tab stop to the focused cell', () => {
       const target = cellAt(8);
       target.focus();

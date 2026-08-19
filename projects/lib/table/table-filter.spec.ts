@@ -1,6 +1,9 @@
+import type { Type } from '@angular/core';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -17,6 +20,14 @@ class Host {
     { value: 'user', title: 'User', selected: false },
   ]);
   readonly emitted = signal<readonly WrTableFilterItem[] | null>(null);
+}
+
+@Component({
+  imports: [WrTableFilter],
+  template: `<wr-table-filter [items]="items()" searchLabel="Find a role" resetLabel="Start over" />`,
+})
+class LabelledHost {
+  readonly items = signal<readonly WrTableFilterItem[]>([{ value: 'admin', title: 'Admin', selected: true }]);
 }
 
 /**
@@ -101,5 +112,65 @@ describe('WrTableFilter', () => {
 
     expect(badge()).toBeNull();
     expect(fixture.componentInstance.emitted()).toEqual([]);
+  });
+});
+
+/**
+ * Two strings in this panel were English literals while their two neighbours in
+ * the same template already resolved through the catalog. The search box is the
+ * worse of the pair: it has no visible label and no `id`, so its placeholder was
+ * also its only accessible name — an unnamed control in every other language,
+ * not just an untranslated one. Neither a11y gate can see it, since the panel
+ * does not exist until the trigger is clicked.
+ */
+describe('WrTableFilter panel copy', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const openPanel = <T>(component: Type<T>): void => {
+    const fixture = TestBed.createComponent(component);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-table-filter__trigger')!.click();
+    fixture.detectChanges();
+  };
+
+  const search = (): HTMLInputElement => document.querySelector<HTMLInputElement>('.wr-table-filter__search')!;
+  const reset = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-table-filter__reset');
+
+  it('names the search box, and names it with the placeholder it shows', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    openPanel(Host);
+
+    expect(search().getAttribute('aria-label')).toBe('Search');
+    expect(search().placeholder).toBe('Search');
+  });
+
+  it('comes from the catalog, not from the template', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.items().forEach(i => (i.selected = true));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-table-filter__trigger')!.click();
+    fixture.detectChanges();
+
+    const cyrillic = /\p{Script=Cyrillic}/u;
+    expect(cyrillic.test(search().placeholder), `"${search().placeholder}" is still English`).toBe(true);
+    expect(cyrillic.test(search().getAttribute('aria-label') ?? '')).toBe(true);
+    const label = reset()?.textContent?.trim() ?? '';
+    expect(cyrillic.test(label), `"${label}" is still English`).toBe(true);
+  });
+
+  it('lets a binding win over both', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    openPanel(LabelledHost);
+
+    expect(search().placeholder).toBe('Find a role');
+    expect(reset()?.textContent?.trim()).toBe('Start over');
   });
 });

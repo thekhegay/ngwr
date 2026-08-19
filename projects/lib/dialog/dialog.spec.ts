@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
@@ -39,6 +39,20 @@ class Confirm {
 
   /** Content can also close itself — the counterpart to `[wrDialogClose]`. */
   readonly ref = inject<WrDialogRef<Confirm, boolean>>(WrDialogRef);
+}
+
+/** A dialog whose heading arrives — and leaves — while the dialog is open. */
+@Component({
+  imports: [WrDialogTitle, WrDialogContent],
+  template: `
+    @if (showTitle()) {
+      <h2 wrDialogTitle>Edit item</h2>
+    }
+    <div wrDialogContent>Loading…</div>
+  `,
+})
+class LateTitle {
+  readonly showTitle = signal(false);
 }
 
 @Component({ template: `<button type="button" class="opener">Open</button>` })
@@ -123,6 +137,36 @@ describe('WrDialog', () => {
     const labelledBy = panel()!.getAttribute('aria-labelledby');
     expect(labelledBy).toBeTruthy();
     expect(document.getElementById(labelledBy!)?.textContent?.trim()).toBe('Delete item');
+  });
+
+  it('names the dialog from whichever title is in the panel right now', async () => {
+    // The title belongs to the caller's component, so it can arrive late (an
+    // async load behind an `@if`) or go away again while the dialog stays open.
+    // Resolving the id once at open time meant a late heading never named the
+    // dialog at all, and a removed one left `aria-labelledby` pointing at a node
+    // that is no longer in the document — which is not a name either: the dialog
+    // announces as unnamed, with nothing on screen to say so.
+    const ref = fixture.componentInstance.dialog.open<LateTitle>(LateTitle);
+    await settle();
+
+    const named = (): string | null => panel()!.getAttribute('aria-labelledby');
+    const titleId = (): string | null =>
+      document.querySelector<HTMLElement>('.wr-dialog__title')?.getAttribute('id') ?? null;
+
+    expect(named()).toBeNull();
+
+    ref.componentRef!.instance.showTitle.set(true);
+    await settle();
+
+    expect(titleId()).toBeTruthy();
+    expect(named()).toBe(titleId());
+
+    ref.componentRef!.instance.showTitle.set(false);
+    await settle();
+
+    expect(named()).toBeNull();
+
+    ref.close();
   });
 
   it('carries the public BEM classes on the panel and on the content directives', async () => {

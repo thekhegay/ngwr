@@ -122,15 +122,20 @@ ng g ngwr:page dashboard overview
     update: `# Auto-rewrite the v6 entry-points that v7 consolidated.
 ng update ngwr@7`,
 
-    updateMap: `// Templates: 8 tag rewrites across .html
+    updateMap: `// Templates: 11 element / attribute rewrites across .html
 <wr-autocomplete …>     →  <wr-select mode="search" …>
 <wr-chips-input …>      →  <wr-select mode="tag" …>
+<wr-select [multi] …>   →  <wr-select mode="multi" …>   ([multi]="false" just drops)
 <wr-time-picker …>      →  <wr-date-picker mode="time" …>
 <wr-date-time-picker …> →  <wr-date-picker mode="datetime" …>
 [wrTooltip]="…"         →  [wrPopover]="…" mode="tooltip"
 <wr-tree-select …>      →  <wr-tree openOn="overlay" …>
 <wr-bottom-sheet …>     →  <wr-drawer position="bottom" …>
 <wr-count-up-text …>    →  <wr-count-up …>
+<wr-image …>            →  <wr-lightbox …>
+<wr-animated-text …>    →  <wr-typewriter …> | <wr-decrypt-text …> | <wr-split-text …>
+                           (picked from mode=, and the renamed inputs go with it;
+                            the attribute form <h1 wr-animated-text> is left alone)
 
 // Imports (.ts): module-path + symbol renames
 'ngwr/autocomplete'     →  'ngwr/select'         (WrAutocomplete    → WrSelect)
@@ -141,8 +146,14 @@ ng update ngwr@7`,
 'ngwr/tree-select'      →  'ngwr/tree'           (WrTreeSelect      → WrTree)
 'ngwr/bottom-sheet'     →  'ngwr/drawer'         (WrBottomSheet     → WrDrawer)
 'ngwr/count-up-text'    →  'ngwr/counter'        (WrCountUpText     → WrCountUp)
+'ngwr/image'            →  'ngwr/lightbox'       (WrImage           → WrLightbox)
+'ngwr/animated-text'    →  'ngwr/typewriter'     (WrAnimatedText    → WrTypewriter)
 'ngwr/count-up'         →  'ngwr/counter'        (entry merged; symbol unchanged)
 'ngwr/tag'              →  'ngwr/badge'          (entry merged; symbol unchanged)
+'ngwr/form-field'       →  'ngwr/form'           (entry merged; symbol unchanged)
+
+// …plus one call rewrite: WrValidators.email → Validators.email (it moved to
+// @angular/forms; add that import yourself).
 
 // Stylesheets: @use / @import / @forward
 @use 'ngwr/autocomplete';   →  @use 'ngwr/select';

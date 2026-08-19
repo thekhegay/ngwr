@@ -5,35 +5,210 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { spawn } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { execFileSync, spawn } from 'node:child_process';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 /**
  * The server, over real stdio.
  *
- * Everything here goes through a spawned `node dist/lib/mcp/server.js` and
- * newline-delimited JSON on its stdin, because that is the only interface a
- * client has. Calling `handle()` in-process would test the switch statement and
- * skip the two things that actually break a stdio server: framing (a message
- * that arrives in two chunks, a notification that must produce no bytes at all)
- * and stream purity (one stray `console.log` and every client drops the
- * connection).
+ * Everything here goes through a spawned `node server.js` and newline-delimited
+ * JSON on its stdin, because that is the only interface a client has. Calling
+ * `handle()` in-process would test the switch statement and skip the two things
+ * that actually break a stdio server: framing (a message that arrives in two
+ * chunks, a notification that must produce no bytes at all) and stream purity
+ * (one stray `console.log` and every client drops the connection).
  *
- * It runs against the BUILT artifact rather than the source, because the built
- * artifact is what `npx ngwr-mcp` runs — shebang, execute bit and all. On a
- * checkout that has never run `pnpm build:lib` there is nothing to test, so the
- * block skips instead of failing.
+ * It runs against a COMPILED artifact rather than the source, because the
+ * compiled artifact is what `npx ngwr-mcp` runs — shebang, execute bit and all.
+ * The artifact is built HERE, into a temp package laid out like an installed
+ * `ngwr`, with the same `tsc -p mcp/tsconfig.json` invocation and the same two
+ * finishing touches `scripts/build-mcp.ts` applies.
+ *
+ * It used to point at `dist/lib/mcp/server.js` and skip when that was missing,
+ * which read as coverage and was not: CI runs the suite twenty-one lines BEFORE
+ * `build:lib`, so on a fresh checkout every test in this file skipped and the
+ * job went green — a stray `console.log` in `server.ts`, the one thing this file
+ * exists to catch, would have shipped. Compiling costs about a second and
+ * answers on any checkout.
+ *
+ * The catalog underneath it is a fixture for the same reason `tools.spec.ts`
+ * gives: the answer to "what does `wr-select` take" is a fixed string here,
+ * where against the real generated catalog it changes every time someone adds
+ * an input.
  */
 
-// Built by `scripts/build-mcp.ts` into the package root, three levels up from
-// `projects/lib/mcp`. Composed with `resolve` rather than `new URL(…,
-// import.meta.url)`: the bundler rewrites that pattern into an asset URL and
-// hands back `http://localhost:3000/…`.
-const SERVER = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'dist', 'lib', 'mcp', 'server.js');
+// Composed with `resolve` rather than `new URL(…, import.meta.url)`: the bundler
+// rewrites that pattern into an asset URL and hands back `http://localhost:3000/…`.
+const HERE = dirname(fileURLToPath(import.meta.url));
+const TSC = resolve(HERE, '..', '..', '..', 'node_modules', 'typescript', 'bin', 'tsc');
+const TSCONFIG = resolve(HERE, 'tsconfig.json');
+
+/**
+ * The fixture package's own version.
+ *
+ * Deliberately a string nothing else in the run could produce. Against the real
+ * `dist/lib/package.json` the package version and the invoking project's version
+ * are the same file, which is precisely why reading `npm_package_version` looked
+ * correct for as long as it did.
+ */
+const PACKAGE_VERSION = '9.9.9-fixture';
+
+/**
+ * The catalog the fixture answers from, in `gen-ai-assets.ts`'s own format.
+ *
+ * Three entry points, chosen for what the wire tests ask of them: `select` for a
+ * class with a full API surface, `table` for the biggest answer the server has,
+ * and `markdown` so a query that is not an entry-point name still has something
+ * to hit.
+ */
+const CATALOG = [
+  '# ngwr — full reference',
+  '',
+  '> Generated from the library source: every entry point with its import path,',
+  '> selector(s), public exports, and description. Concise quick-ref: /llms.txt',
+  '',
+  '## ngwr/markdown',
+  "- import: `import { WrMarkdown } from 'ngwr/markdown'`",
+  '- selector: `wr-markdown`',
+  '- exports: WrMarkdown',
+  '- Renders markdown as DOM, never as HTML — raw HTML in the source is escaped.',
+  '',
+  '## ngwr/select',
+  "- import: `import { WrSelect } from 'ngwr/select'`",
+  '- selector: `wr-select`',
+  '- exports: WrSelect, WrSelectOption',
+  '- Dropdown select — single, multi, search and tag modes in one component.',
+  '',
+  '## ngwr/table',
+  "- import: `import { WrTable } from 'ngwr/table'`",
+  '- selector: `wr-table`',
+  '- exports: WrTable, WrTableColumn',
+  '- The data workhorse — pinning, resizing, selection, grouping and tree rows.',
+  '',
+].join('\n');
+
+const SYMBOL_MAP = {
+  WrMarkdown: 'ngwr/markdown',
+  WrSelect: 'ngwr/select',
+  WrTable: 'ngwr/table',
+};
+
+/** The package's own `exports` map — where `hasStyles` gets its answer. */
+const EXPORTS = {
+  './markdown': { sass: './markdown/styles/_index.scss' },
+  './select': { sass: './select/styles/_index.scss' },
+  './table': { sass: './table/styles/_index.scss' },
+};
+
+/** `ngwr/select`, in emitted-`.d.ts` shape — the `ɵcmp` map included, since that is where required-ness lives. */
+const SELECT_TYPES = `
+import * as _angular_core from '@angular/core';
+
+interface WrSelectOption<T> {
+    label: string;
+    value: T;
+}
+
+/**
+ * Dropdown select — single, multi, search and tag modes in one component.
+ *
+ * @see https://ngwr.dev/reference/components/select
+ */
+declare class WrSelect<T> {
+    /** Options the panel renders. */
+    readonly options: _angular_core.InputSignal<readonly T[]>;
+    /** Placeholder shown while nothing is chosen. */
+    readonly placeholder: _angular_core.InputSignal<string | null>;
+    /** The chosen value. */
+    readonly value: _angular_core.ModelSignal<T | null>;
+    /** Emitted when the panel opens. */
+    readonly opened: _angular_core.OutputEmitterRef<void>;
+    /** Move focus to the trigger. */
+    focus(): void;
+    static ɵcmp: _angular_core.ɵɵComponentDeclaration<WrSelect<any>, "wr-select", never, { "options": { "alias": "options"; "required": true; "isSignal": true; }; "placeholder": { "alias": "placeholder"; "required": false; "isSignal": true; }; "value": { "alias": "value"; "required": false; "isSignal": true; }; }, { "value": "valueChange"; "opened": "opened"; }, never, never, true, never>;
+}
+
+export { WrSelect };
+export type { WrSelectOption };
+`;
+
+/**
+ * `ngwr/table`'s declarations, at the size the real ones are.
+ *
+ * Sixty generated inputs rather than a hand-copied list: what the two batch
+ * tests pin is a reply array of some megabytes leaving in one
+ * `JSON.stringify`, so the property that has to hold is the ORDER OF MAGNITUDE
+ * of a single answer — about 8 KB here against the shipped table's 9.7 KB. A
+ * three-input fixture would have let both of them pass on a reply far too small
+ * to prove anything.
+ */
+const TABLE_TYPES = [
+  "import * as _angular_core from '@angular/core';",
+  '',
+  'interface WrTableColumn {',
+  '    key: string;',
+  '    label: string;',
+  '}',
+  '',
+  '/**',
+  ' * The data workhorse — pinning, resizing, selection, grouping and tree rows.',
+  ' *',
+  ' * @see https://ngwr.dev/reference/components/table',
+  ' */',
+  'declare class WrTable<T> {',
+  ...Array.from({ length: 60 }, (_, index) => [
+    `    /** Binding ${index}: one of the many switches the table carries, documented the way ng-packagr emits it. */`,
+    `    readonly binding${index}: _angular_core.InputSignal<readonly WrTableColumn[] | null>;`,
+  ]).flat(),
+  '}',
+  '',
+  'export { WrTable };',
+  'export type { WrTableColumn };',
+].join('\n');
+
+/** The temp package, and the compiled server inside it. */
+let root: string;
+let server: string;
+
+beforeAll(() => {
+  root = mkdtempSync(join(tmpdir(), 'ngwr-mcp-server-'));
+  server = join(root, 'mcp', 'server.js');
+
+  // The compiler invocation `scripts/build-mcp.ts` runs, pointed at the fixture
+  // instead of `dist/lib`. Failing loudly here is the whole point of the change:
+  // a compiler that cannot be found must not read as a suite with nothing to do.
+  execFileSync(process.execPath, [TSC, '-p', TSCONFIG, '--outDir', join(root, 'mcp')], { stdio: 'pipe' });
+  // A `bin` has to name its interpreter and be executable, and tsc emits
+  // neither, so `build-mcp.ts` adds both after compiling. What ships is what
+  // should be under test.
+  writeFileSync(server, `#!/usr/bin/env node\n${readFileSync(server, 'utf8')}`);
+  chmodSync(server, 0o755);
+
+  // `Catalog` resolves its root as `dirname(dirname(server.js))`, so everything
+  // the server reads sits one level up — the layout of an installed package.
+  // `type: module` is not decoration: the emitted code is ESM, and without it
+  // Node parses the first `import` as CommonJS and the process dies before a
+  // byte reaches stdout. `dist/lib/package.json` declares it for that reason.
+  writeFileSync(
+    join(root, 'package.json'),
+    JSON.stringify({ name: 'ngwr', version: PACKAGE_VERSION, type: 'module', exports: EXPORTS })
+  );
+  writeFileSync(join(root, 'llms-full.txt'), CATALOG);
+  mkdirSync(join(root, 'schematics', 'use'), { recursive: true });
+  writeFileSync(join(root, 'schematics', 'use', 'symbol-map.json'), JSON.stringify(SYMBOL_MAP, null, 2));
+  mkdirSync(join(root, 'types'), { recursive: true });
+  writeFileSync(join(root, 'types', 'ngwr-select.d.ts'), SELECT_TYPES);
+  writeFileSync(join(root, 'types', 'ngwr-table.d.ts'), TABLE_TYPES);
+  // No declarations for `markdown`: an entry point whose declarations are
+  // missing has to answer, not throw.
+}, 60_000);
+
+afterAll(() => rmSync(root, { recursive: true, force: true }));
 
 /** A JSON-RPC message as it comes back off stdout. */
 interface RpcMessage {
@@ -60,7 +235,7 @@ interface Session {
 
 /** A running server, with stdin still open. */
 const start = (env: NodeJS.ProcessEnv = process.env): Session => {
-  const child = spawn(process.execPath, [SERVER], { env });
+  const child = spawn(process.execPath, [server], { env });
   let stdout = '';
   let stderr = '';
 
@@ -139,7 +314,7 @@ const withVersion = (version?: string): NodeJS.ProcessEnv => {
   return env;
 };
 
-describe.skipIf(!existsSync(SERVER))('ngwr-mcp over stdio', () => {
+describe('ngwr-mcp over stdio', () => {
   it('echoes back a protocol version it speaks', async () => {
     const result = await run([request(1, 'initialize', { protocolVersion: '2024-11-05' })]);
 
@@ -170,16 +345,16 @@ describe.skipIf(!existsSync(SERVER))('ngwr-mcp over stdio', () => {
   it('reports the version of the package it is part of, not the environment', async () => {
     const poisoned = await run([request(1, 'initialize')], withVersion('11.0.0-test'));
     const bare = await run([request(1, 'initialize')], withVersion());
-    const manifest = resolve(SERVER, '..', '..', 'package.json');
-    const own = JSON.parse(readFileSync(manifest, 'utf8')) as { version: string };
 
     // It used to read `npm_package_version`, which npx sets from the project that
     // INVOKED the server — so a consumer app had its own version reported back as
     // the catalog's. Installing the tarball into a scratch package is what showed
-    // it: in this repo the two are the same file. Both runs must answer the
-    // package's own version, including the one whose environment says otherwise.
-    expect(replyTo(poisoned, 1).result?.['serverInfo']).toMatchObject({ version: own.version });
-    expect(replyTo(bare, 1).result?.['serverInfo']).toMatchObject({ version: own.version });
+    // it: against `dist/` the two are the same file, which is why the fixture's
+    // version is one nothing in the environment could supply. Both runs must
+    // answer the package's own version, including the one whose environment says
+    // otherwise.
+    expect(replyTo(poisoned, 1).result?.['serverInfo']).toMatchObject({ version: PACKAGE_VERSION });
+    expect(replyTo(bare, 1).result?.['serverInfo']).toMatchObject({ version: PACKAGE_VERSION });
   });
 
   it('lists the four tools with the schemas a client validates against', async () => {

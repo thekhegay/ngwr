@@ -79,7 +79,7 @@ const SYMBOL_MAP = {
  * Both shapes below are real. An entry point with a stylesheet carries a `sass`
  * condition pointing at its `styles/_index.scss`; one without — a harness, a
  * service, an adapter, `ngwr/i18n/en` here — is absent from the map altogether,
- * which is how 58 of the 166 entry points look.
+ * which is how 94 of the 202 entry points look.
  */
 const EXPORTS = {
   '.': { sass: './styles.scss' },
@@ -224,7 +224,7 @@ describe('Catalog', () => {
 
     rmSync(join(root, 'llms-full.txt'));
     try {
-      // 51 KB re-parsed per tool call would be the whole cost of the server.
+      // ~57 KB re-parsed per tool call would be the whole cost of the server.
       // Deleting the file mid-flight is the only way to prove it was not.
       expect(catalog.all()).toBe(first);
     } finally {
@@ -270,9 +270,9 @@ describe('Catalog', () => {
   it('reports a stylesheet only for an entry point whose exports map declares one', () => {
     const catalog = new Catalog(root);
 
-    // Read from the package's own map rather than assumed from the path: 58 of
-    // the 166 entry points ship no `styles/_index.scss`, and `get_ngwr_component`
-    // used to tell a consumer to `@use` all 166.
+    // Read from the package's own map rather than assumed from the path: 94 of
+    // the 202 entry points ship no `styles/_index.scss`, and `get_ngwr_component`
+    // used to tell a consumer to `@use` every one of them.
     expect(catalog.hasStyles('ngwr/alert')).toBe(true);
     expect(catalog.hasStyles('ngwr/badge')).toBe(true);
     // Nested and absent from the map, which is what every harness, service and

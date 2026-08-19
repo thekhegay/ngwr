@@ -129,6 +129,18 @@ describe('wrMark', () => {
     expect(html('<img src=x onerror=1>', 'img')).toBe('&lt;<mark>img</mark> src=x onerror=1&gt;');
   });
 
+  it('matches the text the author wrote, not the entities the escape produced', () => {
+    // The escape used to run first, so the query was matched against `&amp;` and
+    // friends: `m` landed inside the entity, the `<mark>` cut it in half, and the
+    // browser painted the entity's own letters — `Tom &amp; Jerry` on screen. The
+    // mirror failure is a match that could never happen, since `<`, `>` and `"`
+    // are gone from the escaped text before the pattern ever runs.
+    expect(html('Tom & Jerry', 'm')).toBe('To<mark>m</mark> &amp; Jerry');
+    expect(html('Tom & Jerry', '&')).toBe('Tom <mark>&amp;</mark> Jerry');
+    expect(html('5 > 3', 'g')).toBe('5 &gt; 3');
+    expect(html('a < b', '<')).toBe('a <mark>&lt;</mark> b');
+  });
+
   it('returns the text unchanged with no query', () => {
     expect(html('abc', '')).toBe('abc');
     expect(html('abc', null)).toBe('abc');

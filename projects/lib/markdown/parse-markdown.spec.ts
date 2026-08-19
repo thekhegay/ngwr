@@ -607,6 +607,35 @@ describe('parseMarkdown — regressions', () => {
 
     expect(performance.now() - started).toBeLessThan(2000);
   });
+
+  it('does not let one block’s failed marker refuse a later block’s good one', () => {
+    // The memo that buys the linear scan above stores an INDEX, and the context
+    // it lived on spanned the whole document — so a stray `*` at offset 0 of one
+    // paragraph refused every `*` at or past offset 0 of every paragraph after
+    // it, and the same for `[`. Both render as literal markers, and which pairs
+    // collide depends only on their relative offsets, which is why parsing one
+    // block at a time never showed it.
+    const bold = parseMarkdown('*Note: prices are estimates.\n\nThe total is **$42** including tax.');
+    const link = parseMarkdown(
+      'Use the [ character to open a group.\n\nFull details live in the [guide](https://x.dev/s).'
+    );
+
+    expect(inlinesOf(bold[1])[1]).toMatchObject({ kind: 'strong' });
+    expect(inlinesOf(link[1])[1]).toMatchObject({ kind: 'link', href: 'https://x.dev/s' });
+    expect(plainText(inlinesOf(firstChild(parseMarkdown('Use 5*6 total\n\n- item with **bold**')[1])))).toBe(
+      'item with bold'
+    );
+  });
+
+  it('does not let a marker inside an emphasis label refuse the next one beside it', () => {
+    // Same memo, one paragraph: `matchEmphasis` recurses on the slice `a *b`,
+    // whose stray `*` sits at local index 2 — which then refused the well-formed
+    // `*c*` at outer index 13. So restoring the memo after the recursion is not
+    // enough; it has to be keyed to the string being scanned.
+    const nodes = inlinesOf(parseMarkdown('**a *b** and *c* here')[0]);
+
+    expect(nodes.map(node => node.kind)).toEqual(['strong', 'text', 'em', 'text']);
+  });
 });
 
 describe('parseMarkdown — streaming regressions', () => {

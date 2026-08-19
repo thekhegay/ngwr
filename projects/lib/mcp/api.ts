@@ -30,10 +30,12 @@ interface ApiClass {
 /**
  * Angular's signal wrappers, behind whichever namespace alias ng-packagr used.
  *
- * BOTH aliases, which is not decoration: of the 167 shipped declaration files, 99
- * import Angular as `_angular_core` and 25 as `i0`. Matching only the first hid
- * every binding in those 25 files — including `WrIcon`, whose single required
- * input is the entire component.
+ * BOTH aliases, which is not decoration: ng-packagr writes `_angular_core` for
+ * most of the shipped declarations and `i0` for a couple of dozen of them, and
+ * which file gets which moves with every entry point added — so the rule is here
+ * and the census deliberately is not. Matching the first alias alone hid every
+ * binding in the `i0` files, `WrIcon` among them, whose single required input is
+ * the entire component.
  */
 const SIGNAL_WRAPPER = /^(?:[A-Za-z_$][\w$]*\.)?(InputSignal|InputSignalWithTransform|ModelSignal|OutputEmitterRef)</;
 

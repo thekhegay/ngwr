@@ -6,13 +6,24 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrSlider } from './slider';
 
 @Component({
   imports: [WrSlider],
-  template: ` <wr-slider [(value)]="amount" [min]="min()" [max]="max()" [step]="step()" [disabled]="disabled()" /> `,
+  template: `
+    <wr-slider
+      [(value)]="amount"
+      [min]="min()"
+      [max]="max()"
+      [step]="step()"
+      [disabled]="disabled()"
+      (touch)="touched = touched + 1"
+    />
+  `,
 })
 class Host {
   readonly amount = signal<number | [number, number]>(50);
@@ -20,14 +31,16 @@ class Host {
   readonly max = signal(100);
   readonly step = signal(1);
   readonly disabled = signal(false);
+  touched = 0;
 }
 
 @Component({
   imports: [WrSlider],
-  template: `<wr-slider range [(value)]="span" [min]="0" [max]="100" />`,
+  template: `<wr-slider range [(value)]="span" [min]="0" [max]="100" (touch)="touched = touched + 1" />`,
 })
 class RangeHost {
   readonly span = signal<[number, number]>([20, 80]);
+  touched = 0;
 }
 
 /** Range mode with NO value bound and bounds that exclude the internal default. */
@@ -36,6 +49,15 @@ class RangeHost {
   template: `<wr-slider range [min]="200" [max]="300" />`,
 })
 class UnboundRangeHost {}
+
+@Component({
+  imports: [WrSlider],
+  template: `
+    <wr-slider ariaLabel="Volume" />
+    <wr-slider range ariaLabel="Price from" upperLabel="Price to" />
+  `,
+})
+class LabelledHost {}
 
 /**
  * Dragging needs a real compositor, so what a unit suite can own here is the
@@ -153,6 +175,73 @@ describe('WrSlider', () => {
     expect(press('Tab').defaultPrevented).toBe(false);
   });
 
+  /**
+   * jsdom has neither layout nor `PointerEvent`, so the track gets a stubbed box
+   * and the events are assembled by hand — the only way a unit suite reaches the
+   * drag LIFECYCLE, which is what these two are about rather than the geometry.
+   *
+   * What it cannot reach is the browser behaviour underneath: a synthetic
+   * `pointerdown` never focuses anything, so the first case can only assert that
+   * the component calls `focus()` itself — which is precisely the fix, since
+   * `preventDefault` is what suppressed the default focus in a real browser.
+   */
+  describe('grabbing a thumb', () => {
+    const pointer = (type: string, init: Record<string, unknown> = {}): Event => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.assign(event, { pointerId: 1, button: 0, isPrimary: true, clientX: 0, ...init });
+      return event;
+    };
+
+    /** A 200px track at x 0, plus the pointer-capture methods jsdom lacks. */
+    const grab = (clientX: number): HTMLElement => {
+      const track = root().querySelector<HTMLElement>('.wr-slider__track')!;
+      track.getBoundingClientRect = (): DOMRect => ({ left: 0, right: 200, width: 200 }) as DOMRect;
+      const el = thumb();
+      el.setPointerCapture = (): void => undefined;
+      el.releasePointerCapture = (): void => undefined;
+      el.dispatchEvent(pointer('pointerdown', { clientX }));
+      fixture.detectChanges();
+      return el;
+    };
+
+    it('focuses the thumb it grabs, so the arrows carry on after a drag', () => {
+      const el = grab(100);
+
+      expect(document.activeElement, 'a dragged slider was unreachable by keyboard until Tab found it again').toBe(el);
+    });
+
+    it('stops following a pointer whose gesture was cancelled', () => {
+      const el = grab(100);
+      // `pointercancel` is never followed by a `pointerup`, so the `up` closure
+      // that removes the move listener never ran.
+      el.dispatchEvent(pointer('pointercancel', { clientX: 100 }));
+      fixture.detectChanges();
+
+      // No button held — a hover, not a drag.
+      el.dispatchEvent(pointer('pointermove', { clientX: 150, buttons: 0 }));
+      fixture.detectChanges();
+
+      expect(amount()).toBe(50);
+    });
+  });
+
+  /**
+   * `touch` is what tells a bound field it may show its validation copy, and it
+   * has always documented itself as firing on blur. Pointer-up and a
+   * value-changing keypress were the only emitters, so a field tabbed into and
+   * straight out of stayed untouched — the one case `touched` exists for.
+   */
+  describe('touched', () => {
+    const touched = (): number => fixture.componentInstance.touched;
+
+    it('emits when focus leaves, with no value change at all', () => {
+      thumb().dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+
+      expect(touched()).toBe(1);
+      expect(amount()).toBe(50);
+    });
+  });
+
   describe('range mode', () => {
     let range: ReturnType<typeof TestBed.createComponent<RangeHost>>;
 
@@ -199,6 +288,17 @@ describe('WrSlider', () => {
       // would silently get them backwards.
       const [low, high] = range.componentInstance.span();
       expect(low).toBeLessThanOrEqual(high);
+    });
+
+    it('stays untouched while focus only moves from one thumb to the other', () => {
+      // `focusout` bubbles to the host from either thumb, so without a
+      // `relatedTarget` guard a Tab BETWEEN the two ends would report the field
+      // touched before the user had left the control.
+      thumbs()[0].dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: thumbs()[1] }));
+      expect(range.componentInstance.touched).toBe(0);
+
+      thumbs()[1].dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+      expect(range.componentInstance.touched).toBe(1);
     });
   });
 
@@ -418,5 +518,61 @@ describe('WrSlider', () => {
 
       expect(pressOn(bare, 'ArrowRight')).toBe(51);
     });
+  });
+});
+
+/**
+ * A thumb projects no text, so its `aria-label` IS its accessible name — and it
+ * was a template literal with no catalog key behind it, which is the one shape
+ * `check:a11y` cannot see: the name is present, so the structural rules pass
+ * while every slider on the page announces the same English word.
+ */
+describe('WrSlider thumb names', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const names = (fixture: ComponentFixture<unknown>): (string | null)[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll('[role="slider"]')].map(t =>
+      t.getAttribute('aria-label')
+    );
+
+  it('comes from the catalog, not from the template', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(RangeHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const labels = names(fixture);
+    expect(labels).toHaveLength(2);
+    for (const label of labels) {
+      expect(/\p{Script=Cyrillic}/u.test(label ?? ''), `"${label ?? ''}" is still English`).toBe(true);
+    }
+    // Two thumbs, two values: naming both ends the same word would read one name
+    // over two numbers.
+    expect(new Set(labels).size).toBe(2);
+  });
+
+  it('falls back to English when nothing is registered', () => {
+    TestBed.configureTestingModule({});
+    const single = TestBed.createComponent(Host);
+    single.detectChanges();
+    expect(names(single)).toEqual(['Value']);
+
+    const range = TestBed.createComponent(RangeHost);
+    range.detectChanges();
+    expect(names(range)).toEqual(['Lower value', 'Upper value']);
+  });
+
+  it('lets a binding win over both, and names the range ends apart', () => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(LabelledHost);
+    fixture.detectChanges();
+
+    expect(names(fixture)).toEqual(['Volume', 'Price from', 'Price to']);
   });
 });

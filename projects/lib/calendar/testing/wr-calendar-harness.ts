@@ -42,7 +42,7 @@ const ARROWS: Record<Arrow, TestKey> = {
  * picked. And it does NOT follow {@link next} / {@link previous} — a grid paged
  * away from the roving month has no active cell at all, and so no tab stop, until
  * a key or a click puts one back. That is the component's behaviour, and
- * {@link getActiveDay} is how a spec sees it.
+ * {@link getActiveDayNumber} is how a spec sees it.
  *
  * **Keys go to the host, not to a cell.** The component listens on its own element,
  * so {@link pressArrow} works whether or not jsdom managed to put real focus

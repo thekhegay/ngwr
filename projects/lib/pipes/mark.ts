@@ -45,9 +45,20 @@ export class WrMark implements PipeTransform {
     const text = String(value);
     if (!query) return text;
 
-    const safe = escapeHtml(text);
-    const pattern = new RegExp(query.replace(RE_META, '\\$&'), caseSensitive ? 'g' : 'gi');
-    const html = safe.replace(pattern, m => `<mark>${escapeHtml(m)}</mark>`);
+    // Match the RAW text and escape the pieces afterwards, never the other way
+    // round. Escaping first rewrites `&` as `&amp;`, and a query of `m` then lands
+    // INSIDE that entity: the `<mark>` splits it and the browser paints the
+    // entity's own letters, so `Tom & Jerry` renders as `Tom &amp; Jerry`. The
+    // mirror failure is a match that can never happen — `<`, `>` and `"` no longer
+    // exist in escaped text. The pipe's promise is untouched: every piece that came
+    // from `value` still goes through `escapeHtml`, matched or not, so the only
+    // tags in the output are the `<mark>`s built here.
+    const pattern = new RegExp(`(${query.replace(RE_META, '\\$&')})`, caseSensitive ? 'g' : 'gi');
+    const html = text
+      .split(pattern)
+      .map((part, index) => (index % 2 ? `<mark>${escapeHtml(part)}</mark>` : escapeHtml(part)))
+      .join('');
+
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 }
