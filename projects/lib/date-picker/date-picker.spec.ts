@@ -2,6 +2,8 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -104,6 +106,56 @@ describe('WrDatePicker', () => {
 
   it('renders the bound value through the given format', () => {
     expect(field().value).toBe('15.01.2025');
+  });
+
+  it('re-renders the field when [format] changes under an unchanged value', () => {
+    // The sync effect used to read the format inside `untracked()`, so it
+    // depended on `value()` alone and the field kept the old rendering.
+    fixture.componentInstance.format.set('yyyy/MM/dd');
+    fixture.detectChanges();
+
+    expect(field().value).toBe('2025/01/15');
+  });
+
+  it('re-renders the field when [mode] changes the derived format', () => {
+    fixture.componentInstance.format.set(null);
+    fixture.detectChanges();
+    const asDate = field().value;
+
+    fixture.componentInstance.mode.set('datetime');
+    fixture.detectChanges();
+
+    // `shortDate` to `shortDateTime` — the exact strings come out of `Intl`,
+    // so the assertion is that the rendering MOVED, and gained a time.
+    expect(field().value).not.toBe(asDate);
+    expect(field().value).toContain(asDate);
+  });
+
+  it('keeps the text the user is typing, which is what the echo guard is for', () => {
+    // The guard has to skip our own writes without also skipping a format
+    // change; a partial string must survive every keystroke.
+    field().value = '16.01.202';
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(field().value).toBe('16.01.202');
+  });
+
+  it('parses an edit to the displayed text against the format that produced it', () => {
+    // The damaging half. The edit below starts from whatever is ON SCREEN, the
+    // way a user's does. With a stale rendering there, `onInput` parsed it
+    // against the NEW format, the parse failed, the model kept the old day and
+    // `onBlur` overwrote the field — the edit vanished with no feedback.
+    fixture.componentInstance.format.set('yyyy/MM/dd');
+    fixture.detectChanges();
+
+    field().value = field().value.replace('15', '16');
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    field().dispatchEvent(new Event('blur', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(picked()?.getDate()).toBe(16);
+    expect(field().value).toBe('2025/01/16');
   });
 
   it('carries the public BEM classes, including the mode modifier', () => {
@@ -709,5 +761,48 @@ describe('WrDatePicker', () => {
       expect(calendar()).toBeNull();
       expect(document.activeElement).toBe(trigger());
     });
+  });
+});
+
+/**
+ * One picker, one catalog key, one language.
+ *
+ * The field's name (`useI18nText`) and the calendar button's (`readI18nText`)
+ * both resolve `datePicker.open`, and they used to disagree: the button's was a
+ * plain string captured in a field initializer, which runs before any
+ * loader-backed catalog exists. The field read "Открыть календарь" and the
+ * button beside it "Open calendar", and a runtime `i18n.use()` moved only the
+ * first of them.
+ *
+ * No placeholder, because a non-empty one is what the field is named after —
+ * the catalog string is its last resort, and that is the one shared with the
+ * trigger.
+ */
+@Component({ imports: [WrDatePicker], template: `<wr-date-picker />` })
+class LocalizedHost {}
+
+describe('WrDatePicker under a localized catalog', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('announces the field and the trigger in the same language', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrDateAdapter(),
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(LocalizedHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.wr-date-picker__trigger')!.getAttribute('aria-label')).toBe('Открыть календарь');
+    expect(el.querySelector('input.wr-input')!.getAttribute('aria-label')).toBe('Открыть календарь');
+
+    fixture.destroy();
   });
 });

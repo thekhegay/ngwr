@@ -34,9 +34,10 @@ class Host {
 }
 
 /**
- * The ring is `aria-hidden` and its slices are paths, so the legend is where the data
- * is readable at all — which is also why the chart's own name is asserted separately:
- * it is what survives `showLegend: false`.
+ * The slices are paths, so the legend is where the data is readable at all — which is also
+ * why the chart's own name is asserted separately: it is what survives `showLegend: false`.
+ * The name lives on the `<svg>`, not on the surface around it, because `role="img"` makes
+ * everything under it presentational and the centre text has to stay out of that.
  */
 describe('WrDonutChartHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;

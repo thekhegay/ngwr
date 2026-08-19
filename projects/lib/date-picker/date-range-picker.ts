@@ -212,7 +212,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   protected readonly resolvedPanelLabel = computed(() => {
     const explicit = this.panelAriaLabel();
     if (explicit) return explicit;
-    return this.isDateTime() ? this.panelLabelRangeDateTime : this.panelLabelRange;
+    return this.isDateTime() ? this.panelLabelRangeDateTime() : this.panelLabelRange();
   });
 
   protected readonly classes = computed(() => {

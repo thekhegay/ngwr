@@ -67,6 +67,16 @@ jobs:
 
       - run: pnpm build:showcase
 
+      # Reads the stylesheet the step above compiled and asks whether
+      # `wrThemeTokens()` still derives the same 63 tokens from the same seeds.
+      # It lives here rather than in `pnpm lint` only because it needs that
+      # build, and it lives here rather than in nightly.yml because this job
+      # already produces one — the drift it catches is a code change, not
+      # painted-colour creep, so it belongs inside the review cycle. Left out of
+      # CI entirely at first, which made the one guard over a duplicated recipe
+      # a command nobody ran.
+      - run: pnpm check:theme
+
       # Needs the prerendered output, so it runs last. Gated against
       # scripts/a11y-baseline.json, which is now empty — any serious or
       # critical violation fails.

@@ -23,7 +23,7 @@ import { NgControl } from '@angular/forms';
 
 import { EMPTY, type Subscription } from 'rxjs';
 
-import { WrI18n } from 'ngwr/i18n';
+import { WrI18n, useI18nText } from 'ngwr/i18n';
 
 import { WR_FORM_ERRORS, WR_FORM_ERROR_FALLBACKS, type WrFormErrorMessage } from './form-errors';
 import { WR_FORM_FIELD, type WrFormFieldContext } from './tokens';
@@ -135,8 +135,23 @@ export class WrFormField implements WrFormFieldContext {
   /** Show a `*` next to the label. @default false */
   readonly required = input(false, { transform: coerceBooleanProperty });
 
-  /** Show `(optional)` next to the label. Mutually exclusive with `required`. @default false */
+  /**
+   * Show an "optional" marker next to the label — the word comes from
+   * `optionalLabel`. Mutually exclusive with `required`. @default false
+   */
   readonly optional = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Word inside the optional marker's parentheses. Falls back to
+   * `form.optional`, then `'optional'`. The parentheses are the template's, so
+   * no locale has to repeat punctuation.
+   */
+  readonly optionalLabel = input<string | null>(null);
+
+  // Unlike the `*` marker beside it, this one is NOT `aria-hidden` — it sits
+  // inside the `<label>` and is read as part of the control's accessible name,
+  // so an English word here reached a Russian screen reader.
+  protected readonly resolvedOptional = useI18nText(this.optionalLabel, 'form.optional', 'optional');
 
   /**
    * Force a specific id on the label's `for` attribute. Auto-generated

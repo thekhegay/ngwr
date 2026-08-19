@@ -228,9 +228,9 @@ export class WrEventCalendar {
   private readonly dir = inject(Directionality, { optional: true });
   private readonly chipTpl = contentChild(WrCalendarEventTemplate);
 
-  // Reactive, not `readI18nText`: a calendar is as long-lived as the page it sits
-  // on, so a catalog that finishes loading after construction — or a locale switch —
-  // has to reach these. Resolved once, they froze the English defaults in place.
+  // Reactive: a calendar is as long-lived as the page it sits on, so a catalog that
+  // finishes loading after construction — or a locale switch — has to reach these.
+  // Resolved once, as they were, they froze the English defaults in place.
   protected readonly todayLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.today', 'Today');
   protected readonly previousLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.previous', 'Previous');
   protected readonly nextLabel = useI18nText(NO_OVERRIDE, 'eventCalendar.next', 'Next');

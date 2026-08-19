@@ -4,7 +4,7 @@
     @if (required()) {
       <span class="wr-form-field__required" aria-hidden="true">*</span>
     } @else if (optional()) {
-      <span class="wr-form-field__optional">(optional)</span>
+      <span class="wr-form-field__optional">({{ resolvedOptional() }})</span>
     }
   </label>
 }

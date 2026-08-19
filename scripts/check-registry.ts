@@ -22,7 +22,17 @@
  *    this repo enforces. Two descriptions of one format drift the moment
  *    someone edits either, so the item types and the required keys are compared
  *    directly — the same trick `check-color-parity.ts` plays on the SCSS and TS
- *    colour lists.
+ *    colour lists — and `files[].target`, whose rule is a regex on one side and
+ *    a function on the other, is compared by RUNNING both over `TARGET_CASES`.
+ *    Shape could not have caught what behaviour did: the schema's scheme
+ *    lookahead was lowercase-only, so `FILE:///etc/passwd` validated clean
+ *    against the published contract while `targetProblem()` refused it.
+ *
+ *    One divergence is left standing and is not in the table: a target with an
+ *    embedded newline (`src/a\nb.ts`). The schema's trailing `.+$` cannot match
+ *    across one, the validator has no rule about it, so the published contract
+ *    is the stricter of the two there — it can only reject an item this repo
+ *    would have accepted, never accept one it refuses.
  *
  * Deliberately NOT a JSON Schema implementation. Validating the schema with a
  * validator would mean adding one, and the interesting rules here are not
@@ -41,7 +51,7 @@ import { exit } from 'node:process';
 import { err } from './lib/log/err';
 import { info } from './lib/log/info';
 import { ROOT_PATH } from './lib/paths/root';
-import { ITEM_TYPES, REQUIRED_KEYS, validateItem } from './lib/registry/item';
+import { ITEM_TYPES, REQUIRED_KEYS, targetProblem, validateItem } from './lib/registry/item';
 import { PRESETS, buildThemePreset } from './lib/registry/theme-presets';
 
 const REGISTRY = resolve(ROOT_PATH, 'registry');
@@ -70,13 +80,47 @@ function entryPoints(): Set<string> {
 
 interface Schema {
   readonly required?: readonly string[];
-  readonly properties?: { readonly type?: { readonly enum?: readonly string[] } };
+  readonly properties?: {
+    readonly type?: { readonly enum?: readonly string[] };
+    readonly files?: { readonly items?: { readonly properties?: { readonly target?: { readonly pattern?: string } } } };
+  };
 }
+
+/**
+ * Targets the schema's `pattern` and `targetProblem()` have to answer the same
+ * way — the adversarial shapes first, then a couple of ordinary paths so a
+ * pattern that rejects everything cannot pass.
+ *
+ * Comparing the two on BEHAVIOUR rather than on shape is the point: the schema
+ * used to reject `file:` and accept `FILE:`, because its scheme lookahead was
+ * lowercase-only while the validator's carried an `i` flag. Nothing noticed,
+ * since the gate only ever read `type.enum` and `required`.
+ */
+const TARGET_CASES: readonly string[] = [
+  'FILE:///etc/passwd',
+  'HTTP://evil/x',
+  'DATA:text/x,y',
+  'file:///etc/passwd',
+  'C:/x',
+  'c:/x',
+  '/etc/passwd',
+  '\\\\srv\\x',
+  'a/../../etc/x',
+  '../x',
+  '..',
+  ' /etc/passwd',
+  'src/x.ts ',
+  'src/x\0.ts',
+  '',
+  'src/app/thing.ts',
+  'src/styles/_thing.scss',
+];
 
 function schemaParity(schema: Schema): string[] {
   const problems: string[] = [];
   const types = schema.properties?.type?.enum ?? [];
   const required = schema.required ?? [];
+  const pattern = schema.properties?.files?.items?.properties?.target?.pattern;
 
   const same = (a: readonly string[], b: readonly string[]): boolean =>
     a.length === b.length && [...a].sort().join() === [...b].sort().join();
@@ -87,6 +131,25 @@ function schemaParity(schema: Schema): string[] {
   if (!same(required, REQUIRED_KEYS)) {
     problems.push(`schema.json requires [${required.join(', ')}] but the validator requires [${REQUIRED_KEYS.join(', ')}]`);
   }
+
+  if (pattern === undefined) {
+    problems.push('files[].target has no pattern — third-party tooling would accept any write path');
+  } else {
+    // A JSON Schema `pattern` is an ECMA-262 regex with no flags, so it is read
+    // back exactly as a validator would read it.
+    const re = new RegExp(pattern);
+    for (const target of TARGET_CASES) {
+      const schemaAccepts = re.test(target);
+      const validatorAccepts = targetProblem(target) === null;
+      if (schemaAccepts !== validatorAccepts) {
+        problems.push(
+          `files[].target ${JSON.stringify(target)} — schema.json ${schemaAccepts ? 'accepts' : 'rejects'} it, ` +
+            `the validator ${validatorAccepts ? 'accepts' : 'rejects'} it`
+        );
+      }
+    }
+  }
+
   return problems;
 }
 

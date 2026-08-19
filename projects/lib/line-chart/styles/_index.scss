@@ -74,26 +74,23 @@
   }
 
   &__x-labels {
-    display: flex;
-    gap: 0.25rem;
+    position: relative;
     margin-top: 0.25rem;
-    // These two mirror `padding.left` / `padding.right` in line-chart.ts, which are
-    // SVG viewBox coordinates (`[attr.x1]="padding.left"`). SVG geometry is absolute
-    // and does not flip with `direction`, so the label strip has to stay on the same
-    // physical axis as the axis it labels.
-    // rtl-ok: physical SVG gutter — must track the y-axis the TS draws at x=36
-    padding-left: 36px;
-    // rtl-ok: the other half of that same physical SVG gutter pair
-    padding-right: 16px;
+    font-size: var(--wr-text-xs);
+    // The labels are absolutely positioned onto their points, so the strip has no
+    // content of its own to give it a height. Without this it collapses and the
+    // labels overlap whatever the page puts under the chart.
+    height: 1.25em;
   }
 
   &__x-label {
-    flex: 1 1 0;
-    text-align: center;
-    font-size: var(--wr-text-xs);
+    position: absolute;
+    // Paired with the `[style.left.%]` the template writes from the SVG's own
+    // geometry. SVG coordinates are absolute and do not flip with `direction`, so
+    // this centring offset stays physical alongside the inset it centres against.
+    transform: translateX(-50%);
+    font-size: inherit;
     color: var(--wr-color-on-surface-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
 }

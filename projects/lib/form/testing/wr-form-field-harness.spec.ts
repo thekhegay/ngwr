@@ -6,6 +6,7 @@ import { FormField, email, form, minLength, required } from '@angular/forms/sign
 
 import { WrFormError, WrFormField, WrFormItem, provideWrFormErrors } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { WrInput } from 'ngwr/input';
 import { WrInputHarness } from 'ngwr/input/testing';
 import { WrInputNumber } from 'ngwr/input-number';
@@ -729,5 +730,64 @@ describe('WrFormItemHarness', () => {
 
     expect(await input.getValue()).toBe('ada@example.test');
     expect(await (await (await item('Bio')).getHarness(WrInputHarness)).getValue()).toBe('');
+  });
+});
+
+/**
+ * The word inside the optional marker's parentheses.
+ *
+ * Unlike the `*` beside it, this marker is NOT `aria-hidden` — it sits inside
+ * the `<label>` and is read as part of the control's accessible name. It was a
+ * literal `(optional)` in the template with no key and no input, so a Russian
+ * field announced "Телефон (optional)".
+ */
+@Component({
+  imports: [WrFormField, WrInput],
+  template: `
+    <wr-form-field label="Телефон" optional><input wrInput /></wr-form-field>
+    <wr-form-field label="Заметки" optional optionalLabel="по желанию"><input wrInput /></wr-form-field>
+  `,
+})
+class OptionalHost {}
+
+describe('WrFormField — the optional marker', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<OptionalHost>>;
+
+  const mount = async (providers: (Provider | EnvironmentProviders)[]): Promise<string[]> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers });
+    fixture = TestBed.createComponent(OptionalHost);
+    fixture.detectChanges();
+    // The static loader resolves asynchronously even for an object literal.
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    return [...(fixture.nativeElement as HTMLElement).querySelectorAll('.wr-form-field__label')].map(label =>
+      (label.textContent ?? '').replaceAll(/\s+/g, ' ').trim()
+    );
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('takes the word from the catalog, and the parentheses from the template', async () => {
+    const labels = await mount([
+      provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+      provideWrI18nStaticLoader({ ru: wrRu }),
+    ]);
+
+    expect(labels[0]).toBe('Телефон (необязательно)');
+  });
+
+  it('lets a per-field input win over the catalog', async () => {
+    const labels = await mount([
+      provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+      provideWrI18nStaticLoader({ ru: wrRu }),
+    ]);
+
+    expect(labels[1]).toBe('Заметки (по желанию)');
+  });
+
+  it('falls back to English when nothing is configured', async () => {
+    expect(await mount([])).toEqual(['Телефон (optional)', 'Заметки (по желанию)']);
   });
 });

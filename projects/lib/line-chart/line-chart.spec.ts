@@ -41,6 +41,12 @@ describe('WrLineChart', () => {
   const legendLabels = (): string[] =>
     [...root().querySelectorAll('.wr-line-chart__legend-item')].map(el => el.textContent.trim());
   const allPaths = (): string[] => [...root().querySelectorAll('path')].map(el => el.getAttribute('d') ?? '');
+  const dots = (): SVGCircleElement[] => [...root().querySelectorAll<SVGCircleElement>('circle.wr-line-chart__dot')];
+  /** Each x label's inline offset, converted from percent-of-width back to viewBox units. */
+  const xLabelPositions = (): number[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-line-chart__x-label')].map(
+      el => (Number.parseFloat(el.style.left) / 100) * 600
+    );
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -127,6 +133,39 @@ describe('WrLineChart', () => {
     ]);
     fixture.detectChanges();
     expect(lines()[0].getAttribute('d')).toBe(withBad);
+  });
+
+  it('leaves a gap where the data has one instead of sliding the rest left', () => {
+    // Dropping the bad datum used to CLOSE the gap, which moved every later point one slot
+    // left: Wednesday's 9 was drawn at Tuesday's x (and its tooltip headed "Tue"), Thursday's
+    // 22 landed on Wednesday, and Thursday had no point at all. The hole keeps its index now
+    // and the line breaks across it, rather than drawing a reading nobody took.
+    fixture.componentInstance.series.set([{ label: 'Visits', data: [12, Number.NaN, 9, 22] }]);
+    fixture.componentInstance.xLabels.set(['Mon', 'Tue', 'Wed', 'Thu']);
+    fixture.detectChanges();
+
+    // Four slots across the 600-wide viewBox: 36 / 218.67 / 401.33 / 584.
+    const d = lines()[0].getAttribute('d')!;
+    expect(d.startsWith('M 36.00 ')).toBe(true);
+    expect(d).toContain('M 401.33 ');
+    expect(d).toContain('L 584.00 ');
+    // Tuesday has no reading, so no geometry is drawn at its x — and the run before it is
+    // closed rather than joined to the run after.
+    expect(d).not.toContain('218.67');
+    expect(dots().map(dot => Math.round(Number(dot.getAttribute('cx'))))).toEqual([36, 401, 584]);
+  });
+
+  it('centres each x label on the point it names', () => {
+    // The strip used to lay the labels out as equal centred flex slots — bar-chart geometry —
+    // while the plot draws point `i` edge-to-edge at `i / (count - 1)`. Only the middle label
+    // landed on its dot; the outer ones sat up to half a column away. They are positioned in
+    // the SVG's own percentage space now, the same space the tooltip already used.
+    // Both series share the same x's, so the distinct dot positions are the slots.
+    const dotXs = [...new Set(dots().map(dot => Number(dot.getAttribute('cx'))))].sort((a, b) => a - b);
+    const labelXs = xLabelPositions();
+
+    expect(labelXs.length).toBe(dotXs.length);
+    for (const [i, x] of labelXs.entries()) expect(x).toBeCloseTo(dotXs[i], 6);
   });
 
   it('labels the y axis with five ticks and drops the grid on request', () => {

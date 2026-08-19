@@ -2,6 +2,8 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrBreadcrumbs } from './breadcrumbs';
@@ -158,5 +160,43 @@ describe('WrBreadcrumbs with router links', () => {
   it('marks the last crumb as the current page here too', () => {
     expect(crumbs()[2].getAttribute('aria-current')).toBe('page');
     expect(crumbs()[0].getAttribute('aria-current')).toBeNull();
+  });
+});
+
+/**
+ * The landmark name with nothing bound. `RouterHost` above passes no
+ * `[ariaLabel]`, which is the case the `Host` suite could never reach — it binds
+ * the input from a signal, so it only ever exercised the override path.
+ */
+describe('WrBreadcrumbs landmark name', () => {
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    localStorage.clear();
+  });
+
+  const nameOf = async (providers: unknown[]): Promise<string | null> => {
+    TestBed.configureTestingModule({ providers: [provideRouter([]), ...(providers as never[])] });
+    const fixture = TestBed.createComponent(RouterHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    return (fixture.nativeElement as HTMLElement).querySelector('nav')!.getAttribute('aria-label');
+  };
+
+  it('comes out of the catalog, not out of the input default', async () => {
+    // It used to be `input('Breadcrumbs')`, so this landmark announced in English
+    // beside a `wr-sidebar` announcing "Боковая панель" — and the only escape was
+    // restating `[ariaLabel]` on every trail in the app.
+    expect(
+      await nameOf([
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ])
+    ).toBe('Хлебные крошки');
+  });
+
+  it('falls back to English when no catalog carries the key', async () => {
+    expect(await nameOf([])).toBe('Breadcrumbs');
   });
 });

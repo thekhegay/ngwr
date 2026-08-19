@@ -33,8 +33,8 @@ class Host {
 }
 
 /**
- * The ring itself is `aria-hidden`, so what a screen reader gets is the legend — and the
- * legend is optional. That makes the chart's own name the only thing that survives
+ * The arcs carry no text, so what a screen reader gets is the drawing's own name and the
+ * legend — and the legend is optional. That makes the name the only thing that survives
  * `showLegend: false`, which is why it is asserted here rather than assumed.
  *
  * The arcs are compared through the rendered `d`, because a path is what a consumer
@@ -45,7 +45,7 @@ describe('WrDonutChart', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
-  const surface = (): HTMLElement => root().querySelector<HTMLElement>('.wr-donut-chart__surface')!;
+  const svg = (): SVGSVGElement => root().querySelector<SVGSVGElement>('.wr-donut-chart__surface svg')!;
   const paths = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('.wr-donut-chart__surface path')];
   const legend = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-donut-chart__legend');
   /** Label and value are adjacent spans with no whitespace between them, so read each. */
@@ -65,20 +65,32 @@ describe('WrDonutChart', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('draws one arc per segment and keeps the svg out of the a11y tree', () => {
+  it('draws one arc per segment, and names the drawing rather than its paths', () => {
     expect(paths().length).toBe(3);
-    expect(root().querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
+    expect(svg().getAttribute('role')).toBe('img');
     for (const path of paths()) expect(path.getAttribute('d')).not.toContain('NaN');
   });
 
   it('announces itself even with the legend switched off', () => {
-    // The ring is hidden and the legend is optional, so without a name of its own the
+    // The arcs carry no text and the legend is optional, so without a name of its own the
     // chart is nothing at all to a screen reader in that configuration.
     fixture.componentInstance.showLegend.set(false);
     fixture.detectChanges();
 
-    expect(surface().getAttribute('role')).toBe('img');
-    expect(surface().getAttribute('aria-label')).toBe('Donut chart');
+    expect(svg().getAttribute('role')).toBe('img');
+    expect(svg().getAttribute('aria-label')).toBe('Donut chart');
+  });
+
+  it('leaves the centre text outside the picture', () => {
+    // `img` is a children-presentational role. With it on the wrapper it covered the centre
+    // block too, so WebKit dropped the headline number — the one figure the legend does not
+    // carry — from the accessibility tree entirely.
+    fixture.componentInstance.centerValue.set('60%');
+    fixture.detectChanges();
+
+    const centre = root().querySelector<HTMLElement>('.wr-donut-chart__center-value')!;
+    expect(centre.textContent.trim()).toBe('60%');
+    expect(centre.closest('[role="img"]')).toBeNull();
   });
 
   it('uses the given colour and falls back through the palette', () => {
@@ -175,8 +187,8 @@ describe('WrDonutChart under a localized catalog', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const surface = (fixture.nativeElement as HTMLElement).querySelector('.wr-donut-chart__surface')!;
-    expect(surface.getAttribute('aria-label')).toBe('Круговая диаграмма');
+    const drawing = (fixture.nativeElement as HTMLElement).querySelector('.wr-donut-chart__surface svg')!;
+    expect(drawing.getAttribute('aria-label')).toBe('Круговая диаграмма');
 
     fixture.destroy();
   });

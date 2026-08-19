@@ -6,7 +6,7 @@
  */
 
 import { DOCUMENT } from '@angular/common';
-import { Service, inject } from '@angular/core';
+import { DestroyRef, Service, inject } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
 
@@ -60,6 +60,18 @@ export class WrConfetti {
   private particles: Particle[] = [];
   private rafId: number | null = null;
 
+  // Named, so it can be removed again. The listener used to be an inline arrow
+  // and the canvas was never taken back out of `document.body`, which is only
+  // harmless while this is the root singleton: a route or a component that
+  // lists `WrConfetti` in its own `providers` left one orphaned full-viewport
+  // canvas — and one listener still reallocating its backing store on every
+  // window resize — behind per destroyed injector.
+  private readonly onResize = (): void => this.resize();
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.teardown());
+  }
+
   /** Spawn a confetti burst with the given (or default) options. */
   fire(options: WrConfettiOptions = {}): void {
     if (!this.platform.isBrowser) return;
@@ -88,7 +100,22 @@ export class WrConfetti {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.resize();
-    win.addEventListener('resize', () => this.resize());
+    win.addEventListener('resize', this.onResize);
+  }
+
+  /**
+   * Give back the canvas and the listener `ensureCanvas()` took from the page,
+   * stop the frame loop, and reset the state both of them guard on so a `fire()`
+   * from a fresh injector rebuilds cleanly.
+   */
+  private teardown(): void {
+    if (this.rafId !== null) cancelAnimationFrame(this.rafId);
+    this.rafId = null;
+    this.doc.defaultView?.removeEventListener('resize', this.onResize);
+    this.canvas?.remove();
+    this.canvas = null;
+    this.ctx = null;
+    this.particles = [];
   }
 
   private resize(): void {

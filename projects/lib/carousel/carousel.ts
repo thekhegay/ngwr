@@ -89,6 +89,21 @@ export class WrCarousel implements WrCarouselContext {
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'carousel.label', 'Carousel');
 
+  /**
+   * Word a screen reader speaks IN PLACE OF the `group` role. Falls back to
+   * `carousel.roledescription`, then `'carousel'`.
+   */
+  readonly roledescription = input<string | null>(null);
+
+  // Routed for the same reason the name above is: `aria-roledescription` is spoken
+  // verbatim, so a static English "carousel" made the viewport announce
+  // "Карусель, carousel" with the localized arrows right beside it.
+  protected readonly resolvedRoledescription = useI18nText(
+    this.roledescription,
+    'carousel.roledescription',
+    'carousel'
+  );
+
   // The three labels above route through the catalog; this one was a hard-coded
   // English template, so a localized app got two languages in one pagination strip.
   protected readonly slideLabel = useI18nFormatter('carousel.goToSlide', 'Go to slide {{index}}');

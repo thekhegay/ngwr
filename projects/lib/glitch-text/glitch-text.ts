@@ -9,7 +9,8 @@
  *
  * Pure CSS — two `::before` / `::after` clones offset by ±10px with
  * coloured `text-shadow`s, both running a clip-path keyframe to slice
- * random horizontal bands.
+ * random horizontal bands. The clones hang off an `aria-hidden` layer
+ * rather than the host, because generated content is announced.
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
@@ -32,13 +33,12 @@ import { numAttr } from 'ngwr/utils';
  */
 @Component({
   selector: 'wr-glitch-text',
-  template: '{{ text() }}',
+  templateUrl: './glitch-text.html',
   styleUrl: './glitch-text.scss',
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-glitch-text',
     '[class.wr-glitch-text--hover-only]': 'enableOnHover()',
-    '[attr.data-text]': 'text()',
     '[style.--wr-glitch-text-before-duration]': "(speed() * 2) + 's'",
     '[style.--wr-glitch-text-after-duration]': "(speed() * 3) + 's'",
     '[style.--wr-glitch-text-before-shadow]': 'beforeShadow()',

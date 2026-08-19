@@ -1,5 +1,9 @@
-<div class="wr-donut-chart__surface" role="img" [attr.aria-label]="resolvedAriaLabel()" [style.width.px]="size()">
-  <svg viewBox="0 0 100 100" aria-hidden="true">
+<div class="wr-donut-chart__surface" [style.width.px]="size()">
+  <!-- The name sits on the DRAWING, not on this wrapper. `img` is a
+       children-presentational role, so with it out here WebKit dropped the whole
+       subtree — including the centre value and label, which are real text and are
+       the headline datum the legend does not carry. -->
+  <svg viewBox="0 0 100 100" role="img" [attr.aria-label]="resolvedAriaLabel()">
     @for (slice of slices(); track $index) {
       <path [attr.d]="slice.path" [attr.fill]="slice.color" />
     }

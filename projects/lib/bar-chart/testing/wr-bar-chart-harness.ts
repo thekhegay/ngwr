@@ -9,13 +9,22 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import type { WrBarChartBar, WrBarChartHarnessFilters } from './interfaces';
 
+/** The `height: <n>%` the component writes onto a bar, out of its inline `style`. */
+const BAR_HEIGHT = /(?:^|;)\s*height\s*:\s*([\d.]+)%/;
+
 /**
  * Test harness for `<wr-bar-chart>`.
  *
  * **The bars are read as PERCENTAGES, not as pixels.** Each column's height is
  * written inline as a share of the chart's maximum, which is the one number that
  * survives a test with no layout — and it is also the component's whole job, since
- * the maximum is either given or derived from the data.
+ * the maximum is either given or derived from the data. That share is read off the
+ * `style` ATTRIBUTE rather than through `getCssValue()`, and the difference is not
+ * cosmetic: `getCssValue()` is `getComputedStyle()`, which hands the declared `60%`
+ * straight back in jsdom and resolves it to used pixels in a real browser — so the
+ * same harness answered `100` here and `200` under Selenium or a browser runner,
+ * with no error to say which one you got. The stylesheet's own `min-height: 1px`
+ * is a second way that read lies, turning an empty bar into `1`.
  *
  * **The visible label row is decoration.** Every column carries `role="img"` with
  * the label AND the value in its name, and the printed labels underneath are
@@ -63,10 +72,23 @@ export class WrBarChartHarness extends ComponentHarness {
           label: labels[index] ?? '',
           value: value === '' ? null : value,
           name: await column.getAttribute('aria-label'),
-          heightPercent: Number.parseFloat(await bars[index].getCssValue('height')),
+          heightPercent: WrBarChartHarness.heightPercentOf(await bars[index].getAttribute('style')),
         };
       })
     );
+  }
+
+  /** Parse one bar's declared share. See the class note on why this is not `getCssValue()`. */
+  private static heightPercentOf(style: string | null): number {
+    const match = BAR_HEIGHT.exec(style ?? '');
+    if (!match) {
+      throw new Error(
+        `WrBarChartHarness.getBars(): a bar carries no inline height percentage (style: "${style ?? ''}"). ` +
+          'The component writes one for every bar, an empty one included, so its absence is the bug — ' +
+          'reporting 0 would read as a bar with nothing in it.'
+      );
+    }
+    return Number.parseFloat(match[1]);
   }
 
   /** The labels printed under the columns, in order. */

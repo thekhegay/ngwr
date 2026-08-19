@@ -56,7 +56,17 @@
       />
       @if (showDots()) {
         @for (v of s.data; track $index; let i = $index) {
-          <circle class="wr-line-chart__dot" [attr.cx]="pointX(i)" [attr.cy]="pointY(v)" r="3" [attr.fill]="s.color" />
+          <!-- A hole in the data gets no dot: the index still belongs to it, so the
+               points after it stay on their own x. -->
+          @if (v !== null) {
+            <circle
+              class="wr-line-chart__dot"
+              [attr.cx]="pointX(i)"
+              [attr.cy]="pointY(v)"
+              r="3"
+              [attr.fill]="s.color"
+            />
+          }
         }
       }
     }
@@ -103,7 +113,12 @@
 @if (xLabels().length > 0) {
   <div class="wr-line-chart__x-labels">
     @for (label of xLabels(); track $index) {
-      <span class="wr-line-chart__x-label">{{ label }}</span>
+      <!-- Centred on the point it names, in the same percentage-of-width space the
+           tooltip uses. The strip and the stretching SVG share the host's width, so
+           `pointX(i) / vbW` tracks the drawing at any size. Laying the labels out as
+           equal centred flex slots instead is bar-chart geometry: only the middle
+           label landed on its dot, and the outer ones sat up to half a column away. -->
+      <span class="wr-line-chart__x-label" [style.left.%]="(pointX($index) / vbW) * 100">{{ label }}</span>
     }
   </div>
 }

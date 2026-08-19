@@ -9,9 +9,25 @@
         [style.clip-path]="`polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 ${cropDisplay().y}px, ${cropDisplay().x}px ${cropDisplay().y}px, ${cropDisplay().x}px ${cropDisplay().y + cropDisplay().h}px, ${cropDisplay().x + cropDisplay().w}px ${cropDisplay().y + cropDisplay().h}px, ${cropDisplay().x + cropDisplay().w}px ${cropDisplay().y}px, 0 ${cropDisplay().y}px)`"
       ></div>
 
-      <!-- Crop window — drag to move, with eight resize handles. -->
+      <!--
+        Crop window — drag to move, with eight resize handles, and the ONE
+        keyboard control the component has (see `onWindowKeydown`). The eight
+        handles stay pointer-only and `aria-hidden`: eight extra tab stops per
+        cropper would be hostile. The keys resize from the east and south edges
+        only, so a west or north drag comes out as a resize plus a move rather
+        than as one gesture.
+
+        `role="group"` rather than no role at all, because `aria-label` is
+        prohibited on a roleless `<div>` and this needs a name; and rather than
+        `role="application"`, which would switch the reader out of its own
+        browse mode for the whole subtree — far more than one rectangle is worth.
+      -->
       <div
         class="wr-image-cropper__window"
+        role="group"
+        tabindex="0"
+        [attr.aria-label]="resolvedWindowLabel()"
+        [attr.aria-describedby]="helpId"
         [style.left.px]="cropDisplay().x"
         [style.top.px]="cropDisplay().y"
         [style.width.px]="cropDisplay().w"
@@ -20,9 +36,12 @@
         (pointermove)="onPointerMove($event)"
         (pointerup)="onPointerUp($event)"
         (pointercancel)="onPointerUp($event)"
+        (keydown)="onWindowKeydown($event)"
+        (keyup)="onWindowKeyup()"
       >
         @for (h of handles; track h) {
           <span
+            aria-hidden="true"
             [class]="`wr-image-cropper__handle wr-image-cropper__handle--${h}`"
             (pointerdown)="onPointerDown(h, $event)"
             (pointermove)="onPointerMove($event)"
@@ -31,6 +50,17 @@
           ></span>
         }
       </div>
+
+      <p class="wr-image-cropper__sr-only" [id]="helpId">{{ resolvedKeyHelp() }}</p>
+
+      <!--
+        The crop rect in SOURCE pixels, announced after a keyboard change only —
+        a pointer drag already gives sighted feedback and would flood the region,
+        and the initial crop is not news. Deliberately bare numbers: a sentence
+        here would be a translated string the catalog does not carry, and the
+        reader has just been told what the four numbers mean by `helpId`.
+      -->
+      <p class="wr-image-cropper__sr-only" role="status">{{ announcement() }}</p>
     }
   </div>
 } @else {

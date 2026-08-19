@@ -34,8 +34,11 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     // Reuse the prerendered DOM instead of throwing it away and re-rendering
     // on boot. Requires server and client to agree on structure — see the
-    // `ngSkipHydration` note on `wr-window`, the CSS-driven nav split in
-    // `layout.scss`, and the platform-resolved date locale.
+    // CSS-driven nav split in `layout.scss` and the platform-resolved date
+    // locale in `WR_DATE_LOCALE`. `wr-window` needs neither, and not because it
+    // opts out: `WrWindowManager` portals it into an overlay at runtime, so the
+    // module-load `DETECTED_OS` in `window.ts` — 'windows' on the server, the
+    // real OS in the browser — is never in prerendered DOM to disagree with.
     provideClientHydration(),
     // Reset to top on every forward navigation; back / forward restores
     // the previous position. `anchorScrolling` makes `#fragment` links work.

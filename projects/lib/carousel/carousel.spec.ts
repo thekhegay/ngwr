@@ -386,6 +386,13 @@ describe('WrCarousel under a localized catalog', () => {
     expect(el.querySelector('.wr-carousel__nav--next')!.getAttribute('aria-label')).toBe('Следующий слайд');
     expect(el.querySelector('.wr-carousel__viewport')!.getAttribute('aria-label')).toBe('Карусель');
 
+    // `aria-roledescription` is spoken INSTEAD of the role name, so a static
+    // English "carousel" here made the viewport announce "Карусель, carousel"
+    // with the two localized arrows right beside it. The slide's own is read on
+    // whichever slide is on screen — the off-screen ones are `inert`.
+    expect(el.querySelector('.wr-carousel__viewport')!.getAttribute('aria-roledescription')).toBe('карусель');
+    expect(el.querySelector('wr-carousel-slide')!.getAttribute('aria-roledescription')).toBe('слайд');
+
     fixture.destroy();
   });
 });

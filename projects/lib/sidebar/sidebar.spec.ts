@@ -235,6 +235,26 @@ describe('WrSidebar', () => {
     expect(isOpen('Data & charts')).toBe(false);
   });
 
+  it('expands the group once entries that arrived after the navigation name one', async () => {
+    // `[entries]` is routinely an HTTP result, so the first run of the effect
+    // matches nothing — and it used to record the URL as handled before it knew
+    // that, which suppressed the expansion permanently. On a deep link the group
+    // holding the active route stayed shut, and `inert` kept that link out of the
+    // tab order and the a11y tree until the user navigated away and back.
+    await mount();
+    fixture.componentInstance.entries.set([]);
+    fixture.detectChanges();
+    await navigate('/table');
+
+    fixture.componentInstance.entries.set(ENTRIES);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(isOpen('Data & charts')).toBe(true);
+    expect(bodyFor('Data & charts').hasAttribute('inert')).toBe(false);
+  });
+
   it('does not re-expand a group the user collapsed on the same route', async () => {
     await navigate('/table');
     toggleFor('Data & charts').click();

@@ -144,9 +144,22 @@ export class WrSplitText {
    */
   private observer: IntersectionObserver | null = null;
 
+  /**
+   * `startObserver()` builds its observer inside a `document.fonts.ready`
+   * continuation, so the component can be destroyed while it is awaiting. At
+   * that moment `observer` is still null, so the destroy hook below disconnects
+   * nothing — and the continuation then starts an observer on a host Angular
+   * has already detached, which nothing is left to disconnect. Same hazard, and
+   * same flag, as `wr-fuzzy-text`.
+   */
+  private destroyed = false;
+
   constructor() {
     if (!this.isBrowser) return;
-    this.destroyRef.onDestroy(() => this.observer?.disconnect());
+    this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
+      this.observer?.disconnect();
+    });
 
     afterNextRender(() => this.startObserver());
 
@@ -165,7 +178,7 @@ export class WrSplitText {
     const ready = fonts?.status === 'loaded' ? Promise.resolve() : (fonts?.ready ?? Promise.resolve());
 
     const observe = (): void => {
-      if (this.hasAnimated) return;
+      if (this.destroyed || this.hasAnimated) return;
       this.observer?.disconnect();
       const io = new IntersectionObserver(
         (entries, obs) => {

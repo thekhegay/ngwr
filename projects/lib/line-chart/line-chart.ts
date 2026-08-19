@@ -83,17 +83,21 @@ export class WrLineChart {
   protected readonly resolvedSeries = computed(() =>
     this.series().map((s, i) => ({
       label: s.label,
-      // Non-finite points are dropped, not scaled. `Math.min`/`Math.max` over the pooled
-      // data are both NaN as soon as one datum is, so every coordinate in EVERY series
-      // became `NaN` — invalid path geometry, and the whole chart vanished rather than the
-      // one bad point.
-      data: s.data.filter(v => Number.isFinite(v)),
+      // A non-finite point becomes a HOLE at its own index, not a missing element.
+      // It cannot stay a number: `Math.min`/`Math.max` over the pooled data are both
+      // NaN as soon as one datum is, so every coordinate in EVERY series came out
+      // `NaN` — invalid path geometry, and the whole chart vanished rather than the
+      // one bad point. But filtering it out closed the gap and slid every LATER point
+      // one x-slot to the left, so each of them was drawn under, and reported in the
+      // tooltip as, the wrong x label. A gap is kept as a gap and the line is broken
+      // across it: interpolating would invent a reading the data never took.
+      data: s.data.map(v => (Number.isFinite(v) ? v : null)),
       color: s.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
     }))
   );
 
   protected readonly bounds = computed(() => {
-    const all = this.resolvedSeries().flatMap(s => s.data);
+    const all = this.resolvedSeries().flatMap(s => s.data.filter(v => v !== null));
     if (all.length === 0) return { min: 0, max: 1 };
     const min = Math.min(...all);
     const max = Math.max(...all);
@@ -120,20 +124,42 @@ export class WrLineChart {
   protected readonly plotWidth = (): number => this.vbW - this.padding.left - this.padding.right;
   protected readonly plotHeight = (): number => this.vbH - this.padding.top - this.padding.bottom;
 
-  /** Get the SVG path for a series. */
-  protected pathFor(series: { data: readonly number[] }): string {
+  /**
+   * The SVG path for a series — one subpath per unbroken run, so a hole in the data
+   * leaves a hole in the line rather than a straight segment across it.
+   */
+  protected pathFor(series: { data: readonly (number | null)[] }): string {
     const { min, max } = this.bounds();
     const count = this.pointCount();
-    if (count <= 1 || series.data.length === 0) return '';
+    if (count <= 1) return '';
     const pw = this.plotWidth();
     const ph = this.plotHeight();
-    return series.data
-      .map((v, i) => {
-        const x = this.padding.left + (i / (count - 1)) * pw;
-        const y = this.padding.top + ((max - v) / (max - min)) * ph;
-        return `${i === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
-      })
-      .join(' ');
+
+    const commands: string[] = [];
+    let run = 0;
+    let last = '';
+    // A subpath of one `M` is not stroked at all, so a point with a gap on both sides
+    // would simply vanish when `showDots` is off. Repeating it gives the round linecap
+    // something to paint.
+    const closeRun = (): void => {
+      if (run === 1) commands.push(`L ${last}`);
+      run = 0;
+    };
+
+    series.data.forEach((v, i) => {
+      if (v === null) {
+        closeRun();
+        return;
+      }
+      const x = this.padding.left + (i / (count - 1)) * pw;
+      const y = this.padding.top + ((max - v) / (max - min)) * ph;
+      last = `${x.toFixed(2)} ${y.toFixed(2)}`;
+      commands.push(`${run === 0 ? 'M' : 'L'} ${last}`);
+      run++;
+    });
+    closeRun();
+
+    return commands.join(' ');
   }
 
   protected pointX(index: number): number {
@@ -150,15 +176,13 @@ export class WrLineChart {
   protected readonly hoverPoints = computed(() => {
     const i = this.hoveredIndex();
     if (i === null) return [];
-    return this.resolvedSeries()
-      .filter(s => i < s.data.length)
-      .map(s => ({
-        label: s.label,
-        value: s.data[i],
-        color: s.color,
-        x: this.pointX(i),
-        y: this.pointY(s.data[i]),
-      }));
+    return this.resolvedSeries().flatMap(s => {
+      // Past the end of a short series, or on a hole in a longer one — either way there
+      // is no reading at this x, so the series contributes neither a marker nor a row.
+      const value = s.data[i];
+      if (value === undefined || value === null) return [];
+      return [{ label: s.label, value, color: s.color, x: this.pointX(i), y: this.pointY(value) }];
+    });
   });
 
   protected readonly hoverLabel = computed(() => {

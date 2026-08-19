@@ -120,6 +120,24 @@ describe('WrCalendarHeatmap', () => {
     expect(monthLabels().some(label => /[а-яА-Я]/.test(label))).toBe(true);
   });
 
+  it('keeps one non-finite day from flattening the whole map', () => {
+    // `Math.max(a, NaN)` is `NaN` and `NaN > 0` is false, so the data set's maximum used to
+    // collapse and EVERY cell in the rendered window — not just the bad day — painted the
+    // empty colour at full opacity. A year of real activity read as a year of none.
+    fixture.componentInstance.data.set([
+      { date: '2025-08-11', value: 4 },
+      { date: '2025-08-12', value: 8 },
+      { date: '2025-08-13', value: Number.NaN },
+    ]);
+    fixture.detectChanges();
+
+    // The tallest day still paints the colour, and the mid day still scales against it.
+    expect(cellFor('2025-08-12')!.style.background).toBe('var(--wr-color-primary)');
+    expect(cellFor('2025-08-11')!.style.background).toBe('var(--wr-color-primary)');
+    // The bad day loses only itself — and its title is a number, not the word NaN.
+    expect(cellFor('2025-08-13')!.getAttribute('title')).toBe('2025-08-13: 0');
+  });
+
   it('renders an empty grid rather than nothing when there is no data', () => {
     fixture.componentInstance.data.set([]);
     fixture.detectChanges();

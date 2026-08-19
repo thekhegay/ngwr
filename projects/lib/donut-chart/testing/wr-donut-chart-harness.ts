@@ -13,11 +13,15 @@ import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './inte
  * Test harness for `<wr-donut-chart>`.
  *
  * **The ring itself is unreadable, and that is by design.** The slices are SVG
- * paths inside an `aria-hidden` drawing: a screen reader is given the chart's
+ * paths inside a `role="img"` drawing: a screen reader is given that drawing's
  * `aria-label` and nothing else, and a spec cannot get a label or a value off a
  * path's `d`. {@link getLegend} is where the numbers are — which is also the
- * argument for keeping `showLegend` on, since with it off the chart's data has no
- * textual form at all.
+ * argument for keeping `showLegend` on, since with it off the only other text is
+ * whatever {@link getCenterValue} and {@link getCenterLabel} were given.
+ *
+ * The name is read off the `<svg>` rather than off the surface that wraps it, and
+ * the two are not interchangeable: `img` makes its whole subtree presentational, so
+ * a name on the wrapper would take the centre text down with it.
  *
  * {@link getSliceCount} is therefore the one thing the ring answers: how many
  * wedges were drawn. Compare it with the legend's length to catch a slice that was
@@ -56,7 +60,7 @@ export class WrDonutChartHarness extends ComponentHarness {
 
   /** The name the ring announces — the whole chart's, since the slices announce nothing. */
   async getAccessibleName(): Promise<string | null> {
-    return (await this.locatorFor('.wr-donut-chart__surface')()).getAttribute('aria-label');
+    return (await this.locatorFor('.wr-donut-chart__surface svg')()).getAttribute('aria-label');
   }
 
   /** How many wedges were drawn. */

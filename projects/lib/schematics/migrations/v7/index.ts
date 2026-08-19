@@ -27,7 +27,9 @@ import type { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
  *                            <wr-split-text> (split)
  *
  * Touches every `.html`, `.ts`, and `.scss` file in the workspace
- * (excluding `node_modules`, `dist`, `.git`, `coverage`).
+ * (excluding `node_modules`, `dist`, `.git`, `coverage`). The tag rewrites run
+ * over `.ts` as well as `.html`, because an inline `template:` is markup living
+ * in a TypeScript file.
  *
  * Regex-based on purpose — the symbol / tag names are distinctive enough
  * to be safe, and this keeps the migration dependency-free (no @angular
@@ -165,7 +167,18 @@ function ngUpdateV7(): Rule {
       const original = tree.readText(filePath);
       let next = original;
 
-      if (isHtml) next = applyHtml(next);
+      // Inline templates live in .ts files too, so run the element-scoped
+      // transforms there as well — the gate v9 already uses. Skipping them was
+      // worse than leaving a file unmigrated: `applyTs` renames the import and
+      // the symbol in that same file, so a component with
+      // `template: '<wr-autocomplete …>'` came out importing WrSelect with a tag
+      // that now matches no directive, and the build failed NG8001 after the
+      // migration reported success. Every pattern in HTML_TRANSFORMS is anchored
+      // on `<wr-…`, `[wrTooltip]` or `wrTooltip=`, so the only TypeScript they
+      // can reach is a line that already reads like markup — an unspaced
+      // `this.wrTooltip="x"` assignment being the one shape that qualifies and
+      // is not, which is what the `git diff` advice below is for.
+      if (isHtml || isTs) next = applyHtml(next);
       if (isTs) next = applyTs(next);
       if (isScss) next = applyScss(next);
 

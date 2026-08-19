@@ -129,4 +129,148 @@ describe('WrImageCropper', () => {
     expect(img()).toBeNull();
     expect(cropper().cropRect()).toEqual({ x: 0, y: 0, width: 0, height: 0 });
   });
+
+  /**
+   * The keyboard path. Everything below reads real numbers even in jsdom, because the
+   * step is a CONSTANT rather than a pointer delta — which is exactly why the drag
+   * half of this component still has no test beyond its button gate.
+   *
+   * What is NOT here is the `(cropped)` emit on keyup: it renders a canvas, jsdom has
+   * no 2D context, and `emitCropped` swallows the failure by design. A test for it
+   * would answer the same on a component that never emitted at all.
+   */
+  describe('from the keyboard', () => {
+    const press = (key: string, modifiers: { altKey?: boolean; shiftKey?: boolean } = {}): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...modifiers });
+      window_()!.dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+    const box = (): { left: string; top: string; width: string; height: string } => ({
+      left: window_()!.style.left,
+      top: window_()!.style.top,
+      width: window_()!.style.width,
+      height: window_()!.style.height,
+    });
+
+    it('puts the crop window in the tab order and names it', () => {
+      load();
+
+      expect(window_()!.getAttribute('tabindex')).toBe('0');
+      expect(window_()!.getAttribute('role')).toBe('group');
+      expect(window_()!.getAttribute('aria-label')).toBe('Crop region');
+    });
+
+    it('describes the key model from an element that exists', () => {
+      load();
+      const id = window_()!.getAttribute('aria-describedby')!;
+      const help = root().querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+
+      expect(help).not.toBeNull();
+      expect(help!.textContent).toContain('Arrow keys');
+    });
+
+    it('leaves the eight handles out of the tab order and out of the tree', () => {
+      // Eight extra tab stops per cropper would be hostile; the keys resize from
+      // the east and south edges, and a west or north drag comes out as a resize
+      // plus a move.
+      load();
+
+      for (const handle of handles()) {
+        expect(handle.hasAttribute('tabindex')).toBe(false);
+        expect(handle.getAttribute('aria-hidden')).toBe('true');
+      }
+    });
+
+    it('moves the crop one pixel per arrow key', () => {
+      load();
+
+      press('ArrowRight');
+      expect(box()).toMatchObject({ left: '81px', top: '80px' });
+
+      press('ArrowDown');
+      expect(box()).toMatchObject({ left: '81px', top: '81px' });
+    });
+
+    it('accumulates while the key is held', () => {
+      // `applyMove` measures from `startRect`, which the handler re-seeds per
+      // keystroke. Read once at the first press, the crop would stall at one pixel.
+      load();
+
+      press('ArrowRight');
+      press('ArrowRight');
+      press('ArrowRight');
+
+      expect(box().left).toBe('83px');
+    });
+
+    it('takes ten pixels with Shift, the coarse step every other control here uses', () => {
+      load();
+
+      press('ArrowLeft', { shiftKey: true });
+      expect(box().left).toBe('70px');
+    });
+
+    it('resizes with Alt rather than moving', () => {
+      load();
+
+      press('ArrowRight', { altKey: true });
+      expect(box()).toMatchObject({ left: '80px', width: '241px' });
+
+      press('ArrowDown', { altKey: true });
+      expect(box()).toMatchObject({ top: '80px', height: '241px' });
+    });
+
+    it('stops at the canvas edge instead of walking the crop off it', () => {
+      load();
+
+      for (let i = 0; i < 30; i++) press('ArrowRight', { shiftKey: true });
+
+      // 400px box, 240px crop — the far edge is x = 160.
+      expect(box().left).toBe('160px');
+    });
+
+    it('holds the aspect-ratio lock a drag would hold', () => {
+      fixture.componentInstance.aspectRatio.set(2);
+      fixture.detectChanges();
+      load();
+
+      press('ArrowRight', { altKey: true });
+
+      const w = Number.parseFloat(box().width);
+      const h = Number.parseFloat(box().height);
+      expect(w / h).toBeCloseTo(2, 5);
+    });
+
+    it('refuses to shrink past minWidth', () => {
+      load();
+
+      for (let i = 0; i < 40; i++) press('ArrowLeft', { altKey: true, shiftKey: true });
+
+      expect(box().width).toBe('32px');
+    });
+
+    it('announces the crop in source pixels, and only after a key', () => {
+      load({ display: 400, natural: 800 });
+      const status = (): HTMLElement => root().querySelector<HTMLElement>('[role="status"]')!;
+
+      // A pointer drag says nothing here, and the initial crop is not news.
+      expect(status().textContent.trim()).toBe('');
+
+      press('ArrowRight');
+
+      // One display pixel is two source pixels at this scale.
+      expect(status().textContent.trim()).toBe('162, 160, 480 × 480');
+    });
+
+    it('leaves every other key to the page', () => {
+      load();
+      const before = box();
+
+      const event = press('Enter');
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(box()).toEqual(before);
+    });
+  });
 });

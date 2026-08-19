@@ -329,6 +329,13 @@ function setup(catalog: Catalog, symbols: readonly string[]): string {
   const resolved = found.filter((hit): hit is { symbol: string; entry: CatalogEntry } => hit.entry !== null);
 
   const providers = REQUIRED_PROVIDERS.filter(required => resolved.some(hit => required.test.test(hit.symbol)));
+  // `ng g ngwr:use` refuses anything outside `schematics/use/symbol-map.json`
+  // ("ngwr:use: unknown symbol"), and `find()` resolves far more than that — it
+  // matches any name on an entry point's `exports:` line, so every harness class
+  // and every exported type came back as a command that fails. Ask the same map
+  // the schematic asks; the rest get the import line they actually need, since a
+  // type or a harness must never go into a component's `imports: []` anyway.
+  const knows = catalog.symbolMap();
 
   return [
     '# Setting these up',
@@ -338,7 +345,11 @@ function setup(catalog: Catalog, symbols: readonly string[]): string {
     '(prompts for styles, date adapter, density and theme, and prints a bootstrap snippet)',
     '',
     '## 2. Wire each symbol into the component that uses it',
-    ...resolved.map(hit => `ng g ngwr:use ${hit.symbol} --path src/app/some.component.ts   # ${hit.entry.path}`),
+    ...resolved.map(hit =>
+      typeof knows[hit.symbol] === 'string'
+        ? `ng g ngwr:use ${hit.symbol} --path src/app/some.component.ts   # ${hit.entry.path}`
+        : `import { ${hit.symbol} } from '${hit.entry.path}';   // by hand — ng g ngwr:use does not know this symbol`
+    ),
     '',
     '`--path` is a NAMED option, not positional — passing it bare fails with `Unknown argument`.',
     '',

@@ -75,8 +75,13 @@ export class MyComponent {}`,
   <wr-form-error key="email">That isn't a valid email.</wr-form-error>
 </wr-form-field>`,
 
-    optional: `<wr-form-field label="Bio" optional>
-  <textarea wrTextarea [formControl]="bio" rows="3"></textarea>
+    // `wrInput`, the same directive the demo below renders with. It reads
+    // `input[wrInput], textarea[wrInput]` — there is no `wrTextarea`, and an
+    // unknown attribute on a native element is not a template error, so a copied
+    // snippet would silently take none of the `WR_FORM_FIELD` wiring: no adopted
+    // control id, no `aria-invalid`, no `aria-describedby`.
+    optional: `<wr-form-field label="Bio" optional hint="Up to 140 characters.">
+  <input wrInput [formControl]="bio" placeholder="A short tagline" />
 </wr-form-field>`,
 
     notes: `<!-- Hint shows under the control. Hidden the moment an error becomes

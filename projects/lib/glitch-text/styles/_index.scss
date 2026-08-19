@@ -6,6 +6,11 @@
 // Glitch text (reactbits port). Two pseudo-element clones of the text
 // are offset by ±5px and tinted with `text-shadow` (red / cyan).
 // A clip-path keyframe slices random horizontal bands of each clone.
+//
+// The clones hang off `__clones`, never off the host. `content: attr(data-text)`
+// is exposed to the accessibility tree, so pseudos on the host made the string
+// announce three times; `__clones` carries `aria-hidden` and takes both of them
+// out of the tree at once.
 
 .wr-glitch-text {
   --wr-glitch-text-before-duration: 2s;
@@ -20,8 +25,18 @@
   font-weight: 900;
   color: var(--wr-color-on-surface, #0f172a);
 
-  &::before,
-  &::after {
+  // The decorative layer. Stretched over the label so the clones land exactly
+  // where they did when they hung off the host. No `pointer-events: none`: the
+  // clones overhang the host by 10px on each side, and the hover-only variant
+  // is gated on `:hover`, so a layer the pointer passes through would leave the
+  // effect flickering off along those two strips.
+  &__clones {
+    position: absolute;
+    inset: 0;
+  }
+
+  &__clones::before,
+  &__clones::after {
     content: attr(data-text);
     position: absolute;
     top: 0;
@@ -31,29 +46,29 @@
     clip-path: inset(0 0 0 0);
   }
 
-  // Always-on variant — pseudos animate continuously.
-  &:not(&--hover-only)::before {
+  // Always-on variant — clones animate continuously.
+  &:not(&--hover-only) &__clones::before {
     // rtl-ok: aberration offset paired with the physical x-offset in `--wr-glitch-text-before-shadow` (`5px 0`)
     left: -10px;
     text-shadow: var(--wr-glitch-text-before-shadow);
     animation: wr-glitch-text-tear var(--wr-glitch-text-before-duration) infinite linear alternate-reverse;
   }
-  &:not(&--hover-only)::after {
+  &:not(&--hover-only) &__clones::after {
     // rtl-ok: aberration offset paired with the physical x-offset in `--wr-glitch-text-after-shadow` (`-5px 0`)
     left: 10px;
     text-shadow: var(--wr-glitch-text-after-shadow);
     animation: wr-glitch-text-tear var(--wr-glitch-text-after-duration) infinite linear alternate-reverse;
   }
 
-  // Hover-only variant — pseudos hidden by default, animate on :hover.
-  &--hover-only::before,
-  &--hover-only::after {
+  // Hover-only variant — clones hidden by default, animate on :hover.
+  &--hover-only &__clones::before,
+  &--hover-only &__clones::after {
     content: '';
     opacity: 0;
     animation: none;
   }
 
-  &--hover-only:hover::before {
+  &--hover-only:hover &__clones::before {
     content: attr(data-text);
     opacity: 1;
     // rtl-ok: same decorative offset as the always-on variant, paired with a physical `text-shadow` x-offset
@@ -61,7 +76,7 @@
     text-shadow: var(--wr-glitch-text-before-shadow);
     animation: wr-glitch-text-tear var(--wr-glitch-text-before-duration) infinite linear alternate-reverse;
   }
-  &--hover-only:hover::after {
+  &--hover-only:hover &__clones::after {
     content: attr(data-text);
     opacity: 1;
     // rtl-ok: same decorative offset as the always-on variant, paired with a physical `text-shadow` x-offset
@@ -75,8 +90,8 @@
 // reads as broken double-vision text, so plain text is the right fallback.
 // `!important` outweighs the higher-specificity `:hover` re-enable rules.
 @media (prefers-reduced-motion: reduce) {
-  .wr-glitch-text::before,
-  .wr-glitch-text::after {
+  .wr-glitch-text__clones::before,
+  .wr-glitch-text__clones::after {
     content: '' !important;
     opacity: 0 !important;
     animation: none !important;

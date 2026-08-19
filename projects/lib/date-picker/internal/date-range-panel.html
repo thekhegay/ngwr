@@ -12,8 +12,8 @@
   <div class="wr-date-range-panel__times">
     <!-- A time picker is several inputs, not one control, so each end is a
          labelled group rather than a <label>. -->
-    <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="startTimeLabel">
-      <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ startTimeLabel }}</span>
+    <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="startTimeLabel()">
+      <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ startTimeLabel() }}</span>
       <wr-time-picker
         [value]="startTime()"
         [format]="timeFormat()"
@@ -22,8 +22,8 @@
         (valueChange)="onStartTimeChange($event)"
       />
     </div>
-    <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="endTimeLabel">
-      <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ endTimeLabel }}</span>
+    <div class="wr-date-range-panel__time" role="group" [attr.aria-label]="endTimeLabel()">
+      <span class="wr-date-range-panel__time-label" aria-hidden="true">{{ endTimeLabel() }}</span>
       <wr-time-picker
         [value]="endTime()"
         [format]="timeFormat()"

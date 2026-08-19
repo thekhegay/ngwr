@@ -198,7 +198,7 @@ enlarges every control at once.
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | Registry gate     | `pnpm check:registry` (the open item format under `registry/` — also a `pnpm lint` stage)           |
 | Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
-| Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — needs `build:showcase`)      |
+| Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — a CI step after `build:showcase`) |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
@@ -218,15 +218,19 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 page under `reference/components` — 227 spec files, ~3750 specs, and **every entry
 point now has one**. What is still uncovered is no longer whole
 components but what a spec can reach: jsdom has no drawing context, so the canvas
-and WebGL components can never assert anything painted. Two of the six —
-`aurora` and `waves` — now install a recording context and an `ErrorHandler`
-recorder so their specs reach the end of `boot()` and assert frame counts, the
-null-context fallback class and teardown; a mutation that deletes the
-null-context guard fails three of them. The other four (`click-spark`,
-`confetti`, `fuzzy-text`, `splash-cursor`) still stop at the early return, so
-their specs pin construction and destruction and little else. The other hole is
-mode coverage inside components that are covered — a spec on `wr-table` says
-nothing about tree rows unless it exercises them.
+and WebGL components can never assert anything painted. All six now install a
+recording context — a WebGL2 stub for `aurora` and `splash-cursor`, a 2D one for
+the rest — and five of them an `ErrorHandler` recorder besides, because what
+`afterNextRender` throws reaches neither `detectChanges()` nor `whenStable()`, so
+a boot that died reads as a pass without one. (`wr-confetti` is the exception and
+correctly so: a service, with no deferred boot to lose an error inside.) That
+carries the 61 specs across those six files past the early return, to frame
+counts, spark and particle counts, the fuzz ramp, a `var(--wr-…)` colour resolved
+against the host, gravity bringing a particle back down, and teardown — while
+each keeps the null-context path it started as, one "survives a browser that will
+not give it a context" spec apiece. What no stub reaches is painted output
+itself. The other hole is mode coverage inside components that are covered — a
+spec on `wr-table` says nothing about tree rows unless it exercises them.
 
 **`pnpm test --filter <x>` is a TEST-NAME regex, not a file filter.** It is
 vitest's `-t`, so `--filter dialog` silently runs the handful of tests whose
@@ -330,8 +334,11 @@ Autofix most issues (prettier wrapping long template lines, etc.) with
 
 **CI gates on `pnpm lint` + `pnpm test` + `pnpm check:api-docs` +
 `pnpm check:llms` + `pnpm build:lib` +
-`pnpm build:showcase` + `pnpm check:a11y`** — all seven must be green (a silently
-failed lint stage once slipped past and blocked a publish). The publish job re-runs `pnpm lint` + `pnpm build:lib` before
+`pnpm build:showcase` + `pnpm check:theme` + `pnpm check:a11y`** — all eight must
+be green (a silently
+failed lint stage once slipped past and blocked a publish). The last two need the
+prerendered site, which is why they sit after `build:showcase` rather than in the
+lint chain. The publish job re-runs `pnpm lint` + `pnpm build:lib` before
 shipping. Conventional-commit subjects are checked locally (commitlint
 `commit-msg` hook) and PR titles on CI.
 
@@ -383,13 +390,22 @@ run the check found **37 declarations with no consumer**, including
 hand-rolling `rgba(var(--wr-color-outline-rgb), α)` at eight alphas, four of
 which compute to exactly those tokens. Mark an intentional one with
 `// unused-ok: <reason>`; the marker covers a contiguous run of declarations up
-to the next blank line, because a family is one decision. Two traps it hit while
-being written, both worth knowing: component stylesheets reference tokens through
-interpolation (`var(--wr-color-#{$name}-dark)`), so a matcher built on `[\w-]+`
-reports the whole shade set as dead; and the showcase DOCUMENTS tokens — a swatch
-with an inline `style`, a `var()` inside a printed SCSS snippet — so counting its
-templates as consumers called three dead families alive. Only `projects/lib` and
-the showcase's own `.scss` count.
+to the next blank line, because a family is one decision — so a marker's sentence
+has to name WHICH of the run it excuses, or it states something false about the
+neighbours it happens to cover. **Interpolation is the trap, in both
+directions.** A component stylesheet writes `var(--wr-color-#{$name}-dark)`, so a
+matcher built on `[\w-]+` reports the whole shade set as dead; and a loop that
+writes nine references still matches no concretely-named declaration, which is
+how the dark theme's hand-tuned `--wr-color-dark-dark` — the background
+`.wr-btn--dark:hover` paints — came to carry a marker saying nothing paints with
+it. The check now resolves an `@each` to the list it actually iterates and
+expands the reference against it, scoped by brace depth, so a loop over three
+intents cannot vouch for the other six. Two more things do NOT count as painting
+with a token: the showcase's templates (a swatch with an inline `style`, a
+`var()` inside a printed SCSS snippet — counting those called three dead families
+alive) and a `var()` inside a CODE COMMENT, which is the same category and was
+the only thing keeping `--wr-color-outline-rgb` green. Only `projects/lib` and
+the showcase's own `.scss` count, comments stripped.
 
 **A `::before` background is invisible to every contrast checker.** `wr-squircle`
 paints its content fill on a pseudo-element, so axe walks past it to the host's
@@ -534,6 +550,16 @@ smallest diff that satisfies the request. Concretely:
 **deliberately** — the job holds an OIDC token (npm Trusted Publisher,
 `--provenance`), and a poisoned cache would hand it to attacker-controlled
 code. Don't re-add the cache.
+
+**One BREAKING change is on `main` and unreleased.** `readI18nText()` — exported
+from `ngwr/i18n` — returned `string` and now returns `Signal<string>`, so every
+call site needs a `()`. It is a fix, not a refactor: `WrI18n` writes every
+loader-backed catalog from `firstValueFrom(...).then(...)`, which lands a
+microtask AFTER the first change-detection pass, so the old one-shot read froze
+the ENGLISH fallback for the life of the app — a `<wr-date-picker>` announced
+"Открыть календарь" on the field and "Open calendar" on the button beside it,
+off the same key. A sync read cannot be correct against an async catalog, so the
+type had to move. Type-level only; the next release notes must carry it.
 
 **Versioning.** The last release is **v11.2.0** (2026-08-17) — that is the newest
 tag and what `projects/lib/package.json` reads. v10's three breaking changes were
@@ -907,7 +933,7 @@ because it is guidance rather than a plan.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
-- Both shipped catalogs are pinned at **identical key sets (208)** with no
+- Both shipped catalogs are pinned at **identical key sets (224)** with no
   empty values — empty is the worse case, since it resolves as a real
   translation and reaches the DOM as a nameless control. Nothing had compared
   `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as

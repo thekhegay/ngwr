@@ -4,6 +4,9 @@
        tabstop. -->
   <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
   <div class="wr-select__trigger wr-select__trigger--search" (click)="focusSearchInput()">
+    <!-- `id` / `aria-describedby` / `aria-invalid` come from a surrounding
+         `<wr-form-field>` and are null without one — see `controlId` in the
+         component. They go on the tab stop, the only labelable element here. -->
     <input
       #searchInput
       type="text"
@@ -11,6 +14,9 @@
       class="wr-select__search-input"
       autocomplete="off"
       spellcheck="false"
+      [attr.id]="controlId()"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="ariaInvalid()"
       [disabled]="isDisabled()"
       [attr.aria-haspopup]="'listbox'"
       [attr.aria-expanded]="open()"
@@ -126,7 +132,10 @@
         type="text"
         class="wr-select__tag-input"
         autocomplete="off"
+        [attr.id]="controlId()"
         [attr.aria-label]="resolvedAriaLabel()"
+        [attr.aria-describedby]="describedBy()"
+        [attr.aria-invalid]="ariaInvalid()"
         spellcheck="false"
         [value]="hasChipSearch() ? searchQuery() : draft()"
         [disabled]="isDisabled()"
@@ -175,7 +184,10 @@
     type="button"
     class="wr-select__trigger"
     role="combobox"
+    [attr.id]="controlId()"
     [attr.aria-label]="resolvedAriaLabel()"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="ariaInvalid()"
     [disabled]="isDisabled()"
     [attr.aria-haspopup]="'listbox'"
     [attr.aria-expanded]="open()"

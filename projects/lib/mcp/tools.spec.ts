@@ -89,7 +89,11 @@ const SYMBOL_MAP = {
   WrOutsideClick: 'ngwr/overlay',
   provideWrOverlay: 'ngwr/overlay',
   WrSelect: 'ngwr/select',
-  WrSelectHarness: 'ngwr/select/testing',
+  // No `WrSelectHarness`, and no `WrAlertType` / `WrBadgeSize`, because the real
+  // map has neither: `build-symbol-map.ts` scans `projects/lib` one level deep
+  // and skips `export type { … }` blocks, so all 104 harness classes and the
+  // type-only exports are outside it. `ng g ngwr:use` throws on anything that is
+  // not a key here, so the fixture has to be faithful about what is missing.
 };
 
 /**
@@ -496,8 +500,30 @@ describe('callTool — get_ngwr_setup', () => {
     // no error names the cause, which is the whole reason this section exists.
     expect(answer).toContain('## 4. Providers these need');
     expect(answer).toContain("provideWrOverlay() // from 'ngwr/overlay'");
-    expect(answer).toContain('provideWrDateAdapter(wrDateFnsAdapter)');
+    // The whole line, entry-point comment included. The old pin matched the call
+    // prefix only, and under it the table shipped `provideWrDateAdapter(wrDateFnsAdapter)`
+    // — a symbol ngwr has never exported — for as long as nobody pasted it.
+    expect(answer).toContain("provideWrDateFnsAdapter() // from 'ngwr/date-adapter-fns'");
     expect(answer).toContain('why: every date mode goes through an adapter; there is no built-in default');
+  });
+
+  it('offers a plain import, not `ng g ngwr:use`, for a symbol the schematic would refuse', () => {
+    const answer = callTool(catalog, 'get_ngwr_setup', { symbols: ['WrSelectHarness', 'WrAlertType'] });
+
+    // Both resolve — `find()` matches any name on an entry point's `exports:`
+    // line — and neither is in `symbol-map.json`, so `ng g ngwr:use` exits with
+    // "unknown symbol". A harness or a type has no business in `imports: []`
+    // either way, so the honest wiring for both is an ordinary import.
+    expect(answer).not.toContain('ng g ngwr:use WrSelectHarness');
+    expect(answer).not.toContain('ng g ngwr:use WrAlertType');
+    expect(answer).toContain(
+      "import { WrSelectHarness } from 'ngwr/select/testing';   // by hand — ng g ngwr:use does not know this symbol"
+    );
+    expect(answer).toContain(
+      "import { WrAlertType } from 'ngwr/alert';   // by hand — ng g ngwr:use does not know this symbol"
+    );
+    // Still named, not dropped: the point is the right instruction, not silence.
+    expect(answer).not.toContain('Not in the catalog');
   });
 
   it('leaves the provider section out for a symbol that needs none', () => {

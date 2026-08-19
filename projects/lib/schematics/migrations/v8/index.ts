@@ -106,7 +106,16 @@ function ngUpdateV8(): Rule {
       const original = tree.readText(filePath);
       let next = original;
 
-      if (isHtml) next = apply(next, HTML_TRANSFORMS);
+      // Inline templates live in .ts files too, so the attribute rewrites run
+      // there as well. `wrDensity="compact"` left in one is not a cosmetic miss:
+      // `WrDensityDirective.wrDensity` is `input.required<WrDensityValue>()` and
+      // `'compact'` is not in that union, so the app stops compiling under
+      // strictTemplates after the upgrade. Every pattern is anchored on
+      // `wrDensity=`, `data-wr-density=` or `<wr-pagination`, so the only
+      // TypeScript they can reach is a line that already reads like markup — an
+      // unspaced `this.wrDensity="compact"` assignment being the one shape that
+      // qualifies and is not, which is what the `git diff` advice below is for.
+      if (isHtml || isTs) next = apply(next, HTML_TRANSFORMS);
       if (isTs) next = apply(next, TS_TRANSFORMS);
       if (isScss) next = apply(next, SCSS_TRANSFORMS);
 

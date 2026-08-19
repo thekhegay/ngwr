@@ -247,7 +247,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     return Math.min(this.focusedIndex(), last);
   });
 
-  /** Resolved ARIA labels — resolved once at construction, so a runtime locale switch needs a re-create. */
+  /** Resolved ARIA labels — signals, so they follow both a late catalog and a locale switch. */
   protected readonly clearLabel = readI18nText('tree.clearSelection', 'Clear selection');
   protected readonly expandLabel = readI18nText('tree.expand', 'Expand');
   protected readonly collapseLabel = readI18nText('tree.collapse', 'Collapse');

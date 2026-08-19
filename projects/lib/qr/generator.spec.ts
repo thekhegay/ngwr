@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { type DrawOptions, drawQrCode } from './generator';
+import type { WrQrErrorLevel } from './interfaces';
 
 /**
  * jsdom implements no canvas 2D context — `getContext('2d')` returns `null` — so the
@@ -46,6 +47,8 @@ const options = (over: Partial<DrawOptions> = {}): DrawOptions => ({
 });
 
 describe('drawQrCode', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it('sizes the bitmap from the code and the padding, and the box from `size`', () => {
     const { canvas, calls } = stub();
     drawQrCode(canvas, options());
@@ -118,6 +121,43 @@ describe('drawQrCode', () => {
 
     expect(() => drawQrCode(canvas, options())).not.toThrow();
     expect(canvas.style.width).toBe('');
+  });
+
+  it('blanks the code instead of throwing on a payload past the QR capacity', () => {
+    // A version-40 code holds about 1273 bytes at level H, and the encoder answers a
+    // longer one with `RangeError: Data too long`. `WrQr` calls this from an `effect()`,
+    // where an exception escapes into `runEffectsInView` and abandons the rest of the
+    // view's effects — so one over-long string used to stop every other QR code on the
+    // page from repainting. The deliberate answer is an empty quiet zone plus a report.
+    const reported = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { canvas, calls } = stub();
+
+    expect(() => drawQrCode(canvas, options({ value: 'a'.repeat(1300), level: 'H' }))).not.toThrow();
+
+    // Exactly the empty-value shape: one full-bitmap fill in the background colour, and
+    // no modules. Painting the whole surface is also what clears a previously drawn code —
+    // `canvas.width` is only reassigned once an encode succeeds.
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toEqual({ op: 'fillRect', args: [0, 0, canvas.width, canvas.height], fill: '#ffffff' });
+    expect(reported).toHaveBeenCalledOnce();
+  });
+
+  it('still fits a payload just inside the capacity', () => {
+    // The guard must not turn into a length cap of its own: 1273 bytes at level H is the
+    // documented limit and has to keep encoding.
+    const { canvas, calls } = stub();
+    drawQrCode(canvas, options({ value: 'a'.repeat(1273), level: 'H' }));
+
+    expect(calls.length).toBeGreaterThan(1);
+  });
+
+  it('lets a real encoder failure through rather than blanking the canvas', () => {
+    // Only `RangeError: Data too long` is a value problem. An unmapped level reaches the
+    // encoder as `undefined` and fails on its own terms; swallowing that would make a bug
+    // in the vendored encoder look exactly like an over-long payload.
+    const { canvas } = stub();
+
+    expect(() => drawQrCode(canvas, options({ level: 'X' as WrQrErrorLevel }))).toThrow();
   });
 
   it('reserves a centred plate for an icon before drawing it', () => {

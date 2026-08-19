@@ -32,8 +32,12 @@
  * `color.adjust(…, 5%)`), so asserting the generator reproduces it would be
  * asserting something false.
  *
- * Needs `dist/showcase`, so it runs after `build:showcase` rather than in the
- * `pnpm lint` chain.
+ * Needs `dist/showcase`, so it runs in CI right after `build:showcase`
+ * (`.github/workflows/ci.yml`) rather than in the `pnpm lint` chain. That step
+ * is the gate; without it this file was a command nobody ran, and
+ * `check:registry` — the one lint stage that touches the generator — answers a
+ * drift report by telling you to regenerate the presets, which carries the drift
+ * forward rather than catching it.
  *
  * Usage:
  *   pnpm check:theme

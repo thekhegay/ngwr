@@ -1,0 +1,14 @@
+<!--
+  Two elements on purpose. The torn clones are `::before` / `::after` whose glyphs
+  come from `content: attr(data-text)`, and CSS generated content IS exposed to the
+  accessibility tree — so with the pseudos on the host the string was announced
+  three times, and a heading or link wrapping this computed its name as
+  "404 404 404". The clones now hang off their own `aria-hidden` layer instead:
+  the same split `wr-blur-text` and `wr-circular-text` use — one readable copy,
+  one decorative layer taken out of the tree with a single `aria-hidden`.
+
+  `__clones` comes second and is absolutely positioned, so it contributes nothing
+  to layout and still paints over the label, exactly as the host's own pseudos did.
+-->
+<span class="wr-glitch-text__label">{{ text() }}</span>
+<span class="wr-glitch-text__clones" aria-hidden="true" [attr.data-text]="text()"></span>

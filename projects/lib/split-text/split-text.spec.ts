@@ -25,6 +25,16 @@ class Host {
   done = 0;
 }
 
+@Component({
+  imports: [WrSplitText],
+  template: `@if (show()) {
+    <wr-split-text text="Hi there" />
+  }`,
+})
+class ToggleHost {
+  readonly show = signal(true);
+}
+
 const reducedMotion = {
   isBrowser: true,
   isServer: false,
@@ -148,5 +158,89 @@ describe('WrSplitText', () => {
     expect(readable()).toBe('Hi there');
     expect(pieces().join('')).toBe('Hithere');
     expect(observed).toEqual([]);
+  });
+
+  /**
+   * The observer is built inside a `document.fonts.ready` continuation, and jsdom
+   * has no `document.fonts` at all — so `ready` collapses to `Promise.resolve()`
+   * and the window these two are about never opens on its own. Stubbing it open is
+   * the only way a unit suite reaches the ordering between teardown and the
+   * continuation; the second test is here so the first cannot pass on a recorder
+   * that records nothing.
+   */
+  describe('destroyed while the fonts are still loading', () => {
+    let toggle: ReturnType<typeof TestBed.createComponent<ToggleHost>>;
+    let built: { observing: boolean; disconnected: boolean }[];
+    let originalFonts: PropertyDescriptor | undefined;
+
+    /** Mounts with the fonts pending, and hands back the resolver for them. */
+    const mountLoading = async (): Promise<() => void> => {
+      built = [];
+      let settle!: () => void;
+      const ready = new Promise<void>(resolve => {
+        settle = resolve;
+      });
+      // Own property only — jsdom's `fonts`, if it has one, lives on the
+      // prototype, so deleting ours puts that back.
+      originalFonts = Object.getOwnPropertyDescriptor(document, 'fonts');
+      Object.defineProperty(document, 'fonts', { value: { status: 'loading', ready }, configurable: true });
+
+      const records = built;
+      class RecordingObserver {
+        private readonly record = { observing: false, disconnected: false };
+        constructor() {
+          records.push(this.record);
+        }
+        observe(): void {
+          this.record.observing = true;
+        }
+        disconnect(): void {
+          this.record.disconnected = true;
+        }
+      }
+      vi.stubGlobal('IntersectionObserver', RecordingObserver);
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [{ provide: WrPlatform, useValue: reducedMotion }] });
+      toggle = TestBed.createComponent(ToggleHost);
+      toggle.detectChanges();
+      await toggle.whenStable();
+      return settle;
+    };
+
+    afterEach(() => {
+      toggle.destroy();
+      if (originalFonts) Object.defineProperty(document, 'fonts', originalFonts);
+      else Reflect.deleteProperty(document, 'fonts');
+    });
+
+    it('starts no observer once it has been detached', async () => {
+      const settle = await mountLoading();
+      const host = (toggle.nativeElement as HTMLElement).querySelector('wr-split-text')!;
+      expect(built).toEqual([]);
+
+      toggle.componentInstance.show.set(false);
+      await toggle.whenStable();
+      expect(host.isConnected).toBe(false);
+
+      settle();
+      await toggle.whenStable();
+      await Promise.resolve();
+
+      // The destroy hook ran while `observer` was still null, so anything the
+      // continuation started afterwards had nothing left to disconnect it.
+      expect(built).toEqual([]);
+    });
+
+    it('starts one once the fonts settle while it is still on the page', async () => {
+      const settle = await mountLoading();
+      expect(built).toEqual([]);
+
+      settle();
+      await toggle.whenStable();
+      await Promise.resolve();
+
+      expect(built.some(o => o.observing)).toBe(true);
+    });
   });
 });

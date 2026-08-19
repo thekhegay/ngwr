@@ -350,7 +350,9 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
       this.panelRef = ref;
       ref.setInput('displayWith', this.displayWith());
       ref.setInput('listboxId', this.listboxId);
-      ref.setInput('listLabel', this.listLabel);
+      // Read once here rather than bound: the panel is created per open, and by
+      // then the catalog has long landed.
+      ref.setInput('listLabel', this.listLabel());
       ref.instance.picked.subscribe(item => this.commit(item as T));
       ref.instance.hovered.subscribe(i => this.setActive(i));
     } else {

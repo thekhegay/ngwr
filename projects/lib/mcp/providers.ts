@@ -37,12 +37,19 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
   },
   {
     test: /^WrDatePicker|^WrCalendar|^WrEventCalendar/,
-    provider: "provideWrDateAdapter(wrDateFnsAdapter) // from 'ngwr/date-adapter-fns'",
+    // The one-line wrapper, not `provideWrDateAdapter({ adapter: WrDateFnsAdapter })`:
+    // both compile, but this is one import from one entry point, and it is the form
+    // the docs recommend. It used to read `provideWrDateAdapter(wrDateFnsAdapter)`,
+    // which is wrong three ways at once — `ngwr/date-adapter-fns` exports neither
+    // identifier, and the real `provideWrDateAdapter` takes an options object.
+    provider: "provideWrDateFnsAdapter() // from 'ngwr/date-adapter-fns'",
     why: 'every date mode goes through an adapter; there is no built-in default',
   },
   {
     test: /^WrT$|^WrI18n/,
-    provider: "provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n'",
+    // Two entry points, and the comment has to say so: the catalog `wrEn` is
+    // `ngwr/i18n/en`, not `ngwr/i18n`, which exports neither catalog.
+    provider: "provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'",
     why: 'the pipe and directive read from a catalog you provide',
   },
 ];

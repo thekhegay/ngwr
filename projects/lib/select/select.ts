@@ -34,6 +34,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { type Observable, debounce, finalize, from, isObservable, of, skip, switchMap, tap, timer } from 'rxjs';
 
 import { useConfigValue } from 'ngwr/config';
+import { WR_FORM_FIELD } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrPresentAsSheet } from 'ngwr/overlay';
 
@@ -143,6 +144,44 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   /** Per-chip ARIA label — interpolates `{{label}}`. @internal */
   protected readonly chipRemoveLabel = useI18nFormatter('select.removeItem', 'Remove {{label}}');
+
+  private readonly field = inject(WR_FORM_FIELD, { optional: true });
+
+  /**
+   * Id the surrounding `<wr-form-field>`'s `<label for>` points at.
+   *
+   * The field renders its label before it can see what was projected into it, so
+   * the id travels the other way and the control adopts it, exactly as `[wrInput]`
+   * and `wr-slider` do. Without this the `for` named an element that was nowhere in
+   * the document: clicking the label did nothing, and the field's own text reached
+   * the control through no path at all.
+   *
+   * It lands on the ONE focusable element each trigger shape has — the button, the
+   * search input, or the tag input — never on the host, because only a labelable
+   * element can be a label's target and `<wr-select>` is not one.
+   *
+   * What this does NOT change is that element's NAME: `aria-label` outranks a
+   * `<label>` in the accname order, and the trigger keeps `resolvedAriaLabel()`
+   * because the field cannot promise it has a name to give — `<wr-form-field>`
+   * renders a label only when its `label` input is set, and a combobox that traded
+   * a generic name for no name would be the worse bug. `WrFormFieldContext`
+   * publishes no "do I have a visible label" signal to key that on. Until it does,
+   * set `[ariaLabel]` to the field's label where the two should read alike.
+   */
+  protected readonly controlId = computed(() => this.field?.controlId() ?? null);
+
+  /**
+   * The field's error message, wired to the same element.
+   *
+   * Without it the messages `<wr-form-field>` renders are visible and nothing else:
+   * a screen reader on the trigger never learns the field is invalid, nor what the
+   * message says. `aria-invalid` is keyed on the message EXISTING rather than on
+   * `errorKeys()`, because the field only publishes an id once it is showing
+   * something — announcing "invalid" while pointing at nothing is worse than
+   * staying quiet.
+   */
+  protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
+  protected readonly ariaInvalid = computed(() => (this.field?.describedBy() ? 'true' : null));
 
   /**
    * Disable the select. Bound automatically from the field's disabled state
@@ -1158,7 +1197,14 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (seps.length === 0) return;
 
     event.preventDefault();
-    const escaped = seps.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('');
+    // `-` has to be escaped too, and it is the one that bites: unescaped it
+    // OPENS A RANGE inside the class. `[',', '-']` compiled to `/[,-\n]+/` —
+    // "Range out of order", a SyntaxError thrown after `preventDefault()`, so
+    // the paste was dropped whole; `[',', '-', ';']` compiled without
+    // complaint to a `,`–`;` range that swallowed every digit, shredding
+    // `2024-01-02` into nothing. A lone `-` only worked because it landed
+    // first in the class, where it is literal — position-dependent luck.
+    const escaped = seps.map(s => s.replace(/[-.*+?^${}()|[\]\\]/g, '\\$&')).join('');
     const splitRegex = new RegExp(`[${escaped}\\n]+`);
     for (const part of text.split(splitRegex)) this.tryAddTag(part);
   }

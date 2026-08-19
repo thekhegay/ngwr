@@ -11,8 +11,10 @@ import { Directive } from '@angular/core';
  * Gradient sweep over text. Applies a `background-clip: text` gradient
  * with a moving highlight — gives any text a subtle shimmer.
  *
- * The directive only adds the `wr-shimmer` host class. Pair with the
- * styles in `ngwr/animations` (which include the `wr-shimmer` keyframes).
+ * The directive only adds the `wr-shimmer` host class. Pair with the styles
+ * in `ngwr/shiny-text` (`@use 'ngwr/shiny-text'`), which carry the
+ * `.wr-shimmer` rule and its keyframes; the umbrella `@use 'ngwr'` forwards
+ * the same sheet.
  *
  * @example
  * ```html

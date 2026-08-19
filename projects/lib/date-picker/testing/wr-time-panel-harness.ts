@@ -30,17 +30,17 @@ function missingColumn(unit: Unit, method: string): string {
  * independently instead of by CSS nth-of-type gymnastics.
  *
  * Units are addressed by position, not by the boxes' `aria-label`: every string
- * in this panel is still hard-coded English (the box labels, the steppers'
- * "Increment hours", the AM/PM text), so keying on them would make this harness
- * the thing that breaks when they are moved into the i18n catalog. Column order
- * is the layout contract.
+ * in this panel now resolves through the i18n catalog (`datePicker.hours`,
+ * `datePicker.incrementHours`, `datePicker.am` …), so keying on them would make
+ * this harness answer in whatever locale the app under test is configured for.
+ * Column order is the layout contract.
  *
  * @internal
  */
 export class WrTimePanelHarness extends ComponentHarness {
   static hostSelector = '.wr-time-picker';
 
-  /** The stepper's value as `HH:MM`, plus `:SS` and ` AM`/` PM` when those columns exist. */
+  /** The stepper's value as `HH:MM`, plus `:SS` and a space-joined {@link getMeridiem} when those columns exist. */
   async getTimeText(): Promise<string> {
     const parts = [await this.getValue('hours'), await this.getValue('minutes')];
     const seconds = await this.getOptionalValue('seconds');
@@ -50,7 +50,12 @@ export class WrTimePanelHarness extends ComponentHarness {
     return meridiem ? `${parts.join(':')} ${meridiem}` : parts.join(':');
   }
 
-  /** `'AM'` / `'PM'`, or `null` when the stepper is in 24-hour mode. */
+  /**
+   * The meridiem column's rendered text, or `null` when the stepper is in
+   * 24-hour mode. `'AM'` / `'PM'` on the built-in fallbacks — it reads whatever
+   * `datePicker.am` / `datePicker.pm` resolve to, so a configured catalog
+   * changes the answer.
+   */
   async getMeridiem(): Promise<string | null> {
     const label = await this.locatorForOptional('.wr-time-picker__label')();
     return label ? label.text() : null;

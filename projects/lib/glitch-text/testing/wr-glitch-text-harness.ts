@@ -14,10 +14,15 @@ import type { WrGlitchTextColourSplit, WrGlitchTextDurations, WrGlitchTextHarnes
  *
  * **The one thing worth testing here is the pairing.** The two torn clones are
  * `::before` / `::after` pseudo-elements whose glyphs come from `content:
- * attr(data-text)`, so the string has to be in the host's text node AND in the host's
- * `data-text` attribute. Drop either binding and the visible text stays flawless while
- * the effect disappears — no error, no missing element, nothing else in the DOM
- * changes. {@link isCloneTextInSync} is that assertion in one call.
+ * attr(data-text)`, so the string has to be in `__label`'s text node AND in the
+ * `data-text` attribute on `__clones`. Drop either binding and the visible text stays
+ * flawless while the effect disappears — no error, no missing element, nothing else in
+ * the DOM changes. {@link isCloneTextInSync} is that assertion in one call.
+ *
+ * **Why they are two elements**, which is also why `data-text` is not on the host:
+ * generated content is exposed to the accessibility tree, so pseudos on the host made
+ * the string announce three times. `__clones` carries the `aria-hidden`;
+ * {@link isCloneLayerHidden} is the assertion that keeps it there.
  *
  * **Everything else the harness reads is an inline custom property**, because that is
  * everything the component writes: the two clone durations, the two colour-split
@@ -55,6 +60,12 @@ import type { WrGlitchTextColourSplit, WrGlitchTextDurations, WrGlitchTextHarnes
 export class WrGlitchTextHarness extends ComponentHarness {
   static hostSelector = 'wr-glitch-text';
 
+  /** The readable copy of the string — the only part of the component in the a11y tree. */
+  private readonly label = this.locatorFor('.wr-glitch-text__label');
+
+  /** The `aria-hidden` layer the two pseudo-clones hang off. */
+  private readonly clones = this.locatorFor('.wr-glitch-text__clones');
+
   /** Build a predicate that narrows the query — pass to `getHarness` / `getAllHarnesses`. */
   static with(options: WrGlitchTextHarnessFilters = {}): HarnessPredicate<WrGlitchTextHarness> {
     return new HarnessPredicate(WrGlitchTextHarness, options)
@@ -70,22 +81,22 @@ export class WrGlitchTextHarness extends ComponentHarness {
    * The rendered text, trimmed.
    *
    * The half a sighted user reads, and the half every other check would notice
-   * breaking. The component interpolates the input straight onto the host, so there is
-   * no inner element to query.
+   * breaking. Read off `__label`, which is the whole of the component's accessible
+   * content — the clone layer beside it is `aria-hidden` and empty in the DOM.
    */
   async getText(): Promise<string> {
-    return (await this.host()).text();
+    return (await this.label()).text();
   }
 
   /**
-   * The string the two clone layers draw from — the host's `data-text`.
+   * The string the two clone layers draw from — `data-text` on `__clones`.
    *
    * The half nothing else notices. `content: attr(data-text)` is how both pseudo-clones
    * get their glyphs, so this attribute IS the effect. `null` means the mirror is gone
    * and the component is rendering plain text with extra classes.
    */
   async getCloneText(): Promise<string | null> {
-    return (await this.host()).getAttribute('data-text');
+    return (await this.clones()).getAttribute('data-text');
   }
 
   /**
@@ -93,14 +104,28 @@ export class WrGlitchTextHarness extends ComponentHarness {
    *
    * The component's defining silent failure, as a single assertion — two separate reads
    * are two things a spec can forget to write together. Compared raw on both sides,
-   * with no trimming: the template is the bare interpolation, so the text node and the
+   * with no trimming: `__label` holds the bare interpolation, so its text node and the
    * attribute are byte-identical or the mirror is broken. An empty `text` is legal and
    * counts as in sync — `data-text=""` is a mirror of nothing, not a missing binding,
    * which is why {@link getCloneText} reports the absent case as `null` instead.
    */
   async isCloneTextInSync(): Promise<boolean> {
-    const host = await this.host();
-    return (await host.getProperty<string>('textContent')) === (await host.getAttribute('data-text'));
+    const label = await this.label();
+    return (await label.getProperty<string>('textContent')) === (await (await this.clones()).getAttribute('data-text'));
+  }
+
+  /**
+   * Whether the clone layer is still hidden from assistive technology.
+   *
+   * The reason the component is two elements rather than one. `content: attr(data-text)`
+   * is exposed to the accessibility tree, so with the pseudos on the host the string was
+   * announced three times and a wrapping heading or link computed its name as
+   * "404 404 404". Nothing visual changes if the `aria-hidden` is dropped, and neither
+   * a11y gate in this repo can see it: `check:a11y` reads prerendered HTML with no
+   * stylesheets, and axe has no rule for duplicated generated content.
+   */
+  async isCloneLayerHidden(): Promise<boolean> {
+    return (await (await this.clones()).getAttribute('aria-hidden')) === 'true';
   }
 
   /**

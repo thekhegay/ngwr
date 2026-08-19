@@ -62,8 +62,8 @@
           "path": { "type": "string", "description": "Path inside the item, for humans." },
           "target": {
             "type": "string",
-            "description": "Where to write it, RELATIVE to the project root. Absolute paths, drive letters, URL schemes and any `..` segment are rejected — an item is remote content and this is the field an attacker reaches for first.",
-            "pattern": "^(?![a-zA-Z]:)(?![a-z][a-z0-9+.-]*:)(?!/)(?!\\\\)(?!.*(^|[\\\\/])\\.\\.([\\\\/]|$)).+$"
+            "description": "Where to write it, RELATIVE to the project root. Absolute paths, drive letters, URL schemes (in any case — `FILE:` is a URL too), padding whitespace, null bytes and any `..` segment are rejected — an item is remote content and this is the field an attacker reaches for first. `pnpm check:registry` runs this pattern and the validator over the same adversarial table, so those shapes cannot start disagreeing again.",
+            "pattern": "^(?![a-zA-Z][a-zA-Z0-9+.-]*:)(?!/)(?!\\\\)(?!\\s)(?![\\s\\S]*\\s$)(?![\\s\\S]*\\u0000)(?!.*(^|[\\\\/])\\.\\.([\\\\/]|$)).+$"
           },
           "content": { "type": "string" }
         }

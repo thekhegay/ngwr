@@ -102,6 +102,12 @@ export class WrClickSpark {
 
   private sparks: Spark[] = [];
 
+  /** Pending frame id, or `0` while the loop is parked. `cancelAnimationFrame(0)` is a no-op. */
+  private raf = 0;
+
+  /** The frame callback, once a context was obtained. `null` means there is no loop to wake. */
+  private drawFrame: FrameRequestCallback | null = null;
+
   constructor() {
     if (!this.isBrowser) return;
     afterNextRender(() => {
@@ -123,6 +129,9 @@ export class WrClickSpark {
     for (let i = 0; i < count; i++) {
       this.sparks.push({ x, y, angle: (2 * Math.PI * i) / count, startTime: now });
     }
+    // The loop parks itself once the last spark retires, so a burst has to wake
+    // it — same shape as `WrConfetti.fire()`.
+    if (this.drawFrame && !this.raf) this.raf = requestAnimationFrame(this.drawFrame);
   }
 
   // Internals
@@ -168,8 +177,6 @@ export class WrClickSpark {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let raf = 0;
-
     const draw = (ts: number): void => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const ease = EASINGS[this.easing()];
@@ -201,11 +208,25 @@ export class WrClickSpark {
         return true;
       });
 
-      raf = requestAnimationFrame(draw);
+      // Park with nothing left to paint, and only HERE — after the filter, and so
+      // after the `clearRect` that opens the frame. The pass that retires the last
+      // spark has already blanked the canvas, so a parked loop leaves nothing frozen
+      // behind it. Parking matters because this component is built to wrap a page
+      // region, so its canvas is as large as whatever it wraps: left running, an
+      // instance nobody ever clicks — and every instance under reduced motion, where
+      // `onClick` returns before pushing anything — clears that canvas and resolves
+      // the colour token once a frame for its whole lifetime, with nothing to draw.
+      if (this.sparks.length === 0) {
+        this.raf = 0;
+        return;
+      }
+
+      this.raf = requestAnimationFrame(draw);
     };
 
-    raf = requestAnimationFrame(draw);
-    this.destroyRef.onDestroy(() => cancelAnimationFrame(raf));
+    this.drawFrame = draw;
+    this.raf = requestAnimationFrame(draw);
+    this.destroyRef.onDestroy(() => cancelAnimationFrame(this.raf));
   }
 }
 

@@ -72,10 +72,11 @@ $_dark: #e6ebf3;
   // percentage of the REMAINING headroom, so it approaches white without ever
   // leaving the gamut. 70% reproduces the previous `-light` to within a rounding
   // step; 85% is the distinct step beyond it.
-  // unused-ok: the four shades of the ink token. Nothing paints with them —
-  // `.wr-btn--dark:hover` reads the light palette's names — but leaving them
-  // inherited is what once made that hover almost black under near-black text,
-  // so they are corrections that have to exist whether or not we read them.
+  // unused-ok: for `-light` / `-lighter`. The catalog's intent loops run over
+  // `dark` like any other intent, so `.wr-btn--dark` really does paint `-dark`
+  // on hover and `-darker` on active — leaving those inherited is what once made
+  // that hover almost black under near-black text. Nothing reaches for the two
+  // lighter steps; they keep the shade set symmetric.
   --wr-color-dark-light: #{color.scale($_dark, $lightness: 70%)};
   --wr-color-dark-lighter: #{color.scale($_dark, $lightness: 85%)};
   --wr-color-dark-dark: #{color.adjust($_dark, $lightness: -5%)};
@@ -92,9 +93,8 @@ $_dark: #e6ebf3;
   --wr-color-light-rgb:
     #{color.channel($_light, 'red')}, #{color.channel($_light, 'green')}, #{color.channel($_light, 'blue')};
   // The baked contrast pairs with the LIGHT value (#cbd5e1 → dark text);
-  // the dark surface above needs light text instead.
-  // unused-ok: same story as `-white-contrast` above — baked from the light
-  // palette, wrong on this canvas, corrected here for whoever reads it.
+  // the dark surface above needs light text instead. Painted: it is the label
+  // `.wr-btn--light` puts on the fill.
   --wr-color-light-contrast: #e6ebf3;
   // `*-lighter` / `*-darker` are baked at SCSS compile time from the
   // LIGHT palette (slate-300 ± 10% lightness ≈ #e8eef5), so without
@@ -103,21 +103,20 @@ $_dark: #e6ebf3;
   // semantics inverted: "lighter" still means "subtler hairline"
   // (closer to canvas, so darker absolute color), "darker" still
   // means "stronger divider" (further from canvas, so lighter).
-  // unused-ok: for `-darker`. `-lighter` IS painted with (the showcase chrome's
-  // hairline); its opposite completes the pair with the semantics inverted —
-  // "darker" means a STRONGER divider here, further from the canvas.
+  // Both are painted: `-lighter` by the showcase chrome's hairline, `-darker` by
+  // `.wr-btn--light:active` through the intent loop.
   --wr-color-light-lighter: #1a2236;
   --wr-color-light-darker: #3a4661;
-  // `-light` / `-dark` were the two the hand block forgot, and they are what
-  // `.wr-btn--light` uses for hover / active. Left inherited, hover swapped in
+  // `-light` / `-dark` were the two the hand block forgot, and `-dark` is what
+  // `.wr-btn--light` uses for hover. Left inherited, hover swapped in
   // the LIGHT palette's slate-300 — a near-white fill under the near-white
   // `-contrast` text above, so the button simply disappeared under the cursor.
   // Half-steps of the tuned pair, same inverted reading: toward the canvas for
   // `-light`, away from it for `-dark`, which also makes hover read as a lift.
-  // unused-ok: read through the loop's generated names rather than by hand, and
-  // the reason they are here at all is that the hand block forgot them: hover
-  // swapped in the LIGHT palette's slate-300, a near-white fill under near-white
-  // text, and the button vanished under the cursor.
+  // unused-ok: for `-light`. Only its opposite is reached for — `.wr-btn--light`
+  // takes the `-dark` step on hover and nothing takes this one — but a half-step
+  // that exists in one direction and not the other is the kind of hole the hand
+  // block already shipped once.
   --wr-color-light-light: #{color.adjust($_light, $lightness: -2.5%)};
   --wr-color-light-dark: #{color.adjust($_light, $lightness: 5%)};
 
@@ -129,9 +128,10 @@ $_dark: #e6ebf3;
     #{color.channel($_medium, 'red')}, #{color.channel($_medium, 'green')}, #{color.channel($_medium, 'blue')};
   // This block shipped base + rgb only, so contrast and all four shades still
   // came from the light palette's slate. Ink token, plain shades.
-  // unused-ok: this block shipped base + rgb only, so contrast and all four
-  // shades still came from the light palette's slate. Unpainted, and wrong is
-  // still worse than unpainted.
+  // unused-ok: for `-light` / `-lighter`. `.wr-btn--medium` paints `-contrast`,
+  // `-dark` and `-darker` through the intent loop, and inheriting the light
+  // palette's slate for those is the bug this block fixes. Nothing reaches for
+  // the two lighter steps; they keep the set symmetric.
   --wr-color-medium-contrast: #{colors.contrast($_medium)};
   --wr-color-medium-light: #{color.adjust($_medium, $lightness: 5%)};
   --wr-color-medium-lighter: #{color.adjust($_medium, $lightness: 10%)};
@@ -165,9 +165,10 @@ $_dark: #e6ebf3;
   --wr-color-primary-contrast: #{colors.contrast(#3567ff)};
   --wr-color-primary-rgb: 53, 103, 255;
   // The same lightness steps as before, taken off the new base.
-  // unused-ok: for the three the catalog does not name directly. `-dark` carries
-  // hover and active; the rest keep the set symmetric with the light palette,
-  // which is what makes an intent swap-in-place for a consumer.
+  // unused-ok: for `-light` / `-lighter`. `.wr-btn--primary` paints `-dark` on
+  // hover and `-darker` on active; the two lighter steps keep the set symmetric
+  // with the light palette, which is what makes an intent swap-in-place for a
+  // consumer.
   --wr-color-primary-light: #547eff;
   --wr-color-primary-dark: #2848aa;
   --wr-color-primary-lighter: #7396ff;
@@ -182,7 +183,10 @@ $_dark: #e6ebf3;
     --wr-color-#{$name}-contrast: #{colors.contrast($base)};
     --wr-color-#{$name}-rgb:
       #{color.channel($base, 'red')}, #{color.channel($base, 'green')}, #{color.channel($base, 'blue')};
-    // unused-ok: the symmetric half, same reasoning as the light palette's loop.
+    // unused-ok: for `-light` / `-lighter`, the symmetric half — same reasoning
+    // as the light palette's loop. `-dark` and `-darker` below are painted by
+    // hover and active; they fall inside this marker's run only because the four
+    // shades are written as one block.
     --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
     --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
     --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};

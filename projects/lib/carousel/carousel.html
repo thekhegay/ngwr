@@ -2,7 +2,7 @@
   #viewport
   class="wr-carousel__viewport"
   role="group"
-  aria-roledescription="carousel"
+  [attr.aria-roledescription]="resolvedRoledescription()"
   [attr.aria-label]="resolvedAriaLabel()"
   (touchstart)="onSwipeStart($event)"
   (touchmove)="onSwipeMove($event)"
