@@ -6,10 +6,9 @@
  */
 
 import { execFileSync, spawn } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -42,11 +41,35 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
  * an input.
  */
 
-// Composed with `resolve` rather than `new URL(…, import.meta.url)`: the bundler
-// rewrites that pattern into an asset URL and hands back `http://localhost:3000/…`.
-const HERE = dirname(fileURLToPath(import.meta.url));
-const TSC = resolve(HERE, '..', '..', '..', 'node_modules', 'typescript', 'bin', 'tsc');
-const TSCONFIG = resolve(HERE, 'tsconfig.json');
+/**
+ * The workspace root, found by walking UP from the process's working directory.
+ *
+ * Deliberately NOT derived from `import.meta.url`. The Angular unit-test builder
+ * BUNDLES specs, so that URL names a location inside the bundle rather than this
+ * file, and `resolve(HERE, '..', '..', '..')` therefore landed on the repo root
+ * on a developer's machine and on `/home/runner` in CI, where the checkout sits
+ * one directory deeper. The suite then shelled out to a `tsc` that did not exist
+ * and pointed `-p` at the ROOT tsconfig instead of the MCP one — green locally,
+ * red only on the machine nobody watches.
+ *
+ * Anchoring on two files only the workspace root carries, and throwing when
+ * neither is above the runner's cwd, keeps this honest wherever it starts.
+ */
+function workspaceRoot(): string {
+  let dir = process.cwd();
+  for (;;) {
+    if (existsSync(join(dir, 'pnpm-workspace.yaml')) && existsSync(join(dir, 'angular.json'))) return dir;
+    const up = dirname(dir);
+    if (up === dir) {
+      throw new Error(`no workspace root above ${process.cwd()} — looked for pnpm-workspace.yaml beside angular.json`);
+    }
+    dir = up;
+  }
+}
+
+const ROOT = workspaceRoot();
+const TSC = resolve(ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
+const TSCONFIG = resolve(ROOT, 'projects', 'lib', 'mcp', 'tsconfig.json');
 
 /**
  * The fixture package's own version.
