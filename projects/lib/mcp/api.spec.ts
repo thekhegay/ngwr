@@ -5,9 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -766,7 +765,33 @@ describe('extractClass', () => {
  * copies into the declaration verbatim, and it is on disk in every checkout, so
  * the same two examples go through the same parser with nothing to skip.
  */
-const LIB = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+/**
+ * The workspace root, found by walking UP from the process's working directory.
+ *
+ * Deliberately NOT derived from `import.meta.url`. The Angular unit-test builder
+ * BUNDLES specs, so that URL names a location inside the bundle rather than this
+ * file, and `resolve(HERE, '..', '..', '..')` therefore landed on the repo root
+ * on a developer's machine and on `/home/runner` in CI, where the checkout sits
+ * one directory deeper. The suite then shelled out to a `tsc` that did not exist
+ * and pointed `-p` at the ROOT tsconfig instead of the MCP one — green locally,
+ * red only on the machine nobody watches.
+ *
+ * Anchoring on two files only the workspace root carries, and throwing when
+ * neither is above the runner's cwd, keeps this honest wherever it starts.
+ */
+function workspaceRoot(): string {
+  let dir = process.cwd();
+  for (;;) {
+    if (existsSync(join(dir, 'pnpm-workspace.yaml')) && existsSync(join(dir, 'angular.json'))) return dir;
+    const up = dirname(dir);
+    if (up === dir) {
+      throw new Error(`no workspace root above ${process.cwd()} — looked for pnpm-workspace.yaml beside angular.json`);
+    }
+    dir = up;
+  }
+}
+
+const LIB = resolve(workspaceRoot(), 'projects', 'lib');
 
 /** A class's own doc comment, wrapped as the one-class declaration `extractClass` reads. */
 const documented = (file: string, symbol: string): string => {
