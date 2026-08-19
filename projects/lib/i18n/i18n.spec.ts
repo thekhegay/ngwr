@@ -1,3 +1,6 @@
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
 import { TestBed } from '@angular/core/testing';
 
 import { wrEn } from 'ngwr/i18n/en';
@@ -172,6 +175,65 @@ describe('the shipped catalogs', () => {
 
     expect(en.length).toBeGreaterThan(100);
     expect([...ru].sort()).toEqual([...en].sort());
+  });
+
+  it('carry every key the library actually asks for', () => {
+    // Parity between the two catalogs was checked; whether a key a COMPONENT
+    // reads exists in either of them was not. A miss is silent by design —
+    // `useI18nText` treats "translation === key" as absent and serves the
+    // English fallback — so a Russian app renders English and every gate stays
+    // green. Not hypothetical: `imageCropper.window` and `imageCropper.keyHelp`
+    // reached `main` read by the component and absent from both catalogs, with
+    // 3881 specs passing either side of the gap.
+    //
+    // Anchored on the workspace root walked up from `process.cwd()`, never on
+    // `import.meta.url`: the builder BUNDLES specs, so that URL points inside
+    // the bundle — the trap that made the MCP suite compile the wrong tsconfig
+    // in CI and pass locally.
+    const root = ((): string => {
+      let dir = process.cwd();
+      for (;;) {
+        if (existsSync(join(dir, 'pnpm-workspace.yaml')) && existsSync(join(dir, 'angular.json'))) return dir;
+        const up = dirname(dir);
+        if (up === dir) throw new Error(`no workspace root above ${process.cwd()}`);
+        dir = up;
+      }
+    })();
+
+    const sources: string[] = [];
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name !== 'i18n' && entry.name !== 'node_modules') walk(full);
+        } else if (entry.name.endsWith('.ts') && !entry.name.includes('.spec.')) {
+          sources.push(readFileSync(full, 'utf8'));
+        }
+      }
+    };
+    walk(join(root, 'projects/lib'));
+
+    const asked = new Set<string>();
+    for (const text of sources) {
+      // The key must be DOTTED, and that is not cosmetic: the leading group is
+      // optional and greedy, so on the two-argument form
+      // `readI18nText('datePicker.hours', 'Hours')` it happily consumes the key
+      // and captures the FALLBACK — which then reads as a missing catalog entry
+      // called "Hours". Every shipped key is `<component>.<name>`; the assertion
+      // below that no top-level scalar exists keeps that true.
+      for (const m of text.matchAll(/(?:useI18nText|readI18nText)\s*\(\s*(?:[^,()]+,\s*)?'(\w+(?:\.\w+)+)'/g)) {
+        asked.add(m[1]);
+      }
+    }
+
+    // A floor, so a walk that silently matched nothing cannot pass this test.
+    expect(asked.size).toBeGreaterThan(50);
+
+    // The dotted-key assumption the matcher rests on.
+    expect(keysOf(wrEn).filter(key => !key.includes('.'))).toEqual([]);
+
+    const have = new Set(keysOf(wrEn));
+    expect([...asked].filter(key => !have.has(key)).sort()).toEqual([]);
   });
 
   it('leave no value empty, in either locale', () => {
