@@ -36,7 +36,7 @@
     white-space: nowrap;
 
     &:focus-visible + .wr-radio__dot {
-      box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.2);
+      @include theme.focus-ring;
     }
   }
 

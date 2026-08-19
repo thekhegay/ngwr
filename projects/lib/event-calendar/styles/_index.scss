@@ -115,7 +115,7 @@
 
     &:focus-visible {
       z-index: 2;
-      outline: 2px solid var(--wr-color-primary);
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
       outline-offset: -2px;
     }
 
@@ -190,7 +190,7 @@
 
     &:focus-visible {
       z-index: 3;
-      outline: 2px solid var(--wr-color-primary);
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
       outline-offset: 1px;
     }
 

@@ -2,10 +2,20 @@
 // library. Component-specific focus styles still win via higher specificity;
 // this is a safety net so every keyboard-reachable target has a visible
 // focus indicator out of the box.
+//
+// The ring is an outline plus a halo, both read from `--wr-focus-ring-*` — see
+// `_variables.scss` for why, and for the measured ratios. The short version:
+// the halo alone was 1.41:1 and this mixin also cleared the UA outline, so
+// "visible focus indicator out of the box" was not true of the forty-one
+// selectors that rely on it.
+//
+// Override the offset AFTER the include, the way `list` and `window` do, when
+// the target sits inside a clipping container.
 
 @mixin focus-ring {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.25);
+  outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+  outline-offset: var(--wr-focus-ring-offset);
+  box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
 }
 
 // Tabs

@@ -48,7 +48,7 @@
     cursor: zoom-in;
 
     &:focus-visible {
-      outline: 2px solid var(--wr-color-primary);
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
       outline-offset: 2px;
     }
   }

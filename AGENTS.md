@@ -690,6 +690,25 @@ there is no baseline of pixel positions to rot, and it catches what neither
 one shipped catch was the slider thumb centring itself with a physical
 `translate(-50%)` against an inset that had become logical.
 
+**The focus ring is `--wr-focus-ring-*`, and no gate can prove it.** The shared
+`theme.focus-ring` mixin emits an OUTLINE plus a halo, both read from tokens
+(`-color` / `-width` / `-offset` / `-halo` in `_variables.scss`). It used to be
+`outline: none` plus a 25% halo, which measures **1.41:1 in light and 1.31:1 in
+dark** — WCAG 1.4.11 asks 3:1 of a focus indicator, so the forty-one selectors
+whose whole focus style is that mixin had nothing on screen that met it. The
+solid token is 4.89:1 / 4.07:1, measured in the browser and not only derived.
+Three things follow. **axe has no focus-appearance rule** — `check:contrast` runs
+`color-contrast` and `target-size` and nothing else, so this number lives in the
+file comment the way the `-ink` shares do, and a change to it has to be measured
+by hand. **An outline is the only form that survives `forced-colors`**, which
+drops every `box-shadow`; that is why the halo must never be the sole channel
+again. And **a component may inset the ring but must not cancel it**: `list` and
+`window` override `outline-offset: -2px` after the include for a row inside a
+clipping container, which is correct, while `dropdown` used to write
+`outline: none` in a rule that beat the shared one on source order — the mixin
+lists `.wr-dropdown-item:focus-visible` explicitly, so the two contradicted each
+other and the component won.
+
 **Accessibility.** Interactive components follow the WAI-ARIA APG patterns —
 correct roles/states, keyboard navigation, and focus management; overlays use the
 CDK a11y primitives (focus trap) plus live-region announcements. `pnpm

@@ -76,9 +76,9 @@ export default class TokensColorsPage {
   protected readonly inkTokens: readonly DocApiRow[] = [
     {
       name: '--wr-color-{intent}-ink',
-      type: 'color-mix(in srgb, var(--wr-color-{intent}) 48–86%, var(--wr-color-dark))',
+      type: 'color-mix(in srgb, var(--wr-color-{intent}) 48–78%, var(--wr-color-dark))',
       description:
-        "The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the most saturated value that still reaches 5.0:1 against that intent's own `-soft` tint in BOTH themes — primary 86%, secondary 75%, danger 72%, info 71%, success 67%, medium 65%, warning 48%. Warning travels furthest because a yellow readable on white is not yellow. The 5.0 target is deliberate headroom over AA's 4.5: an earlier pass aimed at 4.5 exactly and a slightly different background pushed `wr-typography--code` back under it. `light-ink` is `--wr-color-on-surface` (a surface tone has no readable darkening) and `dark-ink` is `--wr-color-dark`.",
+        "The intent darkened (light) / lightened (dark) until it clears WCAG AA **as its own label** — what outlined and ghost variants, tags and tinted chips paint with. The bare intent does not: on white, `warning` is 1.71:1 and `success` 3.33:1. The share is per intent, each the most saturated value that still reaches 5.0:1 against that intent's own `-soft` tint in BOTH themes — primary 78%, secondary 75%, danger 72%, info 71%, success 67%, medium 65%, warning 48%. Warning travels furthest because a yellow readable on white is not yellow. `primary` was re-derived from 86% when the dark base deepened to `#3567ff`: a deeper base makes the ink deeper too, which on a dark tint is the losing direction, and axe measured the old share at 4.48:1 on the sidebar's own tint. The 5.0 target is deliberate headroom over AA's 4.5: an earlier pass aimed at 4.5 exactly and a slightly different background pushed `wr-typography--code` back under it. `light-ink` is `--wr-color-on-surface` (a surface tone has no readable darkening) and `dark-ink` is `--wr-color-dark`.",
     },
   ];
 
@@ -159,9 +159,59 @@ export default class TokensColorsPage {
       type: 'var(--wr-color-muted-text)',
       description: 'Secondary / muted text on a surface.',
     },
+    {
+      name: '--wr-color-outline',
+      type: 'var(--wr-color-light)',
+      description:
+        'The opaque hairline components draw 1px rules with — borders, dividers, table gridlines. Distinct from `--wr-color-border`, which is the same hue at 50% alpha so it reads over any fill; swapping one for the other changes appearance, not just naming.',
+    },
+  ];
+
+  /**
+   * The keyboard focus indicator. Colour and geometry together, because the
+   * interesting property spans both.
+   */
+  protected readonly focusTokens: readonly DocApiRow[] = [
+    {
+      name: '--wr-focus-ring-color',
+      type: 'var(--wr-color-primary)',
+      description:
+        'The outline colour. Measured against the page it draws on: **4.89:1 in light, 4.07:1 in dark**, where WCAG 1.4.11 asks 3:1 of a focus indicator.',
+    },
+    {
+      name: '--wr-focus-ring-width',
+      type: '2px',
+      description: 'Outline thickness.',
+    },
+    {
+      name: '--wr-focus-ring-offset',
+      type: '2px',
+      description:
+        'Gap between the control and the outline, and the halo spread — the halo fills exactly that gap, so the two read as one ring. A component whose target sits inside a clipping container insets it instead (`outline-offset: -2px`).',
+    },
+    {
+      name: '--wr-focus-ring-halo',
+      type: 'rgba(var(--wr-color-primary-rgb), 0.25)',
+      description:
+        'The soft second channel. It used to be the ONLY channel, at 1.41:1 light / 1.31:1 dark, alongside an `outline: none` — so no part of the indicator met the bar.',
+    },
   ];
 
   protected readonly snippets = {
+    focus: `/* Retheme the ring once and every control follows — the library's own
+   mixin reads nothing else. */
+:root {
+  --wr-focus-ring-color: var(--wr-color-secondary);
+  --wr-focus-ring-width: 3px;
+}
+
+/* What the mixin emits. Override the offset AFTER an include when the
+   target sits inside a clipping container, the way the list rows do. */
+.wr-list__item--interactive:focus-visible {
+  outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+  outline-offset: -2px;
+}`,
+
     intent: `/* Solid surface: pair the base with its auto-computed contrast. */
 .toast {
   background: var(--wr-color-primary);

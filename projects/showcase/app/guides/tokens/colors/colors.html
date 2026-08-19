@@ -175,6 +175,22 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="The focus ring"
+    description="One family for the keyboard indicator, so it is themable like everything else. It is an outline, and that is a decision rather than a default."
+  >
+    <ngwr-doc-api [rows]="focusTokens" />
+
+    <p>
+      An outline rather than a shadow, for three reasons. It is exempt from layout, so focus never reflows the box.
+      <code>forced-colors</code> keeps it and drops every <code>box-shadow</code>, so a Windows contrast theme still
+      shows where you are. And it can carry a solid colour: the halo alone is a 25% tint of the primary over the page,
+      which measures <strong>1.41:1</strong> — a focus indicator has to reach 3:1.
+    </p>
+
+    <ngwr-doc-code [code]="snippets.focus" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="How dark mode flips"
     description="Dark mode is opt-in via `[data-theme='dark']` on `<html>` (driven by `provideWrTheme()`). The key inversion is that `--wr-color-white` is the page *surface* and `--wr-color-dark` is the *text* — and both swap roles in dark mode. The intents are not left alone either: seven of the nine are re-tuned for the deep canvas (`primary`, `success`, `warning`, `danger` for legibility on it, `light` / `medium` / `dark` because they are the neutrals doing the flipping). Only `secondary` and `info` keep their light values. Build with the tokens and you write zero dark-mode overrides."
   >
