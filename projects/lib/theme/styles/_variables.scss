@@ -65,6 +65,21 @@
   --wr-shadow-float: 0 8px 24px rgb(0 0 0 / 18%);
   --wr-shadow-modal: 0 20px 48px rgb(0 0 0 / 25%);
 
+  // Disabled
+  //
+  // How far a control fades when it will not respond. One number, because the
+  // catalog had **seven** — 0.6 in eighteen places, then 0.5, 0.7, 0.55, 0.4,
+  // 0.35 and 0.65 — spread over 29 entry points, and two components disagreed
+  // with THEMSELVES three ways inside one file (`date-picker` at 0.5 / 0.4 / 0.7,
+  // `calendar` at 0.5 / 0.35 / 0.6). Sibling text fields fading differently is
+  // not a design decision anyone made; it is what happens when the value has no
+  // name.
+  //
+  // 0.6 is the value eighteen of them already used. A component that genuinely
+  // needs another strength overrides this token in its own block, with the reason
+  // — the point is that the exception has to be argued rather than typed.
+  --wr-disabled-opacity: 0.6;
+
   // Focus ring
   //
   // The keyboard indicator, as tokens rather than a recipe baked into SCSS —

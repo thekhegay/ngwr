@@ -41,7 +41,7 @@
 
   &--disabled &__zone {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: var(--wr-disabled-opacity);
     pointer-events: none;
   }
 
@@ -151,7 +151,7 @@
 
     &:disabled {
       cursor: not-allowed;
-      opacity: 0.4;
+      opacity: var(--wr-disabled-opacity);
     }
   }
 }

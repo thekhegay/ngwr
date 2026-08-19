@@ -71,7 +71,7 @@
     }
 
     &--disabled {
-      opacity: 0.55;
+      opacity: var(--wr-disabled-opacity);
       pointer-events: none;
       cursor: not-allowed;
     }

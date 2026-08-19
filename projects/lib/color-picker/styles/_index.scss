@@ -247,13 +247,13 @@
 
     &:disabled {
       cursor: not-allowed;
-      opacity: 0.5;
+      opacity: var(--wr-disabled-opacity);
     }
   }
 
   &--disabled {
     pointer-events: none;
-    opacity: 0.65;
+    opacity: var(--wr-disabled-opacity);
   }
 }
 

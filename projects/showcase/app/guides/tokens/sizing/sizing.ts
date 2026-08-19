@@ -138,6 +138,16 @@ readonly size = input<WrButtonSize>('md');
     },
   ];
 
+  /** The one state token that is a scalar rather than a colour. */
+  protected readonly stateTokens: readonly DocApiRow[] = [
+    {
+      name: '--wr-disabled-opacity',
+      type: '0.6',
+      description:
+        'How far a control fades when it will not respond. One number, because the catalog had **seven** — 0.6 in eighteen places, then 0.5, 0.7, 0.55, 0.4, 0.35 and 0.65 across 29 entry points, with `date-picker` and `calendar` each disagreeing with themselves three ways inside one file. Override it in a component block, not per declaration: `wr-calendar` does, because a day from the adjacent month is still navigable at 0.55, so a disabled day has to be fainter than that or the two swap meanings.',
+    },
+  ];
+
   protected readonly radiusTokens: readonly DocApiRow[] = [
     {
       name: '--wr-control-radius-sm',

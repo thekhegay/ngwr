@@ -99,7 +99,7 @@
 
     &:disabled {
       cursor: not-allowed;
-      opacity: 0.5;
+      opacity: var(--wr-disabled-opacity);
     }
   }
 
@@ -200,7 +200,13 @@
     &:disabled {
       color: var(--wr-calendar-muted);
       cursor: not-allowed;
-      opacity: 0.35;
+      // Fainter than the shared token, and a neighbour is the reason: a day from
+      // the adjacent month is still navigable and sits at 0.55 just above, so a
+      // DISABLED day has to read as less available than that one or the two swap
+      // meanings. The override is on the token rather than on `opacity`, so the
+      // ratio to the rest of the catalog survives a consumer retuning it.
+      --wr-disabled-opacity: 0.45;
+      opacity: var(--wr-disabled-opacity);
     }
   }
 
@@ -260,12 +266,12 @@
     &:disabled {
       color: var(--wr-calendar-muted);
       cursor: not-allowed;
-      opacity: 0.35;
+      opacity: var(--wr-disabled-opacity);
     }
   }
 
   &--disabled {
     pointer-events: none;
-    opacity: 0.6;
+    opacity: var(--wr-disabled-opacity);
   }
 }

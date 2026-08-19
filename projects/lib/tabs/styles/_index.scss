@@ -113,7 +113,7 @@
 
     &--disabled,
     &:disabled {
-      opacity: 0.5;
+      opacity: var(--wr-disabled-opacity);
       cursor: not-allowed;
     }
   }
