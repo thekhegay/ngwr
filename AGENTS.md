@@ -602,7 +602,12 @@ rather than re-deriving one — a `color-mix` result computes to
 `color(srgb 0.19 0.41 0.77)`, whose components are 0–1, and hand-rolled maths
 that assumes 0–255 silently produces nonsense. It emulates
 `prefers-reduced-motion`, without which an animation caught mid-flight
-(`opacity: 0`, `blur(10px)`) reports a failure that describes one frame.
+(`opacity: 0`, `blur(10px)`) reports a failure that describes one frame, and it
+**pins the clock to the same instant `check:state-a11y` uses** — it did not
+until 2026-08-19, and because the event-calendar demo builds its events from
+`new Date()`, its route count slid between 1 and 2 on its own. A count that
+moves by itself is worse than a failure: the allowance can only be set to the
+loosest day, and every other day it hides a real regression in the slack.
 `--filter=<substring>` narrows it to a route while you iterate; the full sweep
 is minutes.
 

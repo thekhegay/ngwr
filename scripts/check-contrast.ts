@@ -246,6 +246,19 @@ async function main(): Promise<void> {
         reducedMotion: 'reduce',
         viewport: { width: 1280, height: 900 },
       });
+
+      // Pin the clock, for the reason `check:state-a11y` pins it: the
+      // event-calendar demo builds its events relative to `new Date()`, so how
+      // many chips a month cell holds — and therefore whether they trip
+      // `target-size` at all — changes from one day to the next. This gate
+      // counts ROUTES, so that surfaced as the count sliding between 1 and 2 on
+      // its own, which is worse than a failure: it means the allowance can only
+      // ever be set to the loosest day, and on every other day it hides a real
+      // regression behind the slack. The date-picker and calendar demos drift
+      // the same way. Same instant as the state sweep, so the two gates describe
+      // the same page.
+      await context.clock.setFixedTime(new Date('2026-08-12T10:00:00Z'));
+
       const page = await context.newPage();
 
       info(`  ${theme}: ${targets.length} routes`);
