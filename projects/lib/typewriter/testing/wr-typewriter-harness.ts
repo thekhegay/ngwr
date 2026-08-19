@@ -111,6 +111,21 @@ export class WrTypewriterHarness extends ComponentHarness {
   private readonly cursor = this.locatorForOptional(CURSOR);
 
   /**
+   * One custom property off the host's `style` ATTRIBUTE.
+   *
+   * Not `getCssValue()`, which is `getComputedStyle`: with the entry point's own
+   * stylesheet loaded that resolves the sheet's declaration, so the method
+   * answers plausibly at exactly the moment the host binding — the thing under
+   * test — is what broke. The sibling reader below already says this; the
+   * blink duration was reading the computed value anyway.
+   */
+  private async inlineVar(property: string): Promise<string> {
+    const attr = (await (await this.host()).getAttribute('style')) ?? '';
+    const found = new RegExp(`(?:^|;)\\s*${property}\\s*:\\s*([^;]+)`).exec(attr);
+    return (found?.[1] ?? '').trim();
+  }
+
+  /**
    * What has been typed so far — a FRAGMENT while the machine is running.
    *
    * This is the whole state machine in one string, and every timing input is observable
@@ -203,7 +218,7 @@ export class WrTypewriterHarness extends ComponentHarness {
    * writing the default correctly.
    */
   async getCursorBlinkDuration(): Promise<number> {
-    const raw = (await (await this.host()).getCssValue('--wr-typewriter-cursor-blink')).trim();
+    const raw = await this.inlineVar('--wr-typewriter-cursor-blink');
     const seconds = Number.parseFloat(raw);
 
     if (!Number.isFinite(seconds)) {

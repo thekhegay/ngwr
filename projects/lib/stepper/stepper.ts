@@ -99,6 +99,19 @@ export class WrStepper implements WrStepperContext {
     effect(() => {
       this.steps().forEach((step, i) => step._index.set(i));
     });
+
+    // `active` is a plain `model`, so `[(active)]` and an `@if`-shrunk step list
+    // both write into it unchecked — only `goTo` clamped. Out of range no step
+    // matches `.wr-step--active`, and since `.wr-step` is `display: none` until it
+    // does, the stepper renders its header row over an empty body with no header
+    // carrying `aria-current="step"`. Same guard as `wr-carousel`; the `last < 0`
+    // return keeps it quiet until `contentChildren` resolves.
+    effect(() => {
+      const last = this.steps().length - 1;
+      if (last < 0) return;
+      const clamped = Math.min(Math.max(0, this.active()), last);
+      if (clamped !== this.active()) this.active.set(clamped);
+    });
   }
 
   /** Is the step at `index` considered completed? */

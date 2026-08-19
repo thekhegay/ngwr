@@ -1,6 +1,10 @@
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+// Through the ENTRY POINT, deliberately: the two unions used to be file-local
+// aliases called `Unit` / `Direction`, so the `.d.ts` and the generated API table
+// named a type no consumer could import. This line is the assertion.
+import type { WrBlurTextDirection, WrBlurTextUnit } from 'ngwr/blur-text';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -19,8 +23,8 @@ import { WrBlurText } from './blur-text';
 })
 class Host {
   readonly text = signal('Hi there');
-  readonly animateBy = signal<'chars' | 'words'>('words');
-  readonly direction = signal<'top' | 'bottom'>('top');
+  readonly animateBy = signal<WrBlurTextUnit>('words');
+  readonly direction = signal<WrBlurTextDirection>('top');
   done = 0;
 }
 

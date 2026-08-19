@@ -190,8 +190,8 @@
   >
     <ngwr-doc-snippet [code]="snippets.tag">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
-        <wr-select mode="tag" placeholder="Add a tag" [(value)]="tags" />
-        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ tags() | json }}</span>
+        <wr-select mode="tag" placeholder="Add a tag" [(value)]="freeTags" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ freeTags() | json }}</span>
 
         <wr-select
           mode="tag"

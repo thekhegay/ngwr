@@ -105,12 +105,16 @@ bootstrapApplication(App, {
     )
   );
 }`,
+    // The values the "The time grid" demo actually renders. This block was a
+    // copy of the drag demo's (editable, 8–19, 30): it advertised a capability
+    // that section's calendar does not have, and printed `slotMinutes`' own
+    // default for the one input the section exists to explain. `[views]="[]"`,
+    // `[(view)]` and `[(date)]` stay unprinted — page scaffolding, as elsewhere.
     time: `<wr-event-calendar
-  editable
   view="week"
-  [dayStartHour]="8"
-  [dayEndHour]="19"
-  [slotMinutes]="30"
+  [slotMinutes]="15"
+  [dayStartHour]="9"
+  [dayEndHour]="14"
   [events]="events()"
 />`,
     template: `<wr-event-calendar [events]="events()">

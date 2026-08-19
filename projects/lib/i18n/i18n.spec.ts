@@ -178,18 +178,28 @@ describe('the shipped catalogs', () => {
   });
 
   it('carry every key the library actually asks for', () => {
-    // Parity between the two catalogs was checked; whether a key a COMPONENT
-    // reads exists in either of them was not. A miss is silent by design —
-    // `useI18nText` treats "translation === key" as absent and serves the
-    // English fallback — so a Russian app renders English and every gate stays
-    // green. Not hypothetical: `imageCropper.window` and `imageCropper.keyHelp`
-    // reached `main` read by the component and absent from both catalogs, with
-    // 3881 specs passing either side of the gap.
+    // Parity between the two catalogs says nothing about a key NEITHER of them
+    // has. A miss is silent by design — `useI18nText` reads "translation === key"
+    // as absent and serves the English fallback — so a Russian app renders
+    // English and every other gate stays green. `imageCropper.window` and
+    // `.keyHelp` reached `main` exactly that way.
+    //
+    // The first version of this gate matched the call with one regex whose
+    // optional first-argument group was `[^,()]+`. That cannot cross a
+    // parenthesis, so every `useI18nText(signal(null), 'key', …)` matched
+    // NOTHING and its key went unchecked — five toast keys among them — and
+    // `useI18nFormatter` was not in the alternation at all. Twenty of the
+    // library's keys were invisible to a gate whose whole job was to see them,
+    // and the `> 50` floor could not tell, because 150 clears it.
+    //
+    // So: find the call, take its argument list by matching parentheses, and
+    // read the first dotted literal inside. Then assert every call yielded one,
+    // which is what makes a future call shape fail loudly instead of quietly.
     //
     // Anchored on the workspace root walked up from `process.cwd()`, never on
-    // `import.meta.url`: the builder BUNDLES specs, so that URL points inside
-    // the bundle — the trap that made the MCP suite compile the wrong tsconfig
-    // in CI and pass locally.
+    // `import.meta.url` — the builder bundles specs, and that URL points inside
+    // the bundle. It is the trap that made the MCP suite compile the wrong
+    // tsconfig in CI while passing locally.
     const root = ((): string => {
       let dir = process.cwd();
       for (;;) {
@@ -213,21 +223,36 @@ describe('the shipped catalogs', () => {
     };
     walk(join(root, 'projects/lib'));
 
+    /** The text between a call's opening paren and its matching close. */
+    const argsAt = (text: string, from: number): string => {
+      let depth = 1;
+      let i = from;
+      while (i < text.length && depth > 0) {
+        const c = text[i++];
+        if (c === '(') depth++;
+        else if (c === ')') depth--;
+      }
+      return text.slice(from, i - 1);
+    };
+
     const asked = new Set<string>();
+    let calls = 0;
+    let keyless = 0;
     for (const text of sources) {
-      // The key must be DOTTED, and that is not cosmetic: the leading group is
-      // optional and greedy, so on the two-argument form
-      // `readI18nText('datePicker.hours', 'Hours')` it happily consumes the key
-      // and captures the FALLBACK — which then reads as a missing catalog entry
-      // called "Hours". Every shipped key is `<component>.<name>`; the assertion
-      // below that no top-level scalar exists keeps that true.
-      for (const m of text.matchAll(/(?:useI18nText|readI18nText)\s*\(\s*(?:[^,()]+,\s*)?'(\w+(?:\.\w+)+)'/g)) {
-        asked.add(m[1]);
+      for (const m of text.matchAll(/\b(?:useI18nText|readI18nText|useI18nFormatter)\s*\(/g)) {
+        calls++;
+        const key = /'(\w+(?:\.\w+)+)'/.exec(argsAt(text, m.index + m[0].length));
+        if (key) asked.add(key[1]);
+        else keyless++;
       }
     }
 
-    // A floor, so a walk that silently matched nothing cannot pass this test.
-    expect(asked.size).toBeGreaterThan(50);
+    // Every call must have produced a key. A call shape this cannot read is the
+    // failure mode that made the previous version useless, so it fails here
+    // rather than shrinking the set it checks.
+    expect(keyless, 'i18n calls whose key this spec could not read').toBe(0);
+    // A floor, so a walk that matched nothing cannot pass.
+    expect(calls).toBeGreaterThan(150);
 
     // The dotted-key assumption the matcher rests on.
     expect(keysOf(wrEn).filter(key => !key.includes('.'))).toEqual([]);

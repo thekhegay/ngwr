@@ -62,8 +62,28 @@ export class IconGridComponent {
 
   protected readonly totalCount = computed(() => this.icons().length);
 
+  /**
+   * One `SafeHtml` per entry, for the life of the page.
+   *
+   * `bypassSecurityTrustHtml` returns a NEW wrapper object per call and Angular
+   * compares a bound value with `Object.is`, so an un-memoised call inside
+   * `[innerHTML]` reads as "changed" on every change-detection pass — and
+   * setting `innerHTML` re-parses the whole SVG subtree. Every tile the filter
+   * KEPT was being torn down and rebuilt on each keystroke; a set like radix is
+   * ~294 KB of markup across the 240 visible tiles.
+   *
+   * Keyed on the entry object rather than on `name`: this grid is instantiated
+   * once per icon set, and two sets can share a name.
+   */
+  private readonly trusted = new WeakMap<IconEntry, SafeHtml>();
+
   protected svgFor(entry: IconEntry): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(entry.svg);
+    let html = this.trusted.get(entry);
+    if (html === undefined) {
+      html = this.sanitizer.bypassSecurityTrustHtml(entry.svg);
+      this.trusted.set(entry, html);
+    }
+    return html;
   }
 
   protected async copy(entry: IconEntry): Promise<void> {

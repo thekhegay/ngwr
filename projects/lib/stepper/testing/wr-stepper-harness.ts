@@ -112,11 +112,11 @@ export class WrStepperHarness extends ComponentHarness {
    * The index of the step the wizard is showing, from the header announcing
    * `aria-current="step"`.
    *
-   * Throws when no header does, which is a state a stepper can genuinely be in: the
-   * `active` model is two-way, `WrStepper.goTo()` clamps an out-of-range index but a
-   * host writing `active` directly does not, and an index past the last step leaves
-   * every header un-current and every step body hidden. A `-1` here would be read as
-   * "the first step" by the next line of a spec.
+   * Throws when no header does, which is a state a stepper can genuinely be in: one
+   * with no `<wr-step>` children renders its (empty) header strip and no body. A `-1`
+   * here would be read as "the first step" by the next line of a spec. An
+   * out-of-range `active` is NOT such a state — `WrStepper` clamps the two-way model
+   * back into the step list, not only inside `goTo()`.
    */
   async getActiveIndex(): Promise<number> {
     const steps = await this.getSteps();
@@ -125,9 +125,9 @@ export class WrStepperHarness extends ComponentHarness {
     }
 
     throw new Error(
-      'WrStepperHarness.getActiveIndex(): no header announces `aria-current="step"` — this stepper either has ' +
-        'no <wr-step> children, or its bound `active` index points outside them, which also hides every step ' +
-        'body. `WrStepper.goTo()` clamps such an index; a host writing `active` itself does not.'
+      'WrStepperHarness.getActiveIndex(): no header announces `aria-current="step"` — this stepper has ' +
+        'no <wr-step> children, so there is no step for it to be on. An out-of-range `active` cannot ' +
+        'produce this: WrStepper clamps the bound index to the step list.'
     );
   }
 

@@ -14,7 +14,9 @@ import { WrStepper } from './stepper';
     <wr-stepper [(active)]="active" [linear]="linear()" [orientation]="orientation()" [responsive]="responsive()">
       <wr-step label="Account">Account body</wr-step>
       <wr-step label="Address" [completed]="addressDone()">Address body</wr-step>
-      <wr-step label="Review" [disabled]="reviewDisabled()">Review body</wr-step>
+      @if (showReview()) {
+        <wr-step label="Review" [disabled]="reviewDisabled()">Review body</wr-step>
+      }
     </wr-stepper>
   `,
 })
@@ -26,6 +28,8 @@ class Host {
   readonly responsive = signal(false);
   readonly addressDone = signal<boolean | null>(null);
   readonly reviewDisabled = signal(false);
+  /** A step behind a flag — the ordinary way a step list shrinks at runtime. */
+  readonly showReview = signal(true);
 }
 
 @Component({
@@ -127,6 +131,43 @@ describe('WrStepper', () => {
     fixture.componentInstance.stepper().goTo(-5);
     fixture.detectChanges();
     expect(active()).toBe(0);
+  });
+
+  /**
+   * `goTo` was the only clamp, so everything the suite above exercises was
+   * already in range. These two reach `active` the way a host does — through the
+   * model, and through a step list that shrinks under it — and both used to leave
+   * NO step matching `.wr-step--active` and no header `aria-current="step"`: a
+   * header row over an empty body, since `.wr-step` is `display: none` until it
+   * matches. (The hiding itself is a stylesheet rule jsdom does not apply; the
+   * class and the ARIA state are the browser-independent half.)
+   */
+  it('pulls an out-of-range active index written straight to the model back in', () => {
+    fixture.componentInstance.active.set(99);
+    fixture.detectChanges();
+
+    expect(active()).toBe(2);
+    expect(currents()).toEqual(['-', '-', 'step']);
+    expect(root().querySelectorAll('.wr-step--active')).toHaveLength(1);
+
+    fixture.componentInstance.active.set(-3);
+    fixture.detectChanges();
+
+    expect(active()).toBe(0);
+    expect(currents()).toEqual(['step', '-', '-']);
+  });
+
+  it('follows the last step down when it is removed from under the active index', () => {
+    fixture.componentInstance.active.set(2);
+    fixture.detectChanges();
+    expect(currents()).toEqual(['-', '-', 'step']);
+
+    fixture.componentInstance.showReview.set(false);
+    fixture.detectChanges();
+
+    expect(active()).toBe(1);
+    expect(currents()).toEqual(['-', 'step']);
+    expect(root().querySelectorAll('.wr-step--active')).toHaveLength(1);
   });
 
   describe('linear mode', () => {

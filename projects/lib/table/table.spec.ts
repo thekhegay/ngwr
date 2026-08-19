@@ -146,6 +146,23 @@ class ResponsiveVirtualHost {
  * no flat list to bucket — and a silent change to it would leave a hierarchy
  * rendering as a shuffled flat table with no error anywhere.
  */
+/**
+ * A dataset past V8's spread-argument limit (~125k), paged down to ten rows on
+ * screen. A summary aggregates the WHOLE dataset, never the page, so the row
+ * count the footer works over is the `items` length regardless of `pageSize`.
+ */
+@Component({
+  imports: [WrTable],
+  template: `<wr-table [columns]="columns" [items]="items" [pageSize]="10" />`,
+})
+class BigSummaryHost {
+  protected readonly items = Array.from({ length: 150_000 }, (_, i) => ({ id: i + 1, lo: i + 1, hi: i + 1 }));
+  protected readonly columns: WrTableColumns = {
+    lo: { title: 'Lo', summary: 'min' },
+    hi: { title: 'Hi', summary: 'max' },
+  };
+}
+
 describe('WrTable', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -388,6 +405,24 @@ describe('WrTable', () => {
       fixture.detectChanges();
 
       expect(cellTexts().map(c => c[0])).toEqual(['Only']);
+    });
+
+    it('falls back to the first page for a page below 1', () => {
+      // The offset was clamped at the top only. `page = 0` gave `slice(-3, 0)`
+      // — the empty-state row over a populated dataset — and `page = -1` gave
+      // `slice(-6, -3)`, which `Array.slice` resolves from the END, so the table
+      // rendered a page from the back while the pager highlighted nothing.
+      fixture.componentInstance.page.set(0);
+      fixture.detectChanges();
+      expect(cellTexts().map(c => c[0])).toEqual(['Row 1', 'Row 2', 'Row 3']);
+
+      fixture.componentInstance.page.set(-1);
+      fixture.detectChanges();
+      expect(cellTexts().map(c => c[0])).toEqual(['Row 1', 'Row 2', 'Row 3']);
+
+      fixture.componentInstance.page.set(Number.NaN);
+      fixture.detectChanges();
+      expect(cellTexts().map(c => c[0])).toEqual(['Row 1', 'Row 2', 'Row 3']);
     });
   });
 
@@ -750,5 +785,24 @@ describe('WrTable loading overlay', () => {
       .querySelector('.wr-table__loading')
       ?.getAttribute('aria-label');
     expect(/\p{Script=Cyrillic}/u.test(label ?? ''), `"${label ?? ''}" is still English`).toBe(true);
+  });
+});
+
+describe('WrTable summary row over a dataset larger than the spread limit', () => {
+  it('reduces min/max instead of spreading them into a call', () => {
+    // `Math.min(...nums)` threw `RangeError: Maximum call stack size exceeded`
+    // past ~125k arguments, out of the `computed()` the footer reads — so a
+    // 150k-row table stopped rendering entirely rather than showing a wrong
+    // number. `sum`/`avg`/`count` were always reduce-based and never affected.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(BigSummaryHost);
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const foot = [...host.querySelectorAll<HTMLElement>('tfoot .wr-table__foot-cell')];
+    expect(foot.map(td => td.textContent.trim())).toEqual(['1', '150000']);
+
+    fixture.destroy();
   });
 });

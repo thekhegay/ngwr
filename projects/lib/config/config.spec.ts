@@ -22,6 +22,44 @@ class Host {
   readonly resolvedRounded = useConfigValue(this.rounded, c => c.select?.rounded, false);
 }
 
+/**
+ * The parity guard, asserted at COMPILE time — there is nothing to run.
+ *
+ * `useConfigValue`'s JSDoc promises that a component whose scale is narrower than
+ * `WrControlSize` stops compiling rather than accepting a value it cannot render.
+ * The `NoInfer`s on `pick` / `fallback` are the whole of that promise: remove them
+ * and `T` widens to the config's own union, the line below type-checks, and the
+ * unused `@ts-expect-error` becomes the error instead — so the suite stops
+ * BUILDING, which is the only failure mode a type-level guard has.
+ */
+@Component({
+  selector: 'wr-config-narrow-host',
+  template: '',
+})
+class NarrowHost {
+  /** A scale with no `lg`, the way half the catalog's controls are declared. */
+  readonly size = input<'sm' | 'md' | null>(null);
+
+  // @ts-expect-error — `c.button?.size` is the wider `WrControlSize`, and this
+  // component cannot render `lg`. Widening `WrControlSize` must break its callers.
+  readonly resolvedSize = useConfigValue(this.size, c => c.button?.size, 'md');
+}
+
+describe('the type-parity guard', () => {
+  it('is guarding against a real unsoundness, not a hypothetical one', () => {
+    // What the suppressed error buys: `resolvedSize` is typed `'sm' | 'md'` and
+    // holds `'lg'`. Components push that straight into a `wr-<block>--${size}`
+    // modifier, so the drift reaches the host as a class nothing styles.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrConfig({ button: { size: 'lg' } })] });
+    const narrow = TestBed.createComponent(NarrowHost);
+    narrow.detectChanges();
+
+    expect(narrow.componentInstance.resolvedSize()).toBe('lg');
+    narrow.destroy();
+  });
+});
+
 describe('useConfigValue', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 

@@ -200,6 +200,15 @@ function catalogMd(entries: readonly SkillEntry[]): string {
   return lines.join('\n');
 }
 
+/**
+ * Every snippet below is hand-typed prose that ships to consumers, so it is the
+ * one part of the skill that CAN drift from the library — nothing compiles it.
+ * Keep each provider bullet a literal call an agent can paste: the density line
+ * used to read `provideWrDensity('sm' | 'md' | 'lg' | 'touch')` — notation sitting
+ * in an argument position, where the real signature takes
+ * `Partial<WrDensityConfig>`. A bare string does not compile (TS2559); silence
+ * that and it spreads into indexed characters, leaving `defaultDensity` at `md`.
+ */
 function setupMd(providers: readonly RequiredProvider[]): string {
   return `# Setting up ngwr
 
@@ -252,8 +261,9 @@ ${providers.map(p => `### \`${p.provider}\`\n\n${p.why[0].toUpperCase()}${p.why.
 
 - \`provideWrConfig({ button: { size: 'sm' } })\` — component defaults. A bound
   value always wins, including a bound \`false\` over a configured \`true\`.
-- \`provideWrDensity('sm' | 'md' | 'lg' | 'touch')\` — one control size for the
-  whole app; \`touch\` enlarges every hit area at once.
+- \`provideWrDensity({ defaultDensity: 'sm' })\` — one control size for the whole
+  app; \`'sm' | 'md' | 'lg' | 'touch'\`, where \`touch\` enlarges every hit area at
+  once.
 - \`provideWrResponsiveOverlays()\` — overlays present as bottom sheets under the
   breakpoint (640px by default). Per-component opt-out with \`[responsive]="false"\`.
 - \`provideWrFormErrors({ … })\` — one place for validation copy; \`<wr-form-field>\`

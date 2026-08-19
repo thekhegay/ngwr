@@ -8,6 +8,7 @@ export { WrWindowTaskbar } from './window-taskbar';
 export type {
   WrWindowChromeSize,
   WrWindowConfig,
+  WrWindowLayoutSnapshot,
   WrWindowOs,
   WrWindowPersistMode,
   WrWindowSize,

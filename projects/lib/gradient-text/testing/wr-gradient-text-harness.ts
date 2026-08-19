@@ -13,6 +13,17 @@ import type { WrGradientTextHarnessFilters } from './interfaces';
 
 const GRADIENT = /^linear-gradient\((.*)\)$/s;
 
+/** Read one declaration out of an inline `style` attribute, or `null` when it is not there. */
+function inlineStyle(style: string | null, property: string): string | null {
+  for (const declaration of (style ?? '').split(';')) {
+    const colon = declaration.indexOf(':');
+    if (colon === -1) continue;
+    if (declaration.slice(0, colon).trim() !== property) continue;
+    return declaration.slice(colon + 1).trim();
+  }
+  return null;
+}
+
 /** Split a gradient's argument list on top-level commas — a stop may be `rgb(1, 2, 3)`. */
 function splitStops(args: string): string[] {
   const parts: string[] = [];
@@ -44,6 +55,15 @@ function splitStops(args: string): string[] {
  * snapping back at the wrap. {@link getColors} returns that list AS WRITTEN, wrap stop
  * included, because the duplicate is the thing worth asserting and stripping it would
  * hide the day it goes missing.
+ *
+ * **The three custom properties are read off the `style` ATTRIBUTE, not through
+ * `getCssValue()`, and that is not a jsdom concession.** `.wr-gradient-text` declares
+ * its own `--wr-gradient-text-image`, `-size` and `-duration`, spelling out the same
+ * defaults the component computes — the three built-in stops with their wrap stop,
+ * `300% 100%`, `8s`. So with the stylesheet loaded a computed read answers with a
+ * perfectly healthy-looking value at exactly the moment the host binding is what broke,
+ * and every throw below goes unreachable. What the component wrote is the only value
+ * nothing else can forge.
  *
  * **Direction is two facts, not one.** The modifier class says which way the gradient
  * travels and {@link getBackgroundSize} says which axis it was stretched along, and they
@@ -130,7 +150,7 @@ export class WrGradientTextHarness extends ComponentHarness {
    * whole gradient.
    */
   async getGradient(): Promise<string> {
-    return (await (await this.host()).getCssValue('--wr-gradient-text-image')).trim();
+    return this.published('--wr-gradient-text-image', 'getGradient');
   }
 
   /**
@@ -142,8 +162,9 @@ export class WrGradientTextHarness extends ComponentHarness {
    * shows up here as four entries rather than one.
    *
    * Throws rather than guessing when the property holds something that is not a
-   * `linear-gradient()` — an empty read means the host binding is gone, and a list of
-   * fragments parsed out of the wreckage would look like a colour set.
+   * `linear-gradient()`, because a list of fragments parsed out of the wreckage would
+   * look like a colour set. A host that publishes no gradient at all throws one step
+   * earlier, from {@link getGradient}.
    */
   async getColors(): Promise<string[]> {
     const gradient = await this.getGradient();
@@ -151,9 +172,9 @@ export class WrGradientTextHarness extends ComponentHarness {
 
     if (!match) {
       throw new Error(
-        `WrGradientTextHarness.getColors(): \`--wr-gradient-text-image\` computed to "${gradient}", which is not ` +
-          'a linear-gradient(). The component writes that property inline on the host on every render, so an ' +
-          'empty value means the binding is gone rather than that the gradient has no stops.'
+        `WrGradientTextHarness.getColors(): \`--wr-gradient-text-image\` holds "${gradient}", which is not ` +
+          'a linear-gradient(). The component writes that property inline on the host on every render, so ' +
+          'anything else there is the bug rather than a gradient with no stops.'
       );
     }
 
@@ -171,7 +192,7 @@ export class WrGradientTextHarness extends ComponentHarness {
    * intent.
    */
   async getBackgroundSize(): Promise<string> {
-    return (await (await this.host()).getCssValue('--wr-gradient-text-size')).trim();
+    return this.published('--wr-gradient-text-size', 'getBackgroundSize');
   }
 
   /**
@@ -179,17 +200,18 @@ export class WrGradientTextHarness extends ComponentHarness {
    *
    * Proves the input reaches CSS at all, `numAttr` coercion included — a string attribute
    * arrives as a number and garbage falls back to the documented default. Throws when the
-   * property holds no number, which is the only way the read can fail.
+   * property holds something that is not a number of seconds; a host that publishes no
+   * duration at all throws from the read itself.
    */
   async getAnimationDurationSeconds(): Promise<number> {
-    const raw = (await (await this.host()).getCssValue('--wr-gradient-text-duration')).trim();
+    const raw = await this.published('--wr-gradient-text-duration', 'getAnimationDurationSeconds');
     const seconds = Number.parseFloat(raw);
 
     if (Number.isNaN(seconds)) {
       throw new Error(
-        `WrGradientTextHarness.getAnimationDurationSeconds(): \`--wr-gradient-text-duration\` computed to ` +
+        `WrGradientTextHarness.getAnimationDurationSeconds(): \`--wr-gradient-text-duration\` holds ` +
           `"${raw}", which is not a number of seconds. The component writes it inline on the host from ` +
-          '`[animationSpeed]`; an empty value means that binding is gone.'
+          '`[animationSpeed]`.'
       );
     }
     return seconds;
@@ -240,5 +262,21 @@ export class WrGradientTextHarness extends ComponentHarness {
    */
   async pausesOnHover(): Promise<boolean> {
     return (await this.host()).hasClass('wr-gradient-text--pause-on-hover');
+  }
+
+  /** One of the host's own custom properties. See the class note on why this is not `getCssValue()`. */
+  private async published(property: string, method: string): Promise<string> {
+    const style = await (await this.host()).getAttribute('style');
+    const value = inlineStyle(style, property);
+
+    if (value === null) {
+      throw new Error(
+        `WrGradientTextHarness.${method}(): the host publishes no \`${property}\` (style: "${style ?? ''}"). ` +
+          'The component writes all three of its custom properties inline on every render, so an absent one ' +
+          'means the host binding is gone — and the stylesheet declares the same default, so a computed read ' +
+          'would have answered as if nothing were wrong.'
+      );
+    }
+    return value;
   }
 }

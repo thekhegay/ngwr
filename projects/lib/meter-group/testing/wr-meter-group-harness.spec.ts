@@ -71,6 +71,19 @@ describe('WrMeterGroupHarness', () => {
     expect((await harness.getSlices()).map(slice => slice.percent)).toEqual([15, 25, 10]);
   });
 
+  it('reads the share the component declared, not one the layout resolved', async () => {
+    // `getCssValue()` is `getComputedStyle()`, and `width` resolves to the USED value — so
+    // the declared `30%` echoes back here and arrives as `180px` on a 600px bar in a real
+    // browser, with nothing to say which one you got.
+    const harness = await meter();
+    const band = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-meter-group__slice')!;
+    band.removeAttribute('style');
+
+    // The total falls back to 1 rather than 0, so every band always DECLARES a share —
+    // which is what lets the missing case throw instead of reporting a plausible nothing.
+    await expect(harness.getSlices()).rejects.toThrow(/band "Apps" carries no inline width percentage/);
+  });
+
   it('lists the bands in the legend, with their values', async () => {
     const harness = await meter();
 

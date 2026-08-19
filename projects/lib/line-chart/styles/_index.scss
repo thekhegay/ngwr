@@ -81,14 +81,31 @@
     // content of its own to give it a height. Without this it collapses and the
     // labels overlap whatever the page puts under the chart.
     height: 1.25em;
+    // A `translateX` percentage means the LABEL's own width, so the room left beside it
+    // has to arrive in another unit — `cqw` is this strip's. Every label is out of flow,
+    // so the strip contributes no intrinsic width either way and the containment this
+    // turns on costs the layout nothing.
+    container-type: inline-size;
   }
 
   &__x-label {
     position: absolute;
-    // Paired with the `[style.left.%]` the template writes from the SVG's own
-    // geometry. SVG coordinates are absolute and do not flip with `direction`, so
-    // this centring offset stays physical alongside the inset it centres against.
-    transform: translateX(-50%);
+    // rtl-ok: the SVG's own x, and SVG coordinates do not flip with `direction`
+    left: calc(var(--wr-line-chart-x, 50) * 1%);
+    // Centred on the point it names, but never past either end of the strip: the shift
+    // is the smaller of half the label and the room actually left on that side, so a
+    // label that fits sits exactly on its dot and only the outermost ones move inwards.
+    // Physical for the same reason `left` is. Together with the width bound below, a
+    // label stays inside its own slot: measured in Chromium at 600px, twelve month names
+    // went from four overlapping pairs and 13px hanging outside the chart to neither.
+    // jsdom has no layout, so no spec can hold that — the spec pins the two numbers the
+    // template hands this rule instead.
+    transform: translateX(
+      clamp(calc(var(--wr-line-chart-x, 50) * -1cqw), -50%, calc((100 - var(--wr-line-chart-x, 50)) * 1cqw - 100%))
+    );
+    max-width: calc(var(--wr-line-chart-x-max, 100) * 1%);
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: inherit;
     color: var(--wr-color-on-surface-muted);
     white-space: nowrap;

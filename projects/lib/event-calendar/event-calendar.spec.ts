@@ -4,8 +4,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { WrDateAdapter } from 'ngwr/date-adapter';
 import { provideWrDateFnsAdapter } from 'ngwr/date-adapter-fns';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEventCalendar } from './event-calendar';
 import type { WrCalendarEvent, WrCalendarEventChange, WrCalendarSlot, WrCalendarView } from './interfaces';
@@ -445,6 +446,39 @@ describe('WrEventCalendar', () => {
     // The title text inside is `aria-hidden` so it is not read twice; the name
     // has to come from the button itself.
     expect(chips().every(c => (c.getAttribute('aria-label') ?? '').length > 0)).toBe(true);
+  });
+
+  /**
+   * A name per cell, but not a FORMAT per cell. Both halves of a slot's name are
+   * invariant along one axis — the clock reads the same across a row, the day the
+   * same down a column — and `WrNativeDateAdapter.format` builds a fresh
+   * `Intl.DateTimeFormat` on every call, so asking per cell cost 672 of them on a
+   * default week (48 slots x 7 days x 2) where 55 say the same thing.
+   */
+  it('formats one clock per row and one date per column, not one of each per cell', () => {
+    setView('week');
+    // An empty week, so the only formats counted are the grid's own — a chip
+    // formats its start and end times too.
+    fixture.componentInstance.events.set([]);
+    fixture.detectChanges();
+
+    const format = vi.spyOn(TestBed.inject(WrDateAdapter), 'format');
+
+    // Stepping a week rebuilds the whole time grid — `days()` returns a new
+    // array, so every downstream computed re-runs.
+    fixture.componentInstance.date.set(AT(21));
+    fixture.detectChanges();
+
+    const of = (key: string): number => format.mock.calls.filter(([, k]) => k === key).length;
+
+    // 48 half-hour rows at the default `dayStartHour` / `dayEndHour`, seven days.
+    expect(of('time')).toBe(48);
+    expect(of('longDate')).toBeLessThanOrEqual(3 * 7);
+
+    // And the grid still names every cell it drew.
+    expect(cells().length).toBe(48 * 7);
+    expect(cells().every(c => (c.getAttribute('aria-label') ?? '').length > 0)).toBe(true);
+    format.mockRestore();
   });
 
   it('carries the public BEM classes', () => {

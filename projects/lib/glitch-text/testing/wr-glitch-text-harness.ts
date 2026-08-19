@@ -181,10 +181,9 @@ export class WrGlitchTextHarness extends ComponentHarness {
    * other reading stays green.
    */
   async getColourSplit(): Promise<WrGlitchTextColourSplit> {
-    const host = await this.host();
     return {
-      before: (await host.getCssValue('--wr-glitch-text-before-shadow')).trim(),
-      after: (await host.getCssValue('--wr-glitch-text-after-shadow')).trim(),
+      before: await this.inlineVar('--wr-glitch-text-before-shadow'),
+      after: await this.inlineVar('--wr-glitch-text-after-shadow'),
     };
   }
 
@@ -198,13 +197,27 @@ export class WrGlitchTextHarness extends ComponentHarness {
    * the whole reason this reports the absent case as `null` instead of as a colour.
    */
   async getSliceBackground(): Promise<string | null> {
-    const raw = (await (await this.host()).getCssValue('--wr-glitch-text-bg')).trim();
+    const raw = await this.inlineVar('--wr-glitch-text-bg');
     return raw === '' ? null : raw;
+  }
+
+  /**
+   * One custom property off the host's `style` ATTRIBUTE.
+   *
+   * Not `getCssValue()`, which is `getComputedStyle`: with the entry point's own
+   * stylesheet loaded that resolves the sheet's declaration, so the method
+   * answers plausibly at exactly the moment the host binding — the thing under
+   * test — is what broke. The attribute holds only what the component wrote.
+   */
+  private async inlineVar(property: string): Promise<string> {
+    const attr = (await (await this.host()).getAttribute('style')) ?? '';
+    const found = new RegExp(`(?:^|;)\\s*${property}\\s*:\\s*([^;]+)`).exec(attr);
+    return (found?.[1] ?? '').trim();
   }
 
   /** One of the host's inline duration properties, as a number of seconds. */
   private async seconds(property: string): Promise<number> {
-    const raw = (await (await this.host()).getCssValue(property)).trim();
+    const raw = await this.inlineVar(property);
     const value = Number.parseFloat(raw);
 
     if (Number.isNaN(value)) {

@@ -183,11 +183,11 @@
         <div style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 16rem">
           <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
             Radius: <strong>{{ radius() }}px</strong>
-            <wr-slider [(value)]="radius" [max]="80" />
+            <wr-slider ariaLabel="Radius" [(value)]="radius" [max]="80" />
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
             Smoothing: <strong>{{ smoothing() }}</strong>
-            <wr-slider [(value)]="smoothing" [max]="1" [step]="0.05" />
+            <wr-slider ariaLabel="Smoothing" [(value)]="smoothing" [max]="1" [step]="0.05" />
           </div>
         </div>
       </div>

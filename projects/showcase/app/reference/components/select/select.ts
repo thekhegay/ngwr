@@ -35,6 +35,13 @@ export default class SelectComponent {
   protected readonly respSize = signal<string | null>(null);
   protected readonly framework = signal<string | null>('angular');
   protected readonly tags = signal<readonly string[]>(['typescript', 'angular']);
+  /**
+   * The tag demo's own model. It used to share `tags` with the multi demo,
+   * which is backed by four `<wr-option>`s — nothing prunes a multi value
+   * against the registry, so a tag typed here rendered as a chip up there via
+   * the `displayWith` fallback, and removing a chip up there deleted it here.
+   */
+  protected readonly freeTags = signal<readonly string[]>(['ngwr', 'zoneless']);
   protected readonly manyTags = signal<readonly string[]>(['typescript', 'angular', 'rxjs', 'signals']);
   protected readonly recipients = signal<readonly string[]>(['ada@ngwr.dev']);
 

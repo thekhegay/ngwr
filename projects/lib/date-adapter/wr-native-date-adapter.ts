@@ -199,7 +199,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   // while still accepting any other string as a raw token pattern.
   format(date: Date, formatKeyOrString: WrDateFormat | (string & {})): string {
     if (isNamedFormat(formatKeyOrString)) {
-      return new Intl.DateTimeFormat(this.locale, INTL_OPTIONS[formatKeyOrString]).format(date);
+      return this.intl(formatKeyOrString).format(date);
     }
     return this.formatWithTokens(date, formatKeyOrString);
   }
@@ -233,6 +233,27 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
       // Browser doesn't support Intl.Locale or getWeekInfo — fall through.
     }
     return this.locale.toLowerCase().startsWith('en-us') ? 0 : 1;
+  }
+
+  /**
+   * One `Intl.DateTimeFormat` per named format, built once.
+   *
+   * Constructing one is the expensive part of `format()`, and this adapter is
+   * called per CELL: `wr-event-calendar` builds an `aria-label` for every time
+   * slot on every day, so a week view asked for hundreds of identical
+   * formatters. `locale` is injected once and never changes for the life of the
+   * adapter, so the cache needs no invalidation — that is the whole reason it
+   * can be this simple.
+   */
+  private readonly formatters = new Map<string, Intl.DateTimeFormat>();
+
+  private intl(key: WrDateFormat): Intl.DateTimeFormat {
+    let found = this.formatters.get(key);
+    if (!found) {
+      found = new Intl.DateTimeFormat(this.locale, INTL_OPTIONS[key]);
+      this.formatters.set(key, found);
+    }
+    return found;
   }
 
   getDayOfWeekNames(style: 'narrow' | 'short' | 'long'): readonly string[] {

@@ -24,7 +24,17 @@ import { API } from '#core/generated/api';
   ],
 })
 export default class PaginationComponent {
+  /** Shared by every demo below at `[total]="120"` — twelve pages each. */
   protected readonly page = signal(1);
+
+  /**
+   * The size-changer demo is the one pager at `[total]="320"`, so it needs its
+   * own page. `WrPagination` clamps in an effect that tracks `totalPages()`
+   * and reads `currentPage()` untracked, so a page written from outside is
+   * never pulled back into range: picking page 13+ here used to leave every
+   * 120-item pager on the page with no current page and two inert arrows.
+   */
+  protected readonly fullPage = signal(1);
   protected readonly size = signal(10);
 
   protected readonly snippets = {
@@ -39,7 +49,7 @@ export class MyComponent {}`,
     shapes: `<wr-pagination [total]="120" [(currentPage)]="page" shape="rounded" />
 <wr-pagination [total]="120" [(currentPage)]="page" shape="square" />`,
     full: `<wr-pagination
-  [total]="120"
+  [total]="320"
   [(currentPage)]="page"
   [(pageSize)]="size"
   showTotal

@@ -143,6 +143,31 @@ describe('WrGradientTextHarness', () => {
     await expect(harness.getAnimationDurationSeconds()).rejects.toThrow(/"slowly"/);
   });
 
+  it('refuses to hand back the stylesheet default when the host binding is gone', async () => {
+    // The three custom properties are read off the `style` attribute, not through
+    // `getCssValue()`. `.wr-gradient-text` declares all three itself, spelling out the same
+    // defaults the component computes — so a computed read answers with a healthy-looking
+    // gradient, `300% 100%` and `8s` for a host that publishes nothing at all.
+    const sheet = document.createElement('style');
+    sheet.textContent = `.wr-gradient-text {
+      --wr-gradient-text-image: linear-gradient(to right, #5227ff, #ff9ffc, #b497cf, #5227ff);
+      --wr-gradient-text-size: 300% 100%;
+      --wr-gradient-text-duration: 8s;
+    }`;
+    document.head.append(sheet);
+
+    try {
+      const harness = await gradient();
+      hostElement().removeAttribute('style');
+
+      await expect(harness.getColors()).rejects.toThrow(/publishes no `--wr-gradient-text-image`/);
+      await expect(harness.getBackgroundSize()).rejects.toThrow(/publishes no `--wr-gradient-text-size`/);
+      await expect(harness.getAnimationDurationSeconds()).rejects.toThrow(/publishes no `--wr-gradient-text-duration`/);
+    } finally {
+      sheet.remove();
+    }
+  });
+
   it('matches on the text, the direction and the pill', async () => {
     fixture.componentInstance.direction.set('diagonal');
     await fixture.whenStable();

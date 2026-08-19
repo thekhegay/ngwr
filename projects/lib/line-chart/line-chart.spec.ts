@@ -42,11 +42,13 @@ describe('WrLineChart', () => {
     [...root().querySelectorAll('.wr-line-chart__legend-item')].map(el => el.textContent.trim());
   const allPaths = (): string[] => [...root().querySelectorAll('path')].map(el => el.getAttribute('d') ?? '');
   const dots = (): SVGCircleElement[] => [...root().querySelectorAll<SVGCircleElement>('circle.wr-line-chart__dot')];
-  /** Each x label's inline offset, converted from percent-of-width back to viewBox units. */
-  const xLabelPositions = (): number[] =>
-    [...root().querySelectorAll<HTMLElement>('.wr-line-chart__x-label')].map(
-      el => (Number.parseFloat(el.style.left) / 100) * 600
+  /** What each x label hands the stylesheet, as a percentage of the chart's width. */
+  const xLabelProps = (name: string): number[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-line-chart__x-label')].map(el =>
+      Number.parseFloat(el.style.getPropertyValue(name))
     );
+  /** Each x label's offset, converted from percent-of-width back to viewBox units. */
+  const xLabelPositions = (): number[] => xLabelProps('--wr-line-chart-x').map(percent => (percent / 100) * 600);
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -166,6 +168,63 @@ describe('WrLineChart', () => {
 
     expect(labelXs.length).toBe(dotXs.length);
     for (const [i, x] of labelXs.entries()) expect(x).toBeCloseTo(dotXs[i], 6);
+  });
+
+  it('bounds each x label to its slot, cut back at the ends of the strip', () => {
+    // Centring a label on its point says nothing about how WIDE it may be, and for a
+    // while nothing else did either: on a 600px-wide chart four pairs of twelve month
+    // names printed over each other and December hung 13px outside the box. jsdom has no
+    // layout, so what a spec can hold is the width the stylesheet is handed, and the
+    // Chromium measurement lives in the stylesheet. Three points across the 600-wide
+    // viewBox are 45.67% of the width apart, so the middle label may have that whole
+    // slot; the outer two are cut back to the room between their point and the strip's
+    // end — 6% + half a slot on the left, 2.67% + half a slot on the right.
+    const widths = xLabelProps('--wr-line-chart-x-max');
+
+    expect(widths.length).toBe(3);
+    expect(widths[0]).toBeCloseTo(28.833, 3);
+    expect(widths[1]).toBeCloseTo(45.667, 3);
+    expect(widths[2]).toBeCloseTo(25.5, 3);
+  });
+
+  it('keeps every label inside the chart and out of the next one, however dense the axis', () => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
+    fixture.componentInstance.series.set([{ label: 'Visits', data: months.map((_, i) => i) }]);
+    fixture.componentInstance.xLabels.set(months);
+    fixture.detectChanges();
+
+    // The stylesheet centres a label on its point and nudges it back in when it would
+    // cross an end of the strip. Nothing here is laid out, so that rule is replayed over
+    // the numbers the component publishes, and what it checks is the two properties the
+    // width bound exists to give: no box leaves the strip, and none reaches into the next
+    // label's slot.
+    const widths = xLabelProps('--wr-line-chart-x-max');
+    const boxes = xLabelProps('--wr-line-chart-x').map((x, i) => {
+      const left = Math.max(0, Math.min(x - widths[i] / 2, 100 - widths[i]));
+      return { left, right: left + widths[i] };
+    });
+
+    for (const [i, box] of boxes.entries()) {
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(100.000001);
+      if (i > 0) expect(box.left).toBeGreaterThanOrEqual(boxes[i - 1].right - 0.000001);
+    }
+  });
+
+  it('widens the axis for more labels than readings, instead of drawing past the end', () => {
+    // The point count is the longest of the series and the labels, so a label list longer
+    // than the data adds x positions rather than overflowing the ones it has.
+    fixture.componentInstance.series.set([{ label: 'Visits', data: [1, 2, 3, 4] }]);
+    fixture.componentInstance.xLabels.set(['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6']);
+    fixture.detectChanges();
+
+    const labelXs = xLabelPositions();
+    expect(labelXs.length).toBe(6);
+    // Still the padding edges of the same 600-wide viewBox: 36 and 584.
+    expect(labelXs[0]).toBeCloseTo(36, 6);
+    expect(labelXs.at(-1)).toBeCloseTo(584, 6);
+    // The series stops where its data does — four dots across six slots.
+    expect(dots().length).toBe(4);
   });
 
   it('labels the y axis with five ticks and drops the grid on request', () => {

@@ -27,7 +27,10 @@ export class WrBytes implements PipeTransform {
     const n = Number(value);
     if (!Number.isFinite(n) || n <= 0) return '0 B';
 
-    const i = Math.min(Math.floor(Math.log(n) / Math.log(1024)), UNITS.length - 1);
+    // Floored as well as capped: for `0 < n < 1` the log is negative, so an
+    // unclamped index reads `UNITS[-1]` (`undefined`) and divides by `1024 ** -1`,
+    // which rendered `0.5` as "512.0 undefined".
+    const i = Math.min(Math.max(0, Math.floor(Math.log(n) / Math.log(1024))), UNITS.length - 1);
     const v = n / 1024 ** i;
     // Whole bytes never show a fractional part.
     const fractionDigits = i === 0 ? 0 : Math.max(0, decimals);

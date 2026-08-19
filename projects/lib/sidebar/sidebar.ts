@@ -174,16 +174,18 @@ export class WrSidebar {
 
   /**
    * Stable id for the group body, referenced by the toggle's `aria-controls`.
-   * Scoped to this sidebar and stripped of anything that is not id-safe: a title
-   * like `Data & charts` used to produce `wr-sidebar-group-data-&-charts`, which
-   * no selector can address.
+   *
+   * Keyed by POSITION, not by the title. Slugging the title kept the id readable
+   * but was not injective: it lowercases and collapses every non-`[a-z0-9]` run,
+   * so `Data & charts` and `Data / charts` produced the same string, and a title
+   * with no ASCII alphanumerics at all — `Компоненты`, `数据` — produced the empty
+   * one. A whole Russian or Chinese sidebar therefore emitted N identical ids and
+   * every toggle's `aria-controls` resolved to the FIRST group's body. The toggle
+   * and its body read `$index` from the same `@for` iteration, so the two always
+   * name each other — reordering `entries` renumbers both together.
    */
-  protected groupBodyId(title: string): string {
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-    return `wr-sidebar-${this.uid}-group-${slug}`;
+  protected groupBodyId(index: number): string {
+    return `wr-sidebar-${this.uid}-group-${index}`;
   }
 
   protected toggleGroup(title: string): void {

@@ -55,7 +55,7 @@ npm install ngwr @angular/cdk
 yarn add ngwr @angular/cdk
 ```
 
-`@angular/cdk` is the only required peer. Add an icon set and a date library
+Beyond Angular itself, `@angular/cdk` and `@angular/forms` are the required peers — forms because every value control implements a Signal Forms interface. `@angular/router` is optional, needed only by the navigation components that take a `routerLink`. A stock `ng new` app already has all three. Add an icon set and a date library
 only if you use them — `lucide` (or `feather-icons`) for the icon adapters, and
 `date-fns` or `luxon` for the calendar / date-picker, which otherwise runs on a
 built-in native `Date` adapter. The Quick start below registers a lucide icon, so

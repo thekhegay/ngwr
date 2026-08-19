@@ -156,7 +156,14 @@
     min-width: 0;
     min-height: 1.25rem;
     height: auto;
-    margin: 0.25rem 0 0.25rem calc(var(--wr-stepper-indicator-size) / 2);
+    // Logical, not `margin: … 0 … calc(…)`: `width` above is definite, so the
+    // `align-self: stretch` below is inapplicable and the thread is placed at
+    // the cross START — where the INLINE-start margin alone offsets it. A
+    // physical `margin-left` is therefore the TRAILING side under `dir="rtl"`,
+    // and the line paints flush against the row's right edge, half an indicator
+    // (14px) clear of every circle it is supposed to join.
+    margin-block: 0.25rem;
+    margin-inline: calc(var(--wr-stepper-indicator-size) / 2) 0;
     align-self: stretch;
     flex: 0 0 auto;
   }
@@ -191,7 +198,9 @@
     min-width: 0;
     min-height: 1.25rem;
     height: auto;
-    margin: 0.25rem 0 0.25rem calc(var(--wr-stepper-indicator-size) / 2);
+    // Logical for the same reason as the `--vertical` rule above.
+    margin-block: 0.25rem;
+    margin-inline: calc(var(--wr-stepper-indicator-size) / 2) 0;
     align-self: stretch;
     flex: 0 0 auto;
   }

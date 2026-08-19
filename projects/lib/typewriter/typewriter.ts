@@ -189,7 +189,15 @@ export class WrTypewriter {
     const arr = this.textArray();
     if (arr.length === 0) return;
 
-    const idx = this.currentTextIndex();
+    // Clamped, because `texts` can shrink under a running index — a filtered or
+    // reloaded list — and nothing resets `currentTextIndex`. Unclamped, `arr[idx]`
+    // came back `undefined` and threw inside the `setTimeout`: on the spread below
+    // under `reverseMode`, on the `target.length` read otherwise. Either way the
+    // throw pre-empts `scheduleNext`, so the typewriter stopped for good. Same
+    // guard as `wr-rotating-text`. Written back so `activeColor`, which reads the
+    // signal directly, picks the same sentence.
+    const idx = Math.min(this.currentTextIndex(), arr.length - 1);
+    this.currentTextIndex.set(idx);
     const raw = arr[idx];
     // Reversed by CODE POINT: `split('')` reverses UTF-16 units, which turns an
     // emoji into a pair of lone surrogates rather than typing it backwards.

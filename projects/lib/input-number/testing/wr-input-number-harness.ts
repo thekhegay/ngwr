@@ -316,12 +316,13 @@ export class WrInputNumberHarness extends ComponentHarness {
   /**
    * One of the two stepper buttons, BY POSITION — ▲ first, ▼ second.
    *
-   * Not by `aria-label`: those strings ("Increment" / "Decrement") are still
-   * hard-coded English, so keying on them would make this harness the thing that
-   * breaks when they move into the i18n catalog — the same call
-   * `WrTimePanelHarness` makes about its own columns. Order is the layout
-   * contract, and the spec pins it by asserting which way each button moves the
-   * value.
+   * Not by `aria-label`: those strings resolve through the i18n catalog
+   * (`inputNumber.increment` / `.decrement`) and an `[incrementLabel]` /
+   * `[decrementLabel]` binding overrides them, so keying on them would make this
+   * harness answer in whatever locale the app under test is configured for — the
+   * same call `WrTimePanelHarness` makes about its own columns. Order is the
+   * layout contract, and the spec pins it by asserting which way each button
+   * moves the value.
    */
   private async stepButton(direction: 1 | -1, method: string): Promise<TestElement> {
     const buttons = await this.locatorForAll('.wr-input-number__step')();
