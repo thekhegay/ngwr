@@ -197,6 +197,7 @@ enlarges every control at once.
 | State a11y        | `pnpm check:state-a11y` (the FULL axe set INSIDE hovers / overlays — **nightly**)                   |
 | RTL source gate   | `pnpm check:rtl` (physical direction-dependent CSS with no `rtl-ok:` reason — a `pnpm lint` stage)  |
 | Registry gate     | `pnpm check:registry` (the open item format under `registry/` — also a `pnpm lint` stage)           |
+| Dead-token gate   | `pnpm check:tokens` (a `--wr-*` nothing paints with, unless it says `unused-ok:` — a `pnpm lint` stage) |
 | Theme parity      | `pnpm check:theme` (`wrThemeTokens()` vs the compiled `_colors.scss` — needs `build:showcase`)      |
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
@@ -309,7 +310,9 @@ Requirements: Node `^24.16.0 || >=26` (`.nvmrc` pins 24), pnpm `^11.10`
 physical, direction-dependent CSS property with no `rtl-ok:` reason within three
 lines above it) `&&` `check:registry` (`scripts/check-registry.ts` — the items
 under `registry/`, their `entryPoints` against the real catalog, and
-`schema.json` against the validator that enforces it) — and the last stages are
+`schema.json` against the validator that enforces it) `&&` `check:tokens`
+(`scripts/check-tokens.ts` — a token declared in `theme/styles/` that nothing in
+`projects/lib` or the showcase's own stylesheets writes `var()` for) — and the last stages are
 the ones that most often turn a green-looking run red. The first stage prints
 `All files pass linting.` even when a _later_ stage fails — so **verify by exit
 code, never by grepping the output**:
@@ -364,6 +367,25 @@ role aliases (`--wr-color-{surface,on-surface,on-surface-muted,outline}`); plus
 `--wr-duration-*`, `--wr-ease-*`. Pull mixins and tokens from `ngwr/theme`.
 The TS `WR_COLORS` list and the SCSS `$base-colors` map must stay in sync —
 `scripts/check-color-parity.ts` (in `pnpm lint`) fails the build if they drift.
+
+**A token nobody paints with is not a token, and `check:tokens` is a "say why"
+gate rather than a "don't" gate.** `--wr-*` properties are public API, so a token
+the library never reads can still be right to ship — the eleven
+`--wr-color-gray-*` steps are a FIXED ramp precisely so a component cannot use
+them, since a component has to work in both themes. What is not acceptable is
+that nobody decided, and that is what the layer had drifted into: on its first
+run the check found **37 declarations with no consumer**, including
+`--wr-color-border-subtle` / `-border-strong` sitting beside twenty-two files
+hand-rolling `rgba(var(--wr-color-outline-rgb), α)` at eight alphas, four of
+which compute to exactly those tokens. Mark an intentional one with
+`// unused-ok: <reason>`; the marker covers a contiguous run of declarations up
+to the next blank line, because a family is one decision. Two traps it hit while
+being written, both worth knowing: component stylesheets reference tokens through
+interpolation (`var(--wr-color-#{$name}-dark)`), so a matcher built on `[\w-]+`
+reports the whole shade set as dead; and the showcase DOCUMENTS tokens — a swatch
+with an inline `style`, a `var()` inside a printed SCSS snippet — so counting its
+templates as consumers called three dead families alive. Only `projects/lib` and
+the showcase's own `.scss` count.
 
 **A `::before` background is invisible to every contrast checker.** `wr-squircle`
 paints its content fill on a pseudo-element, so axe walks past it to the host's
