@@ -109,6 +109,13 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF)
     },
     { name: 'width', description: 'Width when position is left/right.', type: 'string', default: "'20rem'" },
     { name: 'height', description: 'Height when position is top/bottom.', type: 'string', default: "'16rem'" },
+    {
+      name: 'showHandle',
+      description:
+        'Render a grab handle on the leading edge and enable swipe-to-dismiss — drag it toward that edge and release past ~30% of the panel to close.',
+      type: 'boolean',
+      default: 'false',
+    },
     { name: 'hasBackdrop', description: 'Show the dimming backdrop.', type: 'boolean', default: 'true' },
     { name: 'closeOnBackdropClick', description: 'Close when backdrop is clicked.', type: 'boolean', default: 'true' },
     { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
@@ -203,9 +210,16 @@ private readonly ref = inject<WrDrawerRef<ChatComponent, string>>(WR_DRAWER_REF)
     { name: '[wrDrawerContent]', description: 'Styles the scrollable body.', type: 'directive', default: '—' },
     {
       name: '[wrDrawerFooter]',
-      description: 'Styles the footer; align="start" | "center" | "end" (default end).',
+      description: 'Styles the footer row.',
       type: 'directive',
       default: '—',
+    },
+    {
+      name: 'align',
+      description: 'Horizontal alignment of the footer content.',
+      type: "'start' | 'center' | 'end'",
+      default: "'end'",
+      sub: true,
     },
     {
       name: '[wrDrawerClose]="value?"',

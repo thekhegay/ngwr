@@ -278,6 +278,138 @@ describe('WrCalendar header and chip keys', () => {
 });
 
 /**
+ * `role="listbox"` promises arrow keys and one tab stop, and the month and year
+ * views delivered neither: twelve `<button>`s, every one of them tabbable, no
+ * ring to move. A role that lies about the interaction model is worse than a
+ * plain group of buttons, so the chips grew the roving half of the pattern they
+ * were already claiming.
+ *
+ * Read off `tabindex`, which IS the ring here — there is no `--focused`
+ * modifier on a chip, and a spec that asserted `document.activeElement` alone
+ * would pass on a component that moved real focus while leaving every chip a tab
+ * stop, which is the bug.
+ */
+describe('WrCalendar month and year listbox keys', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-calendar')!;
+  const chips = (): HTMLButtonElement[] => [...root().querySelectorAll<HTMLButtonElement>('.wr-calendar__chip')];
+  const ringed = (): string | null =>
+    chips()
+      .find(chip => chip.getAttribute('tabindex') === '0')
+      ?.textContent?.trim() ?? null;
+  const tabStops = (): number => chips().filter(chip => chip.getAttribute('tabindex') === '0').length;
+
+  const press = async (key: string): Promise<KeyboardEvent> => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    host().dispatchEvent(event);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return event;
+  };
+
+  const climb = async (times: number): Promise<void> => {
+    for (let i = 0; i < times; i++) {
+      root().querySelector<HTMLButtonElement>('.wr-calendar__label')!.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('leaves the month list one tab stop, on the month being shown', async () => {
+    await climb(1);
+
+    // The host date is 15 Jan 2026, so the view is January.
+    expect(chips()).toHaveLength(12);
+    expect(tabStops()).toBe(1);
+    expect(ringed()).toBe('Jan');
+  });
+
+  it('walks the row with the inline arrows and the column by three', async () => {
+    await climb(1);
+
+    expect((await press('ArrowRight')).defaultPrevented).toBe(true);
+    expect(ringed()).toBe('Feb');
+
+    // Three chips per row in the month grid, so Down is a row and not a chip.
+    await press('ArrowDown');
+    expect(ringed()).toBe('May');
+
+    await press('ArrowUp');
+    expect(ringed()).toBe('Feb');
+
+    await press('End');
+    expect(ringed()).toBe('Dec');
+
+    await press('Home');
+    expect(ringed()).toBe('Jan');
+  });
+
+  it('steps the year page by four, because that grid is four wide', async () => {
+    await climb(2);
+    // From the top-left of the page, so there is a row below to step onto — the
+    // 12-year window is floor-aligned, and 2026 sits in the last row of it.
+    await press('Home');
+    const first = ringed();
+
+    await press('ArrowDown');
+
+    expect(Number(ringed()) - Number(first)).toBe(4);
+  });
+
+  it('stays inside the page instead of wrapping onto the far end', async () => {
+    // The header's ‹ / › are what change which twelve months are on offer; an
+    // arrow that wrapped would move the ring without changing the page under it.
+    await climb(1);
+    await press('Home');
+
+    const event = await press('ArrowLeft');
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(ringed()).toBe('Jan');
+  });
+
+  it('never parks the only tab stop on a chip that cannot take focus', async () => {
+    // `.focus()` on a `<button disabled>` is a no-op, so a ring seeded on a month
+    // a `[min]` closed off leaves the view with nothing tabbable in it at all.
+    fixture.componentInstance.min.set(new Date(2026, 5, 1));
+    fixture.detectChanges();
+    await climb(1);
+
+    expect(tabStops()).toBe(1);
+    expect(ringed()).toBe('Jun');
+    expect(chips().find(chip => chip.getAttribute('tabindex') === '0')!.disabled).toBe(false);
+
+    // And an arrow may not walk it onto one either.
+    await press('ArrowLeft');
+    expect(ringed()).toBe('Jun');
+  });
+
+  it('re-seeds the ring on the view it lands in, not on the index it left', async () => {
+    await climb(2);
+    await press('End');
+    root().querySelector<HTMLButtonElement>('.wr-calendar__chip[tabindex="0"]')!.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Picking the last year of the page drops back to the month view; carrying
+    // index 11 across would ring December instead of the month on screen.
+    expect(ringed()).toBe('Jan');
+  });
+});
+
+/**
  * A calendar grid mirrors under `dir="rtl"`, so the day to the visual right of
  * today is YESTERDAY and ArrowRight has to walk back. The LTR twin of each case
  * lives in the keyboard describe above (ArrowRight from the 15th lands on the

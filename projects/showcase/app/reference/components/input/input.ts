@@ -160,5 +160,18 @@ export class MyForm {}`,
 
   protected readonly passwordToggleApi: readonly DocApiRow[] = [
     { name: 'for', description: 'The linked password `<input>` reference.', type: 'HTMLInputElement', required: true },
+    {
+      name: 'showLabel',
+      description:
+        'Accessible name while the password is hidden — the button is icon-only. Falls back to the input.showPassword catalog key.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'hideLabel',
+      description: 'Accessible name while the password is revealed. Falls back to the input.hidePassword catalog key.',
+      type: 'string | null',
+      default: 'null',
+    },
   ];
 }

@@ -37,6 +37,15 @@ const ROWS = 6;
 const COLS = 7;
 
 /**
+ * Chips per row in the month and year views — the vertical arrows step by one
+ * of these, so they have to agree with `grid-template-columns` in
+ * `styles/_index.scss`. Two numbers because the two grids differ: twelve months
+ * read as four rows of three, twelve years as three rows of four.
+ */
+const MONTH_COLS = 3;
+const YEAR_COLS = 4;
+
+/**
  * Month-view calendar. Supports single-date selection (`mode="single"`) or
  * date-range selection (`mode="range"`). Reusable on its own; consumed by
  * `<wr-date-picker>` inside an overlay.
@@ -113,6 +122,17 @@ export class WrCalendar {
 
   /** Which sub-view is currently shown. Cycles `day → month → year` on header click. */
   protected readonly viewMode = signal<'day' | 'month' | 'year'>('day');
+
+  /**
+   * Chip the month / year listbox has moved its ring to, as an index into
+   * `monthsView()` / `yearsView()`. `null` means "nobody has pressed an arrow
+   * yet", which resolves to the month or year on screen — see {@link activeChip}.
+   *
+   * Reset on every view change rather than remembered: coming back to the month
+   * list should ring the month you are looking at, not the one an earlier visit
+   * happened to leave the ring on.
+   */
+  private readonly rovedChip = signal<number | null>(null);
 
   // The four month/year strings have been in both catalogs since they were written
   // and nothing read them: the template hard-coded the same English beside them, so a
@@ -200,6 +220,26 @@ export class WrCalendar {
     return out;
   });
 
+  /**
+   * The chip carrying the listbox's only `tabindex="0"` — where the ring is, and
+   * where Tab lands.
+   *
+   * A listbox owns its arrows, and these two did not: twelve months were twelve
+   * tab stops, so the role promised an interaction model the component never
+   * implemented. One tab stop plus arrow keys is the roving-tabindex half of the
+   * pattern the day grid already uses.
+   *
+   * Routed through {@link nearestEnabledChip} on BOTH paths — the seed and every
+   * arrow — for the reason the grid learned first: `.focus()` on a
+   * `<button disabled>` is a no-op, so parking the sole tab stop on a month a
+   * `[min]` has closed off leaves the whole view unreachable by keyboard.
+   * `-1` on the day view, where there are no chips at all.
+   */
+  protected readonly activeChip = computed(() => {
+    if (this.viewMode() === 'day') return -1;
+    return this.nearestEnabledChip(this.rovedChip() ?? this.currentChip());
+  });
+
   protected readonly classes = computed(() => {
     const parts = ['wr-calendar', `wr-calendar--${this.mode()}`];
     if (this.disabled()) parts.push('wr-calendar--disabled');
@@ -258,9 +298,9 @@ export class WrCalendar {
   protected onLabelClick(): void {
     if (this.disabled()) return;
     if (this.viewMode() === 'day') {
-      this.viewMode.set('month');
+      this.setViewMode('month');
     } else if (this.viewMode() === 'month') {
-      this.viewMode.set('year');
+      this.setViewMode('year');
     }
   }
 
@@ -268,14 +308,26 @@ export class WrCalendar {
     if (this.isMonthDisabled(monthIdx)) return;
     const v = this.viewDate();
     this.viewDate.set(this.adapter.createDate(this.adapter.getYear(v), monthIdx, 1));
-    this.viewMode.set('day');
+    this.setViewMode('day');
   }
 
   protected onYearSelect(year: number): void {
     if (this.isYearDisabled(year)) return;
     const v = this.viewDate();
     this.viewDate.set(this.adapter.createDate(year, this.adapter.getMonth(v), 1));
-    this.viewMode.set('month');
+    this.setViewMode('month');
+  }
+
+  /**
+   * Switch views and drop the chip ring with them.
+   *
+   * Every view change is the only thing that changes what the chips MEAN, so it
+   * is the one place the ring has to forget where it was — otherwise a year
+   * picked at index 7 rings the eighth MONTH on the way back down.
+   */
+  private setViewMode(view: 'day' | 'month' | 'year'): void {
+    this.rovedChip.set(null);
+    this.viewMode.set(view);
   }
 
   private stepViewDate(direction: -1 | 1): Date {
@@ -428,20 +480,23 @@ export class WrCalendar {
   protected onKeyDown(event: KeyboardEvent): void {
     if (this.disabled()) return;
 
-    // The listener sits on the HOST, which also wraps the nav header and the
-    // month / year chip listboxes — so without this every key aimed at a `‹`
-    // button or a month chip drove the day grid instead, and the
-    // `preventDefault()` below cancelled the button's own activation: Enter on
-    // `‹` picked a day the user never touched, ArrowDown on the header yanked
-    // real focus into the grid. The host element itself is deliberately let
-    // through: `WrCalendarHarness` sends its keys to `<wr-calendar>` rather
+    // The listener sits on the HOST, which also wraps the nav header — so
+    // without this every key aimed at a `‹` button drove the day grid instead,
+    // and the `preventDefault()` below cancelled the button's own activation:
+    // Enter on `‹` picked a day the user never touched, ArrowDown on the header
+    // yanked real focus into the grid. The host element itself is deliberately
+    // let through: `WrCalendarHarness` sends its keys to `<wr-calendar>` rather
     // than to a cell, because the calendar moves focus in an `afterNextRender`
     // and jsdom often has focus nowhere at all.
     const target = event.target as Element | null;
-    if (
-      target !== this.host.nativeElement &&
-      target?.closest('.wr-calendar__header, .wr-calendar__months, .wr-calendar__years')
-    ) {
+    if (target !== this.host.nativeElement && target?.closest('.wr-calendar__header')) return;
+
+    // The month and year views are listboxes, and the arrows belong to them
+    // while they are up — there is no day grid on screen to drive. Their chips
+    // are real `<button>`s, so Enter and Space fall through to the browser's own
+    // activation and must not be swallowed here.
+    if (this.viewMode() !== 'day') {
+      this.onChipKeyDown(event);
       return;
     }
 
@@ -516,6 +571,119 @@ export class WrCalendar {
     // that one. The ring moved and real focus did not, permanently: a screen
     // reader kept announcing the previous day.
     afterNextRender(() => this.focusActiveCell(), { injector: this.injector });
+  }
+
+  /**
+   * Arrow / Home / End inside the month or year listbox — the roving half of the
+   * pattern their `role` has always claimed.
+   *
+   * Steps by one along the row and by a full row vertically, and the inline pair
+   * mirrors under `dir="rtl"` for the same reason the grid's does: those two keys
+   * name a side of the screen. The page does NOT wrap or spill into the next
+   * one — a month list is twelve fixed cells, and the header's `‹` / `›` are what
+   * change which twelve. Anything else (Enter, Space, Tab, Escape) is left to the
+   * button and to whatever owns the calendar.
+   */
+  private onChipKeyDown(event: KeyboardEvent): void {
+    const cols = this.viewMode() === 'month' ? MONTH_COLS : YEAR_COLS;
+    const count = this.chipCount();
+    const current = this.activeChip();
+    // Assigned on every branch that does not return, so it needs no placeholder.
+    let next: number;
+    // Which way to keep looking when the landing chip is closed off, exactly as
+    // `nearestEnabledToward` does for days.
+    let dir: 1 | -1 = 1;
+
+    switch (this.inlineKey(event.key)) {
+      case 'ArrowLeft':
+        next = current - 1;
+        dir = -1;
+        break;
+      case 'ArrowRight':
+        next = current + 1;
+        break;
+      case 'ArrowUp':
+        next = current - cols;
+        dir = -1;
+        break;
+      case 'ArrowDown':
+        next = current + cols;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = count - 1;
+        dir = -1;
+        break;
+      default:
+        return;
+    }
+
+    const landing = this.enabledChipToward(next, dir);
+    if (landing === null) return;
+
+    event.preventDefault();
+    this.rovedChip.set(landing);
+    // `afterNextRender`, not `queueMicrotask` — same trap as the grid: under
+    // zoneless CD the microtask runs before the new `tabindex` is in the DOM, so
+    // the focus call would land on the chip the ring just left.
+    afterNextRender(() => this.focusActiveChip(), { injector: this.injector });
+  }
+
+  /** How many chips the current view renders — twelve either way, read rather than assumed. */
+  private chipCount(): number {
+    return this.viewMode() === 'month' ? this.monthsView().length : this.yearsView().length;
+  }
+
+  /** Whether the chip at `index` refuses selection in the current view. */
+  private isChipDisabled(index: number): boolean {
+    if (this.viewMode() === 'month') return this.isMonthDisabled(index);
+    const year = this.yearsView()[index];
+    return year === undefined || this.isYearDisabled(year);
+  }
+
+  /** The chip the view itself points at: the month or year currently on screen. */
+  private currentChip(): number {
+    if (this.viewMode() === 'month') return this.adapter.getMonth(this.viewDate());
+    const index = this.yearsView().indexOf(this.adapter.getYear(this.viewDate()));
+    return index === -1 ? 0 : index;
+  }
+
+  /**
+   * The first selectable chip at or after `from`, else the first before it, else
+   * `from` unchanged when the whole page is closed off — the chip version of
+   * {@link nearestEnabled}, and it exists for the same reason: the ring carries
+   * the only `tabindex="0"`, and a disabled button cannot hold it.
+   */
+  private nearestEnabledChip(from: number): number {
+    const count = this.chipCount();
+    const start = Math.min(Math.max(from, 0), count - 1);
+    if (!this.isChipDisabled(start)) return start;
+
+    for (const step of [1, -1] as const) {
+      const found = this.enabledChipToward(start + step, step);
+      if (found !== null) return found;
+    }
+    return start;
+  }
+
+  /**
+   * The first selectable chip at `from` or beyond it in `step`'s direction, else
+   * null when that whole direction is closed off — which is the answer for an
+   * ArrowLeft on the first chip: stay put.
+   */
+  private enabledChipToward(from: number, step: 1 | -1): number | null {
+    for (let i = from; i >= 0 && i < this.chipCount(); i += step) {
+      if (!this.isChipDisabled(i)) return i;
+    }
+    return null;
+  }
+
+  private focusActiveChip(): void {
+    // By the tab stop, not by index: it is the same element the ring is on, and
+    // asking for it this way cannot drift out of step with the template.
+    this.host.nativeElement.querySelector<HTMLElement>('.wr-calendar__chip[tabindex="0"]')?.focus();
   }
 
   /**

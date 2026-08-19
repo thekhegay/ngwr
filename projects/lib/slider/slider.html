@@ -10,6 +10,7 @@
     type="button"
     class="wr-slider__thumb wr-slider__thumb--low"
     role="slider"
+    [attr.id]="thumbId()"
     [style.inset-inline-start.%]="lowPercent()"
     [disabled]="disabled()"
     [attr.aria-valuemin]="min()"

@@ -5,7 +5,6 @@ import { WrRadio, WrRadioGroup } from 'ngwr/radio';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -60,12 +59,5 @@ export class MyComponent {}`,
 
   protected readonly api = API.WrRadio;
 
-  protected readonly groupApi: readonly DocApiRow[] = [
-    {
-      name: 'name',
-      description: 'Shared `name` attribute. Auto-generated when omitted.',
-      type: 'string',
-      default: 'auto',
-    },
-  ];
+  protected readonly groupApi = API.WrRadioGroup;
 }

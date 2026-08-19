@@ -6,6 +6,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
+import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -58,6 +59,18 @@ class UnboundRangeHost {}
   `,
 })
 class LabelledHost {}
+
+@Component({
+  imports: [WrFormField, WrSlider],
+  template: `<wr-form-field label="Volume"><wr-slider /></wr-form-field>`,
+})
+class FieldHost {}
+
+@Component({
+  imports: [WrFormField, WrSlider],
+  template: `<wr-form-field label="Price"><wr-slider range /></wr-form-field>`,
+})
+class RangeFieldHost {}
 
 /**
  * Dragging needs a real compositor, so what a unit suite can own here is the
@@ -574,5 +587,56 @@ describe('WrSlider thumb names', () => {
     fixture.detectChanges();
 
     expect(names(fixture)).toEqual(['Volume', 'Price from', 'Price to']);
+  });
+});
+
+/**
+ * A `<wr-form-field>` renders its `<label for>` before it can see what was
+ * projected into it, so the id has to be adopted from the other side. The
+ * slider never did, and the failure is the quiet kind: the field looks exactly
+ * as it always did, and `for` names an element that is nowhere in the document,
+ * so clicking the label does nothing at all.
+ *
+ * Asserted through the document, not through the attribute alone — an id that
+ * merely EXISTS on some element is what the bug already looked like. What makes
+ * a field nameable is the label resolving to a labelable element inside it, and
+ * only the thumb is one: `<wr-slider>` is a custom element, so a `for` aimed at
+ * the host would resolve and still name nothing.
+ */
+describe('WrSlider inside a form field', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const build = (component: Type<unknown>): ComponentFixture<unknown> => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(component);
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  it('answers to the id the label points at, on a labelable element', () => {
+    const root = build(FieldHost).nativeElement as HTMLElement;
+    const label = root.querySelector<HTMLLabelElement>('label')!;
+    const target = root.querySelector(`#${CSS.escape(label.htmlFor)}`);
+
+    expect(label.htmlFor).not.toBe('');
+    expect(target).not.toBeNull();
+    expect(target).toBe(root.querySelector('.wr-slider__thumb--low'));
+    expect((target as HTMLElement).tagName).toBe('BUTTON');
+  });
+
+  it('puts it on the LOWER thumb in range mode, so one label names one value', () => {
+    const root = build(RangeFieldHost).nativeElement as HTMLElement;
+    const label = root.querySelector<HTMLLabelElement>('label')!;
+
+    expect(root.querySelector('.wr-slider__thumb--low')!.getAttribute('id')).toBe(label.htmlFor);
+    expect(root.querySelector('.wr-slider__thumb--high')!.getAttribute('id')).toBeNull();
+  });
+
+  it('stamps no id at all on a slider standing on its own', () => {
+    // The field is what supplies the id; a bare slider inventing one would put a
+    // document-global name on a thumb nothing points at.
+    const root = build(Host).nativeElement as HTMLElement;
+
+    expect(root.querySelector('.wr-slider__thumb--low')!.getAttribute('id')).toBeNull();
   });
 });

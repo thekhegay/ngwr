@@ -27,15 +27,24 @@
  *
  * "Still checked" was aspirational until discovery stopped requiring the array
  * be named `api`: a page calling its rows `typeRows` was skipped outright, and a
- * gate that reports green on a table it never opened is worse than no gate. What
- * that turned up is in `KNOWN_INCOMPLETE` — recorded page by page, so new drift
- * on those pages still fails.
+ * gate that reports green on a table it never opened is worse than no gate.
+ * Eleven pages disagreed the first time they were opened, and they are all
+ * settled now: seven were genuinely short of rows — `speed-dial` had no API
+ * table at all — and seven were this comparison's own blind spots, three pages
+ * being both. The second half is the thing to remember before recording an
+ * exception here instead of fixing one, because none of it was docs drift and
+ * none of it was fixed on a page. A `model()` publishes a `<name>Change` output
+ * as well as itself; an entry point publishes option interfaces and helper
+ * functions beside its components, and a page documents those under their own
+ * heading; and some of the components it declares are overlay panels nothing
+ * outside the library can write, so demanding docs for their inputs asks for a
+ * template no consumer can type. All three now live in `extract-api.ts`.
  */
 
 import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-import { type ApiEntry, type ApiRow, extractApi } from './lib/extract-api';
+import { type ApiEntry, type ApiRow, extractApi, extractPublicNames } from './lib/extract-api';
 import { ROOT_PATH } from './lib/paths/root';
 
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
@@ -223,67 +232,6 @@ const DELIBERATE_MISMATCH: ReadonlySet<string> = new Set([
   'projects/showcase/app/reference/components/window/window.ts',
 ]);
 
-/**
- * Drift the widened discovery above uncovered — recorded, not excused.
- *
- * These eleven pages were never opened by the old `readonly api:` regex, so
- * their tables have been out of step with the source for as long as the gate has
- * existed. The lists are exact: a NEW disagreement on a listed page still fails,
- * and so does a page that has been brought back into agreement — the entry has
- * to be deleted with the fix, which is what keeps this from turning into the
- * silent green it replaced.
- *
- * A few are the comparison's own blind spots rather than missing prose — the
- * `valueChange` / `searchQueryChange` outputs a `model()` synthesises, interface
- * fields listed under a plain heading — and those want `extract-api.ts` widened,
- * not rows added to a page.
- */
-const KNOWN_INCOMPLETE: Readonly<Record<string, readonly string[]>> = {
-  'projects/showcase/app/reference/components/checkbox/checkbox.ts': ['value'],
-  'projects/showcase/app/reference/components/color-picker/color-picker.ts': [
-    'hslToRgb',
-    'hsvToRgb',
-    'rgbToHsl',
-    'rgbToHsv',
-    'touch',
-  ],
-  'projects/showcase/app/reference/components/donut-chart/donut-chart.ts': ['ariaLabel'],
-  'projects/showcase/app/reference/components/drawer/drawer.ts': ['align', 'data', 'panelClass', 'showHandle'],
-  'projects/showcase/app/reference/components/input/input.ts': ['hideLabel', 'showLabel', 'wrInput'],
-  'projects/showcase/app/reference/components/mention/mention.ts': [
-    'activeIndex',
-    'hovered',
-    'items',
-    'listLabel',
-    'listboxId',
-    'picked',
-  ],
-  'projects/showcase/app/reference/components/meter-group/meter-group.ts': ['color', 'label', 'value'],
-  'projects/showcase/app/reference/components/radio/radio.ts': ['touch'],
-  'projects/showcase/app/reference/components/select/select.ts': ['searchQueryChange', 'valueChange'],
-  'projects/showcase/app/reference/components/speed-dial/speed-dial.ts': [
-    'actions',
-    'direction',
-    'disabled',
-    'icon',
-    'open',
-    'pick',
-    'safeArea',
-    'triggerLabel',
-  ],
-  'projects/showcase/app/reference/components/toast/toast.ts': [
-    'closeAllThreshold',
-    'config',
-    'dismissAllRequested',
-    'dismissed',
-    'maxStack',
-    'mode',
-    'pauseRequested',
-    'resumeRequested',
-    'showCloseAll',
-  ],
-};
-
 function check(api: Map<string, ApiEntry>): number {
   // An entry point is compared as a whole, not class by class: `layout/`
   // documents `WrLayout` + header + sider + content + footer on one page, and
@@ -309,9 +257,10 @@ function check(api: Map<string, ApiEntry>): number {
     if (e.klass === pascal(e.entry)) byEntry.set(e.entry, { primary: e.klass, rows: found.rows });
   }
 
+  const publicNames = extractPublicNames();
+
   let mismatched = 0;
   let unmapped = 0;
-  let quarantined = 0;
 
   for (const [file, src] of handWritten()) {
     const rel = relative(ROOT_PATH, file);
@@ -333,11 +282,22 @@ function check(api: Map<string, ApiEntry>): number {
     }
     const actual = new Set(found.rows.map(r => r.name).filter(isMember).map(bare));
 
+    // Angular synthesises `<name>Change` for every `model()`, so a page listing
+    // `(valueChange)` beside `[(value)]` is documenting one member from both
+    // ends. Recognised, not required: the two-way form is the one to document,
+    // and demanding both would add a row to every page that has a model.
+    const synthesised = new Set(found.rows.filter(r => r.kind === 'model').map(r => `${bare(r.name)}Change`));
+
     // Held-to-existing is a narrower set than counted-as-documented: a page's
     // tables also list variant values, CSS tokens and service methods, none of
     // which are members. A row carrying `default:` is claiming to be an input,
     // and that claim is what gets checked.
     const claimed = documentedMembers(src, true);
+
+    // …but only against the entry point's members, so a row documenting one of
+    // the other things it exports — an option interface's field, a helper
+    // function, a directive's own attribute — is not a claim that went stale.
+    const alsoPublic = publicNames.get(entry) ?? new Set<string>();
 
     // A member counts as documented however the page writes it. But only a name
     // written BARE is held to existing: `[wrTilt]` in brackets is template
@@ -345,23 +305,8 @@ function check(api: Map<string, ApiEntry>): number {
     // is not a member of anything.
     const documented = new Set(names.map(bare));
     const missing = [...actual].filter(n => !documented.has(n));
-    const stale = [...new Set(claimed.filter(n => !n.startsWith('[') && !actual.has(bare(n))).map(bare))];
-
-    const recorded = KNOWN_INCOMPLETE[rel];
-    if (recorded) {
-      const seen = [...new Set([...missing, ...stale])].sort();
-      const surprise = seen.filter(n => !recorded.includes(n));
-      const settled = recorded.filter(n => !seen.includes(n));
-      if (surprise.length === 0 && settled.length === 0) {
-        quarantined++;
-        continue;
-      }
-      mismatched++;
-      console.log(`  ${rel}  (${found.primary})  [recorded as incomplete]`);
-      if (surprise.length) console.log(`      new drift:  ${surprise.join(', ')}`);
-      if (settled.length) console.log(`      now agrees, drop from KNOWN_INCOMPLETE:  ${settled.join(', ')}`);
-      continue;
-    }
+    const known = (n: string): boolean => actual.has(n) || synthesised.has(n) || alsoPublic.has(n);
+    const stale = [...new Set(claimed.filter(n => !n.startsWith('[') && !known(bare(n))).map(bare))];
 
     if (missing.length === 0 && stale.length === 0) continue;
     mismatched++;
@@ -371,7 +316,7 @@ function check(api: Map<string, ApiEntry>): number {
   }
 
   console.log(
-    `\n  ${mismatched} page(s) disagree with the source; ${quarantined} recorded as incomplete;` +
+    `\n  ${mismatched} page(s) disagree with the source;` +
       ` ${unmapped} not mapped to an entry point (interfaces, guides, groups).`
   );
   return mismatched;

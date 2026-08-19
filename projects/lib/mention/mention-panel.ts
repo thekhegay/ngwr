@@ -28,6 +28,11 @@ export function wrMentionOptionId(listboxId: string, index: number): string {
 /**
  * Overlay panel rendered by {@link WrMention}. Not intended for
  * direct use — the directive instantiates it via a ComponentPortal.
+ *
+ * @internal — the same tag its twin `WrPopconfirmPanel` already carried. It says
+ * the intent; it does not by itself keep the class out of the generated API
+ * tables, because `WrTableFilter` and `WrTableSort` are tagged AND documented —
+ * see `EXPORTED_BUT_INTERNAL` in `scripts/lib/extract-api.ts`.
  */
 @Component({
   selector: 'wr-mention-panel',
