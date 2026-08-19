@@ -128,7 +128,9 @@ ng g ngwr:provider overlay                           # splices a provider into b
 \`\`\`
 
 \`--path\` is a NAMED option on \`ngwr:use\`; only the symbol is positional, and
-passing the path bare fails with \`Unknown argument\`.
+passing the path bare fails with \`Unknown argument\`. It takes declarables only:
+a service such as \`WrDialog\` is refused, since the import line would compile and
+the \`imports\` entry would not — \`inject()\` it instead.
 
 ### Providers a component cannot work without
 
@@ -262,8 +264,12 @@ ${providers.map(p => `### \`${p.provider}\`\n\n${p.why[0].toUpperCase()}${p.why.
 - \`provideWrConfig({ button: { size: 'sm' } })\` — component defaults. A bound
   value always wins, including a bound \`false\` over a configured \`true\`.
 - \`provideWrDensity({ defaultDensity: 'sm' })\` — one control size for the whole
-  app; \`'sm' | 'md' | 'lg' | 'touch'\`, where \`touch\` enlarges every hit area at
-  once.
+  app; \`'sm' | 'md' | 'lg' | 'touch'\`. It scales the paddings of the nine
+  stylesheets that read the multipliers — button, input, textarea, select,
+  cascader, tree, list, table, badge/tag — so \`touch\` grows those together. A
+  control with fixed geometry (checkbox, switch, radio, slider, rating,
+  segmented) does not move; its ≥44px target comes from the \`touch-target\` mixin
+  under \`@media (pointer: coarse)\` instead.
 - \`provideWrResponsiveOverlays()\` — overlays present as bottom sheets under the
   breakpoint (640px by default). Per-component opt-out with \`[responsive]="false"\`.
 - \`provideWrFormErrors({ … })\` — one place for validation copy; \`<wr-form-field>\`

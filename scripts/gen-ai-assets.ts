@@ -131,13 +131,38 @@ function stripComments(src: string): string {
   return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 }
 
-const selectorsOf = (entryDir: string): string[] => {
+/**
+ * The selectors an entry point gives a consumer to write.
+ *
+ * Two conditions, and it takes both: the `selector:` has to sit in a
+ * `@Component` / `@Directive` argument, and the class that decorator is on has
+ * to be EXPORTED. A bare scan for `selector:` satisfies neither, and each half
+ * shipped its own wrong answer. A CDK `HarnessPredicate` filter is written
+ * `selector: '…'` too, so four `/testing` entry points advertised CSS classes —
+ * `ngwr/pagination/testing` offered `.wr-pagination__page` as component API. And
+ * `toast/toast-host.ts` / `window/window.ts` keep internal components at the
+ * entry ROOT rather than under `internal/`, so the catalog offered `<wr-toast>`
+ * and `<wr-window>` — the latter one line above its own "There is no declarative
+ * `<wr-window>` component".
+ */
+const selectorsOf = (entryDir: string, exported: ReadonlySet<string>): string[] => {
   const out = new Set<string>();
   for (const file of filesOf(entryDir)) {
-    for (const match of stripComments(read(file)).matchAll(/selector:\s*'([^']+)'/g)) {
+    const src = stripComments(read(file));
+    for (const decorator of src.matchAll(/@(?:Component|Directive)\s*\(/g)) {
+      const from = (decorator.index ?? 0) + decorator[0].length;
+      const rest = src.slice(from);
+      // The decorator's object ends where its class begins, so the class name is
+      // the next `class X` and everything before it belongs to this decorator.
+      // Scanning to the class rather than balancing the parentheses is what
+      // keeps `host: { '(click)': '…' }` from being read as the end of the call.
+      const cls = /(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/.exec(rest);
+      if (!cls?.[1] || !exported.has(cls[1])) continue;
+
+      const match = /selector:\s*'([^']+)'/.exec(rest.slice(0, cls.index));
       // A multi-selector string like `input[wrInput], textarea[wrInput]` is one
       // declaration but two things a consumer can write.
-      for (const part of (match[1] ?? '').split(',')) {
+      for (const part of (match?.[1] ?? '').split(',')) {
         const selector = part.trim();
         if (selector) out.add(selector);
       }
@@ -317,8 +342,10 @@ interface Entry {
 function collect(): Entry[] {
   return ENTRIES.map(name => {
     const dir = join(LIB_DIR, name);
-    const selectors = selectorsOf(dir);
     const exports = exportsOf(dir);
+    // Types cannot carry a decorator, and a selector is only real if the class
+    // behind it can be imported as a value.
+    const selectors = selectorsOf(dir, new Set(exports.filter(e => !e.isType).map(e => e.name)));
     return {
       name,
       selectors,
@@ -374,6 +401,9 @@ const MIN_WITH_EXPORTS = 202;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
 const MIN_SKILL_ROWS = 202;
 
+/** A tag, an attribute, or a tag with an attribute — the three shapes the library declares. */
+const SELECTOR_SHAPE = /^[a-z][a-z\d-]*(\[[A-Za-z][\w-]*\])?$|^\[[A-Za-z][\w-]*\]$/;
+
 function check(entries: readonly Entry[]): number {
   const problems: string[] = [];
 
@@ -393,6 +423,15 @@ function check(entries: readonly Entry[]): number {
 
   for (const entry of entries) {
     if (!entry.headline) problems.push(`ngwr/${entry.name}: no symbol to put in the import line`);
+
+    // Every selector the library declares is a tag, an attribute, or a tag with
+    // an attribute — `wr-btn`, `[wrAffix]`, `ng-template[wrTableExpand]`. A CSS
+    // class or a compound is not a selector a consumer can write; it is a CDK
+    // `HarnessPredicate` filter read as one, which is how `.wr-pagination__page`
+    // and `.wr-tour-popup__action--next` reached the shipped catalog.
+    for (const selector of entry.selectors) {
+      if (!SELECTOR_SHAPE.test(selector)) problems.push(`ngwr/${entry.name}: \`${selector}\` is not a component selector`);
+    }
   }
 
   // The skill is checked as OUTPUT, not as inputs. A generator that produces a

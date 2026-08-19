@@ -14,6 +14,13 @@
  * `export { WrFoo as Bar }` symbol regardless of whether `WrFoo` is a
  * directive, component, or service — that's what users type at the
  * command line, and the import line is identical in every case.
+ *
+ * DECLARABILITY is answered elsewhere, and deliberately not here. `ng g
+ * ngwr:use` refuses a service rather than splicing it into an `imports: []`,
+ * and the MCP's `Catalog.declarable()` reads the compiler's own `ɵcmp` / `ɵdir`
+ * / `ɵpipe` markers out of the shipped `.d.ts`. Both derive it from something
+ * the build already produces, so putting a flag in this map would be a third
+ * copy of a fact with two authorities already.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';

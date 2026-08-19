@@ -4,7 +4,6 @@
   class="wr-speed-dial__trigger"
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="menuId"
-  aria-haspopup="menu"
   [attr.aria-label]="resolvedTriggerLabel()"
   [disabled]="disabled()"
   (click)="onTrigger()"
@@ -12,19 +11,25 @@
   <wr-icon [name]="icon()" />
 </button>
 
-<ul class="wr-speed-dial__actions" role="menu" [attr.id]="menuId">
+<!--
+  A LIST of buttons, deliberately not a `role="menu"`. The dial used to announce
+  aria-haspopup="menu" over role="menuitem" buttons while handling no menu key at
+  all — no arrows, no Home/End, no focus moving in on open — and the actions were
+  N tab stops rather than the pattern's one. That role also puts a screen reader
+  into focus mode, so the arrow keys it promises stop reading the page and then do
+  nothing here. The structure now says what the component does: a disclosure
+  button (aria-expanded / aria-controls) revealing ordinary buttons that Tab
+  reaches and Enter activates, with Escape as the way back.
+
+  `role="list"` is written out because `list-style: none` (styles/_index.scss)
+  drops the implicit list semantics in Safari.
+-->
+<ul class="wr-speed-dial__actions" role="list" [attr.id]="menuId">
   @for (action of actions(); track action.id) {
-    <!--
-      role="none" is load-bearing: role="menu" on the <ul> strips the implicit
-      list semantics from its children, so an unroled <li> sits between the menu
-      and its menuitem and breaks the required menu -> menuitem parentage.
-      Marking it presentational restores the direct relationship.
-    -->
-    <li class="wr-speed-dial__action-wrap" role="none" [style.--wr-speed-dial-i]="$index + 1">
+    <li class="wr-speed-dial__action-wrap" [style.--wr-speed-dial-i]="$index + 1">
       <button
         type="button"
         class="wr-speed-dial__action"
-        role="menuitem"
         [attr.aria-label]="action.label"
         [title]="action.label"
         [disabled]="disabled()"

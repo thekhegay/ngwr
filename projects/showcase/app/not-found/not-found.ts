@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
-import { WrResult } from 'ngwr/result';
+import { WrResult404 } from 'ngwr/result';
 
 import { Footer } from '../_layout/footer/footer';
 
@@ -18,15 +18,14 @@ import { routes } from '#routing';
  * that claimed to be the homepage. `routing.ts` records which links this site
  * still publishes reach it.
  *
- * `wr-result` rather than hand-rolled markup — the library ships the empty /
- * error state, and the docs site should be its own first consumer. See the
- * template for why it is not the `<wr-result-404>` preset.
+ * `<wr-result-404>` rather than hand-rolled markup — the library ships the empty
+ * / error state, and the docs site should be its own first consumer.
  */
 @Component({
   selector: 'ngwr-not-found',
   templateUrl: './not-found.html',
   styleUrl: './not-found.scss',
-  imports: [RouterLink, WrButton, WrResult, Footer],
+  imports: [RouterLink, WrButton, WrResult404, Footer],
 })
 export default class NotFound {
   protected readonly routes = routes;

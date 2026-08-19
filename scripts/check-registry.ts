@@ -22,17 +22,26 @@
  *    this repo enforces. Two descriptions of one format drift the moment
  *    someone edits either, so the item types and the required keys are compared
  *    directly — the same trick `check-color-parity.ts` plays on the SCSS and TS
- *    colour lists — and `files[].target`, whose rule is a regex on one side and
- *    a function on the other, is compared by RUNNING both over `TARGET_CASES`.
+ *    colour lists — and every field whose rule is a regex on one side and a
+ *    function on the other is compared by RUNNING both over a case table.
  *    Shape could not have caught what behaviour did: the schema's scheme
  *    lookahead was lowercase-only, so `FILE:///etc/passwd` validated clean
  *    against the published contract while `targetProblem()` refused it.
  *
- *    One divergence is left standing and is not in the table: a target with an
- *    embedded newline (`src/a\nb.ts`). The schema's trailing `.+$` cannot match
- *    across one, the validator has no rule about it, so the published contract
- *    is the stricter of the two there — it can only reject an item this repo
- *    would have accepted, never accept one it refuses.
+ *    That comparison covered `files[].target` alone for a while, and one of the
+ *    two fields it left out had drifted: the validator STRIPPED the `ngwr/`
+ *    prefix that `entryPoints`' `"pattern": "^ngwr/"` requires, so a bare
+ *    `"select"` passed this gate and failed the published schema — the unsafe
+ *    direction, since the repo is the reference implementation an author copies.
+ *    `registryDependencies` was already in step; it is in the table so it stays
+ *    that way.
+ *
+ *    One divergence is left standing and is not in any table: a target with an
+ *    embedded line separator — LF, CR, U+2028 or U+2029, all four. The schema's
+ *    trailing `.+$` cannot match across one, the validator has no rule about
+ *    them, so the published contract is the stricter of the two there — it can
+ *    only reject an item this repo would have accepted, never accept one it
+ *    refuses.
  *
  * Deliberately NOT a JSON Schema implementation. Validating the schema with a
  * validator would mean adding one, and the interesting rules here are not
@@ -51,7 +60,14 @@ import { exit } from 'node:process';
 import { err } from './lib/log/err';
 import { info } from './lib/log/info';
 import { ROOT_PATH } from './lib/paths/root';
-import { ITEM_TYPES, REQUIRED_KEYS, targetProblem, validateItem } from './lib/registry/item';
+import {
+  ITEM_TYPES,
+  REQUIRED_KEYS,
+  entryPointProblem,
+  registryDependencyProblem,
+  targetProblem,
+  validateItem,
+} from './lib/registry/item';
 import { PRESETS, buildThemePreset } from './lib/registry/theme-presets';
 
 const REGISTRY = resolve(ROOT_PATH, 'registry');
@@ -82,6 +98,8 @@ interface Schema {
   readonly required?: readonly string[];
   readonly properties?: {
     readonly type?: { readonly enum?: readonly string[] };
+    readonly entryPoints?: { readonly items?: { readonly pattern?: string } };
+    readonly registryDependencies?: { readonly items?: { readonly pattern?: string } };
     readonly files?: { readonly items?: { readonly properties?: { readonly target?: { readonly pattern?: string } } } };
   };
 }
@@ -116,11 +134,75 @@ const TARGET_CASES: readonly string[] = [
   'src/styles/_thing.scss',
 ];
 
-function schemaParity(schema: Schema): string[] {
+/**
+ * `entryPoints` names both sides have to answer the same way.
+ *
+ * Every subpath here is a REAL entry point, so the only thing left to disagree
+ * about is the `ngwr/` prefix — which is the whole of what the schema says about
+ * this field. Catalog membership is deliberately not expressible in a schema, so
+ * a typo like `ngwr/slect` is a divergence by construction and stays out of the
+ * table.
+ */
+const ENTRY_POINT_CASES: readonly string[] = [
+  'ngwr/select',
+  'ngwr/icon/adapters/lucide',
+  'select',
+  'icon/adapters/lucide',
+  './ngwr/select',
+  'NGWR/select',
+  '',
+];
+
+/** The same, for `registryDependencies` — where the schema's whole rule is the scheme. */
+const REGISTRY_DEPENDENCY_CASES: readonly string[] = [
+  'https://ngwr.dev/registry/items/thing.json',
+  'HTTPS://ngwr.dev/registry/items/thing.json',
+  'http://ngwr.dev/registry/items/thing.json',
+  'https:/ngwr.dev/thing.json',
+  './thing.json',
+  '',
+];
+
+/**
+ * Run a schema `pattern` and the validator's own rule over one case table.
+ *
+ * Comparing them on BEHAVIOUR rather than on shape is the point, and so is
+ * flagging an absent pattern: a field the published contract stops constraining
+ * is a silent widening, which is how `entryPoints` came to accept a bare
+ * `"select"` here while `^ngwr/` refused it.
+ */
+function patternParity(
+  field: string,
+  pattern: string | undefined,
+  cases: readonly string[],
+  validatorAccepts: (value: string) => boolean
+): string[] {
+  if (pattern === undefined) {
+    return [`${field} has no pattern — third-party tooling would accept anything there`];
+  }
+
+  const problems: string[] = [];
+  // A JSON Schema `pattern` is an ECMA-262 regex with no flags, so it is read
+  // back exactly as a validator would read it.
+  const re = new RegExp(pattern);
+  for (const value of cases) {
+    const bySchema = re.test(value);
+    const byValidator = validatorAccepts(value);
+    if (bySchema !== byValidator) {
+      problems.push(
+        `${field} ${JSON.stringify(value)} — schema.json ${bySchema ? 'accepts' : 'rejects'} it, ` +
+          `the validator ${byValidator ? 'accepts' : 'rejects'} it`
+      );
+    }
+  }
+
+  return problems;
+}
+
+function schemaParity(schema: Schema, catalog: ReadonlySet<string>): string[] {
   const problems: string[] = [];
   const types = schema.properties?.type?.enum ?? [];
   const required = schema.required ?? [];
-  const pattern = schema.properties?.files?.items?.properties?.target?.pattern;
 
   const same = (a: readonly string[], b: readonly string[]): boolean =>
     a.length === b.length && [...a].sort().join() === [...b].sort().join();
@@ -132,23 +214,26 @@ function schemaParity(schema: Schema): string[] {
     problems.push(`schema.json requires [${required.join(', ')}] but the validator requires [${REQUIRED_KEYS.join(', ')}]`);
   }
 
-  if (pattern === undefined) {
-    problems.push('files[].target has no pattern — third-party tooling would accept any write path');
-  } else {
-    // A JSON Schema `pattern` is an ECMA-262 regex with no flags, so it is read
-    // back exactly as a validator would read it.
-    const re = new RegExp(pattern);
-    for (const target of TARGET_CASES) {
-      const schemaAccepts = re.test(target);
-      const validatorAccepts = targetProblem(target) === null;
-      if (schemaAccepts !== validatorAccepts) {
-        problems.push(
-          `files[].target ${JSON.stringify(target)} — schema.json ${schemaAccepts ? 'accepts' : 'rejects'} it, ` +
-            `the validator ${validatorAccepts ? 'accepts' : 'rejects'} it`
-        );
-      }
-    }
-  }
+  problems.push(
+    ...patternParity(
+      'files[].target',
+      schema.properties?.files?.items?.properties?.target?.pattern,
+      TARGET_CASES,
+      target => targetProblem(target) === null
+    ),
+    ...patternParity(
+      'entryPoints[]',
+      schema.properties?.entryPoints?.items?.pattern,
+      ENTRY_POINT_CASES,
+      entry => entryPointProblem(entry, catalog) === null
+    ),
+    ...patternParity(
+      'registryDependencies[]',
+      schema.properties?.registryDependencies?.items?.pattern,
+      REGISTRY_DEPENDENCY_CASES,
+      url => registryDependencyProblem(url) === null
+    )
+  );
 
   return problems;
 }
@@ -160,9 +245,9 @@ function main(): void {
   }
 
   const schema = JSON.parse(readFileSync(SCHEMA, 'utf8')) as Schema;
-  const problems = schemaParity(schema).map(problem => `schema.json — ${problem}`);
-
   const catalog = entryPoints();
+  const problems = schemaParity(schema, catalog).map(problem => `schema.json — ${problem}`);
+
   const files = existsSync(ITEMS) ? readdirSync(ITEMS).filter(name => name.endsWith('.json')).sort() : [];
 
   if (files.length === 0) {

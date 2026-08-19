@@ -6,8 +6,11 @@
  */
 
 /**
- * Canonical `KeyboardEvent.key` values used across ngwr components.
- * Use these constants instead of magic strings so refactors are searchable.
+ * Canonical `KeyboardEvent.key` values for your own `keydown` handlers.
+ *
+ * The spec spellings are easy to get wrong — arrows are `ArrowUp`, space is a
+ * literal `' '` — and a typo like `'Esacpe'` never matches and never errors.
+ * These give you autocomplete and the {@link WrKey} union to match against.
  */
 export const KEYS = {
   ENTER: 'Enter',

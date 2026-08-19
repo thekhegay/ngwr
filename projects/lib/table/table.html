@@ -38,10 +38,17 @@
         @if (rowSelection()) {
           <th class="wr-table__th wr-table__th--select">
             @if (rowSelection() === 'multiple') {
+              <!-- Disabled with nothing to sweep, the way `wr-transfer` guards its
+                   own select-all. `[checked]` is a one-way binding over a checkbox
+                   that owns its state, and on zero rows `allSelected()` answers
+                   `false` before and after the click — an unchanged input is never
+                   written back, so the box latched CHECKED over an empty table and
+                   stayed that way when rows returned. -->
               <wr-checkbox
                 size="sm"
                 [checked]="allSelected()"
                 [indeterminate]="someSelected()"
+                [disabled]="pageRowKeys().length === 0"
                 (checkedChange)="toggleAll($event)"
                 [ariaLabel]="resolvedSelectAllLabel()"
               />
@@ -310,16 +317,24 @@
               </tr>
             }
           }
-        } @empty {
-          <tr>
-            <td class="wr-table__empty" [attr.colspan]="totalCols()">{{ resolvedEmptyLabel() }}</td>
-          </tr>
         }
         @if (virtualized() && virtualWindow().padBottom > 0) {
           <tr class="wr-table__spacer" aria-hidden="true">
             <td [attr.colspan]="totalCols()" [style.height.px]="virtualWindow().padBottom"></td>
           </tr>
         }
+      }
+      <!-- Sibling of the row loop rather than its `@empty` branch, and gated on
+           `loading()`. As the `@empty` branch it lived INSIDE `@if (visibleItems())`,
+           which passes a nullish `[items]` straight through — so the input's own
+           default rendered a header over a blank body with no "No data" anywhere,
+           the opposite of what `items`'s docs promise. And the veil is translucent,
+           so on the documented `[items]="[]" [loading]="true"` pair the row read
+           "No data" through the spinner. -->
+      @if (!loading() && !renderRows().length) {
+        <tr>
+          <td class="wr-table__empty" [attr.colspan]="totalCols()">{{ resolvedEmptyLabel() }}</td>
+        </tr>
       }
     </tbody>
 

@@ -118,7 +118,7 @@
         </span>
       }
       @if (hiddenChipCount(); as extra) {
-        <span class="wr-select__chip wr-select__chip--more">+{{ extra }} more</span>
+        <span class="wr-select__chip wr-select__chip--more">{{ moreLabel({ count: extra }) }}</span>
       }
       <!-- At `maxItems` this input goes READONLY, never disabled: it is the only
            tab stop in the whole control (the chip × and the clear button are
@@ -228,7 +228,7 @@
             </span>
           }
           @if (hiddenChipCount(); as extra) {
-            <span class="wr-select__chip wr-select__chip--more">+{{ extra }} more</span>
+            <span class="wr-select__chip wr-select__chip--more">{{ moreLabel({ count: extra }) }}</span>
           }
         </span>
       } @else {
@@ -292,9 +292,15 @@
     role="listbox"
     [attr.id]="listboxId"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"
+    [attr.aria-busy]="isLoading() ? 'true' : null"
   >
+    <!-- `aria-busy` belongs on the listbox, not on this row: it is the container
+         whose required `option` children are temporarily missing, and a global
+         ARIA attribute on a role-less child makes that child an owned element the
+         listbox may not own (axe `aria-required-children`, critical). Plain text
+         inside the listbox is fine — only ELEMENTS are checked. -->
     @if (isLoading()) {
-      <div class="wr-select-panel__loading" aria-busy="true">{{ resolvedLoading() }}</div>
+      <div class="wr-select-panel__loading">{{ resolvedLoading() }}</div>
     }
 
     @if (virtualActive()) {
@@ -339,8 +345,18 @@
          would drop projected content). Empty whenever `virtualActive`. -->
     <ng-content />
 
+    <!-- A listbox may only own `option` and `group` children, and as a bare `<div>`
+         this row was the only thing in the tree when it showed — an
+         `aria-required-children` critical. It cannot move out of the listbox the
+         way the command palette's does: this element IS the listbox, and the id
+         the trigger's `aria-controls` names is what gives it its accessible name.
+         So it announces as a disabled option instead. Keyboard navigation skips
+         it for free — arrow keys walk the registered `wr-option`s, and nothing
+         registers this row. -->
     @if (hasNoResults()) {
-      <div class="wr-select-panel__empty">{{ resolvedNoResults() }}</div>
+      <div class="wr-select-panel__empty" role="option" aria-selected="false" aria-disabled="true">
+        {{ resolvedNoResults() }}
+      </div>
     }
   </div>
 </ng-template>

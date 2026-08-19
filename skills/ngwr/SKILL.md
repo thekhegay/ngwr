@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 202 tree-shakable entry points, 115 of them shipping a selector.
+An Angular 22 UI library: 202 tree-shakable entry points, 110 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. One runtime
 dependency (`tslib`).
 
@@ -74,7 +74,9 @@ ng g ngwr:provider overlay                           # splices a provider into b
 ```
 
 `--path` is a NAMED option on `ngwr:use`; only the symbol is positional, and
-passing the path bare fails with `Unknown argument`.
+passing the path bare fails with `Unknown argument`. It takes declarables only:
+a service such as `WrDialog` is refused, since the import line would compile and
+the `imports` entry would not — `inject()` it instead.
 
 ### Providers a component cannot work without
 
@@ -92,7 +94,7 @@ cause.
   — needed by: `WrDatePicker`, `WrCalendar`, `WrEventCalendar`
 - `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
   — the pipe and directive read from a catalog you provide
-  — needed by: `WrT`, `WrI18n`
+  — needed by: `WrTPipe`, `WrTDirective`, `WrI18n`
 
 ## Testing
 

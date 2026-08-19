@@ -8,6 +8,7 @@
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="panelId"
   (click)="onTriggerClick()"
+  (keydown)="onTriggerKeydown($event)"
   (blur)="touch.emit()"
 >
   @if (displayLabel(); as label) {

@@ -23,7 +23,12 @@
   padding-bottom: env(safe-area-inset-bottom);
   // Lift the bottom-pinned sheet clear of the keyboard. margin (not transform)
   // so it doesn't fight the slide-up animation; transitions smoothly.
-  margin-bottom: var(--wr-keyboard-inset, 0px);
+  // `!important` here for a different reason than the rest of this block: all
+  // four sheet users (dialog, select, dropdown, popover) pin the pane with a
+  // `GlobalPositionStrategy…bottom('0')`, and `apply()` writes that offset out
+  // as an INLINE `margin-bottom: 0px` on this very element, on every
+  // `updatePosition`. Without it the lift can never compute to anything but 0.
+  margin-bottom: var(--wr-keyboard-inset, 0px) !important;
   transition: margin-bottom var(--wr-overlay-duration, 0.2s) var(--wr-overlay-ease, ease-out);
   animation: wr-overlay-sheet-up var(--wr-overlay-duration, 0.2s) var(--wr-overlay-ease, ease-out) !important;
 }

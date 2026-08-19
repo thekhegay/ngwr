@@ -119,6 +119,150 @@ describe('WrSortableList', () => {
     expect(rows()).toEqual(['1. Nine']);
   });
 
+  /**
+   * The keyboard path is the only reorder path a keyboard has — `cdkDrag` ships
+   * none — so unlike the gesture above it is entirely this component's code and
+   * fully testable in jsdom. The one half that is not: moving a focused DOM node
+   * blurs it in a browser and jsdom keeps focus across the move, so the
+   * re-focus in `relocate` cannot be asserted here.
+   */
+  describe('keyboard reordering', () => {
+    const items = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-sortable-list__item')];
+    const status = (): string => root().querySelector('[role="status"]')!.textContent.trim();
+
+    const key = (index: number, k: string, target?: HTMLElement): boolean => {
+      const event = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true });
+      (target ?? items()[index]).dispatchEvent(event);
+      fixture.detectChanges();
+      return event.defaultPrevented;
+    };
+
+    const labels = (): string[] => fixture.componentInstance.items().map(r => r.label);
+
+    it('makes every row a tab stop inside a real list', () => {
+      expect(root().querySelector('.wr-sortable-list__list')!.getAttribute('role')).toBe('list');
+      for (const item of items()) {
+        expect(item.getAttribute('role')).toBe('listitem');
+        expect(item.getAttribute('tabindex')).toBe('0');
+        // The key model has to be reachable from the row focus lands on.
+        const help = root().querySelector(`#${item.getAttribute('aria-describedby')}`);
+        expect(help?.textContent).toContain('arrow keys');
+      }
+    });
+
+    it('leaves the rows alone while the list is disabled', () => {
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+
+      expect(items()[0].getAttribute('tabindex')).toBeNull();
+      key(0, ' ');
+      key(0, 'ArrowDown');
+      expect(labels()).toEqual(['One', 'Two', 'Three']);
+    });
+
+    it('does nothing on an arrow until the row has been picked up', () => {
+      expect(key(0, 'ArrowDown')).toBe(false);
+      expect(labels()).toEqual(['One', 'Two', 'Three']);
+      expect(status()).toBe('');
+    });
+
+    it('picks up, moves and drops — one reorder for the whole gesture', async () => {
+      key(0, ' ');
+      expect(status()).toBe('Grabbed. 1 of 3.');
+
+      key(0, 'ArrowDown');
+      await fixture.whenStable();
+      expect(labels()).toEqual(['Two', 'One', 'Three']);
+      expect(status()).toBe('2 of 3.');
+      // The array moved, but the gesture is not over yet.
+      expect(fixture.componentInstance.events).toEqual([]);
+
+      key(1, 'ArrowDown');
+      await fixture.whenStable();
+      expect(labels()).toEqual(['Two', 'Three', 'One']);
+
+      key(2, ' ');
+      expect(status()).toBe('Dropped. 3 of 3.');
+      expect(fixture.componentInstance.events).toEqual([
+        {
+          items: fixture.componentInstance.items(),
+          previousIndex: 0,
+          currentIndex: 2,
+          item: { id: 1, label: 'One' },
+        },
+      ]);
+    });
+
+    it('stops at the ends of the list', async () => {
+      key(0, ' ');
+      key(0, 'ArrowUp');
+      await fixture.whenStable();
+
+      expect(labels()).toEqual(['One', 'Two', 'Three']);
+      expect(status()).toBe('Grabbed. 1 of 3.');
+    });
+
+    it('puts the row back on Escape and reports nothing', async () => {
+      key(1, ' ');
+      key(1, 'ArrowUp');
+      await fixture.whenStable();
+      expect(labels()).toEqual(['Two', 'One', 'Three']);
+
+      key(0, 'Escape');
+      await fixture.whenStable();
+
+      expect(labels()).toEqual(['One', 'Two', 'Three']);
+      expect(status()).toBe('Move cancelled.');
+      expect(fixture.componentInstance.events).toEqual([]);
+    });
+
+    it('claims the keys it acts on, and only those', () => {
+      expect(key(0, ' ')).toBe(true);
+      expect(key(0, 'ArrowDown')).toBe(true);
+      // Escape is swallowed only while a row is held, so an Escape typed
+      // anywhere else still reaches the dialog the list may be sitting in.
+      expect(key(1, 'Escape')).toBe(true);
+      expect(key(1, 'Escape')).toBe(false);
+      expect(key(0, 'a')).toBe(false);
+    });
+
+    it('leaves keys pressed inside the row template alone', () => {
+      const projected = items()[0].querySelector<HTMLElement>('.row')!;
+      key(0, ' ', projected);
+
+      expect(status()).toBe('');
+      expect(labels()).toEqual(['One', 'Two', 'Three']);
+    });
+
+    it('ends the gesture when focus leaves a held row', async () => {
+      key(0, ' ');
+      key(0, 'ArrowDown');
+      await fixture.whenStable();
+
+      items()[1].dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+      fixture.detectChanges();
+
+      // `[(items)]` had already been written, so releasing silently would leave
+      // the move unreported.
+      expect(fixture.componentInstance.events).toHaveLength(1);
+      expect(fixture.componentInstance.events[0].currentIndex).toBe(1);
+    });
+
+    it('moves left and right when the list is horizontal', async () => {
+      fixture.componentInstance.orientation.set('horizontal');
+      fixture.detectChanges();
+
+      key(0, ' ');
+      key(0, 'ArrowDown');
+      await fixture.whenStable();
+      expect(labels()).toEqual(['One', 'Two', 'Three']);
+
+      key(0, 'ArrowRight');
+      await fixture.whenStable();
+      expect(labels()).toEqual(['Two', 'One', 'Three']);
+    });
+  });
+
   it('passes the orientation and the disabled state to the CDK', () => {
     expect(dropList().orientation).toBe('vertical');
     expect(dropList().disabled).toBe(false);
@@ -154,7 +298,10 @@ describe('WrSortableList over repeated primitives', () => {
     const fixture = TestBed.createComponent(PrimitiveHost);
 
     expect(() => fixture.detectChanges()).not.toThrow();
-    expect((fixture.nativeElement as HTMLElement).textContent.replace(/\s+/g, '')).toBe('aba');
+    // Scoped to the list: the component also renders the screen-reader-only key
+    // model and its live region, and both are text on the host.
+    const list = (fixture.nativeElement as HTMLElement).querySelector('.wr-sortable-list__list')!;
+    expect(list.textContent.replace(/\s+/g, '')).toBe('aba');
 
     fixture.destroy();
   });

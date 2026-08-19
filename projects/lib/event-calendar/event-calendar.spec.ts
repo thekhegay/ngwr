@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -484,6 +487,14 @@ describe('WrEventCalendar', () => {
   it('carries the public BEM classes', () => {
     expect(root().querySelector('wr-event-calendar')!.className).toContain('wr-event-calendar');
   });
+
+  it('marks an editable calendar, which is the hook the touch-action rule hangs on', () => {
+    // `--editable` scopes both the `grab` cursor and `touch-action: none` to the
+    // calendar that actually drags. Nothing else pinned the modifier, so the
+    // stylesheet rule could have been left aimed at a class no longer emitted.
+    expect(root().querySelector('wr-event-calendar')!.classList.contains('wr-event-calendar--editable')).toBe(true);
+    expect(chips().length).toBeGreaterThan(0);
+  });
 });
 
 /**
@@ -562,5 +573,30 @@ describe('WrEventCalendar under dir="rtl"', () => {
     const today = root().querySelector<HTMLElement>('.wr-event-calendar__today')!;
     expect(today.classList.contains('wr-event-calendar__step')).toBe(false);
     expect(today.textContent.trim().length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * ⚠️ This one guards the RULE, not the behaviour.
+ *
+ * A touch drag cannot be expressed in jsdom at all: there is no cascade and no
+ * gesture arbitration, and `dragChip` above synthesizes a bare `pointerdown` —
+ * exactly the event a coarse pointer does get, and never gets to finish.
+ */
+describe('the event-calendar stylesheet', () => {
+  const code = readFileSync(join(process.cwd(), 'projects/lib/event-calendar/styles/_index.scss'), 'utf8')
+    .split('\n')
+    .filter(line => !line.trim().startsWith('//'))
+    .join('\n');
+
+  it('owns the drag gesture on an editable chip', () => {
+    // Without it the browser claims the press as a pan and fires
+    // `pointercancel`, the host's cancel binding drops the drag state, and no
+    // `pointerup` ever arrives — so a chip cannot be moved or resized with a
+    // finger. The block has no nested rule, so `[^}]*` is its whole body.
+    const rule = /&--editable &__chip \{([^}]*)\}/.exec(code)?.[1] ?? '';
+
+    expect(rule).toMatch(/cursor:\s*grab;/);
+    expect(rule).toMatch(/touch-action:\s*none;/);
   });
 });

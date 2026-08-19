@@ -133,6 +133,40 @@ class Catalog {
     return this.read(file);
   }
 
+  /**
+   * Whether `symbol` is something Angular accepts in `imports: []`.
+   *
+   * Read from the SHIPPED declaration file rather than from a table, because the
+   * compiler already wrote the answer there: a component, directive or pipe gets
+   * a `static ɵcmp` / `ɵdir` / `ɵpipe` whose first type argument is the class. A
+   * service gets `ɵprov` instead. So this needs no second copy of anything, and
+   * cannot drift — which matters, because the alternative was a hand-kept list
+   * and `ng g ngwr:use` now REFUSES a non-declarable: recommending the command
+   * for `WrDialog` would hand an agent a line that errors.
+   *
+   * `null` when the types are not there to read, so a caller can tell "not
+   * declarable" from "cannot say".
+   */
+  declarable(symbol: string, path: string): boolean | null {
+    const source = this.types(path);
+    if (!source) return null;
+
+    // Ask for the declarable markers FIRST and separately. A single alternation
+    // over all five answers with whichever appears earliest in the file, and
+    // `ɵfac` is always emitted above `ɵcmp` — so the combined form calls every
+    // component a non-declarable, while a fixture with no markers at all hides
+    // it. Two passes, no ordering assumption.
+    const declarable = new RegExp(`static ɵ(?:cmp|dir|pipe): [^;]*<${symbol}[,>]`);
+    if (declarable.test(source)) return true;
+
+    // Only claim "no" for a symbol this file actually declares; a `.d.ts` that
+    // merely mentions the name is not evidence, which is the difference between
+    // "not declarable" and "cannot say".
+    const declared = new RegExp(`static ɵ(?:prov|fac): [^;]*<${symbol}[,>]`);
+
+    return declared.test(source) ? false : null;
+  }
+
   private read(relative: string): string | null {
     const file = join(this.root, relative);
 

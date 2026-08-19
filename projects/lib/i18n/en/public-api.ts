@@ -135,6 +135,7 @@ export const wrEn: WrI18nCatalog = {
     removeItem: 'Remove {{label}}',
     noResults: 'No results',
     loading: 'Loading…',
+    more: '+{{count}} more',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -218,6 +219,22 @@ export const wrEn: WrI18nCatalog = {
     keyHelp:
       'Arrow keys move the crop. Hold Alt with an arrow key to resize it, and Shift for larger steps. ' +
       'The crop is announced as left, top, width and height in image pixels.',
+  },
+  sortableList: {
+    keyHelp:
+      'Press Space to pick this item up, then use the arrow keys to move it. ' +
+      'Press Space again to drop it, or Escape to put it back.',
+    grabbed: 'Grabbed. {{index}} of {{total}}.',
+    moved: '{{index}} of {{total}}.',
+    dropped: 'Dropped. {{index}} of {{total}}.',
+    cancelled: 'Move cancelled.',
+  },
+  colorPicker: {
+    // The saturation / brightness canvas is a `role="group"`, which has no
+    // `aria-valuenow` — so its two values ride in its name.
+    area: 'Saturation and brightness, {{saturation}}% and {{brightness}}%',
+    hue: 'Hue',
+    alpha: 'Opacity',
   },
   calendarHeatmap: {
     label: 'Calendar heatmap',

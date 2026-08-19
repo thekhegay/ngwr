@@ -103,18 +103,25 @@ export class WrSpeedDialHarness extends ComponentHarness {
     return (await this.host()).hasClass('wr-speed-dial--safe-area');
   }
 
-  /** The role the action list announces — `menu`. */
+  /**
+   * The role the action list announces — `list`.
+   *
+   * Worth asking despite being a plain `<ul>`: the list is styled `list-style: none`,
+   * which drops the implicit list semantics in Safari, so the role is written out. It
+   * is deliberately NOT `menu` — that role promises arrows, Home/End and a single tab
+   * stop, none of which this component has.
+   */
   async getMenuRole(): Promise<string | null> {
     return (await this.menu()).getAttribute('role');
   }
 
   /**
-   * Whether the trigger's `aria-controls` names THIS dial's menu, and nothing else on
-   * the page.
+   * Whether the trigger's `aria-controls` names THIS dial's action list, and nothing
+   * else on the page.
    *
    * Both halves matter. The id is resolved inside the host first, so a trigger
-   * pointing at a SIBLING dial's menu — which resolves perfectly well from the
-   * document — fails here. Then it is counted across the document, because two menus
+   * pointing at a SIBLING dial's list — which resolves perfectly well from the
+   * document — fails here. Then it is counted across the document, because two lists
    * answering to one id hand every reference to whichever comes first.
    */
   async isMenuBound(): Promise<boolean> {
@@ -201,9 +208,8 @@ export class WrSpeedDialHarness extends ComponentHarness {
    * Press Escape — closing the dial and putting focus back on the trigger.
    *
    * Sent to the host, which is where the component listens. The focus return is the
-   * half worth asserting: `role="menu"` promises a way out, and the actions are
-   * ordinary tab stops, so without it a keyboard user has to walk through every
-   * action to leave.
+   * half worth asserting: the actions are ordinary tab stops, so without it a keyboard
+   * user has to walk through every action to leave.
    */
   async sendEscape(): Promise<void> {
     await (await this.host()).sendKeys(TestKey.ESCAPE);

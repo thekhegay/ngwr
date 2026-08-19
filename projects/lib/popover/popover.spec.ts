@@ -220,6 +220,40 @@ describe('WrPopover', () => {
     });
 
     /**
+     * WCAG F85, the documented failure of 2.4.3: the overlay container sits at
+     * the end of `<body>`, so a dialog that never takes focus is neither next in
+     * the tab order nor given it — Tab from the trigger went to the next control
+     * on the PAGE and left the panel behind. The pane itself takes focus rather
+     * than the first control inside it; Tab from the pane reaches that control
+     * anyway, because the pane precedes its own content.
+     */
+    it('moves focus into the panel when it opens from a click', () => {
+      open();
+
+      const pane = popoverPane()!;
+      expect(document.activeElement, 'the dialog opened behind the tab order').toBe(pane);
+      expect(pane.tabIndex).toBe(-1);
+      // And the content is rendered by then, so a reader has something to read.
+      expect(pane.querySelector('.panel-action')).toBeTruthy();
+    });
+
+    it('leaves the caret alone for a hover-triggered popover', () => {
+      const elsewhere = document.createElement('input');
+      document.body.appendChild(elsewhere);
+      try {
+        elsewhere.focus();
+        enter(trigger('hover'));
+
+        // Stealing focus here would also be self-defeating: the 120ms hover
+        // close would dispose the pane out from under the focused element.
+        expect(document.querySelector('.wr-popover-overlay')).toBeTruthy();
+        expect(document.activeElement).toBe(elsewhere);
+      } finally {
+        elsewhere.remove();
+      }
+    });
+
+    /**
      * A popover is not a tooltip: it attaches a `role="dialog"` pane whose
      * whole point is interactive content, so the caret is often inside it when
      * it closes. Disposing without handing focus back dropped it on `<body>`
@@ -432,6 +466,64 @@ describe('WrPopover', () => {
       leave(trigger('tip'));
       tick(60);
       expect(tooltipPane()).toBeNull();
+    });
+
+    /**
+     * WCAG 1.4.13 (Hoverable): a tooltip the pointer can be moved onto without
+     * it vanishing. Someone reading a long hint at 400% zoom needs the text
+     * itself to be reachable. The other half of the fix is in the stylesheet —
+     * the pane used to be `pointer-events: none`, which made every listener
+     * below dead — and no jsdom spec can see it: there is no CSS cascade here,
+     * so `dispatchEvent` reaches an inert pane just as happily.
+     */
+    it('stays up once the pointer moves onto the panel', () => {
+      enter(trigger('tip'));
+      tick(120);
+      const pane = tooltipPane()!;
+
+      leave(trigger('tip'));
+      enter(pane);
+
+      tick(500);
+      expect(tooltipPane(), 'the tooltip vanished before the pointer arrived').toBeTruthy();
+    });
+
+    it('never even arms the hide when the pointer crosses straight onto the panel', () => {
+      enter(trigger('tip'));
+      tick(120);
+      const pane = tooltipPane()!;
+
+      leave(trigger('tip'), pane);
+
+      tick(500);
+      expect(tooltipPane()).toBeTruthy();
+    });
+
+    it('hides on the same delay once the pointer leaves the panel too', () => {
+      enter(trigger('tip'));
+      tick(120);
+      const pane = tooltipPane()!;
+      leave(trigger('tip'));
+      enter(pane);
+
+      leave(pane);
+      tick(59);
+      expect(tooltipPane()).toBeTruthy();
+
+      tick(1);
+      expect(tooltipPane()).toBeNull();
+    });
+
+    it('goes back to the trigger without a flicker', () => {
+      enter(trigger('tip'));
+      tick(120);
+      const pane = tooltipPane()!;
+      leave(trigger('tip'));
+      enter(pane);
+
+      leave(pane, trigger('tip'));
+      tick(500);
+      expect(tooltipPane()).toBeTruthy();
     });
 
     it('drops a pending show when the pointer leaves before the delay elapses', () => {

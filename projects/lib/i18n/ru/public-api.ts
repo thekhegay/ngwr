@@ -116,6 +116,7 @@ export const wrRu: WrI18nCatalog = {
     removeItem: 'Удалить {{label}}',
     noResults: 'Ничего не найдено',
     loading: 'Загрузка…',
+    more: 'ещё {{count}}',
   },
   // `tree` covers both inline display and combobox-mode pickers
   // (replaces the dropped `treeSelect` namespace).
@@ -196,6 +197,20 @@ export const wrRu: WrI18nCatalog = {
     keyHelp:
       'Стрелки перемещают область обрезки. Alt со стрелкой изменяет её размер, Shift увеличивает шаг. ' +
       'Область объявляется как отступ слева, отступ сверху, ширина и высота в пикселях изображения.',
+  },
+  sortableList: {
+    keyHelp:
+      'Нажмите пробел, чтобы взять элемент, затем перемещайте его стрелками. ' +
+      'Пробел ещё раз — отпустить, Escape — вернуть на место.',
+    grabbed: 'Взят. {{index}} из {{total}}.',
+    moved: '{{index}} из {{total}}.',
+    dropped: 'Отпущен. {{index}} из {{total}}.',
+    cancelled: 'Перемещение отменено.',
+  },
+  colorPicker: {
+    area: 'Насыщенность и яркость, {{saturation}}% и {{brightness}}%',
+    hue: 'Оттенок',
+    alpha: 'Непрозрачность',
   },
   calendarHeatmap: {
     label: 'Календарная тепловая карта',

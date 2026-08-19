@@ -10,6 +10,8 @@ import { TemplatePortal } from '@angular/cdk/portal';
 import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import type { Subscription } from 'rxjs';
+
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 import { randomId } from 'ngwr/utils';
 
@@ -76,6 +78,18 @@ export class WrContextMenu {
   protected readonly openMenuId = signal<string | null>(null);
 
   private overlayRef: OverlayRef | null = null;
+  /**
+   * The open menu's subscription to CDK's keyboard dispatcher, held so that
+   * `closeOverlay()` can drop it — see the unsubscribe there for why the pane's
+   * own disposal is 220 ms too late.
+   */
+  private rootKeys: Subscription | null = null;
+  /**
+   * Where the keyboard was at the moment this menu took it, so a close can put
+   * it back there. Null when it was nowhere in particular (`<body>`) or already
+   * inside a menu pane, neither of which is a place to return to.
+   */
+  private restoreFocusTo: HTMLElement | null = null;
   /**
    * Panes waiting out their exit animation, keyed by the timer that disposes
    * them.
@@ -239,6 +253,16 @@ export class WrContextMenu {
   // Overlay
 
   private openOverlay(x: number, y: number): void {
+    // Read before `wrFocusMenuItemAt` below takes the keyboard: this is the
+    // element the close hands it back to. A pane row is not a candidate — a
+    // previous menu may still be fading out — and neither is `<body>`, which is
+    // where focus already is when nobody has it.
+    const active = document.activeElement;
+    this.restoreFocusTo =
+      active instanceof HTMLElement && active !== document.body && !active.closest('.wr-context-menu-overlay')
+        ? active
+        : null;
+
     // GlobalPositionStrategy uses margins, which led to flaky positioning
     // (`position: static` inline overridden by our `!important`, etc.).
     // Use it just to create the overlay, then write the coords directly to
@@ -368,7 +392,7 @@ export class WrContextMenu {
         this.closeOverlay();
       });
 
-    this.overlayRef
+    this.rootKeys = this.overlayRef
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
@@ -398,6 +422,8 @@ export class WrContextMenu {
     // wanted is where the keyboard was at the moment of dismissal.
     const active = document.activeElement;
     const focusWasInside = active instanceof Element && active.closest('.wr-context-menu-overlay') !== null;
+    const restoreTo = this.restoreFocusTo;
+    this.restoreFocusTo = null;
     this.cancelLeaveTimer();
     // Drop the reference immediately: the pane below stays in the DOM until the
     // exit animation has played, and a trigger still pointing at a menu on its
@@ -424,6 +450,16 @@ export class WrContextMenu {
     // because the closing state has no class of its own, and inline beats the
     // CDK's own sheet without an `!important`.
     pane.style.pointerEvents = 'none';
+    // …and stop it taking the page's KEYS on the way out, for the same reason
+    // and with the same timing. An overlay with a keydown subscriber is where
+    // CDK's dispatcher stops looking, and it is removed from the dispatcher only
+    // by `detach()` / `dispose()` — which is 220 ms away — so a dismissed menu
+    // went on swallowing every keydown on the page: ArrowDown pulled real focus
+    // back onto a row of the invisible pane, and a second Escape meant for the
+    // dialog underneath was `preventDefault`ed and did nothing.
+    // `WrContextMenuItem.disposeSubmenu()` does exactly this; the root had not.
+    this.rootKeys?.unsubscribe();
+    this.rootKeys = null;
     const timer = setTimeout(() => {
       this.closingPanes.delete(timer);
       ref.dispose();
@@ -438,7 +474,38 @@ export class WrContextMenu {
     // caret was actually in the chain: Escape reaches this overlay from anywhere
     // on the page (CDK's dispatcher routes it by stacking order, not by focus),
     // and a menu nobody was in must not steal the caret from a field they are.
-    if (focusWasInside) this.host.nativeElement.focus();
+    if (focusWasInside) this.handBackFocus(restoreTo);
+  }
+
+  /**
+   * Put the keyboard back where it came from.
+   *
+   * The element that had it when the menu opened comes first: a context menu
+   * hangs on a REGION — a card, a table row — and Shift+F10 / the Menu key fires
+   * `contextmenu` at whatever control inside it the user was actually on, which
+   * is their place in the page.
+   *
+   * The trigger is the fallback, and it needs help to be one. `[wrContextMenu]`
+   * adds no `tabindex` and every shape the docs ship is a plain `<div>`, so
+   * `focus()` on it does nothing at all — the handback silently missed, leaving
+   * the caret in the disposing pane and then on `<body>`, which is the outcome
+   * the call is there to prevent. Lending it `tabindex="-1"` for the call and
+   * taking that back on blur keeps the consumer's DOM as they wrote it; a
+   * permanent `tabindex="0"` would make every right-clickable region a tab stop,
+   * which is their decision and not the library's.
+   */
+  private handBackFocus(previous: HTMLElement | null): void {
+    const target =
+      previous?.isConnected && !previous.closest('.wr-context-menu-overlay') ? previous : this.host.nativeElement;
+    target.focus();
+    // Asking whether it took, rather than deciding up front whether it can: the
+    // focusability rules are wide (an `<a>` needs an href, a `<div>` needs a
+    // tabindex, `inert`/`disabled` opt out) and `document.activeElement` answers
+    // all of them at once.
+    if (document.activeElement === target) return;
+    target.setAttribute('tabindex', '-1');
+    target.focus();
+    target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
   }
 
   private cancelLeaveTimer(): void {

@@ -384,4 +384,115 @@ describe('WrColorPicker', () => {
       expect(value().toLowerCase()).toBe('#ff880080');
     });
   });
+
+  /**
+   * The three surfaces were bare `<div>`s with a `(pointerdown)` and nothing
+   * else: no role, no name, no tab stop, no key handler — WCAG F59, the
+   * published failure of 4.1.2. jsdom cannot say where a thumb ended up on
+   * screen, but it can say exactly what the accessibility tree publishes and
+   * what a key does to the colour, which is the whole of this.
+   */
+  describe('the keyboard and what it announces', () => {
+    const key = (el: HTMLElement, k: string, init: KeyboardEventInit = {}): boolean => {
+      const event = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true, ...init });
+      el.dispatchEvent(event);
+      fixture.detectChanges();
+      return event.defaultPrevented;
+    };
+
+    it('publishes the hue bar as a named slider with a value', () => {
+      expect(hue().getAttribute('role')).toBe('slider');
+      expect(hue().getAttribute('aria-label')).toBe('Hue');
+      expect(hue().getAttribute('tabindex')).toBe('0');
+      expect(hue().getAttribute('aria-valuemin')).toBe('0');
+      expect(hue().getAttribute('aria-valuemax')).toBe('360');
+      // #ff8800 is 32°.
+      expect(hue().getAttribute('aria-valuenow')).toBe('32');
+    });
+
+    it('publishes the alpha bar as a slider whose value reads as a percentage', () => {
+      expect(alphaBar()!.getAttribute('role')).toBe('slider');
+      expect(alphaBar()!.getAttribute('aria-label')).toBe('Opacity');
+      expect(alphaBar()!.getAttribute('aria-valuenow')).toBe('100');
+      expect(alphaBar()!.getAttribute('aria-valuetext')).toBe('100%');
+    });
+
+    it('names the sv canvas with both of the values it holds', () => {
+      // A `role="group"` has no `aria-valuenow`, and this surface drives two
+      // numbers, so the name is where they can be read.
+      expect(sv().getAttribute('role')).toBe('group');
+      expect(sv().getAttribute('tabindex')).toBe('0');
+      expect(sv().getAttribute('aria-label')).toBe('Saturation and brightness, 100% and 100%');
+    });
+
+    it('steps the hue with the arrows, and jumps with Home / End', () => {
+      expect(key(hue(), 'ArrowRight')).toBe(true);
+      expect(hue().getAttribute('aria-valuenow')).toBe('33');
+
+      key(hue(), 'ArrowLeft', { shiftKey: true });
+      expect(hue().getAttribute('aria-valuenow')).toBe('23');
+
+      key(hue(), 'Home');
+      expect(hue().getAttribute('aria-valuenow')).toBe('0');
+      expect(value().toLowerCase()).toBe('#ff0000ff');
+
+      key(hue(), 'End');
+      expect(hue().getAttribute('aria-valuenow')).toBe('360');
+    });
+
+    it('steps alpha and writes it into the emitted colour', () => {
+      key(alphaBar()!, 'ArrowDown', { shiftKey: true });
+
+      expect(alphaBar()!.getAttribute('aria-valuenow')).toBe('90');
+      expect(value().toLowerCase()).toBe('#ff8800e6');
+    });
+
+    it('runs the sv canvas along saturation left to right and brightness up and down', () => {
+      key(sv(), 'ArrowLeft', { shiftKey: true });
+      expect(sv().getAttribute('aria-label')).toBe('Saturation and brightness, 90% and 100%');
+
+      key(sv(), 'ArrowDown', { shiftKey: true });
+      expect(sv().getAttribute('aria-label')).toBe('Saturation and brightness, 90% and 90%');
+
+      key(sv(), 'ArrowRight');
+      key(sv(), 'ArrowUp');
+      expect(sv().getAttribute('aria-label')).toBe('Saturation and brightness, 91% and 91%');
+
+      // And the keystrokes reach `value`, not just the surface.
+      expect(value().toLowerCase()).toBe('#e88615ff');
+    });
+
+    it('stops at the ends rather than wrapping round', () => {
+      key(sv(), 'ArrowRight');
+      key(sv(), 'ArrowUp');
+
+      expect(sv().getAttribute('aria-label')).toBe('Saturation and brightness, 100% and 100%');
+    });
+
+    it('leaves keys it does not act on to the page', () => {
+      expect(key(hue(), 'Tab')).toBe(false);
+      expect(key(sv(), 'PageDown')).toBe(false);
+      expect(hue().getAttribute('aria-valuenow')).toBe('32');
+    });
+
+    it('is out of the tab order and inert while disabled', () => {
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+
+      for (const surface of [sv(), hue(), alphaBar()!]) {
+        expect(surface.getAttribute('tabindex')).toBe('-1');
+        expect(surface.getAttribute('aria-disabled')).toBe('true');
+      }
+
+      key(hue(), 'ArrowRight');
+      expect(hue().getAttribute('aria-valuenow')).toBe('32');
+    });
+
+    it('reports the control as touched when a surface is left', () => {
+      sv().dispatchEvent(new FocusEvent('blur'));
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.touched).toBe(1);
+    });
+  });
 });

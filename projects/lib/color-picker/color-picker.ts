@@ -10,6 +10,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, ViewEncapsulation, computed, effect, input, model, output, signal } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { clamp } from 'ngwr/utils';
 
@@ -30,6 +31,10 @@ import type { WrColorFormat } from './interfaces';
 type Tab = 'hex' | 'rgb' | 'hsl';
 
 type Edges = 'sv' | 'hue' | 'alpha';
+
+/** Arrow step, in each surface's own unit: degrees of hue, percent everywhere else. */
+const KEY_STEP = 1;
+const KEY_STEP_COARSE = 10;
 
 /** Whether a hex string carries its own alpha (`#rgba` or `#rrggbbaa`). */
 function hasAlphaDigits(hex: string): boolean {
@@ -132,8 +137,24 @@ export class WrColorPicker implements FormValueControl<string> {
   /** HSL view of the current colour, computed lazily. */
   protected readonly hslView = computed<WrHsl>(() => rgbToHsl(this.rgb()));
 
-  /** Alpha as integer percent for display in numeric tabs. */
+  /** Alpha as integer percent — the numeric tabs and the alpha slider's `aria-valuenow`. */
   protected readonly alphaPercent = computed(() => Math.round(this.a() * 100));
+
+  /** Hue in whole degrees, for the hue slider's `aria-valuenow`. */
+  protected readonly hueValue = computed(() => Math.round(this.h()));
+
+  private readonly areaLabel = useI18nFormatter(
+    'colorPicker.area',
+    'Saturation and brightness, {{saturation}}% and {{brightness}}%'
+  );
+
+  /** Name of the SV surface, carrying the two values a `role="group"` cannot. */
+  protected readonly resolvedAreaLabel = computed(() =>
+    this.areaLabel({ saturation: Math.round(this.s() * 100), brightness: Math.round(this.v() * 100) })
+  );
+
+  protected readonly resolvedHueLabel = readI18nText('colorPicker.hue', 'Hue');
+  protected readonly resolvedAlphaLabel = readI18nText('colorPicker.alpha', 'Opacity');
 
   protected readonly tabOptions: readonly WrSegmentedOption<Tab>[] = [
     { value: 'hex', label: 'HEX' },
@@ -210,6 +231,83 @@ export class WrColorPicker implements FormValueControl<string> {
     // repainting the colour under a pointer that was only hovering.
     target.addEventListener('pointercancel', cleanup);
     this.updateFromEvent(event, target, surface);
+  }
+
+  // Keyboard handlers
+  //
+  // The three surfaces used to be bare `<div>`s carrying nothing but
+  // `(pointerdown)` — no role, no name, no tab stop, no key handler — so the
+  // control the component is built around was operable by pointer only. The
+  // numeric HEX / RGB / HSL fields could always reach the same values, which is
+  // why this is 4.1.2 rather than a total loss of keyboard access, but a
+  // roleless div driving a colour is WCAG F59 either way.
+
+  /**
+   * Hue and alpha are real one-value sliders, so they take the APG slider keys —
+   * the same set `wr-knob` and `wr-slider` implement, including Home / End.
+   */
+  protected onSliderKeydown(event: KeyboardEvent, surface: 'hue' | 'alpha'): void {
+    if (this.disabled()) return;
+    const step = event.shiftKey ? KEY_STEP_COARSE : KEY_STEP;
+    const max = surface === 'hue' ? 360 : 100;
+    const current = surface === 'hue' ? this.h() : this.a() * 100;
+    let next: number;
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowUp':
+        next = current + step;
+        break;
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        next = current - step;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = max;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    const value = clamp(next, 0, max);
+    if (surface === 'hue') this.h.set(value);
+    else this.a.set(value / 100);
+    this.emit();
+  }
+
+  /**
+   * The SV canvas is two axes at once, so the keys follow the picture: left and
+   * right run along saturation, up and down along brightness — the directions
+   * the thumb visibly moves. Shift takes ten percent at a time.
+   */
+  protected onAreaKeydown(event: KeyboardEvent): void {
+    if (this.disabled()) return;
+    const step = (event.shiftKey ? KEY_STEP_COARSE : KEY_STEP) / 100;
+    switch (event.key) {
+      case 'ArrowRight':
+        this.s.set(clamp(this.s() + step, 0, 1));
+        break;
+      case 'ArrowLeft':
+        this.s.set(clamp(this.s() - step, 0, 1));
+        break;
+      case 'ArrowUp':
+        this.v.set(clamp(this.v() + step, 0, 1));
+        break;
+      case 'ArrowDown':
+        this.v.set(clamp(this.v() - step, 0, 1));
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    this.emit();
+  }
+
+  /** Leaving a surface is what "touched" means, the same as leaving the hex field. */
+  protected onSurfaceBlur(): void {
+    this.touch.emit();
   }
 
   private updateFromEvent(event: PointerEvent, target: HTMLElement, surface: Edges): void {

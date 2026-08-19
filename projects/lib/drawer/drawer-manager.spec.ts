@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -32,6 +33,8 @@ describe('WrDrawerManager', () => {
   };
 
   const closeButton = (): HTMLElement | null => document.querySelector('.wr-drawer__close');
+  const panel = (): HTMLElement | null => document.querySelector('.wr-drawer__panel');
+  const backdrop = (): HTMLElement | null => document.querySelector('.wr-drawer-backdrop');
 
   afterEach(() => TestBed.resetTestingModule());
 
@@ -90,5 +93,66 @@ describe('WrDrawerManager', () => {
     ref.close();
 
     expect(closeButton()).toBeNull();
+  });
+
+  /**
+   * Nothing else ties a drawer to the route it was opened on: the overlay
+   * belongs to a root service and is dismissed only by the backdrop, Escape, the
+   * appended × or an explicit `close()`. So navigating away swapped the routed
+   * view underneath and left the panel, its backdrop, its focus trap and the
+   * page-wide scroll block over a page the user never opened them on.
+   *
+   * The scroll block is the one half not asserted here: CDK's
+   * `BlockScrollStrategy` no-ops when the viewport does not scroll, and in jsdom
+   * it never does. It comes down with the overlay either way.
+   */
+  describe('navigation', () => {
+    it('closes when the app navigates', async () => {
+      const ref = setup(false).open(Panel);
+      const result = ref.awaitClose();
+
+      TestBed.inject(Location).go('/elsewhere');
+      await Promise.resolve();
+
+      expect(panel()).toBeNull();
+      expect(backdrop()).toBeNull();
+      // Closed through the ref, not disposed behind its back: a caller sitting
+      // on `awaitClose()` has to be released, and the focus trap has to come
+      // down with it.
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it('closes on the Back button', async () => {
+      setup(false).open(Panel);
+
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      await Promise.resolve();
+
+      expect(panel()).toBeNull();
+    });
+
+    it('takes every stacked drawer with it', async () => {
+      const drawers = setup(false);
+      drawers.open(Panel);
+      drawers.open(Panel);
+      expect(document.querySelectorAll('.wr-drawer__panel')).toHaveLength(2);
+
+      TestBed.inject(Location).go('/elsewhere-again');
+      await Promise.resolve();
+
+      // Both, not just the first: `Location` notifies its listeners with a
+      // `forEach` over an array each close removes an entry from, so unhooking
+      // synchronously would skip the one shifted into the slot it has passed.
+      expect(document.querySelectorAll('.wr-drawer__panel')).toHaveLength(0);
+    });
+
+    it('stays put for a drawer that owns the navigation', async () => {
+      setup(false).open(Panel, { closeOnNavigation: false });
+
+      TestBed.inject(Location).go('/still-here');
+      await Promise.resolve();
+
+      expect(panel()).not.toBeNull();
+    });
   });
 });

@@ -15,9 +15,14 @@ import { WrContextMenuPanel } from './context-menu-panel';
 @Component({
   imports: [WrContextMenu, WrContextMenuPanel, WrContextMenuItem, WrContextMenuDivider],
   template: `
-    <!-- tabindex so the target can actually take the keyboard back on close:
-         jsdom refuses focus() on a plain div, exactly as a browser does. -->
-    <div class="target" tabindex="0" [wrContextMenu]="menu">Right-click me</div>
+    <!-- A plain div with no tabindex, which is the shape the directive's own
+         example and every showcase demo ship: jsdom refuses focus() on one,
+         exactly as a browser does, so the close has to make it focusable itself.
+         The button is the control a Shift+F10 open comes from. -->
+    <div class="target" [wrContextMenu]="menu">
+      Right-click me
+      <button class="child" type="button">Open</button>
+    </div>
 
     <wr-context-menu #menu>
       <wr-context-menu-item (click)="picked.set('cut')">Cut</wr-context-menu-item>
@@ -306,6 +311,13 @@ describe('WrContextMenu', () => {
       expect(focused()).toBe('More');
     });
 
+    /**
+     * The target is a plain `<div>` — the shape the docs ship — and `focus()` on
+     * an element that is not a focusable area does nothing at all, so the
+     * handback used to miss silently: the caret stayed in the disposing pane and
+     * then fell to `<body>`, which is the outcome it exists to prevent. The
+     * trigger is lent a `tabindex="-1"` for the call.
+     */
     it('hands the keyboard back to the target when the menu closes', async () => {
       rightClick();
       expect(document.activeElement).toBe(itemFor('Cut'));
@@ -316,6 +328,69 @@ describe('WrContextMenu', () => {
       // Otherwise the caret is stranded on `<body>` once the pane is disposed and
       // the next Tab restarts at the top of the document.
       expect(document.activeElement).toBe(target());
+    });
+
+    it('gives the borrowed tabindex back when the target loses focus', async () => {
+      rightClick();
+      type('Escape');
+      await settle();
+      expect(target().getAttribute('tabindex')).toBe('-1');
+
+      // A permanent one would make every right-clickable region a tab stop,
+      // which is the consumer's call to make and not the library's.
+      const elsewhere = document.createElement('input');
+      document.body.appendChild(elsewhere);
+      elsewhere.focus();
+
+      expect(target().hasAttribute('tabindex')).toBe(false);
+      elsewhere.remove();
+    });
+
+    /**
+     * A context menu hangs on a REGION, and Shift+F10 / the Menu key fires
+     * `contextmenu` at whatever control inside it the user was on — so that
+     * control, not the wrapper, is where their place in the page is.
+     */
+    it('returns the caret to the control the menu was opened from', async () => {
+      const child = target().querySelector<HTMLElement>('.child')!;
+      child.focus();
+
+      child.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(itemFor('Cut'));
+
+      type('Escape');
+      await settle();
+
+      expect(document.activeElement).toBe(child);
+      // The wrapper was focusable all along through its child, so nothing had to
+      // be lent to it.
+      expect(target().hasAttribute('tabindex')).toBe(false);
+    });
+
+    /**
+     * CDK removes an overlay from its keyboard dispatcher on `detach()` /
+     * `dispose()`, and the dispose is 220 ms of exit animation away — while the
+     * dispatcher stops at the topmost overlay that still has a keydown
+     * subscriber. So a dismissed menu went on eating every key on the page.
+     */
+    it('lets go of the page keyboard the moment it is dismissed', () => {
+      rightClick();
+      const pane = document.querySelector<HTMLElement>('.wr-context-menu-overlay')!;
+
+      type('Escape');
+      vi.advanceTimersByTime(50);
+      fixture.detectChanges();
+      // Mid-animation: still in the DOM, and no longer listening.
+      expect(pane.isConnected).toBe(true);
+
+      const arrow = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true });
+      document.body.dispatchEvent(arrow);
+
+      // Unhandled, so the page scrolls as the user asked…
+      expect(arrow.defaultPrevented).toBe(false);
+      // …and the caret is not yanked onto a row of an invisible menu.
+      expect(pane.contains(document.activeElement)).toBe(false);
     });
 
     it('leaves the caret alone when the menu never had it', async () => {
@@ -429,6 +504,40 @@ describe('WrContextMenu', () => {
       // Sweeping the pointer across a row shows its submenu; it must not yank the
       // keyboard out of wherever the user had it.
       expect(menus().length).toBeGreaterThanOrEqual(2);
+      expect(document.activeElement).toBe(itemFor('Cut'));
+    });
+
+    /**
+     * CDK's dispatcher routes a key by stacking order, not by focus, so a
+     * hover-opened submenu is handed every keydown while the caret is still on
+     * the root row the pointer swept off. Aimed at its own pane, the navigation
+     * saw an `activeElement` it does not own (index -1) and opened at its first
+     * row — the arrows silently changed level under a keyboard user.
+     */
+    it('walks the level the caret is on while a hover-opened submenu is up', async () => {
+      rightClick();
+      itemFor('More')!.dispatchEvent(new MouseEvent('mouseenter'));
+      await settle();
+      expect(menus().length).toBeGreaterThanOrEqual(2);
+      expect(document.activeElement).toBe(itemFor('Cut'));
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      // 'Copy', the next ROOT row — not 'Nested', the submenu's first.
+      expect(document.activeElement).toBe(itemFor('Copy'));
+    });
+
+    it('closes a hover-opened submenu on Escape without moving the caret', async () => {
+      rightClick();
+      itemFor('More')!.dispatchEvent(new MouseEvent('mouseenter'));
+      await settle();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      expect(itemFor('More')!.getAttribute('aria-expanded')).toBe('false');
+      // The row that owns a pointer-opened submenu is not where the keyboard is.
       expect(document.activeElement).toBe(itemFor('Cut'));
     });
 

@@ -58,15 +58,19 @@ Every date mode goes through an adapter; there is no built-in default. Needed by
 
 ### `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
 
-The pipe and directive read from a catalog you provide. Needed by `WrT`, `WrI18n`.
+The pipe and directive read from a catalog you provide. Needed by `WrTPipe`, `WrTDirective`, `WrI18n`.
 
 ## Optional, app-wide
 
 - `provideWrConfig({ button: { size: 'sm' } })` — component defaults. A bound
   value always wins, including a bound `false` over a configured `true`.
 - `provideWrDensity({ defaultDensity: 'sm' })` — one control size for the whole
-  app; `'sm' | 'md' | 'lg' | 'touch'`, where `touch` enlarges every hit area at
-  once.
+  app; `'sm' | 'md' | 'lg' | 'touch'`. It scales the paddings of the nine
+  stylesheets that read the multipliers — button, input, textarea, select,
+  cascader, tree, list, table, badge/tag — so `touch` grows those together. A
+  control with fixed geometry (checkbox, switch, radio, slider, rating,
+  segmented) does not move; its ≥44px target comes from the `touch-target` mixin
+  under `@media (pointer: coarse)` instead.
 - `provideWrResponsiveOverlays()` — overlays present as bottom sheets under the
   breakpoint (640px by default). Per-component opt-out with `[responsive]="false"`.
 - `provideWrFormErrors({ … })` — one place for validation copy; `<wr-form-field>`

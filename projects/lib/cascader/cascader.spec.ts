@@ -124,6 +124,83 @@ describe('WrCascader', () => {
     });
   });
 
+  /**
+   * The way IN, which the component did not have. The pane is appended to `<body>`,
+   * so an open panel with the caret still on the trigger put every option after the
+   * whole rest of the page in tab order — the same defect `wr-tree` and
+   * `wr-context-menu` were fixed for. Nothing here sends a key to an option directly:
+   * each case starts from `document.activeElement`, or it would answer the same for a
+   * working component and a broken one.
+   */
+  describe('the keyboard way in', () => {
+    // `afterNextRender`, so the fixture has to settle before the caret has moved —
+    // a synchronous `detectChanges()` alone is exactly what would hide a microtask bug.
+    const openAndSettle = async (): Promise<void> => {
+      trigger().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const press = (key: string, init: KeyboardEventInit = {}): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+      trigger().dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    it('moves the caret into the panel rather than leaving it on the trigger', async () => {
+      await openAndSettle();
+
+      expect(document.activeElement).toBe(optionFor('Europe'));
+      expect(document.activeElement).not.toBe(trigger());
+    });
+
+    it('lands on the option already chosen, not on the first one', async () => {
+      fixture.componentInstance.picked.set(['as']);
+      fixture.detectChanges();
+
+      await openAndSettle();
+
+      expect(document.activeElement).toBe(optionFor('Asia'));
+    });
+
+    it('opens on ArrowDown from the trigger', async () => {
+      expect(press('ArrowDown').defaultPrevented).toBe(true);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(panel()).not.toBeNull();
+      expect(document.activeElement).toBe(optionFor('Europe'));
+    });
+
+    it('opens on ArrowUp and on Alt+ArrowDown, the combobox spellings of the same thing', async () => {
+      press('ArrowUp');
+      await fixture.whenStable();
+      expect(panel()).not.toBeNull();
+
+      press('Escape');
+      fixture.detectChanges();
+
+      press('ArrowDown', { altKey: true });
+      await fixture.whenStable();
+      expect(panel()).not.toBeNull();
+    });
+
+    it('leaves a key it does not own to the page', () => {
+      expect(press('a').defaultPrevented).toBe(false);
+      expect(panel()).toBeNull();
+    });
+
+    it('does not open from the keyboard while disabled', () => {
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+
+      expect(press('ArrowDown').defaultPrevented).toBe(false);
+      expect(panel()).toBeNull();
+    });
+  });
+
   describe('columns', () => {
     it('opens with the roots in a single column', () => {
       open();

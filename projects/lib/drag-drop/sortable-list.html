@@ -1,5 +1,12 @@
+<!--
+  `role="list"` / `role="listitem"` rather than the bare divs this used to be:
+  every row is a tab stop now, and a focusable element with no role at all is
+  announced as loose text. The list role is also what gives the reader the
+  position of the row focus lands on.
+-->
 <div
   cdkDropList
+  role="list"
   class="wr-sortable-list__list"
   [cdkDropListOrientation]="orientation()"
   [cdkDropListDisabled]="disabled()"
@@ -7,13 +14,34 @@
 >
   @for (item of items(); track trackBy()($index, item)) {
     <div
+      #row
       cdkDrag
+      role="listitem"
       class="wr-sortable-list__item"
+      [class.wr-sortable-list__item--grabbed]="grabbedIndex() === $index"
+      [attr.tabindex]="disabled() ? null : 0"
+      [attr.aria-describedby]="disabled() ? null : keyHelpId"
       [cdkDragDisabled]="disabled()"
       [cdkDragLockAxis]="lockAxis() ?? null"
       [cdkDragStartDelay]="dragStartDelay()"
+      (keydown)="onRowKeydown($event, $index)"
+      (focusout)="onRowFocusout()"
     >
       <ng-container *ngTemplateOutlet="rowTemplate(); context: { $implicit: item, index: $index }" />
     </div>
   }
 </div>
+
+<!--
+  The key model, on every row rather than once on the container: focus lands on
+  a row and never on the list itself, so a description hung on the list would
+  never be read out.
+-->
+<p class="wr-sortable-list__sr-only" [id]="keyHelpId">{{ resolvedKeyHelp() }}</p>
+
+<!--
+  Position announcements, written by the keyboard path only — a drag already
+  gives sighted feedback, and announcing every pointer move would flood the
+  region.
+-->
+<p class="wr-sortable-list__sr-only" role="status">{{ announcement() }}</p>

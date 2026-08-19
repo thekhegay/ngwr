@@ -4,6 +4,8 @@ import { FormField, form, required } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
 import { WrFormField } from 'ngwr/form';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -58,6 +60,20 @@ class MultiHost {
   `,
 })
 class SearchHost {
+  readonly size = signal<unknown>(null);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" placeholder="Find a size" ariaLabel="Size" [loading]="loading()" [(value)]="size">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+    </wr-select>
+  `,
+})
+class PanelStateHost {
+  readonly loading = signal(false);
   readonly size = signal<unknown>(null);
 }
 
@@ -141,6 +157,29 @@ class LoaderHost {
 })
 class TagHost {
   readonly tags = signal<unknown>([]);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="multi" ariaLabel="Sizes" [maxTagCount]="2" [(value)]="sizes">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+      <wr-option value="lg">Large</wr-option>
+      <wr-option value="xl">Huge</wr-option>
+    </wr-select>
+  `,
+})
+class OverflowMultiHost {
+  readonly sizes = signal<unknown>(['sm', 'md', 'lg', 'xl']);
+}
+
+@Component({
+  imports: [WrSelect],
+  template: `<wr-select mode="tag" ariaLabel="Tags" [maxTagCount]="2" [(value)]="tags" />`,
+})
+class OverflowTagHost {
+  readonly tags = signal<unknown>(['a', 'b', 'c', 'd']);
 }
 
 @Component({
@@ -316,6 +355,37 @@ describe('WrSelect', () => {
   it('closes on Escape without changing the value', () => {
     openPanel();
     trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(fixture.componentInstance.size()).toBeNull();
+  });
+
+  it('closes on Tab, and lets the focus leave', () => {
+    // Nothing closed on Tab, so the listbox outlived the focus that opened it: it can
+    // cover the control that just took focus (WCAG 2.4.11), it keeps tracking a trigger
+    // nobody is on, and a click aimed at what is underneath lands on an option.
+    openPanel();
+    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    trigger().dispatchEvent(event);
+    fixture.detectChanges();
+
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    expect(options()).toHaveLength(0);
+    // Never prevented — the browser's own Tab is what moves the caret onward.
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('commits nothing on the way out', () => {
+    // Opened from the KEYBOARD, which seeds the cursor onto the first enabled option —
+    // the state where "Tab selects the active option", the other reading of this key,
+    // would silently commit a row the user never looked at. A click-opened panel has
+    // no cursor to commit, so it cannot tell the two behaviours apart.
+    trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    expect(trigger().getAttribute('aria-activedescendant')).toBeTruthy();
+
+    trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
     fixture.detectChanges();
 
     expect(trigger().getAttribute('aria-expanded')).toBe('false');
@@ -499,8 +569,118 @@ describe('WrSelect in search mode', () => {
     expect(visibleOptions()).toEqual(['Small']);
   });
 
+  it('closes on Tab out of the search field too', () => {
+    // The typed field has its own handler; it routes what it does not claim into the
+    // button trigger's, so this is the same branch reached by the other door.
+    field().click();
+    fixture.detectChanges();
+    type('la');
+    expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+    expect(field().getAttribute('aria-expanded')).toBe('false');
+  });
+
   it('carries the search modifier class', () => {
     expect(root().querySelector('wr-select')!.className).toContain('wr-select--search');
+  });
+});
+
+/**
+ * What the panel is allowed to OWN. `.wr-select-panel` carries `role="listbox"`
+ * itself, so everything inside it is an owned child — and a listbox may own only
+ * `option` and `group` (axe `aria-required-children`, critical). Both status rows
+ * used to break that: the progress row carried `aria-busy`, which is a global ARIA
+ * attribute and so made a role-less `<div>` an owned element the listbox may not
+ * own, and the "no results" row was the only thing in the tree in the one state it
+ * shows in, leaving the listbox with no owned option at all.
+ *
+ * Neither a11y gate can see this — the panel lives in a CDK overlay, so
+ * `check:a11y` never prerenders it and no `check:state-a11y` state types a query
+ * that matches nothing.
+ */
+describe('WrSelect panel: what the listbox owns', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<PanelStateHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const panel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-select-panel')!;
+  const loadingRow = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__loading');
+  const emptyRow = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__empty');
+
+  const type = (text: string): void => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(PanelStateHost);
+    fixture.detectChanges();
+    field().click();
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('marks the listbox busy while the progress row is up, and not the row itself', () => {
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+
+    // The container whose required `option` children are temporarily missing is
+    // the one ARIA asks to be busy; on the row it was both wrong and the thing
+    // that made the row an unallowed owned child.
+    expect(loadingRow()).not.toBeNull();
+    expect(loadingRow()!.hasAttribute('aria-busy')).toBe(false);
+    expect(panel().getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('drops `aria-busy` from the listbox once the load is over', () => {
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+    fixture.componentInstance.loading.set(false);
+    fixture.detectChanges();
+
+    expect(panel().getAttribute('aria-busy')).toBeNull();
+  });
+
+  it('announces the "no results" row as an option the listbox may own', () => {
+    type('zzzz');
+
+    expect(emptyRow()).not.toBeNull();
+    expect(emptyRow()!.textContent.trim()).toBe('No results');
+    expect(emptyRow()!.getAttribute('role')).toBe('option');
+    // Not selectable: it is a message, and arrow keys walk the registered
+    // `wr-option`s, which this row is not one of.
+    expect(emptyRow()!.getAttribute('aria-disabled')).toBe('true');
+    expect(emptyRow()!.getAttribute('aria-selected')).toBe('false');
+  });
+
+  it('leaves the listbox with no unownable element children in either state', () => {
+    // Mirrors axe's own ownership walk: a role-less child is transparent unless
+    // it carries a global `aria-*` attribute (or focus), in which case the
+    // listbox owns it and may not.
+    const unownable = (): string[] =>
+      [...panel().children]
+        .filter(el => {
+          const role = el.getAttribute('role');
+          if (role) return !['option', 'group', 'none', 'presentation'].includes(role);
+          return el.getAttributeNames().some(a => a === 'aria-busy' || a === 'aria-live' || a === 'aria-label');
+        })
+        .map(el => el.className || el.tagName.toLowerCase());
+
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+    expect(unownable()).toEqual([]);
+
+    fixture.componentInstance.loading.set(false);
+    type('zzzz');
+    expect(unownable()).toEqual([]);
   });
 });
 
@@ -518,8 +698,13 @@ describe('WrSelect with an async loader that fails', () => {
 
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  /**
+   * `.wr-option`, not `[role="option"]`: the "no results" row is an option too
+   * (a listbox may own nothing else — see the panel template), and it is the one
+   * row that is NOT a loader result.
+   */
   const options = (): string[] =>
-    [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(o => o.textContent.trim());
+    [...document.querySelectorAll<HTMLElement>('.wr-option')].map(o => o.textContent.trim());
   const loadingRow = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__loading');
 
   /**
@@ -1416,5 +1601,57 @@ describe('WrSelect with virtualScroll over grouped projected options', () => {
 
     press('Enter');
     expect(fixture.componentInstance.size()).toBe('md');
+  });
+});
+
+/**
+ * The overflow chip is a STRING, and it was the only one in this component that
+ * never reached the catalog: printed as a bare `+{{ extra }} more`, it stayed
+ * English in a fully Russian app — next to a `wr-event-calendar` cell rendering
+ * "ещё 3" from the same sentence, through `eventCalendar.more`. It is emitted
+ * twice (the chip trigger and the multi button trigger), so both are checked.
+ */
+describe('WrSelect overflow chip', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const chip = (fixture: { nativeElement: unknown }): string =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-select__chip--more')!.textContent.trim();
+
+  const mountRu = async <T>(host: Type<T>): Promise<ReturnType<typeof TestBed.createComponent<T>>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrOverlay(),
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  it('keeps its English wording when no catalog is configured', () => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(OverflowMultiHost);
+    fixture.detectChanges();
+
+    expect(chip(fixture)).toBe('+2 more');
+  });
+
+  it('translates on the multi trigger', async () => {
+    const fixture = await mountRu(OverflowMultiHost);
+
+    expect(/\p{Script=Cyrillic}/u.test(chip(fixture)), `"${chip(fixture)}" is still English`).toBe(true);
+    expect(chip(fixture)).toContain('2');
+  });
+
+  it('translates on the chip trigger too', async () => {
+    const fixture = await mountRu(OverflowTagHost);
+
+    expect(/\p{Script=Cyrillic}/u.test(chip(fixture)), `"${chip(fixture)}" is still English`).toBe(true);
+    expect(chip(fixture)).toContain('2');
   });
 });

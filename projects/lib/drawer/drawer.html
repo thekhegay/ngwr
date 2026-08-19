@@ -7,7 +7,7 @@
         (pointerdown)="onSwipeStart($event)"
         (pointermove)="onSwipeMove($event, panel)"
         (pointerup)="onSwipeEnd($event, panel)"
-        (pointercancel)="onSwipeEnd($event, panel)"
+        (pointercancel)="onSwipeCancel(panel)"
       >
         <span class="wr-drawer__grabber"></span>
       </div>

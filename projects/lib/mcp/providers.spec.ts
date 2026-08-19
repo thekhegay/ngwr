@@ -5,8 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -100,6 +100,56 @@ function valueExports(entryPoint: string): Set<string> {
   return out;
 }
 
+/** Every value export of every entry point — the names a rule's `test` is run against. */
+function allValueExports(): Set<string> {
+  const out = new Set<string>();
+  const walk = (dir: string): void => {
+    for (const name of readdirSync(dir)) {
+      const full = join(dir, name);
+      if (!statSync(full).isDirectory()) continue;
+      if (existsSync(join(full, 'ng-package.json')) && existsSync(join(full, 'public-api.ts'))) {
+        for (const symbol of valueExports(relative(LIB, full))) out.add(symbol);
+      }
+      walk(full);
+    }
+  };
+  walk(LIB);
+
+  return out;
+}
+
+/**
+ * The alternatives in a rule's `test`, unpacked the way the skill generator's
+ * `describeTest` unpacks them: split on the top-level `|`, and expand a
+ * `^Wr(A|B|C)` group into one alternative per member.
+ *
+ * Each one is checked on its own because the rule as a whole passes on any
+ * single hit — `/^WrT$|^WrI18n/` matched `WrI18n` and so looked healthy, while
+ * `^WrT$` (a symbol ngwr has never exported) matched nothing at all.
+ */
+function alternativesOf(test: RegExp): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const char of test.source) {
+    if (char === '(') depth++;
+    else if (char === ')') depth--;
+    if (char === '|' && depth === 0) {
+      parts.push(current);
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+  parts.push(current);
+
+  return parts.flatMap(part => {
+    const grouped = /^\^Wr\(([A-Za-z|]+)\)$/.exec(part);
+
+    return grouped ? grouped[1].split('|').map(name => `^Wr${name}`) : [part];
+  });
+}
+
 describe('REQUIRED_PROVIDERS', () => {
   it('names an entry point that exists for every rule', () => {
     for (const required of REQUIRED_PROVIDERS) {
@@ -114,6 +164,20 @@ describe('REQUIRED_PROVIDERS', () => {
           existsSync(join(LIB, path.replace(/^ngwr\//, ''), 'ng-package.json')),
           `${required.provider} — ${path} is not an entry point`
         ).toBe(true);
+      }
+    }
+  });
+
+  it('matches a symbol the library exports with every alternative in its test', () => {
+    const symbols = [...allValueExports()];
+
+    for (const required of REQUIRED_PROVIDERS) {
+      for (const alternative of alternativesOf(required.test)) {
+        const matcher = new RegExp(alternative);
+        expect(
+          symbols.filter(symbol => matcher.test(symbol)),
+          `${required.provider} — /${alternative}/ matches nothing the library exports, so the rule never fires for it`
+        ).not.toHaveLength(0);
       }
     }
   });
