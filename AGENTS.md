@@ -566,7 +566,7 @@ the ENGLISH fallback for the life of the app — a `<wr-date-picker>` announced
 off the same key. A sync read cannot be correct against an async catalog, so the
 type had to move. Type-level only; the next release notes must carry it.
 
-**Versioning.** The last release is **v11.2.0** (2026-08-17) — that is the newest
+**Versioning.** The last release is **v11.2.0** (tagged and published 2026-08-14) — that is the newest
 tag and what `projects/lib/package.json` reads. v10's three breaking changes were
 all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
 casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
@@ -681,11 +681,14 @@ Four rules if you touch it, and each one is a bug it already had:
 - **A state that did not paint FAILS the run.** A clean axe run over an element
   that never rendered is indistinguishable from a pass, and that is how an audit
   reports green on nothing. Every entry names a `target` asserted visible with a
-  real box first. Two selectors found that way that can never match:
-  `.wr-context-menu-item:focus-visible` (items carry `tabindex="-1"` and the menu
-  focuses its own host — reach the rule through its `:hover` twin), and
+  real box first. One selector found that way that can never match:
   `.wr-falling-text__word--hl`, which needs a `[highlightWords]` binding no
-  showcase demo passes.
+  showcase demo passes. `.wr-context-menu-item:focus-visible` used to be the
+  other, and the reason recorded here — "the menu focuses its own host" — was
+  never true: nothing focused anything, which was itself the defect. The menu now
+  moves focus to its first enabled row on open and roves with the arrows, so the
+  selector paints and the state table can cover it directly instead of reaching
+  through the `:hover` twin.
 - **Wait for the state to STOP MOVING, and never against `transform: none`.**
   `reducedMotion` does not stop an overlay's enter animation, and mid-flight the
   dialog reports its own title at 3.68:1 — a half-faded panel over a half-faded

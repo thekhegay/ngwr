@@ -9,6 +9,7 @@ import { Component, ViewEncapsulation, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
 
+import type { WrResultStatus } from './interfaces';
 import { WrResult } from './result';
 
 /**
@@ -23,11 +24,14 @@ import { WrResult } from './result';
  */
 @Component({
   selector: 'wr-result-404',
-  template: `<wr-result status="warning" [title]="title()" [description]="desc()"><ng-content /></wr-result>`,
+  templateUrl: './presets.html',
   encapsulation: ViewEncapsulation.None,
   imports: [WrResult],
 })
 export class WrResult404 {
+  /** Bound by the shared template; not an input — a preset IS its status. */
+  protected readonly status: WrResultStatus = 'warning';
+
   readonly title = input<string>('404');
 
   /** Body text. Falls back to `result.notFound` from WrI18n. */
@@ -43,11 +47,14 @@ export class WrResult404 {
 /** Pre-set 403 result — forbidden / no access. */
 @Component({
   selector: 'wr-result-403',
-  template: `<wr-result status="error" [title]="title()" [description]="desc()"><ng-content /></wr-result>`,
+  templateUrl: './presets.html',
   encapsulation: ViewEncapsulation.None,
   imports: [WrResult],
 })
 export class WrResult403 {
+  /** Bound by the shared template; not an input — a preset IS its status. */
+  protected readonly status: WrResultStatus = 'error';
+
   readonly title = input<string>('403');
 
   /** Body text. Falls back to `result.forbidden` from WrI18n. */
@@ -63,11 +70,14 @@ export class WrResult403 {
 /** Pre-set 500 result — internal server error. */
 @Component({
   selector: 'wr-result-500',
-  template: `<wr-result status="error" [title]="title()" [description]="desc()"><ng-content /></wr-result>`,
+  templateUrl: './presets.html',
   encapsulation: ViewEncapsulation.None,
   imports: [WrResult],
 })
 export class WrResult500 {
+  /** Bound by the shared template; not an input — a preset IS its status. */
+  protected readonly status: WrResultStatus = 'error';
+
   readonly title = input<string>('500');
 
   /** Body text. Falls back to `result.serverError` from WrI18n. */

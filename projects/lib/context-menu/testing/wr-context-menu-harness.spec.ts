@@ -256,15 +256,16 @@ describe('WrContextMenuHarness', () => {
     expect(await copy.getIconName()).toBeNull();
   });
 
-  it('never focuses an item by itself', async () => {
+  it('takes the keyboard on open and roves it with the arrows', async () => {
     const menu = await get();
     await menu.open();
 
-    // Unlike `<wr-dropdown-menu>`, this menu moves no roving focus in and has no
-    // arrow-key cursor between items — so a keyboard spec starts by sending a key
-    // AT an item, which is what focuses it.
+    // Every open here is deliberate (there is no hover trigger), so the cursor
+    // goes in unconditionally — otherwise the pane paints a `role="menu"` a
+    // keyboard user can see and never enter, since the rows are `tabindex="-1"`.
+    expect(await menu.getFocusedItemText()).toBe('Cut');
     const focused = await Promise.all((await menu.getItems()).map(item => item.isFocused()));
-    expect(focused).toEqual([false, false, false]);
+    expect(focused).toEqual([true, false, false]);
   });
 
   it('reads the fresh menu when a right-click re-opens it over the dying one', async () => {
@@ -353,9 +354,10 @@ describe('WrContextMenuHarness — submenus', () => {
     await more.openSubmenu();
 
     expect(await more.isSubmenuOpen()).toBe(true);
-    // Sending the key focused the item, which is the only way focus ever lands
-    // inside this menu.
-    expect(await more.isFocused()).toBe(true);
+    // A keyboard open walks INTO the submenu, so the cursor has left the row that
+    // owns it — the submenu's own pane holds it now.
+    expect(await more.isFocused()).toBe(false);
+    expect(await menu.getFocusedItemText()).toBeNull();
     expect(await more.getSubmenuItemTexts()).toEqual(['Duplicate', 'Send to']);
     // The submenu is its own pane, so its items are NOT part of the root menu's
     // list — that is what scoping by the published id buys.

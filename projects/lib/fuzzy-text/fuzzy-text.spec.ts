@@ -206,8 +206,10 @@ describe('WrFuzzyText', () => {
       ] as never[],
     });
     fixture = TestBed.createComponent(Host);
-    // Applied before the first render: `enableHover` and `clickEffect` decide which
-    // listeners `init()` attaches and are never re-read, so a later change is a lie.
+    // Applied before the first render, so `init()` boots with the final values rather
+    // than tearing itself down for them. `enableHover` / `clickEffect` no longer care
+    // either way — their listeners are always attached and read the input live — but
+    // the thirteen bitmap inputs do.
     setup?.(fixture.componentInstance);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -382,6 +384,38 @@ describe('WrFuzzyText', () => {
     runFrame(1000);
 
     expect([...new Set(slices)]).toEqual([2]);
+  });
+
+  /**
+   * Both of these flip an input AFTER the component has booted, and neither is in the
+   * re-init effect's dependency list — so nothing tears the loop down and restarts it.
+   * The listeners were once attached only if the input was true at boot, which made a
+   * signal starting `false` (the default for `clickEffect`, and the ordinary way to
+   * bind either) a switch that never turned on: nothing happened until some unrelated
+   * input forced a re-init, and then it all started working.
+   */
+  it('starts spiking on click when the click effect is turned on after booting', async () => {
+    withContext();
+    await mount();
+
+    fixture.componentInstance.clickEffect.set(true);
+    fixture.detectChanges();
+    canvas().dispatchEvent(new MouseEvent('click'));
+    runFrame(1000);
+
+    expect([...new Set(slices)]).toEqual([15]);
+  });
+
+  it('starts reacting to the pointer when hover is turned on after booting', async () => {
+    withContext();
+    await mount([], host => host.enableHover.set(false));
+
+    fixture.componentInstance.enableHover.set(true);
+    fixture.detectChanges();
+    canvas().dispatchEvent(new MouseEvent('mousemove', { clientX: 100, clientY: 25 }));
+    runFrame(1000);
+
+    expect([...new Set(slices)]).toEqual([7]);
   });
 
   it('redraws with the new numbers when an input changes, without leaving the old loop running', async () => {

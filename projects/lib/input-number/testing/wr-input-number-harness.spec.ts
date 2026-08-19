@@ -342,9 +342,14 @@ describe('WrInputNumberHarness', () => {
     expect(await locked.getSuffix()).toBeNull();
   });
 
-  it('names the field, falling back to the placeholder', async () => {
+  it('reads the aria-label only when one is bound', async () => {
     const field = await quantity();
-    expect(await field.getAriaLabel()).toBe('Quantity');
+
+    // The placeholder is NOT copied into `aria-label`: it would outrank a
+    // `<wr-form-field>`'s own label. It still names a standalone field, through
+    // the placeholder attribute this harness reads separately.
+    expect(await field.getAriaLabel()).toBeNull();
+    expect(await field.getPlaceholder()).toBe('Quantity');
 
     host().label.set('Total quantity');
     fixture.detectChanges();

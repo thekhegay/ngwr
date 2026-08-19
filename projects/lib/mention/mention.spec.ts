@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { WrDialog } from 'ngwr/dialog';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -290,5 +291,92 @@ describe('WrMention', () => {
       // is attached would make the field unable to hold paragraphs.
       expect(event.defaultPrevented).toBe(false);
     });
+  });
+});
+
+/** A mention field living inside a dialog — the shape a comment box usually has. */
+@Component({
+  imports: [WrMention],
+  template: `<textarea wrMention [wrMentionItems]="items"></textarea>`,
+})
+class DialogBody {
+  readonly items = PEOPLE;
+}
+
+@Component({ template: '' })
+class Shell {
+  readonly dialog = inject(WrDialog);
+}
+
+/**
+ * The suggestion panel is the innermost thing Escape can dismiss, and it has to
+ * keep the key: a mention field is normally INSIDE something else that closes on
+ * Escape, and one press must not close both.
+ *
+ * CDK's `OverlayKeyboardDispatcher` does not sort this out on its own. It walks
+ * the overlay stack newest-first and stops at the first overlay with a
+ * `keydownEvents()` subscriber — the mention panel has none, since the key is
+ * handled on the field itself — so the press reaches the dialog underneath.
+ * `preventDefault()` does not help either: nothing in the library reads
+ * `defaultPrevented` before closing.
+ */
+describe('WrMention inside a dialog', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Shell>>;
+
+  const field = (): HTMLTextAreaElement => document.querySelector<HTMLTextAreaElement>('textarea')!;
+  const listbox = (): HTMLElement | null => document.querySelector<HTMLElement>('[role="listbox"]');
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-dialog-panel');
+
+  const type = (text: string): void => {
+    const el = field();
+    el.value = text;
+    el.selectionStart = el.selectionEnd = text.length;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  };
+
+  const escape = async (): Promise<void> => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Shell);
+    fixture.detectChanges();
+    fixture.componentInstance.dialog.open(DialogBody);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('spends the first Escape on its own panel and leaves the dialog up', async () => {
+    type('hey @al');
+    expect(listbox()).not.toBeNull();
+
+    await escape();
+
+    expect(listbox()).toBeNull();
+    expect(panel()).not.toBeNull();
+  });
+
+  it('lets the next Escape through to the dialog', async () => {
+    type('hey @al');
+    await escape();
+    await escape();
+
+    expect(panel()).toBeNull();
+  });
+
+  it('does not swallow Escape when it has no panel open', async () => {
+    type('just prose');
+    expect(listbox()).toBeNull();
+
+    await escape();
+
+    expect(panel()).toBeNull();
   });
 });

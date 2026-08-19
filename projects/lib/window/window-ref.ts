@@ -135,17 +135,35 @@ export class WrWindowRef<C, R = unknown> {
 
   // Lifecycle
 
+  private isClosed = false;
+
   /**
    * Close the window, optionally returning a result. If a `beforeClose`
    * hook is registered it is consulted first — a falsy resolution
    * cancels the close.
    */
   async close(result?: R): Promise<void> {
-    if (this._beforeCloseHook) {
-      const ok = await this._beforeCloseHook(result);
-      if (!ok) return;
+    // `WrDialogRef` / `WrDrawerRef` latch the same way on their own `isClosed`,
+    // but theirs are synchronous: this is the only one of the three that AWAITS,
+    // so it is the
+    // only one a second call can enter mid-flight and run the hook again. Two
+    // Escapes in a row do it, and so does `manager.closeAll()` while a hook is
+    // pending — `_doClose` is what removes the ref from the manager's list, and
+    // it has not run yet.
+    if (this.isClosed) return;
+    this.isClosed = true;
+
+    let proceed = false;
+    try {
+      proceed = this._beforeCloseHook ? !!(await this._beforeCloseHook(result)) : true;
+    } finally {
+      // A veto is not a close, and neither is a hook that threw — release the
+      // latch in both cases, or a declined close would disable the window for
+      // good.
+      if (!proceed) this.isClosed = false;
     }
-    this._doClose?.(result);
+
+    if (proceed) this._doClose?.(result);
   }
 
   /** Toggle the minimized state. */

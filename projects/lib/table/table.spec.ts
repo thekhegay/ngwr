@@ -50,6 +50,47 @@ class InterfaceRowsHost {
   protected readonly users: SpecUser[] = [{ id: 1, name: 'Ada', role: 'admin' }];
 }
 
+/**
+ * The same contract for the callbacks, and `childrenKey` is the one that can
+ * still fail it: its function form RETURNS rows, and a return declared
+ * `Record<string, unknown>[]` refuses an array of `interface`-typed children —
+ * a forest that binds to `[items]` whose children cannot come back out of
+ * `[childrenKey]`.
+ *
+ * `rowKey` pins the incantation `WrTableRow`'s doc prescribes: the parameter is
+ * the record form, so reaching an interface needs `as unknown as`, and a single
+ * `as SpecNode` there is a TS2352 error rather than a cast.
+ */
+interface SpecNode {
+  id: string;
+  name: string;
+  role: string;
+  kids?: SpecNode[];
+}
+
+@Component({
+  imports: [WrTable],
+  template: `
+    <wr-table
+      treeColumn="name"
+      [columns]="columns"
+      [items]="forest"
+      [rowKey]="rowKey"
+      [childrenKey]="childrenKey"
+      [expanded]="['src']"
+    />
+  `,
+})
+class InterfaceForestHost {
+  protected readonly columns = COLUMNS;
+  protected readonly forest: SpecNode[] = [
+    { id: 'src', name: 'src', role: 'dir', kids: [{ id: 'main', name: 'main.ts', role: 'file' }] },
+  ];
+  protected readonly rowKey = (row: Record<string, unknown>): unknown => (row as unknown as SpecNode).id;
+  protected readonly childrenKey = (row: Record<string, unknown>): readonly SpecNode[] | undefined =>
+    (row as unknown as SpecNode).kids;
+}
+
 const COLUMNS: WrTableColumns = {
   name: { title: 'Name', sortable: true },
   role: { title: 'Role' },
@@ -767,6 +808,21 @@ describe('WrTable loading overlay', () => {
     const host = fixture.nativeElement as HTMLElement;
     const cells = [...host.querySelectorAll<HTMLElement>('tbody td')];
     expect(cells.map(c => c.textContent.trim())).toEqual(['Ada', 'admin']);
+  });
+
+  it('accepts callbacks over rows typed with an interface', () => {
+    // Compile-time first — see `InterfaceForestHost`. `[childrenKey]`'s function
+    // form used to declare a `Record<string, unknown>[]` return, which no
+    // interface-typed array satisfies, so this host did not build at all.
+    // Mounted as well, because a widened type that stopped flattening the
+    // forest would still compile.
+    const fixture = TestBed.createComponent(InterfaceForestHost);
+    fixture.detectChanges();
+
+    const names = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('tbody tr')].map(row =>
+      row.querySelector('td')?.textContent?.trim()
+    );
+    expect(names).toEqual(['src', 'main.ts']);
   });
 
   it('takes its name from the catalog', async () => {

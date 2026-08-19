@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, effect, input, model, untracked } from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, input, model } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
@@ -195,14 +195,18 @@ export class WrPagination {
    * `[ngModel]`, which hid the coercion rather than removing the need for it.
    */
   constructor() {
-    // A shrinking `total` must not leave the pager on a page that no longer
-    // exists: it only ever pulled back when the SIZE changed through its own
-    // control, so a filtered list left "page 7 of 2" pointing at nothing.
+    // `currentPage` is a plain `model` — a `model()` takes no transform — so a
+    // shrinking `total` and a host `[(currentPage)]` write both land in it
+    // unchecked. The guard used to read and write the page inside `untracked()`
+    // and pull DOWNWARDS only, so it fired when `total` / `pageSize` moved and
+    // never when the host wrote: past the end no cell carries `aria-current`,
+    // the arrow at that end stays enabled and inert (`goTo` refuses the step
+    // rather than correcting the stored page), and below 1 `rangeLabel()` counts
+    // backwards ("-9-0 of 120"). Two-sided and tracked, the same shape
+    // `wr-stepper` and `wr-carousel` use for their own host-owned `model()`.
     effect(() => {
-      const cap = this.totalPages();
-      untracked(() => {
-        if (this.currentPage() > cap) this.currentPage.set(cap);
-      });
+      const clamped = Math.min(Math.max(1, this.currentPage()), this.totalPages());
+      if (clamped !== this.currentPage()) this.currentPage.set(clamped);
     });
   }
 

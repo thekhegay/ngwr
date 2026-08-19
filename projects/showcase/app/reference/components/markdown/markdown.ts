@@ -102,10 +102,25 @@ const TABLE_DOC = `| Entry point | Streams | Notes |
 | \`ngwr/code\` | — | does not exist |
 `;
 
+/**
+ * The third link is a bare fragment on purpose, and the prose about it has to
+ * match the anchor the renderer emits: `linkTarget` is applied to EVERY link,
+ * fragments included, and `headingIdPrefix` re-points the href at the
+ * namespaced id. The demo used to claim relative links were "left alone" while
+ * rendering `href="#user-content-tables" target="_blank"` directly underneath —
+ * and with no heading in the document, that anchor also went nowhere. The
+ * `## Tables` heading below is what gives it something to land on.
+ */
 const LINKS_DOC = `A [labelled link](https://ngwr.dev "the docs site") and a bare autolink,
 <https://github.com/thekhegay/ngwr>, take the same target.
 
-Relative links — [the tables section](#tables) — are left alone.
+So does an in-document link — [the tables section](#tables) — whose href is
+re-pointed at the namespaced heading id, so \`headingIdPrefix\` cannot break the
+anchors a document writes about itself.
+
+## Tables
+
+The heading that link resolves to: \`id="user-content-tables"\`.
 `;
 
 /** Typed out in chunks by the streaming demo. */

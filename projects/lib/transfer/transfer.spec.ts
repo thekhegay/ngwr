@@ -280,6 +280,22 @@ describe('WrTransfer', () => {
     expect(name).not.toBe(heading);
   });
 
+  it('hangs the RTL arrow mirror on the two icon-only move buttons', () => {
+    // `.wr-transfer` is a plain flex row, so the panes swap under `dir="rtl"` —
+    // the harness's own `WrTransferSide` says as much — while the move chevrons
+    // are inline SVG baked to a physical direction, leaving "move to target"
+    // pointing at the pane it moves away from. The stylesheet turns them with
+    // `scaleX(-1)`. jsdom has no cascade, so this test CANNOT fail on that rule;
+    // what it pins is the hook the rule needs — both buttons icon-only, so the
+    // scope catches no text — and that the pane titles stay outside it.
+    const moves = [...root().querySelectorAll<HTMLElement>('.wr-transfer__move')];
+
+    expect(moves).toHaveLength(2);
+    expect(moves.every(b => b.textContent.trim() === '')).toBe(true);
+    // The rule's own selector, and everything it reaches.
+    expect(root().querySelectorAll('.wr-transfer__move .wr-icon__svg')).toHaveLength(2);
+  });
+
   it('shuts down completely when disabled', () => {
     fixture.componentInstance.disabled.set(true);
     fixture.detectChanges();

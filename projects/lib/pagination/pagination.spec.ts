@@ -14,6 +14,7 @@ import { WrPagination } from './pagination';
       [total]="total()"
       [disabled]="disabled()"
       [showSizeChanger]="showSizeChanger()"
+      [showTotal]="showTotal()"
       [responsive]="responsive()"
     />
   `,
@@ -24,6 +25,7 @@ class Host {
   readonly total = signal(95);
   readonly disabled = signal(false);
   readonly showSizeChanger = signal(false);
+  readonly showTotal = signal(false);
   readonly responsive = signal(false);
 }
 
@@ -171,6 +173,41 @@ describe('WrPagination', () => {
     expect(page()).toBe(3);
   });
 
+  it('pulls a host write back into range, at both ends', () => {
+    // `currentPage` is a `model`, so the host can write anything into it. The
+    // clamp used to sit inside `untracked()` and pull downwards only, so it
+    // reacted to a shrinking `total` and never to the host: 95 items over 10 is
+    // ten pages, and both writes below stayed exactly where the host put them.
+    fixture.componentInstance.page.set(13);
+    fixture.detectChanges();
+    expect(page()).toBe(10);
+
+    fixture.componentInstance.page.set(0);
+    fixture.detectChanges();
+    expect(page()).toBe(1);
+  });
+
+  it('leaves nothing inert behind an out-of-range host write', () => {
+    // What the unclamped page actually cost: no cell carried `aria-current`, so
+    // the strip was a row of indistinguishable numbers; Next stayed enabled
+    // because `currentPage() === totalPages()` was false, and clicking it did
+    // nothing since `goTo` refuses page 14; and the range label counted
+    // backwards from a page below the first.
+    fixture.componentInstance.showTotal.set(true);
+    fixture.componentInstance.page.set(13);
+    fixture.detectChanges();
+
+    const current = pageButtons().filter(b => b.getAttribute('aria-current') === 'page');
+    expect(current.map(b => b.textContent.trim())).toEqual(['10']);
+    expect(isOff(labelled('next')!)).toBe(true);
+
+    fixture.componentInstance.page.set(0);
+    fixture.detectChanges();
+
+    expect(root().querySelector('.wr-pagination__total')!.textContent.trim()).toBe('1-10 of 95');
+    expect(isOff(labelled('prev')!)).toBe(true);
+  });
+
   it('never falls below the first page, even with nothing to show', () => {
     fixture.componentInstance.page.set(5);
     fixture.componentInstance.total.set(0);
@@ -207,8 +244,9 @@ describe('WrPagination', () => {
     // where it goes. The stylesheet flips them with `scaleX(-1)`, which jsdom
     // cannot see (no cascade); what a spec CAN pin is the hook that rule needs,
     // and that it does not reach the numbered cells, whose digits would mirror
-    // into gibberish. `:first-child` / `:last-child` would move with the
-    // `showTotal` and ellipsis branches, which is why it is a class.
+    // into gibberish. It is a class rather than `:first-child` / `:last-child`
+    // so the mirror follows the buttons' role rather than their position, which
+    // holds only while every child of the row stays unconditional.
     const nav = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-pagination__nav-btn')];
 
     expect(nav()).toHaveLength(2);

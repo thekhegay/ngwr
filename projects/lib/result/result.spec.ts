@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { WrResultStatus } from './interfaces';
+import { WrResult403, WrResult404, WrResult500 } from './presets';
 import { WrResult } from './result';
 
 @Component({
@@ -76,3 +77,56 @@ describe('WrResult', () => {
     expect(root().querySelector('.wr-result__extra')!.querySelector('.cta')).not.toBeNull();
   });
 });
+
+describe('the status presets', () => {
+  /**
+   * The `@example` on each preset shows a `[wrResultExtra]` button inside it,
+   * and until this spec existed that example did not work.
+   *
+   * `<wr-result>` projects only `select="[wrResultExtra]"`, and the presets
+   * wrapped a BARE `<ng-content />`. The outer component matches its selector
+   * against the nodes in the intermediate TEMPLATE, and an `<ng-content>`
+   * element does not carry the attribute — so the button was dropped silently,
+   * with no error anywhere. `ngProjectAs` is what tells the outer slot what the
+   * pass-through stands for.
+   *
+   * Three separate hosts rather than one parameterised template, because a
+   * component's `template` has to be a literal.
+   */
+  it('passes [wrResultExtra] through wr-result-404', () => {
+    expectProjected(Host404);
+  });
+
+  it('passes [wrResultExtra] through wr-result-403', () => {
+    expectProjected(Host403);
+  });
+
+  it('passes [wrResultExtra] through wr-result-500', () => {
+    expectProjected(Host500);
+  });
+});
+
+function expectProjected(host: new (...args: never[]) => unknown): void {
+  const fixture = TestBed.createComponent(host);
+  fixture.detectChanges();
+
+  expect((fixture.nativeElement as HTMLElement).querySelector('#extra')).not.toBeNull();
+}
+
+@Component({
+  imports: [WrResult404],
+  template: `<wr-result-404><button type="button" wrResultExtra id="extra">Back home</button></wr-result-404>`,
+})
+class Host404 {}
+
+@Component({
+  imports: [WrResult403],
+  template: `<wr-result-403><button type="button" wrResultExtra id="extra">Back home</button></wr-result-403>`,
+})
+class Host403 {}
+
+@Component({
+  imports: [WrResult500],
+  template: `<wr-result-500><button type="button" wrResultExtra id="extra">Back home</button></wr-result-500>`,
+})
+class Host500 {}

@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { WrSelectSize } from './interfaces';
 import { WrOption } from './option';
+import { WrOptionGroup } from './option-group';
 import { WrSelect } from './select';
 
 /**
@@ -114,6 +115,28 @@ class MixedHost {
 
 @Component({
   imports: [WrSelect],
+  template: `<wr-select mode="search" ariaLabel="Size" [debounceMs]="0" [loader]="load" [(value)]="size" />`,
+})
+class LoaderHost {
+  readonly size = signal<unknown>(null);
+  /** Every query the loader was actually asked for, in order. */
+  readonly calls: string[] = [];
+  /** The one query that fails, and whether it fails before or after returning. */
+  readonly failFor = signal<string | null>(null);
+  readonly failSynchronously = signal(false);
+
+  readonly load = (query: string): Promise<readonly string[]> | readonly string[] => {
+    this.calls.push(query);
+    if (query === this.failFor()) {
+      if (this.failSynchronously()) throw new Error('loader blew up');
+      return Promise.reject(new Error('loader blew up'));
+    }
+    return [`item for ${query}`];
+  };
+}
+
+@Component({
+  imports: [WrSelect],
   template: `<wr-select mode="tag" placeholder="Add tags" ariaLabel="Tags" [(value)]="tags" />`,
 })
 class TagHost {
@@ -166,6 +189,21 @@ class ConfigHost {
   template: `<wr-select ariaLabel="Size" rounded />`,
 })
 class RoundedAttrHost {}
+
+@Component({
+  imports: [WrSelect, WrOption, WrOptionGroup],
+  template: `
+    <wr-select mode="search" virtualScroll placeholder="Find a size" ariaLabel="Size" [(value)]="size">
+      <wr-option-group label="Sizes">
+        <wr-option value="sm">Small</wr-option>
+        <wr-option value="md">Medium</wr-option>
+      </wr-option-group>
+    </wr-select>
+  `,
+})
+class GroupedVirtualHost {
+  readonly size = signal<unknown>(null);
+}
 
 describe('WrSelect', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -463,6 +501,90 @@ describe('WrSelect in search mode', () => {
 
   it('carries the search modifier class', () => {
     expect(root().querySelector('wr-select')!.className).toContain('wr-select--search');
+  });
+});
+
+/**
+ * The async `[loader]` path, and specifically what a FAILED load costs. The
+ * pipeline is one long-lived subscription built in the constructor and never
+ * rebuilt, so an error allowed out of the `switchMap` projection closes it — the
+ * select then stops calling the loader for the rest of the component's life,
+ * with no spinner, no message and no output to hint at it. Both tests here read
+ * the panel after a LATER query, because that is the only place the difference
+ * shows: the failing query itself looks the same either way.
+ */
+describe('WrSelect with an async loader that fails', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<LoaderHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const options = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(o => o.textContent.trim());
+  const loadingRow = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel__loading');
+
+  /**
+   * `[debounceMs]="0"` still debounces through `timer(0)`, which is a macrotask —
+   * and the loader's promise settles in a microtask after it. One turn of the
+   * event loop covers both.
+   */
+  const type = async (text: string): Promise<void> => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(LoaderHost);
+    fixture.detectChanges();
+    field().click();
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps searching after a load that rejects', async () => {
+    fixture.componentInstance.failFor.set('abc');
+
+    await type('ab');
+    expect(options()).toEqual(['item for ab']);
+
+    await type('abc');
+    await type('abcd');
+
+    expect(fixture.componentInstance.calls).toEqual(['ab', 'abc', 'abcd']);
+    expect(options()).toEqual(['item for abcd']);
+  });
+
+  it('keeps searching after a loader that throws on the spot, and drops the spinner', async () => {
+    // A synchronous throw is the harsher half: the in-flight flag is raised
+    // before the loader is called, so an escape past `finalize` leaves the
+    // progress row up for good as well as killing the pipeline.
+    fixture.componentInstance.failFor.set('abc');
+    fixture.componentInstance.failSynchronously.set(true);
+
+    await type('ab');
+    await type('abc');
+
+    expect(loadingRow()).toBeNull();
+
+    await type('abcd');
+
+    expect(fixture.componentInstance.calls).toEqual(['ab', 'abc', 'abcd']);
+    expect(options()).toEqual(['item for abcd']);
+  });
+
+  it('shows nothing rather than the previous query results when a load fails', async () => {
+    // Stale rows would read as an answer to the query on screen.
+    fixture.componentInstance.failFor.set('abc');
+
+    await type('ab');
+    await type('abc');
+
+    expect(options()).toEqual([]);
   });
 });
 
@@ -1243,5 +1365,56 @@ describe('WrSelect inside a form field', () => {
     const root = build(Host).nativeElement as HTMLElement;
 
     expect(root.querySelector('.wr-select__trigger')!.getAttribute('id')).toBeNull();
+  });
+});
+
+/**
+ * `virtualScroll` is documented to stand down whenever static `<wr-option>`
+ * children are projected — the windowed path renders plain rows that carry none
+ * of an option's DOM-derived label or selection. Signal `contentChildren()`
+ * defaults to `descendants: false`, so options wrapped in a `<wr-option-group>`
+ * — the shape the docs page itself demonstrates — were invisible to that guard:
+ * the select saw no projected options, virtualized an empty data array, and the
+ * group's rows rendered beside a window that owned the keyboard.
+ */
+describe('WrSelect with virtualScroll over grouped projected options', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<GroupedVirtualHost>>;
+
+  const field = (): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+  const rows = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+  const activeLabel = (): string | null => {
+    const id = field().getAttribute('aria-activedescendant');
+    return id ? (document.getElementById(id)?.textContent?.trim() ?? null) : null;
+  };
+  const press = (key: string): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(GroupedVirtualHost);
+    fixture.detectChanges();
+    field().dispatchEvent(new Event('focus'));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders the group full, with no virtual window beside it', () => {
+    expect(rows().map(r => r.textContent.trim())).toEqual(['Small', 'Medium']);
+    expect(document.querySelector('.wr-select-panel__vlist')).toBeNull();
+  });
+
+  it('keeps the keyboard on the grouped rows', () => {
+    expect(activeLabel()).toBe('Small');
+
+    press('ArrowDown');
+    expect(activeLabel()).toBe('Medium');
+
+    press('Enter');
+    expect(fixture.componentInstance.size()).toBe('md');
   });
 });

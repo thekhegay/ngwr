@@ -139,6 +139,90 @@ describe('WrWindowManager', () => {
     });
   });
 
+  describe('the beforeClose veto', () => {
+    const chromeClose = (ref: { _overlayRef: { overlayElement: HTMLElement } }): HTMLElement => {
+      const button = ref._overlayRef.overlayElement.querySelector<HTMLElement>('.wr-window__chrome-action--close');
+      expect(button, 'the window chrome renders no close button').not.toBeNull();
+      return button!;
+    };
+
+    const windowEl = (ref: { _overlayRef: { overlayElement: HTMLElement } }): HTMLElement =>
+      ref._overlayRef.overlayElement.querySelector<HTMLElement>('.wr-window')!;
+
+    it('leaves a vetoed window on screen when the chrome button is what asked', async () => {
+      const ref = manager.open(Body, { title: 'Untitled' });
+      TestBed.tick();
+      const hook = vi.fn(() => Promise.resolve(false));
+      ref.beforeClose(hook);
+
+      chromeClose(ref).click();
+      await Promise.resolve();
+      TestBed.tick();
+
+      // The button used to hide the window itself before the ref got to ask the
+      // hook. `.wr-window--closed` is `display: none` and nothing public writes
+      // `open` back, so a vetoed window went off screen for good: still in
+      // `windows()`, overlay attached, state `normal` — so not in the taskbar
+      // either. Escape reaches `ref.close()` directly and never had the bug.
+      expect(hook).toHaveBeenCalledTimes(1);
+      expect(manager.windows()).toEqual([ref]);
+      expect(windowEl(ref).classList.contains('wr-window--closed')).toBe(false);
+      expect(windowEl(ref).getAttribute('aria-hidden')).toBe('false');
+    });
+
+    it('still closes from the chrome button when the hook agrees', async () => {
+      const ref = manager.open(Body, { title: 'Untitled' });
+      TestBed.tick();
+      ref.beforeClose(() => Promise.resolve(true));
+
+      chromeClose(ref).click();
+      await Promise.resolve();
+      TestBed.tick();
+
+      expect(manager.windows()).toHaveLength(0);
+    });
+
+    it('runs a pending hook once, however many closes arrive', async () => {
+      const ref = manager.open(Body);
+      TestBed.tick();
+
+      let release!: (ok: boolean) => void;
+      const hook = vi.fn(() => new Promise<boolean>(resolve => (release = resolve)));
+      ref.beforeClose(hook);
+
+      void ref.close();
+      // No keyboard and no timing race: `_doClose` is what drops the ref from
+      // the manager's list, and it has not run yet, so `closeAll()` walks
+      // straight back into the same pending close.
+      manager.closeAll();
+      await Promise.resolve();
+
+      expect(hook).toHaveBeenCalledTimes(1);
+
+      release(true);
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
+      TestBed.tick();
+      expect(manager.windows()).toHaveLength(0);
+    });
+
+    it('lets a declined close be retried', async () => {
+      const ref = manager.open(Body);
+      TestBed.tick();
+      let allow = false;
+      ref.beforeClose(() => Promise.resolve(allow));
+
+      await ref.close();
+      expect(manager.windows()).toEqual([ref]);
+
+      // The in-flight latch has to clear on a veto, or "not now" would mean
+      // "never" and the window could not be closed again.
+      allow = true;
+      await ref.close();
+      TestBed.tick();
+      expect(manager.windows()).toHaveLength(0);
+    });
+  });
+
   describe('singleton by id', () => {
     it('returns the open window instead of a duplicate', () => {
       const first = manager.open(Body, { id: 'settings', title: 'Settings' });

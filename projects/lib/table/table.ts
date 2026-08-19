@@ -212,6 +212,14 @@ export class WrTable {
    *
    * `pageSize` pages the ROOTS; a root brings its open descendants with it.
    *
+   * The function form RETURNS `WrTableRow`s, matching `[items]`: a return is
+   * covariant, so an array of `interface`-typed children satisfies it. Declared
+   * as records it did not, and a forest that bound to `[items]` could not hand
+   * its children back out. The PARAMETER stays `Record<string, unknown>` — that
+   * side is contravariant, and widening it would reject the callbacks that
+   * compile today while leaving `row['reports']` unindexable. See
+   * {@link WrTableRow}.
+   *
    * @example
    * ```html
    * <wr-table
@@ -225,7 +233,7 @@ export class WrTable {
    * ```
    */
   readonly childrenKey = input<
-    string | ((row: Record<string, unknown>) => readonly Record<string, unknown>[] | null | undefined) | null
+    string | ((row: Record<string, unknown>) => readonly WrTableRow[] | null | undefined) | null
   >(null);
 
   /**

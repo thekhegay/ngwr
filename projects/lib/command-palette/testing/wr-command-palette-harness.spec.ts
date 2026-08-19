@@ -592,9 +592,17 @@ describe('WrCommandPaletteHarness — two on one page', () => {
 
     await files.pressTrigger();
 
-    // The trigger is bound on the DOCUMENT, and the first binding to match a chord
-    // calls `preventDefault()`, which stops the rest — so the second palette never
-    // sees the chord it is also bound to.
+    // The trigger is bound on the DOCUMENT, and the palette's own handler calls
+    // `event.preventDefault()` to CLAIM the chord — which is how `WrHotkey` is
+    // documented to decide that lower-priority bindings are skipped. So the
+    // second palette never sees the chord it is also bound to.
+    //
+    // Not the same mechanism it used to be: the service applied the
+    // `preventDefault` OPTION before running a handler and then read the flag
+    // back, so it mistook its own mark for a claim and NO chord ever reached a
+    // second binding. That made the documented `priority` chain dead code; the
+    // palette now claims the chord explicitly, which is what keeps this
+    // assertion true for the right reason.
     expect(await files.isOpen()).toBe(true);
     expect(await mail.isOpen()).toBe(false);
 

@@ -98,6 +98,16 @@
     height: 1rem;
   }
 
+  // The panes are a plain flex row, so they already swap: under `dir="rtl"` the
+  // source pane lays out at the right. The move chevrons are drawn to physical
+  // directions, though, so "move to target" ends up pointing at the pane it
+  // moves away from. Turn them around with the panes, the same way the
+  // pagination and carousel arrows do. Both move buttons are icon-only, so
+  // nothing textual is caught.
+  [dir='rtl'] &__move .wr-icon__svg {
+    transform: scaleX(-1);
+  }
+
   // No container query here on purpose: `@container` only styles DESCENDANTS, so
   // a rule that reflows `.wr-transfer` itself could never match its own query.
   // Doing it properly means the house `responsive` opt-in modifier (a wrapper

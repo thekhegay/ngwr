@@ -29,10 +29,23 @@
  * about the row is read at bind time; the table reads cells by string key and
  * hands back `unknown`, so the wider type costs nothing and accepts both.
  *
- * The row callbacks (`rowKey`, `groupBy`, `childrenKey`) still take this type
- * rather than your own: a parameter is contravariant, so `(row: User) => row.id`
- * cannot satisfy any signature the table could declare short of the whole
- * component becoming generic. Index the row instead —
- * `(row) => (row as User).id`, or pass the string key form.
+ * The row callbacks (`rowKey`, `groupBy`, `childrenKey`) do NOT take this type:
+ * their parameter is `Record<string, unknown>`, and it stays that way. A
+ * parameter is contravariant, so no signature short of a generic component can
+ * accept `(row: User) => row.id` — and widening it to `object` would reject the
+ * callbacks that do compile today (an explicit
+ * `(row: Record<string, unknown>) => …`) while making the row unindexable.
+ *
+ * Index the row instead — `(row) => row['id']` needs no cast at all — or, to
+ * reach your own type, `(row) => (row as unknown as User).id`. A single
+ * `as User` is not enough for an `interface`: TypeScript refuses that
+ * conversion outright (TS2352, "neither type sufficiently overlaps"), over the
+ * same missing index signature. `rowKey="id"` sidesteps all of it.
+ *
+ * `childrenKey` is the one callback that also RETURNS rows, and there the type
+ * IS this wide one — a return is covariant, so
+ * `(row) => (row as unknown as User).reports` needs no second assertion on the
+ * array. Declared narrow, it accepted a forest through `[items]` and refused to
+ * let the children back out.
  */
 export type WrTableRow = object;

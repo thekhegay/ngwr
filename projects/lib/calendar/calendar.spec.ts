@@ -459,4 +459,25 @@ describe('WrCalendar under dir="rtl"', () => {
     await press('ArrowUp');
     expect(ring()).toBe('15');
   });
+
+  it('hangs the arrow mirror on the two icon-only nav buttons, and nowhere near the label', () => {
+    // `__header` is a plain flex row that mirrors, while the chevrons are inline
+    // SVG baked to a physical direction — so "previous" ends up at the right
+    // edge still pointing left, away from the month it goes to. The stylesheet
+    // turns them with `scaleX(-1)` scoped to `.wr-calendar__nav`. jsdom has no
+    // cascade, so this test CANNOT fail on that rule; what it pins is the hook
+    // the rule needs — two nav buttons, each an svg and no text — and that the
+    // scope excludes the textual `__label`, whose month name mirrored would be
+    // gibberish.
+    const nav = [...root().querySelectorAll<HTMLElement>('.wr-calendar__nav')];
+
+    expect(nav).toHaveLength(2);
+    expect(nav.every(b => b.textContent.trim() === '')).toBe(true);
+    // The rule's own selector, and everything it reaches.
+    expect(root().querySelectorAll('.wr-calendar__nav svg')).toHaveLength(2);
+
+    const label = root().querySelector<HTMLElement>('.wr-calendar__label')!;
+    expect(label.classList.contains('wr-calendar__nav')).toBe(false);
+    expect(label.textContent.trim().length).toBeGreaterThan(0);
+  });
 });

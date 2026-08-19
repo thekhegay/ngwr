@@ -122,6 +122,61 @@ describe('WrHotkey', () => {
       // Claiming the event is how a modal shortcut shadows a global one.
       expect(second).not.toHaveBeenCalled();
     });
+
+    it('runs every binding on a chord under the shipped defaults', () => {
+      const seen: string[] = [];
+      hotkey.bind('ctrl+k', () => seen.push('a'));
+      hotkey.bind('ctrl+k', () => seen.push('b'));
+
+      // Both take the default `preventDefault: true`. The service used to apply
+      // that itself and then read `defaultPrevented` back as "a handler consumed
+      // the chord", so only the first binding ever ran — for every chord, under
+      // the options every consumer gets by default. `cancelable` is what makes
+      // it visible: on a non-cancelable event `preventDefault()` is a no-op and
+      // the bug hides.
+      const event = press({ key: 'k', ctrlKey: true });
+
+      expect(seen).toEqual(['a', 'b']);
+      // …and the browser default is still suppressed, which is all the option
+      // was ever supposed to mean.
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('lets one binding claim the chord AND suppress the browser', () => {
+      const second = vi.fn();
+      hotkey.bind('ctrl+k', event => event.preventDefault(), { priority: 10 });
+      hotkey.bind('ctrl+k', second, { priority: 0 });
+
+      // The two roles have to stay expressible together: a modal shortcut that
+      // shadows the global one usually also wants the browser to keep its hands
+      // off the chord.
+      expect(press({ key: 'k', ctrlKey: true }).defaultPrevented).toBe(true);
+      expect(second).not.toHaveBeenCalled();
+    });
+
+    it('is not silenced by a listener that prevented the event before it', () => {
+      const seen: string[] = [];
+      hotkey.bind('ctrl+k', () => seen.push('a'), { priority: 10, preventDefault: false });
+      hotkey.bind('ctrl+k', () => seen.push('b'), { priority: 0, preventDefault: false });
+
+      // An event can arrive already default-prevented from somewhere else on
+      // the propagation path. That is not a claim by any binding here, so the
+      // chain reads its own delta rather than the raw flag. Dispatched from a
+      // child so the capturing listener on `document` runs first.
+      const child = document.createElement('div');
+      document.body.appendChild(child);
+      const claim = (event: Event): void => event.preventDefault();
+      document.addEventListener('keydown', claim, true);
+
+      try {
+        press({ key: 'k', ctrlKey: true }, child);
+      } finally {
+        document.removeEventListener('keydown', claim, true);
+        child.remove();
+      }
+
+      expect(seen).toEqual(['a', 'b']);
+    });
   });
 
   describe('teardown', () => {

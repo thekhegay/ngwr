@@ -38,6 +38,17 @@
     height: 1em;
   }
 
+  // `__nav` is a plain flex row, so it already mirrors: under `dir="rtl"` the
+  // prev button lays out at the right edge. Its chevron is drawn pointing
+  // physically left, though, so it ends up aiming at the period it moves AWAY
+  // from. Turn the glyphs around with the row, the same way the pagination and
+  // carousel arrows do — "previous" is the inline start in both directions.
+  // Scoped to `__step`, the two icon-only buttons: `__today` sits between them
+  // and is text, which must not mirror.
+  [dir='rtl'] &__step .wr-icon__svg {
+    transform: scaleX(-1);
+  }
+
   &__title {
     flex: 1 1 auto;
     margin: 0;

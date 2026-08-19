@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { WrFormField } from 'ngwr/form';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -51,6 +52,12 @@ class Host {
   readonly readonly = signal(false);
   readonly touched = signal(0);
 }
+
+@Component({
+  imports: [WrDateRangePicker, WrFormField],
+  template: `<wr-form-field label="Trip dates"><wr-date-range-picker /></wr-form-field>`,
+})
+class FieldHost {}
 
 describe('WrDateRangePicker', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -528,5 +535,40 @@ describe('WrDateRangePicker', () => {
     fixture.detectChanges();
 
     expect(calendar()).toBeNull();
+  });
+});
+
+/**
+ * `<wr-form-field>` renders its `<label for>` before it can see what was
+ * projected into it, so the id travels the other way: `wrInput` adopts the
+ * field's `controlId`. This component renders TWO of them, and both adopted —
+ * the same id twice in one document, which is invalid and leaves `label[for]`
+ * resolving to whichever input happens to come first.
+ *
+ * The rule is the one `wr-slider` settled on for its two thumbs: one label
+ * names one value, so the START input owns the id and the end input carries
+ * none.
+ */
+describe('WrDateRangePicker inside a form field', () => {
+  let fixture: ComponentFixture<FieldHost>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay(), provideWrDateAdapter({ locale: 'en-US' })] });
+    fixture = TestBed.createComponent(FieldHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('gives the label exactly one target — the start input', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const label = root.querySelector<HTMLLabelElement>('label')!;
+    const inputs = [...root.querySelectorAll<HTMLInputElement>('input.wr-input')];
+
+    // Through the document rather than the attribute alone: an id that merely
+    // exists somewhere is what the bug already looked like.
+    expect(root.querySelectorAll(`#${CSS.escape(label.htmlFor)}`)).toHaveLength(1);
+    expect(root.querySelector(`#${CSS.escape(label.htmlFor)}`)).toBe(inputs[0]);
+    expect(inputs[1].getAttribute('id')).toBeNull();
   });
 });

@@ -409,13 +409,24 @@ export class WrFuzzyText {
       }, 150);
     };
 
-    if (this.enableHover()) {
-      canvas.addEventListener('mousemove', onMouseMove);
-      canvas.addEventListener('mouseleave', onMouseLeave);
-      canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-      canvas.addEventListener('touchend', onTouchEnd);
-    }
-    if (this.clickEffect()) canvas.addEventListener('click', onClick);
+    // Attached unconditionally, and gated inside the three handlers that can SET a
+    // reactive state instead. `enableHover` and `clickEffect` are not in the re-init
+    // effect's dependency list, so an attach conditional on them read the value at
+    // boot and never again: a `[clickEffect]` bound to a signal that starts `false` —
+    // the default, so the ordinary case — stayed dead after it flipped true. Adding
+    // them to that list would restart the rAF loop and the glitch timers just to
+    // toggle a listener, which is visible; the guards are not. `onTouchMove` calls
+    // `preventDefault()` only past its own guard, so a hover-disabled instance still
+    // swallows nothing.
+    //
+    // `onMouseLeave` / `onTouchEnd` stay ungated deliberately: they only ever CLEAR
+    // toward the idle state, and gating them would strand `isHovering` on for good
+    // when hover is switched off mid-hover.
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mouseleave', onMouseLeave);
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onTouchEnd);
+    canvas.addEventListener('click', onClick);
 
     this.teardown = (): void => {
       cancelAnimationFrame(rafId);

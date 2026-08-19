@@ -364,4 +364,20 @@ export const routing: Routes = [
       { path: 'types', redirectTo: '/reference/interfaces' },
     ],
   },
+
+  // Everything else. Without this the router threw `NG04002` on an unmatched
+  // URL, the outlet never activated, and Angular restored the address bar to
+  // `/` — leaving the header over a blank page that claimed to be the homepage.
+  // Not a hypothetical: the legacy aliases above redirect archived `/v7/` links
+  // into `/reference/*`, and the slugs that themselves moved (tooltip folded
+  // into popover, scramble-text removed) arrive here.
+  //
+  // A client route, not a redirect to `/`: a redirect fixes the address bar and
+  // keeps the silence. Catch-all routes are excluded from the prerender by the
+  // builder, so nothing is emitted for it and the render mode in
+  // `app.routes.server.ts` cannot change that — see the note there.
+  {
+    path: '**',
+    loadComponent: () => import('./not-found/not-found'),
+  },
 ];

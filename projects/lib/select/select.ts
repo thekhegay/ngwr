@@ -31,7 +31,20 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { type Observable, debounce, finalize, from, isObservable, of, skip, switchMap, tap, timer } from 'rxjs';
+import {
+  type Observable,
+  catchError,
+  debounce,
+  defer,
+  finalize,
+  from,
+  isObservable,
+  of,
+  skip,
+  switchMap,
+  tap,
+  timer,
+} from 'rxjs';
 
 import { useConfigValue } from 'ngwr/config';
 import { WR_FORM_FIELD } from 'ngwr/form';
@@ -601,8 +614,18 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   private static readonly FALLBACK_ROW_PX = 34;
   private static readonly FALLBACK_VIEWPORT_PX = 256;
 
-  /** Consumer-projected `<wr-option>` children only (NOT the `@for`-rendered ones). */
-  private readonly projectedOptions = contentChildren(WrOption);
+  /**
+   * Consumer-projected `<wr-option>` children only (NOT the `@for`-rendered ones
+   * — those live in the panel's own view, which a content query never sees).
+   *
+   * `descendants: true` because a projected option is as often wrapped in a
+   * `<wr-option-group>` as it is a direct child, and the signal default is
+   * `false`. A grouped list therefore read as NO projected options: `virtualActive`
+   * engaged over the (empty) data array, so the panel rendered the group's rows
+   * with a virtual window beside them that owned the keyboard — no
+   * `aria-activedescendant`, no active row, and Enter committing nothing.
+   */
+  private readonly projectedOptions = contentChildren(WrOption, { descendants: true });
 
   /**
    * `dynamicOptions()` narrowed to the current search query. `dynamicOptions()`
@@ -620,9 +643,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   });
 
   /**
-   * Virtualization engaged: opt-in, search mode, a non-empty filtered array, and
-   * NO projected `<wr-option>` children (those keep the full-render registry path
-   * so their DOM-derived labels / selection still work).
+   * Virtualization engaged: opt-in, search mode, and NO projected `<wr-option>`
+   * children — grouped ones included (those keep the full-render registry path so
+   * their DOM-derived labels / selection still work).
    *
    * NOT gated on there being matches. It used to also require
    * `filteredDynamicOptions().length > 0`, which meant a query matching nothing
@@ -994,14 +1017,30 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
             return of<readonly unknown[]>([]);
           }
           this.loaderLoading.set(true);
-          const result = loader(query);
-          const source: Observable<readonly unknown[]> = isObservable(result) ? result : from(Promise.resolve(result));
-          // A loader can hand back a long-lived observable (a store selector,
-          // say) that emits and never completes — so the first value lowers the
-          // flag. `finalize` still covers completion, errors and cancellation,
-          // including a loader that completes without emitting.
+          // `defer` so the loader CALL is part of the inner observable too. Called
+          // out here, a loader that throws SYNCHRONOUSLY throws from switchMap's
+          // project function, which rxjs routes straight to the destination — past
+          // the `catchError` below and past `finalize`, so the flag raised on the
+          // line above would stay up for good.
+          const source = defer((): Observable<readonly unknown[]> => {
+            const result = loader(query);
+            return isObservable(result) ? result : from(Promise.resolve(result));
+          });
           return source.pipe(
+            // A loader can hand back a long-lived observable (a store selector,
+            // say) that emits and never completes — so the first value lowers the
+            // flag. `finalize` still covers completion, errors and cancellation,
+            // including a loader that completes without emitting.
             tap(() => this.loaderLoading.set(false)),
+            // INSIDE the projection, which is the whole point: an error allowed to
+            // reach the outer subscriber closes the subscription for good, and the
+            // select then never calls the loader again for the life of the
+            // component — silently, since nothing here has an error callback. Kept
+            // inside, one failed request costs that query and nothing else.
+            // Reported as "no results" rather than as an error row: the panel has
+            // no error state, and stale results for a query two keystrokes old
+            // would read as an answer to the current one.
+            catchError(() => of<readonly unknown[]>([])),
             finalize(() => this.loaderLoading.set(false))
           );
         }),

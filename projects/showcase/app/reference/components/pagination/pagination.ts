@@ -29,10 +29,11 @@ export default class PaginationComponent {
 
   /**
    * The size-changer demo is the one pager at `[total]="320"`, so it needs its
-   * own page. `WrPagination` clamps in an effect that tracks `totalPages()`
-   * and reads `currentPage()` untracked, so a page written from outside is
-   * never pulled back into range: picking page 13+ here used to leave every
-   * 120-item pager on the page with no current page and two inert arrows.
+   * own page — and it needs it MORE now, not less. `WrPagination` clamps a
+   * host-written `currentPage` at both ends since the fourth sweep, so a shared
+   * signal on page 13 would be yanked back to 12 by the 120-item pagers the
+   * moment they saw it. Before the clamp the same sharing left them with no
+   * current page and two inert arrows; either way the demos need separate state.
    */
   protected readonly fullPage = signal(1);
   protected readonly size = signal(10);

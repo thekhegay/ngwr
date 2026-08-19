@@ -354,9 +354,11 @@ describe('WrPaginationHarness', () => {
 
   it('says so when the pager announces no current page at all', async () => {
     const pager = await loader.getHarness(WrPaginationHarness);
-    // The component clamps a page above the last one but not a zero, which leaves
-    // every cell looking equally inactive to assistive tech.
-    fixture.componentInstance.page.set(0);
+    // A fraction is what is left once the component clamps both ends: 3.5 is in
+    // range, so nothing pulls it back, and it matches no cell — which leaves every
+    // one of them looking equally inactive to assistive tech. (This used to be
+    // reached with page 0, until the component started clamping below 1 too.)
+    fixture.componentInstance.page.set(3.5);
     await fixture.whenStable();
 
     await expect(pager.getCurrentPage()).rejects.toThrow(/no cell carries `aria-current="page"`/);

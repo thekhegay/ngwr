@@ -53,10 +53,10 @@ import { WR_CAROUSEL, type WrCarouselContext } from './tokens';
   // moving content, and hovering is not one for someone who never uses a mouse.
   host: {
     class: 'wr-carousel',
-    '(mouseenter)': 'onPauseIn()',
-    '(mouseleave)': 'onPauseOut()',
-    '(focusin)': 'onPauseIn()',
-    '(focusout)': 'onPauseOut()',
+    '(mouseenter)': 'onHoverIn()',
+    '(mouseleave)': 'onHoverOut()',
+    '(focusin)': 'onFocusIn()',
+    '(focusout)': 'onFocusOut()',
   },
   providers: [
     {
@@ -172,7 +172,19 @@ export class WrCarousel implements WrCarouselContext {
   });
 
   private timer: ReturnType<typeof setInterval> | null = null;
-  private readonly paused = signal(false);
+
+  // Three sources hold the pause and they release independently, so they get a
+  // flag each rather than one shared boolean — the same `hovered` / `focusWithin`
+  // pair `WrToastHost` keeps. With one flag whichever source released LAST won:
+  // moving the pointer off the carousel while focus was still on a link inside it
+  // restarted the slides under the focused element, and a `touchend` released a
+  // pause it had never taken. Flags, not a counter: `mouseenter`/`mouseleave` and
+  // `focusin`/`focusout` each pair exactly once per source, so a count would only
+  // add a way to drift out of step.
+  private readonly hovered = signal(false);
+  private readonly focusWithin = signal(false);
+  private readonly paused = computed(() => this.hovered() || this.focusWithin() || this.dragging());
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -202,12 +214,20 @@ export class WrCarousel implements WrCarouselContext {
     });
   }
 
-  protected onPauseIn(): void {
-    this.paused.set(true);
+  protected onHoverIn(): void {
+    this.hovered.set(true);
   }
 
-  protected onPauseOut(): void {
-    this.paused.set(false);
+  protected onHoverOut(): void {
+    this.hovered.set(false);
+  }
+
+  protected onFocusIn(): void {
+    this.focusWithin.set(true);
+  }
+
+  protected onFocusOut(): void {
+    this.focusWithin.set(false);
   }
 
   // Imperative
@@ -242,8 +262,7 @@ export class WrCarousel implements WrCarouselContext {
     const touch = event.touches[0];
     if (!touch) return;
     this.swipeStartX = touch.clientX;
-    this.dragging.set(true);
-    this.paused.set(true); // hold autoplay while dragging
+    this.dragging.set(true); // holds autoplay on its own — `paused` reads it
   }
 
   protected onSwipeMove(event: TouchEvent): void {
@@ -258,7 +277,6 @@ export class WrCarousel implements WrCarouselContext {
     this.dragging.set(false);
     const dx = this.dragX();
     this.dragX.set(0);
-    this.paused.set(false);
     const threshold = (viewport.offsetWidth || 0) * 0.2;
     // `dx` is a physical delta. The next slide sits to the physical RIGHT in LTR
     // and to the LEFT in RTL, so the drag that pulls it into view — and with it

@@ -336,6 +336,77 @@ describe('WrCarousel', () => {
       expect(active()).toBe(1);
     });
 
+    // Hover, focus and the swipe each hold the pause independently, and each of
+    // the three below released a hold it never took while all three shared one
+    // boolean — whichever source let go LAST decided.
+    it('keeps holding when the pointer leaves and focus is still inside', () => {
+      fixture.componentInstance.autoplay.set(true);
+      fixture.detectChanges();
+
+      host().dispatchEvent(new MouseEvent('mouseenter'));
+      next().dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      fixture.detectChanges();
+
+      host().dispatchEvent(new MouseEvent('mouseleave'));
+      fixture.detectChanges();
+      advance(2000);
+
+      // The mouse walking away restarted the slides under a focused link.
+      expect(active()).toBe(0);
+    });
+
+    it('keeps holding when focus leaves and the pointer is still over it', () => {
+      fixture.componentInstance.autoplay.set(true);
+      fixture.detectChanges();
+
+      next().dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      host().dispatchEvent(new MouseEvent('mouseenter'));
+      fixture.detectChanges();
+
+      next().dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+      fixture.detectChanges();
+      advance(2000);
+
+      expect(active()).toBe(0);
+    });
+
+    it('does not resume on a swipe release while focus is inside', () => {
+      fixture.componentInstance.autoplay.set(true);
+      fixture.detectChanges();
+
+      next().dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      fixture.detectChanges();
+
+      // A tap on a link inside a slide is a focusin AND a touch: the release
+      // used to clear the pause the focus was holding.
+      const el = viewport();
+      Object.defineProperty(el, 'offsetWidth', { value: 300, configurable: true });
+      el.dispatchEvent(touch('touchstart', 100));
+      el.dispatchEvent(touch('touchend'));
+      fixture.detectChanges();
+      advance(2000);
+
+      expect(active()).toBe(0);
+    });
+
+    it('resumes once every hold is released', () => {
+      fixture.componentInstance.autoplay.set(true);
+      fixture.detectChanges();
+
+      host().dispatchEvent(new MouseEvent('mouseenter'));
+      next().dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      fixture.detectChanges();
+
+      host().dispatchEvent(new MouseEvent('mouseleave'));
+      next().dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+      fixture.detectChanges();
+      advance(500);
+
+      // The holds must not latch either: three of them and the carousel would
+      // never move again.
+      expect(active()).toBe(1);
+    });
+
     it('stops when it is switched off, and when the carousel goes away', () => {
       fixture.componentInstance.autoplay.set(true);
       fixture.detectChanges();

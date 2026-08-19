@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrImageCropper } from './image-cropper';
 
@@ -271,6 +271,101 @@ describe('WrImageCropper', () => {
 
       expect(event.defaultPrevented).toBe(false);
       expect(box()).toEqual(before);
+    });
+  });
+
+  /**
+   * The image is sized responsively (`max-width: 100%`, `max-height: 70dvh`), so the
+   * box read in the `(load)` handler is only true until the container or the viewport
+   * moves. jsdom lays nothing out and implements no `ResizeObserver`, so both halves
+   * are supplied by hand — the observer, whose callback the test fires itself, and the
+   * new rect it then reads. What that still buys is real: everything below is a
+   * DISPLAY-pixel number the component wrote, and the source-pixel `cropRect()` it
+   * derives from them.
+   */
+  describe('as the image is resized under it', () => {
+    let fireResize: () => void;
+    let disconnects: number;
+
+    beforeEach(() => {
+      fireResize = (): void => undefined;
+      disconnects = 0;
+      class Observer {
+        private readonly callback: () => void;
+        constructor(callback: () => void) {
+          this.callback = callback;
+        }
+        observe(): void {
+          fireResize = (): void => this.callback();
+        }
+        unobserve(): void {
+          /* the component only ever disconnects */
+        }
+        disconnect(): void {
+          disconnects++;
+        }
+      }
+      vi.stubGlobal('ResizeObserver', Observer);
+    });
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    /** Re-measure the `<img>` at a new square size, then let the observer notice. */
+    const resizeTo = (display: number): void => {
+      const el = img();
+      el.getBoundingClientRect = (): DOMRect =>
+        ({ width: display, height: display, x: 0, y: 0, top: 0, left: 0, right: display, bottom: display }) as DOMRect;
+      fireResize();
+      fixture.detectChanges();
+    };
+
+    it('rescales the crop window with the image, keeping the region the user picked', () => {
+      load({ display: 400, natural: 800 });
+      expect(window_()!.style.width).toBe('240px');
+      expect(cropper().cropRect()).toEqual({ x: 160, y: 160, width: 480, height: 480 });
+
+      // Halve the rendered box — a narrowed container, or a shorter viewport against
+      // the `max-height`. Measured once, the window kept painting at 240px over a
+      // 200px image and hung off two of its edges.
+      resizeTo(200);
+
+      expect(window_()!.style.width).toBe('120px');
+      expect(window_()!.style.left).toBe('40px');
+      // And the point of rescaling rather than re-measuring alone: the source region
+      // is the value a consumer crops from, and it did not move.
+      expect(cropper().cropRect()).toEqual({ x: 160, y: 160, width: 480, height: 480 });
+    });
+
+    it('clamps a later keystroke against the new box, not the old one', () => {
+      load({ display: 400, natural: 800 });
+      resizeTo(200);
+
+      for (let i = 0; i < 30; i++) {
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, shiftKey: true });
+        window_()!.dispatchEvent(event);
+      }
+      fixture.detectChanges();
+
+      // 200px image, 120px crop — the far edge is x = 80. Against the stale 400 the
+      // crop walked to 280 and left the image entirely.
+      expect(window_()!.style.left).toBe('80px');
+    });
+
+    it('holds the last real box when the image measures zero', () => {
+      // A hidden image (a closed tab, `display: none`) reports zeros. Scaling by that
+      // would collapse the crop with nothing to scale back from.
+      load({ display: 400, natural: 800 });
+      resizeTo(0);
+
+      expect(window_()!.style.width).toBe('240px');
+      expect(cropper().cropRect().width).toBe(480);
+    });
+
+    it('lets go of the observer when it is destroyed', () => {
+      load();
+      fixture.destroy();
+
+      expect(disconnects).toBeGreaterThan(0);
     });
   });
 });

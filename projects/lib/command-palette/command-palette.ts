@@ -191,7 +191,20 @@ export class WrCommandPalette {
       this.bindingHandle?.unbind();
       const spec = this.trigger();
       if (!spec) return;
-      this.bindingHandle = this.hotkeys.bind(spec, () => this.open.update(v => !v), { allowInInput: true });
+      this.bindingHandle = this.hotkeys.bind(
+        spec,
+        event => {
+          // CLAIM the chord, and the distinction is the whole point: the
+          // `preventDefault` OPTION suppresses the browser, while a handler
+          // calling `preventDefault()` is how `WrHotkey` is documented to learn
+          // that a binding took the chord and the lower-priority ones should be
+          // skipped. A palette that only toggled left the chord unclaimed, so
+          // two palettes on one page would both open on `mod+k`.
+          event.preventDefault();
+          this.open.update(v => !v);
+        },
+        { allowInInput: true }
+      );
     });
 
     // Reset query + active index whenever we open.

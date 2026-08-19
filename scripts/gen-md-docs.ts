@@ -44,9 +44,35 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
 
 /**
  * Floor, set AT the current number rather than below it. Slack in a floor
- * licenses exactly the silent erosion this check exists to catch.
+ * licenses exactly the silent erosion this check exists to catch — which only
+ * holds if it is raised alongside the export: the floor read 190 while the
+ * export wrote 198. The routes in {@link NO_TWIN} are outside the count by
+ * design and always were.
  */
-const MIN_PAGES = 190;
+const MIN_PAGES = 198;
+
+/**
+ * Doc pages that will never have a twin, named so the decision is on the record.
+ *
+ * The six raw-SVG icon galleries are `RenderMode.Client` on purpose (see
+ * `app.routes.server.ts`): prerendering one means up to 240 inlined arbitrary
+ * SVGs — the two adapter galleries that DO prerender weigh ~230 KB each — to
+ * produce a twin under a kilobyte, because the grid is dropped from the export
+ * anyway. That is the wrong trade, and re-deriving a twin from `app/` instead
+ * is exactly the drift this generator exists to avoid. So they get none.
+ *
+ * They still render `<ngwr-doc-page>`, which advertises a `.md` alternate
+ * unconditionally — that link points at nothing for these six, and fixing it
+ * means an opt-out on the doc-page component, not a change here.
+ */
+const NO_TWIN: readonly string[] = [
+  '/icons/tabler',
+  '/icons/phosphor',
+  '/icons/heroicons',
+  '/icons/iconoir',
+  '/icons/radix',
+  '/icons/bootstrap',
+];
 
 /** Elements whose subtree is rendered UI — kept off the page, not summarized. */
 const SKIP = new Set(['div.demo', 'div.controls', 'div.preview', 'ngwr-icon-grid']);
@@ -263,6 +289,19 @@ function main(): void {
     writeFileSync(target, markdown);
     written++;
     bytes += Buffer.byteLength(markdown);
+  }
+
+  // A recorded exemption that has quietly stopped applying is worse than no
+  // record at all: it keeps asserting a decision someone already reversed. If
+  // one of these prerenders again its twin was just written above, so the entry
+  // has to go rather than sit there explaining an absence that isn't.
+  const stale = NO_TWIN.filter(route => existsSync(join(DIST, route.replace(/^\//, ''), 'index.html')));
+  if (stale.length > 0) {
+    err(
+      `\n✘ md docs: ${stale.join(', ')} now prerender, so NO_TWIN is stale.\n` +
+        `  Drop them from the list in scripts/gen-md-docs.ts and raise MIN_PAGES.\n`
+    );
+    exit(1);
   }
 
   if (written < MIN_PAGES) {
