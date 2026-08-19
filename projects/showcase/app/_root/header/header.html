@@ -129,7 +129,11 @@
   </div>
 </header>
 
-<wr-drawer [(open)]="menuOpen" position="right" width="min(17rem, 85vw)">
+<!-- `closable="false"`: the sheet brings its OWN dismiss, the morphing burger
+     below, and `wr-drawer` adds one of its own by default. Both landed in the
+     same corner — two close glyphs drawn on top of each other, and two buttons
+     announced there. -->
+<wr-drawer [(open)]="menuOpen" position="right" width="min(17rem, 85vw)" [closable]="false">
   <!-- The close toggle lives inside the drawer so it sits in the overlay's
        top layer, visually above the menu — the page header (and its burger)
        are painted under it. Same `menuOpen` signal, so it morphs to a close
