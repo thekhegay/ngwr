@@ -105,7 +105,7 @@
 
   <ngwr-doc-section
     title="Search mode"
-    description="The `search` mode turns the trigger into a text input that filters the projected `<wr-option>` children case-insensitively. Replaces the removed `wr-autocomplete` for the common sync-filter case."
+    description="The `search` mode turns the trigger into a text input that filters the projected `<wr-option>` children case-insensitively. With `clearable`, Backspace on an empty field unsets the value — the × was otherwise the only way to clear one here, which made it a mouse-only action. Replaces the removed `wr-autocomplete` for the common sync-filter case."
   >
     <ngwr-doc-snippet [code]="snippets.search">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">

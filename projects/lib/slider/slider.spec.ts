@@ -632,6 +632,17 @@ describe('WrSlider inside a form field', () => {
     expect(root.querySelector('.wr-slider__thumb--high')!.getAttribute('id')).toBeNull();
   });
 
+  it('carries no describedby or invalid flag while the field has nothing to say', () => {
+    // An `aria-describedby` pointing at nothing is invalid, and announcing
+    // "invalid" with no message is worse than staying quiet — so both attributes
+    // are absent until `<wr-form-field>` publishes a message id.
+    const root = build(FieldHost).nativeElement as HTMLElement;
+    const thumb = root.querySelector<HTMLElement>('.wr-slider__thumb--low')!;
+
+    expect(thumb.hasAttribute('aria-describedby')).toBe(false);
+    expect(thumb.hasAttribute('aria-invalid')).toBe(false);
+  });
+
   it('stamps no id at all on a slider standing on its own', () => {
     // The field is what supplies the id; a bare slider inventing one would put a
     // document-global name on a thumb nothing points at.
