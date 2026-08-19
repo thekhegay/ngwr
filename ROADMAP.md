@@ -31,7 +31,8 @@ everything under [Deferred](#deferred) is explicitly not now.
 1. **C3** — Combobox / autocomplete _(hard-blocked on B2)_
 2. **B2** — Rebuild internals on `@angular/aria`
 3. **B4** — Schema-driven `wr-form`
-4. **D2** — System-token layer
+4. **D2** — System-token layer (rescoped to three small additions)
+5. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
 **D1 and E2 came off this list.** D1 shipped — `wrThemeTokens()`, the
 `check:theme` parity gate, three generated registry presets and the builder at
@@ -378,12 +379,66 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       select-with-search; build on the Aria `Combobox` primitive.
 ## D — Theming & visuals
 
-- [ ] **D2. System-token layer** (M, partially shipped) — a neutral gray ramp
-      plus surface role aliases already landed, documented at `/guides/tokens`.
-      **Remaining:** the full semantic `--wr-sys-*` roles over the raw palette,
-      light / dark / high-contrast via `color-scheme`, and the optional
-      `--mat-sys-*` interop map so ngwr drops into Material apps. This is the M3
-      theming bar.
+- [ ] **D2. System-token layer** (S, rescoped) — **the item as written is
+      mostly answered or refused.** Three of its four parts:
+      - **`--wr-sys-*` roles — rejected.** The role layer already ships under
+        `--wr-color-*` (`surface`, `on-surface`, `on-surface-muted`, `outline`,
+        each with `-rgb`) and has **513 declarations** behind it in
+        `projects/lib`. Custom properties are public API here, so a second prefix
+        is not a rename — it is a permanent synonym, with `/guides/tokens`
+        recommending two things at once. And the drift argument is not a
+        forecast: **`--wr-color-border-subtle`, `-border-strong`,
+        `-<intent>-soft-contrast`, `-light-ink` and all eleven `-gray-*` steps
+        have ZERO consumers** across the 107 component sheets today, while 22
+        files hand-roll `rgba(var(--wr-color-outline-rgb), α)` at eight alphas —
+        four of which are byte-identical to tokens that already exist. Adding
+        names is free; using them is not.
+      - **`color-scheme` — already shipped**, `light` on `:root` and `dark` in the
+        dark block. One real finding survives it: ngwr declares it on `:root`
+        (0,1,0) and Angular Material documents `html { color-scheme: light dark }`
+        (0,0,1), so **in a mixed app every Material `light-dark()` colour pins to
+        its light branch**. That is a docs note, not a token.
+      - **`--mat-sys-*` interop — refused as emitted CSS.** `mat.theme` writes to
+        `html`, ngwr to `:root`, so an ngwr-side map silently overrides Material
+        whichever stylesheet loads last. Worse, Material's `slot()` bottoms out at
+        `var(--mat-<token>, var(--mat-sys-<role>))` with no literal fallback, so a
+        colour-only map leaves the typography, shape, elevation and state tokens
+        invalid at computed-value time. Of 51 M3 colour roles, 20 have no honest
+        ngwr source (the twelve `*-fixed` tones, `inverse-primary`, the five-step
+        `surface-container` ramp). Ship a documented snippet if anything.
+
+      **What is actually left, each with a hand-roll count and no existing name:**
+      - `--wr-disabled-opacity`, a scalar in `_variables.scss`. Nothing in
+        `theme/` names the disabled state today, against **29 entry points, 41
+        declarations and 7 values** — 0.6 x18, 0.5 x8, 0.7 x5, 0.55 x3, 0.4 x3,
+        0.35 x2, 0.65 x2 — with `date-picker` and `calendar` each disagreeing with
+        themselves three ways inside one file.
+      - A three-step neutral FILL scale, **only** in a PR that also converts the
+        31 hand-rolled declarations and collapses those eight alphas. The border
+        trio carries the right values under the wrong name: a fill is not a
+        hairline.
+      - A `check:tokens` lint stage failing on a token declared in `theme/styles/`
+        with no consumer, with an `unused-ok:` escape in the shape `check:rtl`
+        already uses. It would have caught every dead family above.
+- [ ] **D6. High-contrast rendering** (M) — split out of D2, because the two media
+      queries are not one feature. **`prefers-contrast: more` is the one worth
+      shipping first**: the fix is token-shaped (the `-ink` shares re-derived per
+      intent, `text-faint` from 0.6 to 0.85, a deeper light `on-surface-muted`, an
+      opaque `outline` — about eleven declarations), and it is **provable** —
+      Playwright takes `contrast: 'more'` on the context, so `check:contrast`
+      gains a mode, keys its baseline `${rule} (${theme}, ${mode})` so a
+      high-contrast regression cannot hide inside the ordinary allowance, and
+      asserts `matchMedia('(prefers-contrast: more)')` actually matched.
+      **`forced-colors: active` is mostly not token-shaped**, and that was
+      measured rather than assumed: the UA replaces author colours, so a
+      redefined token only survives if its value is a bare system keyword —
+      `color-mix()`, `rgba()` and hex are all forced like anything else, which
+      makes most of such a block theatre. What genuinely breaks there is
+      `box-shadow` (dropped) and `background-image` (dropped, and `wr-table`
+      draws seven state tints that way), and **axe reports the pre-forcing
+      colours**, so no gate in this repo can tell the feature is present. The
+      worst of it — the shared focus ring, which paired `outline: none` with a
+      shadow — is already fixed.
 ## E — DX, docs & distribution
 
 - [ ] **E2. AI-legibility stack** (M–L, highest leverage for adoption) —
