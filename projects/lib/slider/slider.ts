@@ -152,6 +152,20 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   protected readonly thumbId = computed(() => this.field?.controlId() ?? null);
 
   /**
+   * The field's error message, wired to the thumb the same way `wrInput` wires it
+   * to its native element.
+   *
+   * Without this the messages `<wr-form-field>` renders are visible and nothing
+   * else: a screen reader on the thumb never learns the field is invalid, nor
+   * what the message says. `aria-invalid` is keyed on the message EXISTING rather
+   * than on `errorKeys()`, because the field only publishes an id once it is
+   * showing something — announcing "invalid" while pointing at nothing is worse
+   * than staying quiet.
+   */
+  protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
+  protected readonly ariaInvalid = computed(() => (this.field?.describedBy() ? 'true' : null));
+
+  /**
    * Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape
    * follows `range`: a plain `number`, or `[low, high]` in range mode.
    */
