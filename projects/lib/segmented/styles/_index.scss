@@ -1,7 +1,7 @@
 @use '../../theme/styles' as theme;
 
 .wr-segmented {
-  --wr-segmented-bg: rgba(var(--wr-color-outline-rgb), 0.4);
+  --wr-segmented-bg: var(--wr-color-fill);
   --wr-segmented-color: var(--wr-color-on-surface);
   --wr-segmented-selected-bg: var(--wr-color-surface);
   --wr-segmented-selected-color: var(--wr-color-on-surface);

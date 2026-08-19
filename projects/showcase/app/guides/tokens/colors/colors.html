@@ -175,6 +175,21 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Neutral fills"
+    description="The low-contrast wash a header, a track or a readonly field sits on — three steps, and not the same thing as a border."
+  >
+    <ngwr-doc-api [rows]="fillTokens" />
+
+    <p>
+      These read <code>--wr-color-light-rgb</code> rather than <code>--wr-color-outline-rgb</code>, even though the two
+      resolve to the same channel. A fill is not a hairline: when 33 declarations across 22 files hand-rolled this wash
+      out of the outline channel, retuning outlines for their own job would have moved every one of them — and one
+      measured pair in <code>wr-table</code> drops from 6.58:1 to 4.05:1 that way. Reach for
+      <code>--wr-color-outline</code> when you are drawing a rule, and for these when you are filling a shape.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="The focus ring"
     description="One family for the keyboard indicator, so it is themable like everything else. It is an outline, and that is a decision rather than a default."
   >

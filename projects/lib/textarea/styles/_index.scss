@@ -33,7 +33,7 @@
 
   &--disabled {
     --wr-textarea-color: var(--wr-color-on-surface-muted);
-    --wr-textarea-bg: rgba(var(--wr-color-outline-rgb), 0.35);
+    --wr-textarea-bg: var(--wr-color-fill);
     cursor: not-allowed;
   }
 

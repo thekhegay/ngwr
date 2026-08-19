@@ -167,6 +167,25 @@ export default class TokensColorsPage {
     },
   ];
 
+  /** The neutral wash a header, a track or a readonly field sits on. */
+  protected readonly fillTokens: readonly DocApiRow[] = [
+    {
+      name: '--wr-color-fill-subtle',
+      type: 'rgba(var(--wr-color-light-rgb), 0.15)',
+      description: 'Barely there — a hovered table row, a detail row, a group band.',
+    },
+    {
+      name: '--wr-color-fill',
+      type: 'rgba(var(--wr-color-light-rgb), 0.3)',
+      description: 'The default neutral surface — a table header, a readonly field, a grouped control.',
+    },
+    {
+      name: '--wr-color-fill-strong',
+      type: 'rgba(var(--wr-color-light-rgb), 0.55)',
+      description: 'The pronounced one — a code chip, a progress track, a drop zone.',
+    },
+  ];
+
   /**
    * The keyboard focus indicator. Colour and geometry together, because the
    * interesting property spans both.

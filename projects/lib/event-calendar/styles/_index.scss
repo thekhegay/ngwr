@@ -12,7 +12,7 @@
   // The house fill for a header strip — `wr-table` and `wr-transfer` use the
   // same one. NOT `--wr-color-light`, which is an intent colour: it composites
   // dark enough that `--wr-color-on-surface-muted` on top of it lands at 3.6:1.
-  --wr-event-calendar-fill: rgba(var(--wr-color-outline-rgb), 0.25);
+  --wr-event-calendar-fill: var(--wr-color-fill);
   --wr-event-calendar-cols: 7;
 
   display: flex;

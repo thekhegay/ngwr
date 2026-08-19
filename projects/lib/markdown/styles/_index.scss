@@ -77,7 +77,7 @@
   &__code-inline {
     padding: 0.15em 0.35em;
     border-radius: var(--wr-border-radius-sm);
-    background: rgb(var(--wr-color-light-rgb) / 25%);
+    background: var(--wr-color-fill);
     // `-ink`, not the bare intent: code on a tint is text, and the bare colour
     // fails AA there. The share in `$ink-mix` is calibrated against this tint.
     color: var(--wr-color-dark-ink);
@@ -95,7 +95,7 @@
     padding: 0.75rem;
     overflow-x: auto;
     border-radius: var(--wr-border-radius-base);
-    background: rgb(var(--wr-color-light-rgb) / 25%);
+    background: var(--wr-color-fill);
     tab-size: 2;
   }
 
@@ -257,7 +257,7 @@
   }
 
   &__th {
-    background: rgb(var(--wr-color-light-rgb) / 25%);
+    background: var(--wr-color-fill);
     font-weight: var(--wr-font-weight-semibold);
   }
 

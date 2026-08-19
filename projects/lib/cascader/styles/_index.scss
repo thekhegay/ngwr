@@ -21,7 +21,7 @@
 
   &--disabled {
     --wr-cascader-color: var(--wr-color-on-surface-muted);
-    --wr-cascader-bg: rgba(var(--wr-color-outline-rgb), 0.35);
+    --wr-cascader-bg: var(--wr-color-fill);
   }
 
   // Sizes — trigger on the control contract (sm 22 / md 30 / lg 36).

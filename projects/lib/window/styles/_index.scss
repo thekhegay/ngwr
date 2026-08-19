@@ -130,7 +130,7 @@
 
     &:hover {
       color: var(--wr-color-on-surface);
-      background: rgba(var(--wr-color-outline-rgb), 0.6);
+      background: var(--wr-color-fill-strong);
     }
 
     &--close:hover {
@@ -229,7 +229,7 @@
     gap: 0.5rem;
     padding: 0.25rem 0.75rem;
     border-top: 1px solid var(--wr-window-border);
-    background: rgba(var(--wr-color-outline-rgb), 0.25);
+    background: var(--wr-color-fill);
     font-size: var(--wr-text-xs);
     color: var(--wr-color-on-surface-muted);
 
@@ -403,7 +403,7 @@
     transition: background var(--wr-transition-base);
 
     &:hover {
-      background: rgba(var(--wr-color-outline-rgb), 0.6);
+      background: var(--wr-color-fill-strong);
     }
   }
 

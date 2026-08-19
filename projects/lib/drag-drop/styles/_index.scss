@@ -96,7 +96,7 @@
 .wr-sortable-list .cdk-drag-placeholder {
   opacity: 0.35;
   // Subtle dashed outline so users see where the item came from.
-  background: rgba(var(--wr-color-outline-rgb), 0.6);
+  background: var(--wr-color-fill-strong);
   border-radius: var(--wr-border-radius-base);
   outline: 1px dashed rgba(var(--wr-color-on-surface-rgb), 0.25);
   outline-offset: -1px;

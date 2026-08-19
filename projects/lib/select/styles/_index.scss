@@ -41,7 +41,7 @@
 
   &--disabled {
     --wr-select-color: var(--wr-color-on-surface-muted);
-    --wr-select-bg: rgba(var(--wr-color-outline-rgb), 0.35);
+    --wr-select-bg: var(--wr-color-fill);
   }
 
   &__trigger {

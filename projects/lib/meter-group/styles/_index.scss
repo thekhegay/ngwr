@@ -13,7 +13,7 @@
     height: 0.625rem;
     border-radius: var(--wr-border-radius-pill);
     overflow: hidden;
-    background: rgba(var(--wr-color-outline-rgb), 0.5);
+    background: var(--wr-color-fill-strong);
   }
 
   &__slice {

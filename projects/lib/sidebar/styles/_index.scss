@@ -88,7 +88,7 @@
       transition: background var(--wr-transition-base);
 
       &:hover {
-        background: rgba(var(--wr-color-outline-rgb), 0.5);
+        background: var(--wr-color-fill-strong);
 
         .wr-sidebar__icon {
           color: var(--wr-color-primary);
@@ -223,7 +223,7 @@
     flex: 0 0 auto;
     padding: 0.0625rem 0.375rem;
     border-radius: var(--wr-border-radius-pill);
-    background: rgba(var(--wr-color-outline-rgb), 0.6);
+    background: var(--wr-color-fill-strong);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     font-weight: var(--wr-font-weight-semibold);

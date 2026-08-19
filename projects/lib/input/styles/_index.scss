@@ -50,7 +50,7 @@
   &:disabled,
   &[readonly] {
     --wr-input-color: var(--wr-color-on-surface-muted);
-    --wr-input-bg: rgba(var(--wr-color-outline-rgb), 0.35);
+    --wr-input-bg: var(--wr-color-fill);
   }
 
   &:disabled {
