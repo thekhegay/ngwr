@@ -61,8 +61,8 @@
     }
 
     &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.4);
+      outline: var(--wr-focus-ring-width) solid var(--wr-calendar-accent);
+      outline-offset: 2px;
     }
 
     &:disabled {
@@ -93,8 +93,8 @@
     }
 
     &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.4);
+      outline: var(--wr-focus-ring-width) solid var(--wr-calendar-accent);
+      outline-offset: 2px;
     }
 
     &:disabled {
@@ -163,8 +163,8 @@
     }
 
     &:focus-visible {
-      outline: none;
-      box-shadow: inset 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.5);
+      outline: var(--wr-focus-ring-width) solid var(--wr-calendar-accent);
+      outline-offset: -2px;
     }
 
     // States — order matters; later rules override earlier ones.
@@ -239,8 +239,8 @@
     }
 
     &:focus-visible {
-      outline: none;
-      box-shadow: inset 0 0 0 2px rgba(var(--wr-calendar-accent-rgb), 0.5);
+      outline: var(--wr-focus-ring-width) solid var(--wr-calendar-accent);
+      outline-offset: -2px;
     }
 
     &--current:not(.wr-calendar__chip--selected) {

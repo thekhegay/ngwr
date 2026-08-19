@@ -95,7 +95,7 @@
   &:hover,
   &:focus-visible {
     background: var(--wr-dropdown-item-bg-hover);
-    outline: none;
+    outline-offset: -2px;
   }
 
   &__icon {

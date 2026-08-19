@@ -65,6 +65,36 @@
   --wr-shadow-float: 0 8px 24px rgb(0 0 0 / 18%);
   --wr-shadow-modal: 0 20px 48px rgb(0 0 0 / 25%);
 
+  // Focus ring
+  //
+  // The keyboard indicator, as tokens rather than a recipe baked into SCSS —
+  // the ring was the one surface a consumer could not retheme, because
+  // `theme.focus-ring` hard-coded it.
+  //
+  // It is an OUTLINE now, and the halo is a second channel rather than the only
+  // one. The halo alone is a 25% tint of the primary over the page: **1.41:1 in
+  // light, 1.31:1 in dark**, where WCAG 1.4.11 asks 3:1 of a focus indicator —
+  // and the mixin also set `outline: none`, so for the forty-one selectors whose
+  // entire focus style is that mixin, nothing on screen met the bar. The solid
+  // token measures 4.89:1 and 4.07:1. Three components had already worked this
+  // out on their own and hand-rolled `outline: 2px solid var(--wr-color-primary)`
+  // (`event-calendar`, `lightbox`), and four more wrote an `outline-offset` next
+  // to the include that could never apply.
+  //
+  // An outline is also the only form the indicator survives in under
+  // `forced-colors`, which drops every `box-shadow` outright, and it is exempt
+  // from layout, so focus never reflows the box.
+  //
+  // Halo spread equals the offset on purpose: the halo fills exactly the gap the
+  // outline leaves, so the two read as one ring instead of two. A component that
+  // insets its outline (`outline-offset: -2px`, the idiom for a row inside an
+  // `overflow: hidden` container) keeps the halo outside, where its own clipping
+  // hides it.
+  --wr-focus-ring-color: var(--wr-color-primary);
+  --wr-focus-ring-width: 2px;
+  --wr-focus-ring-offset: 2px;
+  --wr-focus-ring-halo: rgba(var(--wr-color-primary-rgb), 0.25);
+
   // Z-index scale
   //
   // Overlay panels inside the CDK container inherit its stacking; these
