@@ -37,11 +37,20 @@ import { WR_CONFIG } from './tokens';
  * size scale is narrower than {@link WrControlSize} stops compiling here rather
  * than accepting a value it cannot render — the type checker doing the work a
  * parity script would otherwise have to.
+ *
+ * `NoInfer` is what makes that true. Drop it and the guard is a comment again on
+ * every call site that does not pin the generic by hand, which was all but two —
+ * `wr-btn` the only size one among them. Without it `T` has three inference sites;
+ * TypeScript collects all three candidates and keeps the SUPERTYPE, so `pick`'s
+ * `WrControlSize` won and `T` widened to the config's type. `Signal<T>` is
+ * covariant, so the narrower binding stayed assignable and the call compiled clean.
+ * Widening `WrControlSize` by one member used to raise exactly one error, in
+ * `wr-btn`; it now raises nine.
  */
 export function useConfigValue<T>(
   binding: Signal<T | null | undefined>,
-  pick: (config: WrConfig) => T | undefined,
-  fallback: T
+  pick: (config: WrConfig) => NoInfer<T> | undefined,
+  fallback: NoInfer<T>
 ): Signal<T> {
   const config = inject(WR_CONFIG);
 

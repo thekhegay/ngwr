@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { WrImageCropper } from 'ngwr/image-cropper';
+import type { WrCropArrow, WrCropWindowBox } from 'ngwr/image-cropper/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrImageCropperHarness } from './wr-image-cropper-harness';
@@ -170,5 +171,24 @@ describe('WrImageCropperHarness', () => {
   it('matches on the empty state', async () => {
     expect(await loader.getHarnessOrNull(WrImageCropperHarness.with({ empty: false }))).not.toBeNull();
     expect(await loader.getHarnessOrNull(WrImageCropperHarness.with({ empty: true }))).toBeNull();
+  });
+});
+
+/**
+ * The entry point's TYPE surface, which every test above misses by inferring.
+ *
+ * `getCropBox()` returns a `WrCropWindowBox` and `pressArrow()` takes a
+ * `WrCropArrow`; both are exported from the harness file, and `public-api.ts` used
+ * to forward neither — so the shipped `.d.ts` named two types in public signatures
+ * that no consumer could import. Naming them THROUGH `ngwr/image-cropper/testing`
+ * is the whole assertion: relative imports, which every other test here uses,
+ * bypass the barrel and cannot see the gap.
+ */
+describe('ngwr/image-cropper/testing', () => {
+  it('names the two types its harness methods speak in', () => {
+    const box: WrCropWindowBox = { x: 0, y: 0, width: 240, height: 240 };
+    const arrows: readonly WrCropArrow[] = ['left', 'right', 'up', 'down'];
+
+    expect([box.width, arrows.length]).toEqual([240, 4]);
   });
 });

@@ -192,6 +192,22 @@ describe('WrColorPickerHarness', () => {
     expect((await harness.getThumbs()).alpha).toBe(25);
   });
 
+  it('reads the offset the component declared, not one a layout resolved', async () => {
+    // `getCssValue()` is `getComputedStyle()`, and `left` / `top` on a positioned element
+    // resolve to the USED value — so the declared `100%` echoes back here and arrives as
+    // pixels under a browser runner, with nothing to say which one you got.
+    const harness = await picker();
+    const thumb = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '.wr-color-picker__sv .wr-color-picker__thumb'
+    )!;
+    thumb.removeAttribute('style');
+
+    // The stylesheet parks every thumb at `top: 0; left: 0`, so once it is loaded a
+    // computed read answers 0 for a thumb whose binding is gone — a plausible origin. The
+    // attribute read has nothing to report and says so.
+    await expect(harness.getThumbs()).rejects.toThrow(/SV thumb carries no inline left percentage/);
+  });
+
   it('has no alpha thumb when the picker has no alpha', async () => {
     fixture.componentInstance.alpha.set(false);
     await fixture.whenStable();

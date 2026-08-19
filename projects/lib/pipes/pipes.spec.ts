@@ -30,6 +30,15 @@ describe('wrBytes', () => {
     expect(pipe.transform(1024 ** 7)).toMatch(/PB$/);
   });
 
+  it('rounds a sub-byte value up to the smallest unit it knows', () => {
+    // A fraction of a byte is still bytes: the unit index has a floor as well as
+    // a cap, or `UNITS[-1]` reaches the DOM as the literal text "undefined".
+    expect(pipe.transform(0.5)).toBe('1 B');
+    expect(pipe.transform(0.9999)).toBe('1 B');
+    expect(pipe.transform(0.001)).toBe('0 B');
+    expect(pipe.transform('0.5')).toBe('1 B');
+  });
+
   it('returns an empty string for nothing, and 0 B for non-positive', () => {
     expect(pipe.transform(null)).toBe('');
     expect(pipe.transform(undefined)).toBe('');

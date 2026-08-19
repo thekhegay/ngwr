@@ -18,6 +18,11 @@ import type { Schema } from './schema';
  * `lucide` is here because the bootstrap snippet this schematic prints registers
  * icons through the lucide adapter — leaving it out made the very first snippet
  * a consumer pastes fail to resolve.
+ *
+ * `@angular/forms` is a REQUIRED peer in `projects/lib/package.json` and is
+ * deliberately NOT here: every `ng new` app already depends on it, so installing
+ * it would be a no-op write to the consumer's manifest. The manifest declares it
+ * because a consumer can remove it; this list is about what `ng add` has to add.
  */
 const BASE_PEERS: readonly (readonly [string, string])[] = [
   ['@angular/cdk', '>=22.0.0'],

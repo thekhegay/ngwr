@@ -20,6 +20,8 @@ import { WrInputNumberHarness } from './wr-input-number-harness';
       [step]="step()"
       [decimals]="decimals()"
       [ariaLabel]="label()"
+      [incrementLabel]="incrementLabel()"
+      [decrementLabel]="decrementLabel()"
       [disabled]="disabled()"
       [readonly]="readonly()"
       (touch)="onTouch()"
@@ -35,6 +37,8 @@ class Host {
   readonly step = signal(1);
   readonly decimals = signal<number | null>(null);
   readonly label = signal<string | null>(null);
+  readonly incrementLabel = signal<string | null>(null);
+  readonly decrementLabel = signal<string | null>(null);
   readonly disabled = signal(false);
   readonly readonly = signal(false);
   readonly touched = signal(0);
@@ -164,6 +168,21 @@ describe('WrInputNumberHarness', () => {
     await field.decrement();
     expect(host().amount()).toBe(4);
     expect(await field.getValue()).toBe(4);
+  });
+
+  it('finds the steppers by position when their labels are not English', async () => {
+    // The ▲▼ names resolve through the i18n catalog and a binding overrides them, so a
+    // harness keyed on "Increment" / "Decrement" would miss both here.
+    host().incrementLabel.set('Увеличить');
+    host().decrementLabel.set('Уменьшить');
+    fixture.detectChanges();
+    const field = await quantity();
+
+    await field.increment();
+    expect(host().amount()).toBe(6);
+
+    await field.decrement();
+    expect(host().amount()).toBe(5);
   });
 
   it('steps with the arrow keys', async () => {

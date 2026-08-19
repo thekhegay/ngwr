@@ -27,12 +27,12 @@
 
   <ngwr-doc-section
     title="Touch targets"
-    description="Small controls — close / remove buttons, tree and cascader toggles, select chips, toast actions — automatically grow to a comfortable ≥44px tap area on touch devices, gated behind `@media (pointer: coarse)`. Nothing to configure, and mouse / trackpad layouts stay untouched."
+    description="Small controls grow their hit area on touch devices, gated behind `@media (pointer: coarse)`. The shared `touch-target` mixin floors a full 44px with an invisible pseudo-element — the alert / dialog / drawer / lightbox close buttons, the slider thumb and knob dial, the colour-picker hue and alpha tracks, the splitter divider and the drag handle. The rest is hand-sized to stay clear of its neighbours: the select chip removes and clear, the cascader clear and the toast actions reach 32px and the tree toggle 28px, with their rows and chips opened up around them. Nothing to configure, and mouse / trackpad layouts stay untouched."
   />
 
   <ngwr-doc-section
     title="Touch density"
-    description="For touch-first screens, the `touch` density preset enlarges every control at once — vertical padding ×1.7, horizontal ×1.25, gaps ×1.5 — keeping vertical rhythm intact. Set it app-wide with `provideWrDensity`, or scope it to a subtree with the `wrDensity` directive."
+    description="For touch-first screens, the `touch` density preset scales the padding of every density-aware control at once — vertical ×1.7, horizontal ×1.25 — so button, input, textarea, select, cascader, the tree-select trigger, list rows, table cells and tags grow together and keep a shared baseline. Controls with fixed geometry — checkbox, switch, radio, segmented, slider — are unaffected; reach for the touch targets above for those. `--wr-density-text` and `--wr-density-gap` are published for you to read in your own `calc()`, but no shipped component multiplies by either yet. Set it app-wide with `provideWrDensity`, or scope it to a subtree with the `wrDensity` directive."
   >
     <ngwr-doc-code [code]="snippets.density" language="angular-ts" />
   </ngwr-doc-section>

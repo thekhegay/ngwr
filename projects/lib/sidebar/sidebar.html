@@ -38,7 +38,7 @@
           type="button"
           class="wr-sidebar__group-toggle"
           [attr.aria-expanded]="isOpen(entry.title)"
-          [attr.aria-controls]="groupBodyId(entry.title)"
+          [attr.aria-controls]="groupBodyId($index)"
           (click)="toggleGroup(entry.title)"
         >
           @if (asGroup(entry).icon || defaultGroupIcon(); as name) {
@@ -62,7 +62,7 @@
         </button>
         <div
           class="wr-sidebar__group-wrap"
-          [attr.id]="groupBodyId(entry.title)"
+          [attr.id]="groupBodyId($index)"
           [attr.inert]="!isOpen(entry.title) ? '' : null"
         >
           <div class="wr-sidebar__group-body">

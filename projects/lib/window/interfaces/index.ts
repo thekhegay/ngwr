@@ -3,6 +3,7 @@ type WrWindowBeforeCloseHook<R> = (result: R | undefined) => boolean | Promise<b
 
 export type { WrWindowChromeSize } from './window-chrome-size';
 export type { WrWindowConfig, WrWindowPersistMode, WrWindowStorageConfig } from './window-config';
+export type { WrWindowLayoutSnapshot } from './window-layout-snapshot';
 export type { WrWindowOs, WrWindowResolvedOs } from './window-os';
 export type { WrWindowSize } from './window-size';
 export type { WrWindowSnap, WrWindowSnapTarget } from './window-snap';

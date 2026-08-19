@@ -62,6 +62,17 @@
     }
   }
 
+  // `__nav` is a plain flex row, so it already mirrors: under `dir="rtl"` the
+  // previous button lays out at the right edge. Its chevron is drawn pointing
+  // physically left, though, so it ends up aiming at the pages it moves AWAY
+  // from. Turn the glyphs around with the strip, the same way the carousel's
+  // arrows do — "previous" is the inline start in both directions.
+  &__nav-btn {
+    [dir='rtl'] & svg {
+      transform: scaleX(-1);
+    }
+  }
+
   &__ellipsis {
     display: inline-flex;
     min-width: var(--wr-pagination-cell, 2rem);

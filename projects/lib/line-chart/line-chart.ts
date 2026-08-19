@@ -173,6 +173,31 @@ export class WrLineChart {
     return this.padding.top + ((max - value) / (max - min)) * this.plotHeight();
   }
 
+  /**
+   * A point's x as a percentage of the host's width. The x-label strip and the SVG share
+   * that width — the drawing stretches to it — so this is the same space the tooltip and
+   * the labels are placed in, at any size.
+   */
+  protected xPercent(index: number): number {
+    return (this.pointX(index) / this.vbW) * 100;
+  }
+
+  /**
+   * How wide an x label may be, as a percentage of the host's width: its own slot — half
+   * the distance to a neighbour on each side — cut back to what is left between its point
+   * and the end of the strip. Centring a label on its point says nothing about its WIDTH,
+   * and with no bound at all twelve month names printed over each other and the last one
+   * hung outside the chart. Past this the stylesheet ellipsises.
+   */
+  protected xMaxPercent(index: number): number {
+    const count = this.pointCount();
+    // A single label has no neighbour to collide with and the whole strip to sit in.
+    if (count <= 1) return 100;
+    const slot = (this.plotWidth() / (count - 1) / this.vbW) * 100;
+    const x = this.xPercent(index);
+    return Math.min(slot, x + slot / 2, 100 - x + slot / 2);
+  }
+
   protected readonly hoverPoints = computed(() => {
     const i = this.hoveredIndex();
     if (i === null) return [];

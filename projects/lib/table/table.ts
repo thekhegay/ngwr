@@ -373,13 +373,17 @@ export class WrTable {
     if (!items) return items;
     const size = this.pageSize();
     if (size <= 0 || this.totalItems() !== null) return items;
-    // Clamped, because `page` is a model the host owns and the data can shrink
-    // under it — a filter or a delete used to leave the table showing an empty
-    // slice with no way back except paging by hand. The pager clamps its own
-    // number; this covers the case where the data drops below one page and the
-    // pager is not even rendered.
+    // Clamped at BOTH ends, because `page` is a model the host owns (a `model()`
+    // takes no transform) and the data can shrink under it — a filter or a delete
+    // used to leave the table showing an empty slice with no way back except
+    // paging by hand. The pager clamps its own number downwards only, and it is
+    // not even rendered once the data drops below one page. Below 1 the offset
+    // goes negative, and `Array.slice` reads a negative start from the END: page
+    // 0 emptied the table and page -1 rendered a window counted from the back,
+    // with the pager highlighting nothing. `|| 1` folds `0` and `NaN` in.
     const lastPage = Math.max(1, Math.ceil(items.length / size));
-    const start = (Math.min(this.page(), lastPage) - 1) * size;
+    const page = Math.min(Math.max(1, this.page() || 1), lastPage);
+    const start = (page - 1) * size;
     return items.slice(start, start + size);
   });
 
@@ -1223,10 +1227,17 @@ export class WrTable {
         return sum;
       case 'avg':
         return Math.round((sum / nums.length) * 100) / 100;
+      // Reduced rather than spread: a summary aggregates the WHOLE dataset (or a
+      // whole group bucket), not the page, and `Math.min(...nums)` throws
+      // `RangeError: Maximum call stack size exceeded` past ~125k arguments — out
+      // of a `computed()` during change detection, which stops the table
+      // rendering. `nums` is non-empty and finite by here, so a seedless reduce is
+      // safe, and it agrees with `Math.min`/`Math.max` on everything a summary
+      // renders (they differ only on the sign of a zero tie).
       case 'min':
-        return Math.min(...nums);
+        return nums.reduce((a, b) => (b < a ? b : a));
       case 'max':
-        return Math.max(...nums);
+        return nums.reduce((a, b) => (b > a ? b : a));
       default:
         return '';
     }

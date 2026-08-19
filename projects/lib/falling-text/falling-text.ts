@@ -42,6 +42,8 @@ interface Body {
   angVel: number;
   w: number;
   h: number;
+  /** Last `transform` written to `el`. The loop parks when no body's changes. */
+  transform: string;
 }
 
 const RESTITUTION = 0.55;
@@ -229,56 +231,22 @@ export class WrFallingText {
         angVel: (Math.random() - 0.5) * 2,
         w: r.width,
         h: r.height,
+        transform: '',
       };
     });
 
-    // Absolutely position all word spans so we can move them freely.
+    // Absolutely position all word spans so we can move them freely. The
+    // rotation origin is fixed: `w` / `h` are measured once here and never
+    // reassigned, so writing it alongside every transform re-set the same
+    // string sixty times a second.
     bodies.forEach(b => {
       b.el.style.position = 'absolute';
       b.el.style.left = '0';
       b.el.style.top = '0';
       b.el.style.willChange = 'transform';
+      b.el.style.transformOrigin = `${b.w / 2}px ${b.h / 2}px`;
       this.commit(b);
     });
-
-    // Drag state.
-    let drag: { body: Body; offX: number; offY: number } | null = null;
-
-    const onPointerDown = (e: PointerEvent): void => {
-      const local = this.toLocal(e, hostEl);
-      // Pick the topmost (last) body whose AABB contains the pointer.
-      for (let i = bodies.length - 1; i >= 0; i--) {
-        const b = bodies[i];
-        if (
-          local.x >= b.x - b.w / 2 &&
-          local.x <= b.x + b.w / 2 &&
-          local.y >= b.y - b.h / 2 &&
-          local.y <= b.y + b.h / 2
-        ) {
-          drag = { body: b, offX: local.x - b.x, offY: local.y - b.y };
-          hostEl.setPointerCapture(e.pointerId);
-          break;
-        }
-      }
-    };
-    const onPointerMove = (e: PointerEvent): void => {
-      if (!drag) return;
-      const local = this.toLocal(e, hostEl);
-      const targetX = local.x - drag.offX;
-      const targetY = local.y - drag.offY;
-      // Spring toward the target — produces a satisfying tug rather than a snap.
-      drag.body.vx += (targetX - drag.body.x) * DRAG_STIFFNESS;
-      drag.body.vy += (targetY - drag.body.y) * DRAG_STIFFNESS;
-    };
-    const onPointerUp = (e: PointerEvent): void => {
-      if (!drag) return;
-      hostEl.releasePointerCapture(e.pointerId);
-      drag = null;
-    };
-    hostEl.addEventListener('pointerdown', onPointerDown);
-    hostEl.addEventListener('pointermove', onPointerMove);
-    hostEl.addEventListener('pointerup', onPointerUp);
-    hostEl.addEventListener('pointercancel', onPointerUp);
 
     let raf = 0;
     let lastTs = 0;
@@ -327,10 +295,70 @@ export class WrFallingText {
         }
       }
 
-      for (const b of bodies) this.commit(b);
+      let moved = false;
+      for (const b of bodies) moved = this.commit(b) || moved;
+
+      // Park once the words have come to rest. `AIR_DRAG` damps velocities
+      // asymptotically so they approach zero and never reach it, and rest is
+      // therefore read off the transform the frame WOULD write rather than off
+      // the velocities: a word lying on the floor is re-clamped to the same `y`
+      // every frame, so its string stops changing while `vy` keeps oscillating
+      // around the bounce. Unparked, the integration and the O(n²) pass ran for
+      // the life of the page with nothing on screen moving. Words packed
+      // tightly enough to keep jostling never satisfy this and keep running —
+      // correctly, they are still moving.
+      if (!moved) {
+        raf = 0;
+        return;
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
+
+    // Drag state.
+    let drag: { body: Body; offX: number; offY: number } | null = null;
+
+    const onPointerDown = (e: PointerEvent): void => {
+      const local = this.toLocal(e, hostEl);
+      // Pick the topmost (last) body whose AABB contains the pointer.
+      for (let i = bodies.length - 1; i >= 0; i--) {
+        const b = bodies[i];
+        if (
+          local.x >= b.x - b.w / 2 &&
+          local.x <= b.x + b.w / 2 &&
+          local.y >= b.y - b.h / 2 &&
+          local.y <= b.y + b.h / 2
+        ) {
+          drag = { body: b, offX: local.x - b.x, offY: local.y - b.y };
+          hostEl.setPointerCapture(e.pointerId);
+          // A grab has to wake a parked loop, or the drag springs move a body
+          // nothing ever commits — same shape as `WrClickSpark.onClick`.
+          if (!raf) {
+            lastTs = 0;
+            raf = requestAnimationFrame(tick);
+          }
+          break;
+        }
+      }
+    };
+    const onPointerMove = (e: PointerEvent): void => {
+      if (!drag) return;
+      const local = this.toLocal(e, hostEl);
+      const targetX = local.x - drag.offX;
+      const targetY = local.y - drag.offY;
+      // Spring toward the target — produces a satisfying tug rather than a snap.
+      drag.body.vx += (targetX - drag.body.x) * DRAG_STIFFNESS;
+      drag.body.vy += (targetY - drag.body.y) * DRAG_STIFFNESS;
+    };
+    const onPointerUp = (e: PointerEvent): void => {
+      if (!drag) return;
+      hostEl.releasePointerCapture(e.pointerId);
+      drag = null;
+    };
+    hostEl.addEventListener('pointerdown', onPointerDown);
+    hostEl.addEventListener('pointermove', onPointerMove);
+    hostEl.addEventListener('pointerup', onPointerUp);
+    hostEl.addEventListener('pointercancel', onPointerUp);
 
     this.teardownLoop = (): void => {
       cancelAnimationFrame(raf);
@@ -341,10 +369,13 @@ export class WrFallingText {
     };
   }
 
-  /** Apply the body's position + angle to the DOM. */
-  private commit(b: Body): void {
-    b.el.style.transform = `translate(${b.x - b.w / 2}px, ${b.y - b.h / 2}px) rotate(${b.angle}rad)`;
-    b.el.style.transformOrigin = `${b.w / 2}px ${b.h / 2}px`;
+  /** Apply the body's position + angle to the DOM. `false` when it has not moved. */
+  private commit(b: Body): boolean {
+    const transform = `translate(${b.x - b.w / 2}px, ${b.y - b.h / 2}px) rotate(${b.angle}rad)`;
+    if (transform === b.transform) return false;
+    b.transform = transform;
+    b.el.style.transform = transform;
+    return true;
   }
 
   private toLocal(e: PointerEvent | MouseEvent, host: HTMLElement): { x: number; y: number } {

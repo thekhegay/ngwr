@@ -30,6 +30,13 @@
   <div class="controls">
     @for (ctrl of controls(); track ctrl.label) {
       <div class="chip" [attr.data-kind]="ctrl.kind">
+        <!--
+          Visual only — nothing associates this span with the control beside
+          it, so every branch below has to forward `ctrl.label` as the
+          control's own accessible name. The slider branch did not, and every
+          playground thumb on the site announced `wr-slider`'s i18n default,
+          "Value".
+        -->
         <span class="chip__label">{{ ctrl.label }}</span>
 
         @switch (ctrl.kind) {
@@ -49,6 +56,7 @@
           @case ('slider') {
             <wr-slider
               class="chip__slider"
+              [ariaLabel]="ctrl.label"
               [value]="ctrl.signal()"
               (valueChange)="setNum(ctrl, $event)"
               [min]="ctrl.min"

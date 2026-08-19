@@ -3,6 +3,11 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrOverlay } from 'ngwr/overlay';
 import { createMemoryStorage, provideWrStorage } from 'ngwr/storage';
+// Through the ENTRY POINT, deliberately: `readLayout()`'s element type was declared
+// unexported in the service file, so a consumer compiled with `declaration: true`
+// — every downstream Angular library — could not store the result on an exported
+// class without TS4029. Every test below infers it and so cannot see that.
+import type { WrWindowLayoutSnapshot } from 'ngwr/window';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrWindowManager } from './services/window-manager';
@@ -251,7 +256,7 @@ describe('WrWindowManager', () => {
 
       manager.saveLayout('default');
 
-      const saved = manager.readLayout('default');
+      const saved: readonly WrWindowLayoutSnapshot[] | null = manager.readLayout('default');
       expect(saved).toHaveLength(1);
       expect(saved![0].id).toBe('editor');
     });

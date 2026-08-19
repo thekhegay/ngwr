@@ -436,16 +436,24 @@ export class WrEventCalendar {
     const placed = this.timeLayout(days, slot);
     const rows: TimeRow[] = [];
 
+    // Each half of a cell's name is invariant along one axis: the day reads the
+    // same down a column, the clock the same across a row. Formatting per CELL
+    // asked the adapter for 336 of each on a default week (48 slots × 7 days)
+    // where 48 clocks and 7 dates say the same thing, and
+    // `WrNativeDateAdapter.format` builds a fresh `Intl.DateTimeFormat` per call.
+    const dayLabels = days.map(date => this.adapter.format(date, 'longDate'));
+
     for (let minutes = from; minutes < to; minutes += slot) {
+      const clock = this.clock(minutes);
       rows.push({
         key: String(minutes),
         minutes,
         major: minutes % 60 === 0,
-        label: minutes % 60 === 0 ? this.clock(minutes) : '',
+        label: minutes % 60 === 0 ? clock : '',
         cells: days.map((date, col) => ({
           key: `${this.iso(date)}:${minutes}`,
           date,
-          label: `${this.clock(minutes)} — ${this.adapter.format(date, 'longDate')}`,
+          label: `${clock} — ${dayLabels[col]}`,
           chips: placed[col].filter(chip => chip.slotMinutes === minutes).map(chip => chip.chip),
         })),
       });

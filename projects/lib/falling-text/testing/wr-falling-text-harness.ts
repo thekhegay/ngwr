@@ -37,9 +37,11 @@ function inlineStyle(style: string | null, property: string): string | null {
  * implementation would satisfy every naive test but not this one.
  *
  * **Nothing positional is offered, and that is not a jsdom concession.** The words'
- * `transform` values are one frame of a loop that never stops, seeded by `Math.random()`,
- * so they are not reproducible even in a real browser; there is no rest state to call
- * settled; the drag path needs `setPointerCapture` and AABB hit-testing over boxes that
+ * `transform` values are one frame of a physics loop seeded by `Math.random()`, so they
+ * are not reproducible even in a real browser; the loop parks once no word's transform
+ * changes any more, but where it parks is a different arrangement every run, and words
+ * packed tightly enough to keep jostling never reach that point at all; the drag path
+ * needs `setPointerCapture` and AABB hit-testing over boxes that
  * a unit test measures as 0×0 at the origin, where every word contains every point. Nor
  * is `[gravity]` or `[trigger]` readable — neither reaches the DOM, and answering them
  * would mean reaching into the component instance. There is no `isReducedMotion()`

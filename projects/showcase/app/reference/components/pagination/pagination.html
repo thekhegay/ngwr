@@ -44,7 +44,14 @@
   >
     <ngwr-doc-snippet [code]="snippets.full">
       <div style="width: 100%">
-        <wr-pagination [total]="320" [(currentPage)]="page" [(pageSize)]="size" showTotal showSizeChanger align="end" />
+        <wr-pagination
+          [total]="320"
+          [(currentPage)]="fullPage"
+          [(pageSize)]="size"
+          showTotal
+          showSizeChanger
+          align="end"
+        />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

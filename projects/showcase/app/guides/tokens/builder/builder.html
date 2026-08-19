@@ -12,7 +12,12 @@
       and no preset needs to carry it.
     </p>
 
-    <wr-segmented [value]="editing()" [options]="sides" (valueChange)="onSide($event)" ariaLabel="Theme to edit" />
+    <!--
+      A plain attribute, not `[ariaLabel]`: `WrSegmented` has no such input, so
+      the camelCase form was lowercased into a dead `arialabel` and the group
+      shipped with no accessible name.
+    -->
+    <wr-segmented aria-label="Theme to edit" [value]="editing()" [options]="sides" (valueChange)="onSide($event)" />
 
     <div class="builder__seeds">
       @for (intent of intents; track intent) {

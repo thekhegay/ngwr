@@ -24,6 +24,18 @@ export default class CalendarPageComponent {
   protected readonly maxDate = new Date(new Date().getFullYear(), 11, 31);
   protected readonly isWeekday = (d: Date): boolean => d.getDay() > 0 && d.getDay() < 6;
 
+  /**
+   * The bounds demo gets its own date, and starts empty. Sharing `single` let a
+   * click in the unbounded calendar above write a date this one's own `min` /
+   * `max` / `dateFilter` reject — `isSelected` compares days and `isDisabled`
+   * reads the bounds, so the cell rendered selected AND disabled at once, and
+   * `viewDate` follows an out-of-range year into a grid with nothing enabled.
+   * Empty rather than seeded because a seed has to dodge both the weekend
+   * filter and the year bounds, and the routes are prerendered — a Saturday
+   * build would ship the broken render as static HTML.
+   */
+  protected readonly bounded = signal<Date | null>(null);
+
   protected readonly snippets = {
     install: `import { WrCalendar } from 'ngwr/calendar';
 import { provideWrDateAdapter } from 'ngwr/date-adapter';

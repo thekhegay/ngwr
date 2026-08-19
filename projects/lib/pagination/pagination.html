@@ -4,7 +4,14 @@
   }
 
   <div class="wr-pagination__nav">
+    <!--
+      `wr-pagination__nav-btn` exists so the stylesheet can mirror the arrow
+      glyph under `dir="rtl"`. It has to be a class: the numbered cells and the
+      compact label share this row, so `:first-child` / `:last-child` would move
+      with the `showTotal` and ellipsis branches.
+    -->
     <wr-btn
+      class="wr-pagination__nav-btn"
       [size]="size()"
       outlined
       [attr.aria-label]="resolvedPrev()"
@@ -50,6 +57,7 @@
     <span class="wr-pagination__current" aria-hidden="true">{{ currentPage() }} / {{ totalPages() }}</span>
 
     <wr-btn
+      class="wr-pagination__nav-btn"
       [size]="size()"
       outlined
       [attr.aria-label]="resolvedNext()"

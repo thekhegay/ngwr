@@ -181,7 +181,12 @@ field-specific wording.
 **Responsive / touch.** Adaptive components take a `responsive` opt-in modifier
 (container-query reflow). Touch ergonomics use the `touch-target` SCSS mixin
 (≥44px hit area gated `@media (pointer: coarse)`); the `touch` density preset
-enlarges every control at once.
+enlarges the controls that read the multipliers — **nine stylesheets**, not every
+control: `button`, `input`, `textarea`, `select`, `list`, `table`, `badge/_tag`,
+plus `cascader` and `tree`, which only joined when a sweep found their triggers
+frozen at the `md` height in every tier. A component with fixed geometry does not
+move, and `--wr-density-gap` / `--wr-density-text` are published for consumers
+with **no `var()` reader anywhere in the library**.
 
 ## Commands
 
@@ -938,7 +943,20 @@ because it is guidance rather than a plan.
   translation and reaches the DOM as a nameless control. Nothing had compared
   `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as
   missing and quietly serves the English default, so a Russian app rendered
-  English and no gate said a word.
+  English and no gate said a word. **Parity is not enough**, and a third spec
+  covers the rest: it walks `projects/lib`, collects every key passed to
+  `useI18nText` / `readI18nText` / `useI18nFormatter`, and requires each to
+  exist in the catalog — because two files can agree perfectly about a key
+  NEITHER of them has, which is how `imageCropper.window` and `.keyHelp` reached
+  `main` read by the component and present in neither, under 3881 green specs.
+  Its own first version then repeated the lesson: the optional-argument group
+  was `[^,()]+`, which cannot cross a parenthesis, so every
+  `useI18nText(signal(null), 'key', …)` matched nothing and `useI18nFormatter`
+  was not in the alternation at all — twenty keys invisible to the gate written
+  to see them, under a `> 50` floor that 150 clears. It now takes each call's
+  argument list by matching parentheses and asserts EVERY call yielded a key, so
+  a call shape it cannot read fails the suite instead of quietly shrinking the
+  set it checks.
 
 ## Verifying changes
 

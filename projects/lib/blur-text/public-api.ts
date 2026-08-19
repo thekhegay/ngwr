@@ -1,1 +1,1 @@
-export { WrBlurText } from './blur-text';
+export { WrBlurText, type WrBlurTextDirection, type WrBlurTextUnit } from './blur-text';

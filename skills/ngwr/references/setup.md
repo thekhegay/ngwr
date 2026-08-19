@@ -64,8 +64,9 @@ The pipe and directive read from a catalog you provide. Needed by `WrT`, `WrI18n
 
 - `provideWrConfig({ button: { size: 'sm' } })` — component defaults. A bound
   value always wins, including a bound `false` over a configured `true`.
-- `provideWrDensity('sm' | 'md' | 'lg' | 'touch')` — one control size for the
-  whole app; `touch` enlarges every hit area at once.
+- `provideWrDensity({ defaultDensity: 'sm' })` — one control size for the whole
+  app; `'sm' | 'md' | 'lg' | 'touch'`, where `touch` enlarges every hit area at
+  once.
 - `provideWrResponsiveOverlays()` — overlays present as bottom sheets under the
   breakpoint (640px by default). Per-component opt-out with `[responsive]="false"`.
 - `provideWrFormErrors({ … })` — one place for validation copy; `<wr-form-field>`

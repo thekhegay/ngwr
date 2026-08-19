@@ -152,7 +152,12 @@
     color: var(--wr-tree-trigger-color);
     border: 1px solid var(--wr-tree-trigger-border);
     border-radius: var(--wr-tree-trigger-radius);
-    padding: var(--wr-tree-trigger-padding-y) var(--wr-tree-trigger-padding-x);
+    // Density-multiplied like select / input / textarea / button. The comment
+    // above promises this trigger "lines up with select / input / button", and
+    // that only holds at `md` without the multiplier: at `touch` the others
+    // measured 35.59px and this one stayed at 30.
+    padding: calc(var(--wr-tree-trigger-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-tree-trigger-padding-x) * var(--wr-density-x, 1));
     font-family: var(--wr-font-family-base);
     font-size: var(--wr-tree-trigger-font-size);
     line-height: var(--wr-tree-trigger-line-height);
@@ -226,8 +231,12 @@
     flex-wrap: wrap;
     align-items: center;
     padding: 0.25rem 0.5rem;
-    // Empty / one-row floor = single-mode height (+2px for the border).
-    min-height: calc(var(--wr-tree-trigger-line-height) + var(--wr-tree-trigger-padding-y) * 2 + 2px);
+    // Empty / one-row floor = single-mode height (+2px for the border), so it
+    // has to carry the same density multiplier the single-mode padding does —
+    // otherwise the two modes stop agreeing the moment density leaves `md`.
+    min-height: calc(
+      var(--wr-tree-trigger-line-height) + var(--wr-tree-trigger-padding-y) * var(--wr-density-y, 1) * 2 + 2px
+    );
   }
 
   &__chips {

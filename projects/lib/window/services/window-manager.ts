@@ -23,21 +23,11 @@ import { WR_OVERLAY } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
 import { randomId } from 'ngwr/utils';
 
-import type { WrWindowConfig, WrWindowState, WrWindowStorageConfig } from '../interfaces';
+import type { WrWindowConfig, WrWindowLayoutSnapshot, WrWindowStorageConfig } from '../interfaces';
 import { storageKey } from '../storage-key';
 import { WR_WINDOW_DATA, WR_WINDOW_REF } from '../tokens';
 import { WrWindowContainer } from '../window-container';
 import { WrWindowRef } from '../window-ref';
-
-interface RestoreSnapshot {
-  readonly id: string;
-  readonly state: WrWindowState;
-  readonly x: number;
-  readonly y: number;
-  readonly width: number;
-  readonly height: number;
-  readonly title: string;
-}
 
 /**
  * Owns the open `<wr-window>` stack, hands out z-indexes, cascades the
@@ -83,7 +73,7 @@ export class WrWindowManager {
    * lands at the saved coords instead of the cascade default) and
    * applies any non-`normal` state after the bridges are wired.
    */
-  private readonly pendingRestores = new Map<string, RestoreSnapshot>();
+  private readonly pendingRestores = new Map<string, WrWindowLayoutSnapshot>();
 
   /** All currently-open programmatic windows. */
   readonly windows: Signal<readonly WrWindowRef<unknown, unknown>[]> = this._windows.asReadonly();
@@ -309,7 +299,7 @@ export class WrWindowManager {
   }
 
   /** Read a saved workspace. Returns `null` when no snapshot is found. */
-  readLayout(name: string): readonly RestoreSnapshot[] | null {
+  readLayout(name: string): readonly WrWindowLayoutSnapshot[] | null {
     return this.storage.get(this.layoutKey(name));
   }
 
@@ -353,7 +343,7 @@ export class WrWindowManager {
     }
   }
 
-  private applyRestore(ref: WrWindowRef<unknown, unknown>, snap: RestoreSnapshot): void {
+  private applyRestore(ref: WrWindowRef<unknown, unknown>, snap: WrWindowLayoutSnapshot): void {
     // Force back to a known 'normal' baseline before applying state —
     // ref.minimize() / maximize() are toggles, so this prevents a
     // saved 'minimized' from un-minimizing an already-minimized window.

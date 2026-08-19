@@ -43,13 +43,18 @@
     "@angular/cdk": ">=22.0.0",
     "@angular/common": ">=22.0.0",
     "@angular/core": ">=22.0.0",
+    "@angular/forms": ">=22.0.0",
     "@angular/platform-browser": ">=22.0.0",
+    "@angular/router": ">=22.0.0",
     "rxjs": "^7.0.0",
     "date-fns": "^3.0.0 || ^4.0.0",
     "luxon": "^3.0.0",
     "lucide": ">=1.0.0"
   },
   "peerDependenciesMeta": {
+    "@angular/router": {
+      "optional": true
+    },
     "date-fns": {
       "optional": true
     },

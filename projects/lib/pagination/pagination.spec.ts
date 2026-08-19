@@ -200,6 +200,23 @@ describe('WrPagination', () => {
     expect(combobox.getAttribute('aria-label')).toBe('Items per page');
   });
 
+  it('hangs the RTL arrow mirror on a class, and only on the two nav buttons', () => {
+    // The prev / next chevrons are inline SVG baked to a physical direction,
+    // while `.wr-pagination__nav` is a plain flex row that mirrors — so under
+    // `dir="rtl"` "previous" sits at the right edge pointing left, away from
+    // where it goes. The stylesheet flips them with `scaleX(-1)`, which jsdom
+    // cannot see (no cascade); what a spec CAN pin is the hook that rule needs,
+    // and that it does not reach the numbered cells, whose digits would mirror
+    // into gibberish. `:first-child` / `:last-child` would move with the
+    // `showTotal` and ellipsis branches, which is why it is a class.
+    const nav = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-pagination__nav-btn')];
+
+    expect(nav()).toHaveLength(2);
+    expect(nav()[0]).toBe(labelled('prev'));
+    expect(nav()[1]).toBe(labelled('next'));
+    expect(pageButtons().some(b => b.classList.contains('wr-pagination__nav-btn'))).toBe(false);
+  });
+
   describe('responsive mode', () => {
     it('is a class and nothing else — the reflow is a container query', () => {
       // Worth stating plainly: `responsive` renders no different markup. It opts the

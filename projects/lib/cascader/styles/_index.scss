@@ -52,7 +52,12 @@
     color: var(--wr-cascader-color);
     border: 1px solid var(--wr-cascader-border);
     border-radius: var(--wr-cascader-radius);
-    padding: var(--wr-cascader-padding-y) var(--wr-cascader-padding-x);
+    // Density-multiplied like select / input / textarea / button: the trigger
+    // sources the same `--wr-control-padding-*` contract they do, so without
+    // the multiplier it held its md height (30px) while its neighbours grew —
+    // measured at 35.59px for input / select under `touch`.
+    padding: calc(var(--wr-cascader-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-cascader-padding-x) * var(--wr-density-x, 1));
     font-family: var(--wr-font-family-base);
     font-size: var(--wr-cascader-font-size);
     line-height: var(--wr-cascader-line-height);
@@ -212,6 +217,13 @@
     --wr-icon-size: 0.875rem;
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
+  }
+
+  // The panel is a flex row, so its columns cascade toward the inline end —
+  // leftward under `dir="rtl"`. The branch arrow is drawn pointing physically
+  // right, so turn it around with them, the way the carousel's arrows do.
+  [dir='rtl'] & .wr-cascader__opt-arrow {
+    transform: scaleX(-1);
   }
 }
 

@@ -171,9 +171,41 @@ describe('WrSidebar', () => {
   it('gives every group body an id its own toggle points at', () => {
     for (const button of toggles()) {
       const id = button.getAttribute('aria-controls')!;
-      expect(id).toMatch(/^[a-z][a-z0-9-]*$/);
+      // A trailing hyphen is what an empty slug used to leave behind, so the
+      // shape has to end on a real character — see the collision test below.
+      expect(id).toMatch(/^[a-z][a-z0-9-]*[a-z0-9]$/);
       expect(root().querySelector(`#${id}`)).not.toBeNull();
     }
+  });
+
+  it('keeps the ids apart for titles that slug to the same string', async () => {
+    // Ids used to be slugged from the TITLE, lowercased with every non-`[a-z0-9]`
+    // run collapsed — so `Data & charts` and `Data / charts` produced one string,
+    // and a title with no ASCII alphanumerics produced the EMPTY one. A Russian or
+    // Chinese sidebar therefore gave every group the same id and every toggle
+    // pointed at the first group's body.
+    const kids = [{ title: 'One', url: ['/input'] }];
+    fixture.componentInstance.entries.set([
+      { title: 'Компоненты', children: kids },
+      { title: 'Настройки', children: kids },
+      { title: '数据', children: kids },
+      { title: 'Data & charts', children: kids },
+      { title: 'Data / charts', children: kids },
+    ]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const bodies = [...root().querySelectorAll<HTMLElement>('.wr-sidebar__group-wrap')];
+    const ids = bodies.map(el => el.id);
+    expect(ids).toHaveLength(5);
+    expect(new Set(ids).size, `duplicate ids: ${ids.join(', ')}`).toBe(ids.length);
+
+    // Each toggle must resolve to its OWN body, not merely to some element.
+    const controlled = toggles().map(button =>
+      bodies.indexOf(root().querySelector<HTMLElement>(`#${button.getAttribute('aria-controls')}`)!)
+    );
+    expect(controlled).toEqual([0, 1, 2, 3, 4]);
   });
 
   it('keeps the ids unique across two sidebars on one page', () => {

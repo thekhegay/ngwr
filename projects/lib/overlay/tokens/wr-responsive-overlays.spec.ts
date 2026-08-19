@@ -1,3 +1,8 @@
+// Through the ENTRY POINT, deliberately. The token file exports this type and the
+// tokens barrel re-exports it, and `overlay/public-api.ts` used to drop it on the
+// last hop — so `provideWrResponsiveOverlays`, `WR_RESPONSIVE_OVERLAYS` and
+// `wrPresentAsSheet` were all public with a parameter nobody could name.
+import type { WrResponsiveOverlaysConfig } from 'ngwr/overlay';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { wrPresentAsSheet } from './wr-responsive-overlays.token';
@@ -43,7 +48,7 @@ describe('wrPresentAsSheet', () => {
   });
 
   describe('with the provider configured', () => {
-    const config = { breakpoint: 640 };
+    const config: WrResponsiveOverlaysConfig = { breakpoint: 640 };
 
     it('becomes a sheet on a narrow viewport without being asked', () => {
       atWidth(390);

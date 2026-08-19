@@ -269,16 +269,20 @@ describe('WrStepperHarness', () => {
     expect(await stepper.isResponsive()).toBe(true);
   });
 
-  it('refuses every question about position when `active` points outside the steps', async () => {
-    // `WrStepper.goTo()` clamps, a host writing the two-way model does not — and an
-    // out-of-range index un-currents every header and hides every body.
+  it('still has a current step when a host writes `active` past the end', async () => {
+    // This was a refusal test: `goTo()` clamped and the two-way model did not, so an
+    // out-of-range index un-currented every header and hid every body. `WrStepper`
+    // clamps the model as well now, which puts the wizard on the last step instead —
+    // the only remaining way to have no current step is to have no steps, and that
+    // is the empty-stepper block below.
     fixture.componentInstance.active.set(9);
     await fixture.whenStable();
 
-    await expect(stepper.getActiveIndex()).rejects.toThrow(/no header announces `aria-current="step"`/);
-    await expect(stepper.getActiveLabel()).rejects.toThrow(/aria-current/);
-    await expect(stepper.getActiveStepText()).rejects.toThrow(/no step body is showing/);
-    await expect(stepper.next()).rejects.toThrow(/aria-current/);
+    expect(await stepper.getActiveIndex()).toBe(2);
+    expect(await stepper.getActiveLabel()).toBe('Review');
+    expect(await stepper.getActiveStepText()).toBe('Review body');
+    // Refused for the right reason now — there is a current step, and it is the last.
+    await expect(stepper.next()).rejects.toThrow(/already on its last step/);
   });
 });
 

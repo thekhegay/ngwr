@@ -361,9 +361,23 @@ export class WrSegmentedHarness extends ComponentHarness {
     return Promise.all(options.map(async option => (await option.getAccessibleName()) ?? '(unnamed)'));
   }
 
+  /**
+   * One custom property off the host's `style` ATTRIBUTE.
+   *
+   * Not `getCssValue()`, which is `getComputedStyle`: with the entry point's own
+   * stylesheet loaded that resolves the sheet's declaration, so the method
+   * answers plausibly at exactly the moment the host binding — the thing under
+   * test — is what broke. The attribute holds only what the component wrote.
+   */
+  private async inlineVar(property: string): Promise<string> {
+    const attr = (await (await this.host()).getAttribute('style')) ?? '';
+    const found = new RegExp(`(?:^|;)\\s*${property}\\s*:\\s*([^;]+)`).exec(attr);
+    return (found?.[1] ?? '').trim();
+  }
+
   /** One of the thumb's inline custom properties, as a number. */
   private async thumbVar(property: string): Promise<number> {
-    const raw = (await (await this.host()).getCssValue(property)).trim();
+    const raw = await this.inlineVar(property);
     const value = Number.parseInt(raw, 10);
     if (Number.isNaN(value)) {
       throw new Error(

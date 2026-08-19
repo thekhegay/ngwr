@@ -30,11 +30,11 @@ import {
 import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
-type Unit = 'chars' | 'words';
-type Direction = 'top' | 'bottom';
+import type { WrBlurTextDirection, WrBlurTextUnit } from './interfaces';
+
 type Piece = { readonly kind: 'piece'; readonly text: string } | { readonly kind: 'space'; readonly text: string };
 
-function splitPieces(text: string, unit: Unit): readonly Piece[] {
+function splitPieces(text: string, unit: WrBlurTextUnit): readonly Piece[] {
   if (!text) return [];
   if (unit === 'words') {
     return text.split(/(\s+)/).flatMap<Piece>(seg => {
@@ -76,10 +76,10 @@ export class WrBlurText {
   readonly text = input.required<string>();
 
   /** Split granularity. @default 'words' */
-  readonly animateBy = input<Unit>('words');
+  readonly animateBy = input<WrBlurTextUnit>('words');
 
   /** Entry direction. `'top'` slides down into place; `'bottom'` slides up. @default 'top' */
-  readonly direction = input<Direction>('top');
+  readonly direction = input<WrBlurTextDirection>('top');
 
   /** Per-piece stagger in ms. @default 200 */
   readonly delay = input(200, { transform: numAttr(200) });
@@ -214,3 +214,5 @@ export class WrBlurText {
     });
   }
 }
+
+export type { WrBlurTextDirection, WrBlurTextUnit } from './interfaces';

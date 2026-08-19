@@ -100,8 +100,8 @@ export const API = {
   // <wr-blur-text>
   WrBlurText: [
     { name: "text", description: "Text to animate. Required.", type: "string", required: true },
-    { name: "animateBy", description: "Split granularity.", type: "Unit", default: "'words'" },
-    { name: "direction", description: "Entry direction. `'top'` slides down into place; `'bottom'` slides up.", type: "Direction", default: "'top'" },
+    { name: "animateBy", description: "Split granularity.", type: "WrBlurTextUnit", default: "'words'" },
+    { name: "direction", description: "Entry direction. `'top'` slides down into place; `'bottom'` slides up.", type: "WrBlurTextDirection", default: "'top'" },
     { name: "delay", description: "Per-piece stagger in ms.", type: "number", default: "200" },
     { name: "stepDuration", description: "Duration of each keyframe step in seconds (total = 2 × stepDuration).", type: "number", default: "0.35" },
     { name: "easing", description: "CSS easing function.", type: "string", default: "'linear' (matches reactbits' identity easing)" },

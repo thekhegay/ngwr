@@ -32,9 +32,25 @@ class FieldHarness extends ComponentHarness {
   }
 }
 
-/** An inline `left` / `top` percentage as a number. */
-async function percent(thumb: TestElement, side: 'left' | 'top'): Promise<number> {
-  return Number.parseFloat(await thumb.getCssValue(side));
+/** The `left: <n>%` / `top: <n>%` a thumb carries, out of its inline `style`. */
+const THUMB_POS = {
+  left: /(?:^|;)\s*left\s*:\s*([\d.]+)%/,
+  top: /(?:^|;)\s*top\s*:\s*([\d.]+)%/,
+} as const;
+
+/** One thumb's declared offset. See {@link WrColorPickerHarness.getThumbs} for why this is not `getCssValue()`. */
+async function percent(thumb: TestElement, side: 'left' | 'top', surface: string): Promise<number> {
+  const style = await thumb.getAttribute('style');
+  const match = THUMB_POS[side].exec(style ?? '');
+
+  if (!match) {
+    throw new Error(
+      `WrColorPickerHarness.getThumbs(): the ${surface} thumb carries no inline ${side} percentage ` +
+        `(style: "${style ?? ''}"). The component writes one on every render, so its absence is the bug — ` +
+        `and the stylesheet declares \`${side}: 0\`, so reporting 0 would read as a thumb parked at the origin.`
+    );
+  }
+  return Number.parseFloat(match[1]);
 }
 
 /**
@@ -275,6 +291,14 @@ export class WrColorPickerHarness extends ComponentHarness {
    * readable with no layout at all — which makes them the only evidence a spec has
    * that the surfaces followed a colour set through the fields. A measured position
    * would be zero for all three.
+   *
+   * Read off the `style` ATTRIBUTE rather than through `getCssValue()`, and the
+   * difference is not cosmetic: `getCssValue()` is `getComputedStyle()`, and `left` /
+   * `top` on a positioned element resolve to the USED value — so the declared `40%`
+   * comes straight back in jsdom and arrives as pixels in a real browser, and the same
+   * harness answered 40 here and 96 under a browser runner with nothing to say which
+   * one you got. The stylesheet's own `top: 0; left: 0` is a second way that read lies,
+   * turning a thumb whose binding is gone into one parked at the origin.
    */
   async getThumbs(): Promise<WrColorPickerThumbs> {
     const sv = await this.locatorFor('.wr-color-picker__sv .wr-color-picker__thumb')();
@@ -282,9 +306,9 @@ export class WrColorPickerHarness extends ComponentHarness {
     const alpha = await this.locatorForOptional('.wr-color-picker__slider--alpha .wr-color-picker__thumb')();
 
     return {
-      sv: { x: await percent(sv, 'left'), y: await percent(sv, 'top') },
-      hue: await percent(hue, 'left'),
-      alpha: alpha ? await percent(alpha, 'left') : null,
+      sv: { x: await percent(sv, 'left', 'SV'), y: await percent(sv, 'top', 'SV') },
+      hue: await percent(hue, 'left', 'hue'),
+      alpha: alpha ? await percent(alpha, 'left', 'alpha') : null,
     };
   }
 

@@ -1,7 +1,7 @@
 // Shared SCSS mixins.
 //
 // Available via:
-//   @use 'ngwr/theme/mixins' as wr;
+//   @use 'ngwr/theme' as wr;
 //   .thing { @include wr.smooth-br(0.625rem); }
 
 /// Smooth border-radius — opts into the native `corner-shape: squircle`

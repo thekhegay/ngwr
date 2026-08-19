@@ -220,6 +220,62 @@ describe('WrTypewriter', () => {
     expect(host().style.color).toBe('blue');
   });
 
+  /**
+   * `texts` shrinking under a running index is the ordinary case of a filtered or
+   * reloaded list, and `currentTextIndex` is never reset. Both tests below place
+   * the machine on index 3 and then hand it a two-entry array.
+   *
+   * The cycle for a sentence of length L is `20L + 200`ms at these speeds (L typing
+   * ticks, one to notice, the pause, L deletions, one to advance, the pause), so
+   * 'one' + 'two' + 'three' = 260 + 260 + 300 = 820ms puts the first character of
+   * 'four' on screen and 830ms puts the second.
+   */
+  const FIVE = ['one', 'two', 'three', 'four', 'five'];
+
+  it('survives its texts array shrinking under the running index', async () => {
+    await mount();
+    fixture.componentInstance.text.set(undefined);
+    fixture.componentInstance.texts.set(FIVE);
+    fixture.detectChanges();
+
+    advance(830);
+    expect(fixture.componentInstance.done.map(d => d.index)).toEqual([0, 1, 2]);
+    expect(typed()).toBe('fo');
+
+    fixture.componentInstance.texts.set(['one', 'two']);
+    fixture.detectChanges();
+
+    // Unclamped this threw `TypeError: Cannot read properties of undefined
+    // (reading 'length')` out of the `setTimeout` — and under `reverseMode` one
+    // line earlier, spreading `undefined` — which pre-empts the next schedule and
+    // leaves the typewriter dead rather than degraded.
+    advance(10);
+    expect(typed()).toBe('two');
+
+    advance(10_000);
+    expect(vi.getTimerCount()).toBe(1);
+  });
+
+  it('reports a real sentence after a shrink, not an undefined one', async () => {
+    // The reduced-motion path does not throw — it sets `displayed` to `undefined`
+    // and emits `sentenceComplete` naming a string that no longer exists.
+    await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
+    fixture.componentInstance.text.set(undefined);
+    fixture.componentInstance.texts.set(FIVE);
+    fixture.detectChanges();
+
+    // One sentence per pause here; the tick at 200 leaves the index on 3.
+    advance(200);
+    expect(fixture.componentInstance.done.map(d => d.index)).toEqual([0, 1, 2]);
+
+    fixture.componentInstance.texts.set(['one', 'two']);
+    fixture.detectChanges();
+
+    advance(100);
+    expect(fixture.componentInstance.done.at(-1)).toEqual({ text: 'two', index: 1 });
+    expect(typed()).toBe('two');
+  });
+
   it('stops its timer when it goes away', async () => {
     await mount();
     advance(10);
