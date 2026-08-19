@@ -36,6 +36,19 @@ function parseInput(value: string | Date): Date {
 const LABELLED_ROWS = new Set([1, 3, 5]);
 
 /**
+ * A day's contribution, with anything non-finite read as `0`.
+ *
+ * One `NaN` used to flatten the entire rendered window rather than its own day:
+ * `Math.max(a, NaN)` is `NaN`, so the data set's maximum became `NaN`, `max > 0`
+ * was false, and every cell fell to intensity 0 — a map that reads as a stretch
+ * with no activity at all. The bad day also printed the literal text `NaN` in its
+ * `title`.
+ */
+function amount(raw: number): number {
+  return Number.isFinite(raw) ? raw : 0;
+}
+
+/**
  * GitHub-style year-grid heatmap. One column per ISO week, one row per
  * weekday — cells coloured by `value` relative to the data set's max.
  *
@@ -119,7 +132,7 @@ export class WrCalendarHeatmap {
     const map = new Map<string, number>();
     for (const d of this.data()) {
       const iso = toIso(parseInput(d.date));
-      map.set(iso, (map.get(iso) ?? 0) + d.value);
+      map.set(iso, (map.get(iso) ?? 0) + amount(d.value));
     }
     const max = [...map.values()].reduce((a, b) => Math.max(a, b), 0);
 

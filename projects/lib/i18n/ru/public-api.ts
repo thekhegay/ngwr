@@ -84,6 +84,9 @@ export const wrRu: WrI18nCatalog = {
     toSource: 'Вернуть в доступные',
     count: '{{checked}} / {{total}}',
   },
+  form: {
+    optional: 'необязательно',
+  },
   validation: {
     required: 'Обязательное поле.',
     requiredTrue: 'Нужно поставить отметку.',
@@ -173,6 +176,9 @@ export const wrRu: WrI18nCatalog = {
   backTop: {
     label: 'Наверх',
   },
+  breadcrumbs: {
+    label: 'Хлебные крошки',
+  },
   burger: {
     label: 'Переключить меню',
   },
@@ -199,12 +205,16 @@ export const wrRu: WrI18nCatalog = {
   compare: {
     label: 'Разделитель сравнения',
   },
+  // Два `roledescription` произносятся ВМЕСТО названия роли, поэтому это строчные
+  // существительные — «карусель», «слайд», — а не подписи с заглавной, как выше.
   carousel: {
     label: 'Карусель',
     goToSlide: 'Перейти к слайду {{index}}',
     prev: 'Предыдущий слайд',
     next: 'Следующий слайд',
     pagination: 'Пагинация карусели',
+    roledescription: 'карусель',
+    slideRoledescription: 'слайд',
   },
   actionSheet: {
     label: 'Действия',
@@ -275,6 +285,18 @@ export const wrRu: WrI18nCatalog = {
     rangeEnd: 'Конец периода',
     startTime: 'Время начала',
     endTime: 'Время окончания',
+    hours: 'Часы',
+    minutes: 'Минуты',
+    seconds: 'Секунды',
+    incrementHours: 'Увеличить часы',
+    decrementHours: 'Уменьшить часы',
+    incrementMinutes: 'Увеличить минуты',
+    decrementMinutes: 'Уменьшить минуты',
+    incrementSeconds: 'Увеличить секунды',
+    decrementSeconds: 'Уменьшить секунды',
+    toggleAmPm: 'Переключить ДП / ПП',
+    am: 'ДП',
+    pm: 'ПП',
   },
   sidebar: {
     label: 'Боковая панель',

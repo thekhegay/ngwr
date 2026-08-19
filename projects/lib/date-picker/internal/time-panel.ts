@@ -23,6 +23,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrDateAdapter, WR_DATE_LOCALE } from 'ngwr/date-adapter';
+import { readI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
 function pad(n: number): string {
@@ -152,7 +153,27 @@ export class WrTimePanel implements FormValueControl<Date | null> {
 
   protected readonly isPm = computed(() => this.hours() >= 12);
 
-  protected readonly amPmLabel = computed(() => (this.isPm() ? 'PM' : 'AM'));
+  /**
+   * Every name this panel speaks, out of the catalog. There is no override input
+   * because there is no public host to put one on — the panel is `@internal`, and
+   * the picker around it already localizes its trigger and popup names, so the
+   * hard-coded English here put two languages inside one popup.
+   */
+  protected readonly hoursLabel = readI18nText('datePicker.hours', 'Hours');
+  protected readonly minutesLabel = readI18nText('datePicker.minutes', 'Minutes');
+  protected readonly secondsLabel = readI18nText('datePicker.seconds', 'Seconds');
+  protected readonly incrementHoursLabel = readI18nText('datePicker.incrementHours', 'Increment hours');
+  protected readonly decrementHoursLabel = readI18nText('datePicker.decrementHours', 'Decrement hours');
+  protected readonly incrementMinutesLabel = readI18nText('datePicker.incrementMinutes', 'Increment minutes');
+  protected readonly decrementMinutesLabel = readI18nText('datePicker.decrementMinutes', 'Decrement minutes');
+  protected readonly incrementSecondsLabel = readI18nText('datePicker.incrementSeconds', 'Increment seconds');
+  protected readonly decrementSecondsLabel = readI18nText('datePicker.decrementSeconds', 'Decrement seconds');
+  protected readonly toggleAmPmLabel = readI18nText('datePicker.toggleAmPm', 'Toggle AM / PM');
+
+  private readonly amLabel = readI18nText('datePicker.am', 'AM');
+  private readonly pmLabel = readI18nText('datePicker.pm', 'PM');
+
+  protected readonly amPmLabel = computed(() => (this.isPm() ? this.pmLabel() : this.amLabel()));
 
   protected readonly hoursDisplay = computed(() => pad(this.displayHours()));
   protected readonly minutesDisplay = computed(() => pad(this.minutes()));

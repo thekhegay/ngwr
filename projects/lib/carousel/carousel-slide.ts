@@ -5,7 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
+
+import { useI18nText } from 'ngwr/i18n';
 
 import { WR_CAROUSEL } from './tokens';
 
@@ -32,13 +34,27 @@ import { WR_CAROUSEL } from './tokens';
   host: {
     class: 'wr-carousel-slide',
     role: 'group',
-    'aria-roledescription': 'slide',
+    '[attr.aria-roledescription]': 'resolvedRoledescription()',
     '[attr.inert]': 'offScreen() ? "" : null',
     '[attr.aria-hidden]': 'offScreen() ? "true" : null',
   },
 })
 export class WrCarouselSlide {
   private readonly carousel = inject(WR_CAROUSEL, { optional: true });
+
+  /**
+   * Word a screen reader speaks IN PLACE OF the `group` role. Falls back to
+   * `carousel.slideRoledescription`, then `'slide'`.
+   */
+  readonly roledescription = input<string | null>(null);
+
+  // Spoken verbatim, and only the off-screen slides are `inert` — so the visible
+  // one announced an English "slide" inside an otherwise localized carousel.
+  protected readonly resolvedRoledescription = useI18nText(
+    this.roledescription,
+    'carousel.slideRoledescription',
+    'slide'
+  );
 
   /**
    * Whether this slide is one of the ones translated out of view.

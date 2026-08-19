@@ -31,7 +31,11 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <ngwr-doc-section id="anchor-api" title="API" description="Inputs of <wr-anchor>.">
+  <!-- No `id` here: the demo above owns `anchor-api` (its scroll-spy links target
+       that h3), and a second element under the same id makes `getElementById` —
+       which is what `anchorScrolling` calls — answer with whichever comes first.
+       No other `<ngwr-doc-section>` on the site carries one. -->
+  <ngwr-doc-section title="API" description="Inputs of <wr-anchor>.">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
   <ngwr-doc-section title="Types" description="Data shapes used by the inputs above.">

@@ -59,14 +59,28 @@ function provider(options: Schema): Rule {
     const spec = PROVIDERS[options.name];
     if (!spec) throw new SchematicsException(`ngwr:provider: unknown provider "${options.name}".`);
 
-    const filePath = await resolveMainFile(tree, options);
+    const filePath = await resolveTargetFile(tree, options);
     if (!filePath) {
       context.logger.info(printSnippet(spec));
       return tree;
     }
 
     const original = tree.readText(filePath);
-    let next = original;
+    // Splice FIRST, and bail before touching the file if there is nowhere to
+    // splice into. The imports used to go in ahead of this, so by the time the
+    // splice found no array the buffer already differed from the original and
+    // the `next === original` guard below could not catch it: the file was
+    // overwritten with an unused import and reported as `✓ Added <call>`. On a
+    // stock app that made `ng g ngwr:provider overlay` print success and leave
+    // it with no overlay container.
+    const spliced = ensureProviderCall(original, spec.call);
+    if (spliced === null) {
+      context.logger.info(`ngwr:provider: no providers array in ${filePath}.`);
+      context.logger.info(printSnippet(spec));
+      return tree;
+    }
+
+    let next = spliced;
 
     next = ensureImport(next, spec.factory, spec.subpath);
     // Drive the extra imports off `extras` rather than special-casing a provider
@@ -75,7 +89,6 @@ function provider(options: Schema): Rule {
     for (const [symbols, subpath] of spec.extras ?? []) {
       next = ensureImport(next, symbols, subpath);
     }
-    next = ensureProviderCall(next, spec.call);
 
     if (next === original) {
       context.logger.info(`ngwr:provider: ${filePath} already has ${spec.factory} — no changes.`);
@@ -88,17 +101,73 @@ function provider(options: Schema): Rule {
   };
 }
 
-async function resolveMainFile(tree: Tree, options: Schema): Promise<string | null> {
+/** The providers array of a `bootstrapApplication` call or an `ApplicationConfig`. */
+const PROVIDERS_ARRAY = /(\bproviders\s*:\s*\[)([\s\S]*?)(\])/m;
+
+/**
+ * The file that actually holds `providers: [ … ]`.
+ *
+ * Resolving the build target's entry file and stopping there is only right for
+ * the pre-v17 shape, where `bootstrapApplication` and its providers sit in
+ * `main.ts` together. `ng new` has since split them: `main.ts` is two lines
+ * ending in `bootstrapApplication(App, appConfig)` and the array lives in
+ * `app/app.config.ts` — the layout `projects/showcase/main.ts` uses as well. So
+ * follow the entry file's own RELATIVE imports one level and prefer whichever of
+ * them owns the array; one level is what `ng new` generates, and a path alias
+ * (`#root`, `@app/…`) is deliberately not followed, since resolving one needs
+ * the tsconfig. When nothing found this way has an array, the entry file is
+ * handed back and the caller prints a snippet rather than editing it.
+ */
+async function resolveTargetFile(tree: Tree, options: Schema): Promise<string | null> {
+  const entry = await resolveEntryFile(tree, options);
+  if (!entry) return null;
+  if (PROVIDERS_ARRAY.test(tree.readText(entry))) return entry;
+
+  return followConfigImport(tree, entry) ?? entry;
+}
+
+/** The first module `entry` imports relatively that declares a providers array. */
+function followConfigImport(tree: Tree, entry: string): string | null {
+  const dir = entry.slice(0, entry.lastIndexOf('/') + 1);
+
+  for (const [, specifier] of tree.readText(entry).matchAll(/from\s*['"](\.[^'"]*)['"]/g)) {
+    // TypeScript module specifiers carry no extension; `.ts` is the only one
+    // `ng new` produces for this file, and a wrong guess just misses.
+    const candidate = normalisePath(`${dir}${specifier}.ts`);
+    if (tree.exists(candidate) && PROVIDERS_ARRAY.test(tree.readText(candidate))) return candidate;
+  }
+
+  return null;
+}
+
+/** Collapse `.` / `..` in a joined workspace path — `Tree` resolves neither. */
+function normalisePath(path: string): string {
+  const out: string[] = [];
+  for (const part of path.split('/')) {
+    if (part === '' || part === '.') continue;
+    if (part === '..') out.pop();
+    else out.push(part);
+  }
+
+  return `${path.startsWith('/') ? '/' : ''}${out.join('/')}`;
+}
+
+async function resolveEntryFile(tree: Tree, options: Schema): Promise<string | null> {
   if (options.path && tree.exists(options.path)) return options.path;
 
   const workspace = await getWorkspace(tree);
-  const projectName = options.project ?? (workspace.extensions.defaultProject as string | undefined);
+  // Both bags are `Record<string, JsonValue>`. Named through a shape rather than
+  // read with `foo['bar']`, because this file compiles under two configs: its own
+  // CommonJS tsconfig, and — since the spec beside it imports it — the root one,
+  // which sets `noPropertyAccessFromIndexSignature`.
+  const extensions = workspace.extensions as { readonly defaultProject?: string };
+  const projectName = options.project ?? extensions.defaultProject;
   const project = (projectName && workspace.projects.get(projectName)) ?? workspace.projects.values().next().value;
   if (!project) return null;
 
-  const main = project.targets.get('build')?.options?.main as string | undefined;
-  const browser = project.targets.get('build')?.options?.browser as string | undefined;
-  const candidate = main ?? browser ?? `${project.sourceRoot ?? 'src'}/main.ts`;
+  const build = project.targets.get('build')?.options as
+    { readonly main?: string; readonly browser?: string } | undefined;
+  const candidate = build?.main ?? build?.browser ?? `${project.sourceRoot ?? 'src'}/main.ts`;
   return tree.exists(candidate) ? candidate : null;
 }
 
@@ -125,11 +194,13 @@ function ensureImport(source: string, symbol: string, subpath: string): string {
   return `${newLine}${source}`;
 }
 
-function ensureProviderCall(source: string, call: string): string {
-  // Splice into the providers array of bootstrapApplication / ApplicationConfig.
-  const arrayRe = /(\bproviders\s*:\s*\[)([\s\S]*?)(\])/m;
-  const match = arrayRe.exec(source);
-  if (!match) return source;
+/** The source with `call` spliced in, or `null` when there is no array to splice into. */
+function ensureProviderCall(source: string, call: string): string | null {
+  const match = PROVIDERS_ARRAY.exec(source);
+  // `null`, not the untouched source: "nothing to do" and "already done" are
+  // different answers, and returning the same value for both is what let the
+  // caller report a successful edit it had not made.
+  if (!match) return null;
 
   // Already present?
   const callBase = call.split('(')[0];

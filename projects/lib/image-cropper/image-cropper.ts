@@ -21,15 +21,20 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { clamp } from 'ngwr/utils';
+import { clamp, randomId } from 'ngwr/utils';
 
 import type { WrCropHandle, WrCropRect, WrImageOutputType } from './interfaces';
 
 /**
- * Stands in for the consumer input `useI18nText` expects — the empty state takes no
- * label input, and its string was an English literal in the template.
+ * Stands in for the consumer input `useI18nText` expects. None of this
+ * component's three strings has a `*Label` input behind it — the catalog is the
+ * override channel — so they share one empty override.
  */
 const NO_OVERRIDE = signal<string | null>(null).asReadonly();
+
+/** Keyboard step in display pixels, and what Shift promotes it to. */
+const KEY_STEP = 1;
+const KEY_STEP_COARSE = 10;
 
 interface RectPx {
   x: number;
@@ -43,8 +48,12 @@ interface RectPx {
  * the crop window or any of its eight handles. Optionally lock the crop
  * to a fixed `[aspectRatio]`.
  *
- * `(cropped)` fires after each drag end with a freshly-rendered `Blob`
- * of the cropped region. For one-off reads use `toBlob()` / `toDataUrl()`.
+ * The crop window is also the one tab stop: arrow keys move it, Alt with an
+ * arrow key resizes it, and Shift makes either step ten pixels instead of one.
+ *
+ * `(cropped)` fires after each drag end — or each run of arrow keys — with a
+ * freshly-rendered `Blob` of the cropped region. For one-off reads use
+ * `toBlob()` / `toDataUrl()`.
  *
  * @example
  * ```html
@@ -89,6 +98,24 @@ export class WrImageCropper {
 
   /** Resolved object URL for `src` (so File / Blob render in `<img>`). */
   protected readonly emptyText = useI18nText(NO_OVERRIDE, 'imageCropper.empty', 'No image');
+
+  /** Accessible name of the crop window — the component's only tab stop. */
+  protected readonly resolvedWindowLabel = useI18nText(NO_OVERRIDE, 'imageCropper.window', 'Crop region');
+
+  /** The key model, referenced by the window's `aria-describedby`. */
+  protected readonly resolvedKeyHelp = useI18nText(
+    NO_OVERRIDE,
+    'imageCropper.keyHelp',
+    'Arrow keys move the crop. Hold Alt with an arrow key to resize it, and Shift for larger steps. ' +
+      'The crop is announced as left, top, width and height in image pixels.'
+  );
+
+  /** Id linking the crop window to the help text. Random rather than counted:
+   *  the crop UI only exists after a real image load, so it never prerenders. */
+  protected readonly helpId = randomId('wr-image-cropper-help');
+
+  /** Live-region text — written by the keyboard path only (see `onWindowKeydown`). */
+  protected readonly announcement = signal<string>('');
 
   protected readonly objectUrl = signal<string | null>(null);
 
@@ -240,6 +267,74 @@ export class WrImageCropper {
     if (!this.active) return;
     (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
     this.active = null;
+    void this.emitCropped();
+  }
+
+  // Keyboard
+
+  /** Whether a key has moved the crop since the last `keyup`. */
+  private keyboardDirty = false;
+
+  /**
+   * The component's only keyboard path. Arrow keys move the crop window; Alt
+   * with an arrow key resizes it from the east / south edge; Shift makes either
+   * one ten display pixels instead of one — the coarse modifier `wr-slider`,
+   * `wr-knob` and `wr-splitter` all use, which is why Alt and not Shift carries
+   * the mode switch here.
+   *
+   * Nothing mirrors under `dir="rtl"`: the image is not flipped and the window
+   * is placed with a physical `left`, so ArrowLeft moves the crop visually left
+   * in both directions.
+   *
+   * Both branches go through `applyMove` / `applyResize`, so the `aspectRatio`
+   * lock, the `minWidth` / `minHeight` floors and the canvas bounds hold for a
+   * keystroke exactly as they do for a drag. Those two measure from `startRect`
+   * rather than from the live rect, so it is re-seeded per keystroke — a 1px
+   * delta against the rect from the first press would make a held arrow stall
+   * after one pixel instead of accumulating.
+   */
+  protected onWindowKeydown(event: KeyboardEvent): void {
+    const step = event.shiftKey ? KEY_STEP_COARSE : KEY_STEP;
+    let dx = 0;
+    let dy = 0;
+    switch (event.key) {
+      case 'ArrowLeft':
+        dx = -step;
+        break;
+      case 'ArrowRight':
+        dx = step;
+        break;
+      case 'ArrowUp':
+        dy = -step;
+        break;
+      case 'ArrowDown':
+        dy = step;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    this.startRect = { ...this.cropDisplay() };
+    if (event.altKey) this.applyResize(dx !== 0 ? 'e' : 's', dx, dy);
+    else this.applyMove(dx, dy);
+
+    this.keyboardDirty = true;
+    const c = this.cropRect();
+    // Bare numbers on purpose — `resolvedKeyHelp` has already told the reader
+    // what the four are, and a sentence here would be a translated string.
+    this.announcement.set(`${c.x}, ${c.y}, ${c.width} × ${c.height}`);
+  }
+
+  /**
+   * Emit once per gesture, not once per keystroke. A held arrow repeats its
+   * keydown many times a second and each `emitCropped` renders a canvas and
+   * encodes a Blob; `keyup` fires once when the run ends, which is the keyboard's
+   * equivalent of the `pointerup` the drag path emits on.
+   */
+  protected onWindowKeyup(): void {
+    if (!this.keyboardDirty) return;
+    this.keyboardDirty = false;
     void this.emitCropped();
   }
 

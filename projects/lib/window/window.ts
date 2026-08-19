@@ -427,10 +427,11 @@ export class WrWindow {
       this.clampToViewport();
       this.snapTarget.set(this.detectSnapTarget(e.clientX, e.clientY));
     };
-    const up = (e: PointerEvent): void => {
+    const cleanup = (e: PointerEvent): void => {
       target.releasePointerCapture(e.pointerId);
       target.removeEventListener('pointermove', move);
-      target.removeEventListener('pointerup', up);
+      target.removeEventListener('pointerup', cleanup);
+      target.removeEventListener('pointercancel', cleanup);
       const snap = this.snapTarget();
       this.snapTarget.set(null);
       if (snap) {
@@ -440,7 +441,14 @@ export class WrWindow {
     };
 
     target.addEventListener('pointermove', move);
-    target.addEventListener('pointerup', up);
+    target.addEventListener('pointerup', cleanup);
+    // `pointercancel` is never followed by a `pointerup` (a pen leaving range, a
+    // long-press menu, an OS gesture taking over), so without this the move
+    // listener outlived the drag on a chrome element that lives as long as the
+    // component: every later hover over the title bar dragged the window.
+    // The cancelled gesture's geometry is kept rather than rolled back, so
+    // `moved` still reports where the window ended up.
+    target.addEventListener('pointercancel', cleanup);
   }
 
   /** Map a cursor position to a snap target, honouring `[snap]`. */
@@ -564,15 +572,19 @@ export class WrWindow {
       this.height_.set(clampedH);
       this.clampToViewport();
     };
-    const up = (e: PointerEvent): void => {
+    const cleanup = (e: PointerEvent): void => {
       target.releasePointerCapture(e.pointerId);
       target.removeEventListener('pointermove', move);
-      target.removeEventListener('pointerup', up);
+      target.removeEventListener('pointerup', cleanup);
+      target.removeEventListener('pointercancel', cleanup);
       this.resized.emit({ width: this.width_(), height: this.height_() });
     };
 
     target.addEventListener('pointermove', move);
-    target.addEventListener('pointerup', up);
+    target.addEventListener('pointerup', cleanup);
+    // Same cancelled-gesture leak as `startMove` — a resize handle that is
+    // still listening for `pointermove` resizes the window on a bare hover.
+    target.addEventListener('pointercancel', cleanup);
   }
 
   // Bound resize handlers for the template — avoids inline object literals

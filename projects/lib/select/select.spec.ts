@@ -1,7 +1,9 @@
 import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, form, required } from '@angular/forms/signals';
 
 import { provideWrConfig } from 'ngwr/config';
+import { WrFormField } from 'ngwr/form';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -116,6 +118,15 @@ class MixedHost {
 })
 class TagHost {
   readonly tags = signal<unknown>([]);
+}
+
+@Component({
+  imports: [WrSelect],
+  template: `<wr-select mode="tag" ariaLabel="Tags" [separators]="separators()" [(value)]="tags" />`,
+})
+class TagSeparatorsHost {
+  readonly tags = signal<unknown>([]);
+  readonly separators = signal<readonly string[]>(['Enter', ',']);
 }
 
 @Component({
@@ -610,6 +621,84 @@ describe('WrSelect in tag mode', () => {
 });
 
 /**
+ * Pasting into a tag field splits on the `separators`, and the splitter is a
+ * regex CHARACTER CLASS built from them — so every separator has to survive
+ * being dropped into one. `-` is the character that does not: unescaped it
+ * opens a range, which either throws (and the paste is lost, because
+ * `preventDefault()` has already run) or silently matches everything between
+ * two neighbours. The keydown half has always handled `-` correctly, so the
+ * two halves of the same input disagreed.
+ */
+describe('WrSelect tag paste splitting', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TagSeparatorsHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input')!;
+  const tags = (): unknown => fixture.componentInstance.tags();
+
+  /** A paste carrying `text`. jsdom has no clipboard, so the payload is stubbed on. */
+  const paste = (text: string): Event => {
+    const event = new Event('paste', { bubbles: true, cancelable: true });
+    Object.assign(event, { clipboardData: { getData: (): string => text } });
+    field().dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TagSeparatorsHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('splits on the default comma', () => {
+    paste('angular,signals,zoneless');
+
+    expect(tags()).toEqual(['angular', 'signals', 'zoneless']);
+  });
+
+  it('splits on a newline regardless of the separators', () => {
+    paste('one\ntwo');
+
+    expect(tags()).toEqual(['one', 'two']);
+  });
+
+  it('splits on a hyphen listed after another separator', () => {
+    // `[',', '-']` used to compile to `/[,-\n]+/` — "Range out of order",
+    // a SyntaxError thrown past `preventDefault()`, so nothing was added at all.
+    fixture.componentInstance.separators.set(['Enter', ',', '-']);
+    fixture.detectChanges();
+
+    paste('alpha,beta-gamma');
+
+    expect(tags()).toEqual(['alpha', 'beta', 'gamma']);
+  });
+
+  it('does not let a hyphen between two separators become a range', () => {
+    // `[',', '-', ';']` compiled without complaint to a `,`–`;` range, which
+    // covers every digit: `2024-01-02` came out as nothing at all.
+    fixture.componentInstance.separators.set(['Enter', ',', '-', ';']);
+    fixture.detectChanges();
+
+    paste('2024-01-02;next');
+
+    expect(tags()).toEqual(['2024', '01', '02', 'next']);
+  });
+
+  it('treats a regex metacharacter as the literal it is documented to be', () => {
+    fixture.componentInstance.separators.set(['Enter', '.', '|']);
+    fixture.detectChanges();
+
+    paste('a.b|c');
+
+    expect(tags()).toEqual(['a', 'b', 'c']);
+  });
+});
+
+/**
  * `maxItems` and `allowDuplicates` are the two inputs that change what a chip
  * MEANS, and both used to break the way out of a selection rather than the way
  * in: a full field could not be emptied, and one of two identical chips could
@@ -1021,5 +1110,138 @@ describe('WrSelect rounded attribute', () => {
     const host = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-select')!;
 
     expect(host.classList.contains('wr-select--rounded')).toBe(true);
+  });
+});
+
+/**
+ * A `<wr-form-field>` renders its `<label for>` before it can see what was
+ * projected into it, so the id has to be adopted from the other side. The select
+ * never did, and the failure is the quiet kind: the field looks exactly as it
+ * always did, `for` names an element that is nowhere in the document, clicking
+ * the label does nothing, and the error copy the field renders is announced to
+ * nobody.
+ *
+ * Every case here resolves the id through the DOCUMENT rather than reading the
+ * attribute — an id that merely exists on some element is what the bug already
+ * looked like. And the select has three trigger shapes, only one of which
+ * renders at a time, so all three are checked: a `for` is only useful if it
+ * lands on a labelable element, and all three tab stops are one.
+ */
+@Component({
+  imports: [FormField, WrFormField, WrSelect, WrOption],
+  template: `
+    <wr-form-field label="Country">
+      <wr-select [formField]="profile.country">
+        <wr-option value="kz">Kazakhstan</wr-option>
+      </wr-select>
+    </wr-form-field>
+  `,
+})
+class FieldHost {
+  private readonly model = signal({ country: '' });
+  readonly profile = form(this.model, path => {
+    required(path.country);
+  });
+}
+
+@Component({
+  imports: [WrFormField, WrSelect, WrOption],
+  template: `
+    <wr-form-field label="Country">
+      <wr-select mode="search">
+        <wr-option value="kz">Kazakhstan</wr-option>
+      </wr-select>
+    </wr-form-field>
+  `,
+})
+class SearchFieldHost {}
+
+@Component({
+  imports: [WrFormField, WrSelect],
+  template: `<wr-form-field label="Tags"><wr-select mode="tag" /></wr-form-field>`,
+})
+class TagFieldHost {}
+
+describe('WrSelect inside a form field', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const build = (component: Type<unknown>): ReturnType<typeof TestBed.createComponent> => {
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(component);
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  const labelTarget = (root: HTMLElement): Element | null => {
+    const label = root.querySelector<HTMLLabelElement>('label')!;
+    expect(label.htmlFor).not.toBe('');
+    return root.querySelector(`#${CSS.escape(label.htmlFor)}`);
+  };
+
+  it('answers to the id the label points at, on the trigger button', () => {
+    const root = build(FieldHost).nativeElement as HTMLElement;
+    const target = labelTarget(root);
+
+    expect(target).toBe(root.querySelector('.wr-select__trigger'));
+    // Labelable, so `for` actually names it — `<wr-select>` itself is not.
+    expect((target as HTMLElement).tagName).toBe('BUTTON');
+  });
+
+  it('puts it on the search input in search mode', () => {
+    const root = build(SearchFieldHost).nativeElement as HTMLElement;
+
+    expect(labelTarget(root)).toBe(root.querySelector('.wr-select__search-input'));
+  });
+
+  it('puts it on the tag input in tag mode', () => {
+    const root = build(TagFieldHost).nativeElement as HTMLElement;
+
+    expect(labelTarget(root)).toBe(root.querySelector('.wr-select__tag-input'));
+  });
+
+  it('carries no describedby or invalid flag while the field has nothing to say', () => {
+    // An `aria-describedby` pointing at nothing is invalid, and announcing
+    // "invalid" with no message is worse than staying quiet.
+    const trigger = (build(FieldHost).nativeElement as HTMLElement).querySelector('.wr-select__trigger')!;
+
+    expect(trigger.hasAttribute('aria-describedby')).toBe(false);
+    expect(trigger.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('points the trigger at the message once the field is showing one', () => {
+    const fixture = build(FieldHost);
+    const root = fixture.nativeElement as HTMLElement;
+    const trigger = root.querySelector<HTMLElement>('.wr-select__trigger')!;
+
+    // Blur is what marks the control touched, which is the gate the error block
+    // sits behind — the same way a user opens it.
+    trigger.dispatchEvent(new Event('blur', { bubbles: true }));
+    fixture.detectChanges();
+
+    const describedBy = trigger.getAttribute('aria-describedby');
+    expect(describedBy).not.toBeNull();
+    expect(trigger.getAttribute('aria-invalid')).toBe('true');
+
+    const errors = root.querySelector(`#${CSS.escape(describedBy!)}`);
+    expect(errors).not.toBeNull();
+    expect(errors!.textContent?.trim()).not.toBe('');
+  });
+
+  it('keeps the trigger’s own name — an aria-label outranks a <label>', () => {
+    // Deliberate, and the same call `wr-slider` made: `<wr-form-field>` renders a
+    // label only when its `label` input is set, so it cannot promise a name, and
+    // a combobox that traded a generic one for none would be the worse bug. Set
+    // `[ariaLabel]` to the field's label where the two should read alike.
+    const trigger = (build(FieldHost).nativeElement as HTMLElement).querySelector('.wr-select__trigger')!;
+
+    expect(trigger.getAttribute('aria-label')).toBe('Select');
+  });
+
+  it('stamps no id at all on a select standing on its own', () => {
+    // The field is what supplies the id; a bare select inventing one would put a
+    // document-global name on a trigger nothing points at.
+    const root = build(Host).nativeElement as HTMLElement;
+
+    expect(root.querySelector('.wr-select__trigger')!.getAttribute('id')).toBeNull();
   });
 });

@@ -4,8 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { WrPlatform } from 'ngwr/platform';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { WrCountUp } from './count-up';
 import { WrCounter } from './counter';
-import type { WrCounterMode } from './interfaces';
+import type { WrCounterMode, WrCountUpTrigger } from './interfaces';
 
 @Component({
   imports: [WrCounter],
@@ -27,6 +28,43 @@ class Host {
   readonly prefix = signal('');
   readonly suffix = signal('');
 }
+
+@Component({
+  imports: [WrCountUp],
+  template: `
+    <wr-count-up [to]="to()" [trigger]="trigger()" [duration]="200" (completed)="completions.set(completions() + 1)" />
+  `,
+})
+class CountUpHost {
+  readonly to = signal(1234);
+  readonly trigger = signal<WrCountUpTrigger>('mount');
+  readonly completions = signal(0);
+}
+
+/** jsdom has no `IntersectionObserver`, and `trigger="visible"` starts one on first render. */
+function stubIntersectionObserver(): void {
+  class StubObserver {
+    observe(): void {
+      /* never intersects — the point is what shows BEFORE it does */
+    }
+    disconnect(): void {
+      /* nothing to release in the stub */
+    }
+  }
+  vi.stubGlobal('IntersectionObserver', StubObserver);
+}
+
+/** The service stub a reader who asked for less motion arrives as. */
+const reducedMotion = (): unknown => ({
+  provide: WrPlatform,
+  useValue: {
+    isBrowser: true,
+    isServer: false,
+    userAgent: null,
+    prefersDark: signal(false).asReadonly(),
+    prefersReducedMotion: signal(true).asReadonly(),
+  },
+});
 
 /**
  * The animation is driven by `requestAnimationFrame`, which jsdom does schedule — but the
@@ -135,16 +173,71 @@ describe('WrCounter', () => {
   it('skips the animation for someone who asked for less motion', () => {
     // `wr-scroll` already falls back to instant on `prefers-reduced-motion`; a component
     // whose entire purpose is a 900ms count-up was still counting.
-    const platform = {
-      isBrowser: true,
-      isServer: false,
-      userAgent: null,
-      prefersDark: signal(false).asReadonly(),
-      prefersReducedMotion: signal(true).asReadonly(),
-    };
-    mount([{ provide: WrPlatform, useValue: platform }]);
+    mount([reducedMotion()]);
 
     // Synchronously, with no frames advanced at all.
     expect(anyText()).toContain('1,234');
+  });
+});
+
+/**
+ * `<wr-count-up>` ships from the same entry point and shared none of `wr-counter`'s
+ * reduced-motion handling: it ran the rAF tween whatever the reader had asked for.
+ */
+describe('WrCountUp', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<CountUpHost>>;
+
+  const text = (): string => (fixture.nativeElement as HTMLElement).textContent.replace(/\s+/g, ' ').trim();
+
+  const mount = (providers: unknown[] = [], trigger: WrCountUpTrigger = 'mount'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: providers as never[] });
+    fixture = TestBed.createComponent(CountUpHost);
+    fixture.componentInstance.trigger.set(trigger);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    stubIntersectionObserver();
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+    });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('starts on `from` and counts to `to` when motion is welcome', () => {
+    // The control for the test below: without it, "shows 1,234 straight away" would also
+    // pass on a component that never animated at all.
+    mount();
+    expect(text()).toBe('0');
+
+    vi.advanceTimersByTime(400);
+    fixture.detectChanges();
+    expect(text()).toBe('1,234');
+  });
+
+  it('is already on the figure for someone who asked for less motion', () => {
+    mount([reducedMotion()]);
+
+    // Synchronously, with no frames advanced at all — the seed lands on the END value, so
+    // there is no placeholder left on screen either. And `completed` still fires, so a
+    // consumer waiting on it is not left hanging on a tween that never ran.
+    expect(text()).toBe('1,234');
+    expect(fixture.componentInstance.completions()).toBe(1);
+  });
+
+  it('shows the figure below the fold too, for someone who asked for less motion', () => {
+    // The seed is the other half of that guard and the only half `trigger="visible"` ever
+    // reaches: seeded on `from`, a number further down the page sat on the placeholder
+    // until the host scrolled into view — and then had no animation to move it off.
+    mount([reducedMotion()], 'visible');
+
+    expect(text()).toBe('1,234');
   });
 });

@@ -181,8 +181,11 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   protected readonly isTime = computed(() => this.mode() === 'time');
   protected readonly isDateTime = computed(() => this.mode() === 'datetime');
 
-  // Resolved at injection time — i18n catalog reads pick up live locale
-  // changes via re-render of the host attribute binding.
+  // Signals, not plain strings: these used to be read once at injection time,
+  // which is before any loader-backed catalog exists — so the trigger announced
+  // "Open calendar" while `fieldLabel` below, off the SAME key, announced the
+  // Russian one. A runtime `i18n.use()` moved the field's name and not the
+  // trigger's, which made the split permanent rather than a startup race.
   private readonly labelDate = readI18nText('datePicker.open', 'Open calendar');
   private readonly labelTime = readI18nText('datePicker.openTime', 'Open time picker');
   private readonly labelDateTime = readI18nText('datePicker.openDateTime', 'Open date and time picker');
@@ -209,9 +212,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   protected readonly triggerLabel = computed(() => {
     const m = this.mode();
-    if (m === 'time') return this.labelTime;
-    if (m === 'datetime') return this.labelDateTime;
-    return this.labelDate;
+    if (m === 'time') return this.labelTime();
+    if (m === 'datetime') return this.labelDateTime();
+    return this.labelDate();
   });
 
   /**
@@ -229,9 +232,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     const explicit = this.panelAriaLabel();
     if (explicit) return explicit;
     const m = this.mode();
-    if (m === 'time') return this.panelLabelTime;
-    if (m === 'datetime') return this.panelLabelDateTime;
-    return this.panelLabelDate;
+    if (m === 'time') return this.panelLabelTime();
+    if (m === 'datetime') return this.panelLabelDateTime();
+    return this.panelLabelDate();
   });
 
   protected readonly classes = computed(() => {
@@ -256,20 +259,37 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    * reformatted mid-type). */
   private lastValue: Date | null = null;
 
+  /** The format the sync effect last rendered with. Paired with `lastValue`
+   * because the echo guard has to answer "is the display still current", and a
+   * `[format]` / `[mode]` change makes it stale with the value untouched. */
+  private lastFormat: string | null = null;
+
   constructor() {
     this.destroyRef.onDestroy(() => this.dispose());
 
     // Mirror external writes to `value` (from `[formField]`, `[(value)]`, or a
     // classic-forms bridge) into the display text — this is the old
-    // `writeValue` body. Wrapped so it reacts only to `value()`; the echo of
-    // our own edits is skipped, and a null/undefined write is tolerated (it
-    // clears the text, exactly as the old `writeValue(Date | null)` did).
+    // `writeValue` body. The echo of our own edits is skipped, and a
+    // null/undefined write is tolerated (it clears the text, exactly as the old
+    // `writeValue(Date | null)` did).
+    //
+    // The FORMAT is read outside `untracked()` on purpose. It used to be read
+    // inside, so the effect depended on `value()` alone and a `[format]` or
+    // `[mode]` change left the old rendering on screen — while `onInput` /
+    // `onBlur` had already switched to parsing against the NEW format, so an
+    // edit to the stale text failed to parse and was silently discarded on
+    // blur. Folding the format into the echo guard keeps the mid-type
+    // protection (a keystroke changes the value, never the format) and still
+    // re-renders when the format itself moves.
     effect(() => {
       const v = this.value();
+      const fmt = this.resolvedFormat();
       untracked(() => {
-        if (this.sameDate(v, this.lastValue)) return;
+        const echo = this.sameDate(v, this.lastValue) && fmt === this.lastFormat;
         this.lastValue = v;
-        this.text.set(v && this.adapter.isValid(v) ? this.adapter.format(v, this.resolvedFormat()) : '');
+        this.lastFormat = fmt;
+        if (echo) return;
+        this.text.set(v && this.adapter.isValid(v) ? this.adapter.format(v, fmt) : '');
       });
     });
 

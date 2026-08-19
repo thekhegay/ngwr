@@ -31,8 +31,8 @@ class Host {
  * Nothing here asserts the glitch. The tear is a keyframed clip-path on a pseudo-element
  * behind a `:hover` selector, and a unit test loads no stylesheet — so what the harness
  * reads, and all it reads, is the handful of values the component writes itself: the
- * `data-text` mirror the clones draw from, one modifier class, and four custom
- * properties.
+ * `data-text` mirror the clones draw from, the `aria-hidden` that keeps their generated
+ * content out of the accessibility tree, one modifier class, and four custom properties.
  */
 describe('WrGlitchTextHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -41,6 +41,7 @@ describe('WrGlitchTextHarness', () => {
   const glitch = (): Promise<WrGlitchTextHarness> => loader.getHarness(WrGlitchTextHarness);
   const hostElement = (): HTMLElement =>
     (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-glitch-text')!;
+  const cloneLayer = (): HTMLElement => hostElement().querySelector<HTMLElement>('.wr-glitch-text__clones')!;
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -77,11 +78,23 @@ describe('WrGlitchTextHarness', () => {
   it('reports the mirror as broken once the attribute drifts from the text', async () => {
     const harness = await glitch();
     // The silent failure this component has: visible text intact, clones drawing nothing.
-    hostElement().removeAttribute('data-text');
+    cloneLayer().removeAttribute('data-text');
 
     expect(await harness.getText()).toBe('GLITCH');
     expect(await harness.getCloneText()).toBeNull();
     expect(await harness.isCloneTextInSync()).toBe(false);
+  });
+
+  it('keeps the clone layer out of the accessibility tree', async () => {
+    // The whole reason the clones are not on the host. `content: attr(data-text)` is
+    // announced, so three copies of the string used to reach the tree; the layer that
+    // carries the pseudos has to stay hidden, and no gate in this repo would notice
+    // if it stopped being.
+    const harness = await glitch();
+    expect(await harness.isCloneLayerHidden()).toBe(true);
+
+    cloneLayer().removeAttribute('aria-hidden');
+    expect(await harness.isCloneLayerHidden()).toBe(false);
   });
 
   it('idles until hover by default, and stops doing so when told', async () => {

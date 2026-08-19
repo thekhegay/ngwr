@@ -2,7 +2,7 @@
   <button
     type="button"
     class="wr-time-picker__step wr-time-picker__step--up"
-    aria-label="Increment hours"
+    [attr.aria-label]="incrementHoursLabel()"
     [disabled]="!interactive()"
     (click)="stepHours(1)"
   >
@@ -23,7 +23,7 @@
     class="wr-time-picker__input"
     type="text"
     inputmode="numeric"
-    aria-label="Hours"
+    [attr.aria-label]="hoursLabel()"
     [value]="hoursDisplay()"
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
@@ -33,7 +33,7 @@
   <button
     type="button"
     class="wr-time-picker__step wr-time-picker__step--down"
-    aria-label="Decrement hours"
+    [attr.aria-label]="decrementHoursLabel()"
     [disabled]="!interactive()"
     (click)="stepHours(-1)"
   >
@@ -58,7 +58,7 @@
   <button
     type="button"
     class="wr-time-picker__step wr-time-picker__step--up"
-    aria-label="Increment minutes"
+    [attr.aria-label]="incrementMinutesLabel()"
     [disabled]="!interactive()"
     (click)="stepMinutes(1)"
   >
@@ -79,7 +79,7 @@
     class="wr-time-picker__input"
     type="text"
     inputmode="numeric"
-    aria-label="Minutes"
+    [attr.aria-label]="minutesLabel()"
     [value]="minutesDisplay()"
     [disabled]="effectiveDisabled()"
     [readonly]="readonly()"
@@ -89,7 +89,7 @@
   <button
     type="button"
     class="wr-time-picker__step wr-time-picker__step--down"
-    aria-label="Decrement minutes"
+    [attr.aria-label]="decrementMinutesLabel()"
     [disabled]="!interactive()"
     (click)="stepMinutes(-1)"
   >
@@ -115,7 +115,7 @@
     <button
       type="button"
       class="wr-time-picker__step wr-time-picker__step--up"
-      aria-label="Increment seconds"
+      [attr.aria-label]="incrementSecondsLabel()"
       [disabled]="!interactive()"
       (click)="stepSeconds(1)"
     >
@@ -136,7 +136,7 @@
       class="wr-time-picker__input"
       type="text"
       inputmode="numeric"
-      aria-label="Seconds"
+      [attr.aria-label]="secondsLabel()"
       [value]="secondsDisplay()"
       [disabled]="effectiveDisabled()"
       [readonly]="readonly()"
@@ -146,7 +146,7 @@
     <button
       type="button"
       class="wr-time-picker__step wr-time-picker__step--down"
-      aria-label="Decrement seconds"
+      [attr.aria-label]="decrementSecondsLabel()"
       [disabled]="!interactive()"
       (click)="stepSeconds(-1)"
     >
@@ -171,7 +171,7 @@
     <button
       type="button"
       class="wr-time-picker__step wr-time-picker__step--up"
-      aria-label="Toggle AM / PM"
+      [attr.aria-label]="toggleAmPmLabel()"
       [disabled]="!interactive()"
       (click)="toggleAmPm()"
     >
@@ -192,7 +192,7 @@
     <button
       type="button"
       class="wr-time-picker__step wr-time-picker__step--down"
-      aria-label="Toggle AM / PM"
+      [attr.aria-label]="toggleAmPmLabel()"
       [disabled]="!interactive()"
       (click)="toggleAmPm()"
     >

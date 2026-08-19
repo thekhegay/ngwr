@@ -100,6 +100,12 @@ export const wrEn: WrI18nCatalog = {
     toSource: 'Move to available',
     count: '{{checked}} / {{total}}',
   },
+  form: {
+    // Rendered inside the label's parentheses — `(optional)` — so it is a bare
+    // lowercase word and no locale has to repeat the punctuation. Same shape as
+    // `stepper.optional`, and unlike the `*` marker this one is NOT `aria-hidden`.
+    optional: 'optional',
+  },
   validation: {
     required: 'This field is required.',
     requiredTrue: 'This field must be checked.',
@@ -192,6 +198,9 @@ export const wrEn: WrI18nCatalog = {
   backTop: {
     label: 'Back to top',
   },
+  breadcrumbs: {
+    label: 'Breadcrumbs',
+  },
   burger: {
     label: 'Toggle menu',
   },
@@ -218,12 +227,17 @@ export const wrEn: WrI18nCatalog = {
   compare: {
     label: 'Comparison divider',
   },
+  // The two `roledescription` values are spoken INSTEAD of the role name, so they
+  // are lowercase nouns ("carousel", "slide") the way a role name would be — not
+  // sentence-case labels like the ones above them.
   carousel: {
     label: 'Carousel',
     goToSlide: 'Go to slide {{index}}',
     prev: 'Previous slide',
     next: 'Next slide',
     pagination: 'Carousel pagination',
+    roledescription: 'carousel',
+    slideRoledescription: 'slide',
   },
   actionSheet: {
     label: 'Actions',
@@ -295,6 +309,21 @@ export const wrEn: WrI18nCatalog = {
     rangeEnd: 'Range end',
     startTime: 'Start time',
     endTime: 'End time',
+    hours: 'Hours',
+    minutes: 'Minutes',
+    seconds: 'Seconds',
+    incrementHours: 'Increment hours',
+    decrementHours: 'Decrement hours',
+    incrementMinutes: 'Increment minutes',
+    decrementMinutes: 'Decrement minutes',
+    incrementSeconds: 'Increment seconds',
+    decrementSeconds: 'Decrement seconds',
+    toggleAmPm: 'Toggle AM / PM',
+    // Rendered in the meridiem column and re-announced by its `aria-live` span on
+    // every toggle, so it is a translated word rather than a fixed glyph — `wrRu`
+    // spells these ДП / ПП.
+    am: 'AM',
+    pm: 'PM',
   },
   sidebar: {
     label: 'Sidebar',

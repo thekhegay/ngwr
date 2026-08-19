@@ -62,7 +62,7 @@
       <span
         class="wr-tree__clear"
         role="button"
-        [attr.aria-label]="clearLabel"
+        [attr.aria-label]="clearLabel()"
         tabindex="-1"
         (click)="clearSelection($event)"
         (keydown.enter)="clearSelection($event)"
@@ -165,7 +165,7 @@
             type="button"
             class="wr-tree__toggle"
             tabindex="-1"
-            [attr.aria-label]="expandedSet().has(entry.node.id) ? collapseLabel : expandLabel"
+            [attr.aria-label]="expandedSet().has(entry.node.id) ? collapseLabel() : expandLabel()"
             (click)="onToggleClick(entry.node, $event)"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">

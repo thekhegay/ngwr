@@ -5,7 +5,7 @@ import { WrBadge } from 'ngwr/badge';
 import type { WrColor } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
-import { DocRichPipe } from '../doc-rich/doc-rich';
+import { DocRichPipe, docRichToText } from '../doc-rich/doc-rich';
 
 import { MetaService } from '#core/services';
 
@@ -102,7 +102,12 @@ export class DocPageComponent {
       this.meta.setTitle([this.title(), this.resolvedCategory()]);
 
       const description = this.description();
-      if (description) this.meta.setDescription(description);
+      // Stripped, not raw: the lede renders the same string through `wrDocRich`,
+      // and a `<meta>` value is read by a search result and a social card, which
+      // render nothing. Left raw, 109 of 199 prerendered pages advertised their
+      // own backticks — and `/reference/components/qrcode` shipped a whole
+      // `[text](url)`, brackets and URL included, as its snippet.
+      if (description) this.meta.setDescription(docRichToText(description));
 
       const keywords = this.keywords();
       if (keywords.length) this.meta.setKeywords([...keywords]);

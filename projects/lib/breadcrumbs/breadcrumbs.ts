@@ -7,6 +7,8 @@
 
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
+import { useI18nText } from 'ngwr/i18n';
+
 /**
  * Breadcrumb navigation. Project `<wr-breadcrumbs-item>` children — each keeps
  * its own element and takes `role="listitem"` inside the `<ol>` rather than
@@ -41,6 +43,15 @@ export class WrBreadcrumbs {
   /** Separator glyph between items. Any short string. @default '/' */
   readonly separator = input('/');
 
-  /** Accessible label for the `nav` landmark. @default 'Breadcrumbs' */
-  readonly ariaLabel = input('Breadcrumbs');
+  /**
+   * Accessible label for the `nav` landmark. Falls back to `breadcrumbs.label`,
+   * then `'Breadcrumbs'`.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  // The English default used to live on the input itself, which made this the one
+  // landmark in the library a catalog could not reach: `wr-anchor` and `wr-sidebar`
+  // announced in Russian on the same page while this one stayed "Breadcrumbs", and
+  // the only escape was restating `[ariaLabel]` on every trail.
+  protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'breadcrumbs.label', 'Breadcrumbs');
 }

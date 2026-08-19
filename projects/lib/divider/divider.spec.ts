@@ -142,3 +142,46 @@ describe('WrDivider naming', () => {
     expect(dividers()[2].getAttribute('aria-label')).toBe('And');
   });
 });
+
+/**
+ * The name has to be in the SERVER's markup, and the flag below is the only way a
+ * unit suite gets there: `afterEveryRender` is not "usually skipped" under SSR, it
+ * returns a no-op ref outright, and `ngServerMode` is the global Angular itself
+ * branches on to decide that. Flipping it makes TestBed reproduce the one thing
+ * that separates a prerendered divider from a hydrated one — which is why these
+ * assertions could not exist as a plain `PLATFORM_ID: 'server'` provider.
+ */
+describe('WrDivider on the server', () => {
+  const globals = globalThis as Record<string, unknown>;
+  let fixture: ReturnType<typeof TestBed.createComponent<LabelHost>>;
+
+  const dividers = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('wr-divider'),
+  ];
+
+  beforeEach(async () => {
+    globals['ngServerMode'] = true;
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(LabelHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    globals['ngServerMode'] = false;
+  });
+
+  it('names the separator in the markup it emits', () => {
+    // Before this, every prerendered page shipped an unnamed `role="separator"`
+    // and the projected label was presentational — announced as nothing until
+    // hydration landed, and never at all with JS off.
+    expect(dividers()[2].getAttribute('aria-label')).toBe('Or');
+  });
+
+  it('still leaves a bare rule unnamed, and a consumer name alone', () => {
+    expect(dividers()[0].getAttribute('aria-label')).toBeNull();
+    expect(dividers()[1].getAttribute('aria-label')).toBe('End of section');
+  });
+});

@@ -64,6 +64,8 @@ describe('WrImageCropperHarness', () => {
 
     await expect(harness.getCropBox()).rejects.toThrow(/not rendered/);
     await expect(harness.getHandles()).rejects.toThrow(/not rendered/);
+    await expect(harness.pressArrow('right')).rejects.toThrow(/not rendered/);
+    await expect(harness.getAnnouncement()).rejects.toThrow(/not rendered/);
   });
 
   it('opens a centred crop window once the image reports a size', async () => {
@@ -125,6 +127,44 @@ describe('WrImageCropperHarness', () => {
     await fixture.whenStable();
 
     expect(await (await cropper()).getEmptyText()).toBe('Нет изображения');
+  });
+
+  it('names the crop window, and moves it with the arrow keys', async () => {
+    const harness = await cropper();
+    measure();
+    await harness.dispatchImageLoad();
+
+    expect(await harness.getCropWindowLabel()).toBe('Crop region');
+
+    await harness.pressArrow('right');
+    await harness.pressArrow('down', { shift: true });
+
+    expect(await harness.getCropBox()).toEqual({ x: 81, y: 90, width: 240, height: 240 });
+  });
+
+  it('resizes rather than moves when Alt is held', async () => {
+    const harness = await cropper();
+    measure();
+    await harness.dispatchImageLoad();
+
+    await harness.pressArrow('right', { alt: true, shift: true });
+
+    expect(await harness.getCropBox()).toEqual({ x: 80, y: 80, width: 250, height: 240 });
+  });
+
+  it('announces the moved crop in SOURCE pixels, which getCropBox never reports', async () => {
+    // Two questions, not one: the box below is display geometry, the announcement is
+    // what a screen-reader user is told, and the image here is drawn at half size.
+    const harness = await cropper();
+    measure({ display: 400, natural: 800 });
+    await harness.dispatchImageLoad();
+
+    expect(await harness.getAnnouncement()).toBe('');
+
+    await harness.pressArrow('right');
+
+    expect(await harness.getCropBox()).toMatchObject({ x: 81 });
+    expect(await harness.getAnnouncement()).toBe('162, 160, 480 × 480');
   });
 
   it('matches on the empty state', async () => {

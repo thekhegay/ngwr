@@ -76,6 +76,29 @@ describe('WrBarChartHarness', () => {
     expect((await (await chart()).getBars()).map(bar => bar.heightPercent)).toEqual([25, 50, 12.5]);
   });
 
+  it('reads the share the component declared, not one the layout resolved', async () => {
+    // `getCssValue()` is `getComputedStyle()`, which echoes the declared `50%` in jsdom and
+    // resolves it to used pixels in a real browser — so the same call answered `[50, 100, 25]`
+    // here and `[100, 200, 50]` under a browser runner, with nothing to say which you got.
+
+    // An empty bar still DECLARES `height: 0%`, so 0 is a reading rather than an absence —
+    // which is what lets the missing case throw instead of reporting a plausible nothing.
+    fixture.componentInstance.data.set([
+      { label: 'Mon', value: 0 },
+      { label: 'Tue', value: 24 },
+    ]);
+    await fixture.whenStable();
+    expect((await (await chart()).getBars()).map(bar => bar.heightPercent)).toEqual([0, 100]);
+
+    // Take the declaration away and the two reads part company: the attribute read has
+    // nothing to report and says so, where the computed read quietly returned `NaN`.
+    const harness = await chart();
+    const bar = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-bar-chart__bar')!;
+    bar.removeAttribute('style');
+
+    await expect(harness.getBars()).rejects.toThrow(/no inline height percentage/);
+  });
+
   it('reads the plot height the component wrote', async () => {
     fixture.componentInstance.height.set(320);
     await fixture.whenStable();

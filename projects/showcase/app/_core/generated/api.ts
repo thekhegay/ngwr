@@ -125,7 +125,7 @@ export const API = {
   // <wr-breadcrumbs>
   WrBreadcrumbs: [
     { name: "separator", description: "Separator glyph between items. Any short string.", type: "string", default: "'/'" },
-    { name: "ariaLabel", description: "Accessible label for the `nav` landmark.", type: "string", default: "'Breadcrumbs'" },
+    { name: "ariaLabel", description: "Accessible label for the `nav` landmark. Falls back to `breadcrumbs.label`, then `'Breadcrumbs'`.", type: "string | null", default: "null" },
   ],
   // <wr-breadcrumbs-item>
   WrBreadcrumbsItem: [
@@ -193,12 +193,17 @@ export const API = {
     { name: "nextLabel", description: "Accessible name of the next-slide button. Falls back to `carousel.next`.", type: "string | null", default: "null" },
     { name: "paginationLabel", description: "Accessible name of the dot group. Falls back to `carousel.pagination`.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name of the carousel itself. Falls back to `carousel.label`.", type: "string | null", default: "null" },
+    { name: "roledescription", description: "Word a screen reader speaks IN PLACE OF the `group` role. Falls back to `carousel.roledescription`, then `'carousel'`.", type: "string | null", default: "null" },
     { name: "active", description: "Active slide index. Two-way bindable.", type: "number", default: "0" },
     { name: "showArrows", description: "Show prev / next arrow buttons.", type: "boolean", default: "true" },
     { name: "showDots", description: "Show dot indicators below the slides.", type: "boolean", default: "true" },
     { name: "autoplay", description: "Auto-advance slides.", type: "boolean", default: "false" },
     { name: "intervalMs", description: "Autoplay interval (ms).", type: "number", default: "4000" },
     { name: "loop", description: "Wrap around at the ends.", type: "boolean", default: "true" },
+  ],
+  // <wr-carousel-slide>
+  WrCarouselSlide: [
+    { name: "roledescription", description: "Word a screen reader speaks IN PLACE OF the `group` role. Falls back to `carousel.slideRoledescription`, then `'slide'`.", type: "string | null", default: "null" },
   ],
   // <wr-cascader>
   WrCascader: [
@@ -428,7 +433,7 @@ export const API = {
   // <wr-donut-chart>
   WrDonutChart: [
     { name: "segments", description: "—", type: "readonly WrDonutSegment[]", default: "[]" },
-    { name: "ariaLabel", description: "Accessible name of the chart. The ring is `aria-hidden` and the legend is optional, so with `showLegend: false` this is the only thing a screen reader gets. Falls back to `donutChart.label`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the drawing. The arcs carry no text and the legend is optional, so with `showLegend: false` this and the centre text are the whole of what a screen reader gets. Falls back to `donutChart.label`.", type: "string | null", default: "null" },
     { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "200" },
     { name: "thickness", description: "Inner-ring thickness as a percent of radius (0–100). `0` = solid pie.", type: "number", default: "30" },
     { name: "showLegend", description: "Show the legend under the chart.", type: "boolean", default: "true" },
@@ -530,7 +535,8 @@ export const API = {
     { name: "label", description: "Label text shown above the control.", type: "string", default: "''" },
     { name: "hint", description: "Hint text shown below the control. Hidden when an error is visible.", type: "string", default: "''" },
     { name: "required", description: "Show a `*` next to the label.", type: "boolean", default: "false" },
-    { name: "optional", description: "Show `(optional)` next to the label. Mutually exclusive with `required`.", type: "boolean", default: "false" },
+    { name: "optional", description: "Show an \"optional\" marker next to the label — the word comes from `optionalLabel`. Mutually exclusive with `required`.", type: "boolean", default: "false" },
+    { name: "optionalLabel", description: "Word inside the optional marker's parentheses. Falls back to `form.optional`, then `'optional'`. The parentheses are the template's, so no locale has to repeat punctuation.", type: "string | null", default: "null" },
     { name: "controlId", description: "Force a specific id on the label's `for` attribute. Auto-generated otherwise, and adopted by the projected `wrInput` unless that element already carries an `id` of its own.", type: "string", default: "`wr-form-field-${++uid}`" },
     { name: "autoErrors", description: "Render a catalog message for any error the markup does not already answer. On by default: a field with no `<wr-form-error>` at all is the common case, and an empty error block helps nobody. Turn it off for a field whose copy is entirely hand-written.", type: "boolean", default: "true" },
   ],

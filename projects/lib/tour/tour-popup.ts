@@ -55,8 +55,7 @@ export class WrTourPopup {
   protected readonly tour = inject(WR_TOUR_STEP);
 
   // `readI18nText`, not `useI18nText`: these have no consumer-facing input to
-  // forward, and the popup is rebuilt for every step, so resolving once at
-  // construction is enough.
+  // forward. Both helpers are reactive.
   protected readonly nextLabel = readI18nText('tour.next', 'Next');
   protected readonly backLabel = readI18nText('tour.back', 'Back');
   protected readonly doneLabel = readI18nText('tour.done', 'Done');

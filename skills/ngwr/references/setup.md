@@ -52,11 +52,11 @@ Overlays render into an ngwr-owned container; without it they never appear. Need
 
 Icons resolve by name from a registry you populate. Needed by `WrIcon`.
 
-### `provideWrDateAdapter(wrDateFnsAdapter) // from 'ngwr/date-adapter-fns'`
+### `provideWrDateFnsAdapter() // from 'ngwr/date-adapter-fns'`
 
 Every date mode goes through an adapter; there is no built-in default. Needed by `WrDatePicker`, `WrCalendar`, `WrEventCalendar`.
 
-### `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n'`
+### `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
 
 The pipe and directive read from a catalog you provide. Needed by `WrT`, `WrI18n`.
 

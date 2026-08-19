@@ -54,9 +54,9 @@ export class WrDonutChart {
   readonly segments = input<readonly WrDonutSegment[]>([]);
 
   /**
-   * Accessible name of the chart. The ring is `aria-hidden` and the legend is optional,
-   * so with `showLegend: false` this is the only thing a screen reader gets. Falls back
-   * to `donutChart.label`.
+   * Accessible name of the drawing. The arcs carry no text and the legend is optional, so
+   * with `showLegend: false` this and the centre text are the whole of what a screen reader
+   * gets. Falls back to `donutChart.label`.
    */
   readonly ariaLabel = input<string | null>(null);
 

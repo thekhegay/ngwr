@@ -28,6 +28,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { WrPlatform } from 'ngwr/platform';
 import { numAttr } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
@@ -117,6 +118,7 @@ export class WrCountUp {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly locale = inject(LOCALE_ID);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
   private readonly destroyRef = inject(DestroyRef);
 
   private rafId: number | null = null;
@@ -142,10 +144,16 @@ export class WrCountUp {
       return;
     }
 
-    // Seed the resting value so first paint shows the start, not 0.
+    // Seed the resting value so first paint shows the start, not 0 — except for a reader
+    // who asked for less motion, who is seeded on the value the animation ENDS on, the
+    // same way the server branch above is. Seeding the start for them would leave the
+    // placeholder on screen, and with `trigger="visible"` it would stay there until the
+    // host scrolls into view and then never be animated off it.
     effect(() => {
-      const initial = this.direction() === 'down' ? this.to() : this.from();
-      this.value.set(initial);
+      const down = this.direction() === 'down';
+      const start = down ? this.to() : this.from();
+      const end = down ? this.from() : this.to();
+      this.value.set(this.platform.prefersReducedMotion() ? end : start);
     });
 
     // Run the animation whenever the `to` target changes (or on first mount).
@@ -212,6 +220,15 @@ export class WrCountUp {
     const start = this.direction() === 'down' ? this.to() : this.from();
     const end = this.direction() === 'down' ? this.from() : this.to();
     this.started.emit();
+    // Straight to the answer for a reader who asked for less motion — `wr-counter` in this
+    // same folder already does this, and a component whose entire purpose is a count-up
+    // should not be the one that ignores it. Both outputs still fire, in order, so a
+    // consumer wired to `completed` is not left waiting on a tween that never ran.
+    if (this.platform.prefersReducedMotion()) {
+      this.value.set(end);
+      this.completed.emit();
+      return;
+    }
     if (this.easing() === 'spring') this.tweenSpring(start, end);
     else this.tweenEaseOut(start, end);
   }

@@ -172,6 +172,88 @@ describe('WrTabs', () => {
 });
 
 /**
+ * The ARIA ids. A tab key is documented as parent-scoped ("used by the parent to
+ * track the active tab"), so the DOCUMENT-wide uniqueness the ids need has to
+ * come from the parent — otherwise two groups that both name a tab `overview`
+ * emit the same id twice and the second group's `aria-labelledby` resolves into
+ * the first.
+ */
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs>
+      <wr-tab title="Overview" key="overview">Product overview</wr-tab>
+      <wr-tab title="Details" key="details">Product details</wr-tab>
+    </wr-tabs>
+    <wr-tabs>
+      <wr-tab title="Overview" key="overview">Settings overview</wr-tab>
+      <wr-tab title="Advanced" key="my advanced">Settings advanced</wr-tab>
+    </wr-tabs>
+  `,
+})
+class TwoGroupsHost {}
+
+describe('WrTabs ARIA ids across two groups on one page', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TwoGroupsHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const groups = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('wr-tabs')];
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(TwoGroupsHost);
+    fixture.detectChanges();
+  });
+
+  it('gives every id-bearing element a document-unique id', () => {
+    const ids = [...root().querySelectorAll<HTMLElement>('[id]')].map(el => el.id);
+    expect(ids).toHaveLength(6);
+    expect(new Set(ids).size).toBe(6);
+  });
+
+  it('resolves each panel’s aria-labelledby to a tab in its OWN group', () => {
+    for (const group of groups()) {
+      const panel = group.querySelector<HTMLElement>('[role="tabpanel"]')!;
+      const labelledBy = panel.getAttribute('aria-labelledby')!;
+      const label = root().querySelector<HTMLElement>(`#${CSS.escape(labelledBy)}`);
+
+      expect(label).toBeTruthy();
+      expect(group.contains(label)).toBe(true);
+    }
+  });
+
+  it('resolves each tab’s aria-controls to a panel in its OWN group', () => {
+    for (const group of groups()) {
+      const tab = group.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')!;
+      const controls = tab.getAttribute('aria-controls')!;
+      const panel = root().querySelector<HTMLElement>(`#${CSS.escape(controls)}`);
+
+      expect(panel).toBeTruthy();
+      expect(group.contains(panel)).toBe(true);
+    }
+  });
+
+  it('keeps a key with a space to a single IDREF token', () => {
+    // `aria-controls` is a SPACE-SEPARATED id list, so `key="my advanced"` used
+    // to parse as two tokens, neither of which named anything.
+    const ids = [...root().querySelectorAll<HTMLElement>('[id]')].map(el => el.id);
+    for (const id of ids) expect(id).not.toContain(' ');
+  });
+
+  it('still moves focus with the arrow keys in the second group', () => {
+    // The strip looks its neighbour up by `#id`, so the id shape and the
+    // keyboard path have to stay in agreement.
+    const second = groups()[1];
+    const strip = second.querySelector<HTMLElement>('[role="tablist"]')!;
+    strip.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    const tabs = [...second.querySelectorAll<HTMLElement>('[role="tab"]')];
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(tabs[1]);
+  });
+});
+
+/**
  * Reading direction. `Directionality` resolves the document's direction when it is
  * constructed, so the honest way to test the other one is to provide a fake —
  * writing `document.dir` mid-file would leak into whatever runs after it.

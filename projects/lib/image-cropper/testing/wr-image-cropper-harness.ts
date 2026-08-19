@@ -5,11 +5,21 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate, type TestElement } from '@angular/cdk/testing';
+import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@angular/cdk/testing';
 
 import type { WrCropHandle } from 'ngwr/image-cropper';
 
 import type { WrImageCropperHarnessFilters } from './interfaces';
+
+const ARROWS = {
+  left: TestKey.LEFT_ARROW,
+  right: TestKey.RIGHT_ARROW,
+  up: TestKey.UP_ARROW,
+  down: TestKey.DOWN_ARROW,
+} as const;
+
+/** The four directions the crop window's keyboard model understands. */
+export type WrCropArrow = keyof typeof ARROWS;
 
 /** Where the crop window sits over the DISPLAYED image, in CSS pixels. */
 export interface WrCropWindowBox {
@@ -28,13 +38,16 @@ export interface WrCropWindowBox {
  * `naturalWidth`, converts between display and source pixels, and moves the crop
  * window with pointer deltas. jsdom measures nothing — every rect is 0×0 and
  * `naturalWidth` is 0 — so an image never "loads", the crop UI never renders, and a
- * synthetic drag divides by zero. There is deliberately no `moveCrop()` or
- * `resizeCrop()`: either would write `NaN` and report success.
+ * synthetic drag divides by zero. There is deliberately no drag method: it would
+ * write `NaN` and report success.
  *
  * What a spec CAN do is give the image a box and a natural size itself, then call
  * {@link dispatchImageLoad} — the two numbers `onImageLoad` reads are the whole
  * stub, and from there {@link getCropBox} and {@link getHandles} are real answers,
- * because the component writes the crop window's geometry as inline pixels.
+ * because the component writes the crop window's geometry as inline pixels. The
+ * KEYBOARD path needs the same stub to get the crop UI up, but nothing beyond it:
+ * its step is a constant rather than a pointer delta, so {@link pressArrow} lands
+ * on a number a spec can name.
  *
  * ```ts
  * // In your spec, before dispatching the load:
@@ -44,12 +57,13 @@ export interface WrCropWindowBox {
  * Object.defineProperty(img, 'naturalHeight', { value: 800 });
  * ```
  *
- * **There is also nothing to click.** The cropper renders no buttons: the result
- * arrives on the `(cropped)` output, which emits a `Blob` after each drag end, and a
- * consumer who wants a one-off read calls `toBlob()` / `toDataUrl()` — or
- * `cropRect()` for the geometry — on the component through a `viewChild`. An output
- * and three instance members: component API rather than DOM, so all of it is outside
- * what a harness can reach at all, which is worth knowing rather than discovering.
+ * **There is nothing to click.** The cropper renders no buttons: the result
+ * arrives on the `(cropped)` output, which emits a `Blob` after each drag end or
+ * each run of arrow keys, and a consumer who wants a one-off read calls `toBlob()` /
+ * `toDataUrl()` — or `cropRect()` for the geometry — on the component through a
+ * `viewChild`. An output and three instance members: component API rather than DOM,
+ * so all of it is outside what a harness can reach at all, which is worth knowing
+ * rather than discovering.
  *
  * @example
  * ```ts
@@ -170,6 +184,42 @@ export class WrImageCropperHarness extends ComponentHarness {
   /** Whether the dimming backdrop with the cut-out is drawn. */
   async hasBackdrop(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-image-cropper__backdrop')()) !== null;
+  }
+
+  /**
+   * Press an arrow key on the crop window — one display pixel, or ten with
+   * `shift`; `alt` resizes from the east / south edge instead of moving.
+   *
+   * Sent to the crop window, where the component listens, so it does not depend on
+   * jsdom having managed to focus anything. `sendKeys` fires keyup as well as
+   * keydown, which is what makes `(cropped)` emit — the component treats a run of
+   * arrows as one gesture, the way a drag is one.
+   */
+  async pressArrow(arrow: WrCropArrow, modifiers: { alt?: boolean; shift?: boolean } = {}): Promise<void> {
+    const window_ = await this.requireReady('pressArrow');
+    const keys = ARROWS[arrow];
+    await (modifiers.alt || modifiers.shift ? window_.sendKeys(modifiers, keys) : window_.sendKeys(keys));
+  }
+
+  /** The crop window's accessible name. Comes from the catalog. */
+  async getCropWindowLabel(): Promise<string | null> {
+    return (await this.requireReady('getCropWindowLabel')).getAttribute('aria-label');
+  }
+
+  /**
+   * The last thing the live region announced — the crop rect in SOURCE pixels,
+   * as `x, y, width × height`.
+   *
+   * Empty until a key has moved the crop: a pointer drag deliberately says nothing
+   * (it would flood the region and the sighted user can see it), and the initial
+   * crop is not news. Two questions, not one — {@link getCropBox} reads the window's
+   * DISPLAY geometry, and a component that moved the box without announcing it
+   * would still pass that one.
+   */
+  async getAnnouncement(): Promise<string> {
+    await this.requireReady('getAnnouncement');
+    const status = await this.locatorForOptional('[role="status"]')();
+    return status ? status.text() : '';
   }
 
   private async requireReady(method: string): Promise<TestElement> {

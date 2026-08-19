@@ -108,3 +108,63 @@ describe('WrQr under a localized catalog', () => {
     fixture.destroy();
   });
 });
+
+/**
+ * A second host, because the interesting failure is not local. `WrQr` paints from an
+ * `effect()`, and an exception thrown there does not stay inside the component that
+ * threw — it escapes into `runEffectsInView`, which abandons the remaining effects of
+ * the pass. So a payload past the QR capacity used to take the OTHER codes on the page
+ * down with it, unpainted and unexplained, which is why the encoder's `RangeError` is
+ * absorbed in `generator.ts` rather than left to propagate.
+ */
+@Component({
+  imports: [WrQr],
+  template: `
+    <wr-qr [value]="first()" level="H" />
+    <wr-qr [value]="second()" level="H" />
+  `,
+})
+class PairHost {
+  readonly first = signal('https://ngwr.dev/one');
+  readonly second = signal('https://ngwr.dev/two');
+}
+
+describe('WrQr with a payload past the QR capacity', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('blanks the over-long code and leaves the rest of the view painting', () => {
+    // jsdom hands out no 2D context, so the component never reaches the encoder without
+    // one; the stub records nothing but which canvas was painted into.
+    const painted: HTMLCanvasElement[] = [];
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(function (this: HTMLCanvasElement) {
+      // Arrow bodies on purpose: they close over the `this` of the canvas whose
+      // context was asked for, which is the only way to tell the two apart here.
+      return {
+        fillStyle: '',
+        fillRect: (): void => {
+          painted.push(this);
+        },
+        drawImage: (): void => undefined,
+      } as unknown as CanvasRenderingContext2D;
+    } as never);
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(PairHost);
+    fixture.detectChanges();
+
+    const canvases = (fixture.nativeElement as HTMLElement).querySelectorAll('canvas');
+    expect(canvases).toHaveLength(2);
+
+    // Both change in the same pass: the first past capacity, the second perfectly valid.
+    painted.length = 0;
+    fixture.componentInstance.first.set('a'.repeat(1300));
+    fixture.componentInstance.second.set('https://ngwr.dev/still-valid');
+
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(painted).toContain(canvases[1]);
+
+    fixture.destroy();
+  });
+});

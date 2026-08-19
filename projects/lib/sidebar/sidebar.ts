@@ -120,7 +120,10 @@ export class WrSidebar {
     { initialValue: this.router.url }
   );
 
-  /** Last URL we auto-expanded — prevents re-opening a group the user collapsed. */
+  /**
+   * Last URL we resolved to a group — prevents re-opening one the user collapsed.
+   * A URL no entry claims is deliberately NOT recorded: see the effect below.
+   */
   private lastAutoUrl: string | null = null;
 
   constructor() {
@@ -145,9 +148,18 @@ export class WrSidebar {
       if (!this.autoExpand()) return;
       const url = this.currentUrl();
       if (url === this.lastAutoUrl) return;
-      this.lastAutoUrl = url;
+      // Latch AFTER the lookup, never before it. `entries` often arrives from an
+      // HTTP call, so the first run matches nothing — and latching first told the
+      // re-run that landed with the real nav that this URL was already handled.
+      // A deep link into a `defaultOpen: false` group then stayed collapsed, with
+      // the active link out of the tab order, until the user navigated away and
+      // back. Only a run that found a group has actually handled the URL; the
+      // user-collapse latch is unaffected, since that run is also the one that
+      // records it.
       const match = this.findGroupForUrl(url);
-      if (!match || this.opened().has(match)) return;
+      if (!match) return;
+      this.lastAutoUrl = url;
+      if (this.opened().has(match)) return;
       this.opened.update(prev => {
         const next = new Set(prev);
         next.add(match);

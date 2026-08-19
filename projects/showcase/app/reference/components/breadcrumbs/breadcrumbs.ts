@@ -69,9 +69,10 @@ export default class BreadcrumbsPage {
     {
       name: 'ariaLabel',
       sub: true,
-      description: 'Label for the `nav` landmark.',
-      type: 'string',
-      default: "'Breadcrumbs'",
+      description:
+        'Accessible name for the `nav` landmark. Falls back to the `breadcrumbs.label` catalog key, then `Breadcrumbs`.',
+      type: 'string | null',
+      default: 'null',
     },
     {
       name: '<wr-breadcrumbs-item>',

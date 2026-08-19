@@ -21,7 +21,7 @@
     class="wr-tour-popup__action wr-tour-popup__action--skip"
     (click)="tour.stop()"
   >
-    {{ skipLabel }}
+    {{ skipLabel() }}
   </button>
 
   <span class="wr-tour-popup__spacer"></span>
@@ -35,7 +35,7 @@
       class="wr-tour-popup__action wr-tour-popup__action--back"
       (click)="tour.prev()"
     >
-      {{ backLabel }}
+      {{ backLabel() }}
     </button>
   }
   <button
@@ -46,6 +46,6 @@
     class="wr-tour-popup__action wr-tour-popup__action--next"
     (click)="tour.next()"
   >
-    {{ isLast() ? doneLabel : nextLabel }}
+    {{ isLast() ? doneLabel() : nextLabel() }}
   </button>
 </div>

@@ -1,4 +1,4 @@
-import { PLATFORM_ID } from '@angular/core';
+import { EnvironmentInjector, PLATFORM_ID, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrPlatform } from 'ngwr/platform';
@@ -226,6 +226,35 @@ describe('WrConfetti', () => {
 
     expect(canvases()).toEqual([]);
     expect(frames).toEqual([]);
+  });
+
+  it('takes its canvas and its resize listener back when its injector is destroyed', () => {
+    holdFrames();
+    // `WrConfetti` is root-provided, but nothing stops a lazy route or a component
+    // from listing the class in its own `providers`. Each such instance built its
+    // own full-viewport canvas and its own `resize` listener and released neither,
+    // so navigating back and forth stacked up detached backing stores.
+    const child = createEnvironmentInjector([WrConfetti], TestBed.inject(EnvironmentInjector));
+    child.get(WrConfetti).fire({ count: 5 });
+    expect(canvases().length).toBe(1);
+    const orphan = canvases()[0];
+    const removed = vi.spyOn(window, 'removeEventListener');
+
+    child.destroy();
+
+    expect(canvases()).toEqual([]);
+    // jsdom exposes no listener registry, so the removal is read off the call
+    // rather than off the window — and then confirmed by behaviour: a resize
+    // afterwards used to reallocate the orphan's `innerWidth * dpr` backing store.
+    expect(removed).toHaveBeenCalledWith('resize', expect.any(Function));
+    orphan.width = 1;
+    window.dispatchEvent(new Event('resize'));
+    expect(orphan.width).toBe(1);
+
+    // And the state that guards `ensureCanvas()` is reset, so the next instance
+    // gets a canvas instead of inheriting a detached one.
+    confetti.fire({ count: 1 });
+    expect(canvases().length).toBe(1);
   });
 
   it('takes an options object without complaining about the ones it is not given', () => {

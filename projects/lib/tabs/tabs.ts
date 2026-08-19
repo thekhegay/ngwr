@@ -29,6 +29,32 @@ import { WrTab } from './tab';
 import { WR_TABS, type WrTabsContext } from './tokens';
 
 /**
+ * Instance counter for the header / panel ids. Deterministic under prerender,
+ * unlike `randomId()` — the same reason `wr-sidebar` and `wr-mention` count.
+ *
+ * The ids used to be built from the tab key alone, so two `<wr-tabs>` on one
+ * page that both name a tab `key="overview"` emitted the same
+ * `wr-tab-overview-header` twice, and the second group's `aria-labelledby`
+ * resolved to the FIRST group's tab. A key is documented as parent-scoped, so
+ * it is the parent that has to make it unique document-wide.
+ */
+let tabsUid = 0;
+
+/**
+ * A tab key as an id fragment: anything outside `[A-Za-z0-9_-]` becomes `-`.
+ * These ids land in `aria-controls` / `aria-labelledby`, which are
+ * space-separated IDREF lists — `key="my tab"` emitted
+ * `aria-controls="wr-tab-my tab-panel"`, two tokens, neither of which resolves.
+ *
+ * Two keys differing only outside that set collapse to one fragment; the
+ * instance counter keeps that inside a single group, where the keys are the
+ * consumer's own to keep apart.
+ */
+function idFragment(key: string): string {
+  return key.replace(/[^A-Za-z0-9_-]/g, '-');
+}
+
+/**
  * Tabbed container. Two modes depending on the child `<wr-tab>`
  * definitions:
  *
@@ -183,14 +209,17 @@ export class WrTabs implements WrTabsContext {
     if (!this.isRouter()) this.activate(tab.key());
   }
 
+  /** Per-instance prefix, so keys only have to be unique within one group. */
+  private readonly uid = ++tabsUid;
+
   /** Header id for `aria-labelledby` on the panel. @internal */
   headerId(key: string): string {
-    return `wr-tab-${key}-header`;
+    return `wr-tabs-${this.uid}-tab-${idFragment(key)}-header`;
   }
 
   /** Panel id for `aria-controls` on the tab header. @internal */
   panelId(key: string): string {
-    return `wr-tab-${key}-panel`;
+    return `wr-tabs-${this.uid}-tab-${idFragment(key)}-panel`;
   }
 
   /** ArrowLeft/Right/Home/End keyboard navigation on the tab strip. */

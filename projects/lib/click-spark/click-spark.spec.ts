@@ -222,10 +222,34 @@ describe('WrClickSpark', () => {
 
     runFrame(t0 + 401);
 
-    // The loop is still running — it just has nothing left to paint. Both halves
-    // matter: a loop that stopped would leave the last burst frozen on the canvas.
+    // Nothing more is painted, and the loop parks instead of spinning on an empty
+    // array for the rest of the page's life. Parking is only safe where it is —
+    // after the filter, and so after the `clearRect` that opens the frame — because
+    // the pass that retires the last spark has already blanked the canvas. Park any
+    // earlier and the last burst would stay frozen on it.
     expect(strokes.length).toBe(burst);
     expect(cleared).toBe(2);
+    expect(frames).toEqual([]);
+  });
+
+  it('wakes the parked loop for the next click', async () => {
+    withContext();
+    await mount();
+
+    const t0 = clickAt();
+    runFrame(t0);
+    runFrame(t0 + 401);
+    expect(frames).toEqual([]);
+
+    // The price of parking, and the regression it invites: a component that stopped
+    // and never restarted would spark exactly once per page load, with no error and
+    // no visible difference until the second click.
+    const t1 = clickAt();
+    expect(frames.length).toBe(1);
+    runFrame(t1);
+
+    // Two full bursts at the default `[sparkCount]` of 8.
+    expect(strokes.length).toBe(16);
   });
 
   it('makes no sparks for someone who asked for less motion', async () => {
@@ -236,10 +260,12 @@ describe('WrClickSpark', () => {
     runFrame(t0);
     runFrame(t0 + 16);
 
-    // Nothing was drawn, and the canvas is being actively kept clear rather than
-    // the loop having quietly died — the click simply spawns no sparks.
+    // Nothing was drawn, and the loop stopped after the single frame it was booted
+    // with: `onClick` returns before pushing anything here, so this instance can
+    // never paint, and it must not go on clearing a page-sized canvas every frame
+    // to prove it. The second `runFrame` finds nothing pending.
     expect(strokes).toEqual([]);
-    expect(cleared).toBe(2);
+    expect(cleared).toBe(1);
   });
 
   it('resolves a `var(--wr-…)` spark colour against the host', async () => {

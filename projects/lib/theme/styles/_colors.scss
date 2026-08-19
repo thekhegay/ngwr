@@ -251,6 +251,12 @@ $contrast-light: #ffffff !default;
   // with today. Both are kept: swapping one for the other changes appearance,
   // not just naming.
   --wr-color-outline: var(--wr-color-light);
+  // unused-ok: the channel form of the hairline, kept for a consumer writing
+  // their own `rgba()` rule. The library's twenty-two hand-rolls read it and
+  // moved to `--wr-color-fill*` above — deliberately off `light-rgb`, for the
+  // reason stated there — so nothing paints with the channels today. Until this
+  // check stopped counting comments as consumers, the paragraph at :152 was the
+  // only thing keeping it green.
   --wr-color-outline-rgb: var(--wr-color-light-rgb);
 
   @each $name, $base in $base-colors {

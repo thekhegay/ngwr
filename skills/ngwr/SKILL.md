@@ -87,10 +87,10 @@ cause.
 - `provideWrIcons(lucideIcons({ … })) // from 'ngwr/icon' + 'ngwr/icon/adapters/lucide'`
   — icons resolve by name from a registry you populate
   — needed by: `WrIcon`
-- `provideWrDateAdapter(wrDateFnsAdapter) // from 'ngwr/date-adapter-fns'`
+- `provideWrDateFnsAdapter() // from 'ngwr/date-adapter-fns'`
   — every date mode goes through an adapter; there is no built-in default
   — needed by: `WrDatePicker`, `WrCalendar`, `WrEventCalendar`
-- `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n'`
+- `provideWrI18n() + provideWrI18nStaticLoader({ en: wrEn }) // from 'ngwr/i18n' + 'ngwr/i18n/en'`
   — the pipe and directive read from a catalog you provide
   — needed by: `WrT`, `WrI18n`
 

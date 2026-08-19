@@ -6,7 +6,16 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, afterEveryRender, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewEncapsulation,
+  afterEveryRender,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
 
@@ -86,6 +95,15 @@ export class WrDivider {
   private authored: string | null | undefined;
 
   constructor() {
+    // `afterEveryRender` is a hard NO-OP under SSR, so while it was the only
+    // writer every prerendered page shipped `role="separator"` with no name —
+    // exactly the defect `syncLabel()` exists to fix, in the one window (before
+    // hydration, no JS, a raw read of the server HTML) where nothing can repair
+    // it. An effect is not gated that way and runs after the content has been
+    // projected, so it names the separator in the emitted markup; the render
+    // hook stays because a single effect run cannot follow a label that changes
+    // afterwards, and it reads nothing reactive to be re-run by.
+    effect(() => this.syncLabel());
     afterEveryRender(() => this.syncLabel());
   }
 
@@ -99,8 +117,8 @@ export class WrDivider {
    * up the role, and the two can never disagree because one is the source of the
    * other.
    *
-   * Written to the DOM after every render rather than through a host binding, for
-   * two reasons a binding cannot cover: the label is projected content, so an
+   * Written straight to the DOM rather than through a host binding, for two
+   * reasons a binding cannot cover: the label is projected content, so an
    * interpolation or an `@if` can change it while the divider stays put; and a
    * binding resolving to `null` would strip an `aria-label` the consumer wrote
    * themselves — theirs is the author name already and is never touched.

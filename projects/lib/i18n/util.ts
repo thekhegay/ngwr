@@ -50,15 +50,27 @@ export function useI18nText(binding: Signal<string | null | undefined>, key: str
 }
 
 /**
- * Like {@link useI18nText} but takes a literal value (not a Signal) — for
- * computed `aria-label`s that already mix a static piece with a dynamic
- * value. Returns the resolved string once, at injection time.
+ * {@link useI18nText} without a binding to forward — for a built-in string the
+ * component exposes no override input for. Same reactivity, same fallback
+ * rules; the only difference is the missing first argument.
+ *
+ * It used to return a plain `string`, resolved once at injection time, and
+ * that was wrong in the ordinary case rather than an edge one: `WrI18n` writes
+ * every loader-backed catalog from `firstValueFrom(...).then(...)`, so even a
+ * static loader serving an object literal lands a microtask AFTER the first
+ * change-detection pass. Every component built in that pass read an empty
+ * catalog and froze its English fallback for the life of the app — in one
+ * `<wr-date-picker>` the field said "Открыть календарь" and the calendar
+ * button beside it "Open calendar", off the same key.
  */
-export function readI18nText(key: string, fallback: string): string {
+export function readI18nText(key: string, fallback: string): Signal<string> {
   const i18n = inject(WrI18n, { optional: true });
-  if (!i18n) return fallback;
-  const v = i18n.t(key);
-  return v === key ? fallback : v;
+  if (!i18n) return computed(() => fallback);
+
+  return computed(() => {
+    const v = i18n.t(key);
+    return v === key ? fallback : v;
+  });
 }
 
 /** Tiny shim — useful when the caller doesn't have an `input` to forward. */
