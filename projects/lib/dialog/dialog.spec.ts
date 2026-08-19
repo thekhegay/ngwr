@@ -1,3 +1,5 @@
+import { ScrollDispatcher } from '@angular/cdk/scrolling';
+import { Location } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -379,6 +381,90 @@ describe('WrDialog', () => {
     // The ref is often held past the close (awaiting the result); it must not
     // pin the destroyed component, its host element and its view in memory.
     expect(() => ref.componentInstance).toThrow();
+  });
+
+  /**
+   * The body is a real scroll container (`overflow: auto`), and an anchored
+   * overlay opened inside it — a `<wr-select>` halfway down a long form — follows
+   * its trigger only through `ScrollDispatcher`: CDK's `reposition()` strategy
+   * listens to nothing else, and its one document-level fallback listener is
+   * non-capturing, which an element's `scroll` (it does not bubble) never
+   * reaches.
+   *
+   * The registration is what a unit test can hold. Whether the panel then lands
+   * in the right PLACE is layout, and jsdom has none — every rect is 0×0 — so the
+   * assertion is the dispatch, not the pixel.
+   */
+  it('registers the dialog body with the scroll dispatcher', async () => {
+    await open();
+    const body = panel()!.querySelector<HTMLElement>('.wr-dialog__content')!;
+
+    const seen: unknown[] = [];
+    // `scrolled(0)` skips the default 20ms audit window, so the emission is
+    // synchronous and no clock has to be driven.
+    const sub = TestBed.inject(ScrollDispatcher)
+      .scrolled(0)
+      .subscribe(scrollable => seen.push(scrollable));
+    // NOT bubbling, which is the whole point: this is the event a browser fires
+    // on an inner scroll container, and the one the document listener misses.
+    body.dispatchEvent(new Event('scroll'));
+    sub.unsubscribe();
+
+    expect(seen).toHaveLength(1);
+  });
+
+  /**
+   * A dialog is not tied to the route it was opened on by anything else: the
+   * overlay belongs to a root service and is dismissed only by the backdrop,
+   * Escape or an explicit `close()`. Pressing Back therefore swapped the routed
+   * view underneath and left the modal pane, its backdrop and its focus trap over
+   * a page the user never opened them on.
+   */
+  describe('navigation', () => {
+    it('closes when the app navigates', async () => {
+      const ref = await open();
+      const result = ref.awaitClose();
+
+      TestBed.inject(Location).go('/elsewhere');
+      await settle();
+
+      expect(panel()).toBeNull();
+      expect(backdrop()).toBeNull();
+      // Closed through the ref, not disposed behind its back: a caller sitting on
+      // `awaitClose()` has to be released, and the focus trap has to come down.
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it('closes on the Back button', async () => {
+      await open();
+
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      await settle();
+
+      expect(panel()).toBeNull();
+    });
+
+    it('takes every stacked dialog with it', async () => {
+      await open();
+      await open();
+      expect(document.querySelectorAll('.wr-dialog-panel')).toHaveLength(2);
+
+      TestBed.inject(Location).go('/elsewhere-again');
+      await settle();
+
+      // Both, not just the first: `Location` notifies its listeners with a
+      // `forEach` over an array each close removes an entry from.
+      expect(document.querySelectorAll('.wr-dialog-panel')).toHaveLength(0);
+    });
+
+    it('stays put for a dialog that owns the navigation', async () => {
+      await open({ closeOnNavigation: false });
+
+      TestBed.inject(Location).go('/still-here');
+      await settle();
+
+      expect(panel()).not.toBeNull();
+    });
   });
 
   it('stacks two dialogs, and closing the top one leaves the other open', async () => {

@@ -110,13 +110,12 @@ export class WrContextMenuItemHarness extends ComponentHarness {
   }
 
   /**
-   * Whether the item holds focus.
+   * Whether the item holds the menu's roving focus.
    *
-   * Worth asking, because nothing in this component ever puts it there: unlike
-   * `<wr-dropdown-menu>`, a context menu does not focus its first item on open
-   * and has no arrow-key cursor between items. Focus lands on an item when
-   * something sends it a key — which every keyboard method here does, since the
-   * CDK focuses an element before typing into it.
+   * The menu moves focus onto its first enabled row as the pane renders and the
+   * arrows walk it from there, so this is where the keyboard is. Opening a
+   * submenu hands the cursor to the submenu's own first row, which leaves the
+   * item that owns it unfocused while its pane is up.
    */
   async isFocused(): Promise<boolean> {
     return (await this.host()).isFocused();
@@ -169,8 +168,10 @@ export class WrContextMenuItemHarness extends ComponentHarness {
    *
    * The keyboard, not the pointer: it opens with no delay (hover waits out
    * 120ms — `openSubmenuByHover()` covers that path) and needs no coordinates,
-   * which jsdom could not supply anyway. Sending the key focuses the item first,
-   * exactly as a roving cursor would have.
+   * which jsdom could not supply anyway. A keyboard open walks INTO the submenu,
+   * so afterwards the cursor is on the submenu's first row and `isFocused()` on
+   * this item is `false` — `openSubmenuByHover()` only shows the pane and leaves
+   * the cursor where it was.
    */
   async openSubmenu(timeout = DEFAULT_TIMEOUT): Promise<void> {
     await this.assertHasSubmenu('openSubmenu');

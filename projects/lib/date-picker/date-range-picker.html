@@ -17,9 +17,15 @@
     (blur)="onBlur($event)"
   />
   <span class="wr-date-range-picker__separator" aria-hidden="true">{{ separator() }}</span>
+  <!--
+    `wrDateRangeEnd` hides the surrounding `<wr-form-field>` from this input, so
+    only the start one adopts its `controlId` — see the directive for why the
+    second half of a range carries no id at all.
+  -->
   <input
     #endInput
     wrInput
+    wrDateRangeEnd
     type="text"
     autocomplete="off"
     spellcheck="false"

@@ -6,9 +6,12 @@
   <div class="wr-pagination__nav">
     <!--
       `wr-pagination__nav-btn` exists so the stylesheet can mirror the arrow
-      glyph under `dir="rtl"`. It has to be a class: the numbered cells and the
-      compact label share this row, so `:first-child` / `:last-child` would move
-      with the `showTotal` and ellipsis branches.
+      glyph under `dir="rtl"`. A class rather than `:first-child` /
+      `:last-child` on the row: those two positions do hold today — which is why
+      the `--square` end caps use them — but only while the prev button, the
+      compact label and the next button all stay unconditional and in this
+      order. A mirror keyed to position would follow a reorder, or land on a
+      page cell, without a word.
     -->
     <wr-btn
       class="wr-pagination__nav-btn"

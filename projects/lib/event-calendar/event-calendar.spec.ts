@@ -543,4 +543,24 @@ describe('WrEventCalendar under dir="rtl"', () => {
     arrow('ArrowDown', target);
     expect(document.activeElement).toBe(cells()[17]);
   });
+
+  it('hangs the arrow mirror on the two icon-only steppers, and nowhere near "Today"', () => {
+    // `__nav` is a plain flex row that mirrors, while the chevrons are inline SVG
+    // baked to a physical direction — so "previous" ends up at the right edge
+    // still pointing left, away from the period it goes to. The stylesheet turns
+    // them with `scaleX(-1)` scoped to `.wr-event-calendar__step`. jsdom has no
+    // cascade, so this test CANNOT fail on that rule; what it pins is the hook
+    // the rule needs — two steppers, each an svg and no text — and that the
+    // scope excludes `__today`, which sits between them and carries a word.
+    const steps = [...root().querySelectorAll<HTMLElement>('.wr-event-calendar__step')];
+
+    expect(steps).toHaveLength(2);
+    expect(steps.every(b => b.textContent.trim() === '')).toBe(true);
+    // The rule's own selector, and everything it reaches.
+    expect(root().querySelectorAll('.wr-event-calendar__step .wr-icon__svg')).toHaveLength(2);
+
+    const today = root().querySelector<HTMLElement>('.wr-event-calendar__today')!;
+    expect(today.classList.contains('wr-event-calendar__step')).toBe(false);
+    expect(today.textContent.trim().length).toBeGreaterThan(0);
+  });
 });

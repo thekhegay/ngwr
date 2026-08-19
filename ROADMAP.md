@@ -6,7 +6,7 @@
 > including the sixteen "contracts that look like bugs" this file used to carry.
 > Sizes: S / M / L / XL.
 >
-> **State (2026-08-17, v11.2.0):** **v11 is the current major line** (Angular 22 peer). It
+> **State (2026-08-19, v11.2.0 — tagged 2026-08-14):** **v11 is the current major line** (Angular 22 peer). It
 > is a major because five palette intents moved so their labels could go white —
 > `secondary`, `success`, `danger`, `info`, `medium`; the arithmetic is under A5,
 > and there is deliberately no codemod, because a codemod cannot repaint a

@@ -15,6 +15,7 @@ import { randomId } from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
+import { wrFocusMenuItemAt, wrHandleMenuNavigation } from './menu-focus';
 
 /**
  * Attach to any element to show a `<wr-context-menu>` at the pointer
@@ -289,6 +290,23 @@ export class WrContextMenu {
     };
     sync();
 
+    // Move the keyboard INTO the menu. Without this the pane painted a
+    // `role="menu"` that could be seen and never entered: rows are
+    // `tabindex="-1"` (the roving-focus contract) and the pane is not a tab
+    // stop, so ArrowDown / Enter / ArrowRight all went to whatever still held
+    // focus behind the menu and only Escape worked — the dispatcher routes that
+    // one regardless of focus.
+    //
+    // Unconditional, unlike `wr-dropdown`'s `openedByPointer` gate: there is no
+    // hover open here. Every path into this method is a deliberate request for
+    // the menu (right-click, Shift+F10, the Menu key, a long-press), which is
+    // also when a native context menu takes the keyboard.
+    //
+    // Synchronous, and it can be: `attach()` above runs the embedded view's
+    // first change detection itself (CDK's `attachTemplatePortal`), so the rows
+    // and their `[class]` host binding are already in the DOM.
+    wrFocusMenuItemAt(pane, 0);
+
     // Trigger the open transition on the next frame — adding the class
     // synchronously with attach would skip the initial 0→1 frame and
     // the menu would just appear without animating.
@@ -357,13 +375,29 @@ export class WrContextMenu {
         if (event.key === 'Escape') {
           event.preventDefault();
           this.closeOverlay();
-          this.host.nativeElement.focus();
+          return;
         }
+        if (event.key === 'Tab') {
+          // Let focus leave naturally — `closeOverlay()` hands it back to the
+          // trigger first, so Tab continues from there instead of from a pane
+          // that is about to be removed.
+          this.closeOverlay();
+          return;
+        }
+        // A row's own handler already acted on this key (ArrowRight into a
+        // submenu, Enter on an item): `preventDefault()` is how it says so, and
+        // moving the cursor on top of that would undo it.
+        if (event.defaultPrevented) return;
+        wrHandleMenuNavigation(pane, event);
       });
   }
 
   private closeOverlay(): void {
     if (!this.overlayRef) return;
+    // Read up front, before the teardown below starts on the panes: the answer
+    // wanted is where the keyboard was at the moment of dismissal.
+    const active = document.activeElement;
+    const focusWasInside = active instanceof Element && active.closest('.wr-context-menu-overlay') !== null;
     this.cancelLeaveTimer();
     // Drop the reference immediately: the pane below stays in the DOM until the
     // exit animation has played, and a trigger still pointing at a menu on its
@@ -398,6 +432,13 @@ export class WrContextMenu {
     // Mark immediately so a subsequent right-click opens a fresh menu
     // rather than landing on the disposing one.
     this.overlayRef = null;
+    // Hand the keyboard back. The menu takes focus on open, so a dismissal that
+    // left it in the pane would strand it on `<body>` once the pane is disposed
+    // and the next Tab would restart at the top of the document. Only when the
+    // caret was actually in the chain: Escape reaches this overlay from anywhere
+    // on the page (CDK's dispatcher routes it by stacking order, not by focus),
+    // and a menu nobody was in must not steal the caret from a field they are.
+    if (focusWasInside) this.host.nativeElement.focus();
   }
 
   private cancelLeaveTimer(): void {

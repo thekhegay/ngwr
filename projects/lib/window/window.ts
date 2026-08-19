@@ -343,7 +343,16 @@ export class WrWindow {
   // Public API
 
   close(): void {
-    this.open.set(false);
+    // A REQUEST to close, not the close itself. `WrWindowContainer` binds
+    // `(closed)` to `WrWindowRef.close()`, which awaits the `beforeClose` hook
+    // and — only if the hook agrees — disposes the overlay, so the owner is what
+    // takes the window away and this component never has to hide itself. Hiding
+    // here first defeated the veto: `.wr-window--closed` is `display: none`, so
+    // a vetoed window vanished while its ref stayed in `manager.windows()` in
+    // state `normal` — off screen, absent from the taskbar, and unreachable by
+    // `restore()` / `focus()` / `moveTo()`, none of which write `open`. Escape
+    // goes straight to `ref.close()` and so never had the bug, which is the
+    // contrast that exposed it.
     this.closed.emit();
   }
 

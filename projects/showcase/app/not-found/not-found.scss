@@ -1,0 +1,9 @@
+.ngwr-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // `wr-result` sizes itself to its parent (`min-height: 100%`), so without a
+  // height here the 404 renders as a small tile tucked under the header.
+  min-height: 60vh;
+  padding: 3rem 1.5rem;
+}

@@ -9,7 +9,7 @@ import { Directionality } from '@angular/cdk/bidi';
 import { type BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
-import type { TemplateRef } from '@angular/core';
+import type { ComponentRef, TemplateRef } from '@angular/core';
 import {
   DestroyRef,
   Directive,
@@ -166,6 +166,7 @@ export class WrPopover {
   );
 
   private overlayRef: OverlayRef | null = null;
+  private textPanelRef: ComponentRef<WrPopoverTextPanel> | null = null;
   private hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
@@ -177,6 +178,16 @@ export class WrPopover {
       } else {
         this.closeOverlay();
       }
+    });
+    // The tooltip string is pushed into the panel when the panel is created, and
+    // `openOverlay()` returns early while one is already up — so a `content()`
+    // change with the tooltip on screen never reached it and the label stayed on
+    // the string it opened with (hover a Copy button, click it, it still reads
+    // "Copy"). Keeping the ref and pushing from an effect is how `wr-date-picker`
+    // feeds its own panel refs.
+    effect(() => {
+      const content = this.content();
+      this.textPanelRef?.setInput('text', typeof content === 'string' ? content : '');
     });
     this.destroyRef.onDestroy(() => {
       this.clearTimers();
@@ -329,6 +340,7 @@ export class WrPopover {
       const text = typeof content === 'string' ? content : '';
       const ref = this.overlayRef.attach(new ComponentPortal(WrPopoverTextPanel, this.vcr));
       ref.setInput('text', text);
+      this.textPanelRef = ref;
       // The pane is the element `aria-describedby` points at (it carries
       // `panelId`), so this is the role that has to be `tooltip` — the inner
       // `wr-popover-text` host deliberately carries none, or the description
@@ -395,6 +407,8 @@ export class WrPopover {
     const focusWasInside = pane.contains(this.host.nativeElement.ownerDocument.activeElement);
     this.overlayRef.dispose();
     this.overlayRef = null;
+    // Disposing destroys the panel component; a retained ref would pin its view.
+    this.textPanelRef = null;
     if (focusWasInside) this.host.nativeElement.focus();
     this.closed.emit();
   }

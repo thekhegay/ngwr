@@ -21,12 +21,15 @@ import {
   signal,
 } from '@angular/core';
 
+import type { Subscription } from 'rxjs';
+
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WR_OVERLAY, wrMirrorOffsets } from 'ngwr/overlay';
 import { randomId } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
 import type { WrContextMenuPanel } from './context-menu-panel';
+import { wrFocusMenuItemAt, wrHandleMenuNavigation } from './menu-focus';
 
 /** Hover delay (ms) before a submenu opens. */
 const SUBMENU_OPEN_DELAY = 120;
@@ -103,9 +106,17 @@ export class WrContextMenuItem {
   private readonly destroyRef = inject(DestroyRef);
 
   private submenuRef: OverlayRef | null = null;
+  private submenuKeys: Subscription | null = null;
   private openTimer: ReturnType<typeof setTimeout> | null = null;
   private closeTimer: ReturnType<typeof setTimeout> | null = null;
   protected submenuOpen = false;
+  /**
+   * Whether the pending open was asked for by the keyboard (→ / Enter / Space)
+   * rather than by hover — only then does the submenu take focus, the same rule
+   * `wr-dropdown` applies to its own open. Sweeping the cursor across a row must
+   * show its submenu without yanking the caret out of it.
+   */
+  private openedByKeyboard = false;
 
   /**
    * Id of the submenu's menu element while it is open, published on the item as
@@ -167,6 +178,7 @@ export class WrContextMenuItem {
     if (this.disabled()) return;
     if (this.submenu()) {
       event.preventDefault();
+      this.openedByKeyboard = true;
       this.scheduleOpen(0);
       return;
     }
@@ -194,6 +206,7 @@ export class WrContextMenuItem {
   private openFromKey(event: Event): void {
     if (this.disabled() || !this.submenu()) return;
     event.preventDefault();
+    this.openedByKeyboard = true;
     this.scheduleOpen(0);
   }
 
@@ -207,6 +220,7 @@ export class WrContextMenuItem {
   protected onMouseEnter(): void {
     if (this.disabled() || !this.submenu()) return;
     this.cancelClose();
+    this.openedByKeyboard = false;
     this.scheduleOpen(SUBMENU_OPEN_DELAY);
   }
 
@@ -307,8 +321,43 @@ export class WrContextMenuItem {
     pane.addEventListener('mouseenter', this.onSubmenuEnter);
     pane.addEventListener('mouseleave', this.onSubmenuLeave);
 
+    // While this pane is open it is the newest overlay that listens, so CDK's
+    // keyboard dispatcher hands it every keydown and the root menu's own handler
+    // stops seeing them — which is what makes the cursor stay in the level the
+    // user is on.
+    this.submenuKeys = this.submenuRef.keydownEvents().subscribe(event => this.onSubmenuKeydown(event));
+
+    // A keyboard open walks INTO the submenu; a hover open only shows it.
+    if (this.openedByKeyboard) wrFocusMenuItemAt(pane, 0);
+
     this.submenuOpen = true;
     WrContextMenuItem.openSubmenus.set(this.host.nativeElement, this);
+  }
+
+  /**
+   * @internal Keys typed while this submenu owns the keyboard: the arrows walk
+   * its rows, and Escape or the arrow pointing BACK the way the menu cascades
+   * steps out one level, returning the cursor to the row that owns the pane.
+   *
+   * Escape closes this level only, not the whole chain — the APG's rule for a
+   * submenu. It reaches this handler rather than the root's because the
+   * dispatcher stops at the topmost overlay that listens, which is now this one.
+   */
+  private onSubmenuKeydown(event: KeyboardEvent): void {
+    const pane = this.submenuRef?.overlayElement;
+    if (!pane) return;
+    // A row inside the pane already acted on this key — its own → into a deeper
+    // submenu, or Enter on a leaf. Re-handling it here would close the pane out
+    // from under the level it just opened.
+    if (event.defaultPrevented) return;
+    const back = this.isRtl() ? 'ArrowRight' : 'ArrowLeft';
+    if (event.key === 'Escape' || event.key === back) {
+      event.preventDefault();
+      this.disposeSubmenu(false);
+      this.host.nativeElement.focus();
+      return;
+    }
+    wrHandleMenuNavigation(pane, event);
   }
 
   /** Bound handlers (= preserves identity for removeEventListener). */
@@ -384,6 +433,12 @@ export class WrContextMenuItem {
     this.submenuRef = null;
     this.submenuOpen = false;
     this.submenuId.set(null);
+    // Now, not when the ref is finally disposed 220ms later: an overlay with a
+    // keydown subscriber is where CDK's dispatcher STOPS looking, so a pane
+    // still listening on its way out would swallow the arrows for the whole
+    // exit animation and the root menu would go dead for a quarter of a second.
+    this.submenuKeys?.unsubscribe();
+    this.submenuKeys = null;
     WrContextMenuItem.openSubmenus.delete(this.host.nativeElement);
 
     const pane = ref.overlayElement;

@@ -58,7 +58,11 @@ export default class WrDatePipePage {
         'shortDateTime',
         'mediumDateTime',
         'dd.MM.yyyy',
-        'EEEE, d MMMM',
+        // Token strings only, and only tokens `WrNativeDateAdapter` has — the
+        // showcase provides that adapter, and an unknown token (`EEEE`) is
+        // emitted verbatim rather than refused, so a bad option here reads as a
+        // broken pipe.
+        'd MMMM yyyy',
       ],
     },
   ];
@@ -72,8 +76,8 @@ export class MyComponent { /* ... */ }`,
 {{ now | wrDate: 'mediumDate' }}      <!-- Jun 12, 2026        -->
 {{ now | wrDate: 'time' }}            <!-- 10:51 AM            -->
 {{ now | wrDate: 'mediumDateTime' }}  <!-- Jun 12, 2026, 10:51 AM -->`,
-    tokens: `{{ now | wrDate: 'dd.MM.yyyy' }}   <!-- 12.06.2026 -->
-{{ now | wrDate: 'EEEE, d MMMM' }} <!-- Friday, 12 June -->`,
+    tokens: `{{ now | wrDate: 'dd.MM.yyyy' }}  <!-- 12.06.2026   -->
+{{ now | wrDate: 'd MMMM yyyy' }} <!-- 12 June 2026 -->`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

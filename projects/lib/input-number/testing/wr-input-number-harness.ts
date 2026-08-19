@@ -256,13 +256,17 @@ export class WrInputNumberHarness extends ComponentHarness {
   }
 
   /**
-   * The field's accessible name, or `null` when it has none of its own.
+   * The field's `aria-label`, or `null` when it carries none.
    *
    * Read from the native input, not from the host: an `aria-label` on a component
    * element does not reach the control inside it, which is why the component
-   * takes an `ariaLabel` input and forwards it here (falling back to the
-   * placeholder). Inside a `<wr-form-field>` the name comes from the label's
-   * `for`, and `null` here is then correct rather than a missing name.
+   * takes an `ariaLabel` input and forwards it here.
+   *
+   * NOT the accessible name — `null` is the usual answer and usually correct.
+   * Nothing is forwarded unless `[ariaLabel]` is bound: inside a
+   * `<wr-form-field>` the name comes from the label's `for`, and standalone it
+   * comes from the `placeholder` (see {@link getPlaceholder}), neither of which
+   * is an attribute on this element.
    */
   async getAriaLabel(): Promise<string | null> {
     return (await this.field()).getAttribute('aria-label');

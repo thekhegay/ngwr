@@ -14,27 +14,36 @@
   >
     <ngwr-doc-code [code]="snippets.named" language="angular-html" />
     <ngwr-doc-snippet code="">
+      <!-- The `<tbody>` is load-bearing, not tidiness: rows written straight
+           into `<table>` serialize that way, but the browser's HTML parser
+           inserts an implicit `<tbody>` around them, so the live DOM no longer
+           matches what the server wrote. Hydration then walks off the end of
+           the table and throws — `NG0501` under `ng serve`, reported in the
+           optimized build as a `nextSibling` TypeError — and the page loses its
+           title to the meta fallback. -->
       <table class="ngwr-pipe-table">
-        @for (key of namedKeys; track key) {
-          <tr>
-            <td>
-              <code>{{ key }}</code>
-            </td>
-            <td>{{ now() | wrDate: key }}</td>
-          </tr>
-        }
+        <tbody>
+          @for (key of namedKeys; track key) {
+            <tr>
+              <td>
+                <code>{{ key }}</code>
+              </td>
+              <td>{{ now() | wrDate: key }}</td>
+            </tr>
+          }
+        </tbody>
       </table>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Token strings"
-    description="With an adapter provided, any raw format string the adapter understands passes straight through."
+    description="A raw format string goes straight to the adapter, so the tokens are whichever ones THAT adapter knows — not a fixed language. The demo below runs on `WrNativeDateAdapter`, whose set is `yyyy yy MMMM MMM MM M dd d HH H hh h mm ss a` plus single-quoted literals. It has no weekday token: `EEEE` is not recognised and comes out verbatim. `ngwr/date-adapter-fns` forwards the pattern to date-fns untouched, so there the token set is date-fns's."
   >
     <ngwr-doc-code [code]="snippets.tokens" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div>
-        {{ now() | wrDate: 'dd.MM.yyyy' }} · {{ now() | wrDate: 'EEEE, d MMMM' }} · {{ now() | wrDate: 'HH:mm:ss' }}
+        {{ now() | wrDate: 'dd.MM.yyyy' }} · {{ now() | wrDate: 'd MMMM yyyy' }} · {{ now() | wrDate: 'HH:mm:ss' }}
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

@@ -1,0 +1,20 @@
+<!--
+  `<wr-result>` rather than the `<wr-result-404>` preset, and not by preference:
+  the preset wraps `<wr-result>` around a bare `<ng-content />`, and a nested
+  `ng-content` does not carry the `[wrResultExtra]` selector its parent projects
+  on — so anything passed to the preset lands nowhere. Measured in the browser:
+  the two links below simply did not render. Everything else here is the preset,
+  spelled out.
+-->
+<main class="ngwr-not-found">
+  <wr-result
+    status="warning"
+    title="404"
+    description="That page has moved or never existed. The links below are the fastest way back."
+  >
+    <a wr-btn color="primary" wrResultExtra [routerLink]="routes.index">Go home</a>
+    <a wr-btn outlined wrResultExtra [routerLink]="[routes.index, routes.reference.index]">Browse the reference</a>
+  </wr-result>
+</main>
+
+<ngwr-footer contained />

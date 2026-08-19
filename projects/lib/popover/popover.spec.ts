@@ -365,6 +365,22 @@ describe('WrPopover', () => {
       expect(tooltipPane()?.classList.contains('wr-tooltip-overlay--top')).toBe(true);
     });
 
+    it('follows the bound string while it is on screen', () => {
+      enter(trigger('tip'));
+      tick(120);
+      expect(document.querySelector('.wr-overlay-container .wr-tooltip')?.textContent).toBe('Save changes');
+
+      // The string used to be pushed into the panel exactly once, at open, and
+      // the effect that would push a new one re-enters `openOverlay()` and bails
+      // on the panel already being up. So the classic copy button — hover it,
+      // click it, the label flips to "Copied" — kept showing the old text until
+      // the pointer left and came back.
+      fixture.componentInstance.tip.set('Saved');
+      fixture.detectChanges();
+
+      expect(document.querySelector('.wr-overlay-container .wr-tooltip')?.textContent).toBe('Saved');
+    });
+
     it('carries role="tooltip" exactly once, on the pane aria-describedby points at', () => {
       enter(trigger('tip'));
       tick(120);

@@ -8,7 +8,7 @@
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
-import { isPlatformBrowser } from '@angular/common';
+import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Service, Injector, PLATFORM_ID, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
@@ -52,6 +52,9 @@ export class WrDialog {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly responsiveConfig = inject(WR_RESPONSIVE_OVERLAYS);
   private readonly i18n = inject(WrI18n, { optional: true });
+  // Resolvable wherever the CDK's own `Overlay` is — it injects the same thing
+  // to implement `disposeOnNavigation`.
+  private readonly location = inject(Location);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
     const panelClasses: string[] = [DEFAULT_PANEL_CLASS];
@@ -151,8 +154,36 @@ export class WrDialog {
         }
       });
     }
+    if (options.closeOnNavigation !== false) {
+      this.watchNavigation(overlayRef, dialogRef);
+    }
 
     return dialogRef;
+  }
+
+  /**
+   * Tie the dialog's lifetime to the URL it was opened on.
+   *
+   * Nothing else does. The overlay belongs to a root service and is dismissed
+   * only by the backdrop, Escape or an explicit `close()`, so pressing Back
+   * swapped the routed view underneath and left the modal pane, its backdrop and
+   * its focus trap sitting over a page the user never opened them on.
+   *
+   * `onUrlChange`, not `Location.subscribe()` — which is what CDK's own
+   * `disposeOnNavigation` uses: `subscribe` fires on popstate alone, so an
+   * in-app `router.navigate()` left the dialog standing. And `dialogRef.close()`
+   * rather than disposing the overlay behind the ref's back, which would never
+   * emit `closed`, never destroy the focus trap, and leave `awaitClose()`
+   * pending forever.
+   */
+  private watchNavigation<C, R>(overlayRef: OverlayRef, dialogRef: WrDialogRef<C, R>): void {
+    const stopWatching = this.location.onUrlChange(() => dialogRef.close());
+    // Unhooked a microtask late, because `Location` notifies its listeners with
+    // a `forEach` and unregistering splices the array it is iterating: removing
+    // ours synchronously from inside the notification would shift the next entry
+    // into the slot forEach has already passed, and a SECOND stacked dialog
+    // would be skipped and left behind.
+    overlayRef.detachments().subscribe(() => queueMicrotask(stopWatching));
   }
 
   /**

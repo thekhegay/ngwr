@@ -22,6 +22,15 @@ const icons = routes.icons;
  *
  * Client-rendered routes emit no HTML and fall through to the existing nginx
  * SPA fallback, exactly as today.
+ *
+ * The `**` entry below reads as "prerender everything else", and for the app's
+ * own `**` route — the not-found page added in `routing.ts` — it is not what
+ * happens: `@angular/build` skips any extracted route whose path contains `*`,
+ * both from the prerender pass and from `prerendered-routes.json`. So the 404
+ * is client-rendered whatever this file says, no `.md` twin is generated for
+ * it, and it stays out of the sitemap. It is a soft 404 by construction — the
+ * SPA fallback answers 200 with the shell — and a real status code would have
+ * to come from the origin, not from a route table.
  */
 export const serverRoutes: ServerRoute[] = [
   // Legacy URL redirects from the start / guides / reference reorganisation.

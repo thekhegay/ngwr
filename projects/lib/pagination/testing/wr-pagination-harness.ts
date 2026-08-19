@@ -214,18 +214,18 @@ export class WrPaginationHarness extends ComponentHarness {
    * The page the pager announces as current, from `aria-current="page"`.
    *
    * Throws when no cell claims it. The window always keeps the current page on the
-   * strip, so getting here means `currentPage` is not one of the pages at all — it
-   * is below 1, or not a whole number. The component clamps a page ABOVE the last
-   * one and nothing else, and either survivor leaves every cell looking equally
-   * inactive to an assistive tech user.
+   * strip, so getting here means `currentPage` is not one of the pages at all. The
+   * component clamps a host write into `1..totalPages`, which leaves one survivor:
+   * a fractional page, which is in range and matches no cell — and which leaves
+   * every cell looking equally inactive to an assistive tech user.
    */
   async getCurrentPage(): Promise<number> {
     const page = await this.currentPageOrNull();
     if (page === null) {
       throw new Error(
         'WrPaginationHarness.getCurrentPage(): no cell carries `aria-current="page"`. The visible window ' +
-          `always includes the current page, so \`currentPage\` is not a page: below 1, or not a whole ` +
-          `number (the pager clamps above ${await this.getTotalPages()}, and nothing else).`
+          `always includes the current page, so \`currentPage\` is not a whole number — the component ` +
+          `clamps it into 1..${await this.getTotalPages()} but does not round it.`
       );
     }
     return page;

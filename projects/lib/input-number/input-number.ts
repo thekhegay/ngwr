@@ -138,18 +138,25 @@ export class WrInputNumber implements FormValueControl<number | null> {
   readonly placeholder = input<string>('');
 
   /**
-   * Accessible name for the field. Falls back to the placeholder — inside a
-   * `<wr-form-field>` the projected `wrInput` picks up the label's id and needs
-   * neither, but standalone the text field has no name at all.
+   * Accessible name for the field. Unset, the field is named by whatever labels
+   * it — there is deliberately no fallback here.
+   *
+   * It used to mirror the `placeholder`, and an `aria-label` OUTRANKS a
+   * `<label>` in the accname order: inside a `<wr-form-field label="Quantity">`
+   * the very input that adopts the field's id announced the placeholder ("0")
+   * instead, and a placeholder disappears as soon as the user types. Standalone
+   * nothing was lost by dropping it — an input with no other name already falls
+   * back to its own `placeholder` attribute, which is the name axe's `label`
+   * rule accepts too.
    */
   readonly ariaLabel = input<string | null>(null);
 
   protected readonly resolvedAriaLabel = computed(() => {
-    // Not `??`: an empty placeholder is no name at all, so it must fall through.
+    // Not `??`: an empty binding is no name at all, and an empty `aria-label` is
+    // worse than none — it still wins the accname order, and announces nothing.
     const explicit = this.ariaLabel();
     if (explicit) return explicit;
-    const placeholder = this.placeholder();
-    return placeholder ? placeholder : null;
+    return null;
   });
 
   /** Increment button aria-label. Falls back to `inputNumber.increment`. */

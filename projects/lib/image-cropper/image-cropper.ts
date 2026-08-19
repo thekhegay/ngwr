@@ -132,6 +132,9 @@ export class WrImageCropper {
   /** Crop rect in display coordinates. */
   protected readonly cropDisplay = signal<RectPx>({ x: 0, y: 0, w: 0, h: 0 });
 
+  /** Watches the rendered image box — see `watchResize`. */
+  private resizeObserver: ResizeObserver | null = null;
+
   /** Currently active drag handle. */
   private active: WrCropHandle | null = null;
   private startPointer: { x: number; y: number } = { x: 0, y: 0 };
@@ -186,6 +189,7 @@ export class WrImageCropper {
 
     this.destroyRef.onDestroy(() => {
       if (this.previousObjectUrl) URL.revokeObjectURL(this.previousObjectUrl);
+      this.resizeObserver?.disconnect();
     });
   }
 
@@ -196,9 +200,10 @@ export class WrImageCropper {
    *
    * `display` is the field that gates everything downstream — the crop UI renders on
    * `display().w > 0` and `cropRect` returns zeros without it — so it is the only one
-   * a test can observe. The other two are reset for coherence: anything that learns to
-   * set `display` from elsewhere (a resize observer is the obvious candidate for this
-   * component) would otherwise resurrect a crop measured against the previous image.
+   * a test can observe. The other two are reset for coherence: the resize observer
+   * below also writes `display`, and left alone they would resurrect a crop measured
+   * against the previous image (which is why `onResize` refuses to run on a zeroed
+   * `display` — see there).
    */
   private resetGeometry(): void {
     this.natural.set({ w: 0, h: 0 });
@@ -219,6 +224,55 @@ export class WrImageCropper {
     this.natural.set(natural);
     this.display.set(display);
     this.cropDisplay.set(this.initialCrop(display));
+    this.watchResize(img);
+  }
+
+  /**
+   * Keep `display` on the box the image is actually rendered at.
+   *
+   * The stylesheet sizes the image responsively — `max-width: 100%`,
+   * `max-height: 70dvh`, `height: auto` — so the single measurement taken in the
+   * `(load)` handler stops being true as soon as the container or the viewport
+   * changes. Everything the user sees and touches is in DISPLAY pixels: the crop
+   * window's inline `left` / `top` / `width` / `height`, the backdrop cut-out, and
+   * the bounds `applyMove` / `applyResize` clamp against. Measured once, a narrowed
+   * window leaves the crop painted past the edge of the image and draggable off it.
+   *
+   * Re-observed per load rather than once, because a new `src` may mount a new
+   * `<img>`; the old observation would then be on a detached element.
+   */
+  private watchResize(el: HTMLImageElement): void {
+    if (typeof ResizeObserver === 'undefined') return;
+    this.resizeObserver?.disconnect();
+    // Re-read the same way `onImageLoad` does rather than take the entry's
+    // `contentRect`, so the two measurements can't disagree about the box.
+    const ro = new ResizeObserver(() => this.onResize(el));
+    ro.observe(el);
+    this.resizeObserver = ro;
+  }
+
+  /**
+   * Rescale the crop by however much the image did, so the user keeps the region
+   * they picked instead of having it re-centred: `cropRect()` — the source-pixel
+   * value a consumer acts on — comes out the same across the resize.
+   */
+  private onResize(el: HTMLImageElement): void {
+    const previous = this.display();
+    // Nothing measured yet, or measured and then dropped by `resetGeometry` while a
+    // new `src` loads. There is no crop to carry over, and the load will measure.
+    if (previous.w === 0 || previous.h === 0) return;
+    const rect = el.getBoundingClientRect();
+    // A hidden image (a closed tab, `display: none`) reports zeros. Scaling by that
+    // would collapse the crop and there would be nothing to scale back from, so hold
+    // the last real box until it is shown again.
+    if (rect.width === 0 || rect.height === 0) return;
+    if (rect.width === previous.w && rect.height === previous.h) return;
+
+    const sx = rect.width / previous.w;
+    const sy = rect.height / previous.h;
+    const c = this.cropDisplay();
+    this.display.set({ w: rect.width, h: rect.height });
+    this.cropDisplay.set({ x: c.x * sx, y: c.y * sy, w: c.w * sx, h: c.h * sy });
   }
 
   /** Compute a sensible initial crop — centered, respecting aspectRatio. */

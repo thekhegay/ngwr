@@ -2,6 +2,7 @@ import { Component, type EnvironmentProviders, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideWrConfig } from 'ngwr/config';
+import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import type { WrInputSize } from 'ngwr/input';
@@ -492,5 +493,55 @@ describe('WrInputNumber stepper names', () => {
     fixture.detectChanges();
 
     expect(steppers(fixture)).toEqual(['Up', 'Down']);
+  });
+});
+
+@Component({
+  imports: [WrFormField, WrInputNumber],
+  template: `<wr-form-field label="Quantity"><wr-input-number placeholder="0" /></wr-form-field>`,
+})
+class FieldHost {}
+
+@Component({
+  imports: [WrInputNumber],
+  template: `<wr-input-number placeholder="0" />`,
+})
+class PlaceholderHost {}
+
+/**
+ * `aria-label` OUTRANKS a `<label>` in the accname order, so anything this
+ * component writes there replaces the field's own text rather than adding to
+ * it. It used to write the placeholder: a `<wr-form-field label="Quantity">`
+ * around a field placeholdered "0" announced "0" — and announced nothing at all
+ * once the user typed and the placeholder went away.
+ */
+describe('WrInputNumber accessible name', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const build = (component: typeof FieldHost | typeof PlaceholderHost): HTMLElement => {
+    TestBed.configureTestingModule({});
+    const fixture = TestBed.createComponent(component);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  };
+
+  it('leaves the naming to the surrounding form field', () => {
+    const root = build(FieldHost);
+    const label = root.querySelector<HTMLLabelElement>('label')!;
+    const input = root.querySelector<HTMLInputElement>('input')!;
+
+    expect(input.hasAttribute('aria-label')).toBe(false);
+    expect(label.htmlFor).toBe(input.id);
+    expect(input.id).not.toBe('');
+  });
+
+  it('leaves a standalone field named by its own placeholder', () => {
+    const input = build(PlaceholderHost).querySelector<HTMLInputElement>('input')!;
+
+    // Nothing is copied into `aria-label`; the placeholder attribute is the
+    // name here, which is the fallback HTML itself defines for an unlabelled
+    // text input (and what axe's `label` rule accepts).
+    expect(input.hasAttribute('aria-label')).toBe(false);
+    expect(input.placeholder).toBe('0');
   });
 });

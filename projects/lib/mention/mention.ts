@@ -254,6 +254,19 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
       }
       case 'Escape':
         event.preventDefault();
+        // The panel is the innermost thing Escape can dismiss, so it keeps the
+        // key: without this, the same press also closed the dialog / drawer /
+        // window the field sits in.
+        //
+        // `preventDefault()` alone buys nothing — every host overlay matches on
+        // `event.key` and none of them looks at `defaultPrevented` — and letting
+        // CDK's `OverlayKeyboardDispatcher` sort it out does not work either.
+        // The dispatcher walks the stack newest-first and stops at the first
+        // overlay with a `keydownEvents()` subscriber; this panel has none (it
+        // is driven from the field's own handler, which runs at the target
+        // before the body-phase dispatcher), so Escape falls straight through to
+        // the overlay underneath.
+        event.stopPropagation();
         this.close();
         break;
       default:

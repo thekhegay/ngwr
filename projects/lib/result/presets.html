@@ -1,0 +1,14 @@
+<!--
+  Shared by the three status presets, which differ only in the `status` each
+  class declares.
+
+  `ngProjectAs` is load-bearing: `<wr-result>` projects one slot,
+  `select="[wrResultExtra]"`, and it matches that selector against the nodes in
+  THIS template. A bare `<ng-content />` does not carry the attribute, so
+  everything a consumer projected into `<wr-result-404>` was dropped silently —
+  including the button each preset's own `@example` shows. `ngProjectAs` is what
+  tells the outer slot what this pass-through stands for.
+-->
+<wr-result [status]="status" [title]="title()" [description]="desc()">
+  <ng-content ngProjectAs="[wrResultExtra]" />
+</wr-result>

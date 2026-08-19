@@ -144,11 +144,27 @@ export class WrHotkey {
     matches.sort((a, b) => b.options.priority - a.options.priority);
 
     this.zone.run(() => {
+      // Two different questions, one flag. `preventDefault` is browser
+      // suppression; `defaultPrevented` after a handler ran is how this service
+      // reads "that handler claimed the chord". Applying the option first and
+      // then reading the flag back meant the service saw its OWN mark as a
+      // claim, so under the shipped default (`preventDefault: true`) only the
+      // top-priority binding on a chord ever ran. Deferring the option's call to
+      // the end keeps the flag inside the loop reporting only what a HANDLER
+      // did — the rule this class already documents — and leaves a binding free
+      // to suppress the browser AND claim the chord. The entry snapshot matters
+      // too: another listener earlier in the propagation path may have
+      // prevented the event already, and that is nobody's claim here.
+      const preventedOnEntry = event.defaultPrevented;
+      let suppress = false;
+
       for (const binding of matches) {
-        if (binding.options.preventDefault) event.preventDefault();
         binding.handler(event);
-        if (event.defaultPrevented) break;
+        if (binding.options.preventDefault) suppress = true;
+        if (!preventedOnEntry && event.defaultPrevented) break;
       }
+
+      if (suppress) event.preventDefault();
     });
   }
 }

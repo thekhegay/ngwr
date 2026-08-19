@@ -34,6 +34,7 @@ import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
 import type { WrDateRange } from './interfaces';
 import { WrDateRangePanel } from './internal/date-range-panel';
+import { WrDateRangeEndInput } from './internal/range-end-input';
 
 /** Which end of the range an edit applies to. */
 type RangeEnd = 0 | 1;
@@ -82,7 +83,7 @@ let rangePanelUid = 0;
   templateUrl: './date-range-picker.html',
   encapsulation: ViewEncapsulation.None,
   host: { '[class]': 'classes()' },
-  imports: [WrInput, WrInputGroup, WrInputSuffix],
+  imports: [WrDateRangeEndInput, WrInput, WrInputGroup, WrInputSuffix],
 })
 export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** Picker behavior — see class doc. @default 'date' */

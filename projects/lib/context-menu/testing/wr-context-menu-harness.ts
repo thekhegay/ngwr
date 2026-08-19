@@ -53,9 +53,10 @@ const OUTSIDE_GUARD_MS = 250;
  *   `clickItem()` leaves it closed.
  * - Submenus are a first-class input here rather than a nested trigger, so they
  *   are driven from {@link WrContextMenuItemHarness}.
- * - The menu never takes focus: nothing focuses the first item and there is no
- *   arrow-key cursor between items, so there is no `getFocusedItemText()` to ask
- *   — see `WrContextMenuItemHarness.isFocused()`.
+ * - Focus moves in on EVERY open, where a dropdown's does so only when a
+ *   keyboard opened it. There is no hover trigger here — a right-click, Shift+F10
+ *   or a long-press is always a deliberate request for the menu — so
+ *   `getFocusedItemText()` answers straight after `open()`.
  *
  * **Timing.** The waits are real: a 500ms `setTimeout` for the long-press hold and
  * another 220ms one for the exit animation the pane is held alive through, plus the
@@ -287,6 +288,23 @@ export class WrContextMenuHarness extends ContentContainerComponentHarness {
   async getItemTexts(): Promise<string[]> {
     const items = await this.getItems();
     return Promise.all(items.map(item => item.getText()));
+  }
+
+  /**
+   * The label of the item that currently holds focus, or `null` when the
+   * keyboard is elsewhere.
+   *
+   * The menu roves focus rather than drawing a cursor — it lands on the first
+   * ENABLED item as the pane renders, and the arrows walk it over the enabled
+   * items only — so this is the only way to ask where the keyboard is. It answers
+   * `null` once a submenu has taken the cursor: that pane is a separate overlay,
+   * and its own rows are reached through `WrContextMenuItemHarness`.
+   */
+  async getFocusedItemText(): Promise<string | null> {
+    for (const item of await this.getItems()) {
+      if (await item.isFocused()) return item.getText();
+    }
+    return null;
   }
 
   /**
