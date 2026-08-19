@@ -44,11 +44,12 @@ export interface WrCropWindowBox {
  * Object.defineProperty(img, 'naturalHeight', { value: 800 });
  * ```
  *
- * **There is also nothing to click.** The cropper renders no buttons: a consumer
- * takes the result by calling `crop()` on the component through a `viewChild`, and
- * reads `cropRect()` the same way. Those are component API rather than DOM, so they
- * are outside what a harness can reach at all — which is worth knowing rather than
- * discovering.
+ * **There is also nothing to click.** The cropper renders no buttons: the result
+ * arrives on the `(cropped)` output, which emits a `Blob` after each drag end, and a
+ * consumer who wants a one-off read calls `toBlob()` / `toDataUrl()` — or
+ * `cropRect()` for the geometry — on the component through a `viewChild`. An output
+ * and three instance members: component API rather than DOM, so all of it is outside
+ * what a harness can reach at all, which is worth knowing rather than discovering.
  *
  * @example
  * ```ts

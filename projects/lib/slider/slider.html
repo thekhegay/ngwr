@@ -15,7 +15,7 @@
     [attr.aria-valuemin]="min()"
     [attr.aria-valuemax]="range() ? high() : max()"
     [attr.aria-valuenow]="low()"
-    [attr.aria-label]="range() ? 'Lower value' : 'Value'"
+    [attr.aria-label]="resolvedLowLabel()"
     (pointerdown)="onPointerDown($event, 'low')"
     (keydown)="onKey($event, 'low')"
   ></button>
@@ -30,7 +30,7 @@
       [attr.aria-valuemin]="low()"
       [attr.aria-valuemax]="max()"
       [attr.aria-valuenow]="high()"
-      aria-label="Upper value"
+      [attr.aria-label]="resolvedUpperLabel()"
       (pointerdown)="onPointerDown($event, 'high')"
       (keydown)="onKey($event, 'high')"
     ></button>

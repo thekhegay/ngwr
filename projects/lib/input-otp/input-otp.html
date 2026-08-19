@@ -11,7 +11,7 @@
     [value]="cell"
     [disabled]="disabled()"
     [placeholder]="placeholder()"
-    [attr.aria-label]="`Digit ${$index + 1}`"
+    [attr.aria-label]="cellLabel($index)"
     (input)="onInput($event, $index)"
     (keydown)="onKeyDown($event, $index)"
     (paste)="onPaste($event)"

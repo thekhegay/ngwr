@@ -203,8 +203,11 @@
       // Fainter than the shared token, and a neighbour is the reason: a day from
       // the adjacent month is still navigable and sits at 0.55 just above, so a
       // DISABLED day has to read as less available than that one or the two swap
-      // meanings. The override is on the token rather than on `opacity`, so the
-      // ratio to the rest of the catalog survives a consumer retuning it.
+      // meanings. Deliberately an absolute, calibrated against that hard-coded
+      // 0.55 rather than scaled off the shared token — floating with a consumer
+      // retune is exactly what would let the two cross. Written as an override of
+      // the token anyway, because `_variables.scss` asks that exceptions take
+      // that form so they stay greppable and argued.
       --wr-disabled-opacity: 0.45;
       opacity: var(--wr-disabled-opacity);
     }

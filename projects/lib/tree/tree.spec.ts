@@ -642,6 +642,72 @@ describe('WrTree in overlay mode', () => {
 
     expect(list()).toBeNull();
   });
+
+  /**
+   * The keydown handler lives on the `<ul>` inside the portal, and the trigger
+   * has none of its own — so an open panel with focus still on the trigger is
+   * mouse-only. Only the VIRTUAL shape ever moved focus, which is why this went
+   * unnoticed: the default overlay tree is not windowed.
+   *
+   * Note what these must NOT do: sending the keys to the list directly, the way
+   * `WrTreeHarness.press()` does, answers identically for a working component
+   * and a broken one. Every case here starts from `document.activeElement`.
+   */
+  describe('keyboard, once the panel is open', () => {
+    const labels = (): string[] =>
+      [...document.querySelectorAll<HTMLElement>('.wr-tree__label')].map(el => (el.textContent ?? '').trim());
+
+    const open = async (): Promise<void> => {
+      trigger().click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const pressActive = async (key: string): Promise<void> => {
+      document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it('hands focus to the roving row instead of leaving it on the trigger', async () => {
+      await open();
+
+      const row = document.querySelector<HTMLElement>('[data-tree-index="0"]')!;
+      expect(document.activeElement).toBe(row);
+      expect(document.activeElement).not.toBe(trigger());
+    });
+
+    it('expands a branch from the keyboard', async () => {
+      await open();
+      expect(labels()).not.toContain('app');
+
+      await pressActive('ArrowRight');
+
+      expect(labels()).toContain('app');
+    });
+
+    it('picks a node with Enter, which commits the value and closes the panel', async () => {
+      await open();
+
+      await pressActive('ArrowDown');
+      await pressActive('Enter');
+
+      expect(fixture.componentInstance.picked()).toBe('readme');
+      expect(list()).toBeNull();
+    });
+
+    it('gives focus back to the trigger when the panel closes', async () => {
+      await open();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(document.activeElement).toBe(trigger());
+    });
+  });
 });
 
 /**

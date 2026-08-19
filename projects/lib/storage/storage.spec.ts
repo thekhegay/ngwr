@@ -1,3 +1,4 @@
+import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -204,6 +205,30 @@ describe('WrStorage', () => {
       store.clear();
 
       expect(theme()).toBe('light');
+    });
+
+    it('stops listening for cross-tab writes once its injector is destroyed', () => {
+      // `WrStorage` is root-provided, but nothing stops a lazy route from listing
+      // the class in its own `providers`. The `storage` handler used to stay on
+      // the window afterwards — still driving the watcher signals of an instance
+      // the router had already thrown away, and keeping that instance, its
+      // watchers map and every signal in it reachable for the life of the page.
+      TestBed.configureTestingModule({ providers: [provideWrStorage({ engine: () => engine })] });
+      const child = createEnvironmentInjector([WrStorage], TestBed.inject(EnvironmentInjector));
+      const theme = child.get(WrStorage).watch<string>('theme', 'light');
+
+      // jsdom never fires `storage` for a same-window write, so the event another
+      // tab would send is dispatched by hand — which is also the only way to tell
+      // an installed listener from a removed one.
+      engine.setItem('theme', JSON.stringify({ v: 'dark' }));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'theme' }));
+      expect(theme()).toBe('dark');
+
+      child.destroy();
+
+      engine.setItem('theme', JSON.stringify({ v: 'sepia' }));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'theme' }));
+      expect(theme()).toBe('dark');
     });
   });
 });

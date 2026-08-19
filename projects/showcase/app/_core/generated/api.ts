@@ -642,6 +642,7 @@ export const API = {
   ],
   // <wr-input-otp>
   WrInputOtp: [
+    { name: "ariaLabel", description: "Accessible name of the whole strip. Falls back to `inputOtp.label`.", type: "string | null", default: "null" },
     { name: "length", description: "Number of cells to render. Clamped to `[1, 20]`.", type: "number", default: "6" },
     { name: "mode", description: "Character set per cell.", type: "WrInputOtpMode", default: "'numeric'" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `inputOtp.size` app default from `provideWrConfig()`.", type: "WrInputOtpSize | null", default: "'md'" },
@@ -1014,6 +1015,8 @@ export const API = {
     { name: "range", description: "Render two thumbs and emit `[low, high]`.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "showLabel", description: "Render the current value below the track.", type: "boolean", default: "true" },
+    { name: "ariaLabel", description: "Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.", type: "string | null", default: "null" },
+    { name: "upperLabel", description: "Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.", type: "string | null", default: "null" },
     { name: "value", description: "Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `range`: a plain `number`, or `[low, high]` in range mode.", type: "WrSliderValue", default: "0" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
@@ -1181,7 +1184,7 @@ export const API = {
   // <wr-table>
   WrTable: [
     { name: "columns", description: "Column definitions, keyed by row property name.", type: "WrTableColumns", required: true },
-    { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner.", type: "readonly Record<string, unknown>[] | null | undefined", default: "null" },
+    { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. Typed `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly WrTableRow[] | null | undefined", default: "null" },
     { name: "loading", description: "Show the loading spinner overlay.", type: "boolean", default: "false" },
     { name: "responsive", description: "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.", type: "boolean", default: "false" },
     { name: "reorderable", description: "Enable drag-to-reorder on the column headers.", type: "boolean", default: "false" },
@@ -1223,6 +1226,8 @@ export const API = {
   WrTableFilter: [
     { name: "filterLabel", description: "Accessible name of the filter trigger. Falls back to `table.filter`.", type: "string | null", default: "null" },
     { name: "noMatchesLabel", description: "Text shown when the search finds nothing. Falls back to `table.noMatches`.", type: "string | null", default: "null" },
+    { name: "searchLabel", description: "Placeholder AND accessible name of the search box. Falls back to `table.search`. One string for both because the box has no visible label: the placeholder was its only name, so a hard-coded literal left the control unnamed in every other language rather than merely untranslated.", type: "string | null", default: "null" },
+    { name: "resetLabel", description: "Label of the clear-selection button. Falls back to `table.reset`.", type: "string | null", default: "null" },
     { name: "items", description: "—", type: "readonly WrTableFilterItem[]", required: true },
     { name: "(selectionChange)", description: "Fires whenever the selection changes.", type: "readonly WrTableFilterItem[]" },
   ],

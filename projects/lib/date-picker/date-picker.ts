@@ -465,8 +465,14 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       .subscribe(event => {
         if (event.key === 'Escape') {
           event.preventDefault();
+          // Focus is `closeOverlay()`'s business and nobody else's. Escape
+          // reaches this overlay from anywhere in the document (the CDK
+          // dispatches it to the topmost one), and `openOnInput` deliberately
+          // leaves the caret in the field — so the user can Tab on with the
+          // panel still open. Forcing the field back into focus here overrode
+          // the guarded restore and dragged the caret backwards out of whatever
+          // they had moved on to. Same rule as `wr-date-range-picker`.
           this.closeOverlay();
-          this.inputEl().nativeElement.focus();
         }
       });
   }

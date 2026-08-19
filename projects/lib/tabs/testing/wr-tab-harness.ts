@@ -76,12 +76,12 @@ export class WrTabHarness extends ContentContainerComponentHarness {
    * Whether this is the strip's selected tab.
    *
    * `aria-selected` first, because that is the state a screen reader acts on and
-   * the `--active` class is only what it looks like. A ROUTER tab carries no
-   * `aria-selected` at all — the router paints the class through
-   * `routerLinkActive` and nothing announces the selection — so the class is the
-   * fallback rather than the first choice, and the two branches are not
-   * interchangeable: reading the class first would report a content tab as selected
-   * while `aria-selected="false"` told assistive tech otherwise.
+   * the `--active` class is only what it looks like. Both shapes carry it now — a
+   * router tab publishes it off the same `routerLinkActive` that paints the class —
+   * so the class is a fallback for a tab that has neither yet, not a second reading
+   * of the same thing. The order is not interchangeable: reading the class first
+   * would report a tab as selected while `aria-selected="false"` told assistive tech
+   * otherwise.
    */
   async isSelected(): Promise<boolean> {
     const host = await this.host();

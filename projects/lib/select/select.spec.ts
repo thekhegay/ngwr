@@ -107,6 +107,24 @@ class TagHost {
 }
 
 @Component({
+  imports: [WrSelect],
+  template: `
+    <wr-select
+      mode="tag"
+      ariaLabel="Tags"
+      [maxItems]="maxItems()"
+      [allowDuplicates]="allowDuplicates()"
+      [(value)]="tags"
+    />
+  `,
+})
+class TagLimitsHost {
+  readonly tags = signal<unknown>([]);
+  readonly maxItems = signal(0);
+  readonly allowDuplicates = signal(false);
+}
+
+@Component({
   imports: [WrSelect, WrOption],
   template: `
     <wr-select ariaLabel="Size" [size]="size()" [rounded]="rounded()">
@@ -497,6 +515,114 @@ describe('WrSelect in tag mode', () => {
 
   it('carries the tag modifier class', () => {
     expect(root().querySelector('wr-select')!.className).toContain('wr-select--tag');
+  });
+});
+
+/**
+ * `maxItems` and `allowDuplicates` are the two inputs that change what a chip
+ * MEANS, and both used to break the way out of a selection rather than the way
+ * in: a full field could not be emptied, and one of two identical chips could
+ * not be removed on its own.
+ */
+describe('WrSelect in tag mode with a cap and duplicates', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TagLimitsHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const field = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input')!;
+  const removes = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-select__chip-remove')];
+  const tags = (): unknown => fixture.componentInstance.tags();
+
+  const enter = (text: string): void => {
+    field().value = text;
+    field().dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  const backspace = (): void => {
+    field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(TagLimitsHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  describe('at capacity', () => {
+    beforeEach(() => {
+      fixture.componentInstance.maxItems.set(2);
+      fixture.detectChanges();
+      enter('one');
+      enter('two');
+    });
+
+    /**
+     * Asserted through focus rather than by dispatching Backspace: jsdom runs an
+     * Angular keydown listener on a DISABLED input too, so a "Backspace still
+     * removes a chip" assertion passes on the broken component and proves
+     * nothing.
+     */
+    it('keeps its only tab stop reachable, so the keyboard can get back under the cap', () => {
+      field().focus();
+
+      // Chip × and clear-all are `tabindex="-1"` spans, so disabling this input
+      // left the whole control with nothing focusable in it at all.
+      expect(field().disabled).toBe(false);
+      expect(document.activeElement).toBe(field());
+      // Read-only instead: still focusable, still refuses typed text.
+      expect(field().readOnly).toBe(true);
+    });
+
+    it('removes the last chip on Backspace, dropping back under the cap', () => {
+      backspace();
+
+      expect(tags()).toEqual(['one']);
+      expect(field().readOnly).toBe(false);
+    });
+
+    // The cap was never enforced by `disabled` — `tryAddTag` refuses on its own,
+    // which is why dropping the disable costs nothing.
+    it('still refuses one more tag while full', () => {
+      enter('three');
+
+      expect(tags()).toEqual(['one', 'two']);
+    });
+  });
+
+  describe('with duplicates allowed', () => {
+    beforeEach(() => {
+      fixture.componentInstance.allowDuplicates.set(true);
+      fixture.detectChanges();
+    });
+
+    it('removes only the chip whose × was clicked', () => {
+      enter('red');
+      enter('red');
+      enter('blue');
+      expect(tags()).toEqual(['red', 'red', 'blue']);
+
+      removes()[0].click();
+      fixture.detectChanges();
+
+      // Removal by value deleted every copy at once, so one click emptied the
+      // pair the input had just been told to allow.
+      expect(tags()).toEqual(['red', 'blue']);
+    });
+
+    it('drops one duplicate per Backspace, not the pair', () => {
+      enter('red');
+      enter('red');
+
+      backspace();
+
+      expect(tags()).toEqual(['red']);
+    });
   });
 });
 

@@ -462,7 +462,7 @@ describe('WrTabsHarness — a router strip', () => {
     await expect(tabs.getPanelText()).rejects.toThrow(/no tab is selected/);
   });
 
-  it('takes its selection from the resolved route, with no aria-selected to read', async () => {
+  it('takes its selection from the resolved route, and announces it', async () => {
     const tabs = await loader.getHarness(WrTabsHarness);
 
     expect(await tabs.getSelectedLabel()).toBeNull();
@@ -472,11 +472,11 @@ describe('WrTabsHarness — a router strip', () => {
     expect(await tabs.getSelectedLabel()).toBe('Details');
     expect(await loader.getAllHarnesses(WrTabsHarness.with({ selectedLabel: 'Details' }))).toHaveLength(1);
 
-    // Why `isSelected()` cannot read `aria-selected` here: a router tab has none.
-    // The `--active` class the router paints is the only thing on the page that says
-    // which tab is showing, which is also an a11y gap worth knowing about.
+    // What `isSelected()` read here: the router tab publishes `aria-selected` off the
+    // same `routerLinkActive` that paints `--active`, so the announced selection and
+    // the painted one are one reading. It used to paint the class and say nothing.
     const anchor = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="tab"]')[1];
-    expect(anchor.getAttribute('aria-selected')).toBeNull();
+    expect(anchor.getAttribute('aria-selected')).toBe('true');
     expect(anchor.classList.contains('wr-tabs__tab--active')).toBe(true);
 
     await expect(tabs.getPanelText()).rejects.toThrow(/controls no panel/);

@@ -9,7 +9,15 @@
 >
   @for (tab of tabs(); track tab.key()) {
     @if (tab.routerLink(); as link) {
+      <!--
+        `aria-selected` comes off the SAME `routerLinkActive` that paints `--active`,
+        exported as `rla`, so the announced state and the painted one can never
+        disagree. Without it a `role="tablist"` shipped with no tab selected in any of
+        them: the route decides here, and the class it paints is invisible to
+        assistive tech.
+      -->
       <a
+        #rla="routerLinkActive"
         class="wr-tabs__tab"
         role="tab"
         routerLinkActive="wr-tabs__tab--active"
@@ -17,6 +25,7 @@
         [routerLink]="tab.disabled() ? null : link"
         [class.wr-tabs__tab--disabled]="tab.disabled()"
         [attr.aria-disabled]="tab.disabled() ? true : null"
+        [attr.aria-selected]="rla.isActive"
         [attr.tabindex]="tab.disabled() ? -1 : 0"
       >
         {{ tab.title() }}

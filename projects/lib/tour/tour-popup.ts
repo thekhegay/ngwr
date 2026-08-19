@@ -23,6 +23,13 @@ export interface WrTourController {
    * skipped and the raw count would call the final card "Next".
    */
   readonly isLast: () => boolean;
+  /**
+   * Whether this is the first step the user will actually see — the service looks
+   * BEHIND for a reachable one, for the mirror reason: a leading step whose target
+   * is missing gets skipped, so the tour opens on a later index and the raw one
+   * would put a Back button on the very first card.
+   */
+  readonly isFirst: () => boolean;
   next(): void;
   prev(): void;
   stop(): void;
@@ -62,7 +69,10 @@ export class WrTourPopup {
   // missing gets skipped, so the raw count called the final card "Next" and then
   // ended the tour when it was pressed.
   protected readonly isLast = computed(() => this.tour.isLast());
-  protected readonly isFirst = computed(() => this.tour.index() <= 0);
+  // Same story at the other end, and the same fix: `index() <= 0` rendered a Back
+  // button on the first card of a tour whose leading step had been skipped, and
+  // `prev()` walks off the start and returns — so the button did nothing at all.
+  protected readonly isFirst = computed(() => this.tour.isFirst());
 
   protected readonly progressText = computed(() =>
     this.progress({ current: this.tour.index() + 1, total: this.tour.total() })

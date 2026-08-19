@@ -85,9 +85,9 @@
             role="button"
             [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
             tabindex="-1"
-            (click)="removeChip(chip.value, $event)"
-            (keydown.enter)="removeChip(chip.value, $event)"
-            (keydown.space)="removeChip(chip.value, $event)"
+            (click)="removeChip($index, $event)"
+            (keydown.enter)="removeChip($index, $event)"
+            (keydown.space)="removeChip($index, $event)"
           >
             <svg
               class="wr-icon__svg"
@@ -109,6 +109,13 @@
       @if (hiddenChipCount(); as extra) {
         <span class="wr-select__chip wr-select__chip--more">+{{ extra }} more</span>
       }
+      <!-- At `maxItems` this input goes READONLY, never disabled: it is the only
+           tab stop in the whole control (the chip × and the clear button are
+           `tabindex="-1"` spans), so disabling it left a full tag select with
+           nothing focusable at all — and Backspace on an empty draft, the one
+           keyboard way back UNDER the cap, is bound to this very element. It was
+           never needed as enforcement either: `tryAddTag` already refuses past
+           capacity. -->
       <input
         #tagInput
         type="text"
@@ -117,7 +124,8 @@
         [attr.aria-label]="resolvedAriaLabel()"
         spellcheck="false"
         [value]="hasChipSearch() ? searchQuery() : draft()"
-        [disabled]="isDisabled() || (isTag() && atCapacity())"
+        [disabled]="isDisabled()"
+        [readonly]="isTag() && atCapacity()"
         [placeholder]="hasSelection() ? '' : resolvedPlaceholder()"
         [attr.role]="hasChipSearch() ? 'combobox' : null"
         [attr.aria-haspopup]="hasChipSearch() ? 'listbox' : null"
@@ -185,9 +193,9 @@
                 role="button"
                 [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
                 tabindex="-1"
-                (click)="removeChip(chip.value, $event)"
-                (keydown.enter)="removeChip(chip.value, $event)"
-                (keydown.space)="removeChip(chip.value, $event)"
+                (click)="removeChip($index, $event)"
+                (keydown.enter)="removeChip($index, $event)"
+                (keydown.space)="removeChip($index, $event)"
               >
                 <svg
                   class="wr-icon__svg"

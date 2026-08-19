@@ -15,10 +15,16 @@ import {
   forwardRef,
   input,
   model,
+  signal,
 } from '@angular/core';
+
+import { useI18nText } from 'ngwr/i18n';
 
 import { WrStep } from './step';
 import { WR_STEPPER, type WrStepperContext } from './tokens';
+
+/** A label with no consumer input to forward — see `optionalLabel` below. */
+const NO_OVERRIDE = signal<string | null>(null).asReadonly();
 
 /**
  * Multi-step wizard container. Children are `<wr-step>` components — the
@@ -71,6 +77,15 @@ export class WrStepper implements WrStepperContext {
   readonly responsive = input(false, { transform: coerceBooleanProperty });
 
   protected readonly steps = contentChildren(WrStep);
+
+  /**
+   * The "optional" badge sits INSIDE the header button's label span, so the word
+   * is part of the step's accessible name — a hard-coded literal announced English
+   * to every locale, not just showed it. Catalog-only rather than an input: the
+   * badge is one word shared by every step, and an app that wants other wording
+   * overrides `stepper.optional` once instead of on every `<wr-step>`.
+   */
+  protected readonly optionalLabel = useI18nText(NO_OVERRIDE, 'stepper.optional', 'optional');
 
   protected readonly classes = computed(() => {
     const parts = ['wr-stepper', `wr-stepper--${this.orientation()}`];

@@ -31,6 +31,14 @@ class AutoFocusHost {
   readonly autoFocus = signal(true);
 }
 
+@Component({
+  imports: [WrCalendar],
+  template: `<wr-calendar [date]="date()" (dateChange)="date.set($event)" />`,
+})
+class WritebackHost {
+  readonly date = signal<Date | null>(null);
+}
+
 describe('WrCalendar keyboard focus', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -188,6 +196,84 @@ describe('WrCalendar autoFocus', () => {
     // real focus moving to it on load.
     expect(cell()).not.toBeNull();
     expect(document.activeElement).not.toBe(cell());
+  });
+});
+
+/**
+ * The keydown listener is on the HOST, which wraps the nav header and the
+ * month / year chip listboxes as well as the day grid. Every key aimed at one
+ * of those used to be consumed as day-grid navigation, and the handler's
+ * `preventDefault()` cancelled the button's own activation with it — so Enter
+ * on `‹` committed a day the user never touched instead of paging the month.
+ *
+ * The last case here is the other half of the guard: keys sent to the host
+ * ELEMENT must keep driving the grid, because `WrCalendarHarness` sends them
+ * there rather than to a cell. A guard written as "must be inside
+ * `.wr-calendar__grid`" passes the first three cases and breaks every keyboard
+ * method on the harness.
+ */
+describe('WrCalendar header and chip keys', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<WritebackHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-calendar')!;
+  const ring = (): string | undefined => root().querySelector('.wr-calendar__day--focused')?.textContent?.trim();
+
+  const press = async (el: Element, key: string): Promise<KeyboardEvent> => {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    el.dispatchEvent(event);
+    await fixture.whenStable();
+    return event;
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    fixture = TestBed.createComponent(WritebackHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('leaves Enter on the previous-month button to the button', async () => {
+    const event = await press(root().querySelector('.wr-calendar__nav--prev')!, 'Enter');
+
+    // Cancelling keydown on a `<button>` suppresses the activation the browser
+    // would synthesize from it, so `defaultPrevented` IS the symptom here —
+    // jsdom fires no click of its own to observe.
+    expect(event.defaultPrevented).toBe(false);
+    expect(fixture.componentInstance.date()).toBeNull();
+  });
+
+  it('leaves ArrowDown on the header label alone instead of moving the ring', async () => {
+    const before = ring();
+    const event = await press(root().querySelector('.wr-calendar__label')!, 'ArrowDown');
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(ring()).toBe(before);
+  });
+
+  it('does not pick a day when Enter lands on a month chip', async () => {
+    root().querySelector<HTMLButtonElement>('.wr-calendar__label')!.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const chips = root().querySelectorAll<HTMLButtonElement>('.wr-calendar__months .wr-calendar__chip');
+    expect(chips.length).toBe(12);
+
+    const event = await press(chips[2], 'Enter');
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(fixture.componentInstance.date()).toBeNull();
+  });
+
+  it('still drives the grid from keys sent to the host element', async () => {
+    const before = ring();
+    const event = await press(host(), 'ArrowRight');
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(ring()).not.toBe(before);
   });
 });
 

@@ -14,10 +14,12 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   PLATFORM_ID,
   TemplateRef,
   ViewContainerRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -217,6 +219,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
   /**
    * Ambient reading direction. Optional so a bare `TestBed` — or a consumer who
    * never set a direction — needs no provider; `Directionality` is root-provided
@@ -759,9 +762,32 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
     this.overlayRef.attach(new TemplatePortal(tpl, this.vcr));
 
-    // Virtual mode drives keyboard nav via aria-activedescendant on the list
-    // container, so it must hold focus once the panel is attached.
-    if (this.virtualized()) queueMicrotask(() => this.listElement?.focus());
+    // The panel owns the keyboard from here, in BOTH render shapes. `onKeydown`
+    // lives on the `<ul>` inside the portal and the trigger has no handler of
+    // its own, so leaving focus on the trigger — which is what the non-virtual
+    // shape used to do — made an overlay tree mouse-only: arrows, Home/End and
+    // Enter all did nothing, and the rows were reachable only by tabbing through
+    // the rest of the page, since the pane is appended to `<body>`. Virtual mode
+    // focuses the LIST (managed focus via `aria-activedescendant`); the
+    // non-virtual shape focuses the roving row, which carries the tab stop.
+    //
+    // `afterNextRender`, NOT `queueMicrotask`: under zoneless CD the scheduler
+    // runs change detection in a macrotask, so a microtask queued here fires
+    // first and focuses whatever the panel held before this open — the same trap
+    // that once left `wr-calendar`'s ring and real focus on different days.
+    afterNextRender(
+      () => {
+        if (this.virtualized()) {
+          this.listElement?.focus();
+          return;
+        }
+        const row = this.overlayRef?.overlayElement.querySelector<HTMLElement>(
+          `[data-tree-index="${this.cursorIndex()}"]`
+        );
+        row?.focus();
+      },
+      { injector: this.injector }
+    );
 
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)

@@ -1,5 +1,7 @@
 import { DOCUMENT, Service, computed, effect, inject, signal } from '@angular/core';
 
+import { wrIntentTokens } from 'ngwr/theme';
+
 /** A selectable primary-color preset shown as a swatch in the settings panel. */
 interface PrimaryPreset {
   readonly id: string;
@@ -45,96 +47,12 @@ function writeStored(id: string): void {
   }
 }
 
-/** Parse `#rrggbb` (or `#rgb`) into 0–255 channels. */
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  let h = hex.replace('#', '').trim();
-  if (h.length === 3) {
-    h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
-  }
-  const n = Number.parseInt(h, 16);
-  return {
-    r: Math.floor(n / 65536) % 256,
-    g: Math.floor(n / 256) % 256,
-    b: n % 256,
-  };
-}
-
-/** Format 0–255 channels as a `"r, g, b"` CSS string. */
-function rgbString(hex: string): string {
-  const { r, g, b } = hexToRgb(hex);
-  return `${r}, ${g}, ${b}`;
-}
-
-/** RGB (0–255) → HSL (h 0–360, s/l 0–1). */
-function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
-  const rn = r / 255;
-  const gn = g / 255;
-  const bn = b / 255;
-  const max = Math.max(rn, gn, bn);
-  const min = Math.min(rn, gn, bn);
-  const l = (max + min) / 2;
-  let h = 0;
-  let s = 0;
-  const d = max - min;
-  if (d !== 0) {
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case rn:
-        h = (gn - bn) / d + (gn < bn ? 6 : 0);
-        break;
-      case gn:
-        h = (bn - rn) / d + 2;
-        break;
-      default:
-        h = (rn - gn) / d + 4;
-        break;
-    }
-    h *= 60;
-  }
-  return { h, s, l };
-}
-
-/** HSL (h 0–360, s/l 0–1) → `#rrggbb`. */
-function hslToHex(h: number, s: number, l: number): string {
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const hp = h / 60;
-  const x = c * (1 - Math.abs((hp % 2) - 1));
-  const [rp, gp, bp] = hueSegment(hp, c, x);
-  const m = l - c / 2;
-  const to = (v: number): string =>
-    Math.round((v + m) * 255)
-      .toString(16)
-      .padStart(2, '0');
-  return `#${to(rp)}${to(gp)}${to(bp)}`;
-}
-
-/** Pick the RGB primaries for a 0–6 hue sector. */
-function hueSegment(hp: number, c: number, x: number): readonly [number, number, number] {
-  if (hp < 1) return [c, x, 0];
-  if (hp < 2) return [x, c, 0];
-  if (hp < 3) return [0, c, x];
-  if (hp < 4) return [0, x, c];
-  if (hp < 5) return [x, 0, c];
-  return [c, 0, x];
-}
-
-/**
- * Shift a hex's lightness by `deltaPct` percentage points (clamped 0–100),
- * mirroring the SCSS `color.adjust($base, $lightness: ±N%)` the lib uses to
- * derive `--wr-color-primary-{dark,darker,light,lighter}` in `_colors.scss`.
- */
-function adjustLightness(hex: string, deltaPct: number): string {
-  const { r, g, b } = hexToRgb(hex);
-  const { h, s, l } = rgbToHsl(r, g, b);
-  const nl = Math.min(1, Math.max(0, l + deltaPct / 100));
-  return hslToHex(h, s, nl);
-}
-
 /**
  * Applies a chosen primary-color preset live by writing the
  * `--wr-color-primary*` custom properties on `<html>`, and persists the
- * choice. Mirrors how `theme/styles/_colors.scss` derives the four shades
- * (`color.adjust` ±5/10% lightness) so hover/active states track the hue.
+ * choice. The token set comes from `wrIntentTokens()` in `ngwr/theme`, which is
+ * the same recipe `theme/styles/_colors.scss` compiles — the showcase used to
+ * keep its own copy of the arithmetic, and the copy is what drifted.
  *
  * Default = the real default primary, so nothing is overridden until the
  * user picks a non-default preset.
@@ -173,22 +91,22 @@ class PrimaryColor {
   }
 
   /**
-   * Write `--wr-color-primary`, its `-rgb` channels, and the four derived
-   * shades onto `document.documentElement`. The default preset clears any
-   * inline overrides so the compiled stylesheet value shows through.
+   * Write the seed's `--wr-color-primary*` tokens onto `document.documentElement`.
+   * The default preset clears any inline overrides so the compiled stylesheet
+   * value shows through.
+   *
+   * `-contrast` rides along with the rest, and that is the point of delegating:
+   * it is a Sass-time PICK of black or white baked into the stylesheet, so a
+   * hand-rolled shade set that omitted it left every filled primary control
+   * wearing the shipped blue's white label — 2.15:1 on amber. `-soft` and `-ink`
+   * are deliberately absent: they are written in terms of `var()`, so moving the
+   * base and its channels re-resolves them on its own.
    */
   private apply(hex: string): void {
     const root = this.doc.documentElement;
     if (!root) return;
 
-    const props: Record<string, string> = {
-      '--wr-color-primary': hex,
-      '--wr-color-primary-rgb': rgbString(hex),
-      '--wr-color-primary-dark': adjustLightness(hex, -5),
-      '--wr-color-primary-darker': adjustLightness(hex, -10),
-      '--wr-color-primary-light': adjustLightness(hex, 5),
-      '--wr-color-primary-lighter': adjustLightness(hex, 10),
-    };
+    const props = wrIntentTokens('primary', hex);
 
     if (this.current() === DEFAULT_PRIMARY_ID) {
       // Default: drop overrides so the lib's compiled tokens win.

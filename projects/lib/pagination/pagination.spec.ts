@@ -188,6 +188,18 @@ describe('WrPagination', () => {
     expect(root().querySelector('wr-select')).not.toBeNull();
   });
 
+  it('names the size changer on the combobox, where a screen reader reads it', () => {
+    // The label used to be written with `[attr.aria-label]` on the `<wr-select>`
+    // HOST, which has no role — so it named nothing and the button inside fell
+    // through to the catalog's generic "Select". Asserting on the host would have
+    // passed the whole time; the combobox is the only element worth reading.
+    fixture.componentInstance.showSizeChanger.set(true);
+    fixture.detectChanges();
+
+    const combobox = root().querySelector<HTMLElement>('[role="combobox"]')!;
+    expect(combobox.getAttribute('aria-label')).toBe('Items per page');
+  });
+
   describe('responsive mode', () => {
     it('is a class and nothing else — the reflow is a container query', () => {
       // Worth stating plainly: `responsive` renders no different markup. It opts the

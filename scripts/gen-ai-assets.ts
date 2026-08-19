@@ -77,11 +77,12 @@ const read = (path: string): string => (existsSync(path) ? readFileSync(path, 'u
  * Every secondary entry point, keyed by its import subpath.
  *
  * Discovery is by `ng-package.json`, which is what ng-packagr itself builds
- * from — a directory scan one level deep misses the four nested ones
- * (`i18n/{en,ru}`, `icon/adapters/{lucide,feather}`) and reports 123 where the
- * package publishes 164. `projects/lib/ng-package.json` is the PRIMARY entry
- * point and is excluded: its key would be the empty string and its import
- * specifier a bare `ngwr`.
+ * from — a directory scan one level deep misses the seventy-four nested ones
+ * (`i18n/{en,ru}`, `icon/adapters/{lucide,feather}` and the seventy
+ * `<name>/testing` harness entry points) and reports 128 where the package
+ * publishes 202. `projects/lib/ng-package.json` is the PRIMARY entry point and
+ * is excluded: its key would be the empty string and its import specifier a
+ * bare `ngwr`.
  */
 function findEntries(): string[] {
   const out: string[] = [];
@@ -358,12 +359,20 @@ function render(entries: readonly Entry[]): string {
  * A floor with slack in it licenses exactly the silent erosion this file exists
  * to prevent — `gen-sitemap.ts` learned that when a rename emptied the sitemap.
  * Raise these when the catalog grows; a drop is a bug worth failing on.
+ *
+ * Which is what happened here: these sat at 164 while the package published 202,
+ * so thirty-eight entry points could disappear from `llms-full.txt` and the
+ * skill's catalog and the check would still print a green
+ * "✓ … 164 entry points". The comment above was already the rule; the numbers
+ * had simply stopped following it across thirty-eight additions. There is no
+ * margin ON PURPOSE — the only reason to touch a line below is a catalog change
+ * you meant to make, and then you raise it in the same commit.
  */
-const MIN_ENTRIES = 164;
-const MIN_DESCRIBED = 117;
-const MIN_WITH_EXPORTS = 164;
+const MIN_ENTRIES = 202;
+const MIN_DESCRIBED = 118;
+const MIN_WITH_EXPORTS = 202;
 /** Rows in the skill's catalog table — one per entry point, plus the header. */
-const MIN_SKILL_ROWS = 164;
+const MIN_SKILL_ROWS = 202;
 
 function check(entries: readonly Entry[]): number {
   const problems: string[] = [];

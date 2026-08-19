@@ -19,10 +19,11 @@ class Host {
 }
 
 /**
- * Pins the class list and the custom property, both public API. Note what is NOT
- * asserted: whether a screen reader reads the projected `OR`. It does not —
- * `role="separator"` makes its children presentational — and that is recorded in
- * ROADMAP as an open design question rather than papered over here.
+ * Pins the class list and the custom property, both public API — plus the one
+ * thing that used to be missing from the accessible tree. `role="separator"` makes
+ * the host's children presentational and a separator is named by the author only,
+ * so the projected `OR` was visible to everyone but assistive tech; the component
+ * now copies it into `aria-label`, and these tests hold that copy honest.
  */
 describe('WrDivider', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -83,5 +84,61 @@ describe('WrDivider', () => {
 
   it('projects a label into the line', () => {
     expect(host().textContent.trim()).toBe('OR');
+  });
+
+  it('names the separator with that label', async () => {
+    // Without this the projected text is drawn and announced as nothing: a
+    // separator's children are presentational, and its name comes from the author.
+    await fixture.whenStable();
+
+    expect(host().getAttribute('aria-label')).toBe('OR');
+  });
+});
+
+@Component({
+  imports: [WrDivider],
+  template: `
+    <wr-divider />
+    <wr-divider aria-label="End of section">OR</wr-divider>
+    <wr-divider>{{ label() }}</wr-divider>
+  `,
+})
+class LabelHost {
+  readonly label = signal('Or');
+}
+
+describe('WrDivider naming', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<LabelHost>>;
+
+  const dividers = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('wr-divider'),
+  ];
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(LabelHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('leaves a bare rule unnamed', () => {
+    expect(dividers()[0].getAttribute('aria-label')).toBeNull();
+  });
+
+  it('never overwrites a name the consumer wrote', () => {
+    expect(dividers()[1].getAttribute('aria-label')).toBe('End of section');
+  });
+
+  it('follows a label that changes', async () => {
+    expect(dividers()[2].getAttribute('aria-label')).toBe('Or');
+
+    fixture.componentInstance.label.set('And');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(dividers()[2].getAttribute('aria-label')).toBe('And');
   });
 });

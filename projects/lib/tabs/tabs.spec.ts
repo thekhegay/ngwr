@@ -1,7 +1,7 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router, RouterOutlet } from '@angular/router';
 
 import { Subject } from 'rxjs';
 
@@ -354,5 +354,74 @@ describe('WrTabs in router mode', () => {
 
     press('End');
     expect(focused()).toBe('Three');
+  });
+});
+
+@Component({ template: 'Routed page' })
+class Page {}
+
+/** The same strip with real routes behind it, because the ROUTE is the selection here. */
+@Component({
+  imports: [RouterOutlet, WrTabs, WrTab],
+  template: `
+    <wr-tabs>
+      <wr-tab title="One" key="one" routerLink="/one" />
+      <wr-tab title="Two" key="two" routerLink="/two" />
+    </wr-tabs>
+    <router-outlet />
+  `,
+})
+class RoutedHost {}
+
+describe('WrTabs selection in router mode', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<RoutedHost>>;
+  let router: Router;
+
+  const headers = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]'),
+  ];
+
+  const navigate = async (url: string): Promise<void> => {
+    await router.navigateByUrl(url);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([
+          { path: 'one', component: Page },
+          { path: 'two', component: Page },
+        ]),
+      ],
+    });
+    router = TestBed.inject(Router);
+    fixture = TestBed.createComponent(RoutedHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('announces the tab the route selected, not only the one it paints', async () => {
+    await navigate('/two');
+
+    // The `--active` class is paint and nothing else reads it; the strip used to
+    // ship as a `role="tablist"` in which no tab was ever selected. Both readings
+    // come off the one `routerLinkActive`, so they cannot drift apart.
+    expect(headers()[1].classList.contains('wr-tabs__tab--active')).toBe(true);
+    expect(headers()[1].getAttribute('aria-selected')).toBe('true');
+    expect(headers()[0].getAttribute('aria-selected')).toBe('false');
+  });
+
+  it('moves the announced selection with the route', async () => {
+    await navigate('/two');
+    await navigate('/one');
+
+    expect(headers()[0].getAttribute('aria-selected')).toBe('true');
+    expect(headers()[1].getAttribute('aria-selected')).toBe('false');
   });
 });

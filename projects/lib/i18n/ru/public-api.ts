@@ -46,6 +46,8 @@ export const wrRu: WrI18nCatalog = {
     selectGroup: 'Выбрать группу',
     toggleGroup: 'Свернуть группу',
     noMatches: 'Ничего не найдено',
+    search: 'Поиск',
+    reset: 'Сбросить',
   },
   eventCalendar: {
     today: 'Сегодня',
@@ -69,6 +71,9 @@ export const wrRu: WrI18nCatalog = {
   splitter: {
     divider: 'Изменить размер областей',
   },
+  stepper: {
+    optional: 'необязательно',
+  },
   transfer: {
     source: 'Доступно',
     target: 'Выбрано',
@@ -88,7 +93,7 @@ export const wrRu: WrI18nCatalog = {
     min: 'Не меньше {{min}}.',
     max: 'Не больше {{max}}.',
     pattern: 'Значение не соответствует формату.',
-    noWhitespace: 'Поле не может состоять из пробелов.',
+    noWhitespace: 'Значение не может содержать пробелы.',
     hexColor: 'Введите цвет в формате #1a2b3c.',
     url: 'Введите корректный адрес.',
     cardNumber: 'Введите корректный номер карты.',
@@ -153,6 +158,11 @@ export const wrRu: WrI18nCatalog = {
   inputNumber: {
     increment: 'Увеличить',
     decrement: 'Уменьшить',
+  },
+  inputOtp: {
+    label: 'Код подтверждения',
+    digit: 'Цифра {{index}}',
+    character: 'Символ {{index}}',
   },
   anchor: {
     label: 'Содержание',
@@ -286,6 +296,11 @@ export const wrRu: WrI18nCatalog = {
   },
   knob: {
     label: 'Значение',
+  },
+  slider: {
+    label: 'Значение',
+    lower: 'Нижнее значение',
+    upper: 'Верхнее значение',
   },
   speedDial: {
     label: 'Действия',

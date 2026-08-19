@@ -825,10 +825,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     // keeps the panel open, so it never reaches that branch.
     if (event.key === 'Backspace' && this.hasChipSearch() && this.searchQuery() === '' && this.hasSelection()) {
       const chips = this.selectedChips();
-      const last = chips[chips.length - 1];
-      if (last) {
+      if (chips.length > 0) {
         event.preventDefault();
-        this.removeChip(last.value, event);
+        this.removeChip(chips.length - 1, event);
         return;
       }
     }
@@ -1056,12 +1055,23 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   // Chip handlers (multi + tag)
 
-  /** Remove one selection (chip × button). Works for multi and tag modes. */
-  protected removeChip(value: unknown, event: Event): void {
+  /**
+   * Remove one selection (chip × button) BY POSITION. Works for multi and tag
+   * modes.
+   *
+   * Positional, not by value: under `allowDuplicates` two chips carry the same
+   * string, and a filter on equality deleted every copy at once — one click on
+   * the second "red" took both reds with it. `visibleChips()` slices the HEAD
+   * of `selectedChips()`, which maps the value array one for one, so the
+   * `$index` a chip was rendered with indexes the value array directly. The
+   * multi-mode toggle in `selectOption` was already positional.
+   */
+  protected removeChip(index: number, event: Event): void {
     event.stopPropagation();
     if (this.isDisabled() || !this.hasChips()) return;
-    const next = this.asArray(this.value()).filter(v => v !== value);
-    this.value.set(next);
+    const current = this.asArray(this.value());
+    if (index < 0 || index >= current.length) return;
+    this.value.set([...current.slice(0, index), ...current.slice(index + 1)]);
     this.touch.emit();
   }
 
@@ -1109,7 +1119,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       const chips = this.selectedChips();
       if (chips.length > 0) {
         event.preventDefault();
-        this.removeChip(chips[chips.length - 1].value, event);
+        this.removeChip(chips.length - 1, event);
       }
     }
   }
@@ -1187,8 +1197,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       ) {
         event.preventDefault();
         const chips = this.selectedChips();
-        const last = chips[chips.length - 1];
-        if (last) this.removeChip(last.value, event);
+        if (chips.length > 0) this.removeChip(chips.length - 1, event);
       }
       return;
     }

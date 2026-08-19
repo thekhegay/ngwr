@@ -127,6 +127,10 @@ interface ParseContext {
    * `i` either, since that window is a subset — so one failure answers every
    * later opener of the same character. Without it, `'*a '.repeat(34000)` is 10.8
    * SECONDS inside a `computed`, on the main thread.
+   *
+   * Scoped to ONE scan, not to the document: `inlines()` replaces this and
+   * {@link ParseContext.noBracket} on entry, because the numbers index into the
+   * string that call is walking and mean nothing in any other.
    */
   readonly noCloser: Map<string, number>;
   /** Same idea for `]`: the index from which the source contains none at all. */
@@ -602,8 +606,19 @@ function parseInlines(source: string, options: WrMarkdownParseOptions = {}): rea
   return inlines(source, 0, newContext(options.streaming ?? false));
 }
 
-function inlines(source: string, depth: number, ctx: ParseContext): readonly WrMarkdownInline[] {
+function inlines(source: string, depth: number, outer: ParseContext): readonly WrMarkdownInline[] {
   if (depth >= MAX_DEPTH) return source ? [{ kind: 'text', value: source }] : [];
+
+  // The two failure memos hold INDEXES into `source`, so they are only ever true
+  // of the one string this call is scanning — and the context they live on spans
+  // the whole document. Shared, an index recorded in one paragraph is compared
+  // against a position in the next, and refuses emphasis and links that are
+  // perfectly well formed; `matchEmphasis` recursing on a slice (below) does the
+  // same thing INSIDE a single paragraph, so restoring on return would not be
+  // enough either. A memo per scan is the only keying that means anything, and it
+  // costs nothing: the linearity argument in {@link ParseContext.noCloser} is a
+  // statement about one string in the first place.
+  const ctx: ParseContext = { ...outer, noCloser: new Map(), noBracket: { from: Number.POSITIVE_INFINITY } };
 
   const out: WrMarkdownInline[] = [];
   let text = '';

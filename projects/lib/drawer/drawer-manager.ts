@@ -186,9 +186,10 @@ export class WrDrawerManager {
    * The dismiss button's accessible name.
    *
    * Resolved per open, not once at injection: this is a root service, so a
-   * `readI18nText` field — which is what `WrDialog` uses — would be evaluated
-   * before an async catalog had loaded and then freeze that answer for the life
-   * of the app.
+   * `readI18nText` field — which is what `WrDialog` used to have, and moved off
+   * for this reason — would be evaluated before an async catalog had loaded and
+   * then freeze that answer for the life of the app. `WrDialog.closeLabel()` is
+   * the matching precedent, not the counter-example.
    *
    * The miss check is the point. `t()` hands back the KEY when the catalog has
    * no entry, and `WrI18n` is root-provided with an empty catalog by default —

@@ -6,7 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, afterEveryRender, computed, inject, input } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
 
@@ -75,4 +75,43 @@ export class WrDivider {
     if (align !== 'center') parts.push(`wr-divider--${align}`);
     return parts.join(' ');
   });
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * The consumer's own `aria-label`, resolved on the first sync — `undefined`
+   * until then, which is how "not looked at yet" stays distinct from "they wrote
+   * none".
+   */
+  private authored: string | null | undefined;
+
+  constructor() {
+    afterEveryRender(() => this.syncLabel());
+  }
+
+  /**
+   * Name the separator with the label it projects.
+   *
+   * `role="separator"` makes the host's children presentational and a separator
+   * takes its accessible name from the author alone — so `<wr-divider>OR</wr-divider>`
+   * reaches assistive tech as an unnamed rule while everyone else reads "OR".
+   * Copying the label into `aria-label` is the only way to expose it without giving
+   * up the role, and the two can never disagree because one is the source of the
+   * other.
+   *
+   * Written to the DOM after every render rather than through a host binding, for
+   * two reasons a binding cannot cover: the label is projected content, so an
+   * interpolation or an `@if` can change it while the divider stays put; and a
+   * binding resolving to `null` would strip an `aria-label` the consumer wrote
+   * themselves — theirs is the author name already and is never touched.
+   */
+  private syncLabel(): void {
+    const el = this.host.nativeElement;
+    if (this.authored === undefined) this.authored = el.getAttribute('aria-label');
+    if (this.authored !== null) return;
+
+    const label = el.textContent?.trim();
+    if (label) el.setAttribute('aria-label', label);
+    else el.removeAttribute('aria-label');
+  }
 }

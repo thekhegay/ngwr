@@ -13,8 +13,13 @@ import { WrDateFnsAdapter } from './wr-date-fns-adapter';
 
 /**
  * Register the {@link WrDateFnsAdapter} so date-pickers / calendars in this
- * app use `date-fns` for all math and formatting. Pass `locale` to override
- * the BCP 47 tag.
+ * app use `date-fns` for all math and formatting.
+ *
+ * `locale` sets {@link WR_DATE_LOCALE}, which this adapter reads for the first
+ * day of the week and nothing else — its `format` and `parse` do not pass a
+ * locale to date-fns. For localized month names and patterns, set date-fns's own
+ * module default with `setDefaultOptions`, or use the luxon adapter, which does
+ * thread the tag through everything.
  *
  * @example
  * ```ts

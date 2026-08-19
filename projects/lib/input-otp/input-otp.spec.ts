@@ -1,14 +1,16 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, type EnvironmentProviders, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
 import { provideWrConfig } from 'ngwr/config';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrInputOtp } from './input-otp';
-import type { WrInputOtpSize } from './interfaces';
+import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
 
 @Component({
   imports: [WrInputOtp],
@@ -302,5 +304,94 @@ describe('WrInputOtp defaults from provideWrConfig', () => {
     mount([provideWrConfig({ input: { size: 'sm' }, inputNumber: { size: 'lg' } })]);
 
     expect(host().className).toBe('wr-input-otp');
+  });
+});
+
+@Component({
+  imports: [WrInputOtp],
+  template: `<wr-input-otp [mode]="mode()" length="3" />`,
+})
+class ModeHost {
+  readonly mode = signal<WrInputOtpMode>('numeric');
+}
+
+@Component({
+  imports: [WrInputOtp],
+  template: `<wr-input-otp ariaLabel="Код подтверждения" length="3" />`,
+})
+class LabelledHost {}
+
+/**
+ * A box holds no text of its own, so its `aria-label` IS its name — and the
+ * literal it used to carry was wrong as well as untranslated: `sanitiseChar`
+ * lets any letter through in `alphanumeric` and `text`, so a box holding `A`
+ * announced "Digit 3". `check:a11y` cannot see either half; a name is present,
+ * which is all the structural rules ask.
+ */
+describe('WrInputOtp names', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const mount = (component: Type<unknown>): ComponentFixture<unknown> => {
+    const fixture = TestBed.createComponent(component);
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  const groupName = (fixture: ComponentFixture<unknown>): string | null =>
+    (fixture.nativeElement as HTMLElement).querySelector('wr-input-otp')!.getAttribute('aria-label');
+
+  const cellNames = (fixture: ComponentFixture<unknown>): (string | null)[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll('input')].map(b => b.getAttribute('aria-label'));
+
+  it('calls a box a digit only where a digit is all it accepts', () => {
+    TestBed.configureTestingModule({});
+    const numeric = mount(ModeHost);
+    expect(cellNames(numeric)).toEqual(['Digit 1', 'Digit 2', 'Digit 3']);
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const letters = TestBed.createComponent(ModeHost);
+    letters.componentInstance.mode.set('alphanumeric');
+    letters.detectChanges();
+
+    expect(cellNames(letters)).toEqual(['Character 1', 'Character 2', 'Character 3']);
+
+    letters.componentInstance.mode.set('text');
+    letters.detectChanges();
+    expect(cellNames(letters)).toEqual(['Character 1', 'Character 2', 'Character 3']);
+  });
+
+  it('comes from the catalog, not from the template', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    const fixture = TestBed.createComponent(ModeHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const cyrillic = /\p{Script=Cyrillic}/u;
+    const group = groupName(fixture) ?? '';
+    expect(cyrillic.test(group), `"${group}" is still English`).toBe(true);
+    for (const name of cellNames(fixture)) {
+      expect(cyrillic.test(name ?? ''), `"${name ?? ''}" is still English`).toBe(true);
+      // The index still has to land in the translated template.
+      expect(/\d/.test(name ?? '')).toBe(true);
+    }
+  });
+
+  it('falls back to English when nothing is registered', () => {
+    TestBed.configureTestingModule({});
+
+    expect(groupName(mount(ModeHost))).toBe('Verification code');
+  });
+
+  it('lets a binding win over both', () => {
+    TestBed.configureTestingModule({});
+
+    expect(groupName(mount(LabelledHost))).toBe('Код подтверждения');
   });
 });

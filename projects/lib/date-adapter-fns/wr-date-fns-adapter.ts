@@ -41,9 +41,31 @@ const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
 
 /**
  * {@link WrDateAdapter} backed by `date-fns`. Same `Date` value type as the
- * native adapter, but defers all math, formatting, and parsing to date-fns
- * — pick this when you want more robust locale-aware patterns (`P`, `PP`,
- * `PPP`, `p`) without writing them by hand.
+ * native adapter, but defers all math, formatting, and parsing to date-fns —
+ * pick this when you want its long patterns (`P`, `PP`, `PPP`, `p`) without
+ * writing them by hand.
+ *
+ * **{@link WR_DATE_LOCALE} does not reach `format` or `parse`, and that is not
+ * an oversight.** date-fns resolves those patterns against a date-fns `Locale`
+ * OBJECT rather than a BCP 47 tag, and the objects are separate modules —
+ * mapping a tag onto one would mean importing all of them, which defeats the
+ * tree-shaking that is the reason this is an opt-in entry point. So the named
+ * formats render AND read in en-US whatever the tag says, while
+ * `getFirstDayOfWeek`, `getDayOfWeekNames` and `getMonthNames` go through `Intl`
+ * and do honour it: a calendar heads its columns `пн вт ср` beside a trigger
+ * reading `08/11/2025`. Reading is the sharper edge — `11/08/2025` typed by a
+ * user in a dd/MM locale parses as 8 November, valid and wrong.
+ *
+ * The lever is date-fns's own module default, and the adapter passing no locale
+ * is precisely what keeps it working. Set it once at bootstrap, or take
+ * `provideWrLuxonAdapter()`, which forwards the tag itself:
+ *
+ * ```ts
+ * import { setDefaultOptions } from 'date-fns';
+ * import { ru } from 'date-fns/locale';
+ *
+ * setDefaultOptions({ locale: ru });
+ * ```
  *
  * @example
  * ```ts

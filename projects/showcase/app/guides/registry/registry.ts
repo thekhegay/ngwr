@@ -45,7 +45,7 @@ export default class RegistryGuidePageComponent {
       "--wr-color-primary-darker": "#31436c",
       "--wr-color-primary-light": "#4964a1",
       "--wr-color-primary-lighter": "#526fb1",
-      … the same seven for "secondary"
+      … the same seven for "info"
     },
     "dark": { … }
   }

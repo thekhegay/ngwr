@@ -74,9 +74,15 @@
   </div>
 
   @if (showSizeChanger()) {
+    <!--
+      `ariaLabel`, not `[attr.aria-label]`: `<wr-select>`'s host carries no role,
+      so an attribute there names nothing and never reaches the `role="combobox"`
+      button inside — the size changer announced itself as the catalog's generic
+      "Select".
+    -->
     <wr-select
       class="wr-pagination__size"
-      [attr.aria-label]="resolvedItemsPerPage()"
+      [ariaLabel]="resolvedItemsPerPage()"
       [disabled]="disabled()"
       [value]="pageSize()"
       (valueChange)="onSizeChange($event)"

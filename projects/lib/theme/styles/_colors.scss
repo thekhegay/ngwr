@@ -147,11 +147,12 @@ $contrast-light: #ffffff !default;
   // unused-ok: for `-subtle` and `-strong`. The catalog draws its hairlines with
   // the opaque `--wr-color-outline`, and `--wr-color-border` has one consumer
   // (`wr-avatar`'s ring), so these two are the weaker and stronger ends of a
-  // scale offered to consumers rather than one we paint with. They are NOT the
-  // answer to the twenty-two files hand-rolling `rgba(var(--wr-color-outline-rgb),
-  // α)` at eight alphas — four of which compute to exactly these values. Those
-  // are FILLS, and naming a fill after a hairline is how a token layer starts
-  // lying; the fill scale is its own decision.
+  // scale offered to consumers rather than one we paint with. They were NOT the
+  // answer to the twenty-two files that hand-rolled
+  // `rgba(var(--wr-color-outline-rgb), α)` at eight alphas — four of which
+  // computed to exactly these values. Those were FILLS, and naming a fill after a
+  // hairline is how a token layer starts lying, so the `--wr-color-fill*` scale
+  // below absorbed them instead; not one of those hand-rolls is left.
   --wr-color-border: rgba(var(--wr-color-light-rgb), 0.5);
   --wr-color-border-subtle: rgba(var(--wr-color-light-rgb), 0.35);
   --wr-color-border-strong: rgba(var(--wr-color-light-rgb), 0.6);

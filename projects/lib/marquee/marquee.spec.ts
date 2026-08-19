@@ -79,6 +79,17 @@ describe('WrMarquee', () => {
     for (const copy of lists().slice(1)) expect(copy.getAttribute('aria-hidden')).toBe('true');
   });
 
+  it('takes the duplicate copies out of the tab order, not just out of the reader', () => {
+    // The two halves have to move together. Every item with an `href` renders an
+    // anchor in EVERY copy, so `aria-hidden` alone left each duplicate focusable and
+    // silent — an `aria-hidden-focus` violation, and the same link as N tab stops.
+    expect(lists()[0].getAttribute('inert')).toBeNull();
+    for (const copy of lists().slice(1)) {
+      expect(copy.getAttribute('inert')).toBe('');
+      expect(copy.querySelectorAll('.wr-marquee__link').length).toBeGreaterThan(0);
+    }
+  });
+
   it('renders every item in each copy', () => {
     expect(lists()[0].querySelectorAll('.wr-marquee__item').length).toBe(3);
   });

@@ -109,6 +109,9 @@ export class WrTour {
   // move, in `goTo`, because reachability is a DOM question and not a signal.
   private readonly noStepAfter = signal(false);
 
+  // The same question looking the other way. Settled in `goTo` for the same reason.
+  private readonly noStepBefore = signal(true);
+
   /**
    * Whether this is the last step the user will see. Not `index() === total() - 1`:
    * a trailing step whose target is missing is skipped, so comparing against the
@@ -116,6 +119,15 @@ export class WrTour {
    * ending the tour when it was pressed.
    */
   readonly isLast = computed(() => this.noStepAfter());
+
+  /**
+   * Whether this is the first step the user will see. Not `index() === 0`, for the
+   * mirror of the reason above: a LEADING step whose target is missing is skipped,
+   * so the tour opens on a later index and the raw one put a Back button on the
+   * first card — one that did nothing at all, because `prev()` walks off the start
+   * and returns without moving.
+   */
+  readonly isFirst = computed(() => this.noStepBefore());
 
   constructor() {
     // Everything this service owns lives OUTSIDE its own injector: a CDK overlay, a
@@ -179,6 +191,7 @@ export class WrTour {
     this.teardownStep();
     this.cursor.set(i);
     this.noStepAfter.set(!this.anyResolvableAfter(i));
+    this.noStepBefore.set(!this.anyResolvableBefore(i));
     this.openStep(steps[i]);
   }
 
@@ -186,6 +199,15 @@ export class WrTour {
   private anyResolvableAfter(index: number): boolean {
     const steps = this.steps();
     for (let i = index + 1; i < steps.length; i += 1) {
+      if (this.resolve(steps[i]) !== null) return true;
+    }
+    return false;
+  }
+
+  /** Whether the tour has a step before `index` that can actually be shown. */
+  private anyResolvableBefore(index: number): boolean {
+    const steps = this.steps();
+    for (let i = index - 1; i >= 0; i -= 1) {
       if (this.resolve(steps[i]) !== null) return true;
     }
     return false;

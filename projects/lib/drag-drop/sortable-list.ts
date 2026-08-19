@@ -18,8 +18,9 @@ import type { WrSortableReorderEvent } from './interfaces';
  * emitted via 2-way `[(items)]`.
  *
  * Drop a single template — it's rendered per item with `let-item
- * let-index="index"`. Add `[handle]="true"` (or `[wrDragHandle]` inside
- * your template) to restrict drag start to a handle element.
+ * let-index="index"`. Put `wrDragHandle` on an element inside that
+ * template to restrict drag start to a handle; there is no input for
+ * it, the directive's presence is the switch.
  *
  * @example
  * ```html

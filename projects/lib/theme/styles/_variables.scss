@@ -96,10 +96,11 @@
   // light, 1.31:1 in dark**, where WCAG 1.4.11 asks 3:1 of a focus indicator —
   // and the mixin also set `outline: none`, so for the forty-one selectors whose
   // entire focus style is that mixin, nothing on screen met the bar. The solid
-  // token measures 4.89:1 and 4.07:1. Three components had already worked this
-  // out on their own and hand-rolled `outline: 2px solid var(--wr-color-primary)`
-  // (`event-calendar`, `lightbox`), and four more wrote an `outline-offset` next
-  // to the include that could never apply.
+  // token measures 4.89:1 and 4.07:1. Two components had already worked this out
+  // on their own, in three places, and hand-rolled
+  // `outline: 2px solid var(--wr-color-primary)` (`event-calendar` twice,
+  // `lightbox` once), and four more wrote an `outline-offset` next to the include
+  // that could never apply.
   //
   // An outline is also the only form the indicator survives in under
   // `forced-colors`, which drops every `box-shadow` outright, and it is exempt

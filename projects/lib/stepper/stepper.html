@@ -33,7 +33,7 @@
         <span class="wr-stepper__label">
           {{ step.label() }}
           @if (step.optional()) {
-            <small class="wr-stepper__optional">optional</small>
+            <small class="wr-stepper__optional">{{ optionalLabel() }}</small>
           }
           @if (step.description()) {
             <small class="wr-stepper__description">{{ step.description() }}</small>

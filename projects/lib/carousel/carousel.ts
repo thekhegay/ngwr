@@ -15,6 +15,7 @@ import {
   ViewEncapsulation,
   computed,
   contentChildren,
+  forwardRef,
   effect,
   inject,
   input,
@@ -25,6 +26,7 @@ import {
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import { WrCarouselSlide } from './carousel-slide';
+import { WR_CAROUSEL, type WrCarouselContext } from './tokens';
 
 /**
  * Slide carousel. Project `<wr-carousel-slide>` children — the carousel
@@ -56,8 +58,15 @@ import { WrCarouselSlide } from './carousel-slide';
     '(focusin)': 'onPauseIn()',
     '(focusout)': 'onPauseOut()',
   },
+  providers: [
+    {
+      provide: WR_CAROUSEL,
+      // eslint-disable-next-line @angular-eslint/no-forward-ref
+      useExisting: forwardRef(() => WrCarousel),
+    },
+  ],
 })
-export class WrCarousel {
+export class WrCarousel implements WrCarouselContext {
   /** Accessible name of the previous-slide button. Falls back to `carousel.prev`. */
   readonly prevLabel = input<string | null>(null);
 
@@ -106,6 +115,17 @@ export class WrCarousel {
 
   protected readonly slides = contentChildren(WrCarouselSlide);
   protected readonly count = computed(() => this.slides().length);
+
+  /**
+   * Where a slide sits in projection order — {@link WrCarouselContext}.
+   *
+   * Public only because the child injects the parent through `WR_CAROUSEL`;
+   * reading `slides()` here is what makes the child's `computed()` re-run when a
+   * slide is added or removed.
+   */
+  indexOf(slide: object): number {
+    return this.slides().indexOf(slide as WrCarouselSlide);
+  }
 
   /** Live horizontal drag offset (px) during a touch swipe. */
   protected readonly dragX = signal(0);

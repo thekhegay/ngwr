@@ -8,10 +8,10 @@
 import { Component, ViewEncapsulation, input } from '@angular/core';
 
 /**
- * Breadcrumb navigation. Project `<wr-breadcrumbs-item>` children — they
- * render as `<li>` rows inside an `<ol>`, separated by the configured
- * glyph (default `/`). The container exposes the `nav[aria-label]`
- * landmark required by WCAG.
+ * Breadcrumb navigation. Project `<wr-breadcrumbs-item>` children — each keeps
+ * its own element and takes `role="listitem"` inside the `<ol>` rather than
+ * rendering an `<li>`, separated by the configured glyph (default `/`). The
+ * container exposes the `nav[aria-label]` landmark required by WCAG.
  *
  * @example
  * ```html

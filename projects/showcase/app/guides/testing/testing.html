@@ -291,11 +291,12 @@
     <ngwr-doc-code [code]="snippets.charts" language="typescript" />
 
     <p wrTypography>
-      Four of the charts have harnesses — <code>bar-chart</code>, <code>line-chart</code>, <code>donut-chart</code> and
-      <code>sparkline</code> — and they share one rule: an SVG path's <code>d</code> is a rendering detail that moves
-      with the viewBox, the padding and the value range, so none of them lets you assert one. What they read instead is
-      everything with words or a count in it: legends, axis ticks, x labels, slice counts, and the bar heights, which
-      the chart writes as a PERCENTAGE of its own maximum and are therefore readable with no layout.
+      Every chart has a harness — <code>bar-chart</code>, <code>line-chart</code>, <code>donut-chart</code>,
+      <code>sparkline</code>, <code>gauge</code>, <code>meter-group</code> and <code>calendar-heatmap</code> — and they
+      share one rule: an SVG path's <code>d</code> is a rendering detail that moves with the viewBox, the padding and
+      the value range, so none of them lets you assert one. What they read instead is everything with words or a count
+      in it: legends, axis ticks, x labels, slice counts, and the bar heights, which the chart writes as a PERCENTAGE of
+      its own maximum and are therefore readable with no layout.
     </p>
 
     <p wrTypography variant="small" tone="medium">

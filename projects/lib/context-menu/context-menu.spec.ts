@@ -122,6 +122,32 @@ describe('WrContextMenu', () => {
     expect(document.querySelectorAll('.wr-context-menu-overlay')).toHaveLength(0);
   });
 
+  /**
+   * A pane on its way out must stop hit-testing the moment it is dismissed.
+   *
+   * `opacity: 0` does not stop pointer events and `.cdk-overlay-pane` sets
+   * `pointer-events: auto`, so for the whole 220 ms exit animation an invisible
+   * menu used to swallow the next click — and a second click on the item just
+   * picked re-ran the consumer's action.
+   *
+   * Asserted on the inline style the directive writes, not by clicking through
+   * it: jsdom has no layout and no hit-testing, so a dispatched click reaches a
+   * `pointer-events: none` element exactly as it reaches a live one.
+   */
+  it('stops the dismissed pane hit-testing while it fades out', () => {
+    rightClick();
+    const pane = document.querySelector<HTMLElement>('.wr-context-menu-overlay')!;
+    expect(pane.style.pointerEvents).toBe('');
+
+    press(menus()[0], 'Escape');
+    // Mid-animation: still in the DOM, already inert.
+    vi.advanceTimersByTime(50);
+    fixture.detectChanges();
+
+    expect(pane.isConnected).toBe(true);
+    expect(pane.style.pointerEvents).toBe('none');
+  });
+
   it('takes its still-closing panes with it when the directive is destroyed', () => {
     rightClick();
     press(menus()[0], 'Escape');
