@@ -13,6 +13,7 @@ import {
   DocSnippetComponent,
   type DocApiRow,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-speed-dial-page',
@@ -39,6 +40,8 @@ export default class SpeedDialPageComponent {
   label: string;
   icon?: WrIconName;
 }`;
+
+  protected readonly api = API.WrSpeedDial;
 
   protected readonly typeRows: readonly DocApiRow[] = [
     { name: 'WrSpeedDialAction', description: 'Per-button action shown when the dial expands.', type: 'interface' },

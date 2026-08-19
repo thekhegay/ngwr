@@ -832,6 +832,31 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
       }
     }
 
+    // The same key, for the searchable SINGLE: Backspace on an empty field is
+    // its clear control. Every other mode could already undo a selection from
+    // the keyboard — the chip modes above, the button trigger one chip per
+    // Backspace — while here the × was the only way out, and it is a
+    // `tabindex="-1"` span no key can reach. A function offered by pointer
+    // alone is a WCAG 2.1.1 failure, not a missing convenience.
+    //
+    // Gated on `clearable()` because that input IS the clear control: a consumer
+    // who turned the × off did not ask for a keyboard twin of it. Gated on the
+    // FIELD being empty rather than on `searchQuery()`, which is not the same
+    // question — under `[minChars]` a collapsed field shows the selected label
+    // while the query is still '', and backspacing over that text has always
+    // started a query rather than thrown the selection away.
+    if (
+      event.key === 'Backspace' &&
+      !this.hasChipSearch() &&
+      this.clearable() &&
+      this.hasSelection() &&
+      (event.target as HTMLInputElement | null)?.value === ''
+    ) {
+      event.preventDefault();
+      this.clearAll(event);
+      return;
+    }
+
     // Otherwise route through the same keyboard plumbing as the button trigger.
     this.onTriggerKey(event);
   }

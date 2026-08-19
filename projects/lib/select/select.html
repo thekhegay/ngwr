@@ -23,6 +23,15 @@
       (keydown)="onSearchKey($event)"
       (blur)="onSearchBlur()"
     />
+    <!-- Pointer-only, and the `keydown.enter` / `keydown.space` pair this used to
+         carry was dead code rather than the keyboard path it looked like: the ×
+         is `tabindex="-1"` with no roving owner, so no key event ever originates
+         here to bubble into a handler. It stays unfocusable because the same
+         span sits inside the BUTTON trigger further down, where a focusable
+         child is `nested-interactive` — the defect the window taskbar's close
+         button already taught this repo. The keyboard reaches the function
+         instead: Backspace on the empty field, which `onSearchKey` routes to
+         `clearAll` for a single and to the last chip for a multi. -->
     @if (clearable() && hasSelection() && !isDisabled()) {
       <span
         class="wr-select__clear"
@@ -30,8 +39,6 @@
         [attr.aria-label]="resolvedClear()"
         tabindex="-1"
         (click)="clearAll($event)"
-        (keydown.enter)="clearAll($event)"
-        (keydown.space)="clearAll($event)"
       >
         <svg
           class="wr-icon__svg"
@@ -86,8 +93,6 @@
             [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
             tabindex="-1"
             (click)="removeChip($index, $event)"
-            (keydown.enter)="removeChip($index, $event)"
-            (keydown.space)="removeChip($index, $event)"
           >
             <svg
               class="wr-icon__svg"
@@ -147,8 +152,6 @@
         [attr.aria-label]="resolvedClear()"
         tabindex="-1"
         (click)="clearAll($event)"
-        (keydown.enter)="clearAll($event)"
-        (keydown.space)="clearAll($event)"
       >
         <svg
           class="wr-icon__svg"
@@ -194,8 +197,6 @@
                 [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
                 tabindex="-1"
                 (click)="removeChip($index, $event)"
-                (keydown.enter)="removeChip($index, $event)"
-                (keydown.space)="removeChip($index, $event)"
               >
                 <svg
                   class="wr-icon__svg"
@@ -236,8 +237,6 @@
         [attr.aria-label]="resolvedClear()"
         tabindex="-1"
         (click)="clearAll($event)"
-        (keydown.enter)="clearAll($event)"
-        (keydown.space)="clearAll($event)"
       >
         <svg
           class="wr-icon__svg"

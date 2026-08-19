@@ -23,6 +23,12 @@
  * a form this regular buys nothing. Anything that does not match the shape is
  * skipped rather than guessed at, so a member the regex cannot read is absent
  * rather than wrong.
+ *
+ * `extractApi()` is the half that becomes docs. `extractPublicNames()` at the
+ * bottom is the half that only the check reads: an entry point publishes option
+ * interfaces, helper functions and directive attributes as well as components,
+ * and a docs table that mentions one of those is documenting the library, not
+ * inventing an input.
  */
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -133,7 +139,7 @@ function extractFile(file: string, entry: string): ApiEntry[] {
     for (const m of body.matchAll(MEMBER_RE)) {
       const g = m.groups ?? {};
       const name = g['name'] ?? '';
-      const kind = g['kind'] ?? '';
+      const kind = (g['kind'] ?? '') as NonNullable<ApiRow['kind']>;
       const required = Boolean(g['required']);
       const { description, def } = parseDoc(g['doc']);
 
@@ -158,6 +164,7 @@ function extractFile(file: string, entry: string): ApiEntry[] {
         name: kind === 'output' ? `(${publicName})` : publicName,
         description: description || '—',
         type,
+        kind,
         ...(required ? { required: true } : {}),
         ...(!required && kind !== 'output' ? { default: def ?? initial ?? undefined } : {}),
       };
@@ -185,9 +192,9 @@ function walk(dir: string, entry: string, acc: string[]): void {
   }
 }
 
-/** Every documented component / directive in the library, keyed by class name. */
-export function extractApi(): Map<string, ApiEntry> {
-  const result = new Map<string, ApiEntry>();
+/** Every entry point folder's `.ts` files, keyed by the folder name. */
+function filesByEntry(): Map<string, string[]> {
+  const out = new Map<string, string[]>();
 
   for (const entry of readdirSync(LIB).sort()) {
     if (entry === 'schematics' || entry === 'styles') continue;
@@ -196,8 +203,64 @@ export function extractApi(): Map<string, ApiEntry> {
 
     const files: string[] = [];
     walk(dir, entry, files);
+    out.set(entry, files);
+  }
+
+  return out;
+}
+
+/**
+ * Class names some `public-api.ts` re-exports — the library's actual surface.
+ *
+ * A component nothing exports is not something a consumer can write, whatever
+ * its selector suggests: `<wr-toast-host>` and `<wr-toast>` are created by
+ * `WrToast.show()` and reachable from nowhere else, so holding the toast page to
+ * their inputs asks it to document a template no one can type.
+ *
+ * `@internal` says the same thing and both of those carry it — but the tag alone
+ * cannot be the rule, because `WrTableFilter` and `WrTableSort` carry it too,
+ * `public-api.ts` exports both, and the table page documents them from the
+ * generated data. The export list is the half that is never wrong.
+ */
+function exportedClasses(files: Iterable<string>): Set<string> {
+  const out = new Set<string>();
+  for (const file of files) {
+    if (!file.endsWith('/public-api.ts')) continue;
+    for (const m of readFileSync(file, 'utf8').matchAll(/\b(Wr[A-Za-z0-9_]*)\b/g)) out.add(m[1] ?? '');
+  }
+  return out;
+}
+
+/**
+ * Exported, portal-rendered, and still not a template API.
+ *
+ * `WrMentionPanel` and `WrPopconfirmPanel` are the same component twice: an
+ * overlay panel its sibling directive builds with a `ComponentPortal`, opening
+ * with "not intended for direct use", exported beside the directive. Only the
+ * popconfirm one carries an `@internal` tag saying so. Documenting the mention
+ * panel's seven members would publish a component whose own first line tells you
+ * not to use it, and `listboxId` in particular is minted by the directive and
+ * meaningless from outside.
+ *
+ * **A list, and not a check for the `@internal` tag, because in this repo the
+ * tag does not mean "undocumented".** `WrTableFilter` and `WrTableSort` both
+ * carry it, are both exported, and the table's page documents both from this
+ * generated data — so keying on the tag would silently empty that page. Tagging
+ * the mention panel for consistency with its sibling is worth doing on its own
+ * merits; it will not delete this set.
+ */
+const EXPORTED_BUT_INTERNAL: ReadonlySet<string> = new Set(['WrMentionPanel']);
+
+/** Every documented component / directive in the library, keyed by class name. */
+export function extractApi(): Map<string, ApiEntry> {
+  const result = new Map<string, ApiEntry>();
+  const byEntry = filesByEntry();
+  const exported = exportedClasses([...byEntry.values()].flat());
+
+  for (const [entry, files] of byEntry) {
     for (const file of files) {
       for (const found of extractFile(file, entry)) {
+        if (!exported.has(found.klass) || EXPORTED_BUT_INTERNAL.has(found.klass)) continue;
         result.set(found.klass, found);
       }
     }
@@ -206,11 +269,80 @@ export function extractApi(): Map<string, ApiEntry> {
   return result;
 }
 
-/** One documented member, shaped for the showcase's `DocApiRow`. */
+/**
+ * The rest of what an entry point publishes, keyed by entry — every name a docs
+ * table can carry that is not a signal member.
+ *
+ * Three shapes, each of which read as invented API before this existed. Fields
+ * of an exported interface: the drawer's `data` / `panelClass` and the toast's
+ * `maxStack` live on `WrDrawerOptions` / `WrToastConfig`, which a page documents
+ * under its own heading — one the check never sees, because the heading is in
+ * the template and the rows are in the class. Exported functions: the colour
+ * picker documents `rgbToHsv` and its three siblings, which are `export
+ * function`s in `ngwr/color-picker`, not inputs on anything. And the attribute
+ * of a selector: `[wrInput]` matches `input[wrInput]`, so the page writes the
+ * name bare — the same way a consumer types it — where the bracketed form would
+ * already have been let through.
+ *
+ * `@internal` declarations are left out, and that one is load-bearing rather
+ * than tidy. `WrSelectContext` is the contract an option uses to talk to its
+ * select; it is exported, it is tagged, and it has a `multi` field — the exact
+ * name of the input `select` had removed a major earlier and went on documenting,
+ * which is one of the two drifts this whole gate was written for. Counting a
+ * tagged interface's fields would have re-opened it.
+ */
+export function extractPublicNames(): Map<string, ReadonlySet<string>> {
+  const out = new Map<string, ReadonlySet<string>>();
+  const DOC = String.raw`(?<doc>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?`;
+  const internal = (doc: string | undefined): boolean => /@internal\b/.test(doc ?? '');
+
+  for (const [entry, files] of filesByEntry()) {
+    const names = new Set<string>();
+    for (const file of files) {
+      const src = readFileSync(file, 'utf8');
+
+      for (const m of src.matchAll(new RegExp(`${DOC}export\\s+function\\s+(\\w+)`, 'g'))) {
+        if (!internal(m.groups?.['doc'])) names.add(m[2] ?? '');
+      }
+      for (const m of src.matchAll(/selector:\s*'([^']+)'/g)) {
+        for (const attr of (m[1] ?? '').matchAll(/\[([A-Za-z][\w-]*)\]/g)) names.add(attr[1] ?? '');
+      }
+
+      // Fields of every exported interface / object-literal type alias. Brace
+      // matched rather than lazily regexed to the first `}`, which stops inside
+      // the first nested literal and drops every field after it.
+      for (const m of src.matchAll(new RegExp(`${DOC}export\\s+(?:interface|type)\\s+\\w+[^{;]*\\{`, 'g'))) {
+        if (internal(m.groups?.['doc'])) continue;
+        const open = (m.index ?? 0) + m[0].length;
+        let depth = 1;
+        let i = open;
+        for (; i < src.length && depth > 0; i++) {
+          if (src[i] === '{') depth++;
+          else if (src[i] === '}') depth--;
+        }
+        for (const f of src.slice(open, i).matchAll(/^\s*(?:readonly\s+)?(\w+)\??\s*:/gm)) names.add(f[1] ?? '');
+      }
+    }
+    out.set(entry, names);
+  }
+
+  return out;
+}
+
+/**
+ * One documented member, shaped for the showcase's `DocApiRow` — plus `kind`,
+ * which the serializer does not write.
+ *
+ * A docs table has no column for it, but the check needs it: a `model()`
+ * publishes TWO members, the model itself and the `<name>Change` output Angular
+ * synthesises for it, and `(valueChange)` is how a page documents the second
+ * half. Without the kind that row reads as an input the component does not have.
+ */
 export interface ApiRow {
   readonly name: string;
   readonly description: string;
   readonly type: string;
+  readonly kind?: 'input' | 'model' | 'output';
   readonly default?: string;
   readonly required?: boolean;
 }

@@ -184,6 +184,18 @@
       color: var(--wr-color-text-muted);
     }
 
+    // At `maxItems` the input goes READONLY rather than disabled — it is the
+    // only tab stop in the control, and Backspace here is the way back under the
+    // cap. Nothing painted that, so the field kept the I-beam it inherits from
+    // the trigger and went on inviting text it would refuse. The cursor is the
+    // whole cue on purpose: the field still takes focus and still answers
+    // Backspace, so `not-allowed` would say something false about a control that
+    // is working. Listed before `:disabled`, which matches a readonly-OR-disabled
+    // input too and has to win the tie on source order.
+    &:read-only {
+      cursor: default;
+    }
+
     &:disabled {
       cursor: not-allowed;
     }

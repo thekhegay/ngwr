@@ -757,16 +757,6 @@ export const API = {
     { name: "maxResults", description: "Maximum number of items shown in the panel.", type: "number", default: "8" },
     { name: "(wrMentionSelected)", description: "Emits the selected item, trigger, and query whenever the user commits.", type: "WrMentionCommit<T>" },
   ],
-  // <wr-mention-panel>
-  WrMentionPanel: [
-    { name: "items", description: "—", type: "readonly WrMentionItem[]", default: "[]" },
-    { name: "activeIndex", description: "—", type: "number", default: "0" },
-    { name: "displayWith", description: "—", type: "(item: WrMentionItem) => string", default: "item => item.label" },
-    { name: "listboxId", description: "Id of the `<ul role=\"listbox\">`, minted by the directive and pointed at by its `aria-controls`. Owned there rather than here because the panel is disposed and rebuilt whenever the caret leaves a mention, while the attribute on the host has to stay put. Plain `input('')`, never `input.required` — a ComponentPortal-created component throws on the first change detection if a required input is unset.", type: "string", default: "''" },
-    { name: "listLabel", description: "Accessible name for the listbox. ARIA requires one; the directive supplies it from the catalog.", type: "string", default: "''" },
-    { name: "(picked)", description: "Emitted when the user picks an item (click).", type: "WrMentionItem" },
-    { name: "(hovered)", description: "Emitted on mouseenter — used by the directive to track hover.", type: "number" },
-  ],
   // <[wrMeta]>
   WrMetaBinding: [
     { name: "wrMeta", description: "—", type: "WrMetaConfig", required: true },
@@ -1288,30 +1278,6 @@ export const API = {
     { name: "title", description: "—", type: "string", default: "''" },
     { name: "time", description: "—", type: "string", default: "''" },
     { name: "color", description: "—", type: "WrTimelineColor", default: "'primary'" },
-  ],
-  // <wr-toast-host>
-  WrToastHost: [
-    { name: "position", description: "—", type: "WrToastPosition", default: "'top-end'" },
-    { name: "config", description: "—", type: "WrToastConfig", required: true },
-    { name: "mode", description: "Layout mode.", type: "WrToastMode", default: "'stack' (Sonner-style; hover to fan out)" },
-    { name: "(dismissed)", description: "@internal — service listens to update its internal state.", type: "number" },
-    { name: "(pauseRequested)", description: "—", type: "number" },
-    { name: "(resumeRequested)", description: "—", type: "number" },
-    { name: "(dismissAllRequested)", description: "—", type: "void" },
-  ],
-  // <wr-toast>
-  WrToastItem: [
-    { name: "type", description: "—", type: "WrToastType", default: "'info'" },
-    { name: "title", description: "—", type: "string | null", default: "null" },
-    { name: "message", description: "—", type: "string", required: true },
-    { name: "dismissible", description: "—", type: "boolean", default: "true" },
-    { name: "showProgress", description: "—", type: "boolean", default: "false" },
-    { name: "showCopy", description: "—", type: "boolean", default: "false" },
-    { name: "duration", description: "Auto-dismiss duration in ms — used to scale the progress bar. `0` hides it.", type: "number", default: "0" },
-    { name: "labels", description: "Already resolved by the host — strings, not the config's nullable shape. The item renders them and never reaches for the catalog itself.", type: "{ [K in keyof WrToastConfig['labels']]: string }", required: true },
-    { name: "(dismissed)", description: "—", type: "void" },
-    { name: "(pauseRequested)", description: "—", type: "void" },
-    { name: "(resumeRequested)", description: "—", type: "void" },
   ],
   // <wr-toolbar>
   WrToolbar: [

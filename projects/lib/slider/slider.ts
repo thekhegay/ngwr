@@ -23,6 +23,7 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { WR_FORM_FIELD } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, round } from 'ngwr/utils';
 
@@ -123,6 +124,32 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   private readonly lowerLabel = useI18nText(this.ariaLabel, 'slider.lower', 'Lower value');
   protected readonly resolvedUpperLabel = useI18nText(this.upperLabel, 'slider.upper', 'Upper value');
   protected readonly resolvedLowLabel = computed(() => (this.range() ? this.lowerLabel() : this.singleLabel()));
+
+  private readonly field = inject(WR_FORM_FIELD, { optional: true });
+
+  /**
+   * Id the surrounding `<wr-form-field>`'s `<label for>` points at, put on the
+   * single thumb — the LOWER one in range mode, the same end `ariaLabel` names.
+   *
+   * The field renders its label before it can see what was projected into it, so
+   * the id travels the other way and the control adopts it, exactly as
+   * `[wrInput]` does. Without this the `for` named an element that was nowhere
+   * in the document: clicking the label did nothing, and the field's own text
+   * reached the thumb through no path at all.
+   *
+   * It lands on the THUMB rather than on the host because only a labelable
+   * element can be a label's target, and `<wr-slider>` is not one — a `for`
+   * pointing at the host would resolve and still name nothing. The thumb is a
+   * real `<button>`, so it is.
+   *
+   * What this does NOT change is the thumb's name: an `aria-label` outranks a
+   * `<label>` in the accname order, and the thumb keeps its own because the
+   * field cannot promise it has one to give — `<wr-form-field>` renders a label
+   * only when `label` is set, and a slider that traded a generic name for no
+   * name would be the worse bug. Set `[ariaLabel]` to the field's label where
+   * the two should read alike.
+   */
+  protected readonly thumbId = computed(() => this.field?.controlId() ?? null);
 
   /**
    * Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape

@@ -1,4 +1,4 @@
-import { Component, type EnvironmentProviders, signal } from '@angular/core';
+import { Component, type EnvironmentProviders, type Type, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrConfig } from 'ngwr/config';
@@ -68,6 +68,18 @@ class SearchHost {
   `,
 })
 class MinCharsHost {
+  readonly size = signal<unknown>(null);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" placeholder="Find a size" ariaLabel="Size" [clearable]="false" [(value)]="size">
+      <wr-option value="md">Medium</wr-option>
+    </wr-select>
+  `,
+})
+class UnclearableSearchHost {
   readonly size = signal<unknown>(null);
 }
 
@@ -440,6 +452,85 @@ describe('WrSelect in search mode', () => {
 
   it('carries the search modifier class', () => {
     expect(root().querySelector('wr-select')!.className).toContain('wr-select--search');
+  });
+});
+
+/**
+ * The × is a `tabindex="-1"` span with no roving owner, so the
+ * `keydown.enter` / `keydown.space` handlers it used to carry could never fire:
+ * no key event originates on an element nothing can focus. Dropping them left
+ * the searchable single with its clear reachable by pointer alone — every other
+ * mode already had Backspace — and a function offered by mouse only is a
+ * keyboard failure, not a missing convenience. So Backspace on the empty field
+ * IS the clear control here, gated the same way the × is.
+ */
+describe('WrSelect clearing a search selection from the keyboard', () => {
+  const build = <T>(host: Type<T>): ReturnType<typeof TestBed.createComponent<T>> => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    const fixture = TestBed.createComponent(host);
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  const fieldOf = (fixture: ReturnType<typeof TestBed.createComponent<unknown>>): HTMLInputElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('.wr-select__search-input')!;
+
+  /**
+   * Focus first, always: a keydown reaches this field only when it has one, and
+   * focus is what empties a `minChars: 0` field — the panel opens and the
+   * display swaps from the selected label to the live (empty) query. Skipping it
+   * would test Backspace against text that is not on screen.
+   */
+  const backspace = (fixture: ReturnType<typeof TestBed.createComponent<unknown>>): KeyboardEvent => {
+    fieldOf(fixture).focus();
+    fixture.detectChanges();
+    const event = new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true });
+    fieldOf(fixture).dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('drops the selection on Backspace in the empty field', () => {
+    const fixture = build(SearchHost);
+    fixture.componentInstance.size.set('md');
+    fixture.detectChanges();
+    // The × is on screen, which is the state whose keyboard twin this is.
+    expect((fixture.nativeElement as HTMLElement).querySelector('.wr-select__clear')).not.toBeNull();
+
+    backspace(fixture);
+
+    expect(fixture.componentInstance.size()).toBeNull();
+  });
+
+  it('leaves it alone when the field still shows text to delete', () => {
+    // Under `[minChars]` a collapsed field paints the selected label while the
+    // query is still `''`, and backspacing over that text starts a query. Asking
+    // `searchQuery() === ''` instead of asking the FIELD would throw the
+    // selection away mid-edit.
+    const fixture = build(MinCharsHost);
+    fixture.componentInstance.size.set('md');
+    fixture.detectChanges();
+
+    backspace(fixture);
+    expect(fieldOf(fixture).value).toBe('Medium');
+
+    expect(fixture.componentInstance.size()).toBe('md');
+  });
+
+  it('does nothing when the consumer turned the clear control off', () => {
+    // `clearable` IS the clear control; a keyboard twin of a button the author
+    // refused would be a second way to do what they said should not be offered.
+    const fixture = build(UnclearableSearchHost);
+    fixture.componentInstance.size.set('md');
+    fixture.detectChanges();
+
+    const event = backspace(fixture);
+
+    expect(fixture.componentInstance.size()).toBe('md');
+    expect(event.defaultPrevented).toBe(false);
   });
 });
 

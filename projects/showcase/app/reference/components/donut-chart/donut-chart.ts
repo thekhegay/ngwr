@@ -53,6 +53,13 @@ export class MyComponent {
 
   protected readonly apiRows: readonly DocApiRow[] = [
     { name: 'segments', description: 'Slices to render.', type: 'WrDonutSegment[]', default: '[]' },
+    {
+      name: 'ariaLabel',
+      description:
+        'Accessible name of the chart. The ring itself is `aria-hidden`, so with `showLegend` off this is all a screen reader gets. Falls back to the donutChart.label catalog key.',
+      type: 'string | null',
+      default: 'null',
+    },
     { name: 'size', description: 'Diameter in CSS pixels (min 48).', type: 'number', default: '200' },
     {
       name: 'thickness',

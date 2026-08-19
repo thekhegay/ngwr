@@ -97,6 +97,12 @@
   }
 
   @case ('month') {
+    <!--
+      A listbox owns its arrows, so its options share ONE tab stop: twelve months
+      that were each tabbable announced a keyboard model — arrow to a month, Tab
+      out of the list — that the component did not have. `activeChip()` is where
+      the ring is, and it is always an enabled chip.
+    -->
     <div class="wr-calendar__months" role="listbox">
       @for (name of monthsView(); track name) {
         <button
@@ -106,6 +112,7 @@
           [class.wr-calendar__chip--current]="isMonthCurrent($index)"
           [class.wr-calendar__chip--selected]="isMonthSelected($index)"
           [disabled]="isMonthDisabled($index)"
+          [attr.tabindex]="activeChip() === $index ? 0 : -1"
           [attr.aria-selected]="isMonthSelected($index)"
           [attr.aria-disabled]="isMonthDisabled($index)"
           (click)="onMonthSelect($index)"
@@ -126,6 +133,7 @@
           [class.wr-calendar__chip--current]="isYearCurrent(year)"
           [class.wr-calendar__chip--selected]="isYearSelected(year)"
           [disabled]="isYearDisabled(year)"
+          [attr.tabindex]="activeChip() === $index ? 0 : -1"
           [attr.aria-selected]="isYearSelected(year)"
           [attr.aria-disabled]="isYearDisabled(year)"
           (click)="onYearSelect(year)"

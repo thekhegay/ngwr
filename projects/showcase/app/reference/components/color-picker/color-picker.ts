@@ -99,6 +99,12 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
       type: 'readonly string[]',
       default: '[]',
     },
+    {
+      name: '(touch)',
+      description: 'Emitted on blur, so a bound signal-forms field can mark itself touched.',
+      type: 'OutputRef<void>',
+      default: '—',
+    },
   ];
 
   protected readonly triggerApi: readonly DocApiRow[] = [

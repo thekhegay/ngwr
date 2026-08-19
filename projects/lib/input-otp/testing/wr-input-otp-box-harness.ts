@@ -14,11 +14,11 @@ import type { WrInputOtpBoxHarnessFilters } from './interfaces';
  * single character.
  *
  * A box is more than the string it shows: it carries its own accessible name
- * (`Digit 3`), its own emptiness, its own masking, and it is the thing that
- * either has focus or does not. The root harness answers the control's
- * questions (the assembled code, which index is focused); this one answers the
- * box's, so a spec can hold on to "the box that has focus" instead of zipping
- * four parallel arrays by index.
+ * (`Digit 3` on a numeric strip, `Character 3` on the others), its own
+ * emptiness, its own masking, and it is the thing that either has focus or does
+ * not. The root harness answers the control's questions (the assembled code,
+ * which index is focused); this one answers the box's, so a spec can hold on to
+ * "the box that has focus" instead of zipping four parallel arrays by index.
  *
  * @example
  * ```ts
@@ -66,11 +66,17 @@ export class WrInputOtpBoxHarness extends ComponentHarness {
   }
 
   /**
-   * The box's accessible name — `Digit 1`, `Digit 2`, …
+   * The box's accessible name — `Digit 1`, `Digit 2`, … on a numeric strip.
    *
    * This is the whole of a box's identity for a screen-reader user: the boxes
    * carry no visible label and no position in an `aria-*` set, so the name is
    * how someone knows which one they are in.
+   *
+   * The word depends on `mode`, so an assertion has to follow it: the
+   * `alphanumeric` and `text` modes accept letters, and the component names
+   * their boxes `Character 1`, `Character 2`, … rather than call an `A` a digit.
+   * Both come from the `inputOtp.digit` / `inputOtp.character` catalog entries,
+   * so a localized app answers here in its own language.
    */
   async getLabel(): Promise<string | null> {
     return (await this.host()).getAttribute('aria-label');

@@ -5,7 +5,6 @@ import { WrCheckbox, WrCheckboxGroup } from 'ngwr/checkbox';
 
 import {
   DocApiComponent,
-  type DocApiRow,
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
@@ -70,7 +69,5 @@ export class MyComponent {}`,
 
   protected readonly api = API.WrCheckbox;
 
-  protected readonly groupApi: readonly DocApiRow[] = [
-    { name: '—', description: 'Provides itself via WR_CHECKBOX_GROUP to children.', type: '—', default: '—' },
-  ];
+  protected readonly groupApi = API.WrCheckboxGroup;
 }
