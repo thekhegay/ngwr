@@ -45,11 +45,16 @@
   --wr-duration-fast: 0.1s;
   --wr-duration-base: 0.15s;
   --wr-duration-slow: 0.3s;
+  // unused-ok: the slow end of a public scale. The catalog's own animations top
+  // out at `-slow`; a consumer's need not.
   --wr-duration-slower: 0.5s;
 
   // Transition shorthands
   --wr-transition-short: var(--wr-duration-fast) var(--wr-ease-out);
   --wr-transition-base: var(--wr-duration-base) var(--wr-ease-linear);
+  // unused-ok: the third shorthand. Components compose `-slow` with an easing
+  // themselves where they need it, but dropping one rung out of three would make
+  // the set look arbitrary.
   --wr-transition-long: var(--wr-duration-slow) var(--wr-ease-out);
 
   // Elevation

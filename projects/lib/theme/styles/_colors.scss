@@ -124,6 +124,9 @@ $contrast-light: #ffffff !default;
 
   --wr-color-white: #ffffff;
   --wr-color-white-rgb: 255, 255, 255;
+  // unused-ok: the flat primitive. Only `-black-rgb` is painted with (eleven
+  // sites, all of them building an `rgba()` scrim), but a library that ships
+  // `--wr-color-white` and not its opposite reads as an omission.
   --wr-color-black: #000000;
   --wr-color-black-rgb: 0, 0, 0;
 
@@ -140,6 +143,15 @@ $contrast-light: #ffffff !default;
 
   // Border / divider strengths — translucent so they read on any surface and
   // auto-adapt in dark (via the flipping `light` channels). One place each.
+  //
+  // unused-ok: for `-subtle` and `-strong`. The catalog draws its hairlines with
+  // the opaque `--wr-color-outline`, and `--wr-color-border` has one consumer
+  // (`wr-avatar`'s ring), so these two are the weaker and stronger ends of a
+  // scale offered to consumers rather than one we paint with. They are NOT the
+  // answer to the twenty-two files hand-rolling `rgba(var(--wr-color-outline-rgb),
+  // α)` at eight alphas — four of which compute to exactly these values. Those
+  // are FILLS, and naming a fill after a hairline is how a token layer starts
+  // lying; the fill scale is its own decision.
   --wr-color-border: rgba(var(--wr-color-light-rgb), 0.5);
   --wr-color-border-subtle: rgba(var(--wr-color-light-rgb), 0.35);
   --wr-color-border-strong: rgba(var(--wr-color-light-rgb), 0.6);
@@ -173,6 +185,12 @@ $contrast-light: #ffffff !default;
   // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the
   // semantic neutrals, does NOT flip in dark mode. For theme-aware surface /
   // text jobs reach for the role aliases below instead.
+  //
+  // unused-ok: and deliberately so — the sentence above IS the reason. A fixed
+  // ramp cannot serve a component that has to work in both themes, so the
+  // library paints with the flipping roles and ships this for consumers who want
+  // a stable step. Reaching for one of these inside a component would be the bug
+  // it exists to prevent.
   --wr-color-gray-50: #f8fafc;
   --wr-color-gray-100: #f1f5f9;
   --wr-color-gray-200: #e2e8f0;
@@ -222,6 +240,10 @@ $contrast-light: #ffffff !default;
     --wr-color-#{$name}-contrast: #{_contrast($base)};
     --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
     --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
+    // unused-ok: the symmetric half. Hover and active DEEPEN an intent, so the
+    // catalog reads `-dark` / `-darker` and never these two — but a shade set
+    // with holes in it is worse than one half of which is for consumers, and the
+    // dark theme re-derives all four for the same reason.
     --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
     --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
   }
@@ -236,6 +258,10 @@ $contrast-light: #ffffff !default;
   @each $name in (primary, secondary, success, warning, danger, info, medium) {
     --wr-color-#{$name}-soft: rgba(var(--wr-color-#{$name}-rgb), 0.12);
     --wr-color-#{$name}-soft-border: rgba(var(--wr-color-#{$name}-rgb), 0.3);
+    // unused-ok: superseded in practice by `-ink`, which is calibrated to 5.0:1
+    // against this very tint while this one is a flat 62% mix that was never
+    // measured. Kept because it is public and predates `-ink`; do not reach for
+    // it in new code, and do not delete it in a minor.
     --wr-color-#{$name}-soft-contrast: color-mix(in srgb, var(--wr-color-#{$name}) 62%, var(--wr-color-dark));
     --wr-color-#{$name}-active: rgba(var(--wr-color-#{$name}-rgb), 0.2);
   }
@@ -304,6 +330,11 @@ $contrast-light: #ffffff !default;
   // either theme — so there is no darkening that keeps it recognisable AND
   // readable. It borrows the page's own ink; the border still carries the
   // intent. `dark` already IS the ink.
+  // unused-ok: the two ends of the ink ramp that resolve to something already
+  // named. `light` borrows the page's own ink and `dark` IS the ink, so a
+  // component would write the role directly — these exist so that
+  // `var(--wr-color-#{$intent}-ink)` in a loop resolves for all nine intents
+  // instead of nine minus two.
   --wr-color-light-ink: var(--wr-color-on-surface);
   --wr-color-dark-ink: var(--wr-color-dark);
 }
