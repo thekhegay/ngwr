@@ -933,7 +933,7 @@ because it is guidance rather than a plan.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
-- Both shipped catalogs are pinned at **identical key sets (224)** with no
+- Both shipped catalogs are pinned at **identical key sets** with no
   empty values — empty is the worse case, since it resolves as a real
   translation and reaches the DOM as a nameless control. Nothing had compared
   `wrEn` with `wrRu` before: `useI18nText` reads "translation === key" as

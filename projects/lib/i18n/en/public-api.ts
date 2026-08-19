@@ -214,6 +214,10 @@ export const wrEn: WrI18nCatalog = {
   },
   imageCropper: {
     empty: 'No image',
+    window: 'Crop region',
+    keyHelp:
+      'Arrow keys move the crop. Hold Alt with an arrow key to resize it, and Shift for larger steps. ' +
+      'The crop is announced as left, top, width and height in image pixels.',
   },
   calendarHeatmap: {
     label: 'Calendar heatmap',
