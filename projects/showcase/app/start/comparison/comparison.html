@@ -7,13 +7,13 @@
   <ngwr-doc-section title="The short version">
     <p wrTypography>
       ngwr is a signals-first Angular UI library written for one version of Angular and one way of writing forms.
-      Eighteen value controls implement Angular's <code>FormValueControl</code> or
+      Nineteen value controls implement Angular's <code>FormValueControl</code> or
       <code>FormCheckboxControl</code> contract directly, so <code>[formField]</code> binds to the component with
       nothing in between. There is no <code>ControlValueAccessor</code> anywhere in the package. A count rather than
-      "every", because two public components carry their own <code>value</code> model and implement neither —
-      <code>wr-segmented</code> and <code>[wrColorPickerTrigger]</code>. It is zoneless rather than zoneless-compatible
-      — zero <code>&#64;NgModule</code> declarations and no <code>zone.js</code> dependency — standalone throughout, and
-      it ships as {{ quality.entryPoints }} tree-shakable entry points with
+      "every", because one public component carries its own <code>value</code> model and implements neither —
+      <code>[wrColorPickerTrigger]</code>. It is zoneless rather than zoneless-compatible — zero
+      <code>&#64;NgModule</code> declarations and no <code>zone.js</code> dependency — standalone throughout, and it
+      ships as {{ quality.entryPoints }} tree-shakable entry points with
       <code>{{ quality.runtimeDependencies.join(', ') }}</code> as its only runtime dependency.
     </p>
 

@@ -1,7 +1,9 @@
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormField, form, required } from '@angular/forms/signals';
 
+import { WrFormField } from 'ngwr/form';
 import { provideWrIcons, svgIcon } from 'ngwr/icon';
 import { WrSegmented, type WrSegmentedOption, type WrSegmentedSize } from 'ngwr/segmented';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -508,5 +510,92 @@ describe('WrSegmentedHarness — two controls on one page', () => {
 
     expect(await range.getSelectedLabel()).toBe('Week');
     expect(await zoom.getSelectedLabel()).toBe('Fit');
+  });
+});
+
+/**
+ * The form-field half of the surface, which only exists once the control is inside
+ * one. Everything here is read off the HOST — the strip is one field, not a row of
+ * them — and the sequence matters: a field publishes nothing until it is touched,
+ * so a spec that asserts the copy without blurring first is asserting the empty
+ * state and passing.
+ */
+@Component({
+  imports: [FormField, WrFormField, WrSegmented],
+  template: `
+    <wr-form-field label="Range">
+      <wr-segmented aria-label="Range" [options]="options" [formField]="schedule.range" />
+    </wr-form-field>
+  `,
+})
+class FieldHost {
+  readonly options: readonly WrSegmentedOption<string>[] = [
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+  ];
+
+  readonly model = signal({ range: '' });
+  readonly schedule = form(this.model, path => {
+    required(path.range);
+  });
+}
+
+describe('WrSegmentedHarness — inside a form field', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FieldHost>>;
+  let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FieldHost);
+    fixture.detectChanges();
+    loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('reports nothing while the field has nothing to say', async () => {
+    const segmented = await loader.getHarness(WrSegmentedHarness);
+
+    expect(await segmented.isInvalid()).toBe(false);
+    expect(await segmented.getDescriptionText()).toBeNull();
+  });
+
+  it('marks the bound field touched when focus leaves the strip', async () => {
+    const segmented = await loader.getHarness(WrSegmentedHarness);
+    const [day] = await segmented.getOptions();
+
+    await day.focus();
+    expect(fixture.componentInstance.schedule.range().touched()).toBe(false);
+
+    await segmented.blur();
+
+    expect(fixture.componentInstance.schedule.range().touched()).toBe(true);
+  });
+
+  it('reads the validation copy the field then shows', async () => {
+    const segmented = await loader.getHarness(WrSegmentedHarness);
+
+    await (await segmented.getOptions())[0].focus();
+    await segmented.blur();
+
+    expect(await segmented.isInvalid()).toBe(true);
+    expect(await segmented.getDescriptionText()).not.toBe('');
+    expect(await segmented.getDescriptionText()).not.toBeNull();
+  });
+
+  it('writes the picked segment into the field', async () => {
+    const segmented = await loader.getHarness(WrSegmentedHarness);
+
+    await segmented.select({ label: 'Week' });
+
+    expect(fixture.componentInstance.schedule().value()).toEqual({ range: 'week' });
+  });
+
+  it('blurs quietly when nothing inside had focus', async () => {
+    const segmented = await loader.getHarness(WrSegmentedHarness);
+
+    await expect(segmented.blur()).resolves.toBeUndefined();
+    expect(fixture.componentInstance.schedule.range().touched()).toBe(false);
   });
 });

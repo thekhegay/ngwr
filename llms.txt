@@ -132,8 +132,10 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 
 ## Patterns
 
-- **Forms** — every value control is signal-forms native (`FormValueControl`, or
-  `FormCheckboxControl` for checkbox) — no `ControlValueAccessor` in between.
+- **Forms** — nineteen value controls are signal-forms native (`FormValueControl`,
+  or `FormCheckboxControl` for checkbox/switch) — no `ControlValueAccessor` in the
+  library. A count rather than "every": `[wrColorPickerTrigger]` is public, carries
+  its own `value` model, and implements neither.
   Bind `[formField]="form.x"`, use the two-way model standalone (`[(value)]`, or
   `[(checked)]` on checkbox/switch), or classic `[(ngModel)]` / reactive forms
   via Angular's bridge.
@@ -196,8 +198,8 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
 Three pages exist for the question before installation, and everything on them
 is meant to be checkable rather than taken on trust:
 
-- **Why ngwr, and when not to** — the wedge (every value control is a Signal
-  Forms control; no `ControlValueAccessor` in the library), a comparison against
+- **Why ngwr, and when not to** — the wedge (nineteen value controls are Signal
+  Forms controls; no `ControlValueAccessor` in the library), a comparison against
   Material / PrimeNG / NG-ZORRO / Taiga / Spartan, and a per-competitor "choose
   something else if" section: https://ngwr.dev/start/comparison
 - **What gates a change** — eight gates on every PR, three separate

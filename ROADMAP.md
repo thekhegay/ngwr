@@ -45,6 +45,15 @@ everything under [Deferred](#deferred) is explicitly not now.
 4. **D2** — System-token layer (rescoped to three small additions)
 5. **D6** — High-contrast rendering (`prefers-contrast: more` first)
 
+**E4 shipped and came off the list.** The docs snippets open as real Angular 22
+workspaces on StackBlitz: `projects/showcase/app/_core/sandbox/` builds one from
+any snippet, `pnpm gen:selectors` resolves a bare fragment's `imports` and its
+`STYLE_ENTRY_POINTS` narrows the stylesheet to what the demo renders. It was
+watched booting end to end. The two defects that had to be fixed first — a
+missing `development` configuration, and the umbrella stylesheet compiling all
+~120 component sheets — are in [AGENTS.md](AGENTS.md), along with the provider
+traps a generated bootstrap has to know about.
+
 **D1 and E2 came off this list.** D1 shipped — `wrThemeTokens()`, the
 `check:theme` parity gate, three generated registry presets and the builder at
 `/guides/tokens/builder`; what an agent needs to know about it lives in
@@ -546,22 +555,6 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       `/guides/registry`. This stack drove shadcn's rise from 20% to 56%;
       Taiga has an MCP server, nobody in Angular has the full stack. Builds
       on the API-reference extraction that already ships.
-- [ ] **E4. Playground embeds** (M) — **built, and blocked at the far end.**
-      `projects/showcase/app/_core/sandbox/` turns any docs snippet into a
-      complete Angular 22 workspace and hands it to StackBlitz by form POST; a
-      generated selector map (`pnpm gen:selectors`) resolves a bare template
-      fragment's `imports`. The workspace is correct — written to disk it
-      installs, `ng build` gives a 565 kB initial bundle and the app paints —
-      but inside StackBlitz's WebContainer the build dies on
-      `rxjs/dist/esm/internal/scheduled/scheduled.js` with an
-      ECMAScript-invariant error from the Angular compiler plugin. A resolution
-      difference in the container, not in what is emitted, and the platform is
-      capable in principle (angular.dev's own playground runs Angular 22 with a
-      real `ng serve` in it). So `sandboxable` is `false` on both doc
-      components, `/start/playground` is the one page that offers the button
-      and discloses the failure beside it, and closing this item is two
-      defaults and one watched boot. See AGENTS.md for the traps it already
-      caught.
 - [ ] **E5. `ngwr/kit` standalone utilities** (M) — publish the internal signal
       utils / positioning / density / hotkey / storage helpers as a zero-dep
       package usable without the components. The Mantine-hooks top-of-funnel

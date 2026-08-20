@@ -103,15 +103,14 @@ export class DocPlaygroundComponent {
   readonly replay = output<void>();
 
   /**
-   * Offer the "Open in StackBlitz" action on this demo. @default false
+   * Offer the "Open in StackBlitz" action on this demo. @default true
    *
    * The mirror of `<ngwr-doc-snippet>`'s input of the same name, kept so the
    * two components answer the same question the same way — including the
-   * default, which is off for the reason recorded there: the workspace this
-   * hands over builds and renders locally, and the container's own build of it
-   * does not. Flip both together, not one.
+   * default. The reason it reads `true` again, and what was fixed to get there,
+   * is recorded on that one. Flip both together, not one.
    */
-  readonly sandboxable = input(false);
+  readonly sandboxable = input(true);
 
   /** Name the generated project carries on StackBlitz. @default the page title */
   readonly sandboxTitle = input<string>('');

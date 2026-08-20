@@ -173,9 +173,14 @@ one component folder. Reach for them instead of hand-rolling:
   `ngwr/pull-to-refresh`, and `WrVisualViewport` (publishes
   `--wr-keyboard-inset`, installed by `provideWrOverlay()`).
 
-**Forms.** Value components are **Signal Forms-native** — each implements
-`FormValueControl` (or `FormCheckboxControl`), so `[formField]="form.x"` binds
-straight to the component's `value` / `checked` model. `ControlValueAccessor` is
+**Forms.** Value components are **Signal Forms-native** — nineteen public
+controls implement `FormValueControl` or `FormCheckboxControl`, so
+`[formField]="form.x"` binds straight to the component's `value` / `checked`
+model. A count and not "each", deliberately: `[wrColorPickerTrigger]` is public,
+carries its own `value` model and implements neither, because it is a trigger
+that drives a `wr-color-picker` which does. Re-derive with
+`grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib --include='*.ts' | grep -v spec`
+and subtract the internal `date-picker/internal/time-panel.ts`. `ControlValueAccessor` is
 **gone from the library** — never add one. Classic `[(ngModel)]` and reactive
 forms still work: Angular 22 synthesises the accessor for a signal-forms
 control. Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
@@ -862,31 +867,38 @@ v7); and a claim about a competitor must be reducible to something observable,
 which in practice means the npm `license` field or a linked issue, never a
 summary of someone's licensing terms.
 
-**The StackBlitz sandbox is built and turned OFF, deliberately.**
-`projects/showcase/app/_core/sandbox/` turns any docs snippet into a complete
-Angular 22 workspace — three tiers (the snippet already is a component / it is a
-template fragment whose `imports` resolve against `pnpm gen:selectors`' map /
-neither, so render the source and say why), handed to StackBlitz by a plain form
-POST with no SDK dependency. The workspace is correct: written to disk it
-installs, `ng build` gives a 565 kB initial bundle and the app paints. What does
-not work is the far end — inside StackBlitz's WebContainer the build dies on
-`rxjs/dist/esm/internal/scheduled/scheduled.js` with an ECMAScript-invariant
-error from the Angular compiler plugin. That is a resolution difference in the
-container, not a defect in the emitted project, and the platform is capable in
-principle: angular.dev's own playground runs Angular 22 with a real `ng serve` in
-the same technology. So `sandboxable` defaults to `false` on both
-`<ngwr-doc-snippet>` and `<ngwr-doc-playground>`, `/start/playground` is the one
-page that still offers the button and discloses the failure beside it, and
-flipping the two defaults together is all that is needed once the resolution is
-solved. **Do not "finish" this by turning the button on without watching a
-generated project serve.** Two traps it already caught, both worth keeping in
-mind for anything that generates a bootstrap: a provider whose absence is a
-`NullInjectorError` (`provideWrDateAdapter`, and `Router`, which
-`projects/lib/sidebar/sidebar.ts` injects non-optionally) cannot be inferred from
-markup, so all of them are emitted unconditionally and only `provideWrIcons` is
-gated, because it is the only one that costs an npm package; and
-`provideRouter([])` alone throws `NG04002` on bootstrap, so it carries
-`withDisabledInitialNavigation()`.
+**The StackBlitz sandbox works, and the two things that broke it are worth
+knowing.** `projects/showcase/app/_core/sandbox/` turns any docs snippet into a
+complete Angular 22 workspace — three tiers (the snippet already is a component
+/ it is a template fragment whose `imports` resolve against `pnpm
+gen:selectors`' map / neither, so render the source and say why) — and hands it
+to StackBlitz by a plain form POST with no SDK dependency. It has been watched
+booting end to end: install, `ng serve`, bundle complete in ~26 s, demo painted.
+Cold path is about two and a half minutes.
+
+It failed twice first, and both causes were in the workspace this repo emits,
+not in the container. **One: no `development` configuration**, so `ng serve` ran
+the OPTIMIZED build every start — the dev server prints "Prebundling has been
+configured but will not be used because scripts optimization is enabled" — and
+that path dies in rolldown on rxjs's circular ESM
+(`rxjs/dist/esm/internal/scheduled/scheduled.js`). **Two: `@use 'ngwr';`**,
+which compiles all ~120 component stylesheets for a two-element demo and hit an
+out-of-memory error; narrowed to the entry points the snippet renders, the CSS
+goes from 287 kB to 44 kB. Both fixes are the right thing for a generated
+project anyway, which is the tell that they were defects rather than
+workarounds. `STYLE_ENTRY_POINTS` in the generated selector map is what makes
+the narrowing safe: `@use` on an entry point with no `styles/_index.scss`
+(`ngwr/date`, `ngwr/utils`) is a build error, not a no-op.
+
+Two more traps it caught, worth keeping in mind for anything that generates a
+bootstrap: a provider whose absence is a `NullInjectorError`
+(`provideWrDateAdapter`, and `Router`, which `projects/lib/sidebar/sidebar.ts`
+injects non-optionally) cannot be inferred from markup, so all of them are
+emitted unconditionally and only `provideWrIcons` is gated, because it is the
+only one that costs an npm package; and `provideRouter([])` alone throws
+`NG04002` on bootstrap, so it carries `withDisabledInitialNavigation()`.
+**One observation is not a guarantee** — if you change what the generator emits,
+watch one boot again rather than assuming.
 
 **AI assets.** `llms-full.txt` AND the agent skill (`skills/ngwr/SKILL.md` plus
 `references/{catalog,setup}.md`) regenerate from library source on every build,

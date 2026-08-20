@@ -51,6 +51,32 @@ export class MyComponent {}`,
   ]"
   [(value)]="mode"
 />`,
+    signalForms: `import { Component, signal } from '@angular/core';
+import { FormField, form, required } from '@angular/forms/signals';
+import { WrFormField } from 'ngwr/form';
+import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
+
+@Component({
+  selector: 'app-schedule',
+  imports: [FormField, WrFormField, WrSegmented],
+  template: \`
+    <wr-form-field label="Range">
+      <wr-segmented [options]="ranges" [formField]="schedule.range" />
+    </wr-form-field>
+  \`,
+})
+export class ScheduleComponent {
+  protected readonly ranges: readonly WrSegmentedOption<string>[] = [
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+  ];
+
+  private readonly model = signal({ range: '' });
+  protected readonly schedule = form(this.model, path => {
+    required(path.range);
+  });
+}`,
   };
 
   protected readonly api = API.WrSegmented;

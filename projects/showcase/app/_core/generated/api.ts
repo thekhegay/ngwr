@@ -937,8 +937,9 @@ export const API = {
   // <wr-segmented>
   WrSegmented: [
     { name: "options", description: "The segments to render.", type: "readonly WrSegmentedOption<T>[]", required: true },
-    { name: "value", description: "Two-way bindable selected value.", type: "T | null", default: "null" },
-    { name: "disabled", description: "Disable the whole control.", type: "boolean", default: "false" },
+    { name: "value", description: "The picked segment's `value`, `null` when nothing is selected. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | null", default: "null" },
+    { name: "(touch)", description: "Emitted when focus leaves the strip, so a bound field can mark itself touched.", type: "void" },
+    { name: "disabled", description: "Disable the whole control. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSegmentedSize", default: "'md'" },
   ],
   // <wr-select>

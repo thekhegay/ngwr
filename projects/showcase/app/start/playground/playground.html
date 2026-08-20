@@ -1,12 +1,12 @@
 <ngwr-doc-page
   title="Playground"
-  description="The form below is running ngwr on this page — signal forms, validation copy and all. Below it, the same demo as a complete Angular 22 workspace you can take away."
+  description="The form below is running ngwr on this page — signal forms, validation copy and all. One click opens the same demo as a complete Angular 22 workspace on StackBlitz, and every live demo on this site opens the same way."
   [keywords]="['playground', 'stackblitz', 'sandbox', 'try', 'signal forms']"
   [labels]="['Getting started']"
 >
   <ngwr-doc-section
     title="Signal Forms, live"
-    description="Eighteen ngwr value controls implement `FormValueControl` (or `FormCheckboxControl`) themselves, so `[formField]` writes the component's own `value` / `checked` model. There is no `ControlValueAccessor` in the library — not a thin one, none. Submit the form below with a field empty: the copy comes from `<wr-form-field>` through the `ngwr/i18n` `validation.*` catalog, so nothing here spells out an error message."
+    description="Nineteen ngwr value controls implement `FormValueControl` (or `FormCheckboxControl`) themselves, so `[formField]` writes the component's own `value` / `checked` model. There is no `ControlValueAccessor` in the library — not a thin one, none. Submit the form below with a field empty: the copy comes from `<wr-form-field>` through the `ngwr/i18n` `validation.*` catalog, so nothing here spells out an error message."
   >
     <!--
       `[sandboxable]="false"` because the labelled button below already opens
@@ -65,9 +65,9 @@
     </div>
 
     <wr-alert
-      type="warning"
-      title="This hand-off is not working yet, and here is exactly where it stops"
-      message="The workspace itself is sound: written to disk it installs, `ng build` produces a 565 kB bundle and the page paints. What fails is the far end — inside StackBlitz's container the build dies on `rxjs/dist/esm/internal/scheduled/scheduled.js` with an ECMAScript-invariant error from the Angular compiler plugin, which is a module-resolution difference in WebContainer rather than anything this workspace does. Until that is solved the button is offered here and nowhere else on the site, and the fastest real path is the three commands below."
+      type="info"
+      title="Give it about two and a half minutes"
+      message="The button hands StackBlitz a real workspace, and a real workspace has to install before it can serve — around 430 packages, cold, then roughly half a minute of Angular build. There is no progress bar for the install; the terminal is the progress bar. If you want it running in ten seconds instead, the three commands below do it locally."
     />
   </ngwr-doc-section>
 

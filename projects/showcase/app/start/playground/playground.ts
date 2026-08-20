@@ -26,11 +26,10 @@ interface Signup {
 
 /**
  * The trial surface: one live Signal Forms demo, and the same demo offered as a
- * complete Angular workspace. The hand-off to StackBlitz is the only place on
- * the site that still offers the button — its default is off everywhere else,
- * because the container's build of the generated workspace currently fails on
- * an rxjs ESM resolution. The page says so, in a `wr-alert`, next to the button
- * rather than in a footnote.
+ * complete Angular workspace on StackBlitz. The corner icon every other snippet
+ * carries is suppressed here with `[sandboxable]="false"` — the labelled button
+ * below opens a byte-identical project, and two controls doing one thing on the
+ * page whose subject IS that action is one too many.
  *
  * The demo is written twice — once as markup in `playground.html`, once as the
  * `demo` snippet below — and that is not an accident waiting to drift. The
@@ -157,7 +156,7 @@ export class Demo {
   private readonly model = signal<Signup>({ email: '', team: '', agree: false });
 
   // Two bindings and nothing in between: \`[formField]\` writes the component's
-  // own \`value\` / \`checked\` model, because every ngwr value control implements
+  // own \`value\` / \`checked\` model, because each of these ngwr controls implements
   // \`FormValueControl\` itself. There is no ControlValueAccessor in the library.
   protected readonly signup = form(this.model, path => {
     required(path.email);
