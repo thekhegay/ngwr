@@ -1,5 +1,40 @@
 # Changelog
 
+## [12.0.0](https://github.com/thekhegay/ngwr/compare/v11.2.0...v12.0.0) (2026-08-20)
+
+### ⚠ BREAKING CHANGES
+
+* **date:** nest the adapters under ngwr/date, matching ngwr/icon
+
+### Features
+
+* **build:** fail the lint when the theme declares a token nothing paints with ([a52e7ec](https://github.com/thekhegay/ngwr/commit/a52e7ec7986c15ae20b76bc57001eeeec891f829))
+* **theme:** a neutral fill scale, so 33 hand-rolled washes stop drifting ([de94cbc](https://github.com/thekhegay/ngwr/commit/de94cbc8828130a560ac99ae851ce92f8dbbff46))
+* **theme:** derive the palette from a seed, ship presets and a builder ([b6689e8](https://github.com/thekhegay/ngwr/commit/b6689e8be1a3fcaa221f033a12332e74e6ff735e))
+
+### Bug Fixes
+
+* apg, wcag and shipped-asset defects found by a fifth sweep ([fe138ab](https://github.com/thekhegay/ngwr/commit/fe138ab37761ba2bb8d098ec006d802ace42e79c))
+* **ci:** freeze the clock so the nightly state sweep stops rotting ([2e87fec](https://github.com/thekhegay/ngwr/commit/2e87feccc1d2dada4d09b3486ecc3119b288f338))
+* **ci:** pin the clock in the contrast sweep, then tighten the baseline ([d36a5da](https://github.com/thekhegay/ngwr/commit/d36a5da7131db16fb21e6d74a94717bff6796668))
+* close the doc drift and the vacuous canvas specs the sweep uncovered ([a284f7f](https://github.com/thekhegay/ngwr/commit/a284f7f0e8d8283fea67fd94a930b50abc144a84))
+* **drawer:** reserve the corner when a drawer has no title to sit beside ([c729e0c](https://github.com/thekhegay/ngwr/commit/c729e0c021215a88d851d5939c05806aabc32c2f))
+* focus, teardown and composition defects found by a fourth sweep ([b24d9e7](https://github.com/thekhegay/ngwr/commit/b24d9e77434b46c79df18bcca94f3dee317cbfbe))
+* harness, rtl, density and edge-input defects found by a third sweep ([faf216c](https://github.com/thekhegay/ngwr/commit/faf216cdaea1509560e6a826b645a79567fc2d31))
+* **i18n:** ship the two cropper keys, and gate that a read key exists at all ([51b0d60](https://github.com/thekhegay/ngwr/commit/51b0d602a0fb0be40fb3f27f606e1ccbf138792d))
+* keyboard, aria and doc defects found by a catalog-wide sweep ([ce596c1](https://github.com/thekhegay/ngwr/commit/ce596c14f878695353299e3afa6c43f0ea321045))
+* overlap, overflow, rtl and focus-ring defects found by a visual sweep ([2734349](https://github.com/thekhegay/ngwr/commit/27343494f73bd90ed53ab7ad67974f1bfbbdf26e))
+* **slider:** wire the form field's message to the thumb, not just its id ([221f1d9](https://github.com/thekhegay/ngwr/commit/221f1d9fd4d5e1827b5ec67e40a9bc0c6a267812))
+* ssr, teardown, i18n and chart defects found by a second sweep ([d8b57d0](https://github.com/thekhegay/ngwr/commit/d8b57d0bd413e46c9922ca10c0276f4bf9abbb63))
+* **table:** accept rows typed with an interface, not only a type alias ([e120b89](https://github.com/thekhegay/ngwr/commit/e120b898f18ec639e9aff32f982c8ff6798b028b))
+* **test:** anchor the mcp specs on the workspace root, not the bundle url ([50ab932](https://github.com/thekhegay/ngwr/commit/50ab932b79e78adfbc8eb1fc986b26eda2c34f7d))
+* **theme:** one disabled-opacity token, where the catalog had seven values ([14fb9da](https://github.com/thekhegay/ngwr/commit/14fb9da5139958dcc3af0cadb2dc6626d6677a67))
+* **theme:** the focus ring is an outline that clears 3:1, and is themable ([d4c278e](https://github.com/thekhegay/ngwr/commit/d4c278e12373c0fe5379d7950b28f262b6c4c925))
+
+### Code Refactoring
+
+* **date:** nest the adapters under ngwr/date, matching ngwr/icon ([dce9593](https://github.com/thekhegay/ngwr/commit/dce9593e26a36d2bc01ccff1612e87ff1ed11424))
+
 ## [11.2.0](https://github.com/thekhegay/ngwr/compare/v11.1.0...v11.2.0) (2026-08-14)
 
 ### Features
