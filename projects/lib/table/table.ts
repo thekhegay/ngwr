@@ -591,12 +591,20 @@ export class WrTable {
     this.pins.set({ left, right, leftEdge, rightEdge });
   }
 
-  /** Sticky `left` offset (px) for a left-pinned column, else `null`. */
+  /**
+   * Sticky `inset-inline-start` offset (px) for a `pin: 'left'` column, else `null`.
+   *
+   * The input keeps its physical name — it is public API — but the offset it
+   * produces is LOGICAL. `measurePins()` accumulates in DOM order, which is
+   * start-to-end semantics, and under `dir="rtl"` the column order mirrors: a
+   * `pin: 'left'` column then sits at the physical right, where a `left: 0`
+   * sticky inset can never catch it and the column just scrolls away.
+   */
   protected leftPin(key: string): number | null {
     return this.pins().left.get(key) ?? null;
   }
 
-  /** Sticky `right` offset (px) for a right-pinned column, else `null`. */
+  /** Sticky `inset-inline-end` offset (px) for a `pin: 'right'` column, else `null`. See {@link leftPin}. */
   protected rightPin(key: string): number | null {
     return this.pins().right.get(key) ?? null;
   }

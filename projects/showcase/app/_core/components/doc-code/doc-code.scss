@@ -122,6 +122,11 @@
   color: var(--wr-color-white);
   cursor: pointer;
   opacity: 0;
+  // Invisible has to mean intangible. The `<pre>` scrolls under this corner, so
+  // at any narrow width a code glyph is painted where the button is — and a
+  // transparent-but-hit-testable square silently ate the tap: it copied the
+  // block, flipped its own label to "Copied", and never became visible.
+  pointer-events: none;
   transition:
     background var(--wr-transition-base),
     opacity var(--wr-transition-base);
@@ -134,4 +139,15 @@
 :host(:hover) .copy,
 .copy:focus-visible {
   opacity: 1;
+  pointer-events: auto;
+}
+
+// No hover to reveal it with, so the only way the control can be both usable
+// and honest on touch is to be permanently visible — which is also what stops
+// it being an invisible hit area over the code it sits on.
+@media (hover: none) {
+  .copy {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }

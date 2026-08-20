@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrPopoverPosition } from './interfaces';
+import { WR_POPOVER_FALLBACKS, WR_POPOVER_POSITIONS, type WrPopoverPosition, wrPopoverPositions } from './interfaces';
 import { WrPopover } from './popover';
 
 /**
@@ -712,5 +712,90 @@ describe('WrPopover as a bottom sheet', () => {
     click('.sheet-trigger');
 
     expect(pane()!.classList.contains('wr-overlay-sheet')).toBe(false);
+  });
+});
+
+/**
+ * The flip chains, asserted as a TABLE rather than through a rendered panel.
+ *
+ * The defect they fix cannot be reproduced here and it would be dishonest to
+ * pretend otherwise: jsdom measures every box as 0×0, so `_getOverlayFit` finds
+ * that the first candidate fits perfectly and CDK never reaches a fallback. What
+ * a unit test CAN hold is the shape of the table the browser then walks — that a
+ * chain exists at all (twelve one-element arrays was the bug), that it leads with
+ * what was asked for, that a side placement can reach the block axis, and that
+ * every link is tagged with the class the arrow keys off.
+ *
+ * Measured in Chromium at 375×812 against the real `FlexibleConnectedPositionStrategy`:
+ * `right-start` used to put its panel's right edge at 383 with `innerWidth` 375 —
+ * 8px of border and corner clipped away, exactly the `offsetX` that `withPush`
+ * emits as a transform after it has finished pushing. With the chain it flips to
+ * `bottom-start` and lands at 375 with nothing off-screen.
+ */
+describe('WrPopover placement fallbacks', () => {
+  const names = Object.keys(WR_POPOVER_POSITIONS) as WrPopoverPosition[];
+
+  it('gives every placement somewhere to flip to', () => {
+    for (const name of names) {
+      const chain = WR_POPOVER_FALLBACKS[name];
+      expect(chain.length, `${name} has no fallback`).toBeGreaterThan(1);
+      expect(chain[0], `${name} does not lead with itself`).toBe(name);
+      expect(new Set(chain).size, `${name} repeats a placement`).toBe(chain.length);
+      for (const link of chain) expect(names, `${name} names a placement that does not exist`).toContain(link);
+    }
+  });
+
+  it('keeps the requested alignment down the whole chain', () => {
+    const alignment = (name: WrPopoverPosition): string => name.split('-')[1] ?? '';
+    for (const name of names) {
+      for (const link of WR_POPOVER_FALLBACKS[name]) expect(alignment(link)).toBe(alignment(name));
+    }
+  });
+
+  it('lets a side placement reach the block axis, where a phone has the room', () => {
+    // At 375px a 233px panel fits on NEITHER side of a mid-page trigger, so a
+    // left/right chain that only offers the opposite side still has nowhere to go.
+    for (const name of ['left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'] as const) {
+      const chain = WR_POPOVER_FALLBACKS[name];
+      expect(
+        chain.some(link => link.startsWith('bottom')),
+        `${name} cannot fall below`
+      ).toBe(true);
+      expect(
+        chain.some(link => link.startsWith('top')),
+        `${name} cannot fall above`
+      ).toBe(true);
+    }
+  });
+
+  it('never sends a block-axis placement sideways', () => {
+    for (const name of ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'] as const) {
+      expect(WR_POPOVER_FALLBACKS[name].every(link => /^(top|bottom)/.test(link))).toBe(true);
+    }
+  });
+
+  it('tags each link with the pane class its own arrow rule keys off', () => {
+    // Without this the panel flips and the arrow stays behind, pointing at a side
+    // the panel no longer sits on. The prefix is per mode: a tooltip's arrow is
+    // drawn by `.wr-tooltip-overlay--<placement>`, a popover's by the other one.
+    expect(wrPopoverPositions('right-start', 'wr-popover-overlay').map(p => p.panelClass)).toEqual([
+      'wr-popover-overlay--right-start',
+      'wr-popover-overlay--left-start',
+      'wr-popover-overlay--bottom-start',
+      'wr-popover-overlay--top-start',
+    ]);
+    expect(wrPopoverPositions('top', 'wr-tooltip-overlay').map(p => p.panelClass)).toEqual([
+      'wr-tooltip-overlay--top',
+      'wr-tooltip-overlay--bottom',
+    ]);
+  });
+
+  it('carries the geometry of the placement each link names', () => {
+    for (const name of names) {
+      const resolved = wrPopoverPositions(name, 'wr-popover-overlay');
+      WR_POPOVER_FALLBACKS[name].forEach((link, index) => {
+        expect(resolved[index]).toEqual({ ...WR_POPOVER_POSITIONS[link], panelClass: `wr-popover-overlay--${link}` });
+      });
+    }
   });
 });

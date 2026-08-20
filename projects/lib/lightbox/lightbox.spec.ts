@@ -71,6 +71,14 @@ describe('WrLightbox', () => {
     expect(viewer()).toBeNull();
   });
 
+  it('keeps the trigger inside the element the focus ring is drawn on', () => {
+    // The ring cannot live on the button: it fills the host exactly and the host
+    // clips, so `.wr-lightbox:has(.wr-lightbox__trigger:focus-visible)` draws it
+    // instead. That selector is only true while the two stay nested this way —
+    // jsdom can pin the containment even though it resolves no stylesheet.
+    expect(trigger()!.closest('.wr-lightbox')).toBe(host());
+  });
+
   it('falls back to the catalog when there is no alt text', () => {
     // `image.open` has been in both catalogs all along; the template hard-coded the
     // same English literal beside it, so a localized app got one English name among
@@ -230,5 +238,16 @@ describe('the lightbox stylesheet', () => {
     expect(hostRule).not.toMatch(/cursor:\s*zoom-in/);
     // The trigger keeps it — that IS the element that opens the viewer.
     expect(code).toMatch(/&__trigger \{[\s\S]*?cursor:\s*zoom-in/);
+  });
+
+  it('draws the focus ring on the host, whose own clip cannot swallow it', () => {
+    // Measured in Chromium over the built showcase: with the ring on the button,
+    // a focused thumbnail differed from a blurred one by 0 pixels — the trigger is
+    // coterminous with the `overflow: hidden` host, so every outward pixel fell
+    // outside the clip. Insetting the offset does not help either: `&__thumb` is
+    // `z-index: 2` and paints over the button's own outline. On the host the same
+    // ring paints all four sides (3915 pixels changed).
+    expect(code).toMatch(/&:has\(&__trigger:focus-visible\) \{\s*@include theme\.focus-ring;/);
+    expect(code).not.toMatch(/&__trigger \{[\s\S]*?outline:\s*var\(--wr-focus-ring/);
   });
 });

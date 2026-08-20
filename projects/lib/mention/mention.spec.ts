@@ -292,6 +292,53 @@ describe('WrMention', () => {
       expect(event.defaultPrevented).toBe(false);
     });
   });
+
+  /**
+   * ⚠️ Half of this one is unobservable here.
+   *
+   * The panel used to be pinned with `position().global().left(x).top(y)` from
+   * the caret's viewport coordinates, which has neither an anchor nor a fallback
+   * position — so it was always drawn downward from the caret however little
+   * room was left below, and it stayed at those screen coordinates while the
+   * page scrolled out from under it. Measured in Chromium at 1280x900 with the
+   * field's bottom 60px above the fold: the 192x214 panel opened at y=791.1,
+   * 105.1px past the viewport, with the last three options unreachable by
+   * pointer (`elementFromPoint` → null) and equally unreachable by keyboard —
+   * `aria-activedescendant` walked onto them while nothing scrolled, a WCAG
+   * 2.4.11 failure, not merely a pointer one. Three successive scrolls of
+   * 40 / 60 / 50px then drifted it by exactly 40 / 60 / 50px.
+   *
+   * With a flexible strategy against a live virtual origin at the caret, the
+   * same open flips above the caret (y=466.3, 131.7px clear of the fold, all six
+   * options hit-testable) and those same three scrolls drift it by 0.0px.
+   *
+   * jsdom lays nothing out — every rect is 0x0, so there is no viewport to
+   * overflow and no scrolling to follow. What it CAN show is which strategy owns
+   * the panel, which each one stamps on the overlay's host element.
+   */
+  describe('the panel placement', () => {
+    const pane = (): HTMLElement => document.querySelector<HTMLElement>('.wr-mention-overlay')!;
+
+    it('anchors the panel with a flexible strategy, not a global one', () => {
+      type('hey @al');
+
+      expect(listbox()).not.toBeNull();
+      expect(pane().parentElement!.classList.contains('cdk-overlay-connected-position-bounding-box')).toBe(true);
+      expect(pane().parentElement!.classList.contains('cdk-global-overlay-wrapper')).toBe(false);
+    });
+
+    it('keeps that strategy across the keystrokes that re-filter the list', () => {
+      // Each keystroke re-enters `open()`. It used to swap in a freshly built
+      // global strategy holding the new caret coordinates; the anchor is live
+      // now, so the strategy is built once and the pane must not fall back.
+      type('hey @a');
+      const first = pane();
+      type('hey @al');
+
+      expect(pane()).toBe(first);
+      expect(pane().parentElement!.classList.contains('cdk-overlay-connected-position-bounding-box')).toBe(true);
+    });
+  });
 });
 
 /** A mention field living inside a dialog — the shape a comment box usually has. */

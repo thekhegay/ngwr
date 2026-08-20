@@ -5,8 +5,9 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, afterNextRender, computed, input, model, signal } from '@angular/core';
+import { Component, ViewEncapsulation, afterNextRender, computed, inject, input, model, signal } from '@angular/core';
 
 import { WrIcon } from 'ngwr/icon';
 
@@ -75,12 +76,35 @@ export class WrSegmented<T = unknown> {
     return parts.join(' ');
   });
 
-  /** Inline CSS vars driving the sliding thumb position. */
+  private readonly dir = inject(Directionality, { optional: true });
+
+  /**
+   * Reading direction of the strip. `Directionality` is root-provided, so this
+   * always resolves — `optional` only guards a consumer who has deliberately
+   * torn the provider out. A subtree that overrides the direction does it with
+   * the CDK's `Dir` directive, which writes `valueSignal`, so `thumbStyle`
+   * re-renders instead of leaving the thumb parked on the old segment.
+   */
+  private readonly isRtl = computed(() => this.dir?.valueSignal() === 'rtl');
+
+  /**
+   * Inline CSS vars driving the sliding thumb position.
+   *
+   * `--wr-segmented-thumb-index` is the SLOT the thumb parks in, counted from the
+   * physical left, which is the selected index only in LTR. The stylesheet anchors
+   * the thumb with a physical `left` and slides it with `translateX` — neither has
+   * a logical form — while the options are a grid that mirrors, so under `dir="rtl"`
+   * the segment at logical index `i` occupies slot `count - 1 - i`. Left unsigned,
+   * the pill sat under a different label than the one it marks (the whole strip's
+   * worth of offset at the far end), which is the carousel's `trackStyle` problem
+   * one component over.
+   */
   protected readonly thumbStyle = computed<Record<string, string>>(() => {
     const i = Math.max(0, this.selectedIndex());
     const count = Math.max(1, this.options().length);
+    const slot = this.isRtl() ? count - 1 - i : i;
     return {
-      '--wr-segmented-thumb-index': `${i}`,
+      '--wr-segmented-thumb-index': `${slot}`,
       '--wr-segmented-thumb-count': `${count}`,
     };
   });

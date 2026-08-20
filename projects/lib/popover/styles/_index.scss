@@ -77,10 +77,12 @@ $_arrow-placement: (
 /// `originX: start | end` — plain `top` / `bottom` use `center`, which mirrors
 /// to itself — and CDK resolves start / end against `Directionality`. So under
 /// `dir="rtl"` the panel lands on the mirrored side of the trigger while the
-/// modifier class keeps its requested name (it is set from the `position` input,
-/// and there are no fallback positions to change it), and the arrow has to
-/// travel with the panel. Same for the `-start` / `-end` alignment along a
-/// horizontal edge.
+/// modifier class keeps its LTR name, and the arrow has to travel with the
+/// panel. Same for the `-start` / `-end` alignment along a horizontal edge.
+///
+/// The class names the placement the panel ACTUALLY took, not the requested one:
+/// each entry in `WR_POPOVER_FALLBACKS` carries its own `panelClass`, so a flip
+/// swaps the modifier and this loop moves the arrow with it.
 @mixin _arrow-at($edge, $align, $pull) {
   @if $edge == left {
     inset-inline-start: -$pull;

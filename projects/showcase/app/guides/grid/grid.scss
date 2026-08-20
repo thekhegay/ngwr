@@ -32,6 +32,14 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem;
+  // A grid item's automatic minimum size is its min-content width, so a row of
+  // twelve `.col-1` cells cannot shrink below twelve `.col-1` labels plus the
+  // eleven gutters between them — 802px, against a 311px row on a phone. The
+  // tracks then overflowed the row, the card and the document (+459px at 375,
+  // +298px at 768). Scroll the demo instead of the page; `overflow-x` also
+  // resolves this box's OWN `min-width: auto` to zero, so it collapses into the
+  // content column rather than widening it.
+  overflow-x: auto;
   background: rgba(var(--wr-color-light-rgb), 0.15);
   border-radius: var(--wr-border-radius-base);
 

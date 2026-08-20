@@ -113,30 +113,31 @@ $contrast-light: #ffffff !default;
 
 // CSS variables
 
-:root {
-  // Declared here so the light token set also claims the light UA scheme.
-  // Without it the browser fell back to the OS preference, and an app running
-  // ngwr's LIGHT theme on a dark-mode machine got dark scrollbars and dark
-  // native controls (<textarea>, date/colour inputs) against light surfaces.
-  // `_dark.scss` still flips it to `dark` under [data-theme='dark'], which wins
-  // on specificity.
-  color-scheme: light;
-
-  --wr-color-white: #ffffff;
-  --wr-color-white-rgb: 255, 255, 255;
-  // unused-ok: the flat primitive. Only `-black-rgb` is painted with (eleven
-  // sites, all of them building an `rgba()` scrim), but a library that ships
-  // `--wr-color-white` and not its opposite reads as an omission.
-  --wr-color-black: #000000;
-  --wr-color-black-rgb: 0, 0, 0;
-
-  // Overlay dim — used by dialog / drawer / image preview / command
-  // palette / image cropper for the behind-the-panel scrim. Always
-  // black so the dim reads as "covered" regardless of theme. Don't
-  // wire to `--wr-color-dark-rgb` — that flips to light in dark mode
-  // and turns the backdrop into a white wash.
-  --wr-color-backdrop-rgb: 0, 0, 0;
-
+/// Every public token whose value is COMPOSED out of another token.
+///
+/// They live in a mixin rather than straight in `:root` because a custom
+/// property's `var()` references are substituted at computed-value time ON THE
+/// ELEMENT THAT DECLARES IT, and what inherits down the tree is the substituted
+/// LITERAL. Declared once at `:root`, `--wr-color-surface: var(--wr-color-white)`
+/// computes to `#ffffff` there and every descendant inherits `#ffffff` — not the
+/// reference. Re-tuning `--wr-color-white` further down the tree does nothing to
+/// it afterwards.
+///
+/// That costs nothing for the whole-page dark theme: `[data-theme='dark']`
+/// matches the same `<html>` that `:root` does, so the bases it re-tunes and the
+/// tokens composed off them resolve on ONE element and stay consistent. It
+/// breaks the moment the attribute goes on a SUBTREE — a forced-dark preview, a
+/// dark hero on a light page — where the bases flip and fifty composed tokens
+/// keep their light values. The docs' own colours guide does exactly that, and
+/// its forced-dark panel painted muted text at 3.27:1 with `--wr-color-surface`
+/// still reading `#ffffff` beside a `--wr-color-muted-text` that had correctly
+/// flipped.
+///
+/// So `_dark.scss` includes this too: re-declaring the compositions ON the themed
+/// element is what makes them re-resolve against that element's own bases. A new
+/// token written in terms of `var()` gets that for free if it is added HERE, and
+/// is frozen again if it is added to `:root` directly — that is the whole rule.
+@mixin derived() {
   // Generic subtle hover-surface tint (icon buttons, list rows) — one place
   // so the hover strength stays consistent everywhere.
   --wr-color-hover: rgba(var(--wr-color-light-rgb), 0.4);
@@ -179,16 +180,6 @@ $contrast-light: #ffffff !default;
   --wr-color-fill: rgba(var(--wr-color-light-rgb), 0.3);
   --wr-color-fill-strong: rgba(var(--wr-color-light-rgb), 0.55);
 
-  // Muted TEXT, deliberately its own token rather than an alias of the `medium`
-  // intent. The two roles pull in opposite directions and cannot share a value:
-  // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a
-  // fill it has to clear the bar the other way, against its own label. v11 pulled
-  // them further apart rather than closer — the `medium` fill went deeper
-  // (#6a7683, whose label is now white at 4.63) while this token stayed where a
-  // light canvas needs it. Aliasing them left secondary text at 2.69:1.
-  --wr-color-muted-text: #5f6c7d;
-  --wr-color-muted-text-rgb: 95, 108, 125;
-
   // De-emphasized text — the muted ink dimmed to two canonical strengths so
   // labels / captions / placeholders read consistently. One place each.
   // Only the full-opacity token above is AA-safe for body text; these two are
@@ -199,28 +190,6 @@ $contrast-light: #ffffff !default;
   // distinguishable from the flat role it wraps.
   --wr-color-text-muted: rgba(var(--wr-color-muted-text-rgb), 0.95);
   --wr-color-text-faint: rgba(var(--wr-color-muted-text-rgb), 0.6);
-
-  // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
-  // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the
-  // semantic neutrals, does NOT flip in dark mode. For theme-aware surface /
-  // text jobs reach for the role aliases below instead.
-  //
-  // unused-ok: and deliberately so — the sentence above IS the reason. A fixed
-  // ramp cannot serve a component that has to work in both themes, so the
-  // library paints with the flipping roles and ships this for consumers who want
-  // a stable step. Reaching for one of these inside a component would be the bug
-  // it exists to prevent.
-  --wr-color-gray-50: #f8fafc;
-  --wr-color-gray-100: #f1f5f9;
-  --wr-color-gray-200: #e2e8f0;
-  --wr-color-gray-300: #cbd5e1;
-  --wr-color-gray-400: #94a3b8;
-  --wr-color-gray-500: #64748b;
-  --wr-color-gray-600: #475569;
-  --wr-color-gray-700: #334155;
-  --wr-color-gray-800: #1e293b;
-  --wr-color-gray-900: #0f172a;
-  --wr-color-gray-950: #020617;
 
   // Semantic role aliases over the flipping neutrals — prefer these in new code
   // for intent-free surface / text / outline jobs. They resolve through
@@ -258,20 +227,6 @@ $contrast-light: #ffffff !default;
   // check stopped counting comments as consumers, the paragraph at :152 was the
   // only thing keeping it green.
   --wr-color-outline-rgb: var(--wr-color-light-rgb);
-
-  @each $name, $base in $base-colors {
-    --wr-color-#{$name}: #{$base};
-    --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
-    --wr-color-#{$name}-contrast: #{_contrast($base)};
-    --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
-    --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
-    // unused-ok: the symmetric half. Hover and active DEEPEN an intent, so the
-    // catalog reads `-dark` / `-darker` and never these two — but a shade set
-    // with holes in it is worse than one half of which is for consumers, and the
-    // dark theme re-derives all four for the same reason.
-    --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
-    --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
-  }
 
   // Soft trio per intent (+ `medium` for neutral surfaces) — tokenizes the
   // ad-hoc `rgba(var(--*-rgb), α)` fills components hand-rolled at ~8
@@ -362,6 +317,81 @@ $contrast-light: #ffffff !default;
   // instead of nine minus two.
   --wr-color-light-ink: var(--wr-color-on-surface);
   --wr-color-dark-ink: var(--wr-color-dark);
+}
+
+:root {
+  // Declared here so the light token set also claims the light UA scheme.
+  // Without it the browser fell back to the OS preference, and an app running
+  // ngwr's LIGHT theme on a dark-mode machine got dark scrollbars and dark
+  // native controls (<textarea>, date/colour inputs) against light surfaces.
+  // `_dark.scss` still flips it to `dark` under [data-theme='dark'], which wins
+  // on specificity.
+  color-scheme: light;
+
+  --wr-color-white: #ffffff;
+  --wr-color-white-rgb: 255, 255, 255;
+  // unused-ok: the flat primitive. Only `-black-rgb` is painted with (eleven
+  // sites, all of them building an `rgba()` scrim), but a library that ships
+  // `--wr-color-white` and not its opposite reads as an omission.
+  --wr-color-black: #000000;
+  --wr-color-black-rgb: 0, 0, 0;
+
+  // Overlay dim — used by dialog / drawer / image preview / command
+  // palette / image cropper for the behind-the-panel scrim. Always
+  // black so the dim reads as "covered" regardless of theme. Don't
+  // wire to `--wr-color-dark-rgb` — that flips to light in dark mode
+  // and turns the backdrop into a white wash.
+  --wr-color-backdrop-rgb: 0, 0, 0;
+
+  // Muted TEXT, deliberately its own token rather than an alias of the `medium`
+  // intent. The two roles pull in opposite directions and cannot share a value:
+  // as text it needs >= 4.5:1 against the lightest surface (#ebeff4), while as a
+  // fill it has to clear the bar the other way, against its own label. v11 pulled
+  // them further apart rather than closer — the `medium` fill went deeper
+  // (#6a7683, whose label is now white at 4.63) while this token stayed where a
+  // light canvas needs it. Aliasing them left secondary text at 2.69:1.
+  --wr-color-muted-text: #5f6c7d;
+  --wr-color-muted-text-rgb: 95, 108, 125;
+
+  // Neutral gray ramp — a FIXED primitive scale (slate). Each step is a stable
+  // job (50 = subtlest surface tint … 950 = strongest ink) and, unlike the
+  // semantic neutrals, does NOT flip in dark mode. For theme-aware surface /
+  // text jobs reach for the role aliases in `derived()` above instead.
+  //
+  // unused-ok: and deliberately so — the sentence above IS the reason. A fixed
+  // ramp cannot serve a component that has to work in both themes, so the
+  // library paints with the flipping roles and ships this for consumers who want
+  // a stable step. Reaching for one of these inside a component would be the bug
+  // it exists to prevent.
+  --wr-color-gray-50: #f8fafc;
+  --wr-color-gray-100: #f1f5f9;
+  --wr-color-gray-200: #e2e8f0;
+  --wr-color-gray-300: #cbd5e1;
+  --wr-color-gray-400: #94a3b8;
+  --wr-color-gray-500: #64748b;
+  --wr-color-gray-600: #475569;
+  --wr-color-gray-700: #334155;
+  --wr-color-gray-800: #1e293b;
+  --wr-color-gray-900: #0f172a;
+  --wr-color-gray-950: #020617;
+
+  @each $name, $base in $base-colors {
+    --wr-color-#{$name}: #{$base};
+    --wr-color-#{$name}-rgb: #{_rgb-channels($base)};
+    --wr-color-#{$name}-contrast: #{_contrast($base)};
+    --wr-color-#{$name}-dark: #{color.adjust($base, $lightness: -5%)};
+    --wr-color-#{$name}-darker: #{color.adjust($base, $lightness: -10%)};
+    // unused-ok: the symmetric half. Hover and active DEEPEN an intent, so the
+    // catalog reads `-dark` / `-darker` and never these two — but a shade set
+    // with holes in it is worse than one half of which is for consumers, and the
+    // dark theme re-derives all four for the same reason.
+    --wr-color-#{$name}-light: #{color.adjust($base, $lightness: 5%)};
+    --wr-color-#{$name}-lighter: #{color.adjust($base, $lightness: 10%)};
+  }
+
+  // Re-resolved per themed element — see the mixin above. Anything composed
+  // out of another token belongs in there, not here.
+  @include derived;
 }
 
 // Public SCSS list

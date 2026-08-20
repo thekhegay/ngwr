@@ -151,3 +151,18 @@
     }
   }
 }
+
+// `wr-back-top` is `position: fixed` in the bottom-trailing corner — a 2.75rem
+// button at a 1.5rem inset, `z-index: 50` — which is exactly where the bottom
+// row parks the version link: the FAB covered 79% of it including its centre,
+// so clicking "v11.2.0" scrolled the page to the top instead of opening npm.
+// Reserve the corner, but only on a page that actually mounts one; every other
+// footer keeps its rhythm. `:host-context` is what makes that reachable — a
+// plain descendant selector on `.ngwr-layout__content` would be scoped with
+// this component's own `_ngcontent` attribute, which an element outside its
+// template never carries (the same reason `&--compact .ngwr-footer__bottom`
+// above has never matched anything).
+:host-context(.ngwr-layout__content:has(wr-back-top)) .ngwr-footer__bottom {
+  // 1.5rem inset + 2.75rem button + a gap.
+  padding-inline-end: 5rem;
+}

@@ -45,7 +45,7 @@
         <wr-checkbox [checked]="allChecked()" (checkedChange)="toggleAll()" [indeterminate]="someChecked()">
           Select all
         </wr-checkbox>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-left: 1.5rem">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-inline-start: 1.5rem">
           @for (p of permItems; track p) {
             <wr-checkbox [checked]="perms().includes(p)" (checkedChange)="togglePerm(p)">{{ p }}</wr-checkbox>
           }

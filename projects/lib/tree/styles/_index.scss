@@ -101,6 +101,20 @@
     transform: rotate(90deg);
   }
 
+  // The indent is logical and mirrors on its own, but the triangle is drawn
+  // pointing physically right — so under `dir="rtl"` a collapsed node aims back
+  // at its parent instead of at the children it would reveal. `tree.ts` already
+  // swaps ArrowLeft / ArrowRight for the same reason; this is the picture of that
+  // axis. Turn it around the way the cascader's branch arrow does.
+  //
+  // Scoped to the COLLAPSED state deliberately, and both halves matter: an
+  // unscoped rule sets the same property as the `aria-expanded='true'` rule
+  // above, and mirroring the inner `<svg>` instead would compose `rotate(90deg)`
+  // over `scaleX(-1)` and point an expanded node UP rather than down.
+  [dir='rtl'] &__row[aria-expanded='false'] &__toggle {
+    transform: scaleX(-1);
+  }
+
   &__label {
     flex: 1 1 auto;
     overflow: hidden;

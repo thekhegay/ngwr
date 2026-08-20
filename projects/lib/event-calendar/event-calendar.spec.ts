@@ -576,6 +576,56 @@ describe('WrEventCalendar under dir="rtl"', () => {
   });
 });
 
+const OVERLAP: readonly WrCalendarEvent[] = [
+  { id: 'pairing', title: 'Pairing', start: AT(14, 10), end: AT(14, 11) },
+  { id: 'release', title: 'Release window', start: AT(14, 10, 30), end: AT(14, 12) },
+];
+
+@Component({
+  imports: [WrEventCalendar],
+  template: ` <wr-event-calendar view="day" [events]="events" [date]="date" /> `,
+})
+class OverlapHost {
+  protected readonly events = OVERLAP;
+  protected readonly date = AT(14);
+}
+
+/**
+ * Concurrent events split their column into lanes, and the lane index is the
+ * reading order the cluster was built in — so the offset it drives has to be
+ * logical too. Everything else in the component already is (the month band chips
+ * and the `__more` link both sit on `inset-inline-start`); this one binding was
+ * physical, so under `dir="rtl"` lane 0 landed at the column's trailing side and
+ * the whole cluster read back-to-front.
+ *
+ * jsdom has no layout, so the lane's PIXELS are the nightly browser sweep's
+ * answer. What a unit test can pin is which property carries the offset.
+ */
+describe('WrEventCalendar lanes a cluster along the inline axis', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<OverlapHost>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrDateFnsAdapter()] });
+    fixture = TestBed.createComponent(OverlapHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('offsets each lane from the inline start, never from the physical left', () => {
+    const chips = [
+      ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-event-calendar__chip--time'),
+    ];
+
+    // Two overlapping events, so the column is halved and lane 1 starts at 50%.
+    expect(chips).toHaveLength(2);
+    expect(chips.map(c => c.style.getPropertyValue('inset-inline-start'))).toEqual(['0%', '50%']);
+    expect(chips.map(c => c.style.getPropertyValue('width'))).toEqual(['50%', '50%']);
+    expect(chips.every(c => c.style.getPropertyValue('left') === '')).toBe(true);
+  });
+});
+
 /**
  * ⚠️ This one guards the RULE, not the behaviour.
  *

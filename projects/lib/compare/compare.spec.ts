@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { Directionality } from '@angular/cdk/bidi';
 import type { Direction } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
@@ -410,5 +413,31 @@ describe('WrCompare under a localized catalog', () => {
     expect(slider.getAttribute('aria-label')).toBe('Разделитель сравнения');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * ⚠️ This one guards the RULE, not the behaviour.
+ *
+ * `.wr-compare__surface` is the `role="slider"` and the component's only keyboard
+ * affordance, and it is coterminous with the host — which a rounded comparator has
+ * to clip. jsdom has no layout and no stylesheets, so the ring cannot be seen here.
+ */
+describe('the compare stylesheet', () => {
+  const code = readFileSync(join(process.cwd(), 'projects/lib/compare/styles/_index.scss'), 'utf8')
+    .split('\n')
+    .filter(line => !line.trim().startsWith('//'))
+    .join('\n');
+
+  it('paints the focus ring above the layers, inward from the edge', () => {
+    // Measured in Chromium over the built showcase: all three demos went from 0-2
+    // changed pixels between focused and blurred to a complete 2px ring. Merely
+    // flipping the offset sign is not enough — the projected images paint over the
+    // surface's own outline — so the ring has to be a stacked pseudo-element.
+    const ring = /&:focus-visible::after \{([\s\S]*?)\n {4}\}/.exec(code)?.[1] ?? '';
+    expect(ring).toMatch(/position:\s*absolute/);
+    expect(ring).toMatch(/z-index:\s*2/);
+    expect(ring).toMatch(/outline:\s*var\(--wr-focus-ring-width\)/);
+    expect(ring).toMatch(/outline-offset:\s*calc\(-1 \* var\(--wr-focus-ring-width\)\)/);
   });
 });

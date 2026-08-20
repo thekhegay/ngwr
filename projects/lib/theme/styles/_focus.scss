@@ -18,16 +18,26 @@
   box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
 }
 
-// Tabs
+// Tabs — `.wr-tabs__strip` is `overflow-y: hidden` (to suppress a stray
+// vertical scrollbar) and its box is exactly the tab's height, so an outset
+// ring loses both horizontal strokes and renders as two disconnected bars.
 .wr-tabs__tab:focus-visible {
   @include focus-ring;
+  outline-offset: -2px;
 }
 
 // Sidebar
 .wr-sidebar__entry:focus-visible,
-.wr-sidebar__item:focus-visible,
 .wr-sidebar__group-toggle:focus-visible {
   @include focus-ring;
+}
+
+// `.wr-sidebar__group-body` is `overflow: hidden` so the group can animate
+// `grid-template-rows` from 1fr to 0fr, and the item runs flush to its inline
+// end — an outset ring loses its whole inline-end stroke there.
+.wr-sidebar__item:focus-visible {
+  @include focus-ring;
+  outline-offset: -2px;
 }
 
 // Anchor
@@ -35,9 +45,12 @@
   @include focus-ring;
 }
 
-// Collapse / accordion header
+// Collapse / accordion header — `.wr-collapse` is `overflow: hidden` and the
+// header fills it but for the 1px border, so an outset ring is clipped down to
+// a single row of halo.
 .wr-collapse__header:focus-visible {
   @include focus-ring;
+  outline-offset: -2px;
 }
 
 // Command palette options

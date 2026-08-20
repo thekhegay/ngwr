@@ -25,6 +25,15 @@
     display: none;
   }
 
+  // The toggle is absolutely positioned 0.5rem into a 1.5rem padding box and
+  // is 1.75rem tall, so it used to hang 12px into the CONTENT box and clip the
+  // top-right corner of anything that fills the demo (a block button, a
+  // heatmap, a colour picker — 80 routes across the three viewports).
+  // Reserve a band for it instead of letting it sit on the demo.
+  &:has(.demo__toggle) {
+    padding-top: 2.75rem;
+  }
+
   // No source block underneath — drop the divider.
   &--no-code {
     border-bottom: 0;
@@ -37,7 +46,11 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  z-index: 1;
+  // Above whatever the demo itself stacks. At `z-index: 1` a lightbox thumb
+  // (`z-index: 2`) painted over the toggle, and a segmented option that merely
+  // TIED it won on DOM order — a tap 3px inside the toggle's own box opened the
+  // lightbox instead of framing the demo.
+  z-index: 5;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -69,9 +82,21 @@
   display: contents;
 }
 
+// `display: contents` above means the projected demo's own root element is a
+// flex item of `.demo`, and a flex item's automatic minimum size is its
+// min-content width. For anything that carries its own horizontal scroller —
+// `wr-table` with pinned columns is the worst case — that minimum is the sum of
+// the columns, so the demo handed the document a 544px floor inside a 341px
+// column and the whole page scrolled sideways instead. Opt every demo root out
+// of the automatic minimum and cap it at the container.
+.demo__screen > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .demo--framed {
   justify-content: center;
-  padding: 2rem 1.5rem;
+  padding: 2.75rem 1.5rem 2rem;
   background: var(--wr-color-hover);
 }
 

@@ -188,6 +188,15 @@
     transform: rotate(90deg);
   }
 
+  // The glyph is a chevron-RIGHT, so a closed row points into its own content
+  // under `dir="rtl"` instead of at the direction the children will indent.
+  // Turn it around with the tree, the way the cascader's branch arrow does.
+  // Scoped to the CLOSED state deliberately: `scaleX(-1)` composed over the open
+  // state's `rotate(90deg)` resolves to "up", not "down".
+  [dir='rtl'] &__tree-toggle:not(.wr-table__tree-toggle--open) &__tree-icon {
+    transform: scaleX(-1);
+  }
+
   // Card mode stacks label / value with `justify-content: space-between`, so an
   // extra inline child would strand the chevron mid-row. Fold the lead into the
   // value side instead.
@@ -253,6 +262,11 @@
 
   &__expand-btn--open &__expand-icon {
     transform: rotate(90deg);
+  }
+
+  // Same chevron-right, same mirror — closed state only. See `__tree-icon` above.
+  [dir='rtl'] &__expand-btn:not(.wr-table__expand-btn--open) &__expand-icon {
+    transform: scaleX(-1);
   }
 
   &__detail-row > &__detail {
@@ -322,19 +336,34 @@
   }
 
   // Separating shadow on the inner edge of each pinned group. `box-shadow` has
-  // no logical form — its offset is always physical — and the cell it belongs to
-  // is anchored by `[style.left.px]` / `[style.right.px]` in table.html, written
-  // from `leftPin()` / `rightPin()`. The shadow leans the way the offset pins.
+  // no logical form — its offset is always physical — while the cell it belongs
+  // to is anchored by `[style.inset-inline-start.px]` / `[style.inset-inline-end.px]`
+  // in table.html, written from `leftPin()` / `rightPin()`. The shadow leans the
+  // way the offset pins, so the sign has to be set per direction by hand.
   &__th--pin-edge-left,
   &__td--pin-edge-left {
-    // rtl-ok: physical offset matching the physical `left` pin set by the component
+    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
     box-shadow: 0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
   }
 
   &__th--pin-edge-right,
   &__td--pin-edge-right {
-    // rtl-ok: physical offset matching the physical `right` pin set by the component
+    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
     box-shadow: -0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
+  }
+
+  // Under `dir="rtl"` the start-pinned group sits at the physical right and the
+  // end-pinned group at the physical left, so both shadows point the other way.
+  [dir='rtl'] &__th--pin-edge-left,
+  [dir='rtl'] &__td--pin-edge-left {
+    // rtl-ok: this IS the RTL sign for the rule above
+    box-shadow: -0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
+  }
+
+  [dir='rtl'] &__th--pin-edge-right,
+  [dir='rtl'] &__td--pin-edge-right {
+    // rtl-ok: this IS the RTL sign for the rule above
+    box-shadow: 0.375rem 0 0.375rem -0.25rem rgba(0, 0, 0, 0.18);
   }
 
   &__th-inner {
@@ -456,6 +485,14 @@
     transform: none; // collapsed — chevron points right
   }
 
+  // …which is the wrong way round under `dir="rtl"`, where the label the arrow
+  // discloses sits to its left. Mirror the collapsed state only — the expanded
+  // one already points down, and `scaleX(-1)` over its `rotate(90deg)` would
+  // point it up. See `__tree-icon` above.
+  [dir='rtl'] &__group-row--collapsed &__group-icon {
+    transform: scaleX(-1);
+  }
+
   &__group-label {
     // Cap intrinsic width: in the default (auto) layout a colspan cell's
     // min-content is spread across columns, so an ellipsizing shrinkable label
@@ -470,7 +507,14 @@
     flex: 0 0 auto;
     padding: 0 0.375rem;
     border-radius: var(--wr-border-radius-pill);
-    background: var(--wr-color-fill-strong);
+    // `-subtle`, not `-strong`: this chip is the SECOND tint in the stack — it
+    // sits on the group row, which already paints `--wr-table-group-bg`
+    // (`-fill-subtle`) over the table's own surface. At `-strong` the pair
+    // composited to #dee5ed, and `--wr-color-on-surface-muted` is calibrated
+    // against the plain surface (5.35:1) and the lightest one the library
+    // paints (4.63:1) — on that composite it fell to 4.21:1, under AA. The same
+    // double-tint trap the event-calendar header comment records.
+    background: var(--wr-color-fill-subtle);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);
     font-weight: 500;

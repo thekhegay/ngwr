@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -505,5 +508,23 @@ describe('WrTabs selection in router mode', () => {
 
     expect(headers()[0].getAttribute('aria-selected')).toBe('true');
     expect(headers()[1].getAttribute('aria-selected')).toBe('false');
+  });
+});
+
+/**
+ * ⚠️ This one guards the RULE, not the behaviour.
+ *
+ * `.wr-tabs__strip` is `overflow-y: hidden` on purpose (a single row never wants a
+ * vertical scrollbar) and its box is exactly the tab's height, so the shared ring's
+ * default `+2px` offset put both horizontal strokes outside the clip — a focused tab
+ * rendered as two disconnected vertical bars. jsdom has no layout and no stylesheets.
+ */
+describe('the shared focus ring, as tabs takes it', () => {
+  const focus = readFileSync(join(process.cwd(), 'projects/lib/theme/styles/_focus.scss'), 'utf8');
+
+  it('insets the ring, because the strip clips it', () => {
+    // Measured in Chromium: outward strokes went from {top 0, bottom 0, left 2,
+    // right 2} to a complete 2px ring inside all four edges.
+    expect(focus).toMatch(/\.wr-tabs__tab:focus-visible \{[^}]*outline-offset:\s*-2px/);
   });
 });

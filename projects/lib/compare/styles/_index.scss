@@ -12,9 +12,25 @@
     height: 100%;
     outline: 0;
 
-    &:focus-visible {
-      @include theme.focus-ring;
+    // The surface is `role="slider"` and the component's only keyboard
+    // affordance, but it is coterminous with the host — and rounding a
+    // before/after comparator means `overflow: hidden` there, which discards an
+    // outset ring whole. Insetting the offset is not enough either: the
+    // projected layers paint over the surface's own outline. So the ring is a
+    // pseudo-element stacked above `&__layers`, drawn inward from the edge.
+    &:focus-visible::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
       border-radius: var(--wr-border-radius-sm);
+      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      // A negative offset equal to the width puts the stroke flush inside the
+      // edge; the halo then sits just inside it, mirroring the outset ring.
+      outline-offset: calc(-1 * var(--wr-focus-ring-width));
+      box-shadow: inset 0 0 0 calc(var(--wr-focus-ring-width) + var(--wr-focus-ring-offset))
+        var(--wr-focus-ring-halo);
     }
   }
 

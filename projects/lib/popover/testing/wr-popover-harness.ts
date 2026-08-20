@@ -279,8 +279,13 @@ export class WrPopoverHarness extends ContentContainerComponentHarness {
    * Where the panel sits relative to the trigger, or `null` when it is presented
    * as a sheet and has no anchor.
    *
-   * The resolved position — the directive defaults it per mode (`bottom` for a
-   * popover, `top` for a tooltip) — read off the pane's public modifier class.
+   * The APPLIED position, not the requested one: CDK flips a placement that does
+   * not fit to the next in its fallback chain and swaps the modifier class with
+   * it. Under a unit test that is always the requested placement — jsdom measures
+   * every box as 0×0, so the first candidate always "fits" — but in a browser the
+   * two can differ, and this answers what is on screen. The directive defaults
+   * the request per mode (`bottom` for a popover, `top` for a tooltip).
+   *
    * The arrow itself is a `::after` pseudo-element, so it exists for no DOM query
    * at all; this class is the placement, and it is what the arrow's own CSS keys
    * off.

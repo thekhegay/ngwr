@@ -5,7 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import {
+  type ConnectedPosition,
+  type FlexibleConnectedPositionStrategyOrigin,
+  type OverlayRef,
+  ScrollStrategyOptions,
+} from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { DestroyRef, Directive, ElementRef, ViewContainerRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,6 +23,47 @@ import { randomId } from 'ngwr/utils';
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
 import { wrFocusMenuItemAt, wrHandleMenuNavigation } from './menu-focus';
+
+/**
+ * Where the menu may hang off the pointer, best first: down-and-inline-start of
+ * the cursor (what a native context menu does), then flipped up, then across,
+ * then both.
+ *
+ * The origin is a zero-size POINT, so every `originX` / `originY` resolves to
+ * the same coordinate and only the overlay's own corner varies. `overlayX:
+ * 'start'` is the logical corner: CDK resolves it against the ambient reading
+ * direction, so an RTL page opens the menu to the LEFT of the cursor without a
+ * second table.
+ */
+const POINTER_POSITIONS: ConnectedPosition[] = [
+  { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'top' },
+  { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+  { originX: 'start', originY: 'top', overlayX: 'end', overlayY: 'top' },
+  { originX: 'start', originY: 'top', overlayX: 'end', overlayY: 'bottom' },
+];
+
+/**
+ * The pointer as a CDK origin: a zero-size rect at the click, in VIEWPORT
+ * coordinates.
+ *
+ * Live getters rather than a snapshot, and that is the whole trick. The menu is
+ * anchored to the DOCUMENT — as the page scrolls it travels with the content it
+ * was opened over (native + PrimeNG behaviour) — while CDK positions against
+ * the viewport. Reading the scroll offset at `apply()` time is what converts one
+ * into the other, so a re-anchor is nothing but a request to re-apply.
+ */
+function pointerOrigin(pageX: number, pageY: number): FlexibleConnectedPositionStrategyOrigin {
+  return {
+    width: 0,
+    height: 0,
+    get x(): number {
+      return pageX - window.scrollX;
+    },
+    get y(): number {
+      return pageY - window.scrollY;
+    },
+  };
+}
 
 /**
  * Attach to any element to show a `<wr-context-menu>` at the pointer
@@ -263,39 +309,41 @@ export class WrContextMenu {
         ? active
         : null;
 
-    // GlobalPositionStrategy uses margins, which led to flaky positioning
-    // (`position: static` inline overridden by our `!important`, etc.).
-    // Use it just to create the overlay, then write the coords directly to
-    // the pane element via `top`/`left` so the menu sits exactly where the
-    // user clicked and never moves until we close it.
+    // Anchored to the POINTER, which is not an element — CDK takes a virtual
+    // origin for exactly that, and a FLEXIBLE strategy is what makes the menu
+    // flip up (or across) instead of hanging off the edge of the screen. It used
+    // to be a bare `GlobalPositionStrategy` with the raw coordinates written
+    // onto the pane, which never measured the menu against the viewport: a
+    // right-click 6px above the bottom of the window put two of the three rows
+    // below the fold and clipped the third, since the pane is `position: fixed`
+    // and cannot be scrolled to. Submenus have used the flexible strategy from
+    // the start (`context-menu-item.ts`); only the root skipped it.
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo(pointerOrigin(x, y))
+      // The menu sizes itself; the fallbacks below are the whole answer to a
+      // cramped viewport, and `withPush` clamps whatever is left over.
+      .withFlexibleDimensions(false)
+      .withPush(true)
+      .withPositions(POINTER_POSITIONS);
+
     this.overlayRef = this.overlay.create({
-      positionStrategy: this.overlay.position().global(),
-      // `noop` so scroll doesn't dismiss the menu. With absolute coords
-      // pinned to viewport (`position: fixed` in the panel CSS), the menu
-      // visually stays put as the page scrolls underneath.
+      positionStrategy,
+      // `noop` so scroll doesn't dismiss the menu — `sync()` below re-anchors it
+      // instead.
       scrollStrategy: this.scrollStrategies.noop(),
       panelClass: ['wr-context-menu-overlay'],
     });
 
     const portal = new TemplatePortal(this.menu().contentTpl(), this.vcr);
     this.overlayRef.attach(portal);
+    // `attach()` defers CDK's first placement into `afterNextRender`. Place it
+    // now: until then the pane sits at the container's top-left corner, and the
+    // rows are already in the DOM (see `wrFocusMenuItemAt` below), so the
+    // measurement the flip depends on is available.
+    this.overlayRef.updatePosition();
 
-    // Position model: the pane uses `position: fixed` (panel CSS) but we
-    // want the menu to anchor to the DOCUMENT — when the user scrolls,
-    // the menu should travel with the content it was opened over (native
-    // browser + PrimeNG behavior). Strategy:
-    //
-    //   - Record the page coords (pageX/pageY = document-relative).
-    //   - Each frame the user scrolls, set top/left to (pageX/Y minus the
-    //     current scroll offset). At scroll 0 this matches clientX/Y; as
-    //     scroll grows the menu shifts up/left visually, which is exactly
-    //     what `position: absolute` inside an un-fixed container would do
-    //     naturally — we just have to emulate it manually because CDK's
-    //     overlay container is `position: fixed`.
     const pane = this.overlayRef.overlayElement;
-    pane.style.right = 'auto';
-    pane.style.bottom = 'auto';
-    pane.style.margin = '0';
 
     // Name the menu we just opened so the host can point at it. The id is
     // minted per OPEN rather than living on the panel: `closeOverlay()` keeps
@@ -308,11 +356,15 @@ export class WrContextMenu {
       this.openMenuId.set(menuEl.id);
     }
 
-    const sync = (): void => {
-      pane.style.top = `${y - window.scrollY}px`;
-      pane.style.left = `${x - window.scrollX}px`;
-    };
-    sync();
+    // Re-anchor. `pointerOrigin` reads the scroll offset afresh, so this is all
+    // it takes for the menu to travel with the content it was opened over.
+    //
+    // `reapplyLastPosition()` rather than `updatePosition()`: the flip is
+    // decided once, when the menu opens. Re-running the fallback list on every
+    // scroll event would let the menu hop from above the cursor to below it and
+    // back while the page moves under it, which is a worse reading of "the menu
+    // stays where you put it" than a menu that simply slides with the page.
+    const sync = (): void => positionStrategy.reapplyLastPosition();
 
     // Move the keyboard INTO the menu. Without this the pane painted a
     // `role="menu"` that could be seen and never entered: rows are

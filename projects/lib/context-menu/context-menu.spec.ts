@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -556,6 +559,61 @@ describe('WrContextMenu', () => {
 });
 
 /**
+ * ⚠️ Half of this one is unobservable here.
+ *
+ * The menu hangs off the POINTER, which is not an element, and it used to be
+ * pinned with a bare `GlobalPositionStrategy` carrying the raw `pageX`/`pageY`
+ * written straight onto the pane. Nothing measured the menu against the
+ * viewport, so it never flipped: measured in Chromium at 1280x900, a right-click
+ * 6px above a card's bottom edge (viewport y=874) put the 160x117 pane at
+ * y=874 — 91px past the fold, with two of the three rows entirely off-screen and
+ * `document.elementFromPoint` returning null at their centres. At the card's
+ * bottom-RIGHT corner it also overflowed 87px sideways and all three were gone.
+ * With the flexible strategy the same two clicks land the pane at y=757
+ * (`bottom: 26px`) and x=1047 (`right: 73px`), fully inside the viewport, every
+ * row hit-testable.
+ *
+ * jsdom lays nothing out — every rect is 0x0 and there is no viewport to
+ * overflow — so the flip itself cannot be asserted here. What CAN be: WHICH
+ * strategy is positioning the pane, which each one stamps on the overlay's host
+ * element, and that is the whole of the difference.
+ */
+describe('WrContextMenu placement', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLElement>('.target')!
+      .dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('anchors the pane with a flexible strategy, not a global one', () => {
+    const pane = document.querySelector<HTMLElement>('.wr-context-menu-overlay')!;
+    const host = pane.parentElement!;
+
+    expect(host.classList.contains('cdk-overlay-connected-position-bounding-box')).toBe(true);
+    expect(host.classList.contains('cdk-global-overlay-wrapper')).toBe(false);
+  });
+
+  it('leaves the pane geometry to CDK instead of neutralising a global strategy', () => {
+    const pane = document.querySelector<HTMLElement>('.wr-context-menu-overlay')!;
+
+    // A global strategy positions with MARGINS, which the old model had to zero
+    // out by hand before writing its own `top`/`left`. A connected strategy sets
+    // the offsets directly and resets them on every apply, so a margin parked
+    // here by the directive would silently displace every re-anchor.
+    expect(pane.style.margin).toBe('');
+  });
+});
+
+/**
  * Submenu panes mirror with the reading direction — the CDK flips their placement
  * — so the arrow that walks INTO a submenu is the one pointing the way the menu
  * cascades. Under `dir="rtl"` that is ArrowLeft, and the LTR twins of these two
@@ -622,5 +680,29 @@ describe('WrContextMenu under dir="rtl"', () => {
     await settle();
 
     expect(itemFor('More')!.getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
+/**
+ * ⚠️ This one guards the RULE, not the behaviour.
+ *
+ * `:hover` and `:focus-visible` shared one declaration block that painted the
+ * `-soft` tint and then wrote `outline: none`, so a keyboard-focused row and a
+ * mouse-hovered row were pixel-identical — 1.17:1 against the menu, and with the
+ * keyboard on one row and the pointer on another, nothing said which one Enter
+ * would fire. jsdom loads no stylesheets, so the ring itself is unobservable here.
+ */
+describe('the context-menu stylesheet', () => {
+  const code = readFileSync(join(process.cwd(), 'projects/lib/context-menu/styles/_index.scss'), 'utf8')
+    .split('\n')
+    .filter(line => !line.trim().startsWith('//'))
+    .join('\n');
+
+  it('gives focus an indicator of its own, on top of the shared tint', () => {
+    const shared = /&:hover,\s*\n\s*&:focus-visible \{([\s\S]*?)\n {2}\}/.exec(code)?.[1] ?? '';
+    expect(shared, 'the shared tint must not cancel the outline again').not.toMatch(/outline/);
+    // Measured in Chromium: the focused row went from no ring at all to a solid
+    // 2px stroke on all four sides, while the hovered row beside it kept none.
+    expect(code).toMatch(/\n {2}&:focus-visible \{\s*@include theme\.focus-ring;/);
   });
 });

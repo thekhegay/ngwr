@@ -70,8 +70,8 @@
             [class.wr-table__th--pin-right]="col.column.pin === 'right'"
             [class.wr-table__th--pin-edge-left]="isPinEdge(col.key, 'left')"
             [class.wr-table__th--pin-edge-right]="isPinEdge(col.key, 'right')"
-            [style.left.px]="leftPin(col.key)"
-            [style.right.px]="rightPin(col.key)"
+            [style.inset-inline-start.px]="leftPin(col.key)"
+            [style.inset-inline-end.px]="rightPin(col.key)"
           >
             <div class="wr-table__th-inner">
               <span class="wr-table__title">{{ col.column.title }}</span>
@@ -199,8 +199,8 @@
                   [class.wr-table__td--pin-right]="col.column.pin === 'right'"
                   [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
                   [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
-                  [style.left.px]="leftPin(col.key)"
-                  [style.right.px]="rightPin(col.key)"
+                  [style.inset-inline-start.px]="leftPin(col.key)"
+                  [style.inset-inline-end.px]="rightPin(col.key)"
                 >
                   {{ entry.summaries.get(col.key) ?? '' }}
                 </td>
@@ -261,8 +261,8 @@
                   [class.wr-table__td--pin-right]="col.column.pin === 'right'"
                   [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
                   [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
-                  [style.left.px]="leftPin(col.key)"
-                  [style.right.px]="rightPin(col.key)"
+                  [style.inset-inline-start.px]="leftPin(col.key)"
+                  [style.inset-inline-end.px]="rightPin(col.key)"
                   [attr.data-label]="col.column.title"
                 >
                   @if (treeMode() && col.key === treeColumnKey()) {
@@ -354,8 +354,8 @@
               [class.wr-table__td--pin-right]="col.column.pin === 'right'"
               [class.wr-table__td--pin-edge-left]="isPinEdge(col.key, 'left')"
               [class.wr-table__td--pin-edge-right]="isPinEdge(col.key, 'right')"
-              [style.left.px]="leftPin(col.key)"
-              [style.right.px]="rightPin(col.key)"
+              [style.inset-inline-start.px]="leftPin(col.key)"
+              [style.inset-inline-end.px]="rightPin(col.key)"
             >
               {{ summaryFor(col.key) }}
             </td>
