@@ -19,6 +19,9 @@ export const routes = {
   /** Getting the library into an app. Not how to use a subsystem — that's `guides`. */
   start: {
     index: 'start',
+    comparison: 'comparison',
+    playground: 'playground',
+    quality: 'quality',
     installation: 'installation',
     configuration: 'configuration',
     schematics: 'schematics',

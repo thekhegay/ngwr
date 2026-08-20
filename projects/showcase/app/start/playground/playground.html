@@ -1,0 +1,111 @@
+<ngwr-doc-page
+  title="Playground"
+  description="The form below is running ngwr on this page — signal forms, validation copy and all. One click opens the same demo as a complete Angular 22 workspace on StackBlitz, and every live demo on this site opens the same way."
+  [keywords]="['playground', 'stackblitz', 'sandbox', 'try', 'signal forms']"
+  [labels]="['Getting started']"
+>
+  <ngwr-doc-section
+    title="Signal Forms, live"
+    description="Nineteen ngwr value controls implement `FormValueControl` (or `FormCheckboxControl`) themselves, so `[formField]` writes the component's own `value` / `checked` model. There is no `ControlValueAccessor` in the library — not a thin one, none. Submit the form below with a field empty: the copy comes from `<wr-form-field>` through the `ngwr/i18n` `validation.*` catalog, so nothing here spells out an error message."
+  >
+    <!--
+      `[sandboxable]="false"` because the labelled button below already opens
+      this exact project — same files, same title. The corner icon is the
+      site-wide affordance; on the one page whose subject IS that action, two
+      controls producing a byte-identical workspace is one too many.
+    -->
+    <ngwr-doc-snippet [files]="demoFiles" [sandboxable]="false">
+      <form
+        (submit)="reserve($event)"
+        style="display: flex; flex-direction: column; gap: 1rem; width: min(100%, 26rem)"
+      >
+        <wr-form-field label="Work email" hint="We'll never share it." required>
+          <input wrInput type="email" placeholder="ada@example.com" [formField]="signup.email" />
+        </wr-form-field>
+
+        <wr-form-field label="Team size" required>
+          <wr-select ariaLabel="Team size" placeholder="Pick one" [formField]="signup.team">
+            <wr-option value="solo">Just me</wr-option>
+            <wr-option value="small">2–10 people</wr-option>
+            <wr-option value="large">More than 10</wr-option>
+          </wr-select>
+        </wr-form-field>
+
+        <wr-form-field>
+          <wr-checkbox [formField]="signup.agree">I agree to the terms</wr-checkbox>
+        </wr-form-field>
+
+        <button wr-btn type="submit" color="primary" style="align-self: flex-start">Reserve your spot</button>
+
+        @if (submitted()) {
+          <pre
+            style="
+              margin: 0;
+              padding: 0.75rem;
+              border-radius: var(--wr-border-radius-base);
+              background: var(--wr-color-light);
+              font-size: 0.8125rem;
+            "
+            >{{ submittedJson() }}</pre>
+        }
+      </form>
+    </ngwr-doc-snippet>
+
+    <!--
+      A `div`, not a `p`, and the reason is `scripts/gen-md-docs.ts`: a `p` is
+      converted to a markdown paragraph by walking its inline content, so the
+      button's label would land in every `.md` twin as a sentence telling a
+      reader with no browser to press something. An unknown element recurses
+      instead, and a button whose only child is a text node emits nothing.
+    -->
+    <div>
+      <button wr-btn type="button" color="primary" size="lg" (click)="openSandbox()">
+        Open this demo in StackBlitz
+      </button>
+    </div>
+
+    <wr-alert
+      type="info"
+      title="Give it about two and a half minutes"
+      message="The button hands StackBlitz a real workspace, and a real workspace has to install before it can serve — around 430 packages, cold, then roughly half a minute of Angular build. There is no progress bar for the install; the terminal is the progress bar. If you want it running in ten seconds instead, the three commands below do it locally."
+    />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What the sandbox contains"
+    description="A `@angular/build:application` workspace whose dependency ranges are read from the Angular and ngwr versions this site was built with — carets, so the install tracks the current patch rather than freezing on the day it was written."
+  >
+    <ul>
+      <li>
+        <code>ngwr</code> and <code>&#64;angular/cdk</code> installed, with <code>&#64;use 'ngwr';</code> in
+        <code>src/styles.scss</code> — the whole token layer and every component's styles from one import.
+      </li>
+      <li>
+        A zoneless bootstrap: <code>provideZonelessChangeDetection()</code>, plus <code>provideWrOverlay()</code> —
+        ngwr's own CDK overlay container, so it can never collide with another library's — and
+        <code>provideWrDateAdapter()</code>, which every calendar and date picker injects. They go in whether or not the
+        demo uses them: each costs an import line, and a missing one is a blank page.
+      </li>
+      <li>
+        The demo as <code>src/app/demo.ts</code>, character for character what the page shows. Snippets that are only a
+        template fragment get a component generated around them, with the <code>imports</code> resolved from the
+        library's own selector map.
+      </li>
+      <li>
+        <code>ng serve</code> as <code>npm start</code>. StackBlitz installs the workspace from npm before it can serve
+        it — around 430 packages, cold — so the first open takes a while, and how long is its container's call rather
+        than ours.
+      </li>
+    </ul>
+
+    <ngwr-doc-code [code]="snippets.bootstrap" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.styles" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The same thing locally"
+    description="`ng add ngwr` writes exactly this: it installs the peers, appends the stylesheet import, and prints the bootstrap for the options you pick."
+  >
+    <ngwr-doc-code [code]="snippets.local" language="bash" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

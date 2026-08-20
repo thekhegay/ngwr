@@ -24,12 +24,15 @@
 > prints `All files pass linting.` even when a later one fails, so trust the
 > exit code), `pnpm test` (**4060 specs across 238 files**), `check:api-docs`,
 > `check:llms`, `build:lib`, `build:showcase`, `check:theme` and `check:a11y`
-> (222 prerendered pages), the last two after the showcase build they read. `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
-> browser and run **nightly**. Docs are prerendered — **221 routes**, 198
+> (226 prerendered pages), the last two after the showcase build they read. `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
+> browser and run **nightly**. Docs are prerendered — **225 routes**, 202
 > canonical plus 23 redirect stubs, with 201 markdown twins beside them — and
 > past majors are archived under `/v7/` … `/v11/` (frozen by `publish.yml` on
 > every major release, and the version switcher derives the list rather than
-> hard-coding it).
+> hard-coding it). Three routes are new and aimed at people who have not
+> adopted yet — `/start/comparison`, `/start/quality` and `/start/playground` —
+> and their numbers bind to `#core/generated/quality` rather than being typed
+> in.
 
 ## Order
 
@@ -41,6 +44,15 @@ everything under [Deferred](#deferred) is explicitly not now.
 3. **B4** — Schema-driven `wr-form`
 4. **D2** — System-token layer (rescoped to three small additions)
 5. **D6** — High-contrast rendering (`prefers-contrast: more` first)
+
+**E4 shipped and came off the list.** The docs snippets open as real Angular 22
+workspaces on StackBlitz: `projects/showcase/app/_core/sandbox/` builds one from
+any snippet, `pnpm gen:selectors` resolves a bare fragment's `imports` and its
+`STYLE_ENTRY_POINTS` narrows the stylesheet to what the demo renders. It was
+watched booting end to end. The two defects that had to be fixed first — a
+missing `development` configuration, and the umbrella stylesheet compiling all
+~120 component sheets — are in [AGENTS.md](AGENTS.md), along with the provider
+traps a generated bootstrap has to know about.
 
 **D1 and E2 came off this list.** D1 shipped — `wrThemeTokens()`, the
 `check:theme` parity gate, three generated registry presets and the builder at
@@ -543,7 +555,6 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       `/guides/registry`. This stack drove shadcn's rise from 20% to 56%;
       Taiga has an MCP server, nobody in Angular has the full stack. Builds
       on the API-reference extraction that already ships.
-- [ ] **E4. Playground embeds** (M) — StackBlitz per component page.
 - [ ] **E5. `ngwr/kit` standalone utilities** (M) — publish the internal signal
       utils / positioning / density / hotkey / storage helpers as a zero-dep
       package usable without the components. The Mantine-hooks top-of-funnel

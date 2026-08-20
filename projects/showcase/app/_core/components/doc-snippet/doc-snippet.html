@@ -1,14 +1,32 @@
 <div class="demo" [class.demo--no-code]="!hasCode()" [class.demo--framed]="framed()">
-  @if (framable()) {
-    <button
-      type="button"
-      class="demo__toggle"
-      [attr.aria-pressed]="framed()"
-      [attr.aria-label]="framed() ? 'Exit phone-frame preview' : 'Preview in a phone frame'"
-      (click)="framed.set(!framed())"
-    >
-      <wr-icon [name]="framed() ? 'monitor' : 'smartphone'" />
-    </button>
+  @if (framable() || canOpenSandbox()) {
+    <div class="demo__actions">
+      @if (canOpenSandbox()) {
+        <button
+          type="button"
+          class="demo__action demo__sandbox"
+          aria-label="Open this example in StackBlitz"
+          title="Open in StackBlitz"
+          [disabled]="sandbox.busy()"
+          (pointerenter)="sandbox.preload()"
+          (focus)="sandbox.preload()"
+          (click)="openSandbox()"
+        >
+          <wr-icon name="stackblitz" />
+        </button>
+      }
+      @if (framable()) {
+        <button
+          type="button"
+          class="demo__action demo__toggle"
+          [attr.aria-pressed]="framed()"
+          [attr.aria-label]="framed() ? 'Exit phone-frame preview' : 'Preview in a phone frame'"
+          (click)="framed.set(!framed())"
+        >
+          <wr-icon [name]="framed() ? 'monitor' : 'smartphone'" />
+        </button>
+      }
+    </div>
   }
   <div class="demo__viewport">
     <div class="demo__screen">

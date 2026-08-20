@@ -5,19 +5,49 @@
     <div class="container">
       <div class="ngwr-home-hero ngwr-home-hero--center">
         <h1 class="ngwr-home-hero__title">
-          The best way to make
+          <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span>
+          components that bind straight to
           <wr-split-text
             class="ngwr-home-hero__title-split"
-            [text]="cyclingWord()"
+            text="Signal Forms"
             splitType="chars"
             [delay]="55"
             [duration]="0.9"
             [from]="{ opacity: 0, y: 36 }"
             [to]="{ opacity: 1, y: 0 }"
-          />
-          <span class="ngwr-home-hero__title-angular"><wr-icon name="logo-angular" />&nbsp;Angular</span>
-          applications.
+          />.
         </h1>
+
+        <!-- One line, no code spans. The specification that used to sit here moved
+             down to the "Developer experience" section, which has the room to set
+             it properly; the fold is headline, glance line, calls to action. -->
+        <p class="ngwr-home-hero__description">
+          Zoneless, SSR-safe, tree-shakable — with no accessor layer in between.
+        </p>
+
+        <!-- The absence IS the pitch, so it gets the motion the cycling adjective
+             used to have. Each of the three is a real count in `projects/lib`.
+
+             The rotating word is TERMINAL on purpose. It used to sit mid-sentence
+             ("Not a single ___ in the library."), and a rotator cannot hold a
+             sentence open: `animateOut` lifts every char to `opacity: 0` before the
+             next word renders, so for the length of a swap the line read
+             "Not a single" · whitespace · "in the library." — a hole between two
+             words, which reads as a rendering fault rather than as motion. Reserving
+             the slot (below) fixes the reflow and makes the hole WORSE, since the
+             gap is then permanent for the two short strings. With the term last,
+             the reserved slot is trailing whitespace after a colon: nothing follows
+             it, so an empty slot reads as a value not yet printed. -->
+        <p class="ngwr-home-hero__absence">
+          <span class="ngwr-home-hero__absence-label">Not in the library:</span>
+          <wr-rotating-text
+            class="ngwr-home-hero__absence-word"
+            [texts]="absences"
+            splitBy="characters"
+            [rotationInterval]="2600"
+            [staggerDuration]="0.02"
+          />
+        </p>
 
         <div class="ngwr-home-hero__cta">
           <a
@@ -31,7 +61,22 @@
           >
             Get Started
           </a>
+          <a
+            class="ngwr-home-hero__btn"
+            wr-btn
+            outlined
+            size="lg"
+            [routerLink]="[routes.index, routes.start.index, routes.start.playground]"
+            icon="play"
+          >
+            Try it in the browser
+          </a>
         </div>
+
+        <a class="ngwr-home-hero__compare" [routerLink]="[routes.index, routes.start.index, routes.start.comparison]">
+          <span class="ngwr-home-hero__compare-label">How it compares to the other Angular UI libraries</span>
+          <wr-icon name="arrow-forward" />
+        </a>
       </div>
     </div>
   </section>
@@ -45,24 +90,47 @@
       <div class="ngwr-dx__copy">
         <wr-tag color="primary" outlined>Developer experience</wr-tag>
         <p wrTypography variant="h1" class="ngwr-dx__heading">
-          <wr-blur-text text="Standalone. Signals. Strict mode." animateBy="words" [stepDuration]="0.45" />
+          <wr-blur-text text="Signal Forms, with nothing in between." animateBy="words" [stepDuration]="0.45" />
         </p>
         <p wrTypography variant="lead">
-          ngwr is what we wish the Angular standard library was. Every primitive is a standalone import, every input is
-          a signal, every visual is a CSS variable. No NgModules, no global registries, no magic strings.
+          A value control here is not a wrapper around a native element that reports back through an accessor. It
+          implements <code>FormValueControl</code> or <code>FormCheckboxControl</code>, so the field binds to the
+          component's own <code>value</code> / <code>checked</code> model directly — and
+          <code>&lt;wr-form-field&gt;</code> already knows how to word the error.
         </p>
 
         <ul class="ngwr-checks">
+          <!-- "Nineteen" is a count, not a quantifier, and the distinction is the point:
+               `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib` returns
+               twenty class declarations, and the twentieth is `date-picker/internal/time-panel.ts`,
+               which no `public-api.ts` exports. So nineteen PUBLIC controls implement one of the
+               two — seventeen `FormValueControl`, plus `wr-checkbox` and `wr-switch` on
+               `FormCheckboxControl`. It still does not say "every value control":
+               `[wrColorPickerTrigger]` is public, carries its own `value` model and implements
+               neither — deliberately, since it is a trigger that drives a `wr-color-picker` which
+               does implement it. Re-derive before editing the number. -->
           <li>
-            <span aria-hidden="true">✓</span> Each component is its own ng-packagr entry — only what you import ships
+            <span aria-hidden="true">✓</span> Nineteen value controls implement a Signal Forms interface — zero
+            <code>ControlValueAccessor</code> in the library
           </li>
-          <li><span aria-hidden="true">✓</span> Inputs and outputs are signals — no async-pipe gymnastics for state</li>
           <li>
-            <span aria-hidden="true">✓</span> Strict TypeScript — every input typed, every event typed, no
-            <code>any</code>
+            <span aria-hidden="true">✓</span> Classic <code>[(ngModel)]</code> and reactive forms still work; standalone
+            use is the two-way <code>[(value)]</code> / <code>[(checked)]</code>
           </li>
           <li>
-            <span aria-hidden="true">✓</span> Keyboard nav + ARIA wired in the lib, verified with axe and VoiceOver
+            <span aria-hidden="true">✓</span> Zoneless by construction — signal inputs, signal state,
+            <code>afterNextRender()</code> for DOM work
+          </li>
+          <li>
+            <span aria-hidden="true">✓</span> 202 tree-shakable entry points — each component is its own ng-packagr
+            entry, so only what you import ships
+          </li>
+          <!-- The one claim the hero paragraph carried that nothing below the fold
+               did. Its theming half is not repeated here: the "Themed by tokens,
+               not overrides" tile in the next section already owns it. -->
+          <li>
+            <span aria-hidden="true">✓</span> SSR-safe by construction — this site prerenders every route, and a
+            prerender error fails the build
           </li>
         </ul>
       </div>
@@ -78,12 +146,12 @@
         <div>
           <wr-tag color="primary" outlined>Why ngwr</wr-tag>
           <p wrTypography variant="h1" class="ngwr-why__heading">
-            <wr-blur-text text="Made for shipping. Not for showing off." animateBy="words" [stepDuration]="0.4" />
+            <wr-blur-text text="Built on the new Angular. Not ported to it." animateBy="words" [stepDuration]="0.4" />
           </p>
         </div>
         <p wrTypography variant="small" tone="medium" class="ngwr-section__head-aside">
-          Each primitive comes with the bookkeeping handled — focus traps, virtual scroll, controlled state, density
-          tokens — so the day goes into what the user actually sees.
+          Nothing here carries a compatibility layer from the NgModule era. The bookkeeping that is left — focus traps,
+          virtual scroll, density tokens, error copy — is handled inside the primitive.
         </p>
       </div>
 
@@ -91,7 +159,7 @@
         @for (tile of whyTiles; track tile.title) {
           <wr-spotlight-card class="ngwr-why" [spotlightColor]="tile.spotlight" [radius]="70">
             <div class="ngwr-why__icon" [attr.data-accent]="tile.accent">
-              <wr-icon [name]="tile.icon" size="20" />
+              <wr-icon [name]="tile.icon" />
             </div>
             <p wrTypography variant="h5">{{ tile.title }}</p>
             <p wrTypography variant="small" tone="medium">{{ tile.description }}</p>
@@ -211,7 +279,14 @@
       </div>
 
       <div class="ngwr-motion-footer">
-        <a wr-btn outlined size="lg" [routerLink]="['/animations']" icon="arrow-forward" iconPosition="end">
+        <a
+          wr-btn
+          outlined
+          size="lg"
+          [routerLink]="[routes.index, routes.animations.index]"
+          icon="arrow-forward"
+          iconPosition="end"
+        >
           Browse the kit
         </a>
       </div>

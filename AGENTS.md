@@ -173,9 +173,14 @@ one component folder. Reach for them instead of hand-rolling:
   `ngwr/pull-to-refresh`, and `WrVisualViewport` (publishes
   `--wr-keyboard-inset`, installed by `provideWrOverlay()`).
 
-**Forms.** Value components are **Signal Forms-native** — each implements
-`FormValueControl` (or `FormCheckboxControl`), so `[formField]="form.x"` binds
-straight to the component's `value` / `checked` model. `ControlValueAccessor` is
+**Forms.** Value components are **Signal Forms-native** — nineteen public
+controls implement `FormValueControl` or `FormCheckboxControl`, so
+`[formField]="form.x"` binds straight to the component's `value` / `checked`
+model. A count and not "each", deliberately: `[wrColorPickerTrigger]` is public,
+carries its own `value` model and implements neither, because it is a trigger
+that drives a `wr-color-picker` which does. Re-derive with
+`grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib --include='*.ts' | grep -v spec`
+and subtract the internal `date-picker/internal/time-panel.ts`. `ControlValueAccessor` is
 **gone from the library** — never add one. Classic `[(ngModel)]` and reactive
 forms still work: Angular 22 synthesises the accessor for a signal-forms
 control. Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
@@ -215,6 +220,8 @@ with **no `var()` reader anywhere in the library**.
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
+| Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox) |
+| Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
 `pnpm test` runs **vitest** through Angular's `@angular/build:unit-test`
@@ -842,6 +849,56 @@ sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
 `#core/components`: `<ngwr-doc-page>`,
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
+
+**Distribution surfaces.** Three pages under `/start` exist for people who have
+not adopted the library yet, and they are held to a different standard than the
+rest of the docs: everything on them has to be checkable, because they are what a
+launch points at. `/start/comparison` argues the wedge (Signal Forms-native value
+controls, no `ControlValueAccessor` anywhere) and names, by competitor, when to
+choose something else; `/start/quality` is the gating story; `/start/playground`
+is the trial surface. **Numbers on those pages bind to
+`#core/generated/quality`, written by `pnpm gen:quality` from the repository** —
+typing one as a literal is how the page starts lying, and the comparison page is
+where a stale figure does the most damage. Two rules learned the hard way here:
+a claim about ngwr's own history must survive `git` (an early draft said
+"zoneless from the first commit", and v5.0.3 has sixteen `@NgModule`s, v6 one,
+with the zoneless bootstrap arriving in v6.1.0 and the last module deleted in
+v7); and a claim about a competitor must be reducible to something observable,
+which in practice means the npm `license` field or a linked issue, never a
+summary of someone's licensing terms.
+
+**The StackBlitz sandbox works, and the two things that broke it are worth
+knowing.** `projects/showcase/app/_core/sandbox/` turns any docs snippet into a
+complete Angular 22 workspace — three tiers (the snippet already is a component
+/ it is a template fragment whose `imports` resolve against `pnpm
+gen:selectors`' map / neither, so render the source and say why) — and hands it
+to StackBlitz by a plain form POST with no SDK dependency. It has been watched
+booting end to end: install, `ng serve`, bundle complete in ~26 s, demo painted.
+Cold path is about two and a half minutes.
+
+It failed twice first, and both causes were in the workspace this repo emits,
+not in the container. **One: no `development` configuration**, so `ng serve` ran
+the OPTIMIZED build every start — the dev server prints "Prebundling has been
+configured but will not be used because scripts optimization is enabled" — and
+that path dies in rolldown on rxjs's circular ESM
+(`rxjs/dist/esm/internal/scheduled/scheduled.js`). **Two: `@use 'ngwr';`**,
+which compiles all ~120 component stylesheets for a two-element demo and hit an
+out-of-memory error; narrowed to the entry points the snippet renders, the CSS
+goes from 287 kB to 44 kB. Both fixes are the right thing for a generated
+project anyway, which is the tell that they were defects rather than
+workarounds. `STYLE_ENTRY_POINTS` in the generated selector map is what makes
+the narrowing safe: `@use` on an entry point with no `styles/_index.scss`
+(`ngwr/date`, `ngwr/utils`) is a build error, not a no-op.
+
+Two more traps it caught, worth keeping in mind for anything that generates a
+bootstrap: a provider whose absence is a `NullInjectorError`
+(`provideWrDateAdapter`, and `Router`, which `projects/lib/sidebar/sidebar.ts`
+injects non-optionally) cannot be inferred from markup, so all of them are
+emitted unconditionally and only `provideWrIcons` is gated, because it is the
+only one that costs an npm package; and `provideRouter([])` alone throws
+`NG04002` on bootstrap, so it carries `withDisabledInitialNavigation()`.
+**One observation is not a guarantee** — if you change what the generator emits,
+watch one boot again rather than assuming.
 
 **AI assets.** `llms-full.txt` AND the agent skill (`skills/ngwr/SKILL.md` plus
 `references/{catalog,setup}.md`) regenerate from library source on every build,

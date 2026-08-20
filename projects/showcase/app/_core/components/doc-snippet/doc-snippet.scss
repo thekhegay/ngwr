@@ -21,16 +21,22 @@
   // Collapse when nothing is projected (a code-only snippet). The demo is now
   // wrapped for the phone frame, so `:empty` no longer matches — key off the
   // screen having no element children instead.
+  //
+  // This takes the actions row down with it, so a code-only snippet has no
+  // "Open in StackBlitz" affordance even when its source would run. Left that
+  // way deliberately: the alternative is a 2.75rem band of chrome over an empty
+  // box on every one of those pages, to reach a snippet the reader is looking
+  // at as reference rather than as a demo.
   &:not(:has(.demo__screen > *)) {
     display: none;
   }
 
-  // The toggle is absolutely positioned 0.5rem into a 1.5rem padding box and
-  // is 1.75rem tall, so it used to hang 12px into the CONTENT box and clip the
-  // top-right corner of anything that fills the demo (a block button, a
+  // The actions row is absolutely positioned 0.5rem into a 1.5rem padding box
+  // and is 1.75rem tall, so it used to hang 12px into the CONTENT box and clip
+  // the top-right corner of anything that fills the demo (a block button, a
   // heatmap, a colour picker — 80 routes across the three viewports).
   // Reserve a band for it instead of letting it sit on the demo.
-  &:has(.demo__toggle) {
+  &:has(.demo__actions) {
     padding-top: 2.75rem;
   }
 
@@ -40,9 +46,9 @@
   }
 }
 
-// Phone-frame preview -------------------------------------------------------
+// Demo actions — StackBlitz, phone-frame preview ----------------------------
 
-.demo__toggle {
+.demo__actions {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -51,6 +57,15 @@
   // TIED it won on DOM order — a tap 3px inside the toggle's own box opened the
   // lightbox instead of framing the demo.
   z-index: 5;
+  display: flex;
+  align-items: center;
+  // Both buttons clear the 24px `target-size` asks for on their own, and the
+  // gap keeps that true: axe measures the box a neighbouring target does not
+  // overlap, not the box the CSS declares.
+  gap: 0.25rem;
+}
+
+.demo__action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -72,6 +87,26 @@
   &[aria-pressed='true'] {
     opacity: 1;
     color: var(--wr-color-on-surface);
+  }
+
+  // The library's ring, spelled out rather than pulled in: `lib/theme/styles/focus`
+  // carries 21 global selectors across 16 rule blocks alongside the mixin, so
+  // `@use`-ing it here would copy every one of them into this component's sheet.
+  // Counts: `grep -c '^\.' projects/lib/theme/styles/_focus.scss` and
+  // `grep -c '@include focus-ring' projects/lib/theme/styles/_focus.scss`.
+  // The tokens are the API; the declarations below are `@mixin focus-ring` verbatim.
+  &:focus-visible {
+    opacity: 1;
+    outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+    outline-offset: var(--wr-focus-ring-offset);
+    box-shadow: 0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo);
+  }
+
+  // Only reachable while the sandbox chunk is in flight — a fraction of a
+  // second, and only on the first click of a session.
+  &:disabled {
+    cursor: progress;
+    opacity: 0.35;
   }
 }
 
