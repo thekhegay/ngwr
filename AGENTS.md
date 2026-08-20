@@ -215,6 +215,8 @@ with **no `var()` reader anywhere in the library**.
 | RTL layout sweep  | `pnpm check:rtl-layout` (Chromium, LTR vs RTL overflow per route — **nightly**, not a PR gate)      |
 | API-docs drift    | `pnpm check:api-docs` (docs tables vs the library JSDoc); `pnpm gen:api-docs` rewrites the data      |
 | llms-full.txt     | `pnpm check:llms` (entry-point coverage floors for the generated AI asset)                           |
+| Selector map      | `pnpm gen:selectors` (every `@Component` / `@Directive` selector → symbol + subpath, for the sandbox) |
+| Quality numbers   | `pnpm gen:quality` (entry points, harnesses, specs, gates — what `/start/quality` binds to)          |
 | Unit tests        | `pnpm test` (`ng test lib` — vitest via `@angular/build:unit-test`); `pnpm test:watch` |
 
 `pnpm test` runs **vitest** through Angular's `@angular/build:unit-test`
@@ -842,6 +844,49 @@ sidebar). Wire it into the matching `*.routing.ts` and the `routes` map in
 `#core/components`: `<ngwr-doc-page>`,
 `<ngwr-doc-section>`, `<ngwr-doc-code>` (code blocks), `<ngwr-doc-snippet>` (live
 demo), and `<ngwr-doc-api>` (API table). A component isn't done without it.
+
+**Distribution surfaces.** Three pages under `/start` exist for people who have
+not adopted the library yet, and they are held to a different standard than the
+rest of the docs: everything on them has to be checkable, because they are what a
+launch points at. `/start/comparison` argues the wedge (Signal Forms-native value
+controls, no `ControlValueAccessor` anywhere) and names, by competitor, when to
+choose something else; `/start/quality` is the gating story; `/start/playground`
+is the trial surface. **Numbers on those pages bind to
+`#core/generated/quality`, written by `pnpm gen:quality` from the repository** —
+typing one as a literal is how the page starts lying, and the comparison page is
+where a stale figure does the most damage. Two rules learned the hard way here:
+a claim about ngwr's own history must survive `git` (an early draft said
+"zoneless from the first commit", and v5.0.3 has sixteen `@NgModule`s, v6 one,
+with the zoneless bootstrap arriving in v6.1.0 and the last module deleted in
+v7); and a claim about a competitor must be reducible to something observable,
+which in practice means the npm `license` field or a linked issue, never a
+summary of someone's licensing terms.
+
+**The StackBlitz sandbox is built and turned OFF, deliberately.**
+`projects/showcase/app/_core/sandbox/` turns any docs snippet into a complete
+Angular 22 workspace — three tiers (the snippet already is a component / it is a
+template fragment whose `imports` resolve against `pnpm gen:selectors`' map /
+neither, so render the source and say why), handed to StackBlitz by a plain form
+POST with no SDK dependency. The workspace is correct: written to disk it
+installs, `ng build` gives a 565 kB initial bundle and the app paints. What does
+not work is the far end — inside StackBlitz's WebContainer the build dies on
+`rxjs/dist/esm/internal/scheduled/scheduled.js` with an ECMAScript-invariant
+error from the Angular compiler plugin. That is a resolution difference in the
+container, not a defect in the emitted project, and the platform is capable in
+principle: angular.dev's own playground runs Angular 22 with a real `ng serve` in
+the same technology. So `sandboxable` defaults to `false` on both
+`<ngwr-doc-snippet>` and `<ngwr-doc-playground>`, `/start/playground` is the one
+page that still offers the button and discloses the failure beside it, and
+flipping the two defaults together is all that is needed once the resolution is
+solved. **Do not "finish" this by turning the button on without watching a
+generated project serve.** Two traps it already caught, both worth keeping in
+mind for anything that generates a bootstrap: a provider whose absence is a
+`NullInjectorError` (`provideWrDateAdapter`, and `Router`, which
+`projects/lib/sidebar/sidebar.ts` injects non-optionally) cannot be inferred from
+markup, so all of them are emitted unconditionally and only `provideWrIcons` is
+gated, because it is the only one that costs an npm package; and
+`provideRouter([])` alone throws `NG04002` on bootstrap, so it carries
+`withDisabledInitialNavigation()`.
 
 **AI assets.** `llms-full.txt` AND the agent skill (`skills/ngwr/SKILL.md` plus
 `references/{catalog,setup}.md`) regenerate from library source on every build,

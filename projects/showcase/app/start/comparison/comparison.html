@@ -1,0 +1,321 @@
+<ngwr-doc-page
+  title="Why ngwr"
+  description="Where ngwr fits next to the established Angular UI libraries — and where it does not."
+  [keywords]="['comparison', 'angular ui library', 'alternatives', 'signal forms', 'zoneless']"
+  [labels]="['Getting started']"
+>
+  <ngwr-doc-section title="The short version">
+    <p wrTypography>
+      ngwr is a signals-first Angular UI library written for one version of Angular and one way of writing forms.
+      Eighteen value controls implement Angular's <code>FormValueControl</code> or
+      <code>FormCheckboxControl</code> contract directly, so <code>[formField]</code> binds to the component with
+      nothing in between. There is no <code>ControlValueAccessor</code> anywhere in the package. A count rather than
+      "every", because two public components carry their own <code>value</code> model and implement neither —
+      <code>wr-segmented</code> and <code>[wrColorPickerTrigger]</code>. It is zoneless rather than zoneless-compatible
+      — zero <code>&#64;NgModule</code> declarations and no <code>zone.js</code> dependency — standalone throughout, and
+      it ships as {{ quality.entryPoints }} tree-shakable entry points with
+      <code>{{ quality.runtimeDependencies.join(', ') }}</code> as its only runtime dependency.
+    </p>
+
+    <p wrTypography>
+      That is the whole claim. On the rest of what a team weighs — install base, contributors, locales, paid support,
+      catalog breadth — ngwr either ties or loses, and the sections below say which. A reader who leaves in ten seconds
+      because this page told them the truth is a better outcome than one who adopts and churns in a quarter.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Do not use ngwr if"
+    description="Read this list before the argument, not after it. Two of these are on the roadmap — locale packs and a rich-text editor — and neither is committed to; the rest are what the project is."
+  >
+    <ul wrTypography variant="list">
+      <li>
+        <strong>You need a vendor.</strong> There is no paid support, no SLA, no consulting arm, and nobody to escalate
+        to. PrimeNG and Nebular sell exactly that; ngwr has an issue tracker.
+      </li>
+      <li>
+        <strong>You need a bus factor above one.</strong> 1,409 of 1,480 commits are by one person, under four author
+        identities. The next human contributor has 13; the two bots have 29 each. The first commit was 2022-08-22 —
+        nearly four years, one pair of hands.
+      </li>
+      <li>
+        <strong>You need API stability across majors.</strong> Six majors shipped between 2026-06-12 and 2026-08-20, v7
+        through v12. Four of them carry an <code>ng update</code> codemod; v10 and v11 changed painted colour, which no
+        codemod can repair, and ship none on purpose rather than imply the regression was handled.
+      </li>
+      <li>
+        <strong>You ship in more than English or Russian.</strong> Those are the two catalogs in the box.
+        <code>provideWrI18n()</code> takes your own and the key set is gated against drift, but you will be writing
+        them. NG-ZORRO bundles many more; Taiga UI ships 23 language packages. Locale packs are on the roadmap and are
+        not committed to.
+      </li>
+      <li>
+        <strong>You need a rich-text editor, an organisation chart, or Excel export.</strong> None are here. An editor
+        is on the roadmap, unscheduled and explicitly waiting on demand. <code>.xlsx</code> export is a standing refusal
+        rather than a gap — it needs a third-party dependency, and
+        <code>{{ quality.runtimeDependencies.join(', ') }}</code> is the only one this package has.
+      </li>
+      <li>
+        <strong>You need to hire people who already know it.</strong> 151 weekly downloads on npm and 3 GitHub stars,
+        read on 2026-08-20. Nobody's CV says ngwr.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The wedge: Signal Forms with nothing in between"
+    description="Angular 22 shipped Signal Forms as stable. The `FormField` directive documents three ways a control can bind to a field — a native input or textarea, a component implementing `FormValueControl` / `FormCheckboxControl`, or a component providing a `ControlValueAccessor` — and says of the third that it “should only be used for backwards compatibility with reactive forms”."
+  >
+    <p wrTypography>
+      Every established Angular UI library grew up before that second path existed, and the ones whose published types
+      show it bind through the third. Here is what it costs a component, written out. Nothing unfair about this version
+      — it is the shape the pattern requires:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.cva" language="angular-ts" />
+
+    <p wrTypography>
+      Five members exist to move one number across a boundary. The state is a plain field, so the component needs a zone
+      or a <code>markForCheck()</code> to repaint after <code>writeValue</code>; nothing type-checks that the rendered
+      value and the written one agree; and <code>setDisabledState</code> is a second, separate way of being disabled
+      that a template binding knows nothing about.
+    </p>
+
+    <p wrTypography>Now the same control on the native path — this is the library's own source, trimmed:</p>
+
+    <ngwr-doc-code [code]="snippets.native" language="angular-ts" />
+
+    <p wrTypography>
+      Three members carry the whole contract, and all three are ordinary component API — the other two below are the
+      component's own display state, which the form never sees. <code>value</code> is a <code>model()</code>, so
+      <code>[(value)]="score"</code> works with no form anywhere in the picture. <code>disabled</code> is an
+      <code>input()</code>, so a template can set it and a field can set it and the component never learns which.
+      Nothing is registered, nothing is forwarded, and the framework reads a signal instead of being told.
+    </p>
+
+    <p wrTypography>
+      Running, on this page. The rating and the checkbox below are bound to two fields of one
+      <code>form()</code> — the rating writes its <code>value</code> model, the checkbox its <code>checked</code>:
+    </p>
+
+    <ngwr-doc-snippet [files]="demoFiles">
+      <div style="display: grid; gap: 1rem; justify-items: start">
+        <wr-rating [formField]="demo.score" ariaLabel="How likely are you to recommend ngwr?" />
+
+        <wr-checkbox [formField]="demo.contact">You may follow up by email</wr-checkbox>
+
+        <p wrTypography variant="small" tone="medium" style="margin: 0">
+          The model, live: <code>{{ demoJson() }}</code>
+        </p>
+      </div>
+    </ngwr-doc-snippet>
+
+    <p wrTypography>
+      The classic bindings still work, and not through a fallback path inside the library. Angular 22 synthesises the
+      accessor for a signal-forms control, so reactive and template-driven forms reach the same
+      <code>value</code> model:
+    </p>
+
+    <ngwr-doc-code [code]="snippets.classic" language="angular-html" />
+
+    <p wrTypography variant="small" tone="medium">
+      With the caveat that belongs next to it: that synthesis is Angular's, and Angular tests it — ngwr's own suite
+      barely does. <code>[(ngModel)]</code> is bound to a real ngwr control in one spec, and no spec binds
+      <code>[formControl]</code> to one at all. It is the last uncovered corner named on the
+      <a routerLink="/start/quality">Quality</a> page, and it is here because this paragraph is the one you would lean
+      on hardest.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Why the incumbents cannot simply drop it"
+    description="The honest reason this window exists — and roughly when it closes."
+  >
+    <p wrTypography>
+      A <code>ControlValueAccessor</code> is not an implementation detail a library can delete. It is the public
+      contract every consumer's reactive form is already bound through, so removing one is a breaking change for every
+      app on the library. A project with two million weekly downloads drops it slowly, behind a major, or keeps both
+      forever. A project with 151 drops it in an afternoon.
+    </p>
+
+    <p wrTypography>
+      That is the whole shape of the advantage: it exists because ngwr has almost nothing to break, and it closes as the
+      incumbents ship the native contract alongside their accessors. Taiga UI is closest and deserves the credit — it
+      already ships a structurally identical interface of its own, and its source carries a note to switch to Angular's
+      once v22 becomes its floor. NG-ZORRO started in 22.0.1, with one control. Treat the forms row in the table below
+      as a snapshot, not a moat.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Zoneless, and since when"
+    description="The second half of the same argument, and the one that is countable rather than arguable — including the release it became true in."
+  >
+    <ngwr-doc-code [code]="snippets.counts" language="bash" />
+
+    <p wrTypography>
+      <strong>Not from the first commit, and the repository will tell you so.</strong> ngwr started in August 2022 on
+      Angular 14, with <code>zone.js</code> in its dependencies and sixteen <code>&#64;NgModule</code> declarations in
+      the library at v5.0.3 — v6 was down to one, <code>dialog/dialog.module.ts</code>. The zeroes above date from the
+      <strong>v7 rebuild</strong>, which is what that release was: signals throughout, the last module deleted. The
+      zoneless bootstrap arrived a release earlier, in v6.1.0, and in the showcase before the library. What ships today
+      has no <code>zone.js</code> code path to keep alive and no module graph to unwind, and that is the claim — a
+      property of the package, not a biography.
+    </p>
+
+    <p wrTypography>
+      What it buys is narrow and worth saying plainly: an app already running
+      <code>provideZonelessChangeDetection()</code> does not have to keep Zone.js loaded for its UI kit, and nothing in
+      the library asks Angular to check a component that did not change. It does not make anything faster on its own.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Where ngwr sits"
+    description="Nine factors that change a decision, across the five libraries a team in this position actually shortlists."
+  >
+    <wr-table responsive [columns]="comparisonColumns" [items]="comparisonRows" />
+
+    <p wrTypography variant="small" tone="medium">
+      Downloads, stars, versions and license metadata were read from the npm registry and the GitHub API on 2026-08-20;
+      the forms, dependency and harness rows come from the published tarball of each library's then-current version.
+      They move, and a competitor's licensing terms are the vendor's to state — check them there before you rely on a
+      row here. The ngwr column is measured in this repository and reproducible:
+      <code>find projects/lib -name ng-package.json</code> for the entry points, a grep for
+      <code>ControlValueAccessor</code>, and <code>git shortlog -sn --all</code> for the commits. That last one prints
+      seven rows, not one: the maintainer is four of them (977 + 422 + 8 + 2 = 1,409, an identity per machine and per
+      email over four years), two are bots at 29 each, and one is the other human at 13.
+    </p>
+
+    <p wrTypography>
+      Three more libraries were looked at and left out of the table rather than padded into it. Spartan/ng is a
+      different product shape — its <code>helm</code> layer copies component source into your repository, which is
+      maximum customisation and maximum maintenance. Clarity is alive and shipping but reports conflicting license
+      metadata (<code>NOASSERTION</code> on GitHub, MIT on npm), which is a question for your legal review rather than a
+      row here. Nebular's last release was 17.0.0 in January 2026, on an Angular 21 peer, with no Angular 22 support
+      yet.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Accessibility, including the part that fails"
+    description="Angular Material is the credible leader here and this page is not going to argue otherwise."
+  >
+    <p wrTypography>
+      Material has the longest APG track record in the ecosystem and is the reference implementation most auditors
+      already know. What ngwr does differently is not claim more, it is gate: the structural axe baseline is literally
+      <code>&#123;&#125;</code>, so any serious or critical violation across the prerendered site is a red build rather
+      than a backlog item, and two more browser sweeps run nightly — painted contrast in both themes, and the full axe
+      rule set inside opened overlays, hovers and focus rings, which prerendered HTML cannot reach.
+    </p>
+
+    <p wrTypography>
+      <strong>Those two nightly baselines are not empty, and pretending otherwise is the failure mode here.</strong>
+      Four accepted entries in the contrast baseline and ten in the state one. Behind them: out-of-month calendar days
+      at <strong>2.23:1</strong>, the carousel's 8×8 pagination dots, the window chrome's 14×14 traffic-light buttons,
+      the event calendar's 20px chips, a token-swatch grid that labels every shade of a ramp with a token calibrated for
+      the base shade, and disabled controls axe cannot recognise as disabled. Each carries the alternative, costed, in
+      the baseline file — and each is a WCAG failure that is on the site today. The
+      <a routerLink="/start/quality">Quality</a> page lists them and what every gate cannot see.
+    </p>
+
+    <p wrTypography>
+      And the disclosure that has to travel with that claim. <code>--wr-color-outline</code> measures
+      <strong>1.48:1</strong> in light and <strong>1.41:1</strong> in dark, against the 3:1 WCAG 1.4.11 asks of anything
+      that identifies a control. Fifteen of its declarations are control boundaries where the criterion applies; the
+      rest are cards, dividers and table rules, which it does not reach. Two fixes were costed — darkening the one
+      token, or splitting out a separate control-border token — and both were rejected on how they look. The hairline
+      stayed. No gate reports this, because axe ships no non-text contrast rule; it is written down here so an auditor
+      finds it in the docs rather than in the product.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Choose something else if…"
+    description="Named competitor, named situation. If none of these fit, the case above is the case."
+  >
+    <ul wrTypography variant="list">
+      <li>
+        <strong>Angular Material</strong> — you need the safest institutional bet. Maintained by the Angular team, two
+        million weekly downloads, already declaring an Angular 23 peer, the deepest accessibility record, and 97 test
+        harnesses. Its cost is the narrowest catalog of the majors: no data grid with pinning, grouping and tree rows,
+        no transfer, no cascader, and controls that still bind through <code>ControlValueAccessor</code>.
+      </li>
+      <li>
+        <strong>PrimeNG</strong> — you need the widest catalog in Angular (rich-text editor, organisation chart, tree
+        table, galleria, Chart.js integration) and a vendor you can pay. Read the vendor's current terms rather than
+        this page: the npm <code>license</code> field changed at 22.0.0, and the terms are the vendor's to state, not
+        ours to summarise. Everything through 21.1.9 is MIT.
+      </li>
+      <li>
+        <strong>NG-ZORRO</strong> — you are building Ant Design, or you ship to a broad international audience. Its
+        bundled locale set is far larger than ngwr will have for a long time.
+      </li>
+      <li>
+        <strong>Taiga UI</strong> — you need to support Angular back to v19 while still moving toward signals, or you
+        want the largest genuinely open-source catalog with institutional backing. It is also the library closest to
+        ngwr's forms position and has committed publicly to the same destination.
+      </li>
+      <li>
+        <strong>Spartan/ng</strong> — you are a Tailwind v4 shop and want shadcn-style ownership, with component source
+        copied into your repository and styled however you like. You take on maintaining that copy.
+      </li>
+      <li>
+        <strong>Clarity</strong> — you are in a Broadcom/VMware environment or need that specific design language.
+      </li>
+      <li>
+        <strong>Nebular</strong> — you are already on it. Last release 17.0.0 in January 2026, roughly two releases a
+        year, no Angular 22 support yet. This is not a reason to start.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What it costs to adopt, and how to leave"
+    description="The last question is the one nobody asks until they need the answer."
+  >
+    <p wrTypography>
+      <strong>Getting in.</strong> One runtime dependency, <code>{{ quality.runtimeDependencies.join(', ') }}</code
+      >. Six required peers, four of which any Angular app already has — <code>&#64;angular/core</code>,
+      <code>common</code>, <code>forms</code>, <code>platform-browser</code> — plus <code>rxjs</code> and
+      <code>&#64;angular/cdk</code>, which is not in a default <code>ng new</code> app and brings
+      <code>parse5</code> with it. <code>&#64;angular/router</code>, <code>date-fns</code>, <code>luxon</code> and
+      <code>lucide</code> are declared optional and stay uninstalled unless you use the features that need them.
+      <code>ng add ngwr</code> wires the rest.
+    </p>
+
+    <p wrTypography>
+      <strong>The surface you are coupling to.</strong> Wider than the TypeScript. Components are
+      <code>ViewEncapsulation.None</code>, so the BEM <code>.wr-*</code> classes are public API and are treated as such;
+      the <code>--wr-*</code> custom properties are public too, and theming is a runtime CSS-variable layer rather than
+      a Sass compile step, which is what makes a per-tenant palette possible without a rebuild.
+    </p>
+
+    <p wrTypography>
+      <strong>Getting out.</strong> MIT, source on GitHub, nothing compiled-only, no license key, no telemetry, no
+      registration. Because the controls are signal-forms controls, leaving means swapping components, not rewriting
+      forms: a <code>[formField]</code> bound to <code>&lt;wr-select&gt;</code> binds the same way to a native
+      <code>&lt;select&gt;</code> or to any other control that implements the same contract. The one thing that does not
+      come back for free is the styling you wrote against the <code>.wr-*</code> classes.
+    </p>
+
+    <p wrTypography>
+      <strong>Moving between majors.</strong> <code>ng update ngwr&#64;N</code>, with one migration per major that can
+      honestly be codemodded — v12 rewrites the date-adapter import paths, and its other breaking change is a return
+      type that changed, which the compiler names at every call site. v10 and v11 ship no migration on purpose: their
+      breaking changes were painted colour, and an empty codemod would tell you your visual regressions were handled
+      when they were not. The <a routerLink="/start/migration">migration guide</a> lists all of it.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>Bundle figures, since they usually come up next: there are none here.</strong> Nothing in this build
+      measures them, so anything quoted would be a number somebody typed once — which is the failure this page is
+      written against, and it is worse in a size comparison than anywhere else. What is structural and checkable
+      instead: the package ships one FESM bundle per entry point, so an app pays for what it imports and nothing else,
+      and there is no apples-to-apples third-party benchmark across these five libraries either. Measure the ones you
+      import, in your own build, against the alternative you are actually considering.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="seeAlso" />
+</ngwr-doc-page>
