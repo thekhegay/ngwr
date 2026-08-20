@@ -227,7 +227,12 @@ export class SignupCard {
 
     const meta = inject(MetaService);
     meta.setCanonicalURL();
-    meta.setTitle('Angular UI components library');
+    // The title is the one string a search result shows, so it names the wedge
+    // rather than the category. "Angular UI components library" competed for a
+    // generic term against every incumbent and said nothing a reader could act
+    // on; measured before the change, ngwr was findable by its own name and
+    // absent from the results for what it actually does.
+    meta.setTitle('The Angular UI library for Signal Forms');
     meta.setDescription(
       'An Angular UI library that binds straight to Signal Forms: eighteen value controls implement FormValueControl or FormCheckboxControl — no accessor layer.'
     );
