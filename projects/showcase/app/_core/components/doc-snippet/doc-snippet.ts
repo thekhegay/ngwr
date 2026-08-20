@@ -51,32 +51,35 @@ export class DocSnippetComponent {
   readonly framable = input(true);
 
   /**
-   * Offer the "Open in StackBlitz" action on this demo. @default false
+   * Offer the "Open in StackBlitz" action on this demo. @default true
    *
-   * **Off by default, and the reason is a measurement rather than caution.** The
-   * generated workspace is correct — written to disk it installs (433
-   * dependencies), builds and renders: `ng build` reports a 565 kB initial
-   * bundle and the page paints the snippet, icon and all. What has not worked
-   * is the far end. A generated project POSTed to StackBlitz by hand reached
-   * `ng serve` and died in the container's own build:
+   * It was off for a while and the reason is worth keeping, because it is what
+   * the two fixes below were aimed at. A generated project used to die in
+   * StackBlitz's container — first on `npm install`, then in the container's
+   * own build, on `rxjs/dist/esm/internal/scheduled/scheduled.js` with an
+   * ECMAScript-invariant error out of rolldown. Two things in the emitted
+   * workspace caused it and both were ours:
    *
-   * > (esm) is not allowed to maintain invariants mandated by the ECMAScript
-   * > specification. Try making at least part of the dependency in the graph
-   * > lazily loaded. [plugin angular-compiler]
-   * >     node_modules/rxjs/dist/esm/internal/scheduled/scheduled.js
+   * 1. no `development` configuration, so `ng serve` ran the OPTIMIZED build on
+   *    every start — the dev server says so itself ("Prebundling has been
+   *    configured but will not be used because scripts optimization is
+   *    enabled"), and that is the path rolldown died on;
+   * 2. `@use 'ngwr';`, which compiles all hundred-and-twenty component
+   *    stylesheets to serve a two-element demo. Narrowed to the entry points
+   *    the snippet renders, the CSS went from 287 kB to 44 kB and the container
+   *    stopped running out of memory.
    *
-   * That is a resolution difference inside WebContainer — `dist/esm` rather than
-   * the build a local install picks — not a defect in what this module emits,
-   * and the platform is capable in principle: angular.dev's own playground runs
-   * Angular 22 with a real `ng serve` in the same technology. Until someone has
-   * watched a generated project serve, a first-impression button that lands on
-   * a broken build is worse than no button, which is this module's stated
-   * doctrine. Flip this default to `true` when it does.
+   * With both fixed, a generated project was POSTed by hand and watched
+   * through: install, `ng serve`, "Application bundle generation complete
+   * [25.8 seconds]", and the demo painted in the preview pane — button, icon
+   * and tag. That is the evidence this default rests on, and it is a single
+   * observation rather than a guarantee: the cold path is roughly two and a
+   * half minutes, and how long a container takes is StackBlitz's call.
    *
    * The button also hides itself when the source is not code an app can run
    * (a `bash` transcript, a stylesheet), independent of this input.
    */
-  readonly sandboxable = input(false);
+  readonly sandboxable = input(true);
 
   /**
    * Name the generated project carries on StackBlitz. Defaults to the document

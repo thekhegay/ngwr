@@ -35,6 +35,17 @@ const SIZES: readonly WrSegmentedSize[] = ['sm', 'lg'];
  * - Activation is the browser's own default action on a button, which jsdom does not
  *   implement, so {@link select} clicks — see {@link WrSegmentedOptionHarness.select}.
  *
+ * **It is a signal-forms control**, which adds two things to read here and one that
+ * cannot be read at all. `[formField]` binds the component's own `value` model, and a
+ * surrounding `<wr-form-field>` publishes its state onto the GROUP —
+ * {@link isInvalid} and {@link getDescriptionText} answer that, on the host rather
+ * than per segment, because the strip is one field and a description repeated on
+ * every segment would be announced once per Tab. What is NOT here is the field's
+ * `touched` flag: the component only emits `touch`, and whether anything listened is
+ * a fact about the form, not about this DOM — assert it on the field.
+ * {@link blur} is how a spec gets there, and it is the ONLY route: a click does not
+ * mark a field touched, and neither does moving from one segment to the next.
+ *
  * **There is deliberately no `getValue()` and no selection by value.** `options` is
  * a bound array of `{ value, label, … }` and the value is a generic `T` the component
  * writes nowhere — not on the host, not on a segment. The single exception is an
@@ -276,6 +287,70 @@ export class WrSegmentedHarness extends ComponentHarness {
       }
     }
     return null;
+  }
+
+  /**
+   * Whether the surrounding `<wr-form-field>` is reporting this control invalid, from
+   * `aria-invalid` on the host.
+   *
+   * `false` for a control with no field around it, and `false` for a field that is
+   * invalid but has not shown its copy yet: the component keys the attribute on the
+   * MESSAGE existing rather than on the error, because announcing "invalid" while
+   * pointing at nothing is worse than staying quiet. So this and
+   * {@link getDescriptionText} move together, and a `true` with no description would
+   * be the finding.
+   */
+  async isInvalid(): Promise<boolean> {
+    return (await (await this.host()).getAttribute('aria-invalid')) === 'true';
+  }
+
+  /**
+   * The text `aria-describedby` points at — the validation copy a screen reader is
+   * given for this control — or `null` when the host describes nothing.
+   *
+   * Resolved from the document root, because the element named may sit anywhere on
+   * the page, and THROWS when the reference resolves to no element: a dangling
+   * `aria-describedby` renders exactly like a working one and is announced as
+   * nothing, so returning `null` for it would report the bug as the healthy state.
+   */
+  async getDescriptionText(): Promise<string | null> {
+    const describedBy = await (await this.host()).getAttribute('aria-describedby');
+    if (describedBy === null) return null;
+
+    const root = this.documentRootLocatorFactory();
+    const texts: string[] = [];
+    for (const id of describedBy.split(/\s+/).filter(Boolean)) {
+      // `CSS.escape`, because `WrFormField.controlId` is a public input: a
+      // consumer passing `controlId="user.email"` makes `#user.email-errors`
+      // read as "id `user` with class `email-errors`", which matches nothing —
+      // and this method THROWS on no match, so an unescaped selector reports a
+      // healthy field as the exact bug the throw exists to catch.
+      const target = await root.locatorForOptional(`#${CSS.escape(id)}`)();
+      if (!target) {
+        throw new Error(
+          `WrSegmentedHarness.getDescriptionText(): \`aria-describedby\` names "${id}", which is on no element ` +
+            'in the document — a screen reader announces nothing for it.'
+        );
+      }
+      texts.push(await target.text());
+    }
+    return texts.join(' ');
+  }
+
+  /**
+   * Take focus off the strip entirely — what marks a bound field touched, and the
+   * only thing that does.
+   *
+   * The component emits `touch` from a `focusout` that leaves the host, so a click
+   * does not reach it and neither does Tab from one segment to the next: a strip a
+   * user tabbed straight past has to end up untouched, which is the case `touched`
+   * exists for. Resolves quietly when nothing inside was focused, since that is
+   * already the state this asks for.
+   */
+  async blur(): Promise<void> {
+    for (const option of await this.getOptions()) {
+      if (await option.isFocused()) return option.blur();
+    }
   }
 
   /**

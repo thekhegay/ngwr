@@ -94,8 +94,12 @@ export default class HomeComponent {
    * is not the library. Re-grep before adding a fourth — a claim in the fold is
    * the one a reader checks first.
    *
-   * The slot is width-reserved in SCSS so the tail of the sentence does not
-   * shuffle every 2.6s; `ControlValueAccessor` is the longest at 20 chars.
+   * The rotating term is the LAST thing on its line and its slot is
+   * width-reserved in SCSS (`ControlValueAccessor` is the longest at 20 chars).
+   * Both matter: a rotator is empty for the length of a swap, so anything after
+   * it renders a hole mid-sentence, and an unreserved slot slides the label
+   * every 2.6s. A fourth string longer than twenty characters means widening
+   * `&__absence-word`, or it will be clipped by the host's own `overflow`.
    */
   protected readonly absences: readonly string[] = ['ControlValueAccessor', 'NgModule', '@Input() decorator'];
 
@@ -157,15 +161,15 @@ export class SignupCard {
    * page as literal characters — keep the marked-up terms to the one or two
    * that carry the tile.
    *
-   * "Eighteen" is derived, not chosen; the derivation sits in the comment above
-   * the hero paragraph in `home.html`. A naive re-grep answers nineteen.
+   * "Nineteen" is derived, not chosen; the derivation sits in the comment above
+   * the DX checklist in `home.html`. A naive re-grep answers nineteen.
    */
   protected readonly whyTiles: readonly WhyTile[] = [
     {
       icon: 'form-check',
       title: 'Signal Forms, natively',
       description:
-        "Eighteen value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
+        "Nineteen value controls implement a Signal Forms interface, so `[formField]` binds to the component's own value or checked model. No `ControlValueAccessor` anywhere in the library.",
       accent: 'primary',
       spotlight: 'rgba(var(--wr-color-primary-rgb), 0.14)',
     },
@@ -234,7 +238,7 @@ export class SignupCard {
     // absent from the results for what it actually does.
     meta.setTitle('The Angular UI library for Signal Forms');
     meta.setDescription(
-      'An Angular UI library that binds straight to Signal Forms: eighteen value controls implement FormValueControl or FormCheckboxControl — no accessor layer.'
+      'An Angular UI library that binds straight to Signal Forms: nineteen value controls implement FormValueControl or FormCheckboxControl — no accessor layer.'
     );
     meta.setKeywords([
       'home',

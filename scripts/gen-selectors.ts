@@ -21,7 +21,7 @@
  * comment-aware brace matcher are both load-bearing and both were paid for.
  */
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 import { buildSelectorMap, type WrSelectorMap, type WrSelectorTarget } from './lib/build-selector-map';
@@ -30,13 +30,43 @@ import { ROOT_PATH } from './lib/paths/root';
 const OUT_DIR = resolve(ROOT_PATH, 'projects/showcase/app/_core/generated');
 const OUT_FILE = join(OUT_DIR, 'selectors.ts');
 
+const LIB_ROOT = resolve(ROOT_PATH, 'projects/lib');
+
+/**
+ * Entry points that actually ship a stylesheet, as `ngwr/<name>` subpaths.
+ *
+ * The sandbox needs this to write `@use 'ngwr/button';` instead of the umbrella
+ * `@use 'ngwr';`, and it cannot guess: `@use` on an entry point with no
+ * `styles/_index.scss` — `ngwr/date`, `ngwr/utils`, every `<name>/testing` — is
+ * a build error, while the umbrella compiles all hundred-and-twenty component
+ * sheets whether the demo draws one component or all of them. Reading the
+ * filesystem is the only honest source; a hand-kept list would drift the first
+ * time an entry point grew or lost styles.
+ */
+function styleEntryPoints(dir = LIB_ROOT, prefix = ''): string[] {
+  const out: string[] = [];
+  for (const name of readdirSync(dir)) {
+    if (name.startsWith('.') || name === 'node_modules' || name === 'testing') continue;
+    const full = resolve(dir, name);
+    try {
+      if (!statSync(full).isDirectory()) continue;
+    } catch {
+      continue;
+    }
+    const entry = prefix ? `${prefix}/${name}` : name;
+    if (existsSync(join(full, 'styles', '_index.scss'))) out.push(`ngwr/${entry}`);
+    out.push(...styleEntryPoints(full, entry));
+  }
+  return out.sort();
+}
+
 function bucket(entries: Record<string, WrSelectorTarget>): string {
   return Object.entries(entries)
     .map(([key, t]) => `    ${JSON.stringify(key)}: { symbol: ${JSON.stringify(t.symbol)}, path: ${JSON.stringify(t.path)} },`)
     .join('\n');
 }
 
-function serialize(map: WrSelectorMap): string {
+function serialize(map: WrSelectorMap, styles: readonly string[]): string {
   return `/**
  * @license
  *
@@ -85,6 +115,15 @@ ${bucket(map.attributes)}
   readonly tags: Record<string, SelectorRef>;
   readonly attributes: Record<string, SelectorRef>;
 };
+
+/**
+ * Every \`ngwr/*\` subpath that ships a stylesheet, so a generated project can
+ * \`@use\` exactly the components it renders. \`@use\` on an entry point without
+ * one does not fail quietly — it fails the build.
+ */
+export const STYLE_ENTRY_POINTS: readonly string[] = [
+${styles.map(p => `  ${JSON.stringify(p)},`).join('\n')}
+];
 `;
 }
 
@@ -93,11 +132,13 @@ function main(): void {
   const { stats } = map;
 
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
-  writeFileSync(OUT_FILE, serialize(map));
+  const styles = styleEntryPoints();
+  writeFileSync(OUT_FILE, serialize(map, styles));
 
   console.log(
     `✓ ${relative(ROOT_PATH, OUT_FILE)} — ${Object.keys(map.tags).length} tags, ` +
-      `${Object.keys(map.attributes).length} attributes from ${stats.mapped} declarations`
+      `${Object.keys(map.attributes).length} attributes from ${stats.mapped} declarations, ` +
+      `${styles.length} style entry points`
   );
   console.log(
     `  ${stats.files} files, ${stats.declarations} declarations` +

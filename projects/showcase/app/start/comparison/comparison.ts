@@ -103,7 +103,7 @@ export default class ComparisonPage {
   protected readonly comparisonRows: readonly ComparisonRow[] = [
     {
       axis: 'Signal Forms binding',
-      ngwr: 'Native. Eighteen value controls implement FormValueControl or FormCheckboxControl; no ControlValueAccessor in the package. Two public components with a value model implement neither: wr-segmented and [wrColorPickerTrigger].',
+      ngwr: 'Native. Nineteen value controls implement FormValueControl or FormCheckboxControl; no ControlValueAccessor in the package. One public component with a value model implements neither: [wrColorPickerTrigger].',
       material: 'ControlValueAccessor. Eleven controls declare one; no FormValueControl in the tarball.',
       primeng: 'No FormValueControl in the shipped .d.ts.',
       zorro: 'Started. 22.0.1 added Signal Forms state to the input; 41 files still reference ControlValueAccessor.',
@@ -282,11 +282,12 @@ export class FeedbackForm {
 grep -rn '@NgModule' projects/lib --include='*.ts' | wc -l                      # 0
 grep -rn 'standalone: true' projects/lib --include='*.ts' | wc -l               # 0
 grep -rn 'ChangeDetectionStrategy.OnPush' projects/lib --include='*.ts' | wc -l # 2
-grep -rn 'ControlValueAccessor' projects/lib --include='*.ts' | wc -l           # 14
+grep -rn 'ControlValueAccessor' projects/lib --include='*.ts' | wc -l           # 16
 
 # The last two need their answer read rather than counted. The two OnPush
-# declarations are legacy files under window/; the fourteen mentions of
-# ControlValueAccessor are all JSDoc saying there is not one.
+# declarations are legacy files under window/; the sixteen mentions of
+# ControlValueAccessor are all comments saying there is not one — fifteen in a
+# component's own JSDoc, one in a spec's.
 
 # And since "always" is the claim people check first — it is not the claim.
 # The library was rebuilt at v7 and the two zeroes above date from there:

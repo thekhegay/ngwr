@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Segmented"
-  description="Single-choice picker rendered as a segmented control. Two-way binds the selected value."
-  [keywords]="['segmented', 'wr-segmented']"
-  [labels]="['Component', 'Standalone']"
+  description="Single-choice picker rendered as a segmented control. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through Angular's bridge."
+  [keywords]="['segmented', 'wr-segmented', 'signal forms']"
+  [labels]="['Signal Forms', 'Standalone']"
 >
   <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
@@ -21,6 +21,18 @@
       <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ mode() }}</span>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Signal Forms"
+    description="`[formField]` writes the component's own `value` model — there is no `ControlValueAccessor` in between. Inside a `<wr-form-field>` the label points at the first segment (a `<label for>` may only name a labelable element, and `<wr-segmented>` is not one), while `aria-describedby` and `aria-invalid` land on the group, because the strip is one field rather than a row of them. `touch` fires when focus leaves the strip, which is what lets the field show its copy."
+  >
+    <ngwr-doc-code [code]="snippets.signalForms" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Accessibility"
+    description='The host stays a `role="group"` of `aria-pressed` toggle buttons. Being a form control changes what the value binds to, not what the widget is — a `radiogroup` would owe a single roving tab stop and arrow-key selection, a different keyboard contract. Each enabled segment is its own tab stop, and Enter / Space activate it as the browser&apos;s own default action on a button.'
+  />
 
   <ngwr-doc-section title="Types" description="Data shapes used by the inputs and outputs above.">
     <ngwr-doc-code [code]="typeSnippet" language="angular-ts" />

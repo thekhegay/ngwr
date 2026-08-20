@@ -9,6 +9,8 @@ import { isTemplateLanguage, isTypeScriptLanguage } from './languages';
 import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
 import type { SandboxFile, SandboxProject } from './types';
 
+import { STYLE_ENTRY_POINTS } from '#core/generated/selectors';
+
 /**
  * Builds a bootable Angular 22 workspace out of a docs snippet.
  *
@@ -34,19 +36,27 @@ import type { SandboxFile, SandboxProject } from './types';
  * **What that does and does not promise.** Every tier emits a COMPLETE,
  * self-consistent workspace — every import resolves, every provider a component
  * injects is registered, and no file references one that is not there. That
- * much is decided here and can be read off the output. Whether the workspace
- * then installs and serves inside StackBlitz's container is a separate question
- * this module cannot answer, and as of the last attempt the answer was no: a
- * generated project was POSTed by hand and the container reported "Failed to
- * install dependencies" partway through `npm install`. The same manifest
- * resolves and installs cleanly on a developer machine — 433 dependencies, 434
- * entries in the lockfile's `packages` counting the root; reproduce with
- * `npm install --package-lock-only` on the emitted `package.json` — so the
- * manifest is not malformed and the cost is somewhere in the container.
- * Trimming the dependency list is the obvious response and it is measured below
- * to be worth one package, so it is not the answer either. Nothing here should
- * be read as "a click always gets a running app" until someone has watched one
- * boot.
+ * much is decided here and can be read off the output.
+ *
+ * Whether it then serves inside StackBlitz's container is a separate question,
+ * and the answer is now yes — watched, once, end to end: install, `ng serve`,
+ * "Application bundle generation complete [25.8 seconds]", and the demo painted
+ * in the preview pane. Getting there took two fixes, both of them defects in
+ * what this file emitted rather than in the container:
+ *
+ * - **No `development` configuration.** `ng serve` ran the optimized build on
+ *   every start, which is the path the container died on, in rolldown, over
+ *   rxjs's circular ESM (`rxjs/dist/esm/internal/scheduled/scheduled.js`). The
+ *   dev server had been saying so all along: "Prebundling has been configured
+ *   but will not be used because scripts optimization is enabled."
+ * - **`@use 'ngwr';`.** The umbrella compiles all hundred-and-twenty component
+ *   stylesheets to serve a two-element demo, and the container answered with an
+ *   out-of-memory error. Narrowed to the entry points the snippet actually
+ *   renders (see `stylesScss`), the CSS drops from 287 kB to 44 kB.
+ *
+ * One observation is not a guarantee. The cold path is roughly two and a half
+ * minutes and how long a container takes is StackBlitz's call, so the honest
+ * claim is "this has been seen to work", not "this always works".
  */
 
 /** Versions the generated project pins, all read rather than written down. */
@@ -216,10 +226,38 @@ function angularJson(): string {
                 inlineStyleLanguage: 'scss',
                 styles: ['src/styles.scss'],
               },
+              // A `development` configuration, and `serve` defaulting to it, is
+              // what `ng new` writes and what this workspace was missing. Without
+              // one, `ng serve` runs the OPTIMIZED build on every start — the
+              // dev server said so itself: "Prebundling has been configured but
+              // will not be used because scripts optimization is enabled". That
+              // is slow anywhere and it is the path StackBlitz's container died
+              // on, in rolldown, over rxjs's circular ESM
+              // (`rxjs/dist/esm/internal/scheduled/scheduled.js`). Locally the
+              // optimized path survives it; the container's build of rolldown
+              // does not.
+              configurations: {
+                production: {
+                  outputHashing: 'all',
+                  extractLicenses: false,
+                  sourceMap: false,
+                  optimization: true,
+                },
+                development: {
+                  optimization: false,
+                  extractLicenses: false,
+                  sourceMap: true,
+                },
+              },
+              defaultConfiguration: 'production',
             },
             serve: {
               builder: '@angular/build:dev-server',
-              options: { buildTarget: 'sandbox:build' },
+              configurations: {
+                development: { buildTarget: 'sandbox:build:development' },
+                production: { buildTarget: 'sandbox:build:production' },
+              },
+              defaultConfiguration: 'development',
             },
           },
         },
@@ -279,11 +317,52 @@ function indexHtml(selector: string, title: string): string {
   ].join('\n');
 }
 
-function stylesScss(): string {
+/**
+ * The stylesheet, narrowed to the entry points the demo actually renders.
+ *
+ * `@use 'ngwr';` is one line and compiles all hundred-and-twenty component
+ * sheets. That is the right default in an app and the wrong one here: inside
+ * StackBlitz's container the dev server died with an out-of-memory error, and
+ * compiling the whole catalog's Sass to serve a two-element demo is the largest
+ * piece of work in the build that nothing on the page needs. Per-entry `@use`
+ * is also dedup-safe and pulls the theme in on its own, so the narrow form is
+ * not a lesser version of the umbrella — it is what `/start/installation`
+ * already recommends for an app that imports a handful of components.
+ *
+ * `ngwr/theme` goes in unconditionally: the body rule below paints with
+ * `--wr-*`, and a project whose only component ships no styles would otherwise
+ * render on an unthemed page.
+ *
+ * Only subpaths in the generated `STYLE_ENTRY_POINTS` are emitted. `@use` on an
+ * entry point without a `styles/_index.scss` — `ngwr/date`, `ngwr/utils` — is a
+ * build error rather than a no-op, so guessing is not an option.
+ */
+/**
+ * The `ngwr/*` subpaths a hand-written component imports.
+ *
+ * Tier 1 ships the snippet's own TypeScript, so unlike tier 2 there is no scan
+ * to ask — the import lines are the only statement of what it renders. A regex
+ * is enough because the target is an import specifier, which cannot span lines
+ * or carry an expression.
+ */
+function ngwrSubpathsIn(...sources: readonly string[]): readonly string[] {
+  const out = new Set<string>();
+  for (const source of sources) {
+    for (const m of source.matchAll(/from\s+['"](ngwr\/[\w./-]+)['"]/g)) out.add(m[1]);
+  }
+  return [...out];
+}
+
+function stylesScss(subpaths: readonly string[]): string {
+  const shipsStyles = new Set<string>(STYLE_ENTRY_POINTS);
+  const used = [...new Set(subpaths.filter(p => shipsStyles.has(p)))].sort();
+  const uses = ['ngwr/theme', ...used.filter(p => p !== 'ngwr/theme')];
+
   return [
-    "// One import for the whole library — tokens, resets and every component's",
-    "// styles. `@use 'ngwr/button';` per component works too; see /start/installation.",
-    "@use 'ngwr';",
+    '// Only the entry points this demo renders, plus the token layer. Each one',
+    '// pulls the theme in itself and de-duplicates, so this is the same output',
+    "// as `@use 'ngwr';` minus every component the page does not draw.",
+    ...uses.map(p => `@use '${p}';`),
     '',
     'body {',
     '  margin: 0;',
@@ -539,6 +618,8 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
     const needsIcons =
       source.code.includes('<wr-icon') || Object.values(source.siblings).some(c => c.includes('<wr-icon'));
 
+    const usedStyleSubpaths = ngwrSubpathsIn(source.code, ...Object.values(source.siblings));
+
     return {
       files: {
         'package.json': packageJson(needsIcons),
@@ -549,7 +630,7 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
         'README.md': readme(title, 'the snippet already declared its own component'),
         'src/index.html': indexHtml(source.selector, title),
         'src/main.ts': mainTs(source.className, './app/demo', source.isDefaultExport, needsIcons),
-        'src/styles.scss': stylesScss(),
+        'src/styles.scss': stylesScss(usedStyleSubpaths),
         'src/app/demo.ts': source.code,
         ...siblings,
         ...(needsIcons ? { 'src/app/icons.ts': renderIconsFile() } : {}),
@@ -566,6 +647,7 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
     const scan = scanTemplate(fragment.code);
     if (scan.unresolved.length === 0 && scan.blockers.length === 0) {
       consumed.add(fragment);
+      const usedStyleSubpaths = [...scan.imports.keys()];
       return {
         files: {
           'package.json': packageJson(scan.needsIcons),
@@ -576,7 +658,7 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
           'README.md': readme(title, 'the fragment was wrapped in a generated component'),
           'src/index.html': indexHtml(ROOT_SELECTOR, title),
           'src/main.ts': mainTs('App', './app/app', false, scan.needsIcons),
-          'src/styles.scss': stylesScss(),
+          'src/styles.scss': stylesScss(usedStyleSubpaths),
           'src/app/app.ts': appTs(scan, title),
           'src/app/app.html': fragment.code,
           ...(scan.needsIcons ? { 'src/app/icons.ts': renderIconsFile() } : {}),
@@ -597,6 +679,10 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
     reasons.push('The snippet has no Angular template and no component to bootstrap.');
   }
 
+  // Tier 3 renders the snippet as text and draws no component, so it takes the
+  // token layer only — `stylesScss` adds `ngwr/theme` whatever it is handed.
+  const usedStyleSubpaths: readonly string[] = [];
+
   return {
     files: {
       'package.json': packageJson(false),
@@ -607,7 +693,7 @@ function buildSandboxProject(title: string, files: readonly SandboxFile[]): Sand
       'README.md': readme(title, 'shown as source — see the comment in src/app/app.ts'),
       'src/index.html': indexHtml(ROOT_SELECTOR, title),
       'src/main.ts': mainTs('App', './app/app', false, false),
-      'src/styles.scss': stylesScss(),
+      'src/styles.scss': stylesScss(usedStyleSubpaths),
       'src/app/app.ts': sourceAppTs(files, reasons, title),
       'src/app/app.html': sourceAppHtml(),
     },

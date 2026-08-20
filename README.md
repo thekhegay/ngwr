@@ -7,14 +7,14 @@
 [![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
-<!-- "Eighteen" is derived, not chosen: `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib`
-     returns nineteen class declarations, and the nineteenth — `date-picker/internal/time-panel.ts` —
-     is exported by no `public-api.ts`. Sixteen implement `FormValueControl`; `wr-checkbox` and
+<!-- "Nineteen" is derived, not chosen: `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib`
+     returns twenty class declarations, and the twentieth — `date-picker/internal/time-panel.ts` —
+     is exported by no `public-api.ts`. Seventeen implement `FormValueControl`; `wr-checkbox` and
      `wr-switch` implement `FormCheckboxControl`. It is a count and not the word "every" on purpose:
-     `wr-segmented` and `[wrColorPickerTrigger]` are public, carry their own `value` model, and
-     implement neither. Re-derive before editing the number. -->
+     `[wrColorPickerTrigger]` is public, carries its own `value` model, and implements neither.
+     Re-derive before editing the number. -->
 
-**NGWR is an Angular UI library that binds straight to Signal Forms.** Eighteen
+**NGWR is an Angular UI library that binds straight to Signal Forms.** Nineteen
 value controls implement `FormValueControl` / `FormCheckboxControl` themselves,
 so `[formField]` writes the component's own `value` / `checked` model — there
 is not one `ControlValueAccessor` in the library. Zoneless by construction, not
@@ -205,7 +205,7 @@ export class AppComponent {
 }
 ```
 
-Every value control is Signal Forms-native, so `[formField]` binds straight
+Value controls are Signal Forms-native, so `[formField]` binds straight
 through — no `ControlValueAccessor` anywhere in the chain:
 
 ```ts
@@ -300,7 +300,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 ## Highlights
 
 - **Standalone & signals-first.** Every component is standalone and uses `input()` / `model()` / `output()` / `signal()` / `computed()`. Zoneless-ready.
-- **Signal Forms native.** Every value control implements `FormValueControl` / `FormCheckboxControl`, so `[formField]` binds straight through — there is no `ControlValueAccessor` in the library at all. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and every control also works standalone via `[(value)]` / `[(checked)]`.
+- **Signal Forms native.** Nineteen value controls implement `FormValueControl` / `FormCheckboxControl`, so `[formField]` binds straight through — there is no `ControlValueAccessor` in the library at all. `[(ngModel)]` and reactive forms keep working through Angular's bridge, and every control also works standalone via `[(value)]` / `[(checked)]`.
 - **CDK-powered.** Overlays, portals, and a11y come from `@angular/cdk`. We add `provideWrOverlay()` so NGWR overlays never collide with other CDK consumers (Material, NG-ZORRO, etc.).
 - **Mobile & responsive.** Overlays collapse to bottom-sheets on small screens (`provideWrResponsiveOverlays()`), touch targets grow to ≥44px on coarse pointers, a `touch` density preset enlarges the nine control families that read the multipliers, and drawer / lightbox / toast / carousel respond to swipe gestures. Fixed surfaces respect `env(safe-area-inset-*)`, and layout components (`descriptions`, `stepper`, `page-header`, `toolbar`, `pagination`, `table`) reflow to their container via container queries. [Guide](https://ngwr.dev/guides/mobile).
 - **Table, batteries included.** `wr-table` covers column pinning / resizing / drag-reorder, row selection, expandable rows, grouping, tree rows (`childrenKey` — the forest flattens into the same `<tbody>`, so pinning and cell templates keep working at every depth, and the table announces a `treegrid`), summary rows, CSV export (`exportCsv()`, dependency-free RFC 4180) and a virtualized body — all opt-in inputs on the one component. Excel (`.xlsx`) export is deliberately not shipped: it would mean a third-party dependency.

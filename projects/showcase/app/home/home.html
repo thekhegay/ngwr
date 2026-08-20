@@ -18,25 +18,28 @@
           />.
         </h1>
 
-        <!-- "Eighteen" is a count, not a quantifier, and the distinction is the point:
-             `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib` returns
-             nineteen class declarations, and the nineteenth is `date-picker/internal/time-panel.ts`,
-             which no `public-api.ts` exports. So eighteen PUBLIC controls implement one of the
-             two — sixteen `FormValueControl`, plus `wr-checkbox` and `wr-switch` on
-             `FormCheckboxControl`. It deliberately does not say "every value control":
-             `wr-segmented` and `[wrColorPickerTrigger]` are public, carry their own `value`
-             model, and implement neither. Re-derive before editing the number. -->
+        <!-- One line, no code spans. The specification that used to sit here moved
+             down to the "Developer experience" section, which has the room to set
+             it properly; the fold is headline, glance line, calls to action. -->
         <p class="ngwr-home-hero__description">
-          Eighteen value controls implement <code>FormValueControl</code> or
-          <code>FormCheckboxControl</code> themselves, so <code>[formField]</code> writes the component's own
-          <code>value</code> / <code>checked</code> model — with no adapter layer in between. Zoneless by construction,
-          SSR-safe, and themed through <code>--wr-*</code> custom properties rather than encapsulation.
+          Zoneless, SSR-safe, tree-shakable — with no accessor layer in between.
         </p>
 
         <!-- The absence IS the pitch, so it gets the motion the cycling adjective
-             used to have. Each of the three is a real count in `projects/lib`. -->
+             used to have. Each of the three is a real count in `projects/lib`.
+
+             The rotating word is TERMINAL on purpose. It used to sit mid-sentence
+             ("Not a single ___ in the library."), and a rotator cannot hold a
+             sentence open: `animateOut` lifts every char to `opacity: 0` before the
+             next word renders, so for the length of a swap the line read
+             "Not a single" · whitespace · "in the library." — a hole between two
+             words, which reads as a rendering fault rather than as motion. Reserving
+             the slot (below) fixes the reflow and makes the hole WORSE, since the
+             gap is then permanent for the two short strings. With the term last,
+             the reserved slot is trailing whitespace after a colon: nothing follows
+             it, so an empty slot reads as a value not yet printed. -->
         <p class="ngwr-home-hero__absence">
-          Not a single
+          <span class="ngwr-home-hero__absence-label">Not in the library:</span>
           <wr-rotating-text
             class="ngwr-home-hero__absence-word"
             [texts]="absences"
@@ -44,7 +47,6 @@
             [rotationInterval]="2600"
             [staggerDuration]="0.02"
           />
-          in the library.
         </p>
 
         <div class="ngwr-home-hero__cta">
@@ -98,8 +100,17 @@
         </p>
 
         <ul class="ngwr-checks">
+          <!-- "Nineteen" is a count, not a quantifier, and the distinction is the point:
+               `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib` returns
+               twenty class declarations, and the twentieth is `date-picker/internal/time-panel.ts`,
+               which no `public-api.ts` exports. So nineteen PUBLIC controls implement one of the
+               two — seventeen `FormValueControl`, plus `wr-checkbox` and `wr-switch` on
+               `FormCheckboxControl`. It still does not say "every value control":
+               `[wrColorPickerTrigger]` is public, carries its own `value` model and implements
+               neither — deliberately, since it is a trigger that drives a `wr-color-picker` which
+               does implement it. Re-derive before editing the number. -->
           <li>
-            <span aria-hidden="true">✓</span> Eighteen value controls implement a Signal Forms interface — zero
+            <span aria-hidden="true">✓</span> Nineteen value controls implement a Signal Forms interface — zero
             <code>ControlValueAccessor</code> in the library
           </li>
           <li>
@@ -113,6 +124,13 @@
           <li>
             <span aria-hidden="true">✓</span> 202 tree-shakable entry points — each component is its own ng-packagr
             entry, so only what you import ships
+          </li>
+          <!-- The one claim the hero paragraph carried that nothing below the fold
+               did. Its theming half is not repeated here: the "Themed by tokens,
+               not overrides" tile in the next section already owns it. -->
+          <li>
+            <span aria-hidden="true">✓</span> SSR-safe by construction — this site prerenders every route, and a
+            prerender error fails the build
           </li>
         </ul>
       </div>
