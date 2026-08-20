@@ -46,7 +46,7 @@ function resolveSeparators(locale: string): { decimal: string; group: string } {
  * re-formats with grouping + fixed decimals on blur.
  *
  * Locale comes from Angular's `LOCALE_ID` — input-number intentionally does
- * NOT depend on `ngwr/date-adapter` so it can be used in date-free apps.
+ * NOT depend on `ngwr/date` so it can be used in date-free apps.
  *
  * @example
  * ```html

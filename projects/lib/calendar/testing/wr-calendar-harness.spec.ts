@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrCalendar, type WrCalendarMode, type WrCalendarRange } from 'ngwr/calendar';
-import { provideWrDateFnsAdapter } from 'ngwr/date-adapter-fns';
+import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';

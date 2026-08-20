@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 
 import { WrButton, WrButtonGroup } from 'ngwr/button';
-import { WrDateAdapter } from 'ngwr/date-adapter';
+import { WrDateAdapter } from 'ngwr/date';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { numAttr } from 'ngwr/utils';
 

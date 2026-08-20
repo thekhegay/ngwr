@@ -52,11 +52,11 @@ root barrel for components.
 | `ngwr/context-menu/testing` | `import { WrContextMenuHarness } from 'ngwr/context-menu/testing'` | — |
 | `ngwr/cookie` | `import { WrCookie } from 'ngwr/cookie'` | — |
 | `ngwr/counter` | `import { WrCounter } from 'ngwr/counter'` | `wr-count-up` `wr-counter` |
-| `ngwr/date-adapter` | `import { WrDateAdapter } from 'ngwr/date-adapter'` | — |
-| `ngwr/date-adapter-fns` | `import { WrDateFnsAdapter } from 'ngwr/date-adapter-fns'` | — |
-| `ngwr/date-adapter-luxon` | `import { WrLuxonAdapter } from 'ngwr/date-adapter-luxon'` | — |
+| `ngwr/date` | `import { WrDateAdapter } from 'ngwr/date'` | — |
 | `ngwr/date-picker` | `import { WrDatePicker } from 'ngwr/date-picker'` | `wr-date-picker` `wr-date-range-picker` |
 | `ngwr/date-picker/testing` | `import { WrDatePickerDayHarness } from 'ngwr/date-picker/testing'` | — |
+| `ngwr/date/adapters/fns` | `import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns'` | — |
+| `ngwr/date/adapters/luxon` | `import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon'` | — |
 | `ngwr/decrypt-text` | `import { WrDecryptText } from 'ngwr/decrypt-text'` | `wr-decrypt-text` |
 | `ngwr/decrypt-text/testing` | `import { WrDecryptTextHarness } from 'ngwr/decrypt-text/testing'` | — |
 | `ngwr/density` | `import { WrDensity } from 'ngwr/density'` | `[wrDensity]` |

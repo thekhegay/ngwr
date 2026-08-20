@@ -503,7 +503,7 @@ describe('callTool — get_ngwr_setup', () => {
     // The whole line, entry-point comment included. The old pin matched the call
     // prefix only, and under it the table shipped `provideWrDateAdapter(wrDateFnsAdapter)`
     // — a symbol ngwr has never exported — for as long as nobody pasted it.
-    expect(answer).toContain("provideWrDateFnsAdapter() // from 'ngwr/date-adapter-fns'");
+    expect(answer).toContain("provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'");
     expect(answer).toContain('why: every date mode goes through an adapter; there is no built-in default');
   });
 

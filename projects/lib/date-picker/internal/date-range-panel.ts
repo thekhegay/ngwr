@@ -8,7 +8,7 @@
 import { Component, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
 
 import { WrCalendar, type WrCalendarRange } from 'ngwr/calendar';
-import { WrDateAdapter } from 'ngwr/date-adapter';
+import { WrDateAdapter } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 
 import type { WrDateRange } from '../interfaces';

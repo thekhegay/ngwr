@@ -121,8 +121,16 @@ one component folder. Reach for them instead of hand-rolling:
   calibrated against the SHIPPED bases, so a far-off seed inherits shares that no
   longer guarantee 5:1, and `check:theme` will not notice — it compares the nine
   shipped intents, not an arbitrary seed.
-- **Date adapters** (`ngwr/date-adapter-fns`, `…-luxon`) —
-  `provideWrDateAdapter(...)` powers calendar + every date-picker mode.
+- **Date adapters** (`ngwr/date`, plus `ngwr/date/adapters/{fns,luxon}`) —
+  `provideWrDateAdapter(...)` powers calendar + every date-picker mode. The three
+  were `ngwr/date-adapter{,-fns,-luxon}` until v12: flat and hyphenated while
+  `ngwr/icon` already nested its implementations, so the catalog spelled one idea
+  two ways. `migration-v12` rewrites the import paths and every symbol keeps its
+  name. The rename surfaced a latent defect worth knowing about —
+  `scripts/lib/build-symbol-map.ts` scanned only the TOP level, so
+  `ng g ngwr:use lucideIcons` had always answered "unknown symbol" and the date
+  adapters were reachable only by the accident of being flat. It recurses now and
+  skips `<name>/testing`: a harness is public but never belongs in `imports: []`.
 - **Shared code — don't reinvent these.** `ngwr/utils` (`coercion` incl.
   `numAttr` for input transforms; plus `dom`, `guards`, `id`, `keyboard`,
   `css-size`, `fn`, `math`, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
@@ -556,6 +564,16 @@ smallest diff that satisfies the request. Concretely:
 `--provenance`), and a poisoned cache would hand it to attacker-controlled
 code. Don't re-add the cache.
 
+**A second BREAKING change is on `main` and unreleased: the date entry points
+moved.** `ngwr/date-adapter` → `ngwr/date`, `ngwr/date-adapter-fns` →
+`ngwr/date/adapters/fns`, `ngwr/date-adapter-luxon` → `ngwr/date/adapters/luxon`,
+so the catalog nests implementations under their feature the way
+`ngwr/icon/adapters/*` always did. Import paths only — every symbol keeps its
+name — and `migration-v12` rewrites them, which is what makes this one a codemod
+rather than a release note: a path is exactly what a codemod can move without
+reading the code around it. It also ends the "migrations stop at v9" rule below;
+v10 and v11 had nothing a codemod could fix, and this does.
+
 **One BREAKING change is on `main` and unreleased.** `readI18nText()` — exported
 from `ngwr/i18n` — returned `string` and now returns `Signal<string>`, so every
 call site needs a `()`. It is a fix, not a refactor: `WrI18n` writes every
@@ -572,8 +590,10 @@ all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
 casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
 empty codemod would tell consumers their visual regressions were handled when
 they were not. v11's breaking change was the same shape (five intents deepened so
-their labels can be white — see Styling), so `schematics/migrations/` still stops
-at v9 on purpose. v11.2.0 shipped eighteen `ngwr/*/testing` entry points, the
+their labels can be white — see Styling), so `schematics/migrations/` skipped v10
+and v11 on purpose. It resumes at **v12**, and the difference is the whole rule:
+v10 and v11 changed painted colour, which no codemod can repair, while v12 moves
+three import paths, which is exactly what one can. v11.2.0 shipped eighteen `ngwr/*/testing` entry points, the
 generated agent skill and the registry format, plus sixteen fixes; it widened
 three exported types to nullable (`WrToastConfig.labels.*`, `wr-window`'s
 `showMinimize` / `showMaximize`) and added a required member to the `@internal`
@@ -852,7 +872,8 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   per-component `@use` / starter pages.
 - `ng update ngwr@N` — migrations, one dir per major under
   `schematics/migrations/` (v7 tag rewrites, v8 density/pagination renames,
-  **v9 `<wr-checkbox>` `value` → `checkboxValue`**), registered in
+  **v9 `<wr-checkbox>` `value` → `checkboxValue`**, **v12
+  `ngwr/date-adapter*` → `ngwr/date/adapters/*`**), registered in
   `schematics/migrations.json`.
 
 ## Gotchas

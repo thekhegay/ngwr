@@ -8,7 +8,7 @@
 import { Component, ViewEncapsulation, computed, inject, input, output } from '@angular/core';
 
 import { WrCalendar } from 'ngwr/calendar';
-import { WrDateAdapter } from 'ngwr/date-adapter';
+import { WrDateAdapter } from 'ngwr/date';
 
 import { WrTimePanel } from './time-panel';
 

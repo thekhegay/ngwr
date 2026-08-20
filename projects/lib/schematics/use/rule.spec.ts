@@ -98,19 +98,32 @@ const stripComments = (source: string): string => source.replace(/\/\*[\s\S]*?\*
 
 /**
  * The symbol → subpath map exactly as `scripts/lib/build-symbol-map.ts` builds
- * it: `Wr*` value exports of the entry points one level down, first one wins.
+ * it: `Wr*` value exports of every entry point at ANY depth except `testing`,
+ * first one wins.
  *
  * Reproduced rather than imported because the generator writes its output
  * straight into `dist`, and a spec that read the built file would only be true
- * of the last build.
+ * of the last build. Reproducing it means the RECURSION has to match too: both
+ * sides were one level deep until `ngwr/date/adapters/*` existed, and a shallow
+ * scan would now quietly drop the two date adapters from this comparison while
+ * the shipped map still carried them.
  */
+function entryPointsUnder(dir: string, prefix = ''): string[] {
+  const out: string[] = [];
+  for (const name of readdirSync(dir)) {
+    if (name.startsWith('.') || name === 'node_modules' || name === 'testing') continue;
+    const full = join(dir, name);
+    if (!statSync(full).isDirectory()) continue;
+    const entry = prefix ? `${prefix}/${name}` : name;
+    if (existsSync(join(full, 'public-api.ts')) && existsSync(join(full, 'ng-package.json'))) out.push(entry);
+    out.push(...entryPointsUnder(full, entry));
+  }
+  return out;
+}
+
 function symbolMap(): Record<string, string> {
   const map: Record<string, string> = {};
-  const entries = readdirSync(LIB)
-    .filter(name => !name.startsWith('.'))
-    .filter(name => statSync(join(LIB, name)).isDirectory())
-    .filter(name => existsSync(join(LIB, name, 'public-api.ts')) && existsSync(join(LIB, name, 'ng-package.json')))
-    .sort();
+  const entries = entryPointsUnder(LIB).sort();
 
   for (const entry of entries) {
     const source = readFileSync(join(LIB, entry, 'public-api.ts'), 'utf8');

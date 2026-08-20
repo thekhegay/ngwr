@@ -45,7 +45,7 @@ const PROVIDERS: Record<ProviderName, ProviderSpec> = {
   },
   i18n: { subpath: 'ngwr/i18n', factory: 'provideWrI18n', call: 'provideWrI18n()' },
   'date-adapter': {
-    subpath: 'ngwr/date-adapter',
+    subpath: 'ngwr/date',
     factory: 'provideWrDateAdapter',
     call: 'provideWrDateAdapter()',
   },

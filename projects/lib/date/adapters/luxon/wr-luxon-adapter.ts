@@ -8,7 +8,7 @@
 import { Service, inject } from '@angular/core';
 
 import { DateTime, Info } from 'luxon';
-import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat, isNamedFormat } from 'ngwr/date-adapter';
+import { WrDateAdapter, WR_DATE_LOCALE, type WrDateFormat, isNamedFormat } from 'ngwr/date';
 
 const NAMED_PATTERNS: Readonly<Record<WrDateFormat, string>> = {
   shortDate: 'D',

@@ -235,7 +235,7 @@ Math (`clamp`, `round`), coercion (`numAttr`), css helpers (`resolveCssSize`, `g
 - [Mobile & responsive](https://ngwr.dev/guides/mobile) — responsive overlays, touch targets & density, swipe gestures, safe-area insets, container-query layouts.
 - [Typography](https://ngwr.dev/guides/typography) — `wrTypography` directive: headings, paragraphs, lists, links, code.
 - [Icons](https://ngwr.dev/icons) — `ngwr/icon` registry. Use `svgIcon()` for any set that ships raw SVG files (Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap, or your designer's own), plus thin adapters for Lucide (`ngwr/icon/adapters/lucide`) and Feather (`ngwr/icon/adapters/feather`), whose packages don't ship SVGs.
-- **Date adapters** — `ngwr/date-adapter` (native `Date`, no extra package), `ngwr/date-adapter-fns`, `ngwr/date-adapter-luxon`. Wire one with `provideWrDateAdapter()` — plus `{ adapter: WrDateFnsAdapter }` / `{ adapter: WrLuxonAdapter }` for the library-backed ones — to power calendar + every mode of date-picker.
+- **Date adapters** — `ngwr/date` (native `Date`, no extra package), `ngwr/date/adapters/fns`, `ngwr/date/adapters/luxon`. Wire one with `provideWrDateAdapter()` — plus `{ adapter: WrDateFnsAdapter }` / `{ adapter: WrLuxonAdapter }` for the library-backed ones — to power calendar + every mode of date-picker.
 - **Component defaults** — `ngwr/config`. `provideWrConfig({ button: { size: 'sm' } })` sets what a component falls back to when a template says nothing; a bound value always wins, and a bound `false` beats a configured `true`, so a config never has to be escaped. [Reference](https://ngwr.dev/start/configuration).
 
 ## Highlights

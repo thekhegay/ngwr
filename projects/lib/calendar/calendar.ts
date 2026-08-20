@@ -22,7 +22,7 @@ import {
   untracked,
 } from '@angular/core';
 
-import { WrDateAdapter } from 'ngwr/date-adapter';
+import { WrDateAdapter } from 'ngwr/date';
 import { useI18nText } from 'ngwr/i18n';
 
 import type { WrCalendarMode, WrCalendarRange } from './interfaces';

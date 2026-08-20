@@ -52,7 +52,7 @@ Overlays render into an ngwr-owned container; without it they never appear. Need
 
 Icons resolve by name from a registry you populate. Needed by `WrIcon`.
 
-### `provideWrDateFnsAdapter() // from 'ngwr/date-adapter-fns'`
+### `provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'`
 
 Every date mode goes through an adapter; there is no built-in default. Needed by `WrDatePicker`, `WrCalendar`, `WrEventCalendar`.
 

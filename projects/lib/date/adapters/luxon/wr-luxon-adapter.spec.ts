@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { DateTime } from 'luxon';
-import { WrDateAdapter } from 'ngwr/date-adapter';
+import { WrDateAdapter } from 'ngwr/date';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideWrLuxonAdapter } from './provide-wr-luxon-adapter';

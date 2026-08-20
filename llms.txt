@@ -56,8 +56,8 @@ Add from their entry points as needed:
   `color` key — a bound `[color]="null"` means "no intent", which a default cannot
   express without inventing a sentinel.
 - `provideWrI18n(...)` + `provideWrI18nStaticLoader(...)` — localization.
-- `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date-adapter-fns`
-  or `ngwr/date-adapter-luxon`).
+- `provideWrDateAdapter(...)` — calendar + date-picker (`ngwr/date/adapters/fns`
+  or `ngwr/date/adapters/luxon`).
 
 Injected rather than provided: `WrTour` (`ngwr/tour`) runs a guided onboarding
 tour — `tour.start([{ target: '[data-tour="save"]', content: '…' }])` spotlights
