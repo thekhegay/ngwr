@@ -2,6 +2,21 @@
 
 .wr-calendar-heatmap {
   display: inline-block;
+  // A year is 53 columns of a FIXED cell size, so the grid has no reflow in it:
+  // its intrinsic width is ~731px whatever the container, and without a cap it
+  // escaped the card it sits in and gave the whole document a 397px horizontal
+  // scroll at 375px. Cap it and scroll the grid instead — the same answer
+  // `.wr-table__scroll` and `.wr-tabs__strip` already give. The cap also covers
+  // the plain block-parent case, where shrink-to-fit alone would still hand the
+  // element its full 731px.
+  max-width: 100%;
+  overflow-x: auto;
+  // `overflow-x: auto` alone reserves room for a vertical scrollbar in browsers
+  // without overlay bars — a stray bar down the side of a grid that is never
+  // taller than its content. Pin the y axis; the bottom row's `:hover` scale is
+  // given its room on `&__cells` below, since that is where the cell size is
+  // legible.
+  overflow-y: hidden;
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-on-surface-muted);
 
@@ -54,6 +69,11 @@
   &__cells {
     grid-area: cells;
     grid-template-rows: repeat(7, var(--wr-heatmap-cell-size));
+    // The bottom row sits on the host's own edge, and the host now clips its
+    // block axis (see above) — so the 40% a hovered cell grows by, half of it
+    // below the row, had nowhere to go. Reserve that half. Scaled from the cell
+    // size rather than written as a length, because the size is an input.
+    padding-block-end: calc(var(--wr-heatmap-cell-size) * 0.2);
   }
 
   &__cell {

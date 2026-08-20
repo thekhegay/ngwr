@@ -16,6 +16,12 @@
   // or the chips render as bare mono text.
   ::ng-deep code {
     display: inline-block;
+    // An inline-block is an atomic inline: it cannot break across lines at all,
+    // so a chip longer than the paragraph (`parseFloat(getComputedStyle(…))`)
+    // pushed the whole document sideways. `inline` would break but would lose
+    // the chip's vertical padding — cap it and let it break inside instead.
+    max-width: 100%;
+    overflow-wrap: anywhere;
     padding: 0.125rem 0.3125rem;
     border-radius: var(--wr-border-radius-sm);
     background: rgba(var(--wr-color-light-rgb), 0.35);

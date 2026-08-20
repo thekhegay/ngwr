@@ -1,6 +1,7 @@
 @use 'sass:color';
 
 @use 'colors';
+@use 'variables';
 
 // Dark theme overrides — opt-in via `[data-theme="dark"]` on <html>.
 // Drive the toggle from `WrTheme` (provided automatically with
@@ -201,6 +202,19 @@ $_dark: #e6ebf3;
   --wr-shadow-overlay: 0 8px 24px rgb(0 0 0 / 50%), 0 2px 4px rgb(0 0 0 / 35%);
   --wr-shadow-float: 0 8px 24px rgb(0 0 0 / 55%);
   --wr-shadow-modal: 0 24px 56px rgb(0 0 0 / 60%);
+
+  // Re-declare every token that is COMPOSED out of the bases above, so the
+  // composition resolves against THIS element's values instead of the ones
+  // `:root` already substituted. Without it the block is only correct when it
+  // lands on `:root` itself; put `data-theme="dark"` on a SUBTREE — a forced-dark
+  // preview, a dark hero on a light page — and the bases flip while fifty
+  // derived tokens stay light. `--wr-color-surface` read `#ffffff` inside a dark
+  // panel, which is how the docs' own colours guide got to 3.27:1. The two
+  // mixins are the single source of those compositions; see the long note above
+  // `colors.derived()` for why a `var()` in a custom property cannot do this on
+  // its own.
+  @include colors.derived;
+  @include variables.derived-focus-ring;
 
   color-scheme: dark;
 }

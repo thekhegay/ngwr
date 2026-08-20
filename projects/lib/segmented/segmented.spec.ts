@@ -1,5 +1,8 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+
+import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -106,5 +109,87 @@ describe('WrSegmented', () => {
     fixture.detectChanges();
 
     expect(segments().map(s => s.textContent.trim())).toEqual(['List', 'Grid']);
+  });
+});
+
+/**
+ * The thumb's position is the one thing here that cannot come out of the
+ * stylesheet alone. It is anchored with a physical `left` and slid with
+ * `translateX`, and neither has a logical form — while the options are a grid
+ * that mirrors, so under `dir="rtl"` the segment at index `i` occupies the slot
+ * `count - 1 - i` counted from the physical left. So the component publishes the
+ * SLOT, signed from `Directionality`, the way the carousel signs its track.
+ *
+ * Every case is a pair: the same selection in both directions, expecting
+ * different slots. One direction alone cannot tell "mirrors" from "counts from
+ * the left in both".
+ *
+ * What jsdom cannot answer is whether the pill then lands on that segment —
+ * there is no layout and the stylesheet is not applied. The custom property is
+ * the input to that, and it is the part a unit test can honestly check.
+ */
+describe('WrSegmented parks its thumb by the reading direction', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const mount = (direction: Direction): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: Directionality,
+          useValue: { value: direction, valueSignal: signal(direction), change: new Subject<Direction>() },
+        },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  };
+
+  /** The slot the component publishes, off the host's own inline style. */
+  const slot = (): string =>
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLElement>('wr-segmented')!
+      .style.getPropertyValue('--wr-segmented-thumb-index');
+
+  afterEach(() => fixture.destroy());
+
+  it('counts slots from the left in LTR', () => {
+    mount('ltr');
+    expect(slot()).toBe('0'); // 'day', the first of three
+
+    fixture.componentInstance.picked.set('week');
+    fixture.detectChanges();
+    expect(slot()).toBe('1');
+  });
+
+  it('counts them from the right in RTL, where the strip mirrors', () => {
+    mount('rtl');
+    expect(slot()).toBe('2'); // 'day' is still first to READ, and last from the left
+
+    fixture.componentInstance.picked.set('week');
+    fixture.detectChanges();
+    expect(slot()).toBe('1'); // the middle segment is the fixed point, in either direction
+  });
+
+  it('keeps the divisor the segment count in both directions', () => {
+    for (const direction of ['ltr', 'rtl'] as const) {
+      mount(direction);
+      expect(
+        (fixture.nativeElement as HTMLElement)
+          .querySelector<HTMLElement>('wr-segmented')!
+          .style.getPropertyValue('--wr-segmented-thumb-count')
+      ).toBe('3');
+    }
+  });
+
+  it('needs no provider at all when nobody set a direction', () => {
+    // `optional: true` — the same guarantee the carousel and the table make. A
+    // consumer who never thought about `dir` must not have to provide one.
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+
+    expect(slot()).toBe('0');
   });
 });

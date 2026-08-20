@@ -32,12 +32,17 @@
   >
     <ngwr-doc-code [code]="snippets.layout" language="angular-html" />
     <ngwr-doc-snippet code="">
+      <!-- Every cap is pinned by `flex: 0 0 Nrem` + `min-width`, so the block is a
+           hard 652px that can neither wrap nor shrink. Scroll the panel rather
+           than the document — below ~1000px it used to push the whole page
+           sideways by up to 318px. -->
       <div
         style="
           display: flex;
           flex-direction: column;
           gap: 0.375rem;
           padding: 1rem;
+          overflow-x: auto;
           background: rgba(var(--wr-color-light-rgb), 0.35);
           border: 1px solid var(--wr-color-light);
           border-radius: 0.625rem;

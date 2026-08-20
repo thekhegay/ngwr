@@ -47,9 +47,12 @@
     background: transparent;
     cursor: zoom-in;
 
+    // Not cancelled — MOVED. The ring is drawn on the host by
+    // `&:has(&__trigger:focus-visible)` below (see the comment there); this
+    // only keeps the UA's own ring from leaking a few clipped corner pixels
+    // through in a second colour.
     &:focus-visible {
-      outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-      outline-offset: 2px;
+      outline: none;
     }
   }
 
@@ -70,6 +73,17 @@
 
   &--loading &__thumb {
     opacity: 0;
+  }
+
+  // The trigger is `width: 100%; height: 100%`, so it is exactly coterminous
+  // with the host — and the host clips (`overflow: hidden` above, for the
+  // rounded corners), so a ring drawn on the button falls entirely outside the
+  // clip and nothing survives. Insetting the offset does not rescue it either:
+  // `&__thumb` is `position: relative; z-index: 2` and paints over the button's
+  // own outline. An element's outline is not clipped by its OWN `overflow`, so
+  // the ring goes on the host instead.
+  &:has(&__trigger:focus-visible) {
+    @include theme.focus-ring;
   }
 }
 

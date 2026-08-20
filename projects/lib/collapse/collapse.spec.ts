@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -160,5 +163,22 @@ describe('WrCollapseGroup in accordion mode', () => {
     click(1);
 
     expect(openStates()).toEqual(['true', 'true', 'false']);
+  });
+});
+
+/**
+ * ⚠️ This one guards the RULE, not the behaviour.
+ *
+ * `.wr-collapse` is `overflow: hidden` and the header fills it but for the 1px
+ * border, so the shared ring's default `+2px` offset left nothing on screen except
+ * one row of 1.41:1 halo below the header. jsdom resolves no stylesheet.
+ */
+describe('the shared focus ring, as the collapse header takes it', () => {
+  const focus = readFileSync(join(process.cwd(), 'projects/lib/theme/styles/_focus.scss'), 'utf8');
+
+  it('insets the ring, because the host clips it', () => {
+    // Measured in Chromium: 0 ring pixels on any side before, a complete 2px ring
+    // inside all four edges after (4743 pixels changed against the blurred header).
+    expect(focus).toMatch(/\.wr-collapse__header:focus-visible \{[^}]*outline-offset:\s*-2px/);
   });
 });

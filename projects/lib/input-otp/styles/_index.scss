@@ -13,6 +13,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--wr-input-otp-gap);
+  // A long code has to wrap, because the alternative is off the screen: the
+  // cells are a fixed `--wr-input-otp-size` and never shrink, so eight of them
+  // at the default size measure 8 × 40 + 7 × 8 = 376px and a 375px phone got a
+  // horizontal scrollbar on the whole page. Wrapping rather than shrinking on
+  // purpose — a cell narrower than 40px is already under the 44px touch target,
+  // and squeezing it to fit trades a visible defect for an unreachable one.
+  flex-wrap: wrap;
   font-family: var(--wr-font-family-base);
 
   &__cell {

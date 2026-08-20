@@ -87,6 +87,17 @@
     border: 0;
     // Height = line-height + 2×option-py + 2×track-padding (md → 30px); all scale per size.
     padding: var(--wr-segmented-option-py) 0.75rem;
+    // The track divides into `1fr` columns, so an option's width has nothing to
+    // do with its own text: on a crowded track the label outgrows the option and
+    // paints across the inline padding — which is FINE, the padding is a gutter
+    // for a label that fits rather than a wall for one that doesn't, and giving
+    // the text that room is the only reason six labels still read at 375px. What
+    // is not fine is what happened past that: at 320px "Bottom" ran 4.2px beyond
+    // its own option and overlapped the next segment's word by 8.4px, two labels
+    // printed on top of each other. Clip at the option instead. Note the clip
+    // box is the PADDING box, so the gutter stays available; and an `outline`
+    // is not clipped by its own element, so the focus ring is untouched.
+    overflow: hidden;
     @include theme.smooth-br(var(--wr-segmented-thumb-radius));
     color: var(--wr-segmented-color);
     font: inherit;

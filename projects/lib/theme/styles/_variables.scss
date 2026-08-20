@@ -3,6 +3,20 @@
 // These are the canonical knobs every component reads from. Consumers
 // override them on `:root` (or any subtree) without touching SCSS.
 
+/// The tokens here that are composed out of one the THEME re-tunes, kept in a
+/// mixin so `_dark.scss` can re-declare them on the themed element. See the long
+/// note above `colors.derived()`: a `var()` inside a custom property is
+/// substituted where it is DECLARED, so a `:root` composition inherits into a
+/// scoped `[data-theme="dark"]` subtree as the light literal.
+///
+/// Only the ring. The other compositions in this file — `--wr-control-font-size-*`,
+/// `--wr-transition-*`, `--wr-overlay-*` — read sizes and durations, which no
+/// theme flips, so freezing them is the same value either way.
+@mixin derived-focus-ring() {
+  --wr-focus-ring-color: var(--wr-color-primary);
+  --wr-focus-ring-halo: rgba(var(--wr-color-primary-rgb), 0.25);
+}
+
 :root {
   // Border radius
   --wr-border-radius-sm: 0.375rem;
@@ -111,10 +125,10 @@
   // insets its outline (`outline-offset: -2px`, the idiom for a row inside an
   // `overflow: hidden` container) keeps the halo outside, where its own clipping
   // hides it.
-  --wr-focus-ring-color: var(--wr-color-primary);
+  // `-color` and `-halo` are composed off `--wr-color-primary`, so they live in
+  // `derived-focus-ring()` at the top of this file, included at the end of `:root`.
   --wr-focus-ring-width: 2px;
   --wr-focus-ring-offset: 2px;
-  --wr-focus-ring-halo: rgba(var(--wr-color-primary-rgb), 0.25);
 
   // Z-index scale
   //
@@ -175,6 +189,8 @@
   --wr-tracking-wide: 0.025em;
   --wr-tracking-wider: 0.05em;
   --wr-tracking-widest: 0.1em;
+
+  @include derived-focus-ring;
 }
 
 // Shared open animation for overlay panels. Every overlay component

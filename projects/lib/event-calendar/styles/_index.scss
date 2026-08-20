@@ -220,9 +220,20 @@
 
     &--time {
       padding: 0.125rem 0.25rem;
-      flex-direction: column;
-      gap: 0;
-      align-items: stretch;
+      // The clock and the title share a line while there is room for both and
+      // the title drops below it when there is not. `flex-direction: column`
+      // dropped it unconditionally, and a timed chip's height is a PERCENTAGE
+      // of its slot — a 15-minute event in a 30-minute grid is 12px against a
+      // 14.4px line box, so the clock came out sliced through the digits and
+      // the title rendered at 0px. Wrapping keeps a one-slot chip to a single
+      // readable line; `min-height` floors the box at that line plus its
+      // padding, so a short event overlaps the slot below rather than showing
+      // half a glyph. `align-content` keeps the lines packed at the top — a
+      // tall chip would otherwise spread them down its whole height.
+      flex-wrap: wrap;
+      align-content: flex-start;
+      row-gap: 0;
+      min-height: 1.25rem;
       white-space: normal;
     }
 
@@ -248,7 +259,20 @@
 
     &-time {
       font-weight: var(--wr-font-weight-medium);
-      color: var(--wr-color-on-surface-muted);
+      // `--time` turns wrapping back on for the sake of the title; the clock
+      // must not follow it. In a week column ~55px wide "09:30 AM" broke over
+      // two lines and asked the chip for 28.8px of height — twice what a
+      // one-slot event has — so the label was clipped through its own digits.
+      white-space: nowrap;
+      // The muted role is calibrated against the plain surface, and the chip
+      // puts an 18% wash of the event colour under it (line ~192) — which spent
+      // the whole margin: 4.18–4.28:1 across the shipped demo colours, under AA
+      // in LIGHT for every one of them. Mixing toward the page's own ink is the
+      // `-ink` recipe: `--wr-color-on-surface` flips per theme, so one
+      // declaration darkens on a light tint and lightens on a dark one. 85% is
+      // the most muted share that still reaches 5.0:1 on the deepest tint the
+      // demos paint (5.08 on #d1ead1); dark was already clear and only gains.
+      color: color-mix(in srgb, var(--wr-color-on-surface-muted) 85%, var(--wr-color-on-surface));
     }
 
     &-title {
@@ -265,10 +289,21 @@
     cursor: ns-resize;
   }
 
+  // The one thing in a day cell that is NOT absolutely positioned, and it has
+  // to stay that way. Its lane is `maxLanes` — one past the last chip — so
+  // absolute put it at 1.75rem + 3 x 1.375rem = 5.875rem inside a cell whose
+  // floor is 5.5rem: the entire button landed in the following week's row,
+  // which comes later in the DOM and (correctly, per the `__cell` note above)
+  // has no z-index to lose to it, so it swallowed every click. A block box in
+  // flow lands on exactly the same 5.875rem — the day-number line box is
+  // precisely the 1.75rem the chips offset by, so only the lanes have to be
+  // skipped — and makes the cell GROW to hold it instead. `min-height` on the
+  // cell is a floor, not a size; the row stretches its siblings to match.
   &__more {
-    position: absolute;
-    inset-inline-start: 0.125rem;
-    top: calc(1.75rem + var(--wr-event-calendar-lane) * (var(--wr-event-calendar-band-height) + 0.125rem));
+    display: block;
+    width: fit-content;
+    margin-top: calc(var(--wr-event-calendar-lane) * (var(--wr-event-calendar-band-height) + 0.125rem));
+    margin-inline-start: 0.125rem;
     padding: 0 0.375rem;
     font: inherit;
     font-size: var(--wr-text-xs);

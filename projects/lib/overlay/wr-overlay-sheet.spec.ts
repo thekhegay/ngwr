@@ -71,4 +71,36 @@ describe('the overlay stylesheet', () => {
   it('outranks the inline margin with the keyboard lift', () => {
     expect(code).toMatch(/margin-bottom:\s*var\(--wr-keyboard-inset[^;]*\)\s*!important;/);
   });
+
+  /**
+   * The sheet appearance has to reach the element that actually PAINTS it, and
+   * for three of the four users that is the pane's child rather than the pane:
+   * select, dropdown and popover portal a panel into a transparent pane, so the
+   * full width and the squared-off bottom corners above land on a box nobody
+   * sees. Measured in Chromium at 375x812 before this rule existed: the dropdown
+   * menu was 160px and the popover panel 288px inside a 375px sheet, and all
+   * three painted an 18.5px radius at the two corners sitting on the screen
+   * edge, where `document.elementFromPoint` answered with the transparent pane.
+   *
+   * jsdom resolves no stylesheet and lays nothing out, so only the declaration
+   * can be pinned here — the widths and the corner pixels are a browser check.
+   */
+  it('stretches the sheet child and squares the corners on the screen edge', () => {
+    const rule = /\.wr-overlay-sheet\s*>\s*\*:not\(\.wr-dialog__close\)\s*\{([^}]*)\}/.exec(code)?.[1];
+    expect(rule).toBeDefined();
+    expect(rule).toMatch(/width:\s*100%\s*!important;/);
+    expect(rule).toMatch(/max-width:\s*100%\s*!important;/);
+    expect(rule).toMatch(/border-bottom-left-radius:\s*0\s*!important;/);
+    expect(rule).toMatch(/border-bottom-right-radius:\s*0\s*!important;/);
+  });
+
+  /**
+   * …and the exclusion is the load-bearing half. `.wr-dialog__close` is a DIRECT
+   * child of the dialog's pane — the one sheet whose pane is the panel — so a
+   * blanket `> *` would stretch the 24px dismiss button across the sheet and
+   * square its bottom corners.
+   */
+  it('leaves the dialog dismiss button out of it', () => {
+    expect(code).not.toMatch(/\.wr-overlay-sheet\s*>\s*\*\s*\{/);
+  });
 });

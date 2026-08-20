@@ -208,7 +208,7 @@
                 [style.--wr-event-calendar-color]="`var(--wr-color-${chip.event.color ?? 'primary'})`"
                 [style.top.%]="chip.top"
                 [style.height.%]="chip.height"
-                [style.left.%]="chip.left"
+                [style.inset-inline-start.%]="chip.inlineStart"
                 [style.width.%]="chip.width"
                 [attr.aria-label]="chipLabel(chip.event)"
                 (click)="onChipClick(chip.event); $event.stopPropagation()"

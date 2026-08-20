@@ -1,5 +1,21 @@
 @use '../../theme/styles' as theme;
 
+/// Two-corner variant of `theme.smooth-br`. The host no longer clips at its own
+/// rounded edge (it has to let the resize grips out), so the chrome and the
+/// status bar each have to round the pair of corners they sit in or their square
+/// backgrounds paint over the frame's curve. Neither rounds all four, which is
+/// what the shared mixin does — hence the local copy of its squircle arithmetic.
+@mixin _corner-pair($start, $end, $br) {
+  #{$start}: $br;
+  #{$end}: $br;
+
+  @supports (corner-shape: squircle) {
+    corner-shape: squircle;
+    #{$start}: calc(#{$br} * 1.85);
+    #{$end}: calc(#{$br} * 1.85);
+  }
+}
+
 .wr-window {
   --wr-window-bg: var(--wr-color-surface);
   --wr-window-border: var(--wr-color-outline);
@@ -7,6 +23,7 @@
   --wr-window-chrome-color: var(--wr-color-on-surface);
   --wr-window-radius: var(--wr-border-radius-base);
   --wr-window-handle-size: 8px;
+  --wr-window-handle-corner: 14px;
   --wr-window-chrome-height: 2.25rem;
   --wr-window-title-size: var(--wr-text-sm);
   --wr-window-action-size: 1.5rem;
@@ -21,7 +38,13 @@
   box-shadow: var(--wr-shadow-modal);
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-on-surface);
-  overflow: hidden;
+  // The resize grips live entirely OUTSIDE the padding box (see `&__handle`),
+  // and `overflow: hidden` clipped every pixel of them — including hit-testing,
+  // which is why they only ever worked where they overlapped the window's own
+  // chrome and body. `clip` still contains overflowing chrome / status-bar
+  // content; it just draws the line at the grips' reach instead of at zero.
+  overflow: clip;
+  overflow-clip-margin: var(--wr-window-handle-corner);
   user-select: none;
   // Enter animation — popover-style fade + scale-up. Disabled by
   // .wr-window--no-anim and prefers-reduced-motion below.
@@ -38,8 +61,10 @@
     display: none;
   }
 
+  // Squares the host AND the two bars that now round their own corners
+  // (see `&__chrome` / `&__status-bar`) — one variable instead of three rules.
   &--maximized {
-    border-radius: 0;
+    --wr-window-radius: 0px;
   }
 
   // Compact title bar — useful for utility / docked panels where every
@@ -74,6 +99,7 @@
     color: var(--wr-window-chrome-color);
     cursor: grab;
     border-bottom: 1px solid var(--wr-window-border);
+    @include _corner-pair(border-start-start-radius, border-start-end-radius, var(--wr-window-radius));
     touch-action: none;
 
     &:active {
@@ -230,6 +256,7 @@
     padding: 0.25rem 0.75rem;
     border-top: 1px solid var(--wr-window-border);
     background: var(--wr-color-fill);
+    @include _corner-pair(border-end-start-radius, border-end-end-radius, var(--wr-window-radius));
     font-size: var(--wr-text-xs);
     color: var(--wr-color-on-surface-muted);
 
@@ -242,19 +269,35 @@
     display: none;
   }
 
-  // Resize handles (only rendered in normal state)
+  // Resize handles (only rendered in normal state).
+  //
+  // Every grip sits ENTIRELY OUTSIDE the padding box — the band the drop shadow
+  // already occupies, and where a native window manager puts its own invisible
+  // resize border. They used to straddle the frame (inset `-2px`, 8px deep, 14px
+  // at the corners), which put 6px of every edge grip and 12px of every corner
+  // grip ON TOP of the window's own controls: a press 3px inside the close
+  // button started a top-right RESIZE instead of closing the window (20.6% of
+  // that button was grip), and 28% of a button at the bottom of the body was
+  // dead. The outward 2px never worked at all — `overflow: hidden` clipped it —
+  // so the whole grab area was carved out of the window's own chrome and body.
+  //
+  // `100%` rather than a negative length: it pins the grip's INNER edge to the
+  // padding box edge whatever `--wr-window-handle-size` is, so the two can't
+  // drift apart into an overlap again. The trade is that a window flush against
+  // the top of the viewport has its top grip off-screen; every other edge, and
+  // moving the window, still work.
   &__handle {
     position: absolute;
     z-index: 1;
 
     &--t {
-      top: -2px;
+      bottom: 100%;
       inset-inline: 0;
       height: var(--wr-window-handle-size);
       cursor: ns-resize;
     }
     &--b {
-      bottom: -2px;
+      top: 100%;
       inset-inline: 0;
       height: var(--wr-window-handle-size);
       cursor: ns-resize;
@@ -269,7 +312,7 @@
       top: 0;
       bottom: 0;
       // rtl-ok: west grip — paired with the physical `left` the resize math writes
-      left: -2px;
+      right: 100%;
       width: var(--wr-window-handle-size);
       cursor: ew-resize;
     }
@@ -277,41 +320,44 @@
       top: 0;
       bottom: 0;
       // rtl-ok: east grip — paired with the physical `left` + width the resize math writes
-      right: -2px;
+      left: 100%;
       width: var(--wr-window-handle-size);
       cursor: ew-resize;
     }
 
+    // The corners take the outward diagonal square, clear of both edge bands —
+    // an L would need two elements, and the edge grip beside it already answers
+    // for the one axis it drops.
     &--tl {
-      top: -2px;
+      bottom: 100%;
       // rtl-ok: north-west grip — `nwse-resize` names a screen diagonal
-      left: -2px;
-      width: 14px;
-      height: 14px;
+      right: 100%;
+      width: var(--wr-window-handle-corner);
+      height: var(--wr-window-handle-corner);
       cursor: nwse-resize;
     }
     &--tr {
-      top: -2px;
+      bottom: 100%;
       // rtl-ok: north-east grip — `nesw-resize` names a screen diagonal
-      right: -2px;
-      width: 14px;
-      height: 14px;
+      left: 100%;
+      width: var(--wr-window-handle-corner);
+      height: var(--wr-window-handle-corner);
       cursor: nesw-resize;
     }
     &--bl {
-      bottom: -2px;
+      top: 100%;
       // rtl-ok: south-west grip — `nesw-resize` names a screen diagonal
-      left: -2px;
-      width: 14px;
-      height: 14px;
+      right: 100%;
+      width: var(--wr-window-handle-corner);
+      height: var(--wr-window-handle-corner);
       cursor: nesw-resize;
     }
     &--br {
-      bottom: -2px;
+      top: 100%;
       // rtl-ok: south-east grip — `nwse-resize` names a screen diagonal
-      right: -2px;
-      width: 14px;
-      height: 14px;
+      left: 100%;
+      width: var(--wr-window-handle-corner);
+      height: var(--wr-window-handle-corner);
       cursor: nwse-resize;
     }
   }

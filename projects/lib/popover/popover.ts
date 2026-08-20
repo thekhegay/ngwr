@@ -28,7 +28,7 @@ import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WR_RESPONSIVE_OVERLAYS, WrOutsideClick, wrMirrorOffsets, wrPresentAsSheet } from 'ngwr/overlay';
 import { numAttr } from 'ngwr/utils';
 
-import { WR_POPOVER_POSITIONS, type WrPopoverPosition } from './interfaces';
+import { type WrPopoverPosition, wrPopoverPositions } from './interfaces';
 import { WrPopoverTextPanel } from './internal/text-panel';
 
 /**
@@ -306,20 +306,21 @@ export class WrPopover {
     // never dock to the bottom. On small viewports (when opted in) detach
     // from the trigger and slide the panel up from the bottom edge.
     const asSheet = !tooltip && wrPresentAsSheet(this.responsive(), this.responsiveConfig);
+    const paneClass = tooltip ? 'wr-tooltip-overlay' : 'wr-popover-overlay';
 
     const positionStrategy = asSheet
       ? this.overlay.position().global().centerHorizontally().bottom('0')
       : this.overlay
           .position()
           .flexibleConnectedTo(this.host)
-          .withPositions(wrMirrorOffsets(WR_POPOVER_POSITIONS[position], this.isRtl()))
+          .withPositions(wrMirrorOffsets(wrPopoverPositions(position, paneClass), this.isRtl()))
           .withPush(true);
 
-    const overlayClass = tooltip
-      ? ['wr-tooltip-overlay', `wr-tooltip-overlay--${position}`]
-      : asSheet
-        ? ['wr-popover-overlay', 'wr-overlay-sheet']
-        : ['wr-popover-overlay', `wr-popover-overlay--${position}`];
+    // The `--<placement>` half is no longer set here: each fallback position
+    // carries its own, so the pane names the placement it landed on instead of
+    // the one that was requested, and the arrow follows a flip. A sheet has no
+    // anchor and so no placement class at all.
+    const overlayClass = asSheet ? [paneClass, 'wr-overlay-sheet'] : [paneClass];
 
     this.overlayRef = this.overlay.create({
       positionStrategy,

@@ -128,13 +128,15 @@
 
   &__group--collapsed &__chevron {
     // Disclosure affordance, and it IS reading-order: the collapsed chevron
-    // should point at the trailing edge. `rotate` has no logical form, so under
-    // RTL the chevron-down still swings to point right — into the sidebar's
-    // content rather than away from it. Flipping it needs a `[dir]` rule (or a
-    // direction-aware sign from sidebar.ts), which is beyond a property-level
-    // rewrite; same call as the segmented thumb and the button seam.
-    // rtl-ok: transform rotation has no logical equivalent — see above
+    // should point at the trailing edge — physically right in LTR, physically
+    // left under RTL, where the group header's own label sits to its right.
+    // `rotate` has no logical form, so the RTL sign is set by the rule below.
+    // rtl-ok: transform rotation has no logical equivalent — the RTL sign is the rule below
     transform: rotate(-90deg);
+  }
+
+  [dir='rtl'] &__group--collapsed &__chevron {
+    transform: rotate(90deg);
   }
 
   // Child items (inside an expanded group)

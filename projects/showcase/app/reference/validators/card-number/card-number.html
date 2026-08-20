@@ -6,7 +6,9 @@
 >
   <ngwr-doc-section title="Live demo" description="Use a Stripe test number like `4242 4242 4242 4242`.">
     <ngwr-doc-snippet code="">
-      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 22rem">
+      <div
+        style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: min(22rem, 100%)"
+      >
         <input wrInput [formControl]="control" placeholder="4242 4242 4242 4242" />
         <code style="font-size: 0.8125rem">errors: {{ control.errors | json }}</code>
       </div>

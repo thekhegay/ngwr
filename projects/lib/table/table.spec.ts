@@ -747,6 +747,79 @@ describe('WrTable header gestures follow the reading direction', () => {
   });
 });
 
+const PIN_COLUMNS: WrTableColumns = {
+  name: { title: 'Name', pin: 'left' },
+  role: { title: 'Role' },
+  city: { title: 'City', pin: 'right' },
+};
+
+@Component({
+  imports: [WrTable],
+  template: `<wr-table [columns]="PIN_COLUMNS" [items]="items" rowKey="id" />`,
+})
+class PinHost {
+  protected readonly PIN_COLUMNS = PIN_COLUMNS;
+  protected readonly items = ROWS;
+}
+
+/**
+ * The third thing on the inline axis, and the only one the component does not
+ * have to sign for itself: `measurePins()` accumulates in DOM order, which IS
+ * start-to-end, so the offsets are already logical. They only have to be EMITTED
+ * as logical properties — a physical `left: 0` cannot catch a `pin: 'left'`
+ * column under `dir="rtl"`, where the column order mirrors and that column now
+ * sits at the physical right, so it scrolls out of the viewport instead of
+ * freezing. Its `pin: 'right'` twin is worse: it is already off the far edge at
+ * rest, before the user scrolls at all.
+ *
+ * The input names stay physical because they are public API; the property they
+ * produce does not. jsdom lays nothing out and never scrolls, so what is pinned
+ * here is the DECLARATION the component writes — whether the cell then stays put
+ * is a real browser's answer.
+ */
+describe('WrTable pins on the inline axis, not the physical one', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<PinHost>>;
+
+  afterEach(() => fixture.destroy());
+
+  it('writes both sticky offsets as logical insets, in either direction', () => {
+    for (const direction of ['ltr', 'rtl'] as const) {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [{ provide: Directionality, useValue: { value: direction, change: new Subject<Direction>() } }],
+      });
+      fixture = TestBed.createComponent(PinHost);
+      fixture.detectChanges();
+
+      const root = fixture.nativeElement as HTMLElement;
+      const start = root.querySelector<HTMLElement>('.wr-table__th--pin-left')!;
+      const end = root.querySelector<HTMLElement>('.wr-table__th--pin-right')!;
+
+      expect(start.style.getPropertyValue('inset-inline-start')).toBe('0px');
+      expect(start.style.getPropertyValue('left')).toBe('');
+      expect(end.style.getPropertyValue('inset-inline-end')).toBe('0px');
+      expect(end.style.getPropertyValue('right')).toBe('');
+    }
+  });
+
+  it('leaves an unpinned column with no inset at all', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(PinHost);
+    fixture.detectChanges();
+
+    // `leftPin()` / `rightPin()` answer `null` off the pinned set, and a null
+    // style binding must clear rather than resolve to `0px` — otherwise every
+    // ordinary cell would carry a sticky inset it never asked for.
+    const plain = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-table__th')].find(
+      th => !th.className.includes('pin-')
+    )!;
+
+    expect(plain.style.getPropertyValue('inset-inline-start')).toBe('');
+    expect(plain.style.getPropertyValue('inset-inline-end')).toBe('');
+  });
+});
+
 /**
  * `responsive` is the fourth thing virtualization refuses to combine with, and the
  * only one of the four that is not in the component's own list of documented pairs.

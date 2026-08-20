@@ -32,10 +32,23 @@
     padding: 0.5rem 0.625rem;
     border-bottom: 1px solid var(--wr-color-outline);
     background: var(--wr-color-fill);
+    // The checkbox and the count are intrinsically sized, so on a narrow pane
+    // the title absorbed the entire shortfall: at 375px it was 26px of a 91px
+    // track and the headers read "A…" and "S…". Let the count drop to its own
+    // line before that happens — it is the one part of the row that reads fine
+    // anywhere. Nothing moves while the row fits (measured: identical at 190px
+    // and 430px panes).
+    flex-wrap: wrap;
   }
 
   &__title {
-    flex: 1 1 auto;
+    // A small basis rather than `auto`: the title has to be the item that
+    // yields, and with a content-sized basis a long title pushes ITSELF onto
+    // the next line, leaving the select-all checkbox alone on a row and the
+    // two panes of one transfer with headers of different heights. 3.5rem is
+    // the widest basis that still shares a row with the checkbox in the
+    // narrowest pane the component reaches (113px).
+    flex: 1 1 3.5rem;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;

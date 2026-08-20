@@ -48,6 +48,17 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    // `__inner` wraps, but the whole numbered strip is ONE of its children, so
+    // that wrap could never help: at `size="lg"` the strip is 9 cells of 2.5rem
+    // plus gaps = 392px, which at 375px left the last page number cut off at the
+    // screen edge and the next-page arrow off it entirely. Wrap the cells
+    // themselves. A pager scrolls badly — page 12 is the one you cannot reach —
+    // and a second row costs nothing when the first one fits.
+    flex-wrap: wrap;
+    // A wrapped row has to follow the pager's own alignment: `__inner` carries
+    // it, and a centred or end-aligned pager whose second row packed to the
+    // start would read as a different control.
+    justify-content: inherit;
 
     .wr-btn {
       min-width: var(--wr-pagination-cell, 2rem);

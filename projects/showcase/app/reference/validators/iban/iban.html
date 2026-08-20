@@ -6,7 +6,9 @@
 >
   <ngwr-doc-section title="Live demo" description="Try `GB82 WEST 1234 5698 7654 32` (a textbook valid IBAN).">
     <ngwr-doc-snippet code="">
-      <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: 24rem">
+      <div
+        style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; min-width: min(24rem, 100%)"
+      >
         <input wrInput [formControl]="control" placeholder="GB82 WEST 1234 5698 7654 32" />
         <code style="font-size: 0.8125rem">errors: {{ control.errors | json }}</code>
       </div>

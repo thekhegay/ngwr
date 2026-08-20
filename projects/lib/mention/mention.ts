@@ -6,7 +6,12 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import {
+  type ConnectedPosition,
+  type FlexibleConnectedPositionStrategyOrigin,
+  type OverlayRef,
+  ScrollStrategyOptions,
+} from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { isPlatformBrowser } from '@angular/common';
 import {
@@ -41,6 +46,22 @@ interface ActiveState {
  * differ between that render and the hydrated client.
  */
 let mentionUid = 0;
+
+/** Gap between the caret's line and the panel, on whichever side it opens. */
+const CARET_GAP = 4;
+
+/**
+ * Below the caret's line first, above it when there is no room — the two sides
+ * a caret-anchored list can take. There is no horizontal pair: a panel that
+ * jumped to the other side of the caret would read as a different widget, so a
+ * caret near the inline end is handled by `withPush` sliding the panel back
+ * onto the screen instead. `overlayX: 'start'` is the logical corner, so RTL
+ * hangs the panel from the caret's other side without a second table.
+ */
+const CARET_POSITIONS: ConnectedPosition[] = [
+  { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
+  { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
+];
 
 /**
  * `@`-style mention picker for `<textarea>` and `<input>`. Listens for
@@ -138,6 +159,12 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   private overlayRef: OverlayRef | null = null;
   private panelRef: ComponentRef<WrMentionPanel> | null = null;
+  /**
+   * Where the caret sits INSIDE the field — its offset from the field's
+   * top-left corner, plus the height of the line it is on. Mutated in place by
+   * `open()`, never replaced: `caretAnchor()` closes over this object.
+   */
+  private readonly caretOffset = { dx: 0, dy: 0, lineHeight: 0 };
   private state: ActiveState | null = null;
   private readonly activeIndex = signal(0);
   private readonly filteredItems = signal<readonly T[]>([]);
@@ -344,16 +371,67 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   // Overlay
 
+  /**
+   * The overlay's anchor: the caret's line box, grown by the gap the panel
+   * keeps from the text, as a zero-WIDTH virtual origin in viewport
+   * coordinates. Inflating the rect rather than passing `offsetY` is what keeps
+   * `withPush` honest — CDK applies a position offset as a `transform` AFTER it
+   * has clamped, so a pushed panel would land the offset off the screen edge.
+   *
+   * Live getters, not a snapshot, and that is the whole of the scroll fix.
+   * `getCaretCoordinates` answers in viewport coordinates, which a
+   * `GlobalPositionStrategy` froze at the instant of the keystroke: the panel
+   * then stayed pinned to the screen while the page scrolled out from under it
+   * (150px of scroll, 150px of drift, ending up over unrelated content). CDK
+   * re-reads a virtual origin on every `apply()`, so pinning it to the FIELD's
+   * live rect is what turns `reposition()` into a real re-anchor.
+   *
+   * Only the caret's offset inside the field is captured up front. Measuring it
+   * runs the mirror-div pass in `caret.ts` — a full layout read, far too
+   * expensive to repeat per scroll event — and it cannot change without a
+   * keystroke, which re-enters `open()` anyway.
+   */
+  private caretAnchor(): FlexibleConnectedPositionStrategyOrigin {
+    const field = this.host.nativeElement;
+    const offset = this.caretOffset;
+    return {
+      width: 0,
+      get x(): number {
+        return field.getBoundingClientRect().left + offset.dx;
+      },
+      get y(): number {
+        return field.getBoundingClientRect().top + offset.dy - CARET_GAP;
+      },
+      get height(): number {
+        return offset.lineHeight + CARET_GAP * 2;
+      },
+    };
+  }
+
   private open(): void {
     const el = this.host.nativeElement;
     const caret = el.selectionStart ?? 0;
     const { top, left, lineHeight } = getCaretCoordinates(el, caret);
-    const x = left;
-    const y = top + lineHeight + 4;
+    const field = el.getBoundingClientRect();
+    this.caretOffset.dx = left - field.left;
+    this.caretOffset.dy = top - field.top;
+    this.caretOffset.lineHeight = lineHeight;
 
     if (!this.overlayRef) {
       this.overlayRef = this.overlay.create({
-        positionStrategy: this.overlay.position().global().left(`${x}px`).top(`${y}px`),
+        // Flexible, not global: a global strategy has no anchor and no fallback
+        // positions, so the panel was always drawn downward from the caret no
+        // matter how little room was left below it — half the list ended up
+        // under the fold, unreachable by pointer AND invisible to a sighted
+        // keyboard user walking it with `aria-activedescendant` (WCAG 2.4.11).
+        positionStrategy: this.overlay
+          .position()
+          .flexibleConnectedTo(this.caretAnchor())
+          // The panel sizes itself (`max-height` on the list); the flip above
+          // and `withPush` are the whole answer to a cramped viewport.
+          .withFlexibleDimensions(false)
+          .withPush(true)
+          .withPositions(CARET_POSITIONS),
         scrollStrategy: this.scrollStrategies.reposition(),
         panelClass: 'wr-mention-overlay',
       });
@@ -368,9 +446,9 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
       ref.setInput('listLabel', this.listLabel());
       ref.instance.picked.subscribe(item => this.commit(item as T));
       ref.instance.hovered.subscribe(i => this.setActive(i));
-    } else {
-      this.overlayRef.updatePositionStrategy(this.overlay.position().global().left(`${x}px`).top(`${y}px`));
     }
+    // No `else` re-building the strategy: the anchor reads `caretOffset` and the
+    // field's live rect, both of which the lines above have already refreshed.
 
     this.panelRef?.setInput('items', this.filteredItems());
     this.panelRef?.setInput('activeIndex', this.activeIndex());
@@ -382,6 +460,12 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     // Waiting for the next tick would leave a window where the reference dangles
     // and the announcement is lost with no error anywhere.
     this.panelRef?.changeDetectorRef.detectChanges();
+    // Place it only now, with the options rendered: which side of the caret the
+    // panel takes is decided by measuring it, and `attach()` defers CDK's own
+    // first placement into `afterNextRender` — a frame in which the panel would
+    // be painted, full size and fully opaque, at the overlay container's
+    // top-left corner.
+    this.overlayRef.updatePosition();
     this.isOpen.set(true);
   }
 

@@ -72,7 +72,17 @@
     background: var(--wr-color-primary-soft);
     // The item label inherits this, so it is text on the `-soft` tint: `-ink`.
     color: var(--wr-color-primary-ink);
-    outline: none;
+  }
+
+  // Hover and focus paint the same tint, so the tint alone cannot say which row
+  // Enter fires — with the keyboard on one row and the pointer resting on
+  // another, both light up identically. And the menu focuses its first enabled
+  // row on open and roves with the arrows, so this is the ordinary keyboard
+  // state rather than an edge case. Same ring as `.wr-dropdown-item`, and it
+  // fits: the menu's 0.3125rem padding clears the 2px offset plus the 2px
+  // outline with a pixel to spare, so no negative offset is needed here.
+  &:focus-visible {
+    @include theme.focus-ring;
   }
 
   &--disabled {
@@ -106,6 +116,15 @@
   &--has-submenu:hover &__chevron,
   &--has-submenu:focus-visible &__chevron {
     color: var(--wr-color-primary);
+  }
+
+  // The submenu pane cascades toward the inline end, so under `dir="rtl"` it
+  // opens to the LEFT — `context-menu-item.ts` swaps the key that opens it for
+  // the same reason. The chevron is drawn pointing physically right, so turn it
+  // around with the panes, the way the cascader's branch arrow does. Scoped to
+  // the chevron: the label beside it must not mirror.
+  [dir='rtl'] &__chevron {
+    transform: scaleX(-1);
   }
 }
 

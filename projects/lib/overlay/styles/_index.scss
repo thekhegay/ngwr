@@ -33,6 +33,33 @@
   animation: wr-overlay-sheet-up var(--wr-overlay-duration, 0.2s) var(--wr-overlay-ease, ease-out) !important;
 }
 
+// The pane above is the sheet, but only the dialog PAINTS it — there the pane
+// IS the panel. For select, dropdown and popover the pane is a transparent
+// wrapper and the visible surface is its child, so everything above lands on a
+// box nobody can see: the child keeps its own content width and its own
+// all-round radius. `.cdk-overlay-pane` is a row flexbox, so an unsized child
+// shrinks to fit its content and sits against the inline-start edge — dropdown
+// rendered a 160px card in a 375px sheet, popover a 288px one, while
+// `.wr-select-panel` filled it only because select declares `width: 100%` for
+// itself. Stretching every sheet child here is what makes that a property of
+// the sheet rather than a per-component opt-in the next one forgets.
+//
+// The two bottom corners go with it: a sheet is docked flush against the
+// bottom of the screen, so a rounded corner there is a wedge of backdrop
+// sitting on the screen edge. The pane's own `0 0` above says the same thing
+// for the dialog.
+//
+// `.wr-dialog__close` is the one direct child that is NOT a sheet surface —
+// the dialog service parks it absolutely in the panel's corner, at its own
+// 24px box and its own radius. `dialog/styles/_index.scss` excludes it from
+// its sibling rule for the same reason.
+.wr-overlay-sheet > *:not(.wr-dialog__close) {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
 // Dim + blur behind a sheet — for overlays that otherwise have no backdrop.
 .wr-overlay-backdrop {
   background: var(--wr-color-overlay);

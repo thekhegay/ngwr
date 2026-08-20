@@ -75,8 +75,14 @@ interface TimeChip {
   readonly top: number;
   /** Height as a multiple of the cell, ×100. */
   readonly height: number;
-  /** Horizontal share of the column, both 0–100. */
-  readonly left: number;
+  /**
+   * Lane offset from the column's inline START, 0–100 — not from its physical
+   * left. Concurrent events are laid out in reading order, so under `dir="rtl"`
+   * lane 0 belongs at the right; a physical `left` would read the cluster
+   * back-to-front, which is the one thing in this component that was not logical.
+   */
+  readonly inlineStart: number;
+  /** Lane width as a share of the column, 0–100. */
   readonly width: number;
   readonly continuesBefore: boolean;
   readonly continuesAfter: boolean;
@@ -803,7 +809,7 @@ export class WrEventCalendar {
               event: item.event,
               top: ((minutes - slotStart) / slot) * 100,
               height: (length / slot) * 100,
-              left: (index / cluster.length) * 100,
+              inlineStart: (index / cluster.length) * 100,
               width: (1 / cluster.length) * 100,
               continuesBefore: item.event.start.getTime() < windowStart,
               continuesAfter: item.event.end.getTime() > windowEnd,
