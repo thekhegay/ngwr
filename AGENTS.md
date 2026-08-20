@@ -564,28 +564,35 @@ smallest diff that satisfies the request. Concretely:
 `--provenance`), and a poisoned cache would hand it to attacker-controlled
 code. Don't re-add the cache.
 
-**A second BREAKING change is on `main` and unreleased: the date entry points
-moved.** `ngwr/date-adapter` → `ngwr/date`, `ngwr/date-adapter-fns` →
-`ngwr/date/adapters/fns`, `ngwr/date-adapter-luxon` → `ngwr/date/adapters/luxon`,
-so the catalog nests implementations under their feature the way
-`ngwr/icon/adapters/*` always did. Import paths only — every symbol keeps its
-name — and `migration-v12` rewrites them, which is what makes this one a codemod
-rather than a release note: a path is exactly what a codemod can move without
-reading the code around it. It also ends the "migrations stop at v9" rule below;
-v10 and v11 had nothing a codemod could fix, and this does.
+**v12 carries two BREAKING changes, and they are the reason it is a major.**
 
-**One BREAKING change is on `main` and unreleased.** `readI18nText()` — exported
-from `ngwr/i18n` — returned `string` and now returns `Signal<string>`, so every
-call site needs a `()`. It is a fix, not a refactor: `WrI18n` writes every
-loader-backed catalog from `firstValueFrom(...).then(...)`, which lands a
-microtask AFTER the first change-detection pass, so the old one-shot read froze
-the ENGLISH fallback for the life of the app — a `<wr-date-picker>` announced
-"Открыть календарь" on the field and "Open calendar" on the button beside it,
-off the same key. A sync read cannot be correct against an async catalog, so the
-type had to move. Type-level only; the next release notes must carry it.
+**One — the date entry points moved.** `ngwr/date-adapter` → `ngwr/date`,
+`ngwr/date-adapter-fns` → `ngwr/date/adapters/fns`, `ngwr/date-adapter-luxon` →
+`ngwr/date/adapters/luxon`, so the catalog nests implementations under their
+feature the way `ngwr/icon/adapters/*` always did. Import paths only — every
+symbol keeps its name, and these entry points ship no styles, so no `@use` path
+moves with them. `migration-v12` rewrites all of it, which is what makes this a
+codemod rather than a release note: a path is exactly what a codemod can move
+without reading the code around it.
 
-**Versioning.** The last release is **v11.2.0** (tagged and published 2026-08-14) — that is the newest
-tag and what `projects/lib/package.json` reads. v10's three breaking changes were
+**Two — `readI18nText()` returns `Signal<string>`.** Exported from `ngwr/i18n`,
+it returned `string`, so every call site needs a `()`. A fix rather than a
+refactor: `WrI18n` writes every loader-backed catalog from
+`firstValueFrom(...).then(...)`, which lands a microtask AFTER the first
+change-detection pass, so the old one-shot read froze the ENGLISH fallback for
+the life of the app — a `<wr-date-picker>` announced "Открыть календарь" on the
+field and "Open calendar" on the button beside it, off the same key. A sync read
+cannot be correct against an async catalog, so the type had to move. Deliberately
+NOT codemodded: adding `()` means knowing which identifiers hold the result, and
+a wrong guess is a silent behaviour change — whereas the type error names every
+site. `useI18nText`, the `wrT` pipe and the `[wrT]` directive are untouched.
+
+Both are on the user-facing migration guide at `/start/migration`; the
+`ng update ngwr@12` section there is what a consumer actually follows.
+
+**Versioning.** **v12 is the current major line.** `projects/lib/package.json`
+and the `NGWR_VERSION` constant are written by `release:prepare`, so read the
+version from there rather than from this file. v10's three breaking changes were
 all CSS/token-level — WCAG contrast on `--wr-color-*-contrast`, table header
 casing, tooltip theming — so there is deliberately **no `migration-v10`**: an
 empty codemod would tell consumers their visual regressions were handled when
@@ -593,11 +600,12 @@ they were not. v11's breaking change was the same shape (five intents deepened s
 their labels can be white — see Styling), so `schematics/migrations/` skipped v10
 and v11 on purpose. It resumes at **v12**, and the difference is the whole rule:
 v10 and v11 changed painted colour, which no codemod can repair, while v12 moves
-three import paths, which is exactly what one can. v11.2.0 shipped eighteen `ngwr/*/testing` entry points, the
-generated agent skill and the registry format, plus sixteen fixes; it widened
-three exported types to nullable (`WrToastConfig.labels.*`, `wr-window`'s
-`showMinimize` / `showMaximize`) and added a required member to the `@internal`
-`WrCheckboxGroupContext` — type-level only, no runtime break. Don't bump
+three import paths, which is exactly what one can. v12 also carries the largest defect sweep the
+library has had: 257 confirmed and fixed across six passes — five reading code
+(SSR, teardown, zoneless, cross-component consistency, hard-coded strings,
+untrusted input, harnesses, config, package surface, edge inputs, performance,
+APG and WCAG criterion by criterion) and one measuring PIXELS in a real browser,
+which found 58 on its own and is the lens the other five could not apply. Don't bump
 the version by hand — releases are cut from Actions ("Release PR" → `bump`),
 which runs `release:prepare` / `release:body` and opens a `chore(release)` PR.
 

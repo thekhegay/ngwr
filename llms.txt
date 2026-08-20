@@ -1,7 +1,7 @@
 # ngwr
 
 > Angular UI library — standalone, signals-first, zoneless, fully tree-shakable.
-> 202 secondary entry points, 181 component and directive classes, built on
+> 202 secondary entry points, 187 component and directive classes, built on
 > `@angular/cdk` primitives. The only runtime dependency is `tslib`. Docs and
 > live demos: https://ngwr.dev — source: https://github.com/thekhegay/ngwr
 
@@ -74,6 +74,21 @@ one element at a time; a step whose target is missing is skipped, not floated.
 - `ng g ngwr:component-style <name>` — appends `@use 'ngwr/<name>'` (opt-in styles).
 - `ng g ngwr:page <form|table|dashboard>` — starter page wired with ngwr.
 - `ng update ngwr` — runs upgrade migrations.
+
+## Upgrading to v12
+
+Two breaking changes, and only one is codemoddable.
+
+- **Date entry points nest under `ngwr/date`.** `ngwr/date-adapter` →
+  `ngwr/date`, `ngwr/date-adapter-fns` → `ngwr/date/adapters/fns`,
+  `ngwr/date-adapter-luxon` → `ngwr/date/adapters/luxon`. Import paths only —
+  every symbol keeps its name. `ng update ngwr@12` rewrites them.
+- **`readI18nText()` returns `Signal<string>`.** Add `()` at every read. No
+  codemod: adding the call means knowing which identifiers hold the result, and
+  the type error already names every site. `useI18nText`, the `wrT` pipe and the
+  `[wrT]` directive are unchanged.
+
+Full guide, with diffs: https://ngwr.dev/start/migration
 
 ## Use ngwr — don't hand-roll
 

@@ -11,7 +11,7 @@
 zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
 `@angular/cdk` for overlay, portal, and a11y primitives.
 
-> **Status:** active development. v11 is the current major line (Angular 22 peer).
+> **Status:** active development. v12 is the current major line (Angular 22 peer).
 > Public API is stable across patch releases and still evolving between majors.
 > [Open an issue](https://github.com/thekhegay/ngwr/issues/new)
 > if something breaks or feels wrong.
@@ -64,6 +64,36 @@ it needs `lucide`:
 ```shell
 pnpm add lucide
 ```
+
+## Upgrading to v12
+
+```shell
+ng update ngwr@12
+```
+
+Two breaking changes, and they need opposite treatment.
+
+**The date entry points nest under `ngwr/date`.** `ngwr/icon` has always nested
+its implementations at `ngwr/icon/adapters/lucide`; the date ones were flat and
+hyphenated, which spelled one idea two ways. The codemod rewrites all three
+paths and every symbol keeps its name:
+
+| Before | After |
+| --- | --- |
+| `ngwr/date-adapter` | `ngwr/date` |
+| `ngwr/date-adapter-fns` | `ngwr/date/adapters/fns` |
+| `ngwr/date-adapter-luxon` | `ngwr/date/adapters/luxon` |
+
+**`readI18nText()` returns `Signal<string>`** — add `()` at every read. There is
+deliberately no codemod for this one: adding the call means knowing which
+identifiers hold the result, and a wrong guess would be a silent behaviour
+change, whereas the type error names every site for you. It is a fix rather than
+a rename — the old synchronous read froze the English fallback whenever the
+catalog arrived from a loader, so a component could announce itself in two
+languages off the same key. `useI18nText`, the `wrT` pipe and the `[wrT]`
+directive are unchanged.
+
+Full guide with diffs: [ngwr.dev/start/migration](https://ngwr.dev/start/migration).
 
 ## Styles
 

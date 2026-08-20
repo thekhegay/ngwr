@@ -6,22 +6,30 @@
 > including the sixteen "contracts that look like bugs" this file used to carry.
 > Sizes: S / M / L / XL.
 >
-> **State (2026-08-19, v11.2.0 — tagged 2026-08-14):** **v11 is the current major line** (Angular 22 peer). It
-> is a major because five palette intents moved so their labels could go white —
-> `secondary`, `success`, `danger`, `info`, `medium`; the arithmetic is under A5,
-> and there is deliberately no codemod, because a codemod cannot repaint a
-> screenshot. The catalog is **202 secondary entry points / 184 component and
+> **State (2026-08-20, v12):** **v12 is the current major line** (Angular 22 peer). It
+> is a major for two reasons, and they need opposite handling. The three date
+> entry points moved — `ngwr/date-adapter{,-fns,-luxon}` → `ngwr/date` and
+> `ngwr/date/adapters/{fns,luxon}` — so the catalog nests implementations under
+> their feature the way `ngwr/icon/adapters/*` always did; that is import paths
+> only, and `migration-v12` rewrites them. And `readI18nText()` now returns
+> `Signal<string>`, which no codemod should guess at but the compiler finds at
+> every call site. v11's own break was painted colour (five intents deepened so
+> their labels could go white), which is why it shipped no codemod at all.
+>
+> The catalog is **202 secondary entry points / 187 component and
 > directive classes**, seventy of those entry points being the `<name>/testing`
 > CDK harnesses — A2 closed with the animation set, and what it learned lives in
 > [AGENTS.md](AGENTS.md) under "Writing a HARNESS".
-> **Seven gates run on every PR:** `pnpm lint` (multi-stage — the first stage
+> **Eight gates run on every PR:** `pnpm lint` (multi-stage — the first stage
 > prints `All files pass linting.` even when a later one fails, so trust the
-> exit code), `pnpm test` (**3699 specs across 227 files**), `check:api-docs`,
-> `check:llms`, `build:lib`, `build:showcase`, `check:a11y` (223 prerendered
-> pages). `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
+> exit code), `pnpm test` (**4060 specs across 238 files**), `check:api-docs`,
+> `check:llms`, `build:lib`, `build:showcase`, `check:theme` and `check:a11y`
+> (222 prerendered pages), the last two after the showcase build they read. `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
 > browser and run **nightly**. Docs are prerendered — **221 routes**, 198
-> canonical plus 23 redirect stubs, with 200 markdown twins beside them — and
-> past majors are archived under `/v7/`, `/v8/`, `/v9/`.
+> canonical plus 23 redirect stubs, with 201 markdown twins beside them — and
+> past majors are archived under `/v7/` … `/v11/` (frozen by `publish.yml` on
+> every major release, and the version switcher derives the list rather than
+> hard-coding it).
 
 ## Order
 
