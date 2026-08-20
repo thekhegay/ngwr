@@ -775,6 +775,28 @@ there is no baseline of pixel positions to rot, and it catches what neither
 one shipped catch was the slider thumb centring itself with a physical
 `translate(-50%)` against an inset that had become logical.
 
+**`--wr-color-outline` fails WCAG 1.4.11 on control borders, and that is a
+DECIDED trade — do not re-report it.** Measured: `#cbd5e1` on white is **1.48:1**
+and `#262f44` on `#0b1120` is **1.41:1**, against the 3:1 the criterion asks of
+anything that identifies a control. The token carries 103 declarations across 55
+entry points, and only **15** are control boundaries where 1.4.11 applies
+(`input`, `input-group`, `textarea`, `select`, `checkbox`, `radio`, the switch
+track, the slider rail, `button`, `cascader`, the tree trigger, `input-otp`,
+`color-picker`, `time-picker`, `rating`); the other 88 are cards, dividers,
+table rules and panel edges, which the criterion does not reach.
+
+Two fixes were costed and both were rejected on how they look: darkening the one
+token to `#7e97b5` / `#4d608a` repaints all 103, and splitting out a
+`--wr-color-control-border` at 3:1 leaves control edges visibly darker than every
+line beside them. The maintainer chose to keep the current hairline.
+
+Worth knowing if it is ever reopened: `#7e97b5` clears 3:1 on white but only
+reaches 2.60:1 on `#ebeff4`, the lightest surface the library paints, so the
+honest light value is `#718cad` (3.00 on that tint, 3.47 on white). **No gate
+reports this** — axe ships no non-text-contrast rule, so `check:contrast` runs
+`color-contrast` and `target-size` and neither sees a border. Five sweeps
+rediscovered it from first principles; this paragraph exists so a sixth does not.
+
 **The focus ring is `--wr-focus-ring-*`, and no gate can prove it.** The shared
 `theme.focus-ring` mixin emits an OUTLINE plus a halo, both read from tokens
 (`-color` / `-width` / `-offset` / `-halo` in `_variables.scss`). It used to be
