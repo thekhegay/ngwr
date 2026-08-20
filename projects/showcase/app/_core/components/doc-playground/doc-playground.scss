@@ -34,12 +34,17 @@
     border-bottom: 1px solid var(--wr-color-light);
   }
 
+  // A playground with nothing projected. `:empty` counts the Replay and
+  // sandbox buttons as content, so it has only ever matched a card with
+  // neither — which no page on the site is: all 29 usages project a demo
+  // (`grep -ro '<ngwr-doc-playground' projects/showcase --include='*.html' | wc -l`).
   &:empty {
     display: none;
   }
 }
 
-.replay {
+.replay,
+.sandbox {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
@@ -68,6 +73,25 @@
   &:focus-visible {
     outline: 2px solid var(--wr-color-primary);
     outline-offset: 2px;
+  }
+}
+
+// Two absolutely positioned buttons rather than a flex row: `.replay`'s corner
+// is the one every animation page already reads as "the control", so the
+// sandbox steps aside for it and only takes the corner when Replay is off.
+// 3.25rem = the 2rem button plus a 0.75rem gutter and a 0.5rem gap, which keeps
+// the two from overlapping — `target-size` measures the box a neighbour leaves.
+.sandbox {
+  right: 3.25rem;
+  --wr-icon-size: 1rem;
+
+  &--alone {
+    right: 0.75rem;
+  }
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.5;
   }
 }
 

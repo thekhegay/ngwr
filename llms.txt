@@ -191,6 +191,26 @@ before writing your own. Full catalog: https://ngwr.dev/reference/components.
   EXCLUSIVE. `editable` turns on drag and resize; `Alt` + arrows do the same
   from the keyboard.
 
+## Deciding whether to use it
+
+Three pages exist for the question before installation, and everything on them
+is meant to be checkable rather than taken on trust:
+
+- **Why ngwr, and when not to** — the wedge (every value control is a Signal
+  Forms control; no `ControlValueAccessor` in the library), a comparison against
+  Material / PrimeNG / NG-ZORRO / Taiga / Spartan, and a per-competitor "choose
+  something else if" section: https://ngwr.dev/start/comparison
+- **What gates a change** — eight gates on every PR, three separate
+  accessibility sweeps and what each one cannot see, the two nightly baselines
+  and what is accepted in them, plus what the test suite does NOT cover:
+  https://ngwr.dev/start/quality
+- **A live Signal Forms demo** you can read before installing anything:
+  https://ngwr.dev/start/playground
+
+The honest shape of the project, since these pages say it too: one maintainer,
+MIT, six majors shipped between 2026-06-12 and 2026-08-20, a codemod for every
+break a codemod can repair, no commercial support.
+
 ## Resources (machine-readable)
 
 - This quick-ref: https://ngwr.dev/llms.txt

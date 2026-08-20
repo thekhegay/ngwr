@@ -7,9 +7,61 @@
 [![coverage](https://codecov.io/gh/thekhegay/ngwr/branch/main/graph/badge.svg)](https://codecov.io/gh/thekhegay/ngwr)
 [![license](https://img.shields.io/npm/l/ngwr)](https://github.com/thekhegay/ngwr/blob/main/LICENSE)
 
-**NGWR** is a modern Angular UI library — standalone components, signals-first,
-zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
-`@angular/cdk` for overlay, portal, and a11y primitives.
+<!-- "Eighteen" is derived, not chosen: `grep -rn "implements .*Form\(Value\|Checkbox\)Control" projects/lib`
+     returns nineteen class declarations, and the nineteenth — `date-picker/internal/time-panel.ts` —
+     is exported by no `public-api.ts`. Sixteen implement `FormValueControl`; `wr-checkbox` and
+     `wr-switch` implement `FormCheckboxControl`. It is a count and not the word "every" on purpose:
+     `wr-segmented` and `[wrColorPickerTrigger]` are public, carry their own `value` model, and
+     implement neither. Re-derive before editing the number. -->
+
+**NGWR is an Angular UI library that binds straight to Signal Forms.** Eighteen
+value controls implement `FormValueControl` / `FormCheckboxControl` themselves,
+so `[formField]` writes the component's own `value` / `checked` model — there
+is not one `ControlValueAccessor` in the library. Zoneless by construction, not
+zoneless-compatible: signal inputs, signal state, `afterNextRender()` for DOM
+work, and no `@NgModule` or `@Input()` decorator anywhere in the source. 202
+tree-shakable entry points, on `@angular/cdk` for overlay, portal and a11y
+primitives.
+
+**[Try it in the browser](https://ngwr.dev/start/playground)** — no install.
+**[How it compares](https://ngwr.dev/start/comparison)** — what the other
+Angular UI libraries do about Signal Forms today, counted rather than asserted.
+**[Docs and live demos](https://ngwr.dev)**.
+
+```ts
+import { Component, signal } from '@angular/core';
+import { FormField, email, form, required } from '@angular/forms/signals';
+import { WrCheckbox } from 'ngwr/checkbox';
+import { WrFormField } from 'ngwr/form';
+import { WrInput } from 'ngwr/input';
+
+@Component({
+  selector: 'signup-card',
+  imports: [FormField, WrCheckbox, WrFormField, WrInput],
+  template: `
+    <wr-form-field label="Work email" required>
+      <input wrInput type="email" [formField]="signup.email" />
+    </wr-form-field>
+
+    <wr-checkbox [formField]="signup.agree">I agree to the terms</wr-checkbox>
+  `,
+})
+export class SignupCard {
+  private readonly model = signal({ email: '', agree: false });
+
+  // `[formField]` binds to the control's own `value` / `checked` model, and
+  // `<wr-form-field>` resolves the error copy from the i18n catalog — so
+  // neither an accessor nor a `<wr-form-error>` has to be written by hand.
+  readonly signup = form(this.model, path => {
+    required(path.email);
+    email(path.email);
+  });
+}
+```
+
+Classic `[(ngModel)]` and reactive forms still work — Angular 22 synthesises the
+accessor for a signal-forms control — and every control is usable standalone
+through its two-way `[(value)]` / `[(checked)]` model.
 
 > **Status:** active development. v12 is the current major line (Angular 22 peer).
 > Public API is stable across patch releases and still evolving between majors.
@@ -18,16 +70,18 @@ zoneless-ready, responsive, modular SCSS, fully tree-shakable. Built on top of
 
 ## Requirements
 
-| Peer                        | Range                |
-| --------------------------- | -------------------- |
-| `@angular/core`             | `>= 22.0.0`          |
-| `@angular/common`           | `>= 22.0.0`          |
-| `@angular/cdk`              | `>= 22.0.0`          |
-| `@angular/platform-browser` | `>= 22.0.0`          |
-| `rxjs`                      | `^7.0.0`             |
-| `date-fns` _(optional)_     | `^3.0.0 \|\| ^4.0.0` |
-| `luxon` _(optional)_        | `^3.0.0`             |
-| `lucide` _(optional)_       | `>= 1.0.0`           |
+| Peer                           | Range                |
+| ------------------------------ | -------------------- |
+| `@angular/core`                | `>= 22.0.0`          |
+| `@angular/common`              | `>= 22.0.0`          |
+| `@angular/forms`               | `>= 22.0.0`          |
+| `@angular/cdk`                 | `>= 22.0.0`          |
+| `@angular/platform-browser`    | `>= 22.0.0`          |
+| `@angular/router` _(optional)_ | `>= 22.0.0`          |
+| `rxjs`                         | `^7.0.0`             |
+| `date-fns` _(optional)_        | `^3.0.0 \|\| ^4.0.0` |
+| `luxon` _(optional)_           | `^3.0.0`             |
+| `lucide` _(optional)_          | `>= 1.0.0`           |
 
 TypeScript `~6.0.x` (Angular 22's compiler declares `typescript >=6.0 <6.1`) and
 a Node version Angular 22 accepts — `^22.22.3 || ^24.15.0 || >=26`. Contributing
@@ -55,11 +109,16 @@ npm install ngwr @angular/cdk
 yarn add ngwr @angular/cdk
 ```
 
-Beyond Angular itself, `@angular/cdk` and `@angular/forms` are the required peers — forms because every value control implements a Signal Forms interface. `@angular/router` is optional, needed only by the navigation components that take a `routerLink`. A stock `ng new` app already has all three. Add an icon set and a date library
-only if you use them — `lucide` (or `feather-icons`) for the icon adapters, and
-`date-fns` or `luxon` for the calendar / date-picker, which otherwise runs on a
-built-in native `Date` adapter. The Quick start below registers a lucide icon, so
-it needs `lucide`:
+Beyond Angular itself, `@angular/cdk` and `@angular/forms` are the required
+peers — forms because the value controls implement its Signal Forms interfaces.
+`@angular/router` is optional, needed only by the navigation components that
+take a `routerLink`. A stock `ng new` app already ships forms and router, so
+`@angular/cdk` is the only one you have to add — which is why it is on the
+install lines above. Add an icon set and a date library only if you use them —
+`lucide` (or `feather-icons`) for the icon adapters, and `date-fns` or `luxon`
+for the calendar / date-picker, which otherwise runs on a built-in native
+`Date` adapter. The Quick start below registers a lucide icon, so it needs
+`lucide`:
 
 ```shell
 pnpm add lucide

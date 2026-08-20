@@ -24,12 +24,15 @@
 > prints `All files pass linting.` even when a later one fails, so trust the
 > exit code), `pnpm test` (**4060 specs across 238 files**), `check:api-docs`,
 > `check:llms`, `build:lib`, `build:showcase`, `check:theme` and `check:a11y`
-> (222 prerendered pages), the last two after the showcase build they read. `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
-> browser and run **nightly**. Docs are prerendered — **221 routes**, 198
+> (226 prerendered pages), the last two after the showcase build they read. `check:contrast`, `check:state-a11y` and `check:rtl-layout` need a
+> browser and run **nightly**. Docs are prerendered — **225 routes**, 202
 > canonical plus 23 redirect stubs, with 201 markdown twins beside them — and
 > past majors are archived under `/v7/` … `/v11/` (frozen by `publish.yml` on
 > every major release, and the version switcher derives the list rather than
-> hard-coding it).
+> hard-coding it). Three routes are new and aimed at people who have not
+> adopted yet — `/start/comparison`, `/start/quality` and `/start/playground` —
+> and their numbers bind to `#core/generated/quality` rather than being typed
+> in.
 
 ## Order
 
@@ -543,7 +546,22 @@ incremental hydration (`withIncrementalHydration()` + `@defer (hydrate on …)`)
       `/guides/registry`. This stack drove shadcn's rise from 20% to 56%;
       Taiga has an MCP server, nobody in Angular has the full stack. Builds
       on the API-reference extraction that already ships.
-- [ ] **E4. Playground embeds** (M) — StackBlitz per component page.
+- [ ] **E4. Playground embeds** (M) — **built, and blocked at the far end.**
+      `projects/showcase/app/_core/sandbox/` turns any docs snippet into a
+      complete Angular 22 workspace and hands it to StackBlitz by form POST; a
+      generated selector map (`pnpm gen:selectors`) resolves a bare template
+      fragment's `imports`. The workspace is correct — written to disk it
+      installs, `ng build` gives a 565 kB initial bundle and the app paints —
+      but inside StackBlitz's WebContainer the build dies on
+      `rxjs/dist/esm/internal/scheduled/scheduled.js` with an
+      ECMAScript-invariant error from the Angular compiler plugin. A resolution
+      difference in the container, not in what is emitted, and the platform is
+      capable in principle (angular.dev's own playground runs Angular 22 with a
+      real `ng serve` in it). So `sandboxable` is `false` on both doc
+      components, `/start/playground` is the one page that offers the button
+      and discloses the failure beside it, and closing this item is two
+      defaults and one watched boot. See AGENTS.md for the traps it already
+      caught.
 - [ ] **E5. `ngwr/kit` standalone utilities** (M) — publish the internal signal
       utils / positioning / density / hotkey / storage helpers as a zero-dep
       package usable without the components. The Mantine-hooks top-of-funnel

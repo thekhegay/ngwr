@@ -1,0 +1,289 @@
+<ngwr-doc-page
+  title="Quality"
+  [description]="pageDescription"
+  [keywords]="['quality', 'testing', 'accessibility', 'ci', 'gates', 'maintenance']"
+  [labels]="['Getting started']"
+>
+  <ngwr-doc-section
+    title="Counted, not claimed"
+    description="Every number on this page is written by `scripts/gen-quality.ts`, which counts the repository during the showcase build. Nothing here is typed in by hand — that is the only way a page like this is still true a year after it was written."
+  >
+    <wr-statistic-group min="10rem">
+      <wr-statistic label="Entry points" [value]="quality.entryPoints" />
+      <wr-statistic label="Components + directives" [value]="publicClasses" />
+      <wr-statistic [label]="testCasesLabel" [value]="quality.testCases" />
+      <wr-statistic label="Spec files" [value]="quality.specFiles" />
+      <wr-statistic label="Test harnesses" [value]="quality.harnessClasses" />
+      <wr-statistic label="Documentation pages" [value]="quality.docRoutes" />
+      <wr-statistic label="Runtime dependencies" [value]="quality.runtimeDependencies.length" />
+    </wr-statistic-group>
+
+    <p wrTypography variant="small" tone="medium">
+      Every counter says what it measured. Test cases are declared <code>it()</code> call sites, which equals the real
+      figure only while nothing mints cases at runtime — so a parameterised form (<code>it.each</code>) or a call site
+      inside a loop makes the generator print the file and line and label this figure a floor, and the page then reads
+      “at least”. A spec file that yields zero cases still fails the build outright, because that is not a way of
+      writing tests, it is what a broken comment-stripper looks like. “Documentation pages” counts routes that render
+      one: the layout shell and the <code>**</code> 404 both declare a component and neither is a page, so neither is in
+      the {{ quality.docRoutes }}. The version is read from <code>projects/lib/package.json</code> and cross-checked
+      against the <code>NGWR_VERSION</code> constant, which is a separate copy; a mismatch fails the build rather than
+      picking a side. The single runtime dependency is <code>{{ quality.runtimeDependencies.join(', ') }}</code
+      >.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="The gates on every pull request"
+    description="These run on every push to a pull request, in this order. The last two read the prerendered site, so they cannot start before it exists."
+  >
+    <p wrTypography variant="small" tone="medium">
+      All {{ quality.prGates.length }} of them have to be green before anything merges, and the publish job re-runs the
+      lint and the library build again before it ships a tarball.
+    </p>
+
+    <wr-table responsive [columns]="gateColumns" [items]="prGateRows">
+      <ng-template wrTableCell="gate" let-value>
+        <code wrTypography variant="code">{{ value }}</code>
+      </ng-template>
+    </wr-table>
+
+    <wr-alert
+      type="warning"
+      title="Trust the exit code, not the output."
+      message="pnpm lint is a chain of stages joined by &&, and the first one prints “All files pass linting.” on its way to a later stage that fails. A silently failed lint stage slipped past exactly once, and it blocked a publish."
+    />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inside pnpm lint"
+    description="`ng lint` is only the first stage. The rest are gates a linter has no opinion about: they read the repository for the kind of drift that leaves both halves independently valid while the pair is wrong."
+  >
+    <wr-table responsive [columns]="stageColumns" [items]="lintStageRows">
+      <ng-template wrTableCell="gate" let-value>
+        <code wrTypography variant="code">{{ value }}</code>
+      </ng-template>
+    </wr-table>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What runs nightly instead"
+    description="The rest of the sweep needs a real browser, real CSS and several hundred page loads. On the pull-request path that roughly tripled the job, and what it catches is drift in painted output rather than the kind of break a single review has to be told about — so it runs on a schedule instead."
+  >
+    <wr-table responsive [columns]="gateColumns" [items]="nightlyRows">
+      <ng-template wrTableCell="gate" let-value>
+        <code wrTypography variant="code">{{ value }}</code>
+      </ng-template>
+    </wr-table>
+
+    <p wrTypography variant="small" tone="medium">
+      The trade is worth saying out loud:
+      <strong>a green pull request says nothing about painted contrast or RTL overflow.</strong> If you are working on
+      the library and you touch a token, a tint, or anything that paints text on an intent, run
+      <code>pnpm check:contrast</code> yourself rather than waiting for the morning.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Three accessibility gates, and what each one cannot see"
+    description="Three sweeps, because no single one of them reaches the whole surface. The last two rows of each block are the ones that matter: what the gate is blind to, and what it has already been told to accept."
+  >
+    <h3 wrTypography variant="h5"><code>check:a11y</code></h3>
+
+    <wr-descriptions inline bordered responsive>
+      <wr-description-item label="Runs"
+        >Every pull request. axe over the prerendered HTML, in JSDOM.</wr-description-item
+      >
+      <wr-description-item label="Sees">
+        The structural half: accessible names, ARIA validity, roles, references to ids that must exist, landmark and
+        heading structure. It fails on any serious or critical violation and the baseline is empty. That class is real —
+        the audit it was written after found an unnamed speed-dial trigger, icon-only segmented options, and a dialog
+        promising an <code>aria-modal</code> it did not honour.
+      </wr-description-item>
+      <wr-description-item label="Cannot see">
+        Anything that depends on computed style. JSDOM loads no stylesheets and does no layout, so
+        <code>color-contrast</code> and <code>target-size</code> are switched off explicitly rather than left to report
+        noise. And prerendered HTML holds no hover, no focus ring and nothing inside an overlay.
+      </wr-description-item>
+      <wr-description-item label="Already accepted">
+        Nothing. <code>scripts/a11y-baseline.json</code> is <code>&#123;&#125;</code>, so there is no allowance to hide
+        a regression in — which is exactly why the two blocks below have to state theirs.
+      </wr-description-item>
+    </wr-descriptions>
+
+    <h3 wrTypography variant="h5"><code>check:contrast</code></h3>
+
+    <wr-descriptions inline bordered responsive>
+      <wr-description-item label="Runs"
+        >Nightly. A real Chromium, real CSS, both themes, every canonical route.</wr-description-item
+      >
+      <wr-description-item label="Sees">
+        Exactly the two rules the structural sweep has to disable. It reports axe's own measured ratio instead of
+        re-deriving one, emulates <code>prefers-reduced-motion</code> so an animation caught mid-flight cannot report a
+        failure that describes a single frame, and pins the clock so a demo built from <code>new Date()</code> cannot
+        move its own route count overnight.
+      </wr-description-item>
+      <wr-description-item label="Cannot see">
+        A page at rest is all it measures, so hovers, focus rings and overlay contents stay out of reach. And it gates
+        on route counts per rule, not on nodes —
+        <strong>a brand-new violation on a route that already fails passes silently.</strong> Not hypothetical:
+        deepening the dark primary broke <code>wr-calendar__day--today</code> at 4.06:1 on a route already baselined for
+        something else, and the sweep printed “no new violations”. Change a token, measure the elements you changed.
+      </wr-description-item>
+      <wr-description-item label="Already accepted">
+        Four entries in <code>scripts/contrast-baseline.json</code>: <code>color-contrast</code> on four light routes
+        and two dark ones, <code>target-size</code> on one route in each theme. The worst is
+        <code>wr-calendar__day--out-of-month</code> at <strong>2.23:1</strong> — enabled buttons the arrow keys reach,
+        so the exemption for inactive controls does not apply to them, and it is <code>opacity: 0.55</code> rather than
+        the colour that drops the ratio. The rest are the carousel's 8×8 pagination dots, the swatch grid on
+        <a routerLink="/guides/tokens/colors">Colour tokens</a> (which labels every shade of a ramp with a token
+        calibrated for the base shade), and disabled controls axe cannot recognise as disabled because the attribute
+        sits on a custom element. Every entry carries the reason it was accepted.
+      </wr-description-item>
+    </wr-descriptions>
+
+    <h3 wrTypography variant="h5"><code>check:state-a11y</code></h3>
+
+    <wr-descriptions inline bordered responsive>
+      <wr-description-item label="Runs">
+        Nightly. A curated table of states, driven in a browser, with the full axe rule set inside each one.
+      </wr-description-item>
+      <wr-description-item label="Sees">
+        The states a user has to create: a hover, a focus ring, an open dialog, a select panel, a context menu. Seven
+        real AA failures were found there by hand, every one long-standing and every one under a green run. Colour is
+        not all of it — the structural rules had never run inside an overlay either, which is how a
+        <code>role="button"</code> span nested inside a real <code>&lt;button&gt;</code> survived in the window taskbar,
+        on a tab that only exists while a window is minimized.
+      </wr-description-item>
+      <wr-description-item label="Cannot see">
+        Whatever is not in the table. A curated list that stopped growing looks exactly like one that covers the
+        catalog, so a full run prints its own coverage — state-dependent classes in the built stylesheet against the
+        classes it actually painted — and a state that failed to paint fails the run, because a clean axe result over an
+        element that never rendered is indistinguishable from a pass.
+      </wr-description-item>
+      <wr-description-item label="Already accepted">
+        Ten entries in <code>scripts/state-a11y-baseline.json</code>, and they are four decisions rather than ten
+        problems: the same out-of-month calendar days as above (2.23:1 light, 3.11:1 dark) reached through two separate
+        states, and <code>target-size</code> on the window chrome's 14×14 traffic-light buttons, the carousel dots
+        again, and <code>wr-event-calendar</code>'s 20px chips. Each is a design call with the alternative costed in the
+        file — not a finding nobody looked at.
+      </wr-description-item>
+    </wr-descriptions>
+
+    <wr-alert
+      type="info"
+      title="And one failure no gate reports at all."
+      message="--wr-color-outline measures 1.48:1 in light and 1.41:1 in dark, against the 3:1 WCAG 1.4.11 asks of anything that identifies a control. Fifteen of its declarations are control boundaries where the criterion applies; the rest are cards, dividers and table rules, which it does not reach. Both fixes were costed — darkening the one token repaints every rule that uses it, and splitting out a control-border token leaves control edges visibly darker than every line beside them — and the maintainer chose to keep the hairline. No gate reports it, because axe ships no non-text-contrast rule."
+    />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What the tests cover, and what they do not"
+    description="The suite is broad. It is not uniformly deep, and the shallow parts are worth naming."
+  >
+    <p wrTypography variant="small" tone="medium">
+      {{ testCasesPhrase }} across {{ quality.specFiles }} spec files, and {{ quality.entryPointsWithSpecs }} of the
+      {{ quality.entryPoints }} entry points own at least one. Read that second figure narrowly: it is file-level
+      coverage of the catalog, not branch coverage of the code. Specs sit beside what they cover and assert the
+      <strong>rendered DOM</strong> — roles, ARIA state and the <code>.wr-*</code> class names, which are public API
+      because every component ships <code>ViewEncapsulation.None</code>. A spec that reaches into component internals
+      passes straight through the kind of change that actually breaks people.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      {{ quality.harnessClasses }} CDK test harness classes ship alongside, published from
+      {{ quality.testingEntryPoints }} <code>ngwr/&lt;name&gt;/testing</code> entry points, so your own tests can drive
+      a select or a date picker without knowing its markup. Four entry points deliberately have none — three that draw
+      into a canvas jsdom hands no context for, and a thin wrapper over the CDK's virtual scroller — and the reason is
+      the same each time: every honest method would answer identically for a working component and a broken one.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      Which is also the first hole. <strong>jsdom has no drawing context and no layout</strong> — every rect is 0×0 — so
+      the canvas and WebGL components can never assert anything painted. All six install a recording context and five an
+      error recorder besides, which carries their specs past the early return to frame counts, particle counts, a
+      <code>var(--wr-…)</code> colour resolved against the host, gravity bringing a particle back down, and teardown.
+      Painted output itself is not reachable, and neither is anything measured in pixels.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>The second hole is mode coverage inside components that are covered.</strong>
+      <code>wr-table</code> has column pinning, drag-reorder, grouping, tree rows, expandable rows, CSV export and a
+      virtualized body on one host; a spec on the table says nothing about tree rows unless it exercises them, and not
+      every spec does. A green suite here means no covered behaviour regressed — not that every behaviour is covered.
+    </p>
+
+    <p wrTypography variant="small" tone="medium">
+      <strong>The third is classic-forms interop, and it is the one worth knowing about</strong> if you are weighing
+      ngwr against a library that still ships a <code>ControlValueAccessor</code>. Angular 22 synthesises the accessor
+      for a signal-forms control, so <code>[(ngModel)]</code> and <code>[formControl]</code> reach the same
+      <code>value</code> model — but in this suite that is doctrine more than coverage. <code>[(ngModel)]</code> is
+      bound to a real ngwr control in exactly one spec (<code>wr-textarea</code>), and
+      <strong>no spec binds <code>[formControl]</code> to one at all</strong> — the reactive-forms specs that exist
+      drive native <code>&lt;input&gt;</code>s through <code>WrValidators</code>. Angular's own tests cover the
+      synthesis; nothing here covers it per component.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Breaking changes, and which ones a codemod can honestly repair"
+    description="A major ships an `ng update` codemod when a codemod can actually repair what broke — and deliberately ships none when it cannot."
+  >
+    <p wrTypography variant="small" tone="medium">
+      That rule is the whole table. v12 moved three import paths, which is exactly what a codemod can move without
+      reading the code around it. v10 and v11 changed painted colour, which no codemod can repair — and shipping an
+      empty one would have told you your visual regressions were handled when they were not.
+    </p>
+
+    <wr-table responsive [columns]="majorColumns" [items]="majorRows">
+      <ng-template wrTableCell="version" let-value>
+        <code wrTypography variant="code">{{ value }}</code>
+      </ng-template>
+      <ng-template wrTableCell="codemod" let-value>
+        <wr-tag transparent [color]="value === 'Yes' ? 'success' : value === 'Partial' ? 'warning' : 'medium'">
+          {{ value }}
+        </wr-tag>
+      </ng-template>
+    </wr-table>
+
+    <p wrTypography variant="small" tone="medium">
+      The partial is deliberate too. v12's other break — <code>readI18nText()</code> returning a
+      <code>Signal&lt;string&gt;</code> — is not codemodded, because adding <code>()</code> means knowing which
+      identifiers hold the result, and a wrong guess is a silent behaviour change. The type error names every call site
+      instead. The <a routerLink="/start/migration">migration guide</a> documents both halves, and every break back to
+      v7.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="What this does not buy you"
+    description="All of the above is true, and none of it is the whole picture."
+  >
+    <wr-descriptions inline bordered responsive>
+      <wr-description-item label="Maintainers">
+        One. The machinery on this page exists <em>because</em> a single person cannot re-check
+        {{ quality.entryPoints }} entry points by hand, not because there is a team behind it. Reviews are self-reviews,
+        and the gates are what stands in for a second pair of eyes.
+      </wr-description-item>
+      <wr-description-item label="Ecosystem">
+        Small. There is no Stack Overflow tag worth searching, no paid theme, no third-party component built against
+        ngwr. If you hit something the docs do not cover, the source and the issue tracker are the support channel — the
+        whole library is MIT and readable.
+      </wr-description-item>
+      <wr-description-item label="Commercial support">
+        None. No SLA, no contract, no paid tier, no roadmap commitment you can hold anyone to. Every gate described on
+        this page runs in the public repository, so a fork is a real option if it comes to that.
+      </wr-description-item>
+      <wr-description-item label="Stability">
+        The catalog moves. {{ majorLine }} is the current line, and the table above is the honest record of what each
+        step cost. Pin the major, read the migration guide, and do not assume an upgrade is free because the gates are
+        green — two of the last three majors broke things no codemod could repair.
+      </wr-description-item>
+      <wr-description-item label="Design">
+        One person's taste. The tokens are documented and all of them are overridable, but nothing here went through a
+        design review, because there is nobody to hold one with.
+      </wr-description-item>
+    </wr-descriptions>
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>
