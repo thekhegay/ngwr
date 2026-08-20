@@ -12,6 +12,25 @@ import type { DocApiRow } from '#core/components';
   imports: [RouterLink, WrTypography, DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
 })
 export default class MigrationPageComponent {
+  /** v11 → v12 date entry-point moves. Import paths only; every symbol keeps its name. */
+  protected readonly dateEntryRows: readonly DocApiRow[] = [
+    {
+      name: "'ngwr/date-adapter'",
+      description: 'The adapter contract, the locale token and `provideWrDateAdapter()`.',
+      type: "→ 'ngwr/date'",
+    },
+    {
+      name: "'ngwr/date-adapter-fns'",
+      description: 'The date-fns implementation.',
+      type: "→ 'ngwr/date/adapters/fns'",
+    },
+    {
+      name: "'ngwr/date-adapter-luxon'",
+      description: 'The luxon implementation.',
+      type: "→ 'ngwr/date/adapters/luxon'",
+    },
+  ];
+
   /** v8 → v9 checkbox input renames. */
   protected readonly checkboxRows: readonly DocApiRow[] = [
     {
@@ -41,9 +60,25 @@ export default class MigrationPageComponent {
   ];
 
   protected readonly snippets = {
+    dateEntry: `// Import paths only — WrDateAdapter, WrDateFnsAdapter, WrLuxonAdapter,
+// provideWrDateAdapter and WR_DATE_LOCALE all keep their names.
+- import { provideWrDateAdapter } from 'ngwr/date-adapter';
+- import { WrDateFnsAdapter } from 'ngwr/date-adapter-fns';
+- import { WrLuxonAdapter } from 'ngwr/date-adapter-luxon';
++ import { provideWrDateAdapter } from 'ngwr/date';
++ import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns';
++ import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';`,
+
+    readI18n: `// \`readI18nText\` returns a Signal now. Every read needs a call.
+  protected readonly label = readI18nText('datePicker.open', 'Open calendar');
+
+- <button [attr.aria-label]="label">
++ <button [attr.aria-label]="label()">`,
+
     update: `# Run the codemod — rewrites templates, TS and stylesheets in place.
-# v10 itself ships no codemod; this still applies any pending v7–v9 migrations.
-ng update ngwr@10`,
+# v12 moves the three date import paths; the run also applies any pending
+# v7–v9 migrations. v10 and v11 ship none, so there is nothing to skip.
+ng update ngwr@12`,
 
     checkbox: `<!-- Inside <wr-checkbox-group>: the identity input was renamed. -->
 - <wr-checkbox value="autosave">Autosave</wr-checkbox>
