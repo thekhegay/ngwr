@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { provideWrDateFnsAdapter } from 'ngwr/date-adapter-fns';
+import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrCalendar } from './calendar';

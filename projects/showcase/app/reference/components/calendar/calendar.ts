@@ -38,7 +38,7 @@ export default class CalendarPageComponent {
 
   protected readonly snippets = {
     install: `import { WrCalendar } from 'ngwr/calendar';
-import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { provideWrDateAdapter } from 'ngwr/date';
 
 // In main.ts
 bootstrapApplication(AppComponent, {

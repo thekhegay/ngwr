@@ -2,7 +2,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrDateFnsAdapter } from 'ngwr/date-adapter-fns';
+import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
 import {
   WrEventCalendar,
   type WrCalendarEvent,

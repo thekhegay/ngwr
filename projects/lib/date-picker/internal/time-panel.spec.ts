@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { beforeEach, describe, expect, it } from 'vitest';

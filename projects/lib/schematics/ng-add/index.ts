@@ -176,11 +176,11 @@ function printNextSteps(options: Schema, context: SchematicContext): Rule {
 
     const adapterCall = DATE_ADAPTER_PROVIDER[adapter];
     if (adapterCall) {
-      imports.push("import { provideWrDateAdapter } from 'ngwr/date-adapter';");
+      imports.push("import { provideWrDateAdapter } from 'ngwr/date';");
       if (adapter === 'date-fns') {
-        imports.push("import { WrDateFnsAdapter } from 'ngwr/date-adapter-fns';");
+        imports.push("import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns';");
       } else if (adapter === 'luxon') {
-        imports.push("import { WrLuxonAdapter } from 'ngwr/date-adapter-luxon';");
+        imports.push("import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';");
       }
       providers.push(adapterCall);
     }

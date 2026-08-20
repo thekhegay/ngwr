@@ -79,8 +79,8 @@ export default class EventCalendarComponent {
 
 @Component({ imports: [WrEventCalendar] })
 export class MyComponent {}`,
-    provider: `import { provideWrDateAdapter } from 'ngwr/date-adapter';
-import { provideWrDateFnsAdapter } from 'ngwr/date-adapter-fns';
+    provider: `import { provideWrDateAdapter } from 'ngwr/date';
+import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';
 
 bootstrapApplication(App, {
   providers: [provideWrDateFnsAdapter()],

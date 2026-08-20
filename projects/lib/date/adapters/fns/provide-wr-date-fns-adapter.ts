@@ -7,7 +7,7 @@
 
 import type { EnvironmentProviders } from '@angular/core';
 
-import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { provideWrDateAdapter } from 'ngwr/date';
 
 import { WrDateFnsAdapter } from './wr-date-fns-adapter';
 

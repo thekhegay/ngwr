@@ -15,6 +15,11 @@
       "version": "9.0.0",
       "description": "Rename the <wr-checkbox> group-membership input value \u2192 checkboxValue (also [value] / [(value)]). The standalone checkbox is now a signal-forms FormCheckboxControl whose contract reserves `value` for the form value \u2014 its boolean state is the `checked` model. Touches .html and .ts files.",
       "factory": "./migrations/v9/index#default"
+    },
+    "migration-v12": {
+      "version": "12.0.0",
+      "description": "Move the date entry points under one namespace: ngwr/date-adapter \u2192 ngwr/date, ngwr/date-adapter-fns \u2192 ngwr/date/adapters/fns, ngwr/date-adapter-luxon \u2192 ngwr/date/adapters/luxon. Import paths only \u2014 every exported symbol keeps its name. Touches .ts, .html and .json files.",
+      "factory": "./migrations/v12/index#default"
     }
   }
 }

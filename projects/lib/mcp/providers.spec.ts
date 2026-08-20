@@ -19,7 +19,7 @@ import { REQUIRED_PROVIDERS } from './providers.js';
  * `gen-ai-assets.ts` writes the same strings into `skills/ngwr/SKILL.md`. Both
  * of those only ever checked that the string SURVIVES, which cannot tell a
  * snippet that compiles from one that does not — and under that check the date
- * rule shipped `provideWrDateAdapter(wrDateFnsAdapter) // from 'ngwr/date-adapter-fns'`,
+ * rule shipped `provideWrDateAdapter(wrDateFnsAdapter) // from 'ngwr/date/adapters/fns'`,
  * naming two identifiers that entry point has never exported, with a call shape
  * the real `provideWrDateAdapter` would reject anyway.
  *

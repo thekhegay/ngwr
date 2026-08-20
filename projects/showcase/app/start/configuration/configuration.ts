@@ -20,7 +20,7 @@ import { provideWrIcons } from 'ngwr/icon';
 import { lucideIcons } from 'ngwr/icon/adapters/lucide';
 import { provideWrToastConfig } from 'ngwr/toast';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDensity } from 'ngwr/density';
 import { provideWrConfig } from 'ngwr/config';
 import { provideWrTheme } from 'ngwr/theme';
@@ -83,17 +83,17 @@ providers: [
   }),
 ],`,
 
-    dateAdapter: `import { provideWrDateAdapter } from 'ngwr/date-adapter';
+    dateAdapter: `import { provideWrDateAdapter } from 'ngwr/date';
 
 // Native Date adapter — zero extra deps.
 providers: [provideWrDateAdapter()],
 
 // Or date-fns:
-import { WrDateFnsAdapter } from 'ngwr/date-adapter-fns';
+import { WrDateFnsAdapter } from 'ngwr/date/adapters/fns';
 providers: [provideWrDateAdapter({ adapter: WrDateFnsAdapter })],
 
 // Or Luxon:
-import { WrLuxonAdapter } from 'ngwr/date-adapter-luxon';
+import { WrLuxonAdapter } from 'ngwr/date/adapters/luxon';
 providers: [provideWrDateAdapter({ adapter: WrLuxonAdapter })],`,
 
     config: `import { provideWrConfig } from 'ngwr/config';

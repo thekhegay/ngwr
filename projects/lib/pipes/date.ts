@@ -8,7 +8,7 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
-import { type WrDateFormat, WrDateAdapter } from 'ngwr/date-adapter';
+import { type WrDateFormat, WrDateAdapter } from 'ngwr/date';
 
 /**
  * Locale-aware date formatting. Delegates to `WrDateAdapter` when

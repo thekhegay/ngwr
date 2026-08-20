@@ -76,19 +76,41 @@ function symbolsIn(entry: string): readonly string[] {
   return Array.from(out);
 }
 
+/**
+ * Every entry point under `projects/lib`, at ANY depth.
+ *
+ * Recursive, and it has to be: seventy-four entry points are nested
+ * (`ngwr/i18n/en`, `ngwr/icon/adapters/lucide`, every `<name>/testing`), and a
+ * top-level-only scan silently left them all out. `ng g ngwr:use lucideIcons`
+ * answered "unknown symbol" for as long as this map has existed, and the
+ * `ngwr/date` rename would have taken the two date adapters the same way — the
+ * old flat `date-adapter-fns` was visible only by accident of being top-level.
+ */
+function entryPointsUnder(dir: string, prefix = ''): string[] {
+  const out: string[] = [];
+  for (const name of readdirSync(dir)) {
+    if (name.startsWith('.') || name === 'node_modules') continue;
+    const full = resolve(dir, name);
+    try {
+      if (!statSync(full).isDirectory()) continue;
+    } catch {
+      continue;
+    }
+    const entry = prefix ? `${prefix}/${name}` : name;
+    // `<name>/testing` is an entry point and its harnesses are public, but a
+    // harness is never something `ng g ngwr:use` splices into a component — it
+    // belongs in a spec. Pulling the seventy of them in would quadruple the
+    // schematic's non-declarable table for symbols nobody will ask it for.
+    if (name === 'testing') continue;
+    if (isEntryPoint(entry)) out.push(entry);
+    out.push(...entryPointsUnder(full, entry));
+  }
+  return out;
+}
+
 /** Build the full symbol → subpath map. */
 export function buildSymbolMap(): Record<string, string> {
-  const entries = readdirSync(LIB_ROOT)
-    .filter(name => !name.startsWith('.'))
-    .filter(name => {
-      try {
-        return statSync(resolve(LIB_ROOT, name)).isDirectory();
-      } catch {
-        return false;
-      }
-    })
-    .filter(isEntryPoint)
-    .sort();
+  const entries = entryPointsUnder(LIB_ROOT).sort();
 
   const map: Record<string, string> = {};
   for (const entry of entries) {

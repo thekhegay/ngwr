@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { setDefaultOptions } from 'date-fns';
 import { enGB } from 'date-fns/locale/en-GB';
-import { WrDateAdapter } from 'ngwr/date-adapter';
+import { WrDateAdapter } from 'ngwr/date';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideWrDateFnsAdapter } from './provide-wr-date-fns-adapter';

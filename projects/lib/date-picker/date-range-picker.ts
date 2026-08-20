@@ -27,7 +27,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { WrDateAdapter, type WrDateFormat } from 'ngwr/date-adapter';
+import { WrDateAdapter, type WrDateFormat } from 'ngwr/date';
 import { readI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';

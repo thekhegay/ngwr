@@ -8,7 +8,7 @@
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
-import { WR_DATE_LOCALE } from 'ngwr/date-adapter';
+import { WR_DATE_LOCALE } from 'ngwr/date';
 import { useI18nText } from 'ngwr/i18n';
 
 import type { WrHeatmapDatum } from './interfaces';

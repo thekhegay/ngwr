@@ -46,7 +46,7 @@ export default class DatePickerPageComponent {
 
   protected readonly snippets = {
     install: `import { WrDatePicker } from 'ngwr/date-picker';
-import { provideWrDateAdapter } from 'ngwr/date-adapter';
+import { provideWrDateAdapter } from 'ngwr/date';
 
 bootstrapApplication(AppComponent, {
   providers: [provideWrDateAdapter()],

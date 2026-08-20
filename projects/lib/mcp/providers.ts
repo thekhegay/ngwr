@@ -40,9 +40,9 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
     // The one-line wrapper, not `provideWrDateAdapter({ adapter: WrDateFnsAdapter })`:
     // both compile, but this is one import from one entry point, and it is the form
     // the docs recommend. It used to read `provideWrDateAdapter(wrDateFnsAdapter)`,
-    // which is wrong three ways at once — `ngwr/date-adapter-fns` exports neither
+    // which is wrong three ways at once — `ngwr/date/adapters/fns` exports neither
     // identifier, and the real `provideWrDateAdapter` takes an options object.
-    provider: "provideWrDateFnsAdapter() // from 'ngwr/date-adapter-fns'",
+    provider: "provideWrDateFnsAdapter() // from 'ngwr/date/adapters/fns'",
     why: 'every date mode goes through an adapter; there is no built-in default',
   },
   {
