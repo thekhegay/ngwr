@@ -1,5 +1,18 @@
 # Changelog
 
+## [12.1.0](https://github.com/thekhegay/ngwr/compare/v12.0.0...v12.1.0) (2026-09-01)
+
+### Features
+
+* **segmented:** signal forms control; fix the stackblitz sandbox and trim the hero ([4f5e32f](https://github.com/thekhegay/ngwr/commit/4f5e32f9296903577048c1cc921f465fc0bf6487))
+* **showcase:** comparison, quality and playground pages for pre-adoption readers ([ec92acd](https://github.com/thekhegay/ngwr/commit/ec92acd8bf24b4d2fad7b222f205d393fae9b499))
+
+### Bug Fixes
+
+* **click-spark:** pin the clock in the spec; baseline the month overflow target ([4a5e6dd](https://github.com/thekhegay/ngwr/commit/4a5e6dde1d89f7306bb8a2dff356dbfaf238815b))
+* **pagination:** stop correcting the page from transient or stale state ([d75296a](https://github.com/thekhegay/ngwr/commit/d75296acfdbea6dbb1c67b305aa7c80438f9f1d7))
+* **showcase:** title the site by what it does, not by its category ([4560ce4](https://github.com/thekhegay/ngwr/commit/4560ce45307bb15a5b2219c7e23f5816ba3257a9))
+
 ## [12.0.0](https://github.com/thekhegay/ngwr/compare/v11.2.0...v12.0.0) (2026-08-20)
 
 ### ⚠ BREAKING CHANGES
