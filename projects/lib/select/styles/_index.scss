@@ -36,7 +36,15 @@
   &--rounded {
     --wr-select-radius: var(--wr-border-radius-pill);
     --wr-select-padding-x: 1rem;
-    corner-shape: round; // override squircle from smooth-br for pills
+
+    // The squircle reset has to land on the element `smooth-br` ran on, and
+    // that is the trigger, not the host: `corner-shape` does not inherit, so a
+    // declaration here left the trigger drawing the inset curve the mixin's own
+    // gotcha warns about instead of a stadium. `wr-btn` / `wr-input` put their
+    // modifier and their `smooth-br` on one element, which is why they paint.
+    .wr-select__trigger {
+      corner-shape: round;
+    }
   }
 
   &--disabled {

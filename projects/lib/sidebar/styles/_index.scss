@@ -224,7 +224,10 @@
   &__badge {
     flex: 0 0 auto;
     padding: 0.0625rem 0.375rem;
-    border-radius: var(--wr-border-radius-pill);
+    // The row's corner, not a pill: the badge sits inside `__entry` / `__item`,
+    // which both read `--wr-border-radius-sm`, and a stadium nested in a 6px row
+    // reads as a foreign shape rather than a part of it.
+    border-radius: var(--wr-border-radius-sm);
     background: var(--wr-color-fill-strong);
     color: var(--wr-color-on-surface-muted);
     font-size: var(--wr-text-xs);

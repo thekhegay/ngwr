@@ -43,6 +43,16 @@
 /// }
 /// ```
 ///
+/// The reset has to sit on the element the mixin ran on. `corner-shape`
+/// does not inherit, so a component whose modifier is on the HOST while
+/// `smooth-br` is on a child needs to target that child — otherwise the
+/// declaration lands on an element that never had a squircle to undo,
+/// and, since `round` is the property's initial value, changes nothing
+/// at all. `wr-select` shipped that way: `.wr-select--rounded` set it on
+/// the host, the trigger kept `squircle` at the pill radius, and the
+/// control painted a near-rectangle — 2px of corner where a stadium
+/// wants 18.
+///
 /// @example scss
 ///   .thing {
 ///     @include smooth-br(0.625rem);
