@@ -12,14 +12,21 @@
       compact label and the next button all stay unconditional and in this
       order. A mirror keyed to position would follow a reorder, or land on a
       page cell, without a word.
+
+      The two `[disabled]` bindings compare against the RANGE (`<= 1`,
+      `>= totalPages()`) rather than for equality with its ends. While `total`
+      is 0 the guard effect stops enforcing the upper bound, so the page can
+      legitimately sit past `totalPages()` — and `=== totalPages()` reported
+      next as enabled there while `goTo` refused the step. Prev is still
+      enabled in that state, correctly: `prevPage()` walks it back into range.
     -->
     <wr-btn
       class="wr-pagination__nav-btn"
       [size]="size()"
       outlined
       [attr.aria-label]="resolvedPrev()"
-      [disabled]="disabled() || currentPage() === 1"
-      (click)="goTo(currentPage() - 1)"
+      [disabled]="disabled() || currentPage() <= 1"
+      (click)="goTo(prevPage())"
     >
       <svg
         class="wr-icon__svg"
@@ -64,7 +71,7 @@
       [size]="size()"
       outlined
       [attr.aria-label]="resolvedNext()"
-      [disabled]="disabled() || currentPage() === totalPages()"
+      [disabled]="disabled() || currentPage() >= totalPages()"
       (click)="goTo(currentPage() + 1)"
     >
       <svg
