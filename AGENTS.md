@@ -987,7 +987,7 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
 
 ## Contracts that look like bugs
 
-Sixteen behaviours that read as defects until you know why they are that way.
+Seventeen behaviours that read as defects until you know why they are that way.
 Each was questioned at least once, each has a spec pinning it, and each would
 be "fixed" by someone reading only the symptom. This list used to live in
 ROADMAP.md; it moved here when that file was cut back to remaining work,
@@ -1028,6 +1028,12 @@ because it is guidance rather than a plan.
 - `wr-tour` skips a step whose target is missing (a tour has to survive a
   feature behind a flag) while the progress line still counts every step it
   was given.
+- `wr-pagination` does NOT pull the page DOWN into range while `total` is at or
+  below 0, and emits nothing for it — there is no `loading` input, so 0 is
+  ambiguous with "still in flight", which is where a server-paged host sits
+  between the click and the response. Clamping there pulled every page back to 1
+  and emitted a `currentPageChange` the host could not tell from a click. The
+  LOWER bound stays unconditional, and that one does write back.
 - The date adapter emits single-quoted runs verbatim and treats unquoted
   letters as tokens, the way `DatePipe` and LDML do. `addDays` moves the
   CALENDAR day, not 86 400 000 ms — across a DST change the arithmetic
