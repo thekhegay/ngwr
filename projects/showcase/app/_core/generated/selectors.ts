@@ -346,4 +346,4 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
  * step: bump `lucide` and re-run `pnpm gen:selectors`, which `build:showcase`
  * does first thing.
  */
-export const LUCIDE_VERSION = "^1.37.0";
+export const LUCIDE_VERSION = "^1.38.0";
