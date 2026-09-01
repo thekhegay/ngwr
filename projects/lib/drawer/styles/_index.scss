@@ -49,7 +49,12 @@
 // `elementFromPoint` still answered "close button" over the first 10px of the
 // content: the boxes had stopped intersecting and the control was still covered.
 // 52px clears the target with two pixels to spare.
-.wr-drawer__panel--untitled > *:not(.wr-drawer__close) {
+// `:not(.wr-drawer__handle)` for the same reason as `:not(.wr-drawer__close)` —
+// the grab handle is chrome, not the content column. It clears the × on its own
+// (the button is corner-anchored, the bottom-sheet handle is centred), and on
+// `left` / `right` it is out of the flow entirely, where a block-start padding
+// would shove the rail off its own centre line.
+.wr-drawer__panel--untitled > *:not(.wr-drawer__close):not(.wr-drawer__handle) {
   padding-block-start: 3.25rem;
 }
 
@@ -144,6 +149,23 @@
     border-bottom-left-radius: var(--wr-border-radius-lg);
   }
 
+  // Room for the vertical grab rail, which is out of the flow (see
+  // `&__panel--left &__handle`). Only the two horizontal positions need it: the
+  // `top` / `bottom` handle is a flow row and reserves its own height.
+  //
+  // On the PANEL rather than per slot, because an absolutely positioned child
+  // is placed against the padding box — so `right: 0` lands the rail in exactly
+  // the gutter this opens, and the title's and footer's rules stay untouched.
+  // Same 1.25rem the handle measures across.
+  &--handle.wr-drawer__panel--left {
+    // rtl-ok: mirrors the physically placed rail — inner edge of a left-anchored panel
+    padding-right: 1.25rem;
+  }
+  &--handle.wr-drawer__panel--right {
+    // rtl-ok: mirrors the physically placed rail — inner edge of a right-anchored panel
+    padding-left: 1.25rem;
+  }
+
   // Safe-area padding on the trailing edge. `env(safe-area-inset-*)` is defined
   // per physical screen edge — the notch does not move when the text does — so
   // the padding that clears it stays physical as well.
@@ -165,6 +187,10 @@
 
 .wr-drawer {
   // Grab handle (visual swipe-to-dismiss affordance)
+  //
+  // The base rule is the BOTTOM sheet: a horizontal bar in the flow at the top
+  // of the column. `--top`, `--left` and `--right` re-place it below — see the
+  // block after this one, which is where the whole point of the handle lives.
   &__handle {
     display: flex;
     align-items: center;
@@ -174,6 +200,8 @@
     cursor: grab;
     user-select: none;
     // Own the gesture — stop the browser turning the drag into a scroll/pan.
+    // Every placement below inherits this: without it the browser claims the
+    // drag as a pan and the panel never follows the finger.
     touch-action: none;
   }
 
@@ -183,6 +211,72 @@
     height: 0.25rem;
     border-radius: 999px;
     background: rgba(var(--wr-color-on-surface-rgb), 0.18);
+  }
+
+  // The handle follows `position`, because the gesture does.
+  //
+  // `showHandle` has always documented itself as a handle "at the leading edge"
+  // — the edge facing the viewport interior, the one the panel is dragged away
+  // from — and `closeAxis()` in drawer.ts already resolves all four: down for
+  // `bottom`, up for `top`, left for `left`, right for `right`. The CSS
+  // implemented one of them. The other three drew the same horizontal bar at
+  // the top of the panel, so a right-side drawer showed a stray pill above its
+  // title pointing along an axis the drag does not travel.
+  //
+  // Keep these two in step: a bar the finger finds on the wrong axis is worse
+  // than no bar, because it invites the gesture that does nothing.
+
+  // `top` — same horizontal bar, block-END edge. `order` rather than a template
+  // change: the handle is `aria-hidden` chrome, so nothing depends on its DOM
+  // position, and `margin-block-start: auto` puts it against the bottom even
+  // when the projected content does not grow (a bare `<nav>` is `flex: 0 1 auto`,
+  // so without it the handle would float directly under the content).
+  &__panel--top &__handle {
+    order: 1;
+    margin-block-start: auto;
+  }
+
+  // `left` / `right` — a VERTICAL bar on the inner vertical edge.
+  //
+  // Out of the flow, because the panel is a column and a rail on its inline
+  // edge is not a row of it; putting it back in the flow would mean wrapping
+  // the projected title / content / footer in a new element, and those sit
+  // directly under `.wr-drawer__panel` in markup consumers already style.
+  // The panel reserves the gutter it floats over (`&--handle`, up in the
+  // `.wr-drawer__panel` block), so nothing is covered — the lesson `--untitled`
+  // learned about the × button.
+  &__panel--left &__handle,
+  &__panel--right &__handle {
+    position: absolute;
+    inset-block-start: 50%;
+    // Not the panel's own transform: `onSwipeMove` writes `translateX(…)` onto
+    // the PANEL while dragging, and this element is its child.
+    transform: translateY(-50%);
+    // 0.5rem each side of a 0.25rem bar — the same 1.25rem thickness the
+    // horizontal handle has, turned ninety degrees, so the gutter reserved for
+    // it is the one the panel's slots already pad by. The 1.5rem block padding
+    // is grab target rather than decoration: it takes the 2.5rem bar to a 5.5rem
+    // reachable strip, which a finger can find without aiming at a 4px pill.
+    padding: 1.5rem 0.5rem;
+    z-index: 1;
+  }
+
+  &__panel--left &__handle {
+    // rtl-ok: `position` is physical (`left` names a viewport edge, and the CDK
+    // strategy calls `.left()`), so the inner edge of a left-anchored panel is
+    // the physical right one in either direction
+    right: 0;
+  }
+
+  &__panel--right &__handle {
+    // rtl-ok: physical `position` — inner edge of a right-anchored panel
+    left: 0;
+  }
+
+  &__panel--left &__grabber,
+  &__panel--right &__grabber {
+    width: 0.25rem;
+    height: 2.5rem;
   }
 
   &__title {

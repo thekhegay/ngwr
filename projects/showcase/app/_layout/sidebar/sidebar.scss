@@ -12,6 +12,28 @@
 
   padding: 1.5rem 0.75rem 2rem;
 
+  // `sticky` here resolves against the document scroller, and every ngwr
+  // overlay that blocks scroll (dialog, drawer, action-sheet, lightbox, and
+  // the sheet-mode select / dropdown / popover) takes that scroller away:
+  // CDK's `BlockScrollStrategy` puts `position: fixed` on `<html>` with
+  // `top: -<scrollY>px`. Read cold that looks like it must drop this column
+  // to its static position — i.e. off the top of the screen by however far
+  // the page was scrolled.
+  //
+  // It does not, in Chromium. Measured on `/reference/components/dialog` at
+  // 1280x900, 1280x640 and 1024x800, scrolled 700–1200px: opening the dialog
+  // moves nothing — a rect diff over all 1065 elements outside the overlay
+  // container reports zero, across 145 consecutive animation frames, with
+  // this host's own `scrollTop` and `documentElement.clientWidth` unchanged
+  // either side. Chromium keeps a sticky offset resolved at the frozen scroll
+  // position, and `.cdk-global-scrollblock` carries `overflow-y: scroll` so
+  // the gutter survives too. Same result for drawer, action-sheet and
+  // lightbox, which share the one CDK strategy.
+  //
+  // So: not a defect to chase here. If a jump does turn up in another engine,
+  // the fix is to stop depending on the document scroller (fix the column and
+  // reserve its track on the grid), not to weaken the dialog's scroll block —
+  // `block()` is what makes a modal modal.
   @include bp.media-up(md) {
     position: sticky;
     height: calc(100vh - var(--ngwr-header-height, 4rem));

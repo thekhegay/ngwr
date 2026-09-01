@@ -138,6 +138,11 @@ export class WrDrawer {
     if (this.rounded()) parts.push('wr-drawer__panel--rounded');
     if (this.safeArea()) parts.push('wr-drawer__panel--safe-area');
     if (this.closable()) parts.push('wr-drawer__panel--closable');
+    // The handle sits on the LEADING edge, which for `left` / `right` is a
+    // vertical rail rather than a row in the column — so it leaves the flow and
+    // the panel has to reserve the gutter it floats over. Only the panel can do
+    // that, and only if it knows the handle is there.
+    if (this.showHandle()) parts.push('wr-drawer__panel--handle');
     // Only when there is something to collide with: a closable drawer with a
     // title already clears the button, and an unclosable one has no button.
     if (this.closable() && !this.projectedTitle()) parts.push('wr-drawer__panel--untitled');

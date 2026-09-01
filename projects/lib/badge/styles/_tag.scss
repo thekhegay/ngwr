@@ -74,10 +74,17 @@
       --wr-tag-bg: var(--wr-color-#{$name});
       --wr-tag-border: var(--wr-color-#{$name});
 
+      // The ring reads from `-soft-border` rather than a hand-rolled alpha, so
+      // it is the same hairline `wr-badge--outlined` draws — one alpha in one
+      // place, which is the reason the soft trio exists. 0.25 -> 0.30 is the
+      // whole visual change here. The 6% fill stays, and that is the one place
+      // the two deliberately differ: a tag is a chip you can click, hover and
+      // dismiss, so it keeps a body the badge has none of. `light` and `dark`
+      // fall back exactly as the badge does — see the note there.
       &.wr-tag--outlined {
         --wr-tag-color: var(--wr-color-#{$name}-ink);
         --wr-tag-bg: rgba(var(--wr-color-#{$name}-rgb), 0.06);
-        --wr-tag-border: rgba(var(--wr-color-#{$name}-rgb), 0.25);
+        --wr-tag-border: var(--wr-color-#{$name}-soft-border, rgba(var(--wr-color-#{$name}-rgb), 0.3));
       }
 
       &.wr-tag--transparent {
@@ -86,5 +93,12 @@
         --wr-tag-border: transparent;
       }
     }
+  }
+
+  // `light` outlined, after the loop for the same reason the badge carries the
+  // same rule: 30% of a surface tone is not a line. At full strength it IS
+  // `--wr-color-outline`, which is already this component's default border.
+  &--light.wr-tag--outlined {
+    --wr-tag-border: var(--wr-color-outline);
   }
 }

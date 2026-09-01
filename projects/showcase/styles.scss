@@ -32,6 +32,29 @@ body {
   height: 100%;
 }
 
+html {
+  // Reserve the classic scrollbar's track whether or not the page overflows,
+  // so the content column stops changing width between routes. Measured in
+  // Chromium at 1024x950: `/reference/interfaces/overview` fits the viewport
+  // and has no scrollbar, so `.ngwr-layout__content` is 800px wide;
+  // `/reference/components/dialog` overflows and the same column is 785px.
+  // Every line of prose on the page re-wraps on that 15px, on a navigation
+  // that changed nothing about the layout.
+  //
+  // It also covers the half of an overlay's scroll block that IS width. CDK's
+  // `.cdk-global-scrollblock` — injected at runtime by the overlay module,
+  // never from this repo's CSS — is `position: fixed; width: 100%;
+  // overflow-y: scroll`, and that last declaration is what keeps the gutter
+  // while a modal is open. It only holds where a scrollbar takes width at
+  // all; a stable gutter makes the page's width independent of the strategy
+  // rather than dependent on one CDK declaration continuing to exist.
+  //
+  // No-op where scrollbars are overlaid (macOS's default setting, every
+  // touch browser): nothing was ever taking width there, and `stable` does
+  // not invent a gutter.
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   font-family: var(--wr-font-family-base);

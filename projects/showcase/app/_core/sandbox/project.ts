@@ -9,7 +9,7 @@ import { isTemplateLanguage, isTypeScriptLanguage } from './languages';
 import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
 import type { SandboxFile, SandboxProject } from './types';
 
-import { LUCIDE_VERSION, STYLE_ENTRY_POINTS } from '#core/generated/selectors';
+import { LUCIDE_VERSION, STYLE_DEPENDENCIES, STYLE_ENTRY_POINTS } from '#core/generated/selectors';
 
 /**
  * Builds a bootable Angular 22 workspace out of a docs snippet.
@@ -53,6 +53,15 @@ import { LUCIDE_VERSION, STYLE_ENTRY_POINTS } from '#core/generated/selectors';
  *   stylesheets to serve a two-element demo, and the container answered with an
  *   out-of-memory error. Narrowed to the entry points the snippet actually
  *   renders (see `stylesScss`), the CSS drops from 287 kB to 44 kB.
+ *
+ * The narrowing then shipped a regression of its own, and the fix is the
+ * `STYLE_DEPENDENCIES` lookup in `stylesScss` — a component's style
+ * dependencies are not its import dependencies, so `/start/playground` opened
+ * with a chevron the size of the select. Measured on that demo, built three
+ * ways: umbrella 287.19 kB, the narrowing alone 54.85 kB, the narrowing plus
+ * the dependencies it was missing 55.97 kB. Correctness costs about a kilobyte
+ * here because the sheets it was dropping — `ngwr/icon`, `ngwr/spinner` — are
+ * small; the theme layer is most of what is left.
  *
  * One observation is not a guarantee. The cold path is roughly two and a half
  * minutes and how long a container takes is StackBlitz's call, so the honest
@@ -342,6 +351,19 @@ function indexHtml(selector: string, title: string): string {
  * Only subpaths in the generated `STYLE_ENTRY_POINTS` are emitted. `@use` on an
  * entry point without a `styles/_index.scss` — `ngwr/date`, `ngwr/utils` — is a
  * build error rather than a no-op, so guessing is not an option.
+ *
+ * **What the narrowing got wrong the first time, and what fixes it.** The
+ * subpaths handed in are the ones the snippet IMPORTS, and a component's style
+ * dependencies are not its import dependencies. `wr-select` draws its chevron
+ * as an inline `<svg class="wr-icon__svg wr-select__chevron">` — its own sheet
+ * rotates it, `ngwr/icon`'s sizes it — so `/start/playground` shipped a chevron
+ * as tall as the field for every visitor who opened it in StackBlitz, off a
+ * demo that never says the word "icon". Hardcoding `ngwr/icon` here would fix
+ * that one page and leave the next component to break the same way in silence,
+ * so the dependency is GENERATED: `pnpm gen:selectors` reads the library's
+ * templates for the classes and elements each entry point reaches across for,
+ * and emits `STYLE_DEPENDENCIES`, transitively closed. This function is the
+ * lookup.
  */
 /**
  * The `ngwr/*` subpaths a hand-written component imports.
@@ -361,13 +383,22 @@ function ngwrSubpathsIn(...sources: readonly string[]): readonly string[] {
 
 function stylesScss(subpaths: readonly string[]): string {
   const shipsStyles = new Set<string>(STYLE_ENTRY_POINTS);
-  const used = [...new Set(subpaths.filter(p => shipsStyles.has(p)))].sort();
+  const wanted = new Set<string>();
+  for (const subpath of subpaths) {
+    if (shipsStyles.has(subpath)) wanted.add(subpath);
+    // Not gated on `shipsStyles`: an entry point can render another's classes
+    // without shipping a sheet of its own, and the generated map is already
+    // narrowed to subpaths that have one.
+    for (const dependency of STYLE_DEPENDENCIES[subpath] ?? []) wanted.add(dependency);
+  }
+  const used = [...wanted].sort();
   const uses = ['ngwr/theme', ...used.filter(p => p !== 'ngwr/theme')];
 
   return [
-    '// Only the entry points this demo renders, plus the token layer. Each one',
-    '// pulls the theme in itself and de-duplicates, so this is the same output',
-    "// as `@use 'ngwr';` minus every component the page does not draw.",
+    '// Only the entry points this demo renders and the sheets they paint',
+    '// through, plus the token layer. Each one pulls the theme in itself and',
+    "// de-duplicates, so this is `@use 'ngwr';` minus every component the page",
+    '// does not draw.',
     ...uses.map(p => `@use '${p}';`),
     '',
     'body {',

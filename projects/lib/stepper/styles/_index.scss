@@ -1,5 +1,13 @@
 @use '../../theme/styles' as theme;
 
+// The label's own line box, and the header button's block padding. Both are
+// declared once below and read back by the alignment arithmetic — the indicator
+// centres on the label's FIRST LINE, and the connector centres on the indicator,
+// so a literal repeated in three places is a defect waiting for someone to
+// change one of them.
+$label-line-height: 1.25rem;
+$header-padding-block: 0.25rem;
+
 .wr-stepper {
   --wr-stepper-indicator-size: 1.75rem;
   --wr-stepper-connector: var(--wr-color-outline);
@@ -33,9 +41,19 @@
     flex-direction: column;
   }
 
+  // `flex-start`, not `center`: a step that carries a hint line
+  // (`description` / `optional`) is TALLER than its neighbours, and centring
+  // every button in the row it defines drops the short steps' circles by half
+  // the difference — the whole row reads as misaligned because of one step.
+  // Anchored at the block start, every button's first line sits at the same y,
+  // and the connector places itself against the indicator (see `&__connector`)
+  // instead of riding the row's centre.
+  //
+  // A row of same-height steps is unaffected: with equal heights `center` and
+  // `flex-start` resolve identically.
   &__header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     flex: 1 1 auto;
     gap: 0.75rem;
     min-width: 0;
@@ -59,13 +77,20 @@
     flex: 0 0 auto;
   }
 
+  // `flex-start` here for the same reason, one level in: the indicator is a
+  // fixed-size circle and the label is a column that grows a line whenever the
+  // step has a `description` or is `optional`. Centred against the whole block,
+  // the circle slides down as the label grows and stops belonging to the step's
+  // NAME. The label carries the compensating offset (see `&__label`) rather
+  // than the indicator carrying a negative one, so the circle stays inside the
+  // button's own box.
   &__header-button {
     appearance: none;
     background: transparent;
     border: 0;
-    padding: 0.25rem 0;
+    padding: $header-padding-block 0;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.625rem;
     color: var(--wr-color-on-surface);
     cursor: pointer;
@@ -119,7 +144,15 @@
     gap: 0.0625rem;
     font-size: var(--wr-text-sm);
     font-weight: 500;
-    line-height: 1.25rem;
+    line-height: $label-line-height;
+    // Centre the label's FIRST LINE on the indicator, now that both are anchored
+    // to the button's block start. Half the difference between the circle and one
+    // line box — derived, not typed, because `--wr-stepper-indicator-size` is a
+    // public custom property a consumer can retune. At the shipped 1.75rem this
+    // is 0.25rem, which is exactly where `align-items: center` used to put a
+    // single-line label: the one-line step renders pixel-for-pixel as before and
+    // only the multi-line one moves.
+    margin-block-start: calc((var(--wr-stepper-indicator-size) - #{$label-line-height}) / 2);
   }
 
   &__header--active &__label {
@@ -145,7 +178,13 @@
     height: 1.5px;
     background: var(--wr-stepper-connector);
     min-width: 1rem;
-    margin: 0 0.5rem;
+    // The row aligns its children to the block start now, so the line has to
+    // place itself on the indicator's centre instead of inheriting the row's.
+    // Button padding, plus half a circle, less half the line's own thickness.
+    // Same y the centred version produced for a row of equal-height steps — and
+    // unlike it, the same y when one step grows a hint line.
+    margin-block-start: calc(#{$header-padding-block} + var(--wr-stepper-indicator-size) / 2 - 0.75px);
+    margin-inline: 0.5rem;
   }
 
   &--vertical &__connector {
