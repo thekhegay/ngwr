@@ -57,9 +57,9 @@ export default class WavesPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'lineColor',
-      description: 'Line stroke colour.',
-      type: 'string',
-      default: 'theme-aware (dark tint on light, white-alpha on dark)',
+      description: 'Line stroke colour. Unset, the theme decides: a dark tint on light, white-alpha on dark.',
+      type: 'string | null',
+      default: 'null',
     },
     { name: 'backgroundColor', description: 'Fill behind the lines.', type: 'string', default: "'transparent'" },
     { name: 'waveSpeedX', description: 'Horizontal noise drift per ms.', type: 'number', default: '0.0125' },

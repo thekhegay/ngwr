@@ -2,13 +2,26 @@ import { Component } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
 
-import { DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
-import type { DocApiRow } from '#core/components';
+import {
+  DocApiComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  DocSnippetComponent,
+} from '#core/components';
+import type { DocApiRow, DocSeeAlsoLink } from '#core/components';
 
 @Component({
   selector: 'ngwr-directives-typography',
   templateUrl: './typography.html',
-  imports: [WrTypography, DocApiComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent],
+  imports: [
+    WrTypography,
+    DocApiComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class DirectivesTypographyPage {
   protected readonly api: readonly DocApiRow[] = [
@@ -95,6 +108,27 @@ export default class DirectivesTypographyPage {
       name: 'wr-typography--mono',
       type: 'when `mono` or `variant="code"`',
       description: 'The one implicit rule in the directive.',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Typography guide',
+      url: ['/guides/typography', 'overview'],
+      description: 'The variants applied to real headings, paragraphs, links, lists and code.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Typography tokens',
+      url: ['/guides/tokens', 'typography'],
+      description: 'The `--wr-text-*` scale and font primitives this directive reads.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Theming',
+      url: ['/guides', 'theming'],
+      description: 'Retuning those tokens across the app.',
     },
   ];
 }

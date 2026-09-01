@@ -66,7 +66,7 @@ export default class FuzzyTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'text', description: 'Text to render.', type: 'string', default: '— (required)', required: true },
+    { name: 'text', description: 'Text to render.', type: 'string', required: true },
     {
       name: 'fontSize',
       description: 'Font size as a CSS length or px number.',

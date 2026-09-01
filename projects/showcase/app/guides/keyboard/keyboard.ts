@@ -79,7 +79,6 @@ protected onKeydown(event: KeyboardEvent): void {
       name: 'wrHotkey',
       description: 'The chord to listen for. `mod` resolves to Cmd on macOS and Ctrl elsewhere.',
       type: 'WrHotkeySpec',
-      default: '— (required)',
     },
     {
       name: 'scoped',

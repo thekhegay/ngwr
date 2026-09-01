@@ -72,7 +72,7 @@ export default class SplitTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'text', description: 'Text to animate.', type: 'string', default: '— (required)', required: true },
+    { name: 'text', description: 'Text to animate.', type: 'string', required: true },
     { name: 'splitType', description: 'Split granularity.', type: "'chars' | 'words'", default: "'chars'" },
     { name: 'delay', description: 'Stagger delay between pieces in ms.', type: 'number', default: '50' },
     { name: 'duration', description: 'Animation duration in seconds.', type: 'number', default: '1.25' },

@@ -6,12 +6,14 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
 } from '#core/components';
 
 @Component({
   selector: 'ngwr-tokens-sizing',
   templateUrl: './sizing.html',
-  imports: [DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent],
+  imports: [DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent],
 })
 export default class TokensSizingPage {
   protected readonly snippets = {
@@ -190,6 +192,21 @@ readonly size = input<WrButtonSize>('md');
       type: 'length',
       default: '50rem',
       description: 'Fully-rounded ends — pill buttons, tags, the `pill` shape modifier.',
+    },
+  ];
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Service',
+      title: 'WrDensity',
+      url: ['/reference/services', 'density'],
+      description: 'The `--wr-density-*` multipliers that scale padding-y at runtime.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Theming',
+      url: ['/guides', 'theming'],
+      description: 'Overriding any of these tokens on `:root`.',
     },
   ];
 }

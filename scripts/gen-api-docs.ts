@@ -39,6 +39,41 @@
  * heading; and some of the components it declares are overlay panels nothing
  * outside the library can write, so demanding docs for their inputs asks for a
  * template no consumer can type. All three now live in `extract-api.ts`.
+ *
+ * For a long time the comparison read NAMES only, and a name is the half a
+ * reader does not copy. `animations/circular-text` could document
+ * `spinDuration` as `999` — the source says `20` — and the gate exited 0, on a
+ * page in `COMPARED_CLUSTERS` that it had opened and read. Twenty-one of the
+ * twenty-four animation pages hand-write their rows, so that hole covered nearly
+ * the whole cluster. `wrongDefaults()` closes it, and it flagged 19 rows across
+ * 17 pages the first time it ran — not one of them a false positive.
+ *
+ * Three normalisations stand between the source and the page, and every one of
+ * them is a hole, so each is drawn as narrowly as it can be:
+ *
+ *   - **`—`, `null` and `undefined` are one value.** The Default column renders
+ *     an em dash for an absent default, so a page spelling it out renders
+ *     identically to one that omits it; `undefined` is what
+ *     `input<T | undefined>(undefined)` leaves in the source's own slot, and
+ *     `null` is the same statement carrying a value. `''` is deliberately NOT on
+ *     that list — an empty string is a default, and `marquee`'s `fadeOutColor`
+ *     was documented as `—` when the component ships `''`.
+ *   - **A `@default` tag's trailing parenthetical is an aside**, not part of the
+ *     value: `@default 'linear' (matches reactbits' identity easing)` is
+ *     satisfied by a page printing `'linear'`. The aside is written for a reader
+ *     of the source; a Default column is one chip wide.
+ *   - **A default the extractor could only read as an EXPRESSION is not
+ *     compared** — `randomId('wr-tab')`, `DEFAULT_CHARS`, `(_, item) => item`.
+ *     There is no value there to compare against, and what the docs should print
+ *     instead is a judgement (`'auto'`, `'identity'`). Those rows are counted in
+ *     the run's summary so the hole is visible rather than silent; six today.
+ *
+ * A page that prints NO default is still not held to one the source has — the
+ * same line `documentedMembers(src, true)` already drew for staleness. And one
+ * rule that is not a tolerance at all: a row the source marks REQUIRED must
+ * print no default. `<ngwr-doc-api>` renders a required badge and an em dash
+ * already, so `default: '— (required)'` — which ten pages carried — says both a
+ * second time and lands as a two-line chip in a column sized for `'md'`.
  */
 
 import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
@@ -184,20 +219,43 @@ function isMember(name: string): boolean {
  * `[wrSpotlight].resetX / .resetY`), which reads as both of them undocumented
  * unless the slash is split.
  */
-function documentedMembers(src: string, requireDefault = false): string[] {
+interface PageRow {
+  /** As the page writes it — `[(value)]`, `<wr-step>.label`, `(touch)`. */
+  readonly name: string;
+  /** The `default:` string the page prints, or `undefined` when it prints none. */
+  readonly def?: string;
+  /** Whether the page carries `default:` at all — `''` is a default, absence is not. */
+  readonly claimsDefault: boolean;
+}
+
+/**
+ * Every member row a page documents, from every table on it.
+ *
+ * Two shapes have to be handled or the report fills with noise.
+ *
+ * `sub: true` marks a row indented under the one above it, and what that means
+ * depends entirely on the parent: under `<wr-list>` the sub-rows are the
+ * component's inputs, under `WrMarqueeImage` they are fields of an interface,
+ * and under `variant` they are the allowed values of that one input. Only the
+ * first kind is a member, so the parent row decides.
+ *
+ * And one row often covers two members (`text / texts`,
+ * `[wrSpotlight].resetX / .resetY`), which reads as both of them undocumented
+ * unless the slash is split. Both halves inherit the row's one `default:`,
+ * which is what the reader sees for either of them.
+ */
+function documentedRows(src: string): PageRow[] {
   // Split on the name rather than matching a whole `{…}` row: a description can
   // contain braces, and a row regex that assumes it cannot silently drops the
   // row — which then reads as an undocumented member.
   const parts = src.split(/name:\s*'([^']+)'/);
-  const out: string[] = [];
+  const out: PageRow[] = [];
   let parent = '';
 
   for (let i = 1; i < parts.length; i += 2) {
     const raw = parts[i] ?? '';
     const tail = (parts[i + 1] ?? '').split('},')[0] ?? '';
     const sub = /\bsub:\s*true/.test(tail);
-
-    if (requireDefault && !/\bdefault:/.test(tail)) continue;
 
     if (!sub) {
       // `<wr-list>` headings fail `isMember` on their own; `[wrAffixOffsetTop]`
@@ -209,13 +267,109 @@ function documentedMembers(src: string, requireDefault = false): string[] {
       continue;
     }
 
+    const claimsDefault = /\bdefault:/.test(tail);
+    // Quote-agnostic: a page writes `default: "'speedUp'"` when the value is
+    // itself quoted, and `default: '20'` when it is not.
+    const def = /\bdefault:\s*(['"`])((?:\\.|(?!\1).)*)\1/.exec(tail)?.[2];
+
     for (const piece of raw.split('/')) {
       const name = piece.trim();
-      if (isMember(name)) out.push(name);
+      if (isMember(name)) out.push({ name, claimsDefault, ...(def === undefined ? {} : { def }) });
     }
   }
 
   return out;
+}
+
+/** Member names a page documents; `requireDefault` narrows to the rows claiming to be inputs. */
+function documentedMembers(src: string, requireDefault = false): string[] {
+  return documentedRows(src)
+    .filter(r => !requireDefault || r.claimsDefault)
+    .map(r => r.name);
+}
+
+/**
+ * The spellings of "this input carries no value", which the Default column
+ * renders as one thing: an em dash.
+ *
+ * `undefined` is on the list because it is what `input<T | undefined>(undefined)`
+ * puts in the source's own default slot, and `null` because it is the same
+ * statement with a value — `[closeLabel]` unset IS `null`, and a page writing
+ * either the token or the dash has told the reader the same true thing. Widening
+ * past those three would start excusing prose, which is the next entry down.
+ */
+const NOTHING: ReadonlySet<string> = new Set(['', '—', 'null', 'undefined']);
+
+/**
+ * A default whose printed form IS its value.
+ *
+ * Anything else — `DEFAULT_CHARS`, `randomId('wr-tab')`, `(_, item) => item` —
+ * is an expression the extractor read out of the call site, not a value: what
+ * the docs should print for it is a judgement (`'auto'`, `'identity'`) that no
+ * comparison can make. Those rows are skipped and COUNTED, so the hole shows up
+ * in the run's own output instead of being silent.
+ */
+const LITERAL = /^(?:'[^']*'|"[^"]*"|`[^`]*`|-?\d[\d_]*(?:\.\d+)?|true|false|null|undefined|\[[\s\S]*\]|\{[\s\S]*\})$/;
+
+/**
+ * `'linear' (matches reactbits' identity easing)` → `'linear'`.
+ *
+ * A `@default` tag often carries an aside for the reader of the source. The
+ * value is the part before it, and a page printing either the whole tag or just
+ * the value is right — a Default column is narrow and the aside belongs in the
+ * description.
+ */
+function withoutAside(value: string): string {
+  return value.replace(/\s*\([^()]*\)\s*$/, '').trim();
+}
+
+function normalizeDefault(value: string | undefined): string {
+  const text = (value ?? '').trim().replace(/\s+/g, ' ');
+  return NOTHING.has(text) ? '' : text;
+}
+
+/**
+ * Every default a page prints that the source contradicts.
+ *
+ * Two claims are checked and they fail differently. A row the source says is
+ * REQUIRED must not print a default at all: `<ngwr-doc-api>` already renders the
+ * required badge and an em dash, so `default: '— (required)'` duplicates both
+ * and lands as a two-line chip. And a row that does print one must print what
+ * the source has, after the normalisations above.
+ *
+ * A page that prints NO default is not checked against a source that has one —
+ * the same line `documentedMembers(src, true)` draws for staleness. A row
+ * carrying `default:` is making a claim; a row without one is documenting a
+ * member without answering that column, which several pages do deliberately for
+ * outputs and directive selectors.
+ */
+function wrongDefaults(src: string, bySrcName: Map<string, ApiRow>): { readonly lines: string[]; readonly skipped: number } {
+  const lines: string[] = [];
+  let skipped = 0;
+
+  for (const row of documentedRows(src)) {
+    const source = bySrcName.get(bare(row.name));
+    if (!source) continue;
+
+    if (source.required) {
+      if (row.claimsDefault && normalizeDefault(row.def) !== '') {
+        lines.push(`${bare(row.name)}: required in the source, but the page prints ${JSON.stringify(row.def)}`);
+      }
+      continue;
+    }
+
+    const declared = (source.default ?? '').trim();
+    if (declared && !LITERAL.test(declared) && !LITERAL.test(withoutAside(declared))) {
+      skipped++;
+      continue;
+    }
+
+    const page = normalizeDefault(row.def);
+    if (page === normalizeDefault(declared) || page === normalizeDefault(withoutAside(declared))) continue;
+    lines.push(`${bare(row.name)}: page says ${JSON.stringify(row.def ?? null)}, source says ${JSON.stringify(source.default ?? null)}`);
+  }
+
+  return { lines, skipped };
 }
 
 /**
@@ -261,6 +415,7 @@ function check(api: Map<string, ApiEntry>): number {
 
   let mismatched = 0;
   let unmapped = 0;
+  let unreadableDefaults = 0;
 
   for (const [file, src] of handWritten()) {
     const rel = relative(ROOT_PATH, file);
@@ -308,16 +463,25 @@ function check(api: Map<string, ApiEntry>): number {
     const known = (n: string): boolean => actual.has(n) || synthesised.has(n) || alsoPublic.has(n);
     const stale = [...new Set(claimed.filter(n => !n.startsWith('[') && !known(bare(n))).map(bare))];
 
-    if (missing.length === 0 && stale.length === 0) continue;
+    // Names were only ever half of it. A row can name a real input and still
+    // print a default the source does not have — `pnpm check:api-docs` returned
+    // 0 on `spinDuration` documented as `999`, because nothing compared the one
+    // column a reader copies verbatim into their template.
+    const { lines: wrong, skipped } = wrongDefaults(src, new Map(found.rows.map(r => [bare(r.name), r])));
+    unreadableDefaults += skipped;
+
+    if (missing.length === 0 && stale.length === 0 && wrong.length === 0) continue;
     mismatched++;
     console.log(`  ${rel}  (${found.primary})`);
     if (missing.length) console.log(`      missing:  ${missing.join(', ')}`);
     if (stale.length) console.log(`      unknown:  ${stale.join(', ')}`);
+    for (const line of wrong) console.log(`      default:  ${line}`);
   }
 
   console.log(
     `\n  ${mismatched} page(s) disagree with the source;` +
-      ` ${unmapped} not mapped to an entry point (interfaces, guides, groups).`
+      ` ${unmapped} not mapped to an entry point (interfaces, guides, groups);` +
+      ` ${unreadableDefaults} default(s) not comparable (the source's is an expression, not a value).`
   );
   return mismatched;
 }

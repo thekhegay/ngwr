@@ -9,8 +9,53 @@
   overflow-x: auto;
 }
 
+// The four columns are DECLARED, and `fixed` is what makes the declaration
+// stick. Under `auto` the browser sizes by content volume, and the two failure
+// modes are opposite ends of the same fault: on `/animations/circular-text` —
+// three short descriptions and one long union — it handed Type 413px and
+// Description 319px, so the widest column was the one nobody reads; on
+// `/reference/components/markdown`, whose descriptions come from the library's
+// own JSDoc, it handed Description 727px and left Name 75px and Type 83px, which
+// is where `boolean` rendered as `boolea` / `n` and `headingIdPrefix` as three
+// stacked fragments. Neither is a wrapping bug — both are one column's content
+// deciding another column's width.
+//
+// The percentages come from measuring the catalog's widest chips at 1280px:
+// most names fit 162px, and the four that do not are all on `wr-table` —
+// `<ng-template wrTableGroupHeader>` 231px, `collapseAllGroups() /
+// expandAllGroups()` 282px, `scrollToRow(index, behavior?)` 210px and
+// `<ng-template wrTableExpand>`. Every one has a space to break at, so they
+// wrap rather than fragment, which is what the column has to survive —
+// defaults at 119px for a single unbreakable token, and types at 675px, which
+// nothing short of half the table would hold.
+//
+// So the type WRAPS. It does not get more column — a column wide enough for
+// `wr-table`'s `childrenKey` is half the table, and every pixel of it comes out
+// of the description — and it does not scroll, because a per-cell scrollbar in a
+// table row hides the tail of a type behind an affordance a reader never finds.
+// Wrapping is the only answer that survives 675px, and with the column declared
+// the wrap points are a property of the column rather than of how long the
+// neighbouring descriptions happen to be.
+.col-name {
+  width: 20%;
+}
+
+.col-type {
+  width: 25%;
+}
+
+.col-default {
+  width: 15%;
+}
+
 .table {
   width: 100%;
+  // Percentages alone keep shrinking, and below roughly this the columns stop
+  // holding one chip each. The `.scroll` wrapper above is what the table is
+  // meant to overflow into at that point — it existed for this and, while `auto`
+  // layout was free to crush the columns instead, never once triggered.
+  min-width: 45rem;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.8125rem;
   line-height: 1.25rem;
@@ -53,8 +98,24 @@
   }
 }
 
+// The name and its badge, on one line while there is room for both. A flex row
+// rather than inline flow: the whitespace text node between the two used to
+// count toward the column, so `text` + `REQUIRED` overshot by 4px and the badge
+// dropped under a four-letter name.
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+
+  // A flex item refuses to go below its own min-content, and a long member name
+  // would then push out of the cell instead of wrapping inside it.
+  code {
+    min-width: 0;
+  }
+}
+
 .required {
-  margin-inline-start: 0.5rem;
   padding: 0.125rem 0.3125rem;
   border-radius: var(--wr-border-radius-sm);
   background: rgba(var(--wr-color-danger-rgb), 0.12);

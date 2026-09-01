@@ -2,12 +2,26 @@ import { Component } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-typography-text-page',
   templateUrl: './paragraphs.html',
-  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class TypographyTextPage {
   protected readonly snippets = {
@@ -35,4 +49,13 @@ export default class TypographyTextPage {
   A long line that gets ellipsized when it overflows the container.
 </p>`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Directive',
+      title: '[wrTypography]',
+      url: ['/reference/directives', 'typography'],
+      description: 'Every input, the full variant union, and the classes the directive emits.',
+    },
+  ];
 }

@@ -41,7 +41,7 @@ export default class DatePickerPageComponent {
   protected readonly window = signal<WrDateRange | null>(null);
 
   protected readonly today = new Date();
-  protected readonly nextMonth = new Date(this.today.getFullYear(), this.today.getMonth() + 1, this.today.getDate());
+  protected readonly firstOfNextMonth = new Date(this.today.getFullYear(), this.today.getMonth() + 1, 1);
   protected readonly isWeekday = (d: Date): boolean => d.getDay() > 0 && d.getDay() < 6;
 
   protected readonly snippets = {
@@ -64,7 +64,7 @@ export class MyComponent {
     bounds: `<wr-date-picker
   [(value)]="picked"
   [min]="today"
-  [max]="nextMonth"
+  [max]="firstOfNextMonth"
   [dateFilter]="isWeekday"
 />`,
 

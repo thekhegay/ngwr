@@ -30,7 +30,7 @@
       escalate to; an issue tracker is the whole of it. <strong>Majors move fast</strong>: six between 2026-06-12 and
       2026-08-20, v7 through v12, four of them carrying an <code>ng update</code> codemod and two deliberately not.
       <strong>Two locale catalogs ship in the box</strong>, English and Russian.
-      <strong>And almost nobody uses it</strong> — 151 weekly npm downloads and 3 GitHub stars, read on 2026-08-20. A
+      <strong>And almost nobody uses it</strong> — ~150 weekly npm downloads and 3 GitHub stars, read on 2026-08-20. A
       reader who leaves in ten seconds because this page told them the truth is a better outcome than one who adopts and
       churns in a quarter.
     </p>
@@ -109,7 +109,7 @@
       A <code>ControlValueAccessor</code> is not an implementation detail a library can delete. It is the public
       contract every consumer's reactive form is already bound through, so removing one is a breaking change for every
       app on the library. A project with two million weekly downloads drops it slowly, behind a major, or keeps both
-      forever. A project with 151 drops it in an afternoon.
+      forever. A project with ~150 drops it in an afternoon.
     </p>
 
     <p wrTypography>
@@ -148,13 +148,84 @@
     title="Where ngwr sits"
     description="Nine factors that change a decision, across the five libraries a team in this position actually shortlists."
   >
-    <wr-table responsive [columns]="comparisonColumns" [items]="comparisonRows" />
+    <!--
+      A real `<table>`, styled as blocks. This is tabular data — nine factors by
+      five libraries — so the row/column relationship has to survive the look: a
+      grid of `<div>`s reads to a screen reader as nine paragraphs with no
+      column headings at all, and `pnpm check:a11y` runs axe over the
+      prerendered page.
+
+      Hence the explicit `role` on every element, which is not redundant here
+      even though each one restates the implicit role. A `<table>` laid out with
+      `display: grid` — which is what the block layout and the sticky header
+      both need — DROPS its implicit ARIA table semantics in every browser; the
+      explicit roles are what keeps `table` / `row` / `columnheader` /
+      `rowheader` / `cell` after the display changes. (Worth knowing before
+      copying this pattern anywhere: `wr-table`'s own `responsive` card mode
+      switches the same elements to `display: block` and carries no explicit
+      roles, so it loses them — a lib-side question, not one this page can
+      answer.)
+
+      The factor is a real `<th scope="row">` in the same row as its five cells,
+      so the table is six columns wide in the DOM and five tracks wide on
+      screen: CSS grid moves it to a full-width band at the top of the block
+      (`grid-column: 1 / -1`) without a `colspan` and without breaking the
+      column each cell is headed by.
+    -->
+    <div class="cmp">
+      <table class="cmp__table" role="table">
+        <thead class="cmp__head" role="rowgroup">
+          <tr class="cmp__head-row" role="row">
+            <th class="cmp__head-axis" role="columnheader" scope="col">Deciding factor</th>
+
+            @for (lib of libraries; track lib.key) {
+              <th class="cmp__head-lib" [class.cmp__head-lib--self]="lib.self" role="columnheader" scope="col">
+                {{ lib.name }}
+              </th>
+            }
+          </tr>
+        </thead>
+
+        <tbody role="rowgroup">
+          @for (row of comparisonRows; track row.axis) {
+            <tr class="cmp__block" role="row">
+              <th class="cmp__axis" role="rowheader" scope="row">
+                {{ row.axis }}
+
+                @if (row.readAt) {
+                  <span class="cmp__read">read {{ row.readAt }}</span>
+                }
+              </th>
+
+              @for (lib of libraries; track lib.key) {
+                <td class="cmp__cell" [class.cmp__cell--self]="lib.self" role="cell">
+                  <!--
+                    The column header repeated inside the cell, for the tiers
+                    where five columns do not fit and the header band is off
+                    screen. `aria-hidden`, because the real `<th>` above still
+                    names this cell's column and a screen reader would otherwise
+                    hear the library twice.
+                  -->
+                  <span class="cmp__cell-lib" aria-hidden="true">{{ lib.name }}</span>
+
+                  <span class="cmp__cell-text">{{ row[lib.key] }}</span>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <p wrTypography variant="small" tone="medium">
       Downloads, stars, versions and license metadata were read from the npm registry and the GitHub API on 2026-08-20;
       the forms, dependency and harness rows come from the published tarball of each library's then-current version.
-      They move, and a competitor's licensing terms are the vendor's to state — check them there before you rely on a
-      row here. The ngwr column is measured in this repository and reproducible:
+      <strong>The download and star rows are rounded to two significant figures</strong> and dated in the table itself:
+      those two move every day, so an exact figure read once is false within a week while still reading as a
+      measurement, where <code>~2M</code> stays true for months and cannot be mistaken for one. ngwr's own commit counts
+      are deliberately not rounded — they are a claim about this repository, and the command below re-runs them. The
+      rest move too, and a competitor's licensing terms are the vendor's to state — check them there before you rely on
+      a row here. The ngwr column is measured in this repository and reproducible:
       <code>find projects/lib -name ng-package.json</code> for the entry points, a grep for
       <code>ControlValueAccessor</code>, and <code>git shortlog -sn --all</code> for the commits. That last one prints
       seven rows, not one: the maintainer is four of them (977 + 422 + 8 + 2 = 1,409, an identity per machine and per
@@ -212,7 +283,7 @@
       <li>
         <strong>Angular Material</strong> — you need the safest institutional bet, or you need to hire people who
         already know the library. Maintained by the Angular team, two million weekly downloads, already declaring an
-        Angular 23 peer, the deepest accessibility record, and 97 test harnesses. Against that, ngwr has 151 weekly
+        Angular 23 peer, the deepest accessibility record, and 97 test harnesses. Against that, ngwr has ~150 weekly
         downloads and 3 GitHub stars, read on 2026-08-20, and nobody's CV says ngwr. Material's own cost is the
         narrowest catalog of the majors: no data grid with pinning, grouping and tree rows, no transfer, no cascader,
         and controls that still bind through <code>ControlValueAccessor</code>.

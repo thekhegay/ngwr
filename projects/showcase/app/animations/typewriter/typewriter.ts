@@ -63,9 +63,8 @@ export default class TypewriterPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'text / texts',
-      description: 'A single string or an array to cycle.',
+      description: 'A single string, or an array to cycle. Pass one of the two — neither has a value on its own.',
       type: 'string | readonly string[]',
-      default: '— (one of them required)',
     },
     { name: 'typingSpeed', description: 'Per-char typing speed in ms.', type: 'number', default: '50' },
     { name: 'initialDelay', description: 'Delay before typing starts, in ms.', type: 'number', default: '0' },

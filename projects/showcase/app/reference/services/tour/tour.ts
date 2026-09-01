@@ -130,11 +130,10 @@ tour.step();    // the current WrTourStep | null`,
       description:
         'CSS selector resolved when the step opens, or the element itself. A step matching nothing is SKIPPED.',
       type: 'string | HTMLElement',
-      default: '— (required)',
       sub: true,
     },
     { name: 'title', description: 'Heading above the copy.', type: 'string', default: '—', sub: true },
-    { name: 'content', description: "The step's body text.", type: 'string', default: '— (required)', sub: true },
+    { name: 'content', description: "The step's body text.", type: 'string', sub: true },
     {
       name: 'placement',
       description: 'Preferred side. Falls back to the opposite side near a viewport edge.',

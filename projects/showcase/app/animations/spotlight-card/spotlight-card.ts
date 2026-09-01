@@ -97,9 +97,10 @@ import { WrSpotlight } from 'ngwr/spotlight-card';
     },
     {
       name: 'spotlightColor',
-      description: 'Highlight colour on `<wr-spotlight-card>`. Any CSS colour string.',
-      type: 'string',
-      default: 'theme-aware (dark glow on light surfaces, light glow on dark)',
+      description:
+        'Highlight colour on `<wr-spotlight-card>`. Any CSS colour string. Unset, the theme decides: a dark-ish glow on light surfaces, a light glow on dark.',
+      type: 'string | null',
+      default: 'null',
     },
     {
       name: '[wrSpotlight]',

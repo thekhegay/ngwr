@@ -74,7 +74,12 @@ export default class BorderGlowPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'backgroundColor', description: 'Card background fill.', type: 'string', default: 'theme surface token' },
+    {
+      name: 'backgroundColor',
+      description: 'Card background fill. Unset, it uses the theme surface token.',
+      type: 'string | null',
+      default: 'null',
+    },
     { name: 'borderRadius', description: 'Corner radius in pixels.', type: 'number', default: '28' },
     {
       name: 'glowRadius',
@@ -108,15 +113,17 @@ export default class BorderGlowPage {
     },
     {
       name: 'glowColor',
-      description: 'Halo colour as `"H S L"` (HSL parts, no commas).',
-      type: 'string',
-      default: 'theme-aware (deep amber on light, pale on dark)',
+      description:
+        'Halo colour as `"H S L"` (HSL parts, no commas). Unset, the theme decides: a deep amber on light surfaces, pale amber on dark.',
+      type: 'string | null',
+      default: 'null',
     },
     {
       name: 'colors',
-      description: 'Mesh-gradient palette for the visible border slice.',
-      type: 'readonly string[]',
-      default: "['#c084fc', '#f472b6', '#38bdf8']",
+      description:
+        'Mesh-gradient palette for the visible border slice. Unset, the theme decides: deep tones on light, pastels on dark.',
+      type: 'readonly string[] | null',
+      default: 'null',
     },
     {
       name: 'animated',

@@ -54,9 +54,9 @@ export default class StarBorderPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'color',
-      description: 'Ray colour.',
-      type: 'string',
-      default: 'theme-aware (primary on light, white on dark)',
+      description: 'Ray colour. Unset, the theme decides: primary on light, white on dark.',
+      type: 'string | null',
+      default: 'null',
     },
     { name: 'speed', description: 'Seconds per ray sweep.', type: 'number', default: '6' },
     { name: 'thickness', description: 'Vertical ray bleed past the panel (px).', type: 'number', default: '1' },

@@ -3,12 +3,26 @@ import { Component, inject } from '@angular/core';
 import { WrButton } from 'ngwr/button';
 import { WrTheme, type WrThemeMode } from 'ngwr/theme';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-gs-theming-page',
   templateUrl: './theming.html',
-  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [
+    WrButton,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class ThemingPage {
   private readonly theme = inject(WrTheme);
@@ -111,4 +125,25 @@ theme.resolved();          // 'light' | 'dark' — what the DOM has
 /* Or inline on the host: */
 <wr-tag style="--wr-tag-bg: #fef3c7; --wr-tag-color: #92400e">soon</wr-tag>`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Service',
+      title: 'WrTheme',
+      url: ['/reference/services', 'theme'],
+      description: 'The full API behind the toggle above — every input, method and signal it exposes.',
+    },
+    {
+      kind: 'Service',
+      title: 'WrDensity',
+      url: ['/reference/services', 'density'],
+      description: 'The density counterpart — the other half of the appearance API.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Icons',
+      url: ['/icons'],
+      description: 'Registering icon sets, the adapters, and the `ng g ngwr:icon-set` schematic.',
+    },
+  ];
 }

@@ -8,14 +8,23 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
   DocSnippetComponent,
 } from '#core/components';
-import type { DocApiRow } from '#core/components';
+import type { DocApiRow, DocSeeAlsoLink } from '#core/components';
 
 @Component({
   selector: 'ngwr-tokens-density',
   templateUrl: './density.html',
-  imports: [WrButton, DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent],
+  imports: [
+    WrButton,
+    DocApiComponent,
+    DocCodeComponent,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class TokensDensityPage {
   private readonly density = inject(WrDensity);
@@ -127,4 +136,26 @@ export class DensityToggle {
     calc(var(--wr-input-padding-x) * var(--wr-density-x, 1));
 }`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Service',
+      title: 'WrDensity',
+      url: ['/reference/services', 'density'],
+      description: 'The runtime switcher behind these multipliers — `set()`, `cycle()` and the active signal.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Control sizing',
+      url: ['/guides/tokens', 'sizing'],
+      description:
+        'The `--wr-control-*` paddings density scales — a control that does not read them will not track it.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Theming',
+      url: ['/guides', 'theming'],
+      description: 'Wiring `provideWrDensity()` alongside the theme.',
+    },
+  ];
 }

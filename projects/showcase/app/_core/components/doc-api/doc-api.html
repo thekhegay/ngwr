@@ -1,5 +1,11 @@
 <div class="scroll">
   <table class="table">
+    <colgroup>
+      <col class="col-name" />
+      <col class="col-description" />
+      <col class="col-type" />
+      <col class="col-default" />
+    </colgroup>
     <thead>
       <tr>
         <th>Name</th>
@@ -15,10 +21,19 @@
             @if (row.sub) {
               <span class="branch" aria-hidden="true"></span>
             }
-            <code>{{ row.name }}</code>
-            @if (row.required) {
-              <span class="required">required</span>
-            }
+            <!--
+              The chip and its badge share one flex line rather than sitting in
+              the cell's inline flow: inline-flow puts a real whitespace text
+              node between them, and `text` + `REQUIRED` measured 4px past the
+              column it fitted in, which is how the badge came to sit on its own
+              line under a four-letter name.
+            -->
+            <span class="name">
+              <code>{{ row.name }}</code>
+              @if (row.required) {
+                <span class="required">required</span>
+              }
+            </span>
           </td>
           <td [innerHTML]="row.description | wrDocRich"></td>
           <td>

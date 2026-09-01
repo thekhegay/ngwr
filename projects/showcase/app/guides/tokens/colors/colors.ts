@@ -2,8 +2,14 @@ import { Component } from '@angular/core';
 
 import { WR_COLORS } from 'ngwr/theme';
 
-import { DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
-import type { DocApiRow } from '#core/components';
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+} from '#core/components';
+import type { DocApiRow, DocSeeAlsoLink } from '#core/components';
 
 interface Swatch {
   /** Token suffix appended to `--wr-color-{intent}`. */
@@ -15,7 +21,7 @@ interface Swatch {
 @Component({
   selector: 'ngwr-tokens-colors',
   templateUrl: './colors.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent],
+  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocApiComponent, DocSeeAlsoComponent],
 })
 export default class TokensColorsPage {
   /**
@@ -324,4 +330,19 @@ export class Palette {
   color: var(--wr-color-dark);       /* dark ink  / light ink   */
 }`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Theming',
+      url: ['/guides', 'theming'],
+      description: 'Wiring `provideWrTheme()`, the dark-mode toggle, and rebranding the palette at build or runtime.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Density tokens',
+      url: ['/guides/tokens', 'density'],
+      description: 'The spacing scale these colours sit on.',
+    },
+  ];
 }

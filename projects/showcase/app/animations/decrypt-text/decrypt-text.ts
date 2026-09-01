@@ -77,7 +77,7 @@ export default class DecryptTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'text', description: 'Text to reveal.', type: 'string', default: '— (required)', required: true },
+    { name: 'text', description: 'Text to reveal.', type: 'string', required: true },
     { name: 'speed', description: 'Tick interval in ms.', type: 'number', default: '50' },
     {
       name: 'maxIterations',

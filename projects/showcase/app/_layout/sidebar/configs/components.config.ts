@@ -1,17 +1,15 @@
 import type { SidebarGroup } from '../sidebar.types';
 
-import { withReferenceClusters } from './reference-clusters';
-
 /**
- * Sidebar for `/reference/components/*` — every UI component grouped by purpose.
- * Attached via `data: { sidebar: COMPONENTS_SIDEBAR }` on the
- * `/components` route (see `routing.ts`).
+ * The component half of the Reference sidebar — every UI component grouped by
+ * purpose. These are the only rows that contribute SEVERAL top-level groups;
+ * the other six clusters contribute one each (see `reference.config.ts`).
  *
  * Grouping rules of thumb: anything rendered in a CDK overlay lives in
  * Overlays; passive status surfaces live in Feedback; containers and
  * shells live in Layout.
  */
-export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = withReferenceClusters([
+export const COMPONENT_GROUPS: readonly SidebarGroup[] = [
   {
     title: 'Buttons',
     children: [
@@ -141,4 +139,4 @@ export const COMPONENTS_SIDEBAR: readonly SidebarGroup[] = withReferenceClusters
     ],
   },
   { title: 'Squircle', url: ['/reference/components', 'squircle'] },
-]);
+];
