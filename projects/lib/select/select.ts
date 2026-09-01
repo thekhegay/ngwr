@@ -468,10 +468,20 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   protected readonly draft = signal('');
 
   /**
-   * Show a clear-all (×) button at the end of the chip row when at
-   * least one option is selected (multi mode only). @default true
+   * Show a clear (×) button once at least one option is selected.
+   *
+   * NOT multi-only, which this said for a long time and which the template
+   * refutes: only the button trigger gates on `isMulti()`, so the chips trigger
+   * AND a single `mode="search"` / `[searchable]` select carry it too. The
+   * wording mattered little while the default was `true`; it decides what a
+   * reader expects to lose now that it is not.
+   *
+   * The default changed from `true` to `false`: the affordance is opt-in, so a
+   * trigger that grew an × on its own no longer does — pass `clearable` to keep
+   * it. In `search` mode this also gates Backspace-to-clear on an empty field,
+   * since that key is the keyboard twin of this button. @default false
    */
-  readonly clearable = input(true, { transform: coerceBooleanProperty });
+  readonly clearable = input(false, { transform: coerceBooleanProperty });
 
   /**
    * Cap on selected items (multi mode). `0` = unlimited. Once reached,

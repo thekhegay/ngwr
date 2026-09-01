@@ -69,11 +69,11 @@
 
   <ngwr-doc-section
     title="Multi mode"
-    description="Set the `mode` input to `'multi'` to switch the model to `T[]`. Each pick renders as a chip with a remove button; the panel stays open while you keep picking. Backspace on the closed trigger removes the last chip. A clear-all (×) appears once at least one chip is selected."
+    description="Set the `mode` input to `'multi'` to switch the model to `T[]`. Each pick renders as a chip with a remove button; the panel stays open while you keep picking. Backspace on the closed trigger removes the last chip. Add `clearable` — opt-in, and what the demo below passes — for the clear-all (×) that appears once at least one chip is selected."
   >
     <ngwr-doc-snippet [code]="snippets.multi">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select mode="multi" placeholder="Pick tags" [(value)]="tags">
+        <wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
           <wr-option value="typescript">TypeScript</wr-option>
           <wr-option value="angular">Angular</wr-option>
           <wr-option value="rxjs">RxJS</wr-option>
@@ -105,11 +105,11 @@
 
   <ngwr-doc-section
     title="Search mode"
-    description="The `search` mode turns the trigger into a text input that filters the projected `<wr-option>` children case-insensitively. With `clearable`, Backspace on an empty field unsets the value — the × was otherwise the only way to clear one here, which made it a mouse-only action. Replaces the removed `wr-autocomplete` for the common sync-filter case."
+    description="The `search` mode turns the trigger into a text input that filters the projected `<wr-option>` children case-insensitively. `clearable` is opt-in and off by default; the demo below passes it, which is what puts the × on the trigger and makes Backspace on an empty field unset the value — the × was otherwise the only way to clear one here, which made it a mouse-only action. Replaces the removed `wr-autocomplete` for the common sync-filter case."
   >
     <ngwr-doc-snippet [code]="snippets.search">
       <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 28rem">
-        <wr-select mode="search" placeholder="Search a country" [(value)]="country">
+        <wr-select mode="search" clearable placeholder="Search a country" [(value)]="country">
           @for (c of countries; track c) {
             <wr-option [value]="c">{{ c }}</wr-option>
           }
