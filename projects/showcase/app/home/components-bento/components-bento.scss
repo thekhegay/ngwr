@@ -253,7 +253,10 @@
       align-items: center;
       gap: 0.25rem;
       padding: 0.125rem 0.5rem;
-      border-radius: 999px;
+      // Same call as the other showcase badges: a label nested in a card takes a
+      // corner smaller than the card's, not a stadium of its own. The tile is
+      // `--wr-border-radius-lg`, so `sm` reads as sitting inside it.
+      border-radius: var(--wr-border-radius-sm);
       background: rgba(var(--wr-color-success-rgb), 0.12);
       color: var(--wr-color-success-ink);
       font-size: 0.75rem;

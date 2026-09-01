@@ -270,7 +270,10 @@
     // Roomier on the label side, tighter where the remove (×) sits.
     padding-block: 0.125rem;
     padding-inline: 0.5rem 0.25rem;
-    border-radius: 999px;
+    // Not a pill: a chip is a shape nested INSIDE the trigger, so it repeats the
+    // trigger's own corner instead of deciding one for itself — and an override
+    // of `--wr-tree-trigger-radius` carries the chips with it.
+    border-radius: var(--wr-tree-trigger-radius);
     background: var(--wr-color-primary-soft);
     // The chip wraps a label, so this paints text on the chip's own tint.
     color: var(--wr-color-primary-ink);
@@ -292,7 +295,12 @@
     justify-content: center;
     width: 1rem;
     height: 1rem;
-    border-radius: 999px;
+    // Concentric with the chip: inset from the chip's edge by its 2px block
+    // padding, and an inner corner only nests cleanly when it is the outer
+    // corner minus that inset. `max()` keeps the value legal for a consumer who
+    // sets `--wr-tree-trigger-radius: 0` — a negative radius invalidates the
+    // whole declaration.
+    border-radius: max(0px, calc(var(--wr-tree-trigger-radius) - 2px));
     cursor: pointer;
     transition: background 0.12s ease;
 
