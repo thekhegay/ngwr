@@ -1,13 +1,30 @@
 @if (tabs().length > 0) {
-  @if (tabs().length > 1) {
-    <div class="tabs" role="tablist">
+  @if (hasTabs()) {
+    <!--
+      The strip carries the keydown because the tabs it owns are one roving tab
+      stop, per the APG pattern — the container is not itself focusable and must
+      not be, or Tab would land on it before reaching a tab. Same exemption the
+      library's own `wr-tabs` strip takes.
+    -->
+    <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+    <div
+      #strip
+      class="tabs"
+      role="tablist"
+      aria-label="Source files"
+      aria-orientation="horizontal"
+      (keydown)="onStripKeydown($event)"
+    >
       @for (t of tabs(); track t.label) {
         <button
           type="button"
           class="tabs__btn"
           role="tab"
-          [class.tabs__btn--active]="$index === activeIndex()"
+          [attr.id]="tabId($index)"
+          [attr.aria-controls]="panelId()"
           [attr.aria-selected]="$index === activeIndex()"
+          [attr.tabindex]="$index === activeIndex() ? 0 : -1"
+          [class.tabs__btn--active]="$index === activeIndex()"
           (click)="select($index)"
         >
           {{ t.label }}
@@ -16,11 +33,26 @@
     </div>
   }
 
-  @if (lastHtml(); as html) {
-    <div class="html" [innerHTML]="html"></div>
-  } @else {
-    <pre class="fallback" tabindex="0"><code>{{ normalized() }}</code></pre>
-  }
+  <!--
+    One panel element for every tab: the tabs swap what it holds rather than
+    revealing one of several, so `aria-controls` on each tab names this id and
+    `aria-labelledby` names whichever tab is currently selected. No `tabindex`
+    here — the `<pre>` inside takes focus so the block can be scrolled by
+    keyboard, and a focusable panel around a focusable child is a second stop
+    on the same content.
+  -->
+  <div
+    class="panel"
+    [attr.role]="hasTabs() ? 'tabpanel' : null"
+    [attr.id]="hasTabs() ? panelId() : null"
+    [attr.aria-labelledby]="hasTabs() ? tabId(activeIndex()) : null"
+  >
+    @if (lastHtml(); as html) {
+      <div class="html" [innerHTML]="html"></div>
+    } @else {
+      <pre class="fallback" tabindex="0"><code>{{ normalized() }}</code></pre>
+    }
+  </div>
 
   <button type="button" class="copy" (click)="copy()" [attr.aria-label]="copied() ? 'Copied' : 'Copy'">
     <wr-icon [name]="copied() ? 'check' : 'copy'" />

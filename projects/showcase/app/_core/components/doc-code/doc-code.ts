@@ -1,4 +1,16 @@
-import { Component, computed, effect, inject, input, resource, signal, untracked } from '@angular/core';
+import { Directionality } from '@angular/cdk/bidi';
+import {
+  Component,
+  computed,
+  effect,
+  type ElementRef,
+  inject,
+  input,
+  resource,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 
 import { Check, Copy } from 'lucide';
@@ -9,6 +21,14 @@ import type { DocCodeFile } from './types';
 
 import { getHighlighter, type ShikiLang } from '#core/shiki';
 import { copyToClipboard, stripIndent } from '#core/utils';
+
+/**
+ * Instance counter for the tab / panel ids. Deterministic under prerender,
+ * which `randomId()` is not — the same reason `wr-tabs` counts rather than
+ * randomizes. These ids land in `aria-controls` / `aria-labelledby`, and a
+ * page renders many of these blocks, so the pairing has to be per instance.
+ */
+let docCodeUid = 0;
 
 /**
  * Syntax-highlighted code block with a copy button. Supports one of two
@@ -62,6 +82,9 @@ export class DocCodeComponent {
 
   protected readonly activeTab = computed(() => this.tabs()[this.activeIndex()] ?? null);
 
+  /** A tab strip only exists once there is more than one file to choose from. */
+  protected readonly hasTabs = computed(() => this.tabs().length > 1);
+
   protected readonly normalized = computed(() => {
     const t = this.activeTab();
     return t ? stripIndent(t.code) : '';
@@ -70,6 +93,17 @@ export class DocCodeComponent {
   protected readonly copied = signal(false);
 
   private readonly sanitizer = inject(DomSanitizer);
+
+  /** Per-instance prefix, so the tab / panel pairing is unique document-wide. */
+  private readonly uid = ++docCodeUid;
+
+  private readonly strip = viewChild<ElementRef<HTMLElement>>('strip');
+
+  /**
+   * `Directionality` is root-provided, so this resolves everywhere; the docs'
+   * own RTL toggle writes `valueSignal`, which keeps the read reactive.
+   */
+  private readonly dir = inject(Directionality, { optional: true });
 
   protected readonly highlighted = resource({
     params: () => ({ code: this.normalized(), lang: this.activeTab()?.language ?? this.language() }),
@@ -121,6 +155,65 @@ export class DocCodeComponent {
       this.activeIndex();
       untracked(() => this.lastHtml.set(null));
     });
+  }
+
+  /** Header id for the tab at `i` — `aria-labelledby` on the panel. */
+  protected tabId(i: number): string {
+    return `ngwr-doc-code-${this.uid}-tab-${i}`;
+  }
+
+  /** The one panel id every tab points `aria-controls` at. */
+  protected panelId(): string {
+    return `ngwr-doc-code-${this.uid}-panel`;
+  }
+
+  /**
+   * ArrowLeft / ArrowRight / Home / End on the strip, per the WAI-ARIA APG
+   * tabs pattern. The strip is a single tab stop (roving `tabindex`), so
+   * without this the arrows do nothing and only the first tab is reachable
+   * by keyboard at all.
+   *
+   * Automatic activation — focus moves and the panel follows — which the APG
+   * recommends when showing a panel is cheap. It is: the source is already in
+   * memory and only the highlight pass is async.
+   */
+  protected onStripKeydown(event: KeyboardEvent): void {
+    const count = this.tabs().length;
+    if (count < 2) return;
+
+    const i = this.activeIndex();
+    // Neighbours in DOM order, wrapping at the ends.
+    const forward = i < count - 1 ? i + 1 : 0;
+    const backward = i > 0 ? i - 1 : count - 1;
+    // Arrow keys follow VISUAL order: the strip is mirrored under `dir="rtl"`,
+    // so ArrowRight moves toward the visual right, which is the PREVIOUS tab
+    // there. Home / End name positions in the list, so they read the same in
+    // both directions.
+    const rtl = this.dir?.valueSignal() === 'rtl';
+    let next: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        next = rtl ? backward : forward;
+        break;
+      case 'ArrowLeft':
+        next = rtl ? forward : backward;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = count - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    this.select(next);
+    this.strip()
+      ?.nativeElement.querySelector<HTMLElement>(`#${CSS.escape(this.tabId(next))}`)
+      ?.focus();
   }
 
   protected select(i: number): void {

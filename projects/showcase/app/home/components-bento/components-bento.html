@@ -140,7 +140,10 @@
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__avatars">
           <div class="ngwr-cbento__avatar-stack">
-            <wr-avatar shape="circle" size="2.5rem" url="images/image_1.webp" alt="Emelia" />
+            <!-- Same photograph as the profile tile below, so it carries the same
+                 name — the other four are initials, which is why only this one
+                 needs one. -->
+            <wr-avatar shape="circle" size="2.5rem" url="images/image_1.webp" [alt]="profileName" />
             <wr-avatar shape="circle" size="2.5rem" alt="Jamie M" class="ngwr-cbento__avatar-text">JM</wr-avatar>
             <wr-avatar shape="circle" size="2.5rem" alt="Alex K" class="ngwr-cbento__avatar-text">AK</wr-avatar>
             <wr-avatar shape="circle" size="2.5rem" alt="Riley T" class="ngwr-cbento__avatar-text">RT</wr-avatar>
@@ -312,9 +315,13 @@
         </header>
         <div class="ngwr-cbento__tile-body ngwr-cbento__profile">
           <div class="ngwr-cbento__profile-head">
-            <wr-avatar url="images/image_1.webp" size="3rem" alt="" />
+            <!-- `alt=""` is NOT decorative here: `WrAvatar` resolves an empty
+                 alt through the i18n catalog and lands on the generic "Avatar",
+                 so the portrait announced itself as nothing beside the name
+                 printed next to it. It takes the name. -->
+            <wr-avatar url="images/image_1.webp" size="3rem" [alt]="profileName" />
             <div>
-              <p wrTypography variant="small">Roman Kim</p>
+              <p wrTypography variant="small">{{ profileName }}</p>
               <p wrTypography variant="caption" tone="medium">Founding engineer</p>
             </div>
           </div>

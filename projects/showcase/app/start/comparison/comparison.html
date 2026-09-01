@@ -19,47 +19,21 @@
 
     <p wrTypography>
       That is the whole claim. On the rest of what a team weighs — install base, contributors, locales, paid support,
-      catalog breadth — ngwr either ties or loses, and the sections below say which. A reader who leaves in ten seconds
-      because this page told them the truth is a better outcome than one who adopts and churns in a quarter.
+      catalog breadth — ngwr either ties or loses, and the sections below say which, competitor by competitor.
     </p>
-  </ngwr-doc-section>
 
-  <ngwr-doc-section
-    title="Do not use ngwr if"
-    description="Read this list before the argument, not after it. Two of these are on the roadmap — locale packs and a rich-text editor — and neither is committed to; the rest are what the project is."
-  >
-    <ul wrTypography variant="list">
-      <li>
-        <strong>You need a vendor.</strong> There is no paid support, no SLA, no consulting arm, and nobody to escalate
-        to. PrimeNG and Nebular sell exactly that; ngwr has an issue tracker.
-      </li>
-      <li>
-        <strong>You need a bus factor above one.</strong> 1,409 of 1,480 commits are by one person, under four author
-        identities. The next human contributor has 13; the two bots have 29 each. The first commit was 2022-08-22 —
-        nearly four years, one pair of hands.
-      </li>
-      <li>
-        <strong>You need API stability across majors.</strong> Six majors shipped between 2026-06-12 and 2026-08-20, v7
-        through v12. Four of them carry an <code>ng update</code> codemod; v10 and v11 changed painted colour, which no
-        codemod can repair, and ship none on purpose rather than imply the regression was handled.
-      </li>
-      <li>
-        <strong>You ship in more than English or Russian.</strong> Those are the two catalogs in the box.
-        <code>provideWrI18n()</code> takes your own and the key set is gated against drift, but you will be writing
-        them. NG-ZORRO bundles many more; Taiga UI ships 23 language packages. Locale packs are on the roadmap and are
-        not committed to.
-      </li>
-      <li>
-        <strong>You need a rich-text editor, an organisation chart, or Excel export.</strong> None are here. An editor
-        is on the roadmap, unscheduled and explicitly waiting on demand. <code>.xlsx</code> export is a standing refusal
-        rather than a gap — it needs a third-party dependency, and
-        <code>{{ quality.runtimeDependencies.join(', ') }}</code> is the only one this package has.
-      </li>
-      <li>
-        <strong>You need to hire people who already know it.</strong> 151 weekly downloads on npm and 3 GitHub stars,
-        read on 2026-08-20. Nobody's CV says ngwr.
-      </li>
-    </ul>
+    <p wrTypography>
+      The numbers that belong before the argument rather than after it, so a reader can leave here.
+      <strong>The bus factor is one</strong>: 1,409 of 1,480 commits are by one person under four author identities, the
+      next human contributor has 13 and the two bots have 29 each, from the first commit on 2022-08-22 — four years, one
+      pair of hands. <strong>There is no vendor</strong> — no paid support, no SLA, no consulting arm, nobody to
+      escalate to; an issue tracker is the whole of it. <strong>Majors move fast</strong>: six between 2026-06-12 and
+      2026-08-20, v7 through v12, four of them carrying an <code>ng update</code> codemod and two deliberately not.
+      <strong>Two locale catalogs ship in the box</strong>, English and Russian.
+      <strong>And almost nobody uses it</strong> — 151 weekly npm downloads and 3 GitHub stars, read on 2026-08-20. A
+      reader who leaves in ten seconds because this page told them the truth is a better outcome than one who adopts and
+      churns in a quarter.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -236,25 +210,36 @@
   >
     <ul wrTypography variant="list">
       <li>
-        <strong>Angular Material</strong> — you need the safest institutional bet. Maintained by the Angular team, two
-        million weekly downloads, already declaring an Angular 23 peer, the deepest accessibility record, and 97 test
-        harnesses. Its cost is the narrowest catalog of the majors: no data grid with pinning, grouping and tree rows,
-        no transfer, no cascader, and controls that still bind through <code>ControlValueAccessor</code>.
+        <strong>Angular Material</strong> — you need the safest institutional bet, or you need to hire people who
+        already know the library. Maintained by the Angular team, two million weekly downloads, already declaring an
+        Angular 23 peer, the deepest accessibility record, and 97 test harnesses. Against that, ngwr has 151 weekly
+        downloads and 3 GitHub stars, read on 2026-08-20, and nobody's CV says ngwr. Material's own cost is the
+        narrowest catalog of the majors: no data grid with pinning, grouping and tree rows, no transfer, no cascader,
+        and controls that still bind through <code>ControlValueAccessor</code>.
       </li>
       <li>
         <strong>PrimeNG</strong> — you need the widest catalog in Angular (rich-text editor, organisation chart, tree
-        table, galleria, Chart.js integration) and a vendor you can pay. Read the vendor's current terms rather than
-        this page: the npm <code>license</code> field changed at 22.0.0, and the terms are the vendor's to state, not
-        ours to summarise. Everything through 21.1.9 is MIT.
+        table, galleria, Chart.js integration) or a vendor you can pay. A rich-text editor and an organisation chart do
+        not exist in ngwr — the editor is on the roadmap, unscheduled and explicitly waiting on demand. A tree table
+        does: <code>wr-table</code>'s <code>childrenKey</code> makes <code>items</code> the roots and the table
+        announces a <code>treegrid</code>. And <code>.xlsx</code>
+        export is a standing refusal rather than a gap — it needs a third-party dependency, and
+        <code>{{ quality.runtimeDependencies.join(', ') }}</code> is the only one this package has. On the vendor half,
+        PrimeNG and Nebular sell paid support and an escalation path; ngwr has none of that. Read the vendor's current
+        terms rather than this page: the npm <code>license</code> field changed at 22.0.0, and the terms are the
+        vendor's to state, not ours to summarise. Everything through 21.1.9 is MIT.
       </li>
       <li>
-        <strong>NG-ZORRO</strong> — you are building Ant Design, or you ship to a broad international audience. Its
+        <strong>NG-ZORRO</strong> — you are building Ant Design, or you ship in more than English and Russian. Those are
+        the two catalogs in ngwr's box: <code>provideWrI18n()</code> takes your own and the key set is gated against
+        drift, but you will be writing them, and locale packs are on the roadmap without being committed to. NG-ZORRO's
         bundled locale set is far larger than ngwr will have for a long time.
       </li>
       <li>
-        <strong>Taiga UI</strong> — you need to support Angular back to v19 while still moving toward signals, or you
-        want the largest genuinely open-source catalog with institutional backing. It is also the library closest to
-        ngwr's forms position and has committed publicly to the same destination.
+        <strong>Taiga UI</strong> — you need to support Angular back to v19 while still moving toward signals, you want
+        the largest genuinely open-source catalog with institutional backing, or you ship in more than two languages and
+        want the packs written for you: it publishes 23 of them. It is also the library closest to ngwr's forms position
+        and has committed publicly to the same destination.
       </li>
       <li>
         <strong>Spartan/ng</strong> — you are a Tailwind v4 shop and want shadcn-style ownership, with component source
