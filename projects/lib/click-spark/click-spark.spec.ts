@@ -61,6 +61,9 @@ let frames: FrameRequestCallback[];
 /** `disconnect()` calls on the resize observer. */
 let disconnects: number;
 
+/** The instant every spark in this spec is born at — see `clickAt`. Any value; only its fixedness matters. */
+const CLICK_TIME = 1_000;
+
 /**
  * Frames are held, not fired, and run by hand with a timestamp the test chooses:
  * a spark's whole life is `ts - startTime` against `duration`, and reading that
@@ -113,11 +116,31 @@ const withContext = (): void => {
   vi.stubGlobal('ResizeObserver', Observer);
 };
 
-/** Run every frame the page is currently holding, once, at `ts`. */
-const runFrame = (ts: number): void => {
+/**
+ * Run every frame the page is currently holding, once, at `ts`, and check that
+ * exactly `passes` of them were the component's draw loop.
+ *
+ * `draw` re-schedules itself into the NEXT batch, so two of them held at the
+ * same time means one `runFrame` paints twice — as does a second live instance
+ * sharing this recorder. Either way the only symptom is a doubled number
+ * several lines later, in an assertion about colours or spark counts that names
+ * nothing about frames; this fails at the frame that ran twice instead.
+ *
+ * It counts PASSES rather than held callbacks because the array is not the
+ * component's alone: zoneless change detection schedules through
+ * `scheduleCallbackWithRafRace`, which asks for a `requestAnimationFrame` and a
+ * `setTimeout` and takes whichever fires first. The timeout always wins here —
+ * the mock never fires — so Angular's entries are inert by the time a test runs
+ * them, but they are in the array (two to four of them per test, varying with
+ * how many times a test calls `detectChanges()`). `clearRect` opens every pass
+ * of `draw` and nothing else, so its delta counts the component's frames alone.
+ */
+const runFrame = (ts: number, passes: number): void => {
   const pending = frames;
   frames = [];
+  const before = cleared;
   for (const frame of pending) frame(ts);
+  expect(cleared - before, `draw passes at ts=${ts}`).toBe(passes);
 };
 
 describe('WrClickSpark', () => {
@@ -127,11 +150,38 @@ describe('WrClickSpark', () => {
   const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-click-spark')!;
   const canvas = (): HTMLCanvasElement => root().querySelector<HTMLCanvasElement>('.wr-click-spark__canvas')!;
 
-  /** Click the host, and hand back a timestamp no later than the sparks' own start time. */
+  /**
+   * Click the host with the clock pinned, and hand back the exact instant every
+   * spark of that burst was stamped with.
+   *
+   * Frames are already run by hand so the wall clock cannot decide anything —
+   * but `onClick` stamps each spark with its OWN `performance.now()`, and that
+   * was the one reading left on it. Sampling the clock just before the dispatch
+   * made `startTime` = `t0 + skew`, so a test retiring the burst at `t0 + 401`
+   * against a 400 ms duration was really asserting that the dispatch reached the
+   * handler within 1 ms. The threshold was measured by inserting a busy-wait
+   * between the sample and the dispatch: 0.5 ms passes, 1.5 ms fails, which is
+   * the 1 ms the arithmetic predicts. Idle headroom was thinner than it looks —
+   * steady-state skew here is 0.014–0.052 ms, but the FIRST dispatch in a fresh
+   * context is ~0.4 ms, and every `clickAt` in this file is a cold path, so the
+   * margin was about 2× rather than the 10× a steady-state reading suggests.
+   * A loaded shared runner descheduling the thread is enough to cross it;
+   * coverage is NOT the mechanism, which was worth measuring rather than
+   * assuming — dispatch skew is the same with and without `--coverage`, because
+   * `@vitest/coverage-v8` is engine-level and does not instrument the source.
+   * Past the threshold `elapsed` lands under 400, the sparks survive the frame
+   * that is supposed to retire them, and the burst is painted a second time:
+   * `expected 16 to be 8`, once in twenty-five CI runs, on a pull request that
+   * changed a git hook.
+   */
   const clickAt = (x = 10, y = 10): number => {
-    const before = performance.now();
-    host().dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
-    return before;
+    const clock = vi.spyOn(performance, 'now').mockReturnValue(CLICK_TIME);
+    try {
+      host().dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
+    } finally {
+      clock.mockRestore();
+    }
+    return CLICK_TIME;
   };
 
   const mount = async (providers: unknown[] = []): Promise<void> => {
@@ -195,7 +245,7 @@ describe('WrClickSpark', () => {
     // shape the null-context guard is readable in: `startLoop()` returns before
     // scheduling, so a spec that never runs a frame passes with the guard deleted
     // and the first real frame throws in the page instead.
-    expect(() => runFrame(0)).not.toThrow();
+    expect(() => runFrame(0, 0)).not.toThrow();
     expect(cleared).toBe(0);
   });
 
@@ -206,7 +256,7 @@ describe('WrClickSpark', () => {
     fixture.detectChanges();
 
     const t0 = clickAt();
-    runFrame(t0);
+    runFrame(t0, 1);
 
     expect(strokes.length).toBe(5);
   });
@@ -216,11 +266,11 @@ describe('WrClickSpark', () => {
     await mount();
 
     const t0 = clickAt();
-    runFrame(t0);
+    runFrame(t0, 1);
     const burst = strokes.length;
     expect(burst).toBe(8);
 
-    runFrame(t0 + 401);
+    runFrame(t0 + 401, 1);
 
     // Nothing more is painted, and the loop parks instead of spinning on an empty
     // array for the rest of the page's life. Parking is only safe where it is —
@@ -237,8 +287,8 @@ describe('WrClickSpark', () => {
     await mount();
 
     const t0 = clickAt();
-    runFrame(t0);
-    runFrame(t0 + 401);
+    runFrame(t0, 1);
+    runFrame(t0 + 401, 1);
     expect(frames).toEqual([]);
 
     // The price of parking, and the regression it invites: a component that stopped
@@ -246,7 +296,7 @@ describe('WrClickSpark', () => {
     // no visible difference until the second click.
     const t1 = clickAt();
     expect(frames.length).toBe(1);
-    runFrame(t1);
+    runFrame(t1, 1);
 
     // Two full bursts at the default `[sparkCount]` of 8.
     expect(strokes.length).toBe(16);
@@ -257,13 +307,14 @@ describe('WrClickSpark', () => {
     await mount([{ provide: WrPlatform, useValue: reducedMotion }]);
 
     const t0 = clickAt();
-    runFrame(t0);
-    runFrame(t0 + 16);
+    runFrame(t0, 1);
+    runFrame(t0 + 16, 0);
 
     // Nothing was drawn, and the loop stopped after the single frame it was booted
     // with: `onClick` returns before pushing anything here, so this instance can
     // never paint, and it must not go on clearing a page-sized canvas every frame
-    // to prove it. The second `runFrame` finds nothing pending.
+    // to prove it. The second `runFrame` asks for zero passes, so a loop that kept
+    // going fails there rather than here.
     expect(strokes).toEqual([]);
     expect(cleared).toBe(1);
   });
@@ -277,7 +328,7 @@ describe('WrClickSpark', () => {
     host().style.setProperty('--wr-color-dark', 'rgb(1, 2, 3)');
 
     const t0 = clickAt();
-    runFrame(t0);
+    runFrame(t0, 1);
 
     expect(strokes.length).toBe(8);
     expect([...new Set(strokes)]).toEqual(['rgb(1, 2, 3)']);
@@ -290,7 +341,7 @@ describe('WrClickSpark', () => {
     fixture.detectChanges();
 
     const t0 = clickAt();
-    runFrame(t0);
+    runFrame(t0, 1);
 
     expect([...new Set(strokes)]).toEqual(['#0f172a']);
   });
@@ -302,7 +353,7 @@ describe('WrClickSpark', () => {
     fixture.detectChanges();
 
     const t0 = clickAt();
-    runFrame(t0);
+    runFrame(t0, 1);
 
     expect([...new Set(strokes)]).toEqual(['#ff0000']);
   });
