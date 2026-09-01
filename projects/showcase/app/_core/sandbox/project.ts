@@ -9,7 +9,7 @@ import { isTemplateLanguage, isTypeScriptLanguage } from './languages';
 import { scanTemplate, type SandboxField, type TemplateScan } from './resolve';
 import type { SandboxFile, SandboxProject } from './types';
 
-import { STYLE_ENTRY_POINTS } from '#core/generated/selectors';
+import { LUCIDE_VERSION, STYLE_ENTRY_POINTS } from '#core/generated/selectors';
 
 /**
  * Builds a bootable Angular 22 workspace out of a docs snippet.
@@ -82,12 +82,18 @@ const TOOLING = `^${NG_VERSION.major}.0.0`;
 const TYPESCRIPT = '~6.0.0';
 
 /**
- * The icon set the generated `src/app/icons.ts` imports from. A literal for the
- * same reason as TypeScript above — nothing in the browser can read the repo's
- * own devDependency — and it only ships when a snippet actually draws an icon.
- * Keep it in step with `lucide` in the root `package.json`.
+ * The icon set the generated `src/app/icons.ts` imports from, shipped only when
+ * a snippet actually draws an icon.
+ *
+ * Generated, unlike `TYPESCRIPT` above, because the two constraints have
+ * different sources: TypeScript's comes from `@angular/compiler-cli`'s peer
+ * range, which is not in this repository's manifest, while lucide's IS — it is
+ * the devDependency the docs site itself builds against. So `pnpm
+ * gen:selectors` reads it and emits it, and a Dependabot bump reaches the
+ * sandbox with no second copy to update. It was a literal beside a "keep it in
+ * step" note until it drifted twice in one day.
  */
-const LUCIDE = '^1.37.0';
+const LUCIDE = LUCIDE_VERSION;
 
 /** Element the generated app mounts when the sandbox synthesises the component. */
 const ROOT_SELECTOR = 'demo-root';

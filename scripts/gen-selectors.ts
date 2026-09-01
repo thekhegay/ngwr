@@ -21,7 +21,7 @@
  * comment-aware brace matcher are both load-bearing and both were paid for.
  */
 
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 import { buildSelectorMap, type WrSelectorMap, type WrSelectorTarget } from './lib/build-selector-map';
@@ -60,13 +60,43 @@ function styleEntryPoints(dir = LIB_ROOT, prefix = ''): string[] {
   return out.sort();
 }
 
+/**
+ * The `lucide` range this repository builds against, read from the root
+ * `package.json` verbatim.
+ *
+ * The sandbox has to write a version into every generated project's
+ * `package.json`, and it runs in a browser that cannot read this manifest — so
+ * the range has to travel to it as a constant. It was a hand-kept literal in
+ * `sandbox/project.ts` until it drifted twice in one day behind Dependabot
+ * bumps; reading the manifest here is what makes the next bump arrive in the
+ * sandbox on its own.
+ *
+ * Throws rather than falling back to a default: a plausible-looking wrong
+ * version in every generated project is the exact failure being removed, and
+ * it would fail in the container minutes later with nothing pointing here.
+ */
+function lucideRange(): string {
+  const manifest = JSON.parse(readFileSync(resolve(ROOT_PATH, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  };
+  const range = manifest.dependencies?.['lucide'] ?? manifest.devDependencies?.['lucide'];
+  if (!range) {
+    throw new Error(
+      'gen:selectors — no `lucide` in the root package.json (dependencies or devDependencies). ' +
+        'The sandbox pins the icon set from it: restore the dependency, or drop LUCIDE_VERSION here and in sandbox/project.ts.'
+    );
+  }
+  return range;
+}
+
 function bucket(entries: Record<string, WrSelectorTarget>): string {
   return Object.entries(entries)
     .map(([key, t]) => `    ${JSON.stringify(key)}: { symbol: ${JSON.stringify(t.symbol)}, path: ${JSON.stringify(t.path)} },`)
     .join('\n');
 }
 
-function serialize(map: WrSelectorMap, styles: readonly string[]): string {
+function serialize(map: WrSelectorMap, styles: readonly string[], lucide: string): string {
   return `/**
  * @license
  *
@@ -124,6 +154,18 @@ ${bucket(map.attributes)}
 export const STYLE_ENTRY_POINTS: readonly string[] = [
 ${styles.map(p => `  ${JSON.stringify(p)},`).join('\n')}
 ];
+
+/**
+ * The \`lucide\` range from this repository's own \`package.json\`, for the
+ * \`package.json\` a generated sandbox project ships when a snippet draws an
+ * icon.
+ *
+ * The sandbox needs a version and runs in a browser, which cannot read the
+ * repository's manifest — so it is baked in here instead. Nothing to keep in
+ * step: bump \`lucide\` and re-run \`pnpm gen:selectors\`, which \`build:showcase\`
+ * does first thing.
+ */
+export const LUCIDE_VERSION = ${JSON.stringify(lucide)};
 `;
 }
 
@@ -133,12 +175,13 @@ function main(): void {
 
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
   const styles = styleEntryPoints();
-  writeFileSync(OUT_FILE, serialize(map, styles));
+  const lucide = lucideRange();
+  writeFileSync(OUT_FILE, serialize(map, styles, lucide));
 
   console.log(
     `✓ ${relative(ROOT_PATH, OUT_FILE)} — ${Object.keys(map.tags).length} tags, ` +
       `${Object.keys(map.attributes).length} attributes from ${stats.mapped} declarations, ` +
-      `${styles.length} style entry points`
+      `${styles.length} style entry points, lucide ${lucide}`
   );
   console.log(
     `  ${stats.files} files, ${stats.declarations} declarations` +

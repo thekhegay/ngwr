@@ -335,3 +335,15 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
   "ngwr/waves",
   "ngwr/window",
 ];
+
+/**
+ * The `lucide` range from this repository's own `package.json`, for the
+ * `package.json` a generated sandbox project ships when a snippet draws an
+ * icon.
+ *
+ * The sandbox needs a version and runs in a browser, which cannot read the
+ * repository's manifest — so it is baked in here instead. Nothing to keep in
+ * step: bump `lucide` and re-run `pnpm gen:selectors`, which `build:showcase`
+ * does first thing.
+ */
+export const LUCIDE_VERSION = "^1.37.0";
