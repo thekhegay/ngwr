@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { provideWrOverlay } from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrPagination } from './pagination';
@@ -208,12 +209,39 @@ describe('WrPagination', () => {
     expect(isOff(labelled('prev')!)).toBe(true);
   });
 
-  it('never falls below the first page, even with nothing to show', () => {
+  it('leaves the page alone while the total is 0, and clamps once it settles', () => {
+    // With no `loading` input, `total = 0` is ambiguous between "empty" and
+    // "not loaded", and a server-paged host reads 0 on every navigation, so
+    // correcting there took the pager back to page 1 and kept it. The clamp is
+    // only deferred: the moment a real total arrives it applies, which is what
+    // the second half asserts.
     fixture.componentInstance.page.set(5);
     fixture.componentInstance.total.set(0);
     fixture.detectChanges();
 
-    expect(page()).toBe(1);
+    expect(page()).toBe(5);
+    // Nothing is left pointing past the end while it waits: one page renders,
+    // and it is not the page the host holds, so no cell claims to be current.
+    expect(pageButtons().map(b => b.textContent.trim())).toEqual(['1']);
+    expect(pageButtons().filter(b => b.getAttribute('aria-current') === 'page')).toHaveLength(0);
+
+    fixture.componentInstance.total.set(20);
+    fixture.detectChanges();
+
+    expect(page()).toBe(2);
+  });
+
+  it('refuses to step past the end while the total is 0', () => {
+    // `totalPages()` is 1 there, so the arrows must not become a way out of the
+    // range the guard has stopped enforcing.
+    fixture.componentInstance.page.set(3);
+    fixture.componentInstance.total.set(0);
+    fixture.detectChanges();
+
+    labelled('next')!.click();
+    fixture.detectChanges();
+
+    expect(page()).toBe(3);
   });
 
   it('shows a size changer only when asked', () => {
@@ -286,5 +314,270 @@ describe('WrPagination', () => {
       expect(compact().getAttribute('aria-hidden')).toBe('true');
       expect(compact().textContent.trim()).toBe('1 / 10');
     });
+  });
+});
+
+/**
+ * The shape a server-paged host actually has: the page number is a request
+ * parameter, so every navigation invalidates the response that carries `total`.
+ * Angular's `resource` drops its value whenever the params change — and a params
+ * function returning an object literal is never reference-equal — so `total`
+ * legitimately reads 0 between the click and the answer.
+ */
+@Component({
+  imports: [WrPagination],
+  template: `
+    <wr-pagination [total]="total()" [currentPage]="page()" [pageSize]="10" (currentPageChange)="goTo($event)" />
+  `,
+})
+class ServerHost {
+  readonly page = signal(1);
+  readonly total = signal(51);
+
+  /** Every `currentPageChange`, in order — the count is the point, not the last value. */
+  readonly navigations: number[] = [];
+
+  goTo(next: number): void {
+    this.navigations.push(next);
+    this.page.set(next);
+    this.total.set(0); // the request goes out and the previous payload is gone
+  }
+
+  /** The response lands. */
+  settle(): void {
+    this.total.set(51);
+  }
+}
+
+describe('WrPagination against a server-side total', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ServerHost>>;
+
+  const host = (): ServerHost => fixture.componentInstance;
+  const pageButtons = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-pagination__page'),
+  ];
+  const current = (): string[] =>
+    pageButtons()
+      .filter(b => b.getAttribute('aria-current') === 'page')
+      .map(b => b.textContent.trim());
+  const clickPage = (label: string): void => {
+    pageButtons()
+      .find(b => b.textContent.trim() === label)!
+      .click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(ServerHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('stays on the page the user picked while the request is in flight', () => {
+    // The guard clamped against the in-flight 0: `totalPages()` was 1, page 2
+    // was pulled back and `currentPageChange(1)` went out on top of the click,
+    // so the host re-requested page 1 and the pager could never leave it.
+    // Asserting the final page alone would pass on that — it corrected back to
+    // a plausible number — so the event log is what this spec is really for.
+    clickPage('2');
+
+    expect(host().page()).toBe(2);
+    expect(host().navigations).toEqual([2]);
+
+    host().settle();
+    fixture.detectChanges();
+
+    expect(host().page()).toBe(2);
+    expect(host().navigations).toEqual([2]);
+    expect(current()).toEqual(['2']);
+  });
+});
+
+/**
+ * A SETTLED empty total — an ordinary filter that narrows the list to nothing
+ * while the host still holds the page it was reading. Nothing is in flight, so
+ * every reading below is the pager's resting state rather than a transient, and
+ * the user has to be able to get out of it: `responsive` is on and the box is
+ * narrow in the real case, where `@container wr-pagination (max-width: 24rem)`
+ * hides `.wr-pagination__page` and the arrows are the only controls left.
+ */
+@Component({
+  imports: [WrPagination],
+  template: `
+    <wr-pagination
+      showTotal
+      responsive
+      [total]="total()"
+      [currentPage]="page()"
+      [pageSize]="10"
+      (currentPageChange)="goTo($event)"
+    />
+  `,
+})
+class EmptyTotalHost {
+  readonly page = signal(5);
+  readonly total = signal(0);
+
+  /** Every `currentPageChange`, in order. */
+  readonly navigations: number[] = [];
+
+  goTo(next: number): void {
+    this.navigations.push(next);
+    this.page.set(next);
+  }
+}
+
+describe('WrPagination past the end of a settled empty total', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<EmptyTotalHost>>;
+
+  const host = (): EmptyTotalHost => fixture.componentInstance;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const labelled = (fragment: string): HTMLElement =>
+    [...root().querySelectorAll<HTMLElement>('wr-btn')].find(b =>
+      (b.getAttribute('aria-label') ?? '').toLowerCase().includes(fragment)
+    )!;
+  const isOff = (el: HTMLElement): boolean => el.getAttribute('aria-disabled') === 'true';
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(EmptyTotalHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('walks the previous arrow back into range instead of off the end', () => {
+    // The escape hatch. Prev used to ask for `goTo(4)`, which `goTo` refuses
+    // because 4 is past `totalPages()` of 1 — so the arrow was enabled and
+    // inert, and on a narrow responsive box, where the numbered cells are
+    // hidden, there was no way to leave page 5 at all. The target is clamped to
+    // the end of the valid range, so the step only ever moves inward.
+    labelled('prev').click();
+    fixture.detectChanges();
+
+    expect(host().page()).toBe(1);
+    expect(host().navigations).toEqual([1]);
+  });
+
+  it('disables the next arrow, which has nowhere to go', () => {
+    // The arrows report the RANGE, not equality with its end: at page 5 of one
+    // page `currentPage() === totalPages()` is false, so next rendered enabled
+    // and did nothing. Prev stays enabled in the same state because it does
+    // have somewhere to go — the two are asserted together on purpose.
+    expect(isOff(labelled('next'))).toBe(true);
+    expect(isOff(labelled('prev'))).toBe(false);
+  });
+
+  it('clamps a host write below the first page, empty total or not', () => {
+    // The lower bound is never about `total`: no value of it makes page 0
+    // correct. Both labels are where it showed — `rangeLabel()` guards `start`
+    // for an empty total and not `end`, so it read "0--30 of 0", and the
+    // compact pager read "-3 / 1".
+    host().page.set(-3);
+    fixture.detectChanges();
+
+    expect(host().page()).toBe(1);
+    expect(host().navigations).toEqual([1]);
+    expect(root().querySelector('.wr-pagination__total')!.textContent.trim()).toBe('0-0 of 0');
+    expect(root().querySelector('.wr-pagination__current')!.textContent.trim()).toBe('1 / 1');
+  });
+});
+
+/**
+ * A host wired the conventional way: a new page size starts the list over at
+ * the first page. `resetsPage` off is the other half — a host that keeps its
+ * page and leaves the correction to the component.
+ */
+@Component({
+  imports: [WrPagination],
+  template: `
+    <wr-pagination
+      showSizeChanger
+      [total]="total()"
+      [currentPage]="page()"
+      [pageSize]="size()"
+      [pageSizeOptions]="[10, 25]"
+      (currentPageChange)="goTo($event)"
+      (pageSizeChange)="resize($event)"
+    />
+  `,
+})
+class SizeChangerHost {
+  readonly page = signal(6);
+  readonly size = signal(10);
+  readonly total = signal(120);
+  readonly resetsPage = signal(true);
+
+  readonly navigations: number[] = [];
+  readonly resizes: number[] = [];
+
+  goTo(next: number): void {
+    this.navigations.push(next);
+    this.page.set(next);
+  }
+
+  resize(next: number): void {
+    this.resizes.push(next);
+    this.size.set(next);
+    if (this.resetsPage()) this.page.set(1);
+  }
+}
+
+describe('WrPagination size changer', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeChangerHost>>;
+
+  const host = (): SizeChangerHost => fixture.componentInstance;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const options = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+
+  // The panel is a CDK overlay, so its options land outside the fixture.
+  const chooseSize = (label: string): void => {
+    root().querySelector<HTMLElement>('.wr-select__trigger')!.click();
+    fixture.detectChanges();
+    options()
+      .find(o => o.textContent.trim() === label)!
+      .click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWrOverlay()] });
+    fixture = TestBed.createComponent(SizeChangerHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it("leaves the host's own page policy standing", () => {
+    // `pageSize.set` emits synchronously, so the host has already reset to page
+    // 1 by the next statement — and that write reaches the model only on the
+    // following binding pass. Clamping there read the pre-change page 6 and
+    // emitted `currentPageChange(5)` over the reset, which the host cannot tell
+    // from a navigation: page 3 on screen and two requests for one choice.
+    chooseSize('25 / page');
+
+    expect(host().resizes).toEqual([25]);
+    expect(host().navigations).toEqual([]);
+    expect(host().size()).toBe(25);
+    expect(host().page()).toBe(1);
+  });
+
+  it('still pulls a kept page into range, once for the whole change', () => {
+    // What the imperative clamp was for. The settled guard covers it, and this
+    // is the spec that proves removing it cost nothing: 120 items over 25 is
+    // five pages, so a host that stays on 6 is corrected to 5 — after the
+    // bindings settle, from the page the host actually holds.
+    host().resetsPage.set(false);
+
+    chooseSize('25 / page');
+
+    expect(host().resizes).toEqual([25]);
+    expect(host().navigations).toEqual([5]);
+    expect(host().page()).toBe(5);
   });
 });
