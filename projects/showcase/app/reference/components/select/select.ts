@@ -71,7 +71,8 @@ export class MyComponent {}`,
   </wr-option-group>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
-    multi: `<wr-select mode="multi" placeholder="Pick tags" [(value)]="tags">
+    multi: `<!-- clearable is opt-in: without it the trigger has no clear-all (×). -->
+<wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
   <wr-option value="rxjs">RxJS</wr-option>
@@ -96,7 +97,8 @@ export class MyComponent {}`,
   [validate]="isEmail"
   [maxItems]="5"
 />`,
-    search: `<wr-select mode="search" placeholder="Search a country" [(value)]="country">
+    search: `<!-- clearable is opt-in: it paints the × and gates Backspace-to-clear. -->
+<wr-select mode="search" clearable placeholder="Search a country" [(value)]="country">
   @for (c of countries; track c) {
     <wr-option [value]="c">{{ c }}</wr-option>
   }

@@ -128,7 +128,15 @@
   // Search-mode trigger: inline text input + chevron + clear
   &__trigger--search {
     cursor: text;
-    padding: 0;
+    // The FIELD owns the padding here — it is the click target and has to be
+    // typable edge to edge — but the chevron and the × are siblings of it, not
+    // children, so a flat `padding: 0` left the chevron sitting on the border.
+    // Hand the TRAILING inset back to the trigger: the chevron is now inset by
+    // the same amount the placeholder is, and the field keeps the leading edge.
+    // Logical properties, so the inset moves to the left in `dir="rtl"` on its
+    // own — no physical side is named.
+    padding-block: 0;
+    padding-inline: 0 calc(var(--wr-select-padding-x) * var(--wr-density-x, 1));
 
     &:focus-within {
       border-color: var(--wr-color-primary);
@@ -218,7 +226,12 @@
     // Roomier on the label side, tighter where the remove (×) sits.
     padding-block: 0.125rem;
     padding-inline: 0.5rem 0.25rem;
-    border-radius: 999px;
+    // Not a pill: a chip is a shape nested INSIDE the trigger, so it repeats the
+    // trigger's own corner and scales with `size` along with it (5 / 6 / 7px for
+    // sm / md / lg). `--rounded` sets `--wr-select-radius` to the pill token, so
+    // a pill select still gets pill chips — the shape follows the control rather
+    // than being decided twice.
+    border-radius: var(--wr-select-radius);
     background: var(--wr-color-primary-soft);
     // `-ink`, not the raw intent: the chip paints the hue on its own soft tint,
     // where the base lands at 4.17:1.
@@ -241,7 +254,12 @@
     justify-content: center;
     width: 1rem;
     height: 1rem;
-    border-radius: 999px;
+    // Concentric with the chip: the remove is inset from the chip's edge by the
+    // chip's 2px block padding, and an inner corner only nests cleanly when it
+    // is the outer corner minus that inset. `max()` keeps the value legal for a
+    // consumer who sets `--wr-select-radius: 0` — a negative radius would
+    // invalidate the declaration outright.
+    border-radius: max(0px, calc(var(--wr-select-radius) - 2px));
     cursor: pointer;
     transition: background 0.12s ease;
 

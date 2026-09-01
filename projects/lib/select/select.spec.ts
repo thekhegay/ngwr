@@ -102,6 +102,40 @@ class UnclearableSearchHost {
   readonly size = signal<unknown>(null);
 }
 
+/**
+ * `clearable` DEFAULTS to `false`, so the two hosts below spell it out: a select
+ * that says nothing renders no × and answers no Backspace, and a spec written
+ * against the old `true` default would go green for the wrong reason — the
+ * "leaves the selection alone" one vacuously, since there is nothing to clear
+ * with in the first place.
+ */
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" clearable placeholder="Find a size" ariaLabel="Size" [(value)]="size">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+      <wr-option value="lg">Large</wr-option>
+    </wr-select>
+  `,
+})
+class ClearableSearchHost {
+  readonly size = signal<unknown>(null);
+}
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select mode="search" clearable placeholder="Find a size" ariaLabel="Size" [minChars]="3" [(value)]="size">
+      <wr-option value="sm">Small</wr-option>
+      <wr-option value="md">Medium</wr-option>
+    </wr-select>
+  `,
+})
+class ClearableMinCharsHost {
+  readonly size = signal<unknown>(null);
+}
+
 @Component({
   imports: [WrSelect, WrOption],
   template: `
@@ -812,7 +846,7 @@ describe('WrSelect clearing a search selection from the keyboard', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('drops the selection on Backspace in the empty field', () => {
-    const fixture = build(SearchHost);
+    const fixture = build(ClearableSearchHost);
     fixture.componentInstance.size.set('md');
     fixture.detectChanges();
     // The × is on screen, which is the state whose keyboard twin this is.
@@ -828,7 +862,7 @@ describe('WrSelect clearing a search selection from the keyboard', () => {
     // query is still `''`, and backspacing over that text starts a query. Asking
     // `searchQuery() === ''` instead of asking the FIELD would throw the
     // selection away mid-edit.
-    const fixture = build(MinCharsHost);
+    const fixture = build(ClearableMinCharsHost);
     fixture.componentInstance.size.set('md');
     fixture.detectChanges();
 
