@@ -18,7 +18,17 @@ $alert-colors: (
 
   // Defaults — overridden per variant below.
   --wr-alert-bg: var(--wr-color-info-soft);
-  --wr-alert-border: var(--wr-color-info-soft-border);
+  // `transparent`, not a `-soft-border` hairline: the tint alone carries the
+  // block, and the ring around it was a second edge saying the same thing.
+  //
+  // The hook itself stays, and is still what the border reads — it is public
+  // API, an app that wants a bordered alert sets `--wr-alert-border` and gets
+  // one back, per variant if it likes. Nor does the declaration go: a
+  // transparent 1px border still occupies its 1px, so a consumer switching the
+  // hook on does not reflow the block by a pixel on each side, and no variant's
+  // padding has to be re-derived. NO variant overrides this any more — an alert
+  // has one border value, and it is the one a consumer can reach.
+  --wr-alert-border: transparent;
   // `-ink`, never the bare intent: this is the intent used AS TEXT on its own
   // soft tint, and a bare `--wr-color-warning` there is 1.71:1 in the light
   // theme. See the token note in AGENTS.md — `-contrast` is the other
@@ -103,7 +113,6 @@ $alert-colors: (
   @each $variant, $color in $alert-colors {
     &--#{$variant} {
       --wr-alert-bg: var(--wr-color-#{$color}-soft);
-      --wr-alert-border: var(--wr-color-#{$color}-soft-border);
       --wr-alert-title: var(--wr-color-#{$color}-ink);
       --wr-alert-close: var(--wr-color-#{$color}-ink);
     }
@@ -112,7 +121,6 @@ $alert-colors: (
   // Neutral — muted gray chip, reusing the `medium` soft tokens.
   &--neutral {
     --wr-alert-bg: var(--wr-color-medium-soft);
-    --wr-alert-border: var(--wr-color-medium-soft-border);
     --wr-alert-title: var(--wr-color-on-surface);
     --wr-alert-message: var(--wr-color-on-surface-muted);
     --wr-alert-close: var(--wr-color-on-surface-muted);
@@ -126,7 +134,6 @@ $alert-colors: (
   // light text in light theme; light bg + dark text in dark theme.
   &--offline {
     --wr-alert-bg: var(--wr-color-on-surface);
-    --wr-alert-border: var(--wr-color-on-surface);
     --wr-alert-title: var(--wr-color-surface);
     --wr-alert-message: var(--wr-color-surface);
     --wr-alert-close: var(--wr-color-surface);

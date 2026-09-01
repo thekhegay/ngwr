@@ -1,0 +1,243 @@
+@use 'sass:list';
+@use 'sass:map';
+
+// --- Anchored-panel arrow ----------------------------------------------------
+//
+// A small square rotated 45°, half tucked under the panel so only the tip shows.
+// Shared by every overlay that points AT its trigger: `wr-popover`, its tooltip
+// mode, and `wr-popconfirm`.
+//
+// **Why this lives in `ngwr/overlay` and not in `ngwr/theme`.** `theme/styles`
+// is the token layer plus mixins any element can use — `smooth-br`,
+// `touch-target`, `focus-ring`. This is not one of those. It only means anything
+// against a CDK pane that carries a `--<placement>` modifier written by
+// `wrPopoverPositions()` / a directive's `panelClass`, and the eight-to-twelve
+// placement names it keys off are `WR_POPOVER_POSITIONS`. That is the overlay
+// layer's vocabulary, and `overlay/styles` is already where the cross-overlay
+// presentation lives (`.wr-overlay-sheet`, `.wr-overlay-backdrop`). Promoting it
+// to `ngwr/theme` would advertise it to every component in the catalog as
+// something general, which it is not.
+//
+// It is deliberately NOT `@forward`ed from `overlay/styles/_index.scss`, so
+// `@use 'ngwr/overlay'` gains no new public API and this file emits no CSS of
+// its own — a component `@use`s it by relative path and pays only for the rules
+// its own `anchored-arrow()` call generates.
+
+/// Side of the square's box. Half of it shows; the rest is under the panel.
+$size: 6px;
+$half: 3px;
+
+/// Distance from the panel corner for the `-start` / `-end` variants.
+$inset: 0.625rem;
+
+/// Every placement an anchored panel can take, mapped to
+/// (which panel edge the arrow hangs off, where along that edge it sits).
+///
+/// A `--top` pane means the panel sits ABOVE the trigger, so the arrow hangs off
+/// the panel's BOTTOM edge.
+$placements: (
+  top: (
+    bottom,
+    center,
+  ),
+  top-start: (
+    bottom,
+    start,
+  ),
+  top-end: (
+    bottom,
+    end,
+  ),
+  bottom: (
+    top,
+    center,
+  ),
+  bottom-start: (
+    top,
+    start,
+  ),
+  bottom-end: (
+    top,
+    end,
+  ),
+  left: (
+    right,
+    center,
+  ),
+  left-start: (
+    right,
+    start,
+  ),
+  left-end: (
+    right,
+    end,
+  ),
+  right: (
+    left,
+    center,
+  ),
+  right-start: (
+    left,
+    start,
+  ),
+  right-end: (
+    left,
+    end,
+  ),
+);
+
+/// Positions the arrow against `$edge`, offset outwards by `$pull`.
+///
+/// `left` / `right` name the panel edge in LTR terms only. Every side-anchored
+/// and `-start` / `-end` placement is expressed as CDK `originX: start | end` —
+/// plain `top` / `bottom` use `center`, which mirrors to itself — and CDK
+/// resolves start / end against `Directionality`. So under `dir="rtl"` the panel
+/// lands on the mirrored side of the trigger while the modifier class keeps its
+/// LTR name, and the arrow has to travel with the panel. Same for the `-start` /
+/// `-end` alignment along a horizontal edge.
+///
+/// The class names the placement the panel ACTUALLY took, not the requested one,
+/// wherever the caller feeds `withPositions()` a fallback list whose links each
+/// carry their own `panelClass` — so a flip swaps the modifier and this moves the
+/// arrow with it.
+@mixin at($edge, $align, $pull) {
+  @if $edge == left {
+    inset-inline-start: -$pull;
+  } @else if $edge == right {
+    inset-inline-end: -$pull;
+  } @else {
+    #{$edge}: -$pull;
+  }
+
+  @if $edge == bottom or $edge == top {
+    @if $align == center {
+      // Both halves of the centring pair go logical together, so the arrow
+      // stays on the midpoint whichever way the axis runs.
+      inset-inline-start: 50%;
+      margin-inline-start: -$half;
+    } @else if $align == start {
+      inset-inline-start: $inset;
+    } @else {
+      inset-inline-end: $inset;
+    }
+  } @else {
+    @if $align == center {
+      top: 50%;
+      margin-top: -$half;
+    } @else if $align == start {
+      top: $inset;
+    } @else {
+      bottom: $inset;
+    }
+  }
+}
+
+/// The two faces of the rotated square that stay visible outside the panel.
+///
+/// These stay physical, and it is not an oversight. Which two borders paint is
+/// decided by `transform: rotate(45deg)`, not by reading order: the rotation
+/// turns the right border into the down-right face and the bottom one into the
+/// down-left face, so `right + bottom` is what outlines a tip pointing DOWN.
+/// Swapping only the inline half would paint two faces that are tucked under
+/// the panel. A mirrored arrow needs the rotation mirrored as well — more than
+/// a property rewrite, so it is left for the RTL pass that owns the TS side.
+@mixin faces($edge, $color) {
+  @if $edge == bottom {
+    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
+    border-right: 1px solid $color;
+    border-bottom: 1px solid $color;
+  } @else if $edge == top {
+    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
+    border-left: 1px solid $color;
+    border-top: 1px solid $color;
+  } @else if $edge == right {
+    border-top: 1px solid $color;
+    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
+    border-right: 1px solid $color;
+  } @else {
+    border-bottom: 1px solid $color;
+    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
+    border-left: 1px solid $color;
+  }
+}
+
+/// Draws the arrow for an anchored overlay, at every placement it can take.
+///
+/// @param {String} $pane - the CDK pane class the directive sets, without the
+///   modifier: `.wr-popover-overlay`, `.wr-popconfirm-overlay`.
+/// @param {String} $panel - selector for the painted surface INSIDE the pane,
+///   relative to it: `> *` where the pane wraps an arbitrary child,
+///   `> .wr-popconfirm` / `.wr-tooltip` where it has a known one. The arrow is
+///   that element's `::after`, so this is also the element made `position:
+///   relative`.
+/// @param {*} $background - fill for the square; match the panel's own so the
+///   two read as one shape. A `var()` is fine and preferred.
+/// @param {*} $border - the panel's border colour, or `null` for a panel with no
+///   border. When set, the two outward faces are painted so the outline reads as
+///   continuous, and the square is pulled one extra pixel outwards so its own
+///   border lines up flush with the panel's instead of leaving the panel border
+///   showing across the arrow's base. A borderless panel has nothing to line up
+///   with, hence the smaller pull.
+/// @param {Bool} $inert - `true` drops the arrow out of hit-testing. For a
+///   tooltip, whose arrow overlaps the very control the tooltip describes, so a
+///   hittable arrow eats clicks meant for it.
+/// @param {List} $placements-used - which placements to emit, defaulting to all
+///   twelve. A component whose position input offers four should pass four
+///   rather than shipping eight rules that can never match.
+@mixin anchored-arrow($pane, $panel, $background, $border: null, $inert: false, $placements-used: map.keys($placements)) {
+  #{$pane} {
+    #{$panel} {
+      // Containing block for the arrow.
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        width: $size;
+        height: $size;
+        background: $background;
+        transform: rotate(45deg);
+
+        @if $inert {
+          pointer-events: none;
+        }
+      }
+    }
+
+    // Responsive bottom-sheet mode detaches the panel from its trigger and docks
+    // it to the bottom of the screen, so there is nothing left to point at.
+    // Emitted for every caller, not only the ones that support sheets today: the
+    // arrow is what would be wrong there, so the arrow is what should know.
+    &.wr-overlay-sheet #{$panel}::after {
+      content: none;
+    }
+  }
+
+  @each $placement in $placements-used {
+    $spec: map.get($placements, $placement);
+
+    @if $spec == null {
+      @error 'wr arrow: unknown placement `#{$placement}` — expected one of #{map.keys($placements)}.';
+    }
+
+    $edge: list.nth($spec, 1);
+    $align: list.nth($spec, 2);
+
+    // A bordered panel pulls one extra pixel, so the square's own border lines
+    // up flush with the panel's instead of leaving the panel border showing
+    // across the arrow's base. A borderless one has nothing to line up with.
+    $pull: $half;
+
+    @if $border != null {
+      $pull: $half + 1px;
+    }
+
+    #{$pane}--#{$placement} #{$panel}::after {
+      @include at($edge, $align, $pull);
+
+      @if $border != null {
+        @include faces($edge, $border);
+      }
+    }
+  }
+}

@@ -1,196 +1,27 @@
-@use 'sass:list';
-
 @use '../../theme/styles' as theme;
 @use '../../overlay/styles'; // shared .wr-overlay-sheet / .wr-overlay-backdrop for responsive mode
+@use '../../overlay/styles/arrow';
 
-// --- Arrow -----------------------------------------------------------------
-//
-// A small square rotated 45°, half tucked under the panel so only the tip shows.
-// Tooltip and popover share the geometry; the popover additionally carries the
-// panel's border on the two outward faces so the outline reads as continuous.
-//
-// Placement is driven by the resolved position modifier the directive puts on the
-// overlay host (`--top` means the panel sits ABOVE the trigger, so the arrow hangs
-// off the panel's BOTTOM edge). All 12 positions are covered — the hand-written
-// tooltip rules this replaces only handled 8, so `top-start` / `top-end` /
-// `bottom-start` / `bottom-end` tooltips have been shipping with no arrow at all.
-$_arrow: 6px;
-$_arrow-half: 3px;
-$_arrow-inset: 0.625rem; // distance from the panel corner for the -start / -end variants
+// The arrow — a rotated square tucked half under the panel — used to be written
+// out here: geometry, a twelve-placement map and two mixins. `wr-popconfirm` is
+// the same kind of anchored panel and had none of it, so rather than a second
+// copy the whole thing moved to `overlay/styles/_arrow.scss` and both components
+// call `arrow.anchored-arrow()`. The two calls at the foot of this file emit the
+// rules that were here, for the same twelve placements.
 
-// edge = which side of the panel the arrow hangs off; align = where along that side.
-$_arrow-placement: (
-  top: (
-    bottom,
-    center,
-  ),
-  top-start: (
-    bottom,
-    start,
-  ),
-  top-end: (
-    bottom,
-    end,
-  ),
-  bottom: (
-    top,
-    center,
-  ),
-  bottom-start: (
-    top,
-    start,
-  ),
-  bottom-end: (
-    top,
-    end,
-  ),
-  left: (
-    right,
-    center,
-  ),
-  left-start: (
-    right,
-    start,
-  ),
-  left-end: (
-    right,
-    end,
-  ),
-  right: (
-    left,
-    center,
-  ),
-  right-start: (
-    left,
-    start,
-  ),
-  right-end: (
-    left,
-    end,
-  ),
-);
-
-/// Positions the arrow against `$edge`, offset outwards by `$pull`.
-///
-/// `left` / `right` name the panel edge in LTR terms only. Every side-anchored
-/// and `-start` / `-end` entry in `WR_POPOVER_POSITIONS` is expressed as CDK
-/// `originX: start | end` — plain `top` / `bottom` use `center`, which mirrors
-/// to itself — and CDK resolves start / end against `Directionality`. So under
-/// `dir="rtl"` the panel lands on the mirrored side of the trigger while the
-/// modifier class keeps its LTR name, and the arrow has to travel with the
-/// panel. Same for the `-start` / `-end` alignment along a horizontal edge.
-///
-/// The class names the placement the panel ACTUALLY took, not the requested one:
-/// each entry in `WR_POPOVER_FALLBACKS` carries its own `panelClass`, so a flip
-/// swaps the modifier and this loop moves the arrow with it.
-@mixin _arrow-at($edge, $align, $pull) {
-  @if $edge == left {
-    inset-inline-start: -$pull;
-  } @else if $edge == right {
-    inset-inline-end: -$pull;
-  } @else {
-    #{$edge}: -$pull;
-  }
-
-  @if $edge == bottom or $edge == top {
-    @if $align == center {
-      // Both halves of the centring pair go logical together, so the arrow
-      // stays on the midpoint whichever way the axis runs.
-      inset-inline-start: 50%;
-      margin-inline-start: -$_arrow-half;
-    } @else if $align == start {
-      inset-inline-start: $_arrow-inset;
-    } @else {
-      inset-inline-end: $_arrow-inset;
-    }
-  } @else {
-    @if $align == center {
-      top: 50%;
-      margin-top: -$_arrow-half;
-    } @else if $align == start {
-      top: $_arrow-inset;
-    } @else {
-      bottom: $_arrow-inset;
-    }
-  }
-}
-
-/// The two faces of the rotated square that stay visible outside the panel.
-///
-/// These stay physical, and it is not an oversight. Which two borders paint is
-/// decided by `transform: rotate(45deg)`, not by reading order: the rotation
-/// turns the right border into the down-right face and the bottom one into the
-/// down-left face, so `right + bottom` is what outlines a tip pointing DOWN.
-/// Swapping only the inline half would paint two faces that are tucked under
-/// the panel. A mirrored arrow needs the rotation mirrored as well — more than
-/// a property rewrite, so it is left for the RTL pass that owns the TS side.
-@mixin _arrow-border($edge) {
-  @if $edge == bottom {
-    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
-    border-right: 1px solid var(--wr-color-outline);
-    border-bottom: 1px solid var(--wr-color-outline);
-  } @else if $edge == top {
-    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
-    border-left: 1px solid var(--wr-color-outline);
-    border-top: 1px solid var(--wr-color-outline);
-  } @else if $edge == right {
-    border-top: 1px solid var(--wr-color-outline);
-    // rtl-ok: down-right face of a 45°-rotated square — fixed by the rotation
-    border-right: 1px solid var(--wr-color-outline);
-  } @else {
-    border-bottom: 1px solid var(--wr-color-outline);
-    // rtl-ok: up-left face of a 45°-rotated square — fixed by the rotation
-    border-left: 1px solid var(--wr-color-outline);
-  }
-}
-
-.wr-popover-overlay {
-  > * {
-    // Containing block for the arrow below.
-    position: relative;
-    display: block;
-    min-width: 8rem;
-    max-width: 22rem;
-    background: var(--wr-color-surface);
-    border: 1px solid var(--wr-color-outline);
-    @include theme.smooth-br(var(--wr-border-radius-base));
-    box-shadow: var(--wr-shadow-overlay);
-    font-family: var(--wr-font-family-base);
-    color: var(--wr-color-on-surface);
-    animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
-    // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
-    transform-origin: top left;
-
-    &::after {
-      content: '';
-      position: absolute;
-      width: $_arrow;
-      height: $_arrow;
-      background: var(--wr-color-surface);
-      transform: rotate(45deg);
-    }
-  }
-
-  // Responsive bottom-sheet mode has no anchor to point at, so no arrow.
-  &.wr-overlay-sheet > *::after {
-    content: none;
-  }
-}
-
-@each $position, $spec in $_arrow-placement {
-  $edge: list.nth($spec, 1);
-  $align: list.nth($spec, 2);
-
-  // Pulled one extra pixel so the square's own border lines up flush with the
-  // panel's, instead of leaving the panel border showing across the arrow's base.
-  .wr-popover-overlay--#{$position} > *::after {
-    @include _arrow-at($edge, $align, $_arrow-half + 1px);
-    @include _arrow-border($edge);
-  }
-
-  .wr-tooltip-overlay--#{$position} .wr-tooltip::after {
-    @include _arrow-at($edge, $align, $_arrow-half);
-  }
+.wr-popover-overlay > * {
+  display: block;
+  min-width: 8rem;
+  max-width: 22rem;
+  background: var(--wr-color-surface);
+  border: 1px solid var(--wr-color-outline);
+  @include theme.smooth-br(var(--wr-border-radius-base));
+  box-shadow: var(--wr-shadow-overlay);
+  font-family: var(--wr-font-family-base);
+  color: var(--wr-color-on-surface);
+  animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+  // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
+  transform-origin: top left;
 }
 
 //
@@ -235,24 +66,35 @@ $_arrow-placement: (
   // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
   transform-origin: top left;
 
-  // Arrow — geometry from the shared placement loop at the top of this file.
-  &::after {
-    content: '';
-    position: absolute;
-    width: $_arrow;
-    height: $_arrow;
-    background: var(--wr-tooltip-bg);
-    transform: rotate(45deg);
-    // The one piece that stays inert: the arrow points AT the trigger and
-    // overlaps it, so a hittable arrow would eat clicks meant for the control
-    // the tooltip describes.
-    pointer-events: none;
-  }
+  // The arrow itself comes from `arrow.anchored-arrow()` below. `position:
+  // relative` is restated by that call and kept here too, so the class still
+  // stands on its own for anyone styling `.wr-tooltip` directly — it is public
+  // API, and the arrow is the pane's business rather than the chip's.
 }
 
-// Arrow placement for both modes is generated from `$_arrow-placement` at the top
-// of this file — the per-position rules that used to live here are emitted there,
-// byte-identical for the 8 positions they covered plus the 4 they missed.
+// Arrow for both modes.
+//
+// Popover: the pane wraps whatever the author projected, so the panel selector
+// is `> *`, and the square carries the panel's border on its two outward faces
+// so the outline reads as continuous.
+@include arrow.anchored-arrow(
+  $pane: '.wr-popover-overlay',
+  $panel: '> *',
+  $background: var(--wr-color-surface),
+  $border: var(--wr-color-outline)
+);
+
+// Tooltip: a known child, and no border faces — the chip's own border colour is
+// overridable per instance through `--wr-tooltip-border`, so painting the faces
+// from the token here would desync the moment anyone retints one. The arrow
+// points AT the trigger and overlaps it, so it is the one inert piece: a
+// hittable arrow would eat clicks meant for the control the tooltip describes.
+@include arrow.anchored-arrow(
+  $pane: '.wr-tooltip-overlay',
+  $panel: '.wr-tooltip',
+  $background: var(--wr-tooltip-bg),
+  $inert: true
+);
 
 @media (prefers-reduced-motion: reduce) {
   .wr-tooltip {

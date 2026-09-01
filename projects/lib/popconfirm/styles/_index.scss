@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use '../../overlay/styles/arrow';
 
 .wr-popconfirm-overlay {
   > .wr-popconfirm {
@@ -13,6 +14,7 @@
     color: var(--wr-color-on-surface);
     font-family: var(--wr-font-family-base);
     animation: wr-overlay-in var(--wr-overlay-duration) var(--wr-overlay-ease);
+    // rtl-ok: scale-in growth corner — `transform-origin` takes no logical keywords
     transform-origin: top left;
   }
 }
@@ -30,3 +32,18 @@
     gap: 0.375rem;
   }
 }
+
+// The arrow that ties the panel to the control it is asking about — the same one
+// `wr-popover` draws, from the same mixin, because the two are the same kind of
+// anchored non-modal panel and a second copy of the geometry would drift.
+//
+// Four placements, not twelve: `WrPopconfirmPosition` is `top | bottom | left |
+// right`, and the eight `-start` / `-end` rules would be selectors that can
+// never match. Widen this list if the input ever grows them.
+@include arrow.anchored-arrow(
+  $pane: '.wr-popconfirm-overlay',
+  $panel: '> .wr-popconfirm',
+  $background: var(--wr-color-surface),
+  $border: var(--wr-color-outline),
+  $placements-used: (top, bottom, left, right)
+);

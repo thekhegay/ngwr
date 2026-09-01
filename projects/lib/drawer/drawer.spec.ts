@@ -305,6 +305,45 @@ describe('WrDrawer', () => {
     });
   });
 
+  /**
+   * The handle belongs on the LEADING edge — the one the panel is dragged away
+   * from — so it is a row at the top of a bottom sheet and a rail on the inner
+   * vertical edge of a side drawer. On the two side positions it leaves the
+   * flow, which is why the panel publishes `--handle`: only the panel can
+   * reserve the gutter the rail floats over.
+   *
+   * The class is all a unit test can honestly hold. jsdom lays nothing out, so
+   * "the rail is on the inner edge" would answer identically for a working
+   * component and for the one that drew a horizontal bar on all four sides —
+   * that half is a rendered check.
+   */
+  describe('grab handle', () => {
+    const panelDiv = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__panel')!;
+
+    it('draws no handle and claims no gutter by default', () => {
+      open();
+
+      expect(document.querySelector('.wr-drawer__handle')).toBeNull();
+      expect(panelDiv().classList.contains('wr-drawer__panel--handle')).toBe(false);
+    });
+
+    it('marks the panel alongside every side, so the affordance can follow position', () => {
+      for (const position of ['left', 'right', 'top', 'bottom'] as const) {
+        fixture.componentInstance.position.set(position);
+        fixture.componentInstance.showHandle.set(true);
+        fixture.detectChanges();
+        open();
+
+        expect(document.querySelector('.wr-drawer__handle')).not.toBeNull();
+        expect(panelDiv().classList.contains('wr-drawer__panel--handle')).toBe(true);
+        expect(panelDiv().classList.contains(`wr-drawer__panel--${position}`)).toBe(true);
+
+        fixture.componentInstance.open.set(false);
+        fixture.detectChanges();
+      }
+    });
+  });
+
   describe('swipe to dismiss', () => {
     const swipePanel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__panel')!;
     const handle = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__handle')!;

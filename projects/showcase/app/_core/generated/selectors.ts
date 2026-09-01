@@ -337,6 +337,61 @@ export const STYLE_ENTRY_POINTS: readonly string[] = [
 ];
 
 /**
+ * Per entry point, the OTHER `ngwr/*` stylesheets it needs to paint correctly
+ * — transitively closed, and every value is in {@link STYLE_ENTRY_POINTS}.
+ *
+ * A component's STYLE dependencies are not its IMPORT dependencies, and the
+ * sandbox learned that the hard way: `wr-select` draws its chevron as an
+ * inline `<svg class="wr-icon__svg wr-select__chevron">`, so a generated
+ * project whose TypeScript imported only `ngwr/select` rotated a chevron that
+ * `ngwr/icon` was supposed to have SIZED, and it came out as tall as the
+ * field. Derived from the library's templates by `pnpm gen:selectors` — a
+ * class another entry point paints, or an element another entry point ships —
+ * so the next component that reaches across cannot break this quietly.
+ *
+ * Closed here rather than at the call site because the consumer only knows the
+ * subpaths the SNIPPET imports: a demo importing `ngwr/table` never names
+ * `ngwr/pagination`, which is what reaches `ngwr/select` and then `ngwr/icon`.
+ */
+export const STYLE_DEPENDENCIES: Readonly<Record<string, readonly string[]>> = {
+  "ngwr/action-sheet": ["ngwr/drawer", "ngwr/icon"],
+  "ngwr/alert": ["ngwr/icon"],
+  "ngwr/avatar": ["ngwr/spinner"],
+  "ngwr/badge": ["ngwr/icon", "ngwr/spinner"],
+  "ngwr/breadcrumbs": ["ngwr/icon"],
+  "ngwr/button": ["ngwr/icon", "ngwr/spinner"],
+  "ngwr/cascader": ["ngwr/icon"],
+  "ngwr/checkbox": ["ngwr/icon"],
+  "ngwr/collapse": ["ngwr/icon"],
+  "ngwr/color-picker": ["ngwr/icon", "ngwr/segmented"],
+  "ngwr/command-palette": ["ngwr/icon"],
+  "ngwr/context-menu": ["ngwr/icon"],
+  "ngwr/date-picker": ["ngwr/calendar", "ngwr/icon", "ngwr/input"],
+  "ngwr/drawer": ["ngwr/icon"],
+  "ngwr/dropdown": ["ngwr/icon"],
+  "ngwr/empty": ["ngwr/icon"],
+  "ngwr/event-calendar": ["ngwr/button", "ngwr/icon", "ngwr/spinner"],
+  "ngwr/input": ["ngwr/icon"],
+  "ngwr/input-number": ["ngwr/icon", "ngwr/input"],
+  "ngwr/lightbox": ["ngwr/icon"],
+  "ngwr/pagination": ["ngwr/button", "ngwr/icon", "ngwr/select", "ngwr/spinner"],
+  "ngwr/popconfirm": ["ngwr/button", "ngwr/icon", "ngwr/spinner"],
+  "ngwr/pull-to-refresh": ["ngwr/spinner"],
+  "ngwr/radio": ["ngwr/icon"],
+  "ngwr/segmented": ["ngwr/icon"],
+  "ngwr/select": ["ngwr/icon"],
+  "ngwr/sidebar": ["ngwr/icon"],
+  "ngwr/speed-dial": ["ngwr/icon"],
+  "ngwr/statistic": ["ngwr/counter"],
+  "ngwr/table": ["ngwr/button", "ngwr/checkbox", "ngwr/dropdown", "ngwr/icon", "ngwr/pagination", "ngwr/select", "ngwr/spinner"],
+  "ngwr/textarea": ["ngwr/icon"],
+  "ngwr/toast": ["ngwr/icon"],
+  "ngwr/tour": ["ngwr/button", "ngwr/icon", "ngwr/spinner"],
+  "ngwr/transfer": ["ngwr/button", "ngwr/checkbox", "ngwr/icon", "ngwr/input", "ngwr/spinner"],
+  "ngwr/tree": ["ngwr/icon"],
+};
+
+/**
  * The `lucide` range from this repository's own `package.json`, for the
  * `package.json` a generated sandbox project ships when a snippet draws an
  * icon.
