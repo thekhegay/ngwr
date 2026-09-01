@@ -69,6 +69,78 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Server-side paging"
+    description="`total` has no companion `loading` input, so `0` is ambiguous between an empty list and a request in flight — and the second is the ordinary state of a server-paged host. While `total` is at or below 0 the pager holds the page it was given: it does not pull it DOWN into range, and emits no `currentPageChange` for it. Clamping resumes once the total settles. The lower bound is the exception and is never conditional — a page below 1 is floored, and that one does emit."
+  >
+    <ngwr-doc-snippet [code]="snippets.serverHtml">
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 0.5rem">
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          page {{ serverPage() }} — total {{ serverTotal() }}{{ serverTotal() === 0 ? ' (request in flight)' : '' }}
+        </span>
+        <wr-pagination
+          [total]="serverTotal()"
+          [currentPage]="serverPage()"
+          (currentPageChange)="onServerPage($event)"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.serverTs" language="typescript" />
+    <p>
+      That is the wiring the Angular docs lead you to, and the gap is not avoidable in it: a
+      <code>params</code> function returning an object literal is never reference-equal to its predecessor, so the
+      resource discards the previous payload the instant the page changes. The demo above stands in for the round trip —
+      clicking a page drops <code>total</code> to 0 for 900&nbsp;ms. The page you picked is kept and reported once;
+      before this contract the pager clamped back to 1 and emitted a second <code>currentPageChange</code> the host
+      could not tell from a click.
+    </p>
+    <p>
+      What that state costs is the strip: with <code>total</code> at 0 there is one page to render, so a host holding
+      any page <em>past the first</em> has no cell carrying <code>aria-current</code> until the total settles. On a
+      first load, where the held page is 1, the single cell is current as usual. The <code>showTotal</code> label
+      reports an empty range rather than a nonsensical one — it special-cases an empty total and reads &ldquo;0-0 of
+      0&rdquo;, which is wrong about a list of 51 but not backwards, as it was before this contract. The arrows stay
+      usable throughout, because they compare against the range rather than for equality with its ends: past the end
+      next renders disabled, and previous stays enabled and steps back <em>into</em> range rather than to
+      <code>currentPage() - 1</code>.
+    </p>
+    <p>
+      The lower bound is not conditional. No value of <code>total</code> makes page 0 correct, so a page below 1 is
+      floored to 1 whatever the total reads — and unlike the upper bound, that correction is written back and reported.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Page size is the host's decision"
+    description="Choosing a size emits `pageSizeChange` and stops. The component does not clamp the page against the new size: `pageSizeChange` is emitted synchronously, so by the next statement the host has already run its own policy and that write has not reached the model yet — the clamp would compute from a page already superseded and overwrite the host's. Whatever the host does with the page stands."
+  >
+    <ngwr-doc-code [code]="snippets.sizeHtml" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.sizeReset" language="typescript" />
+    <ngwr-doc-code [code]="snippets.sizeKeep" language="typescript" />
+    <p>
+      Both policies are supported and they cost different things. Resetting issues one request, and it is for a page
+      that exists. Keeping the page is the smaller edit and the worse request: the size change invalidates the payload
+      too, so <code>total</code> reads 0, the guard above declines to correct anything, and the request that goes out
+      may be for a page the new size no longer has — from page 6 at size 10, choosing 25 asks for page 6 of 3, and the
+      correction lands only when that answer does. That is an accepted cost of never writing back from transient state,
+      not something the component hides.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keeping the last good total"
+    description="Everything above follows from `total` dipping to 0. A `linkedSignal` over the resource that falls back to its previous value keeps the last number up while the next request is out, so it never dips at all."
+  >
+    <ngwr-doc-code [code]="snippets.lastGoodTotal" language="typescript" />
+    <p>
+      With that in place the strip never collapses, <code>aria-current</code> stays on the page you are on, and the
+      clamp keeps working throughout — so a page the new size no longer has is corrected on the spot instead of after
+      the round trip. It is the better trade rather than the absence of one: what is on screen while the request is in
+      flight is now the PREVIOUS response's count, so <code>showTotal</code> reports a number that no longer describes
+      the list, and a size change landing together with a shrinking total clamps against the old count.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
