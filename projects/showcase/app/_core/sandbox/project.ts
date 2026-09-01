@@ -87,7 +87,7 @@ const TYPESCRIPT = '~6.0.0';
  * own devDependency — and it only ships when a snippet actually draws an icon.
  * Keep it in step with `lucide` in the root `package.json`.
  */
-const LUCIDE = '^1.31.0';
+const LUCIDE = '^1.35.0';
 
 /** Element the generated app mounts when the sandbox synthesises the component. */
 const ROOT_SELECTOR = 'demo-root';
