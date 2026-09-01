@@ -9,6 +9,8 @@ import {
   DocCodeComponent,
   DocPageComponent,
   DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
   DocSnippetComponent,
 } from '#core/components';
 import { API } from '#core/generated/api';
@@ -17,7 +19,15 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-icon-page',
   templateUrl: './icon.html',
   styleUrl: './icon.scss',
-  imports: [WrIcon, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrIcon,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+    DocSeeAlsoComponent,
+  ],
   providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash }))],
 })
 export default class IconComponent {
@@ -43,4 +53,20 @@ provideWrIcons([
   };
 
   protected readonly api = API.WrIcon;
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Icons',
+      url: ['/icons'],
+      description:
+        'Browse and install the sets — Lucide, Feather, Tabler, Phosphor, Heroicons, Iconoir, Radix, Bootstrap.',
+    },
+    {
+      kind: 'Guide',
+      title: 'ng g ngwr:icon-set',
+      url: ['/start', 'schematics'],
+      description: 'Pair with the schematic for a one-shot scaffold of the icon barrel.',
+    },
+  ];
 }

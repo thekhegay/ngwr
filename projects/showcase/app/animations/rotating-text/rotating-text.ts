@@ -104,7 +104,6 @@ export default class RotatingTextPage {
       name: 'texts',
       description: 'Strings to cycle.',
       type: 'readonly string[]',
-      default: '— (required)',
       required: true,
     },
     { name: 'rotationInterval', description: 'Auto-advance interval in ms.', type: 'number', default: '2000' },

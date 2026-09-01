@@ -81,9 +81,10 @@ export default class AuroraPage {
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'colorStops',
-      description: 'Exactly three colour stops, ramped left → right.',
-      type: 'readonly string[]',
-      default: 'theme-aware (deep violet/emerald on light, neon on dark)',
+      description:
+        'Exactly three colour stops, ramped left → right. Unset, the theme decides: deep violet/emerald on light, the neon reactbits palette on dark.',
+      type: 'readonly string[] | null',
+      default: 'null',
     },
     { name: 'amplitude', description: 'Wave height multiplier.', type: 'number', default: '1' },
     { name: 'blend', description: "Softness of the aurora's lower edge, 0..1.", type: 'number', default: '0.5' },

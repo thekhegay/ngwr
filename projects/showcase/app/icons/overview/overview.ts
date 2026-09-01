@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
+import {
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-icons-overview',
   templateUrl: './overview.html',
-  imports: [DocCodeComponent, DocPageComponent, DocSectionComponent],
+  imports: [DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent],
 })
 export default class IconsOverviewPage {
   protected readonly snippets = {
@@ -44,4 +50,19 @@ provideWrIcons(featherIcons({ plus: featherSource.plus, trash: featherSource.tra
 # under src/app/icons.ts that you import from your bootstrap.
 ng g ngwr:icon-set basic`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Component',
+      title: 'wr-icon',
+      url: ['/reference/components', 'icon'],
+      description: 'The renderer side — where a name registered here becomes an SVG on the page.',
+    },
+    {
+      kind: 'Guide',
+      title: 'ng g ngwr:icon-set',
+      url: ['/start', 'schematics'],
+      description: 'The generator side — let the CLI write the barrel instead of hand-listing icons.',
+    },
+  ];
 }

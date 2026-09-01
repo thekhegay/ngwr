@@ -1,13 +1,19 @@
 import { Component } from '@angular/core';
 
-import { DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent } from '#core/components';
-import type { DocApiRow } from '#core/components';
+import {
+  DocApiComponent,
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+} from '#core/components';
+import type { DocApiRow, DocSeeAlsoLink } from '#core/components';
 
 @Component({
   selector: 'ngwr-tokens-motion',
   templateUrl: './motion.html',
   styleUrl: './motion.scss',
-  imports: [DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent],
+  imports: [DocApiComponent, DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent],
 })
 export default class TokensMotionPage {
   protected readonly easings: readonly DocApiRow[] = [
@@ -139,4 +145,25 @@ export default class TokensMotionPage {
   }
 }`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Guide',
+      title: 'Theming',
+      url: ['/guides', 'theming'],
+      description: 'Retuning these tokens, and every other one, across the app.',
+    },
+    {
+      kind: 'Animation',
+      title: 'Animations',
+      url: ['/animations'],
+      description: 'The ready-made animated components that build on these curves.',
+    },
+    {
+      kind: 'Guide',
+      title: 'Overlay',
+      url: ['/guides', 'overlay'],
+      description: 'The panel layer whose timing these tokens drive.',
+    },
+  ];
 }

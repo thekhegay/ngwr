@@ -2,12 +2,26 @@ import { Component } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-typography-headings-page',
   templateUrl: './headings.html',
-  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class TypographyHeadingsPage {
   protected readonly snippets = {
@@ -24,4 +38,13 @@ export default class TypographyHeadingsPage {
   Start on the free tier and grow into a self-hosted seat the moment you outgrow it.
 </p>`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Directive',
+      title: '[wrTypography]',
+      url: ['/reference/directives', 'typography'],
+      description: 'Every input, the full variant union, and the classes the directive emits.',
+    },
+  ];
 }

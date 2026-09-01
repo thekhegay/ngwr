@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 
 import { WrCheckbox } from 'ngwr/checkbox';
 import { WrRating } from 'ngwr/rating';
-import { WrTable, type WrTableColumns } from 'ngwr/table';
 import { WrTypography } from 'ngwr/typography';
 
 import {
@@ -18,25 +17,40 @@ import {
 } from '#core/components';
 import { QUALITY } from '#core/generated/quality';
 
+/** The five libraries the table compares, and the key each row stores them under. */
+type LibraryKey = 'ngwr' | 'material' | 'primeng' | 'zorro' | 'taiga';
+
+/** One column of the comparison table — one library, named as it ships. */
+interface ComparisonLibrary {
+  readonly key: LibraryKey;
+  readonly name: string;
+  /** ngwr's own column, marked so it can be accented rather than hidden among the four. */
+  readonly self?: boolean;
+}
+
 /** One row of the comparison table — one deciding factor across five libraries. */
-interface ComparisonRow {
+interface ComparisonRow extends Record<LibraryKey, string> {
   readonly axis: string;
-  readonly ngwr: string;
-  readonly material: string;
-  readonly primeng: string;
-  readonly zorro: string;
-  readonly taiga: string;
+  /**
+   * The date this row's figures were read, printed under the factor name.
+   *
+   * Only the rows whose cells are a MOVING third-party number carry one. A
+   * rounded figure with no date is still undated — `~2M` is true for months and
+   * false eventually, and the reader cannot tell which without knowing when it
+   * was taken.
+   */
+  readonly readAt?: string;
 }
 
 @Component({
   selector: 'ngwr-gs-comparison-page',
   templateUrl: './comparison.html',
+  styleUrl: './comparison.scss',
   imports: [
     FormField,
     RouterLink,
     WrCheckbox,
     WrRating,
-    WrTable,
     WrTypography,
     DocPageComponent,
     DocSectionComponent,
@@ -74,14 +88,21 @@ export default class ComparisonPage {
 
   protected readonly demoJson = computed(() => JSON.stringify(this.demoModel()));
 
-  protected readonly comparisonColumns: WrTableColumns = {
-    axis: { title: 'Deciding factor', width: 168 },
-    ngwr: { title: 'ngwr 12' },
-    material: { title: 'Angular Material 22' },
-    primeng: { title: 'PrimeNG 22' },
-    zorro: { title: 'NG-ZORRO 22' },
-    taiga: { title: 'Taiga UI 5' },
-  };
+  /**
+   * The column order, and the only place a library's display name is written.
+   *
+   * The template loops this for the sticky header row AND for each block's
+   * cells, indexing the row by `lib.key`, so a column cannot be renamed in one
+   * place and not the other — which is what a hand-written header row plus
+   * hand-written cells eventually drifts into.
+   */
+  protected readonly libraries: readonly ComparisonLibrary[] = [
+    { key: 'ngwr', name: 'ngwr 12', self: true },
+    { key: 'material', name: 'Angular Material 22' },
+    { key: 'primeng', name: 'PrimeNG 22' },
+    { key: 'zorro', name: 'NG-ZORRO 22' },
+    { key: 'taiga', name: 'Taiga UI 5' },
+  ];
 
   /**
    * Read on 2026-08-20 from the npm registry, the GitHub API and the published
@@ -99,6 +120,19 @@ export default class ComparisonPage {
    *
    * Nine rows, and ngwr wins two of them. That ratio is the point: an axis set
    * where one library sweeps is an axis set chosen by that library.
+   *
+   * **The two counted rows are ROUNDED to two significant figures, and they are
+   * the only rows that are.** Downloads and stars move every day, so a figure
+   * read once and printed exactly — `2,015,398` — is false within a week while
+   * still looking like a measurement; `~2M` stays true for months and cannot be
+   * mistaken for one. Both rows carry `readAt` so the rounding is dated rather
+   * than merely vague. ngwr's `3` stars is exact because it is exact and small
+   * enough to stay that way.
+   *
+   * What is deliberately NOT rounded: ngwr's own commit counts, `1,409 of
+   * 1,480`. That is a claim about this repository which the page invites the
+   * reader to re-run `git shortlog -sn --all` against, and there the precision
+   * IS the honesty — a rounded number cannot be checked, only believed.
    */
   protected readonly comparisonRows: readonly ComparisonRow[] = [
     {
@@ -120,19 +154,21 @@ export default class ComparisonPage {
     },
     {
       axis: 'Weekly npm downloads',
-      ngwr: '151.',
-      material: '2,015,398.',
-      primeng: '644,037.',
-      zorro: '225,137.',
-      taiga: '19,915.',
+      readAt: '2026-08-20',
+      ngwr: '~150.',
+      material: '~2M.',
+      primeng: '~640k.',
+      zorro: '~230k.',
+      taiga: '~20k.',
     },
     {
       axis: 'GitHub stars',
+      readAt: '2026-08-20',
       ngwr: '3.',
-      material: '25,035.',
-      primeng: '12,495.',
-      zorro: '9,167.',
-      taiga: '4,041.',
+      material: '~25k.',
+      primeng: '~12k.',
+      zorro: '~9.2k.',
+      taiga: '~4k.',
     },
     {
       axis: 'Who maintains it',

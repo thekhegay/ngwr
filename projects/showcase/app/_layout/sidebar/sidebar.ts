@@ -6,16 +6,15 @@ import { filter, map, startWith } from 'rxjs';
 
 import { WrIcon } from 'ngwr/icon';
 
-import { REFERENCE_CLUSTERS } from './configs/reference-clusters';
 import type { SidebarGroup } from './sidebar.types';
 
 /**
  * Section-aware sidebar. The active route declares its nav via
  * `data: { sidebar: <readonly SidebarGroup[]> }` (see `routing.ts`);
  * we walk the activated-route tree on every navigation and render the
- * deepest match. Sections inherit unless they declare their own — but
- * in this app each top-level section (`/docs/*`, `/components/*`) sets
- * its own config.
+ * deepest match. Sections inherit unless they declare their own, which is
+ * how `/reference` works: it attaches one config at the section root and
+ * every cluster under it renders the same nav.
  */
 @Component({
   selector: 'ngwr-sidebar',
@@ -50,17 +49,30 @@ export class Sidebar {
   /** Last URL we auto-expanded for — prevents re-opening a group the user just collapsed. */
   private lastAutoUrl: string | null = null;
 
+  /** The group the last navigation opened, so the next one can close it again. */
+  private autoOpened: string | null = null;
+
   constructor() {
-    // When the route changes, auto-expand the group that owns the active link.
-    // Same URL → no-op, so collapsing the active group sticks until navigation.
+    // When the route changes, auto-expand the group that owns the active link
+    // and collapse the one the previous navigation opened — the reference nav
+    // is fifteen expandable groups long, and an additive set would leave the
+    // reader scrolling past every section they had visited to reach the
+    // current one.
+    // A group the reader opened BY HAND survives: only our own last pick is
+    // withdrawn. Re-entering the same URL is a no-op, so collapsing the active
+    // group sticks until navigation.
     effect(() => {
       const url = this.currentUrl();
       if (url === this.lastAutoUrl) return;
       this.lastAutoUrl = url;
+
       const match = this.findGroupForUrl(url);
-      if (!match || this.opened().has(match)) return;
+      if (match === this.autoOpened && (!match || this.opened().has(match))) return;
+
       const next = new Set(this.opened());
-      next.add(match);
+      if (this.autoOpened && this.autoOpened !== match) next.delete(this.autoOpened);
+      if (match) next.add(match);
+      this.autoOpened = match;
       this.opened.set(next);
     });
   }
@@ -91,17 +103,18 @@ export class Sidebar {
   }
 
   /**
-   * The cluster switcher must not win the auto-expand.
+   * The title of the group owning `url`, or `null` for a direct-link row (which
+   * has no body to open) and for a URL this sidebar does not list.
    *
-   * Its seven links are the `/reference/<cluster>` prefixes, so EVERY reference
-   * URL matches one of them — first, since it sits at the top — and the group
-   * that actually owns the active page would never open again. Skipping it here
-   * is cheaper than teaching the matcher about specificity, and the switcher is
-   * one click away when it is wanted.
+   * Every row here is a real page, so a prefix match resolves to one group. It
+   * did not always: the reference sidebars used to open with a switcher whose
+   * seven links were the `/reference/<cluster>` PREFIXES, matching every URL in
+   * the section and, sitting first, winning the auto-expand from whichever
+   * group owned the page. The clusters are top-level rows now, so the switcher
+   * is gone and the guard that had to skip it went with it.
    */
   private findGroupForUrl(url: string): string | null {
     for (const group of this.groups()) {
-      if (group.title === REFERENCE_CLUSTERS.title) continue;
       if (group.children?.some(l => l.url && url.startsWith(l.url.join('/')))) {
         return group.title;
       }

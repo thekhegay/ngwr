@@ -65,7 +65,6 @@ export default class FallingTextPage {
       name: 'text',
       description: 'Text to render. Words are separated by spaces.',
       type: 'string',
-      default: '— (required)',
       required: true,
     },
     {

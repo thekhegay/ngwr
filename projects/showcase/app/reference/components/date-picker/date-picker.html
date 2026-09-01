@@ -27,11 +27,11 @@
 
   <ngwr-doc-section
     title="Bounds + filter"
-    description="`min`, `max`, and `dateFilter` are forwarded to the inner calendar. A typed value the calendar itself would refuse — out of bounds, or filtered out — is not emitted either, so the keyboard and the grid cannot disagree about what is selectable."
+    description="`min`, `max`, and `dateFilter` are forwarded to the inner calendar. A typed value the calendar itself would refuse — out of bounds, or filtered out — is not emitted either, so the keyboard and the grid cannot disagree about what is selectable. Both bounds are inclusive, so `max` names the last selectable day rather than the first excluded one. And grey means only that a cell sits outside the displayed month, never that it is unselectable: an out-of-month cell that is in range and passes the filter can be picked, and the calendar then reopens on the month it landed in. Whether this demo has such a cell depends on the day — `isWeekday` also applies to it, so in a month whose boundary lands on a weekend every trailing cell is refused."
   >
     <ngwr-doc-code [code]="snippets.bounds" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-date-picker [(value)]="bounded" [min]="today" [max]="nextMonth" [dateFilter]="isWeekday" />
+      <wr-date-picker [(value)]="bounded" [min]="today" [max]="firstOfNextMonth" [dateFilter]="isWeekday" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

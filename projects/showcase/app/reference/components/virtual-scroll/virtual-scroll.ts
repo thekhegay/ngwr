@@ -66,7 +66,6 @@ export default class VirtualScrollPage {
       name: 'items',
       description: 'Items to render. The same array reference triggers no re-layout.',
       type: 'readonly T[]',
-      default: '— (required)',
       required: true,
     },
     {

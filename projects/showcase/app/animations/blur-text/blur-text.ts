@@ -73,7 +73,7 @@ export default class BlurTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'text', description: 'Text to animate.', type: 'string', default: '— (required)', required: true },
+    { name: 'text', description: 'Text to animate.', type: 'string', required: true },
     { name: 'animateBy', description: 'Split granularity.', type: "'chars' | 'words'", default: "'words'" },
     {
       name: 'direction',

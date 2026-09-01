@@ -101,7 +101,6 @@ export default class MarqueePage {
       name: 'items',
       description: 'Items to display (images or template nodes).',
       type: 'WrMarqueeItem[]',
-      default: '— (required)',
       required: true,
     },
     {
@@ -123,16 +122,16 @@ export default class MarqueePage {
     { name: 'fadeOut', description: 'Apply edge fade-out gradients.', type: 'boolean', default: 'false' },
     {
       name: 'fadeOutColor',
-      description: 'Fade-out gradient colour. Defaults to the lib surface colour (`--wr-color-white`).',
+      description: 'Fade-out gradient colour. Empty falls back to the page background.',
       type: 'string',
-      default: '—',
+      default: "''",
     },
     { name: 'scaleOnHover', description: 'Scale individual items up on hover.', type: 'boolean', default: 'false' },
     {
       name: 'ariaLabel',
-      description: 'Accessible label for the carousel region.',
-      type: 'string',
-      default: "'Marquee'",
+      description: 'Accessible name for the region. Unset, it falls back to `marquee.label`, then to `Marquee`.',
+      type: 'string | null',
+      default: 'null',
     },
   ];
 

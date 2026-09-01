@@ -1,6 +1,12 @@
 import type { Routes } from '@angular/router';
 
-import { ANIMATIONS_SIDEBAR, GUIDES_SIDEBAR, ICONS_SIDEBAR, START_SIDEBAR } from './_layout/sidebar/configs';
+import {
+  ANIMATIONS_SIDEBAR,
+  GUIDES_SIDEBAR,
+  ICONS_SIDEBAR,
+  REFERENCE_SIDEBAR,
+  START_SIDEBAR,
+} from './_layout/sidebar/configs';
 
 export const routes = {
   index: '/',
@@ -312,8 +318,13 @@ export const routing: Routes = [
         data: { sidebar: GUIDES_SIDEBAR },
         loadChildren: () => import('./guides/guides.routing'),
       },
+      // One sidebar for the whole section, attached here rather than per
+      // cluster: components, directives, pipes, services, utils, validators
+      // and interfaces are siblings in it, so the nav must not change shape
+      // as the reader moves between them.
       {
         path: routes.reference.index,
+        data: { sidebar: REFERENCE_SIDEBAR },
         loadChildren: () => import('./reference/reference.routing'),
       },
       {

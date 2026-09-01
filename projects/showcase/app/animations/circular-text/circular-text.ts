@@ -61,7 +61,6 @@ export default class CircularTextPage {
       name: 'text',
       description: 'Text to lay out around the circle.',
       type: 'string',
-      default: '— (required)',
       required: true,
     },
     { name: 'spinDuration', description: 'Seconds per full revolution at rest.', type: 'number', default: '20' },

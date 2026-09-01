@@ -80,10 +80,14 @@
 
   &--bordered &__row {
     padding: 0.625rem 0.875rem;
+  }
 
-    & + & {
-      border-top: 1px solid var(--wr-color-outline);
-    }
+  // Nesting this as `& + &` expands BOTH sides in full —
+  // `… .wr-descriptions__row + .wr-descriptions--bordered .wr-descriptions__row` —
+  // which asks for a `--bordered` HOST as a row's sibling and can never match, so
+  // the stacked bordered card shipped with no dividers at all. Name the sibling.
+  &--bordered &__row + &__row {
+    border-top: 1px solid var(--wr-color-outline);
   }
 
   &--bordered#{&}--inline &__list {
@@ -122,6 +126,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    // The grid layout above aligns its two columns on `baseline`, which is
+    // correct there and wrong here: once the list is a COLUMN flex container
+    // the cross axis is the width, so `baseline` sizes each row to its own
+    // content. Rows must stretch, or a bordered row's divider paints only as
+    // wide as its longest line instead of spanning the card.
+    align-items: stretch;
   }
 
   .wr-descriptions--inline .wr-descriptions__row {

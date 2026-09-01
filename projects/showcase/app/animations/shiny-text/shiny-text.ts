@@ -67,7 +67,7 @@ export default class ShinyTextPage {
   };
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'text', description: 'Text to render.', type: 'string', default: '— (required)', required: true },
+    { name: 'text', description: 'Text to render.', type: 'string', required: true },
     { name: 'disabled', description: 'Pause the animation.', type: 'boolean', default: 'false' },
     {
       name: 'speed',
@@ -77,11 +77,16 @@ export default class ShinyTextPage {
     },
     {
       name: 'color',
-      description: 'Base text colour (outside the bright stripe).',
-      type: 'string',
-      default: 'theme token',
+      description: 'Base text colour (outside the bright stripe). Unset, it falls back to `--wr-shiny-text-base`.',
+      type: 'string | null',
+      default: 'null',
     },
-    { name: 'shineColor', description: 'Bright stripe colour.', type: 'string | null', default: 'theme token' },
+    {
+      name: 'shineColor',
+      description: 'Bright stripe colour. Unset, it falls back to the theme token.',
+      type: 'string | null',
+      default: 'null',
+    },
     { name: 'spread', description: 'Gradient angle in degrees.', type: 'number', default: '120' },
     { name: 'yoyo', description: 'Bounce back-and-forth instead of restarting.', type: 'boolean', default: 'false' },
     { name: 'pauseOnHover', description: 'Pause the animation while hovered.', type: 'boolean', default: 'false' },

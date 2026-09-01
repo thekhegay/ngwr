@@ -2,12 +2,26 @@ import { Component } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
 
-import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSnippetComponent } from '#core/components';
+import {
+  DocCodeComponent,
+  DocPageComponent,
+  DocSectionComponent,
+  DocSeeAlsoComponent,
+  type DocSeeAlsoLink,
+  DocSnippetComponent,
+} from '#core/components';
 
 @Component({
   selector: 'ngwr-typography-code-page',
   templateUrl: './code.html',
-  imports: [WrTypography, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent],
+  imports: [
+    WrTypography,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class TypographyCodePage {
   protected readonly snippets = {
@@ -21,4 +35,13 @@ export default class TypographyCodePage {
 <code wrTypography variant="code" tone="success">200 OK</code>
 <code wrTypography variant="code" tone="danger">500 Server Error</code>`,
   };
+
+  protected readonly related: readonly DocSeeAlsoLink[] = [
+    {
+      kind: 'Directive',
+      title: '[wrTypography]',
+      url: ['/reference/directives', 'typography'],
+      description: 'Every input, the full variant union, and the classes the directive emits.',
+    },
+  ];
 }

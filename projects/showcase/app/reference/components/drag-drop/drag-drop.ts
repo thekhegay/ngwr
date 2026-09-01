@@ -66,7 +66,6 @@ export default class DragDropPage {
       name: 'items',
       description: 'Two-way bound items array. Emits the reordered array after drop.',
       type: 'T[]',
-      default: '— (required)',
       required: true,
     },
     {
