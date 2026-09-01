@@ -83,27 +83,6 @@ export default class HomeComponent {
   protected readonly routes = routes;
 
   /**
-   * What the hero rotates through. Each of the three is a literal count of
-   * zero **in `projects/lib`**, which is the only reason the fold is allowed to
-   * be this specific: there, `ControlValueAccessor` occurs solely in JSDoc
-   * explaining that it is gone, and `@NgModule` / `@Input(` / `@Output(` /
-   * `@HostListener` do not occur at all. The scope matters — a repo-wide grep
-   * hits `projects/showcase` too, this page included, and the comparison table
-   * even builds a deliberate strawman that implements one
-   * (`start/comparison/comparison.ts`). "In the library" is the claim; the repo
-   * is not the library. Re-grep before adding a fourth — a claim in the fold is
-   * the one a reader checks first.
-   *
-   * The rotating term is the LAST thing on its line and its slot is
-   * width-reserved in SCSS (`ControlValueAccessor` is the longest at 20 chars).
-   * Both matter: a rotator is empty for the length of a swap, so anything after
-   * it renders a hole mid-sentence, and an unreserved slot slides the label
-   * every 2.6s. A fourth string longer than twenty characters means widening
-   * `&__absence-word`, or it will be clipped by the host's own `overflow`.
-   */
-  protected readonly absences: readonly string[] = ['ControlValueAccessor', 'NgModule', '@Input() decorator'];
-
-  /**
    * Sample sign-up card shown in the DX section — goes through Shiki.
    *
    * Kept to the shape a consumer actually writes, and to API this repo's own
@@ -220,10 +199,10 @@ export class SignupCard {
 
   constructor() {
     // Re-mount the one-shot motion tiles every few seconds so the gallery
-    // keeps moving — split/blur/decrypt animate on mount only. The hero's own
-    // rotator needs no help here: `<wr-rotating-text>` advances itself, and it
-    // guards its own timer on the platform, which the old hero-word interval
-    // did not.
+    // keeps moving — split/blur/decrypt animate on mount only. Deliberately not
+    // extended to the hero: re-running the fold's entrance on a timer is the
+    // twitch the rotating "Not in the library" line was removed for. The hero
+    // plays once on view, over a `<wr-waves>` field that never stops.
     if (isPlatformBrowser(inject(PLATFORM_ID))) {
       const id = setInterval(() => this.replayTick.update(v => v + 1), 7000);
       inject(DestroyRef).onDestroy(() => clearInterval(id));

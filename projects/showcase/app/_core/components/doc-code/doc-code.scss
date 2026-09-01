@@ -26,24 +26,43 @@
   display: none;
 }
 
+// The strip and the code body are ONE control, so they share one surface: the
+// strip paints nothing and lets the host's `--ngwr-doc-code-bg` through, and a
+// hairline rule is what separates header from body. It used to carry its own
+// `rgba(var(--wr-color-dark-rgb), 0.04)` over a host tinted with
+// `rgba(var(--wr-color-light-rgb), 0.2)` — two different fills, mixed from two
+// different bases, so the block read as two mismatched slabs stacked with no
+// boundary between them (worst in dark, where one tint is warm-neutral over a
+// blue one).
+//
+// The rule is an inset shadow rather than `border-bottom` so the active tab's
+// own 2px indicator paints directly OVER the line instead of stacking above
+// it — the same trick, and the same underline pattern, as the library's
+// `wr-tabs`. Dogfooding it also keeps the docs' code tabs reading like the
+// component the docs document.
 .tabs {
   display: flex;
   gap: 0.25rem;
-  padding: 0.375rem 0.375rem 0;
-  background: rgba(var(--wr-color-dark-rgb), 0.04);
+  // No bottom padding: the tab has to reach the strip's edge for its indicator
+  // to land on the rule.
+  padding: 0 0.375rem;
+  box-shadow: inset 0 -1px 0 var(--wr-color-outline);
   font-family: var(--wr-font-family-base);
 }
 
 .tabs__btn {
-  padding: 0.375rem 0.75rem;
+  padding: 0.5rem 0.625rem;
   border: 0;
-  border-radius: var(--wr-border-radius-sm);
+  // The active tab is marked by SHAPE first — a 2px indicator under it — so
+  // the state survives with colour discounted. Every tab reserves the same
+  // 2px so nothing shifts when selection moves.
+  border-bottom: 2px solid transparent;
   background: transparent;
-  // 0.55 measured 3.81:1 against the strip's own background at 12px — the tab
-  // strip only appears on multi-file blocks, so nothing exercised it until the
-  // `markdown` page did. 0.65 lands at 5.26:1, keeping headroom over AA while
-  // still reading as quieter than the active tab (which carries a white pill).
-  color: rgba(var(--wr-color-dark-rgb), 0.65);
+  // The semantic muted-text role rather than a hand-rolled alpha off
+  // `--wr-color-dark`: it is calibrated per theme (4.96:1 light, 7.25:1 dark
+  // on this block's own tint) where the alpha had to be re-derived by hand
+  // every time the surface under it moved.
+  color: var(--wr-color-on-surface-muted);
   font: inherit;
   font-size: 0.75rem;
   font-weight: 600;
@@ -51,23 +70,30 @@
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    background 0.15s ease,
-    color 0.15s ease;
+    border-color var(--wr-transition-base),
+    color var(--wr-transition-base);
 
   &:hover {
-    color: var(--wr-color-dark);
+    color: var(--wr-color-on-surface);
   }
 
   &--active {
-    background: var(--wr-color-white);
-    color: var(--wr-color-dark);
-    box-shadow: 0 1px 2px rgba(var(--wr-color-dark-rgb), 0.08);
+    // `-ink`, not the bare intent: this is the intent painted as TEXT on the
+    // block's surface, where the bare token measures 3.87:1 in dark. The
+    // indicator below is a GRAPHIC and keeps the bare intent, which clears the
+    // 3:1 WCAG asks of one.
+    color: var(--wr-color-primary-ink);
+    border-bottom-color: var(--wr-color-primary);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--wr-color-primary);
+    outline: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
     outline-offset: -2px;
   }
+}
+
+.panel {
+  display: block;
 }
 
 // Pierce view-encapsulation so the Shiki-rendered `<pre>` (inserted via

@@ -53,6 +53,35 @@ button {
   font-family: inherit;
 }
 
+// Inline code anywhere inside a docs page, chipped.
+//
+// `doc-section` already chips the code the `wrDocRich` pipe emits, with an
+// `::ng-deep` — but that only reaches nodes the pipe wrote. A `<code>` typed
+// into a PAGE's own template is content PROJECTED into the doc components, so
+// it carries the PAGE's scoping attribute, not theirs, and no `::ng-deep`
+// inside a doc component's stylesheet can ever match it. That is why
+// `/start/comparison` rendered 65 of its 69 inline spans as bare monospace
+// while the four that came through a `description` were chipped: same markup,
+// two different owners.
+//
+// Global, therefore, and scoped to `ngwr-doc-page` so it cannot leak into a
+// component demo. `:not(pre) >` keeps it off the `<code>` inside a highlighted
+// block, which has its own colours.
+ngwr-doc-page :not(pre) > code {
+  display: inline-block;
+  // An inline-block is atomic and cannot break, so a chip longer than its
+  // paragraph pushes the page sideways — the same trap `doc-section` records.
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0.125rem 0.3125rem;
+  border-radius: var(--wr-border-radius-sm);
+  background: rgba(var(--wr-color-light-rgb), 0.35);
+  color: var(--wr-color-dark);
+  line-height: 1.25;
+  font-family: var(--wr-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.85em;
+}
+
 // Links produced by the wrDocRich pipe (doc descriptions) — without this
 // they inherit the muted description color and read as plain text.
 .ngwr-doc-link {

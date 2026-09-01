@@ -112,6 +112,15 @@ export class ComponentsBento {
   // Search (tile 13)
   protected readonly searchQuery = signal('');
 
+  /**
+   * The person on the profile tile (tile 15) and — it is the same photograph —
+   * the named face in the avatar stack on tile 7. One constant rather than
+   * three literals, because the name is rendered in the card, spoken through
+   * the avatar's `alt`, and repeated in the follow toast, and it had already
+   * drifted: the card read "Roman Kim" over a photograph of a woman.
+   */
+  protected readonly profileName = 'Sofia Marin';
+
   // Static content
   protected readonly emptyTitle = 'No projects yet';
   protected readonly emptyHint = 'Create your first project to get started.';
@@ -123,12 +132,27 @@ export class ComponentsBento {
 })
 export class Demo {}`;
 
+  /**
+   * End a sentence that finishes with something a visitor typed.
+   *
+   * Every field in this bento is live, so the tail of these messages is
+   * whatever is in the input — and a name is very often already terminated:
+   * the card-holder seed is `Roman K.`, which rendered
+   * `$129.99 from Roman K..`. Dropping the period from the seed would only move
+   * the defect to every value that does NOT end in punctuation, so the decision
+   * belongs here, where the last character is known.
+   */
+  private terminate(sentence: string): string {
+    const trimmed = sentence.trimEnd();
+    return /[.!?…]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+  }
+
   // Action handlers
   protected onCreateAccount(): void {
     this.toast.show({
       type: 'success',
       title: 'Welcome to ngwr!',
-      message: `Account ready for ${this.fullName() || 'you'}.`,
+      message: this.terminate(`Account ready for ${this.fullName().trim() || 'you'}`),
     });
   }
 
@@ -136,7 +160,7 @@ export class Demo {}`;
     this.toast.show({
       type: 'success',
       title: 'Payment received',
-      message: `$${this.payAmount()} from ${this.payHolder() || 'card'}.`,
+      message: this.terminate(`$${this.payAmount().trim()} from ${this.payHolder().trim() || 'card'}`),
     });
   }
 
@@ -145,7 +169,7 @@ export class Demo {}`;
   }
 
   protected onFollow(): void {
-    this.toast.show({ type: 'success', message: 'Now following Roman Kim.' });
+    this.toast.show({ type: 'success', message: `Now following ${this.profileName}.` });
   }
 
   protected onThemeChange(mode: WrThemeMode | null): void {
