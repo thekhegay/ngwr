@@ -58,8 +58,13 @@ onPick(action: WrActionSheetAction): void {
 }`;
 
   protected readonly api: readonly DocApiRow[] = [
-    { name: 'open', description: 'Whether the sheet is open (two-way).', type: 'model<boolean>', default: 'false' },
-    { name: 'actions', description: 'The rows to offer.', type: 'WrActionSheetAction[]', default: '[]' },
+    { name: 'open', description: 'Whether the sheet is open (two-way).', type: 'boolean', default: 'false' },
+    {
+      name: 'actions',
+      description: 'The rows to offer.',
+      type: 'readonly WrActionSheetAction[]',
+      default: '[]',
+    },
     { name: 'title', description: 'Bold heading above the rows.', type: 'string', default: "''" },
     { name: 'message', description: 'Muted sub-heading under the title.', type: 'string', default: "''" },
     {
@@ -69,9 +74,9 @@ onPick(action: WrActionSheetAction): void {
       default: 'null',
     },
     {
-      name: 'action',
+      name: '(action)',
       description: 'Fires with the chosen row (never on a dismiss).',
-      type: 'output<WrActionSheetAction>',
+      type: 'WrActionSheetAction',
       default: '—',
     },
     { name: 'WrActionSheetAction', description: 'A single row.', type: 'interface', default: '—' },

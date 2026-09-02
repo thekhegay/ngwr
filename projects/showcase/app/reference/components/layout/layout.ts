@@ -109,7 +109,7 @@ export default class LayoutPageComponent {
     {
       name: '(collapsedChanged)',
       description: 'Emits whenever `collapsed` changes, alongside the two-way binding.',
-      type: 'OutputEmitterRef<boolean>',
+      type: 'boolean',
       default: '—',
       sub: true,
     },

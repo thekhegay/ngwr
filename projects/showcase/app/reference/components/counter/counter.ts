@@ -53,4 +53,5 @@ export class MyComponent {}`,
   };
 
   protected readonly api = API.WrCounter;
+  protected readonly countUpApi = API.WrCountUp;
 }

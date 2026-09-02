@@ -15,6 +15,7 @@ import {
   type DocApiRow,
   type DocControl,
 } from '#core/components';
+import { API } from '#core/generated/api';
 
 @Component({
   selector: 'ngwr-marquee-page',
@@ -96,44 +97,7 @@ export default class MarqueePage {
     install: `import { WrMarquee } from 'ngwr/marquee';`,
   };
 
-  protected readonly api: readonly DocApiRow[] = [
-    {
-      name: 'items',
-      description: 'Items to display (images or template nodes).',
-      type: 'WrMarqueeItem[]',
-      required: true,
-    },
-    {
-      name: 'speed',
-      description: 'Scroll speed in px/s. Negative reverses direction.',
-      type: 'number',
-      default: '120',
-    },
-    { name: 'direction', description: 'Track direction.', type: "'left' | 'right'", default: "'left'" },
-    { name: 'itemHeight', description: 'Item height in px.', type: 'number', default: '28' },
-    { name: 'gap', description: 'Gap between items in px.', type: 'number', default: '32' },
-    { name: 'pauseOnHover', description: 'Pause the loop on hover.', type: 'boolean', default: 'false' },
-    {
-      name: 'hoverSpeed',
-      description: 'Custom speed when hovered. Overrides `pauseOnHover`.',
-      type: 'number',
-      default: '—',
-    },
-    { name: 'fadeOut', description: 'Apply edge fade-out gradients.', type: 'boolean', default: 'false' },
-    {
-      name: 'fadeOutColor',
-      description: 'Fade-out gradient colour. Empty falls back to the page background.',
-      type: 'string',
-      default: "''",
-    },
-    { name: 'scaleOnHover', description: 'Scale individual items up on hover.', type: 'boolean', default: 'false' },
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name for the region. Unset, it falls back to `marquee.label`, then to `Marquee`.',
-      type: 'string | null',
-      default: 'null',
-    },
-  ];
+  protected readonly api = API.WrMarquee;
 
   protected readonly typeSnippet = `type WrMarqueeItem = WrMarqueeImage | WrMarqueeNode;
 

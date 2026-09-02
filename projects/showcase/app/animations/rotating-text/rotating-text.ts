@@ -127,7 +127,7 @@ export default class RotatingTextPage {
     {
       name: '(nextChange)',
       description: 'Emits with the new index on every rotation.',
-      type: 'EventEmitter<number>',
+      type: 'number',
       default: '—',
     },
     {

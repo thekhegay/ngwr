@@ -32,4 +32,5 @@ export default class DescriptionsPageComponent {
 </wr-descriptions>`;
 
   protected readonly api = API.WrDescriptions;
+  protected readonly itemApi = API.WrDescriptionItem;
 }

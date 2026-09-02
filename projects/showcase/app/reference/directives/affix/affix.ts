@@ -50,7 +50,7 @@ header.wr-affix--active {
       name: '(wrAffixChange)',
       description:
         'Emits `true` on stick, `false` on release — transitions only. The observer reports STATE, so it delivers an entry the moment it starts watching and can repeat one the host is already in; a repeat is swallowed rather than emitted.',
-      type: 'OutputEmitterRef<boolean>',
+      type: 'boolean',
       default: '—',
     },
     {

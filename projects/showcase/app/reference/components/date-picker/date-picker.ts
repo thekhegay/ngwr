@@ -136,7 +136,7 @@ export class MyComponent {
       name: 'format',
       description:
         'Display + parse format for both ends. When omitted, derived from `mode` (`shortDate` / `shortDateTime`).',
-      type: 'string | null',
+      type: 'WrDateFormat | string | null',
       default: 'null',
     },
     { name: 'startPlaceholder', description: 'Placeholder for the start input.', type: 'string', default: "''" },
@@ -158,7 +158,7 @@ export class MyComponent {
     {
       name: 'dateFilter',
       description: 'Predicate disabling individual dates.',
-      type: '(date: Date) => boolean',
+      type: '((date: Date) => boolean) | null',
       default: 'null',
     },
     {
