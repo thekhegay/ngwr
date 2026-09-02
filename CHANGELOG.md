@@ -1,5 +1,23 @@
 # Changelog
 
+## [12.2.0](https://github.com/thekhegay/ngwr/compare/v12.1.0...v12.2.0) (2026-09-02)
+
+### ⚠ BREAKING CHANGES
+
+* **select:** clearable is opt-in, and chips follow the control radius
+
+### Features
+
+* **select:** clearable is opt-in, and chips follow the control radius ([51e4908](https://github.com/thekhegay/ngwr/commit/51e49088e9a5b70ce46d1902b5387d051cc801d0))
+* **showcase:** api-docs gate compares types and re-derives the generated table ([7263b95](https://github.com/thekhegay/ngwr/commit/7263b9579ce56ccfcbbed2466c5cdd1b88aca0d0))
+
+### Bug Fixes
+
+* **lib:** nested chips and badges take their host corner, not a pill ([481f760](https://github.com/thekhegay/ngwr/commit/481f76044c5a10a0ca497a33024922f2f85ce30e))
+* **lib:** sandbox style deps, drawer handle, popconfirm arrow, softer rings ([e888192](https://github.com/thekhegay/ngwr/commit/e888192cfd73645f1383f7c793bda5167926533d))
+* **showcase:** compare defaults, unify see also, rebuild the reference sidebar ([feb92e8](https://github.com/thekhegay/ngwr/commit/feb92e8a7ec4fa508ae212917bf13aac45ac65fb))
+* **showcase:** hero, bento copy, inline code chips and the code tab strip ([c294aa8](https://github.com/thekhegay/ngwr/commit/c294aa84df5e6481e4def73900e406721130563b))
+
 ## [12.1.0](https://github.com/thekhegay/ngwr/compare/v12.0.0...v12.1.0) (2026-09-01)
 
 ### Features
