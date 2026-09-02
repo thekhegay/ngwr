@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -107,5 +107,105 @@ describe('the published manifest', () => {
       .sort();
 
     expect(optional).toEqual(['@angular/router', 'date-fns', 'lucide', 'luxon']);
+  });
+});
+
+/**
+ * A component stylesheet must never reach the EMITTING theme layer.
+ *
+ * `@use` deduplicates per compilation, and a component's `styleUrl` is its own
+ * compilation — so a `styleUrl` whose SCSS pulls in `theme/styles` carries a
+ * byte-identical second copy of the `:root` token block, the `[data-theme]` block
+ * and the `wr-` box-sizing reset, which ng-packagr embeds in the FESM bundle as a
+ * string and the app build ships as JavaScript. Twenty entry points did: 42 KB
+ * apiece, 328 token declarations and two `:root` blocks inside the main chunk of an
+ * app whose only ngwr component was `<wr-virtual-scroll>`.
+ *
+ * Payload was the smaller half. Angular appends component styles AFTER the linked
+ * stylesheet, and those inlined tokens are compiled at LIBRARY build time — so they
+ * carry the shipped defaults and win the cascade over the consumer's own. A
+ * documented `@use 'ngwr/theme' with ($base-colors: (primary: #ff00ff))` measured
+ * `#3969e2` on `:root` for as long as one of the twenty was on the page.
+ *
+ * So the invariant is about content, not about a file name: nothing a `styleUrl`
+ * reaches may declare `:root` or the namespace reset. Those two, and not the dark
+ * block — a component writes `[data-theme='dark'] .wr-star-border` for its own
+ * variant, which is a legitimate scoped rule, and the theme's dark block opens with
+ * a top-level `:root` anyway, so it is caught either way.
+ * `theme/styles/_focus.scss` passes and is deliberately still reachable — it emits
+ * `.wr-*:focus-visible` rules rather than the global layer, and it is the only place
+ * the shared ring mixin lives, so the five components that draw one take it from
+ * there rather than hand-rolling declarations that would drift.
+ */
+describe('component stylesheets', () => {
+  /** `@use 'x'` / `@forward 'x'` resolved the way Sass resolves a relative load. */
+  const resolveScss = (from: string, spec: string): string | undefined => {
+    const base = join(dirname(from), spec);
+    const name = base.split('/').pop()!;
+    const candidates = [
+      `${base}.scss`,
+      join(dirname(base), `_${name}.scss`),
+      join(base, '_index.scss'),
+      join(base, 'index.scss'),
+    ];
+    return candidates.find(existsSync);
+  };
+
+  /** Every SCSS file a component's `styleUrl` pulls in, transitively. */
+  const loaded = (entry: string): string[] => {
+    const seen = new Set<string>();
+    const queue = [entry];
+    while (queue.length > 0) {
+      const file = queue.shift()!;
+      if (seen.has(file)) continue;
+      seen.add(file);
+      const src = readFileSync(file, 'utf8').replace(/(^|\s)\/\/[^\n]*/g, '$1');
+      for (const m of src.matchAll(/@(?:use|forward)\s+'([^']+)'/g)) {
+        if (m[1].startsWith('sass:')) continue;
+        const next = resolveScss(file, m[1]);
+        expect(next, `${relative(LIB, file)} loads '${m[1]}', which resolves to nothing`).toBeDefined();
+        queue.push(next!);
+      }
+    }
+    return [...seen];
+  };
+
+  /** Component file to the stylesheet its `styleUrl` names. */
+  const styleUrls = (): Map<string, string> => {
+    const found = new Map<string, string>();
+    for (const file of sources(LIB)) {
+      const url = /styleUrl:\s*'\.\/([\w.-]+\.scss)'/.exec(readFileSync(file, 'utf8'))?.[1];
+      if (url === undefined) continue;
+      const scss = join(dirname(file), url);
+      if (existsSync(scss)) found.set(relative(LIB, file), scss);
+    }
+    return found;
+  };
+
+  const GLOBAL_LAYER = [
+    { what: 'the `:root` token block', re: /(^|\})\s*:root\s*\{/ },
+    { what: 'the `wr-` box-sizing reset', re: /:where\(\[class\^=/ },
+  ];
+
+  it('never inlines the global theme layer into a bundle', () => {
+    const offenders: string[] = [];
+
+    for (const [component, scss] of styleUrls()) {
+      for (const file of loaded(scss)) {
+        const src = readFileSync(file, 'utf8').replace(/(^|\s)\/\/[^\n]*/g, '$1');
+        for (const { what, re } of GLOBAL_LAYER) {
+          if (re.test(src)) offenders.push(`${component} reaches ${relative(LIB, file)}, which declares ${what}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('checks every component that has a `styleUrl`', () => {
+    // A resolver that quietly matched nothing would report the invariant as held.
+    // `schematics/page` writes a `styleUrl` into a TEMPLATE STRING, so it is counted
+    // by neither this nor the test above — there is no stylesheet on disk to follow.
+    expect(styleUrls().size).toBeGreaterThanOrEqual(27);
   });
 });

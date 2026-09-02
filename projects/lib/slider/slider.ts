@@ -99,6 +99,20 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
    * @default false
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Refuse value changes while the thumbs stay focusable and the value still
+   * submits. Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * The thumbs keep their tab stop and keep announcing their value — arrow keys,
+   * Home / End and the pointer simply move nothing — which is the whole
+   * difference from `disabled`, where they would leave the tab order entirely.
+   * Mirrored as `aria-readonly`, which role `slider` supports.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
   /** Render the current value below the track. @default true */
   readonly showLabel = input(true, { transform: coerceBooleanProperty });
 
@@ -211,6 +225,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     const parts = ['wr-slider'];
     if (this.range()) parts.push('wr-slider--range');
     if (this.disabled()) parts.push('wr-slider--disabled');
+    else if (this.readonly()) parts.push('wr-slider--readonly');
     return parts.join(' ');
   });
 
@@ -269,7 +284,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   // Interaction
 
   protected onPointerDown(event: PointerEvent, thumb: 'low' | 'high'): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     event.preventDefault();
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
@@ -299,7 +314,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   }
 
   protected onTrackPointerDown(event: PointerEvent): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     if ((event.target as HTMLElement).closest('.wr-slider__thumb')) return;
     const thumb = this.nearestThumb(event);
     this.updateFromEvent(event, thumb);
@@ -307,7 +322,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   }
 
   protected onKey(event: KeyboardEvent, thumb: 'low' | 'high'): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     const big = event.shiftKey || event.key === 'PageUp' || event.key === 'PageDown' ? 10 : 1;
     const delta = this.step() * big;
     const current = thumb === 'low' ? this.low() : this.high();

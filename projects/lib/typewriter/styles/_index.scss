@@ -1,38 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-.wr-typewriter {
-  --wr-typewriter-cursor-blink: 0.5s;
-
-  display: inline-flex;
-  align-items: baseline;
-
-  &__content {
-    white-space: pre;
-  }
-
-  &__cursor {
-    display: inline-block;
-    margin-inline-start: 1px;
-    animation: wr-typewriter-blink var(--wr-typewriter-cursor-blink) ease-in-out infinite alternate;
-  }
-}
-
-@keyframes wr-typewriter-blink {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-// Reduced motion: solid cursor — the blink is decorative.
-@media (prefers-reduced-motion: reduce) {
-  .wr-typewriter__cursor {
-    animation: none;
-    opacity: 1;
-  }
-}
+// Public Sass entry for `@use 'ngwr/typewriter'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `typewriter.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `typewriter.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

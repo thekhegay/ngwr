@@ -1,144 +1,15 @@
-@use '../../theme/styles' as theme;
-
-// Drag-to-reorder list. Visual chrome lives here; the layout + drop
-// mechanics come from CDK's `cdkDropList` / `cdkDrag` directives.
+// Public Sass entry for `@use 'ngwr/drag-drop'`.
 //
-// CDK adds these classes during a drag:
-//   .cdk-drag-preview     — floating preview that follows the cursor
-//   .cdk-drag-placeholder — empty slot left at the source position
-//   .cdk-drag-animating   — in the post-drop settle animation
-// Every one of them is qualified with a `.wr-sortable-list*` class. Bare
-// `.cdk-drag-*` rules are global, and a UI library has no business restyling
-// a consumer's own CDK drop lists — nor `wr-table`'s column drag, which was
-// picking up this component's dashed placeholder and lift shadow.
-
-.wr-sortable-list {
-  display: block;
-
-  &__list {
-    display: flex;
-    flex-direction: column;
-    // Row spacing belongs to the list, not the row templates — margins
-    // inside a row get measured into the drag preview and read as a
-    // white rim around the floating card.
-    gap: var(--wr-sortable-list-gap, 0.5rem);
-  }
-
-  &__item {
-    cursor: grab;
-    user-select: none;
-    // No transform transition here — the floating preview clones this
-    // class, and animating transform makes it chase the cursor 180ms
-    // behind. Sibling shuffle/settle transitions are scoped below.
-    transition: box-shadow 0.18s ease;
-
-    &.cdk-drag-disabled {
-      cursor: default;
-    }
-
-    &:active {
-      cursor: grabbing;
-    }
-
-    // Every row is a tab stop (the keyboard reorder path), so every row needs a
-    // ring. Included here rather than added to `theme/_focus.scss`, the same
-    // choice `wr-list` made for its own rows.
-    &:focus-visible {
-      @include theme.focus-ring;
-    }
-
-    // Picked up by the keyboard — the standing counterpart of `:active`, which
-    // only lasts while a pointer is held down.
-    &--grabbed {
-      cursor: grabbing;
-      box-shadow: 0 6px 12px rgba(var(--wr-color-backdrop-rgb), 0.22);
-    }
-  }
-
-  // The key model and the position announcements: read out, never drawn.
-  &__sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-}
-
-// Horizontal orientation — the @for stays the same; CDK swaps the
-// pointer-position math when `cdkDropListOrientation="horizontal"`.
-.wr-sortable-list[orientation='horizontal'] .wr-sortable-list__list,
-.wr-sortable-list[data-orientation='horizontal'] .wr-sortable-list__list {
-  flex-direction: row;
-}
-
-// Drag handle — restricts grab cursor to the handle (the row itself
-// stays interactive for clicks / inputs).
-.wr-drag-handle {
-  cursor: grab;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(var(--wr-color-on-surface-rgb), 0.45);
-  transition: color 0.15s ease;
-
-  // Coarse pointers: a 44px grab area around the grip glyph.
-  @include theme.touch-target;
-
-  &:hover {
-    color: var(--wr-color-on-surface);
-  }
-
-  &:active {
-    cursor: grabbing;
-  }
-}
-
-// CDK overlays applied by drag-drop
-
-// The preview is a CLONE of the dragged row that CDK moves to `document.body`,
-// so an ancestor selector cannot reach it — but the clone keeps the row's own
-// class, which can. Verified on a real drag: the preview lands in `<body>`
-// carrying `cdk-drag wr-sortable-list__item cdk-drag-preview`.
-.cdk-drag-preview.wr-sortable-list__item {
-  box-sizing: border-box;
-  color: var(--wr-color-on-surface);
-  font-family: var(--wr-font-family-base);
-  // The preview must track the cursor 1:1 — never animate its transform.
-  transition: none;
-  // The lift-off shadow follows the row template's rendered shape
-  // (drop-shadow, not box-shadow) so the preview box itself never shows
-  // as a white slab around the card. Backdrop token stays black in dark
-  // mode — `--wr-color-on-surface-rgb` would flip and glow instead.
-  filter: drop-shadow(0 8px 12px rgba(var(--wr-color-backdrop-rgb), 0.24))
-    drop-shadow(0 2px 3px rgba(var(--wr-color-backdrop-rgb), 0.16));
-  // CDK sets pointer-events to none on the preview; we keep visuals only.
-}
-
-// The placeholder stays in the list, so scoping by ancestor is enough here.
-.wr-sortable-list .cdk-drag-placeholder {
-  opacity: 0.35;
-  // Subtle dashed outline so users see where the item came from.
-  background: var(--wr-color-fill-strong);
-  border-radius: var(--wr-border-radius-base);
-  outline: 1px dashed rgba(var(--wr-color-on-surface-rgb), 0.25);
-  outline-offset: -1px;
-}
-
-// Also the preview, not a row in the list: CDK keeps `cdk-drag-preview` on the
-// clone and adds `cdk-drag-animating` while it flies back to the drop slot.
-// Verified on a real drop — the element carries
-// `cdk-drag wr-sortable-list__item cdk-drag-preview cdk-drag-animating` and sits
-// in `<body>`. It has to come after the preview rule, which sets
-// `transition: none` at the same specificity.
-.cdk-drag-animating.wr-sortable-list__item {
-  transition: transform 0.18s var(--wr-ease-spring);
-}
-
-.wr-sortable-list__list.cdk-drop-list-dragging .wr-sortable-list__item:not(.cdk-drag-placeholder) {
-  transition: transform 0.18s var(--wr-ease-spring);
-}
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `sortable-list.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `sortable-list.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

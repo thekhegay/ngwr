@@ -30,6 +30,8 @@ export interface WrCheckboxGroupContext {
   blurred(): void;
   /** Whether the entire group is disabled. */
   readonly isDisabled: Signal<boolean>;
+  /** Whether the entire group refuses edits while staying focusable. */
+  readonly isReadonly: Signal<boolean>;
 }
 
 /**

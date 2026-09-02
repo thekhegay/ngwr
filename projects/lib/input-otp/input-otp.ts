@@ -24,6 +24,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
+import { useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 
 import type { WrInputOtpMode, WrInputOtpSize } from './interfaces';
@@ -98,6 +99,29 @@ export class WrInputOtp implements FormValueControl<string> {
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Refuse edits while every box stays focusable and the code still submits.
+   * Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * Each box is a real text input, so this is the native `readonly` attribute —
+   * arrow keys, Home / End and selection keep working, which is the whole
+   * difference from `disabled`. Paste is cancelled too, since a `paste` still
+   * reaches a read-only input even though typing does not.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The surrounding `<wr-form-field>`'s error state — bound per BOX rather than
+   * on the `role="group"` host, because the box is what takes focus and a reader
+   * queries the focused element.
+   *
+   * @internal
+   */
+  protected readonly fieldAria = useFormFieldAria();
+
   /** Character shown in empty cells. @default '•' */
   readonly placeholder = input<string>('•');
 
@@ -117,6 +141,7 @@ export class WrInputOtp implements FormValueControl<string> {
     const size = this.resolvedSize();
     if (size !== 'md') parts.push(`wr-input-otp--${size}`);
     if (this.disabled()) parts.push('wr-input-otp--disabled');
+    else if (this.readonly()) parts.push('wr-input-otp--readonly');
     return parts.join(' ');
   });
 
@@ -159,6 +184,12 @@ export class WrInputOtp implements FormValueControl<string> {
 
   protected onInput(event: Event, index: number): void {
     const target = event.target as HTMLInputElement;
+    if (this.readonly()) {
+      // A read-only input refuses typed characters on its own; this covers the
+      // synthetic writes a script (or a spec) can still make.
+      target.value = this.cells()[index] ?? '';
+      return;
+    }
     const char = this.sanitiseChar(target.value.slice(-1));
     target.value = char;
     this.update(index, char);
@@ -169,6 +200,12 @@ export class WrInputOtp implements FormValueControl<string> {
     const target = event.target as HTMLInputElement;
     switch (this.inlineKey(event.key)) {
       case 'Backspace':
+        if (this.readonly()) {
+          // Backspace on an empty box is an EDIT (it clears the previous one),
+          // so it goes; the pure navigation keys below stay.
+          event.preventDefault();
+          break;
+        }
         if (target.value === '') {
           event.preventDefault();
           this.update(index - 1, '');
@@ -196,6 +233,7 @@ export class WrInputOtp implements FormValueControl<string> {
 
   protected onPaste(event: ClipboardEvent): void {
     event.preventDefault();
+    if (this.readonly()) return;
     const text = event.clipboardData?.getData('text') ?? '';
     const chars = text
       .split('')

@@ -7,6 +7,9 @@
   [attr.aria-haspopup]="'menu'"
   [attr.aria-expanded]="open()"
   [attr.aria-controls]="panelId"
+  [attr.aria-readonly]="readonly() || null"
+  [attr.aria-invalid]="fieldAria.ariaInvalid()"
+  [attr.aria-describedby]="fieldAria.describedBy()"
   (click)="onTriggerClick()"
   (keydown)="onTriggerKeydown($event)"
   (blur)="touch.emit()"
@@ -17,7 +20,7 @@
     <span class="wr-cascader__placeholder">{{ placeholder() }}</span>
   }
 
-  @if (clearable() && hasSelection() && !disabled()) {
+  @if (clearable() && hasSelection() && !disabled() && !readonly()) {
     <span
       class="wr-cascader__clear"
       role="button"

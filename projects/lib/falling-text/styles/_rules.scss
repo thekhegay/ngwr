@@ -1,0 +1,31 @@
+.wr-falling-text {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  touch-action: none; // pointer-driven drag — disable browser scroll on touch
+
+  &__words {
+    line-height: 1.4;
+  }
+
+  &__word {
+    display: inline-block;
+    will-change: transform;
+    user-select: none;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &--hl {
+      // A highlighted WORD is text the user reads, decorative motion or not.
+      color: var(--wr-color-primary-ink);
+    }
+  }
+
+  &__space {
+    display: inline;
+    white-space: pre;
+  }
+}

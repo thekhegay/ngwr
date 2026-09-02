@@ -1,0 +1,47 @@
+// Cursor-tracked spotlight card (reactbits port). The `--wr-spotlight-x/y`
+// vars come from the host's mousemove handler; `--wr-spotlight-color` is
+// set inline from the `[spotlightColor]` input when provided — otherwise
+// the theme picks the default below. `--wr-color-on-surface-rgb` flips between
+// themes (dark on light surfaces, light on dark), so a single tint reads
+// as a dark-ish glow in light mode and a light beam in dark mode.
+
+.wr-spotlight-card {
+  --wr-spotlight-x: 50%;
+  --wr-spotlight-y: 50%;
+  --wr-spotlight-color: rgba(var(--wr-color-on-surface-rgb), 0.15);
+
+  position: relative;
+  display: block;
+  border-radius: 1.5rem;
+  border: 1px solid var(--wr-color-outline);
+  background-color: var(--wr-color-surface);
+  padding: 2rem;
+  overflow: hidden;
+  color: var(--wr-color-on-surface);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--wr-spotlight-x) var(--wr-spotlight-y),
+      var(--wr-spotlight-color),
+      transparent var(--wr-spotlight-radius, 80%)
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 0.6;
+  }
+}
+
+// Dark mode: `--wr-color-on-surface-rgb` already flips to a light value, so the
+// default tint above becomes a light beam on the navy surface — nudge the
+// alpha up a touch so it reads as bright as the classic spotlight.
+[data-theme='dark'] .wr-spotlight-card {
+  --wr-spotlight-color: rgba(var(--wr-color-on-surface-rgb), 0.22);
+}

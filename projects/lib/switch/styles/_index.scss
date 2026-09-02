@@ -95,6 +95,13 @@
     }
   }
 
+  // A read-only switch still takes focus and still submits its value, so it
+  // keeps the full visual and only stops inviting the click — dimming it would
+  // say "disabled", which is the other state.
+  &--readonly &__label {
+    cursor: default;
+  }
+
   &--disabled {
     --wr-switch-color: var(--wr-color-on-surface-muted);
     pointer-events: none;

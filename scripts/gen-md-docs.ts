@@ -26,6 +26,10 @@
  * controls, and the icon grids. They are rendered UI, not documentation — the
  * source block that sits under each demo is what carries the information, and
  * dumping the demo's own DOM would bury it.
+ *
+ * A route that prerenders as a redirect stub gets a three-line twin naming
+ * where it went, rather than none. See the second loop in `main()` for why the
+ * absence was worse than it looks.
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -46,10 +50,15 @@ const ROUTES_JSON = join(DIST, 'prerendered-routes.json');
  * Floor, set AT the current number rather than below it. Slack in a floor
  * licenses exactly the silent erosion this check exists to catch — which only
  * holds if it is raised alongside the export: the floor read 190 while the
- * export wrote 198. The routes in {@link NO_TWIN} are outside the count by
- * design and always were.
+ * export wrote 198, and then 198 while the export wrote 201. Both times the
+ * gap was invisible, because a floor that passes says nothing about by how
+ * much. The routes in {@link NO_TWIN} are outside the count by design and
+ * always were, and so is `/` — the home page is not an `<ngwr-doc-page>`.
+ *
+ * 209 is 201 plus the eight `/reference` catalog roots, which used to redirect
+ * and so exported a meta-refresh stub instead of a page.
  */
-const MIN_PAGES = 198;
+const MIN_PAGES = 209;
 
 /**
  * Doc pages that will never have a twin, named so the decision is on the record.
@@ -73,6 +82,9 @@ const NO_TWIN: readonly string[] = [
   '/icons/radix',
   '/icons/bootstrap',
 ];
+
+/** The meta-refresh a redirect stub renders, and the route it points at. */
+const REDIRECT_RE = /<meta http-equiv="refresh" content="0; url=([^"]+)"/i;
 
 /** Elements whose subtree is rendered UI — kept off the page, not summarized. */
 const SKIP = new Set(['div.demo', 'div.controls', 'div.preview', 'ngwr-icon-grid']);
@@ -271,6 +283,8 @@ function main(): void {
 
   let written = 0;
   let bytes = 0;
+  /** Routes that render a meta-refresh, with where they point. Handled after. */
+  const moved = new Map<string, string>();
 
   for (const route of routes) {
     const html = route === '/' ? join(DIST, 'index.html') : join(DIST, route.replace(/^\//, ''), 'index.html');
@@ -278,7 +292,11 @@ function main(): void {
 
     const source = readFileSync(html, 'utf8');
     // Redirect stubs render a meta-refresh and nothing else.
-    if (source.includes('http-equiv="refresh"')) continue;
+    const refresh = REDIRECT_RE.exec(source);
+    if (refresh) {
+      moved.set(route, refresh[1]);
+      continue;
+    }
 
     const markdown = render(new JSDOM(source).window.document, route);
     if (!markdown) continue;
@@ -289,6 +307,21 @@ function main(): void {
     writeFileSync(target, markdown);
     written++;
     bytes += Buffer.byteLength(markdown);
+  }
+
+  // A stub gets a twin too, and the reason is the defect that prompted it: the
+  // site advertises "append `.md` to any page URL", the origin falls back to the
+  // SPA shell for anything it has no file for, and `/reference/validators.md`
+  // therefore answered 200 with 301 KB of `text/html`. A machine-readable
+  // convention that returns the wrong content type is worse than one that
+  // 404s — a reader compares file SIZES to notice. Three lines of markdown
+  // naming the new location is both honest and useful; the redirect the HTML
+  // performs has no equivalent a markdown fetch can follow.
+  for (const [route, to] of moved) {
+    const twin = `${join(DIST, to.replace(/^\//, ''))}.md`;
+    const trail = existsSync(twin) ? `Markdown: ${SITE}${to}.md` : 'There is no markdown twin at the new location.';
+    const body = `# Moved\n\n> This page has moved to ${SITE}${to}\n\n${trail}\n`;
+    writeFileSync(`${join(DIST, route.replace(/^\//, ''))}.md`, body);
   }
 
   // A recorded exemption that has quietly stopped applying is worse than no
@@ -312,7 +345,7 @@ function main(): void {
     exit(1);
   }
 
-  info(`✓ markdown docs — ${written} pages, ${Math.round(bytes / 1024)} KB`);
+  info(`✓ markdown docs — ${written} pages, ${Math.round(bytes / 1024)} KB, ${moved.size} moved stubs`);
 }
 
 main();

@@ -60,6 +60,14 @@
     --wr-select-bg: var(--wr-color-fill);
   }
 
+  // A read-only select still takes focus and still shows what is selected, so it
+  // keeps the visual and only stops inviting the click that would open the
+  // panel. `not-allowed` would say something false about a control that works —
+  // the same call `.wr-select__tag-input:read-only` already makes.
+  &--readonly &__trigger {
+    cursor: default;
+  }
+
   &__trigger {
     display: inline-flex;
     align-items: center;

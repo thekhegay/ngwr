@@ -6,6 +6,7 @@
     [name]="name()"
     [checked]="checked()"
     [disabled]="isDisabled()"
+    (click)="onInputClick($event)"
     (change)="onSelect()"
     (blur)="onBlur()"
   />

@@ -213,6 +213,21 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /**
+   * Refuse changes while the trigger stays focusable and the value still
+   * submits. Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * The panel is where every edit happens, so a read-only select does not open —
+   * and with it go the clear button, the chip ×, the tag draft and the search
+   * query. The text-input shapes take the native `readonly` attribute, which is
+   * what keeps them focusable and selectable where `disabled` would not; every
+   * shape mirrors `aria-readonly`, which role `combobox` supports.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Pill-shaped corners on the trigger. Unset falls back to the `select.rounded`
    * app default from `provideWrConfig()`; `[rounded]="false"` turns a configured
    * `true` back off. @default false
@@ -604,6 +619,9 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Effective disabled state. Part of {@link WrSelectContext} for child options. */
   readonly isDisabled = computed(() => this.disabled());
 
+  /** Effective readonly state — refuses every write path without removing focus. */
+  protected readonly isReadonly = computed(() => this.readonly());
+
   protected readonly classes = computed(() => {
     const parts = ['wr-select'];
     if (this.open()) parts.push('wr-select--open');
@@ -615,6 +633,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     if (this.isSearchTrigger()) parts.push('wr-select--search');
     if (this.hasChipSearch()) parts.push('wr-select--searchable');
     if (this.isDisabled()) parts.push('wr-select--disabled');
+    else if (this.isReadonly()) parts.push('wr-select--readonly');
     return parts.join(' ');
   });
 
@@ -838,7 +857,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   // Search-mode handlers
 
   protected onSearchInput(event: Event): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
     if (this.meetsMinChars()) {
@@ -860,7 +879,10 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
 
   protected onSearchFocus(): void {
     if (this.isDisabled()) return;
+    // Focus is tracked even while read-only — the field still takes it, and
+    // `searchDisplay()` keys off it — but nothing opens.
     this.searchHasFocus.set(true);
+    if (this.isReadonly()) return;
     if (!this.meetsMinChars()) return;
     if (!this.open()) {
       this.seedActiveIndex();
@@ -986,6 +1008,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
     // mode the block scroll strategy is never released, so the page can no
     // longer scroll at all.
     this.destroyRef.onDestroy(() => this.closeOverlay());
+
+    // Close the panel if the control goes read-only or disabled while it is up —
+    // a panel whose every row now refuses the click is a trap, not a view.
+    effect(() => {
+      if (this.isDisabled() || this.isReadonly()) this.open.set(false);
+    });
 
     effect(() => {
       if (this.open()) {
@@ -1143,6 +1171,10 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   selectOption(value: unknown): void {
+    // The panel cannot open while read-only, but `selectOption` is reachable
+    // from `WrSelectContext` — a projected `<wr-option>` calls it directly — so
+    // the guard belongs on the write, not only on the way in.
+    if (this.isReadonly()) return;
     if (this.isMulti()) {
       const current = this.asArray(this.value());
       const idx = current.indexOf(value);
@@ -1189,7 +1221,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
    */
   protected removeChip(index: number, event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled() || !this.hasChips()) return;
+    if (this.isDisabled() || this.isReadonly() || !this.hasChips()) return;
     const current = this.asArray(this.value());
     if (index < 0 || index >= current.length) return;
     this.value.set([...current.slice(0, index), ...current.slice(index + 1)]);
@@ -1199,7 +1231,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   /** Clear every selection (× button). Multi/tag → empty array; search → null. */
   protected clearAll(event: Event): void {
     event.stopPropagation();
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     if (this.hasChips()) {
       this.value.set([]);
       // `isSearchTrigger()`, not `isSearch()` — a searchable single renders the
@@ -1222,12 +1254,12 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   });
 
   protected onTagInput(event: Event): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     this.draft.set((event.target as HTMLInputElement).value);
   }
 
   protected onTagKeydown(event: KeyboardEvent): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     const seps = this.separators();
 
     if (seps.includes(event.key)) {
@@ -1246,7 +1278,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   protected onTagPaste(event: ClipboardEvent): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     const text = event.clipboardData?.getData('text') ?? '';
     if (!text) return;
 
@@ -1296,7 +1328,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   // Template handlers
 
   protected onTriggerClick(): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     // Tag mode has no panel — clicks should land on the inline input,
     // not toggle an overlay that's never created.
     if (this.isTag()) return;
@@ -1304,7 +1336,7 @@ export class WrSelect implements FormValueControl<unknown>, WrSelectContext {
   }
 
   protected onTriggerKey(event: KeyboardEvent): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
 
     if (!this.open()) {
       if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {

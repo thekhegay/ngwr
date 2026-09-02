@@ -251,6 +251,14 @@
     }
   }
 
+  // A read-only picker still takes focus and still announces its colour, so it
+  // keeps the visual and only stops inviting the drag — `crosshair` / `ew-resize`
+  // on a surface that cannot move is the part that looks broken.
+  &--readonly &__sv,
+  &--readonly &__slider {
+    cursor: default;
+  }
+
   &--disabled {
     pointer-events: none;
     opacity: var(--wr-disabled-opacity);

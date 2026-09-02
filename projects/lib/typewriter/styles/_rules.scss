@@ -1,0 +1,33 @@
+.wr-typewriter {
+  --wr-typewriter-cursor-blink: 0.5s;
+
+  display: inline-flex;
+  align-items: baseline;
+
+  &__content {
+    white-space: pre;
+  }
+
+  &__cursor {
+    display: inline-block;
+    margin-inline-start: 1px;
+    animation: wr-typewriter-blink var(--wr-typewriter-cursor-blink) ease-in-out infinite alternate;
+  }
+}
+
+@keyframes wr-typewriter-blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+// Reduced motion: solid cursor — the blink is decorative.
+@media (prefers-reduced-motion: reduce) {
+  .wr-typewriter__cursor {
+    animation: none;
+    opacity: 1;
+  }
+}

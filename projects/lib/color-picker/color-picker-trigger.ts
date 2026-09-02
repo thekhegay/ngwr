@@ -148,6 +148,22 @@ export class WrColorPickerTrigger {
     ref.setInput('disabled', this.disabled());
     ref.setInput('value', this.value());
 
+    // Render now rather than next frame: the picker's surfaces have to exist
+    // before focus can move to one, and a deferred focus is the class of bug
+    // this repo keeps finding.
+    ref.changeDetectorRef.detectChanges();
+    // Focus has to ENTER the panel. The overlay container sits at the end of
+    // `<body>`, so a Tab from the trigger went to the next thing on the PAGE and
+    // the saturation surface and both sliders — all `tabindex="0"`, all
+    // `role="slider"` or `role="group"` — were unreachable from the keyboard for
+    // as long as the picker was open. The saturation surface is the first stop
+    // and the one that carries the colour's two main values.
+    //
+    // Deliberately NOT a focus trap, matching `wr-popover` / `[wrPopconfirm]`:
+    // this popup is non-modal, an outside click or Escape closes it, and
+    // trapping would only make it harder to leave.
+    this.overlayRef.overlayElement.querySelector<HTMLElement>('.wr-color-picker__sv')?.focus();
+
     // Bridge the inner picker's `value` model back to our two-way [(value)].
     ref.instance.value.subscribe((next: string) => this.value.set(next));
 
@@ -179,9 +195,15 @@ export class WrColorPickerTrigger {
   /** Close the picker. No-op if already closed. */
   close(): void {
     if (!this.isOpen()) return;
+    // Focus lives inside the panel while it is open, and removing the panel
+    // would drop it to `<body>` — hand it back to the trigger instead, the way
+    // `[wrPopconfirm]` does. Only when focus is still IN there: if the user has
+    // already clicked elsewhere, taking it back would be stealing.
+    const returnFocus = !!this.overlayRef?.overlayElement.contains(document.activeElement);
     this.dispose();
     this.isOpen.set(false);
     this.closed.emit();
+    if (returnFocus) this.host.nativeElement.focus();
   }
 
   private dispose(): void {

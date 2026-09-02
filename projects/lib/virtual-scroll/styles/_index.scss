@@ -1,32 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-// Fixed-size virtual scroll wrapper. Most of the layout work is done by
-// CDK's `<cdk-virtual-scroll-viewport>`; this stylesheet just makes the
-// host a block-level container and tames default overflow behaviour.
-
-.wr-virtual-scroll {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-
-  &__viewport {
-    width: 100%;
-    height: 100%;
-    // CDK already sets `overflow: auto`; just add a discreet scrollbar
-    // skin via the platform defaults — a discreet custom thumb that still matches the
-    // host application's chrome.
-    scrollbar-width: thin;
-
-    &::-webkit-scrollbar {
-      width: 0.5rem;
-      height: 0.5rem;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(var(--wr-color-on-surface-rgb), 0.2);
-      border-radius: 999px;
-    }
-  }
-}
+// Public Sass entry for `@use 'ngwr/virtual-scroll'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `virtual-scroll.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `virtual-scroll.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

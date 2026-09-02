@@ -3,12 +3,89 @@
 @use 'colors';
 @use 'variables';
 
-// Dark theme overrides — opt-in via `[data-theme="dark"]` on <html>.
-// Drive the toggle from `WrTheme` (provided automatically with
-// `provideWrTheme(...)`).
+// Dark theme overrides — opt-in via `[data-theme="dark"]` on <html>, or
+// whatever `$theme-attribute` below is configured to. Drive the toggle from
+// `WrTheme` (provided automatically with `provideWrTheme(...)`).
 //
 // Only semantic tokens flip — palette hues stay so brand-coloured
 // elements look the same regardless of theme.
+
+/// The attribute the dark block keys on. Must match the `attribute` passed to
+/// `provideWrTheme(...)`, and that pairing is the whole reason this variable
+/// exists: `WrThemeConfig.attribute` is a RUNTIME value, and no CSS selector can
+/// read one. Until v13 the selector below was the literal `[data-theme='dark']`,
+/// so an app that set `provideWrTheme({ attribute: 'data-color-mode' })` got a
+/// service reporting `resolved() === 'dark'`, the attribute written correctly
+/// onto `<html>`, and a page that stayed light forever — no error, no warning.
+///
+/// Configure the two together:
+///
+/// ```scss
+/// // styles.scss
+/// @use 'ngwr' with ($theme-attribute: 'data-color-mode');
+/// ```
+/// ```ts
+/// provideWrTheme({ attribute: 'data-color-mode' })
+/// ```
+///
+/// Only the configured attribute is emitted — the default is NOT kept as a
+/// second selector. Renaming it is what decouples ngwr from another design
+/// system that already owns `data-theme`, and emitting both would re-couple
+/// them: that system's own `data-theme="dark"` would flip ngwr's tokens behind
+/// the app's back, which is the exact collision the rename exists to avoid.
+///
+/// If the two disagree the page silently stays light, so `WrTheme` publishes a
+/// dev-mode check for it: the light block below writes the configured name into
+/// `--wr-theme-attribute`, and the service warns when what it reads there is not
+/// what it was configured with. A stylesheet that is missing or predates v13
+/// leaves the property empty and the check stays quiet — it can only fire on a
+/// real disagreement.
+$theme-attribute: 'data-theme' !default;
+
+/// The dark-theme selector, for a stylesheet that has to build its own.
+///
+/// @example scss
+///   #{dark.dark-selector()} .my-thing { ... }
+@function dark-selector() {
+  @return '[#{$theme-attribute}=\'dark\']';
+}
+
+/// Wrap a declaration block so it only applies in dark mode, honouring
+/// `$theme-attribute`. Prefer this over writing `[data-theme='dark']` by hand —
+/// a hand-written literal is exactly what BUG-3 was.
+///
+/// @example scss
+///   @use 'ngwr/theme' as theme;
+///
+///   .my-card {
+///     background: #fff;
+///
+///     @include theme.dark {
+///       background: #0b1120;
+///     }
+///   }
+@mixin dark() {
+  @if & {
+    @at-root #{dark-selector()} #{&} {
+      @content;
+    }
+  } @else {
+    #{dark-selector()} {
+      @content;
+    }
+  }
+}
+
+:root {
+  // The attribute this compiled stylesheet keys its dark block on, published so
+  // `WrTheme` can compare it against `WrThemeConfig.attribute` in dev mode and
+  // say so when the two were configured apart. Read with
+  // `getPropertyValue('--wr-theme-attribute')`, never with `var()`.
+  //
+  // unused-ok: read by `WrTheme` through the CSSOM rather than painted with —
+  // it carries a name, not a value, so no declaration can reference it.
+  --wr-theme-attribute: #{$theme-attribute};
+}
 
 // Intents re-tuned for the dark canvas. Looped (below) so each gets the
 // FULL symmetric shade set — the hand blocks used to ship only base+rgb,
@@ -37,7 +114,7 @@ $_light: #262f44;
 $_medium: #6d7682;
 $_dark: #e6ebf3;
 
-[data-theme='dark'] {
+#{dark-selector()} {
   // Canvas (was `--wr-color-white` in light mode)
   // Deeper than slate-900 so an elevated surface in slate-800 reads
   // as a real layer rather than vanishing into the background.

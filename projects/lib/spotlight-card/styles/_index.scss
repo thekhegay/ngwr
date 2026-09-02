@@ -1,52 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-// Cursor-tracked spotlight card (reactbits port). The `--wr-spotlight-x/y`
-// vars come from the host's mousemove handler; `--wr-spotlight-color` is
-// set inline from the `[spotlightColor]` input when provided — otherwise
-// the theme picks the default below. `--wr-color-on-surface-rgb` flips between
-// themes (dark on light surfaces, light on dark), so a single tint reads
-// as a dark-ish glow in light mode and a light beam in dark mode.
-
-.wr-spotlight-card {
-  --wr-spotlight-x: 50%;
-  --wr-spotlight-y: 50%;
-  --wr-spotlight-color: rgba(var(--wr-color-on-surface-rgb), 0.15);
-
-  position: relative;
-  display: block;
-  border-radius: 1.5rem;
-  border: 1px solid var(--wr-color-outline);
-  background-color: var(--wr-color-surface);
-  padding: 2rem;
-  overflow: hidden;
-  color: var(--wr-color-on-surface);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at var(--wr-spotlight-x) var(--wr-spotlight-y),
-      var(--wr-spotlight-color),
-      transparent var(--wr-spotlight-radius, 80%)
-    );
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    pointer-events: none;
-  }
-
-  &:hover::before,
-  &:focus-within::before {
-    opacity: 0.6;
-  }
-}
-
-// Dark mode: `--wr-color-on-surface-rgb` already flips to a light value, so the
-// default tint above becomes a light beam on the navy surface — nudge the
-// alpha up a touch so it reads as bright as the classic spotlight.
-[data-theme='dark'] .wr-spotlight-card {
-  --wr-spotlight-color: rgba(var(--wr-color-on-surface-rgb), 0.22);
-}
+// Public Sass entry for `@use 'ngwr/spotlight-card'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `spotlight-card.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `spotlight-card.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

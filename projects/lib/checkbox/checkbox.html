@@ -7,6 +7,10 @@
     [checked]="isChecked()"
     [indeterminate]="indeterminate()"
     [disabled]="effectiveDisabled()"
+    [attr.aria-readonly]="effectiveReadonly() || null"
+    [attr.aria-invalid]="ariaInvalid()"
+    [attr.aria-describedby]="describedBy()"
+    (click)="onInputClick($event)"
     (change)="onInputChange($event)"
     (blur)="onInputBlur()"
   />

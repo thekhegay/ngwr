@@ -1,118 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-// Animated gradient text (reactbits port). The gradient is shared between
-// the text fill (via `background-clip: text`) and an optional outer ring.
-// Both layers use the same animation, so the ring + text stay in sync.
-
-.wr-gradient-text {
-  --wr-gradient-text-image: linear-gradient(to right, #5227ff, #ff9ffc, #b497cf, #5227ff);
-  --wr-gradient-text-size: 300% 100%;
-  --wr-gradient-text-duration: 8s;
-
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  font-weight: 500;
-  line-height: 1.25;
-  overflow: hidden;
-
-  &--border {
-    padding: 0.35rem 0.75rem;
-    border-radius: 1.25rem;
-  }
-
-  &__text {
-    position: relative;
-    z-index: 2;
-    display: inline-block;
-    background-image: var(--wr-gradient-text-image);
-    background-size: var(--wr-gradient-text-size);
-    background-position: 0% 50%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: wr-gradient-text-horizontal var(--wr-gradient-text-duration) linear infinite;
-  }
-
-  // Border variant — animated gradient ring + dark inner pill behind the
-  // text. The inner uses a `::before` so the gradient is only visible at
-  // the perimeter.
-  &__border {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background-image: var(--wr-gradient-text-image);
-    background-size: var(--wr-gradient-text-size);
-    background-position: 0% 50%;
-    animation: wr-gradient-text-horizontal var(--wr-gradient-text-duration) linear infinite;
-    z-index: 0;
-    pointer-events: none;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 1px;
-      border-radius: inherit;
-      // Surface token — flips with the theme so the ring reads on both.
-      background-color: var(--wr-color-surface, #fff);
-      z-index: 1;
-    }
-  }
-
-  // Direction variants change which axis the gradient slides on.
-  &--vertical &__text,
-  &--vertical &__border {
-    background-position: 50% 0%;
-    animation-name: wr-gradient-text-vertical;
-  }
-
-  // Diagonal: same as horizontal motion but a diagonal angle on the
-  // gradient itself.
-  &--diagonal &__text,
-  &--diagonal &__border {
-    background-position: 0% 50%;
-    animation-name: wr-gradient-text-horizontal;
-  }
-
-  &--yoyo &__text,
-  &--yoyo &__border {
-    animation-direction: alternate;
-  }
-
-  &--pause-on-hover:hover &__text,
-  &--pause-on-hover:hover &__border {
-    animation-play-state: paused;
-  }
-}
-
-@keyframes wr-gradient-text-horizontal {
-  from {
-    background-position: 0% 50%;
-  }
-  to {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes wr-gradient-text-vertical {
-  from {
-    background-position: 50% 0%;
-  }
-  to {
-    background-position: 50% 100%;
-  }
-}
-
-// Reduced motion: hold the gradient still — text keeps its gradient fill
-// (and the border variant its ring), only the slide stops.
-@media (prefers-reduced-motion: reduce) {
-  .wr-gradient-text__text,
-  .wr-gradient-text__border {
-    animation: none !important;
-  }
-}
+// Public Sass entry for `@use 'ngwr/gradient-text'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `gradient-text.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `gradient-text.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

@@ -1,0 +1,84 @@
+// Breadcrumbs. The separator glyph comes from `--wr-breadcrumbs-separator`
+// (set by the component from the `[separator]` input). All items except
+// the first prepend the glyph via a `::before` pseudo-element.
+
+// `focus` is the one theme partial these rules still load that emits CSS of its
+// own — the shared ring mixin lives in the same file as the baseline
+// `.wr-*:focus-visible` rules, and there is no mixin-only module to take it from.
+// That is ~4 KB of rules identical to the global sheet's, against the ~24 KB token
+// layer the split removes, and it is the honest trade: hand-rolling the three
+// declarations here is what the shared mixin exists to prevent.
+@use '../../theme/styles/focus';
+
+.wr-breadcrumbs {
+  --wr-breadcrumbs-separator: '/';
+  --wr-breadcrumbs-gap: 0.5rem;
+  --wr-breadcrumbs-color: rgba(var(--wr-color-on-surface-rgb), 0.6);
+  --wr-breadcrumbs-current-color: var(--wr-color-on-surface);
+  --wr-breadcrumbs-link-color: var(--wr-color-primary-ink);
+  --wr-breadcrumbs-separator-color: rgba(var(--wr-color-on-surface-rgb), 0.3);
+
+  display: block;
+  font-family: var(--wr-font-family-base);
+  font-size: var(--wr-text-sm);
+  color: var(--wr-breadcrumbs-color);
+
+  &__nav {
+    display: block;
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--wr-breadcrumbs-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wr-breadcrumbs-gap);
+
+    // Separator before every item except the first.
+    &:not(:first-child)::before {
+      content: var(--wr-breadcrumbs-separator);
+      color: var(--wr-breadcrumbs-separator-color);
+      user-select: none;
+    }
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--wr-breadcrumbs-link-color);
+    text-decoration: none;
+    border-radius: var(--wr-border-radius-sm);
+    transition: color 0.15s ease;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      @include focus.focus-ring;
+      outline-offset: 2px;
+    }
+  }
+
+  &__current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--wr-breadcrumbs-current-color);
+    font-weight: 600;
+  }
+
+  &__icon {
+    --wr-icon-size: 1rem;
+    flex: 0 0 auto;
+  }
+}

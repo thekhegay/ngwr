@@ -24,6 +24,7 @@ import {
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
+import { useFormFieldAria } from 'ngwr/form';
 
 /**
  * Multi-line text input.
@@ -125,6 +126,9 @@ export class WrTextarea implements FormValueControl<string> {
 
   /** Resize direction, gated by `resizable` (false → 'none'). */
   protected readonly effectiveResize = computed<WrTextareaResize>(() => (this.resizable() ? this.resize() : 'none'));
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
 
   protected readonly classes = computed(() => {
     const parts = ['wr-textarea'];

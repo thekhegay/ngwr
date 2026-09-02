@@ -40,6 +40,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Renaming the theme attribute"
+    description="`provideWrTheme({ attribute })` moves the attribute `WrTheme` writes on `&lt;html&gt;` — useful when another design system on the page already owns `data-theme`. It has a second half: a CSS selector cannot read a provider value, so the stylesheet takes the same name as the Sass variable `$theme-attribute`, and **the two must be set to the same string**. Set only the provider and dark mode silently never applies — the service reports `resolved() === 'dark'`, the attribute lands on `&lt;html&gt;`, and nothing matches it. In development `WrTheme` compares the two and warns when they disagree; the compiled stylesheet publishes what it keys on as `--wr-theme-attribute` so it can."
+  >
+    <ngwr-doc-code [code]="snippets.attribute" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Rebrand — at compile time"
     description="Pass your hex values to the SCSS palette module before `@use 'ngwr'`. NGWR re-derives all variants (dark, darker, light, lighter, contrast)."
   >
@@ -59,6 +66,11 @@
   >
     <ngwr-doc-code [code]="snippets.component" language="scss" />
   </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reduced motion"
+    description="The theme layer ships one `@media (prefers-reduced-motion: reduce)` block covering the always-on chrome — the enter animations on dialog, drawer, dropdown, popconfirm, toast, the lightbox viewer and the responsive bottom sheet, plus the skeleton and lightbox shimmers. You get it with the stylesheet; there is nothing to opt into. What it does is decided per animation rather than globally: an enter animation is removed (the panel still arrives, it just does not travel), a decorative shimmer is removed, a **spinner is slowed rather than stopped** — a frozen spinner reads as hung, not as calm — and the toast's progress bar keeps running, because it is a countdown and a bar frozen full would state something untrue. Override any of it on the same classes; the block is `!important` only because the theme layer loads before every component stylesheet."
+  />
 
   <ngwr-doc-section
     title="Where to go next"

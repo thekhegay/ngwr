@@ -9,6 +9,8 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, forwardRef, input, model, output } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useFormFieldAria } from 'ngwr/form';
+
 import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
 
 /**
@@ -34,7 +36,12 @@ import { WR_CHECKBOX_GROUP, type WrCheckboxGroupContext } from './tokens';
   selector: 'wr-checkbox-group',
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-checkbox-group', role: 'group' },
+  host: {
+    class: 'wr-checkbox-group',
+    role: 'group',
+    '[attr.aria-invalid]': 'fieldAria.ariaInvalid()',
+    '[attr.aria-describedby]': 'fieldAria.describedBy()',
+  },
   providers: [
     {
       provide: WR_CHECKBOX_GROUP,
@@ -52,6 +59,21 @@ export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxG
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Refuse edits on every child while they stay focusable and the value still
+   * submits. Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * No `aria-readonly` on the host: role `group` does not support it (the state
+   * is not global), so each child box mirrors its own instead.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
+
   /** The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<unknown[]>([]);
 
@@ -68,6 +90,9 @@ export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxG
   /** Effective disabled state (WrCheckboxGroupContext). */
   readonly isDisabled = computed(() => this.disabled());
 
+  /** Effective readonly state (WrCheckboxGroupContext). */
+  readonly isReadonly = computed(() => this.readonly());
+
   // WrCheckboxGroupContext
 
   isSelected(value: unknown): boolean {
@@ -75,7 +100,7 @@ export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxG
   }
 
   toggle(value: unknown): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     const current = this.selected();
     const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
     this.value.set(next);

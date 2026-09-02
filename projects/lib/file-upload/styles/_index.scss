@@ -39,6 +39,12 @@
     color: var(--wr-color-primary-ink);
   }
 
+  // A read-only zone still takes focus and still shows the list it holds, so it
+  // keeps the visual and only stops inviting the click.
+  &--readonly &__zone {
+    cursor: default;
+  }
+
   &--disabled &__zone {
     cursor: not-allowed;
     opacity: var(--wr-disabled-opacity);

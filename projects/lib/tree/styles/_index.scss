@@ -122,6 +122,15 @@
     white-space: nowrap;
   }
 
+  // A read-only tree still expands, still takes focus and still submits its
+  // value, so it keeps the visual and only stops inviting the click that would
+  // change the selection. The trigger is covered by the same rule in combobox
+  // mode, where the whole panel is refused.
+  &--readonly &__row,
+  &--readonly &__trigger {
+    cursor: default;
+  }
+
   &--disabled {
     opacity: var(--wr-disabled-opacity);
     pointer-events: none;

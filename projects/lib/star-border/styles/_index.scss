@@ -1,125 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-// Star border (reactbits port). Two oversized radial-gradient "comets"
-// sweep along the top and bottom edges of the rounded container; the
-// projected content sits on a token-themed inner panel above them.
-
-.wr-star-border {
-  // Light surfaces get a primary comet; dark theme flips to the classic
-  // white (see block below). `[color]` overrides both inline. The light
-  // comet gets a wider core + full opacity — a thin 10% tail washes out
-  // to gray on white surfaces.
-  --wr-star-border-color: var(--wr-color-primary);
-  --wr-star-border-speed: 6s;
-  --wr-star-border-radius: 20px;
-  --wr-star-border-stop: 16%;
-  --wr-star-border-opacity: 1;
-
-  display: inline-block;
-  position: relative;
-  border: 0;
-  background: transparent;
-  border-radius: var(--wr-star-border-radius);
-  overflow: hidden;
-  cursor: inherit;
-
-  &__ray {
-    position: absolute;
-    display: block;
-    width: 300%;
-    height: 50%;
-    opacity: var(--wr-star-border-opacity);
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--wr-star-border-color), transparent var(--wr-star-border-stop));
-    animation: wr-star-border-bottom var(--wr-star-border-speed) linear infinite alternate;
-    z-index: 0;
-
-    &--bottom {
-      bottom: -12px;
-      // rtl-ok: the comet's off-screen start mark — `wr-star-border-bottom` sweeps it by `translate(-100%, 0%)`
-      right: -250%;
-    }
-
-    &--top {
-      top: -12px;
-      // rtl-ok: the comet's off-screen start mark — `wr-star-border-top` sweeps it by `translate(100%, 0%)`
-      left: -250%;
-      animation-name: wr-star-border-top;
-    }
-  }
-
-  // Single-ray variant — drop the top comet.
-  &--single &__ray--top {
-    display: none;
-  }
-
-  // Hover-only variant — rays sit hidden until the pointer is in. The
-  // idle state must drop the animation entirely (not pause it): a paused
-  // animation pins `opacity` at its 0% keyframe value, which beats the
-  // cascade and leaves a frozen comet visible.
-  &--hover &__ray {
-    opacity: 0;
-    animation: none;
-  }
-
-  &--hover:hover &__ray {
-    animation: wr-star-border-bottom var(--wr-star-border-speed) linear infinite alternate;
-  }
-
-  &--hover:hover &__ray--top {
-    animation-name: wr-star-border-top;
-  }
-
-  &__inner {
-    position: relative;
-    display: block;
-    border: 1px solid var(--wr-color-outline);
-    background: var(--wr-color-surface);
-    color: var(--wr-color-on-surface);
-    font-size: 1rem;
-    text-align: center;
-    padding: 1rem 1.625rem;
-    border-radius: var(--wr-star-border-radius);
-    z-index: 1;
-  }
-}
-
-[data-theme='dark'] .wr-star-border {
-  --wr-star-border-color: #ffffff;
-  --wr-star-border-stop: 10%;
-  --wr-star-border-opacity: 0.7;
-}
-
-@keyframes wr-star-border-bottom {
-  0% {
-    transform: translate(0%, 0%);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-100%, 0%);
-    opacity: 0;
-  }
-}
-
-@keyframes wr-star-border-top {
-  0% {
-    transform: translate(0%, 0%);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(100%, 0%);
-    opacity: 0;
-  }
-}
-
-// Reduced motion: no sweeping comets — a frozen ray reads as a smudge,
-// so hide them and keep the panel border as the resting look.
-@media (prefers-reduced-motion: reduce) {
-  .wr-star-border__ray {
-    animation: none !important;
-    opacity: 0 !important;
-  }
-}
+// Public Sass entry for `@use 'ngwr/star-border'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `star-border.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `star-border.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

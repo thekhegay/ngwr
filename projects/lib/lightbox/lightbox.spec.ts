@@ -225,9 +225,13 @@ describe('WrLightbox under a localized catalog', () => {
  * `cursor: zoom-in` sat on the host unconditionally, so a `disablePreview` thumbnail —
  * which is documented as "a plain thumbnail" and opens nothing — still invited the
  * click. jsdom loads no stylesheets, so the cursor cannot be observed here.
+ *
+ * `_rules.scss`, not `_index.scss`: the entry file forwards the rules and exists to
+ * pull the emitting theme layer in for a standalone `@use 'ngwr/lightbox'`, which the
+ * component's `styleUrl` deliberately does not take.
  */
 describe('the lightbox stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/lightbox/styles/_index.scss'), 'utf8')
+  const code = readFileSync(join(process.cwd(), 'projects/lib/lightbox/styles/_rules.scss'), 'utf8')
     .split('\n')
     .filter(line => !line.trim().startsWith('//'))
     .join('\n');
@@ -247,7 +251,9 @@ describe('the lightbox stylesheet', () => {
     // outside the clip. Insetting the offset does not help either: `&__thumb` is
     // `z-index: 2` and paints over the button's own outline. On the host the same
     // ring paints all four sides (3915 pixels changed).
-    expect(code).toMatch(/&:has\(&__trigger:focus-visible\) \{\s*@include theme\.focus-ring;/);
+    // Namespace-agnostic: the ring comes from the shared mixin whatever `_rules.scss`
+    // calls the module it takes it from — what matters is that it lands on the host.
+    expect(code).toMatch(/&:has\(&__trigger:focus-visible\) \{\s*@include [\w-]+\.focus-ring;/);
     expect(code).not.toMatch(/&__trigger \{[\s\S]*?outline:\s*var\(--wr-focus-ring/);
   });
 });

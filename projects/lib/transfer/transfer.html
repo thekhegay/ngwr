@@ -17,6 +17,7 @@
         [checked]="state.allChecked"
         [indeterminate]="state.someChecked"
         [disabled]="disabled() || state.enabledCount === 0"
+        [readonly]="readonly()"
         [ariaLabel]="`${title} — ${resolvedSelectAll()}`"
         (checkedChange)="toggleAll(pane, $event)"
       />
@@ -47,6 +48,7 @@
             size="sm"
             [checked]="isChecked(pane, item)"
             [disabled]="disabled() || !!item.disabled"
+            [readonly]="readonly()"
             (checkedChange)="toggle(pane, item, $event)"
             (touch)="touch.emit()"
           >

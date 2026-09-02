@@ -130,6 +130,14 @@
     line-height: var(--wr-segmented-line-height);
   }
 
+  // A read-only strip still takes focus and still shows which segment is
+  // pressed, so it keeps the visual and only stops inviting the click. This
+  // cursor is the only cue there is — see the `readonly` input for why nothing
+  // is mirrored into ARIA.
+  &--readonly &__option {
+    cursor: default;
+  }
+
   &--disabled {
     pointer-events: none;
     opacity: var(--wr-disabled-opacity);

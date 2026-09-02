@@ -1,36 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-.wr-falling-text {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  touch-action: none; // pointer-driven drag — disable browser scroll on touch
-
-  &__words {
-    line-height: 1.4;
-  }
-
-  &__word {
-    display: inline-block;
-    will-change: transform;
-    user-select: none;
-    cursor: grab;
-
-    &:active {
-      cursor: grabbing;
-    }
-
-    &--hl {
-      // A highlighted WORD is text the user reads, decorative motion or not.
-      color: var(--wr-color-primary-ink);
-    }
-  }
-
-  &__space {
-    display: inline;
-    white-space: pre;
-  }
-}
+// Public Sass entry for `@use 'ngwr/falling-text'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `falling-text.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `falling-text.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

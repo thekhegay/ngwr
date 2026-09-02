@@ -30,6 +30,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
@@ -117,6 +118,23 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Refuse changes while the trigger stays focusable and the path still submits.
+   * Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * The panel is where every edit happens, so a read-only cascader simply does
+   * not open — there is nothing to browse that is not already on the trigger —
+   * and the clear button goes away with it. Mirrored as `aria-readonly`, which
+   * role `combobox` supports.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
+
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrCascaderSize>('md');
 
@@ -195,6 +213,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     if (size !== 'md') parts.push(`wr-cascader--${size}`);
     if (this.open()) parts.push('wr-cascader--open');
     if (this.disabled()) parts.push('wr-cascader--disabled');
+    else if (this.readonly()) parts.push('wr-cascader--readonly');
     return parts.join(' ');
   });
 
@@ -224,9 +243,9 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       }
     });
 
-    // Close the panel if the control becomes disabled while open.
+    // Close the panel if the control becomes disabled or read-only while open.
     effect(() => {
-      if (this.disabled()) this.open.set(false);
+      if (this.disabled() || this.readonly()) this.open.set(false);
     });
 
     // Mirror an external `value` write into the internal path/activePath
@@ -249,7 +268,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
   // Template handlers
 
   protected onTriggerClick(): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     if (!this.open()) this.activePath.set(this.path());
     this.open.update(v => !v);
   }
@@ -263,7 +282,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
    * own their own keys.
    */
   protected onTriggerKeydown(event: KeyboardEvent): void {
-    if (this.disabled() || this.open()) return;
+    if (this.disabled() || this.readonly() || this.open()) return;
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
     event.preventDefault();
     this.activePath.set(this.path());
@@ -272,7 +291,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
   protected onOptionClick(colIndex: number, opt: WrCascaderOption<T>, event: Event): void {
     event.stopPropagation();
-    if (opt.disabled || this.disabled()) return;
+    if (opt.disabled || this.disabled() || this.readonly()) return;
 
     const head = this.activePath().slice(0, colIndex);
     const newPath = [...head, opt.value];
@@ -294,7 +313,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
   protected clearSelection(event: Event): void {
     event.stopPropagation();
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     this.path.set([]);
     this.activePath.set([]);
     this.value.set([]);

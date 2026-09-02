@@ -29,6 +29,12 @@ class SizeHost {
   readonly size = signal<WrSwitchSize | null>(null);
 }
 
+@Component({
+  imports: [WrSwitch],
+  template: `<wr-switch id="sw">Notifications</wr-switch>`,
+})
+class IdHost {}
+
 /**
  * A switch is a checkbox that announces differently: `role="switch"` makes a
  * screen reader say "on/off" instead of "checked/unchecked". That role sits on
@@ -157,5 +163,47 @@ describe('WrSwitch + provideWrConfig', () => {
 
   it('ignores a config that names other components', () => {
     expect(mount([provideWrConfig({ checkbox: { size: 'lg' } })]).className).toBe('wr-switch');
+  });
+});
+
+/**
+ * `[id]` is documented as "the id used to associate the native input with its
+ * label", and using it used to be exactly what broke that association: Angular
+ * feeds a static `id="x"` to the input AND leaves it on the host, so the
+ * document held two elements with the id, `<label for>` resolved through
+ * `getElementById` to the `<wr-switch>` host — not a labelable element — and
+ * `input.labels` went from 1 to 0. The host binding that strips it is the fix,
+ * and these are the three observable consequences of it.
+ */
+describe('WrSwitch with an author-supplied id', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<IdHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-switch')!;
+  const input = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input.wr-switch__input')!;
+  const label = (): HTMLLabelElement => root().querySelector<HTMLLabelElement>('label')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(IdHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the id on the native input and off the host', () => {
+    expect(input().id).toBe('sw');
+    expect(host().hasAttribute('id')).toBe(false);
+  });
+
+  it('leaves exactly one element in the document carrying it', () => {
+    expect(root().querySelectorAll('#sw')).toHaveLength(1);
+    expect(document.getElementById('sw')).toBe(input());
+  });
+
+  it('still labels the control', () => {
+    expect(label().htmlFor).toBe('sw');
+    expect(input().labels).toHaveLength(1);
   });
 });

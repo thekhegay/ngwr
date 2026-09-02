@@ -1,7 +1,8 @@
+import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrStorage, createMemoryStorage } from 'ngwr/storage';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideWrTheme } from './provide-wr-theme';
 import { WrTheme } from './services/wr-theme';
@@ -55,6 +56,8 @@ describe('WrTheme', () => {
   };
 
   const attr = (name = 'data-theme'): string | null => document.documentElement.getAttribute(name);
+
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
   beforeEach(() => {
     engine = createMemoryStorage();
@@ -156,5 +159,68 @@ describe('WrTheme', () => {
 
     expect(attr('data-mode')).toBe('dark');
     expect(attr('data-theme')).toBeNull();
+  });
+
+  /**
+   * The half of `attribute` that has no runtime at all: the dark block is a CSS
+   * selector, and a selector cannot read a provider. Before v13 it was the
+   * literal `[data-theme='dark']`, so configuring the option produced a service
+   * reporting `resolved() === 'dark'`, the attribute correctly on `<html>`, and
+   * a page that stayed light — the failure mode with no symptom.
+   *
+   * The stylesheet now keys on `$theme-attribute` and publishes the name it
+   * compiled with as `--wr-theme-attribute`. These read that the way the browser
+   * does, off a real `<style>` element: jsdom resolves custom properties through
+   * `getComputedStyle` (verified — it does not resolve much else from a
+   * stylesheet), which is the one thing that makes this testable here rather
+   * than only in the contrast sweep.
+   */
+  describe('stylesheet agreement', () => {
+    let sheet: HTMLStyleElement | null;
+
+    /** Publish `--wr-theme-attribute` the way the compiled theme layer does. */
+    const compiledWith = (attribute: string): void => {
+      sheet = document.createElement('style');
+      sheet.textContent = `:root { --wr-theme-attribute: ${attribute}; }`;
+      document.head.appendChild(sheet);
+    };
+
+    beforeEach(() => {
+      sheet = null;
+      warn.mockClear();
+    });
+
+    afterEach(() => sheet?.remove());
+
+    it('warns when the provider and the stylesheet were configured apart', async () => {
+      compiledWith('data-theme');
+      setup({ defaultMode: 'dark', attribute: 'data-color-mode' });
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      // Both names have to be in the message: one of them is a TypeScript
+      // literal and the other a Sass one, and the reader has to know which file
+      // to open.
+      const message = String(warn.mock.calls.at(0)?.[0] ?? '');
+      expect(message).toContain('data-color-mode');
+      expect(message).toContain('data-theme');
+    });
+
+    it('stays quiet when the two agree', async () => {
+      compiledWith('data-color-mode');
+      setup({ defaultMode: 'dark', attribute: 'data-color-mode' });
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('stays quiet when no ngwr stylesheet is loaded at all', async () => {
+      // The polarity that matters: an ABSENT marker is a stylesheet that is
+      // missing or predates v13, and neither is a mismatch this can diagnose.
+      // Warning on it would fire in every consumer's unit tests instead.
+      setup({ defaultMode: 'dark', attribute: 'data-color-mode' });
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      expect(warn).not.toHaveBeenCalled();
+    });
   });
 });

@@ -10,6 +10,7 @@ import { Component, ViewEncapsulation, computed, inject, input, model, output } 
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
+import { useFormFieldAria } from 'ngwr/form';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { randomId } from 'ngwr/utils';
 
@@ -51,12 +52,22 @@ export type WrCheckboxSize = 'sm' | 'md' | 'lg';
   selector: 'wr-checkbox',
   templateUrl: './checkbox.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: {
+    '[class]': 'classes()',
+    // The `id` input belongs to the native input, not to this element. A static
+    // `id="x"` in a consumer's template is written to the host as a plain
+    // attribute AS WELL as fed to the input, which put two elements with the
+    // same id in the document and made `<label for>` resolve through
+    // `getElementById` to the host — not a labelable element, so `input.labels`
+    // went from 1 to 0 and `document.getElementById(id)` returned the wrong node.
+    '[attr.id]': 'null',
+  },
   imports: [WrIcon],
 })
 export class WrCheckbox implements FormCheckboxControl {
   /**
-   * Stable id used to associate the native input with its label.
+   * Stable id used to associate the native input with its label. Lands on the
+   * inner `<input>`; the host never keeps it.
    *
    * @default Randomly generated
    */
@@ -98,6 +109,19 @@ export class WrCheckbox implements FormCheckboxControl {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /**
+   * Refuse edits while staying focusable and submittable. Bound automatically
+   * from the field's readonly state when used with `[formField]`.
+   *
+   * A native `<input type="checkbox">` ignores the `readonly` attribute, so this
+   * cancels the click's activation behaviour instead — which covers Space too,
+   * since a checkbox turns Space into a click — and mirrors the state as
+   * `aria-readonly`, which role `checkbox` supports.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Control size — shares the `--wr-control-*` contract. Unset falls back to the
    * `checkbox.size` app default from `provideWrConfig()`. @default 'md'
    */
@@ -135,6 +159,22 @@ export class WrCheckbox implements FormCheckboxControl {
     return this.group ? this.group.isDisabled() : false;
   });
 
+  /** Effective readonly — this box's own `readonly` input, or the group's. */
+  protected readonly effectiveReadonly = computed(() => {
+    if (this.readonly()) return true;
+    return this.group ? this.group.isReadonly() : false;
+  });
+
+  /**
+   * The surrounding `<wr-form-field>`'s error state, mirrored onto the native
+   * input. Inside a `<wr-checkbox-group>` the GROUP is the bound control and
+   * carries the state, so a grouped box shields itself and stays silent — nine
+   * boxes each announcing the group's one error is noise, not information.
+   */
+  private readonly fieldAria = useFormFieldAria();
+  protected readonly ariaInvalid = computed(() => (this.group ? null : this.fieldAria.ariaInvalid()));
+  protected readonly describedBy = computed(() => (this.group ? null : this.fieldAria.describedBy()));
+
   protected readonly classes = computed(() => {
     const parts = ['wr-checkbox'];
     const size = this.resolvedSize();
@@ -142,12 +182,27 @@ export class WrCheckbox implements FormCheckboxControl {
     if (this.indeterminate()) parts.push('wr-checkbox--indeterminate');
     else if (this.isChecked()) parts.push('wr-checkbox--checked');
     if (this.effectiveDisabled()) parts.push('wr-checkbox--disabled');
+    else if (this.effectiveReadonly()) parts.push('wr-checkbox--readonly');
     return parts.join(' ');
   });
 
   // Template handlers
 
+  /**
+   * Cancel the toggle while readonly. `change` never fires for a click whose
+   * default was prevented, so this is the only guard the pointer and Space
+   * paths need; `onInputChange` keeps its own for a synthetic `change`.
+   */
+  protected onInputClick(event: Event): void {
+    if (this.effectiveReadonly()) event.preventDefault();
+  }
+
   protected onInputChange(event: Event): void {
+    if (this.effectiveReadonly()) {
+      // A synthetic `change` cannot be prevented — put the DOM back instead.
+      (event.target as HTMLInputElement).checked = this.isChecked();
+      return;
+    }
     if (this.group) {
       this.group.toggle(this.checkboxValue());
       return;

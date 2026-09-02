@@ -85,6 +85,14 @@
     font-variant-numeric: tabular-nums;
   }
 
+  // A read-only slider still takes focus and still announces its value, so it
+  // keeps the visual and only stops inviting the drag — `grab` on something that
+  // cannot move is the part that looks broken. Matches `wr-knob--readonly`.
+  &--readonly &__track,
+  &--readonly &__thumb {
+    cursor: default;
+  }
+
   &--disabled {
     --wr-slider-thumb-border: var(--wr-color-on-surface-muted);
     --wr-slider-fill: var(--wr-color-on-surface-muted);

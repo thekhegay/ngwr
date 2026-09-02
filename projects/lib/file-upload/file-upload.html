@@ -4,6 +4,8 @@
   tabindex="0"
   [attr.aria-label]="resolvedDropZone()"
   [attr.aria-disabled]="disabled() || null"
+  [attr.aria-invalid]="fieldAria.ariaInvalid()"
+  [attr.aria-describedby]="fieldAria.describedBy()"
   (click)="openPicker()"
   (keydown)="onZoneKey($event)"
   (dragenter)="onDragEnter($event)"
@@ -47,7 +49,7 @@
   tabindex="-1"
   [attr.accept]="accept() || null"
   [attr.multiple]="multiple() ? '' : null"
-  [disabled]="disabled()"
+  [disabled]="disabled() || readonly()"
   (change)="onPickerChange($event)"
 />
 
@@ -61,7 +63,7 @@
           type="button"
           class="wr-file-upload__remove"
           [attr.aria-label]="resolvedRemove()"
-          [disabled]="disabled()"
+          [disabled]="disabled() || readonly()"
           (click)="removeAt($index)"
         >
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
