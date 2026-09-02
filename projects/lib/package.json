@@ -2,7 +2,7 @@
   "name": "ngwr",
   "version": "12.2.0",
   "bin": {
-    "ngwr-mcp": "./mcp/server.js"
+    "ngwr-mcp": "mcp/server.js"
   },
   "license": "MIT",
   "description": "Signals-first Angular UI library: 100+ standalone, zoneless-ready components with native Signal Forms, SSR-safe rendering and CSS-variable theming.",
@@ -34,7 +34,7 @@
   "homepage": "https://ngwr.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thekhegay/ngwr"
+    "url": "git+https://github.com/thekhegay/ngwr.git"
   },
   "bugs": {
     "url": "https://github.com/thekhegay/ngwr/issues"
