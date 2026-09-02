@@ -94,7 +94,7 @@ export default class BlurTextPage {
     {
       name: '(animationComplete)',
       description: 'Emitted once all pieces finish animating.',
-      type: 'EventEmitter<void>',
+      type: 'void',
       default: '—',
     },
   ];

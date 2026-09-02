@@ -101,9 +101,9 @@ protected onKeydown(event: KeyboardEvent): void {
       default: 'true',
     },
     {
-      name: 'wrHotkeyMatch',
+      name: '(wrHotkeyMatch)',
       description: 'Emits the original `KeyboardEvent` when the chord matches.',
-      type: 'output<KeyboardEvent>',
+      type: 'KeyboardEvent',
       default: '—',
     },
   ];

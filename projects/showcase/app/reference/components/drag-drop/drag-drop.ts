@@ -86,13 +86,13 @@ export default class DragDropPage {
     {
       name: 'trackBy',
       description: '`trackBy` for the inner `@for`.',
-      type: '(i, item) => unknown',
+      type: '(index: number, item: T) => unknown',
       default: 'identity',
     },
     {
       name: '(reorder)',
       description: 'Fires after a successful reorder with the new array + indices.',
-      type: 'OutputEmitterRef<WrSortableReorderEvent<T>>',
+      type: 'WrSortableReorderEvent<T>',
       default: '—',
     },
     {

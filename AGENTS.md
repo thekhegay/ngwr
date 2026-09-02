@@ -352,6 +352,38 @@ pnpm lint; echo $?     # 0 = actually green
 Autofix most issues (prettier wrapping long template lines, etc.) with
 `pnpm exec ng lint <lib|showcase> --fix`.
 
+**`check:api-docs` compares three columns and re-derives the generated file, and
+its blind spots are worth knowing before you re-derive them.** It reads every
+page documenting an API — hand-written `DocApiRow` arrays and pages consuming
+`API.Wr*` alike — and holds each to the library: names, `default`, and since v12
+`type` as well. The type column was compared nowhere before that, on any page, so
+a docs table could say `number` for a `string` and every gate stayed green; that
+is closed for the 107 pages mapped to an entry point and for all 933 rows of
+`_core/generated/api.ts`, which the run now re-serialises in memory and compares
+against the committed file. A page expanding a named alias (`'sm' | 'md' | 'lg'`
+for `WrKbdSize`) is accepted, and editing the alias in `projects/lib` indicts
+every page that spelled the old union out. Outputs print the PAYLOAD, bare —
+`void`, `Blob`, `{ text: string; index: number }` — never a wrapper;
+`EventEmitter` is wrong for all 74 of them, since `output<T>()` returns
+`OutputEmitterRef<T>` and the library has not used an `@Output()` since v7.
+
+Four things it cannot see, all measured rather than assumed. **A member the
+extractor never read is invisible from birth** — `unreadMembers()` re-reads the
+library under a wider rule and names anything `MEMBER_RE` missed, so a member
+that STOPS being read is caught (and the run then says *not* to regenerate,
+because baking the loss in is the failure mode), but a class whose
+`public-api.ts` uses `export *` is filtered out of both reads and cannot be
+witnessed at all. **The 66 pages documenting something else** — guides, utils,
+validators, interfaces — carry 92 rows nothing compares; a wrong type there is
+silent. **The comparison never opens a template**, so a row is "documented" even
+when no `<ngwr-doc-api>` renders it, and 47 generated rows ship `description: "—"`
+because the member carries no JSDoc. And **a hand-written row for a REQUIRED
+input is exempt from the existence half**, since `DocApiRow` tells authors to
+omit `default:` for those and that is the field the check keys on — 17 rows on
+15 pages, so deleting a required input leaves its docs row standing. Union
+ORDER and a different alias with identical arms are admitted deliberately: both
+are value-set identities, and no binding changes.
+
 **CI gates on `pnpm lint` + `pnpm test` + `pnpm check:api-docs` +
 `pnpm check:llms` + `pnpm build:lib` +
 `pnpm build:showcase` + `pnpm check:theme` + `pnpm check:a11y`** — all eight must

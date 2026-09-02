@@ -85,7 +85,7 @@ export class MyComponent {
     {
       name: '(cropped)',
       description: 'Emits a Blob after each drag end.',
-      type: 'OutputEmitterRef<Blob>',
+      type: 'Blob',
       default: '—',
     },
     { name: 'Readable state', description: 'Signals and methods on the component instance.', type: 'members' },

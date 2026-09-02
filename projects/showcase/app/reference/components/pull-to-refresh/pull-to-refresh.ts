@@ -77,9 +77,9 @@ reload(): void {
     },
     { name: 'disabled', description: 'Disable the gesture entirely.', type: 'boolean', default: 'false' },
     {
-      name: 'refresh',
+      name: '(refresh)',
       description: 'Fires when the user pulls past `threshold` and releases.',
-      type: 'output<void>',
+      type: 'void',
       default: '—',
     },
   ];

@@ -102,7 +102,7 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
     {
       name: '(touch)',
       description: 'Emitted on blur, so a bound signal-forms field can mark itself touched.',
-      type: 'OutputRef<void>',
+      type: 'void',
       default: '—',
     },
   ];
@@ -121,8 +121,8 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
   ];
 
   protected readonly triggerEvents: readonly DocApiRow[] = [
-    { name: 'opened', description: 'Fires after the picker overlay opens.', type: '() => void', default: '—' },
-    { name: 'closed', description: 'Fires after the picker overlay closes.', type: '() => void', default: '—' },
+    { name: '(opened)', description: 'Fires after the picker overlay opens.', type: 'void', default: '—' },
+    { name: '(closed)', description: 'Fires after the picker overlay closes.', type: 'void', default: '—' },
   ];
 
   protected readonly utilsApi: readonly DocApiRow[] = [

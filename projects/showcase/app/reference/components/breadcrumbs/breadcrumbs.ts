@@ -91,10 +91,10 @@ export default class BreadcrumbsPage {
       name: 'routerLink',
       sub: true,
       description: 'Angular router target. Wins over `href`.',
-      type: 'string | unknown[]',
+      type: 'string | readonly unknown[] | null',
       default: 'null',
     },
-    { name: 'href', sub: true, description: 'Plain anchor href.', type: 'string', default: 'null' },
+    { name: 'href', sub: true, description: 'Plain anchor href.', type: 'string | null', default: 'null' },
     {
       name: 'external',
       sub: true,

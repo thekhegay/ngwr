@@ -52,7 +52,12 @@ export class MyComponent {
 }`;
 
   protected readonly apiRows: readonly DocApiRow[] = [
-    { name: 'segments', description: 'Slices to render.', type: 'WrDonutSegment[]', default: '[]' },
+    {
+      name: 'segments',
+      description: 'Slices to render.',
+      type: 'readonly WrDonutSegment[]',
+      default: '[]',
+    },
     {
       name: 'ariaLabel',
       description:

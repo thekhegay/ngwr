@@ -44,9 +44,9 @@ export class MyComponent {
 
   protected readonly events: readonly DocApiRow[] = [
     {
-      name: 'completed',
+      name: '(completed)',
       description: 'Fires once every cell holds a character — useful for auto-submit.',
-      type: '(value: string) => void',
+      type: 'string',
       default: '—',
     },
   ];

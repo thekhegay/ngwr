@@ -62,9 +62,14 @@ export default class TypewriterPage {
 
   protected readonly api: readonly DocApiRow[] = [
     {
-      name: 'text / texts',
-      description: 'A single string, or an array to cycle. Pass one of the two — neither has a value on its own.',
-      type: 'string | readonly string[]',
+      name: 'text',
+      description: 'A single string to type. Use either `text` or `texts` — neither has a value on its own.',
+      type: 'string',
+    },
+    {
+      name: 'texts',
+      description: 'Strings to cycle. Use either `text` or `texts` — neither has a value on its own.',
+      type: 'readonly string[]',
     },
     { name: 'typingSpeed', description: 'Per-char typing speed in ms.', type: 'number', default: '50' },
     { name: 'initialDelay', description: 'Delay before typing starts, in ms.', type: 'number', default: '0' },
@@ -107,7 +112,7 @@ export default class TypewriterPage {
     {
       name: '(sentenceComplete)',
       description: 'Emits `{ text, index }` when a string finishes typing.',
-      type: 'EventEmitter',
+      type: '{ text: string; index: number }',
       default: '—',
     },
   ];

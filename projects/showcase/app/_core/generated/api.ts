@@ -354,7 +354,7 @@ export const API = {
   // <wr-date-picker>
   WrDatePicker: [
     { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'time' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`). Pass a named key or raw token string to override.", type: "WrDateFormat | (string & {}) | null", default: "null" },
+    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
     { name: "min", description: "Min selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
     { name: "max", description: "Max selectable date (forwarded to the calendar). Ignored in `time` mode.", type: "Date | undefined", default: "undefined" },
@@ -372,7 +372,7 @@ export const API = {
   // <wr-date-range-picker>
   WrDateRangePicker: [
     { name: "mode", description: "Picker behavior — see class doc.", type: "'date' | 'datetime'", default: "'date'" },
-    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`). Pass a named key or raw token string to override.", type: "WrDateFormat | (string & {}) | null", default: "null" },
+    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`). Pass a named key or raw token string to override.", type: "WrDateFormat | string | null", default: "null" },
     { name: "startPlaceholder", description: "Placeholder for the start input.", type: "string", default: "''" },
     { name: "endPlaceholder", description: "Placeholder for the end input.", type: "string", default: "''" },
     { name: "separator", description: "Glyph rendered between the two inputs.", type: "string", default: "'–'" },
@@ -396,7 +396,7 @@ export const API = {
     { name: "sequential", description: "Reveal one char per tick instead of scrambling all of them.", type: "boolean", default: "false" },
     { name: "revealDirection", description: "Order in which chars are revealed in sequential mode.", type: "WrDecryptTextRevealDirection", default: "'start'" },
     { name: "useOriginalCharsOnly", description: "Scramble using only the glyphs present in `text` (minus spaces).", type: "boolean", default: "false" },
-    { name: "characters", description: "Pool of glyphs to scramble through (used when `useOriginalCharsOnly` is false).", type: "unknown", default: "DEFAULT_CHARS" },
+    { name: "characters", description: "Pool of glyphs to scramble through (used when `useOriginalCharsOnly` is false).", type: "string", default: "DEFAULT_CHARS" },
     { name: "animateOn", description: "When to start the animation.", type: "WrDecryptTextAnimateOn", default: "'hover'" },
     { name: "clickMode", description: "Click behaviour. `'once'` decrypts then stops; `'toggle'` flips state on each click.", type: "WrDecryptTextClickMode", default: "'once'" },
   ],
@@ -826,16 +826,6 @@ export const API = {
     { name: "(confirmed)", description: "Fires when the user clicks confirm.", type: "void" },
     { name: "(cancelled)", description: "Fires when the user clicks cancel or dismisses the overlay.", type: "void" },
   ],
-  // <wr-popconfirm>
-  WrPopconfirmPanel: [
-    { name: "message", description: "—", type: "string", required: true },
-    { name: "messageId", description: "Id the anchoring directive points `aria-describedby` at.", type: "string | null", default: "null" },
-    { name: "confirmText", description: "—", type: "string", default: "'Confirm'" },
-    { name: "cancelText", description: "—", type: "string", default: "'Cancel'" },
-    { name: "confirmColor", description: "—", type: "WrColor", default: "'primary'" },
-    { name: "(confirmed)", description: "—", type: "void" },
-    { name: "(cancelled)", description: "—", type: "void" },
-  ],
   // <[wrPopover]>
   WrPopover: [
     { name: "wrPopover", description: "Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.", type: "TemplateRef<unknown> | string", required: true },
@@ -892,7 +882,7 @@ export const API = {
   // <wr-rating>
   WrRating: [
     { name: "count", description: "Total number of slots.", type: "number", default: "5" },
-    { name: "step", description: "Step granularity — `1` for whole stars, `0.5` for halves.", type: "unknown", default: "1" },
+    { name: "step", description: "Step granularity — `1` for whole stars, `0.5` for halves.", type: "0.5 | 1", default: "1" },
     { name: "readonly", description: "Read-only — value is displayed but not interactive.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — scales the icons + gaps.", type: "WrRatingSize", default: "'md'" },
@@ -929,7 +919,7 @@ export const API = {
     { name: "auto", description: "Auto-advance on a timer.", type: "boolean", default: "true" },
     { name: "loop", description: "Loop back to the first string after the last.", type: "boolean", default: "true" },
     { name: "duration", description: "Per-swap tween duration in seconds.", type: "number", default: "0.6" },
-    { name: "easing", description: "CSS easing of the per-piece tween.", type: "unknown", default: "'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out)" },
+    { name: "easing", description: "CSS easing of the per-piece tween.", type: "string", default: "'cubic-bezier(0.16, 1, 0.3, 1)' (~power3.out)" },
     { name: "staggerDuration", description: "Per-piece stagger in seconds.", type: "number", default: "0" },
     { name: "staggerFrom", description: "Stagger origin.", type: "WrRotatingTextStaggerFrom", default: "'first'" },
     { name: "(nextChange)", description: "Emitted with the new index on every rotation.", type: "number" },
