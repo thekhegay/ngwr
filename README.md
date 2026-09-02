@@ -162,6 +162,16 @@ Opt-in utilities (not part of `@use 'ngwr'`):
 `ngwr/typography-utilities` is the utility-class sheet — not `ngwr/typography`,
 which is the larger `wrTypography` component entry.
 
+### What you may style, and what may move
+
+Components render with `ViewEncapsulation.None`, so their `.wr-*` BEM classes and
+their `--wr-*` custom properties are reachable — and both are treated as public
+API: renaming one is a breaking change carrying a migration note. The DOM *shape*
+is not. Which element holds which class, how deeply they nest, whether a wrapper
+exists — all of that may move in a minor. A rule keyed on one class survives; a
+descendant selector that encodes a structure (`.wr-select__trigger > span > svg`)
+does not. See [Theming](https://ngwr.dev/guides/theming) for the full statement.
+
 ## Quick start
 
 ```ts

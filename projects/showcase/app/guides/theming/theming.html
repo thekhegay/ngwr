@@ -73,6 +73,11 @@
   />
 
   <ngwr-doc-section
+    title="What is stable, and what is not"
+    description="Three layers, and they carry different promises. The **global tokens** (`--wr-color-*`, `--wr-border-radius-*`, `--wr-text-*`) and the **per-component tokens** (`--wr-btn-radius`, `--wr-tag-bg`) are public API: they are named deliberately and a rename is a breaking change with a migration note. The **BEM class names** (`.wr-checkbox__box`, `.wr-collapse__body`) are public too — components render with `ViewEncapsulation.None` precisely so you can reach them, and they are treated as API when the library changes: renaming or restructuring one is breaking, and the changelog says so. What is **not** stable is everything a class name does not cover — the element nesting inside a component, which element carries which class, and the presence of a wrapper. So a rule keyed on a single class is safe across a minor; a descendant selector that assumes a shape (`.wr-select__trigger > span > svg`) is not. Anything you style should also be something you can see break: pin exact versions and keep a visual regression test, because a token change repaints without failing a build."
+  />
+
+  <ngwr-doc-section
     title="Where to go next"
     description="Theming wires the system up; the tokens are catalogued one family per page. [Colors](/guides/tokens/colors) — intents, the soft set, semantic neutrals and how dark mode flips. [Sizing](/guides/tokens/sizing) — the control-sizing contract and the radius scale. [Typography](/guides/tokens/typography) — the type scale, families and weights. [Density](/guides/tokens/density) — the spacing scale, `provideWrDensity()` and the `[wrDensity]` subtree override. [Motion](/guides/tokens/motion) — easings, durations and the overlay timing hook."
   />

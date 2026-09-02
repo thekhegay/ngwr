@@ -29,8 +29,10 @@ import { err } from './lib/log/err';
 import { info } from './lib/log/info';
 import { out } from './lib/log/out';
 import { parseReleaseType } from './lib/parse-release-type';
+import { breakingSince, lastReleaseTag } from './lib/version/breaking-since';
 import { nextVersion } from './lib/version/next';
 import { readCurrentVersion } from './lib/version/read-current';
+import { writeSupportTable } from './lib/version/support-table';
 import { writeVersion } from './lib/version/write';
 
 async function main(): Promise<void> {
@@ -41,6 +43,25 @@ async function main(): Promise<void> {
   }
 
   const current = readCurrentVersion();
+
+  // A breaking change may not ride a minor or a patch. The bump is a
+  // hand-picked `workflow_dispatch` input, and that is how v12.2.0 — a MINOR —
+  // came to ship a changelog with a breaking section: nothing connected the
+  // commits to the number. An adopter on `^12.1.0` received it automatically.
+  //
+  // `rc` is exempt: a release candidate is where a major is staged, and its
+  // own bump names the line it is a candidate for.
+  if (type === 'minor' || type === 'patch') {
+    const since = lastReleaseTag();
+    const breaking = since ? breakingSince(since) : [];
+    if (breaking.length > 0) {
+      err(`Refusing --bump=${type}: ${breaking.length} breaking commit(s) since ${since}.`);
+      for (const subject of breaking) err(`  ${subject}`);
+      err('A `!` type or a `BREAKING CHANGE:` footer requires --bump=major.');
+      exit(1);
+    }
+  }
+
   const next = nextVersion(current, type);
 
   if (!next) {
@@ -51,6 +72,8 @@ async function main(): Promise<void> {
   writeVersion(next);
   info(`✓ Bumped ${current} → ${next}`);
   info('✓ Synced NGWR_VERSION in projects/lib/version/version.ts');
+
+  if (writeSupportTable(next)) info('✓ SECURITY.md support table follows the release line');
 
   await regenerateChangelog();
   info('✓ CHANGELOG.md updated');
