@@ -1,5 +1,19 @@
 # Changelog
 
+## [13.0.0](https://github.com/thekhegay/ngwr/compare/v12.2.0...v13.0.0) (2026-09-02)
+
+### ⚠ BREAKING CHANGES
+
+* readonly and invalid reach every control, and input size loses its prefix
+
+### Features
+
+* readonly and invalid reach every control, and input size loses its prefix ([98629b8](https://github.com/thekhegay/ngwr/commit/98629b82ac19ff17bd90e57c47a3824ef64cb340))
+
+### Bug Fixes
+
+* **showcase:** installation states its providers, and old slugs redirect again ([2f3cf1a](https://github.com/thekhegay/ngwr/commit/2f3cf1a2db213614cb035ee40b840d5c78dccb25))
+
 ## [12.2.0](https://github.com/thekhegay/ngwr/compare/v12.1.0...v12.2.0) (2026-09-02)
 
 ### ⚠ BREAKING CHANGES
