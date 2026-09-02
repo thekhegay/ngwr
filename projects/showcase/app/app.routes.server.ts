@@ -50,6 +50,8 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'validators/**', renderMode: RenderMode.Client },
   { path: 'interfaces/**', renderMode: RenderMode.Client },
   { path: 'types/**', renderMode: RenderMode.Client },
+  // `/docs/*` is the pre-v7 prefix; same shape, same reason.
+  { path: 'docs/**', renderMode: RenderMode.Client },
 
   { path: `${icons.index}/${icons.tabler}`, renderMode: RenderMode.Client },
   { path: `${icons.index}/${icons.phosphor}`, renderMode: RenderMode.Client },

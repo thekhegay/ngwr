@@ -75,9 +75,12 @@ export default class EventCalendarComponent {
   protected readonly api = API.WrEventCalendar;
 
   protected readonly snippets = {
-    install: `import { WrEventCalendar } from 'ngwr/event-calendar';
+    install: `import { WrCalendarEventTemplate, WrEventCalendar } from 'ngwr/event-calendar';
 
-@Component({ imports: [WrEventCalendar] })
+// WrCalendarEventTemplate is the <ng-template wrCalendarEvent> directive in the
+// chip-template example below — the selector is wrCalendarEvent, the class is
+// not, and imports: [] takes the class.
+@Component({ imports: [WrEventCalendar, WrCalendarEventTemplate] })
 export class MyComponent {}`,
     provider: `import { provideWrDateAdapter } from 'ngwr/date';
 import { provideWrDateFnsAdapter } from 'ngwr/date/adapters/fns';

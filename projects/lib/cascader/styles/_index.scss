@@ -15,6 +15,11 @@
   --wr-cascader-line-height: var(--wr-control-line-height-md);
   --wr-cascader-col-width: 12rem;
   --wr-cascader-max-height: 16rem;
+  // Trigger width floor — hooked for the same reason as `--wr-select-min-width`:
+  // in a narrow grid column the literal wins over `minmax(0, 1fr)` and the
+  // trigger overhangs its cell, and the only escape was overriding
+  // `.wr-cascader__trigger` from outside. Set it to 0 to defer to the layout.
+  --wr-cascader-min-width: 12rem;
 
   display: inline-flex;
   vertical-align: middle;
@@ -46,7 +51,7 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
-    min-width: 12rem;
+    min-width: var(--wr-cascader-min-width);
     appearance: none;
     background: var(--wr-cascader-bg);
     color: var(--wr-cascader-color);

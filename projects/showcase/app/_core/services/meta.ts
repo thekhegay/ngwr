@@ -171,7 +171,14 @@ export class MetaService {
   private buildTitle(value: string | string[] | null, withProductName: boolean): string {
     const parts = this.normalizeTitleParts(value);
     if (parts.length === 0) return this.productName;
-    return withProductName ? [...parts, this.productName].join(' · ') : parts.join(' · ');
+
+    // Drop a segment that repeats the one before it. `DocPageComponent` derives
+    // the category from the URL, so a page whose own name IS its section —
+    // `/reference/components`, `/reference/validators` — otherwise titles itself
+    // "Components · Components · ngwr". Adjacent only: a real repetition further
+    // apart would be saying something.
+    const all = withProductName ? [...parts, this.productName] : parts;
+    return all.filter((part, i) => i === 0 || part.toLowerCase() !== all[i - 1].toLowerCase()).join(' · ');
   }
 
   private normalizeTitleParts(value: string | string[] | null): string[] {

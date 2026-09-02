@@ -1,6 +1,9 @@
 import { Component, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { WrButton } from 'ngwr/button';
 import { type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
+import { WrFormError, WrFormField } from 'ngwr/form';
 
 import {
   DocApiComponent,
@@ -16,8 +19,12 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-date-picker-page',
   templateUrl: './date-picker.html',
   imports: [
+    ReactiveFormsModule,
     WrDatePicker,
     WrDateRangePicker,
+    WrFormField,
+    WrFormError,
+    WrButton,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -39,6 +46,18 @@ export default class DatePickerPageComponent {
 
   protected readonly period = signal<WrDateRange | null>(null);
   protected readonly window = signal<WrDateRange | null>(null);
+
+  /** Reactive-forms demo — `formControlName` on the picker and on the range picker. */
+  // Bound so the lint rule's unbound-method check stays satisfied.
+  private readonly required = Validators.required.bind(Validators);
+  protected readonly reactiveForm = new FormGroup({
+    due: new FormControl<Date | null>(null, this.required),
+    period: new FormControl<WrDateRange | null>(null),
+  });
+
+  protected submitReactive(): void {
+    this.reactiveForm.markAllAsTouched();
+  }
 
   protected readonly today = new Date();
   protected readonly firstOfNextMonth = new Date(this.today.getFullYear(), this.today.getMonth() + 1, 1);
@@ -114,6 +133,47 @@ export class MyComponent {
   format="dd.MM.yyyy HH:mm"
   [(value)]="window"
 />`,
+
+    // The page carried no forms statement at all — not even the sentence the
+    // select and checkbox pages have — while the picker is needed in exactly
+    // the same forms. Verified against the library: `WrDatePicker` implements
+    // `FormValueControl<Date | null>` and `WrDateRangePicker`
+    // `FormValueControl<WrDateRange | null>`, so both bind through `value`.
+    forms: `<!-- Signal forms — the native path. -->
+<wr-date-picker [formField]="form.due" />
+
+<!-- Reactive forms. No ControlValueAccessor exists in the library and none is
+     needed: Angular 22 binds the control's \`value\` model, relays its \`touch\`
+     output as markAsTouched(), and pushes \`disabled\` down from the control.
+     The control's value is a \`Date | null\` — the picker never emits a
+     half-typed date, so an unparseable field leaves the last valid one. -->
+<form [formGroup]="form">
+  <wr-form-field label="Due date" required>
+    <wr-date-picker formControlName="due" placeholder="Pick a date" />
+    <wr-form-error key="required">Pick a due date.</wr-form-error>
+  </wr-form-field>
+</form>
+
+<!-- The range picker is the same control with a \`WrDateRange | null\` value. -->
+<wr-date-range-picker formControlName="period" />
+
+<!-- Template-driven — the same bridge. -->
+<wr-date-picker [(ngModel)]="due" name="due" />`,
+    formsTs: `import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { type WrDateRange, WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
+import { WrFormError, WrFormField } from 'ngwr/form';
+
+@Component({
+  imports: [ReactiveFormsModule, WrFormField, WrFormError, WrDatePicker, WrDateRangePicker],
+  templateUrl: './my.html',
+})
+export class MyComponent {
+  protected readonly form = new FormGroup({
+    due: new FormControl<Date | null>(null, Validators.required),
+    period: new FormControl<WrDateRange | null>(null),
+  });
+}`,
   };
 
   protected readonly api = API.WrDatePicker;

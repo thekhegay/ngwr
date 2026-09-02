@@ -63,9 +63,10 @@ export default class FormFieldPage {
 
   protected readonly snippets = {
     install: `import { WrFormField, WrFormError } from 'ngwr/form';
+import { WrInput } from 'ngwr/input';   // plus whichever control you project
 
 @Component({
-  imports: [WrFormField, WrFormError, /* … */],
+  imports: [WrFormField, WrFormError, WrInput],
 })
 export class MyComponent {}`,
 
@@ -153,6 +154,13 @@ bootstrapApplication(App, {
       title: 'wr-select',
       url: ['/reference/components', 'select'],
       description: 'Pairs cleanly — the form-field surfaces select errors too.',
+    },
+    {
+      kind: 'Component',
+      title: 'wr-form-item',
+      url: ['/reference/components', 'form'],
+      description:
+        'The bare alternative: layout only, `hasError` is a boolean you compute. Use it when the control is not an Angular form control.',
     },
     {
       kind: 'Validator',

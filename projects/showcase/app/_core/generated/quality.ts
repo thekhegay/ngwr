@@ -46,7 +46,7 @@ export const QUALITY = {
   specFiles: 238,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 4086,
+  testCases: 4088,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page says "at least" rather than failing a documentation build over a legal spec. */
   testCasesAreExact: true,
@@ -55,7 +55,7 @@ export const QUALITY = {
   entryPointsWithSpecs: 202,
 
   /** Documentation pages the showcase's route tables declare — routes with a `loadComponent`, minus the layout shell (it has `children`) and the `**` 404, neither of which is a page. NOT the prerendered-route count either: `app.routes.server.ts` sends the raw-SVG icon galleries and the legacy redirects to the client. */
-  docRoutes: 208,
+  docRoutes: 216,
 
   /** Runtime dependencies of the published package, from `projects/lib/package.json`. Peer dependencies are the consumer's Angular; this is what npm installs on top of it. */
   runtimeDependencies: ["tslib"],

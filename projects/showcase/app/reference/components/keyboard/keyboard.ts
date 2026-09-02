@@ -35,7 +35,10 @@ export default class KeyboardPageComponent {
 @Component({ imports: [WrKbd] })
 export class MyComponent {}`,
     basic: `<wr-kbd>⌘</wr-kbd> + <wr-kbd>K</wr-kbd>`,
-    prose: `<p wrTypography>
+    prose: `<!-- wrTypography is a separate entry point: import { WrTypography } from
+     'ngwr/typography'. An unknown attribute on a native <p> is not a template
+     error, so without it the prose simply keeps the page's own styling. -->
+<p wrTypography>
   Press <wr-kbd>⌘</wr-kbd> + <wr-kbd>P</wr-kbd> to open the command palette.
 </p>`,
     sizes: `<wr-kbd size="sm">Esc</wr-kbd>

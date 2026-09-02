@@ -1,11 +1,18 @@
 <ngwr-doc-page
   title="Form"
-  description="Layout helpers: <wr-form-item> wraps a label + control + error message; <wr-form-error> renders inline error text."
+  description="`<wr-form-item>` — the bare layout wrapper: it stacks a label, a control and an error message, and colours them red when you tell it to. It reads nothing about the control. Its richer sibling `<wr-form-field>` has its own page, and is the one to reach for by default."
   [keywords]="['form', 'wr-form-item', 'wr-form-error']"
   [labels]="['Component', 'Standalone']"
 >
   <ngwr-doc-section title="Installation">
     <ngwr-doc-code [code]="snippets.install" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Which wrapper — item or field?"
+    description="Both live in `ngwr/form` and both wrap one control. They are not variants of each other, and the choice is not a matter of taste."
+  >
+    <ngwr-doc-code [code]="snippets.choosing" language="angular-html" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Basic usage">
@@ -45,14 +52,16 @@
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>
 
+  <ngwr-doc-section title="Form Error API">
+    <ngwr-doc-api [rows]="errorApi" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section
-    title="Form Field API"
-    description="`<wr-form-field>` is the richer wrapper — label, hint and validation messages in one block."
+    title="&lt;wr-form-field&gt; API — for reference"
+    description="The other wrapper's API, listed here because both ship from the one `ngwr/form` entry point. It is NOT the component this page's Installation block imports: to use it, import `WrFormField` and read its own page, which has the examples."
   >
     <ngwr-doc-api [rows]="fieldApi" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Form Error API">
-    <ngwr-doc-api [rows]="errorApi" />
-  </ngwr-doc-section>
+  <ngwr-doc-see-also [links]="related" />
 </ngwr-doc-page>

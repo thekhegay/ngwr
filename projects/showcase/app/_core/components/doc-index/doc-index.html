@@ -1,0 +1,17 @@
+<ngwr-doc-page [title]="page.title" [description]="page.description" [keywords]="page.keywords ?? []">
+  @for (section of sections; track section.title) {
+    <ngwr-doc-section [title]="section.title">
+      <ul class="index">
+        @for (link of section.links; track link.title) {
+          <li>
+            @if (link.url && !link.disabled) {
+              <a class="index__link" [routerLink]="link.url">{{ link.title }}</a>
+            } @else {
+              <span class="index__link index__link--disabled">{{ link.title }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </ngwr-doc-section>
+  }
+</ngwr-doc-page>

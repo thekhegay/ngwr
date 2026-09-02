@@ -24,19 +24,35 @@ export default class DialogPageComponent {
   protected readonly lastResult = signal<string>('—');
 
   protected readonly snippets = {
-    install: `import { WrDialog } from 'ngwr/dialog';
+    // Two components, two different imports — and the second half is the one a
+    // reader cannot derive. The API table below lists the layout directives by
+    // SELECTOR (\`[wrDialogTitle]\`), while \`imports: []\` takes the CLASS, so a
+    // page that named only \`WrDialog\` left the four class names spelled nowhere.
+    install: `// The component that OPENS a dialog injects the service.
+import { WrDialog } from 'ngwr/dialog';
 
 @Component({...})
 export class MyComponent {
   private readonly dialog = inject(WrDialog);
-}`,
+}
+
+// The component OPENED as a dialog imports the layout directives it uses.
+// Selector -> class: [wrDialogTitle] -> WrDialogTitle, and so on.
+import { WrDialogClose, WrDialogContent, WrDialogFooter, WrDialogTitle } from 'ngwr/dialog';
+
+@Component({
+  imports: [WrDialogTitle, WrDialogContent, WrDialogFooter, WrDialogClose],
+  templateUrl: './confirm.html',
+})
+export class ConfirmComponent {}`,
     open: `const ref = dialog.open(ConfirmComponent, {
   data: { title: 'Delete', message: 'Are you sure?' },
   width: '24rem',
 });
 
 const ok = await ref.awaitClose(); // result from <wr-btn wrDialogClose value>`,
-    template: `// Inside the opened component
+    template: `// Inside the opened component. Every attribute below is a directive:
+// imports: [WrDialogTitle, WrDialogContent, WrDialogFooter, WrDialogClose]
 <h2 wrDialogTitle>Delete</h2>
 <div wrDialogContent>Are you sure?</div>
 <div wrDialogFooter>
@@ -70,6 +86,35 @@ dialog.open(EditUserComponent, { closable: false });
 
 // Override just the accessible name:
 dialog.open(EditUserComponent, { closeLabel: 'Discard changes' });`,
+    lifetime: `// A dialog outlives the component that opened it. \`WrDialog\` is root-provided
+// and the panel's injector hangs off the root environment injector, so an
+// \`@if\` that removes the opener leaves the panel, its backdrop and the
+// \`cdk-global-scrollblock\` on the page. (Navigation is the one exception:
+// \`closeOnNavigation\` is on by default.) Close the ref when you go away.
+import { DestroyRef, inject } from '@angular/core';
+
+@Component({...})
+export class MyComponent {
+  private readonly dialog = inject(WrDialog);
+  private readonly destroyRef = inject(DestroyRef);
+
+  async confirmDelete(): Promise<void> {
+    const ref = this.dialog.open<ConfirmComponent, boolean>(ConfirmComponent);
+    const stop = this.destroyRef.onDestroy(() => ref.close());
+
+    // awaitClose() is a Promise, so takeUntilDestroyed() does not apply to it —
+    // that operator takes an Observable. Two ways to not act on a stale result:
+    const ok = await ref.awaitClose();
+    stop();                                  // nothing left to cancel
+    if (ok) this.store.remove();
+  }
+}
+
+// Or subscribe instead of awaiting, and takeUntilDestroyed() does apply —
+// \`ref.closed\` is an Observable, and the ref is the same one either way.
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(ok => { … });`,
     responsive: `// Per dialog — slides up as a bottom-sheet on small screens.
 dialog.open(ConfirmComponent, { responsive: true });
 
@@ -111,6 +156,14 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
       sub: true,
     },
     { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true', sub: true },
+    {
+      name: 'closeOnNavigation',
+      description:
+        'Close as soon as the URL changes — Back and `router.navigate()` alike. Turn it off only for a dialog that owns the navigation.',
+      type: 'boolean',
+      default: 'true',
+      sub: true,
+    },
     {
       name: 'closable',
       description: 'Show the built-in dismiss (×) in the top-right corner.',
@@ -164,9 +217,24 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
   ];
 
   protected readonly directivesApi: readonly DocApiRow[] = [
-    { name: '[wrDialogTitle]', description: 'Styles the title row.', type: 'directive', default: '—' },
-    { name: '[wrDialogContent]', description: 'Styles the scrollable body.', type: 'directive', default: '—' },
-    { name: '[wrDialogFooter]', description: 'Styles the footer.', type: 'directive', default: '—' },
+    {
+      name: '[wrDialogTitle]',
+      description: 'Styles the title row, and supplies the panel’s `aria-labelledby`. Import `WrDialogTitle`.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrDialogContent]',
+      description: 'Styles the scrollable body. Import `WrDialogContent`.',
+      type: 'directive',
+      default: '—',
+    },
+    {
+      name: '[wrDialogFooter]',
+      description: 'Styles the footer. Import `WrDialogFooter`.',
+      type: 'directive',
+      default: '—',
+    },
     {
       name: 'align',
       description: 'Footer alignment.',
@@ -176,7 +244,7 @@ provideWrResponsiveOverlays({ breakpoint: 768 });`,
     },
     {
       name: '[wrDialogClose]',
-      description: 'Closes the dialog when clicked.',
+      description: 'Closes the dialog when clicked. Import `WrDialogClose`.',
       type: 'directive',
       default: '—',
     },
