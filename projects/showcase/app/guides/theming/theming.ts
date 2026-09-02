@@ -107,12 +107,41 @@ theme.toggle();            // flip light ↔ dark
 theme.resolved();          // 'light' | 'dark' — what the DOM has
 
 // Tune dark-mode tokens by overriding under [data-theme='dark']:
-// (the default 'data-theme' attribute is configurable via provideWrTheme)
 // There is no --wr-color-bg: in dark, --wr-color-white IS the canvas and
 // --wr-color-dark IS the ink — the two neutrals swap jobs.
 [data-theme='dark'] {
   --wr-color-white: #0c0d10;
   --wr-color-dark: #f5f6f8;
+}`,
+
+    attribute: `// The attribute is configurable, and it has TWO halves that must agree.
+// A CSS selector cannot read a provider value, so the stylesheet takes the
+// same name as a Sass variable. Set one without the other and dark mode
+// silently never applies.
+
+// 1. styles.scss — configure the stylesheet FIRST, before anything that
+//    pulls the theme in. Sass refuses to configure a module that is already
+//    loaded, so a component entry point above this line is a build error.
+@use 'ngwr' with ($theme-attribute: 'data-color-mode');
+
+// 2. app.config.ts — the same string.
+provideWrTheme({ attribute: 'data-color-mode' })
+
+// Only the configured attribute is emitted; 'data-theme' is NOT kept as a
+// second selector. Renaming is how you decouple ngwr from another design
+// system that already owns data-theme, and emitting both would hand that
+// system control of your tokens again.
+
+// Your own dark overrides follow the same name. Reach for the mixin instead
+// of writing the literal, and they move with it:
+@use 'ngwr/theme' as theme;
+
+.my-hero {
+  background: #fff;
+
+  @include theme.dark {
+    background: #0b1120;
+  }
 }`,
 
     component: `/* Components also expose per-instance vars — override on the element.

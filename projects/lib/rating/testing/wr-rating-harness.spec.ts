@@ -277,9 +277,17 @@ describe('WrRatingHarness', () => {
     expect(await Promise.all(found.map(r => r.getLabel()))).toEqual(['Published']);
   });
 
-  it('takes itself out of the tab order when it takes no input', async () => {
+  it('leaves the tab order when disabled, and keeps it when merely readonly', async () => {
+    // The two states part company exactly here. `disabled` drops out of the tab
+    // order; `readonly` stays in it, because a value a keyboard user may not
+    // change is still a value they have to be able to reach and hear — the same
+    // rule the platform applies to `<input readonly>` against `<input disabled>`.
+    //
+    // This spec asserted `false` for both, and its sibling in the knob harness
+    // said so out loud: "read-only also leaves the tab order, so the dial cannot
+    // be reached to be read". That sentence describes the defect it was pinning.
     expect(await (await ratingFor('Overall')).isFocusable()).toBe(true);
-    expect(await (await ratingFor('Published')).isFocusable()).toBe(false);
+    expect(await (await ratingFor('Published')).isFocusable()).toBe(true);
     expect(await (await ratingFor('Locked')).isFocusable()).toBe(false);
   });
 

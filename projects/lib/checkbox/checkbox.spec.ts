@@ -53,6 +53,12 @@ class SizeHost {
   readonly size = signal<WrCheckboxSize | null>(null);
 }
 
+@Component({
+  imports: [WrCheckbox],
+  template: `<wr-checkbox id="cb">Accept terms</wr-checkbox>`,
+})
+class IdHost {}
+
 /**
  * `WrCheckbox` is a signal-forms control, so the binding is the contract: the
  * boolean state is `checked`, and group membership is `checkboxValue` — NOT
@@ -283,5 +289,47 @@ describe('WrCheckbox + provideWrConfig', () => {
 
   it('ignores a config that names other components', () => {
     expect(mount([provideWrConfig({ switch: { size: 'lg' } })]).className).toBe('wr-checkbox');
+  });
+});
+
+/**
+ * `[id]` is documented as "the id used to associate the native input with its
+ * label", and using it used to be exactly what broke that association: Angular
+ * feeds a static `id="x"` to the input AND leaves it on the host, so the
+ * document held two elements with the id, `<label for>` resolved through
+ * `getElementById` to the `<wr-checkbox>` host — not a labelable element — and
+ * `input.labels` went from 1 to 0. The host binding that strips it is the fix,
+ * and these are the three observable consequences of it.
+ */
+describe('WrCheckbox with an author-supplied id', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<IdHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-checkbox')!;
+  const input = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input.wr-checkbox__input')!;
+  const label = (): HTMLLabelElement => root().querySelector<HTMLLabelElement>('label')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(IdHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the id on the native input and off the host', () => {
+    expect(input().id).toBe('cb');
+    expect(host().hasAttribute('id')).toBe(false);
+  });
+
+  it('leaves exactly one element in the document carrying it', () => {
+    expect(root().querySelectorAll('#cb')).toHaveLength(1);
+    expect(document.getElementById('cb')).toBe(input());
+  });
+
+  it('still labels the control', () => {
+    expect(label().htmlFor).toBe('cb');
+    expect(input().labels).toHaveLength(1);
   });
 });

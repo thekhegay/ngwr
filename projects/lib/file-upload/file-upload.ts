@@ -21,6 +21,7 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 
 import type { WrFileUploadRejection, WrFileUploadRejectionReason } from './interfaces';
@@ -103,6 +104,24 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Refuse changes to the selection while the zone stays focusable and the files
+   * still submit. Bound automatically from the field's readonly state when used
+   * with `[formField]`.
+   *
+   * The zone stops opening the picker, a drop is refused and the per-file remove
+   * buttons go inert — but the list stays readable, which is the point. No
+   * `aria-readonly`: the zone is a `role="button"`, and ARIA does not define the
+   * state for that role, so `aria-disabled` would be the only mirror available
+   * and it would say the wrong thing.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
+
   /** Primary call-to-action label. Falls back to `fileUpload.browse`. */
   readonly pickLabel = input<string | null>(null);
 
@@ -148,6 +167,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     const parts = ['wr-file-upload'];
     if (this.dragging()) parts.push('wr-file-upload--dragging');
     if (this.disabled()) parts.push('wr-file-upload--disabled');
+    else if (this.readonly()) parts.push('wr-file-upload--readonly');
     return parts.join(' ');
   });
 
@@ -173,7 +193,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   // Template handlers
 
   protected openPicker(): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     this.picker().nativeElement.click();
   }
 
@@ -192,13 +212,13 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   }
 
   protected onDragEnter(event: DragEvent): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     event.preventDefault();
     this.dragging.set(true);
   }
 
   protected onDragOver(event: DragEvent): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     event.preventDefault();
     if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
   }
@@ -211,13 +231,13 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   protected onDrop(event: DragEvent): void {
     event.preventDefault();
     this.dragging.set(false);
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     const dropped = event.dataTransfer?.files ? Array.from(event.dataTransfer.files) : [];
     if (dropped.length > 0) this.acceptFiles(dropped);
   }
 
   protected removeAt(index: number): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     const next = this.files().filter((_, i) => i !== index);
     this.files.set(next);
     this.emit();
@@ -226,6 +246,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   // Internals
 
   private acceptFiles(incoming: readonly File[]): void {
+    if (this.disabled() || this.readonly()) return;
     const accept = this.accept();
     const maxSize = this.maxSize();
     const rejections: WrFileUploadRejection[] = [];

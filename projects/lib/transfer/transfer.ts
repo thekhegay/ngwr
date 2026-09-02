@@ -11,6 +11,7 @@ import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrButton } from 'ngwr/button';
 import { WrCheckbox } from 'ngwr/checkbox';
+import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
 
@@ -65,7 +66,20 @@ interface PaneState {
   selector: 'wr-transfer',
   templateUrl: './transfer.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: {
+    '[class]': 'classes()',
+    // `role="group"` so the error state below has somewhere legible to live: the
+    // control is a composite with no single element carrying its semantics, and
+    // `aria-invalid` on a bare `generic` host is announced by nothing.
+    role: 'group',
+    '[attr.aria-invalid]': 'fieldAria.ariaInvalid()',
+    '[attr.aria-describedby]': 'fieldAria.describedBy()',
+  },
+  // The transfer is the control a `<wr-form-field>` wraps; the checkboxes and
+  // the search inputs in its own template are parts, not controls. Without this
+  // shield each of them found the field's token and announced the one error as
+  // its own — which is why `fieldAria` below reads the field with `skipSelf`.
+  providers: [{ provide: WR_FORM_FIELD, useValue: null }],
   imports: [WrButton, WrCheckbox, WrInput],
 })
 export class WrTransfer implements FormValueControl<readonly unknown[]> {
@@ -83,6 +97,23 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
 
   /** Disable the whole control. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Refuse changes to the value while both panes stay focusable and readable.
+   * Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * The move buttons go inert and the row checkboxes go read-only; SEARCH keeps
+   * working, because filtering a pane changes what is shown and not what is
+   * chosen. No `aria-readonly` on the host: role `group` does not support the
+   * state, so each row's checkbox mirrors its own instead.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria({ skipSelf: true });
 
   /** Show a filter box above each pane. @default false */
   readonly searchable = input(false, { transform: coerceBooleanProperty });
@@ -162,12 +193,17 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
     )
   );
 
-  protected readonly canMoveRight = computed(() => !this.disabled() && this.source().checkedCount > 0);
-  protected readonly canMoveLeft = computed(() => !this.disabled() && this.target().checkedCount > 0);
+  protected readonly canMoveRight = computed(
+    () => !this.disabled() && !this.readonly() && this.source().checkedCount > 0
+  );
+  protected readonly canMoveLeft = computed(
+    () => !this.disabled() && !this.readonly() && this.target().checkedCount > 0
+  );
 
   protected readonly classes = computed(() => {
     const parts = ['wr-transfer'];
     if (this.disabled()) parts.push('wr-transfer--disabled');
+    else if (this.readonly()) parts.push('wr-transfer--readonly');
     if (this.searchable()) parts.push('wr-transfer--searchable');
     return parts.join(' ');
   });
@@ -177,7 +213,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   }
 
   protected toggle(pane: 'source' | 'target', item: WrTransferItem, checked: boolean): void {
-    if (item.disabled) return;
+    if (item.disabled || this.readonly()) return;
     const box = pane === 'source' ? this.sourceChecked : this.targetChecked;
     const current = box();
     if (checked) {
@@ -195,6 +231,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
 
   /** Header checkbox — stages or clears every enabled row the filter shows. */
   protected toggleAll(pane: 'source' | 'target', checked: boolean): void {
+    if (this.readonly()) return;
     const state = pane === 'source' ? this.source() : this.target();
     const box = pane === 'source' ? this.sourceChecked : this.targetChecked;
     box.set(checked ? state.rows.filter(item => !item.disabled).map(item => item.value) : []);
@@ -206,6 +243,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   }
 
   protected moveRight(): void {
+    if (this.disabled() || this.readonly()) return;
     // `source().checked`, not the raw staging box: rows a filter change hid are
     // neither counted nor ticked any more, so moving them would transfer rows the
     // pane never showed as chosen — and, since staging outlives an external write
@@ -218,6 +256,7 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
   }
 
   protected moveLeft(): void {
+    if (this.disabled() || this.readonly()) return;
     const moving = new Set(this.target().checked);
     if (moving.size === 0) return;
     this.value.set(this.selected().filter(v => !moving.has(v)));

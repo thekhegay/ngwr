@@ -10,6 +10,7 @@ import { Component, ViewEncapsulation, computed, input, model, output } from '@a
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useConfigValue } from 'ngwr/config';
+import { useFormFieldAria } from 'ngwr/form';
 import { randomId } from 'ngwr/utils';
 
 /**
@@ -36,7 +37,13 @@ export type WrSwitchSize = 'sm' | 'md' | 'lg';
   selector: 'wr-switch',
   templateUrl: './switch.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: {
+    '[class]': 'classes()',
+    // The `id` input belongs to the native input, not to this element — a static
+    // `id="x"` would otherwise be written here too and leave the document with
+    // two elements sharing it, which is what broke `<label for>`.
+    '[attr.id]': 'null',
+  },
 })
 export class WrSwitch implements FormCheckboxControl {
   /**
@@ -46,7 +53,10 @@ export class WrSwitch implements FormCheckboxControl {
    */
   readonly ariaLabel = input<string | null>(null);
 
-  /** Stable id used to associate the native input with its label. */
+  /**
+   * Stable id used to associate the native input with its label. Lands on the
+   * inner `<input>`; the host never keeps it.
+   */
   readonly id = input<string>(randomId('wr-switch'));
 
   /**
@@ -56,6 +66,22 @@ export class WrSwitch implements FormCheckboxControl {
    * @default false
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Refuse edits while staying focusable and submittable. Bound automatically
+   * from the field's readonly state when used with `[formField]`.
+   *
+   * A native checkbox ignores the `readonly` attribute, so this cancels the
+   * click's activation behaviour instead — which covers Space too, since the key
+   * arrives as a click — and mirrors the state as `aria-readonly`, which role
+   * `switch` supports.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
 
   /**
    * Control size — shares the `--wr-control-*` contract. Unset falls back to the
@@ -78,12 +104,27 @@ export class WrSwitch implements FormCheckboxControl {
     if (size !== 'md') parts.push(`wr-switch--${size}`);
     if (this.checked()) parts.push('wr-switch--checked');
     if (this.disabled()) parts.push('wr-switch--disabled');
+    else if (this.readonly()) parts.push('wr-switch--readonly');
     return parts.join(' ');
   });
 
   // Template handlers
 
+  /**
+   * Cancel the toggle while readonly. `change` never fires for a click whose
+   * default was prevented, so this is the only guard the pointer and Space paths
+   * need; `onInputChange` keeps its own for a synthetic `change`.
+   */
+  protected onInputClick(event: Event): void {
+    if (this.readonly()) event.preventDefault();
+  }
+
   protected onInputChange(event: Event): void {
+    if (this.readonly()) {
+      // A synthetic `change` cannot be prevented — put the DOM back instead.
+      (event.target as HTMLInputElement).checked = this.checked();
+      return;
+    }
     this.checked.set((event.target as HTMLInputElement).checked);
   }
 

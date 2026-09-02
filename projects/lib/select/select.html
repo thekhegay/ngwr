@@ -22,6 +22,8 @@
       [attr.aria-expanded]="open()"
       [attr.aria-controls]="listboxId"
       [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
+      [attr.aria-readonly]="isReadonly() || null"
+      [readonly]="isReadonly()"
       [placeholder]="resolvedPlaceholder()"
       [value]="searchDisplay()"
       (input)="onSearchInput($event)"
@@ -38,7 +40,7 @@
          button already taught this repo. The keyboard reaches the function
          instead: Backspace on the empty field, which `onSearchKey` routes to
          `clearAll` for a single and to the last chip for a multi. -->
-    @if (clearable() && hasSelection() && !isDisabled()) {
+    @if (clearable() && hasSelection() && !isDisabled() && !isReadonly()) {
       <span
         class="wr-select__clear"
         role="button"
@@ -93,28 +95,30 @@
       @for (chip of visibleChips(); track $index) {
         <span class="wr-select__chip">
           <span class="wr-select__chip-label">{{ chip.label }}</span>
-          <span
-            class="wr-select__chip-remove"
-            role="button"
-            [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
-            tabindex="-1"
-            (click)="removeChip($index, $event)"
-          >
-            <svg
-              class="wr-icon__svg"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
+          @if (!isReadonly()) {
+            <span
+              class="wr-select__chip-remove"
+              role="button"
+              [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
+              tabindex="-1"
+              (click)="removeChip($index, $event)"
             >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </span>
+              <svg
+                class="wr-icon__svg"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </span>
+          }
         </span>
       }
       @if (hiddenChipCount(); as extra) {
@@ -139,7 +143,8 @@
         spellcheck="false"
         [value]="hasChipSearch() ? searchQuery() : draft()"
         [disabled]="isDisabled()"
-        [readonly]="isTag() && atCapacity()"
+        [readonly]="isReadonly() || (isTag() && atCapacity())"
+        [attr.aria-readonly]="hasChipSearch() && isReadonly() ? true : null"
         [placeholder]="hasSelection() ? '' : resolvedPlaceholder()"
         [attr.role]="hasChipSearch() ? 'combobox' : null"
         [attr.aria-haspopup]="hasChipSearch() ? 'listbox' : null"
@@ -154,7 +159,7 @@
       />
     </span>
 
-    @if (clearable() && hasSelection() && !isDisabled()) {
+    @if (clearable() && hasSelection() && !isDisabled() && !isReadonly()) {
       <span
         class="wr-select__clear"
         role="button"
@@ -193,6 +198,7 @@
     [attr.aria-expanded]="open()"
     [attr.aria-controls]="listboxId"
     [attr.aria-activedescendant]="open() ? activeOptionId() || null : null"
+    [attr.aria-readonly]="isReadonly() || null"
     (click)="onTriggerClick()"
     (keydown)="onTriggerKey($event)"
     (blur)="touch.emit()"
@@ -203,28 +209,30 @@
           @for (chip of visibleChips(); track $index) {
             <span class="wr-select__chip">
               <span class="wr-select__chip-label">{{ chip.label }}</span>
-              <span
-                class="wr-select__chip-remove"
-                role="button"
-                [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
-                tabindex="-1"
-                (click)="removeChip($index, $event)"
-              >
-                <svg
-                  class="wr-icon__svg"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
+              @if (!isReadonly()) {
+                <span
+                  class="wr-select__chip-remove"
+                  role="button"
+                  [attr.aria-label]="chipRemoveLabel({ label: chip.label })"
+                  tabindex="-1"
+                  (click)="removeChip($index, $event)"
                 >
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
-              </span>
+                  <svg
+                    class="wr-icon__svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </span>
+              }
             </span>
           }
           @if (hiddenChipCount(); as extra) {
@@ -242,7 +250,7 @@
       }
     }
 
-    @if (isMulti() && clearable() && hasSelection() && !isDisabled()) {
+    @if (isMulti() && clearable() && hasSelection() && !isDisabled() && !isReadonly()) {
       <span
         class="wr-select__clear"
         role="button"

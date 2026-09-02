@@ -109,6 +109,24 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Refuse changes while every segment stays focusable and the value still
+   * submits. Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * NOTHING is mirrored into ARIA here, deliberately: the strip is a
+   * `role="group"` of `aria-pressed` buttons, and ARIA defines `aria-readonly`
+   * for neither role — it is a state of `checkbox` / `radiogroup` / `textbox`
+   * and their kin, and it is not global. `aria-disabled` is the only attribute
+   * that would apply to a button, and it says the wrong thing: these segments
+   * are still focusable and the value still submits. So the state is honest in
+   * the DOM (`wr-segmented--readonly`) and silent in the accessibility tree
+   * rather than announced with a word that means something else.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrSegmentedSize>('md');
 
@@ -176,6 +194,7 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
     const size = this.size();
     if (size !== 'md') parts.push(`wr-segmented--${size}`);
     if (this.disabled()) parts.push('wr-segmented--disabled');
+    else if (this.readonly()) parts.push('wr-segmented--readonly');
     if (this.selectedIndex() < 0) parts.push('wr-segmented--unselected');
     if (this.mounted()) parts.push('wr-segmented--mounted');
     return parts.join(' ');
@@ -219,7 +238,7 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
   }
 
   protected select(option: WrSegmentedOption<T>): void {
-    if (this.disabled() || option.disabled || this.isSelected(option)) return;
+    if (this.disabled() || this.readonly() || option.disabled || this.isSelected(option)) return;
     this.value.set(option.value);
   }
 

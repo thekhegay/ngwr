@@ -19,6 +19,7 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { clamp, round } from 'ngwr/utils';
 
@@ -104,6 +105,21 @@ export class WrKnob implements FormValueControl<number> {
   private dragging = false;
 
   protected readonly interactive = computed(() => !this.disabled() && !this.readonly());
+
+  /**
+   * Whether the control keeps its tab stop — `disabled` only, never `readonly`.
+   *
+   * The two states differ precisely here: a disabled control leaves the tab
+   * order, a read-only one stays in it and keeps announcing `aria-valuenow`,
+   * because a keyboard user still has to be able to READ a value they cannot
+   * change. Driving `tabindex` off `interactive()` collapsed that distinction
+   * and made `readonly()` unreachable — with an `aria-describedby` pointing at
+   * an error message on an element nobody could focus.
+   */
+  protected readonly focusable = computed(() => !this.disabled());
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
 
   protected readonly classes = computed(() => {
     const parts = ['wr-knob'];

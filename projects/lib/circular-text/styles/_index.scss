@@ -1,63 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-// Circular text (reactbits port). Each char is absolutely positioned at
-// the spinner's centre, then transformed `rotate() translateY(-radius)`
-// so it lands on the perimeter of a circle of constant radius. The host
-// itself is static; the inner `__spin` element drives the rotation via
-// the Web Animations API (see component for the why). Hover-mode `scale`
-// lives on the host so it never fights the rotation.
-
-.wr-circular-text {
-  --wr-circular-text-size: 12rem;
-  --wr-circular-text-radius: calc(var(--wr-circular-text-size) / 2);
-
-  position: relative;
-  display: inline-block;
-  width: var(--wr-circular-text-size);
-  height: var(--wr-circular-text-size);
-  border-radius: 50%;
-  font-weight: 700;
-  text-align: center;
-  user-select: none;
-  transition: transform 0.6s var(--wr-ease-spring);
-
-  // The accessible copy of the string — the ring itself is `aria-hidden`.
-  &__sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  &__spin {
-    position: absolute;
-    inset: 0;
-    will-change: transform;
-  }
-
-  &__char {
-    position: absolute;
-    top: 50%;
-    // rtl-ok: centred on the spinner's midpoint by a physical margin-left/-top pair plus a per-char translateY()
-    left: 50%;
-    display: inline-block;
-    // Pre-shift by -50% so the char's centre sits at the spinner centre
-    // before the per-char `rotate translateY(-radius)` runs.
-    // rtl-ok: the negative half of the `left: 50%` centring pair, symmetric with `margin-top`
-    margin-left: -0.5em;
-    margin-top: -0.5em;
-    line-height: 1;
-  }
-
-  // Bonkers — scale the whole host on hover (rotation lives on inner,
-  // so the transforms never fight each other).
-  &--bonkers:hover {
-    transform: scale(0.8);
-  }
-}
+// Public Sass entry for `@use 'ngwr/circular-text'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `circular-text.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `circular-text.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

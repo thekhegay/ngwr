@@ -212,6 +212,7 @@ export const API = {
     { name: "placeholder", description: "Placeholder shown when no path is selected.", type: "string", default: "''" },
     { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — a `role=\"combobox\"` with nothing selected and no placeholder otherwise has no name at all.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the cascader. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while the trigger stays focusable and the path still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only cascader simply does not open — there is nothing to browse that is not already on the trigger — and the clear button goes away with it. Mirrored as `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrCascaderSize", default: "'md'" },
     { name: "clearable", description: "Show a clear-all (×) button on the trigger when a path is selected.", type: "boolean", default: "true" },
     { name: "changeOnSelect", description: "Allow selecting non-leaf (parent) nodes. When `false`, only leaves (nodes without children) commit a selection.", type: "boolean", default: "false" },
@@ -221,12 +222,13 @@ export const API = {
   ],
   // <wr-checkbox>
   WrCheckbox: [
-    { name: "id", description: "Stable id used to associate the native input with its label.", type: "string", default: "Randomly generated" },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "Randomly generated" },
     { name: "checkboxValue", description: "This checkbox's identity when inside a `<wr-checkbox-group>` — the value added to / removed from the group's array. Ignored in standalone mode. (Named `checkboxValue`, not `value`, because `FormCheckboxControl` reserves `value`.)", type: "unknown", default: "null" },
     { name: "ariaLabel", description: "Accessible name for a checkbox used WITHOUT projected text — a selection cell in a table, say. The wrapping `<label>` names the control whenever content is projected; with none, the native input has no name, and an `aria-label` put on the host lands on a `<wr-checkbox>` element that no screen reader ever announces.", type: "string | null", default: "null" },
     { name: "checked", description: "Checked state — the form value. Bound by `[formField]`, two-way via `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`, where the group's array is the source of truth.", type: "boolean", default: "false" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "disabled", description: "Disable the checkbox. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native `<input type=\"checkbox\">` ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since a checkbox turns Space into a click — and mirrors the state as `aria-readonly`, which role `checkbox` supports.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `checkbox.size` app default from `provideWrConfig()`.", type: "WrCheckboxSize | null", default: "'md'" },
     { name: "icon", description: "Optional icon name rendered inside the box when checked, in place of the default checkmark. Use any registered NGWR icon.", type: "WrIconName | null", default: "null" },
     { name: "indeterminate", description: "Show the indeterminate (\"mixed\") state — a dash instead of a check. Visual only and controlled: set it yourself for a parent \"select all\" whose children are partly checked, and clear it on the next toggle. Takes visual precedence over `checked`; the native input reports `aria-checked=\"mixed\"`.", type: "boolean", default: "false" },
@@ -234,6 +236,7 @@ export const API = {
   // <wr-checkbox-group>
   WrCheckboxGroup: [
     { name: "disabled", description: "Disable every child checkbox. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits on every child while they stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. No `aria-readonly` on the host: role `group` does not support it (the state is not global), so each child box mirrors its own instead.", type: "boolean", default: "false" },
     { name: "value", description: "The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown[]", default: "[]" },
     { name: "(touch)", description: "Emitted when a child toggles so a bound field can mark itself touched.", type: "void" },
   ],
@@ -271,6 +274,7 @@ export const API = {
   WrColorPicker: [
     { name: "alpha", description: "Render the alpha slider and emit 8-digit hex / `rgba()`.", type: "boolean", default: "true" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while every surface stays focusable and the colour still submits. Bound automatically from the field's readonly state when used with `[formField]`. The two sliders keep their tab stop and keep announcing `aria-valuenow` — they simply do not move — the hex / channel fields take the native `readonly` attribute, and the swatches go inert. Switching TABS still works: that changes which notation is displayed, not the colour. `aria-readonly` is mirrored on the sliders, which support it; the saturation surface is a `role=\"group\"`, which does not, so it carries nothing.", type: "boolean", default: "false" },
     { name: "format", description: "Format the control writes into `value`. See {@link WrColorFormat} — all three are accepted on the way in whichever one is set.", type: "WrColorFormat", default: "'hex'" },
     { name: "swatches", description: "Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row.", type: "readonly string[]", default: "[]" },
     { name: "value", description: "The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
@@ -517,6 +521,7 @@ export const API = {
     { name: "maxFiles", description: "Max files (multi mode only). `0` disables the check.", type: "number", default: "0" },
     { name: "showList", description: "Render the picked-files list below the zone.", type: "boolean", default: "true" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes to the selection while the zone stays focusable and the files still submit. Bound automatically from the field's readonly state when used with `[formField]`. The zone stops opening the picker, a drop is refused and the per-file remove buttons go inert — but the list stays readable, which is the point. No `aria-readonly`: the zone is a `role=\"button\"`, and ARIA does not define the state for that role, so `aria-disabled` would be the only mirror available and it would say the wrong thing.", type: "boolean", default: "false" },
     { name: "pickLabel", description: "Primary call-to-action label. Falls back to `fileUpload.browse`.", type: "string | null", default: "null" },
     { name: "dropLabel", description: "Secondary instruction below the CTA. Falls back to `fileUpload.dropZone`.", type: "string | null", default: "null" },
     { name: "dropZoneLabel", description: "Drop-zone host aria-label. Falls back to `fileUpload.dropZoneLabel`.", type: "string | null", default: "null" },
@@ -654,6 +659,7 @@ export const API = {
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `inputOtp.size` app default from `provideWrConfig()`.", type: "WrInputOtpSize | null", default: "'md'" },
     { name: "mask", description: "Mask the typed characters like a password.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while every box stays focusable and the code still submits. Bound automatically from the field's readonly state when used with `[formField]`. Each box is a real text input, so this is the native `readonly` attribute — arrow keys, Home / End and selection keep working, which is the whole difference from `disabled`. Paste is cancelled too, since a `paste` still reaches a read-only input even though typing does not.", type: "boolean", default: "false" },
     { name: "placeholder", description: "Character shown in empty cells.", type: "string", default: "'•'" },
     { name: "value", description: "The entered code. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(completed)", description: "Fires once when every cell holds a character.", type: "string" },
@@ -866,7 +872,7 @@ export const API = {
   ],
   // <wr-radio>
   WrRadio: [
-    { name: "id", description: "Stable id used to associate the native input with its label.", type: "string", default: "randomId('wr-radio')" },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "randomId('wr-radio')" },
     { name: "value", description: "Value selected when this radio is checked.", type: "unknown", required: true },
     { name: "icon", description: "Optional icon name rendered inside the dot when checked, in place of the default solid circle. Use any registered NGWR icon.", type: "WrIconName | null", default: "null" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Set per option (the group has no `size`); unset falls back to the `radio.size` app default from `provideWrConfig()`.", type: "WrRadioSize | null", default: "'md'" },
@@ -876,6 +882,7 @@ export const API = {
   WrRadioGroup: [
     { name: "name", description: "Shared `name` attribute. Defaults to a random id so multiple groups on the same page don't collide. (Also the `FormUiControl.name` slot.)", type: "string", default: "randomId('wr-radio-group')" },
     { name: "disabled", description: "Disable the whole group. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse selection changes while every option stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Native radios ignore the `readonly` attribute, so the group cancels the activation instead and mirrors the state as `aria-readonly`, which role `radiogroup` supports.", type: "boolean", default: "false" },
     { name: "value", description: "The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "null" },
     { name: "(touch)", description: "Emitted on blur from any child so a bound field can mark itself touched.", type: "void" },
   ],
@@ -930,6 +937,7 @@ export const API = {
     { name: "value", description: "The picked segment's `value`, `null` when nothing is selected. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | null", default: "null" },
     { name: "(touch)", description: "Emitted when focus leaves the strip, so a bound field can mark itself touched.", type: "void" },
     { name: "disabled", description: "Disable the whole control. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while every segment stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. NOTHING is mirrored into ARIA here, deliberately: the strip is a `role=\"group\"` of `aria-pressed` buttons, and ARIA defines `aria-readonly` for neither role — it is a state of `checkbox` / `radiogroup` / `textbox` and their kin, and it is not global. `aria-disabled` is the only attribute that would apply to a button, and it says the wrong thing: these segments are still focusable and the value still submits. So the state is honest in the DOM (`wr-segmented--readonly`) and silent in the accessibility tree rather than announced with a word that means something else.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSegmentedSize", default: "'md'" },
   ],
   // <wr-select>
@@ -938,6 +946,7 @@ export const API = {
     { name: "clearLabel", description: "Clear-selection (×) button aria-label. Falls back to `select.clearSelection`.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — `role=\"combobox\"` on an empty trigger otherwise has no name at all, which is the common case before anything is selected.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the select. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while the trigger stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only select does not open — and with it go the clear button, the chip ×, the tag draft and the search query. The text-input shapes take the native `readonly` attribute, which is what keeps them focusable and selectable where `disabled` would not; every shape mirrors `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
     { name: "rounded", description: "Pill-shaped corners on the trigger. Unset falls back to the `select.rounded` app default from `provideWrConfig()`; `[rounded]=\"false\"` turns a configured `true` back off.", type: "boolean | null", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `select.size` app default from `provideWrConfig()`.", type: "WrSelectSize | null", default: "'md'" },
     { name: "responsive", description: "Present the option panel as a full-width bottom-sheet on small viewports instead of an anchored dropdown. `undefined` follows the app-wide `provideWrResponsiveOverlays()` setting; `true`/`false` overrides it.", type: "boolean | undefined", default: "undefined" },
@@ -1001,6 +1010,7 @@ export const API = {
     { name: "step", description: "Step size for keyboard and drag.", type: "number", default: "1" },
     { name: "range", description: "Render two thumbs and emit `[low, high]`.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse value changes while the thumbs stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The thumbs keep their tab stop and keep announcing their value — arrow keys, Home / End and the pointer simply move nothing — which is the whole difference from `disabled`, where they would leave the tab order entirely. Mirrored as `aria-readonly`, which role `slider` supports.", type: "boolean", default: "false" },
     { name: "showLabel", description: "Render the current value below the track.", type: "boolean", default: "true" },
     { name: "ariaLabel", description: "Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.", type: "string | null", default: "null" },
     { name: "upperLabel", description: "Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.", type: "string | null", default: "null" },
@@ -1155,8 +1165,9 @@ export const API = {
   // <wr-switch>
   WrSwitch: [
     { name: "ariaLabel", description: "Accessible name for a switch used WITHOUT projected text. The wrapping `<label>` names the control whenever content is projected; with none, the label is empty and the input has no name at all.", type: "string | null", default: "null" },
-    { name: "id", description: "Stable id used to associate the native input with its label.", type: "string", default: "randomId('wr-switch')" },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "randomId('wr-switch')" },
     { name: "disabled", description: "Disable the switch. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native checkbox ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since the key arrives as a click — and mirrors the state as `aria-readonly`, which role `switch` supports.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Unset falls back to the `switch.size` app default from `provideWrConfig()`.", type: "WrSwitchSize | null", default: "'md'" },
     { name: "checked", description: "On / off state. Bound by `[formField]`, or two-way via `[(checked)]`.", type: "boolean", default: "false" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
@@ -1286,6 +1297,7 @@ export const API = {
     { name: "value", description: "Values currently in the RIGHT pane. Two-way bindable; bound automatically by `[formField]` / `[(ngModel)]`.", type: "readonly unknown[]", default: "[]" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field marks itself touched.", type: "void" },
     { name: "disabled", description: "Disable the whole control.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes to the value while both panes stay focusable and readable. Bound automatically from the field's readonly state when used with `[formField]`. The move buttons go inert and the row checkboxes go read-only; SEARCH keeps working, because filtering a pane changes what is shown and not what is chosen. No `aria-readonly` on the host: role `group` does not support the state, so each row's checkbox mirrors its own instead.", type: "boolean", default: "false" },
     { name: "searchable", description: "Show a filter box above each pane.", type: "boolean", default: "false" },
     { name: "sourceTitle", description: "Heading above the left pane. Falls back to `transfer.source`.", type: "string | null", default: "null" },
     { name: "targetTitle", description: "Heading above the right pane. Falls back to `transfer.target`.", type: "string | null", default: "null" },
@@ -1302,6 +1314,7 @@ export const API = {
     { name: "expanded", description: "Expanded node ids (two-way bindable).", type: "readonly TId[]", default: "[]" },
     { name: "selectionMode", description: "Selection behavior.", type: "WrTreeSelectionMode", default: "'single'" },
     { name: "disabled", description: "Disable the whole tree. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse selection changes while the tree stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Expanding and collapsing keep working: a branch is NAVIGATION, not a value, so a read-only tree is still browsable — it is picking and un-picking that stops. In `overlay` mode the trigger additionally refuses to open, because there the panel exists only to choose from and it already shows what is chosen. `aria-readonly` rides on the combobox trigger only; role `tree` does not support the state, so the inline shape has nothing valid to mirror it onto.", type: "boolean", default: "false" },
     { name: "openOn", description: "Render shape.", type: "'inline' | 'overlay'", default: "'inline'" },
     { name: "placeholder", description: "Placeholder shown on the trigger when no node is selected.", type: "string", default: "''" },
     { name: "ariaLabel", description: "Accessible name of the overlay trigger. Falls back to the placeholder, then to `select.label` — a `role=\"combobox\"` with nothing selected and no placeholder otherwise has no name at all.", type: "string | null", default: "null" },

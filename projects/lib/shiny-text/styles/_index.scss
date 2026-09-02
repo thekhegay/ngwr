@@ -1,106 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-// Shimmering text (reactbits port). Clips an animated linear gradient to
-// the text via `background-clip: text`.
+// Public Sass entry for `@use 'ngwr/shiny-text'`.
 //
-// The keyframes are 0% → 50%, then hold at the end position. Inputs set
-// `animation-duration` to (speed + delay); the keyframe hits the end at
-// the 50%/totalDuration mark and rests for the rest, which collapses to
-// `speed` of motion + `delay` of pause — without needing two animations.
-
-.wr-shiny-text {
-  // Theme-default sweep (overridden by `[color]` / `[shineColor]`):
-  // gray base with a dark shine on light surfaces; dark theme restores
-  // the reactbits gray-with-white-flash below.
-  --wr-shiny-text-base: var(--wr-color-on-surface-muted, #8594a4);
-  --wr-shiny-text-shine: var(--wr-color-on-surface, #0f172a);
-
-  display: inline-block;
-  background-size: 200% auto;
-  background-position: 150% center;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation-name: wr-shiny-text-sweep;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: normal;
-  animation-fill-mode: both;
-  animation-play-state: running;
-
-  &--reverse {
-    animation-direction: reverse;
-  }
-
-  &--yoyo {
-    animation-direction: alternate;
-
-    &.wr-shiny-text--reverse {
-      animation-direction: alternate-reverse;
-    }
-  }
-
-  &--paused {
-    animation-play-state: paused;
-  }
-
-  &--pause-on-hover:hover {
-    animation-play-state: paused;
-  }
-}
-
-@keyframes wr-shiny-text-sweep {
-  0% {
-    background-position: 150% center;
-  }
-  50% {
-    background-position: -50% center;
-  }
-  100% {
-    background-position: -50% center;
-  }
-}
-
-// Reduced motion: freeze the sweep at its rest position — the gradient's
-// base color fills the text, so it stays readable with zero movement.
-@media (prefers-reduced-motion: reduce) {
-  .wr-shiny-text {
-    animation: none !important;
-  }
-}
-
-// [wrShimmer] directive
-// Same package as <wr-shiny-text>. Lightweight host-class directive —
-// gradient sweep across text via `background-clip: text`.
-@keyframes wr-shimmer {
-  100% {
-    background-position-x: -200%;
-  }
-}
-
-.wr-shimmer {
-  background: linear-gradient(
-    110deg,
-    var(--wr-color-on-surface) 30%,
-    rgba(var(--wr-color-primary-rgb), 0.9) 50%,
-    var(--wr-color-on-surface) 70%
-  );
-  background-size: 200% 100%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: wr-shimmer 2.5s linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-[data-theme='dark'] .wr-shiny-text {
-  --wr-shiny-text-base: #b5b5b5;
-  --wr-shiny-text-shine: #ffffff;
-}
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `shiny-text.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `shiny-text.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

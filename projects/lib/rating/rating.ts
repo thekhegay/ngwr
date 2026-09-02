@@ -10,6 +10,7 @@ import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coerci
 import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useFormFieldAria } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { clamp } from 'ngwr/utils';
 
@@ -88,6 +89,18 @@ export class WrRating implements FormValueControl<number | null> {
 
   protected readonly interactive = computed(() => !this.disabled() && !this.readonly());
 
+  /**
+   * Whether the control keeps its tab stop — `disabled` only, never `readonly`.
+   *
+   * The two states differ precisely here: a disabled control leaves the tab
+   * order, a read-only one stays in it and keeps announcing `aria-valuenow`,
+   * because a keyboard user still has to be able to READ a value they cannot
+   * change. Driving `tabindex` off `interactive()` collapsed that distinction
+   * and made `readonly()` unreachable — with an `aria-describedby` pointing at
+   * an error message on an element nobody could focus.
+   */
+  protected readonly focusable = computed(() => !this.disabled());
+
   /** What we actually render — hover wins while hovering. */
   protected readonly displayValue = computed(() => this.hoverValue() ?? this.value() ?? 0);
 
@@ -103,6 +116,9 @@ export class WrRating implements FormValueControl<number | null> {
    * interaction rather than cached, so a runtime flip needs no subscription.
    */
   private readonly directionality = inject(Directionality, { optional: true });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
 
   protected readonly classes = computed(() => {
     const parts = ['wr-rating'];

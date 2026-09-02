@@ -1,78 +1,15 @@
-// Breadcrumbs. The separator glyph comes from `--wr-breadcrumbs-separator`
-// (set by the component from the `[separator]` input). All items except
-// the first prepend the glyph via a `::before` pseudo-element.
-
-@use '../../theme/styles' as theme;
-
-.wr-breadcrumbs {
-  --wr-breadcrumbs-separator: '/';
-  --wr-breadcrumbs-gap: 0.5rem;
-  --wr-breadcrumbs-color: rgba(var(--wr-color-on-surface-rgb), 0.6);
-  --wr-breadcrumbs-current-color: var(--wr-color-on-surface);
-  --wr-breadcrumbs-link-color: var(--wr-color-primary-ink);
-  --wr-breadcrumbs-separator-color: rgba(var(--wr-color-on-surface-rgb), 0.3);
-
-  display: block;
-  font-family: var(--wr-font-family-base);
-  font-size: var(--wr-text-sm);
-  color: var(--wr-breadcrumbs-color);
-
-  &__nav {
-    display: block;
-  }
-
-  &__list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--wr-breadcrumbs-gap);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  &__item {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--wr-breadcrumbs-gap);
-
-    // Separator before every item except the first.
-    &:not(:first-child)::before {
-      content: var(--wr-breadcrumbs-separator);
-      color: var(--wr-breadcrumbs-separator-color);
-      user-select: none;
-    }
-  }
-
-  &__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: var(--wr-breadcrumbs-link-color);
-    text-decoration: none;
-    border-radius: var(--wr-border-radius-sm);
-    transition: color 0.15s ease;
-
-    &:hover {
-      text-decoration: underline;
-    }
-
-    &:focus-visible {
-      @include theme.focus-ring;
-      outline-offset: 2px;
-    }
-  }
-
-  &__current {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    color: var(--wr-breadcrumbs-current-color);
-    font-weight: 600;
-  }
-
-  &__icon {
-    --wr-icon-size: 1rem;
-    flex: 0 0 auto;
-  }
-}
+// Public Sass entry for `@use 'ngwr/breadcrumbs'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `breadcrumbs.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `breadcrumbs.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

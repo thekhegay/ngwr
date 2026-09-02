@@ -34,11 +34,23 @@ export type WrRadioSize = 'sm' | 'md' | 'lg';
   selector: 'wr-radio',
   templateUrl: './radio.html',
   encapsulation: ViewEncapsulation.None,
-  host: { '[class]': 'classes()' },
+  host: {
+    '[class]': 'classes()',
+    // The `id` input belongs to the native input, not to this element. A static
+    // `id="x"` in a consumer's template is written to the host as a plain
+    // attribute AS WELL as fed to the input, which put two elements with the
+    // same id in the document and made `<label for>` resolve through
+    // `getElementById` to the host — not a labelable element, so `input.labels`
+    // went from 1 to 0 and `document.getElementById(id)` returned the wrong node.
+    '[attr.id]': 'null',
+  },
   imports: [WrIcon],
 })
 export class WrRadio {
-  /** Stable id used to associate the native input with its label. */
+  /**
+   * Stable id used to associate the native input with its label. Lands on the
+   * inner `<input>`; the host never keeps it.
+   */
   readonly id = input<string>(randomId('wr-radio'));
 
   /** Value selected when this radio is checked. */
@@ -81,18 +93,36 @@ export class WrRadio {
   /** Effective disabled — this option's own `disabled` or the group's. */
   protected readonly isDisabled = computed(() => this.disabled() || (this.group?.isDisabled() ?? false));
 
+  /**
+   * Readonly is a GROUP-level state — a single option cannot be read-only while
+   * its siblings are not, because picking any of them rewrites the same value.
+   * `aria-readonly` therefore lives on the `role="radiogroup"` host and NOT here:
+   * role `radio` does not support it.
+   */
+  protected readonly isReadonly = computed(() => this.group?.isReadonly() ?? false);
+
   protected readonly classes = computed(() => {
     const parts = ['wr-radio'];
     const size = this.resolvedSize();
     if (size !== 'md') parts.push(`wr-radio--${size}`);
     if (this.checked()) parts.push('wr-radio--checked');
     if (this.isDisabled()) parts.push('wr-radio--disabled');
+    else if (this.isReadonly()) parts.push('wr-radio--readonly');
     if (this.icon()) parts.push('wr-radio--has-icon');
     return parts.join(' ');
   });
 
+  /**
+   * Cancel the selection while the group is read-only. `change` never fires for
+   * a click whose default was prevented, so this is the only guard the pointer
+   * and Space paths need; `onSelect` keeps its own for a synthetic `change`.
+   */
+  protected onInputClick(event: Event): void {
+    if (this.isReadonly()) event.preventDefault();
+  }
+
   protected onSelect(): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     this.group?.select(this.value());
   }
 

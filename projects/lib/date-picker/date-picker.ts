@@ -556,6 +556,13 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Push a value to the model while remembering it, so the sync effect treats
    * the resulting change as an echo and leaves the display text alone. */
   private commitValue(next: Date | null): void {
+    // The calendar is browsable while `readonly` — the field is untypeable, not
+    // inert, which is a contract this component's spec pins deliberately. That
+    // makes the popup a SECOND way into the model, and it was unguarded: a
+    // `readonly()` schema rule left a day click writing exactly as if the rule
+    // were absent. Guarding at the single write point rather than at the three
+    // ways in keeps the calendar readable and still refuses the edit.
+    if (this.readonly()) return;
     this.lastValue = next;
     this.value.set(next);
   }

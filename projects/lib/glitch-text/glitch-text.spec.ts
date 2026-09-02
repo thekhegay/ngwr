@@ -123,9 +123,13 @@ describe('WrGlitchText', () => {
  * sheet is read as text: every `content: attr(data-text)` must be scoped to `__clones`
  * — the element the template marks `aria-hidden` — because the same declaration on
  * `.wr-glitch-text::before` is generated content on the host, which is announced.
+ *
+ * `_rules.scss`, not `_index.scss`: the entry file forwards the rules and exists to
+ * pull the emitting theme layer in for a standalone `@use 'ngwr/glitch-text'`, which
+ * the component's `styleUrl` deliberately does not take.
  */
 describe('the glitch-text stylesheet', () => {
-  const code = readFileSync(join(process.cwd(), 'projects/lib/glitch-text/styles/_index.scss'), 'utf8')
+  const code = readFileSync(join(process.cwd(), 'projects/lib/glitch-text/styles/_rules.scss'), 'utf8')
     .split('\n')
     .filter(line => !line.trim().startsWith('//'))
     .join('\n');

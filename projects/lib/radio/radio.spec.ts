@@ -48,6 +48,16 @@ class SizeHost {
   readonly size = signal<WrRadioSize | null>(null);
 }
 
+@Component({
+  imports: [WrRadio, WrRadioGroup],
+  template: `
+    <wr-radio-group>
+      <wr-radio id="rad" value="free">Free</wr-radio>
+    </wr-radio-group>
+  `,
+})
+class IdHost {}
+
 /**
  * A radio only means anything as part of a group, so every test here goes
  * through one. The two things worth pinning are that the native inputs share a
@@ -208,5 +218,47 @@ describe('WrRadio + provideWrConfig', () => {
       'wr-radio',
       'wr-radio',
     ]);
+  });
+});
+
+/**
+ * `[id]` is documented as "the id used to associate the native input with its
+ * label", and using it used to be exactly what broke that association: Angular
+ * feeds a static `id="x"` to the input AND leaves it on the host, so the
+ * document held two elements with the id, `<label for>` resolved through
+ * `getElementById` to the `<wr-radio>` host — not a labelable element — and
+ * `input.labels` went from 1 to 0. The host binding that strips it is the fix,
+ * and these are the three observable consequences of it.
+ */
+describe('WrRadio with an author-supplied id', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<IdHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-radio')!;
+  const input = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input.wr-radio__input')!;
+  const label = (): HTMLLabelElement => root().querySelector<HTMLLabelElement>('label')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(IdHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the id on the native input and off the host', () => {
+    expect(input().id).toBe('rad');
+    expect(host().hasAttribute('id')).toBe(false);
+  });
+
+  it('leaves exactly one element in the document carrying it', () => {
+    expect(root().querySelectorAll('#rad')).toHaveLength(1);
+    expect(document.getElementById('rad')).toBe(input());
+  });
+
+  it('still labels the control', () => {
+    expect(label().htmlFor).toBe('rad');
+    expect(input().labels).toHaveLength(1);
   });
 });

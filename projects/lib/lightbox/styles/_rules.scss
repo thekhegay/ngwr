@@ -1,0 +1,198 @@
+// Image with click-to-zoom lightbox. The host wraps the `<img>` and is
+// sized by the consumer (CSS / inline styles on `<wr-lightbox>`).
+
+@use '../../theme/styles/mixins' as theme;
+// `focus` is the one theme partial these rules still load that emits CSS of its
+// own — the shared ring mixin lives in the same file as the baseline
+// `.wr-*:focus-visible` rules, and there is no mixin-only module to take it from.
+// That is ~4 KB of rules identical to the global sheet's, against the ~24 KB token
+// layer the split removes, and it is the honest trade: hand-rolling the three
+// declarations here is what the shared mixin exists to prevent.
+@use '../../theme/styles/focus';
+
+.wr-lightbox {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  @include theme.smooth-br(var(--wr-lightbox-radius, var(--wr-border-radius-base)));
+  background: var(--wr-color-hover);
+  // No `cursor: zoom-in` here: `disablePreview` renders a plain thumbnail with no
+  // trigger and nothing to open, and the zoom cursor invited a click that did
+  // nothing. `&__trigger` carries it — that is the element that opens the viewer.
+
+  // Reserve space before the image resolves so the box doesn't collapse to
+  // 0 and shove the layout when the thumbnail pops in.
+  &--loading {
+    min-height: var(--wr-lightbox-loading-min-height, 4rem);
+  }
+
+  &--loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    // Sit above the host's empty placeholder background and below the image,
+    // so the shimmer is visible over the reserved area while loading.
+    background: linear-gradient(
+      90deg,
+      rgba(var(--wr-color-surface-rgb), 0) 0%,
+      rgba(var(--wr-color-surface-rgb), 0.45) 50%,
+      rgba(var(--wr-color-surface-rgb), 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: wr-lightbox-shimmer 1.4s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &__trigger {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+
+    // Not cancelled — MOVED. The ring is drawn on the host by
+    // `&:has(&__trigger:focus-visible)` below (see the comment there); this
+    // only keeps the UA's own ring from leaking a few clipped corner pixels
+    // through in a second colour.
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &__thumb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    -webkit-user-drag: none;
+    // Fade in once the `loaded` signal drops the `--loading` class, so the
+    // image resolves smoothly instead of snapping in. Sits above the shimmer.
+    position: relative;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+  }
+
+  &--loading &__thumb {
+    opacity: 0;
+  }
+
+  // The trigger is `width: 100%; height: 100%`, so it is exactly coterminous
+  // with the host — and the host clips (`overflow: hidden` above, for the
+  // rounded corners), so a ring drawn on the button falls entirely outside the
+  // clip and nothing survives. Insetting the offset does not rescue it either:
+  // `&__thumb` is `position: relative; z-index: 2` and paints over the button's
+  // own outline. An element's outline is not clipped by its OWN `overflow`, so
+  // the ring goes on the host instead.
+  &:has(&__trigger:focus-visible) {
+    @include focus.focus-ring;
+  }
+}
+
+@keyframes wr-lightbox-shimmer {
+  // `background-position` offsets are physical by spec — there is no logical
+  // form to convert to, so nothing here is being suppressed. The sweep is also
+  // aesthetic choreography rather than layout, and the gradient it rides
+  // (`--loading::after`) is symmetric about its midpoint, so a sweep that keeps
+  // running left-to-right under RTL reads as a highlight, not a broken layout.
+  // rtl-ok: background-position has no logical equivalent — see above
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.wr-lightbox-backdrop {
+  background: rgba(var(--wr-color-backdrop-rgb), 0.85);
+}
+
+.wr-lightbox-overlay {
+  pointer-events: auto;
+}
+
+.wr-lightbox-viewer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 95vw;
+  max-height: 95vh;
+  max-height: 95dvh;
+  padding: 1rem;
+  animation: wr-lightbox-viewer-in 0.18s ease;
+  outline: none;
+  // Own the swipe-down-to-dismiss gesture; no scroll/zoom to defer to.
+  touch-action: none;
+
+  &__close {
+    --wr-icon-size: 1.25rem;
+    position: absolute;
+    top: 1rem;
+    inset-inline-end: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(var(--wr-color-surface-rgb), 0.12);
+    color: rgba(var(--wr-color-surface-rgb), 0.9);
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+
+    @include theme.touch-target($positioned: true); // 36px -> 44px tap area on touch
+
+    &:hover {
+      background: rgba(var(--wr-color-surface-rgb), 0.2);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(var(--wr-color-surface-rgb), 0.9);
+      outline-offset: 2px;
+    }
+  }
+
+  &__full {
+    display: block;
+    max-width: 100%;
+    max-height: calc(95vh - 4rem);
+    max-height: calc(95dvh - 4rem);
+    object-fit: contain;
+    cursor: zoom-out;
+    @include theme.smooth-br(0.5rem);
+  }
+
+  &__caption {
+    color: rgba(var(--wr-color-surface-rgb), 0.85);
+    font-family: var(--wr-font-family-base);
+    font-size: var(--wr-text-sm);
+    text-align: center;
+    max-width: 60ch;
+  }
+}
+
+@keyframes wr-lightbox-viewer-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

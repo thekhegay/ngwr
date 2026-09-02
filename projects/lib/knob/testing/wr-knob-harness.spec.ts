@@ -178,11 +178,13 @@ describe('WrKnobHarness', () => {
 
     const harness = await knob();
 
-    // Read-only also leaves the tab order, so the dial cannot be reached to be read.
+    // Read-only keeps its tab stop: the dial refuses the edit and still has to
+    // be reachable, so a keyboard user can hear the value it is holding.
+    // `disabled` is the state that leaves the tab order.
     expect([await harness.isReadonly(), await harness.isDisabled(), await harness.isFocusable()]).toEqual([
       true,
       false,
-      false,
+      true,
     ]);
 
     await harness.pressArrow('right');

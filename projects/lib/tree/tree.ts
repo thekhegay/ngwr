@@ -33,6 +33,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOutsideClick } from 'ngwr/overlay';
 
@@ -123,6 +124,27 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * @default false
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Refuse selection changes while the tree stays focusable and the value still
+   * submits. Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * Expanding and collapsing keep working: a branch is NAVIGATION, not a value,
+   * so a read-only tree is still browsable — it is picking and un-picking that
+   * stops. In `overlay` mode the trigger additionally refuses to open, because
+   * there the panel exists only to choose from and it already shows what is
+   * chosen.
+   *
+   * `aria-readonly` rides on the combobox trigger only; role `tree` does not
+   * support the state, so the inline shape has nothing valid to mirror it onto.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
 
   // Overlay-mode inputs (ignored when openOn='inline')
 
@@ -321,6 +343,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   protected readonly classes = computed(() => {
     const parts = ['wr-tree'];
     if (this.disabled()) parts.push('wr-tree--disabled');
+    else if (this.readonly()) parts.push('wr-tree--readonly');
     if (this.isOverlay()) {
       parts.push('wr-tree--combobox');
       if (this.open()) parts.push('wr-tree--open');
@@ -457,7 +480,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // Disabling the control closes any open overlay (mirrors the side effect
     // of the old CVA setDisabledState).
     effect(() => {
-      if (this.disabled()) this.open.set(false);
+      if (this.disabled() || this.readonly()) this.open.set(false);
     });
 
     // Bridge an external `value` write back into the internal `selected`
@@ -631,7 +654,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   // Overlay-mode trigger handlers
 
   protected onTriggerClick(): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     this.open.update(v => !v);
   }
 
@@ -642,7 +665,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   protected removeChip(id: TId, event: Event): void {
     event.stopPropagation();
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     const next = this.selected().filter(x => x !== id);
     this.selected.set(next);
     this.emit();
@@ -650,7 +673,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   protected clearSelection(event: Event): void {
     event.stopPropagation();
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     this.selected.set([]);
     this.emit();
   }
@@ -665,6 +688,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   }
 
   private select(id: TId, additive: boolean): void {
+    // Every selection path funnels through here — row click, Enter, Space — so
+    // one guard covers them all while expand / collapse stays reachable.
+    if (this.readonly()) return;
     const mode = this.selectionMode();
     if (mode === 'none') return;
     if (mode === 'single') {

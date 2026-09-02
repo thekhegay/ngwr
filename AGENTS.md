@@ -62,8 +62,25 @@ A pnpm + Angular CLI monorepo with two projects:
 | `ng-package.json`    | ng-packagr secondary-entry config                           |
 
 `@use 'ngwr/<name>'` resolves through the `sass` condition in
-`projects/lib/package.json`'s `exports` map. Public types live in each entry
-point's `interfaces/` folder (an `index.ts` barrel re-exported through
+`projects/lib/package.json`'s `exports` map.
+
+**A component with a `styleUrl` splits that one file in two, and the rule is
+mechanical: rules go in `styles/_rules.scss`, never in `_index.scss`.** Twenty-seven
+components have a `styleUrl`, and a component stylesheet is its OWN Sass
+compilation — `@use` deduplicates within one compilation, not across them — so a
+`_index.scss` that both `@use`s the theme and holds the rules inlines a second
+copy of `:root`, the dark block and the box-sizing reset into the FESM bundle, at
+35–42 kB apiece. It also wins the cascade over the app's own palette, since
+Angular appends component `<style>` blocks after the linked stylesheet: twenty
+components were quietly reverting a documented `@use 'ngwr/theme' with
+($base-colors: …)` customisation. So `_index.scss` is the public entry (`@use
+'../../theme/styles'` + `@forward 'rules'`) and the `styleUrl` shim forwards
+`./styles/rules`. `package.spec.ts` walks the `@use` / `@forward` closure of every
+`styleUrl` and fails on a theme-layer emission inside it, so getting this wrong is
+a red test rather than a silent 40 kB.
+
+Public types live in each entry point's
+`interfaces/` folder (an `index.ts` barrel re-exported through
 `public-api.ts`); cross-cutting types live in `ngwr/utils/interfaces`
 (e.g. `Maybe`, `SafeAny`).
 
@@ -101,6 +118,21 @@ one component folder. Reach for them instead of hand-rolling:
   `Signal<boolean>`; SCSS mixin API via `@use 'ngwr/breakpoints'`.
 - **Theme** (`ngwr/theme`) — `provideWrTheme()` sets the `--wr-*` token layer
   (see Styling). Global CSS: `@use 'ngwr'` (umbrella) or `@use 'ngwr/<name>'`.
+  **`provideWrTheme({ attribute })` has a Sass half and both must be set**, since
+  a CSS selector cannot read a provider value: the dark block keys on
+  `$theme-attribute` (`theme/styles/_dark.scss`, default `'data-theme'`), so a
+  renamed attribute means `@use 'ngwr' with ($theme-attribute: '...')` as well.
+  Only the configured name is emitted — keeping the default as a second selector
+  would re-couple ngwr to whatever other design system owns `data-theme`, which
+  is the collision the rename exists to escape. The two disagreeing used to be
+  the perfect silent failure (service reports `dark`, attribute written, page
+  stays light), so the compiled theme publishes the name it keys on as
+  `--wr-theme-attribute` and `WrTheme` warns on a mismatch in dev mode; an ABSENT
+  marker is silent on purpose, because it means "no ngwr stylesheet loaded",
+  which is every consumer's unit-test run. Style your own dark overrides with the
+  `theme.dark` mixin rather than a hand-written `[data-theme='dark']` — seven
+  animation stylesheets still hardcode that literal and are wrong under a
+  renamed attribute.
   **`wrThemeTokens()` is the palette recipe in TypeScript** — the same arithmetic
   as `_colors.scss`, for a theme chosen at RUNTIME (a builder, a tenant colour, a
   registry preset). It emits **seven tokens per intent, not twelve**: the tint and
@@ -185,7 +217,26 @@ and subtract the internal `date-picker/internal/time-panel.ts`. `ControlValueAcc
 forms still work: Angular 22 synthesises the accessor for a signal-forms
 control. Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
 New value controls: implement `FormValueControl`, expose `value` as a `model()`,
-plus a `touch` output and a `disabled` input. Validation copy is centralized:
+plus a `touch` output, a `disabled` input and a **`readonly` input** — Angular
+writes every name in `CONTROL_BINDING_NAMES` onto the control through
+`setInputOnDirectives`, so a control that declares no `readonly` input simply
+never hears about `readonly()` in the schema, with no warning anywhere. Never
+delegate it to `disabled`: read-only keeps the tab stop, keeps announcing the
+value and still submits, so the guard goes on the write path and the cue is a
+`wr-<x>--readonly` class with `cursor: default`. Mirror it into ARIA **only where
+the role allows it** — `aria-readonly` is not a global attribute, so it is legal
+on `checkbox` / `switch` / `radiogroup` / `combobox` / `slider` / `textbox` and
+illegal on `radio`, `tree`, `group` and `button`; where there is nothing valid to
+mirror onto, say so in the input's JSDoc rather than reaching for `aria-disabled`,
+which means something else. The field's error state is one call —
+`useFormFieldAria()` from `ngwr/form` returns the `aria-invalid` /
+`aria-describedby` pair off `WR_FORM_FIELD`. A COMPOSITE (`wr-transfer`,
+`wr-color-picker`) whose own parts are ngwr controls must shield its subtree with
+`providers: [{ provide: WR_FORM_FIELD, useValue: null }]` and read the real field
+with `useFormFieldAria({ skipSelf: true })`, or its inner segmented strip and
+checkboxes each announce the outer field's error as their own.
+
+Validation copy is centralized:
 `<wr-form-field>` resolves a message per error key through
 `provideWrFormErrors()` → the `ngwr/i18n` `validation.*` catalog → a built-in
 fallback, so a field needs no `<wr-form-error>` markup unless it wants
@@ -757,14 +808,18 @@ Four rules if you touch it, and each one is a bug it already had:
   selector paints and the state table can cover it directly instead of reaching
   through the `:hover` twin.
 - **Wait for the state to STOP MOVING, and never against `transform: none`.**
-  `reducedMotion` does not stop an overlay's enter animation, and mid-flight the
-  dialog reports its own title at 3.68:1 — a half-faded panel over a half-faded
-  backdrop. The check is five identical samples of every ANCESTOR's opacity and
-  transform (the pane animates, not the panel) plus a count of running
-  colour-affecting animations. Every CDK pane carries a permanent positioning
-  translate, so "settled means no transform" can never be satisfied; and a toast's
-  progress bar runs for its whole dismiss timeout, so animations that cannot
-  change a colour do not count.
+  `reducedMotion` used not to stop an overlay's enter animation, and mid-flight
+  the dialog reported its own title at 3.68:1 — a half-faded panel over a
+  half-faded backdrop. Since v13 `theme/styles/_motion.scss` removes that
+  animation on the ten overlay selectors it names, so that particular reading
+  cannot recur; the settle-wait still has to exist, because that block names
+  ten selectors and not every animation, and because transitions and the
+  toast's progress bar sit outside it either way. The check is five identical
+  samples of every ANCESTOR's opacity and transform (the pane animates, not the
+  panel) plus a count of running colour-affecting animations. Every CDK pane
+  carries a permanent positioning translate, so "settled means no transform" can
+  never be satisfied; and a toast's progress bar runs for its whole dismiss
+  timeout, so animations that cannot change a colour do not count.
 - **Sample the wait from NODE, one short evaluate at a time.** A three-second loop
   inside the page runs its timers and still sees the same six transitions running
   the whole way — a headless renderer nothing is asking for a frame does not
@@ -1078,6 +1133,20 @@ because it is guidance rather than a plan.
   handling is `wr-spotlight-card`, where a gradient tracks the cursor and no
   content moves. (A first sweep reported eight, on a glob that dropped every
   component without an HTML file. The number was wrong before it was checked.)
+  **That sentence is scoped to the animations catalog and does not generalise** —
+  it was true and still left ten always-on chrome components unguarded, four of
+  them animating infinitely, including the spinner and the skeleton that paint on
+  every page. Those are covered by `theme/styles/_motion.scss`, one shared
+  `@media (prefers-reduced-motion: reduce)` block, and NOT by per-component
+  rules: the theme layer is loaded before every component stylesheet, so each
+  declaration there is `!important` out of necessity rather than habit, and
+  `.wr-overlay-sheet` needs its class doubled besides, because its own animation
+  is `!important` too. What reduced motion means is decided per animation — an
+  enter animation is removed (every one of them ends on the element's resting
+  state, so nothing is left mid-flight), a decorative infinite shimmer is
+  removed, a SPINNER is slowed rather than stopped (a frozen spinner reads as
+  hung, not as calm), and the toast's progress bar is deliberately left running,
+  because it is a countdown and a bar frozen full states something untrue.
 - The `if (!i18n)` branch in `useI18nText` is dead code, not a defect: `WrI18n`
   is root-provided, and `no-provider.spec.ts` proves it resolves with nothing
   configured. That optional-inject-that-always-constructs is also what once

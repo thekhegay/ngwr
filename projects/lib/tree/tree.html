@@ -8,6 +8,9 @@
     [attr.aria-haspopup]="'tree'"
     [attr.aria-expanded]="open()"
     [attr.aria-controls]="panelId"
+    [attr.aria-readonly]="readonly() || null"
+    [attr.aria-invalid]="fieldAria.ariaInvalid()"
+    [attr.aria-describedby]="fieldAria.describedBy()"
     (click)="onTriggerClick()"
     (blur)="onBlur()"
   >
@@ -58,7 +61,7 @@
       }
     }
 
-    @if (clearable() && hasSelection() && !disabled()) {
+    @if (clearable() && hasSelection() && !disabled() && !readonly()) {
       <span
         class="wr-tree__clear"
         role="button"
@@ -114,11 +117,16 @@
      overlay panel (when openOn="overlay"). -->
 <ng-template #listTpl>
   <!-- Roving tabindex (non-virtual) / aria-activedescendant (virtual): the tree
-       owns keyboard focus and routes arrow keys to its currently-focused row. -->
+       owns keyboard focus and routes arrow keys to its currently-focused row.
+       The field's error state is bound here for the INLINE shape only — in
+       overlay mode the trigger carries it, and the panel would otherwise
+       describe the same error a second time. -->
   <ul
     class="wr-tree__list"
     role="tree"
     [attr.aria-multiselectable]="isMulti() ? 'true' : null"
+    [attr.aria-invalid]="isOverlay() ? null : fieldAria.ariaInvalid()"
+    [attr.aria-describedby]="isOverlay() ? null : fieldAria.describedBy()"
     [class.wr-tree__list--virtual]="virtualized()"
     [attr.tabindex]="virtualized() ? 0 : null"
     [attr.aria-activedescendant]="activeRowId()"

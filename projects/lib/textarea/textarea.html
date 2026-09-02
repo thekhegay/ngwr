@@ -6,6 +6,8 @@
   [rows]="rows()"
   [readonly]="readonly()"
   [disabled]="disabled()"
+  [attr.aria-invalid]="fieldAria.ariaInvalid()"
+  [attr.aria-describedby]="fieldAria.describedBy()"
   [value]="value()"
   (input)="onInput($event)"
   (focus)="focused.set(true)"

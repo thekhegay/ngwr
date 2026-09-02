@@ -9,6 +9,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, forwardRef, input, model, output } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { useFormFieldAria } from 'ngwr/form';
 import { randomId } from 'ngwr/utils';
 
 import { WR_RADIO_GROUP, type WrRadioGroupContext } from './tokens';
@@ -36,7 +37,13 @@ import { WR_RADIO_GROUP, type WrRadioGroupContext } from './tokens';
   selector: 'wr-radio-group',
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-radio-group', role: 'radiogroup' },
+  host: {
+    class: 'wr-radio-group',
+    role: 'radiogroup',
+    '[attr.aria-readonly]': 'readonly() || null',
+    '[attr.aria-invalid]': 'fieldAria.ariaInvalid()',
+    '[attr.aria-describedby]': 'fieldAria.describedBy()',
+  },
   providers: [
     {
       provide: WR_RADIO_GROUP,
@@ -60,6 +67,22 @@ export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupCont
    */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Refuse selection changes while every option stays focusable and the value
+   * still submits. Bound automatically from the field's readonly state when used
+   * with `[formField]`.
+   *
+   * Native radios ignore the `readonly` attribute, so the group cancels the
+   * activation instead and mirrors the state as `aria-readonly`, which role
+   * `radiogroup` supports.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria();
+
   /** The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`. */
   readonly value = model<unknown>(null);
 
@@ -69,10 +92,13 @@ export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupCont
   /** Effective disabled state (WrRadioGroupContext). */
   readonly isDisabled = computed(() => this.disabled());
 
+  /** Effective readonly state (WrRadioGroupContext). */
+  readonly isReadonly = computed(() => this.readonly());
+
   // WrRadioGroupContext
 
   select(value: unknown): void {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.isReadonly()) return;
     this.value.set(value);
   }
 

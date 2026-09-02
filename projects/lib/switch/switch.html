@@ -7,6 +7,10 @@
     [attr.aria-label]="ariaLabel()"
     [checked]="checked()"
     [disabled]="disabled()"
+    [attr.aria-readonly]="readonly() || null"
+    [attr.aria-invalid]="fieldAria.ariaInvalid()"
+    [attr.aria-describedby]="fieldAria.describedBy()"
+    (click)="onInputClick($event)"
     (change)="onInputChange($event)"
     (blur)="onInputBlur()"
   />

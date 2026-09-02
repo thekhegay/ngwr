@@ -94,6 +94,13 @@ const back = toHex(rgb!, true);         // '#3969e2ff'`,
     },
     { name: 'disabled', description: 'Block interaction.', type: 'boolean', default: 'false' },
     {
+      name: 'readonly',
+      description:
+        'Refuse changes while every surface stays focusable and the colour still submits — the sliders keep announcing their value, the numeric fields go natively read-only and the swatches go inert. Switching tabs still works: that changes the notation shown, not the colour.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
       name: 'swatches',
       description: 'Optional row of preset hex colours rendered below the inputs.',
       type: 'readonly string[]',

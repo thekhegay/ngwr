@@ -1,0 +1,94 @@
+// `prefers-reduced-motion` for the always-on chrome.
+//
+// Why this lives in the theme layer rather than in each component. The
+// animation catalogue (`ngwr/glitch-text`, `ngwr/gradient-text`, …) guards
+// itself, component by component — those are opt-in effects, and each one knows
+// what its own stillness should look like. The ten blocks below are the
+// opposite: chrome nobody opted into. A spinner and a skeleton animate on
+// essentially every page of every app, and four of the animations here never
+// stop at all (`wr-spinner-rotate`, `wr-spinner-dash`, `wr-skeleton-shimmer`,
+// `wr-card-spin`, `wr-lightbox-shimmer`), which is the case vestibular guidance
+// is most emphatic about. Collecting them in one place is what makes the set
+// reviewable — the gap this closes existed because nine separate stylesheets
+// each forgot, and nine separate stylesheets can each forget again.
+//
+// **Every declaration here is `!important`, and that is structural rather than
+// lazy.** The theme layer is loaded first — `styles.scss` forwards it before any
+// component, and a standalone `@use 'ngwr/spinner'` pulls it in ahead of the
+// spinner's own rules — so at equal specificity the component always wins on
+// source order. `!important` is the only lever a stylesheet that must come first
+// has. `.wr-overlay-sheet` needs one more: its animation is itself `!important`
+// (it has to beat four components' panel sizing), so the class is doubled here
+// to out-specify it.
+//
+// What reduced motion MEANS is decided per animation, not globally:
+//
+//   - An ENTER animation is removed. The panel still arrives, it just does not
+//     travel to get there. Every keyframe set below animates from a transparent,
+//     offset or scaled-down state TO the element's resting one, with no
+//     `forwards`, so removing it lands on exactly the frame the animation was
+//     heading for. Nothing in the library waits on `animationend`, so nothing
+//     is left un-dismissed.
+//   - A decorative INFINITE loop is removed outright — a skeleton's shimmer and
+//     a lightbox's shimmer say nothing the static placeholder does not.
+//   - A SPINNER is slowed, not stopped. Its rotation IS the message: a frozen
+//     spinner does not read as "reduced motion", it reads as "hung". So the
+//     rotation stays at half speed and the pulsing arc — the part that carries
+//     no information — is frozen at a fixed sweep. Same call Bootstrap makes,
+//     and the same reading as WCAG 2.3.3, which is about non-essential motion.
+//   - The TOAST progress bar is deliberately left alone. It is a countdown: it
+//     is the only thing on screen saying how long is left before the toast
+//     leaves, and freezing it would not remove information, it would state a
+//     falsehood — a full bar that never drains. It is also 2px tall and moves
+//     along one axis at constant speed, the mildest shape motion sensitivity
+//     takes. If that trade is ever revisited, revisit it here.
+
+@media (prefers-reduced-motion: reduce) {
+  // Overlay enter choreography — dialog, dropdown, popconfirm, toast, lightbox
+  // viewer, and all four drawer edges.
+  .wr-dialog-panel,
+  .wr-dropdown-menu,
+  .wr-popconfirm-overlay > .wr-popconfirm,
+  .wr-toast,
+  .wr-lightbox-viewer,
+  .wr-drawer__panel--left,
+  .wr-drawer__panel--right,
+  .wr-drawer__panel--top,
+  .wr-drawer__panel--bottom {
+    animation: none !important;
+  }
+
+  // The responsive bottom sheet, which slides a full panel height up the
+  // screen — the largest single translation the library performs. Doubled
+  // class: `overlay/styles/_index.scss` sets this animation `!important`, and it
+  // is loaded after this file.
+  .wr-overlay-sheet.wr-overlay-sheet {
+    animation: none !important;
+  }
+
+  // Decorative loading shimmers. Both ride a pseudo-element whose resting
+  // position is off-screen or at its gradient origin, so stopping them leaves a
+  // plain tinted placeholder rather than a half-drawn band.
+  .wr-skeleton--animated::after,
+  .wr-lightbox--loading::after {
+    animation: none !important;
+  }
+
+  // Spinners. The rotation survives at half speed; the arc stops pulsing and
+  // holds the sweep the dash animation spends most of its cycle at, so the
+  // shape stays a recognisable spinner instead of collapsing to the 1-unit dot
+  // its first keyframe starts from.
+  .wr-spinner svg {
+    animation-duration: 4s !important;
+  }
+
+  .wr-spinner__path {
+    animation: none !important;
+    stroke-dasharray: 90, 150 !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  .wr-card__spinner {
+    animation-duration: 1.4s !important;
+  }
+}

@@ -10,6 +10,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, ViewEncapsulation, computed, effect, input, model, output, signal } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { readI18nText, useI18nFormatter } from 'ngwr/i18n';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
 import { clamp } from 'ngwr/utils';
@@ -71,6 +72,11 @@ function hasAlphaDigits(hex: string): boolean {
     '[style.--wr-color-picker-hue]': 'hueCss()',
     '[style.--wr-color-picker-rgb]': 'rgbCss()',
   },
+  // The picker is the control a `<wr-form-field>` wraps; the `<wr-segmented>` tab
+  // strip in its own template is a part, not a control. Without this shield the
+  // tab strip found the field's token and announced the colour field's error as
+  // its own — which is why `fieldAria` below reads the field with `skipSelf`.
+  providers: [{ provide: WR_FORM_FIELD, useValue: null }],
   imports: [DecimalPipe, WrSegmented],
 })
 export class WrColorPicker implements FormValueControl<string> {
@@ -79,6 +85,25 @@ export class WrColorPicker implements FormValueControl<string> {
 
   /** Disable interaction. @default false */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Refuse changes while every surface stays focusable and the colour still
+   * submits. Bound automatically from the field's readonly state when used with
+   * `[formField]`.
+   *
+   * The two sliders keep their tab stop and keep announcing `aria-valuenow` —
+   * they simply do not move — the hex / channel fields take the native
+   * `readonly` attribute, and the swatches go inert. Switching TABS still works:
+   * that changes which notation is displayed, not the colour. `aria-readonly` is
+   * mirrored on the sliders, which support it; the saturation surface is a
+   * `role="group"`, which does not, so it carries nothing.
+   *
+   * @default false
+   */
+  readonly readonly = input(false, { transform: coerceBooleanProperty });
+
+  /** The surrounding `<wr-form-field>`'s error state. @internal */
+  protected readonly fieldAria = useFormFieldAria({ skipSelf: true });
 
   /**
    * Format the control writes into `value`. See {@link WrColorFormat} — all
@@ -166,6 +191,7 @@ export class WrColorPicker implements FormValueControl<string> {
     const parts = ['wr-color-picker'];
     if (this.alpha()) parts.push('wr-color-picker--alpha');
     if (this.disabled()) parts.push('wr-color-picker--disabled');
+    else if (this.readonly()) parts.push('wr-color-picker--readonly');
     return parts.join(' ');
   });
 
@@ -207,7 +233,7 @@ export class WrColorPicker implements FormValueControl<string> {
   // Drag handlers
 
   protected onPointerDown(event: PointerEvent, surface: Edges): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     // Primary button, primary pointer: a right-click used to open the context
     // menu AND start a drag, and a second finger used to fight the first one.
     if (event.button !== 0 || !event.isPrimary) return;
@@ -247,7 +273,7 @@ export class WrColorPicker implements FormValueControl<string> {
    * the same set `wr-knob` and `wr-slider` implement, including Home / End.
    */
   protected onSliderKeydown(event: KeyboardEvent, surface: 'hue' | 'alpha'): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     const step = event.shiftKey ? KEY_STEP_COARSE : KEY_STEP;
     const max = surface === 'hue' ? 360 : 100;
     const current = surface === 'hue' ? this.h() : this.a() * 100;
@@ -283,7 +309,7 @@ export class WrColorPicker implements FormValueControl<string> {
    * the thumb visibly moves. Shift takes ten percent at a time.
    */
   protected onAreaKeydown(event: KeyboardEvent): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     const step = (event.shiftKey ? KEY_STEP_COARSE : KEY_STEP) / 100;
     switch (event.key) {
       case 'ArrowRight':
@@ -329,6 +355,7 @@ export class WrColorPicker implements FormValueControl<string> {
   // Hex input handlers
 
   protected onHexInput(event: Event): void {
+    if (this.disabled() || this.readonly()) return;
     const raw = (event.target as HTMLInputElement).value;
     this.hexInput.set(raw);
     const rgb = parseHex(raw);
@@ -367,6 +394,7 @@ export class WrColorPicker implements FormValueControl<string> {
   }
 
   protected onRgbChannel(channel: 'r' | 'g' | 'b', event: Event): void {
+    if (this.disabled() || this.readonly()) return;
     const n = clamp(Number((event.target as HTMLInputElement).value), 0, 255);
     if (Number.isNaN(n)) return;
     const current = this.rgb();
@@ -375,6 +403,7 @@ export class WrColorPicker implements FormValueControl<string> {
   }
 
   protected onHslChannel(channel: 'h' | 's' | 'l', event: Event): void {
+    if (this.disabled() || this.readonly()) return;
     const n = Number((event.target as HTMLInputElement).value);
     if (Number.isNaN(n)) return;
     const current = this.hslView();
@@ -384,6 +413,7 @@ export class WrColorPicker implements FormValueControl<string> {
   }
 
   protected onAlphaPercent(event: Event): void {
+    if (this.disabled() || this.readonly()) return;
     const n = clamp(Number((event.target as HTMLInputElement).value), 0, 100);
     if (Number.isNaN(n)) return;
     this.a.set(n / 100);
@@ -391,7 +421,7 @@ export class WrColorPicker implements FormValueControl<string> {
   }
 
   protected onSwatchClick(hex: string): void {
-    if (this.disabled()) return;
+    if (this.disabled() || this.readonly()) return;
     const rgb = parseHex(hex);
     if (!rgb) return;
     // A 6-digit swatch says nothing about alpha, and `parseHex` reports the

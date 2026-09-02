@@ -1,33 +1,15 @@
-// Pull the whole theme so a standalone `@use 'ngwr/<name>'` brings in every
-// design token this stylesheet references. Sass deduplicates `@use` per
-// compilation, so the umbrella sheet still emits the theme only once.
-@use '../../theme/styles' as theme;
-
-.wr-loading-bar {
-  position: fixed;
-  top: 0;
-  inset-inline: 0;
-  z-index: var(--wr-z-top, 9999);
-  pointer-events: none;
-
-  &__track {
-    width: 100%;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  &--active {
-    opacity: 1;
-  }
-
-  &__fill {
-    width: 0;
-    height: 2px;
-    background: var(--wr-color-primary);
-    box-shadow: 0 0 8px rgb(var(--wr-color-primary-rgb) / 60%);
-    transition:
-      width 0.15s ease-out,
-      opacity 0.2s ease;
-  }
-}
+// Public Sass entry for `@use 'ngwr/loading-bar'`.
+//
+// Pulls the whole theme so a standalone import still brings in every design
+// token these rules reference, then loads the rules themselves from `_rules`.
+//
+// The split is what keeps the token layer out of the JavaScript bundle.
+// `loading-bar.scss` is the component's `styleUrl`, and a component stylesheet is
+// its OWN Sass compilation — `@use` only deduplicates within one. So while the
+// umbrella sheet emits the theme once, forwarding it from here would inline a
+// second, byte-identical copy of `:root`, `[data-theme='dark']` and the
+// box-sizing reset into the compiled component styles, which ng-packagr then
+// embeds in the FESM bundle as a string. `loading-bar.scss` forwards `_rules`
+// instead, so it carries this component's own CSS and nothing else.
+@use '../../theme/styles';
+@forward 'rules';

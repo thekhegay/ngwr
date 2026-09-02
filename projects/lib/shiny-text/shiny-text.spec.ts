@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -108,6 +108,24 @@ describe('the [wrShimmer] directive', () => {
     return join(root, 'projects/lib', target);
   };
 
+  /**
+   * Everything a consumer's `@use` pulls in, entry file plus the partials it forwards.
+   *
+   * The entry file is not where the rules live any more: a style entry point that is
+   * also a component `styleUrl` forwards them from a sibling `_rules.scss`, so that
+   * the component's own compilation can take the rules WITHOUT the emitting theme
+   * layer the entry file pulls in for standalone consumers. Reading only the entry
+   * would report a missing rule for a stylesheet that delivers it.
+   */
+  const sassSource = (specifier: string): string => {
+    const entry = sassEntry(specifier);
+    const text = readFileSync(entry, 'utf8');
+    const forwarded = [...text.matchAll(/^@forward '([\w-]+)';/gm)].map(m =>
+      readFileSync(join(dirname(entry), `_${m[1]}.scss`), 'utf8')
+    );
+    return [text, ...forwarded].join('\n');
+  };
+
   it('sends consumers to the stylesheet that actually carries the rule', () => {
     const source = readFileSync(join(root, 'projects/lib/shiny-text/shimmer.ts'), 'utf8');
     const jsdoc = source.slice(0, source.indexOf('@Directive'));
@@ -115,7 +133,7 @@ describe('the [wrShimmer] directive', () => {
 
     expect(specifier, 'the JSDoc names no `@use` path for the styles').toBeDefined();
 
-    const styles = readFileSync(sassEntry(specifier!), 'utf8');
+    const styles = sassSource(specifier!);
     expect(styles).toContain('.wr-shimmer {');
     expect(styles).toContain('@keyframes wr-shimmer');
   });

@@ -19,6 +19,8 @@ export interface WrRadioGroupContext {
   readonly value: Signal<unknown>;
   /** Whether the entire group is disabled. */
   readonly isDisabled: Signal<boolean>;
+  /** Whether the entire group refuses edits while staying focusable. */
+  readonly isReadonly: Signal<boolean>;
   /** Select the given value. */
   select(value: unknown): void;
   /**

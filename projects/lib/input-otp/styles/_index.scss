@@ -50,6 +50,14 @@
       box-shadow: 0 0 0 3px rgba(var(--wr-color-primary-rgb), 0.15);
     }
 
+    // A read-only box still takes focus, still answers the arrow keys and still
+    // submits, so `not-allowed` would say something false about a control that
+    // is working — the cursor is the whole cue. Listed before `:disabled`, which
+    // matches a readonly-OR-disabled box too and has to win on source order.
+    &:read-only {
+      cursor: default;
+    }
+
     &:disabled {
       background: var(--wr-color-fill-strong);
       color: var(--wr-color-on-surface-muted);
