@@ -28,6 +28,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Lifetime — the dialog outlives its opener"
+    description="`WrDialog` is root-provided, so a dialog is not tied to the component that opened it: destroy that component and the panel, its backdrop and the `cdk-global-scrollblock` stay on the page. Navigation is the one case handled for you — `closeOnNavigation` is on by default. Everything else (an `@if` that removes the opener, a row dropped from a list) is the caller's job."
+  >
+    <ngwr-doc-code [code]="snippets.lifetime" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="The close button"
     description="Dialogs render a dismiss (×) in the top-right corner by default, on top of closing via backdrop click, Escape, and any element carrying `[wrDialogClose]`. Opt out per dialog with `closable: false`. `<wr-drawer>` and `WrDrawerManager` take the same `closable` / `closeLabel` pair."
   >

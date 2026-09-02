@@ -41,7 +41,13 @@ bootstrapApplication(AppComponent, {
   providers: [provideWrIcons(lucideIcons({ plus: Plus, trash: Trash }))],
 });`,
 
-    use: `<!-- 2. Reference by name in any template. -->
+    use: `// 2. Reference by name in any template. The provider is app-wide; the
+// component still has to be imported wherever <wr-icon> is written.
+import { WrIcon } from 'ngwr/icon';
+
+@Component({ imports: [WrIcon], templateUrl: './my.html' })
+export class MyComponent {}
+
 <wr-icon name="plus" />
 <wr-icon name="trash" />`,
 

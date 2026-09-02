@@ -5,11 +5,9 @@ import { routes } from '#routing';
 const pipes = routes.pipes;
 
 export default [
-  {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: pipes.wrBytes,
-  },
+  // The cluster root is a catalog page, not a redirect to its first child —
+  // see `reference.routing.ts` for why, and for the `data.index` it inherits.
+  { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   {
     path: pipes.wrNumber,
     loadComponent: () => import('./wr-number/wr-number'),

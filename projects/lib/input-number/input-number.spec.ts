@@ -277,6 +277,25 @@ describe('WrInputNumber', () => {
     expect(amount()).toBe(5);
   });
 
+  // Same shape-not-colour assertion as `WrDatePicker`'s: the disabled fill comes from
+  // `.wr-input-group:has(> .wr-input:disabled)` in `ngwr/input`, and jsdom loads no
+  // stylesheet — but the DOM shape that rule needs IS readable, and it is the half a
+  // template edit would break. The field goes transparent inside the group, so the group
+  // is what paints `--wr-color-fill`; a prefix / suffix / stepper column between them
+  // does not matter, an extra wrapper around the input does.
+  it('leaves the disabled field selectable by the rule that fills the group', () => {
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+
+    const group = root().querySelector<HTMLElement>('wr-input-group')!;
+    expect(field().parentElement).toBe(group);
+    expect(group.matches(':has(> .wr-input:disabled)')).toBe(true);
+
+    fixture.componentInstance.disabled.set(false);
+    fixture.detectChanges();
+    expect(group.matches(':has(> .wr-input:disabled)')).toBe(false);
+  });
+
   it('takes no input while readonly', () => {
     fixture.componentInstance.readonly.set(true);
     fixture.detectChanges();

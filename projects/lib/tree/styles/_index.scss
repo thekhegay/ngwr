@@ -145,6 +145,11 @@
     --wr-tree-trigger-font-size: var(--wr-control-font-size-md);
     --wr-tree-trigger-line-height: var(--wr-control-line-height-md);
     --wr-tree-panel-max-height: 18rem;
+    // Trigger width floor — hooked for the same reason as `--wr-select-min-width`:
+    // in a narrow grid column the literal wins over `minmax(0, 1fr)` and the
+    // trigger overhangs its cell, and the only escape was overriding
+    // `.wr-tree__trigger` from outside. Set it to 0 to defer to the layout.
+    --wr-tree-trigger-min-width: 12rem;
 
     display: inline-flex;
     vertical-align: middle;
@@ -160,7 +165,7 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
-    min-width: 12rem;
+    min-width: var(--wr-tree-trigger-min-width);
     appearance: none;
     background: var(--wr-tree-trigger-bg);
     color: var(--wr-tree-trigger-color);

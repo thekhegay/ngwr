@@ -5,7 +5,9 @@ import { routes } from '#routing';
 const utils = routes.utils;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: utils.getRootFontSize },
+  // The cluster root is a catalog page, not a redirect to its first child —
+  // see `reference.routing.ts` for why, and for the `data.index` it inherits.
+  { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   { path: utils.resolveCssSize, loadComponent: () => import('./resolve-css-size/resolve-css-size') },
   { path: utils.getRootFontSize, loadComponent: () => import('./get-root-font-size/get-root-font-size') },
   { path: utils.randomId, loadComponent: () => import('./random-id/random-id') },
@@ -13,8 +15,11 @@ export default [
   { path: utils.clamp, loadComponent: () => import('./clamp/clamp') },
   { path: utils.round, loadComponent: () => import('./round/round') },
   { path: utils.numAttr, loadComponent: () => import('./num-attr/num-attr') },
-  // Types grew into their own top-level section.
-  { path: utils.types, redirectTo: '/interfaces/common' },
+  // Types grew into their own top-level section. Spelled at its CURRENT path:
+  // `/interfaces/common` is itself a pre-reorg alias, so this was a redirect to a
+  // redirect — two hops, and the stub's markdown twin pointed at a URL that has
+  // none.
+  { path: utils.types, redirectTo: '/reference/interfaces/common' },
   { path: utils.isNonEmptyArray, loadComponent: () => import('./is-non-empty-array/is-non-empty-array') },
   { path: utils.isObservable, loadComponent: () => import('./is-observable/is-observable') },
   { path: utils.keys, loadComponent: () => import('./keys/keys') },

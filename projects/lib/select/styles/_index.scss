@@ -10,6 +10,14 @@
   --wr-select-padding-x: var(--wr-control-padding-x-md);
   --wr-select-font-size: var(--wr-control-font-size-md);
   --wr-select-line-height: var(--wr-control-line-height-md);
+  // The floor that keeps a bare `<wr-select>` from collapsing to its
+  // placeholder. A hook rather than a literal because the floor is wrong as
+  // often as it is right: dropped into a `minmax(0, 1fr)` grid column the
+  // trigger holds 160px and overhangs its cell, and overriding
+  // `.wr-select__trigger` is reaching past the public contract for something
+  // the rest of the component already exposes. Set it to 0 to hand the width
+  // back to the layout.
+  --wr-select-min-width: 10rem;
 
   display: inline-flex;
   vertical-align: middle;
@@ -57,7 +65,7 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
-    min-width: 10rem;
+    min-width: var(--wr-select-min-width);
     appearance: none;
     background: var(--wr-select-bg);
     color: var(--wr-select-color);

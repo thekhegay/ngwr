@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  description="Unified date / time / date-time picker. `<input>` + popover for every mode — overlay content swaps based on `[mode]`. Parses on every keystroke (silently — only emits when valid), reformats canonical on blur. Format driven by `WrDateAdapter`."
+  description="Unified date / time / date-time picker. `<input>` + popover for every mode — overlay content swaps based on `[mode]`. Parses on every keystroke (silently — only emits when valid), reformats canonical on blur. Format driven by `WrDateAdapter`. A signal-forms native control — it implements `FormValueControl`, so `[formField]` binds straight to its `value` model. `[(value)]` works standalone, and `[(ngModel)]` / reactive forms keep working through Angular's bridge."
   [keywords]="['date', 'time', 'datetime', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
 >
@@ -151,6 +151,33 @@
       fields feeding one calendar leaves no reading of &ldquo;untypeable&rdquo; that still lets the grid rewrite both
       ends.
     </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Use it in a form"
+    description="Both pickers are signal-forms native controls, so `[formField]` binds their `value` model directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control with no `ControlValueAccessor` involved — the library ships none, and `formControlName` still works. Submit empty to see the required error."
+  >
+    <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <form
+        [formGroup]="reactiveForm"
+        (ngSubmit)="submitReactive()"
+        style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 26rem"
+      >
+        <wr-form-field label="Due date" required>
+          <wr-date-picker formControlName="due" placeholder="Pick a date" />
+          <wr-form-error key="required">Pick a due date.</wr-form-error>
+        </wr-form-field>
+        <wr-form-field label="Reporting period" optional>
+          <wr-date-range-picker formControlName="period" startPlaceholder="From" endPlaceholder="To" />
+        </wr-form-field>
+        <button wr-btn type="submit" color="primary" style="align-self: flex-start">Submit</button>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          due touched: {{ reactiveForm.controls.due.touched }} · form valid: {{ reactiveForm.valid }}
+        </span>
+      </form>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

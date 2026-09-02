@@ -131,6 +131,19 @@
     }
   }
 
+  // ...which is why the group has to carry the disabled fill on the input's
+  // behalf. `.wr-input:disabled` sets `--wr-input-bg: var(--wr-color-fill)`,
+  // but the `background: transparent` above outranks it and the group keeps
+  // painting `--wr-color-surface` — so in a disabled form `<wr-date-picker>`
+  // and `<wr-input-number>` were the only fields still reading as editable
+  // beside a greyed `[wrInput]`, `<wr-textarea>` and `<wr-select>`.
+  // Readonly is deliberately NOT matched: `--disabled` is the only state
+  // `wr-textarea` / `wr-select` / `wr-cascader` fill for, and the bare
+  // `.wr-input[readonly]` fill is the outlier, not the contract.
+  &:has(> .wr-input:disabled) {
+    --wr-input-group-bg: var(--wr-color-fill);
+  }
+
   &__affix {
     display: inline-flex;
     align-items: center;

@@ -537,6 +537,28 @@ describe('WrDatePicker', () => {
     expect(calendar()).toBeNull();
   });
 
+  // The disabled surface fill is a stylesheet rule — `.wr-input-group:has(> .wr-input:disabled)`
+  // in `ngwr/input` — and jsdom loads no stylesheet, so no spec can read the painted
+  // colour. What it CAN hold is the shape that rule selects on, which is the half that
+  // silently broke: the field melts into `<wr-input-group>` (the group paints, the input
+  // goes transparent), so the GROUP is what has to carry `--wr-color-fill`, and until the
+  // rule existed a disabled form left the date fields as the only ones still reading as
+  // editable beside a greyed `[wrInput]` / `<wr-textarea>` / `<wr-select>`. Wrap the input
+  // in anything and the fill stops applying with nothing else in the suite to notice.
+  it('leaves the disabled field selectable by the rule that fills the group', () => {
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+
+    const group = host().querySelector<HTMLElement>('wr-input-group')!;
+    expect(field().disabled).toBe(true);
+    expect(field().parentElement).toBe(group);
+    expect(group.matches(':has(> .wr-input:disabled)')).toBe(true);
+
+    fixture.componentInstance.disabled.set(false);
+    fixture.detectChanges();
+    expect(group.matches(':has(> .wr-input:disabled)')).toBe(false);
+  });
+
   it('still opens while readonly — the field is untypeable, not inert', () => {
     fixture.componentInstance.readonly.set(true);
     fixture.detectChanges();

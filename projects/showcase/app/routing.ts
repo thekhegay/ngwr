@@ -376,6 +376,36 @@ export const routing: Routes = [
       // The section briefly shipped as /types before it was /interfaces.
       { path: 'types/:page', redirectTo: ({ params }) => `/reference/interfaces/${params['page']}` },
       { path: 'types', redirectTo: '/reference/interfaces' },
+
+      // `/docs/*` — the prefix EVERY page sat under until v7, when
+      // `refactor(showcase): rename /docs to /getting-started` flattened the
+      // sections out of it. Nothing has resolved these since, and search
+      // engines still hand them out: a usability test's very first action was
+      // `ngwr.dev/docs`, off a result advertising `ngwr.dev/docs/components/tag`.
+      // Both landed on the 404. The three sub-trees below are the whole of what
+      // ever shipped under the prefix — `getting-started`, `components`, and a
+      // `core` that briefly also held the directive / pipe / service / util
+      // sections before each became a sibling of its own.
+      { path: 'docs/components/:page', redirectTo: ({ params }) => `/reference/components/${params['page']}` },
+      { path: 'docs/components', redirectTo: '/reference/components' },
+      { path: 'docs/getting-started/:page', redirectTo: ({ params }) => `/start/${params['page']}` },
+      { path: 'docs/getting-started', redirectTo: '/start' },
+      { path: 'docs/core/color', redirectTo: '/guides/tokens/colors' },
+      { path: 'docs/core/directives/:page', redirectTo: ({ params }) => `/reference/directives/${params['page']}` },
+      { path: 'docs/core/directives', redirectTo: '/reference/directives' },
+      { path: 'docs/core/pipes/:page', redirectTo: ({ params }) => `/reference/pipes/${params['page']}` },
+      { path: 'docs/core/pipes', redirectTo: '/reference/pipes' },
+      { path: 'docs/core/services/:page', redirectTo: ({ params }) => `/reference/services/${params['page']}` },
+      { path: 'docs/core/services', redirectTo: '/reference/services' },
+      { path: 'docs/core/utils/:page', redirectTo: ({ params }) => `/reference/utils/${params['page']}` },
+      { path: 'docs/core/utils', redirectTo: '/reference/utils' },
+      // What is left under `core` is `grid` and `overlay`, both guides now.
+      { path: 'docs/core/:page', redirectTo: ({ params }) => `/guides/${params['page']}` },
+      { path: 'docs/core', redirectTo: '/guides' },
+      // The prefix root itself. It redirected to Installation when it existed,
+      // and `/start` is where that page lives — same landing as the flat
+      // `/getting-started` alias above, so the two eras agree.
+      { path: 'docs', redirectTo: '/start' },
     ],
   },
 

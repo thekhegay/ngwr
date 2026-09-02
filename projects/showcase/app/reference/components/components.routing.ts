@@ -5,11 +5,9 @@ import { routes } from '#routing';
 const components = routes.components;
 
 export default [
-  {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: components.button,
-  },
+  // The cluster root is a catalog page, not a redirect to its first child —
+  // see `reference.routing.ts` for why, and for the `data.index` it inherits.
+  { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   {
     path: components.actionSheet,
     loadComponent: () => import('./action-sheet/action-sheet'),
@@ -319,11 +317,33 @@ export default [
     path: components.tabs,
     loadComponent: () => import('./tabs/tabs'),
   },
-  // Typography moved to its own top-level section; keep old links alive.
+  // Typography moved to its own top-level section; keep old links alive. At its
+  // current path, not the pre-reorg `/typography`, which bounced twice more.
   {
     path: components.typography,
-    redirectTo: '/typography',
+    redirectTo: '/guides/typography/overview',
   },
+  // Three components were hard-merged into a neighbour, and their slugs are
+  // still indexed — a usability test's first search result was
+  // `/docs/components/tag`. Each target is where the merged API is DOCUMENTED,
+  // not a near-enough page: `badge` imports and demos `WrTag` from `ngwr/badge`,
+  // `counter` is what `count-up` became, and `popover` carries `mode="tooltip"`.
+  // The v7 consolidations are not guesses either: `/start/migration` publishes
+  // each mapping by name, and `migration-v7` rewrites the same pairs in source.
+  // Leaving a slug at the 404 while the site itself prints its successor two
+  // clicks away is the gap a usability test walked into.
+  { path: 'tag', redirectTo: components.badge },
+  { path: 'count-up', redirectTo: components.counter },
+  { path: 'tooltip', redirectTo: components.popover },
+  { path: 'autocomplete', redirectTo: components.select },
+  { path: 'chips-input', redirectTo: components.select },
+  { path: 'tree-select', redirectTo: components.tree },
+  { path: 'bottom-sheet', redirectTo: components.drawer },
+  { path: 'time-picker', redirectTo: components.datePicker },
+  { path: 'date-time-picker', redirectTo: components.datePicker },
+  // `animated-text` stays at the 404 on purpose — it split three ways by mode
+  // (`typewriter` / `decrypt-text` / `split-text`), into a different cluster,
+  // so any single target would be the guess the others are not.
   {
     path: components.textarea,
     loadComponent: () => import('./textarea/textarea'),

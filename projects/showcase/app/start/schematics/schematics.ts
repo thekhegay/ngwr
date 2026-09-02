@@ -37,6 +37,19 @@ ng add ngwr`,
     ngAddFlags: `# Skip prompts:
 ng add ngwr --styles=all --dateAdapter=date-fns --density=lg --theme=system
 
+# "None" is spelled \`none\` — it is a real enum value, not an empty flag:
+ng add ngwr --styles=none --dateAdapter=none --density=none --theme=none
+
+# Every accepted value:
+#   --styles       all | none                        (default: all)
+#   --dateAdapter  none | native | date-fns | luxon  (default: none)
+#   --density      none | sm | lg                    (default: none)
+#   --theme        none | light | dark | system      (default: none)
+#
+# Those four defaults are also what a non-interactive run picks — so
+# \`--theme=system\` is the flag that gets you provideWrTheme() in the
+# printed snippet. Omit it and no theme provider is printed at all.
+
 # CI / monorepo — skip the install task:
 ng add ngwr --skipPeerInstall`,
 

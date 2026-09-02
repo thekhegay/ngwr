@@ -63,6 +63,29 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Use it in a form"
+    description="Signal forms is the native path — `[formField]` binds the `checked` model directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control with no `ControlValueAccessor` involved: the library ships none, and `formControlName` still works. Mind which model each half binds — a single checkbox is a boolean, the group is the array of `checkboxValue`s."
+  >
+    <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <form [formGroup]="reactiveForm" style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <wr-checkbox formControlName="agree">I agree to the terms</wr-checkbox>
+        <wr-checkbox-group formControlName="features">
+          <wr-checkbox checkboxValue="autosave">Autosave</wr-checkbox>
+          <wr-checkbox checkboxValue="notifications">Notifications</wr-checkbox>
+          <wr-checkbox checkboxValue="darkmode">Dark mode</wr-checkbox>
+        </wr-checkbox-group>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          agree: {{ reactiveForm.controls.agree.value }} · features: [{{
+            reactiveForm.controls.features.value.join(', ')
+          }}] · form valid: {{ reactiveForm.valid }}
+        </span>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Checkbox API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

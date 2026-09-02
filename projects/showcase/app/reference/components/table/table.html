@@ -37,6 +37,36 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="What a cell template can read"
+    description='A `[wrTableCell]` template gets three context members, and only the value is implicit. The row itself is `let-row="item"` — a bare `let-row` binds the value a second time, which is the quiet way to get an undefined in a click handler.'
+  >
+    <ngwr-doc-code [code]="snippets.cellContext" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Row actions"
+    description="The column key is just a key — give the action column one nothing in the row answers to, leave its title empty, and read the row off the template context. Deleting here mutates the demo's own list; reload the section to get the rows back."
+  >
+    <ngwr-doc-snippet [code]="snippets.rowActions">
+      <div style="width: 100%">
+        <wr-table [columns]="actionColumns" [items]="actionRows()" emptyLabel="Every row deleted.">
+          <ng-template wrTableCell="actions" let-row="item">
+            <wr-btn size="sm" color="danger" outlined (click)="removeRow(row)">Delete</wr-btn>
+          </ng-template>
+        </wr-table>
+        <wr-btn size="sm" style="margin-top: 0.75rem" (click)="restoreRows()">Restore rows</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Loading, empty — and error"
+    description="`[loading]` and `emptyLabel` are the two states the table draws itself. There is no error input, and that is deliberate: a failed request belongs to the page, not to the table. Render a `<wr-alert>` beside it and let the table show its empty state."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Pagination"
     description="Set `[pageSize]` for client-side pagination — the table slices rows automatically and renders a `<wr-pagination>` footer. Pass `[totalItems]` to switch to server-side mode (you handle slicing)."
   >

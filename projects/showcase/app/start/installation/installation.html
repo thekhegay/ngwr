@@ -5,29 +5,34 @@
   [labels]="['Getting started']"
 >
   <ngwr-doc-section
+    title="Requirements"
+    description="**Angular 22 is the floor.** `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` and the `@angular/cdk` peer are all declared `>=22.0.0`, alongside rxjs 7 — an older Angular will not resolve. Four more peers are optional and marked as such, so nothing installs them for you until you reach for the feature: `@angular/router` (`wr-sidebar`, `wr-tabs`, `wr-breadcrumbs`, `wr-loading-bar`), `lucide` (the lucide icon adapter), and `date-fns` or `luxon` (their date adapters). `tslib` is the only real dependency."
+  />
+
+  <ngwr-doc-section
     title="Quick start"
-    description="`ng add` runs the schematic that installs peer deps, wires `@use 'ngwr';` into your global styles, and prints a tailored bootstrap snippet based on the prompts you answer."
+    description="`ng add` runs the schematic that installs peer deps (including `lucide`), wires `@use 'ngwr';` into your global styles, and prints a tailored bootstrap snippet based on the prompts you answer. It prints those providers rather than writing them — copy them into `app.config.ts` yourself."
   >
     <ngwr-doc-code [code]="snippets.ngAdd" language="bash" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Manual install"
-    description="If you'd rather wire things yourself, install the package + the CDK peer."
+    description="If you'd rather wire things yourself, install the package + the CDK peer. Unlike `ng add`, this does not pull `lucide` — add it when you want the lucide icon adapter."
   >
     <ngwr-doc-code [code]="snippets.install" language="bash" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Bootstrap"
-    description="NGWR is built for standalone components and zoneless change detection. The minimal app config:"
+    description="Two providers are what separate a working first run from a broken one. `provideWrTheme()` is the one to not skip: it writes `[data-theme]` on `<html>`, and without it the light tokens stay put — so a visitor whose OS is in dark mode reads near-black text on the browser's dark canvas. `provideWrOverlay()` gives ngwr's overlays their own container instead of the one every CDK consumer shares, and installs the visual-viewport watcher that lets a mobile bottom-sheet clear the on-screen keyboard; panels still open without it. The rest of the catalog's providers are optional — see [Configuration](/start/configuration)."
   >
     <ngwr-doc-code [code]="snippets.appConfig" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Global styles"
-    description="Import once in your global stylesheet. The umbrella entry pulls theme tokens + every component's styles. Utilities are opt-in."
+    description="Import once in your global stylesheet. The umbrella entry pulls theme tokens + every component's styles. Utilities are opt-in. The [theming guide](/guides/theming) writes this as `@use 'ngwr' as *;` — same CSS either way; `as *` only drops the `ngwr.` prefix from the SCSS mixins the umbrella forwards, so reach for it when you want `@include media-up(md)` unqualified."
   >
     <ngwr-doc-code [code]="snippets.globalStyles" language="scss" />
   </ngwr-doc-section>
@@ -41,9 +46,16 @@
 
   <ngwr-doc-section
     title="Use a component"
-    description="Import the component class into the standalone component's imports array."
+    description="Import the component class into the standalone component's imports array. Nothing here needs a provider or an extra package."
   >
     <ngwr-doc-code [code]="snippets.usage" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Use a component with an icon"
+    description="Icons are registered, not bundled wholesale: name the ones you use and the rest tree-shake away. This is the first snippet on the page that needs a package beyond `ngwr` + `@angular/cdk`."
+  >
+    <ngwr-doc-code [code]="snippets.usageIcon" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -59,4 +71,6 @@
   >
     <ngwr-doc-code [code]="snippets.overridePalette" language="scss" />
   </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="seeAlso" />
 </ngwr-doc-page>

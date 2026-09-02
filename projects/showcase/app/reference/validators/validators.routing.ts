@@ -5,7 +5,9 @@ import { routes } from '#routing';
 const v = routes.validators;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: v.match },
+  // The cluster root is a catalog page, not a redirect to its first child —
+  // see `reference.routing.ts` for why, and for the `data.index` it inherits.
+  { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   { path: v.noWhitespace, loadComponent: () => import('./no-whitespace/no-whitespace') },
   { path: v.hexColor, loadComponent: () => import('./hex-color/hex-color') },
   { path: v.url, loadComponent: () => import('./url/url') },

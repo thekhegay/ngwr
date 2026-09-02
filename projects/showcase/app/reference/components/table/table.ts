@@ -156,6 +156,23 @@ export default class TablePageComponent {
   protected readonly paginatedRows = PAGINATED_ROWS;
   protected readonly page = signal(1);
 
+  // Row-actions demo. A column key with no data behind it (`actions`) plus a
+  // cell template that reads `let-row="item"` — the pair a "Delete" button needs.
+  protected readonly actionRows = signal<readonly Record<string, unknown>[]>([...RAW_ROWS]);
+  protected readonly actionColumns: WrTableColumns = {
+    name: { title: 'Name' },
+    email: { title: 'Email' },
+    actions: { title: '', width: 96 },
+  };
+
+  protected removeRow(row: Record<string, unknown>): void {
+    this.actionRows.update(rows => rows.filter(r => r !== row));
+  }
+
+  protected restoreRows(): void {
+    this.actionRows.set([...RAW_ROWS]);
+  }
+
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
     name: { title: 'Name', pin: 'left', sortable: true },
@@ -216,13 +233,57 @@ export default class TablePageComponent {
     install: `import { WrTable, WrTableCell, type WrTableColumns } from 'ngwr/table';
 
 @Component({ imports: [WrTable, WrTableCell] })
-export class MyComponent {}`,
+export class MyComponent {}
+
+// Each projected template is its own directive, and \`imports: []\` takes the
+// class, not the selector. Add the ones your template actually uses:
+//   <ng-template wrTableCell>        -> WrTableCell
+//   <ng-template wrTableExpand>      -> WrTableExpand
+//   <ng-template wrTableGroupHeader> -> WrTableGroupHeader`,
     basic: `<wr-table [columns]="columns" [items]="rows" />`,
     custom: `<wr-table [columns]="columns" [items]="rows" [(sort)]="sort" (filterChange)="onFilter($event)">
   <ng-template wrTableCell="role" let-value>
     <wr-tag [color]="value === 'admin' ? 'danger' : 'medium'">{{ value }}</wr-tag>
   </ng-template>
 </wr-table>`,
+    cellContext: `<!-- The cell template's context is \`WrTableCellContext\`: three names,
+     and only the first is implicit.
+
+       let-value             the cell value — item[columnKey]
+       let-row="item"        the WHOLE row object
+       let-col="column"      that column's own definition (title, width, …)
+
+     \`let-row\` alone binds \`$implicit\`, i.e. the value again — the row needs
+     the explicit \`="item"\`. -->
+<ng-template wrTableCell="role" let-value let-row="item" let-col="column">
+  {{ col.title }}: {{ value }} — {{ row.email }}
+</ng-template>`,
+    rowActions: `// A column whose cells are buttons: give it a key of its own and no
+// title-bearing data behind it. \`let-row="item"\` is what the handler needs —
+// the cell value for an action column is \`undefined\`, and that is fine.
+const columns: WrTableColumns = {
+  name: { title: 'Name' },
+  email: { title: 'Email' },
+  actions: { title: '', width: 96 },
+};
+
+<wr-table [columns]="columns" [items]="rows">
+  <ng-template wrTableCell="actions" let-row="item">
+    <wr-btn size="sm" color="danger" outlined (click)="remove(row)">Delete</wr-btn>
+  </ng-template>
+</wr-table>`,
+    states: `<!-- Two states are built in. \`[loading]\` draws the spinner overlay;
+     \`items\` that is empty (or null) draws the empty row, whose copy is
+     \`emptyLabel\` — or the \`table.empty\` i18n key when you leave it unset. -->
+<wr-table [columns]="columns" [items]="rows()" [loading]="loading()" emptyLabel="No users yet" />
+
+<!-- There is deliberately NO error input. A failed request is the page's
+     state, not the table's, so render it beside the table and pass the empty
+     list through: -->
+@if (error(); as message) {
+  <wr-alert type="danger" title="Could not load users" [message]="message" />
+}
+<wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
     paginated: `<wr-table [columns]="columns" [items]="rows" [pageSize]="5" [(page)]="page" />`,
     pinned: `const columns: WrTableColumns = {
   name:   { title: 'Name', pin: 'left' },
@@ -315,9 +376,32 @@ export class MyComponent {}`,
     },
     {
       name: '[wrTableCell]',
-      description: 'Per-column cell template. The attribute value is the column key it overrides.',
+      description:
+        'Per-column cell template. The attribute value is the column key it overrides; import `WrTableCell`. Its context is `WrTableCellContext` — three names, listed below.',
       type: 'directive',
       default: '—',
+    },
+    {
+      name: 'let-value',
+      description: 'The cell value, `item[columnKey]`. The implicit context member, so the name is yours to pick.',
+      type: 'unknown',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-row="item"',
+      description:
+        'The whole row object. Needs the explicit `="item"` — a bare `let-row` binds the implicit value instead. This is what a row-action button reads.',
+      type: 'Record<string, unknown>',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'let-col="column"',
+      description: 'That column’s own definition — `title`, `width`, `align`, and the rest of `WrTableColumn`.',
+      type: 'WrTableColumn',
+      default: '—',
+      sub: true,
     },
   ];
 

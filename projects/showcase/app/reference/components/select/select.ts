@@ -1,7 +1,9 @@
 import { JsonPipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { WrButton } from 'ngwr/button';
+import { WrFormError, WrFormField } from 'ngwr/form';
 import { WrOption, WrOptionGroup, WrSelect } from 'ngwr/select';
 
 import {
@@ -19,10 +21,14 @@ import { API } from '#core/generated/api';
   templateUrl: './select.html',
   imports: [
     FormsModule,
+    ReactiveFormsModule,
     JsonPipe,
     WrSelect,
     WrOption,
     WrOptionGroup,
+    WrFormField,
+    WrFormError,
+    WrButton,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -48,11 +54,25 @@ export default class SelectComponent {
   /** Tag-mode validator demo: reasonable email check. */
   protected readonly isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
+  /** Reactive-forms demo — `formControlName` on `<wr-select>`, no accessor in sight. */
+  // Bound so the lint rule's unbound-method check stays satisfied.
+  private readonly required = Validators.required.bind(Validators);
+  protected readonly reactiveForm = new FormGroup({
+    framework: new FormControl<string | null>(null, this.required),
+  });
+
+  protected submitReactive(): void {
+    this.reactiveForm.markAllAsTouched();
+  }
+
   protected readonly snippets = {
-    install: `import { WrSelect, WrOption } from 'ngwr/select';
+    install: `import { WrSelect, WrOption, WrOptionGroup } from 'ngwr/select';
 import { FormsModule } from '@angular/forms';
 
-@Component({ imports: [WrSelect, WrOption, FormsModule] })
+// WrOptionGroup only if you use <wr-option-group>; FormsModule only for
+// [(ngModel)]. For reactive forms bring ReactiveFormsModule instead — see
+// "Use it in a form" below.
+@Component({ imports: [WrSelect, WrOption, WrOptionGroup, FormsModule] })
 export class MyComponent {}`,
     basic: `<wr-select placeholder="Pick a size" [(value)]="size">
   <wr-option value="sm">Small</wr-option>
@@ -97,6 +117,48 @@ export class MyComponent {}`,
   [validate]="isEmail"
   [maxItems]="5"
 />`,
+    // The page said "reactive forms keep working through Angular's bridge" and
+    // showed no example, next to a large claim that the library ships no
+    // `ControlValueAccessor` — so the honest reading was that `formControlName`
+    // would throw "No value accessor for form control". It does not: Angular 22
+    // binds a signal-forms control directly, through `value` / `valueChange`.
+    forms: `<!-- Signal forms — the native path. \`[formField]\` binds the field to
+     the component's own \`value\` model. -->
+<wr-select [formField]="form.framework">
+  <wr-option value="angular">Angular</wr-option>
+  <wr-option value="react">React</wr-option>
+</wr-select>
+
+<!-- Reactive forms — no ControlValueAccessor anywhere, and none needed.
+     Angular 22 binds \`formControlName\` / \`[formControl]\` straight to the
+     control's \`value\` model, relays its \`touch\` output as markAsTouched(),
+     and writes \`disabled\` back down from the FormControl. -->
+<form [formGroup]="form">
+  <wr-form-field label="Framework" required>
+    <wr-select formControlName="framework" placeholder="Pick one">
+      <wr-option value="angular">Angular</wr-option>
+      <wr-option value="react">React</wr-option>
+    </wr-select>
+    <wr-form-error key="required">Pick a framework.</wr-form-error>
+  </wr-form-field>
+</form>
+
+<!-- Template-driven — the same bridge. -->
+<wr-select [(ngModel)]="framework" name="framework">…</wr-select>`,
+    formsTs: `import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { WrFormError, WrFormField } from 'ngwr/form';
+import { WrOption, WrSelect } from 'ngwr/select';
+
+@Component({
+  imports: [ReactiveFormsModule, WrFormField, WrFormError, WrSelect, WrOption],
+  templateUrl: './my.html',
+})
+export class MyComponent {
+  protected readonly form = new FormGroup({
+    framework: new FormControl<string | null>(null, Validators.required),
+  });
+}`,
     search: `<!-- clearable is opt-in: it paints the × and gates Backspace-to-clear. -->
 <wr-select mode="search" clearable placeholder="Search a country" [(value)]="country">
   @for (c of countries; track c) {

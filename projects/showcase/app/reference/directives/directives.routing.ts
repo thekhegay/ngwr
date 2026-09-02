@@ -5,7 +5,9 @@ import { routes } from '#routing';
 const directives = routes.directives;
 
 export default [
-  { path: '', pathMatch: 'full', redirectTo: directives.affix },
+  // The cluster root is a catalog page, not a redirect to its first child —
+  // see `reference.routing.ts` for why, and for the `data.index` it inherits.
+  { path: '', pathMatch: 'full', loadComponent: () => import('#core/components/doc-index/doc-index') },
   { path: directives.affix, loadComponent: () => import('./affix/affix') },
   { path: directives.autofocus, loadComponent: () => import('./autofocus/autofocus') },
   { path: directives.autosize, loadComponent: () => import('./autosize/autosize') },

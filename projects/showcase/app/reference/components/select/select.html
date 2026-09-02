@@ -208,6 +208,35 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Use it in a form"
+    description="All three flavours bind the same `value` model. Signal forms is the native one — `[formField]` reaches it directly. Reactive forms and `[(ngModel)]` go through Angular 22's bridge, which binds a signal-forms control without a `ControlValueAccessor`: the library ships none, and `formControlName` still works. The demo is a reactive form — submit it empty to see the required error, then pick a value."
+  >
+    <ngwr-doc-code [code]="snippets.forms" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.formsTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <form
+        [formGroup]="reactiveForm"
+        (ngSubmit)="submitReactive()"
+        style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 22rem"
+      >
+        <wr-form-field label="Framework" required>
+          <wr-select formControlName="framework" placeholder="Pick one">
+            <wr-option value="angular">Angular</wr-option>
+            <wr-option value="react">React</wr-option>
+            <wr-option value="vue">Vue</wr-option>
+          </wr-select>
+          <wr-form-error key="required">Pick a framework.</wr-form-error>
+        </wr-form-field>
+        <button wr-btn type="submit" color="primary" style="align-self: flex-start">Submit</button>
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Control value: {{ reactiveForm.controls.framework.value ?? 'null' }} · touched:
+          {{ reactiveForm.controls.framework.touched }}
+        </span>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Select API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

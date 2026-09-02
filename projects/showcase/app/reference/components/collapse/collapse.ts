@@ -27,9 +27,11 @@ import { API } from '#core/generated/api';
 })
 export default class CollapsePageComponent {
   protected readonly snippets = {
-    install: `import { WrCollapse, WrCollapseGroup } from 'ngwr/collapse';
+    install: `import { WrAccordion, WrCollapse, WrCollapseGroup } from 'ngwr/collapse';
 
-@Component({ imports: [WrCollapse, WrCollapseGroup] })
+// WrAccordion is <wr-accordion>, the accordion shorthand below — a separate
+// class, so writing the tag without importing it renders nothing.
+@Component({ imports: [WrCollapse, WrCollapseGroup, WrAccordion] })
 export class MyComponent {}`,
     basic: `<wr-collapse title="Section title">
   Section body…
