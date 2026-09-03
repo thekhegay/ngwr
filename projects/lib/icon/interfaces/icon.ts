@@ -25,5 +25,14 @@ import type { WrIconName } from './icon-name';
  */
 export interface WrIconDef {
   name: WrIconName;
+  /**
+   * The icon's SVG markup, treated as **untrusted**: `<wr-icon>` rebuilds the
+   * first `<svg>` root from an allowlist of shape, paint and text elements
+   * rather than assigning the string to `innerHTML`, so event handlers,
+   * `<script>`, `<style>`, `<image>`, `<foreignObject>`, `<a>`, SMIL animation
+   * and non-fragment `href`s never reach the DOM. Registering a runtime-fetched
+   * or tenant-supplied icon set is therefore safe; dev mode warns whenever
+   * anything is dropped.
+   */
   data: string;
 }

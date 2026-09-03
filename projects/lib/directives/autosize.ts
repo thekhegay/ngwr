@@ -20,7 +20,10 @@ import { Directive, ElementRef, PLATFORM_ID, afterEveryRender, effect, inject, i
  */
 @Directive({
   selector: 'textarea[wrAutosize]',
-  host: { style: 'overflow: hidden; resize: none;', '(input)': 'onInput()' },
+  // Bound rather than a static `style` attribute: a real attribute is refused
+  // under `style-src 'self'`, and the textarea then keeps the native resize
+  // grip, which fights the directive's own height management.
+  host: { '[style.overflow]': "'hidden'", '[style.resize]': "'none'", '(input)': 'onInput()' },
 })
 export class WrAutosize {
   readonly minRows = input(1, { transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 1)) });

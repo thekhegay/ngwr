@@ -5,9 +5,14 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
+
+/** Escape a string for use inside a double-quoted CSS `<string>`. */
+function cssString(value: string): string {
+  return value.replace(/[\\"]/g, '\\$&').replace(/[\n\r\f]/g, char => `\\${char.codePointAt(0)!.toString(16)} `);
+}
 
 /**
  * Breadcrumb navigation. Project `<wr-breadcrumbs-item>` children — each keeps
@@ -36,7 +41,7 @@ import { useI18nText } from 'ngwr/i18n';
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-breadcrumbs',
-    '[style.--wr-breadcrumbs-separator]': "'\"' + separator() + '\"'",
+    '[style.--wr-breadcrumbs-separator]': 'separatorValue()',
   },
 })
 export class WrBreadcrumbs {
@@ -54,4 +59,11 @@ export class WrBreadcrumbs {
   // announced in Russian on the same page while this one stayed "Breadcrumbs", and
   // the only escape was restating `[ariaLabel]` on every trail.
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'breadcrumbs.label', 'Breadcrumbs');
+
+  // The glyph is WRAPPED in quotes here and unwrapped by `content:` in the
+  // stylesheet, so an unescaped `"` inside it closes the library's own string
+  // and the rest of the value is parsed as CSS — `/" url("…") "` computes to
+  // `content: "/" url("…") ""`, an image the browser fetches. Escaping is the
+  // whole fix, and it is lossless: a separator that IS a quote still renders.
+  protected readonly separatorValue = computed(() => `"${cssString(this.separator())}"`);
 }

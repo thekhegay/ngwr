@@ -608,6 +608,125 @@ describe('parseMarkdown — regressions', () => {
     expect(performance.now() - started).toBeLessThan(2000);
   });
 
+  it('scans an unclosed link destination in linear time', () => {
+    // The payloads are verbatim from a security audit of 13.0.0, which rated this
+    // the highest-impact issue in the library because it needs no misconfiguration
+    // at all: `<wr-markdown>` documents its input as untrusted, so a stored
+    // comment of this shape freezes the tab of everyone who loads the thread, and
+    // `[streaming]` re-parses the whole buffer on every chunk.
+    //
+    // `matchLink` finds the label's `]` immediately and then walks forward for a
+    // balancing `)` that never comes — to the end of the line, for every one of
+    // the 16,384 openers. Measured in a production build: 18 ms at 10 KB, 49 at
+    // 20, 220 at 40, 1043 at 80, 3830 at 160. That ~4x per doubling is the whole
+    // finding. {@link MAX_DESTINATION_NESTING} stops the walk after 32 unmatched
+    // `(`, which every later `[…](` contributes one of.
+    //
+    // The bound is loose for the same reason as the spec above: it asserts "not
+    // quadratic". These four sum to ~4.3 seconds unfixed and ~25 ms fixed.
+    const started = performance.now();
+
+    const openDestination = parseMarkdown('[a](x'.repeat(16384));
+    parseMarkdown('see [1](ref '.repeat(8192));
+    parseMarkdown('![a](x'.repeat(13653));
+    parseMarkdown('[a]((x)'.repeat(11703));
+    parseMarkdown('[a](x'.repeat(16384), { streaming: true });
+
+    expect(performance.now() - started).toBeLessThan(1500);
+    // And it still renders as what it is: inert paragraph text, no link, nothing
+    // dropped. The fix is a bound on work, not a change of meaning.
+    expect(openDestination).toHaveLength(1);
+    expect(inlinesOf(openDestination[0]).every(node => node.kind === 'text')).toBe(true);
+    expect(plainText(inlinesOf(openDestination[0]))).toBe('[a](x'.repeat(16384));
+  });
+
+  it('scans an unclosed autolink in linear time', () => {
+    // The sibling the destination bound does NOT cover, found by sweeping every
+    // unclosed construct after that fix landed — an unclosed opener rarely breaks
+    // one production alone. `AUTOLINK_RE`'s content class admitted `<`, so on
+    // `<http://a<http://a<…` the scheme matched, the class ran to the end of the
+    // document hunting a `>`, and backtracked one character at a time, once per
+    // `<`. Measured on the published 13.0.0: 7 ms at 10 KB, 30 at 20, 119 at 40,
+    // 419 at 80, 1708 at 160 — the same ~4x per doubling as the destination scan.
+    //
+    // The fix is CommonMark's own class, `[^<>\x00-\x20]*`, so this is a
+    // correctness repair rather than a budget: `<` was never legal autolink
+    // content. `<a:b` was always fast, which is why the shape reads as harmless in
+    // a small test — a one-character scheme fails the alternation immediately.
+    const started = performance.now();
+
+    const openAutolink = parseMarkdown('<http://a'.repeat(18204));
+    parseMarkdown('<mailto:a'.repeat(18204));
+
+    expect(performance.now() - started).toBeLessThan(1000);
+    // Still one paragraph, and nothing is dropped: the bare-URL linkifier picks
+    // each `http://a` up as a link with the `<` left as text beside it, which is
+    // what the unfixed parser produced for this input too.
+    expect(openAutolink).toHaveLength(1);
+    expect(inlinesOf(openAutolink[0]).length).toBeGreaterThan(0);
+  });
+
+  it('still reads an autolink, and stops one swallowing a `<`', () => {
+    expect(inlinesOf(one('<https://ok.example>'))).toEqual([
+      {
+        kind: 'link',
+        href: 'https://ok.example',
+        title: null,
+        children: [{ kind: 'text', value: 'https://ok.example' }],
+      },
+    ]);
+
+    // The one input whose meaning changed, and the change is the point: the old
+    // class ran through the `<` and produced a link to `http://a<b`. Now the
+    // autolink refuses, and the bare-URL linkifier takes `http://a` — leaving the
+    // `<b>` beside it as text.
+    const hrefs = inlinesOf(one('<http://a<b>'))
+      .filter(node => node.kind === 'link')
+      .map(node => (node as { href: string }).href);
+
+    expect(hrefs).toEqual(['http://a']);
+  });
+
+  it('caps how deep a link destination may nest parentheses', () => {
+    // The bound that buys the scan above. 31 pairs inside the destination is the
+    // last depth that parses; the 32nd `(` refuses the link outright, the way
+    // cmark's own `manual_scan_link_url` does. No URL is shaped like either.
+    const nest = (pairs: number): string => `[a](${'('.repeat(pairs)}x${')'.repeat(pairs)})`;
+
+    expect(parseInlines(nest(1))).toEqual([
+      { kind: 'link', href: '(x)', title: null, children: [{ kind: 'text', value: 'a' }] },
+    ]);
+    expect(parseInlines(nest(31))[0]).toMatchObject({ kind: 'link' });
+    expect(parseInlines(nest(32)).every(node => node.kind === 'text')).toBe(true);
+    expect(plainText(parseInlines(nest(32)))).toBe(nest(32));
+  });
+
+  it('reads the hard-break test off the source, not off the accumulated text', () => {
+    // The second quadratic on this one line, found while fixing the first. A
+    // regex retried from every position was replaced by `text.endsWith('  ')` —
+    // which is quadratic too, for a reason that never shows up in a small case:
+    // `text` is built with `+=`, so it is a rope, and reading its tail flattens
+    // the whole thing on every newline. 200,000 short lines cost 3.5 seconds of
+    // pure copying; the same loop without the test costs 7 ms.
+    //
+    // Worth noting what this needs, because it is less than the payload above:
+    // nothing malformed. A long document of short lines is ordinary prose, and
+    // the spec beside this one missed it only by using 2,500 lines instead.
+    const started = performance.now();
+
+    parseMarkdown('a\n'.repeat(200000));
+
+    expect(performance.now() - started).toBeLessThan(1000);
+    // The predicate itself is unchanged, and these are the cases that pin it: two
+    // trailing spaces break, one does not, and the spaces never reach the text.
+    expect(inlinesOf(one('a  \nb')).map(node => node.kind)).toEqual(['text', 'break', 'text']);
+    expect(plainText(inlinesOf(one('a  \nb')))).toBe('a b');
+    expect(inlinesOf(one('a \nb')).map(node => node.kind)).toEqual(['text']);
+    // A construct closing right at the newline is not a break, whatever it holds:
+    // `text` is empty there, and the two spaces belong to the code span.
+    expect(inlinesOf(one(`${TICK}a  ${TICK}\nb`)).map(node => node.kind)).toEqual(['code', 'text']);
+  });
+
   it('does not let one block’s failed marker refuse a later block’s good one', () => {
     // The memo that buys the linear scan above stores an INDEX, and the context
     // it lived on spanned the whole document — so a stray `*` at offset 0 of one

@@ -5,10 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, isDevMode } from '@angular/core';
 
 import { WrIconRegistry } from './icon-registry';
 import type { WrIconDef, WrIconName } from './interfaces';
+import { type WrIconStripReport, sanitizeIcon } from './utils';
 
 /**
  * Renders a registered SVG icon.
@@ -36,6 +38,7 @@ export class WrIcon {
   readonly name = input.required<WrIconName>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly doc = inject(DOCUMENT);
 
   /**
    * Every icon visible from this position, walked up the whole chain of
@@ -78,17 +81,82 @@ export class WrIcon {
               `shadows icons registered on an ancestor component.`
           );
         }
-        this.host.nativeElement.innerHTML = '';
+        this.clear();
         return;
       }
 
-      this.host.nativeElement.innerHTML = icon.data;
+      // Rebuilt from an allowlist rather than assigned to `innerHTML`, which
+      // ran an `onload` on the root, an `<image onerror>`, an `<img>` smuggled
+      // in after a closed `</svg>` and anything inside a `<foreignObject>` —
+      // in production builds, with the app's own origin. `provideWrIcons()`
+      // data is untrusted the same way `<wr-markdown>`'s input is: a tenant
+      // logo or a fetched icon pack is a normal way to fill it. Building nodes
+      // also keeps `<wr-icon>` clear of Trusted Types, which refuses the
+      // `innerHTML` write outright.
+      const report = isDevMode() ? { elements: new Set<string>(), attributes: new Set<string>() } : undefined;
+      const svg = sanitizeIcon(this.doc, icon.data, report);
+
+      if (!svg) {
+        if (isDevMode()) {
+          // eslint-disable-next-line no-console -- misconfiguration must be visible, but must not throw
+          console.error(
+            `[NGWR] Icon "${name}" has no <svg> root element and cannot be rendered. ` +
+              `Custom icons must be valid SVG markup.`
+          );
+        }
+        this.clear();
+        return;
+      }
 
       // Every hand-written inline SVG in the library carries aria-hidden;
       // registered icons went in without it, so a decorative glyph could be
       // announced — usually as a bare "graphic" beside the label it decorates.
       // Consumers that need a name put it on the interactive host instead.
-      this.host.nativeElement.querySelector('svg')?.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('aria-hidden', 'true');
+
+      this.clear();
+      this.host.nativeElement.appendChild(svg);
+
+      if (report) this.reportStripped(name, icon, report);
     });
   }
+
+  /**
+   * `replaceChildren()` would say this in one call, but domino — the DOM
+   * `@angular/platform-server` renders into — does not implement it, and
+   * `innerHTML = ''` is the write Trusted Types refuses.
+   */
+  private clear(): void {
+    const el = this.host.nativeElement;
+    while (el.firstChild) el.removeChild(el.firstChild);
+  }
+
+  /**
+   * Say what the allowlist removed, once per registered icon.
+   *
+   * A silently stripped icon is the failure mode this rebuild could introduce:
+   * a consumer's own glyph renders blank or wrong and nothing anywhere says
+   * why. Keyed on the definition object, so a page with fifty instances of the
+   * same icon warns once and an icon nobody renders never warns at all.
+   */
+  private reportStripped(name: string, icon: WrIconDef, report: WrIconStripReport): void {
+    if (WrIcon.reported.has(icon)) return;
+    if (report.elements.size === 0 && report.attributes.size === 0) return;
+    WrIcon.reported.add(icon);
+
+    const removed = [
+      report.elements.size ? `elements: ${[...report.elements].join(', ')}` : '',
+      report.attributes.size ? `attributes: ${[...report.attributes].join(', ')}` : '',
+    ].filter(Boolean);
+
+    // eslint-disable-next-line no-console -- a stripped icon must not be silent
+    console.warn(
+      `[NGWR] Icon "${name}" was rendered without part of its markup — ${removed.join('; ')}. ` +
+        `Registered icon data is treated as untrusted and rebuilt from an allowlist of SVG ` +
+        `shape, paint and text elements, so event handlers, <script>, <style>, <image>, ` +
+        `<foreignObject>, <a>, SMIL animation and non-fragment hrefs never reach the DOM.`
+    );
+  }
+
+  private static readonly reported = new WeakSet<WrIconDef>();
 }

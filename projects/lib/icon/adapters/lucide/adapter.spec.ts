@@ -91,4 +91,53 @@ describe('lucide adapter', () => {
   it('accepts an empty bag', () => {
     expect(lucideIcons({})).toEqual([]);
   });
+
+  /**
+   * The serializer built `${key}="${value}"` out of caller-supplied strings and
+   * escaped neither half, so a `Record<string, string>` whose signature looks
+   * inert could write markup. Both payloads are the audit's, verbatim.
+   */
+  describe('hostile input', () => {
+    it('escapes a value that would otherwise close its own attribute', () => {
+      const node: LucideIconNode = [['image', { href: `x" onerror="window.__hit('lucide-value-breakout')` }]];
+
+      const { data } = lucide('evil', node);
+
+      expect(data).not.toContain('onerror="');
+      expect(data).toContain('&quot;');
+    });
+
+    it('escapes the four characters that can leave an attribute', () => {
+      const node: LucideIconNode = [['path', { d: `a&b<c>d"e` }]];
+
+      expect(lucide('escapes', node).data).toContain('<path d="a&amp;b&lt;c&gt;d&quot;e"/>');
+    });
+
+    it('refuses an attribute name that is not a name', () => {
+      // A key carrying a quote or a space breaks out through the NAME half,
+      // which no amount of value escaping reaches.
+      const node: LucideIconNode = [['path', { d: 'M1 1', 'x" onerror="alert(1)': '2' }]];
+
+      const { data } = lucide('evil', node);
+
+      expect(data).toContain('<path d="M1 1"/>');
+      expect(data).not.toContain('onerror');
+    });
+
+    it('refuses a tag that is not a name, and emits nothing for it', () => {
+      const node: LucideIconNode = [['path onload="alert(1)" x', { d: 'M1 1' }]];
+
+      expect(lucide('evil', node).data).toContain('></svg>');
+    });
+
+    it('still serializes a plain handler NAME, which the render sink refuses', () => {
+      // `onerror` is a valid attribute name, so `onerror="…"` is its only
+      // honest serialisation — escaping cannot express the difference. What
+      // keeps it out of the DOM is `<wr-icon>` rebuilding from an allowlist;
+      // pinned here so nobody reads this adapter as the control.
+      const node: LucideIconNode = [['image', { href: 'x', onerror: `window.__hit('lucide-attr-name')` }]];
+
+      expect(lucide('evil', node).data).toContain('onerror=');
+    });
+  });
 });

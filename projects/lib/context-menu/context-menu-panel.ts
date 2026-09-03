@@ -26,7 +26,11 @@ import { Component, TemplateRef, ViewEncapsulation, viewChild } from '@angular/c
   template: '<ng-template><div class="wr-context-menu" role="menu"><ng-content /></div></ng-template>',
   exportAs: 'wrContextMenu',
   encapsulation: ViewEncapsulation.None,
-  host: { style: 'display:none' },
+  // A BOUND display rather than a static `style` attribute: Angular writes a
+  // binding through `style.setProperty`, which no CSP governs, while a real
+  // `style="…"` attribute is refused under `style-src 'self'` — and this host
+  // would then lay out an empty box in the middle of the content.
+  host: { '[style.display]': "'none'" },
 })
 export class WrContextMenuPanel {
   /** The internal template the directive portals into the overlay. @internal */

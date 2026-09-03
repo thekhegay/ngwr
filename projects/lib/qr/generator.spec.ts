@@ -169,4 +169,40 @@ describe('drawQrCode', () => {
     expect(calls.every(call => call.op === 'fillRect')).toBe(true);
     expect(calls.some(call => call.op === 'drawImage')).toBe(false);
   });
+
+  it('refuses an icon URL whose scheme an image must not fetch', () => {
+    // A security audit of 13.0.0 bound each of these to `[iconUrl]` and recorded a
+    // real outbound request from the app's origin: the value reached
+    // `new Image().src` verbatim, which is precisely what Angular sanitises when a
+    // template writes `[src]` itself. Loading is done here, so the app never got
+    // that check. The payloads are the audit's own.
+    const loaded: string[] = [];
+    class Probe {
+      crossOrigin = '';
+      onload: (() => void) | null = null;
+      set src(value: string) {
+        loaded.push(value);
+      }
+    }
+    vi.stubGlobal('Image', Probe);
+
+    for (const url of [
+      'javascript:fetch("https://beacon.example")',
+      'data:text/html,<script>x</script>',
+      'data:image/svg+xml,<svg onload=x>',
+    ]) {
+      const { canvas } = stub();
+      drawQrCode(canvas, options({ iconUrl: url, iconSize: 42 }));
+    }
+    expect(loaded).toEqual([]);
+
+    // And every shape a real logo takes still loads, including a raster data URI.
+    for (const url of ['/logo.png', 'https://cdn.example/logo.webp', 'data:image/png;base64,iVBORw0KGgo=']) {
+      const { canvas } = stub();
+      drawQrCode(canvas, options({ iconUrl: url, iconSize: 42 }));
+    }
+    expect(loaded).toHaveLength(3);
+
+    vi.unstubAllGlobals();
+  });
 });

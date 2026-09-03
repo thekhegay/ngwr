@@ -46,10 +46,49 @@ function drawModules(ctx: CanvasRenderingContext2D, code: qrcodegen.QrCode, padd
   }
 }
 
+/**
+ * The `iconUrl` a consumer bound, or `null` when it names a scheme an image must
+ * not fetch.
+ *
+ * A security audit of 13.0.0 bound an attacker-shaped `[iconUrl]` and watched the
+ * page make the request: the value went to `new Image().src` verbatim, which is
+ * the one thing Angular would have sanitised had the template written `[src]`
+ * itself. The library does the loading here, so the app loses that protection
+ * without being told.
+ *
+ * Same rules as `safeMarkdownUrl` in `ngwr/markdown`, and deliberately a copy
+ * rather than an import: an entry point may not depend on another's internals,
+ * and one call site does not earn a shared util. A third would — put it in
+ * `ngwr/utils` beside `isSafeCssValue` when that happens.
+ *
+ * `data:` is allowed for raster types only. An SVG can carry script, and
+ * `data:text/html` is a same-origin document.
+ */
+function safeIconUrl(raw: string): string | null {
+  const url = raw.trim();
+  // Control characters are stripped BEFORE the scheme is read: a browser ignores
+  // them while resolving, so a check reading the raw string sees a relative path
+  // and waves `java\u0000script:` through.
+  // eslint-disable-next-line no-control-regex
+  const bare = url.replace(/[\s\u0000-\u001f\u007f]/g, '');
+  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(bare);
+
+  // No scheme: a relative path or `//host` — nothing executable.
+  if (!scheme) return url;
+
+  const name = scheme[1].toLowerCase();
+  if (name === 'data') return /^data:image\/(?:png|jpe?g|gif|webp|avif);base64,[a-z0-9+/=]+$/i.test(bare) ? bare : null;
+
+  return name === 'http' || name === 'https' ? url : null;
+}
+
 function overlayIcon(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, options: DrawOptionsInternal): void {
+  const src = safeIconUrl(options.iconUrl!);
+  if (src === null) return;
+
   const iconImg = new Image();
   iconImg.crossOrigin = 'anonymous';
-  iconImg.src = options.iconUrl!;
+  iconImg.src = src;
 
   const ratio = canvas.width / options.size;
   const iconPx = (options.iconSize ?? 42) * ratio;

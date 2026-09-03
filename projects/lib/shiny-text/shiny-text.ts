@@ -16,7 +16,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
-import { numAttr } from 'ngwr/utils';
+import { isSafeCssValue, numAttr } from 'ngwr/utils';
 
 /**
  * Animated shimmer-over-text effect. A bright stripe sweeps across the
@@ -88,8 +88,16 @@ export class WrShinyText {
   protected readonly totalDuration = computed(() => this.speed() + this.delay());
 
   protected readonly gradient = computed(() => {
-    const base = this.color() ?? 'var(--wr-shiny-text-base)';
-    const shine = this.shineColor() ?? 'var(--wr-shiny-text-shine)';
+    // Both colours are CONCATENATED into the gradient below, so a value that
+    // balances the surrounding parens escapes its stop and adds a `url()` layer
+    // the browser then fetches. Anything that would not stay in its slot falls
+    // back to the theme token — see `isSafeCssValue`.
+    const base = this.slot(this.color(), 'var(--wr-shiny-text-base)');
+    const shine = this.slot(this.shineColor(), 'var(--wr-shiny-text-shine)');
     return `linear-gradient(${this.spread()}deg, ${base} 0%, ${base} 35%, ${shine} 50%, ${base} 65%, ${base} 100%)`;
   });
+
+  private slot(value: string | null, fallback: string): string {
+    return value !== null && isSafeCssValue(value) ? value : fallback;
+  }
 }

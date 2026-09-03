@@ -8,10 +8,30 @@ concurrency:
   group: publish-${{ github.ref }}
   cancel-in-progress: false
 
+# Read-only by DEFAULT; `publish` elevates itself and no other job does. These
+# two lines used to sit here, workflow-wide, which handed `id-token: write` — the
+# npm Trusted Publisher credential — to `detect` and `find-superseded-major`,
+# jobs that do nothing but read git history. A token is in scope for every step
+# of every job that holds it, so that was the publishing credential sitting live
+# through checkouts that never publish anything.
+#
+# `archive-superseded-major` calls a reusable workflow, which takes its cap from
+# here; archive-docs.yml already declares `contents: read` for itself, so the
+# effective permission there is unchanged.
 permissions:
-  contents: write # tag + create release
-  id-token: write # npm publish via Trusted Publisher OIDC
+  contents: read
 
+# Third-party actions are pinned to commit SHAs in THIS workflow and by tag
+# everywhere else, and the asymmetry is deliberate: a tag is mutable, and this is
+# the only workflow whose jobs can mint the npm Trusted Publisher credential. A
+# moved tag here could publish an `ngwr` carrying a valid provenance attestation
+# — the exact property consumers are asked to trust.
+#
+# Dependabot keeps them current: the `github-actions` ecosystem resolves a pinned
+# SHA back to its release through the trailing version comment, so these ride the
+# same grouped minor/patch PR as every other action and a major still arrives
+# alone. KEEP THE COMMENT when you move a SHA — without it the bump is an opaque
+# hash and Dependabot loses the thread.
 jobs:
   detect:
     name: Detect release commit
@@ -22,7 +42,7 @@ jobs:
       tag: ${{ steps.check.outputs.tag }}
       is_rc: ${{ steps.check.outputs.is_rc }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - id: check
         name: Inspect head commit
@@ -48,20 +68,26 @@ jobs:
     if: needs.detect.outputs.is_release == 'true'
     runs-on: ubuntu-latest
 
+    # The only job that needs more than read. `id-token: write` is the npm
+    # Trusted Publisher credential and lives here, not at workflow level.
+    permissions:
+      contents: write # tag + create release
+      id-token: write # npm publish via Trusted Publisher OIDC
+
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
       # No dependency cache in the publishing job: it holds an OIDC token
       # (Trusted Publisher), and a poisoned cache would hand that token to
       # attacker-controlled code. `package-manager-cache: false` also opts out
       # of the automatic caching keyed off package.json's `packageManager`.
       # Costs this job a cold `pnpm install`; it only runs on release commits.
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           package-manager-cache: false
@@ -92,7 +118,7 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ needs.detect.outputs.tag }}
           name: ${{ needs.detect.outputs.tag }}
@@ -101,9 +127,43 @@ jobs:
           make_latest: ${{ needs.detect.outputs.is_rc == 'false' }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Ensure npm CLI supports Trusted Publishing
-        # OIDC support landed in npm 11.5.1.
-        run: npm install -g npm@latest
+      # The npm that publishes is the one bundled with the Node installed above,
+      # and deliberately NOT a fresh `npm install -g npm@latest`. Same threat as
+      # the disabled cache forty lines up, through a different door: this job
+      # holds the Trusted Publisher OIDC token, and `npm@latest` resolves at run
+      # time — no lockfile, no review, no Dependabot — so whatever was published
+      # to the `npm` package minutes earlier would execute with that credential
+      # in scope. `pnpm install --frozen-lockfile` below runs far more foreign
+      # code in the same job, but every byte of it is pinned by a lockfile
+      # someone reviewed; this one step was the only unreviewed resolution.
+      #
+      # Not hypothetical churn, either: v13.0.0 was published by npm 12.0.2
+      # (`npm view ngwr@13.0.0 _npmVersion`), while every Node 24 bundles an
+      # npm 11.x — 11.13.0 on the 24.16.0 that `.nvmrc` pins. The publishing
+      # tool crossed a MAJOR that nobody in this repo chose or noticed.
+      #
+      # Nothing is pinned here on purpose: a pinned npm nobody bumps rots into
+      # its own problem, and `node-version` above is already the single dial that
+      # decides this — Node's releases carry npm forward. What replaces a pin is
+      # an ASSERTION, so the floor is checked rather than assumed and a runner
+      # below it fails here, by name, instead of somewhere inside `npm publish`.
+      # If it ever fails: raise `node-version` first; only if that is not enough,
+      # install an EXACT version. Never `@latest`.
+      - name: Assert npm supports Trusted Publishing
+        run: |
+          floor=11.5.1 # OIDC Trusted Publishing landed in npm 11.5.1.
+          have=$(npm --version)
+          echo "npm $have, bundled with node $(node --version)"
+          # Compared component by component in bash rather than with `sort -V`,
+          # so the step that gates every release does not depend on which
+          # coreutils the runner image ships. A component that is not a number
+          # reads as 0 and therefore FAILS the comparison — the safe direction.
+          IFS=. read -r fa fb fc <<<"$floor"
+          IFS=. read -r ha hb hc <<<"${have%%-*}"
+          if (( ha < fa || (ha == fa && (hb < fb || (hb == fb && hc < fc))) )); then
+            echo "::error::npm $have is below the $floor floor for OIDC Trusted Publishing — raise node-version, or install an exact npm version, but never npm@latest."
+            exit 1
+          fi
 
       - name: Publish to npm (Trusted Publisher)
         # Run from the package dir — a bare `dist/lib` argument is parsed by
@@ -137,7 +197,7 @@ jobs:
       tag: ${{ steps.pick.outputs.tag }}
       path: ${{ steps.pick.outputs.path }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Tags are the whole point of this job.
           fetch-depth: 0

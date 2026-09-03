@@ -22,7 +22,13 @@ import { validateIcon } from '../utils';
  *
  * In dev mode, each icon is validated for common issues (missing
  * `viewBox`, malformed root). Validation is dropped from production
- * builds via `isDevMode()` tree-shaking.
+ * builds via `isDevMode()` tree-shaking, and it is a rendering check rather
+ * than a security one — see {@link validateIcon}.
+ *
+ * Icon `data` is treated as **untrusted** at render: `<wr-icon>` rebuilds the
+ * glyph from an allowlist instead of writing the string to `innerHTML`, so a
+ * set fetched at runtime or supplied by a tenant cannot execute in the app's
+ * origin. Dev mode names anything the allowlist removed.
  *
  * @example
  * ```ts

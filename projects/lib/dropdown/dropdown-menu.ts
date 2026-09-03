@@ -32,7 +32,11 @@ let uid = 0;
     '<ng-template><div class="wr-dropdown-menu" role="menu" [attr.id]="menuId()" [attr.aria-labelledby]="triggerId() || null"><ng-content /></div></ng-template>',
   exportAs: 'wrDropdownMenu',
   encapsulation: ViewEncapsulation.None,
-  host: { style: 'display:none' },
+  // A BOUND display rather than a static `style` attribute: Angular writes a
+  // binding through `style.setProperty`, which no CSP governs, while a real
+  // `style="…"` attribute is refused under `style-src 'self'` — and this host
+  // would then lay out an empty box in the middle of the content.
+  host: { '[style.display]': "'none'" },
 })
 export class WrDropdownMenu {
   /** The internal template the directive portals into the overlay. @internal */

@@ -14,7 +14,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, ElementRef, PLATFORM_ID, ViewEncapsulation, computed, effect, inject, input } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { numAttr } from 'ngwr/utils';
+import { isSafeCssValue, numAttr } from 'ngwr/utils';
 
 const RADIANS_TO_DEG = 180 / Math.PI;
 
@@ -60,7 +60,11 @@ function buildGlowVars(glowColor: string, intensity: number): Record<string, str
 
 function buildGradientVars(colors: readonly string[]): Record<string, string> {
   const out: Record<string, string> = {};
-  const palette = colors.length > 0 ? colors : DEFAULT_COLORS;
+  // Each entry is INTERPOLATED into the `radial-gradient()` below, so a value
+  // that balances the parens around it escapes into a sibling layer and can add
+  // a `url()` the browser fetches. One unsafe entry discards the palette — the
+  // same all-or-nothing rule `wr-gradient-text` follows, for the same reason.
+  const palette = colors.length > 0 && colors.every(color => isSafeCssValue(color)) ? colors : DEFAULT_COLORS;
   for (let i = 0; i < GRADIENT_VAR_NAMES.length; i++) {
     const colour = palette[Math.min(GRADIENT_COLOR_INDEX[i], palette.length - 1)];
     out[GRADIENT_VAR_NAMES[i]] = `radial-gradient(at ${GRADIENT_POSITIONS[i]}, ${colour} 0px, transparent 50%)`;
@@ -191,8 +195,13 @@ export class WrBorderGlow {
     if (colors !== null) Object.assign(vars, buildGradientVars(colors));
     // Colour vars are written only when set — otherwise the stylesheet's
     // per-theme defaults (light vs dark) take over.
+    // Composed, not passed through: `_rules.scss` reads this var inside a
+    // `linear-gradient()` and again in a `background` shorthand, where a `url()`
+    // is valid and fetches. An audit bound `url("…")` here and recorded the
+    // request. Validated like its `colors` sibling on this same component —
+    // leaving one of the two unchecked is two rules inside one component.
     const bg = this.backgroundColor();
-    if (bg !== null) vars['--wr-border-glow-bg'] = bg;
+    if (bg !== null && isSafeCssValue(bg)) vars['--wr-border-glow-bg'] = bg;
     const glow = this.glowColor();
     if (glow !== null) Object.assign(vars, buildGlowVars(glow, this.glowIntensity()));
     return vars;

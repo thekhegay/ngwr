@@ -5,15 +5,44 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/** The same 24×24 stroked ✕ the rest of the library's chrome draws (alert, toast, lightbox). */
+const CLOSE_ICON_ATTRS: readonly (readonly [string, string])[] = [
+  ['class', 'wr-icon__svg'],
+  ['viewBox', '0 0 24 24'],
+  ['fill', 'none'],
+  ['stroke', 'currentColor'],
+  ['stroke-width', '2'],
+  ['stroke-linecap', 'round'],
+  ['stroke-linejoin', 'round'],
+  ['aria-hidden', 'true'],
+];
+const CLOSE_ICON_PATHS: readonly string[] = ['M18 6 6 18', 'm6 6 12 12'];
+
 /**
- * The same 24×24 stroked ✕ the rest of the library's chrome draws (alert, toast,
- * lightbox). Static markup — the caller's label goes on via `setAttribute`, so
- * nothing from a catalog or a consumer is ever parsed as HTML.
+ * Builds the ✕ node by node.
+ *
+ * It was one `innerHTML = CLOSE_ICON`, and the string was a compile-time
+ * constant, so it was never an injection risk — it was an AVAILABILITY one.
+ * Under `require-trusted-types-for 'script'` an `innerHTML` write throws
+ * `TrustedHTML assignment` whatever the string is, and the throw landed after
+ * the overlay was on screen: a modal with no ✕, no backdrop subscription and no
+ * Escape handler, over the whole application. `createElementNS` is not a
+ * Trusted Types sink, so there is nothing left to police.
  */
-const CLOSE_ICON =
-  '<svg class="wr-icon__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"' +
-  ' stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-  '<path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>';
+function createCloseIcon(doc: Document): SVGSVGElement {
+  const svg = doc.createElementNS(SVG_NS, 'svg');
+  // `setAttribute`, not `.className` — on an SVG element that property is an
+  // `SVGAnimatedString` and assigning a string to it silently does nothing.
+  for (const [name, value] of CLOSE_ICON_ATTRS) svg.setAttribute(name, value);
+  for (const d of CLOSE_ICON_PATHS) {
+    const path = doc.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', d);
+    svg.appendChild(path);
+  }
+  return svg;
+}
 
 /**
  * Appends a dismiss (✕) button to a service-opened overlay panel.
@@ -42,7 +71,7 @@ export function wrAppendOverlayClose(
   button.type = 'button';
   button.className = className;
   button.setAttribute('aria-label', label);
-  button.innerHTML = CLOSE_ICON;
+  button.appendChild(createCloseIcon(host.ownerDocument));
   button.addEventListener('click', onClose);
   host.appendChild(button);
   return button;

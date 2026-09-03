@@ -36,6 +36,15 @@ import type { WrIconDef } from './interfaces';
  *   ],
  * });
  * ```
+ *
+ * **`svg` is treated as untrusted.** It is a string, so it is a natural place
+ * for a tenant's uploaded logo or an icon pack fetched from an API to end up,
+ * and `<wr-icon>` used to write it to `innerHTML`. It no longer does: the glyph
+ * is rebuilt from an allowlist of SVG shape, paint and text elements, so
+ * `<script>`, `<style>`, `<image>`, `<foreignObject>`, `<a>`, SMIL animation,
+ * every `on*` handler, `style` attributes and non-fragment `href`s are dropped
+ * before anything reaches the DOM. In dev mode the component names what it
+ * removed, so a legitimate icon that loses something says so out loud.
  */
 export function svgIcon(name: string, svg: string): WrIconDef {
   return { name, data: svg };
