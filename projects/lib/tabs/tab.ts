@@ -19,7 +19,7 @@ import {
 
 import { randomId } from 'ngwr/utils';
 
-import { WR_TABS } from './tokens';
+import { WR_TABS, WR_TABS_ROUTING } from './tokens';
 
 /**
  * Single tab. Two modes, decided by inputs:
@@ -28,7 +28,9 @@ import { WR_TABS } from './tokens';
  *   panel when this tab is active.
  * - **Router tab** — set `routerLink` and the tab becomes a link; the
  *   parent skips its content panel and the consumer drops a
- *   `<router-outlet>` below the tab strip.
+ *   `<router-outlet>` below the tab strip. Router mode needs the
+ *   `WrTabsRouting` directive from `ngwr/tabs/router` in the same
+ *   `imports: []`; without it a strip carrying a `routerLink` throws.
  */
 @Component({
   selector: 'wr-tab',
@@ -62,7 +64,46 @@ export class WrTab {
   private readonly parent = inject(WR_TABS, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
 
+  /**
+   * The routing adapter published by `WrTabsRouting` on the parent `<wr-tabs>`
+   * element. A `<wr-tab>` is DECLARED inside `<wr-tabs>` in the consumer's
+   * template — content projection moves where it renders, not where it injects
+   * — so the parent's element injector is this one's, the same walk that
+   * resolves `WR_TABS` above.
+   */
+  private readonly routing = inject(WR_TABS_ROUTING, { optional: true });
+
   protected readonly isRouter = computed(() => this.routerLink() !== null);
+
+  /**
+   * Resolved href for a router tab — `null` for a content tab, and for a
+   * disabled one, which is how the anchor stops navigating at all.
+   * @internal
+   */
+  readonly routerHref = computed(() => {
+    const link = this.routerLink();
+    if (link === null || this.disabled()) return null;
+    return this.routing?.href(link) ?? null;
+  });
+
+  /**
+   * Whether the current route selects this tab. The strip publishes it as BOTH
+   * `aria-selected` and the `--active` class, off this one read, so the
+   * announced selection and the painted one cannot drift apart.
+   * @internal
+   */
+  readonly routerActive = computed(() => {
+    const link = this.routerLink();
+    if (link === null || this.disabled()) return false;
+    return this.routing?.isActive(link) ?? false;
+  });
+
+  /** Hand a click on this tab's anchor to the routing adapter. @internal */
+  navigate(event: MouseEvent): void {
+    const link = this.routerLink();
+    if (link === null || this.disabled()) return;
+    this.routing?.navigate(link, event);
+  }
 
   constructor() {
     if (this.parent) {

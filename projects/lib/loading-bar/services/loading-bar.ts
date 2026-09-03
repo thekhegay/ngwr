@@ -6,17 +6,23 @@
  */
 
 import { isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Service, PLATFORM_ID, type Signal, computed, inject, signal } from '@angular/core';
-import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
+import { Service, PLATFORM_ID, type Signal, computed, inject, signal } from '@angular/core';
 
 import type { WrLoadingState } from '../interfaces';
 
 /**
- * Singleton state machine for a top-of-page progress indicator. Driven
- * by router events out of the box, plus a manual `start()` / `complete()`
- * API for HTTP-interceptor-style usage.
+ * Singleton state machine for a top-of-page progress indicator: a counter of
+ * in-flight tasks and a tween between 0 and 1, driven through `start()` /
+ * `complete()`.
  *
  * Pair with `<wr-loading-bar>` to render the bar at the top of your shell.
+ *
+ * It knows nothing about the router on purpose. Naming `Router` here — even
+ * `{ optional: true }`, which is byte-for-byte identical to a required inject —
+ * put 66.3 kB of `@angular/router` into every app that rendered the bar,
+ * two thirds of what `ngwr/loading-bar` cost and 27× the component's own code.
+ * Call `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router` to have
+ * navigations drive it.
  *
  * @example
  * ```ts
@@ -30,8 +36,6 @@ import type { WrLoadingState } from '../interfaces';
  */
 @Service()
 export class WrLoadingBar {
-  private readonly router = inject(Router, { optional: true });
-  private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** Live count of pending "tasks" (manual + router). */
@@ -48,29 +52,6 @@ export class WrLoadingBar {
 
   private timer: ReturnType<typeof setInterval> | null = null;
   private holdTimer: ReturnType<typeof setTimeout> | null = null;
-
-  constructor() {
-    // Router-driven only in the browser. During prerender the initial
-    // navigation ran the whole cycle in the Node worker — including a 150 ms
-    // `setInterval` — and left `progress` at 1, because the reset that clears
-    // it is deferred and the HTML is serialized first. Every prerendered page
-    // shipped a full-width bar across the top until hydration.
-    if (!this.router || !this.isBrowser) return;
-
-    // Mirror router events: any in-flight navigation starts the bar,
-    // each terminal event releases one slot.
-    const sub = this.router.events.subscribe(event => {
-      if (event instanceof NavigationStart) this.start();
-      else if (
-        event instanceof NavigationEnd ||
-        event instanceof NavigationCancel ||
-        event instanceof NavigationError
-      ) {
-        this.complete();
-      }
-    });
-    this.destroyRef.onDestroy(() => sub.unsubscribe());
-  }
 
   /** Reserve a slot. The bar starts trickling as long as `count > 0`. */
   start(): void {

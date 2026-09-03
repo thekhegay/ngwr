@@ -8,25 +8,29 @@
   (scroll)="updateFades()"
 >
   @for (tab of tabs(); track tab.key()) {
-    @if (tab.routerLink(); as link) {
+    @if (tab.routerLink() !== null) {
       <!--
-        `aria-selected` comes off the SAME `routerLinkActive` that paints `--active`,
-        exported as `rla`, so the announced state and the painted one can never
-        disagree. Without it a `role="tablist"` shipped with no tab selected in any of
-        them: the route decides here, and the class it paints is invisible to
-        assistive tech.
+        `aria-selected` and `--active` come off the SAME `tab.routerActive()`, so the
+        announced state and the painted one can never disagree. Without it a
+        `role="tablist"` shipped with no tab selected in any of them: the route decides
+        here, and the class it paints is invisible to assistive tech.
+
+        A real `href` rather than a `[routerLink]`: the directive would drag
+        `@angular/router` into every content-only strip as well (see `WR_TABS_ROUTING`).
+        The href, the active match and the click all come from the adapter the
+        `ngwr/tabs/router` directive publishes, which is `RouterLink` doing the work.
       -->
       <a
-        #rla="routerLinkActive"
         class="wr-tabs__tab"
         role="tab"
-        routerLinkActive="wr-tabs__tab--active"
         [attr.id]="headerId(tab.key())"
-        [routerLink]="tab.disabled() ? null : link"
+        [attr.href]="tab.routerHref()"
+        [class.wr-tabs__tab--active]="tab.routerActive()"
         [class.wr-tabs__tab--disabled]="tab.disabled()"
         [attr.aria-disabled]="tab.disabled() ? true : null"
-        [attr.aria-selected]="rla.isActive"
+        [attr.aria-selected]="tab.routerActive()"
         [attr.tabindex]="tab.disabled() ? -1 : 0"
+        (click)="onRouterTabClick(tab, $event)"
       >
         {{ tab.title() }}
       </a>

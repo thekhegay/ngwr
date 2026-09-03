@@ -23,10 +23,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { WrTab } from './tab';
-import { WR_TABS, type WrTabsContext } from './tokens';
+import { WR_TABS, WR_TABS_ROUTING, type WrTabsContext } from './tokens';
 
 /**
  * Instance counter for the header / panel ids. Deterministic under prerender,
@@ -62,7 +61,10 @@ function idFragment(key: string): string {
  *   active-tab panel automatically.
  * - **Router** — any child with `routerLink` switches the whole strip
  *   into router mode; the parent skips its panel so the consumer can
- *   drop a `<router-outlet>` after it.
+ *   drop a `<router-outlet>` after it. That mode needs the `WrTabsRouting`
+ *   directive from `ngwr/tabs/router` alongside `WrTabs` in `imports: []`
+ *   — the strip itself names no `@angular/router` symbol, which is what
+ *   keeps a content-only strip free of the router.
  *
  * @example
  * ```html
@@ -72,7 +74,7 @@ function idFragment(key: string): string {
  *   <wr-tab key="two" title="Two">Second panel</wr-tab>
  * </wr-tabs>
  *
- * <!-- router tabs -->
+ * <!-- router tabs: imports: [WrTabs, WrTab, WrTabsRouting] -->
  * <wr-tabs>
  *   <wr-tab title="Overview" routerLink="overview" />
  *   <wr-tab title="Details" routerLink="details" />
@@ -93,7 +95,7 @@ function idFragment(key: string): string {
     '[class.wr-tabs--sm]': "size() === 'sm'",
     '[class.wr-tabs--lg]': "size() === 'lg'",
   },
-  imports: [NgTemplateOutlet, RouterLink, RouterLinkActive],
+  imports: [NgTemplateOutlet],
   providers: [
     {
       provide: WR_TABS,
@@ -122,8 +124,34 @@ export class WrTabs implements WrTabsContext {
    */
   private readonly isRtl = computed(() => this.dir?.valueSignal() === 'rtl');
 
-  /** When any child has a routerLink, the whole strip switches to router mode. */
-  protected readonly isRouter = computed(() => this.tabs().some(t => t.routerLink() !== null));
+  /**
+   * The routing adapter, when `WrTabsRouting` from `ngwr/tabs/router` is in the
+   * consumer's `imports`. `null` is the default and the whole point: the strip
+   * has no `@angular/router` import of its own, so a content-only tab strip
+   * costs no router bytes.
+   */
+  private readonly routing = inject(WR_TABS_ROUTING, { optional: true });
+
+  /**
+   * When any child has a routerLink, the whole strip switches to router mode.
+   *
+   * Throws rather than degrading when the adapter is missing. Falling back to
+   * content mode would render the tabs as `<button>`s that navigate nowhere and
+   * open an empty panel — a strip that looks right and does nothing, with the
+   * one missing import unnamed. The route is what selects a tab here, so there
+   * is no half of this that still works.
+   */
+  protected readonly isRouter = computed(() => {
+    const isRouter = this.tabs().some(t => t.routerLink() !== null);
+    if (isRouter && !this.routing) {
+      throw new Error(
+        '<wr-tabs>: a <wr-tab> sets `routerLink`, but no routing adapter is provided. ' +
+          "Add `WrTabsRouting` from 'ngwr/tabs/router' to the `imports` of the component that " +
+          'declares this strip.'
+      );
+    }
+    return isRouter;
+  });
 
   /** Content-mode: the tab whose key matches `active()` (or the first tab if none yet). */
   protected readonly activeTab = computed(() => {
@@ -207,6 +235,15 @@ export class WrTabs implements WrTabsContext {
   protected onTabClick(tab: WrTab): void {
     if (tab.disabled()) return;
     if (!this.isRouter()) this.activate(tab.key());
+  }
+
+  /**
+   * Click on a router tab's anchor. The anchor carries a real `href`, so a
+   * modified or middle click is left alone and the browser opens it the way it
+   * opens any link; only a plain left click is turned into a navigation.
+   */
+  protected onRouterTabClick(tab: WrTab, event: MouseEvent): void {
+    tab.navigate(event);
   }
 
   /** Per-instance prefix, so keys only have to be unique within one group. */

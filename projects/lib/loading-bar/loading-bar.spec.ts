@@ -15,8 +15,9 @@ import { WrLoadingBar } from './services/loading-bar';
 describe('WrLoadingBar', () => {
   const setup = (platform: 'browser' | 'server' = 'browser'): WrLoadingBar => {
     TestBed.resetTestingModule();
-    // No `Router` provided: the service takes it `{ optional: true }`, and the
-    // manual API is the documented interceptor usage.
+    // No router anywhere: the service names none. Navigations reach it only
+    // through `provideWrLoadingBarRouter()` from `ngwr/loading-bar/router`,
+    // which has its own spec next to it.
     TestBed.configureTestingModule({
       providers: platform === 'server' ? [{ provide: PLATFORM_ID, useValue: 'server' }] : [],
     });

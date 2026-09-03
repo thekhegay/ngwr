@@ -33,6 +33,8 @@ const reducedMotion = {
 describe('WrCircularText', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
   let animations: { effect: Keyframe[] | null; options: KeyframeAnimationOptions | undefined }[] = [];
+  /** Animations started minus animations cancelled. */
+  let running = 0;
   let animateBefore: PropertyDescriptor | undefined;
 
   const chars = (): HTMLElement[] => [
@@ -41,6 +43,7 @@ describe('WrCircularText', () => {
 
   const mount = async (providers: unknown[] = []): Promise<void> => {
     animations = [];
+    running = 0;
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({ providers: providers as never[] });
     fixture = TestBed.createComponent(Host);
@@ -58,8 +61,22 @@ describe('WrCircularText', () => {
     animateBefore = Object.getOwnPropertyDescriptor(Element.prototype, 'animate');
     Element.prototype.animate = function (keyframes: Keyframe[] | null, options?: KeyframeAnimationOptions) {
       animations.push({ effect: keyframes, options });
+      running++;
+      // Counted rather than a no-op: the spin runs `iterations: Infinity`, and an
+      // animation that is never cancelled keeps its target element alive — which
+      // is the one thing about this component's teardown a jsdom test can
+      // actually see. Cancelling twice has to stay idempotent, the way the real
+      // API is: a stub that decremented again would let a SECOND animation hide
+      // behind a repeated cancel of the first, which is exactly the shape of the
+      // defect being watched for.
+      let cancelled = false;
       return {
-        cancel: () => undefined,
+        cancel: () => {
+          if (cancelled) return;
+          cancelled = true;
+          running--;
+        },
+        pause: () => undefined,
         finish: () => undefined,
         onfinish: null,
         playbackRate: 1,
@@ -107,6 +124,24 @@ describe('WrCircularText', () => {
 
   it('spins for the duration it was given', () => {
     expect(animations.at(-1)!.options!.duration).toBe(20_000);
+  });
+
+  it('leaves no spin running when it is destroyed in the task that created it', async () => {
+    // Reachable by destroying the ring before it has painted — an `@if` that
+    // flips on and off inside one tick, or a list replaced before render. The
+    // input effect reaches `startOrSwap()` through a microtask, which lands
+    // AFTER the destroy hooks have run, so an animation started there had
+    // nothing left to cancel it. A normal teardown, asserted first, was always
+    // clean; this is the same component destroyed one tick earlier.
+    fixture.destroy();
+    expect(running).toBe(0);
+
+    const cycled = TestBed.createComponent(Host);
+    cycled.detectChanges();
+    cycled.destroy();
+    await Promise.resolve();
+
+    expect(running).toBe(0);
   });
 
   it('does not spin at all for someone who asked for less motion', async () => {

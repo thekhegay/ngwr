@@ -46,6 +46,17 @@ const REQUIRED_PROVIDERS: readonly RequiredProvider[] = [
     why: 'every date mode goes through an adapter; there is no built-in default',
   },
   {
+    // The bar itself needs no provider — `start()` / `complete()` work bare — so
+    // the rule names the ROUTER half, which is exactly the table's criterion: the
+    // component compiles, renders, and sits at 0% forever with nothing naming the
+    // cause. The subscription is opt-in because it is what pulls
+    // `@angular/router` into a bundle, and this project's own site shipped a dead
+    // bar for the length of one release by missing it.
+    test: /^WrLoadingBar/,
+    provider: "provideWrLoadingBarRouter() // from 'ngwr/loading-bar/router'",
+    why: 'without it the bar never responds to navigation; it only moves for manual start() / complete()',
+  },
+  {
     // Spelled out rather than `^WrT(Pipe|Directive)$`: `describeTest` in the
     // skill generator only names alternatives that are bare symbols, so a group
     // here would print "symbols matching …" instead of the two names. It used to

@@ -340,4 +340,31 @@ describe('WrCommandPalette teardown', () => {
     fixture.destroy();
     expect(destroy).toHaveBeenCalledTimes(1);
   });
+
+  /**
+   * The same case one tick earlier — destroyed in the task that opened it, before
+   * the microtask that builds the trap has run. The destroy hook fires FIRST and
+   * has nothing to destroy; the continuation then builds a trap on a panel Angular
+   * has already detached, and a `ConfigurableFocusTrap` plants two anchor elements
+   * in it and holds them, so that is retained DOM rather than a stray object.
+   */
+  it('builds no focus trap when it is destroyed in the task that created it', async () => {
+    const destroy = vi.fn();
+    const create = vi.fn(() => ({
+      destroy,
+      focusInitialElementWhenReady: () => Promise.resolve(true),
+    }));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: ConfigurableFocusTrapFactory, useValue: { create } }],
+    });
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    fixture.destroy();
+    await Promise.resolve();
+
+    expect(create, 'a trap was built after teardown, so nothing is left to destroy it').not.toHaveBeenCalled();
+    expect(destroy).not.toHaveBeenCalled();
+  });
 });
